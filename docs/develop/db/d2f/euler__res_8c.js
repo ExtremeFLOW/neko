@@ -6,5 +6,5 @@ var euler__res_8c =
     [ "euler_res_part_my_flux_opencl", "db/d2f/euler__res_8c.html#a40f7bb056a3a48e82f091bbc79d2e3bf", null ],
     [ "euler_res_part_mz_flux_opencl", "db/d2f/euler__res_8c.html#a601283a7917d7ad358ffe6e6754b980f", null ],
     [ "euler_res_part_rk_sum_opencl", "db/d2f/euler__res_8c.html#a6bb2a82a87afcc867fc57055b2e4ead0", null ],
-    [ "euler_res_part_visc_opencl", "db/d2f/euler__res_8c.html#a6f873fc08fb7db22b3e6be7006f61a9c", null ]
+    [ "euler_res_part_visc_opencl", "db/d2f/euler__res_8c.html#a38beca8c378a95484042b79a10030d1f", null ]
 ];

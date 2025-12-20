@@ -42,6 +42,7 @@ var opencl__math_8f90 =
     [ "opencl_math::opencl_glsc2", "d5/d41/interfaceopencl__math_1_1opencl__glsc2.html", "d5/d41/interfaceopencl__math_1_1opencl__glsc2" ],
     [ "opencl_math::opencl_glsubnorm2", "de/d8a/interfaceopencl__math_1_1opencl__glsubnorm2.html", "de/d8a/interfaceopencl__math_1_1opencl__glsubnorm2" ],
     [ "opencl_math::opencl_glsum", "de/d14/interfaceopencl__math_1_1opencl__glsum.html", "de/d14/interfaceopencl__math_1_1opencl__glsum" ],
+    [ "opencl_math::opencl_absval", "d9/d62/interfaceopencl__math_1_1opencl__absval.html", "d9/d62/interfaceopencl__math_1_1opencl__absval" ],
     [ "opencl_math::opencl_pwmax_vec2", "d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html", "d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2" ],
     [ "opencl_math::opencl_pwmax_vec3", "d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html", "d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3" ],
     [ "opencl_math::opencl_pwmax_sca2", "d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html", "d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2" ],

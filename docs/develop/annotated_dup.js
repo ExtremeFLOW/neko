@@ -437,6 +437,16 @@ var annotated_dup =
     [ "entity", "db/de9/namespaceentity.html", [
       [ "entity_t", "da/d8b/structentity_1_1entity__t.html", "da/d8b/structentity_1_1entity__t" ]
     ] ],
+    [ "entropy_viscosity", "dd/d61/namespaceentropy__viscosity.html", [
+      [ "entropy_viscosity_t", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t" ]
+    ] ],
+    [ "entropy_viscosity_device", "d0/d70/namespaceentropy__viscosity__device.html", [
+      [ "hip_entropy_visc_apply_element_max", "df/d26/interfaceentropy__viscosity__device_1_1hip__entropy__visc__apply__element__max.html", "df/d26/interfaceentropy__viscosity__device_1_1hip__entropy__visc__apply__element__max" ],
+      [ "hip_entropy_visc_clamp_to_low_order", "d3/dee/interfaceentropy__viscosity__device_1_1hip__entropy__visc__clamp__to__low__order.html", "d3/dee/interfaceentropy__viscosity__device_1_1hip__entropy__visc__clamp__to__low__order" ],
+      [ "hip_entropy_visc_compute_residual", "d0/d5d/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__residual.html", "d0/d5d/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__residual" ],
+      [ "hip_entropy_visc_compute_viscosity", "da/d1b/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__viscosity.html", "da/d1b/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__viscosity" ],
+      [ "hip_entropy_visc_smooth_divide", "dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide.html", "dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide" ]
+    ] ],
     [ "euler_res_cpu", "d1/d20/namespaceeuler__res__cpu.html", [
       [ "euler_res_cpu_t", "d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html", "d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t" ]
     ] ],
@@ -449,9 +459,6 @@ var annotated_dup =
       [ "euler_res_part_mz_flux_hip", "de/d8a/interfaceeuler__res__device_1_1euler__res__part__mz__flux__hip.html", "de/d8a/interfaceeuler__res__device_1_1euler__res__part__mz__flux__hip" ],
       [ "euler_res_part_rk_sum_hip", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip.html", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip" ],
       [ "euler_res_part_visc_hip", "df/d63/interfaceeuler__res__device_1_1euler__res__part__visc__hip.html", "df/d63/interfaceeuler__res__device_1_1euler__res__part__visc__hip" ]
-    ] ],
-    [ "euler_res_sx", "de/d1c/namespaceeuler__res__sx.html", [
-      [ "euler_res_sx_t", "de/d70/structeuler__res__sx_1_1euler__res__sx__t.html", "de/d70/structeuler__res__sx_1_1euler__res__sx__t" ]
     ] ],
     [ "euler_residual", "d1/dd1/namespaceeuler__residual.html", [
       [ "euler_rhs", "d4/d59/interfaceeuler__residual_1_1euler__rhs.html", "d4/d59/interfaceeuler__residual_1_1euler__rhs" ],
@@ -940,6 +947,7 @@ var annotated_dup =
       [ "opencl_step_function", "d5/de1/interfaceopencl__mappings_1_1opencl__step__function.html", "d5/de1/interfaceopencl__mappings_1_1opencl__step__function" ]
     ] ],
     [ "opencl_math", "de/d3f/namespaceopencl__math.html", [
+      [ "opencl_absval", "d9/d62/interfaceopencl__math_1_1opencl__absval.html", "d9/d62/interfaceopencl__math_1_1opencl__absval" ],
       [ "opencl_add2", "d7/dae/interfaceopencl__math_1_1opencl__add2.html", "d7/dae/interfaceopencl__math_1_1opencl__add2" ],
       [ "opencl_add2s1", "d2/d3e/interfaceopencl__math_1_1opencl__add2s1.html", "d2/d3e/interfaceopencl__math_1_1opencl__add2s1" ],
       [ "opencl_add2s2", "d7/dfa/interfaceopencl__math_1_1opencl__add2s2.html", "d7/dfa/interfaceopencl__math_1_1opencl__add2s2" ],
@@ -1147,6 +1155,12 @@ var annotated_dup =
     ] ],
     [ "registry_entry", "da/dd7/namespaceregistry__entry.html", [
       [ "registry_entry_t", "df/db9/structregistry__entry_1_1registry__entry__t.html", "df/db9/structregistry__entry_1_1registry__entry__t" ]
+    ] ],
+    [ "regularization", "d8/dd5/namespaceregularization.html", [
+      [ "reg_compute", "d3/d52/interfaceregularization_1_1reg__compute.html", "d3/d52/interfaceregularization_1_1reg__compute" ],
+      [ "reg_free", "d4/d81/interfaceregularization_1_1reg__free.html", "d4/d81/interfaceregularization_1_1reg__free" ],
+      [ "reg_init", "d1/dbb/interfaceregularization_1_1reg__init.html", "d1/dbb/interfaceregularization_1_1reg__init" ],
+      [ "regularization_t", "d0/d2d/structregularization_1_1regularization__t.html", "d0/d2d/structregularization_1_1regularization__t" ]
     ] ],
     [ "rhs_maker", "db/d98/namespacerhs__maker.html", [
       [ "rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf" ],

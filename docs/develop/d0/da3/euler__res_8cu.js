@@ -6,5 +6,5 @@ var euler__res_8cu =
     [ "euler_res_part_my_flux_cuda", "d0/da3/euler__res_8cu.html#a2d864320bfb6984e3e0b6974b0b9aa4b", null ],
     [ "euler_res_part_mz_flux_cuda", "d0/da3/euler__res_8cu.html#ae84a110b5cbbb33a83edf5eee2fe9f0a", null ],
     [ "euler_res_part_rk_sum_cuda", "d0/da3/euler__res_8cu.html#a98c165704e37752c02d76d52019f07da", null ],
-    [ "euler_res_part_visc_cuda", "d0/da3/euler__res_8cu.html#a4ff9aebc5e9a5ba940d442b1b5153427", null ]
+    [ "euler_res_part_visc_cuda", "d0/da3/euler__res_8cu.html#a813d865efd1cbc2fea70e01643f8b65a", null ]
 ];

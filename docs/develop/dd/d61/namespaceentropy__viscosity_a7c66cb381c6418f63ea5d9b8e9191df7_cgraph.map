@@ -1,0 +1,59 @@
+<map id="entropy_viscosity::entropy_viscosity_compute_viscosity" name="entropy_viscosity::entropy_viscosity_compute_viscosity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,356,207,411"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a7f0feef1d5e8da2763f4d1e03a02ca49" title="Take the absolute value of an array." alt="" coords="306,5,413,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,355,121,290,147,206,166,161,189,117,218,76,253,41,271,30,292,22,294,27,274,34,256,45,222,80,194,120,171,163,152,207,126,292,114,356"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#aa55c9d4cfc4bba967eb08edb3f3193c0" title=" " alt="" coords="281,55,438,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="112,355,129,302,157,235,198,165,224,133,253,105,267,96,270,100,256,109,228,137,203,168,162,237,134,304,117,357"/>
+<area shape="rect" id="Node000004" href="$d4/d05/namespaceentropy__viscosity__cpu.html#ab6b6dd61c1acde59f4e7303cc1690875" title="Clamp regularization coefficient to low&#45;order viscosity on CPU." alt="" coords="263,120,455,175"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="119,354,140,317,171,271,209,225,253,184,259,180,262,184,256,188,213,228,175,274,145,319,123,357"/>
+<area shape="rect" id="Node000005" href="$d0/d70/namespaceentropy__viscosity__device.html#a4a704c94514921f09cfca2e1141fb877" title="Clamp regularization coefficient to low&#45;order viscosity on device." alt="" coords="263,199,455,253"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="134,354,187,308,253,262,263,257,266,262,256,267,191,312,137,358"/>
+<area shape="rect" id="Node000010" href="$d4/d05/namespaceentropy__viscosity__cpu.html#a628159169134365fed3bf1f085189cad" title="Compute viscosity from entropy residual on CPU." alt="" coords="255,277,464,332"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="194,353,257,334,259,339,195,358"/>
+<area shape="rect" id="Node000011" href="$d0/d70/namespaceentropy__viscosity__device.html#ae4e8e03d7a6b53f82b4143a03f66b0c9" title="Compute viscosity from entropy residual on device." alt="" coords="255,356,464,411"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="207,381,241,381,241,386,207,386"/>
+<area shape="rect" id="Node000014" href="$d5/de6/namespacefield__math.html#a28c175a03f6a8174143bb2d488da7b6d" title="Add a scalar to vector ." alt="" coords="277,435,442,460"/>
+<area shape="poly" id="edge19_Node000001_Node000014" title=" " alt="" coords="207,407,255,419,293,429,291,434,254,425,206,412"/>
+<area shape="rect" id="Node000016" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="281,484,438,509"/>
+<area shape="poly" id="edge21_Node000001_Node000016" title=" " alt="" coords="148,409,198,440,256,469,281,478,279,483,254,474,195,445,145,413"/>
+<area shape="rect" id="Node000019" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="277,585,442,611"/>
+<area shape="poly" id="edge24_Node000001_Node000019" title=" " alt="" coords="137,409,256,519,330,575,327,579,253,523,133,413"/>
+<area shape="rect" id="Node000022" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="272,671,447,696"/>
+<area shape="poly" id="edge27_Node000001_Node000022" title=" " alt="" coords="121,410,142,454,173,509,211,567,257,620,286,644,318,662,315,667,283,648,253,624,207,570,168,512,138,456,117,412"/>
+<area shape="rect" id="Node000025" href="$dd/d47/namespacemath.html#aa96bddc7b993fc15b1fa1263b875044d" title="Max of a vector of length n." alt="" coords="307,744,412,769"/>
+<area shape="poly" id="edge31_Node000001_Node000025" title=" " alt="" coords="116,410,132,470,159,548,200,631,226,670,257,705,279,723,304,736,301,741,276,727,253,709,222,673,196,634,154,550,126,471,110,412"/>
+<area shape="rect" id="Node000006" href="$d8/d84/entropy__viscosity_8cu.html#aab5f79145f1cf9300b124ecd868a4453" title=" " alt="" coords="763,149,953,189"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="455,201,512,191,634,178,749,170,749,176,635,183,512,197,456,207"/>
+<area shape="rect" id="Node000008" href="$dd/d01/entropy__viscosity_8c.html#accdd3f16b84e8d1862fef9f157f52d83" title=" " alt="" coords="529,206,689,246"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="456,223,516,223,516,229,456,229"/>
+<area shape="rect" id="Node000007" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1009,257,1173,297"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="918,186,962,205,1045,247,1042,252,960,210,916,191"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1048,257,1045,247,1052,238,1068,232,1091,230,1118,233,1133,240,1131,245,1117,238,1091,235,1069,237,1056,242,1051,248,1053,256"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="690,226,818,234,962,249,996,254,995,259,961,254,817,239,689,232"/>
+<area shape="rect" id="Node000009" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="792,264,924,289"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="690,240,782,259,781,264,689,245"/>
+<area shape="poly" id="edge11_Node000009_Node000007" title=" " alt="" coords="924,274,996,274,996,279,924,279"/>
+<area shape="rect" id="Node000012" href="$d8/d84/entropy__viscosity_8cu.html#af738e8d5bc0602b1753a347c9e26a6d2" title=" " alt="" coords="755,365,961,405"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="464,381,741,382,741,387,464,386"/>
+<area shape="rect" id="Node000013" href="$dd/d01/entropy__viscosity_8c.html#a61db272758938fb59160aab35300463c" title=" " alt="" coords="532,306,687,346"/>
+<area shape="poly" id="edge16_Node000011_Node000013" title=" " alt="" coords="464,357,518,344,519,349,465,362"/>
+<area shape="poly" id="edge15_Node000012_Node000007" title=" " alt="" coords="916,362,960,344,1042,301,1045,306,962,348,918,367"/>
+<area shape="poly" id="edge17_Node000013_Node000007" title=" " alt="" coords="687,320,815,312,961,298,995,293,996,298,962,303,816,318,687,326"/>
+<area shape="poly" id="edge18_Node000013_Node000009" title=" " alt="" coords="686,308,779,289,780,295,687,313"/>
+<area shape="rect" id="Node000015" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="562,421,657,447"/>
+<area shape="poly" id="edge20_Node000014_Node000015" title=" " alt="" coords="442,440,548,435,548,440,442,446"/>
+<area shape="rect" id="Node000017" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="566,536,653,561"/>
+<area shape="poly" id="edge22_Node000016_Node000017" title=" " alt="" coords="422,507,553,534,552,540,421,512"/>
+<area shape="rect" id="Node000018" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="531,471,688,511"/>
+<area shape="poly" id="edge23_Node000016_Node000018" title=" " alt="" coords="438,492,517,491,517,496,438,498"/>
+<area shape="rect" id="Node000020" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="562,635,657,660"/>
+<area shape="poly" id="edge25_Node000019_Node000020" title=" " alt="" coords="425,608,549,633,548,638,424,613"/>
+<area shape="rect" id="Node000021" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="512,585,707,611"/>
+<area shape="poly" id="edge26_Node000019_Node000021" title=" " alt="" coords="442,595,498,595,498,601,442,601"/>
+<area shape="rect" id="Node000023" href="$d2/d73/namespacedevice__math.html#a2bfbeed670b2e6b704a1a2c4e5bc03c4" title="Sum a vector of length n." alt="" coords="531,758,688,798"/>
+<area shape="poly" id="edge28_Node000022_Node000023" title=" " alt="" coords="435,694,465,705,480,714,490,724,513,742,530,750,527,755,511,747,486,728,477,718,463,710,433,699"/>
+<area shape="rect" id="Node000024" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="557,708,661,733"/>
+<area shape="poly" id="edge29_Node000022_Node000024" title=" " alt="" coords="445,693,544,708,544,714,444,699"/>
+<area shape="poly" id="edge30_Node000024_Node000024" title=" " alt="" coords="569,710,560,700,565,690,582,684,609,681,644,685,654,690,658,696,654,699,651,694,643,690,609,687,583,689,569,694,566,699,573,706"/>
+<area shape="poly" id="edge32_Node000025_Node000025" title=" " alt="" coords="319,746,310,736,315,726,332,720,359,717,394,721,404,726,408,732,404,735,401,730,393,726,359,723,333,725,319,730,316,735,323,742"/>
+</map>

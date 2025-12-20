@@ -102,49 +102,52 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md44">High-level structure</a></li>
-<li class="level1"><a href="#autotoc_md45">Output frequency control</a></li>
-<li class="level1"><a href="#autotoc_md46">The case object</a><ul><li class="level2"><a href="#autotoc_md47">Time control</a></li>
-<li class="level2"><a href="#autotoc_md48">Restarts and joblimit</a></li>
-<li class="level2"><a href="#autotoc_md49">Boundary type numbering in the &quot;output_boundary&quot; field</a></li>
+<ul><li class="level1"><a href="#autotoc_md45">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md46">Output frequency control</a></li>
+<li class="level1"><a href="#autotoc_md47">The case object</a><ul><li class="level2"><a href="#autotoc_md48">Time control</a></li>
+<li class="level2"><a href="#autotoc_md49">Restarts and joblimit</a></li>
+<li class="level2"><a href="#autotoc_md50">Boundary type numbering in the &quot;output_boundary&quot; field</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md50">Numerics</a></li>
-<li class="level1"><a href="#autotoc_md51">Fluid</a><ul><li class="level2"><a href="#autotoc_md52">Material properties</a></li>
-<li class="level2"><a href="#autotoc_md53">Turbulence modelling</a></li>
-<li class="level2"><a href="#case-file_fluid-boundary-conditions">Boundary conditions</a><ul><li class="level3"><a href="#autotoc_md54">Specifying the boundaries</a></li>
-<li class="level3"><a href="#autotoc_md55">Available conditions</a></li>
+<li class="level1"><a href="#autotoc_md51">Numerics</a></li>
+<li class="level1"><a href="#autotoc_md52">Fluid</a><ul><li class="level2"><a href="#autotoc_md53">Material properties</a></li>
+<li class="level2"><a href="#autotoc_md54">Compressible flows</a><ul><li class="level3"><a href="#autotoc_md55">Compressible boundary conditions</a></li>
+</ul>
+</li>
+<li class="level2"><a href="#autotoc_md56">Turbulence modelling</a></li>
+<li class="level2"><a href="#case-file_fluid-boundary-conditions">Boundary conditions</a><ul><li class="level3"><a href="#autotoc_md57">Specifying the boundaries</a></li>
+<li class="level3"><a href="#autotoc_md58">Available conditions</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
-<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md56">Brinkman</a></li>
-<li class="level3"><a href="#autotoc_md57">Gradient Jump Penalty</a></li>
-<li class="level3"><a href="#autotoc_md58">Sponge</a></li>
+<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md59">Brinkman</a></li>
+<li class="level3"><a href="#autotoc_md60">Gradient Jump Penalty</a></li>
+<li class="level3"><a href="#autotoc_md61">Sponge</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md59">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md60">Multilevel preconditioners</a></li>
-<li class="level2"><a href="#autotoc_md61">Flow rate forcing</a></li>
-<li class="level2"><a href="#autotoc_md62">Full parameter table</a></li>
+<li class="level1"><a href="#autotoc_md62">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md63">Multilevel preconditioners</a></li>
+<li class="level2"><a href="#autotoc_md64">Flow rate forcing</a></li>
+<li class="level2"><a href="#autotoc_md65">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md63">Material properties</a></li>
-<li class="level2"><a href="#autotoc_md64">Turbulence modelling</a></li>
-<li class="level2"><a href="#autotoc_md65">Boundary conditions</a></li>
-<li class="level2"><a href="#autotoc_md66">Initial conditions</a></li>
-<li class="level2"><a href="#autotoc_md67">Source terms</a></li>
-<li class="level2"><a href="#autotoc_md68">Linear solver configuration</a></li>
-<li class="level2"><a href="#autotoc_md69">Full parameter table</a></li>
+<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md66">Material properties</a></li>
+<li class="level2"><a href="#autotoc_md67">Turbulence modelling</a></li>
+<li class="level2"><a href="#autotoc_md68">Boundary conditions</a></li>
+<li class="level2"><a href="#autotoc_md69">Initial conditions</a></li>
+<li class="level2"><a href="#autotoc_md70">Source terms</a></li>
+<li class="level2"><a href="#autotoc_md71">Linear solver configuration</a></li>
+<li class="level2"><a href="#autotoc_md72">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md70">Simulation components</a></li>
-<li class="level1"><a href="#autotoc_md71">Point zones</a></li>
-<li class="level1"><a href="#autotoc_md72">Runtime statistics</a></li>
+<li class="level1"><a href="#autotoc_md73">Simulation components</a></li>
+<li class="level1"><a href="#autotoc_md74">Point zones</a></li>
+<li class="level1"><a href="#autotoc_md75">Runtime statistics</a></li>
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and, and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
-<h1><a class="anchor" id="autotoc_md44"></a>
+<h1><a class="anchor" id="autotoc_md45"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
 <div class="fragment"><div class="line">{</div>
@@ -160,7 +163,7 @@ High-level structure</h1>
 <div class="line">}</div>
 </div><!-- fragment --><p> Neko also supports multiple scalar fields, using the keyword <code>scalars</code> in the case object. Users can define multiple scalar fields, and each field can have its own boundary conditions, source terms, and solver settings. When using multiple scalar fields, the <code>name</code> property of each scalar field is used to identify the scalar field in the user file, defaulted to <code>s_1, s_2, ...</code>.</p>
 <p>The <code>version</code> keyword is reserved to track changes in the format of the file. The subsections below we list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
-<h1><a class="anchor" id="autotoc_md45"></a>
+<h1><a class="anchor" id="autotoc_md46"></a>
 Output frequency control</h1>
 <p>A common scheme for controlling the output frequency is applied for various outputs. It is described already now in order to clarify the meaning of several parameters found in the tables below.</p>
 <p>The frequency is controlled by two parameters, ending with <code>_control</code> and <code>_value</code>, respectively. The latter name is perhaps not ideal, but it is somewhat difficult to come up with a good one, suggestions are welcome.</p>
@@ -170,7 +173,7 @@ Output frequency control</h1>
 <li><code>nsamples</code>, then <code>_value</code> is the total number of outputs that will be performed in the course of the simulation.</li>
 <li><code>never</code>, then <code>_value</code> is ignored and output is never performed.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md46"></a>
+<h1><a class="anchor" id="autotoc_md47"></a>
 The case object</h1>
 <p>This object is mostly used as a high-level container for all the other objects, but also defines several parameters that pertain to the simulation as a whole.</p>
 <table class="markdownTable">
@@ -215,7 +218,7 @@ The case object</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>output_at_end</code>   </td><td class="markdownTableBodyNone">Whether to always write all enabled output at the end of the run.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md47"></a>
+<h2><a class="anchor" id="autotoc_md48"></a>
 Time control</h2>
 <p>The time control object is used to define the time-stepping of the simulation, including the time-step size, the start and end time, and the variables related to the variable time-stepping algorithm.</p>
 <table class="markdownTable">
@@ -252,11 +255,11 @@ Time control</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>cfl_running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md48"></a>
+<h2><a class="anchor" id="autotoc_md49"></a>
 Restarts and joblimit</h2>
 <p>Restarts will restart the simulation from the exact state at a given time that the checkpoint was written. This means that the flow field and potential scalars will be at the exact same values before as after restarts. However, derived quantities from the flow field and any observables are not guaranteed to be restarted. In addition, Neko does not guarantee that any files are not overwritten. As such, it is recommended to run in different directories if doing large scale simulations that require many restarts. Unless <code>output_at_end</code> is disabled Neko will also ensure that all output is written to file when reaching the <code>end_time</code> or the <code>job_timelimit</code>. In particular, unless <code>output_checkpoints</code> and <code>output_at_end</code> are set to false a checkpoint at the final time will be written as to avoid losing progress as far as possible.</p>
 <dl class="section attention"><dt>Attention</dt><dd>For simulations requiring restarts, it is recommended to run each restart in a different output directory as a precaution to avoid potential overwritings of files.</dd></dl>
-<h2><a class="anchor" id="autotoc_md49"></a>
+<h2><a class="anchor" id="autotoc_md50"></a>
 Boundary type numbering in the "output_boundary" field</h2>
 <p>When the <code>output_boundary</code> setting is set to <code>true</code>, and additional <code>.fld</code> file will be stored in the beginning of the simulation, where the recognized boundary conditions for the fluid will be marked with an integer number. This is a good way to debug the simulation setup. The value of the number depends on the type of the boundary as follows.</p>
 <table class="markdownTable">
@@ -284,7 +287,7 @@ Boundary type numbering in the "output_boundary" field</h2>
 <td class="markdownTableBodyNone">blasius_profile   </td><td class="markdownTableBodyNone">11   </td></tr>
 </table>
 <p>For a description of the boundary conditions themselves, see below.</p>
-<h1><a class="anchor" id="autotoc_md50"></a>
+<h1><a class="anchor" id="autotoc_md51"></a>
 Numerics</h1>
 <p>Used to define the properties of the numerical discretization.</p>
 <table class="markdownTable">
@@ -303,10 +306,10 @@ Numerics</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>oifs_target_cfl</code>   </td><td class="markdownTableBodyNone">The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>1.9</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md51"></a>
+<h1><a class="anchor" id="autotoc_md52"></a>
 Fluid</h1>
 <p>The configuration of the fluid solver and the flow problem. Contains multiple subobjects for various parts of the setup.</p>
-<h2><a class="anchor" id="autotoc_md52"></a>
+<h2><a class="anchor" id="autotoc_md53"></a>
 Material properties</h2>
 <p>As per the governing equations, Neko requires the value of the density and dynamic viscosity to define the flow problem. These can be provided as <code>rho</code> and <code>mu</code> in the case file.</p>
 <p>Alternatively, one may opt to provide the Reynolds number, <code>Re</code>, which corresponds to a non-dimensional formulation of the Navier-Stokes equations. This formulation can effectively be obtained by setting \( \rho = 1 \) and \(
@@ -314,19 +317,95 @@ Material properties</h2>
 <p>Note that if both <code>Re</code> and any of the dimensional material properties are provided, the simulation will issue an error.</p>
 <p>As an alternative to providing material properties in the case file, it is possible to do that in a special routine in the user file. This is demonstrated in the <code>rayleigh_benard_cylinder</code> example. Ultimately, both <code>rho</code> and <code>mu</code> have to be set in the subroutine. Additionally, this allows to change the material properties in time. Yet another options is to directly manipulate the case file programmatically in the <code>user_startup</code> routine and inject the material properties there. This is demonstrated in the <code>rayleigh_benard</code> example.</p>
 <p>When material properties are constant or only vary in time, one can use the simplified form of the viscous stress tensor in the governing equations. However, when there are spatial variations, it is necessary to use the general (full) form. The variation may come, for example, due to a turbulence model, the modifications in the above-mentioned user routine. The general form of the stress tensor requires solving the 3 equations for the velocity components in a coupled manner, which requires an appropriate linear solver. By default, Neko will use the simplified form of the tensor, and the full one must be selected by the user by setting <code>full_stress_formulation</code> to true.</p>
-<h2><a class="anchor" id="autotoc_md53"></a>
+<h2><a class="anchor" id="autotoc_md54"></a>
+Compressible flows</h2>
+<p>Neko supports compressible flow simulations via the compressible solver. To enable compressible flow, set <code>"scheme": "compressible"</code> in the fluid configuration. This solver integrates the compressible Euler equations (full Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time integration scheme with artificial viscosity for stability.</p>
+<p>The compressible solver requires the following parameters:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>gamma</code>   </td><td class="markdownTableBodyNone">Ratio of specific heats for ideal gas   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>1.4</code>   </td></tr>
+</table>
+<p>Additional numerics parameters specific to compressible flows:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>c_avisc_low</code>   </td><td class="markdownTableBodyNone">Coefficient for low-order artificial viscosity   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>c_avisc_entropy</code>   </td><td class="markdownTableBodyNone">Coefficient for entropy-based artificial viscosity   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>1.0</code>   </td></tr>
+</table>
+<p>The compressible solver uses variable time-stepping controlled by the CFL number. Set <code>variable_timestep</code> to <code>true</code> and specify <code>target_cfl</code> in the time control object.</p>
+<p>Example configuration: </p><div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;fluid&quot;: {</div>
+<div class="line">    &quot;scheme&quot;: &quot;compressible&quot;,</div>
+<div class="line">    &quot;gamma&quot;: 1.4,</div>
+<div class="line">    &quot;initial_condition&quot;: {</div>
+<div class="line">      &quot;type&quot;: &quot;user&quot;</div>
+<div class="line">    },</div>
+<div class="line">    &quot;boundary_conditions&quot;: [</div>
+<div class="line">      {</div>
+<div class="line">        &quot;type&quot;: &quot;velocity_value&quot;,</div>
+<div class="line">        &quot;zone_indices&quot;: [1],</div>
+<div class="line">        &quot;value&quot;: [3, 0, 0]</div>
+<div class="line">      },</div>
+<div class="line">      {</div>
+<div class="line">        &quot;type&quot;: &quot;density_value&quot;,</div>
+<div class="line">        &quot;zone_indices&quot;: [1],</div>
+<div class="line">        &quot;value&quot;: 1.4</div>
+<div class="line">      },</div>
+<div class="line">      {</div>
+<div class="line">        &quot;type&quot;: &quot;pressure_value&quot;,</div>
+<div class="line">        &quot;zone_indices&quot;: [1],</div>
+<div class="line">        &quot;value&quot;: 1</div>
+<div class="line">      }</div>
+<div class="line">    ],</div>
+<div class="line">    &quot;output_control&quot;: &quot;nsamples&quot;,</div>
+<div class="line">    &quot;output_value&quot;: 20</div>
+<div class="line">  },</div>
+<div class="line">  &quot;numerics&quot;: {</div>
+<div class="line">    &quot;time_order&quot;: 3,</div>
+<div class="line">    &quot;polynomial_order&quot;: 5,</div>
+<div class="line">    &quot;c_avisc_low&quot;: 0.5,</div>
+<div class="line">    &quot;c_avisc_entropy&quot;: 0.5</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md55"></a>
+Compressible boundary conditions</h3>
+<p>The compressible solver supports the following boundary conditions:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Boundary Condition   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">velocity_value   </td><td class="markdownTableBodyNone">Dirichlet condition for velocity (inflow)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">density_value   </td><td class="markdownTableBodyNone">Dirichlet condition for density    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">pressure_value   </td><td class="markdownTableBodyNone">Dirichlet condition for pressure    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">no_slip   </td><td class="markdownTableBodyNone">Zero velocity wall    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">Symmetry plane    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">outflow   </td><td class="markdownTableBodyNone">Pressure outlet (zero gradient)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">normal_outflow   </td><td class="markdownTableBodyNone">Normal outflow condition   </td></tr>
+</table>
+<p>For examples of compressible flow setups, see the <code>euler_1d_sod</code>, <code>euler_2d_forward_facing_step</code>, and <code>euler_tgv</code> examples.</p>
+<h2><a class="anchor" id="autotoc_md56"></a>
 Turbulence modelling</h2>
 <p>Neko currently provides several LES models via the <code><a class="el" href="../../dd/dfc/namespaceles__model.html" title="Implements les_model_t.">les_model</a></code> simulation component. The simcomp computes the viscosity and stores in the field registry under the name selected in the case file. For more details, see the documentation of the simcomp. To enable LES in the fluid solver, one simply has to add the <code>nut_field</code> keyword to the configuration and set it to the name of the field generated by the <code><a class="el" href="../../dd/dfc/namespaceles__model.html" title="Implements les_model_t.">les_model</a></code> simcomp. This will automatically change the governing equations to feature the full viscous stress tensor, as required for a variable viscosity field.</p>
 <p>Note that the full viscous stress tensor requires the equations for the 3 velocity components to be solved in a coupled manner. Therefore, the <code>cpldcg</code> solver should be used for velocity.</p>
 <h2><a class="anchor" id="case-file_fluid-boundary-conditions"></a>
 Boundary conditions</h2>
 <p>The optional <code>boundary_conditions</code> keyword can be used to specify boundary conditions. The reason for it being optional, is that periodic boundary conditions are built into the definition of the mesh, so for a periodic box nothings needs to be added to the case file. The TGV example is such a case, for instance. The value of the keyword is an array of JSON objects, each specifying a single boundary condition.</p>
-<h3><a class="anchor" id="autotoc_md54"></a>
+<h3><a class="anchor" id="autotoc_md57"></a>
 Specifying the boundaries</h3>
 <p>In Neko we usually refer to boundaries as "zones", which in this case are face zones, i.e. a collection of element faces. Which zones the boundary condition is applied to is controlled by the <code>zone_indices</code> keyword, which takes an array of integers. It is up to the user whether to apply a single condition to multiple zones or specify several conditions applied to one zone each. For example, if you have two zones, which should be no-slip walls, you can either create two <code>no_slip</code> conditions, one for each zone, or just create a single condition and apply it to both.</p>
 <p>The indices your boundaries have is determined by the mesh. To check them, you can use the <code>mesh_checker</code> utility with the optional <code>--write_zone_indices</code> argument. This will output a <code>zone_indices0.f00000</code> file that you can inspect in Paraview, and the boundaries will be marked by their index value.</p>
 <p>Recall that periodic conditions are built into the mesh, since they are topological in nature. This means that you must not specify any conditions for the corresponding zones. For example, in the <code>turb_pipe</code> example, which is a periodic pipe simulation, two periodic zones comprise the boundary conditions in the streamwise direction. Only one condition, corresponding to zone index 3 (the wall) is the specified in the case file.</p>
-<h3><a class="anchor" id="autotoc_md55"></a>
+<h3><a class="anchor" id="autotoc_md58"></a>
 Available conditions</h3>
 <p>The conditions to apply is specified by <code>type</code> keyword inside each of the JSON objects. The full list of possible conditions for the fluid is specified in the table below.</p>
 <table class="markdownTable">
@@ -508,7 +587,7 @@ Source terms</h2>
 <li><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>, perform gradient_jump_penalisation.</li>
 <li><code>sponge</code>, adds a sponge term based on a reference velocity field, which is applied in a user-specified region of the domain.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md56"></a>
+<h3><a class="anchor" id="autotoc_md59"></a>
 Brinkman</h3>
 <p>The Brinkman source term introduces regions of resistance in the fluid domain. The volume force \( f_i \) applied in the selected regions are proportional to the fluid velocity component \( u_i \).</p>
 <p class="formulaDsp">
@@ -588,7 +667,7 @@ Brinkman</h3>
 <div class="line">      }</div>
 <div class="line">   }</div>
 <div class="line">]</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md57"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md60"></a>
 Gradient Jump Penalty</h3>
 <p>The optional <code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code> object can be used to perform gradient jump penalty as an continuous interior penalty option. The penalty term is performed on the weak form equation of quantity \( T \) (could either be velocity or scalar) as a right hand side term</p>
 <p>\( - &lt; \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}&gt;\),</p>
@@ -604,7 +683,7 @@ Gradient Jump Penalty</h3>
 <li><code>scaling_factor</code>, the scaling parameter \( a \) for \( P &gt; 1 \), default to be <code>0.8</code>.</li>
 <li><code>scaling_exponent</code>, the scaling parameter \( b \) for \( P &gt; 1 \), default to be <code>4.0</code>.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md58"></a>
+<h3><a class="anchor" id="autotoc_md61"></a>
 Sponge</h3>
 <p>The sponge source term adds a term to each of the momentum equations of the form</p>
 <p>\( \mathbf{\lambda} f(\mathbf{x}) ( \mathbf{u}^{bf} - \mathbf{u}) \)</p>
@@ -818,7 +897,7 @@ Sponge</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>dump_file_name</code>   </td><td class="markdownTableBodyNone">Name of the <code>fld</code> file in which to dump the base flow and fringe fields   </td><td class="markdownTableBodyNone">String ending with <code>fld</code>   </td><td class="markdownTableBodyNone"><code>spng_fields.fld</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md59"></a>
+<h1><a class="anchor" id="autotoc_md62"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
 <ul>
@@ -847,7 +926,7 @@ Linear solver configuration</h1>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
 <p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated. This can in some situations cause issues if the initial condition is far from a valid solution. Therefore a user can allow an initial stabilization phase by setting the <code>case.fluid.allow_stabilization</code> keyword to <code>true</code>. In this case, the strict convergence will be ignored untill all components of the velocity field converge within the specified tolerance. After this initial stabilization phase, strict convergence will be enforced for the rest of the simulation.</p>
-<h2><a class="anchor" id="autotoc_md60"></a>
+<h2><a class="anchor" id="autotoc_md63"></a>
 Multilevel preconditioners</h2>
 <p>The multilevel preconditioners, <code>hsmg</code> and <code>phmg</code>, come with an additional set of parameters related to the solution of the coarse grid problem. These parameters are specified as a <code>coarse_grid</code> block under <code>preconditioner</code>.</p>
 <p>For <code>hsmg</code>, the following keywords are used:</p>
@@ -886,7 +965,7 @@ Multilevel preconditioners</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md61"></a>
+<h2><a class="anchor" id="autotoc_md64"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
 <ul>
@@ -894,7 +973,7 @@ Flow rate forcing</h2>
 <li><code>value</code>, the desired flow rate.</li>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md62"></a>
+<h2><a class="anchor" id="autotoc_md65"></a>
 Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
@@ -998,14 +1077,14 @@ Full parameter table</h2>
 <h1><a class="anchor" id="case-file_scalar"></a>
 Scalar</h1>
 <p>The scalar object allows to add a scalar transport equation to the solution. The solution variable is called <code>s</code> by default, but can be controlled by the <code>field_name</code> entry in the case file. In the fld files, it is saved as <code>temperature</code>. Some properties of the object are inherited from <code>fluid</code>: the value of the density, and the output control.</p>
-<h2><a class="anchor" id="autotoc_md63"></a>
+<h2><a class="anchor" id="autotoc_md66"></a>
 Material properties</h2>
 <p>The scalar equation requires defining additional material properties: the specific heat capacity and thermal conductivity. These are provided as <code>cp</code> and <code>lambda</code>. Similarly to the fluid, one can provide the Peclet number, <code>Pe</code>, as an alternative. In this case, <code>cp</code> is set to 1 and <code>lambda</code> to the inverse of <code>Pe</code>.</p>
 <p>As for the fluid, turbulence modelling is enabled by setting the <code>nut_field</code> to the name matching that set for the simulation component with the LES model. Additionally, the turbulent Prandtl number, <code>Pr_t</code> should be set. The eddy viscosity values will be divided by it to produce eddy diffusivity.</p>
-<h2><a class="anchor" id="autotoc_md64"></a>
+<h2><a class="anchor" id="autotoc_md67"></a>
 Turbulence modelling</h2>
 <p>The configuration is identical to the Fluid, however, one additionally has to provide the value of the turbulent Prandl number via the <code>Pr_t</code> keyword.</p>
-<h2><a class="anchor" id="autotoc_md65"></a>
+<h2><a class="anchor" id="autotoc_md68"></a>
 Boundary conditions</h2>
 <p>The boundary conditions for the scalar are specified through the <code>boundary_conditions</code> keyword, which follows the same format as the fluid, for specifying the type of the condition and where it is applied. Four types of conditions are available for the scalar:</p>
 <ul>
@@ -1027,7 +1106,7 @@ Boundary conditions</h2>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md66"></a>
+<h2><a class="anchor" id="autotoc_md69"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
@@ -1036,13 +1115,13 @@ Initial conditions</h2>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><code>field</code>, where the initial condition is retrieved from a field file. Works in the same way as for the fluid. See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid section</a> for detailed explanations.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md67"></a>
+<h2><a class="anchor" id="autotoc_md70"></a>
 Source terms</h2>
 <p>The configuration of source terms is the same as for the fluid. A demonstration of using source terms for the scalar can be found in the <code>scalar_mms</code> example.</p>
-<h2><a class="anchor" id="autotoc_md68"></a>
+<h2><a class="anchor" id="autotoc_md71"></a>
 Linear solver configuration</h2>
 <p>Should be provided as an object under the <code>solver</code> keyword. For available configuration options, see the corresponding documentation for the fliud. A standard choice would be <code>"type": "cg"</code> and <code>"preconditioner": "jacobi"</code>.</p>
-<h2><a class="anchor" id="autotoc_md69"></a>
+<h2><a class="anchor" id="autotoc_md72"></a>
 Full parameter table</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -1088,16 +1167,16 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the scalar equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md70"></a>
+<h1><a class="anchor" id="autotoc_md73"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md71"></a>
+<h1><a class="anchor" id="autotoc_md74"></a>
 Point zones</h1>
 <p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md72"></a>
+<h1><a class="anchor" id="autotoc_md75"></a>
 Runtime statistics</h1>
 <p>This object adds the collection of runtime statistics (timings) for identified profiling regions. A region is defined as all functions between a call to <code>profiler_start_region(name, id)</code> and <code>profiler_end_region(name, id)</code>. Neko currently supports 50 regions, with id 1..25 being reserved for internal use.</p>
 <table class="markdownTable">
@@ -1115,7 +1194,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

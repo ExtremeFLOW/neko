@@ -1,0 +1,30 @@
+<map id="entropy_viscosity::entropy_viscosity_smooth_viscosity" name="entropy_viscosity::entropy_viscosity_smooth_viscosity">
+<area shape="rect" id="Node000001" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="5,116,199,171"/>
+<area shape="rect" id="Node000002" href="$d4/d05/namespaceentropy__viscosity__cpu.html#a9ead36765ddba96b03e43e973a0dff3d" title="Divide by multiplicity for smoothing on CPU." alt="" coords="247,5,448,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,114,246,69,259,63,262,68,248,74,156,118"/>
+<area shape="rect" id="Node000003" href="$d0/d70/namespaceentropy__viscosity__device.html#a2d4bb2fb5eeca11de9e0831e3b72a58b" title="Divide by multiplicity for smoothing on device." alt="" coords="247,84,448,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="199,128,233,124,234,129,199,133"/>
+<area shape="rect" id="Node000008" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="269,163,426,188"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="199,153,255,161,254,166,199,159"/>
+<area shape="rect" id="Node000011" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="265,271,430,296"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="153,169,313,261,310,266,150,173"/>
+<area shape="rect" id="Node000004" href="$d8/d84/entropy__viscosity_8cu.html#a8d9e2c3150f6ca15c1efb9133f30fd91" title=" " alt="" coords="739,34,937,74"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="448,85,496,77,614,63,725,56,725,61,614,69,496,82,449,90"/>
+<area shape="rect" id="Node000006" href="$dd/d01/entropy__viscosity_8c.html#ab607bd3d91c4ec935a5070fd793717ae" title=" " alt="" coords="516,91,671,131"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="448,109,502,109,502,114,448,114"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="985,91,1149,131"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="919,71,974,85,973,91,918,77"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1024,92,1022,82,1029,72,1044,67,1067,65,1094,68,1109,75,1106,80,1093,73,1067,70,1045,72,1032,77,1027,83,1030,90"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="671,109,971,109,971,114,671,114"/>
+<area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="772,149,904,175"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="672,125,763,144,762,149,671,130"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="896,147,971,130,973,135,897,152"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="550,156,637,181"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="426,171,536,168,536,173,426,176"/>
+<area shape="rect" id="Node000010" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="515,206,672,246"/>
+<area shape="poly" id="edge12_Node000008_Node000010" title=" " alt="" coords="411,186,502,204,501,210,410,191"/>
+<area shape="rect" id="Node000012" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="546,271,641,296"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="430,281,532,281,532,286,430,286"/>
+<area shape="rect" id="Node000013" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="496,320,691,345"/>
+<area shape="poly" id="edge15_Node000011_Node000013" title=" " alt="" coords="412,293,517,315,516,320,411,299"/>
+</map>

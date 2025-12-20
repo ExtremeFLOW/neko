@@ -127,19 +127,19 @@ Collaboration diagram for euler_res_cpu::euler_res_cpu_t:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ad64688725ed30f282c320761dc190f32" id="r_ad64688725ed30f282c320761dc190f32"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html#ad64688725ed30f282c320761dc190f32">step</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gs</a>, h, c_avisc_low, rk_scheme, dt)</td></tr>
-<tr class="memdesc:ad64688725ed30f282c320761dc190f32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advances the primitive variables (density, momentum, energy) in time using a Runge-Kutta scheme.  <br /></td></tr>
-<tr class="separator:ad64688725ed30f282c320761dc190f32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18a62f732e498f5918cab894010d3211" id="r_a18a62f732e498f5918cab894010d3211"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html#a18a62f732e498f5918cab894010d3211">evaluate_rhs_cpu</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_rho_field</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_m_x</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_m_y</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_m_z</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_e</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gs</a>, h, c_avisc_low)</td></tr>
-<tr class="memdesc:a18a62f732e498f5918cab894010d3211"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluates the right-hand side of the Euler equations Computes fluxes, divergence terms, and artificial viscosity.  <br /></td></tr>
-<tr class="separator:a18a62f732e498f5918cab894010d3211"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a802bc004704d29fcec8269071b1c9796" id="r_a802bc004704d29fcec8269071b1c9796"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html#a802bc004704d29fcec8269071b1c9796">step</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, coef, gs, h, effective_visc, rk_scheme, dt)</td></tr>
+<tr class="memdesc:a802bc004704d29fcec8269071b1c9796"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advances the primitive variables (density, momentum, energy) in time using a Runge-Kutta scheme.  <br /></td></tr>
+<tr class="separator:a802bc004704d29fcec8269071b1c9796"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad354b78af96f24cea3a11ef62aa610a2" id="r_ad354b78af96f24cea3a11ef62aa610a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nopass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html#ad354b78af96f24cea3a11ef62aa610a2">evaluate_rhs_cpu</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_rho_field</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_m_x</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_m_y</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_m_z</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs_e</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rho_field</a>, m_x, m_y, m_z, e, p, u, v, w, ax, coef, gs, h, effective_visc)</td></tr>
+<tr class="memdesc:ad354b78af96f24cea3a11ef62aa610a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluates the right-hand side of the Euler equations Computes fluxes, divergence terms, and artificial viscosity.  <br /></td></tr>
+<tr class="separator:ad354b78af96f24cea3a11ef62aa610a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="../../d8/d6d/euler__res__cpu_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d8/d6d/euler__res__cpu_8f90_source.html">euler_res_cpu.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
-<a id="a18a62f732e498f5918cab894010d3211" name="a18a62f732e498f5918cab894010d3211"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18a62f732e498f5918cab894010d3211">&#9670;&#160;</a></span>evaluate_rhs_cpu()</h2>
+<a id="ad354b78af96f24cea3a11ef62aa610a2" name="ad354b78af96f24cea3a11ef62aa610a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad354b78af96f24cea3a11ef62aa610a2">&#9670;&#160;</a></span>evaluate_rhs_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -258,8 +258,8 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp)&#160;</td>
-          <td class="paramname"><em>c_avisc_low</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>effective_visc</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -293,7 +293,7 @@ Static Public Member Functions</h2></td></tr>
     <tr><td class="paramname">coef</td><td>Spatial discretization coefficients </td></tr>
     <tr><td class="paramname">gs</td><td>Gather-scatter operator for parallel communication </td></tr>
     <tr><td class="paramname">h</td><td>Mesh size field </td></tr>
-    <tr><td class="paramname">c_avisc_low</td><td>Low-order artificial viscosity coefficient </td></tr>
+    <tr><td class="paramname">effective_visc</td><td>Effective artificial viscosity field </td></tr>
   </table>
   </dd>
 </dl>
@@ -302,8 +302,8 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ad64688725ed30f282c320761dc190f32" name="ad64688725ed30f282c320761dc190f32"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad64688725ed30f282c320761dc190f32">&#9670;&#160;</a></span>step()</h2>
+<a id="a802bc004704d29fcec8269071b1c9796" name="a802bc004704d29fcec8269071b1c9796"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a802bc004704d29fcec8269071b1c9796">&#9670;&#160;</a></span>step()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -392,8 +392,8 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp)&#160;</td>
-          <td class="paramname"><em>c_avisc_low</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>effective_visc</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -430,14 +430,14 @@ Static Public Member Functions</h2></td></tr>
     <tr><td class="paramname">coef</td><td>Coefficients for spatial discretization </td></tr>
     <tr><td class="paramname">gs</td><td>Gather-scatter operator for parallel communication </td></tr>
     <tr><td class="paramname">h</td><td>Mesh size field </td></tr>
-    <tr><td class="paramname">c_avisc_low</td><td>Low-order artificial viscosity coefficient </td></tr>
+    <tr><td class="paramname">effective_visc</td><td>Effective artificial viscosity field </td></tr>
     <tr><td class="paramname">rk_scheme</td><td>Runge-Kutta time integration scheme </td></tr>
     <tr><td class="paramname">dt</td><td>Time step size </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="../../d9/d26/structeuler__residual_1_1euler__rhs__t.html#a4debc7852a731945591237f0651b810d">euler_residual::euler_rhs_t</a>.</p>
+<p>Implements <a class="el" href="../../d9/d26/structeuler__residual_1_1euler__rhs__t.html#afb34a68e20a27b4289b918f7f0bcfb09">euler_residual::euler_rhs_t</a>.</p>
 
 <p class="definition">Definition at line <a class="el" href="../../d8/d6d/euler__res__cpu_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d8/d6d/euler__res__cpu_8f90_source.html">euler_res_cpu.f90</a>.</p>
 
@@ -452,7 +452,7 @@ Static Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d1/d20/namespaceeuler__res__cpu.html">euler_res_cpu</a></li><li class="navelem"><a class="el" href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html">euler_res_cpu_t</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

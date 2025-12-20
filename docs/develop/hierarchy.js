@@ -244,8 +244,7 @@ var hierarchy =
     [ "euler_residual::euler_rhs", "d4/d59/interfaceeuler__residual_1_1euler__rhs.html", null ],
     [ "euler_residual::euler_rhs_t", "d9/d26/structeuler__residual_1_1euler__rhs__t.html", [
       [ "euler_res_cpu::euler_res_cpu_t", "d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html", null ],
-      [ "euler_res_device::euler_res_device_t", "d9/d65/structeuler__res__device_1_1euler__res__device__t.html", null ],
-      [ "euler_res_sx::euler_res_sx_t", "de/d70/structeuler__res__sx_1_1euler__res__sx__t.html", null ]
+      [ "euler_res_device::euler_res_device_t", "d9/d65/structeuler__res__device_1_1euler__res__device__t.html", null ]
     ] ],
     [ "facet_zone::facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", [
       [ "facet_zone::facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", null ]
@@ -377,6 +376,11 @@ var hierarchy =
     [ "device_dirichlet::hip_dirichlet_apply_vector", "d6/df8/interfacedevice__dirichlet_1_1hip__dirichlet__apply__vector.html", null ],
     [ "device_dong_outflow::hip_dong_outflow_apply_scalar", "df/dc2/interfacedevice__dong__outflow_1_1hip__dong__outflow__apply__scalar.html", null ],
     [ "opr_device::hip_dudxyz", "db/df6/interfaceopr__device_1_1hip__dudxyz.html", null ],
+    [ "entropy_viscosity_device::hip_entropy_visc_apply_element_max", "df/d26/interfaceentropy__viscosity__device_1_1hip__entropy__visc__apply__element__max.html", null ],
+    [ "entropy_viscosity_device::hip_entropy_visc_clamp_to_low_order", "d3/dee/interfaceentropy__viscosity__device_1_1hip__entropy__visc__clamp__to__low__order.html", null ],
+    [ "entropy_viscosity_device::hip_entropy_visc_compute_residual", "d0/d5d/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__residual.html", null ],
+    [ "entropy_viscosity_device::hip_entropy_visc_compute_viscosity", "da/d1b/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__viscosity.html", null ],
+    [ "entropy_viscosity_device::hip_entropy_visc_smooth_divide", "dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide.html", null ],
     [ "device_facet_normal::hip_facet_normal_apply_surfvec", "d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec.html", null ],
     [ "fdm_device::hip_fdm_do_fast", "dd/d18/interfacefdm__device_1_1hip__fdm__do__fast.html", null ],
     [ "device_local_interpolation::hip_find_rst_legendre", "d3/d30/interfacedevice__local__interpolation_1_1hip__find__rst__legendre.html", null ],
@@ -574,6 +578,7 @@ var hierarchy =
     [ "octree::oct_ptr_t", "d6/deb/structoctree_1_1oct__ptr__t.html", null ],
     [ "octree::oct_t", "d5/dae/structoctree_1_1oct__t.html", null ],
     [ "octree::octree_t", "d4/d27/structoctree_1_1octree__t.html", null ],
+    [ "opencl_math::opencl_absval", "d9/d62/interfaceopencl__math_1_1opencl__absval.html", null ],
     [ "opencl_math::opencl_add2", "d7/dae/interfaceopencl__math_1_1opencl__add2.html", null ],
     [ "opencl_math::opencl_add2s1", "d2/d3e/interfaceopencl__math_1_1opencl__add2s1.html", null ],
     [ "opencl_math::opencl_add2s2", "d7/dfa/interfaceopencl__math_1_1opencl__add2s2.html", null ],
@@ -717,8 +722,14 @@ var hierarchy =
       [ "re2::re2v2_xyz_t", "d9/df1/structre2_1_1re2v2__xyz__t.html", null ]
     ] ],
     [ "rea::rea_t", "d1/db3/structrea_1_1rea__t.html", null ],
+    [ "regularization::reg_compute", "d3/d52/interfaceregularization_1_1reg__compute.html", null ],
+    [ "regularization::reg_free", "d4/d81/interfaceregularization_1_1reg__free.html", null ],
+    [ "regularization::reg_init", "d1/dbb/interfaceregularization_1_1reg__init.html", null ],
     [ "registry_entry::registry_entry_t", "df/db9/structregistry__entry_1_1registry__entry__t.html", null ],
     [ "registry::registry_t", "db/d1a/structregistry_1_1registry__t.html", null ],
+    [ "regularization::regularization_t", "d0/d2d/structregularization_1_1regularization__t.html", [
+      [ "entropy_viscosity::entropy_viscosity_t", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html", null ]
+    ] ],
     [ "math::relcmp", "d9/d4d/interfacemath_1_1relcmp.html", null ],
     [ "math::reord", "d6/d4c/interfacemath_1_1reord.html", null ],
     [ "rhs_maker::rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", null ],

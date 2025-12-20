@@ -8,6 +8,6 @@ var namespaceeuler__res__device =
     [ "euler_res_part_mz_flux_hip", "de/d8a/interfaceeuler__res__device_1_1euler__res__part__mz__flux__hip.html", "de/d8a/interfaceeuler__res__device_1_1euler__res__part__mz__flux__hip" ],
     [ "euler_res_part_rk_sum_hip", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip.html", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip" ],
     [ "euler_res_part_visc_hip", "df/d63/interfaceeuler__res__device_1_1euler__res__part__visc__hip.html", "df/d63/interfaceeuler__res__device_1_1euler__res__part__visc__hip" ],
-    [ "advance_primitive_variables_device", "d4/d49/namespaceeuler__res__device.html#a86988c02aabf70727c8674ddbab529c6", null ],
-    [ "evaluate_rhs_device", "d4/d49/namespaceeuler__res__device.html#a54d62b334a0d21f168ff6e7e3084bce8", null ]
+    [ "advance_primitive_variables_device", "d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7", null ],
+    [ "evaluate_rhs_device", "d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee", null ]
 ];

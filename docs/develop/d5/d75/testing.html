@@ -102,27 +102,27 @@ $(document).ready(function(){initNavTree('d5/d75/testing.html','../../'); initRe
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md36">pFUnit</a></li>
-<li class="level1"><a href="#autotoc_md37">Configuring Neko</a></li>
-<li class="level1"><a href="#autotoc_md38">Running the tests</a></li>
-<li class="level1"><a href="#autotoc_md39">Adding a new test</a></li>
+<ul><li class="level1"><a href="#autotoc_md37">pFUnit</a></li>
+<li class="level1"><a href="#autotoc_md38">Configuring Neko</a></li>
+<li class="level1"><a href="#autotoc_md39">Running the tests</a></li>
+<li class="level1"><a href="#autotoc_md40">Adding a new test</a></li>
 </ul>
 </div>
-<div class="textblock"><h1><a class="anchor" id="autotoc_md36"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md37"></a>
 pFUnit</h1>
 <p>Neko uses the software pFUnit for unit testing. To install the software you can use the following commands, in which you should just set the desired installation path </p><div class="fragment"><div class="line">git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2</div>
 <div class="line"> </div>
 <div class="line">cd pFUnit &amp;&amp; mkdir b &amp;&amp; cd b &amp;&amp; cmake -DCMAKE_INSTALL_PREFIX=/pfunit_install_path .. &amp;&amp; make -j$(nproc) &amp;&amp; make install</div>
 </div><!-- fragment --><p> You will now have a directory called PFUNIT-4.4 in your install path.</p>
-<h1><a class="anchor" id="autotoc_md37"></a>
+<h1><a class="anchor" id="autotoc_md38"></a>
 Configuring Neko</h1>
 <p>To use pFUnit with Neko, we need to specify its location during the <code>configure</code> phase of the build. The following configuration is given here as an example, where again you need to provide the path </p><div class="fragment"><div class="line">./configure FC=${FC} FCFLAGS=&quot;-O2 -pedantic -std=f2008&quot; --with-pfunit=/pfunit_install_path/PFUNIT-4.4</div>
 </div><!-- fragment --><p> Make sure that in the output you see it says <code>pFUnit ... yes</code> at some point.</p>
-<h1><a class="anchor" id="autotoc_md38"></a>
+<h1><a class="anchor" id="autotoc_md39"></a>
 Running the tests</h1>
 <p>To run the tests you should execute </p><div class="fragment"><div class="line">make check</div>
 </div><!-- fragment --><p> This will first compile the software and the tests, and then execute them. In the end you should get a nice list of tests that were run and a summary, which hopefully says that all tests have passed!</p>
-<h1><a class="anchor" id="autotoc_md39"></a>
+<h1><a class="anchor" id="autotoc_md40"></a>
 Adding a new test</h1>
 <p>The first step is of course to read the documentation for pFUnit to understand how it works. It is up to you to learn how to write <code>.pf</code> files. Here, we only cover how to incorporate the test into the Neko build system. However, we note the following two important points:</p><ul>
 <li>The name of the <code>module</code> inside the <code>.pf</code> must coincide with the base name of the <code>.pf</code> file. So <code>test_a.pf</code> should containt <code>module test_a</code>.</li>
@@ -164,7 +164,7 @@ Adding a new test</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li><li class="navelem"><a class="el" href="../../d5/dfc/installation.html">Installing Neko</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,17 +1,15 @@
 <map id="operators::div" name="operators::div">
-<area shape="rect" id="Node000001" title="Compute the divergence of a vector field." alt="" coords="504,109,616,134"/>
-<area shape="rect" id="Node000002" href="$d8/dec/namespacedivergence__simcomp.html#afd972ea52ff980dd011d6f144b62b137" title="Compute the divergence field." alt="" coords="274,5,441,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="528,103,494,81,455,60,426,48,428,43,457,55,497,76,531,99"/>
-<area shape="rect" id="Node000003" href="$d1/d20/namespaceeuler__res__cpu.html#a83856a062ef183395a069cd9fb5c1a30" title="Evaluates the right&#45;hand side of the Euler equations Computes fluxes, divergence terms,..." alt="" coords="269,69,446,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="490,113,446,106,447,101,491,108"/>
-<area shape="rect" id="Node000005" href="$d4/d49/namespaceeuler__res__device.html#a54d62b334a0d21f168ff6e7e3084bce8" title=" " alt="" coords="259,133,456,173"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="490,135,457,140,456,135,490,130"/>
-<area shape="rect" id="Node000007" href="$de/d1c/namespaceeuler__res__sx.html#aa6dbd6132b629c9aaddde9d8d97e7e10" title=" " alt="" coords="273,197,442,237"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="531,144,497,166,457,188,428,200,426,195,455,183,494,162,528,140"/>
-<area shape="rect" id="Node000004" href="$d1/d20/namespaceeuler__res__cpu.html#aa1bfd1583e093204cb59e081daaf9646" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="15,69,201,109"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="255,92,201,92,201,87,255,87"/>
-<area shape="rect" id="Node000006" href="$d4/d49/namespaceeuler__res__device.html#a86988c02aabf70727c8674ddbab529c6" title=" " alt="" coords="5,133,211,173"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="245,156,211,156,211,151,245,151"/>
-<area shape="rect" id="Node000008" href="$de/d1c/namespaceeuler__res__sx.html#a17f468c7e2d9fdc556f6c2c371aaf219" title=" " alt="" coords="19,197,197,237"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="259,220,197,220,197,215,259,215"/>
+<area shape="rect" id="Node000001" title="Compute the divergence of a vector field." alt="" coords="508,121,620,146"/>
+<area shape="rect" id="Node000002" href="$d8/dec/namespacedivergence__simcomp.html#afd972ea52ff980dd011d6f144b62b137" title="Compute the divergence field." alt="" coords="276,5,443,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="536,113,501,86,459,60,432,48,434,43,461,55,504,81,539,109"/>
+<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="259,70,460,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="494,124,460,118,461,112,495,119"/>
+<area shape="rect" id="Node000004" href="$d1/d20/namespaceeuler__res__cpu.html#a35fa0f8d83814c2e8b72fdcaf50b1372" title="Evaluates the right&#45;hand side of the Euler equations Computes fluxes, divergence terms,..." alt="" coords="271,149,448,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="495,148,449,156,448,151,494,143"/>
+<area shape="rect" id="Node000006" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="261,213,458,253"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="537,156,502,181,461,204,432,216,430,211,459,199,499,176,534,152"/>
+<area shape="rect" id="Node000005" href="$d1/d20/namespaceeuler__res__cpu.html#a815d182617a1dd3c49c49b82b22fff44" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="15,149,201,189"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="257,172,201,172,201,167,257,167"/>
+<area shape="rect" id="Node000007" href="$d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7" title=" " alt="" coords="5,213,211,253"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="247,236,211,236,211,231,247,231"/>
 </map>

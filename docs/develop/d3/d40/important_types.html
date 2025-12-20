@@ -102,15 +102,15 @@ $(document).ready(function(){initNavTree('d3/d40/important_types.html','../../')
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md31">SEM foundation types</a></li>
-<li class="level1"><a href="#autotoc_md32">Basic math routines</a></li>
-<li class="level1"><a href="#autotoc_md33">Governing equation solvers and related types</a></li>
-<li class="level1"><a href="#autotoc_md34">Singletons</a></li>
-<li class="level1"><a href="#autotoc_md35">Linear algebra</a></li>
+<ul><li class="level1"><a href="#autotoc_md32">SEM foundation types</a></li>
+<li class="level1"><a href="#autotoc_md33">Basic math routines</a></li>
+<li class="level1"><a href="#autotoc_md34">Governing equation solvers and related types</a></li>
+<li class="level1"><a href="#autotoc_md35">Singletons</a></li>
+<li class="level1"><a href="#autotoc_md36">Linear algebra</a></li>
 </ul>
 </div>
 <div class="textblock"><p>This section is meant to help new developers get a quick introduction to some of the most important types in Neko, to get an idea of where to look for what. In this spirit, the descriptions here are not meant to be exhaustive. In many cases, we will just point to top type in a hierarchy, and leave the reader to explore the descendants.</p>
-<h1><a class="anchor" id="autotoc_md31"></a>
+<h1><a class="anchor" id="autotoc_md32"></a>
 SEM foundation types</h1>
 <ul>
 <li><a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>: The computational mesh.</li>
@@ -120,7 +120,7 @@ SEM foundation types</h1>
 <li><a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>: Gather-scatter kernels used to make the solution continuous, i.e. perform direct stiffness summation.</li>
 <li><a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>: The main type for storing the unknowns, and essentially everything else that lives on the mesh.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md32"></a>
+<h1><a class="anchor" id="autotoc_md33"></a>
 Basic math routines</h1>
 <p>Here, we also list file names rather than types, since the basic math is implemented as subroutines.</p>
 <ul>
@@ -130,7 +130,7 @@ Basic math routines</h1>
 <li><code><a class="el" href="../../dd/dbf/operators_8f90.html">operators.f90</a></code>: Various explicit operators, including derivatives, etc.</li>
 <li><a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a> and <a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>: 1D and 2D arrays with support for computation on <a class="el" href="../../de/d06/accelerators.html">accelerators</a>.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md33"></a>
+<h1><a class="anchor" id="autotoc_md34"></a>
 Governing equation solvers and related types</h1>
 <ul>
 <li><a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>: An abstraction for the simulation case. Stores the fluid and scalar solver as components, handles IO via sampler_t.</li>
@@ -140,7 +140,7 @@ Governing equation solvers and related types</h1>
 <li><a class="el" href="../../de/da4/structtime__scheme_1_1time__scheme__t.html">time_scheme_t</a>: Time integration schemes.</li>
 <li><a class="el" href="../../d8/d03/structsource__term_1_1source__term__t.html">source_term_t</a>: Source terms.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md34"></a>
+<h1><a class="anchor" id="autotoc_md35"></a>
 Singletons</h1>
 <p>Singleton types are meant to only have a single object of their kind to be created. These objects are declared in the same module where the type resides, and all have their name starting with <code>neko_</code>.</p>
 <ul>
@@ -150,7 +150,7 @@ Singletons</h1>
 <li><a class="el" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>: Used to write to the simulation log.</li>
 <li>use_access_t: Used to access the internals of the <a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a> object from within the user file.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md35"></a>
+<h1><a class="anchor" id="autotoc_md36"></a>
 Linear algebra</h1>
 <ul>
 <li><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>: Krylov solvers.</li>
@@ -163,7 +163,7 @@ Linear algebra</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

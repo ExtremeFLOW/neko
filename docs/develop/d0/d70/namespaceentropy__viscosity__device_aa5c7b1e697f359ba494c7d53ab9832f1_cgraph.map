@@ -1,0 +1,14 @@
+<map id="entropy_viscosity_device::entropy_viscosity_apply_element_max_device" name="entropy_viscosity_device::entropy_viscosity_apply_element_max_device">
+<area shape="rect" id="Node000001" title="Apply element&#45;wise maximum on device." alt="" coords="5,27,193,82"/>
+<area shape="rect" id="Node000002" href="$d8/d84/entropy__viscosity_8cu.html#a435574cf967d0ba5061e55cc73ac20eb" title=" " alt="" coords="452,5,639,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,46,438,30,439,35,194,51"/>
+<area shape="rect" id="Node000004" href="$dd/d01/entropy__viscosity_8c.html#af40ac49be044b9526aa67727e40745c6" title=" " alt="" coords="241,63,404,103"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="194,64,228,68,227,73,193,69"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="687,63,851,103"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="625,43,678,57,676,62,623,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="727,63,725,53,731,44,746,38,769,36,795,39,809,46,806,51,793,44,769,41,747,43,735,48,730,54,732,62"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="404,80,673,80,673,85,404,85"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="479,121,611,146"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="405,99,476,115,475,120,403,104"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="602,118,673,102,674,107,603,123"/>
+</map>

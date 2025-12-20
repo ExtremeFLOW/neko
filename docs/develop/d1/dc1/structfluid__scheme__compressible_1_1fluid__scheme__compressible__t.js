@@ -23,6 +23,7 @@ var structfluid__scheme__compressible_1_1fluid__scheme__compressible__t =
     [ "chkp", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#aa331befeee572eeeb9a24f05ae4a2226", null ],
     [ "dm_xh", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#ae356a894d3e1c1fdc49ea007dcf823ab", null ],
     [ "e", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a8980bc5d7a5198775e7b50bd2bf96da0", null ],
+    [ "effective_visc", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a1c7944419224c22f559d41c47f556651", null ],
     [ "ext_bdf", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#aef4ec0f2436746d14fa42e6c7ae0d9a7", null ],
     [ "f_x", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#ada84f2fd904cc902f00d088cfc0c6c14", null ],
     [ "f_y", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a6eb90e8d12003f02f33e0ea2627a6952", null ],

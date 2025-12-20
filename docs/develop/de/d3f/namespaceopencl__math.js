@@ -1,5 +1,6 @@
 var namespaceopencl__math =
 [
+    [ "opencl_absval", "d9/d62/interfaceopencl__math_1_1opencl__absval.html", "d9/d62/interfaceopencl__math_1_1opencl__absval" ],
     [ "opencl_add2", "d7/dae/interfaceopencl__math_1_1opencl__add2.html", "d7/dae/interfaceopencl__math_1_1opencl__add2" ],
     [ "opencl_add2s1", "d2/d3e/interfaceopencl__math_1_1opencl__add2s1.html", "d2/d3e/interfaceopencl__math_1_1opencl__add2s1" ],
     [ "opencl_add2s2", "d7/dfa/interfaceopencl__math_1_1opencl__add2s2.html", "d7/dfa/interfaceopencl__math_1_1opencl__add2s2" ],

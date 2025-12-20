@@ -6,5 +6,6 @@ var namespacefluid__scheme__compressible__euler =
     [ "fluid_scheme_compressible_euler_init", "da/d14/namespacefluid__scheme__compressible__euler.html#a2a8b84832e23c62118a759cae9f9c0af", null ],
     [ "fluid_scheme_compressible_euler_restart", "da/d14/namespacefluid__scheme__compressible__euler.html#aca908fa31ad19dbeee97865ad2e168e3", null ],
     [ "fluid_scheme_compressible_euler_setup_bcs", "da/d14/namespacefluid__scheme__compressible__euler.html#adc468ede84f6be533f8da286bc2ee99f", null ],
-    [ "fluid_scheme_compressible_euler_step", "da/d14/namespacefluid__scheme__compressible__euler.html#a366a1f8ad3194987eb42c8e04e30495a", null ]
+    [ "fluid_scheme_compressible_euler_step", "da/d14/namespacefluid__scheme__compressible__euler.html#a366a1f8ad3194987eb42c8e04e30495a", null ],
+    [ "setup_regularization", "da/d14/namespacefluid__scheme__compressible__euler.html#af9a9a2a95f41c668f656ef08f6ba6bb6", null ]
 ];

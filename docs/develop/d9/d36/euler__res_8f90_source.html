@@ -151,14 +151,14 @@ $(document).ready(function(){initNavTree('d9/d36/euler__res_8f90_source.html','.
 <div class="foldopen" id="foldopen00044" data-start="" data-end="">
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="../../d9/d26/structeuler__residual_1_1euler__rhs__t.html">   44</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">abstract</span> :: <a class="code hl_struct" href="../../d9/d26/structeuler__residual_1_1euler__rhs__t.html">euler_rhs_t</a></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>   <span class="keyword">contains</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d9/d26/structeuler__residual_1_1euler__rhs__t.html#a4debc7852a731945591237f0651b810d">   46</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html">euler_rhs</a>), <span class="keywordtype">nopass</span>, <span class="keywordtype">deferred</span> :: step</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d9/d26/structeuler__residual_1_1euler__rhs__t.html#afb34a68e20a27b4289b918f7f0bcfb09">   46</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html">euler_rhs</a>), <span class="keywordtype">nopass</span>, <span class="keywordtype">deferred</span> :: step</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d9/d26/structeuler__residual_1_1euler__rhs__t.html">euler_rhs_t</a></div>
 </div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  abstract <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00051" data-start="" data-end="">
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html#abafe8311db5a7ed37130422e28b2016a">   51</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html">euler_rhs</a>(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &amp;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>          coef, gs, h, c_avisc_low, rk_scheme, dt)</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html#af2b61ff90c99bdd719eae03c83afdb37">   51</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html">euler_rhs</a>(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &amp;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>          coef, gs, h, effective_visc, rk_scheme, dt)</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       <span class="keywordtype">import </span><a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>       <span class="keywordtype">import </span><a class="code hl_struct" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       <span class="keywordtype">import </span><a class="code hl_struct" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a></div>
@@ -166,26 +166,25 @@ $(document).ready(function(){initNavTree('d9/d36/euler__res_8f90_source.html','.
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>       <span class="keywordtype">import </span><a class="code hl_struct" href="../../d4/d16/structrunge__kutta__time__scheme_1_1runge__kutta__time__scheme__t.html">runge_kutta_time_scheme_t</a></div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: rho_field, m_x, m_y, m_z, E</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: p, u, v, w, h</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: p, u, v, w, h, effective_visc</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), <span class="keywordtype">intent(inout)</span> :: Ax</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span> :: coef</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <span class="keywordtype">intent(inout)</span> :: gs</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c_avisc_low</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/d16/structrunge__kutta__time__scheme_1_1runge__kutta__time__scheme__t.html">runge_kutta_time_scheme_t</a>), <span class="keywordtype">intent(in)</span> :: rk_scheme</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: dt</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/d16/structrunge__kutta__time__scheme_1_1runge__kutta__time__scheme__t.html">runge_kutta_time_scheme_t</a>), <span class="keywordtype">intent(in)</span> :: rk_scheme</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: dt</div>
 </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html">euler_rhs</a></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>     <span class="keyword">module</span> subroutine euler_rhs_factory(object)</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>       <span class="keywordtype">class</span>(euler_rhs_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>     <span class="keyword">end subroutine </span>euler_rhs_factory</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  <span class="keywordtype">public</span> :: euler_rhs_factory</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d1/dd1/namespaceeuler__residual.html">euler_residual</a></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html">euler_rhs</a></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>     <span class="keyword">module</span> subroutine euler_rhs_factory(object)</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>       <span class="keywordtype">class</span>(euler_rhs_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>     <span class="keyword">end subroutine </span>euler_rhs_factory</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  <span class="keywordtype">public</span> :: euler_rhs_factory</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d1/dd1/namespaceeuler__residual.html">euler_residual</a></div>
 <div class="ttc" id="ainterfaceeuler__residual_1_1euler__rhs_html"><div class="ttname"><a href="../../d4/d59/interfaceeuler__residual_1_1euler__rhs.html">euler_residual::euler_rhs</a></div><div class="ttdoc">Abstract interface to evaluate rhs.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d36/euler__res_8f90_source.html#l00051">euler_res.f90:51</a></div></div>
 <div class="ttc" id="anamespaceax__product_html"><div class="ttname"><a href="../../d2/dd1/namespaceax__product.html">ax_product</a></div><div class="ttdoc">Defines a Matrix-vector product.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/dd6/ax_8f90_source.html#l00034">ax.f90:34</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
@@ -207,7 +206,7 @@ $(document).ready(function(){initNavTree('d9/d36/euler__res_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d9/d36/euler__res_8f90.html">euler_res.f90</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

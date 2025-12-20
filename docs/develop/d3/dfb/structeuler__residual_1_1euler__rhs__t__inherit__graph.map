@@ -1,9 +1,7 @@
 <map id="euler_residual::euler_rhs_t" name="euler_residual::euler_rhs_t">
-<area shape="rect" id="Node000001" title="Abstract type to compute rhs." alt="" coords="5,69,160,109"/>
-<area shape="rect" id="Node000002" href="$d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html" title=" " alt="" coords="218,5,371,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,63,227,43,229,48,164,68"/>
-<area shape="rect" id="Node000003" href="$d9/d65/structeuler__res__device_1_1euler__res__device__t.html" title=" " alt="" coords="208,69,381,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,87,208,87,208,92,174,92"/>
-<area shape="rect" id="Node000004" href="$de/d70/structeuler__res__sx_1_1euler__res__sx__t.html" title=" " alt="" coords="222,133,367,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="164,111,229,131,227,136,162,116"/>
+<area shape="rect" id="Node000001" title="Abstract type to compute rhs." alt="" coords="98,5,253,45"/>
+<area shape="rect" id="Node000002" href="$d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html" title=" " alt="" coords="5,93,159,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,57,104,95,101,91,143,53"/>
+<area shape="rect" id="Node000003" href="$d9/d65/structeuler__res__device_1_1euler__res__device__t.html" title=" " alt="" coords="183,93,357,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,53,251,91,247,95,205,57"/>
 </map>

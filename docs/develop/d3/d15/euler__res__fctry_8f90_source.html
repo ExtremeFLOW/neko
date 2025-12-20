@@ -139,50 +139,43 @@ $(document).ready(function(){initNavTree('d3/d15/euler__res__fctry_8f90_source.h
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>submodule(<a class="code hl_namespace" href="../../d1/dd1/namespaceeuler__residual.html">euler_residual</a>) euler_res_fctry</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d77/namespaceneko__config.html">neko_config</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a>, <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a13c7db96ad80fa8aa04f81574ebd39db">neko_bcknd_sx</a></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d77/namespaceneko__config.html">neko_config</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d1/d20/namespaceeuler__res__cpu.html">euler_res_cpu</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html">euler_res_cpu_t</a></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d4/d49/namespaceeuler__res__device.html">euler_res_device</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d9/d65/structeuler__res__device_1_1euler__res__device__t.html">euler_res_device_t</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../de/d1c/namespaceeuler__res__sx.html">euler_res_sx</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../de/d70/structeuler__res__sx_1_1euler__res__sx__t.html">euler_res_sx_t</a></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <span class="keyword">module</span> subroutine euler_rhs_factory(object)</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">class</span>(euler_rhs_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(object)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>       <span class="keyword">deallocate</span>(object)</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a13c7db96ad80fa8aa04f81574ebd39db">neko_bcknd_sx</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../de/d70/structeuler__res__sx_1_1euler__res__sx__t.html">euler_res_sx_t</a>::object)</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d9/d65/structeuler__res__device_1_1euler__res__device__t.html">euler_res_device_t</a>::object)</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html">euler_res_cpu_t</a>::object)</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  <span class="keyword">end subroutine </span>euler_rhs_factory</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keyword">end </span>submodule euler_res_fctry</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keyword">module</span> subroutine euler_rhs_factory(object)</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">class</span>(euler_rhs_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(object)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       <span class="keyword">deallocate</span>(object)</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d9/d65/structeuler__res__device_1_1euler__res__device__t.html">euler_res_device_t</a>::object)</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html">euler_res_cpu_t</a>::object)</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keyword">end subroutine </span>euler_rhs_factory</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keyword">end </span>submodule euler_res_fctry</div>
 <div class="ttc" id="anamespaceeuler__res__cpu_html"><div class="ttname"><a href="../../d1/d20/namespaceeuler__res__cpu.html">euler_res_cpu</a></div><div class="ttdoc">This module implements CPU-based residual calculations for the Euler equations.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d6d/euler__res__cpu_8f90_source.html#l00036">euler_res_cpu.f90:36</a></div></div>
 <div class="ttc" id="anamespaceeuler__res__device_html"><div class="ttname"><a href="../../d4/d49/namespaceeuler__res__device.html">euler_res_device</a></div><div class="ttdef"><b>Definition</b> <a href="../../da/daf/euler__res__device_8F90_source.html#l00033">euler_res_device.F90:33</a></div></div>
-<div class="ttc" id="anamespaceeuler__res__sx_html"><div class="ttname"><a href="../../de/d1c/namespaceeuler__res__sx.html">euler_res_sx</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d42/euler__res__sx_8f90_source.html#l00001">euler_res_sx.f90:1</a></div></div>
 <div class="ttc" id="anamespaceeuler__residual_html"><div class="ttname"><a href="../../d1/dd1/namespaceeuler__residual.html">euler_residual</a></div><div class="ttdef"><b>Definition</b> <a href="../../d9/d36/euler__res_8f90_source.html#l00033">euler_res.f90:33</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>
-<div class="ttc" id="anamespaceneko__config_html_a13c7db96ad80fa8aa04f81574ebd39db"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html#a13c7db96ad80fa8aa04f81574ebd39db">neko_config::neko_bcknd_sx</a></div><div class="ttdeci">integer, parameter neko_bcknd_sx</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00039">neko_config.f90:39</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html_ac196ccb4b3efd94171f0cfbfedaa7b9d"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_config::neko_bcknd_device</a></div><div class="ttdeci">integer, parameter neko_bcknd_device</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00044">neko_config.f90:44</a></div></div>
 <div class="ttc" id="astructeuler__res__cpu_1_1euler__res__cpu__t_html"><div class="ttname"><a href="../../d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html">euler_res_cpu::euler_res_cpu_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d6d/euler__res__cpu_8f90_source.html#l00053">euler_res_cpu.f90:53</a></div></div>
-<div class="ttc" id="astructeuler__res__device_1_1euler__res__device__t_html"><div class="ttname"><a href="../../d9/d65/structeuler__res__device_1_1euler__res__device__t.html">euler_res_device::euler_res_device_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../da/daf/euler__res__device_8F90_source.html#l00049">euler_res_device.F90:49</a></div></div>
-<div class="ttc" id="astructeuler__res__sx_1_1euler__res__sx__t_html"><div class="ttname"><a href="../../de/d70/structeuler__res__sx_1_1euler__res__sx__t.html">euler_res_sx::euler_res_sx_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d42/euler__res__sx_8f90_source.html#l00018">euler_res_sx.f90:18</a></div></div>
+<div class="ttc" id="astructeuler__res__device_1_1euler__res__device__t_html"><div class="ttname"><a href="../../d9/d65/structeuler__res__device_1_1euler__res__device__t.html">euler_res_device::euler_res_device_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../da/daf/euler__res__device_8F90_source.html#l00050">euler_res_device.F90:50</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d3/d15/euler__res__fctry_8f90.html">euler_res_fctry.f90</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

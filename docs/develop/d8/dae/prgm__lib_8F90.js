@@ -14,6 +14,7 @@ var prgm__lib_8F90 =
     [ "dirichlet_program", "d8/dae/prgm__lib_8F90.html#a96d0c69c8cfe66f8c8441c9a3c256acb", null ],
     [ "dong_program", "d8/dae/prgm__lib_8F90.html#a2c768c4ac095ab3f993354ed177798c0", null ],
     [ "dudxyz_program", "d8/dae/prgm__lib_8F90.html#a4d360f04bd9aed0ca1cfa988df9fb401", null ],
+    [ "entropy_viscosity_program", "d8/dae/prgm__lib_8F90.html#a7f9042098c1f029813a43925bda27902", null ],
     [ "euler_res_program", "d8/dae/prgm__lib_8F90.html#ad4c5b2264011b5645177d69ae89298ca", null ],
     [ "facet_normal_program", "d8/dae/prgm__lib_8F90.html#ae7a5a9ac54f68a2b4846bef46bbebe97", null ],
     [ "fdm_program", "d8/dae/prgm__lib_8F90.html#afac8ae258a2185bb6e95b4e612b29622", null ],

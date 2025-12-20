@@ -102,16 +102,16 @@ $(document).ready(function(){initNavTree('d1/d5a/contributing.html','../../'); i
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md15">Git branches</a></li>
-<li class="level1"><a href="#autotoc_md16">Code style</a><ul><li class="level2"><a href="#autotoc_md17">Data types</a></li>
+<ul><li class="level1"><a href="#autotoc_md16">Git branches</a></li>
+<li class="level1"><a href="#autotoc_md17">Code style</a><ul><li class="level2"><a href="#autotoc_md18">Data types</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md18">Build system and code organization</a><ul><li class="level2"><a href="#autotoc_md19">Building CPU Fortran code</a></li>
-<li class="level2"><a href="#autotoc_md20">Device code</a><ul><li class="level3"><a href="#autotoc_md21">CUDA</a></li>
-<li class="level3"><a href="#autotoc_md22">HIP</a></li>
-<li class="level3"><a href="#autotoc_md23">OpenCL</a></li>
-<li class="level3"><a href="#autotoc_md24">Device-based type polymorphism</a></li>
-<li class="level3"><a href="#autotoc_md25">Summary of build system entires</a></li>
+<li class="level1"><a href="#autotoc_md19">Build system and code organization</a><ul><li class="level2"><a href="#autotoc_md20">Building CPU Fortran code</a></li>
+<li class="level2"><a href="#autotoc_md21">Device code</a><ul><li class="level3"><a href="#autotoc_md22">CUDA</a></li>
+<li class="level3"><a href="#autotoc_md23">HIP</a></li>
+<li class="level3"><a href="#autotoc_md24">OpenCL</a></li>
+<li class="level3"><a href="#autotoc_md25">Device-based type polymorphism</a></li>
+<li class="level3"><a href="#autotoc_md26">Summary of build system entires</a></li>
 </ul>
 </li>
 </ul>
@@ -120,11 +120,11 @@ $(document).ready(function(){initNavTree('d1/d5a/contributing.html','../../'); i
 </div>
 <div class="textblock"><p>Please read the following guide before contributing new code or a bug fix to Neko.</p>
 <p>All contributions to Neko must be made under the 3-Clause BSD license. Please refer to the <code>COPYING</code> file.</p>
-<h1><a class="anchor" id="autotoc_md15"></a>
+<h1><a class="anchor" id="autotoc_md16"></a>
 Git branches</h1>
 <p>Neko follows the Git branching model described in <a href="https://nvie.com/posts/a-successful-git-branching-model">https://nvie.com/posts/a-successful-git-branching-model</a>, where <code>develop</code> contains the latest contributions, and all pull requests should start from <code>develop</code> and be merged back into <code>develop</code>. New branches should be named <code>feature/&lt;description&gt;</code> for new features or <code>fix/&lt;description&gt;</code> for bug fixes.</p>
 <p>When a pull request is submitted, a series of continuous integration tests will be run. A pull request will not be accepted nor merged into <code>develop</code> until it passes the test suite.</p>
-<h1><a class="anchor" id="autotoc_md16"></a>
+<h1><a class="anchor" id="autotoc_md17"></a>
 Code style</h1>
 <p>Fortran code should conform to the Fortran 2008 standard and should use an indentation level of 2, except for the extra indentation within <code>do</code> <code>if</code>, <code>select</code> or <code>where</code> statements and for each level inside a structure e.g. <code>type</code>, <code>interface</code>, where the indentation level is 3, and a 0 indentation is used for <code>module</code> or <code>contains</code> (except for <code>contains</code> inside a derived type, where a single indentation level is used). These are the default rules in Emacs' Fortran mode, an example is given below, </p><div class="fragment"><div class="line"><span class="keyword">module</span> example</div>
 <div class="line">  <span class="keywordtype">use </span>mod</div>
@@ -155,16 +155,16 @@ Code style</h1>
 <div class="line"><span class="keyword">end module </span>example</div>
 </div><!-- fragment --><p> Please note that the maximum line length in Neko should not exceed 80 columns.</p>
 <p>Additional details on the code style, as well as tools used to verify it, can be found under the <a class="el" href="../../da/db6/code-style.html">code style</a>.</p>
-<h2><a class="anchor" id="autotoc_md17"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 Data types</h2>
 <p>For portability reasons, it is essential to only use data type kinds defined in <code><a class="el" href="../../dc/d99/num__types_8f90.html">src/config/num_types.f90</a></code> and avoid legacy constructs like <code>real*8</code> or <code>integer(kind=8)</code></p>
 <p>Floating-point numbers should be declared using <code>real</code> with the kind <code>rp</code>, which is the configured working precision for Neko (defaults to double). If single, double or quad precision is explicitly needed, use the kinds <code>sp</code>, <code>dp</code> or <code>qp</code>, respectively. For 16, 32, or 64-bit integers, Neko has defined the kinds <code>i2</code>, <code>i4</code> or <code>i8</code>, respectively; however, for standard integers, it is perfectly fine to use a plain <code>integer</code>.</p>
-<h1><a class="anchor" id="autotoc_md18"></a>
+<h1><a class="anchor" id="autotoc_md19"></a>
 Build system and code organization</h1>
 <p>This section contains information on how to add new source files to the build system. It also give an overview of the common folder structures you will encounter in the code.</p>
 <p>Neko uses Autotools for building all sources. You will need to have at least <code>autoconf</code>, <code>libtool</code>, and <code>automake</code> installed for development work. It is also highly recommended to have <code>makedepf90</code> installed to avoid error-prone manual dependency tracking. Since Neko uses <code>submodules</code>, a recent version of <code>makedepf90</code> from <a href="https://salsa.debian.org/science-team/makedepf90">https://salsa.debian.org/science-team/makedepf90</a> is needed.</p>
 <p>The vast majority of the code is located inside the <code>src</code> folder, where it is organized into subfolders, roughly based on the functionality, which is implemented inside the them. A common folder structure is used to organize the implementation of the same functionality on various compute backends. This is discussed further below. Outside, <code>src</code>, the <code>contrib</code> folder is home for the implementations of various executable utilities.</p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md20"></a>
 Building CPU Fortran code</h2>
 <p>The following steps describe how to add a new Fortran file to Neko's build system.</p><ol type="1">
 <li>Place the file in an appropriate subdirectory under <code>src/</code>. Either create a new subdirectory or place the file in <code>common</code> if none of the existing directories is a good match. Avoid placing the file directly under <code>src</code></li>
@@ -186,7 +186,7 @@ Building CPU Fortran code</h2>
 </li>
 <li>Finally reconfigure using <code>configure</code> and rebuild Neko with your new contribution!</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md20"></a>
+<h2><a class="anchor" id="autotoc_md21"></a>
 Device code</h2>
 <p>Here we focus on three particular backends: CUDA, HIP, and OpenCL. In Neko these three are collectively referred to as the "device", distinguishing them from both ordinary CPU code, but also other special backends like the SX. Whenever a type needs to implement dedicated compute kernels, Neko often follows a standardized directory and file structure.</p>
 <p>As an example, we will consider the folder <code>src/bc</code>, please open it in a terminal alongside reading this text. Inside, you can see a bunch of <code>.f90</code> files, corresponding to different boundary conditions, for example, <code>symmtery.f90</code> and <code><a class="el" href="../../d8/d69/dirichlet_8f90.html">dirichlet.f90</a></code>. These files define the corresponding types, like <code>dirichlet_t</code> and are included in the build system as per the instructions above. So, these files are just pure Fortran.</p>
@@ -198,7 +198,7 @@ Device code</h2>
 <p>Let's take a look at <code><a class="el" href="../../dd/d9a/device__symmetry_8F90.html">device_symmetry.F90</a></code>. It contains one subroutine, <code>device_symmetry_apply_vector</code>, that just dispatches the call to one of the backends, via the corresponding interfaces defined in the beginning of the file. If we now go back to <code><a class="el" href="../../d2/d3a/symmetry_8f90.html">symmetry.f90</a></code>, we see that it imports this routine, and calls it inside <code>symmetry_apply_vector_dev</code>.</p>
 <p>Since the <code>.F90</code>s are ordinary Fortran files, they are also added to the build system in the already specified way.</p>
 <p>Now we leave the familiar Fortran territory and look at individual backends. Generally, CUDA and HIP are very similar (in fact, even the code of the kernels is often pretty much a copy-paste), so we will look at CUDA in detail and then quickly mentioned adjustments for HIP. OpenCL is a different beast, but the pattern is still quite similar.</p>
-<h3><a class="anchor" id="autotoc_md21"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 CUDA</h3>
 <p>To follow along, navigate to <code>src/bc/bcknd/device/cuda</code>. We see three types of files: <code>.cu</code>, <code>*_kernel.h</code> and potentially other, auxillary, <code>.h</code> files.</p>
 <ul>
@@ -227,12 +227,12 @@ CUDA</h3>
 </div><!-- fragment --><p> list.</p>
 <p>Unfortunately, we also have to manually provide the dependencies between the files. That is done in the <code>src/.depends_device</code> file. A typical line will bind a <code>.lo</code> file with the corresponding <code>.cu</code> and <code>.h</code> files. For example: </p><div class="fragment"><div class="line">bc/bcknd/device/cuda/symmetry.lo : bc/bcknd/device/cuda/symmetry.cu bc/bcknd/device/cuda/symmetry_kernel.h</div>
 </div><!-- fragment --><p> So, one should make similar entries for each new <code>.cu</code> file one adds.</p>
-<h3><a class="anchor" id="autotoc_md22"></a>
+<h3><a class="anchor" id="autotoc_md23"></a>
 HIP</h3>
 <p>Thankfully, HIP works in precisely the same way as CUDA, with the following differenece: instead of <code>.cu</code> we have <code>.hip</code> files. These are to be added under </p><div class="fragment"><div class="line">if ENABLE_HIP</div>
 <div class="line">libneko_la_SOURCES += \</div>
 </div><!-- fragment --><p> for the build system to see them. The <code>.h</code> files go to <code>EXTRA_DIST</code> as with CUDA. The dependencies are also specified in the exact same way.</p>
-<h3><a class="anchor" id="autotoc_md23"></a>
+<h3><a class="anchor" id="autotoc_md24"></a>
 OpenCL</h3>
 <p>To follow along, navigate to <code>src/bc/bcknd/device/opencl</code>. Quite similar to CUDA, there are up to 3 types of files that can be present here.</p><ul>
 <li>The <code>.c</code> files, which are just like <code>.hip</code> or <code>.cu</code>. They contain a C routine, which launches the OpenCL kernel.</li>
@@ -255,7 +255,7 @@ OpenCL</h3>
 <div class="line">libneko_la_SOURCES += \</div>
 </div><!-- fragment --><p> in <code>src/Makefile.am</code>, and the <code>.cl</code> and <code>.h</code> files go under the <code>EXTRA_DIST</code> list, just like the CUDA and HIP kernel files did.</p>
 <p>The entry to <code>src/.depends_device</code> also follows a familiar pattern, e.g. </p><div class="fragment"><div class="line">bc/bcknd/device/opencl/symmetry.lo : bc/bcknd/device/opencl/symmetry.c bc/bcknd/device/opencl/symmetry_kernel.cl.h</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md24"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md25"></a>
 Device-based type polymorphism</h3>
 <p>Neko is developing, and not all the conventions active now have been applied from the beginning, and even in new code there are sometimes exceptions. For example, it has already been mentioned tha the CPU kernels sometimes reside in a seprate module, like the device ones, and sometimes just implemented inside the main module defining the type.</p>
 <p>Some important types in Neko use polymorphism in addition to the <code>#ifdef</code> statements we saw in the <code>.F90</code> files in order define the behavior on the device. If we look at the <code><a class="el" href="../../da/d32/pnpn__res_8f90.html">pnpn_res.f90</a></code> file, we see that an abstract type is defined, <code>pnpn_pres_res_t</code>. Then in <code><a class="el" href="../../d1/d10/pnpn__res__device_8F90.html">pnpn_res_device.F90</a></code> the type is extended: </p><div class="fragment"><div class="line"><span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">extends</span>(pnpn_prs_res_t) :: pnpn_prs_res_device_t</div>
@@ -265,7 +265,7 @@ Device-based type polymorphism</h3>
 </div><!-- fragment --><p> An inspection of the <code>compute</code> routine reveals a complex code that both launches kernels and also makes use of the operators and math routines that also dispatch to the correct backend. Similar types are defined for the CPU and also other backends (SX) in this case. The correct type is then instantiated at run time in a factory routine located in <code><a class="el" href="../../dc/dfb/pnpn__res__fctry_8f90.html">pnpn_res_fctry.f90</a></code>.</p>
 <p>What this achieves is that you don't need the extra <code>if</code> statement to distinguish between the CPU, the device, and the SX backends each time you want <code>pnpn_res</code> to do its job. Instead, you have that <code>if</code> statement in the factory routine, and you get the correct type to use for your backend for the rest of the run time.</p>
 <p>In the majority of situations, one can take the hit of having that extra <code>if</code> statement and not complicate the code with the extra types and the factory.</p>
-<h3><a class="anchor" id="autotoc_md25"></a>
+<h3><a class="anchor" id="autotoc_md26"></a>
 Summary of build system entires</h3>
 <p>Here is concise summary of how to add device kernels to the build system:</p>
 <p>In <code>src/Makefile.am</code></p><ul>
@@ -292,7 +292,7 @@ Summary of build system entires</h3>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

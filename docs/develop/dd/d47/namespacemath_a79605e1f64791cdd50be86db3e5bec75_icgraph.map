@@ -1,20 +1,22 @@
 <map id="math::glsum" name="math::glsum">
-<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="292,223,396,248"/>
-<area shape="poly" id="edge6_Node000001_Node000001" title=" " alt="" coords="383,213,372,205,344,201,321,203,308,208,306,214,312,221,308,224,301,214,305,204,319,198,344,196,374,200,386,209"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="37,5,212,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="334,210,323,172,305,128,278,83,242,45,211,30,214,25,246,41,282,80,309,125,328,171,339,208"/>
-<area shape="rect" id="Node000003" href="$d3/d66/namespacefluid__scheme__compressible.html#acb6812095efba4a414478c6ba9e87db7" title="Initialize common data for compressible fluid scheme." alt="" coords="5,55,244,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="328,212,294,160,270,132,243,110,221,98,223,93,245,105,274,129,298,156,332,209"/>
-<area shape="rect" id="Node000004" href="$d7/dff/namespacefluid__scheme__incompressible.html#ae963806c56d3a2fa15861f95c54dc505" title="Initialise a fluid scheme." alt="" coords="17,119,232,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="314,217,281,194,243,174,212,162,214,157,245,169,284,190,317,212"/>
-<area shape="rect" id="Node000005" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="52,183,197,223"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="278,229,197,217,198,211,279,223"/>
-<area shape="rect" id="Node000006" href="$d6/daa/namespaceforce__torque.html#a8a3bfdd03c6deef5b7b1e2687eb82d37" title="Common part of constructors." alt="" coords="43,247,206,287"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="279,247,207,258,206,253,278,242"/>
-<area shape="rect" id="Node000007" href="$dc/d12/namespacematrix__math.html#a134fab8efe57504296cae27152a3d657" title="Global sum of all elements in a matrix ." alt="" coords="46,311,203,351"/>
-<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="317,258,284,281,245,302,204,317,202,312,243,297,281,276,314,254"/>
-<area shape="rect" id="Node000008" href="$dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="61,376,188,401"/>
-<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="333,262,299,315,274,343,245,366,218,378,189,386,188,381,216,373,243,361,270,339,294,312,328,259"/>
-<area shape="rect" id="Node000009" href="$d3/d0d/namespacevector__math.html#a83da312e1061e280d36d8ae363663f0f" title=" " alt="" coords="48,426,201,466"/>
-<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="338,262,325,297,306,338,280,379,246,415,225,428,202,437,200,432,223,423,242,411,276,376,301,335,320,295,333,260"/>
+<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="541,237,645,263"/>
+<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="633,228,622,219,593,216,570,218,558,223,555,228,562,236,558,239,550,229,554,219,569,213,593,211,624,214,636,223"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="287,20,461,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="584,225,572,187,554,142,527,97,492,60,461,44,463,39,495,56,532,94,559,140,577,185,589,223"/>
+<area shape="rect" id="Node000004" href="$d3/d66/namespacefluid__scheme__compressible.html#acb6812095efba4a414478c6ba9e87db7" title="Initialize common data for compressible fluid scheme." alt="" coords="255,70,493,110"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="577,227,543,174,519,147,492,124,470,112,472,108,495,120,523,143,547,171,582,224"/>
+<area shape="rect" id="Node000005" href="$d7/dff/namespacefluid__scheme__incompressible.html#ae963806c56d3a2fa15861f95c54dc505" title="Initialise a fluid scheme." alt="" coords="267,134,481,174"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="563,231,530,209,492,188,461,177,463,172,494,184,533,204,566,227"/>
+<area shape="rect" id="Node000006" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="301,198,447,238"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="527,243,446,231,447,226,528,238"/>
+<area shape="rect" id="Node000007" href="$d6/daa/namespaceforce__torque.html#a8a3bfdd03c6deef5b7b1e2687eb82d37" title="Common part of constructors." alt="" coords="293,262,455,302"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="528,262,456,273,455,268,527,257"/>
+<area shape="rect" id="Node000008" href="$dc/d12/namespacematrix__math.html#a134fab8efe57504296cae27152a3d657" title="Global sum of all elements in a matrix ." alt="" coords="295,326,453,366"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="566,273,533,296,494,316,454,331,452,326,492,312,530,291,563,269"/>
+<area shape="rect" id="Node000009" href="$dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="311,391,437,416"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="582,276,548,330,523,357,495,380,467,393,439,401,437,396,466,388,492,376,520,353,544,326,577,274"/>
+<area shape="rect" id="Node000010" href="$d3/d0d/namespacevector__math.html#a83da312e1061e280d36d8ae363663f0f" title=" " alt="" coords="297,441,451,481"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="587,277,575,312,555,353,529,394,495,429,474,442,452,451,450,446,472,438,492,425,525,391,551,350,570,309,582,275"/>
+<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="5,5,207,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="273,35,207,35,207,30,273,30"/>
 </map>

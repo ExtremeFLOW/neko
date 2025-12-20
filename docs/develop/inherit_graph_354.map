@@ -1,3 +1,17 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d9/d2b/interfacejson__utils_1_1json__extract__item.html" title=" " alt="" coords="5,5,215,31"/>
+<area shape="rect" id="Node000000" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="5,191,159,217"/>
+<area shape="rect" id="Node000001" href="$dd/d3e/structhtable_1_1htable__iter__cptr__t.html" title="Iterator for a C pointer based hash table." alt="" coords="223,5,364,45"/>
+<area shape="poly" id="edge66_Node000000_Node000001" title=" " alt="" coords="96,178,140,117,171,84,205,55,226,43,229,48,208,60,174,88,144,121,100,181"/>
+<area shape="rect" id="Node000002" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="207,70,379,95"/>
+<area shape="poly" id="edge67_Node000000_Node000002" title=" " alt="" coords="105,180,149,142,205,106,237,93,239,98,208,110,153,146,108,184"/>
+<area shape="rect" id="Node000003" href="$d8/dfb/structhtable_1_1htable__iter__i4t2__t.html" title="Iterator for an integer based 2&#45;tuple hash table." alt="" coords="223,120,364,160"/>
+<area shape="poly" id="edge68_Node000000_Node000003" title=" " alt="" coords="137,185,226,158,227,163,139,190"/>
+<area shape="rect" id="Node000004" href="$de/d9b/structhtable_1_1htable__iter__i4t4__t.html" title="Iterator for an integer based 4&#45;tuple hash table." alt="" coords="223,184,364,224"/>
+<area shape="poly" id="edge69_Node000000_Node000004" title=" " alt="" coords="172,201,222,201,222,207,172,207"/>
+<area shape="rect" id="Node000005" href="$d1/da0/structhtable_1_1htable__iter__i8__t.html" title="Iterator for an integer*8 based hash table." alt="" coords="207,249,379,274"/>
+<area shape="poly" id="edge70_Node000000_Node000005" title=" " alt="" coords="143,218,247,246,245,251,142,223"/>
+<area shape="rect" id="Node000006" href="$d0/dfb/structhtable_1_1htable__iter__pt__t.html" title="Iterator for a point based hash table." alt="" coords="207,298,380,323"/>
+<area shape="poly" id="edge71_Node000000_Node000006" title=" " alt="" coords="111,223,155,253,208,283,241,295,239,300,206,288,153,258,108,227"/>
+<area shape="rect" id="Node000007" href="$da/d47/structhtable_1_1htable__iter__r8__t.html" title="Iterator for a double precision based hash table." alt="" coords="207,347,380,373"/>
+<area shape="poly" id="edge72_Node000000_Node000007" title=" " alt="" coords="102,226,146,280,175,308,208,332,235,345,233,350,205,337,172,312,142,284,98,230"/>
 </map>

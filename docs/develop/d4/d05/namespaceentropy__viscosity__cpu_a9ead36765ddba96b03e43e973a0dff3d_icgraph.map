@@ -1,0 +1,5 @@
+<map id="entropy_viscosity_cpu::entropy_viscosity_smooth_divide_cpu" name="entropy_viscosity_cpu::entropy_viscosity_smooth_divide_cpu">
+<area shape="rect" id="Node000001" title="Divide by multiplicity for smoothing on CPU." alt="" coords="247,5,448,60"/>
+<area shape="rect" id="Node000002" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="5,5,199,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,35,199,35,199,30,233,30"/>
+</map>

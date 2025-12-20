@@ -1,0 +1,18 @@
+<map id="entropy_viscosity::entropy_viscosity_apply_element_max" name="entropy_viscosity::entropy_viscosity_apply_element_max">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,185,100"/>
+<area shape="rect" id="Node000002" href="$d4/d05/namespaceentropy__viscosity__cpu.html#ad2f208edbdaeacbf93e34df9bfa0d7d8" title="Apply element&#45;wise maximum on CPU." alt="" coords="233,5,421,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,54,219,49,220,54,186,60"/>
+<area shape="rect" id="Node000003" href="$d0/d70/namespaceentropy__viscosity__device.html#aa5c7b1e697f359ba494c7d53ab9832f1" title="Apply element&#45;wise maximum on device." alt="" coords="233,84,421,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,85,220,91,219,96,186,90"/>
+<area shape="rect" id="Node000004" href="$d8/d84/entropy__viscosity_8cu.html#a435574cf967d0ba5061e55cc73ac20eb" title=" " alt="" coords="680,62,867,102"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="421,103,666,86,667,92,422,108"/>
+<area shape="rect" id="Node000006" href="$dd/d01/entropy__viscosity_8c.html#af40ac49be044b9526aa67727e40745c6" title=" " alt="" coords="469,119,632,159"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="422,120,456,125,455,130,421,126"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="915,119,1079,159"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="853,99,906,113,904,118,851,105"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="955,120,953,110,959,100,974,95,997,93,1023,96,1037,103,1034,108,1021,101,997,98,975,100,963,105,958,111,960,118"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="632,137,901,137,901,142,632,142"/>
+<area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="707,177,839,203"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="633,155,704,172,703,177,631,160"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="830,175,901,158,902,164,831,180"/>
+</map>

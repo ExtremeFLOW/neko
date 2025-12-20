@@ -1,0 +1,9 @@
+<map id="opencl_entropy_visc_apply_element_max" name="opencl_entropy_visc_apply_element_max">
+<area shape="rect" id="Node000001" title=" " alt="" coords="485,57,648,97"/>
+<area shape="rect" id="Node000002" href="$d0/d70/namespaceentropy__viscosity__device.html#aa5c7b1e697f359ba494c7d53ab9832f1" title="Apply element&#45;wise maximum on device." alt="" coords="249,49,437,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="472,79,438,79,438,74,472,74"/>
+<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a044170f89b565dcfee9bc8618bf2431a" title=" " alt="" coords="13,5,193,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="235,60,193,52,194,47,236,54"/>
+<area shape="rect" id="Node000004" href="$dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide.html#a739adbea8d0deced8d606a95ce8d3415" title=" " alt="" coords="5,85,201,154"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="236,98,202,105,201,99,235,93"/>
+</map>

@@ -13,6 +13,7 @@ var prgm__lib_8h =
     [ "dirichlet_program", "d1/df7/prgm__lib_8h.html#a48685b3c5ee88dab874d4ce47f52ed0d", null ],
     [ "dong_program", "d1/df7/prgm__lib_8h.html#a1a02c27fb0965ba7260d8d22296af903", null ],
     [ "dudxyz_program", "d1/df7/prgm__lib_8h.html#a49555224a27684becddeb7da0c849730", null ],
+    [ "entropy_viscosity_program", "d1/df7/prgm__lib_8h.html#ac023d48a2cdfc506d9e2accaf4decab9", null ],
     [ "euler_res_program", "d1/df7/prgm__lib_8h.html#a8a2859014f484efd615099507682d34d", null ],
     [ "facet_normal_program", "d1/df7/prgm__lib_8h.html#aec0105b8cfefafdf819f8881ee835123", null ],
     [ "fdm_program", "d1/df7/prgm__lib_8h.html#a61a425b33d465bba7397980ea4bff37b", null ],

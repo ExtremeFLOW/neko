@@ -1,3 +1,17 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d7/d48/interfacejson__utils_1_1json__get.html" title="Retrieves a parameter by name or throws an error." alt="" coords="5,5,152,31"/>
+<area shape="rect" id="Node000000" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="5,153,129,179"/>
+<area shape="rect" id="Node000001" href="$da/dfa/structhtable_1_1htable__cptr__t.html" title="C pointer based hash table." alt="" coords="177,5,333,31"/>
+<area shape="poly" id="edge73_Node000000_Node000001" title=" " alt="" coords="82,140,121,89,147,63,176,40,199,28,201,33,179,44,150,67,125,93,86,143"/>
+<area shape="rect" id="Node000002" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="184,55,327,80"/>
+<area shape="poly" id="edge74_Node000000_Node000002" title=" " alt="" coords="93,143,131,115,176,89,205,78,207,83,179,94,134,120,96,147"/>
+<area shape="rect" id="Node000003" href="$da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="177,104,333,129"/>
+<area shape="poly" id="edge75_Node000000_Node000003" title=" " alt="" coords="129,147,205,127,206,132,130,152"/>
+<area shape="rect" id="Node000004" href="$d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="177,153,333,179"/>
+<area shape="poly" id="edge76_Node000000_Node000004" title=" " alt="" coords="143,163,177,163,177,169,143,169"/>
+<area shape="rect" id="Node000005" href="$df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="184,203,327,228"/>
+<area shape="poly" id="edge77_Node000000_Node000005" title=" " alt="" coords="130,180,206,200,205,205,129,185"/>
+<area shape="rect" id="Node000006" href="$d8/d19/structhtable_1_1htable__pt__t.html" title="Point based hash table." alt="" coords="183,252,327,277"/>
+<area shape="poly" id="edge78_Node000000_Node000006" title=" " alt="" coords="97,185,135,212,179,237,210,249,208,254,176,242,132,216,94,189"/>
+<area shape="rect" id="Node000007" href="$da/dee/structhtable_1_1htable__r8__t.html" title="Double precision based hash table." alt="" coords="183,301,327,327"/>
+<area shape="poly" id="edge79_Node000000_Node000007" title=" " alt="" coords="86,188,125,238,150,264,179,286,204,299,202,304,176,291,147,268,121,242,82,192"/>
 </map>

@@ -6,5 +6,5 @@ var euler__res_8hip =
     [ "euler_res_part_my_flux_hip", "d3/d78/euler__res_8hip.html#a0e4fa1a01462a883141d86415b030419", null ],
     [ "euler_res_part_mz_flux_hip", "d3/d78/euler__res_8hip.html#afbe1a5aea3302673d3143800f1d2ff1b", null ],
     [ "euler_res_part_rk_sum_hip", "d3/d78/euler__res_8hip.html#ae821a8e0a38f9972f8158a90c4c63dca", null ],
-    [ "euler_res_part_visc_hip", "d3/d78/euler__res_8hip.html#a5adb2a69baa7b61619aefed0fefc912d", null ]
+    [ "euler_res_part_visc_hip", "d3/d78/euler__res_8hip.html#a4ac905ec58b306846612be1be8c5c99b", null ]
 ];

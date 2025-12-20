@@ -1024,91 +1024,95 @@ $(document).ready(function(){initNavTree('df/d36/opr__device_8F90_source.html','
 <div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>    vz_d = device_get_ptr(vz)</div>
 <div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>    ncyc = coef%cyc_msk(0) - 1</div>
 <div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span> </div>
-<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html">hip_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
-<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
-<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
-<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>         ncyc, idir)</div>
-<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../de/d68/opr__rotate__cyc_8cu.html#a03227187d2a29859b2f5f36d015463ad">cuda_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
-<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
-<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
-<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>          ncyc, idir)</div>
-<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span><span class="preprocessor"></span> </div>
-<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured for rotate_cyc&#39;</span>)</div>
-<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span><span class="preprocessor"></span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured for rotate_cyc&#39;</span>)</div>
-<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a176528d5e4ecc8f5be227480b891aa1e">opr_device_rotate_cyc_r1</a></div>
-<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span> </div>
+<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>    <span class="keywordflow">if</span> (ncyc .le. 0) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span> </div>
+<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html">hip_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
+<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
+<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span>         ncyc, idir)</div>
+<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../de/d68/opr__rotate__cyc_8cu.html#a03227187d2a29859b2f5f36d015463ad">cuda_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
+<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
+<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>          ncyc, idir)</div>
+<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span><span class="preprocessor"></span> </div>
+<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured for rotate_cyc&#39;</span>)</div>
+<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span><span class="preprocessor"></span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured for rotate_cyc&#39;</span>)</div>
+<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a176528d5e4ecc8f5be227480b891aa1e">opr_device_rotate_cyc_r1</a></div>
+<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span> </div>
 </div>
-<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">opr_device_rotate_cyc_r4</a>(vx, vy, vz, idir, coef)</div>
-<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span>    <span class="keywordtype">type</span>(coef_t) :: coef</div>
-<div class="foldopen" id="foldopen00903" data-start="" data-end="">
-<div class="line"><a id="l00903" name="l00903"></a><span class="lineno"><a class="line" href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">  903</a></span>    <span class="keywordtype">integer</span> :: idir, ncyc</div>
-<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span><span class="keywordtype">    real</span>(rp), <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: &amp;</div>
-<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>              vx, vy, vz</div>
-<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span>    <span class="keywordtype">type</span>(c_ptr) :: vx_d, vy_d, vz_d</div>
-<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span> </div>
-<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>    vx_d = device_get_ptr(vx)</div>
-<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>    vy_d = device_get_ptr(vy)</div>
-<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>    vz_d = device_get_ptr(vz)</div>
-<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>    ncyc = coef%cyc_msk(0) - 1</div>
-<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span> </div>
-<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html">hip_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
-<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
-<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
-<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>         ncyc, idir)</div>
-<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../de/d68/opr__rotate__cyc_8cu.html#a03227187d2a29859b2f5f36d015463ad">cuda_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
-<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
-<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
-<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>          ncyc, idir)</div>
-<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span><span class="preprocessor"></span> </div>
-<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured for rotate_cyc&#39;</span>)</div>
-<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span><span class="preprocessor"></span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured for rotate_cyc&#39;</span>)</div>
-<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">opr_device_rotate_cyc_r4</a></div>
-<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span> </div>
+<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">opr_device_rotate_cyc_r4</a>(vx, vy, vz, idir, coef)</div>
+<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>    <span class="keywordtype">type</span>(coef_t) :: coef</div>
+<div class="foldopen" id="foldopen00905" data-start="" data-end="">
+<div class="line"><a id="l00905" name="l00905"></a><span class="lineno"><a class="line" href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">  905</a></span>    <span class="keywordtype">integer</span> :: idir, ncyc</div>
+<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span><span class="keywordtype">    real</span>(rp), <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: &amp;</div>
+<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span>              vx, vy, vz</div>
+<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>    <span class="keywordtype">type</span>(c_ptr) :: vx_d, vy_d, vz_d</div>
+<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span> </div>
+<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>    vx_d = device_get_ptr(vx)</div>
+<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>    vy_d = device_get_ptr(vy)</div>
+<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>    vz_d = device_get_ptr(vz)</div>
+<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>    ncyc = coef%cyc_msk(0) - 1</div>
+<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span> </div>
+<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>    <span class="keywordflow">if</span> (ncyc .le. 0) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span> </div>
+<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html">hip_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
+<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
+<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>         ncyc, idir)</div>
+<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../de/d68/opr__rotate__cyc_8cu.html#a03227187d2a29859b2f5f36d015463ad">cuda_rotate_cyc</a>(vx_d, vy_d, vz_d, &amp;</div>
+<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span>          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &amp;</div>
+<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &amp;</div>
+<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span>          ncyc, idir)</div>
+<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span><span class="preprocessor"></span> </div>
+<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured for rotate_cyc&#39;</span>)</div>
+<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span><span class="preprocessor"></span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured for rotate_cyc&#39;</span>)</div>
+<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">opr_device_rotate_cyc_r4</a></div>
+<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span> </div>
 </div>
-<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">opr_device_set_convect_rst</a>(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &amp;</div>
-<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>            Xh, coef)</div>
-<div class="foldopen" id="foldopen00933" data-start="" data-end="">
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno"><a class="line" href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">  933</a></span>    <span class="keywordtype">type</span>(space_t), <span class="keywordtype">intent(inout)</span> :: xh</div>
-<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>    <span class="keywordtype">type</span>(c_ptr) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d</div>
-<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span> </div>
-<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html">hip_set_convect_rst</a>(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &amp;</div>
-<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span>           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &amp;</div>
-<div class="line"><a id="l00940" name="l00940"></a><span class="lineno">  940</span>           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &amp;</div>
-<div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &amp;</div>
-<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span>           xh%w3_d, coef%msh%nelv, xh%lx)</div>
-<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../de/da2/set__convect__rst_8cu.html#afe7fc6ae83712d1af0ebc6ad0bd37115">cuda_set_convect_rst</a>(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &amp;</div>
-<div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span>           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &amp;</div>
-<div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span>           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &amp;</div>
-<div class="line"><a id="l00947" name="l00947"></a><span class="lineno">  947</span>           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &amp;</div>
-<div class="line"><a id="l00948" name="l00948"></a><span class="lineno">  948</span>           xh%w3_d, coef%msh%nelv, xh%lx)</div>
-<div class="line"><a id="l00949" name="l00949"></a><span class="lineno">  949</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00950" name="l00950"></a><span class="lineno">  950</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/d53/set__convect__rst_8c.html#afc085279156cae85060897581989d120">opencl_set_convect_rst</a>(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &amp;</div>
-<div class="line"><a id="l00951" name="l00951"></a><span class="lineno">  951</span>           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &amp;</div>
-<div class="line"><a id="l00952" name="l00952"></a><span class="lineno">  952</span>           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &amp;</div>
-<div class="line"><a id="l00953" name="l00953"></a><span class="lineno">  953</span>           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &amp;</div>
-<div class="line"><a id="l00954" name="l00954"></a><span class="lineno">  954</span>           xh%w3_d, coef%msh%nelv, xh%lx)</div>
-<div class="line"><a id="l00955" name="l00955"></a><span class="lineno">  955</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00956" name="l00956"></a><span class="lineno">  956</span><span class="preprocessor"></span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
-<div class="line"><a id="l00957" name="l00957"></a><span class="lineno">  957</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00958" name="l00958"></a><span class="lineno">  958</span><span class="preprocessor"></span> </div>
-<div class="line"><a id="l00959" name="l00959"></a><span class="lineno">  959</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">opr_device_set_convect_rst</a></div>
-<div class="line"><a id="l00960" name="l00960"></a><span class="lineno">  960</span> </div>
+<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">opr_device_set_convect_rst</a>(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &amp;</div>
+<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span>            Xh, coef)</div>
+<div class="foldopen" id="foldopen00937" data-start="" data-end="">
+<div class="line"><a id="l00937" name="l00937"></a><span class="lineno"><a class="line" href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">  937</a></span>    <span class="keywordtype">type</span>(space_t), <span class="keywordtype">intent(inout)</span> :: xh</div>
+<div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span>    <span class="keywordtype">type</span>(c_ptr) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d</div>
+<div class="line"><a id="l00940" name="l00940"></a><span class="lineno">  940</span> </div>
+<div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html">hip_set_convect_rst</a>(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &amp;</div>
+<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span>           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &amp;</div>
+<div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span>           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &amp;</div>
+<div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span>           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &amp;</div>
+<div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span>           xh%w3_d, coef%msh%nelv, xh%lx)</div>
+<div class="line"><a id="l00947" name="l00947"></a><span class="lineno">  947</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00948" name="l00948"></a><span class="lineno">  948</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../de/da2/set__convect__rst_8cu.html#afe7fc6ae83712d1af0ebc6ad0bd37115">cuda_set_convect_rst</a>(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &amp;</div>
+<div class="line"><a id="l00949" name="l00949"></a><span class="lineno">  949</span>           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &amp;</div>
+<div class="line"><a id="l00950" name="l00950"></a><span class="lineno">  950</span>           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &amp;</div>
+<div class="line"><a id="l00951" name="l00951"></a><span class="lineno">  951</span>           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &amp;</div>
+<div class="line"><a id="l00952" name="l00952"></a><span class="lineno">  952</span>           xh%w3_d, coef%msh%nelv, xh%lx)</div>
+<div class="line"><a id="l00953" name="l00953"></a><span class="lineno">  953</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00954" name="l00954"></a><span class="lineno">  954</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/d53/set__convect__rst_8c.html#afc085279156cae85060897581989d120">opencl_set_convect_rst</a>(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &amp;</div>
+<div class="line"><a id="l00955" name="l00955"></a><span class="lineno">  955</span>           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &amp;</div>
+<div class="line"><a id="l00956" name="l00956"></a><span class="lineno">  956</span>           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &amp;</div>
+<div class="line"><a id="l00957" name="l00957"></a><span class="lineno">  957</span>           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &amp;</div>
+<div class="line"><a id="l00958" name="l00958"></a><span class="lineno">  958</span>           xh%w3_d, coef%msh%nelv, xh%lx)</div>
+<div class="line"><a id="l00959" name="l00959"></a><span class="lineno">  959</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00960" name="l00960"></a><span class="lineno">  960</span><span class="preprocessor"></span>    <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
+<div class="line"><a id="l00961" name="l00961"></a><span class="lineno">  961</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00962" name="l00962"></a><span class="lineno">  962</span><span class="preprocessor"></span> </div>
+<div class="line"><a id="l00963" name="l00963"></a><span class="lineno">  963</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">opr_device_set_convect_rst</a></div>
+<div class="line"><a id="l00964" name="l00964"></a><span class="lineno">  964</span> </div>
 </div>
-<div class="line"><a id="l00961" name="l00961"></a><span class="lineno">  961</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d4d/namespaceopr__device.html">opr_device</a></div>
-<div class="line"><a id="l00962" name="l00962"></a><span class="lineno">  962</span> </div>
+<div class="line"><a id="l00965" name="l00965"></a><span class="lineno">  965</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d4d/namespaceopr__device.html">opr_device</a></div>
+<div class="line"><a id="l00966" name="l00966"></a><span class="lineno">  966</span> </div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00101">device.F90:101</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00077">device.F90:77</a></div></div>
 <div class="ttc" id="ainterfaceopr__device_1_1hip__cdtp_html"><div class="ttname"><a href="../../db/d39/interfaceopr__device_1_1hip__cdtp.html">opr_device::hip_cdtp</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00067">opr_device.F90:67</a></div></div>
@@ -1143,10 +1147,10 @@ $(document).ready(function(){initNavTree('df/d36/opr__device_8F90_source.html','
 <div class="ttc" id="anamespaceopr__device_html_a046cc3f2f0d5f27cc7b098b2085a717e"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a046cc3f2f0d5f27cc7b098b2085a717e">opr_device::opr_device_convect_scalar</a></div><div class="ttdeci">subroutine, public opr_device_convect_scalar(du, u_d, cr_d, cs_d, ct_d, xh_gll, xh_gl, coef_gll, coef_gl, gll_to_gl)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00622">opr_device.F90:624</a></div></div>
 <div class="ttc" id="anamespaceopr__device_html_a176528d5e4ecc8f5be227480b891aa1e"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a176528d5e4ecc8f5be227480b891aa1e">opr_device::opr_device_rotate_cyc_r1</a></div><div class="ttdeci">subroutine, public opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00873">opr_device.F90:874</a></div></div>
 <div class="ttc" id="anamespaceopr__device_html_a5976c035ccc91cc8b346fc866e476775"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a5976c035ccc91cc8b346fc866e476775">opr_device::opr_device_cdtp</a></div><div class="ttdeci">subroutine, public opr_device_cdtp(dtx, x, dr, ds, dt, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00539">opr_device.F90:540</a></div></div>
-<div class="ttc" id="anamespaceopr__device_html_a668b8309c718fdf4a51cffb97afad559"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">opr_device::opr_device_rotate_cyc_r4</a></div><div class="ttdeci">subroutine, public opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00903">opr_device.F90:904</a></div></div>
+<div class="ttc" id="anamespaceopr__device_html_a668b8309c718fdf4a51cffb97afad559"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">opr_device::opr_device_rotate_cyc_r4</a></div><div class="ttdeci">subroutine, public opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00905">opr_device.F90:906</a></div></div>
 <div class="ttc" id="anamespaceopr__device_html_a8c94efab56085f4843490a6ab2c842c4"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a8c94efab56085f4843490a6ab2c842c4">opr_device::opr_device_cfl</a></div><div class="ttdeci">real(kind=rp) function, public opr_device_cfl(dt, u, v, w, xh, coef, nelv, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00833">opr_device.F90:834</a></div></div>
 <div class="ttc" id="anamespaceopr__device_html_a99baf3e0c295d2b3603f603e7d11f458"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a99baf3e0c295d2b3603f603e7d11f458">opr_device::opr_device_curl</a></div><div class="ttdeci">subroutine, public opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_xh, event)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00667">opr_device.F90:668</a></div></div>
-<div class="ttc" id="anamespaceopr__device_html_a9de98814162021b7db7db8b303167684"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">opr_device::opr_device_set_convect_rst</a></div><div class="ttdeci">subroutine, public opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, xh, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00933">opr_device.F90:935</a></div></div>
+<div class="ttc" id="anamespaceopr__device_html_a9de98814162021b7db7db8b303167684"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">opr_device::opr_device_set_convect_rst</a></div><div class="ttdeci">subroutine, public opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, xh, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00937">opr_device.F90:939</a></div></div>
 <div class="ttc" id="anamespaceopr__device_html_abc0d21999d04728a18514d4c422219ec"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec">opr_device::opr_device_dudxyz</a></div><div class="ttdeci">subroutine, public opr_device_dudxyz(du, u, dr, ds, dt, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00432">opr_device.F90:433</a></div></div>
 <div class="ttc" id="anamespaceopr__device_html_ad5bf8b83c33e9c73125c466a6fab72df"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df">opr_device::opr_device_opgrad</a></div><div class="ttdeci">subroutine, public opr_device_opgrad(ux, uy, uz, u, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00467">opr_device.F90:468</a></div></div>
 <div class="ttc" id="anamespaceopr__device_html_ae04611fe66a4b513beb0157ac526838b"><div class="ttname"><a href="../../d3/d4d/namespaceopr__device.html#ae04611fe66a4b513beb0157ac526838b">opr_device::opr_device_conv1</a></div><div class="ttdeci">subroutine, public opr_device_conv1(du, u, vx, vy, vz, xh, coef, nelv, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d36/opr__device_8F90_source.html#l00575">opr_device.F90:576</a></div></div>
@@ -1180,7 +1184,7 @@ $(document).ready(function(){initNavTree('df/d36/opr__device_8F90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../df/d36/opr__device_8F90.html">opr_device.F90</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,5 +1,6 @@
 var math_8c =
 [
+    [ "opencl_absval", "d6/da3/math_8c.html#a9651f6c04413877a88dc87076524519e", null ],
     [ "opencl_add2", "d6/da3/math_8c.html#ac41d6de294c3d5dec02f0c1881127f20", null ],
     [ "opencl_add2s1", "d6/da3/math_8c.html#a296610858b4614f4e8c59b659060b615", null ],
     [ "opencl_add2s2", "d6/da3/math_8c.html#a7f9868ab701e8bbc74bd9ea97de47ffb", null ],

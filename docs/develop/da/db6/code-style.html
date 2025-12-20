@@ -102,9 +102,9 @@ $(document).ready(function(){initNavTree('da/db6/code-style.html','../../'); ini
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md10">Data types</a></li>
-<li class="level1"><a href="#autotoc_md11">Enforcing rules</a><ul><li class="level2"><a href="#autotoc_md12">Tools</a><ul><li class="level3"><a href="#autotoc_md13">flint</a></li>
-<li class="level3"><a href="#autotoc_md14">findent</a></li>
+<ul><li class="level1"><a href="#autotoc_md11">Data types</a></li>
+<li class="level1"><a href="#autotoc_md12">Enforcing rules</a><ul><li class="level2"><a href="#autotoc_md13">Tools</a><ul><li class="level3"><a href="#autotoc_md14">flint</a></li>
+<li class="level3"><a href="#autotoc_md15">findent</a></li>
 </ul>
 </li>
 </ul>
@@ -149,11 +149,11 @@ $(document).ready(function(){initNavTree('da/db6/code-style.html','../../'); ini
 <div class="line">  <span class="keyword">end subroutine </span>foo</div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end module </span>example</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md10"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md11"></a>
 Data types</h1>
 <p>For portability reasons, it is essential to only use data type kinds defined in <a class="el" href="../../dc/d99/num__types_8f90.html">num_types.f90</a> and avoid legacy constructs like <code>real*8</code> or <code>integer(kind=8)</code></p>
 <p>Floating-point numbers should be declared using <code>real</code> with the kind <code>rp</code>, which is the configured working precision for Neko (defaults to double). If single, double or quad precision is explicitly needed, use the kinds <code>sp</code>, <code>dp</code> or <code>qp</code>, respectively. For 16, 32, or 64-bit integers, Neko has defined the kinds <code>i2</code>, <code>i4</code> or <code>i8</code>, respectively; however, for standard integers, it is perfectly fine to use a plain <code>integer</code>.</p>
-<h1><a class="anchor" id="autotoc_md11"></a>
+<h1><a class="anchor" id="autotoc_md12"></a>
 Enforcing rules</h1>
 <p>Submitting a pull request to Neko requires that the code adheres to the linting rules and to the formatting. The linting will require that the code does not reduce the linting score of the repository, while the formatting should be completed for any modified files.</p>
 <p>In addition to the indentation specified above, the following rules are enforced:</p>
@@ -190,7 +190,7 @@ Enforcing rules</h1>
 <li>Spaces after the comma are not required in format specifiers.</li>
 <li>Spaces around the <code>=</code> operator are not required in type declarations.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 Tools</h2>
 <p>In order to simplify compliance to the formatting and linting rules the following tools can be used:</p>
 <ul>
@@ -198,7 +198,7 @@ Tools</h2>
 <li><a href="https://github.com/wvermin/findent">findent</a> to apply the formatting rules.</li>
 </ul>
 <p>We have scripts available under the <code>contrib/lint_format</code> directory that can be used to lint and format the code. The scripts are <code>lint.sh</code> and <code>format.sh</code> respectively.</p>
-<h3><a class="anchor" id="autotoc_md13"></a>
+<h3><a class="anchor" id="autotoc_md14"></a>
 flint</h3>
 <p>The linting rules are enforced by the <a href="https://github.com/marshallward/flint">flint</a> tool. The rules are defined in the <code>flinter_rc.yml</code> file in the root of the repository.</p>
 <p>Please note, newer versions of flint fails to execute for some of our large files (<a class="el" href="../../d8/ddc/htable_8f90.html">htable.f90</a> and <a class="el" href="../../de/de6/stack_8f90.html">stack.f90</a>).</p>
@@ -206,7 +206,7 @@ flint</h3>
 </div><!-- fragment --><p>To test your code against the linting rules, you can run the following command:</p>
 <div class="fragment"><div class="line">flint score -r flinter_rc.yml &lt;file&gt;.f90</div>
 </div><!-- fragment --><p> The whole src directory can be checked with: </p><div class="fragment"><div class="line">flint score -r flinter_rc.yml src/</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md14"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md15"></a>
 findent</h3>
 <p>This tool can be used to enforce these rules by assigning the following options. The documentation of <code>findent</code> provide details for emacs, vim and gedit. For VSCode, the <a href="https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran">Modern Fortran</a> extension provides an integration.</p>
 <div class="fragment"><div class="line">pip install findent</div>
@@ -219,7 +219,7 @@ findent</h3>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

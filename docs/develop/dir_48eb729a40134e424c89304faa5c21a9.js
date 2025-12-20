@@ -1,6 +1,7 @@
 var dir_48eb729a40134e424c89304faa5c21a9 =
 [
     [ "bcknd", "dir_b5f65a6530fedb7f0e07af7fc099c44b.html", "dir_b5f65a6530fedb7f0e07af7fc099c44b" ],
+    [ "regularization", "dir_aec7e7f2c2d71559052b7a323a98a6b0.html", "dir_aec7e7f2c2d71559052b7a323a98a6b0" ],
     [ "stress_formulation", "dir_e89cd453da7b2ecbcc42802e174538f2.html", "dir_e89cd453da7b2ecbcc42802e174538f2" ],
     [ "advection.f90", "d8/d71/advection_8f90.html", "d8/d71/advection_8f90" ],
     [ "advection_fctry.f90", "da/d60/advection__fctry_8f90.html", null ],
@@ -22,5 +23,7 @@ var dir_48eb729a40134e424c89304faa5c21a9 =
     [ "fluid_stats.f90", "d6/d05/fluid__stats_8f90.html", "d6/d05/fluid__stats_8f90" ],
     [ "fluid_volflow.f90", "dd/d8d/fluid__volflow_8f90.html", "dd/d8d/fluid__volflow_8f90" ],
     [ "pnpn_res.f90", "da/d32/pnpn__res_8f90.html", "da/d32/pnpn__res_8f90" ],
-    [ "pnpn_res_fctry.f90", "dc/dfb/pnpn__res__fctry_8f90.html", null ]
+    [ "pnpn_res_fctry.f90", "dc/dfb/pnpn__res__fctry_8f90.html", null ],
+    [ "regularization.f90", "d5/d8f/regularization_8f90.html", "d5/d8f/regularization_8f90" ],
+    [ "regularization_fctry.f90", "df/dda/regularization__fctry_8f90.html", null ]
 ];

@@ -104,7 +104,8 @@ $(document).ready(function(){initNavTree('db/d27/governing-equations.html','../.
 <div class="toc"><h3>Table of Contents</h3>
 <ul><li class="level1"><a href="#autotoc_md2">Momentum (Fluid)</a></li>
 <li class="level1"><a href="#autotoc_md3">Scalar</a></li>
-<li class="level1"><a href="#autotoc_md4">Non-dimensionalisation</a></li>
+<li class="level1"><a href="#autotoc_md4">Compressible Flows</a></li>
+<li class="level1"><a href="#autotoc_md5">Non-dimensionalisation</a></li>
 </ul>
 </div>
 <div class="textblock"><h1><a class="anchor" id="autotoc_md2"></a>
@@ -124,6 +125,17 @@ Scalar</h1>
 <p>Here, \( T \) is the scalar temperature field, \( c_p \) is the specific heat capacity, \( \lambda_{tot} \) is the total thermal conductivity, and \( f_j^s
 \) are the components of the active source terms. As for the momentum, for constant \(\lambda\) the Laplacian of the temperature may be used.</p>
 <h1><a class="anchor" id="autotoc_md4"></a>
+Compressible Flows</h1>
+<p>Neko supports compressible flow simulations via the compressible Navier-Stokes equations. The current implementation solves the compressible Euler equations (inviscid limit). Physical viscosity terms will be added in upcoming updates.</p>
+<p>The compressible Euler equations consist of conservation of mass, momentum, and energy:</p>
+<p>$$\frac{\partial \rho}{\partial t} + \frac{\partial (\rho u_i)}{\partial x_i} = 0,$$</p>
+<p>$$\frac{\partial (\rho u_i)}{\partial t} + \frac{\partial (\rho u_i u_j)}{\partial x_j} = -\frac{\partial p}{\partial x_i}, \quad i=1,2,3,$$</p>
+<p>$$\frac{\partial E}{\partial t} + \frac{\partial ((E + p) u_i)}{\partial x_i} = 0.$$</p>
+<p>Here, \( \rho \) is the density, \( u_i \) are the velocity components, \( p \) is the pressure, and \( E \) is the total energy per unit volume. The total energy is related to the internal energy and kinetic energy by</p>
+<p>$$E = \frac{p}{\gamma - 1} + \frac{1}{2} \rho u_i u_i,$$</p>
+<p>where \( \gamma \) is the ratio of specific heats. The system is closed by the ideal gas equation of state:</p>
+<p>$$p = (\gamma - 1) \left( E - \frac{1}{2} \rho u_i u_i \right).$$</p>
+<h1><a class="anchor" id="autotoc_md5"></a>
 Non-dimensionalisation</h1>
 <p>A non-dimensional form of the Navier-Stokes equations may be found by defining the Reynolds number $$ Re = \frac{\rho U L}{\mu} \ ,$$ with reference velocity \(U\), reference length \(L\), density \(\rho\) and dynamic viscosity \(\mu\); the latter two may be combined into the kinematic viscosity \(\nu=\mu/\rho\). In order to get a properly scaled problem, one can define the mesh such that the reference length is unity, and set the velocity boundary conditions (or forcing) such that the reference velocity is unity. Then specifying the Reynolds number (e.g. via the case file) will set the (now non-dimensional) density \(\rho=1\) and the non-dimensional viscosity to \(\nu = 1/Re\). Similarly for a scalar, a Prandtl number \(Pr\) may be specified, which together with the Reynolds number defines the relevant P\'{e}clet number \(Pe = Pr \cdot Re\). </p>
 </div></div><!-- contents -->
@@ -133,7 +145,7 @@ Non-dimensionalisation</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../da/dd6/appendices.html">Appendices</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

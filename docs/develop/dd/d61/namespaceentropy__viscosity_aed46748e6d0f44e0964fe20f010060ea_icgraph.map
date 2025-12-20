@@ -1,0 +1,7 @@
+<map id="entropy_viscosity::entropy_viscosity_set_fields" name="entropy_viscosity::entropy_viscosity_set_fields">
+<area shape="rect" id="Node000001" title=" " alt="" coords="256,41,420,96"/>
+<area shape="rect" id="Node000002" href="$da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a8be967a1006af3b44b0641b57714c59d" title="Compute low&#45;order viscosity at point i: c_avisc_low * h * max_wave_speed." alt="" coords="27,5,186,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,56,186,48,187,42,242,51"/>
+<area shape="rect" id="Node000003" href="$da/d14/namespacefluid__scheme__compressible__euler.html#af9a9a2a95f41c668f656ef08f6ba6bb6" title=" " alt="" coords="5,85,208,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,86,209,92,208,86,242,81"/>
+</map>

@@ -103,15 +103,15 @@ $(document).ready(function(){initNavTree('d8/daa/api.html','../../'); initResiza
 <div class="contents">
 <div class="textblock"><p>For some use cases and workflows, more flexibility is required than what can be offered through Neko's user interface or library. To accommodate these usage patterns, Neko provides a C-based API that enables simple integration of Neko into custom workflows and interactive computing environments such as Jupyter notebooks. On top of the API, Neko provides interfaces to different high-level languages, including Python (<a class="el" href="../../d8/def/namespacepyneko.html">pyneko</a>) and Julia (<a href="https://gitlab.com/ExtremeFLOW/Neko.jl">Neko.jl</a>).</p>
 <p>Both the API (<a class="el" href="../../d5/dd3/namespaceneko__api.html" title="Neko C API.">neko_api</a>) and high-level interfaces provide functionality for defining cases, setting up and controlling simulation workflows, creating callbacks for Neko (e.g., initial and inflow conditions), and methods for direct (zero-copy) access to the underlying data inside Neko.</p>
-<h1><a class="anchor" id="autotoc_md41"></a>
+<h1><a class="anchor" id="autotoc_md42"></a>
 Installation</h1>
 <p>The API is always compiled and installed together with Neko; no special configuration options are necessary to use the C-based API. An example on how to use the C interface is shown in <a class="el" href="../../da/dd8/cylinder_8c.html">examples/api/c/cylinder.c</a>.</p>
-<h2><a class="anchor" id="autotoc_md42"></a>
+<h2><a class="anchor" id="autotoc_md43"></a>
 Python (pyneko)</h2>
 <p>To install the python interface, configure and install Neko with the flags <code>--enable-shared</code> and <code>--enable-python</code></p>
 <p>Finally set <code>PYTHONPATH</code> and library paths (e.g. <code>LD_LIBRARY_PATH</code>) to the correct paths under installation prefix. On some systems you might need to preload (e.g. <code>LD_PRELOAD</code>) the MPI library to avoid missing symbols.</p>
 <p>An example on how to use the Python interface is shown in <a class="el" href="../../de/da1/cylinder_8py.html">examples/api/pyneko/cylinder.py</a>.</p>
-<h2><a class="anchor" id="autotoc_md43"></a>
+<h2><a class="anchor" id="autotoc_md44"></a>
 Julia (Neko.jl)</h2>
 <p>To interface Neko with Julia, first configure and install Neko with shared libraries enabled <code>--enable-shared</code>. Then install the Neko.jl packge using:</p>
 <div class="fragment"><div class="line">(@v1.11) pkg&gt; add https://gitlab.com/ExtremeFLOW/Neko.jl</div>
@@ -124,7 +124,7 @@ Julia (Neko.jl)</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

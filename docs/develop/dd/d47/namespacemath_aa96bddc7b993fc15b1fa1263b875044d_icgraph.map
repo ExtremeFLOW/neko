@@ -1,8 +1,10 @@
 <map id="math::glmax" name="math::glmax">
-<area shape="rect" id="Node000001" title="Max of a vector of length n." alt="" coords="216,42,321,67"/>
-<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="301,32,291,24,269,21,250,23,240,27,237,33,243,40,239,43,232,34,236,24,248,18,269,15,294,19,304,28"/>
-<area shape="rect" id="Node000002" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="13,5,160,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,47,160,40,161,34,203,41"/>
-<area shape="rect" id="Node000003" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="5,70,168,95"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="203,67,169,73,168,68,202,62"/>
+<area shape="rect" id="Node000001" title="Max of a vector of length n." alt="" coords="255,92,360,117"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="343,82,333,74,307,71,286,73,275,77,273,83,279,90,274,93,267,84,271,74,285,68,307,65,335,69,346,78"/>
+<area shape="rect" id="Node000002" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="5,5,207,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,90,182,63,184,58,259,85"/>
+<area shape="rect" id="Node000003" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="33,85,179,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,107,180,107,180,102,241,102"/>
+<area shape="rect" id="Node000004" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="25,149,187,175"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="257,124,207,139,160,152,159,147,206,134,255,119"/>
 </map>

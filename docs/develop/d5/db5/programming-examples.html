@@ -102,18 +102,18 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><ul><li class="level2"><a href="#autotoc_md162">&lt;tt&gt;user_file_template.f90&lt;/tt&gt;</a></li>
-<li class="level2"><a href="#autotoc_md163">&lt;tt&gt;startup_and_json.f90&lt;/tt&gt;</a></li>
-<li class="level2"><a href="#autotoc_md164">&lt;tt&gt;fields_vectors_math.f90&lt;/tt&gt;</a></li>
-<li class="level2"><a href="#autotoc_md165">&lt;tt&gt;registries.f90&lt;/tt&gt;</a></li>
-<li class="level2"><a href="#autotoc_md166">&lt;tt&gt;output.f90&lt;/tt&gt;</a></li>
-<li class="level2"><a href="#autotoc_md167">&lt;tt&gt;custom_types.f90&lt;/tt&gt;</a></li>
+<ul><ul><li class="level2"><a href="#autotoc_md165">&lt;tt&gt;user_file_template.f90&lt;/tt&gt;</a></li>
+<li class="level2"><a href="#autotoc_md166">&lt;tt&gt;startup_and_json.f90&lt;/tt&gt;</a></li>
+<li class="level2"><a href="#autotoc_md167">&lt;tt&gt;fields_vectors_math.f90&lt;/tt&gt;</a></li>
+<li class="level2"><a href="#autotoc_md168">&lt;tt&gt;registries.f90&lt;/tt&gt;</a></li>
+<li class="level2"><a href="#autotoc_md169">&lt;tt&gt;output.f90&lt;/tt&gt;</a></li>
+<li class="level2"><a href="#autotoc_md170">&lt;tt&gt;custom_types.f90&lt;/tt&gt;</a></li>
 </ul>
 </ul>
 </div>
 <div class="textblock"><p>This directory contains tutorial files that demonstrate various aspects of programming with Neko. Each file provides examples and explanations for specific features, concepts, or workflows in Neko, helping users to customize and extend their simulations effectively.</p>
 <p>The files don't necessarily need to be run, but executing <code>prepare.sh</code> will copy over a mesh and case file from the cylinder example, so you can use <code>makeneko</code> on a <code>.f90</code> and run it.</p>
-<h2><a class="anchor" id="autotoc_md162"></a>
+<h2><a class="anchor" id="autotoc_md165"></a>
 &lt;tt&gt;user_file_template.f90&lt;/tt&gt;</h2>
 <p>A user file template with stubs for every possible user subroutine.</p>
 <div class="fragment"><div class="line"><span class="comment">! A template user file containing the user-defined functions</span></div>
@@ -205,7 +205,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div class="ttc" id="anamespaceuser_html_a7f78897c51d70f14e4bec6682839460a"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#a7f78897c51d70f14e4bec6682839460a">user::dirichlet_conditions</a></div><div class="ttdeci">subroutine dirichlet_conditions(fields, bc, time)</div><div class="ttdef"><b>Definition</b> <a href="../../da/dcf/user__file__template_8f90_source.html#l00063">user_file_template.f90:64</a></div></div>
 <div class="ttc" id="anamespaceuser_html_a96b5ab432049f8df75005b125ae570c9"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#a96b5ab432049f8df75005b125ae570c9">user::startup</a></div><div class="ttdeci">subroutine startup(params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00044">fields_vectors_math.f90:45</a></div></div>
 <div class="ttc" id="anamespaceuser_html_add0bbc1561124367d2a98f64884f07ae"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#add0bbc1561124367d2a98f64884f07ae">user::finalize</a></div><div class="ttdeci">subroutine finalize(time)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00125">fields_vectors_math.f90:126</a></div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md163"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md166"></a>
 &lt;tt&gt;startup_and_json.f90&lt;/tt&gt;</h2>
 <p>Demonstrates how to define user-specific routines and interact with the JSON parameter dictionary used for simulation configuration.</p>
 <div class="fragment"><div class="line"><span class="comment">! This module demonstrates how to define user-specific routines in Neko. It</span></div>
@@ -326,7 +326,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div class="line"> </div>
 <div class="line"><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
 <div class="ttc" id="anamespaceuser_html_a33f4028cbc0128b21d8fec50d386719b"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#a33f4028cbc0128b21d8fec50d386719b">user::some_variable</a></div><div class="ttdeci">real(kind=rp) some_variable</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d90/startup__and__json_8f90_source.html#l00035">startup_and_json.f90:35</a></div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md164"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md167"></a>
 &lt;tt&gt;fields_vectors_math.f90&lt;/tt&gt;</h2>
 <p>Explains how to work with the <code>field_t</code> and <code>vector_t</code> types in Neko, including mathematical operations and lifecycle management.</p>
 <div class="fragment"><div class="line"><span class="comment">! This tutorial demonstrates how to work with fields and vectors in Neko. It</span></div>
@@ -463,7 +463,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div class="line">  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#add0bbc1561124367d2a98f64884f07ae">finalize</a></div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md165"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md168"></a>
 &lt;tt&gt;registries.f90&lt;/tt&gt;</h2>
 <p>Shows how to use registries in Neko to manage fields and temporary data efficiently.</p>
 <div class="fragment"><div class="line"><span class="comment">! This tutorial demonstrates how to use registries in Neko to manage fields and</span></div>
@@ -557,7 +557,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div class="line">  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a725b1b99599d26ff95cf2ac1cb400b08">compute</a></div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md166"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md169"></a>
 &lt;tt&gt;output.f90&lt;/tt&gt;</h2>
 <p>Shows how to output simulation data to .fld and .csv files.</p>
 <div class="fragment"><div class="line"><span class="comment">! This tutorial demonstrates how to output simulation data to .fld and .csv</span></div>
@@ -693,7 +693,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div class="line">  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#add0bbc1561124367d2a98f64884f07ae">finalize</a></div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md167"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md170"></a>
 &lt;tt&gt;custom_types.f90&lt;/tt&gt;</h2>
 <p>Shows how to add a new run-time-selectable type to Neko, using a source term as an example.</p>
 <div class="fragment"><div class="line"><span class="comment">! Copyright (c) 2025, The Neko Authors</span></div>
@@ -854,7 +854,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Dec 19 2025 03:50:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 20 2025 03:48:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

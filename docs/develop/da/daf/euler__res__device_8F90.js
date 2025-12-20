@@ -8,6 +8,6 @@ var euler__res__device_8F90 =
     [ "euler_res_device::euler_res_part_e_flux_hip", "dd/dbb/interfaceeuler__res__device_1_1euler__res__part__e__flux__hip.html", "dd/dbb/interfaceeuler__res__device_1_1euler__res__part__e__flux__hip" ],
     [ "euler_res_device::euler_res_part_coef_mult_hip", "d2/d5f/interfaceeuler__res__device_1_1euler__res__part__coef__mult__hip.html", "d2/d5f/interfaceeuler__res__device_1_1euler__res__part__coef__mult__hip" ],
     [ "euler_res_device::euler_res_part_rk_sum_hip", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip.html", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip" ],
-    [ "advance_primitive_variables_device", "da/daf/euler__res__device_8F90.html#a86988c02aabf70727c8674ddbab529c6", null ],
-    [ "evaluate_rhs_device", "da/daf/euler__res__device_8F90.html#a54d62b334a0d21f168ff6e7e3084bce8", null ]
+    [ "advance_primitive_variables_device", "da/daf/euler__res__device_8F90.html#a771e025c93878c18be347a044796d1d7", null ],
+    [ "evaluate_rhs_device", "da/daf/euler__res__device_8F90.html#a01ded437cb784d33ccbdcdfbc6e2bfee", null ]
 ];

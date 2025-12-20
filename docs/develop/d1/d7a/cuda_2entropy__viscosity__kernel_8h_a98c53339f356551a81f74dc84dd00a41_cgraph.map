@@ -1,0 +1,6 @@
+<map id="entropy_visc_compute_residual_kernel" name="entropy_visc_compute_residual_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,175,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="223,29,387,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,47,209,47,209,52,175,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="265,30,262,20,269,10,283,5,305,3,330,6,343,13,341,18,328,11,305,8,284,10,272,15,267,21,270,28"/>
+</map>
