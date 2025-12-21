@@ -56,7 +56,7 @@ contains
     type(json_file) :: json
     integer :: value
 
-    call json%load_from_string('{"params":{"value":1.0}}')
+    call json%load_from_string('{"params":{"value":1}}')
 
     call json_get_or_lookup(json, 'params.value', value)
 
@@ -70,7 +70,7 @@ contains
     real(kind=sp) :: value
     real(kind=sp) :: expected = 9.875_sp
 
-    call neko_const_registry%add_scalar(real(expected, kind=rp), 'ref_scalar')
+    call neko_const_registry%add_real_scalar(real(expected, kind=rp), 'ref_scalar')
     call json%load_from_string('{"params":{"value":"ref_scalar"}}')
 
     call json_get_or_lookup(json, 'params.value', value)
@@ -85,7 +85,7 @@ contains
     real(kind=dp) :: value
     real(kind=dp) :: expected = 9.875_sp
 
-    call neko_const_registry%add_scalar(real(expected, kind=rp), 'ref_scalar')
+    call neko_const_registry%add_real_scalar(real(expected, kind=rp), 'ref_scalar')
     call json%load_from_string('{"params":{"value":"ref_scalar"}}')
 
     call json_get_or_lookup(json, 'params.value', value)
@@ -98,14 +98,17 @@ contains
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
     integer :: value
-    real(kind=rp) :: expected = 2.0_rp
+    integer :: expected = 2
+    real(kind=rp) :: expected_real
 
-    call neko_const_registry%add_scalar(expected, 'ref_scalar')
+    expected_real = real(expected, kind=rp)
+
+    call neko_const_registry%add_integer_scalar(expected, 'ref_scalar')
     call json%load_from_string('{"params":{"value":"ref_scalar"}}')
 
     call json_get_or_lookup(json, 'params.value', value)
 
-    @assertEqual(expected, real(value, kind=rp), tolerance=1e-12_rp)
+    @assertEqual(expected_real, real(value, kind=rp), tolerance=1e-12_rp)
   end subroutine test_registry_real_integer
 
   @test
