@@ -57,12 +57,15 @@ module case
   use scalar_scheme, only : scalar_scheme_t
   use time_state, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, json_no_defaults
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_no_defaults, json_get_or_lookup, json_get_or_lookup_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
+  use registry, only : neko_registry, neko_const_registry
+  use vector, only : vector_t
 
   implicit none
   private
@@ -106,6 +109,7 @@ contains
     call neko_log%message('Reading case file ' // trim(case_file), &
          NEKO_LOG_QUIET)
 
+    call this%params%initialize()
     if (pe_rank .eq. 0) then
        call this%params%load_file(filename = trim(case_file))
        call this%params%print_to_string(json_buffer)
@@ -146,8 +150,10 @@ contains
     type(mesh_fld_t) :: msh_part, parts
     logical :: found, logical_val
     logical :: temperature_found = .false.
-    integer :: integer_val
+    integer :: integer_val, var_type
     real(kind=rp) :: real_val
+    real(kind=rp), allocatable :: real_vals(:)
+    type(vector_t), pointer :: vec
     character(len = :), allocatable :: string_val, name, file_format
     integer :: output_dir_len
     integer :: precision, layout
@@ -166,6 +172,42 @@ contains
     ! Check if default value fill-in is allowed
     if (this%params%valid_path('case.no_defaults')) then
        call json_get(this%params, 'case.no_defaults', json_no_defaults)
+    end if
+
+
+    !
+    ! Populate const registry with global data from the case file
+    !
+    if (this%params%valid_path('case.constants')) then
+       call this%params%info('case.constants', &
+            n_children = integer_val)
+       do i = 1, integer_val
+          call json_extract_item(this%params, &
+               'case.constants', i, json_subdict)
+          call json_get(json_subdict, 'name', string_val)
+
+          call json_subdict%info('value', found = found, var_type = var_type)
+
+          select case (var_type)
+          case (5) ! integer
+             call json_get(json_subdict, 'value', integer_val)
+             call neko_const_registry%add_integer_scalar(integer_val, &
+                  trim(string_val))
+          case (6) ! real
+             call json_get(json_subdict, 'value', real_val)
+             call neko_const_registry%add_real_scalar(real_val, &
+                  trim(string_val))
+          case (3) ! array
+             call json_get(json_subdict, 'value', real_vals)
+             call neko_const_registry%add_vector(size(real_vals), &
+                  trim(string_val))
+             vec => neko_const_registry%get_vector(trim(string_val))
+             vec%x = real_vals
+          case default
+             call neko_error('case_init_common: Unsupported constant ' // &
+                  'type in case.constants for entry '//trim(string_val)//'.')
+          end select
+       end do
     end if
 
     !
@@ -220,7 +262,7 @@ contains
     call json_get(this%params, 'case.fluid.scheme', string_val)
     call fluid_scheme_base_factory(this%fluid, trim(string_val))
 
-    call json_get(this%params, 'case.numerics.polynomial_order', lx)
+    call json_get_or_lookup(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
     ! Set time lags in chkp
     this%chkp%tlag => this%time%tlag
@@ -257,16 +299,16 @@ contains
           ! For backward compatibility
           call json_get(this%params, 'case.scalar', scalar_params)
           call this%scalars%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               scalar_params, numerics_params, this%user, this%chkp, this%fluid%ulag, &
-               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-               this%fluid%rho)
+               scalar_params, numerics_params, this%user, this%chkp, &
+               this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
+               this%fluid%ext_bdf, this%fluid%rho)
        else
           ! Multiple scalars
           call json_get(this%params, 'case.scalars', json_subdict)
-          call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               json_subdict, numerics_params, this%user, this%chkp, this%fluid%ulag, &
-               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-               this%fluid%rho)
+          call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, &
+               this%fluid%gs_Xh, json_subdict, numerics_params, this%user, &
+               this%chkp, this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
+               this%fluid%ext_bdf, this%fluid%rho)
        end if
     end if
 
@@ -441,7 +483,8 @@ contains
     !
     ! Setup output layout of the field bp file
     !
-    call json_get_or_default(this%params, 'case.output_layout', layout, 1)
+    call json_get_or_lookup_or_default(this%params, 'case.output_layout', &
+         layout, 1)
 
     !
     ! Setup output_controller
@@ -466,16 +509,22 @@ contains
 
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
-       call json_get(this%params, 'case.nsamples', real_val)
+       call json_get(this%params, 'case.nsamples', integer_val)
+       real_val = real(integer_val, kind=rp)
        call this%output_controller%add(this%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
-       ! Fix a dummy 0.0 output_value
-       call json_get_or_default(this%params, 'case.fluid.output_value', &
-            real_val, 0.0_rp)
-       call this%output_controller%add(this%f_out, 0.0_rp, string_val)
-    else
-       call json_get(this%params, 'case.fluid.output_value', real_val)
+       call this%output_controller%add(this%f_out, 0.0_rp, 'never')
+    else if (trim(string_val) .eq. 'tsteps' .or. &
+         trim(string_val) .eq. 'nsamples') then
+       call json_get(this%params, 'case.fluid.output_value', integer_val)
+       real_val = real(integer_val, kind=rp)
        call this%output_controller%add(this%f_out, real_val, string_val)
+    else if (trim(string_val) .eq. 'simulationtime') then
+       call json_get_or_lookup(this%params, 'case.fluid.output_value', real_val)
+       call this%output_controller%add(this%f_out, real_val, string_val)
+    else
+       call neko_log%error('Unknown output control type for the fluid: ' // &
+            trim(string_val))
     end if
 
     !
@@ -492,8 +541,8 @@ contains
             path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
-       call json_get_or_default(this%params, 'case.checkpoint_value', &
-            real_val, 1e10_rp)
+       call json_get_or_lookup_or_default(this%params, &
+            'case.checkpoint_value', real_val, 1e10_rp)
        call this%output_controller%add(this%chkp_out, real_val, string_val, &
             NEKO_EPS)
     end if

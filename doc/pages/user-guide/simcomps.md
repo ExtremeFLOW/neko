@@ -36,11 +36,11 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
 - User defined components \ref user-file_simcomps
-- Fluid statistics simcomp, "fluid_stats", for more details see the 
+- Fluid statistics simcomp, "fluid_stats", for more details see the
   [statistics guide](@ref statistics-guide)
-- Scalar statistics simcomp, "scalar_stats", for more details see the 
+- Scalar statistics simcomp, "scalar_stats", for more details see the
   [statistics guide](@ref statistics-guide)
-- User statistics simcomp, "user_stats" \ref user_stats 
+- User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output
@@ -54,7 +54,8 @@ will sync the `output_` parameter to that of the fluid. Choosing `never` will
 suppress output all together. If no parameters for the `output_` parameters are
 provided, they are set to be the same as for `compute_`. In order to simplify
 the configuration, the `compute_control` can be set to `fluid_output` to sync
-the computation to the fluid output.
+the computation to the fluid output. All `_value` keywords can also be strings
+pointing to an entry under `constants.scalars`.
 
 For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
@@ -88,7 +89,7 @@ name.
 
 All of these simcomps also support saving the result to `.fld` files. The \ref
 simcomp_field_writer simcomp is used for that under the hood, so the associated
-JSON keywords can be found in its documentation (`output_filename`, 
+JSON keywords can be found in its documentation (`output_filename`,
 `precision`).
 
 #### derivative {#simcomp_derivative}
@@ -96,7 +97,7 @@ Computes the derivative of field along a chosen direction (x, y, or z). The
 field to derivate is controlled by the `field` keyword and the direction by the
 `direction` keyword. The simcomp will, by default, register the computed
 derivative in the registry as `d[field]_d[direction]`, where the values in the
-brackets correspond to the choice of the user keywords. 
+brackets correspond to the choice of the user keywords.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -136,7 +137,7 @@ Computes the gradient of a field.
 The field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
 `grad_[field]_x`, `grad_[field]_y`, `grad_[field]_z` where the
-value in the brackets corresponds to the choice of the user keyword. 
+value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -152,7 +153,7 @@ gradient term appears in the weak formulation of the governing equations. The
 field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
 `weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
-value in the brackets corresponds to the choice of the user keyword. 
+value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -174,14 +175,14 @@ and s1 if neko is run with one scalar. To output in a different `fld` series, us
 
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
-generated in a variety of ways, but the most common is to use the `csv` type. 
+generated in a variety of ways, but the most common is to use the `csv` type.
 
 Mandatory fields for this simcomp are:
 - `fields`: a list of fields to probe. Should be a list of field names that exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
 - `output_file`: Name of the file in which to output the probed fields. Must be
   `.csv`.
 
-It is also possible to set a `start_time` before which the probes will not be 
+It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
 
 #### Supported types
@@ -248,7 +249,7 @@ executed (same behavior as the statistics).
   ~~~~~~~~~~~~~~~
 
  #### Example usage
- 
+
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "probes",
@@ -360,8 +361,8 @@ keywords:
   compute the eddy viscosity.
   - `true`: extrapolate the velocity as the same order as
   the time scheme.
-  - `false`: the default option, disable the extrapolation. 
-  In this case, the estimation of the eddy viscosity is of first order, while 
+  - `false`: the default option, disable the extrapolation.
+  In this case, the estimation of the eddy viscosity is of first order, while
   circumvent the risk of unstable extrapolation.
 
  ~~~~~~~~~~~~~~~{.json}

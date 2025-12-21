@@ -126,6 +126,7 @@ contains
   subroutine neko_api_registry_init() bind(c, name="neko_registry_init")
 
     call neko_registry%init()
+    call neko_const_registry%init()
 
   end subroutine neko_api_registry_init
 

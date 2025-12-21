@@ -40,7 +40,7 @@ module spalding
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get_or_lookup
   use spalding_cpu, only : spalding_compute_cpu
   use spalding_device, only : spalding_compute_device
   use field_math, only: field_invcol3
@@ -98,8 +98,8 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B
 
-    call json_get_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get_or_default(json, "B", B, 5.2_rp)
+    call json_get_or_lookup(json, "kappa", kappa)
+    call json_get_or_lookup(json, "B", B)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, B)
@@ -114,8 +114,8 @@ contains
     type(json_file), intent(inout) :: json
 
     call this%partial_init_base(coef, json)
-    call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
-    call json_get_or_default(json, "B", this%B, 5.2_rp)
+    call json_get_or_lookup(json, "kappa", this%kappa)
+    call json_get_or_lookup(json, "B", this%B)
 
   end subroutine spalding_partial_init
 

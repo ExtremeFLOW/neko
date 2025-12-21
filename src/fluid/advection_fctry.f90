@@ -32,7 +32,8 @@
 !
 !> Contains the factory routine for `advection_t` children.
 submodule (advection) advection_fctry
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+       json_get_or_lookup_or_default
 
   ! Advection and derivatives
   use adv_dealias, only : adv_dealias_t
@@ -87,13 +88,13 @@ contains
 
     ! Read the parameters from the json file
     call json_get(json, 'dealias', dealias)
-    call json_get(json, 'polynomial_order', order)
+    call json_get_or_lookup(json, 'polynomial_order', order)
     call json_get_or_default(json, 'oifs', oifs, .false.)
 
-    call json_get_or_default(json, 'dealiased_polynomial_order', &
+    call json_get_or_lookup_or_default(json, 'dealiased_polynomial_order', &
          lxd, ( 3 * (order + 1) ) / 2)
 
-    call json_get_or_default(json, 'oifs_target_cfl', ctarget, 1.9_rp)
+    call json_get_or_lookup_or_default(json, 'oifs_target_cfl', ctarget, 1.9_rp)
 
 
     if (oifs) then

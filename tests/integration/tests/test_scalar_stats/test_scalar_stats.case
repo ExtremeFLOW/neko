@@ -7,8 +7,8 @@
     "output_directory": "tests/test_scalar_stats",
     "output_checkpoints": false,
     "time": {
-        "end_time": 1000,
-        "timestep": 1
+        "end_time": 1000.0,
+        "timestep": 1.0
     },
     "numerics": {
       "time_order": 2,
@@ -17,8 +17,8 @@
     },
     "fluid": {
       "scheme": "pnpn",
-      "mu": 1,
-      "rho": 1,
+      "mu": 1.0,
+      "rho": 1.0,
       "freeze": true,
       "initial_condition": {
         "type": "user"

@@ -40,7 +40,8 @@ module simulation_component
   use json_module, only : json_file
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get_or_default, json_get, &
+       json_get_or_lookup_or_default, json_get_or_lookup
   use time_state, only : time_state_t
   implicit none
   private
@@ -290,36 +291,116 @@ contains
     real(kind=rp), intent(out) :: compute_value
     character(len=:), allocatable, intent(inout) :: output_control
     real(kind=rp), intent(out) :: output_value
+    integer :: preprocess_value_int, compute_value_int, output_value_int
+    character(len=:), allocatable :: json_path
+    type(json_file) :: json_object
 
-    ! We default to preprocess every time-step
+    !
+    ! Preprocess
+    !
+
+    ! Get the preprocess control, defaulting to tsteps, pin to fluid if
+    ! requested
     call json_get_or_default(json, "preprocess_control", preprocess_control, &
          "tsteps")
-    call json_get_or_default(json, "preprocess_value", preprocess_value, 1.0_rp)
 
-    ! We default to compute every time-step
+    json_path = "preprocess_value"
+    json_object = json
+    if (preprocess_control .eq. "fluid_output") then
+       call json_get(case_params, 'case.fluid.output_control', &
+            preprocess_control)
+       json_path = "case.fluid.output_value"
+       json_object = case_params
+    end if
+
+    ! Read preprocess value based on control type
+    if ((preprocess_control .eq. "tsteps") .or. &
+         (preprocess_control .eq. "nsamples")) then
+       ! Read it is an interger, and convert to real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            preprocess_value_int, 1)
+       preprocess_value = real(preprocess_value_int, kind=rp)
+    else if (preprocess_control .eq. "simulationtime") then
+       ! Read as real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            preprocess_value, 1.0_rp)
+    else if (preprocess_control .eq. "never") then
+       ! Dummy value
+       preprocess_value = 0.0_rp
+    end if
+
+    !
+    ! Compute
+    !
+
+    ! Get the compute control, defaulting to tsteps, pin to fluid if
+    ! requested
     call json_get_or_default(json, "compute_control", compute_control, &
          "tsteps")
-    call json_get_or_default(json, "compute_value", compute_value, 1.0_rp)
 
+    json_path = "compute_value"
+    json_object = json
     if (compute_control .eq. "fluid_output") then
        call json_get(case_params, 'case.fluid.output_control', &
             compute_control)
-       call json_get(case_params, 'case.fluid.output_value', &
-            compute_value)
+       json_path = "case.fluid.output_value"
+       json_object = case_params
     end if
 
-    ! We default to output whenever we execute
+    ! Read compute value based on control type
+    if ((compute_control .eq. "tsteps") .or. &
+         (compute_control .eq. "nsamples")) then
+       ! Read it is an interger, and convert to real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            compute_value_int, 1)
+       compute_value = real(compute_value_int, kind=rp)
+    else if (compute_control .eq. "simulationtime") then
+       ! Read as real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            compute_value, 1.0_rp)
+       compute_value_int = int(compute_value)
+    else if (compute_control .eq. "never") then
+       ! Dummy value
+       compute_value = 0.0_rp
+       compute_value_int = 0
+    end if
+
+    !
+    ! Output
+    !
+
+    ! We default to output whenever we execute, pin to fluid if requested
     call json_get_or_default(json, "output_control", output_control, &
          compute_control)
-    call json_get_or_default(json, "output_value", output_value, &
-         compute_value)
 
-    if (output_control == "global") then
+    json_path = "output_value"
+    json_object = json
+    if (output_control .eq. "global") then
        call json_get(case_params, 'case.fluid.output_control', &
             output_control)
-       call json_get(case_params, 'case.fluid.output_value', &
-            output_value)
+       json_path = "case.fluid.output_value"
+       json_object = case_params
     end if
+
+
+    ! Read output value based on control type. We default to compute_value
+    if ((output_control .eq. "tsteps") .or. &
+         (output_control .eq. "nsamples")) then
+       ! Read it is an interger, and convert to real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            output_value_int, compute_value_int)
+       output_value = real(output_value_int, kind=rp)
+       write(*,*) "Output value int: ", output_value_int
+    else if (output_control .eq. "simulationtime") then
+       ! Read as real
+       call json_get_or_lookup_or_default(json_object, json_path, &
+            output_value, compute_value)
+    else if (output_control .eq. "never") then
+       ! Dummy value
+       output_value = 0.0_rp
+    end if
+
+    deallocate(json_path)
   end subroutine simulation_component_parse_json
 
   !> Destructor for the `simulation_component_t` (base) class.

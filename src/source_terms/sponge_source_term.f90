@@ -37,7 +37,7 @@ module sponge_source_term
   use json_module, only : json_file
   use registry, only : neko_registry
   use field, only : field_t
-  use json_utils, only : json_get, json_get_or_default, json_get
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
   use utils, only : neko_error
   use device, only : device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_sub3, device_col2, device_add2s2
@@ -141,7 +141,7 @@ contains
     call json_get_or_default(json, "fringe_registry_name", &
          fringe_registry_name, "sponge_fringe")
 
-    call json_get(json, "amplitudes", amplitudes)
+    call json_get_or_lookup(json, "amplitudes", amplitudes)
     if (size(amplitudes) .ne. 3) then
        call neko_error("(SPONGE) Expected 3 elements for 'amplitudes'")
     end if

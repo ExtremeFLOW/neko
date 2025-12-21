@@ -33,6 +33,7 @@
 !> Defines a registry for storing solution fields
 module registry
   use, intrinsic :: iso_fortran_env, only: error_unit
+  use num_types, only : rp
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
@@ -73,6 +74,10 @@ module registry
      procedure, pass(this) :: add_vector => registry_add_vector
      !> Add a matrix to the registry.
      procedure, pass(this) :: add_matrix => registry_add_matrix
+     !> Add a real scalar to the registry.
+     procedure, pass(this) :: add_real_scalar => registry_add_real_scalar
+     !> Add an integer scalar to the registry.
+     procedure, pass(this) :: add_integer_scalar => registry_add_integer_scalar
      !> Add an alias to a field in the registry.
      procedure, pass(this) :: add_alias => registry_add_alias
 
@@ -84,6 +89,12 @@ module registry
      !> Get pointer to a stored matrix by index.
      procedure, pass(this) :: get_matrix_by_index => &
           registry_get_matrix_by_index
+     !> Get pointer to a stored real scalar by index.
+     procedure, pass(this) :: get_real_scalar_by_index => &
+          registry_get_real_scalar_by_index
+     !> Get pointer to a stored integer scalar by index.
+     procedure, pass(this) :: get_integer_scalar_by_index => &
+          registry_get_integer_scalar_by_index
 
      !> Get pointer to a stored field by name.
      procedure, pass(this) :: get_field_by_name => registry_get_field_by_name
@@ -91,6 +102,12 @@ module registry
      procedure, pass(this) :: get_vector_by_name => registry_get_vector_by_name
      !> Get pointer to a stored matrix by name.
      procedure, pass(this) :: get_matrix_by_name => registry_get_matrix_by_name
+     !> Get pointer to a stored real scalar by name.
+     procedure, pass(this) :: get_real_scalar_by_name => &
+          registry_get_real_scalar_by_name
+     !> Get pointer to a stored integer scalar by name.
+     procedure, pass(this) :: get_integer_scalar_by_name => &
+          registry_get_integer_scalar_by_name
 
      !> Generic field getter
      generic :: get_field => get_field_by_index, get_field_by_name
@@ -98,6 +115,12 @@ module registry
      generic :: get_vector => get_vector_by_index, get_vector_by_name
      !> Generic matrix getter
      generic :: get_matrix => get_matrix_by_index, get_matrix_by_name
+     !> Generic real scalar getter
+     generic :: get_real_scalar => get_real_scalar_by_index, &
+          get_real_scalar_by_name
+     !> Generic integer scalar getter
+     generic :: get_integer_scalar => get_integer_scalar_by_index, &
+          get_integer_scalar_by_name
 
      !> Check if an entry with a given name is already in the registry.
      procedure, pass(this) :: entry_exists => registry_entry_exists
@@ -107,6 +130,13 @@ module registry
      procedure, pass(this) :: vector_exists => registry_vector_exists
      !> Check if a matrix with a given name is already in the registry.
      procedure, pass(this) :: matrix_exists => registry_matrix_exists
+     !> Check if a real scalar with a given name is already in the registry.
+     procedure, pass(this) :: real_scalar_exists => registry_real_scalar_exists
+     !> Check if an integer scalar with a given name is already in the registry.
+     procedure, pass(this) :: integer_scalar_exists => &
+          registry_integer_scalar_exists
+     !> Backwards compatible scalar existence check (real).
+     procedure, pass(this) :: scalar_exists => registry_real_scalar_exists
 
      !> Get total allocated size of `fields`.
      procedure, pass(this) :: get_size => registry_get_size
@@ -118,14 +148,29 @@ module registry
      procedure, pass(this) :: n_vectors => registry_n_vectors
      !> Get the number of matrices in the registry.
      procedure, pass(this) :: n_matrices => registry_n_matrices
+     !> Get the number of real scalars in the registry.
+     procedure, pass(this) :: n_real_scalars => registry_n_real_scalars
+     !> Get the number of integer scalars in the registry.
+     procedure, pass(this) :: n_integer_scalars => registry_n_integer_scalars
+     !> Backwards compatible scalar count (real).
+     procedure, pass(this) :: n_scalars => registry_n_real_scalars
      !> Get the number of aliases in the registry.
      procedure, pass(this) :: n_aliases => registry_n_aliases
      !> Get the `expansion_size`
      procedure, pass(this) :: get_expansion_size => registry_get_expansion_size
+     !> Print registry contents optionally filtered by type.
+     procedure, pass(this) :: print_contents => registry_print_contents
   end type registry_t
 
   !> Global field registry
   type(registry_t), public, target :: neko_registry
+
+  !> This registry is used to store user-defined scalars and vectors, provided
+  !! under the `constants` section of the case file. These are separated
+  !! from the global registry to prevent name clashes with registered objects
+  !! used by Neko itself.
+  type(registry_t), public, target :: neko_const_registry
+
 
 contains
   ! ========================================================================== !
@@ -133,7 +178,8 @@ contains
 
   !> Constructor
   !! @param size The allocation size of `entries` on init.
-  !! @param expansion_size The number of entries added to `entries` on expansion.
+  !! @param expansion_size The number of entries added to `entries` on
+  !! expansion.
   subroutine registry_init(this, size, expansion_size)
     class(registry_t), intent(inout):: this
     integer, optional, intent(in) :: size
@@ -298,6 +344,78 @@ contains
 
   end subroutine registry_add_matrix
 
+  !> Add a real scalar to the registry.
+  !! @param value The scalar value.
+  !! @param name The name of the scalar.
+  !! @param ignore_existing If true, skip if scalar already registered.
+  subroutine registry_add_real_scalar(this, value, name, ignore_existing)
+    class(registry_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: value
+    character(len=*), target, intent(in) :: name
+    logical, optional, intent(in) :: ignore_existing
+    logical :: ignore_existing_
+
+    ignore_existing_ = .false.
+    if (present(ignore_existing)) then
+       ignore_existing_ = ignore_existing
+    end if
+
+    if (this%real_scalar_exists(name)) then
+       if (ignore_existing_) then
+          return
+       else
+          call neko_error("Scalar with name " // name // &
+               " is already registered")
+       end if
+    end if
+
+    if (this%n_entries() .eq. this%get_size()) then
+       call this%expand()
+    end if
+
+    this%n_entries_ = this%n_entries_ + 1
+
+    ! Initialize the named scalar at the appropriate index
+    call this%entries(this%n_entries_)%init_real_scalar(value, name)
+
+  end subroutine registry_add_real_scalar
+
+  !> Add an integer scalar to the registry.
+  !! @param value The scalar value.
+  !! @param name The name of the scalar.
+  !! @param ignore_existing If true, skip if scalar already registered.
+  subroutine registry_add_integer_scalar(this, value, name, ignore_existing)
+    class(registry_t), intent(inout) :: this
+    integer, intent(in) :: value
+    character(len=*), target, intent(in) :: name
+    logical, optional, intent(in) :: ignore_existing
+    logical :: ignore_existing_
+
+    ignore_existing_ = .false.
+    if (present(ignore_existing)) then
+       ignore_existing_ = ignore_existing
+    end if
+
+    if (this%integer_scalar_exists(name)) then
+       if (ignore_existing_) then
+          return
+       else
+          call neko_error("Scalar with name " // name // &
+               " is already registered")
+       end if
+    end if
+
+    if (this%n_entries() .eq. this%get_size()) then
+       call this%expand()
+    end if
+
+    this%n_entries_ = this%n_entries_ + 1
+
+    ! Initialize the named scalar at the appropriate index
+    call this%entries(this%n_entries_)%init_integer_scalar(value, name)
+
+  end subroutine registry_add_integer_scalar
+
   !> Add an alias for an existing entry in the registry.
   !! @param alias The alias.
   !! @param name The name of the entry.
@@ -389,6 +507,50 @@ contains
     f => this%entries(i)%get_matrix()
   end function registry_get_matrix_by_index
 
+  !> Get pointer to a stored real scalar by index.
+  function registry_get_real_scalar_by_index(this, i) result(s)
+    class(registry_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    real(kind=rp), pointer :: s
+    character(len=:), allocatable :: buffer
+
+    if (i < 1) then
+       call neko_error("Scalar index must be > 1")
+    else if (i > this%n_entries()) then
+       call neko_error("Scalar index exceeds number of stored scalars")
+    endif
+
+    if (this%entries(i)%get_type() .ne. 'real_scalar') then
+       write(buffer, *) "Requested index ", i, " is not a real_scalar, but a ", &
+            this%entries(i)%get_type()
+       call neko_error(buffer)
+    end if
+
+    s => this%entries(i)%get_real_scalar()
+  end function registry_get_real_scalar_by_index
+
+  !> Get pointer to a stored integer scalar by index.
+  function registry_get_integer_scalar_by_index(this, i) result(s)
+    class(registry_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    integer, pointer :: s
+    character(len=:), allocatable :: buffer
+
+    if (i < 1) then
+       call neko_error("Scalar index must be > 1")
+    else if (i > this%n_entries()) then
+       call neko_error("Scalar index exceeds number of stored scalars")
+    endif
+
+    if (this%entries(i)%get_type() .ne. 'integer_scalar') then
+       write(buffer, *) "Requested index ", i, " is not an integer_scalar, but a ", &
+            this%entries(i)%get_type()
+       call neko_error(buffer)
+    end if
+
+    s => this%entries(i)%get_integer_scalar()
+  end function registry_get_integer_scalar_by_index
+
   ! ========================================================================== !
   ! Methods for retrieving objects from the registry by name
 
@@ -415,13 +577,7 @@ contains
        return
     end if
 
-    if (pe_rank .eq. 0) then
-       write(error_unit, *) "Current registry contents:"
-
-       do i = 1, this%n_entries()
-          write(error_unit, *) "- ", this%entries(i)%get_name()
-       end do
-    end if
+    call this%print_contents()
     call neko_error("Field " // name // " could not be found in the registry")
 
   end function registry_get_field_by_name
@@ -452,13 +608,7 @@ contains
        return
     end if
 
-    if (pe_rank .eq. 0) then
-       write(error_unit, *) "Current registry contents:"
-
-       do i = 1, this%n_entries()
-          write(error_unit, *) "- ", this%entries(i)%get_name()
-       end do
-    end if
+    call this%print_contents()
     call neko_error("Vector " // name // " could not be found in the registry")
 
   end function registry_get_vector_by_name
@@ -488,16 +638,71 @@ contains
        return
     end if
 
-    if (pe_rank .eq. 0) then
-       write(error_unit, *) "Current registry contents:"
-
-       do i = 1, this%n_entries()
-          write(error_unit, *) "- ", this%entries(i)%get_name()
-       end do
-    end if
+    call this%print_contents()
     call neko_error("Matrix " // name // " could not be found in the registry")
 
   end function registry_get_matrix_by_name
+
+  !> Get pointer to a stored real scalar by name.
+  recursive function registry_get_real_scalar_by_name(this, name) result(s)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    character(len=:), allocatable :: alias_target
+    real(kind=rp), pointer :: s
+    logical :: found
+    integer :: i
+
+    found = .false.
+
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'real_scalar' .and. &
+            this%entries(i)%get_name() .eq. trim(name)) then
+          s => this%entries(i)%get_real_scalar()
+          return
+       end if
+    end do
+
+    call this%aliases%get(name, alias_target, found)
+    if (found) then
+       s => this%get_real_scalar_by_name(alias_target)
+       return
+    end if
+
+    call this%print_contents()
+    call neko_error("Scalar " // name // " could not be found in the registry")
+
+  end function registry_get_real_scalar_by_name
+
+  !> Get pointer to a stored integer scalar by name.
+  recursive function registry_get_integer_scalar_by_name(this, name) result(s)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    character(len=:), allocatable :: alias_target
+    integer, pointer :: s
+    logical :: found
+    integer :: i
+
+    found = .false.
+
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'integer_scalar' .and. &
+            this%entries(i)%get_name() .eq. trim(name)) then
+          s => this%entries(i)%get_integer_scalar()
+          return
+       end if
+    end do
+
+    call this%aliases%get(name, alias_target, found)
+    if (found) then
+       s => this%get_integer_scalar_by_name(alias_target)
+       return
+    end if
+
+    call this%print_contents()
+    call neko_error("Integer scalar " // name // &
+         " could not be found in the registry")
+
+  end function registry_get_integer_scalar_by_name
 
   ! ========================================================================== !
   ! Methods for checking existence of objects in the registry
@@ -577,6 +782,44 @@ contains
     found = this%aliases%valid_path(name)
   end function registry_matrix_exists
 
+  !> Check if a real scalar with a given name is already in the registry.
+  function registry_real_scalar_exists(this, name) result(found)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    logical :: found
+    integer :: i
+
+    found = .false.
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'real_scalar' .and. &
+            this%entries(i)%get_name() .eq. trim(name)) then
+          found = .true.
+          return
+       end if
+    end do
+
+    found = this%aliases%valid_path(name)
+  end function registry_real_scalar_exists
+
+  !> Check if an integer scalar with a given name is already in the registry.
+  function registry_integer_scalar_exists(this, name) result(found)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    logical :: found
+    integer :: i
+
+    found = .false.
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'integer_scalar' .and. &
+            this%entries(i)%get_name() .eq. trim(name)) then
+          found = .true.
+          return
+       end if
+    end do
+
+    found = this%aliases%valid_path(name)
+  end function registry_integer_scalar_exists
+
   ! ========================================================================== !
   ! Generic component accessor methods
 
@@ -627,6 +870,32 @@ contains
     end do
   end function registry_n_matrices
 
+  !> Get the number of real scalars stored in the registry
+  pure function registry_n_real_scalars(this) result(n)
+    class(registry_t), intent(in) :: this
+    integer :: n, i
+
+    n = 0
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'real_scalar') then
+          n = n + 1
+       end if
+    end do
+  end function registry_n_real_scalars
+
+  !> Get the number of integer scalars stored in the registry
+  pure function registry_n_integer_scalars(this) result(n)
+    class(registry_t), intent(in) :: this
+    integer :: n, i
+
+    n = 0
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'integer_scalar') then
+          n = n + 1
+       end if
+    end do
+  end function registry_n_integer_scalars
+
   !> Get the number of aliases stored in the registry
   pure function registry_n_aliases(this) result(n)
     class(registry_t), intent(in) :: this
@@ -670,5 +939,68 @@ contains
 
     call neko_log%end_section()
   end subroutine registry_print
+
+  !> Print the registry contents grouped by entity type.
+  subroutine registry_print_contents(this, type)
+    class(registry_t), intent(in) :: this
+    character(len=*), optional, intent(in) :: type
+    character(len=:), allocatable :: filter_type
+    character(len=14), parameter :: types(5) = (/ &
+         'field         ', &
+         'vector        ', &
+         'matrix        ', &
+         'real_scalar   ', &
+         'integer_scalar' /)
+    logical :: filter_active
+    integer :: i
+    logical :: known_type
+
+    filter_active = .false.
+    if (present(type)) then
+       filter_type = trim(type)
+       filter_active = .true.
+       known_type = .false.
+       do i = 1, size(types)
+          if (filter_type == types(i)) then
+             known_type = .true.
+             exit
+          end if
+       end do
+       if (.not. known_type) then
+          call neko_error("registry::print_contents: Unsupported type " &
+               // trim(filter_type))
+       end if
+    end if
+
+    call neko_log%section("Registry Contents")
+    do i = 1, size(types)
+       if (filter_active .and. (filter_type .ne. types(i))) cycle
+       call registry_print_section(this, types(i))
+    end do
+    call neko_log%end_section()
+  end subroutine registry_print_contents
+
+  !> Print a single section of the registry for the given type.
+  subroutine registry_print_section(this, entity_type)
+    class(registry_t), intent(in) :: this
+    character(len=*), intent(in) :: entity_type
+    integer :: i
+    logical :: found
+    character(len=LOG_SIZE) :: buffer
+
+    call neko_log%message("  "//trim(entity_type)//" entries:")
+    found = .false.
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. entity_type) then
+          found = .true.
+          write(buffer, '(A,I4,A,A)') "    [", i, "] ", &
+               trim(this%entries(i)%get_name())
+          call neko_log%message(trim(buffer))
+       end if
+    end do
+    if (.not. found) then
+       call neko_log%message("    <none>")
+    end if
+  end subroutine registry_print_section
 
 end module registry

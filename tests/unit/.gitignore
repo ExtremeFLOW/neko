@@ -26,6 +26,7 @@ test-suite.log
 */*.trs
 
 bc/bc_test
+case_file_utils/case_file_utils_test
 device/device_test
 device_math/device_math_suite
 device_mathops/device_mathops_test

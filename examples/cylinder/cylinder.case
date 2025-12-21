@@ -6,7 +6,7 @@
         "output_boundary": true,
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
-        "checkpoint_value": 50,
+        "checkpoint_value": 50.0,
         "time": {
             "end_time": 200.0,
             "variable_timestep": true,
@@ -20,7 +20,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 200,
+            "Re": 200.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [ 1.0, 0.0, 0.0 ]
@@ -46,7 +46,7 @@
             "boundary_conditions": [
                 {
                     "type": "velocity_value",
-                    "value": [ 1, 0, 0 ],
+                    "value": [ 1.0, 1.0, 1.0 ],
                     "zone_indices": [ 1 ]
                 },
                 {
@@ -84,13 +84,13 @@
                 "compute_value": 10,
                 "zone_id": 7,
                 "zone_name": "Cylinder",
-                "center": [ 0, 0, 0 ],
+                "center": [ 0.0, 0.0, 0.0 ]
             },
             {
                 "type": "fluid_stats",
                 "output_control": "simulationtime",
-                "output_value": 10,
-                "start_time": 50,
+                "output_value": 10.0,
+                "start_time": 50.0,
                 "compute_control": "tsteps",
                 "compute_value": 10,
                 "avg_direction": "z",

@@ -57,7 +57,8 @@ module fluid_pnpn
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use json_module, only : json_file
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
@@ -274,7 +275,7 @@ contains
     ! Select governing equations via associated residual and Ax types
     !
 
-    call json_get(params, 'case.numerics.time_order', integer_val)
+    call json_get_or_lookup(params, 'case.numerics.time_order', integer_val)
     allocate(this%ext_bdf)
     call this%ext_bdf%init(integer_val)
 
@@ -380,7 +381,7 @@ contains
     ! Setup pressure solver
     call neko_log%section("Pressure solver")
 
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'case.fluid.pressure_solver.max_iterations', &
          solver_maxiter, 800)
     call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
@@ -388,7 +389,8 @@ contains
          precon_type)
     call json_get(params, &
          'case.fluid.pressure_solver.preconditioner', precon_params)
-    call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
+    call json_get_or_lookup(params, &
+         'case.fluid.pressure_solver.absolute_tolerance', &
          abs_tol)
     call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
          monitor, .false.)
@@ -906,7 +908,7 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call json_get(bc_subdict, "zone_indices", zone_indices)
+          call json_get_or_lookup(bc_subdict, "zone_indices", zone_indices)
 
           ! Check that we are not trying to assing a bc to zone, for which one
           ! has already been assigned and that the zone has more than 0 size

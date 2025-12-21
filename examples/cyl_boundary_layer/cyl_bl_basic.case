@@ -6,7 +6,7 @@
         "output_boundary": true,
         "output_checkpoints": false,
         "time": {
-            "end_time": 100,
+            "end_time": 100.0,
             "timestep": 8e-4
         },
         "output_directory": "results_basic",
@@ -17,7 +17,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 500,
+            "Re": 500.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [ 1.0, 0.0, 0.0 ]
@@ -45,7 +45,7 @@
                 {
                     "type": "velocity_value",
                     "zone_indices": [ 1 ],
-                    "value": [ 1, 0, 0 ]
+                    "value": [ 1.0, 0.0, 0.0 ]
                 },
                 {
                     "type": "outflow",
@@ -65,7 +65,7 @@
                 }
             ],
             "output_control": "nsamples",
-            "output_value": 400
+            "output_value": 400.0
         }
     }
 }
