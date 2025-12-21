@@ -102,7 +102,6 @@ contains
     ! Try to find a string. It must exist
     call json_get(json, name, reg_name)
 
-    call json%print()
     ! Retrieve the value from the registry
     val = real(neko_const_registry%get_real_scalar(reg_name), kind=dp)
   end subroutine json_get_or_lookup_double
