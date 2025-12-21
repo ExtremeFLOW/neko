@@ -41,8 +41,6 @@ module euler_res_cpu
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use operators, only: div, rotate_cyc
-  use math, only: subcol3, copy, sub2, add2, add3, &
-       col2, col3, addcol3, cmult, cfill, invcol3, rone
   use gs_ops, only : GS_OP_ADD
   use scratch_registry, only: neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
@@ -150,11 +148,13 @@ contains
     ! Loop over Runge-Kutta stages
     do i = 1, s
        ! Copy current solution state to temporary arrays for this RK stage
-       call copy(temp_rho%x, rho_field%x, n)
-       call copy(temp_m_x%x, m_x%x, n)
-       call copy(temp_m_y%x, m_y%x, n)
-       call copy(temp_m_z%x, m_z%x, n)
-       call copy(temp_E%x, E%x, n)
+       do concurrent (k = 1:n)
+          temp_rho%x(k,1,1,1) = rho_field%x(k,1,1,1)
+          temp_m_x%x(k,1,1,1) = m_x%x(k,1,1,1)
+          temp_m_y%x(k,1,1,1) = m_y%x(k,1,1,1)
+          temp_m_z%x(k,1,1,1) = m_z%x(k,1,1,1)
+          temp_E%x(k,1,1,1) = E%x(k,1,1,1)
+       end do
 
        ! Accumulate previous stage contributions using RK coefficients
        do j = 1, i-1

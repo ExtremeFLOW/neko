@@ -110,10 +110,48 @@ module compressible_ops_device
        integer(c_int), value :: n
      end subroutine opencl_compute_entropy
   end interface
+
+  interface
+     subroutine opencl_update_uvw(u_d, v_d, w_d, m_x_d, &
+          m_y_d, m_z_d, rho_d, n) &
+          bind(c, name = 'opencl_update_uvw')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d
+       integer(c_int), value :: n
+     end subroutine opencl_update_uvw
+  end interface
+
+  interface
+     subroutine opencl_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
+          p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n) &
+          bind(c, name = 'opencl_update_mxyz_p_ruvw')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d
+       type(c_ptr), value :: p_d, ruvw_d, E_d
+       real(c_rp), value :: gamma
+       integer(c_int), value :: n
+     end subroutine opencl_update_mxyz_p_ruvw
+  end interface
+
+  interface
+     subroutine opencl_update_e(E_d, p_d, ruvw_d, gamma, n) &
+       bind(c, name = 'opencl_update_e')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: p_d, E_d, ruvw_d
+       real(c_rp), value :: gamma
+       integer(c_int), value :: n
+     end subroutine opencl_update_e
+  end interface
 #endif
 
   public :: compressible_ops_device_compute_max_wave_speed, &
-            compressible_ops_device_compute_entropy
+       compressible_ops_device_compute_entropy, &
+       compressible_ops_device_update_uvw, &
+       compressible_ops_device_update_mxyz_p_ruvw,&
+       compressible_ops_device_update_e
 
 contains
 
@@ -152,5 +190,67 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine compressible_ops_device_compute_entropy
+
+  !> Update u,v,w fields
+  subroutine compressible_ops_device_update_uvw(u_d, v_d, w_d, &
+       m_x_d, m_y_d, m_z_d, rho_d, n)
+    type(c_ptr), intent(inout) :: u_d, v_d, w_d
+    type(c_ptr), intent(in) :: m_x_d, m_y_d, m_z_d, rho_d
+    integer, intent(in) :: n
+    integer :: i
+
+#ifdef HAVE_HIP
+    call neko_error('No device backend configured')
+#elif HAVE_CUDA
+    call neko_error('No device backend configured')
+#elif HAVE_OPENCL
+    call opencl_update_uvw(u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine compressible_ops_device_update_uvw
+
+  !> Update m_x, m_y, m_z, p, ruvw, fields
+  subroutine compressible_ops_device_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
+       p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n)
+    integer, intent(in) :: n
+    type(c_ptr), intent(inout) :: m_x_d, m_y_d, m_z_d, p_d, ruvw_d
+    type(c_ptr), intent(in) :: u_d, v_d, w_d, E_d, rho_d
+    real(kind=rp), intent(in) :: gamma
+
+
+#ifdef HAVE_HIP
+    call neko_error('No device backend configured')
+#elif HAVE_CUDA
+    call neko_error('No device backend configured')
+#elif HAVE_OPENCL
+    call opencl_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
+         p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine compressible_ops_device_update_mxyz_p_ruvw
+
+  !> Update E field
+  subroutine compressible_ops_device_update_e(E_d, p_d, ruvw_d, gamma, n)
+    integer, intent(in) :: n
+    type(c_ptr), intent(inout) :: E_d, p_d
+    ! ruvw = 0.5 * rho * (u^2 + v^2 + w^2)
+    type(c_ptr), intent(in) :: ruvw_d
+    real(kind=rp), intent(in) :: gamma
+
+#ifdef HAVE_HIP
+    call neko_error('No device backend configured')
+#elif HAVE_CUDA
+    call neko_error('No device backend configured')
+#elif HAVE_OPENCL
+    call opencl_update_e(E_d, p_d, ruvw_d, gamma, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine compressible_ops_device_update_e
 
 end module compressible_ops_device
