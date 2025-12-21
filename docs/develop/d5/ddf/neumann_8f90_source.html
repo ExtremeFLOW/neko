@@ -227,248 +227,249 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Neumann BC flux must be a scalar or a 3-component&quot;</span> // &amp;</div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>            <span class="stringliteral">&quot; vector.&quot;</span>)</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keyword">allocate</span>(this%flux(<span class="keyword">size</span>(this%init_flux_)))</div>
 </div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a0061a1d563b2f38fbb87e852c4f72e1c">neumann_init_from_components_array</a></div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
-<div class="foldopen" id="foldopen00152" data-start="" data-end="">
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871">  152</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871">neumann_init_from_components_single</a>(this, coef, flux)</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: flux</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    <span class="keyword">call </span>this%init_base(coef)</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keyword">allocate</span>(this%init_flux_(1))</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    this%init_flux_(1) = flux</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a0061a1d563b2f38fbb87e852c4f72e1c">neumann_init_from_components_array</a></div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
+<div class="foldopen" id="foldopen00153" data-start="" data-end="">
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871">  153</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871">neumann_init_from_components_single</a>(this, coef, flux)</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: flux</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keyword">call </span>this%init_base(coef)</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keyword">allocate</span>(this%init_flux_(1))</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    this%init_flux_(1) = flux</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keyword">allocate</span>(this%flux(<span class="keyword">size</span>(this%init_flux_)))</div>
 </div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871">neumann_init_from_components_single</a></div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
-<div class="foldopen" id="foldopen00165" data-start="" data-end="">
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">  165</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">neumann_apply_scalar</a>(this, x, n, time, strong)</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: x</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordtype">integer</span> :: i, m, k, facet</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="comment">! Store non-linear index</span></div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="keywordtype">integer</span> :: idx(4)</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keywordtype">logical</span> :: strong_</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>       strong_ = strong</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>       strong_ = .true.</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    m = this%msk(0)</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordflow">if</span> (.not. strong_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>       <span class="keywordflow">do</span> i = 1, m</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>          k = this%msk(i)</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>          facet = this%facet(i)</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>          idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(k, this%coef%Xh%lx, this%coef%Xh%lx,&amp;</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>               this%coef%Xh%lx)</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>          <span class="keywordflow">select case</span> (facet)</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>          <span class="keywordflow">case</span> (1,2)</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>             x(k) = x(k) + &amp;</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>                  this%flux(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>          <span class="keywordflow">case</span> (3,4)</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>             x(k) = x(k) + &amp;</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>          <span class="keywordflow">case</span> (5,6)</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>             x(k) = x(k) + &amp;</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="keywordflow">          end select</span></div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871">neumann_init_from_components_single</a></div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
+<div class="foldopen" id="foldopen00166" data-start="" data-end="">
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">  166</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">neumann_apply_scalar</a>(this, x, n, time, strong)</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: x</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordtype">integer</span> :: i, m, k, facet</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="comment">! Store non-linear index</span></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keywordtype">integer</span> :: idx(4)</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordtype">logical</span> :: strong_</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>       strong_ = strong</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>       strong_ = .true.</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    m = this%msk(0)</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keywordflow">if</span> (.not. strong_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>       <span class="keywordflow">do</span> i = 1, m</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>          k = this%msk(i)</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>          facet = this%facet(i)</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>          idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(k, this%coef%Xh%lx, this%coef%Xh%lx,&amp;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>               this%coef%Xh%lx)</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>          <span class="keywordflow">select case</span> (facet)</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>          <span class="keywordflow">case</span> (1,2)</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>             x(k) = x(k) + &amp;</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>                  this%flux(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>          <span class="keywordflow">case</span> (3,4)</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>             x(k) = x(k) + &amp;</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>          <span class="keywordflow">case</span> (5,6)</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>             x(k) = x(k) + &amp;</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keywordflow">          end select</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">neumann_apply_scalar</a></div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
-<div class="foldopen" id="foldopen00206" data-start="" data-end="">
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a858f089e1445a86c271847694ff47852">  206</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a858f089e1445a86c271847694ff47852">neumann_apply_vector</a>(this, x, y, z, n, time, strong)</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: x</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: y</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: z</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    <span class="keywordtype">integer</span> :: i, m, k, facet</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <span class="comment">! Store non-linear index</span></div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    <span class="keywordtype">integer</span> :: idx(4)</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    <span class="keywordtype">logical</span> :: strong_</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>       strong_ = strong</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>       strong_ = .true.</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span> </div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    m = this%msk(0)</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <span class="keywordflow">if</span> (.not. strong_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       <span class="keywordflow">do</span> i = 1, m</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>          k = this%msk(i)</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>          facet = this%facet(i)</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>          idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(k, this%coef%Xh%lx, this%coef%Xh%lx,&amp;</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>               this%coef%Xh%lx)</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>          <span class="keywordflow">select case</span> (facet)</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>          <span class="keywordflow">case</span> (1,2)</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>             x(k) = x(k) + &amp;</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>                  this%flux(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>             y(k) = y(k) + &amp;</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>                  this%flux(2)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>             z(k) = z(k) + &amp;</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>                  this%flux(3)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>          <span class="keywordflow">case</span> (3,4)</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>             x(k) = x(k) + &amp;</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>             y(k) = y(k) + &amp;</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>                  this%flux(2)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>             z(k) = z(k) + &amp;</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>                  this%flux(3)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>          <span class="keywordflow">case</span> (5,6)</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>             x(k) = x(k) + &amp;</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>             y(k) = y(k) + &amp;</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>                  this%flux(2)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>             z(k) = z(k) + &amp;</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>                  this%flux(3)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="keywordflow">          end select</span></div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">neumann_apply_scalar</a></div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span> </div>
+<div class="foldopen" id="foldopen00207" data-start="" data-end="">
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a858f089e1445a86c271847694ff47852">  207</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a858f089e1445a86c271847694ff47852">neumann_apply_vector</a>(this, x, y, z, n, time, strong)</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: x</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: y</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: z</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <span class="keywordtype">integer</span> :: i, m, k, facet</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    <span class="comment">! Store non-linear index</span></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    <span class="keywordtype">integer</span> :: idx(4)</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    <span class="keywordtype">logical</span> :: strong_</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>       strong_ = strong</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>       strong_ = .true.</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    m = this%msk(0)</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keywordflow">if</span> (.not. strong_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>       <span class="keywordflow">do</span> i = 1, m</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>          k = this%msk(i)</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>          facet = this%facet(i)</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>          idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(k, this%coef%Xh%lx, this%coef%Xh%lx,&amp;</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>               this%coef%Xh%lx)</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>          <span class="keywordflow">select case</span> (facet)</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>          <span class="keywordflow">case</span> (1,2)</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>             x(k) = x(k) + &amp;</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>                  this%flux(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>             y(k) = y(k) + &amp;</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>                  this%flux(2)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>             z(k) = z(k) + &amp;</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>                  this%flux(3)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>          <span class="keywordflow">case</span> (3,4)</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>             x(k) = x(k) + &amp;</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>             y(k) = y(k) + &amp;</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>                  this%flux(2)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>             z(k) = z(k) + &amp;</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>                  this%flux(3)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>          <span class="keywordflow">case</span> (5,6)</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>             x(k) = x(k) + &amp;</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>             y(k) = y(k) + &amp;</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>                  this%flux(2)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>             z(k) = z(k) + &amp;</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>                  this%flux(3)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="keywordflow">          end select</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a858f089e1445a86c271847694ff47852">neumann_apply_vector</a></div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
-<div class="foldopen" id="foldopen00261" data-start="" data-end="">
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15">  261</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15">neumann_apply_scalar_dev</a>(this, x_d, time, strong, strm)</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: x_d</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordtype">logical</span> :: strong_</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>       strong_ = strong</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>       strong_ = .true.</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span> </div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keywordflow">if</span> (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &amp;</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>         .not. strong_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/d7b/namespacedevice__neumann.html#acff205a4b91a483e2c89a415b845b738">device_neumann_apply_scalar</a>(this%msk_d, this%facet_d, x_d, &amp;</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>            this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &amp;</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            <span class="keyword">size</span>(this%msk), strm)</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a858f089e1445a86c271847694ff47852">neumann_apply_vector</a></div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
+<div class="foldopen" id="foldopen00262" data-start="" data-end="">
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15">  262</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15">neumann_apply_scalar_dev</a>(this, x_d, time, strong, strm)</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: x_d</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordtype">logical</span> :: strong_</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span> </div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       strong_ = strong</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       strong_ = .true.</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordflow">if</span> (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &amp;</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>         .not. strong_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/d7b/namespacedevice__neumann.html#acff205a4b91a483e2c89a415b845b738">device_neumann_apply_scalar</a>(this%msk_d, this%facet_d, x_d, &amp;</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &amp;</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            <span class="keyword">size</span>(this%msk), strm)</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15">neumann_apply_scalar_dev</a></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
-<div class="foldopen" id="foldopen00285" data-start="" data-end="">
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25">  285</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25">neumann_apply_vector_dev</a>(this, x_d, y_d, z_d, &amp;</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>       time, strong, strm)</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: x_d</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: y_d</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: z_d</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordtype">logical</span> :: strong_</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>       strong_ = strong</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>       strong_ = .true.</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keywordflow">if</span> (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &amp;</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>         .not. strong_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/d7b/namespacedevice__neumann.html#ad942308eb4757cf0f9a1d673b8daef2f">device_neumann_apply_vector</a>(this%msk_d, this%facet_d, &amp;</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>            x_d, y_d, z_d, &amp;</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>            this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &amp;</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>            this%coef%area_d, this%coef%Xh%lx, &amp;</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>            <span class="keyword">size</span>(this%msk), strm)</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15">neumann_apply_scalar_dev</a></div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
+<div class="foldopen" id="foldopen00286" data-start="" data-end="">
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25">  286</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25">neumann_apply_vector_dev</a>(this, x_d, y_d, z_d, &amp;</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>       time, strong, strm)</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: x_d</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: y_d</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: z_d</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    <span class="keywordtype">logical</span> :: strong_</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>       strong_ = strong</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>       strong_ = .true.</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <span class="keywordflow">if</span> (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &amp;</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>         .not. strong_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d3/d7b/namespacedevice__neumann.html#ad942308eb4757cf0f9a1d673b8daef2f">device_neumann_apply_vector</a>(this%msk_d, this%facet_d, &amp;</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>            x_d, y_d, z_d, &amp;</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>            this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &amp;</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>            this%coef%area_d, this%coef%Xh%lx, &amp;</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>            <span class="keyword">size</span>(this%msk), strm)</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
 </div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25">neumann_apply_vector_dev</a></div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
-<div class="foldopen" id="foldopen00314" data-start="" data-end="">
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#af347bc7690f64907cac82ae64a605400">  314</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#af347bc7690f64907cac82ae64a605400">neumann_free</a>(this)</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keyword">call </span>this%free_base()</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25">neumann_apply_vector_dev</a></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span> </div>
+<div class="foldopen" id="foldopen00315" data-start="" data-end="">
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#af347bc7690f64907cac82ae64a605400">  315</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#af347bc7690f64907cac82ae64a605400">neumann_free</a>(this)</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="keyword">call </span>this%free_base()</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
 </div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#af347bc7690f64907cac82ae64a605400">neumann_free</a></div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
-<div class="foldopen" id="foldopen00322" data-start="" data-end="">
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">  322</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">neumann_finalize</a>(this, only_facets)</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: only_facets</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordtype">integer</span> :: i, j</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span> </div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(only_facets)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       <span class="keywordflow">if</span> (only_facets .eqv. .false.) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;For neumann_t, only_facets has to be true.&quot;</span>)</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <span class="keyword">call </span>this%finalize_base(.true.)</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="comment">! Allocate flux vectors and assign to initial constant values</span></div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordflow">do</span> i = 1,<span class="keyword">size</span>(this%init_flux_)</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>       <span class="keyword">call </span>this%flux(i)%init(this%msk(0))</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>       this%flux(i) = this%init_flux_(i)</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span> </div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    this%uniform_0 = .true.</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordflow">do</span> i = 1, 3</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>       this%uniform_0 = <a class="code hl_interface" href="../../de/d34/interfacemath_1_1abscmp.html">abscmp</a>(this%init_flux_(i), 0.0_rp) .and. this%uniform_0</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#af347bc7690f64907cac82ae64a605400">neumann_free</a></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
+<div class="foldopen" id="foldopen00323" data-start="" data-end="">
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">  323</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">neumann_finalize</a>(this, only_facets)</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: only_facets</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordtype">integer</span> :: i, j</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span> </div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(only_facets)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>       <span class="keywordflow">if</span> (only_facets .eqv. .false.) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;For neumann_t, only_facets has to be true.&quot;</span>)</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>    <span class="keyword">call </span>this%finalize_base(.true.)</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="comment">! Allocate flux vectors and assign to initial constant values</span></div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    <span class="keywordflow">do</span> i = 1,<span class="keyword">size</span>(this%init_flux_)</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>       <span class="keyword">call </span>this%flux(i)%init(this%msk(0))</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>       this%flux(i) = this%init_flux_(i)</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    this%uniform_0 = .true.</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordflow">do</span> i = 1, 3</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>       this%uniform_0 = <a class="code hl_interface" href="../../de/d34/interfacemath_1_1abscmp.html">abscmp</a>(this%init_flux_(i), 0.0_rp) .and. this%uniform_0</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="keywordflow">    end do</span></div>
 </div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">neumann_finalize</a></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
-<div class="foldopen" id="foldopen00351" data-start="" data-end="">
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a093d3fd0a5db6f0d16dd3e0cdabe39da">  351</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a093d3fd0a5db6f0d16dd3e0cdabe39da">neumann_set_flux_scalar</a>(this, flux, comp)</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: flux</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: comp</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="keywordflow">if</span> (<span class="keyword">size</span>(this%flux) .lt. comp) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Component index out of bounds in &quot;</span> // &amp;</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>            <span class="stringliteral">&quot;neumann_set_flux_scalar&quot;</span>)</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span> </div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    this%flux(comp) = flux</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    <span class="comment">! If we were uniform zero before, and this comp is set to zero, we are still</span></div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    <span class="comment">! uniform zero</span></div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    this%uniform_0 = <a class="code hl_interface" href="../../de/d34/interfacemath_1_1abscmp.html">abscmp</a>(flux, 0.0_rp) .and. this%uniform_0</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span> </div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">neumann_finalize</a></div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span> </div>
+<div class="foldopen" id="foldopen00352" data-start="" data-end="">
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a093d3fd0a5db6f0d16dd3e0cdabe39da">  352</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a093d3fd0a5db6f0d16dd3e0cdabe39da">neumann_set_flux_scalar</a>(this, flux, comp)</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: flux</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: comp</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="keywordflow">if</span> (<span class="keyword">size</span>(this%flux) .lt. comp) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Component index out of bounds in &quot;</span> // &amp;</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>            <span class="stringliteral">&quot;neumann_set_flux_scalar&quot;</span>)</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span> </div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    this%flux(comp) = flux</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    <span class="comment">! If we were uniform zero before, and this comp is set to zero, we are still</span></div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="comment">! uniform zero</span></div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    this%uniform_0 = <a class="code hl_interface" href="../../de/d34/interfacemath_1_1abscmp.html">abscmp</a>(flux, 0.0_rp) .and. this%uniform_0</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span> </div>
 </div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a093d3fd0a5db6f0d16dd3e0cdabe39da">neumann_set_flux_scalar</a></div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span> </div>
-<div class="foldopen" id="foldopen00371" data-start="" data-end="">
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a104ca58cb8594dd42570cc4f215f9d3e">  371</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a104ca58cb8594dd42570cc4f215f9d3e">neumann_set_flux_array</a>(this, flux, comp)</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), <span class="keywordtype">intent(in)</span> :: flux</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: comp</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span> </div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>    <span class="keywordflow">if</span> (<span class="keyword">size</span>(this%flux) .lt. comp) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Component index out of bounds in &quot;</span> // &amp;</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>            <span class="stringliteral">&quot;neuman_set_flux_array&quot;</span>)</div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    this%flux(comp) = flux</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span> </div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <span class="comment">! Once a flux is set explicitly, we no longer assume it is uniform zero.</span></div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    this%uniform_0 = .false.</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a093d3fd0a5db6f0d16dd3e0cdabe39da">neumann_set_flux_scalar</a></div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
+<div class="foldopen" id="foldopen00372" data-start="" data-end="">
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno"><a class="line" href="../../d9/d75/namespaceneumann.html#a104ca58cb8594dd42570cc4f215f9d3e">  372</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a104ca58cb8594dd42570cc4f215f9d3e">neumann_set_flux_array</a>(this, flux, comp)</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/d84/structneumann_1_1neumann__t.html">neumann_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), <span class="keywordtype">intent(in)</span> :: flux</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: comp</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span> </div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>    <span class="keywordflow">if</span> (<span class="keyword">size</span>(this%flux) .lt. comp) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Component index out of bounds in &quot;</span> // &amp;</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>            <span class="stringliteral">&quot;neuman_set_flux_array&quot;</span>)</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span> </div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    this%flux(comp) = flux</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span> </div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="comment">! Once a flux is set explicitly, we no longer assume it is uniform zero.</span></div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    this%uniform_0 = .false.</div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span> </div>
 </div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a104ca58cb8594dd42570cc4f215f9d3e">neumann_set_flux_array</a></div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d9/d75/namespaceneumann.html">neumann</a></div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#a104ca58cb8594dd42570cc4f215f9d3e">neumann_set_flux_array</a></div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d9/d75/namespaceneumann.html">neumann</a></div>
 <div class="ttc" id="acuda_2bc__utils_8h_html_a97af2a5f58e9e047d747424d0f89132d"><div class="ttname"><a href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a></div><div class="ttdeci">__inline__ __device__ void nonlinear_index(const int idx, const int lx, int *index)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d74/cuda_2bc__utils_8h_source.html#l00044">bc_utils.h:44</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00049">json_utils.f90:49</a></div></div>
@@ -492,16 +493,16 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div class="ttc" id="anamespaceneko__config_html_ac196ccb4b3efd94171f0cfbfedaa7b9d"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_config::neko_bcknd_device</a></div><div class="ttdeci">integer, parameter neko_bcknd_device</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00044">neko_config.f90:44</a></div></div>
 <div class="ttc" id="anamespaceneumann_html"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html">neumann</a></div><div class="ttdoc">Defines a Neumann boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00034">neumann.f90:34</a></div></div>
 <div class="ttc" id="anamespaceneumann_html_a0061a1d563b2f38fbb87e852c4f72e1c"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a0061a1d563b2f38fbb87e852c4f72e1c">neumann::neumann_init_from_components_array</a></div><div class="ttdeci">subroutine neumann_init_from_components_array(this, coef, flux)</div><div class="ttdoc">Constructor from components, using a flux array for vector components.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00135">neumann.f90:136</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_a093d3fd0a5db6f0d16dd3e0cdabe39da"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a093d3fd0a5db6f0d16dd3e0cdabe39da">neumann::neumann_set_flux_scalar</a></div><div class="ttdeci">subroutine neumann_set_flux_scalar(this, flux, comp)</div><div class="ttdoc">Set the flux using a scalar.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00351">neumann.f90:352</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_a104ca58cb8594dd42570cc4f215f9d3e"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a104ca58cb8594dd42570cc4f215f9d3e">neumann::neumann_set_flux_array</a></div><div class="ttdeci">subroutine neumann_set_flux_array(this, flux, comp)</div><div class="ttdoc">Set a flux component using a vector_t of values.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00371">neumann.f90:372</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_a279eb17c329ba6b976949e76d0a62b25"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25">neumann::neumann_apply_vector_dev</a></div><div class="ttdeci">subroutine neumann_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)</div><div class="ttdoc">Boundary condition apply for a generic Neumann condition to vectors x, y and z (device version)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00285">neumann.f90:287</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_a366fa8d02e929317601092dc2d623c03"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">neumann::neumann_finalize</a></div><div class="ttdeci">subroutine neumann_finalize(this, only_facets)</div><div class="ttdoc">Finalize by setting the flux.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00322">neumann.f90:323</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_a42d007b2ffe4f0af994dc5c95effe871"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871">neumann::neumann_init_from_components_single</a></div><div class="ttdeci">subroutine neumann_init_from_components_single(this, coef, flux)</div><div class="ttdoc">Constructor from components, using an signle flux.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00152">neumann.f90:153</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_a093d3fd0a5db6f0d16dd3e0cdabe39da"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a093d3fd0a5db6f0d16dd3e0cdabe39da">neumann::neumann_set_flux_scalar</a></div><div class="ttdeci">subroutine neumann_set_flux_scalar(this, flux, comp)</div><div class="ttdoc">Set the flux using a scalar.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00352">neumann.f90:353</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_a104ca58cb8594dd42570cc4f215f9d3e"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a104ca58cb8594dd42570cc4f215f9d3e">neumann::neumann_set_flux_array</a></div><div class="ttdeci">subroutine neumann_set_flux_array(this, flux, comp)</div><div class="ttdoc">Set a flux component using a vector_t of values.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00372">neumann.f90:373</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_a279eb17c329ba6b976949e76d0a62b25"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25">neumann::neumann_apply_vector_dev</a></div><div class="ttdeci">subroutine neumann_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)</div><div class="ttdoc">Boundary condition apply for a generic Neumann condition to vectors x, y and z (device version)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00286">neumann.f90:288</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_a366fa8d02e929317601092dc2d623c03"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a366fa8d02e929317601092dc2d623c03">neumann::neumann_finalize</a></div><div class="ttdeci">subroutine neumann_finalize(this, only_facets)</div><div class="ttdoc">Finalize by setting the flux.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00323">neumann.f90:324</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_a42d007b2ffe4f0af994dc5c95effe871"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871">neumann::neumann_init_from_components_single</a></div><div class="ttdeci">subroutine neumann_init_from_components_single(this, coef, flux)</div><div class="ttdoc">Constructor from components, using an signle flux.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00153">neumann.f90:154</a></div></div>
 <div class="ttc" id="anamespaceneumann_html_a6f7280e4d8eee73a0a59a155b2966839"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a6f7280e4d8eee73a0a59a155b2966839">neumann::neumann_init</a></div><div class="ttdeci">subroutine neumann_init(this, coef, json)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00103">neumann.f90:104</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_a858f089e1445a86c271847694ff47852"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a858f089e1445a86c271847694ff47852">neumann::neumann_apply_vector</a></div><div class="ttdeci">subroutine neumann_apply_vector(this, x, y, z, n, time, strong)</div><div class="ttdoc">Boundary condition apply for a generic Neumann condition to vectors x, y and z.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00206">neumann.f90:207</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_aab13b69874d22240741b7dc9862750b2"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">neumann::neumann_apply_scalar</a></div><div class="ttdeci">subroutine neumann_apply_scalar(this, x, n, time, strong)</div><div class="ttdoc">Boundary condition apply for a generic Neumann condition to a vector x.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00165">neumann.f90:166</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_aef749aa6c3a3c677f99639e00905eb15"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15">neumann::neumann_apply_scalar_dev</a></div><div class="ttdeci">subroutine neumann_apply_scalar_dev(this, x_d, time, strong, strm)</div><div class="ttdoc">Boundary condition apply for a generic Neumann condition to a vector x (device version)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00261">neumann.f90:262</a></div></div>
-<div class="ttc" id="anamespaceneumann_html_af347bc7690f64907cac82ae64a605400"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#af347bc7690f64907cac82ae64a605400">neumann::neumann_free</a></div><div class="ttdeci">subroutine neumann_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00314">neumann.f90:315</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_a858f089e1445a86c271847694ff47852"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#a858f089e1445a86c271847694ff47852">neumann::neumann_apply_vector</a></div><div class="ttdeci">subroutine neumann_apply_vector(this, x, y, z, n, time, strong)</div><div class="ttdoc">Boundary condition apply for a generic Neumann condition to vectors x, y and z.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00207">neumann.f90:208</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_aab13b69874d22240741b7dc9862750b2"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">neumann::neumann_apply_scalar</a></div><div class="ttdeci">subroutine neumann_apply_scalar(this, x, n, time, strong)</div><div class="ttdoc">Boundary condition apply for a generic Neumann condition to a vector x.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00166">neumann.f90:167</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_aef749aa6c3a3c677f99639e00905eb15"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15">neumann::neumann_apply_scalar_dev</a></div><div class="ttdeci">subroutine neumann_apply_scalar_dev(this, x_d, time, strong, strm)</div><div class="ttdoc">Boundary condition apply for a generic Neumann condition to a vector x (device version)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00262">neumann.f90:263</a></div></div>
+<div class="ttc" id="anamespaceneumann_html_af347bc7690f64907cac82ae64a605400"><div class="ttname"><a href="../../d9/d75/namespaceneumann.html#af347bc7690f64907cac82ae64a605400">neumann::neumann_free</a></div><div class="ttdeci">subroutine neumann_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00315">neumann.f90:316</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespacetime__state_html"><div class="ttname"><a href="../../d8/d92/namespacetime__state.html">time_state</a></div><div class="ttdoc">Module with things related to the simulation time.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00034">time_state.f90:34</a></div></div>
@@ -518,7 +519,7 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../d5/ddf/neumann_8f90.html">neumann.f90</a></li>
-    <li class="footer">Generated on Sat Dec 20 2025 03:48:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Dec 21 2025 03:53:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
