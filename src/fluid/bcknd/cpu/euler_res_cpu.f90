@@ -80,7 +80,6 @@ contains
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
     integer :: n, s, i, j, k
-    real(kind=rp) :: t, c
     type(field_t), pointer :: k_rho_1, k_rho_2, k_rho_3, k_rho_4, &
          k_m_x_1, k_m_x_2, k_m_x_3, k_m_x_4, &
          k_m_y_1, k_m_y_2, k_m_y_3, k_m_y_4, &
@@ -317,7 +316,9 @@ contains
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     ! Reset h1 coefficient back to 1.0 for other operations
-    call rone(coef%h1, n)
+    do concurrent (i = 1:n)
+       coef%h1(i,1,1,1) = 1.0_rp
+    end do
 
     ! gs
     call gs%op(visc_rho, GS_OP_ADD)
