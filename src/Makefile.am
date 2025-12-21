@@ -516,6 +516,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/cuda/euler_res.cu\
 	fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu\
 	fluid/bcknd/device/cuda/compressible_ops_compute_entropy.cu\
+	fluid/bcknd/device/cuda/compressible_ops_update.cu\
 	fluid/regularization/bcknd/device/cuda/entropy_viscosity.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\

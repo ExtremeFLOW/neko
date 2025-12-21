@@ -85,6 +85,7 @@ fluid/bcknd/device/cuda/pnpn_res.lo : fluid/bcknd/device/cuda/pnpn_res.cu fluid/
 fluid/bcknd/device/cuda/euler_res.lo : fluid/bcknd/device/cuda/euler_res.cu fluid/bcknd/device/cuda/euler_res_kernel.h
 fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
 fluid/bcknd/device/cuda/compressible_ops_compute_entropy.lo : fluid/bcknd/device/cuda/compressible_ops_compute_entropy.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
+fluid/bcknd/device/cuda/compressible_ops_update.lo : fluid/bcknd/device/cuda/compressible_ops_update.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
 fluid/regularization/bcknd/device/cuda/entropy_viscosity.lo : fluid/regularization/bcknd/device/cuda/entropy_viscosity.cu fluid/regularization/bcknd/device/cuda/entropy_viscosity_kernel.h
 fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.lo : fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h
 common/bcknd/device/cuda/gradient_jump_penalty.lo : common/bcknd/device/cuda/gradient_jump_penalty.cu common/bcknd/device/cuda/gradient_jump_penalty_kernel.h
