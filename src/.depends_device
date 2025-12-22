@@ -36,6 +36,7 @@ fluid/bcknd/device/hip/pnpn_res.lo : fluid/bcknd/device/hip/pnpn_res.hip fluid/b
 fluid/bcknd/device/hip/euler_res.lo : fluid/bcknd/device/hip/euler_res.hip fluid/bcknd/device/hip/euler_res_kernel.h
 fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
 fluid/bcknd/device/hip/compressible_ops_compute_entropy.lo : fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
+fluid/bcknd/device/hip/compressible_ops_update.lo : fluid/bcknd/device/hip/compressible_ops_update.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
 fluid/regularization/bcknd/device/hip/entropy_viscosity.lo : fluid/regularization/bcknd/device/hip/entropy_viscosity.hip fluid/regularization/bcknd/device/hip/entropy_viscosity_kernel.h
 scalar/bcknd/device/hip/scalar_residual.lo : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.lo : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h

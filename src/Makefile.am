@@ -457,6 +457,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/hip/euler_res.hip\
 	fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip\
 	fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip\
+	fluid/bcknd/device/hip/compressible_ops_update.hip\
 	fluid/regularization/bcknd/device/hip/entropy_viscosity.hip\
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\

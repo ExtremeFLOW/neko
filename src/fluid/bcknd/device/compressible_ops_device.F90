@@ -63,6 +63,41 @@ module compressible_ops_device
      end subroutine hip_compute_entropy
   end interface
 
+  interface
+     subroutine hip_update_uvw(u_d, v_d, w_d, m_x_d, &
+          m_y_d, m_z_d, rho_d, n) &
+          bind(c, name = 'hip_update_uvw')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d
+       integer(c_int) :: n
+     end subroutine hip_update_uvw
+  end interface
+
+  interface
+     subroutine hip_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
+          p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n) &
+          bind(c, name = 'hip_update_mxyz_p_ruvw')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d
+       type(c_ptr), value :: p_d, ruvw_d, E_d
+       real(c_rp) :: gamma
+       integer(c_int) :: n
+     end subroutine hip_update_mxyz_p_ruvw
+  end interface
+
+  interface
+     subroutine hip_update_e(E_d, p_d, ruvw_d, gamma, n) &
+       bind(c, name = 'hip_update_e')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: p_d, E_d, ruvw_d
+       real(c_rp) :: gamma
+       integer(c_int) :: n
+     end subroutine hip_update_e
+  end interface
+
 #elif HAVE_CUDA
   interface
      subroutine cuda_compute_max_wave_speed(max_wave_speed_d, u_d, v_d, w_d, &
@@ -120,7 +155,7 @@ module compressible_ops_device
        real(c_rp) :: gamma
        integer(c_int) :: n
      end subroutine cuda_update_e
-  end interface  
+  end interface
 
 #elif HAVE_OPENCL
   interface
@@ -235,7 +270,7 @@ contains
     integer :: i
 
 #ifdef HAVE_HIP
-    call neko_error('No device backend configured')
+    call hip_update_uvw(u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d, n)
 #elif HAVE_CUDA
     call cuda_update_uvw(u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d, n)
 #elif HAVE_OPENCL
@@ -256,7 +291,8 @@ contains
 
 
 #ifdef HAVE_HIP
-    call neko_error('No device backend configured')
+    call hip_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
+         p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n)
 #elif HAVE_CUDA
     call cuda_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
          p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n)
@@ -278,7 +314,7 @@ contains
     real(kind=rp), intent(in) :: gamma
 
 #ifdef HAVE_HIP
-    call neko_error('No device backend configured')
+    call hip_update_e(E_d, p_d, ruvw_d, gamma, n)
 #elif HAVE_CUDA
     call cuda_update_e(E_d, p_d, ruvw_d, gamma, n)
 #elif HAVE_OPENCL
