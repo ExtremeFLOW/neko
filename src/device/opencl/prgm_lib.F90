@@ -83,7 +83,7 @@ module opencl_prgm_lib
   !> Device compressible ops kernels
   type(c_ptr), public, bind(c) :: compressible_ops_compute_max_wave_speed_program = C_NULL_PTR
   type(c_ptr), public, bind(c) :: compressible_ops_compute_entropy_program = C_NULL_PTR
-    type(c_ptr), public, bind(c) :: compressible_ops_update_program = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: compressible_ops_update_program = C_NULL_PTR
 
   !> Device fdm kernels
   type(c_ptr), public, bind(c) :: fdm_program = C_NULL_PTR
