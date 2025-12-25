@@ -80,6 +80,7 @@ extern void *euler_res_program;
 /** Device compressible ops kernels */
 extern void *compressible_ops_compute_max_wave_speed_program;
 extern void *compressible_ops_compute_entropy_program;
+extern void *compressible_ops_update_program;
 
 /** Device fdm kernels */
 extern void *fdm_program;

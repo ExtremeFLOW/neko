@@ -457,6 +457,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/hip/euler_res.hip\
 	fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip\
 	fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip\
+	fluid/bcknd/device/hip/compressible_ops_update.hip\
 	fluid/regularization/bcknd/device/hip/entropy_viscosity.hip\
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
@@ -516,6 +517,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/cuda/euler_res.cu\
 	fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu\
 	fluid/bcknd/device/cuda/compressible_ops_compute_entropy.cu\
+	fluid/bcknd/device/cuda/compressible_ops_update.cu\
 	fluid/regularization/bcknd/device/cuda/entropy_viscosity.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
@@ -574,6 +576,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/opencl/euler_res.c\
 	fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.c\
 	fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c\
+	fluid/bcknd/device/opencl/compressible_ops_update.c\
 	fluid/regularization/bcknd/device/opencl/entropy_viscosity.c\
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
@@ -801,6 +804,7 @@ EXTRA_DIST = \
 	fluid/stress_formulation/bcknd/device/opencl/prs_stress_res_kernel.cl\
 	fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed_kernel.cl\
 	fluid/bcknd/device/opencl/compressible_ops_compute_entropy_kernel.cl\
+	fluid/bcknd/device/opencl/compressible_ops_update_kernel.cl\
 	fluid/regularization/bcknd/device/opencl/entropy_viscosity_kernel.cl\
 	scalar/bcknd/device/opencl/scalar_residual_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
