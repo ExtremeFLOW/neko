@@ -64,7 +64,10 @@ var namespaces_dup =
     [ "comm", "d3/d8f/namespacecomm.html", "d3/d8f/namespacecomm" ],
     [ "compressible_ops_cpu", "d7/d6d/namespacecompressible__ops__cpu.html", [
       [ "compressible_ops_cpu_compute_entropy", "d7/d6d/namespacecompressible__ops__cpu.html#aa0c5b9b50066ee6171a1493ec32f2fea", null ],
-      [ "compressible_ops_cpu_compute_max_wave_speed", "d7/d6d/namespacecompressible__ops__cpu.html#ae9bf589a7723debfcabc05424b5e41b8", null ]
+      [ "compressible_ops_cpu_compute_max_wave_speed", "d7/d6d/namespacecompressible__ops__cpu.html#ae9bf589a7723debfcabc05424b5e41b8", null ],
+      [ "compressible_ops_cpu_update_e", "d7/d6d/namespacecompressible__ops__cpu.html#a5e8786cf609934434cba33142cd3a3ce", null ],
+      [ "compressible_ops_cpu_update_mxyz_p_ruvw", "d7/d6d/namespacecompressible__ops__cpu.html#aecc5889ce91b499748b42392c1d27b89", null ],
+      [ "compressible_ops_cpu_update_uvw", "d7/d6d/namespacecompressible__ops__cpu.html#a326ff5f3bbac430dfbfa0f588519f826", null ]
     ] ],
     [ "compressible_ops_device", "dc/da9/namespacecompressible__ops__device.html", "dc/da9/namespacecompressible__ops__device" ],
     [ "const_source_term", "d0/dd2/namespaceconst__source__term.html", "d0/dd2/namespaceconst__source__term" ],
@@ -484,6 +487,7 @@ var namespaces_dup =
       [ "coef_program", "d0/dc0/namespaceopencl__prgm__lib.html#a517cc19754edd7c876f9464f9c9f16f2", null ],
       [ "compressible_ops_compute_entropy_program", "d0/dc0/namespaceopencl__prgm__lib.html#a96d57f0c1b15dc92a27643e28b306bae", null ],
       [ "compressible_ops_compute_max_wave_speed_program", "d0/dc0/namespaceopencl__prgm__lib.html#aff43e571b46789fc2db22c512bd0cbca", null ],
+      [ "compressible_ops_update_program", "d0/dc0/namespaceopencl__prgm__lib.html#a1f606b48d2927a7bab848e55d702d92d", null ],
       [ "compute_max_wave_speed_program", "d0/dc0/namespaceopencl__prgm__lib.html#a9e505c590c538b1cf8a7617b997f798f", null ],
       [ "conv1_program", "d0/dc0/namespaceopencl__prgm__lib.html#a304618314a0d66891d0cddf84f8d6a08", null ],
       [ "convect_scalar_program", "d0/dc0/namespaceopencl__prgm__lib.html#a136923fb1e56dcfa8e22c12f49736879", null ],

@@ -7,6 +7,7 @@ var prgm__lib_8h =
     [ "coef_program", "d1/df7/prgm__lib_8h.html#a7da178fca82b5b362dd232f0a36ba5f3", null ],
     [ "compressible_ops_compute_entropy_program", "d1/df7/prgm__lib_8h.html#a62bbc8559bdbda79854bb6a2f6ed6b44", null ],
     [ "compressible_ops_compute_max_wave_speed_program", "d1/df7/prgm__lib_8h.html#adf8c62d114f22be6a817f37aa1cb7abe", null ],
+    [ "compressible_ops_update_program", "d1/df7/prgm__lib_8h.html#a25a9c1b0c13e80f4e02dde75fe9652dd", null ],
     [ "compute_max_wave_speed_program", "d1/df7/prgm__lib_8h.html#ae015423ebace999156127f472255d99e", null ],
     [ "conv1_program", "d1/df7/prgm__lib_8h.html#a2824ac194f94fdb0ad8f4d7986f31be1", null ],
     [ "convect_scalar_program", "d1/df7/prgm__lib_8h.html#abfbcab6bb1cf8dc74c86de042a1f0173", null ],

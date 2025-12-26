@@ -114,6 +114,12 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d9b/interfacecompressible__ops__device_1_1hip__compute__max__wave__speed.html">hip_compute_max_wave_speed</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html">hip_update_e</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d98/interfacecompressible__ops__device_1_1hip__update__mxyz__p__ruvw.html">hip_update_mxyz_p_ruvw</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dc8/interfacecompressible__ops__device_1_1hip__update__uvw.html">hip_update_uvw</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
@@ -123,6 +129,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a1ad819b1bfd41a2fcc598b3246825363" id="r_a1ad819b1bfd41a2fcc598b3246825363"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da9/namespacecompressible__ops__device.html#a1ad819b1bfd41a2fcc598b3246825363">compressible_ops_device_compute_entropy</a> (s, p, rho, gamma, n)</td></tr>
 <tr class="memdesc:a1ad819b1bfd41a2fcc598b3246825363"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute entropy field S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho)) on device.  <br /></td></tr>
 <tr class="separator:a1ad819b1bfd41a2fcc598b3246825363"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23078a4b8c9210537b9cf91188259d98" id="r_a23078a4b8c9210537b9cf91188259d98"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da9/namespacecompressible__ops__device.html#a23078a4b8c9210537b9cf91188259d98">compressible_ops_device_update_uvw</a> (u_d, v_d, w_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">m_x_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">m_y_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">m_z_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rho_d</a>, n)</td></tr>
+<tr class="memdesc:a23078a4b8c9210537b9cf91188259d98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update u,v,w fields.  <br /></td></tr>
+<tr class="separator:a23078a4b8c9210537b9cf91188259d98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f8803186d719652eb1f3309b5d13409" id="r_a7f8803186d719652eb1f3309b5d13409"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da9/namespacecompressible__ops__device.html#a7f8803186d719652eb1f3309b5d13409">compressible_ops_device_update_mxyz_p_ruvw</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">m_x_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">m_y_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">m_z_d</a>, p_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ruvw_d</a>, u_d, v_d, w_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">e_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rho_d</a>, gamma, n)</td></tr>
+<tr class="memdesc:a7f8803186d719652eb1f3309b5d13409"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update m_x, m_y, m_z, p, ruvw, fields.  <br /></td></tr>
+<tr class="separator:a7f8803186d719652eb1f3309b5d13409"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f537d335bda72374c76a24bc6f84dee" id="r_a9f537d335bda72374c76a24bc6f84dee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da9/namespacecompressible__ops__device.html#a9f537d335bda72374c76a24bc6f84dee">compressible_ops_device_update_e</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">e_d</a>, p_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ruvw_d</a>, gamma, n)</td></tr>
+<tr class="memdesc:a9f537d335bda72374c76a24bc6f84dee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update E field.  <br /></td></tr>
+<tr class="separator:a9f537d335bda72374c76a24bc6f84dee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a1ad819b1bfd41a2fcc598b3246825363" name="a1ad819b1bfd41a2fcc598b3246825363"></a>
@@ -169,7 +184,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html#l00139">139</a> of file <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html">compressible_ops_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html#l00247">247</a> of file <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html">compressible_ops_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -194,9 +209,9 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dc/da9/namespacecompressible__ops__device_a1ad819b1bfd41a2fcc598b3246825363_icgraph.png" border="0" usemap="#adc/da9/namespacecompressible__ops__device_a1ad819b1bfd41a2fcc598b3246825363_icgraph" alt=""/></div>
 <map name="adc/da9/namespacecompressible__ops__device_a1ad819b1bfd41a2fcc598b3246825363_icgraph" id="adc/da9/namespacecompressible__ops__device_a1ad819b1bfd41a2fcc598b3246825363_icgraph">
-<area shape="rect" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on device." alt="" coords="243,5,440,60"/>
-<area shape="rect" href="../../d6/d93/interfacecompressible__ops__device_1_1hip__compute__entropy.html#acae5566dfb929b1bac21bdf6a42834db" title=" " alt="" coords="5,5,195,60"/>
-<area shape="poly" title=" " alt="" coords="229,35,195,35,195,30,229,30"/>
+<area shape="rect" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on device." alt="" coords="265,5,463,60"/>
+<area shape="rect" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
+<area shape="poly" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
 </map>
 </div>
 
@@ -264,7 +279,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html#l00121">121</a> of file <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html">compressible_ops_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html#l00229">229</a> of file <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html">compressible_ops_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -289,9 +304,300 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dc/da9/namespacecompressible__ops__device_a8d270756022cd91d660758d3004487f8_icgraph.png" border="0" usemap="#adc/da9/namespacecompressible__ops__device_a8d270756022cd91d660758d3004487f8_icgraph" alt=""/></div>
 <map name="adc/da9/namespacecompressible__ops__device_a8d270756022cd91d660758d3004487f8_icgraph" id="adc/da9/namespacecompressible__ops__device_a8d270756022cd91d660758d3004487f8_icgraph">
-<area shape="rect" title="Compute maximum wave speed for compressible flows on device." alt="" coords="243,5,453,60"/>
-<area shape="rect" href="../../d6/d93/interfacecompressible__ops__device_1_1hip__compute__entropy.html#acae5566dfb929b1bac21bdf6a42834db" title=" " alt="" coords="5,5,195,60"/>
-<area shape="poly" title=" " alt="" coords="229,35,195,35,195,30,229,30"/>
+<area shape="rect" title="Compute maximum wave speed for compressible flows on device." alt="" coords="265,5,476,60"/>
+<area shape="rect" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
+<area shape="poly" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a9f537d335bda72374c76a24bc6f84dee" name="a9f537d335bda72374c76a24bc6f84dee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f537d335bda72374c76a24bc6f84dee">&#9670;&#160;</a></span>compressible_ops_device_update_e()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> compressible_ops_device::compressible_ops_device_update_e </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>e_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>p_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>ruvw_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>gamma</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html#l00309">309</a> of file <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html">compressible_ops_device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/da9/namespacecompressible__ops__device_a9f537d335bda72374c76a24bc6f84dee_cgraph.png" border="0" usemap="#adc/da9/namespacecompressible__ops__device_a9f537d335bda72374c76a24bc6f84dee_cgraph" alt=""/></div>
+<map name="adc/da9/namespacecompressible__ops__device_a9f537d335bda72374c76a24bc6f84dee_cgraph" id="adc/da9/namespacecompressible__ops__device_a9f537d335bda72374c76a24bc6f84dee_cgraph">
+<area shape="rect" title="Update E field." alt="" coords="5,16,203,71"/>
+<area shape="rect" href="../../df/d00/compressible__ops__update_8cu.html#adc856b0b84db16b291a755fc6c73a2a7" title=" " alt="" coords="437,5,557,31"/>
+<area shape="poly" title=" " alt="" coords="203,34,423,20,423,25,203,40"/>
+<area shape="rect" href="../../d4/d47/compressible__ops__update_8c.html#aab9bcf124574daad3fb49b65577bad5f" title=" " alt="" coords="251,56,383,81"/>
+<area shape="poly" title=" " alt="" coords="203,52,237,57,237,62,203,58"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="611,49,775,89"/>
+<area shape="poly" title=" " alt="" coords="547,28,602,43,601,48,546,33"/>
+<area shape="poly" title=" " alt="" coords="656,49,654,39,660,30,673,24,693,22,716,25,728,32,725,37,714,30,693,27,674,29,663,34,659,40,661,48"/>
+<area shape="poly" title=" " alt="" coords="383,66,597,66,597,71,383,71"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="431,107,563,132"/>
+<area shape="poly" title=" " alt="" coords="363,79,438,100,437,105,362,84"/>
+<area shape="poly" title=" " alt="" coords="546,104,601,90,602,95,547,109"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/da9/namespacecompressible__ops__device_a9f537d335bda72374c76a24bc6f84dee_icgraph.png" border="0" usemap="#adc/da9/namespacecompressible__ops__device_a9f537d335bda72374c76a24bc6f84dee_icgraph" alt=""/></div>
+<map name="adc/da9/namespacecompressible__ops__device_a9f537d335bda72374c76a24bc6f84dee_icgraph" id="adc/da9/namespacecompressible__ops__device_a9f537d335bda72374c76a24bc6f84dee_icgraph">
+<area shape="rect" title="Update E field." alt="" coords="265,5,463,60"/>
+<area shape="rect" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
+<area shape="poly" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a7f8803186d719652eb1f3309b5d13409" name="a7f8803186d719652eb1f3309b5d13409"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f8803186d719652eb1f3309b5d13409">&#9670;&#160;</a></span>compressible_ops_device_update_mxyz_p_ruvw()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> compressible_ops_device::compressible_ops_device_update_mxyz_p_ruvw </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>m_x_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>m_y_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>m_z_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>p_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>ruvw_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>u_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>v_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>w_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>e_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>rho_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>gamma</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html#l00285">285</a> of file <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html">compressible_ops_device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/da9/namespacecompressible__ops__device_a7f8803186d719652eb1f3309b5d13409_cgraph.png" border="0" usemap="#adc/da9/namespacecompressible__ops__device_a7f8803186d719652eb1f3309b5d13409_cgraph" alt=""/></div>
+<map name="adc/da9/namespacecompressible__ops__device_a7f8803186d719652eb1f3309b5d13409_cgraph" id="adc/da9/namespacecompressible__ops__device_a7f8803186d719652eb1f3309b5d13409_cgraph">
+<area shape="rect" title="Update m_x, m_y, m_z, p, ruvw, fields." alt="" coords="5,20,203,75"/>
+<area shape="rect" href="../../df/d00/compressible__ops__update_8cu.html#ac941ffe15f898cbfff983ce76ff631aa" title=" " alt="" coords="459,5,661,31"/>
+<area shape="poly" title=" " alt="" coords="203,38,444,23,445,28,203,44"/>
+<area shape="rect" href="../../d4/d47/compressible__ops__update_8c.html#af5ef1cd86f86a3cb90925240b062b627" title=" " alt="" coords="251,55,411,95"/>
+<area shape="poly" title=" " alt="" coords="203,57,237,61,237,66,203,62"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="709,49,873,89"/>
+<area shape="poly" title=" " alt="" coords="620,28,697,45,695,50,618,33"/>
+<area shape="poly" title=" " alt="" coords="748,49,746,39,753,30,768,24,791,22,818,25,833,32,830,37,817,30,791,27,769,29,756,34,751,40,754,48"/>
+<area shape="poly" title=" " alt="" coords="411,72,695,67,696,73,411,77"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="494,107,626,132"/>
+<area shape="poly" title=" " alt="" coords="412,88,481,101,480,107,411,93"/>
+<area shape="poly" title=" " alt="" coords="618,104,695,87,697,92,620,109"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/da9/namespacecompressible__ops__device_a7f8803186d719652eb1f3309b5d13409_icgraph.png" border="0" usemap="#adc/da9/namespacecompressible__ops__device_a7f8803186d719652eb1f3309b5d13409_icgraph" alt=""/></div>
+<map name="adc/da9/namespacecompressible__ops__device_a7f8803186d719652eb1f3309b5d13409_icgraph" id="adc/da9/namespacecompressible__ops__device_a7f8803186d719652eb1f3309b5d13409_icgraph">
+<area shape="rect" title="Update m_x, m_y, m_z, p, ruvw, fields." alt="" coords="265,5,463,60"/>
+<area shape="rect" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
+<area shape="poly" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a23078a4b8c9210537b9cf91188259d98" name="a23078a4b8c9210537b9cf91188259d98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23078a4b8c9210537b9cf91188259d98">&#9670;&#160;</a></span>compressible_ops_device_update_uvw()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> compressible_ops_device::compressible_ops_device_update_uvw </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>u_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>v_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>w_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>m_x_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>m_y_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>m_z_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>rho_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html#l00265">265</a> of file <a class="el" href="../../d1/d2c/compressible__ops__device_8F90_source.html">compressible_ops_device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/da9/namespacecompressible__ops__device_a23078a4b8c9210537b9cf91188259d98_cgraph.png" border="0" usemap="#adc/da9/namespacecompressible__ops__device_a23078a4b8c9210537b9cf91188259d98_cgraph" alt=""/></div>
+<map name="adc/da9/namespacecompressible__ops__device_a23078a4b8c9210537b9cf91188259d98_cgraph" id="adc/da9/namespacecompressible__ops__device_a23078a4b8c9210537b9cf91188259d98_cgraph">
+<area shape="rect" title="Update u,v,w fields." alt="" coords="5,16,203,71"/>
+<area shape="rect" href="../../df/d00/compressible__ops__update_8cu.html#a57d676888e5f8f9165cb50f5bcc702f7" title=" " alt="" coords="449,5,588,31"/>
+<area shape="poly" title=" " alt="" coords="203,35,435,20,435,26,203,40"/>
+<area shape="rect" href="../../d4/d47/compressible__ops__update_8c.html#a3a6769460f03fe4b09748e77b2140bd7" title=" " alt="" coords="251,56,401,81"/>
+<area shape="poly" title=" " alt="" coords="203,52,237,56,237,61,203,57"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="636,49,800,89"/>
+<area shape="poly" title=" " alt="" coords="570,28,626,43,625,48,569,33"/>
+<area shape="poly" title=" " alt="" coords="681,49,679,39,684,30,698,24,718,22,741,25,754,32,751,37,740,30,718,27,699,29,688,34,684,40,686,48"/>
+<area shape="poly" title=" " alt="" coords="401,66,622,66,622,71,401,71"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="453,107,585,132"/>
+<area shape="poly" title=" " alt="" coords="376,79,457,101,456,106,375,84"/>
+<area shape="poly" title=" " alt="" coords="569,104,625,90,626,95,570,109"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/da9/namespacecompressible__ops__device_a23078a4b8c9210537b9cf91188259d98_icgraph.png" border="0" usemap="#adc/da9/namespacecompressible__ops__device_a23078a4b8c9210537b9cf91188259d98_icgraph" alt=""/></div>
+<map name="adc/da9/namespacecompressible__ops__device_a23078a4b8c9210537b9cf91188259d98_icgraph" id="adc/da9/namespacecompressible__ops__device_a23078a4b8c9210537b9cf91188259d98_icgraph">
+<area shape="rect" title="Update u,v,w fields." alt="" coords="265,5,463,60"/>
+<area shape="rect" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
+<area shape="poly" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
 </map>
 </div>
 
@@ -303,7 +609,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/da9/namespacecompressible__ops__device.html">compressible_ops_device</a></li>
-    <li class="footer">Generated on Thu Dec 25 2025 03:53:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Dec 26 2025 03:51:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

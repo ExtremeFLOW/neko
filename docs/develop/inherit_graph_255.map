@@ -1,3 +1,11 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d3/d94/interfacegs__comm_1_1gs__nbwait.html" title="Abstract interface for waiting on non&#45;blocking operations Waits and checks that data is in buffers an..." alt="" coords="5,5,164,31"/>
+<area shape="rect" id="Node000000" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,109,173,134"/>
+<area shape="rect" id="Node000001" href="$dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html" title="Gather&#45;scatter communication using device MPI. The arrays are indexed per PE like send_pe and @ recv_..." alt="" coords="221,5,413,45"/>
+<area shape="poly" id="edge62_Node000000_Node000001" title=" " alt="" coords="125,100,220,55,252,43,254,48,222,60,127,105"/>
+<area shape="rect" id="Node000002" href="$db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html" title="Gather&#45;scatter communication using NCCL The arrays are indexed per PE like send_pe and @ recv_pe." alt="" coords="246,69,389,109"/>
+<area shape="poly" id="edge63_Node000000_Node000002" title=" " alt="" coords="187,105,245,97,246,102,188,110"/>
+<area shape="rect" id="Node000003" href="$df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html" title="Gather&#45;scatter communication using device SHMEM. The arrays are indexed per PE like send_pe and @ rec..." alt="" coords="234,133,401,173"/>
+<area shape="poly" id="edge64_Node000000_Node000003" title=" " alt="" coords="188,132,234,139,233,144,187,138"/>
+<area shape="rect" id="Node000004" href="$d6/d6b/structgs__mpi_1_1gs__mpi__t.html" title="Gather&#45;scatter communication using MPI." alt="" coords="249,198,385,223"/>
+<area shape="poly" id="edge65_Node000000_Node000004" title=" " alt="" coords="126,138,171,161,222,183,262,195,261,201,220,188,169,166,124,143"/>
 </map>

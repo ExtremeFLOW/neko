@@ -1,3 +1,15 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d0/d5d/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__residual.html" title=" " alt="" coords="5,5,209,60"/>
+<area shape="rect" id="Node000000" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="5,105,123,131"/>
+<area shape="rect" id="Node000001" href="$d7/dd6/structelement_1_1element__t.html" title="Base type for an element." alt="" coords="171,80,321,105"/>
+<area shape="poly" id="edge32_Node000000_Node000001" title=" " alt="" coords="136,105,170,100,171,106,137,111"/>
+<area shape="rect" id="Node000006" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="192,129,300,155"/>
+<area shape="poly" id="edge37_Node000000_Node000006" title=" " alt="" coords="137,125,192,132,192,138,136,130"/>
+<area shape="rect" id="Node000002" href="$d6/d66/structhex_1_1hex__t.html" title="Hexahedron element." alt="" coords="377,5,468,31"/>
+<area shape="poly" id="edge33_Node000001_Node000002" title=" " alt="" coords="289,72,391,28,393,33,291,77"/>
+<area shape="rect" id="Node000003" href="$d2/d32/structquad_1_1quad__t.html" title="Quadrilateral element." alt="" coords="369,55,476,80"/>
+<area shape="poly" id="edge34_Node000001_Node000003" title=" " alt="" coords="335,77,368,72,369,78,336,83"/>
+<area shape="rect" id="Node000004" href="$db/dd5/structtet_1_1tet__t.html" title="Tetrahedral element." alt="" coords="383,104,462,129"/>
+<area shape="poly" id="edge35_Node000001_Node000004" title=" " alt="" coords="336,102,384,109,383,114,335,107"/>
+<area shape="rect" id="Node000005" href="$d6/d51/structtri_1_1tri__t.html" title="Triangular element." alt="" coords="387,153,458,179"/>
+<area shape="poly" id="edge36_Node000001_Node000005" title=" " alt="" coords="304,107,322,114,371,138,396,151,394,156,368,143,320,119,302,112"/>
 </map>

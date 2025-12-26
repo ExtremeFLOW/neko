@@ -177,7 +177,10 @@ var annotated_dup =
     ] ],
     [ "compressible_ops_device", "dc/da9/namespacecompressible__ops__device.html", [
       [ "hip_compute_entropy", "d6/d93/interfacecompressible__ops__device_1_1hip__compute__entropy.html", "d6/d93/interfacecompressible__ops__device_1_1hip__compute__entropy" ],
-      [ "hip_compute_max_wave_speed", "da/d9b/interfacecompressible__ops__device_1_1hip__compute__max__wave__speed.html", "da/d9b/interfacecompressible__ops__device_1_1hip__compute__max__wave__speed" ]
+      [ "hip_compute_max_wave_speed", "da/d9b/interfacecompressible__ops__device_1_1hip__compute__max__wave__speed.html", "da/d9b/interfacecompressible__ops__device_1_1hip__compute__max__wave__speed" ],
+      [ "hip_update_e", "d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html", "d2/d3d/interfacecompressible__ops__device_1_1hip__update__e" ],
+      [ "hip_update_mxyz_p_ruvw", "d1/d98/interfacecompressible__ops__device_1_1hip__update__mxyz__p__ruvw.html", "d1/d98/interfacecompressible__ops__device_1_1hip__update__mxyz__p__ruvw" ],
+      [ "hip_update_uvw", "df/dc8/interfacecompressible__ops__device_1_1hip__update__uvw.html", "df/dc8/interfacecompressible__ops__device_1_1hip__update__uvw" ]
     ] ],
     [ "const_source_term", "d0/dd2/namespaceconst__source__term.html", [
       [ "const_source_term_t", "d9/db9/structconst__source__term_1_1const__source__term__t.html", "d9/db9/structconst__source__term_1_1const__source__term__t" ]

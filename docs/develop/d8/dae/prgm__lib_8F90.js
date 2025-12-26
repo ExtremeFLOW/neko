@@ -8,6 +8,7 @@ var prgm__lib_8F90 =
     [ "coef_program", "d8/dae/prgm__lib_8F90.html#a517cc19754edd7c876f9464f9c9f16f2", null ],
     [ "compressible_ops_compute_entropy_program", "d8/dae/prgm__lib_8F90.html#a96d57f0c1b15dc92a27643e28b306bae", null ],
     [ "compressible_ops_compute_max_wave_speed_program", "d8/dae/prgm__lib_8F90.html#aff43e571b46789fc2db22c512bd0cbca", null ],
+    [ "compressible_ops_update_program", "d8/dae/prgm__lib_8F90.html#a1f606b48d2927a7bab848e55d702d92d", null ],
     [ "compute_max_wave_speed_program", "d8/dae/prgm__lib_8F90.html#a9e505c590c538b1cf8a7617b997f798f", null ],
     [ "conv1_program", "d8/dae/prgm__lib_8F90.html#a304618314a0d66891d0cddf84f8d6a08", null ],
     [ "convect_scalar_program", "d8/dae/prgm__lib_8F90.html#a136923fb1e56dcfa8e22c12f49736879", null ],

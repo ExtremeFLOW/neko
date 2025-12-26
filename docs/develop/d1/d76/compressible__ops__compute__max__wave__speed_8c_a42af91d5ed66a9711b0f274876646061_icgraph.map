@@ -1,7 +1,7 @@
 <map id="opencl_compute_max_wave_speed" name="opencl_compute_max_wave_speed">
-<area shape="rect" id="Node000001" title=" " alt="" coords="501,13,667,53"/>
-<area shape="rect" id="Node000002" href="$dc/da9/namespacecompressible__ops__device.html#a8d270756022cd91d660758d3004487f8" title="Compute maximum wave speed for compressible flows on device." alt="" coords="243,5,453,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,35,453,35,453,30,488,30"/>
-<area shape="rect" id="Node000003" href="$d6/d93/interfacecompressible__ops__device_1_1hip__compute__entropy.html#acae5566dfb929b1bac21bdf6a42834db" title=" " alt="" coords="5,5,195,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="229,35,195,35,195,30,229,30"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="524,13,689,53"/>
+<area shape="rect" id="Node000002" href="$dc/da9/namespacecompressible__ops__device.html#a8d270756022cd91d660758d3004487f8" title="Compute maximum wave speed for compressible flows on device." alt="" coords="265,5,476,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="510,35,476,35,476,30,510,30"/>
+<area shape="rect" id="Node000003" href="$d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
 </map>

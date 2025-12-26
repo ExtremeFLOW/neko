@@ -1,3 +1,13 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$dd/d55/interfacepnpn__residual_1_1vel__res.html" title=" " alt="" coords="5,5,173,31"/>
+<area shape="rect" id="Node000000" href="$d2/dc3/structpnpn__residual_1_1pnpn__prs__res__t.html" title="Abstract type to compute pressure residual." alt="" coords="5,133,159,173"/>
+<area shape="rect" id="Node000001" href="$dc/d63/structpnpn__res__cpu_1_1pnpn__prs__res__cpu__t.html" title=" " alt="" coords="233,5,384,45"/>
+<area shape="poly" id="edge112_Node000000_Node000001" title=" " alt="" coords="113,122,155,87,205,55,232,43,235,48,208,60,158,92,116,126"/>
+<area shape="rect" id="Node000002" href="$dd/dd2/structpnpn__res__device_1_1pnpn__prs__res__device__t.html" title=" " alt="" coords="223,69,394,109"/>
+<area shape="poly" id="edge113_Node000000_Node000002" title=" " alt="" coords="166,127,237,107,238,112,168,132"/>
+<area shape="rect" id="Node000003" href="$d2/d9c/structpnpn__res__stress__cpu_1_1pnpn__prs__res__stress__cpu__t.html" title="CPU implementation of the pressure residual for the PnPn fluid with full viscous stress formulation." alt="" coords="207,133,411,173"/>
+<area shape="poly" id="edge114_Node000000_Node000003" title=" " alt="" coords="173,151,207,151,207,156,173,156"/>
+<area shape="rect" id="Node000004" href="$de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t.html" title="Device implementation of the pressure residual for the PnPn fluid with full viscous stress formulatio..." alt="" coords="220,198,397,253"/>
+<area shape="poly" id="edge115_Node000000_Node000004" title=" " alt="" coords="160,175,223,195,221,201,158,180"/>
+<area shape="rect" id="Node000005" href="$dd/d92/structpnpn__res__sx_1_1pnpn__prs__res__sx__t.html" title=" " alt="" coords="223,277,394,317"/>
+<area shape="poly" id="edge116_Node000000_Node000005" title=" " alt="" coords="112,182,155,223,208,262,235,275,233,280,205,266,152,227,108,186"/>
 </map>
