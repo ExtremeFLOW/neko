@@ -525,6 +525,9 @@ contains
 
     if (allocated(tmp_dp)) deallocate(tmp_dp)
     if (allocated(tmp_sp)) deallocate(tmp_sp)
+    if (allocated(tempo)) deallocate(tempo)
+    if (allocated(scalar_fields)) deallocate(scalar_fields)
+
   end subroutine fld_file_write
 
   subroutine fld_file_write_metadata_vector(this, fh, byte_offset, x, y, z, &
