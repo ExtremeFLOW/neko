@@ -1077,6 +1077,15 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
 
+
+    if (allocated(marked_zones)) then
+       deallocate(marked_zones)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
+    end if
+
   end subroutine fluid_pnpn_setup_bcs
 
   !> Write a field with boundary condition specifications
