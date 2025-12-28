@@ -48,8 +48,8 @@ module stack
   !> Base type for a stack
   type, abstract, private :: stack_t
      class(*), allocatable :: data(:)
-     integer :: top_
-     integer :: size_
+     integer :: top_ = 0
+     integer :: size_ = 0
    contains
      procedure, non_overridable, pass(this) :: init => stack_init
      procedure, non_overridable, pass(this) :: free => stack_free
