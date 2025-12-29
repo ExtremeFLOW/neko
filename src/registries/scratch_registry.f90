@@ -253,7 +253,8 @@ contains
     allocate(temp2(this%get_size() + this%expansion_size))
     temp2(1:this%n_entries) = this%inuse(1:this%n_entries)
     temp2(this%n_entries+1:) = .false.
-    this%inuse = temp2
+    call move_alloc(temp2, this%inuse)
+
   end subroutine expand
 
   !> Get a field from the registry by assigning it to a pointer
