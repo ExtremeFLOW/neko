@@ -1,6 +1,8 @@
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
+	ale/ale_motion.f90\
+	ale/ale_manager.f90\
 	api/neko_api.f90\
 	api/neko_api_user.f90\
 	config/num_types.f90\
@@ -177,6 +179,7 @@ neko_fortran_SOURCES = \
 	bc/inflow.f90\
 	bc/field_dirichlet.f90\
 	bc/field_dirichlet_vector.f90\
+	bc/field_moving.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/non_normal.f90\
