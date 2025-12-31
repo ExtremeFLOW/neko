@@ -44,10 +44,13 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use field_moving, only : field_moving_t
+  use registry, only : neko_registry
+
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(14) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
@@ -61,7 +64,8 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
        "user_velocity", &
        "user_pressure", &
        "blasius_profile", &
-       "wall_model"]
+       "wall_model", &
+       "moving_boundary"]
 
 contains
 
@@ -160,6 +164,19 @@ contains
        allocate(inflow_t::object)
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
+    case ("moving_boundary")
+      if (.not. neko_registry%field_exists('wm_x')) then
+          call neko_error("'moving_boundary' found in the BC list&
+                          &, but ALE is not active! Set 'ale_active = true' in &
+                          &case file.")
+      end if
+       allocate(field_moving_t::object)
+       select type (obj => object)
+       type is (field_moving_t)
+          obj%wx => neko_registry%get_field('wm_x')
+          obj%wy => neko_registry%get_field('wm_y')
+          obj%wz => neko_registry%get_field('wm_z')
+       end select
     case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
        allocate(non_normal_t::object)
     case ("blasius_profile")

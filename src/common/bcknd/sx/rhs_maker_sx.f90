@@ -135,10 +135,11 @@ contains
   end subroutine scalar_rhs_maker_ext_sx
 
   subroutine rhs_maker_bdf_sx(ulag, vlag, wlag, bfx, bfy, bfz, &
-       u, v, w, B, rho, dt, bd, nbd, n)
+       u, v, w, B, rho, dt, bd, nbd, n, Blag, Blaglag)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
     type(field_series_t), intent(in) :: ulag, vlag, wlag
+    real(kind=rp), intent(in) :: Blag(n), Blaglag(n)
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)

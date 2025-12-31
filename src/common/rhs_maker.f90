@@ -112,13 +112,14 @@ module rhs_maker
 
   abstract interface
      subroutine rhs_maker_bdf(ulag, vlag, wlag, bfx, bfy, bfz, &
-          u, v, w, B, rho, dt, bd, nbd, n)
+          u, v, w, B, rho, dt, bd, nbd, n, Blag, Blaglag)
        import field_series_t
        import field_t
        import rp
        integer, intent(in) :: n, nbd
        type(field_t), intent(in) :: u, v, w
        type(field_series_t), intent(in) :: ulag, vlag, wlag
+       real(kind=rp), intent(in) :: Blag(n), Blaglag(n)
        real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
        real(kind=rp), intent(in) :: B(n)
        real(kind=rp), intent(in) :: dt, rho, bd(4)

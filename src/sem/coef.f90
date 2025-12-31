@@ -159,6 +159,7 @@ module coefs
      procedure, pass(this) :: free => coef_free
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
+     procedure, pass(this) :: update_metrics => coef_update_metrics
      generic :: init => init_empty, init_all
   end type coef_t
 
@@ -1251,5 +1252,21 @@ contains
 
   end subroutine coef_generate_cyclic_bc
 
+  !> Recompute and update geometric factors (ALE)
+  subroutine coef_update_metrics(this)
+   class(coef_t), intent(inout) :: this
 
+   call coef_generate_dxyzdrst(this)
+
+   call coef_generate_geo(this)
+
+   call coef_generate_area_and_normal(this)
+
+   call coef_generate_mass(this)
+
+   if (this%cyclic) then
+      call coef_generate_cyclic_bc(this)
+   end if
+
+  end subroutine coef_update_metrics
 end module coefs

@@ -88,6 +88,10 @@ module adv_dealias
      !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
      !! the RHS.
      procedure, pass(this) :: compute_scalar => compute_scalar_advection_dealias
+     !> Add the advection term in ALE framework.
+     procedure, pass(this) :: compute_ale => compute_ale_advection_dealias
+     !> Update any metrics needed for the advection computation in ALE.
+     procedure, pass(this) :: update_metrics => update_metrics_dealias
      !> Constructor
      procedure, pass(this) :: init => init_dealias
      !> Destructor
@@ -450,5 +454,150 @@ contains
     end associate
 
   end subroutine compute_scalar_advection_dealias
+
+
+! !> Add the advection term in ALE framework.
+  !! @param this The object.
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param wm_x The x component of mesh velocity.
+  !! @param wm_y The y component of mesh velocity.
+  !! @param wm_z The z component of mesh velocity.
+  !! @param fx The x component of source term.
+  !! @param fy The y component of source term.
+  !! @param fz The z component of source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  !! @param dt Current time-step, not required for this method.
+  
+  !! Here, we compute: - div ( u_i * wm ). 
+  !! Based on Ho, L.W. A Legendre spectral element method for simulation of incompressible 
+  !! unsteady viscous free-surface flows.
+  !! Ph.D. thesis, Massachusetts Institute of Technology, 1989.
+
+  !! The name of the subroutie contains dealias.
+  !! But we do not do dealiasing on this term for ALE.
+  !! This is beacuse we want to be consistent with Nek5000, and also 
+  !! because mesh velocity is known here, so we do not have high order polinomials such that
+  !! dealiasing is needed. For later, e.g. FSI problems, we may need to revisit this.
+subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+                                           fx, fy, fz, Xh, coef, n, dt)
+    class(adv_dealias_t), intent(inout) :: this
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(field_t), intent(inout) :: fx, fy, fz
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+
+    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: flux_GLL
+    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: grad_x, grad_y, grad_z 
+    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: total_div_GLL
+    
+    integer :: e, idx, lxyz
+    integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
+
+    ! Size of one element in GLL space
+    lxyz = this%Xh_GLL%lxyz
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error("ALE advection not implemented for device")
+    else
+       do e = 1, coef%msh%nelv
+          ! Calculate starting index for this element in the global array
+          idx = (e-1)*lxyz + 1
+
+          ! =======================================================
+          ! X-MOMENTUM
+          ! =======================================================
+          total_div_GLL = 0.0_rp
+          
+          ! d/dx (u * wm_x)
+          ! Direct multiply on GLL grid: 
+          flux_GLL = vx%x(idx:idx+lxyz-1,1,1,1) * wm_x%x(idx:idx+lxyz-1,1,1,1)
+          ! Compute Gradient on GLL grid using STANDARD 'coef' (not c_GL)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_x
+          
+          ! d/dy (u * wm_y)
+          flux_GLL = vx%x(idx:idx+lxyz-1,1,1,1) * wm_y%x(idx:idx+lxyz-1,1,1,1)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_y
+          
+          ! d/dz (u * wm_z)
+          flux_GLL = vx%x(idx:idx+lxyz-1,1,1,1) * wm_z%x(idx:idx+lxyz-1,1,1,1)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_z
+
+          fx%x(idx:idx+lxyz-1,1,1,1) = fx%x(idx:idx+lxyz-1,1,1,1) + total_div_GLL
+
+          ! =======================================================
+          ! Y-MOMENTUM
+          ! =======================================================
+          total_div_GLL = 0.0_rp
+
+          flux_GLL = vy%x(idx:idx+lxyz-1,1,1,1) * wm_x%x(idx:idx+lxyz-1,1,1,1)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_x
+
+          flux_GLL = vy%x(idx:idx+lxyz-1,1,1,1) * wm_y%x(idx:idx+lxyz-1,1,1,1)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_y
+
+          flux_GLL = vy%x(idx:idx+lxyz-1,1,1,1) * wm_z%x(idx:idx+lxyz-1,1,1,1)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_z
+
+          fy%x(idx:idx+lxyz-1,1,1,1) = fy%x(idx:idx+lxyz-1,1,1,1) + total_div_GLL
+
+          ! =======================================================
+          ! Z-MOMENTUM
+          ! =======================================================
+          total_div_GLL = 0.0_rp
+
+          flux_GLL = vz%x(idx:idx+lxyz-1,1,1,1) * wm_x%x(idx:idx+lxyz-1,1,1,1)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_x
+
+          flux_GLL = vz%x(idx:idx+lxyz-1,1,1,1) * wm_y%x(idx:idx+lxyz-1,1,1,1)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_y
+
+          flux_GLL = vz%x(idx:idx+lxyz-1,1,1,1) * wm_z%x(idx:idx+lxyz-1,1,1,1)
+          call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
+          total_div_GLL = total_div_GLL + grad_z   
+
+          fz%x(idx:idx+lxyz-1,1,1,1) = fz%x(idx:idx+lxyz-1,1,1,1) + total_div_GLL
+
+       end do
+    end if
+
+  end subroutine compute_ale_advection_dealias
+
+  subroutine update_metrics_dealias(this, coef, moving_boundary)
+      class(adv_dealias_t), intent(inout) :: this
+      type(coef_t), intent(in) :: coef
+      logical, intent(in) :: moving_boundary
+      integer :: nel
+
+      if (.not. moving_boundary) return
+
+      nel = coef%msh%nelv
+      call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
+
+      call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
+
+      call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+
+  end subroutine update_metrics_dealias
+
 
 end module adv_dealias
