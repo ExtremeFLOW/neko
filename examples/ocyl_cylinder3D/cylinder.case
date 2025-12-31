@@ -1,0 +1,105 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "cylinder.nmsh",
+        "output_at_end": true,
+        "output_boundary": true,
+        "output_checkpoints": true,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 4.0,
+        "time": {
+            "end_time": 20.0,
+            "variable_timestep": true,
+            "target_cfl": 0.45,
+            "max_timestep": 0.005
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 7,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 150,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [ 1.0, 0.0, 0.0 ]
+            },
+
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-8,
+                "max_iterations": 800
+            },
+
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 30,
+                "absolute_tolerance": 1e-8,
+                "max_iterations": 1000
+            },
+
+            "ale": {
+                "ale_active": true,
+                              
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": { 
+                           "type": "jacobi" 
+		    },
+                    "absolute_tolerance": 1.0e-10,
+                    "max_iterations": 10000,
+                    "output_base_shape": true,
+
+                    "mesh_stiffness": {
+                        "type": "built-in",
+                        "params": {
+                            "gain": 9.0,
+                            "decay": 2.0
+                         }
+                    }
+                 },
+
+                "motion": {
+                    "rotation_center_type": "fixed",
+                    "rotation_amplitude_deg": [ 0.0, 0.0, 10.0 ],
+                    "rotation_frequency":     [ 0.0, 0.0, 0.1 ],
+                    "rotation_center":        [ 0.0, 15.0, 0.0 ]
+                }
+            },
+
+            "boundary_conditions": [
+                {
+                    "type": "velocity_value",
+                    "value": [ 1.0, 0.0, 0.0 ],
+                    "zone_indices": [ 1 ]
+                },
+                {
+                    "type": "outflow",
+                    "zone_indices": [ 2 ]
+                },
+                {
+                    "type": "symmetry",
+                    "zone_indices": [ 5 ]
+                },
+                {
+                    "type": "symmetry",
+                    "zone_indices": [ 6 ]
+                },
+                {
+                    "type": "moving_boundary",
+                    "zone_indices": [ 7 ]
+                }
+            ],
+            "output_control": "simulationtime",
+            "output_value": 0.1
+        }
+   }
+}
