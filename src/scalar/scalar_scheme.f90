@@ -61,7 +61,7 @@ module scalar_scheme
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error, neko_warning, NEKO_FNAME_LEN
   use comm, only: NEKO_COMM
   use mpi_f08, only : MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
@@ -75,6 +75,8 @@ module scalar_scheme
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use device, only : device_memcpy, DEVICE_TO_HOST
+  use scalar_ic, only : set_scalar_ic_common, set_scalar_ic_uniform, & 
+      set_scalar_ic_point_zone, set_scalar_ic_fld
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -154,6 +156,9 @@ module scalar_scheme
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
           scalar_scheme_update_material_properties
+     !> Set initial conditions.
+     procedure, pass(this) :: initial_conditions => &
+          scalar_scheme_initial_conditions
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor.
@@ -634,5 +639,73 @@ contains
             DEVICE_TO_HOST, sync=.false.)
     end if
   end subroutine scalar_scheme_set_material_properties
+
+  !> Set initial conditions for the field.
+  !! @details Essentially a wrapper around routines in the `scalar_ic` module.
+  !! This routine uses JSON configuration, if you want to setup ICs without
+  !! JSON, call the routines in the `scalar_ic` module directly.
+  !! @param json The JSON sub-dictionary for initial conditions.
+  !! @param user The user interface.
+  !! @param index Index of the field in the fld file. Optional
+  subroutine scalar_scheme_initial_conditions(this, json, user, index)
+    class(scalar_scheme_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    type(user_t), target, intent(in) :: user
+    integer, optional, intent(in) :: index 
+    character(len=:), allocatable :: ic_type
+    real(kind=rp) :: ic_value
+    character(len=:), allocatable :: read_str
+    character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
+    real(kind=rp) :: zone_value, tol
+    logical :: interpolate
+    integer :: i
+    type(field_list_t) :: fields
+
+    call json_get(json, 'type', ic_type)
+
+
+    if (trim(ic_type) .eq. 'uniform') then
+       call json_get(json, 'value', ic_value)
+       call set_scalar_ic_uniform(this%s, ic_value)
+    else if (trim(ic_type) .eq. 'point_zone') then
+
+       call json_get(json,'base_value', ic_value)
+       call json_get(json, 'zone_name', read_str)
+       call json_get(json, 'zone_value', zone_value)
+       call set_scalar_ic_point_zone(this%s, ic_value, read_str, zone_value)
+    else if (trim(ic_type) .eq. 'field') then
+
+       if (present(index)) then
+          i = index
+       else if (this%name .eq. 'temperature') then
+          i = 0
+       else
+          i = 1
+       end if
+
+       call json_get(json, 'file_name', read_str)
+       fname = trim(read_str)
+       call json_get_or_default(json, 'interpolate', interpolate, &
+            .false.)
+       call json_get_or_default(json, 'tolerance', tol, 0.000001_rp)
+       call json_get_or_default(json, 'mesh_file_name', read_str, &
+            "none")
+       mesh_fname = trim(read_str)
+
+       call set_scalar_ic_fld(this%s, fname, interpolate, tol, mesh_fname, i)
+    else if (trim(ic_type) .eq. 'user') then
+       call neko_log%message("Type: user")
+
+       call fields%init(1)
+       call fields%assign_to_field(1, this%s)
+
+       call user%initial_conditions(this%name, fields)
+    else
+         call neko_error('Invalid scalar initial condition: ' // trim(ic_type))
+    end if
+
+    call set_scalar_ic_common(this%s, this%c_Xh, this%gs_Xh)
+
+  end subroutine scalar_scheme_initial_conditions
 
 end module scalar_scheme

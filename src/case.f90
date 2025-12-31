@@ -43,7 +43,6 @@ module case
   use redist, only : redist_mesh
   use output_controller, only : output_controller_t
   use flow_ic, only : set_flow_ic
-  use scalar_ic, only : set_scalar_ic
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
@@ -311,69 +310,34 @@ contains
                "initial conditions ignored")
        else if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility with single scalar
-          call json_get(this%params, 'case.scalar.initial_condition.type', &
-               string_val)
           call json_get(this%params, &
                'case.scalar.initial_condition', json_subdict)
-
-          if (trim(string_val) .ne. 'user') then
-             if (trim(this%scalars%scalar_fields(1)%name) .eq. 'temperature') then
-                call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
-                     this%scalars%scalar_fields(1)%c_Xh, &
-                     this%scalars%scalar_fields(1)%gs_Xh, &
-                     string_val, json_subdict, 0)
-             else
-                call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
-                     this%scalars%scalar_fields(1)%c_Xh, &
-                     this%scalars%scalar_fields(1)%gs_Xh, &
-                     string_val, json_subdict, 1)
-             end if
-          else
-             call set_scalar_ic(this%scalars%scalar_fields(1)%name, &
-                  this%scalars%scalar_fields(1)%s, &
-                  this%scalars%scalar_fields(1)%c_Xh, &
-                  this%scalars%scalar_fields(1)%gs_Xh, &
-                  this%user%initial_conditions)
-          end if
-
+          call this%scalars%scalar_fields(1)%initial_conditions( &
+               json_subdict, this%user)
        else
           ! Handle multiple scalars
           do i = 1, n_scalars
              call json_extract_item(this%params, 'case.scalars', i, &
                   scalar_params)
-             call json_get(scalar_params, 'initial_condition.type', string_val)
              call json_get(scalar_params, 'initial_condition', &
                   json_subdict)
-
-             if (trim(string_val) .ne. 'user') then
-                if (trim(this%scalars%scalar_fields(i)%name) .eq. 'temperature') then
-                   call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                        this%scalars%scalar_fields(i)%c_Xh, &
-                        this%scalars%scalar_fields(i)%gs_Xh, &
-                        string_val, json_subdict, 0)
-                   temperature_found = .true.
-                else
-                   if (temperature_found) then
-                      ! if temperature is found, other scalars start from index 1
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                           this%scalars%scalar_fields(i)%c_Xh, &
-                           this%scalars%scalar_fields(i)%gs_Xh, &
-                           string_val, json_subdict, i - 1)
-                   else
-                      ! if temperature is not found, other scalars start from index 0
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                           this%scalars%scalar_fields(i)%c_Xh, &
-                           this%scalars%scalar_fields(i)%gs_Xh, &
-                           string_val, json_subdict, i)
-                   end if
-                end if
+            
+             ! Index in fld
+             if (temperature_found) then
+                ! If temperature is found, other scalars start from index 1
+                integer_val = i - 1
              else
-                call set_scalar_ic(this%scalars%scalar_fields(i)%name,&
-                     this%scalars%scalar_fields(i)%s, &
-                     this%scalars%scalar_fields(i)%c_Xh, &
-                     this%scalars%scalar_fields(i)%gs_Xh, &
-                     this%user%initial_conditions)
+                ! If temperature is not found, other scalars start from index 0
+                integer_val = i
              end if
+
+             if (trim(this%scalars%scalar_fields(i)%name) .eq. 'temperature') then
+                   temperature_found = .true.
+                   integer_val = 0
+             end if
+
+             call this%scalars%scalar_fields(i)%initial_conditions( &
+                  json_subdict, this%user, integer_val)
           end do
        end if
 
@@ -508,10 +472,6 @@ contains
 
     call neko_log%end_section()
 
-    call scalar_params%destroy()
-    call numerics_params%destroy()
-    call json_subdict%destroy()
-
   end subroutine case_init_common
 
   !> Deallocate a case
@@ -533,10 +493,6 @@ contains
     call this%f_out%free()
 
     call this%output_controller%free()
-
-    if (allocated(this%output_directory)) then
-       deallocate(this%output_directory)
-    end if
 
   end subroutine case_free
 

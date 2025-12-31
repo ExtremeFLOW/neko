@@ -78,6 +78,8 @@ module scalars
      procedure :: free => scalars_free
      !> Register scalar lag fields with checkpoint
      procedure, private :: register_lags_with_checkpoint
+     !> Assign initial conditions to scalar fields
+     procedure, public :: initial_conditions => scalars_initial_conditions
   end type scalars_t
 
 contains

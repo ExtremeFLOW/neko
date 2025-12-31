@@ -59,11 +59,8 @@ module scalar_ic
   implicit none
   private
 
-  interface set_scalar_ic
-     module procedure set_scalar_ic_int, set_scalar_ic_usr
-  end interface set_scalar_ic
-
-  public :: set_scalar_ic
+  public :: set_scalar_ic_common, set_scalar_ic_uniform, &
+       set_scalar_ic_point_zone, set_scalar_ic_fld 
 
 contains
 
@@ -127,31 +124,6 @@ contains
     call set_scalar_ic_common(s, coef, gs)
 
   end subroutine set_scalar_ic_int
-
-  !> Set scalar intial condition (user defined)
-  !! @details Set scalar initial condition using a user defined function.
-  !! @param scheme_name Name of the scheme calling the user routine.
-  !! @param s Scalar field.
-  !! @param coef Coefficient.
-  !! @param gs Gather-Scatter object.
-  !! @param user_proc User defined initial condition function.
-  subroutine set_scalar_ic_usr(scheme_name, s, coef, gs, user_proc)
-    character(len=*), intent(in) :: scheme_name
-    type(field_t), target, intent(inout) :: s
-    type(coef_t), intent(in) :: coef
-    type(gs_t), intent(inout) :: gs
-    procedure(user_initial_conditions_intf) :: user_proc
-    type(field_list_t) :: fields
-
-    call neko_log%message("Type: user")
-
-    call fields%init(1)
-    call fields%assign_to_field(1, s)
-
-    call user_proc(scheme_name, fields)
-    call set_scalar_ic_common(s, coef, gs)
-
-  end subroutine set_scalar_ic_usr
 
   !> Set scalar initial condition (common)
   !! @details Finalize scalar initial condition by distributing the initial
