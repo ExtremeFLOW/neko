@@ -87,12 +87,29 @@ module checkpoint
      type(space_t) :: previous_Xh
      real(kind=rp) :: mesh2mesh_tol = NEKO_EPS*1e3_rp
 
+     !> ALE fields
+     type(field_t), pointer :: wm_x => null()
+     type(field_t), pointer :: wm_y => null()
+     type(field_t), pointer :: wm_z => null()
+     type(field_series_t), pointer :: wm_lag_x => null()
+     type(field_series_t), pointer :: wm_lag_y => null()
+     type(field_series_t), pointer :: wm_lag_z => null()
+     real(kind=rp), pointer :: msh_x(:,:,:,:) => null()
+     real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
+     real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
+     real(kind=rp), pointer :: pivot_pos(:) => null()
+     real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
+     real(kind=rp), pointer :: Blag(:,:,:,:) => null()
+     real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
+
+
    contains
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
      procedure, pass(this) :: sync_device => chkp_sync_device
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
+     procedure, pass(this) :: add_ale => chkp_add_ale  
      procedure, pass(this) :: restart_time => chkp_restart_time
      final :: chkp_free
   end type chkp_t
@@ -146,6 +163,16 @@ contains
     nullify(this%slag)
     nullify(this%abs1)
     nullify(this%abs2)
+
+    ! ALE cleanup
+    nullify(this%wm_x)
+    nullify(this%wm_y)
+    nullify(this%wm_z)
+
+    nullify(this%wm_lag_x)
+    nullify(this%wm_lag_y)
+    nullify(this%wm_lag_z)
+  
 
     ! Free scalar lag list if it was initialized
     if (allocated(this%scalar_lags%items)) then
@@ -368,6 +395,30 @@ contains
 
   end subroutine chkp_add_scalar
 
+  !> Add a mesh velocity to checkpointing
+  subroutine chkp_add_ale(this, x, y, z, Blag, Blaglag, wm_x, wm_y, wm_z, &
+                          wm_lag_x, wm_lag_y, wm_lag_z, pivot_pos, pivot_vel_lag)
+    class(chkp_t), intent(inout) :: this
+    type(field_t), target, intent(in) :: wm_x, wm_y, wm_z
+    real(kind=rp), intent(in), pointer :: pivot_pos(:), pivot_vel_lag(:,:)
+    type(field_series_t), target, intent(in) :: wm_lag_x, wm_lag_y, wm_lag_z
+    real(kind=rp), intent(in), pointer :: x(:,:,:,:), y(:,:,:,:), z(:,:,:,:)
+    real(kind=rp), pointer, intent(in) :: Blag(:,:,:,:), Blaglag(:,:,:,:)
+
+    this%msh_x => x
+    this%msh_y => y
+    this%msh_z => z
+    this%wm_x => wm_x
+    this%wm_y => wm_y
+    this%wm_z => wm_z
+    this%wm_lag_x => wm_lag_x
+    this%wm_lag_y => wm_lag_y
+    this%wm_lag_z => wm_lag_z
+    this%Blag => Blag
+    this%Blaglag => Blaglag
+    this%pivot_pos => pivot_pos
+    this%pivot_vel_lag => pivot_vel_lag
+  end subroutine chkp_add_ale
 
   !> Return restart time from a loaded checkpoint
   pure function chkp_restart_time(this) result(rtime)

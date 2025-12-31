@@ -44,6 +44,7 @@ module fluid_output
   use scalars, only : scalars_t
   use registry, only : neko_registry
   use field, only : field_t
+  use fld_file, only : fld_file_t
   implicit none
   private
 
@@ -174,7 +175,7 @@ contains
     class(fluid_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
-
+    logical :: is_ale = .false.
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        associate(fields => this%fluid%items)
@@ -187,7 +188,16 @@ contains
 
     end if
 
-    call this%file_%write(this%fluid, t)
+    ! Check if mesh velocity is registered --> ALE is active.
+    if (neko_registry%field_exists("wm_x")) is_ale = .true.
+
+    select type (ft => this%file_%file_type) 
+    type is (fld_file_t)
+       ft%always_write_mesh = is_ale
+       call ft%write(this%fluid, t)
+    class default
+       call ft%write(this%fluid, t)
+    end select
 
   end subroutine fluid_output_sample
 
