@@ -33,8 +33,8 @@
 !> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
-  use num_types, only: rp
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use num_types, only : rp
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
@@ -47,8 +47,8 @@ module scalar_pnpn
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
-  use field_series, only: field_series_t
-  use registry, only: neko_registry
+  use field_series, only : field_series_t
+  use registry, only : neko_registry
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
   use device_math, only : device_add2s2, device_col2
@@ -210,10 +210,12 @@ contains
       call this%s_res%init(dm_Xh, "s_res")
 
       call this%abx1%init(dm_Xh, trim(this%name)//"_abx1")
-      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
+      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx1", &
+           ignore_existing = .true.)
 
       call this%abx2%init(dm_Xh, trim(this%name)//"_abx2")
-      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
+      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx2", &
+           ignore_existing = .true.)
 
       call this%advs%init(dm_Xh, "advs")
 
@@ -506,15 +508,15 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
-                     "Zone index ", zone_indices(j), &
+                write(error_unit, '(A, A, I0, A, A, I0, A)') &
+                     "*** ERROR ***: ", "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
-                     "does not exist in the mesh. Check scalar boundary condition ", &
-                     i, "."
+                     "does not exist in the mesh. Check scalar boundary ", &
+                     "condition ", i, "."
                 error stop
              end if
 
-             if (marked_zones(zone_indices(j)) .eqv. .true.) then
+             if (marked_zones(zone_indices(j))) then
                 write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
@@ -536,7 +538,7 @@ contains
        ! Make sure all labeled zones with non-zero size have been marked
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
-               (marked_zones(i) .eqv. .false.)) then
+               (.not. marked_zones(i))) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No scalar boundary condition assigned to zone ", i
              error stop

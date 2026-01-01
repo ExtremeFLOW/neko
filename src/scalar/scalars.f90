@@ -33,25 +33,25 @@
 !> Contains the scalars_t type that manages multiple scalar fields.
 
 module scalars
-  use num_types, only: rp
-  use scalar_pnpn, only: scalar_pnpn_t
-  use scalar_scheme, only: scalar_scheme_t
-  use scalar_aux, only: scalar_step_info
-  use mesh, only: mesh_t
-  use space, only: space_t
-  use gather_scatter, only: gs_t
-  use time_scheme_controller, only: time_scheme_controller_t
-  use time_step_controller, only: time_step_controller_t
-  use json_module, only: json_file
-  use json_utils, only: json_get, json_get_or_default, json_extract_item
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use field_series, only: field_series_t
-  use checkpoint, only: chkp_t
-  use krylov, only: ksp_t, ksp_monitor_t
-  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use user_intf, only: user_t
-  use utils, only: neko_error
+  use num_types, only : rp
+  use scalar_pnpn, only : scalar_pnpn_t
+  use scalar_scheme, only : scalar_scheme_t
+  use scalar_aux, only : scalar_step_info
+  use mesh, only : mesh_t
+  use space, only : space_t
+  use gather_scatter, only : gs_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use time_step_controller, only : time_step_controller_t
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use field_series, only : field_series_t
+  use checkpoint, only : chkp_t
+  use krylov, only : ksp_t, ksp_monitor_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use user_intf, only : user_t
+  use utils, only : neko_error
   use coefs, only : coef_t
   use time_state, only : time_state_t
   implicit none
@@ -159,7 +159,7 @@ contains
        call this%register_lags_with_checkpoint(chkp)
     else
        ! For single scalar, use legacy interface
-       select type(scalar => this%scalar_fields(1))
+       select type (scalar => this%scalar_fields(1))
        type is (scalar_pnpn_t)
           call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
        end select
@@ -193,7 +193,7 @@ contains
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
     ! Register single scalar with checkpoint
-    select type(scalar => this%scalar_fields(1))
+    select type (scalar => this%scalar_fields(1))
     type is (scalar_pnpn_t)
        call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
     end select
@@ -287,8 +287,8 @@ contains
        call chkp%scalar_lags%append(this%scalar_fields(i)%slag)
 
        ! Cast to scalar_pnpn_t to access ABX fields
-       select type(scalar_field => this%scalar_fields(i))
-       type is(scalar_pnpn_t)
+       select type (scalar_field => this%scalar_fields(i))
+       type is (scalar_pnpn_t)
           call associate_scalar_abx_fields(chkp, i, scalar_field)
        end select
     end do
