@@ -60,7 +60,7 @@ module scalar_ic
   private
 
   public :: set_scalar_ic_common, set_scalar_ic_uniform, &
-       set_scalar_ic_point_zone, set_scalar_ic_fld 
+       set_scalar_ic_point_zone, set_scalar_ic_fld
 
 contains
 

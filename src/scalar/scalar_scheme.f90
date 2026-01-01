@@ -75,8 +75,8 @@ module scalar_scheme
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use device, only : device_memcpy, DEVICE_TO_HOST
-  use scalar_ic, only : set_scalar_ic_common, set_scalar_ic_uniform, & 
-      set_scalar_ic_point_zone, set_scalar_ic_fld
+  use scalar_ic, only : set_scalar_ic_common, set_scalar_ic_uniform, &
+       set_scalar_ic_point_zone, set_scalar_ic_fld
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -651,7 +651,7 @@ contains
     class(scalar_scheme_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(user_t), target, intent(in) :: user
-    integer, optional, intent(in) :: index 
+    integer, optional, intent(in) :: index
     character(len=:), allocatable :: ic_type
     real(kind=rp) :: ic_value
     character(len=:), allocatable :: read_str
@@ -701,7 +701,7 @@ contains
 
        call user%initial_conditions(this%name, fields)
     else
-         call neko_error('Invalid scalar initial condition: ' // trim(ic_type))
+       call neko_error('Invalid scalar initial condition: ' // trim(ic_type))
     end if
 
     call set_scalar_ic_common(this%s, this%c_Xh, this%gs_Xh)

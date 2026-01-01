@@ -307,4 +307,43 @@ contains
     chkp%scalar_abx2(index)%ptr => scalar_field%abx2
   end subroutine associate_scalar_abx_fields
 
+  subroutine scalars_initial_conditions(this, params, user)
+    class(scalars_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(user_t), target, intent(in) :: user
+    integer :: i, n_scalars, index
+    type(json_file) :: json_subdict, scalar_params
+    logical :: temperature_found
+
+    n_scalars = size(this%scalar_fields)
+
+    if (n_scalars .eq. 1) then
+       call json_get(params, 'case.scalar.initial_condition', json_subdict)
+       call this%scalar_fields(1)%initial_conditions(json_subdict, user, 0)
+    else
+
+       do i = 1, n_scalars
+          call json_extract_item(params, 'case.scalars', i, scalar_params)
+          call json_get(scalar_params, 'initial_condition', json_subdict)
+
+          ! Index in fld
+          if (temperature_found) then
+             ! If temperature is found, other scalars start from index 1
+             index = i - 1
+          else
+             ! If temperature is not found, other scalars start from index 0
+             index = i
+          end if
+
+          if (trim(this%scalar_fields(i)%name) .eq. 'temperature') then
+             temperature_found = .true.
+             index = 0
+          end if
+
+          call this%scalar_fields(i)%initial_conditions(json_subdict, user, &
+               index)
+       end do
+    end if
+  end subroutine scalars_initial_conditions
+
 end module scalars

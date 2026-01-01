@@ -308,37 +308,8 @@ contains
        if (this%params%valid_path('case.restart_file')) then
           call neko_log%message("Restart file specified, " // &
                "initial conditions ignored")
-       else if (this%params%valid_path('case.scalar')) then
-          ! For backward compatibility with single scalar
-          call json_get(this%params, &
-               'case.scalar.initial_condition', json_subdict)
-          call this%scalars%scalar_fields(1)%initial_conditions( &
-               json_subdict, this%user)
-       else
-          ! Handle multiple scalars
-          do i = 1, n_scalars
-             call json_extract_item(this%params, 'case.scalars', i, &
-                  scalar_params)
-             call json_get(scalar_params, 'initial_condition', &
-                  json_subdict)
-            
-             ! Index in fld
-             if (temperature_found) then
-                ! If temperature is found, other scalars start from index 1
-                integer_val = i - 1
-             else
-                ! If temperature is not found, other scalars start from index 0
-                integer_val = i
-             end if
-
-             if (trim(this%scalars%scalar_fields(i)%name) .eq. 'temperature') then
-                   temperature_found = .true.
-                   integer_val = 0
-             end if
-
-             call this%scalars%scalar_fields(i)%initial_conditions( &
-                  json_subdict, this%user, integer_val)
-          end do
+       else 
+          call this%scalars%initial_conditions(this%params, this%user)
        end if
 
        call neko_log%end_section()
