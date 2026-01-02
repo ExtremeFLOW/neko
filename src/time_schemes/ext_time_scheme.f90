@@ -59,9 +59,8 @@
 !
 !> Explicit extrapolation scheme for time integration.
 module ext_time_scheme
-  use neko_config
   use num_types, only : rp
-  use time_scheme, only: time_scheme_t
+  use time_scheme, only : time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
   implicit none
@@ -87,7 +86,7 @@ module ext_time_scheme
      procedure, nopass :: compute_coeffs => ext_time_scheme_compute_coeffs
      !> Compute the coefficients for the modified EXT scheme
      procedure, nopass :: compute_modified_coeffs => &
-         ext_time_scheme_compute_modified_coeffs
+          ext_time_scheme_compute_modified_coeffs
   end type ext_time_scheme_t
 
 contains
@@ -108,11 +107,11 @@ contains
        coeffs(1) = 1.0_rp
     case (2)
        coeffs(2) = -dt(1) / dt(2)
-       coeffs(1) =  1.0_rp - coeffs(2)
+       coeffs(1) = 1.0_rp - coeffs(2)
     case (3)
-       coeffs(3) =  dt(1) / (dt(2) + dt(3)) * (dt(1) + dt(2)) / dt(3)
+       coeffs(3) = dt(1) / (dt(2) + dt(3)) * (dt(1) + dt(2)) / dt(3)
        coeffs(2) = - dt(1) / dt(2) * (1.0_rp + dt(2) / dt(3) + dt(1) / dt(3))
-       coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
+       coeffs(1) = 1.0_rp - coeffs(2) - coeffs(3)
     case default
        call neko_error("The order of the EXT time scheme must be 1 to 3.")
     end select
@@ -128,15 +127,15 @@ contains
 
     call rzero(coeffs, 4)
 
-    dts =  dt(2) + dt(3)
-    dta =  dt(1) / dt(2)
-    dtb =  dt(2) / dt(3)
-    dtc =  dt(1) / dt(3)
-    dtd =  dts / dt(2)
-    dte =  dt(1) / dts
-    coeffs(3) =  2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
+    dts = dt(2) + dt(3)
+    dta = dt(1) / dt(2)
+    dtb = dt(2) / dt(3)
+    dtc = dt(1) / dt(3)
+    dtd = dts / dt(2)
+    dte = dt(1) / dts
+    coeffs(3) = 2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
     coeffs(2) = -dta - coeffs(3) * dtd
-    coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
+    coeffs(1) = 1.0_rp - coeffs(2) - coeffs(3)
 
   end subroutine ext_time_scheme_compute_modified_coeffs
 end module ext_time_scheme
