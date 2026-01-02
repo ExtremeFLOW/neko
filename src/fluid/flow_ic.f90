@@ -269,7 +269,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%message("Type : uniform")
-    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", (uinf(i), ", ", i=1, 2), &
+    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", (uinf(i), ", ", i = 1, 2), &
          uinf(3), "]"
     call neko_log%message(log_buf)
 
@@ -525,12 +525,12 @@ contains
 
        ! Sync coordinates to device for the interpolation
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(fld_data%x%x, fld_data%x%x_d, fld_data%x%size(),&
-               HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(fld_data%y%x, fld_data%y%x_d, fld_data%y%size(),&
-               HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(fld_data%z%x, fld_data%z%x_d, fld_data%z%size(),&
-               HOST_TO_DEVICE, sync=.true.)
+          call device_memcpy(fld_data%x%x, fld_data%x%x_d, fld_data%x%size(), &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(fld_data%y%x, fld_data%y%x_d, fld_data%y%size(), &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(fld_data%z%x, fld_data%z%x_d, fld_data%z%size(), &
+               HOST_TO_DEVICE, sync = .true.)
        end if
 
        ! Generates an interpolator object and performs the point search
