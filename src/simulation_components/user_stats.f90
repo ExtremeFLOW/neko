@@ -222,7 +222,7 @@ contains
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
-         this%start_time, coef, avg_dir, name=filename)
+         this%start_time, coef, avg_dir, name = filename)
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
