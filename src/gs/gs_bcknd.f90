@@ -32,7 +32,7 @@
 !
 !> Defines a gather-scatter backend
 module gs_bcknd
-  use num_types
+  use num_types, only : rp
   use, intrinsic :: iso_c_binding
   implicit none
   private
