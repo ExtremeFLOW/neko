@@ -33,7 +33,7 @@
 !> Defines an output for a checkpoint
 module chkp_output
   use checkpoint, only : chkp_t
-  use output
+  use output, only : output_t
   use num_types, only : rp
   implicit none
   private
