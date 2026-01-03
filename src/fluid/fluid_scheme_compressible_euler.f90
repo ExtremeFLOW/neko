@@ -64,9 +64,11 @@ module fluid_scheme_compressible_euler
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
   use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
-       compressible_ops_cpu_update_mxyz_p_ruvw, compressible_ops_cpu_update_e
+       compressible_ops_cpu_update_mxyz_p_ruvw, &
+       compressible_ops_cpu_update_e
   use compressible_ops_device, only : compressible_ops_device_update_uvw, &
-       compressible_ops_device_update_mxyz_p_ruvw, compressible_ops_device_update_e
+       compressible_ops_device_update_mxyz_p_ruvw, &
+       compressible_ops_device_update_e
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
@@ -210,8 +212,8 @@ contains
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
-         call device_memcpy(effective_visc%x, effective_visc%x_d, effective_visc%dof%size(), &
-              HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(effective_visc%x, effective_visc%x_d, &
+              effective_visc%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
 
@@ -424,7 +426,7 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(log_buf,'(A,I0,A)') "Error: Zone ", zone_indices(j), &
+                write(log_buf, '(A,I0,A)') "Error: Zone ", zone_indices(j), &
                      " has zero size"
                 call neko_error(log_buf)
              end if
@@ -570,7 +572,8 @@ contains
   end subroutine fluid_scheme_compressible_euler_restart
 
   subroutine setup_regularization(this, params)
-    use entropy_viscosity, only : entropy_viscosity_t, entropy_viscosity_set_fields
+    use entropy_viscosity, only : entropy_viscosity_t, &
+         entropy_viscosity_set_fields
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(json_file) :: reg_json
@@ -597,8 +600,8 @@ contains
 
     regularization_type = 'entropy_viscosity'
 
-    call regularization_factory(this%regularization, regularization_type, reg_json, &
-         this%c_Xh, this%dm_Xh, this%effective_visc)
+    call regularization_factory(this%regularization, regularization_type, &
+         reg_json, this%c_Xh, this%dm_Xh, this%effective_visc)
 
     select type (reg => this%regularization)
     type is (entropy_viscosity_t)

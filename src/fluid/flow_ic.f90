@@ -269,8 +269,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%message("Type : uniform")
-    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", (uinf(i), ", ", i = 1, 2), &
-         uinf(3), "]"
+    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", &
+         (uinf(i), ", ", i = 1, 2), uinf(3), "]"
     call neko_log%message(log_buf)
 
     u = uinf(1)

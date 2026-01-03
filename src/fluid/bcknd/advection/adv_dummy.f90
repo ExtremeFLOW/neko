@@ -32,11 +32,11 @@
 !
 !> Implements `adv_dummy_t`
 module adv_dummy
-  use advection, only: advection_t
-  use num_types, only: rp
-  use space, only: space_t
-  use field, only: field_t
-  use coefs, only: coef_t
+  use advection, only : advection_t
+  use num_types, only : rp
+  use space, only : space_t
+  use field, only : field_t
+  use coefs, only : coef_t
   implicit none
   private
 
@@ -53,7 +53,7 @@ module adv_dummy
      !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
      !! the RHS.
      procedure, pass(this) :: compute_scalar => &
-       compute_scalar_adv_dummy
+          compute_scalar_adv_dummy
   end type adv_dummy_t
 
 contains
@@ -86,7 +86,7 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   subroutine compute_adv_dummy(this, vx, vy, vz, fx, fy, fz, Xh, &
-                                          coef, n, dt)
+       coef, n, dt)
     class(adv_dummy_t), intent(inout) :: this
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -111,7 +111,7 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   subroutine compute_scalar_adv_dummy(this, vx, vy, vz, s, fs, Xh, &
-                                                 coef, n, dt)
+       coef, n, dt)
     class(adv_dummy_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
