@@ -785,7 +785,8 @@ contains
           if (msh%facet_neigh(4, i) .ne. 0) then
              if (dofmap%shared_dof(2, ly, 1, i)) then
                 do j = 2, lx - 1
-                   id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, 1, i), max_sid)
+                   id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, 1, i), &
+                        max_sid)
                    call shared_face_dof%push(id)
                    id = linear_index(j, ly, 1, i, lx, ly, lz)
                    call face_dof_shared%push(id)
@@ -793,7 +794,8 @@ contains
 
              else
                 do j = 2, lx - 1
-                   id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, 1, i), max_id)
+                   id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, 1, i), &
+                        max_id)
                    call local_face_dof%push(id)
                    id = linear_index(j, ly, 1, i, lx, ly, lz)
                    call face_dof_local%push(id)
@@ -825,14 +827,16 @@ contains
           if (msh%facet_neigh(2, i) .ne. 0) then
              if (dofmap%shared_dof(lx, 2, 1, i)) then
                 do k = 2, ly - 1
-                   id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, 1, i), max_sid)
+                   id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, 1, i), &
+                        max_sid)
                    call shared_face_dof%push(id)
                    id = linear_index(lx, k, 1, i, lx, ly, lz)
                    call face_dof_shared%push(id)
                 end do
              else
                 do k = 2, ly - 1
-                   id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, 1, i), max_id)
+                   id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, 1, i), &
+                        max_id)
                    call local_face_dof%push(id)
                    id = linear_index(lx, k, 1, i, lx, ly, lz)
                    call face_dof_local%push(id)
@@ -848,7 +852,8 @@ contains
              if (dofmap%shared_dof(1, 2, 2, i)) then
                 do l = 2, lz - 1
                    do k = 2, ly - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, l, i), max_sid)
+                      id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, l, i), &
+                           max_sid)
                       call shared_face_dof%push(id)
                       id = linear_index(1, k, l, i, lx, ly, lz)
                       call face_dof_shared%push(id)
@@ -857,7 +862,8 @@ contains
              else
                 do l = 2, lz - 1
                    do k = 2, ly - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(1, k, l, i), max_id)
+                      id = gs_mapping_add_dof(dm, dofmap%dof(1, k, l, i), &
+                           max_id)
                       call local_face_dof%push(id)
                       id = linear_index(1, k, l, i, lx, ly, lz)
                       call face_dof_local%push(id)
@@ -870,7 +876,8 @@ contains
              if (dofmap%shared_dof(lx, 2, 2, i)) then
                 do l = 2, lz - 1
                    do k = 2, ly - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, l, i), max_sid)
+                      id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, l, i), &
+                           max_sid)
                       call shared_face_dof%push(id)
                       id = linear_index(lx, k, l, i, lx, ly, lz)
                       call face_dof_shared%push(id)
@@ -879,7 +886,8 @@ contains
              else
                 do l = 2, lz - 1
                    do k = 2, ly - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, l, i), max_id)
+                      id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, l, i), &
+                           max_id)
                       call local_face_dof%push(id)
                       id = linear_index(lx, k, l, i, lx, ly, lz)
                       call face_dof_local%push(id)
@@ -893,7 +901,8 @@ contains
              if (dofmap%shared_dof(2, 1, 2, i)) then
                 do l = 2, lz - 1
                    do j = 2, lx - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, l, i), max_sid)
+                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, l, i), &
+                           max_sid)
                       call shared_face_dof%push(id)
                       id = linear_index(j, 1, l, i, lx, ly, lz)
                       call face_dof_shared%push(id)
@@ -902,7 +911,8 @@ contains
              else
                 do l = 2, lz - 1
                    do j = 2, lx - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, l, i), max_id)
+                      id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, l, i), &
+                           max_id)
                       call local_face_dof%push(id)
                       id = linear_index(j, 1, l, i, lx, ly, lz)
                       call face_dof_local%push(id)
@@ -915,7 +925,8 @@ contains
              if (dofmap%shared_dof(2, ly, 2, i)) then
                 do l = 2, lz - 1
                    do j = 2, lx - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, l, i), max_sid)
+                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, l, i), &
+                           max_sid)
                       call shared_face_dof%push(id)
                       id = linear_index(j, ly, l, i, lx, ly, lz)
                       call face_dof_shared%push(id)
@@ -924,7 +935,8 @@ contains
              else
                 do l = 2, lz - 1
                    do j = 2, lx - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, l, i), max_id)
+                      id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, l, i), &
+                           max_id)
                       call local_face_dof%push(id)
                       id = linear_index(j, ly, l, i, lx, ly, lz)
                       call face_dof_local%push(id)
@@ -938,7 +950,8 @@ contains
              if (dofmap%shared_dof(2, 2, 1, i)) then
                 do k = 2, ly - 1
                    do j = 2, lx - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, 1, i), max_sid)
+                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, 1, i), &
+                           max_sid)
                       call shared_face_dof%push(id)
                       id = linear_index(j, k, 1, i, lx, ly, lz)
                       call face_dof_shared%push(id)
@@ -947,7 +960,8 @@ contains
              else
                 do k = 2, ly - 1
                    do j = 2, lx - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(j, k, 1, i), max_id)
+                      id = gs_mapping_add_dof(dm, dofmap%dof(j, k, 1, i), &
+                           max_id)
                       call local_face_dof%push(id)
                       id = linear_index(j, k, 1, i, lx, ly, lz)
                       call face_dof_local%push(id)
@@ -960,7 +974,8 @@ contains
              if (dofmap%shared_dof(2, 2, lz, i)) then
                 do k = 2, ly - 1
                    do j = 2, lx - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, lz, i), max_sid)
+                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, lz, i), &
+                           max_sid)
                       call shared_face_dof%push(id)
                       id = linear_index(j, k, lz, i, lx, ly, lz)
                       call face_dof_shared%push(id)
@@ -969,7 +984,8 @@ contains
              else
                 do k = 2, ly - 1
                    do j = 2, lx - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(j, k, lz, i), max_id)
+                      id = gs_mapping_add_dof(dm, dofmap%dof(j, k, lz, i), &
+                           max_id)
                       call local_face_dof%push(id)
                       id = linear_index(j, k, lz, i, lx, ly, lz)
                       call face_dof_local%push(id)
