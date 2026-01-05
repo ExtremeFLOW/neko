@@ -53,7 +53,15 @@ jobs:
       # ---------------------------------------------------------------------- #
       # System level setup
       # ---------------------------------------------------------------------- #
-
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+          swap-size-mb: 8192
       - name: Setup - Checkout
         uses: actions/checkout@v4
         with:
