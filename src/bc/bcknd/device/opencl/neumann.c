@@ -78,6 +78,7 @@ void opencl_neumann_apply_scalar(void *msk, void *facet,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -117,4 +118,5 @@ void opencl_neumann_apply_vector(void *msk, void *facet,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }

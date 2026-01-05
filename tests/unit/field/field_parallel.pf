@@ -166,7 +166,7 @@ contains
     type(space_t) :: Xh
     type(mesh_t) :: msh
     integer, parameter :: LX = 4
-    type(field_t) :: f, g
+    type(field_t) :: f, g, h
     integer :: ierr
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
@@ -186,7 +186,14 @@ contains
        call device_memcpy(g%x, g%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if
     @assertEqual(maxval(g%x), maxval(f%x))
-    @assertEqual(g%name, f%name)
+    @assertEqual('test2', g%name)
+
+    h = f
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(h%x, h%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+    @assertEqual(maxval(f%x), maxval(h%x))
+    @assertEqual(f%name, h%name)
 
   end subroutine test_field_assign_field
 

@@ -53,8 +53,8 @@ module htable
 
   !> Base type for a hash table
   type, public, abstract :: htable_t
-     integer, private :: size
-     integer, private :: entries
+     integer, private :: size = 0 
+     integer, private :: entries = 0
      type(h_tuple_t), private, allocatable :: t(:)
    contains
      procedure(htable_hash), pass(this), deferred :: hash

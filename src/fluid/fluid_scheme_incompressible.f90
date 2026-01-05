@@ -334,6 +334,9 @@ contains
 
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
+    class(bc_t), pointer :: bc
+    integer :: i
+
 
     call this%Xh%free()
 
@@ -356,6 +359,18 @@ contains
        call precon_destroy(this%pc_prs)
        deallocate(this%pc_prs)
     end if
+
+    do i = 1, this%bcs_vel%size()
+       bc => this%bcs_vel%get(i)
+       call bc%free()
+    end do
+    call this%bcs_vel%free()
+
+    do i = 1, this%bcs_prs%size()
+       bc => this%bcs_prs%get(i)
+       call bc%free()
+    end do
+    call this%bcs_prs%free()
 
     call this%source_term%free()
 

@@ -430,6 +430,7 @@ contains
     call json_get_or_default(params, 'case.numerics.time_order', integer_val, 4)
     write(log_buf, '(A, I0)') 'RK order   : ', integer_val
     call neko_log%message(log_buf)
+    call neko_log%end_section()
 
   end subroutine fluid_scheme_compressible_log_solver_info
 

@@ -1,0 +1,38 @@
+module test_json_utils
+  use pfunit
+  use num_types, only : rp, dp
+  use json_utils, only : json_get_or_default, json_get, json_no_defaults
+  use json_module, only : json_file
+  implicit none
+
+contains
+
+  @test
+  subroutine test_json_no_defaults_starts_false()
+    @assertFalse(json_no_defaults)
+  end subroutine test_json_no_defaults_starts_false
+
+  @test
+  subroutine test_json_get_integer_allows_real_literal()
+    type(json_file) :: jf
+    integer :: int_value
+
+    ! Should work because 3.0 is exactly representable as an integer
+    call jf%load_from_string('{"params":{"value": 3.0}}')
+    call json_get(jf, "params.value", int_value)
+
+    @assertEqual(int_value, 3)
+  end subroutine test_json_get_integer_allows_real_literal
+
+  @test
+  subroutine test_json_get_integer_array_allows_reals()
+    type(json_file) :: jf
+    integer, allocatable :: int_value(:)
+
+    ! Should work because 3.0 and 4.0 are exactly representable as an integer
+    call jf%load_from_string('{"params":{"value": [3.0, 4.0, 5]}}')
+    call json_get(jf, "params.value", int_value)
+
+  end subroutine test_json_get_integer_array_allows_reals
+
+end module test_json_utils

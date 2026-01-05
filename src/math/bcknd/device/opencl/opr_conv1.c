@@ -110,6 +110,7 @@ void opencl_conv1(void *du, void *u,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                 \
                                       kernel, 1, NULL, &global_item_size,       \
                                       &local_item_size, 0, NULL, EVENT));       \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }
 
 #define CASE_KSTEP(LX, QUEUE, EVENT)                                            \
@@ -140,6 +141,7 @@ void opencl_conv1(void *du, void *u,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                 \
                                       kernel, 2, NULL, global_kstep,            \
                                       local_kstep, 0, NULL, EVENT));            \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }
 
 

@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.0.0])
+AC_INIT([neko],[1.0.1])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -423,6 +423,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/time_scheme_controller/Makefile\
         tests/unit/runge_kutta_scheme/Makefile\
         tests/unit/time_based_controller/Makefile\
+        tests/unit/json_utils/Makefile\
         tests/unit/point_interpolation/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
@@ -443,4 +444,3 @@ fi
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
 
 AC_OUTPUT
-

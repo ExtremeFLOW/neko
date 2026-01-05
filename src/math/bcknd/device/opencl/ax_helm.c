@@ -105,7 +105,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                 \
                                      kernel, 1, NULL, &global_item_size,        \
                                      &local_item_size, 0, NULL, EVENT));        \
-                                                                                \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }
 
 
@@ -131,7 +131,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                  \
                                      kernel, 2, NULL, global_kstep,             \
                                      local_kstep, 0, NULL, EVENT));             \
-                                                                                \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }
 
 
@@ -304,7 +304,7 @@ void opencl_ax_helm_vector(void *au, void *av, void *aw,
      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,          \
                                      kernel, 2, NULL, global_kstep,             \
                                      local_kstep, 0, NULL, NULL));              \
-                                                                                \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }                                                                           \
     break
 

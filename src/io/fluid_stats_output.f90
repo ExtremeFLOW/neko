@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,8 @@ module fluid_stats_output
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_stats_output_init
+     !> Destructor.
+     procedure, pass(this) :: free => fluid_stats_output_free
      !> Samples the fields computed by the `stats` component.
      procedure, pass(this) :: sample => fluid_stats_output_sample
   end type fluid_stats_output_t
@@ -117,6 +119,14 @@ contains
     this%stats => stats
     this%T_begin = T_begin
   end subroutine fluid_stats_output_init
+
+  !> Destructor.
+  subroutine fluid_stats_output_free(this)
+    class(fluid_stats_output_t), intent(inout) :: this
+    nullify(this%stats)
+    call this%map_1d%free()
+    call this%map_2d%free()
+  end subroutine fluid_stats_output_free
 
   !> Sample fluid_stats at time @a t
   subroutine fluid_stats_output_sample(this, t)
