@@ -119,13 +119,12 @@ contains
     end do
 
     if (o .lt. 0) then
-       do i = abs(o), m
+       do concurrent (i = abs(o):m)
           v(dg(i)) = u(gd(i))
        end do
     else
-       do i = o, m, 2
-          tmp  = u(gd(i)) + u(gd(i+1))
-          v(dg(i)) = tmp
+       do concurrent (i = o:m:2)
+          v(dg(i)) = u(gd(i)) + u(gd(i+1))
        end do
     end if
 
@@ -158,13 +157,12 @@ contains
     end do
 
     if (o .lt. 0) then
-       do i = abs(o), m
+       do concurrent (i = abs(o):m)
           v(dg(i)) = u(gd(i))
        end do
     else
-       do i = o, m, 2
-          tmp  = u(gd(i)) * u(gd(i+1))
-          v(dg(i)) = tmp
+       do concurrent (i = o:m:2)
+          v(dg(i)) = u(gd(i)) * u(gd(i+1))
        end do
     end if
 
@@ -197,13 +195,12 @@ contains
     end do
 
     if (o .lt. 0) then
-       do i = abs(o), m
+       do concurrent (i = abs(o):m)
           v(dg(i)) = u(gd(i))
        end do
     else
-       do i = o, m, 2
-          tmp  = min(u(gd(i)), u(gd(i+1)))
-          v(dg(i)) = tmp
+       do concurrent (i = o:m:2)
+          v(dg(i)) = min(u(gd(i)), u(gd(i+1)))
        end do
     end if
 
@@ -236,13 +233,12 @@ contains
     end do
 
     if (o .lt. 0) then
-       do i = abs(o), m
+       do concurrent (i = abs(o):m)
           v(dg(i)) = u(gd(i))
        end do
     else
-       do i = o, m, 2
-          tmp  = max(u(gd(i)), u(gd(i+1)))
-          v(dg(i)) = tmp
+       do concurrent (i = o:m:2)
+          v(dg(i)) = max(u(gd(i)), u(gd(i+1)))
        end do
     end if
 
@@ -289,7 +285,7 @@ contains
        k = k + blk_len
     end do
 
-    do i = k + 1, m
+    do concurrent (i = (k + 1):m)
        u(gd(i)) = v(dg(i))
     end do
 
