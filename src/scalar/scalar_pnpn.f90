@@ -564,9 +564,6 @@ contains
   end subroutine scalar_pnpn_setup_bcs_
 
   !> Apply strong boundary conditions.
-  !! @details Applies strong boundary conditions and takes care of resolution
-  !! of the boundary condition type on points shared accross weak and strong
-  !! conditions.
   !! @param time The current time state.
   subroutine scalar_scheme_apply_strong_bcs(this, time)
     class(scalar_pnpn_t), intent(inout) :: this
@@ -576,21 +573,21 @@ contains
     class(bc_t), pointer :: bc_i
     bc_i => null()
 
-    ! First apply call, sets the dirichlet value, let's call it d.
+    ! First apply call, sets the Dirichlet value, let's call it d.
     call this%bcs%apply(this%s, time = time, strong = .true.)
-    ! If we now have two local nodes sharing the same global node, and with
-    ! conflicting dirichlet / neumann bcs the node with a strong bc
-    ! will have the value d, and the the other one just some random value u.
-    ! Take nodewise minimum between the local nodes .
+    ! If we now have local nodes sharing the same global node, and with
+    ! some nodes not masked as Dirichlet, the node which *is* masked
+    ! will have the value d, and the the other ones just some value u.
+    ! Take a nodewise minimum between the local nodes.
     ! Now, all local nodes store m = min(d, u)
     call this%gs_Xh%op(this%s, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
-    ! Second apply call, so dirichlet nodes again store d, the rest still store
+    ! Second apply call, so Dirichlet nodes again store d, the rest still store
     ! m, where m < d by construction.
     call this%bcs%apply(this%s, time = time, strong = .true.)
     ! Now apply a max, which guarantees that d wins and gets stored in all the
-    ! local conflicting nodes.
+    ! local nodes.
     call this%gs_Xh%op(this%s, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
