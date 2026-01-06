@@ -892,8 +892,13 @@ var annotated_dup =
       [ "mxm_blas", "dc/dac/interfacemxm__wrapper_1_1mxm__blas.html", "dc/dac/interfacemxm__wrapper_1_1mxm__blas" ],
       [ "mxm_libxsmm", "de/dd8/interfacemxm__wrapper_1_1mxm__libxsmm.html", "de/dd8/interfacemxm__wrapper_1_1mxm__libxsmm" ]
     ] ],
-    [ "neko_api", "d5/dd3/namespaceneko__api.html", [
-      [ "neko_api_user_cb_get_field", "da/de4/interfaceneko__api_1_1neko__api__user__cb__get__field.html", "da/de4/interfaceneko__api_1_1neko__api__user__cb__get__field" ]
+    [ "neko_api_user", "d9/d9a/namespaceneko__api__user.html", [
+      [ "api_bc_callback", "d7/d0b/interfaceneko__api__user_1_1api__bc__callback.html", "d7/d0b/interfaceneko__api__user_1_1api__bc__callback" ],
+      [ "api_ft_callback", "d5/d21/interfaceneko__api__user_1_1api__ft__callback.html", "d5/d21/interfaceneko__api__user_1_1api__ft__callback" ],
+      [ "api_gn_callback", "dc/da4/interfaceneko__api__user_1_1api__gn__callback.html", "dc/da4/interfaceneko__api__user_1_1api__gn__callback" ],
+      [ "api_ic_callback", "de/d85/interfaceneko__api__user_1_1api__ic__callback.html", "de/d85/interfaceneko__api__user_1_1api__ic__callback" ],
+      [ "api_user_cb", "da/d5d/structneko__api__user_1_1api__user__cb.html", "da/d5d/structneko__api__user_1_1api__user__cb" ],
+      [ "neko_api_user_cb_get_field", "d0/ddf/interfaceneko__api__user_1_1neko__api__user__cb__get__field.html", "d0/ddf/interfaceneko__api__user_1_1neko__api__user__cb__get__field" ]
     ] ],
     [ "neumann", "d9/d75/namespaceneumann.html", [
       [ "neumann_t", "d5/d84/structneumann_1_1neumann__t.html", "d5/d84/structneumann_1_1neumann__t" ]

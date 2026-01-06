@@ -1,0 +1,7 @@
+<map id="neko_api_user_bc_msk_ptr" name="neko_api_user_bc_msk_ptr">
+<area shape="rect" id="Node000001" title="Helper function to extract a pointer to the mask." alt="" coords="419,20,616,45"/>
+<area shape="rect" id="Node000002" href="$d9/d9a/namespaceneko__api__user.html#a42c13add037e111af6e60e32e710c65b" title="API user dirichlet condition callback caller." alt="" coords="216,5,371,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="405,35,371,35,371,30,405,30"/>
+<area shape="rect" id="Node000003" href="$d9/d9a/namespaceneko__api__user.html#a103a54d8c7a985ca21896a44453facf5" title="Register callbacks." alt="" coords="5,13,168,53"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="202,35,168,35,168,30,202,30"/>
+</map>

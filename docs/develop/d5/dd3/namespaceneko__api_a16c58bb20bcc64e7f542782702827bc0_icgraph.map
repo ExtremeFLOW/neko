@@ -1,0 +1,7 @@
+<map id="neko_api::neko_api_wrap_dofmap" name="neko_api::neko_api_wrap_dofmap">
+<area shape="rect" id="Node000001" title="Helper function to assign pointers to a dofmap&#39;s data." alt="" coords="204,37,351,77"/>
+<area shape="rect" id="Node000002" href="$d5/dd3/namespaceneko__api.html#ac887c643e9bb5e0ce30514919b2e03dc" title="Retrive the dofmap associated with a case&#39;s fluid solver." alt="" coords="5,5,156,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,46,156,40,157,35,191,41"/>
+<area shape="rect" id="Node000003" href="$d5/dd3/namespaceneko__api.html#a6705ad0df06cda108fcd72f18c5f73fd" title="Retrive the dofmap associated with a field." alt="" coords="7,69,154,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,74,155,80,154,75,190,69"/>
+</map>
