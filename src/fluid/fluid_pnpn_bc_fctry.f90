@@ -125,6 +125,14 @@ contains
           end do
        end do
     end do
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
+    end if
   end subroutine pressure_bc_factory
 
   !> Factory routine for velocity boundary conditions.
@@ -197,6 +205,14 @@ contains
              end do
           end do
        end do
+    end if
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
     end if
   end subroutine velocity_bc_factory
 

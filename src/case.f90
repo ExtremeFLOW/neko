@@ -557,6 +557,10 @@ contains
 
     call neko_log%end_section()
 
+    call scalar_params%destroy()
+    call numerics_params%destroy()
+    call json_subdict%destroy()
+
   end subroutine case_init_common
 
   !> Deallocate a case

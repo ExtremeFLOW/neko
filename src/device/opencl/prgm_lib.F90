@@ -83,6 +83,7 @@ module opencl_prgm_lib
   !> Device compressible ops kernels
   type(c_ptr), public, bind(c) :: compressible_ops_compute_max_wave_speed_program = C_NULL_PTR
   type(c_ptr), public, bind(c) :: compressible_ops_compute_entropy_program = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: compressible_ops_update_program = C_NULL_PTR
 
   !> Device fdm kernels
   type(c_ptr), public, bind(c) :: fdm_program = C_NULL_PTR
@@ -282,6 +283,13 @@ contains
           call neko_error('Failed to release program')
        end if
        compressible_ops_compute_entropy_program = C_NULL_PTR
+    end if
+
+    if (c_associated(compressible_ops_update_program)) then
+       if(clReleaseProgram(compressible_ops_update_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       compressible_ops_update_program = C_NULL_PTR
     end if
 
     if (c_associated(fdm_program)) then

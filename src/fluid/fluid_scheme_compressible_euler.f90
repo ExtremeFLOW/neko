@@ -34,9 +34,6 @@ module fluid_scheme_compressible_euler
   use comm, only : NEKO_COMM
   use advection, only : advection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
-  use field_math, only : field_add2, field_cfill, field_cmult, &
-       field_copy, field_col2, field_col3, &
-       field_addcol3, field_sub2, field_invcol2, field_cpwmax2
   use operators, only : div, rotate_cyc
   use field_series, only : field_series_t
   use bdf_time_scheme, only : bdf_time_scheme_t
@@ -66,6 +63,11 @@ module fluid_scheme_compressible_euler
   use utils, only : neko_error, neko_type_error
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
+  use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
+       compressible_ops_cpu_update_mxyz_p_ruvw, compressible_ops_cpu_update_e
+  use compressible_ops_device, only : compressible_ops_device_update_uvw, &
+       compressible_ops_device_update_mxyz_p_ruvw, compressible_ops_device_update_e
+  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only: regularization_t, regularization_factory
   implicit none
@@ -310,44 +312,40 @@ contains
 
       !> Update variables
       ! Update u, v, w
-      call field_copy(u, m_x, n)
-      call field_invcol2(u, rho, n)
-      call field_copy(v, m_y, n)
-      call field_invcol2(v, rho, n)
-      call field_copy(w, m_z, n)
-      call field_invcol2(w, rho, n)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call compressible_ops_device_update_uvw(u%x_d, v%x_d, w%x_d, &
+              m_x%x_d, m_y%x_d, m_z%x_d, rho%x_d, n)
+      else
+         call compressible_ops_cpu_update_uvw(u%x, v%x, w%x, &
+              m_x%x, m_y%x, m_z%x, rho%x, n)
+      end if
 
       !> Apply velocity boundary conditions
       call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
            dm_Xh%size(), time, strong = .true.)
 
-
-      call field_copy(m_x, u, n)
-      call field_col2(m_x, rho, n)
-      call field_copy(m_y, v, n)
-      call field_col2(m_y, rho, n)
-      call field_copy(m_z, w, n)
-      call field_col2(m_z, rho, n)
-
-      !> Update p = (gamma - 1) * (E - 0.5 * rho * (u^2 + v^2 + w^2))
-      call field_col3(temp, u, u, n)
-      call field_addcol3(temp, v, v, n)
-      call field_addcol3(temp, w, w, n)
-      call field_col2(temp, rho, n)
-      call field_cmult(temp, 0.5_rp, n)
-      call field_copy(p, E, n)
-      call field_sub2(p, temp, n)
-      call field_cmult(p, this%gamma - 1.0_rp, n)
+      !> Update m_x, m_y, m_z, p and temp (ruvw)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call compressible_ops_device_update_mxyz_p_ruvw(m_x%x_d, m_y%x_d, &
+              m_z%x_d, p%x_d, temp%x_d, u%x_d, v%x_d, w%x_d, E%x_d, &
+              rho%x_d, this%gamma, n)
+      else
+         call compressible_ops_cpu_update_mxyz_p_ruvw(m_x%x, m_y%x, m_z%x, &
+              p%x, temp%x, u%x, v%x, w%x, E%x, rho%x, this%gamma, n)
+      end if
 
       !> Apply pressure boundary conditions
       call this%bcs_prs%apply(p, time)
-      ! Ensure pressure is positive
-      call field_cpwmax2(p, 1.0e-12_rp, n)
-      ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
-      call field_copy(E, p, n)
-      call field_cmult(E, 1.0_rp / (this%gamma - 1.0_rp), n)
-      ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
-      call field_add2(E, temp, n)
+
+
+      !> Update E
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call compressible_ops_device_update_e(E%x_d, p%x_d, &
+              temp%x_d, this%gamma, n)
+      else
+         call compressible_ops_cpu_update_e(E%x, p%x, temp%x, this%gamma, n)
+      end if
+
 
       !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
       call this%compute_entropy()
@@ -509,47 +507,44 @@ contains
     ly_half = this%c_Xh%Xh%ly / 2
     lz_half = this%c_Xh%Xh%lz / 2
 
-    do e = 1, this%c_Xh%msh%nelv
-       do k = 1, this%c_Xh%Xh%lz
+    do concurrent (e = 1:this%c_Xh%msh%nelv)
+       do concurrent (k = 1:this%c_Xh%Xh%lz, &
+            j = 1:this%c_Xh%Xh%ly, i = 1:this%c_Xh%Xh%lx)
           km = max(1, k-1)
           kp = min(this%c_Xh%Xh%lz, k+1)
 
-          do j = 1, this%c_Xh%Xh%ly
-             jm = max(1, j-1)
-             jp = min(this%c_Xh%Xh%ly, j+1)
+          jm = max(1, j-1)
+          jp = min(this%c_Xh%Xh%ly, j+1)
 
-             do i = 1, this%c_Xh%Xh%lx
-                im = max(1, i-1)
-                ip = min(this%c_Xh%Xh%lx, i+1)
+          im = max(1, i-1)
+          ip = min(this%c_Xh%Xh%lx, i+1)
 
-                di = (this%c_Xh%dof%x(ip, j, k, e) - &
-                     this%c_Xh%dof%x(im, j, k, e))**2 &
-                     + (this%c_Xh%dof%y(ip, j, k, e) - &
-                     this%c_Xh%dof%y(im, j, k, e))**2 &
-                     + (this%c_Xh%dof%z(ip, j, k, e) - &
-                     this%c_Xh%dof%z(im, j, k, e))**2
+          di = (this%c_Xh%dof%x(ip, j, k, e) - &
+               this%c_Xh%dof%x(im, j, k, e))**2 &
+               + (this%c_Xh%dof%y(ip, j, k, e) - &
+               this%c_Xh%dof%y(im, j, k, e))**2 &
+               + (this%c_Xh%dof%z(ip, j, k, e) - &
+               this%c_Xh%dof%z(im, j, k, e))**2
 
-                dj = (this%c_Xh%dof%x(i, jp, k, e) - &
-                     this%c_Xh%dof%x(i, jm, k, e))**2 &
-                     + (this%c_Xh%dof%y(i, jp, k, e) - &
-                     this%c_Xh%dof%y(i, jm, k, e))**2 &
-                     + (this%c_Xh%dof%z(i, jp, k, e) - &
-                     this%c_Xh%dof%z(i, jm, k, e))**2
+          dj = (this%c_Xh%dof%x(i, jp, k, e) - &
+               this%c_Xh%dof%x(i, jm, k, e))**2 &
+               + (this%c_Xh%dof%y(i, jp, k, e) - &
+               this%c_Xh%dof%y(i, jm, k, e))**2 &
+               + (this%c_Xh%dof%z(i, jp, k, e) - &
+               this%c_Xh%dof%z(i, jm, k, e))**2
 
-                dk = (this%c_Xh%dof%x(i, j, kp, e) - &
-                     this%c_Xh%dof%x(i, j, km, e))**2 &
-                     + (this%c_Xh%dof%y(i, j, kp, e) - &
-                     this%c_Xh%dof%y(i, j, km, e))**2 &
-                     + (this%c_Xh%dof%z(i, j, kp, e) - &
-                     this%c_Xh%dof%z(i, j, km, e))**2
+          dk = (this%c_Xh%dof%x(i, j, kp, e) - &
+               this%c_Xh%dof%x(i, j, km, e))**2 &
+               + (this%c_Xh%dof%y(i, j, kp, e) - &
+               this%c_Xh%dof%y(i, j, km, e))**2 &
+               + (this%c_Xh%dof%z(i, j, kp, e) - &
+               this%c_Xh%dof%z(i, j, km, e))**2
 
-                di = sqrt(di) / (ip - im)
-                dj = sqrt(dj) / (jp - jm)
-                dk = sqrt(dk) / (kp - km)
-                this%h%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+          di = sqrt(di) / (ip - im)
+          dj = sqrt(dj) / (jp - jm)
+          dk = sqrt(dk) / (kp - km)
+          this%h%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
 
-             end do
-          end do
        end do
     end do
 
