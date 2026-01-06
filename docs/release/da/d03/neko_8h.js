@@ -16,13 +16,13 @@ var neko_8h =
     [ "neko_field_dofmap", "da/d03/neko_8h.html#ac2404b64154721053f83d63d1ac94dc1", null ],
     [ "neko_field_nelements", "da/d03/neko_8h.html#a115c07fefae43be2e0ee1f53edc899ee", null ],
     [ "neko_field_order", "da/d03/neko_8h.html#ad5e0e68b6a270529febcdf18a6cfbb85", null ],
-    [ "neko_field_registry_free", "da/d03/neko_8h.html#a18298bbf310f69a637a635816a297941", null ],
-    [ "neko_field_registry_init", "da/d03/neko_8h.html#a709810458098cc93c4a1058c46651446", null ],
     [ "neko_field_size", "da/d03/neko_8h.html#a79e3c782fb4cb08fb84ed6a3182914a8", null ],
     [ "neko_field_space", "da/d03/neko_8h.html#a973a423e4c65dea21ce3820dd3b1db8a", null ],
     [ "neko_finalize", "da/d03/neko_8h.html#a36ec20ef46a38cb2dfcec581e25735a2", null ],
     [ "neko_init", "da/d03/neko_8h.html#a6723abe8de86a489274925547af9e556", null ],
     [ "neko_job_info", "da/d03/neko_8h.html#a708b3eb1233ece9386057552a35074c9", null ],
+    [ "neko_registry_free", "da/d03/neko_8h.html#a1a0e383849a8f011229741a86cd2e461", null ],
+    [ "neko_registry_init", "da/d03/neko_8h.html#a52ec4c2b143fc649b038f46a996249bc", null ],
     [ "neko_solve", "da/d03/neko_8h.html#a937491990815e3e52c66bb02f86353b9", null ],
     [ "neko_step", "da/d03/neko_8h.html#a02ef7d9d94140acc06c4e994ae456c50", null ]
 ];

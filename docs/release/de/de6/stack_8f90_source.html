@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -154,8 +154,8 @@ $(document).ready(function(){initNavTree('de/de6/stack_8f90_source.html','../../
 <div class="foldopen" id="foldopen00049" data-start="" data-end="">
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="../../d2/dbd/structstack_1_1stack__t.html">   49</a></span>  <span class="keyword">type</span>, <span class="keyword">abstract</span>, <span class="keyword">private</span> :: <a class="code hl_struct" href="../../d2/dbd/structstack_1_1stack__t.html">stack_t</a></div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="../../d2/dbd/structstack_1_1stack__t.html#a64b1858d35679fd135ca34dd46ad7ab8">   50</a></span>     <span class="keywordtype">class</span>(*), <span class="keywordtype">allocatable</span> :: data(:)</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d2/dbd/structstack_1_1stack__t.html#ad003180b7c175659d7bb47668be0d473">   51</a></span>     <span class="keywordtype">integer</span> :: top_</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d2/dbd/structstack_1_1stack__t.html#a8e6aa3301709211c1aad295879cb0e28">   52</a></span>     <span class="keywordtype">integer</span> :: size_</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d2/dbd/structstack_1_1stack__t.html#ad003180b7c175659d7bb47668be0d473">   51</a></span>     <span class="keywordtype">integer</span> :: top_ = 0</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d2/dbd/structstack_1_1stack__t.html#a8e6aa3301709211c1aad295879cb0e28">   52</a></span>     <span class="keywordtype">integer</span> :: size_ = 0</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>   <span class="keyword">contains</span></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="../../d2/dbd/structstack_1_1stack__t.html#a5361ccebe5abe48b3ee5f17f45130785">   54</a></span>     <span class="keywordtype">procedure</span>, non_overridable, pass(this) :: init =&gt; <a class="code hl_function" href="../../d9/d30/namespacestack.html#a8703c4c59b20a3e1d79a7c5b32c7dcd3">stack_init</a></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../d2/dbd/structstack_1_1stack__t.html#a9a71c8f52d97ddfb8ab902e53ca2c563">   55</a></span>     <span class="keywordtype">procedure</span>, non_overridable, pass(this) :: free =&gt; <a class="code hl_function" href="../../d9/d30/namespacestack.html#a109a17fab5608b47dc14448997af6388">stack_free</a></div>
@@ -1013,7 +1013,7 @@ $(document).ready(function(){initNavTree('de/de6/stack_8f90_source.html','../../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_103da82e8aec8a2d91cafff0b044275b.html">adt</a></li><li class="navelem"><a class="el" href="../../de/de6/stack_8f90.html">stack.f90</a></li>
-    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jan 6 2026 02:11:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

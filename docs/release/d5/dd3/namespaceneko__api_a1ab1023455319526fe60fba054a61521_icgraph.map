@@ -1,0 +1,7 @@
+<map id="neko_api::neko_api_wrap_space" name="neko_api::neko_api_wrap_space">
+<area shape="rect" id="Node000001" title="Helper function to assign pointers to a space&#39;s data." alt="" coords="200,37,347,77"/>
+<area shape="rect" id="Node000002" href="$d5/dd3/namespaceneko__api.html#a69cb0f448df9d60ecc194ac9dabb128f" title="Retrive the space associated with a case&#39;s fluid solver." alt="" coords="5,5,152,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,46,152,40,153,35,187,40"/>
+<area shape="rect" id="Node000003" href="$d5/dd3/namespaceneko__api.html#a527ba8e9bc9172e054c4da206db5a5be" title="Retrive the space associated with a field." alt="" coords="5,69,152,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,74,153,80,152,75,186,69"/>
+</map>

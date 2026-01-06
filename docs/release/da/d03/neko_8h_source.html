@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -127,11 +127,11 @@ $(document).ready(function(){initNavTree('da/d03/neko_8h_source.html','../../');
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">/* Destroy a Neko device layer */</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="../../da/d03/neko_8h.html#a32d8749e5cddcf7d20c6aab8a401ad16">   24</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d03/neko_8h.html#a32d8749e5cddcf7d20c6aab8a401ad16">neko_device_finalize</a>();</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">/* Initialise a Neko field registry */</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="../../da/d03/neko_8h.html#a709810458098cc93c4a1058c46651446">   27</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d03/neko_8h.html#a709810458098cc93c4a1058c46651446">neko_field_registry_init</a>();</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">/* Initialise a Neko registry */</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="../../da/d03/neko_8h.html#a52ec4c2b143fc649b038f46a996249bc">   27</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d03/neko_8h.html#a52ec4c2b143fc649b038f46a996249bc">neko_registry_init</a>();</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">/* Destroy a Neko field registry */</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="../../da/d03/neko_8h.html#a18298bbf310f69a637a635816a297941">   30</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d03/neko_8h.html#a18298bbf310f69a637a635816a297941">neko_field_registry_free</a>();</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">/* Destroy a Neko registry */</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="../../da/d03/neko_8h.html#a1a0e383849a8f011229741a86cd2e461">   30</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d03/neko_8h.html#a1a0e383849a8f011229741a86cd2e461">neko_registry_free</a>();</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">/* Allocate memory for a Neko case */</span></div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="../../da/d03/neko_8h.html#a5cddd423e29a052cebe7b69360a40aff">   33</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d03/neko_8h.html#a5cddd423e29a052cebe7b69360a40aff">neko_case_allocate</a>(<span class="keywordtype">int</span> **case_iptr);</div>
@@ -221,17 +221,17 @@ $(document).ready(function(){initNavTree('da/d03/neko_8h_source.html','../../');
 <div class="ttc" id="aneko_8h_html_a02ef7d9d94140acc06c4e994ae456c50"><div class="ttname"><a href="../../da/d03/neko_8h.html#a02ef7d9d94140acc06c4e994ae456c50">neko_step</a></div><div class="ttdeci">void neko_step(int **case_iptr)</div></div>
 <div class="ttc" id="aneko_8h_html_a115c07fefae43be2e0ee1f53edc899ee"><div class="ttname"><a href="../../da/d03/neko_8h.html#a115c07fefae43be2e0ee1f53edc899ee">neko_field_nelements</a></div><div class="ttdeci">int neko_field_nelements(char *field_name)</div></div>
 <div class="ttc" id="aneko_8h_html_a17500eaf0dffb387e7da0534c0207d76"><div class="ttname"><a href="../../da/d03/neko_8h.html#a17500eaf0dffb387e7da0534c0207d76">neko_case_tstep</a></div><div class="ttdeci">int neko_case_tstep(int **case_iptr)</div></div>
-<div class="ttc" id="aneko_8h_html_a18298bbf310f69a637a635816a297941"><div class="ttname"><a href="../../da/d03/neko_8h.html#a18298bbf310f69a637a635816a297941">neko_field_registry_free</a></div><div class="ttdeci">void neko_field_registry_free()</div></div>
+<div class="ttc" id="aneko_8h_html_a1a0e383849a8f011229741a86cd2e461"><div class="ttname"><a href="../../da/d03/neko_8h.html#a1a0e383849a8f011229741a86cd2e461">neko_registry_free</a></div><div class="ttdeci">void neko_registry_free()</div></div>
 <div class="ttc" id="aneko_8h_html_a3045186832ed32a6c2a29377ae4758d8"><div class="ttname"><a href="../../da/d03/neko_8h.html#a3045186832ed32a6c2a29377ae4758d8">neko_real</a></div><div class="ttdeci">double neko_real</div><div class="ttdef"><b>Definition</b> <a href="../../da/d03/neko_8h_source.html#l00009">neko.h:9</a></div></div>
 <div class="ttc" id="aneko_8h_html_a32d8749e5cddcf7d20c6aab8a401ad16"><div class="ttname"><a href="../../da/d03/neko_8h.html#a32d8749e5cddcf7d20c6aab8a401ad16">neko_device_finalize</a></div><div class="ttdeci">void neko_device_finalize()</div></div>
 <div class="ttc" id="aneko_8h_html_a36ec20ef46a38cb2dfcec581e25735a2"><div class="ttname"><a href="../../da/d03/neko_8h.html#a36ec20ef46a38cb2dfcec581e25735a2">neko_finalize</a></div><div class="ttdeci">void neko_finalize()</div></div>
 <div class="ttc" id="aneko_8h_html_a4b48f287c32ac564538fdb8ddd814536"><div class="ttname"><a href="../../da/d03/neko_8h.html#a4b48f287c32ac564538fdb8ddd814536">neko_case_init</a></div><div class="ttdeci">void neko_case_init(const char **case_json, int case_len, int **case_iptr)</div></div>
+<div class="ttc" id="aneko_8h_html_a52ec4c2b143fc649b038f46a996249bc"><div class="ttname"><a href="../../da/d03/neko_8h.html#a52ec4c2b143fc649b038f46a996249bc">neko_registry_init</a></div><div class="ttdeci">void neko_registry_init()</div></div>
 <div class="ttc" id="aneko_8h_html_a58c6ae08997a6052b8581bb79b993780"><div class="ttname"><a href="../../da/d03/neko_8h.html#a58c6ae08997a6052b8581bb79b993780">neko_case_fluid_dofmap</a></div><div class="ttdeci">void neko_case_fluid_dofmap(int **case_iptr, int64_t **dof, neko_real **x, neko_real **y, neko_real **z)</div></div>
 <div class="ttc" id="aneko_8h_html_a5cddd423e29a052cebe7b69360a40aff"><div class="ttname"><a href="../../da/d03/neko_8h.html#a5cddd423e29a052cebe7b69360a40aff">neko_case_allocate</a></div><div class="ttdeci">void neko_case_allocate(int **case_iptr)</div></div>
 <div class="ttc" id="aneko_8h_html_a6723abe8de86a489274925547af9e556"><div class="ttname"><a href="../../da/d03/neko_8h.html#a6723abe8de86a489274925547af9e556">neko_init</a></div><div class="ttdeci">void neko_init()</div></div>
 <div class="ttc" id="aneko_8h_html_a67b2f464deaeeb5fe4db2c4539b58d1d"><div class="ttname"><a href="../../da/d03/neko_8h.html#a67b2f464deaeeb5fe4db2c4539b58d1d">neko_case_fluid_coef</a></div><div class="ttdeci">void neko_case_fluid_coef(int **case_iptr, neko_real **G11, neko_real **G22, neko_real **G33, neko_real **G12, neko_real **G13, neko_real **G23, neko_real **mult, neko_real **dxdr, neko_real **dydr, neko_real **dzdr, neko_real **dxds, neko_real **dyds, neko_real **dzds, neko_real **dxdt, neko_real **dydt, neko_real **dzdt, neko_real **drdx, neko_real **drdy, neko_real **drdz, neko_real **dsdx, neko_real **dsdy, neko_real **dsdz, neko_real **dtdx, neko_real **dtdy, neko_real **dtdz, neko_real **jac, neko_real **B, neko_real **area, neko_real **nx, neko_real **ny, neko_real **nz)</div></div>
 <div class="ttc" id="aneko_8h_html_a708b3eb1233ece9386057552a35074c9"><div class="ttname"><a href="../../da/d03/neko_8h.html#a708b3eb1233ece9386057552a35074c9">neko_job_info</a></div><div class="ttdeci">void neko_job_info()</div></div>
-<div class="ttc" id="aneko_8h_html_a709810458098cc93c4a1058c46651446"><div class="ttname"><a href="../../da/d03/neko_8h.html#a709810458098cc93c4a1058c46651446">neko_field_registry_init</a></div><div class="ttdeci">void neko_field_registry_init()</div></div>
 <div class="ttc" id="aneko_8h_html_a79e3c782fb4cb08fb84ed6a3182914a8"><div class="ttname"><a href="../../da/d03/neko_8h.html#a79e3c782fb4cb08fb84ed6a3182914a8">neko_field_size</a></div><div class="ttdeci">int neko_field_size(char *field_name)</div></div>
 <div class="ttc" id="aneko_8h_html_a7b6ffd3209067e5185d6e5ee4852b5ce"><div class="ttname"><a href="../../da/d03/neko_8h.html#a7b6ffd3209067e5185d6e5ee4852b5ce">neko_case_free</a></div><div class="ttdeci">void neko_case_free(int **case_iptr)</div></div>
 <div class="ttc" id="aneko_8h_html_a937491990815e3e52c66bb02f86353b9"><div class="ttname"><a href="../../da/d03/neko_8h.html#a937491990815e3e52c66bb02f86353b9">neko_solve</a></div><div class="ttdeci">void neko_solve(int **case_iptr)</div></div>
@@ -249,7 +249,7 @@ $(document).ready(function(){initNavTree('da/d03/neko_8h_source.html','../../');
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_da61e3e9a357748887e3ca8d7c5a0c16.html">api</a></li><li class="navelem"><a class="el" href="../../da/d03/neko_8h.html">neko.h</a></li>
-    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jan 6 2026 02:11:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
