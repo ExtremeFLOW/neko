@@ -131,7 +131,7 @@ module scalar_pnpn
      procedure, pass(this) :: free => scalar_pnpn_free
      !> Solve for the current timestep.
      procedure, pass(this) :: step => scalar_pnpn_step
-     !> Apply boundary conditions
+     !> Apply strong boundary conditions
      procedure, pass(this) :: apply_strong_bcs => scalar_scheme_apply_strong_bcs
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
