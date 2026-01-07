@@ -32,10 +32,9 @@
 !
 !> Dirichlet condition applied in the facet normal direction
 module facet_normal
-  use device_facet_normal
   use num_types, only : rp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only: cfill_mask
+  use math, only : cfill_mask
   use device_math, only : device_col2, device_masked_gather_copy_0, &
        device_masked_scatter_copy_0
   use vector, only : vector_t
@@ -83,7 +82,7 @@ contains
   subroutine facet_normal_init(this, coef, json)
     class(facet_normal_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
-    type(json_file), intent(inout) ::json
+    type(json_file), intent(inout) :: json
 
     call this%init_from_components(coef)
   end subroutine facet_normal_init
@@ -109,7 +108,7 @@ contains
   !> No-op scalar apply on device
   subroutine facet_normal_apply_scalar_dev(this, x_d, time, strong, strm)
     class(facet_normal_t), intent(inout), target :: this
-    type(c_ptr),intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
@@ -185,18 +184,18 @@ contains
     end if
 
     if (m .gt. 0) then
-       call device_masked_gather_copy_0(this%work%x_d, u_d, this%unique_mask_d, &
-            n, m, strm_)
+       call device_masked_gather_copy_0(this%work%x_d, u_d, &
+            this%unique_mask_d, n, m, strm_)
        call device_col2(this%work%x_d, this%nx%x_d, m, strm_)
        call device_masked_scatter_copy_0(x_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
-       call device_masked_gather_copy_0(this%work%x_d, v_d, this%unique_mask_d, &
-            n , m, strm_)
+       call device_masked_gather_copy_0(this%work%x_d, v_d, &
+            this%unique_mask_d, n, m, strm_)
        call device_col2(this%work%x_d, this%ny%x_d, m, strm_)
        call device_masked_scatter_copy_0(y_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
-       call device_masked_gather_copy_0(this%work%x_d, w_d, this%unique_mask_d, &
-            n, m, strm_)
+       call device_masked_gather_copy_0(this%work%x_d, w_d, &
+            this%unique_mask_d, n, m, strm_)
        call device_col2(this%work%x_d, this%nz%x_d, m, strm)
        call device_masked_scatter_copy_0(z_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
@@ -233,7 +232,7 @@ contains
     real(kind=rp) :: area, normal(3)
 
     if (present(only_facets)) then
-       if (only_facets .eqv. .false.) then
+       if (.not. only_facets) then
           call neko_error("For facet_normal_t, only_facets has to be true.")
        end if
     end if
@@ -259,7 +258,7 @@ contains
     call unique_point_idx%init(this%msk(0), htable_data)
     j = 0
     do i = 1, this%msk(0)
-       if (unique_point_idx%get(this%msk(i),htable_data) .ne. 0) then
+       if (unique_point_idx%get(this%msk(i), htable_data) .ne. 0) then
           j = j + 1
           htable_data = j
           call unique_point_idx%set(this%msk(i), j)

@@ -33,7 +33,7 @@
 !> Utilities
 !! @details Various utility functions
 module utils
-  use, intrinsic :: iso_fortran_env, only: error_unit, output_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
   implicit none
   private
 
@@ -326,7 +326,7 @@ contains
 
   subroutine neko_type_registration_error(base_type, wrong_type, known)
     character(len=*), intent(in) :: base_type
-    character(len=*),intent(in) :: wrong_type
+    character(len=*), intent(in) :: wrong_type
     logical, intent(in) :: known
 
     write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
@@ -364,7 +364,7 @@ contains
        result = result // sep // trim(array(i))
     end do
 
-    if (prepend .eqv. .true.) then
+    if (prepend) then
        result = sep // result
     end if
 

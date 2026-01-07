@@ -32,7 +32,8 @@
 !
 !> Defines a dirichlet boundary condition
 module dirichlet
-  use device_dirichlet
+  use device_dirichlet, only : device_dirichlet_apply_scalar, &
+       device_dirichlet_apply_vector
   use num_types, only : rp
   use bc, only : bc_t
   use coefs, only : coef_t

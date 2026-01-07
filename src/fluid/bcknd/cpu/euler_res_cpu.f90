@@ -40,9 +40,9 @@ module euler_res_cpu
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
   use num_types, only : rp
-  use operators, only: div, rotate_cyc
+  use operators, only : div, rotate_cyc
   use gs_ops, only : GS_OP_ADD
-  use scratch_registry, only: neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
   implicit none
@@ -159,15 +159,20 @@ contains
        do j = 1, i-1
           do concurrent (k = 1:n)
              temp_rho%x(k,1,1,1) = temp_rho%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_rho%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_rho%items(j)%ptr%x(k,1,1,1)
              temp_m_x%x(k,1,1,1) = temp_m_x%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_x%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_m_x%items(j)%ptr%x(k,1,1,1)
              temp_m_y%x(k,1,1,1) = temp_m_y%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_y%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_m_y%items(j)%ptr%x(k,1,1,1)
              temp_m_z%x(k,1,1,1) = temp_m_z%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_z%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_m_z%items(j)%ptr%x(k,1,1,1)
              temp_E%x(k,1,1,1) = temp_E%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_E%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_E%items(j)%ptr%x(k,1,1,1)
           end do
        end do
 
@@ -249,26 +254,32 @@ contains
     ! Compute momentum flux divergences
     ! m_x
     do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
-            + p%x(i,1,1,1)
-       f_y%x(i,1,1,1) = m_x%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
-       f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
+       f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * m_x%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
+       f_y%x(i,1,1,1) = m_x%x(i,1,1,1) * m_y%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
+       f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * m_z%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
     end do
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_y
     do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_y%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
-       f_y%x(i,1,1,1) = m_y%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
-            + p%x(i,1,1,1)
-       f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
+       f_x%x(i,1,1,1) = m_y%x(i,1,1,1) * m_x%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
+       f_y%x(i,1,1,1) = m_y%x(i,1,1,1) * m_y%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
+       f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * m_z%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
     end do
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_z
     do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_z%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
-       f_y%x(i,1,1,1) = m_z%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
-       f_z%x(i,1,1,1) = m_z%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
-            + p%x(i,1,1,1)
+       f_x%x(i,1,1,1) = m_z%x(i,1,1,1) * m_x%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
+       f_y%x(i,1,1,1) = m_z%x(i,1,1,1) * m_y%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
+       f_z%x(i,1,1,1) = m_z%x(i,1,1,1) * m_z%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
     end do
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
 

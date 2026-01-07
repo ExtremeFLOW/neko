@@ -155,15 +155,16 @@ contains
     call MPI_Comm_rank(this%comm, this%pe_rank, ierr)
     call MPI_Comm_size(this%comm, this%pe_size, ierr)
 
-    this%glob_n_boxes = int(n_boxes,i8)**3
+    this%glob_n_boxes = int(n_boxes, i8)**3
     this%n_boxes = n_boxes
     this%nelv = nelv
-    this%n_boxes_per_pe = (this%glob_n_boxes+int(this%pe_size-1,i8))/int(this%pe_size,i8)
+    this%n_boxes_per_pe = (this%glob_n_boxes + int(this%pe_size - 1, i8))/ &
+         int(this%pe_size, i8)
 
-    allocate(this%send_buf(0:this%pe_size-1))
-    allocate(this%recv_buf(0:this%pe_size-1))
-    allocate(this%pe_map(0:this%n_boxes_per_pe-1))
-    do i = 0, this%n_boxes_per_pe-1
+    allocate(this%send_buf(0:this%pe_size - 1))
+    allocate(this%recv_buf(0:this%pe_size - 1))
+    allocate(this%pe_map(0:this%n_boxes_per_pe - 1))
+    do i = 0, this%n_boxes_per_pe - 1
        call this%pe_map(i)%init()
     end do
     call MPI_Exscan(this%nelv, this%offset_el, 1, &

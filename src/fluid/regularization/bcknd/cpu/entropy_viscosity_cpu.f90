@@ -37,10 +37,10 @@ module entropy_viscosity_cpu
   private
 
   public :: entropy_viscosity_compute_residual_cpu, &
-            entropy_viscosity_compute_viscosity_cpu, &
-            entropy_viscosity_apply_element_max_cpu, &
-            entropy_viscosity_clamp_to_low_order_cpu, &
-            entropy_viscosity_smooth_divide_cpu
+       entropy_viscosity_compute_viscosity_cpu, &
+       entropy_viscosity_apply_element_max_cpu, &
+       entropy_viscosity_clamp_to_low_order_cpu, &
+       entropy_viscosity_smooth_divide_cpu
 
 contains
 
@@ -64,9 +64,9 @@ contains
 
     do concurrent (i = 1:n)
        entropy_residual(i) = (bdf_coeffs(1) * S(i) &
-                              - bdf_coeffs(2) * S_lag1(i) &
-                              - bdf_coeffs(3) * S_lag2(i) &
-                              - bdf_coeffs(4) * S_lag3(i)) / dt
+            - bdf_coeffs(2) * S_lag1(i) &
+            - bdf_coeffs(3) * S_lag2(i) &
+            - bdf_coeffs(4) * S_lag3(i)) / dt
     end do
 
   end subroutine entropy_viscosity_compute_residual_cpu
@@ -108,7 +108,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                max_visc_el = max(max_visc_el, reg_coeff(i,j,k,el))
+                max_visc_el = max(max_visc_el, reg_coeff(i, j, k, el))
              end do
           end do
        end do
@@ -116,7 +116,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
-                reg_coeff(i,j,k,el) = max_visc_el
+                reg_coeff(i, j, k, el) = max_visc_el
              end do
           end do
        end do
@@ -165,4 +165,3 @@ contains
   end subroutine entropy_viscosity_smooth_divide_cpu
 
 end module entropy_viscosity_cpu
-

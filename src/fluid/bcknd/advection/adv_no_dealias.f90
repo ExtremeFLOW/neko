@@ -32,17 +32,17 @@
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module adv_no_dealias
-  use advection, only: advection_t
-  use num_types, only: rp
-  use math, only: subcol3, rzero
-  use space, only: space_t
-  use field, only: field_t
-  use coefs, only: coef_t
-  use device_math, only: device_subcol3, device_rzero
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use operators, only: conv1
-  use device, only: device_free, device_map, device_get_ptr
-  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
+  use advection, only : advection_t
+  use num_types, only : rp
+  use math, only : subcol3, rzero
+  use space, only : space_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use device_math, only : device_subcol3, device_rzero
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use operators, only : conv1
+  use device, only : device_free, device_map, device_get_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -61,7 +61,7 @@ module adv_no_dealias
      !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
      !! the RHS
      procedure, pass(this) :: compute_scalar => &
-       compute_scalar_advection_no_dealias
+          compute_scalar_advection_no_dealias
   end type adv_no_dealias_t
 
 contains
@@ -105,7 +105,7 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   subroutine compute_advection_no_dealias(this, vx, vy, vz, fx, fy, fz, Xh, &
-                                          coef, n, dt)
+       coef, n, dt)
     class(adv_no_dealias_t), intent(inout) :: this
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -154,7 +154,7 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   subroutine compute_scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
-                                                 coef, n, dt)
+       coef, n, dt)
     class(adv_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s

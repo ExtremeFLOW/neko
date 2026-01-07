@@ -34,8 +34,8 @@
 module logger
   use comm, only : pe_rank
   use num_types, only : rp
-  use utils, only: neko_error
-  use, intrinsic :: iso_fortran_env, only: stdout => output_unit, &
+  use utils, only : neko_error
+  use, intrinsic :: iso_fortran_env, only : stdout => output_unit, &
        stderr => error_unit
   implicit none
   private

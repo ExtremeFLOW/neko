@@ -33,7 +33,7 @@
 module runge_kutta_time_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use time_scheme, only: time_scheme_t
+  use time_scheme, only : time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
   use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
