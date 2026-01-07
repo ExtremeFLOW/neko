@@ -257,8 +257,7 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(blax_d) .and. strong_ .and. this%msk(0) .gt. 0) &
-           then
+      if (.not. c_associated(blax_d) .and. strong_ .and. m .gt. 0) then
          allocate(bla_x(m), bla_y(m), bla_z(m)) ! Temp arrays
 
          if (rp .eq. REAL32) then

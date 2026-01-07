@@ -53,7 +53,11 @@ jobs:
       # ---------------------------------------------------------------------- #
       # System level setup
       # ---------------------------------------------------------------------- #
-
+      - name: Maximize build space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/share/swift /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/chromium /o[t/microsoft /opt/google /opt/az /usr/local/share/powershell /usr/local/julia* 
+          sudo docker image prune --all --force
+          sudo docker builder prune -a
       - name: Setup - Checkout
         uses: actions/checkout@v4
         with:
