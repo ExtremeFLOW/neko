@@ -214,7 +214,7 @@ contains
            ignore_existing = .true.)
 
       call this%abx2%init(dm_Xh, trim(this%name) // "_abx2")
-      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx2", &
+      call neko_registry%add_field(dm_Xh, trim(this%name) // "_abx2", &
            ignore_existing = .true.)
 
       call this%advs%init(dm_Xh, "advs")
