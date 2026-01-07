@@ -41,7 +41,7 @@ module fluid_scheme_compressible_euler
   use math, only : col2
   use device_math, only : device_col2
   use field, only : field_t
-  use fluid_scheme_compressible, only: fluid_scheme_compressible_t
+  use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use scratch_registry, only : neko_scratch_registry
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use gather_scatter, only : gs_t
@@ -54,11 +54,11 @@ module fluid_scheme_compressible_euler
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
   use ax_product, only : ax_t, ax_helm_factory
-  use coefs, only: coef_t
-  use euler_residual, only: euler_rhs_t, euler_rhs_factory
+  use coefs, only : coef_t
+  use euler_residual, only : euler_rhs_t, euler_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
-  use bc_list, only: bc_list_t
+  use bc_list, only : bc_list_t
   use bc, only : bc_t
   use utils, only : neko_error, neko_type_error
   use logger, only : LOG_SIZE
@@ -69,7 +69,7 @@ module fluid_scheme_compressible_euler
        compressible_ops_device_update_mxyz_p_ruvw, compressible_ops_device_update_e
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
-  use regularization, only: regularization_t, regularization_factory
+  use regularization, only : regularization_t, regularization_factory
   implicit none
   private
 
@@ -270,7 +270,7 @@ contains
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
-    use entropy_viscosity, only: entropy_viscosity_t
+    use entropy_viscosity, only : entropy_viscosity_t
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -570,7 +570,7 @@ contains
   end subroutine fluid_scheme_compressible_euler_restart
 
   subroutine setup_regularization(this, params)
-    use entropy_viscosity, only: entropy_viscosity_t, entropy_viscosity_set_fields
+    use entropy_viscosity, only : entropy_viscosity_t, entropy_viscosity_set_fields
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(json_file) :: reg_json

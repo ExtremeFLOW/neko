@@ -44,17 +44,17 @@ module scalar_ic
   use math, only : col2, cfill, cfill_mask
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
-  use point_zone, only: point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
-  use logger, only: neko_log, LOG_SIZE
-  use fld_file_data, only: fld_file_data_t
-  use fld_file, only: fld_file_t
-  use checkpoint, only: chkp_t
-  use file, only: file_t
-  use global_interpolation, only: global_interpolation_t
-  use interpolation, only: interpolator_t
-  use space, only: space_t, GLL
+  use json_utils, only : json_get, json_get_or_default
+  use point_zone, only : point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
+  use logger, only : neko_log, LOG_SIZE
+  use fld_file_data, only : fld_file_data_t
+  use fld_file, only : fld_file_t
+  use checkpoint, only : chkp_t
+  use file, only : file_t
+  use global_interpolation, only : global_interpolation_t
+  use interpolation, only : interpolator_t
+  use space, only : space_t, GLL
   use field_list, only : field_list_t
   implicit none
   private

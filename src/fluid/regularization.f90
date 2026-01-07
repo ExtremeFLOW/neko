@@ -33,10 +33,10 @@
 module regularization
   use num_types, only : rp
   use json_module, only : json_file
-  use field, only: field_t
-  use coefs, only: coef_t
-  use dofmap, only: dofmap_t
-  use time_state, only: time_state_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -82,7 +82,7 @@ module regularization
 
   interface
      module subroutine regularization_factory(object, type_name, json, &
-                                              coef, dof, reg_coeff)
+          coef, dof, reg_coeff)
        class(regularization_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
        type(json_file), intent(inout) :: json
@@ -119,4 +119,3 @@ contains
   end subroutine regularization_free_base
 
 end module regularization
-

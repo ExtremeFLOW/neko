@@ -32,19 +32,19 @@
 !
 !> Defines inflow dirichlet conditions
 module field_dirichlet_vector
-  use num_types, only: rp
-  use coefs, only: coef_t
-  use dirichlet, only: dirichlet_t
-  use bc, only: bc_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use dirichlet, only : dirichlet_t
+  use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use utils, only: split_string
+  use utils, only : split_string
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only: masked_copy_0
-  use device_math, only: device_masked_copy_0
+  use math, only : masked_copy_0
+  use device_math, only : device_masked_copy_0
   use dofmap, only : dofmap_t
-  use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
-  use utils, only: neko_error
+  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
+  use utils, only : neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
@@ -242,12 +242,12 @@ contains
        end if
 
        if (this%msk(0) .gt. 0) then
-          call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
-               this%bc_u%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
-               this%bc_v%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
-               this%bc_w%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
+               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, &
+               this%bc_v%msk_d, this%bc_v%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
+               this%bc_w%msk_d, this%bc_w%dof%size(), this%msk(0), strm)
        end if
     end if
 

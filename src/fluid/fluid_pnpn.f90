@@ -32,11 +32,11 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
   use registry, only : neko_registry
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
@@ -73,7 +73,7 @@ module fluid_pnpn
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
-  use bc_list, only: bc_list_t
+  use bc_list, only : bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
@@ -283,7 +283,7 @@ contains
 
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, .false.)
 
-    if (this%full_stress_formulation .eqv. .true.) then
+    if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
 
@@ -306,7 +306,7 @@ contains
 
 
     if (params%valid_path('case.fluid.nut_field')) then
-       if (this%full_stress_formulation .eqv. .false.) then
+       if (.not. this%full_stress_formulation) then
           call neko_error("You need to set full_stress_formulation to " // &
                "true for the fluid to have a spatially varying " // &
                "viscocity field.")
@@ -925,7 +925,7 @@ contains
                 error stop
              end if
 
-             if (marked_zones(zone_indices(j)) .eqv. .true.) then
+             if (marked_zones(zone_indices(j))) then
                 write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
@@ -994,7 +994,7 @@ contains
                 ! mark the same faces as in ordinary velocity dirichlet
                 ! conditions.
                 ! Additionally we mark the special PnPn pressure  bc.
-                if (bc_i%strong .eqv. .true.) then
+                if (bc_i%strong) then
                    call this%bc_vel_res%mark_facets(bc_i%marked_facet)
                    call this%bc_du%mark_facets(bc_i%marked_facet)
                    call this%bc_dv%mark_facets(bc_i%marked_facet)
@@ -1011,7 +1011,7 @@ contains
        ! Make sure all labeled zones with non-zero size have been marked
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
-               (marked_zones(i) .eqv. .false.)) then
+               (.not. marked_zones(i))) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No fluid boundary condition assigned to zone ", i
              error stop
@@ -1035,7 +1035,7 @@ contains
              call this%bcs_prs%append(bc_i)
 
              ! Mark strong bcs in the dummy dp bc to force zero change.
-             if (bc_i%strong .eqv. .true.) then
+             if (bc_i%strong) then
                 call this%bc_dp%mark_facets(bc_i%marked_facet)
              end if
 
