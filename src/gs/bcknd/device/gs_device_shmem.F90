@@ -34,7 +34,6 @@
 module gs_device_shmem
   use num_types, only : rp, c_rp
   use gs_comm, only : gs_comm_t
-  use gs_ops
   use stack, only : stack_i4_t
   use htable, only : htable_i4_t
   use device
@@ -83,7 +82,7 @@ module gs_device_shmem
 
   interface
      subroutine cudamalloc_nvshmem(ptr, size) &
-          bind(c, name='cudamalloc_nvshmem')
+          bind(c, name = 'cudamalloc_nvshmem')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: ptr
@@ -93,7 +92,7 @@ module gs_device_shmem
 
   interface
      subroutine cudafree_nvshmem(ptr) &
-          bind(c, name='cudafree_nvshmem')
+          bind(c, name = 'cudafree_nvshmem')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: ptr
@@ -105,19 +104,20 @@ module gs_device_shmem
           srank, rbuf_d, roffset, remote_offset, &
           rrank, nvshmem_counter, notifyDone, &
           notifyReady, iter) &
-          bind(c, name='cuda_gs_pack_and_push')
+          bind(c, name = 'cuda_gs_pack_and_push')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: n, offset, srank, roffset, rrank, iter
        integer(c_int), value :: nvshmem_counter
-       type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, notifyReady
-       integer(c_int),dimension(*) :: remote_offset
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, &
+            notifyReady
+       integer(c_int), dimension(*) :: remote_offset
      end subroutine cuda_gs_pack_and_push
   end interface
 
   interface
-     subroutine cuda_gs_pack_and_push_wait(stream, nvshmem_counter, notifyDone) &
-          bind(c, name='cuda_gs_pack_and_push_wait')
+     subroutine cuda_gs_pack_and_push_wait(stream, nvshmem_counter, &
+          notifyDone) bind(c, name = 'cuda_gs_pack_and_push_wait')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: nvshmem_counter
@@ -127,7 +127,7 @@ module gs_device_shmem
 
   interface
      subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
-          bind(c, name='cuda_gs_unpack')
+          bind(c, name = 'cuda_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: op, offset, n
@@ -156,7 +156,7 @@ contains
     allocate(this%remote_offset(size(pe_order)))
 
     do i = 1, size(pe_order)
-       this%remote_offset(i)=-1
+       this%remote_offset(i) = -1
     end do
 
     total = 0
@@ -208,7 +208,7 @@ contains
        end select
     end do
 
-    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.true.)
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync = .true.)
 
     deallocate(dofs)
     call doftable%free()
@@ -245,7 +245,8 @@ contains
     ! Create a set of non-blocking streams
     allocate(this%stream(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call device_stream_create_with_priority(this%stream(i), 1, STRM_HIGH_PRIO)
+       call device_stream_create_with_priority(this%stream(i), 1, &
+            STRM_HIGH_PRIO)
     end do
 
     allocate(this%event(size(this%recv_pe)))

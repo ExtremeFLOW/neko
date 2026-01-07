@@ -311,7 +311,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then
@@ -333,7 +333,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then
@@ -355,7 +355,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then
@@ -377,7 +377,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then
@@ -399,7 +399,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then

@@ -281,7 +281,8 @@ contains
     call json_get_or_default(params, "case.fluid.full_stress_formulation", &
          this%full_stress_formulation, .false.)
 
-    call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, .false.)
+    call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
+         .false.)
 
     if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
@@ -527,11 +528,13 @@ contains
        call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
        do i = 1, this%ulag%size()
-          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, this%wlag%lf(i)%x, 1, this%c_Xh)
+          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
+               this%wlag%lf(i)%x, 1, this%c_Xh)
           call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
-          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, this%wlag%lf(i)%x, 0, this%c_Xh)
+          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
+               this%wlag%lf(i)%x, 0, this%c_Xh)
        end do
     end if
 
