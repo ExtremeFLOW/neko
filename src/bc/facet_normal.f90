@@ -32,7 +32,6 @@
 !
 !> Dirichlet condition applied in the facet normal direction
 module facet_normal
-  use device_facet_normal, only : device_facet_normal_apply_surfvec
   use num_types, only : rp
   use neko_config, only : NEKO_BCKND_DEVICE
   use math, only : cfill_mask
