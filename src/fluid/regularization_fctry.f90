@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 submodule(regularization) regularization_fctry
-  use entropy_viscosity, only: entropy_viscosity_t
-  use utils, only: neko_error
+  use entropy_viscosity, only : entropy_viscosity_t
+  use utils, only : neko_error
   implicit none
 
 contains
 
   module subroutine regularization_factory(object, type_name, json, &
-                                           coef, dof, reg_coeff)
+       coef, dof, reg_coeff)
     class(regularization_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
     type(json_file), intent(inout) :: json
@@ -63,4 +63,3 @@ contains
   end subroutine regularization_factory
 
 end submodule regularization_fctry
-

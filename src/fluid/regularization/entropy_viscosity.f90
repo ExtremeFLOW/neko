@@ -32,32 +32,32 @@
 !
 module entropy_viscosity
   use num_types, only : rp
-  use regularization, only: regularization_t
+  use regularization, only : regularization_t
   use json_module, only : json_file
-  use json_utils, only: json_get_or_default
-  use field, only: field_t
-  use field_math, only: field_cfill, field_glsum, field_cadd, field_copy
-  use field_series, only: field_series_t
-  use coefs, only: coef_t
-  use dofmap, only: dofmap_t
-  use time_state, only: time_state_t
-  use bdf_time_scheme, only: bdf_time_scheme_t
-  use operators, only: div
-  use math, only: glmax, absval
-  use scratch_registry, only: neko_scratch_registry
-  use mesh, only: mesh_t
-  use space, only: space_t
-  use gather_scatter, only: gs_t
-  use gs_ops, only: GS_OP_ADD
+  use json_utils, only : json_get_or_default
+  use field, only : field_t
+  use field_math, only : field_cfill, field_glsum, field_cadd, field_copy
+  use field_series, only : field_series_t
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use time_state, only : time_state_t
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use operators, only : div
+  use math, only : glmax, absval
+  use scratch_registry, only : neko_scratch_registry
+  use mesh, only : mesh_t
+  use space, only : space_t
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only: device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
-  use device_math, only: device_col3, device_absval, device_glsum
-  use entropy_viscosity_cpu, only: entropy_viscosity_compute_residual_cpu, &
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use device_math, only : device_col3, device_absval, device_glsum
+  use entropy_viscosity_cpu, only : entropy_viscosity_compute_residual_cpu, &
        entropy_viscosity_compute_viscosity_cpu, &
        entropy_viscosity_apply_element_max_cpu, &
        entropy_viscosity_clamp_to_low_order_cpu, &
        entropy_viscosity_smooth_divide_cpu
-  use entropy_viscosity_device, only: entropy_viscosity_compute_residual_device, &
+  use entropy_viscosity_device, only : entropy_viscosity_compute_residual_device, &
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
