@@ -40,7 +40,7 @@ module device_mathops
 #ifdef HAVE_HIP
   interface
      subroutine hip_opchsign(a1_d, a2_d, a3_d, gdim, n) &
-          bind(c, name='hip_opchsign')
+          bind(c, name = 'hip_opchsign')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d
        integer(c_int) :: gdim, n
@@ -49,7 +49,7 @@ module device_mathops
 
   interface
      subroutine hip_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n) &
-          bind(c, name='hip_opcolv')
+          bind(c, name = 'hip_opcolv')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d, c_d
        integer(c_int) :: gdim, n
@@ -57,8 +57,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine hip_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n) &
-          bind(c, name='hip_opcolv3c')
+     subroutine hip_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c_d, d, gdim, n) &
+          bind(c, name = 'hip_opcolv3c')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
@@ -68,8 +69,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine hip_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n) &
-          bind(c, name='hip_opadd2cm')
+     subroutine hip_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c, gdim, n) &
+          bind(c, name = 'hip_opadd2cm')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
@@ -79,8 +81,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine hip_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n) &
-          bind(c, name='hip_opadd2col')
+     subroutine hip_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c_d, gdim, n) &
+          bind(c, name = 'hip_opadd2col')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
        integer(c_int) :: gdim, n
@@ -89,7 +92,7 @@ module device_mathops
 #elif HAVE_CUDA
   interface
      subroutine cuda_opchsign(a1_d, a2_d, a3_d, gdim, n) &
-          bind(c, name='cuda_opchsign')
+          bind(c, name = 'cuda_opchsign')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d
        integer(c_int) :: gdim, n
@@ -98,7 +101,7 @@ module device_mathops
 
   interface
      subroutine cuda_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n) &
-          bind(c, name='cuda_opcolv')
+          bind(c, name = 'cuda_opcolv')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d, c_d
        integer(c_int) :: gdim, n
@@ -106,8 +109,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine cuda_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n) &
-          bind(c, name='cuda_opcolv3c')
+     subroutine cuda_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c_d, d, gdim, n) &
+          bind(c, name = 'cuda_opcolv3c')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
@@ -117,8 +121,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine cuda_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n) &
-          bind(c, name='cuda_opadd2cm')
+     subroutine cuda_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c, gdim, n) &
+          bind(c, name = 'cuda_opadd2cm')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
@@ -128,8 +133,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine cuda_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n) &
-          bind(c, name='cuda_opadd2col')
+     subroutine cuda_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c_d, gdim, n) &
+          bind(c, name = 'cuda_opadd2col')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
        integer(c_int) :: gdim, n
@@ -138,7 +144,7 @@ module device_mathops
 #elif HAVE_OPENCL
   interface
      subroutine opencl_opchsign(a1_d, a2_d, a3_d, gdim, n) &
-          bind(c, name='opencl_opchsign')
+          bind(c, name = 'opencl_opchsign')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d
        integer(c_int) :: gdim, n
@@ -147,7 +153,7 @@ module device_mathops
 
   interface
      subroutine opencl_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n) &
-          bind(c, name='opencl_opcolv')
+          bind(c, name = 'opencl_opcolv')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d, c_d
        integer(c_int) :: gdim, n
@@ -155,8 +161,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine opencl_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n) &
-          bind(c, name='opencl_opcolv3c')
+     subroutine opencl_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c_d, d, gdim, n) &
+          bind(c, name = 'opencl_opcolv3c')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
@@ -166,8 +173,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine opencl_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n) &
-          bind(c, name='opencl_opadd2cm')
+     subroutine opencl_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c, gdim, n) &
+          bind(c, name = 'opencl_opadd2cm')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
@@ -177,8 +185,9 @@ module device_mathops
   end interface
 
   interface
-     subroutine opencl_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n) &
-          bind(c, name='opencl_opadd2col')
+     subroutine opencl_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &
+          c_d, gdim, n) &
+          bind(c, name = 'opencl_opadd2col')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
        integer(c_int) :: gdim, n
