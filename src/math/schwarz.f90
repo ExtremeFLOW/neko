@@ -245,9 +245,9 @@ contains
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
       end if
       call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, &
-            msh%nelv)
+           msh%nelv)
       call schwarz_extrude(work2, 2, one, work2, 0, one, enx, eny, enz, &
-            msh%nelv)
+           msh%nelv)
 
       ! if(.not.if3d) then ! Go back to regular size array
       !    call hsmg_schwarz_toreg2d(mg_work,mg_work(i),mg_nh(l))
