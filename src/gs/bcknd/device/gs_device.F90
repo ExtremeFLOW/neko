@@ -143,7 +143,7 @@ contains
 
     this%nlocal = nlocal
     this%nshared = nshared
-    
+
     this%local_gs_d = C_NULL_PTR
     this%local_dof_gs_d = C_NULL_PTR
     this%local_gs_dof_d = C_NULL_PTR
