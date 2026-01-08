@@ -355,7 +355,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="comment">! We should use the %array() procedure, which works great for</span></div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="comment">! GNU, Intel and NEC, but it breaks horribly on Cray when using</span></div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="comment">! certain data types</span></div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordflow">select type</span>(zp =&gt; new_zone_dist(<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a>)%data)</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordflow">select type</span> (zp =&gt; new_zone_dist(<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a>)%data)</div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../d5/d6a/structnmsh_1_1nmsh__zone__t.html">nmsh_zone_t</a>)</div>
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>       <span class="keywordflow">do</span> i = 1, new_zone_dist(<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a>)%size()</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>          <span class="keywordflow">if</span> (zp(i)%type .eq. 5) <span class="keywordflow">then</span></div>
@@ -417,15 +417,15 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>          <span class="keywordflow">if</span> (el_map%get(zp(i)%e, new_el_idx) .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Missing element after redistribution&#39;</span>)</div>
 <div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          <span class="keywordflow">select case</span>(zp(i)%type)</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>          <span class="keywordflow">case</span>(5)</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          <span class="keywordflow">select case</span> (zp(i)%type)</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>          <span class="keywordflow">case</span> (5)</div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>             <span class="keywordflow">if</span> (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Missing periodic element after redistribution&#39;</span>)</div>
 <div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span><span class="keywordflow">             end if</span></div>
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>             <span class="keyword">call </span>msh%mark_periodic_facet(zp(i)%f, new_el_idx, &amp;</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>                  zp(i)%p_f, zp(i)%p_e, zp(i)%glb_pt_ids)</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          <span class="keywordflow">case</span>(7)</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          <span class="keywordflow">case</span> (7)</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>             <span class="keyword">call </span>msh%mark_labeled_facet(zp(i)%f, new_el_idx, zp(i)%p_f)</div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span><span class="keywordflow">          end select</span></div>
 <div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="keywordflow">       end do</span></div>
@@ -433,8 +433,8 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>          <span class="keywordflow">if</span> (el_map%get(zp(i)%e, new_el_idx) .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Missing element after redistribution&#39;</span>)</div>
 <div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>          <span class="keywordflow">select case</span>(zp(i)%type)</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>          <span class="keywordflow">case</span>(5)</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>          <span class="keywordflow">select case</span> (zp(i)%type)</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>          <span class="keywordflow">case</span> (5)</div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>             <span class="keywordflow">if</span> (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Missing periodic element after redistribution&#39;</span>)</div>
 <div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span><span class="keywordflow">             end if</span></div>
@@ -490,7 +490,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>       lbl = 0</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span> </div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="keywordflow">select type</span>(zp =&gt; z)</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="keywordflow">select type</span> (zp =&gt; z)</div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html">facet_zone_periodic_t</a>)</div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>       <span class="keywordflow">do</span> i = 1, zp%size</div>
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>          zone_el = zp%facet_el(i)%x(2)</div>
@@ -582,7 +582,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d0537398ec3fe72d8d4f5c6709d28acc.html">comm</a></li><li class="navelem"><a class="el" href="../../d3/d0d/redist_8f90.html">redist.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -352,7 +352,7 @@ $(document).ready(function(){initNavTree('d0/d6c/runtime__statistics_8f90_source
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>                std = (total - avg)**2 / nsamples</div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>                sem = std / sqrt(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(nsamples, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>))</div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keywordflow">             end select</span></div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>             <span class="keyword">write</span>(fmt, <span class="stringliteral">&#39;(A,I0,A)&#39;</span>) <span class="stringliteral">&#39;(A&#39;</span>, <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#a7a5c20c6c4257e05a7b427c4abb089c8">rt_stats_max_name_len</a>, &amp;</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>             <span class="keyword">write</span>(fmt, <span class="stringliteral">&#39;(A, I0, A)&#39;</span>) <span class="stringliteral">&#39;(A&#39;</span>, <a class="code hl_variable" href="../../d6/d78/namespaceruntime__stats.html#a7a5c20c6c4257e05a7b427c4abb089c8">rt_stats_max_name_len</a>, &amp;</div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>                  <span class="stringliteral">&#39;,1x,E15.7,2x,E15.7,2x,E15.7)&#39;</span></div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>             <span class="keyword">write</span>(log_buf, fmt) this%rt_stats_id(i), total, avg, &amp;</div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>                  2.5758_dp * sem</div>
@@ -373,10 +373,10 @@ $(document).ready(function(){initNavTree('d0/d6c/runtime__statistics_8f90_source
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>             <span class="keywordflow">if</span> (nsamples .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>                <span class="keywordflow">select type</span> (region_sample =&gt; this%elapsed_time(i)%data)</div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span><span class="keywordflow">                type is</span> (double precision)</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>                   profile_data%x(1:nsamples,col_idx) = &amp;</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>                   profile_data%x(1:nsamples, col_idx) = &amp;</div>
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>                        region_sample(1:nsamples)</div>
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>                   <span class="keyword">call </span>mpi_allreduce(mpi_in_place, &amp;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>                        profile_data%x(1:nsamples,col_idx), nsamples, &amp;</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>                        profile_data%x(1:nsamples, col_idx), nsamples, &amp;</div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>                        mpi_double_precision, mpi_sum, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a>)</div>
 <div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>                   profile_data%x(1:nsamples, col_idx) = &amp;</div>
 <div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>                        profile_data%x(1:nsamples, col_idx) / <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a></div>
@@ -480,7 +480,7 @@ $(document).ready(function(){initNavTree('d0/d6c/runtime__statistics_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d0/d6c/runtime__statistics_8f90.html">runtime_statistics.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

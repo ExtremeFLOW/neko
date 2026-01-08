@@ -147,7 +147,7 @@ $(document).ready(function(){initNavTree('d2/d99/system_8f90_source.html','../..
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="foldopen" id="foldopen00044" data-start="" data-end="">
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="../../d7/d90/interfacesystem_1_1system__cpuid.html#a0436c489fe2d6d9911e3ef7b7e084010">   44</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/d90/interfacesystem_1_1system__cpuid.html">system_cpuid</a>(name, len) &amp;</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>          bind(c, name=<span class="stringliteral">&#39;system_cpuid&#39;</span>)</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>          bind(c, name = <span class="stringliteral">&#39;system_cpuid&#39;</span>)</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: name</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       <span class="keywordtype">integer(c_size_t)</span>, <span class="keywordtype">value</span> :: len</div>
@@ -169,7 +169,7 @@ $(document).ready(function(){initNavTree('d2/d99/system_8f90_source.html','../..
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d90/interfacesystem_1_1system__cpuid.html">system_cpuid</a>(c_loc(c_name), len)</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    end_pos = scan(c_name, c_null_char)</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keywordflow">if</span>(end_pos .ge. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keywordflow">if</span> (end_pos .ge. 2) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       name(1:end_pos-1) = c_name(1:end_pos-1)</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="keywordflow">    end if</span></div>
 </div>
@@ -185,7 +185,7 @@ $(document).ready(function(){initNavTree('d2/d99/system_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d2/d99/system_8f90.html">system.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

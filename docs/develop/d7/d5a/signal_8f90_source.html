@@ -145,12 +145,12 @@ $(document).ready(function(){initNavTree('d7/d5a/signal_8f90_source.html','../..
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571">signal_timeout</a>, <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a05ea34a12169705ced009c42856bcb62">signal_set_timeout</a>, <a class="code hl_function" href="../../d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f">signal_trap_cpulimit</a>,&amp;</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>            <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825">signal_trap_usr</a>, <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a2290a09befe1d36d50034e39096dcfe7">signal_usr</a></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>       <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825">signal_trap_usr</a>, <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a2290a09befe1d36d50034e39096dcfe7">signal_usr</a></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00044" data-start="" data-end="">
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="../../de/d81/interfacesignal_1_1sighdl__timeout.html#ad019253909d7282e13f5424724865e2b">   44</a></span>     <span class="keyword">integer (c_int8_t) </span><span class="keyword">function </span><a class="code hl_interface" href="../../de/d81/interfacesignal_1_1sighdl__timeout.html">sighdl_timeout</a>() &amp;</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>          bind(c, name=<span class="stringliteral">&#39;sighdl_timeout&#39;</span>)</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>          bind(c, name = <span class="stringliteral">&#39;sighdl_timeout&#39;</span>)</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 </div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../de/d81/interfacesignal_1_1sighdl__timeout.html">sighdl_timeout</a></div>
@@ -159,7 +159,7 @@ $(document).ready(function(){initNavTree('d7/d5a/signal_8f90_source.html','../..
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00051" data-start="" data-end="">
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../db/d92/interfacesignal_1_1sighdl__usr.html#a0179b4aec97f07ccf7019b7158d63471">   51</a></span>     <span class="keyword">integer (c_int8_t) </span><span class="keyword">function </span><a class="code hl_interface" href="../../db/d92/interfacesignal_1_1sighdl__usr.html">sighdl_usr</a>() &amp;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>          bind(c, name=<span class="stringliteral">&#39;sighdl_usr&#39;</span>)</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>          bind(c, name = <span class="stringliteral">&#39;sighdl_usr&#39;</span>)</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 </div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../db/d92/interfacesignal_1_1sighdl__usr.html">sighdl_usr</a></div>
@@ -168,7 +168,7 @@ $(document).ready(function(){initNavTree('d7/d5a/signal_8f90_source.html','../..
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00058" data-start="" data-end="">
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="../../d3/d47/interfacesignal_1_1sighdl__set__timeout.html#a846bdc4502f7248fbc5aa57190d27ea9">   58</a></span>     <span class="keyword">integer (c_int) </span><span class="keyword">function </span><a class="code hl_interface" href="../../d3/d47/interfacesignal_1_1sighdl__set__timeout.html">sighdl_set_timeout</a>(sec) &amp;</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>          bind(c, name=<span class="stringliteral">&#39;sighdl_set_timeout&#39;</span>)</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>          bind(c, name = <span class="stringliteral">&#39;sighdl_set_timeout&#39;</span>)</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       <span class="keywordtype">integer(c_int)</span> :: sec</div>
@@ -179,7 +179,7 @@ $(document).ready(function(){initNavTree('d7/d5a/signal_8f90_source.html','../..
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00067" data-start="" data-end="">
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="../../dc/d31/interfacesignal_1_1sighdl__trap__cpulimit.html#a84f67f1f8c1ea1489edf147beb2730db">   67</a></span>     <span class="keyword">integer (c_int) </span><span class="keyword">function </span><a class="code hl_interface" href="../../dc/d31/interfacesignal_1_1sighdl__trap__cpulimit.html">sighdl_trap_cpulimit</a>() &amp;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>          bind(c, name=<span class="stringliteral">&#39;sighdl_trap_cpulimit&#39;</span>)</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>          bind(c, name = <span class="stringliteral">&#39;sighdl_trap_cpulimit&#39;</span>)</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 </div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../dc/d31/interfacesignal_1_1sighdl__trap__cpulimit.html">sighdl_trap_cpulimit</a></div>
@@ -188,7 +188,7 @@ $(document).ready(function(){initNavTree('d7/d5a/signal_8f90_source.html','../..
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00074" data-start="" data-end="">
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="../../de/d7c/interfacesignal_1_1sighdl__trap__usr.html#ab3dc14578bc22304b3516a8e7adfe438">   74</a></span>     <span class="keyword">integer (c_int) </span><span class="keyword">function </span><a class="code hl_interface" href="../../de/d7c/interfacesignal_1_1sighdl__trap__usr.html">sighdl_trap_usr</a>() &amp;</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>          bind(c, name=<span class="stringliteral">&#39;sighdl_trap_usr&#39;</span>)</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>          bind(c, name = <span class="stringliteral">&#39;sighdl_trap_usr&#39;</span>)</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 </div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../de/d7c/interfacesignal_1_1sighdl__trap__usr.html">sighdl_trap_usr</a></div>
@@ -200,7 +200,7 @@ $(document).ready(function(){initNavTree('d7/d5a/signal_8f90_source.html','../..
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="../../d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571">   83</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571">signal_timeout</a>() <span class="keyword">result</span>(timeout)</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordtype">logical</span> :: timeout</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordflow">if</span> (<a class="code hl_interface" href="../../de/d81/interfacesignal_1_1sighdl__timeout.html">sighdl_timeout</a>() .gt. 0)  <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordflow">if</span> (<a class="code hl_interface" href="../../de/d81/interfacesignal_1_1sighdl__timeout.html">sighdl_timeout</a>() .gt. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>       timeout = .true.</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>       timeout = .false.</div>
@@ -289,7 +289,7 @@ $(document).ready(function(){initNavTree('d7/d5a/signal_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d7/d5a/signal_8f90.html">signal.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -141,10 +141,10 @@ $(document).ready(function(){initNavTree('d5/d8f/regularization_8f90_source.html
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="../../d8/dd5/namespaceregularization.html">   33</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d8/dd5/namespaceregularization.html">regularization</a></div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span>json_module, <span class="keywordtype">only</span> : json_file</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/dd2/namespacedofmap.html">dofmap</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/d92/namespacetime__state.html">time_state</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/dd2/namespacedofmap.html">dofmap</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/d92/namespacetime__state.html">time_state</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
@@ -198,7 +198,7 @@ $(document).ready(function(){initNavTree('d5/d8f/regularization_8f90_source.html
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>  <span class="keyword">interface</span></div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>     <span class="keyword">module</span> subroutine regularization_factory(object, type_name, json, &amp;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>                                              coef, dof, reg_coeff)</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>          coef, dof, reg_coeff)</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>       <span class="keywordtype">class</span>(regularization_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>       <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>       <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
@@ -239,7 +239,6 @@ $(document).ready(function(){initNavTree('d5/d8f/regularization_8f90_source.html
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  <span class="keyword">end subroutine </span>regularization_free_base</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d8/dd5/namespaceregularization.html">regularization</a></div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
 <div class="ttc" id="ainterfaceregularization_1_1reg__compute_html"><div class="ttname"><a href="../../d3/d52/interfaceregularization_1_1reg__compute.html">regularization::reg_compute</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/d8f/regularization_8f90_source.html#l00074">regularization.f90:74</a></div></div>
 <div class="ttc" id="ainterfaceregularization_1_1reg__free_html"><div class="ttname"><a href="../../d4/d81/interfaceregularization_1_1reg__free.html">regularization::reg_free</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/d8f/regularization_8f90_source.html#l00067">regularization.f90:67</a></div></div>
 <div class="ttc" id="ainterfaceregularization_1_1reg__init_html"><div class="ttname"><a href="../../d1/dbb/interfaceregularization_1_1reg__init.html">regularization::reg_init</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/d8f/regularization_8f90_source.html#l00056">regularization.f90:56</a></div></div>
@@ -263,7 +262,7 @@ $(document).ready(function(){initNavTree('d5/d8f/regularization_8f90_source.html
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d5/d8f/regularization_8f90.html">regularization.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

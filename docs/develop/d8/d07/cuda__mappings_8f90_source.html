@@ -139,7 +139,7 @@ $(document).ready(function(){initNavTree('d8/d07/cuda__mappings_8f90_source.html
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="../../d0/d09/namespacecuda__mappings.html">   34</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d0/d09/namespacecuda__mappings.html">cuda_mappings</a></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span>: <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
@@ -150,7 +150,7 @@ $(document).ready(function(){initNavTree('d8/d07/cuda__mappings_8f90_source.html
 <div class="foldopen" id="foldopen00043" data-start="" data-end="">
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="../../d4/d46/interfacecuda__mappings_1_1cuda__smooth__step.html#a5daedddb474c684eae2a89abed6662ef">   43</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d46/interfacecuda__mappings_1_1cuda__smooth__step.html">cuda_smooth_step</a>(x, edge0, edge1, n) &amp;</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>          <span class="keyword">bind(c, name = &quot;cuda_smooth_step&quot;)</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: x</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keywordtype">       real</span>(c_rp) :: edge0, edge1</div>
@@ -161,7 +161,7 @@ $(document).ready(function(){initNavTree('d8/d07/cuda__mappings_8f90_source.html
 <div class="foldopen" id="foldopen00052" data-start="" data-end="">
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../df/de1/interfacecuda__mappings_1_1cuda__step__function.html#af83ebc44a96de61e3d9349a3727cb2d7">   52</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/de1/interfacecuda__mappings_1_1cuda__step__function.html">cuda_step_function</a>(x, edge, left, right, n) &amp;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>          <span class="keyword">bind(c, name = &quot;cuda_step_function&quot;)</span></div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: x</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keywordtype">       real</span>(c_rp) :: edge, left, right</div>
@@ -172,7 +172,7 @@ $(document).ready(function(){initNavTree('d8/d07/cuda__mappings_8f90_source.html
 <div class="foldopen" id="foldopen00061" data-start="" data-end="">
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../da/dbb/interfacecuda__mappings_1_1cuda__permeability.html#ae9c079d597ef867cb6bf820c77bdd36d">   61</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/dbb/interfacecuda__mappings_1_1cuda__permeability.html">cuda_permeability</a>(x, k_0, k_1, q, n) &amp;</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>          <span class="keyword">bind(c, name = &quot;cuda_permeability&quot;)</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: x</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordtype">       real</span>(c_rp) :: k_0, k_1, q</div>
@@ -194,7 +194,7 @@ $(document).ready(function(){initNavTree('d8/d07/cuda__mappings_8f90_source.html
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_8681a82a265081a91d191144ff606af9.html">filter</a></li><li class="navelem"><a class="el" href="../../dir_24cc091df5f986eaf3d5ee6f4869c76e.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_f37b686692d4c412f155356131e390a3.html">device</a></li><li class="navelem"><a class="el" href="../../dir_253ee523a1801dbc2df2740a0b927fb3.html">cuda</a></li><li class="navelem"><a class="el" href="../../d8/d07/cuda__mappings_8f90.html">cuda_mappings.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

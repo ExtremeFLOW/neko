@@ -396,7 +396,7 @@ $(document).ready(function(){initNavTree('d6/d44/json__utils_8f90_source.html','
 <div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
 <div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>    <span class="keyword">call </span>json%get(name, <span class="keywordtype">value</span>, found)</div>
 <div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span> </div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    <span class="keywordflow">if</span> ((.not. found) .and. (<a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a> .eqv. .false.)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    <span class="keywordflow">if</span> ((.not. found) .and. (.not. <a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a>)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       <span class="keywordtype">value</span> = default</div>
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>       <span class="keyword">call </span>json%add(name, <span class="keywordtype">value</span>)</div>
 <div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (.not. found) <span class="keywordflow">then</span></div>
@@ -415,7 +415,7 @@ $(document).ready(function(){initNavTree('d6/d44/json__utils_8f90_source.html','
 <div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>    <span class="keyword">call </span>json%get(name, <span class="keywordtype">value</span>, found)</div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordflow">if</span> ((.not. found) .and. (<a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a> .eqv. .false.)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordflow">if</span> ((.not. found) .and. (.not. <a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a>)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>       <span class="keywordtype">value</span> = default</div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>       <span class="keyword">call </span>json%add(name, <span class="keywordtype">value</span>)</div>
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (.not. found) <span class="keywordflow">then</span></div>
@@ -434,7 +434,7 @@ $(document).ready(function(){initNavTree('d6/d44/json__utils_8f90_source.html','
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
 <div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="keyword">call </span>json%get(name, <span class="keywordtype">value</span>, found)</div>
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span> </div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keywordflow">if</span> ((.not. found) .and. (<a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a> .eqv. .false.)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keywordflow">if</span> ((.not. found) .and. (.not. <a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a>)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>       <span class="keywordtype">value</span> = default</div>
 <div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>       <span class="keyword">call </span>json%add(name, <span class="keywordtype">value</span>)</div>
 <div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (.not. found) <span class="keywordflow">then</span></div>
@@ -453,7 +453,7 @@ $(document).ready(function(){initNavTree('d6/d44/json__utils_8f90_source.html','
 <div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span> </div>
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>    <span class="keyword">call </span>json%get(name, <span class="keywordtype">value</span>, found)</div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>    <span class="keywordflow">if</span> ((.not. found) .and. (<a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a> .eqv. .false.)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>    <span class="keywordflow">if</span> ((.not. found) .and. (.not. <a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a>)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>       <span class="keywordtype">value</span> = default</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>       <span class="keyword">call </span>json%add(name, <span class="keywordtype">value</span>)</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (.not. found) <span class="keywordflow">then</span></div>
@@ -472,7 +472,7 @@ $(document).ready(function(){initNavTree('d6/d44/json__utils_8f90_source.html','
 <div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span> </div>
 <div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>    <span class="keyword">call </span>json%get(name, <span class="keywordtype">value</span>, found)</div>
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span> </div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>    <span class="keywordflow">if</span> ((.not. found) .and. (<a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a> .eqv. .false.)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>    <span class="keywordflow">if</span> ((.not. found) .and. (.not. <a class="code hl_variable" href="../../d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69">json_no_defaults</a>)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>       <span class="keywordtype">value</span> = default</div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>       <span class="keyword">call </span>json%add(name, <span class="keywordtype">value</span>)</div>
 <div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (.not. found) <span class="keywordflow">then</span></div>
@@ -566,7 +566,7 @@ $(document).ready(function(){initNavTree('d6/d44/json__utils_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d6/d44/json__utils_8f90.html">json_utils.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

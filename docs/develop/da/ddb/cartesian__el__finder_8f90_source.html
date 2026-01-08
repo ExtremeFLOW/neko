@@ -259,7 +259,7 @@ $(document).ready(function(){initNavTree('da/ddb/cartesian__el__finder_8f90_sour
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>       <span class="comment">!move it to do scaling</span></div>
 <div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>       lx2 = xh%lx/2</div>
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>       <span class="keywordflow">if</span> (mod(xh%lx,2) .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>          lin_idx = <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7">linear_index</a>(lx2,lx2,lx2, e, xh%lx, xh%lx, xh%lx)</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>          lin_idx = <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7">linear_index</a>(lx2, lx2, lx2, e, xh%lx, xh%lx, xh%lx)</div>
 <div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>          center_x = x(lin_idx)</div>
 <div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>          center_y = y(lin_idx)</div>
 <div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>          center_z = z(lin_idx)</div>
@@ -330,7 +330,7 @@ $(document).ready(function(){initNavTree('da/ddb/cartesian__el__finder_8f90_sour
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>                              k2 .ge. 1 .and. k2 .le. this%n_boxes) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>                            el_idx = <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7">linear_index</a>(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#a17105a114a50f0975c1d817327199cb1">i2</a>, j2, k2, 1, &amp;</div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>                                 this%n_boxes, this%n_boxes, this%n_boxes)</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>                            <span class="keywordflow">if</span> (marked_box%get(el_idx,htable_data) .ne. 0)<span class="keywordflow">then</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>                            <span class="keywordflow">if</span> (marked_box%get(el_idx, htable_data) .ne. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>                               <span class="keyword">call </span>marked_box%set(el_idx, htable_data)</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>                               <span class="keyword">call </span>this%el_map(el_idx)%push(e)</div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="keywordflow">                            end if</span></div>
@@ -382,9 +382,9 @@ $(document).ready(function(){initNavTree('da/ddb/cartesian__el__finder_8f90_sour
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordtype">integer</span> :: idxs(3)</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordtype">integer</span> :: x_id, y_id, z_id</div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    x_id = int(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(x - this%min_x,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) / this%x_res)</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    y_id = int(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(y - this%min_y,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) / this%y_res)</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    z_id = int(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(z - this%min_z,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) / this%z_res)</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    x_id = int(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(x - this%min_x, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) / this%x_res)</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    y_id = int(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(y - this%min_y, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) / this%y_res)</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    z_id = int(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(z - this%min_z, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) / this%z_res)</div>
 <div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="keywordflow">if</span> (x_id .eq. -1) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       x_id = 0</div>
 <div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="keywordflow">    end if</span></div>
@@ -422,7 +422,7 @@ $(document).ready(function(){initNavTree('da/ddb/cartesian__el__finder_8f90_sour
 <div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: el_cands(:)</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <span class="keyword">call </span>el_candidates%clear()</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    idx = this%compute_idx(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(my_point%x(1),<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), &amp;</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    idx = this%compute_idx(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(my_point%x(1), <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), &amp;</div>
 <div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span><span class="keywordtype">         real</span>(my_point%x(2), rp), <span class="keywordtype">real(my_point%x(3)</span>, rp))</div>
 <div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    el_cands =&gt; this%el_map(idx)%array()</div>
 <div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    <span class="keywordflow">do</span> i = 1, this%el_map(idx)%size()</div>
@@ -438,7 +438,7 @@ $(document).ready(function(){initNavTree('da/ddb/cartesian__el__finder_8f90_sour
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>       all_el_candidates, n_el_cands)</div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/d18/structcartesian__el__finder_1_1cartesian__el__finder__t.html">cartesian_el_finder_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_points</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: points(3,n_points)</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: points(3, n_points)</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: all_el_candidates</div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: n_el_cands(n_points)</div>
 <div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordtype">integer</span> :: i, j, adjusted_index</div>
@@ -511,7 +511,7 @@ $(document).ready(function(){initNavTree('da/ddb/cartesian__el__finder_8f90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_83ce56167ca984e1f9ef008c34f8da6d.html">global_interpolation</a></li><li class="navelem"><a class="el" href="../../da/ddb/cartesian__el__finder_8f90.html">cartesian_el_finder.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

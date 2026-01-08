@@ -108,7 +108,7 @@ $(document).ready(function(){initNavTree('d6/d09/roctx_8F90_source.html','../../
 <div class="contents">
 <a href="../../d6/d09/roctx_8F90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno"><a class="line" href="../../dc/d10/namespaceroctx.html">    2</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d10/namespaceroctx.html">roctx</a></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>  use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>  use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_char, c_null_char</div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
@@ -116,14 +116,14 @@ $(document).ready(function(){initNavTree('d6/d09/roctx_8F90_source.html','../../
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#ifdef HAVE_ROCTX</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor"></span>  <span class="keyword">interface</span> roctxrangepusha</div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>     <span class="keyword">subroutine </span>roctxrangepusha(name) bind(C, name=&#39;roctxRangePushA&#39;)</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>       <span class="keywordtype">use </span>iso_c_binding</div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>     <span class="keyword">subroutine </span>roctxrangepusha(name) bind(C, name = &#39;roctxRangePushA&#39;)</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>       <span class="keywordtype">character(kind=c_char)</span> :: name(256)</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>     <span class="keyword">end subroutine </span>roctxrangepusha</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>  <span class="keyword">end interface </span>roctxrangepusha</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  <span class="keyword">interface</span> roctxrangepop</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>     <span class="keyword">subroutine </span>roctxrangepop() bind(C, name=&#39;roctxRangePop&#39;)</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>     <span class="keyword">subroutine </span>roctxrangepop() bind(C, name = &#39;roctxRangePop&#39;)</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>     <span class="keyword">end subroutine </span>roctxrangepop</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keyword">end interface </span>roctxrangepop</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
@@ -132,7 +132,7 @@ $(document).ready(function(){initNavTree('d6/d09/roctx_8F90_source.html','../../
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">contains</span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  <span class="keyword">subroutine </span>roctxstartrange(name)</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordtype">character(kind=c_char,len=*)</span> :: name</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordtype">character(kind=c_char, len=*)</span> :: name</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordtype">character</span> :: c_name(<a class="code hl_variable" href="../../dc/d10/namespaceroctx.html#a6a9fbd1b36ef3788fe2c8f8a5782e062">roctx_max_len</a>)</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keywordtype">integer</span>:: i, str_len</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
@@ -156,7 +156,7 @@ $(document).ready(function(){initNavTree('d6/d09/roctx_8F90_source.html','../../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_16dc92632bab467dc50b01bd02b3341a.html">device</a></li><li class="navelem"><a class="el" href="../../dir_47dedd53c2256c7309068824dd475815.html">hip</a></li><li class="navelem"><a class="el" href="../../d6/d09/roctx_8F90.html">roctx.F90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

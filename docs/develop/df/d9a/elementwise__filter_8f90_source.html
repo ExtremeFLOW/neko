@@ -141,7 +141,7 @@ $(document).ready(function(){initNavTree('df/d9a/elementwise__filter_8f90_source
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">!</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="../../dd/d52/namespaceelementwise__filter.html">   35</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../dd/d52/namespaceelementwise__filter.html">elementwise_filter</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d1/da4/namespacefilter.html">filter</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../de/da7/structfilter_1_1filter__t.html">filter_t</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d1/da4/namespacefilter.html">filter</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../de/da7/structfilter_1_1filter__t.html">filter_t</a></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4">rone</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
@@ -295,8 +295,8 @@ $(document).ready(function(){initNavTree('df/d9a/elementwise__filter_8f90_source
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: F_in</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="comment">! F_out = fh x fh x fh x F_in</span></div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d8c/namespacetensor.html#aa84ebb51f8669d3d8010fa0c306fcef6">tnsr3d</a>(f_out%x, this%nx, f_in%x, this%nx, this%fh, this%fht, this%fht, &amp;</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>         this%coef%msh%nelv)</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d8c/namespacetensor.html#aa84ebb51f8669d3d8010fa0c306fcef6">tnsr3d</a>(f_out%x, this%nx, f_in%x, this%nx, this%fh, this%fht, &amp;</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>         this%fht, this%coef%msh%nelv)</div>
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
 </div>
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d52/namespaceelementwise__filter.html#af3e61989d0b375cd71de6d1550ddf803">elementwise_field_filter_3d</a></div>
@@ -322,13 +322,13 @@ $(document).ready(function(){initNavTree('df/d9a/elementwise__filter_8f90_source
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       z = zpts(j)</div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/df0/namespacespeclib.html#abff0bed325bbf553ee8ff1fb2d5b70c9">legendre_poly</a>(lj, z, n)</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>       <span class="keywordflow">select case</span> (filter_type)</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>       <span class="keywordflow">case</span>(<span class="stringliteral">&quot;Boyd&quot;</span>)</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>       <span class="keywordflow">case</span> (<span class="stringliteral">&quot;Boyd&quot;</span>)</div>
 <div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>          pht%x(1,j) = lj(1)</div>
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>          pht%x(2,j) = lj(2)</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>          <span class="keywordflow">do</span> k=3,nx</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>             pht%x(k,j) = lj(k)-lj(k-2)</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>          <span class="keywordflow">do</span> k = 3, nx</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>             pht%x(k, j) = lj(k) - lj(k - 2)</div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keywordflow">case</span>(<span class="stringliteral">&quot;nonBoyd&quot;</span>)</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keywordflow">case</span> (<span class="stringliteral">&quot;nonBoyd&quot;</span>)</div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>          pht%x(:,j) = lj</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keywordflow">       end select</span></div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="keywordflow">    end do</span></div>
@@ -340,8 +340,8 @@ $(document).ready(function(){initNavTree('df/d9a/elementwise__filter_8f90_source
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    diag = 0.0_rp</div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keywordflow">do</span> i=1,nx</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>       diag(i,i) = transfer(i)</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keywordflow">do</span> i = 1, nx</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>       diag(i, i) = transfer(i)</div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a> (diag, nx, pht%x, nx, fh, nx) <span class="comment">!          -1</span></div>
@@ -404,7 +404,7 @@ $(document).ready(function(){initNavTree('df/d9a/elementwise__filter_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_8681a82a265081a91d191144ff606af9.html">filter</a></li><li class="navelem"><a class="el" href="../../df/d9a/elementwise__filter_8f90.html">elementwise_filter.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

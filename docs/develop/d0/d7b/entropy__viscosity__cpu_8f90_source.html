@@ -144,10 +144,10 @@ $(document).ready(function(){initNavTree('d0/d7b/entropy__viscosity__cpu_8f90_so
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a68ff8cecc853dfc5ec4f6d9a3c74318e">entropy_viscosity_compute_residual_cpu</a>, &amp;</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>            <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a628159169134365fed3bf1f085189cad">entropy_viscosity_compute_viscosity_cpu</a>, &amp;</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>            <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#ad2f208edbdaeacbf93e34df9bfa0d7d8">entropy_viscosity_apply_element_max_cpu</a>, &amp;</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>            <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#ab6b6dd61c1acde59f4e7303cc1690875">entropy_viscosity_clamp_to_low_order_cpu</a>, &amp;</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>            <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a9ead36765ddba96b03e43e973a0dff3d">entropy_viscosity_smooth_divide_cpu</a></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>       <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a628159169134365fed3bf1f085189cad">entropy_viscosity_compute_viscosity_cpu</a>, &amp;</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>       <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#ad2f208edbdaeacbf93e34df9bfa0d7d8">entropy_viscosity_apply_element_max_cpu</a>, &amp;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>       <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#ab6b6dd61c1acde59f4e7303cc1690875">entropy_viscosity_clamp_to_low_order_cpu</a>, &amp;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>       <a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a9ead36765ddba96b03e43e973a0dff3d">entropy_viscosity_smooth_divide_cpu</a></div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">contains</span></div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
@@ -163,9 +163,9 @@ $(document).ready(function(){initNavTree('d0/d7b/entropy__viscosity__cpu_8f90_so
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       entropy_residual(i) = (bdf_coeffs(1) * s(i) &amp;</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>                              - bdf_coeffs(2) * s_lag1(i) &amp;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>                              - bdf_coeffs(3) * s_lag2(i) &amp;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>                              - bdf_coeffs(4) * s_lag3(i)) / dt</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>            - bdf_coeffs(2) * s_lag1(i) &amp;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>            - bdf_coeffs(3) * s_lag2(i) &amp;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>            - bdf_coeffs(4) * s_lag3(i)) / dt</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
 </div>
@@ -200,7 +200,7 @@ $(document).ready(function(){initNavTree('d0/d7b/entropy__viscosity__cpu_8f90_so
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>       <span class="keywordflow">do</span> k = 1, lx</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>          <span class="keywordflow">do</span> j = 1, lx</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>             <span class="keywordflow">do</span> i = 1, lx</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                max_visc_el = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(max_visc_el, reg_coeff(i,j,k,el))</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                max_visc_el = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(max_visc_el, reg_coeff(i, j, k, el))</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="keywordflow">             end do</span></div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="keywordflow">       end do</span></div>
@@ -208,7 +208,7 @@ $(document).ready(function(){initNavTree('d0/d7b/entropy__viscosity__cpu_8f90_so
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>       <span class="keywordflow">do</span> k = 1, lx</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>          <span class="keywordflow">do</span> j = 1, lx</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>             <span class="keywordflow">do</span> i = 1, lx</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                reg_coeff(i,j,k,el) = max_visc_el</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                reg_coeff(i, j, k, el) = max_visc_el</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="keywordflow">             end do</span></div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="keywordflow">       end do</span></div>
@@ -251,7 +251,6 @@ $(document).ready(function(){initNavTree('d0/d7b/entropy__viscosity__cpu_8f90_so
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a9ead36765ddba96b03e43e973a0dff3d">entropy_viscosity_smooth_divide_cpu</a></div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d4/d05/namespaceentropy__viscosity__cpu.html">entropy_viscosity_cpu</a></div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
 <div class="ttc" id="anamespaceentropy__viscosity__cpu_html"><div class="ttname"><a href="../../d4/d05/namespaceentropy__viscosity__cpu.html">entropy_viscosity_cpu</a></div><div class="ttdoc">CPU backend for entropy viscosity regularization.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7b/entropy__viscosity__cpu_8f90_source.html#l00034">entropy_viscosity_cpu.f90:34</a></div></div>
 <div class="ttc" id="anamespaceentropy__viscosity__cpu_html_a628159169134365fed3bf1f085189cad"><div class="ttname"><a href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a628159169134365fed3bf1f085189cad">entropy_viscosity_cpu::entropy_viscosity_compute_viscosity_cpu</a></div><div class="ttdeci">subroutine, public entropy_viscosity_compute_viscosity_cpu(reg_coeff, entropy_residual, h, c_avisc_entropy, n_s, n)</div><div class="ttdoc">Compute viscosity from entropy residual on CPU.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7b/entropy__viscosity__cpu_8f90_source.html#l00081">entropy_viscosity_cpu.f90:83</a></div></div>
 <div class="ttc" id="anamespaceentropy__viscosity__cpu_html_a68ff8cecc853dfc5ec4f6d9a3c74318e"><div class="ttname"><a href="../../d4/d05/namespaceentropy__viscosity__cpu.html#a68ff8cecc853dfc5ec4f6d9a3c74318e">entropy_viscosity_cpu::entropy_viscosity_compute_residual_cpu</a></div><div class="ttdeci">subroutine, public entropy_viscosity_compute_residual_cpu(entropy_residual, s, s_lag1, s_lag2, s_lag3, bdf_coeffs, dt, n)</div><div class="ttdoc">Compute entropy residual on CPU.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7b/entropy__viscosity__cpu_8f90_source.html#l00056">entropy_viscosity_cpu.f90:58</a></div></div>
@@ -267,7 +266,7 @@ $(document).ready(function(){initNavTree('d0/d7b/entropy__viscosity__cpu_8f90_so
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../dir_aec7e7f2c2d71559052b7a323a98a6b0.html">regularization</a></li><li class="navelem"><a class="el" href="../../dir_c36a7ee17b8804131eb3af04ed64ae2c.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_21eebd6ee432255111dec49542a53651.html">cpu</a></li><li class="navelem"><a class="el" href="../../d0/d7b/entropy__viscosity__cpu_8f90.html">entropy_viscosity_cpu.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

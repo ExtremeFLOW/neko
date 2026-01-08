@@ -263,7 +263,7 @@ $(document).ready(function(){initNavTree('df/d2d/statistics_8f90_source.html','.
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>       <span class="comment">! There is technically an issue here for the last sample if we</span></div>
 <div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>       <span class="comment">! reset the stats If the reset is not on a multiple of</span></div>
 <div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>       <span class="comment">! samp_interval the weight of the last sample is wrong.</span></div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>       <span class="keywordflow">if</span> (mod(tstep,this%samp_interval) .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>       <span class="keywordflow">if</span> (mod(tstep, this%samp_interval) .eq. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>          <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(<span class="stringliteral">&#39;Statistics&#39;</span>)</div>
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>          <span class="keyword">call </span>mpi_barrier(<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a>, ierr)</div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>          sample_start_time = mpi_wtime()</div>
@@ -274,7 +274,7 @@ $(document).ready(function(){initNavTree('df/d2d/statistics_8f90_source.html','.
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>          <span class="keyword">call </span>mpi_barrier(<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a>, ierr)</div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>          sample_end_time = mpi_wtime()</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>          sample_time = sample_end_time - sample_start_time</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>          <span class="keyword">write</span>(log_buf,<span class="stringliteral">&#39;(A17,1x,F10.6,A,F9.6)&#39;</span>) <span class="stringliteral">&#39;Sampling at time:&#39;</span>, t, &amp;</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A17,1x,F10.6,A,F9.6)&#39;</span>) <span class="stringliteral">&#39;Sampling at time:&#39;</span>, t, &amp;</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>               <span class="stringliteral">&#39; Sampling time (s): &#39;</span>, sample_time</div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>          <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>          <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
@@ -308,7 +308,7 @@ $(document).ready(function(){initNavTree('df/d2d/statistics_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../df/d2d/statistics_8f90.html">statistics.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -139,7 +139,7 @@ $(document).ready(function(){initNavTree('df/d80/utils_8f90_source.html','../../
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="../../d6/d84/namespaceutils.html">   35</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  use, <span class="keywordtype">intrinsic</span> :: iso_fortran_env, only: error_unit, output_unit</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  use, <span class="keywordtype">intrinsic</span> :: iso_fortran_env, only : error_unit, output_unit</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
@@ -435,7 +435,7 @@ $(document).ready(function(){initNavTree('df/d80/utils_8f90_source.html','../../
 <div class="foldopen" id="foldopen00327" data-start="" data-end="">
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno"><a class="line" href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">  327</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">neko_type_registration_error</a>(base_type, wrong_type, known)</div>
 <div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: base_type</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <span class="keywordtype">character(len=*)</span>,<span class="keywordtype">intent(in)</span> :: wrong_type</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: wrong_type</div>
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: known</div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
 <div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keyword">write</span>(error_unit, *) <span class="stringliteral">&#39;*** ERROR WHEN REGISTERING TYPE ***&#39;</span></div>
@@ -471,7 +471,7 @@ $(document).ready(function(){initNavTree('df/d80/utils_8f90_source.html','../../
 <div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>       result = result // sep // trim(array(i))</div>
 <div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span> </div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    <span class="keywordflow">if</span> (prepend .eqv. .true.) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    <span class="keywordflow">if</span> (prepend) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>       result = sep // result</div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
@@ -506,7 +506,7 @@ $(document).ready(function(){initNavTree('df/d80/utils_8f90_source.html','../../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../df/d80/utils_8f90.html">utils.f90</a></li>
-    <li class="footer">Generated on Wed Jan 7 2026 03:54:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 8 2026 03:54:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
