@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -70,10 +70,12 @@ module gather_scatter
      integer, allocatable :: local_dof_gs(:) !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:) !< Local gs to dof mapping
      integer, allocatable :: local_blk_len(:) !< Local non-facet blocks
+     integer, allocatable :: local_blk_off(:) !< Local non-facet blocks offset
      real(kind=rp), allocatable :: shared_gs(:) !< Buffer for shared gs-op
      integer, allocatable :: shared_dof_gs(:) !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:) !< Shared gs to dof map.
      integer, allocatable :: shared_blk_len(:) !< Shared non-facet blocks
+     integer, allocatable :: shared_blk_off(:) !< Shared non-facet blocks offset
      type(dofmap_t), pointer ::dofmap !< Dofmap for gs-ops
      type(htable_i8_t) :: shared_dofs !< Htable of shared dofs
      integer :: nlocal !< Local gs-ops
@@ -361,6 +363,10 @@ contains
        deallocate(gs%local_blk_len)
     end if
 
+    if (allocated(gs%local_blk_off)) then
+       deallocate(gs%local_blk_off)
+    end if
+
     if (allocated(gs%shared_gs)) then
        deallocate(gs%shared_gs)
     end if
@@ -375,6 +381,10 @@ contains
 
     if (allocated(gs%shared_blk_len)) then
        deallocate(gs%shared_blk_len)
+    end if
+
+    if (allocated(gs%shared_blk_off)) then
+       deallocate(gs%shared_blk_off)
     end if
 
     gs%nlocal = 0
@@ -1064,7 +1074,7 @@ contains
          gs%nlocal, 1, gs%nlocal)
 
     call gs_find_blks(gs%local_dof_gs, gs%local_blk_len, &
-         gs%nlocal_blks, gs%nlocal, gs%local_facet_offset)
+         gs%local_blk_off, gs%nlocal_blks, gs%nlocal, gs%local_facet_offset)
 
     ! Allocate buffer for local gs-ops
     allocate(gs%local_gs(gs%nlocal))
@@ -1138,7 +1148,8 @@ contains
             gs%nshared, 1, gs%nshared)
 
        call gs_find_blks(gs%shared_dof_gs, gs%shared_blk_len, &
-            gs%nshared_blks, gs%nshared, gs%shared_facet_offset)
+            gs%shared_blk_off, gs%nshared_blks, gs%nshared, &
+            gs%shared_facet_offset)
     end if
 
   contains
@@ -1208,11 +1219,12 @@ contains
     end subroutine gs_qsort_dofmap
 
     !> Find blocks sharing dofs in non-facet data
-    subroutine gs_find_blks(dg, blk_len, nblks, n, m)
+    subroutine gs_find_blks(dg, blk_len, blk_off, nblks, n, m)
       integer, intent(in) :: n
       integer, intent(in) :: m
       integer, dimension(n), intent(inout) :: dg
       integer, allocatable, intent(inout) :: blk_len(:)
+      integer, allocatable, intent(inout) :: blk_off(:)
       integer, intent(inout) :: nblks
       integer :: i, j
       integer :: id, count
@@ -1238,6 +1250,11 @@ contains
          allocate(blk_len(nblks))
          do i = 1, nblks
             blk_len(i) = blk_array(i)
+         end do
+         allocate(blk_off(nblks))
+         blk_off(1) = 0
+         do i = 2, nblks
+            blk_off(i) = blk_off(i - 1) + blk_len(i - 1)
          end do
       end select
       call blks%free()
@@ -1416,7 +1433,8 @@ contains
        call profiler_end_region("gs_nbrecv", 13)
        call profiler_start_region("gs_gather_shared", 14)
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
-            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+            gs%shared_blk_off, op, .true.)
        call profiler_end_region("gs_gather_shared", 14)
        call profiler_start_region("gs_nbsend", 6)
        call gs%comm%nbsend(gs%shared_gs, l, &
@@ -1428,9 +1446,11 @@ contains
     ! Gather-scatter local dofs
     call profiler_start_region("gs_local", 12)
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
+         op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false., C_NULL_PTR)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
+         .false., C_NULL_PTR)
     call profiler_end_region("gs_local", 12)
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
@@ -1442,12 +1462,12 @@ contains
           call gs%bcknd%scatter(gs%shared_gs, l,&
                gs%shared_dof_gs, u, n, &
                gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, .true., event)
+               gs%shared_blk_len, gs%shared_blk_off, .true., event)
        else
           call gs%bcknd%scatter(gs%shared_gs, l,&
                gs%shared_dof_gs, u, n, &
                gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, .true., C_NULL_PTR)
+               gs%shared_blk_len, gs%shared_blk_off, .true., C_NULL_PTR)
        end if
        call profiler_end_region("gs_scatter_shared", 15)
     end if
