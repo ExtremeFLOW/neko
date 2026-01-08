@@ -76,7 +76,8 @@ module schwarz
        device_event_destroy, device_free
   use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
-  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, &
+       c_associated
   !$ use omp_lib
   implicit none
   private
@@ -114,7 +115,7 @@ contains
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
-    type(bc_list_t), target, intent(inout):: bclst
+    type(bc_list_t), target, intent(inout) :: bclst
     integer :: nthrds
 
     call this%free()
@@ -153,8 +154,8 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%work1, this%work1_d,this%dm_schwarz%size())
-       call device_map(this%work2, this%work2_d,this%dm_schwarz%size())
+       call device_map(this%work1, this%work1_d, this%dm_schwarz%size())
+       call device_map(this%work2, this%work2_d, this%dm_schwarz%size())
     end if
 
     call schwarz_setup_wt(this)
@@ -164,7 +165,7 @@ contains
        call rone(this%work1, this%dof%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dof%size(), &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_event_create(this%event, 2)
     end if
   end subroutine schwarz_init
@@ -172,9 +173,9 @@ contains
   subroutine schwarz_free(this)
     class(schwarz_t), intent(inout) :: this
 
-    if(allocated(this%work1)) deallocate(this%work1)
-    if(allocated(this%work2)) deallocate(this%work2)
-    if(allocated(this%wt)) deallocate(this%wt)
+    if (allocated(this%work1)) deallocate(this%work1)
+    if (allocated(this%work2)) deallocate(this%work2)
+    if (allocated(this%wt)) deallocate(this%wt)
 
     if (c_associated(this%work1_d)) then
        call device_free(this%work1_d)
@@ -213,7 +214,7 @@ contains
   !> setup weights
   subroutine schwarz_setup_wt(this)
     class(schwarz_t), intent(inout) :: this
-    integer :: enx,eny,enz, n, ie, k, ns
+    integer :: enx, eny, enz, n, ie, k, ns
     real(kind=rp), parameter :: zero = 0.0
     real(kind=rp), parameter :: one = 1.0
     associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
@@ -224,26 +225,29 @@ contains
       enx = Xh_schwarz%lx
       eny = Xh_schwarz%ly
       enz = Xh_schwarz%lz
-      if(.not. msh%gdim .eq. 3) enz=1
-      ns = enx*eny*enz*msh%nelv
+      if (.not. msh%gdim .eq. 3) enz = 1
+      ns = enx * eny * enz * msh%nelv
 
       call rone(work2, ns)
       call rzero(work1, ns)
 
       !   Sum overlap region (border excluded)
       !   Cred to PFF for this, very clever
-      call schwarz_extrude(work1, 0, zero, work2, 0, one , enx, eny, enz, msh%nelv)
+      call schwarz_extrude(work1, 0, zero, work2, 0, one, enx, eny, enz, &
+           msh%nelv)
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work2, this%work2_d, ns, &
-              HOST_TO_DEVICE, sync=.false.)
+              HOST_TO_DEVICE, sync = .false.)
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
          call device_memcpy(work2, this%work2_d, ns, &
-              DEVICE_TO_HOST, sync=.true.)
+              DEVICE_TO_HOST, sync = .true.)
       else
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
       end if
-      call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, msh%nelv)
-      call schwarz_extrude(work2, 2, one, work2, 0, one, enx, eny, enz, msh%nelv)
+      call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, &
+            msh%nelv)
+      call schwarz_extrude(work2, 2, one, work2, 0, one, enx, eny, enz, &
+            msh%nelv)
 
       ! if(.not.if3d) then ! Go back to regular size array
       !    call hsmg_schwarz_toreg2d(mg_work,mg_work(i),mg_nh(l))
@@ -253,21 +257,23 @@ contains
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work1, this%work1_d, n, &
-              HOST_TO_DEVICE, sync=.false.)
+              HOST_TO_DEVICE, sync = .false.)
          call this%gs_h%op(work1, n, GS_OP_ADD)
          call device_memcpy(work1, this%work1_d, n, &
-              DEVICE_TO_HOST, sync=.true.)
+              DEVICE_TO_HOST, sync = .true.)
       else
          call this%gs_h%op(work1, n, GS_OP_ADD)
       end if
 
       k = 1
-      do ie = 1,msh%nelv
+      do ie = 1, msh%nelv
          if (msh%gdim .eq. 2) then
-            call schwarz_setup_schwarz_wt2d_2(this%wt,ie,Xh%lx, work1(k), msh%nelv)
+            call schwarz_setup_schwarz_wt2d_2(this%wt, ie, Xh%lx, &
+                 work1(k), msh%nelv)
          end if
-         if (this%msh%gdim.eq. 3) then
-            call schwarz_setup_schwarz_wt3d_2(this%wt,ie,Xh%lx, work1(k), msh%nelv)
+         if (this%msh%gdim .eq. 3) then
+            call schwarz_setup_schwarz_wt3d_2(this%wt, ie, Xh%lx, &
+                 work1(k), msh%nelv)
             k = k + Xh%lxyz
          end if
       end do
@@ -275,22 +281,22 @@ contains
   end subroutine schwarz_setup_wt
 
   !>Setup schwarz weights, 2d, second step
-  subroutine schwarz_setup_schwarz_wt2d_2(wt,ie,n,work, nelv)
+  subroutine schwarz_setup_schwarz_wt2d_2(wt, ie, n, work, nelv)
     integer, intent(in) :: n, nelv
-    real(kind=rp), intent(inout) :: wt(n,4,2,nelv)
-    real(kind=rp), intent(inout) :: work(n,n)
-    integer :: ie,i,j
+    real(kind=rp), intent(inout) :: wt(n, 4, 2, nelv)
+    real(kind=rp), intent(inout) :: work(n, n)
+    integer :: ie, i, j
     do j = 1, n
-       wt(j,1,1,ie) = 1.0_rp / work(1,j)
-       wt(j,2,1,ie) = 1.0_rp / work(2,j)
-       wt(j,3,1,ie) = 1.0_rp / work(n-1,j)
-       wt(j,4,1,ie) = 1.0_rp / work(n,j)
+       wt(j, 1, 1, ie) = 1.0_rp / work(1, j)
+       wt(j, 2, 1, ie) = 1.0_rp / work(2, j)
+       wt(j, 3, 1, ie) = 1.0_rp / work(n - 1, j)
+       wt(j, 4, 1, ie) = 1.0_rp / work(n, j)
     end do
     do i = 1, n
-       wt(i,1,2,ie) = 1.0_rp / work(i,1)
-       wt(i,2,2,ie) = 1.0_rp / work(i,2)
-       wt(i,3,2,ie) = 1.0_rp / work(i,n-1)
-       wt(i,4,2,ie) = 1.0_rp / work(i,n)
+       wt(i, 1, 2, ie) = 1.0_rp / work(i, 1)
+       wt(i, 2, 2, ie) = 1.0_rp / work(i, 2)
+       wt(i, 3, 2, ie) = 1.0_rp / work(i, n - 1)
+       wt(i, 4, 2, ie) = 1.0_rp / work(i, n)
     end do
 
     return
@@ -298,35 +304,35 @@ contains
 
   !>Setup schwarz weights, 3d, second step
   subroutine schwarz_setup_schwarz_wt3d_2(wt, ie, n, work, nelv)
-    integer, intent(in) ::n, nelv, ie
-    real(kind=rp), intent(inout) :: wt(n,n,4,3,nelv)
-    real(kind=rp), intent(inout) :: work(n,n,n)
-    integer :: i,j,k
+    integer, intent(in) :: n, nelv, ie
+    real(kind=rp), intent(inout) :: wt(n, n, 4, 3, nelv)
+    real(kind=rp), intent(inout) :: work(n, n, n)
+    integer :: i, j, k
 
     do k = 1, n
        do j = 1, n
-          wt(j,k,1,1,ie) = 1.0_rp / work(1,j,k)
-          wt(j,k,2,1,ie) = 1.0_rp / work(2,j,k)
-          wt(j,k,3,1,ie) = 1.0_rp / work(n-1,j,k)
-          wt(j,k,4,1,ie) = 1.0_rp / work(n,j,k)
+          wt(j, k, 1, 1, ie) = 1.0_rp / work(1, j, k)
+          wt(j, k, 2, 1, ie) = 1.0_rp / work(2, j, k)
+          wt(j, k, 3, 1, ie) = 1.0_rp / work(n - 1, j, k)
+          wt(j, k, 4, 1, ie) = 1.0_rp / work(n, j, k)
        end do
     end do
 
     do k = 1, n
        do i = 1, n
-          wt(i,k,1,2,ie) = 1.0_rp / work(i,1,k)
-          wt(i,k,2,2,ie) = 1.0_rp / work(i,2,k)
-          wt(i,k,3,2,ie) = 1.0_rp / work(i,n-1,k)
-          wt(i,k,4,2,ie) = 1.0_rp / work(i,n,k)
+          wt(i, k, 1, 2, ie) = 1.0_rp / work(i, 1, k)
+          wt(i, k, 2, 2, ie) = 1.0_rp / work(i, 2, k)
+          wt(i, k, 3, 2, ie) = 1.0_rp / work(i, n - 1, k)
+          wt(i, k, 4, 2, ie) = 1.0_rp / work(i, n, k)
        end do
     end do
 
     do j = 1, n
        do i = 1, n
-          wt(i,j,1,3,ie) = 1.0_rp / work(i,j,1)
-          wt(i,j,2,3,ie) = 1.0_rp / work(i,j,2)
-          wt(i,j,3,3,ie) = 1.0_rp / work(i,j,n-1)
-          wt(i,j,4,3,ie) = 1.0_rp / work(i,j,n)
+          wt(i, j, 1, 3, ie) = 1.0_rp / work(i, j, 1)
+          wt(i, j, 2, 3, ie) = 1.0_rp / work(i, j, 2)
+          wt(i, j, 3, 3, ie) = 1.0_rp / work(i, j, n - 1)
+          wt(i, j, 4, 3, ie) = 1.0_rp / work(i, j, n)
        end do
     end do
 
@@ -336,13 +342,13 @@ contains
   subroutine schwarz_toreg3d(b, a, n, nelv)
     integer, intent(in) :: n, nelv
     real(kind=rp), intent(inout) :: a(0:n+1, 0:n+1, 0:n+1, nelv)
-    real(kind=rp), intent(inout) :: b(n,n,n,nelv)
+    real(kind=rp), intent(inout) :: b(n, n, n, nelv)
     integer :: i, j, k, ie
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
              do i = 1, n
-                b(i,j,k,ie) = a(i,j,k,ie)
+                b(i, j, k, ie) = a(i, j, k, ie)
              end do
           end do
        end do
@@ -352,15 +358,16 @@ contains
   !> convert array a from original size to size extended array with border
   subroutine schwarz_toext3d(a, b, n, nelv)
     integer, intent(in) :: n, nelv
-    real (kind=rp), intent(inout) :: a(0:n+1,0:n+1,0:n+1,nelv), b(n,n,n,nelv)
-    integer :: i,j,k,ie
+    real(kind=rp), intent(inout) :: a(0:n+1, 0:n+1, 0:n+1, nelv), &
+         b(n, n, n, nelv)
+    integer :: i, j, k, ie
 
     call rzero(a, (n+2)*(n+2)*(n+2)*nelv)
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
              do i = 1, n
-                a(i,j,k,ie) = b(i,j,k,ie)
+                a(i, j, k, ie) = b(i, j, k, ie)
              end do
           end do
        end do
@@ -372,55 +379,56 @@ contains
   !! Simply copy interesting values to the boundary and then do gs_op on extended array.
   subroutine schwarz_extrude(arr1, l1, f1, arr2, l2, f2, nx, ny, nz, nelv)
     integer, intent(in) :: l1, l2, nx, ny, nz, nelv
-    real(kind=rp), intent(inout) :: arr1(nx,ny,nz,nelv), arr2(nx,ny,nz,nelv)
+    real(kind=rp), intent(inout) :: arr1(nx, ny, nz, nelv), &
+         arr2(nx, ny, nz, nelv)
     real(kind=rp), intent(in) :: f1, f2
     integer :: i, j, k, ie, i0, i1
-    i0=2
-    i1=nx-1
+    i0 = 2
+    i1 = nx - 1
 
-    if(nz .eq. 1) then
+    if (nz .eq. 1) then
        do ie = 1, nelv
           do j = i0, i1
-             arr1(l1+1 ,j,1,ie) = f1*arr1(l1+1 ,j,1,ie) &
-                  +f2*arr2(l2+1 ,j,1,ie)
-             arr1(nx-l1,j,1,ie) = f1*arr1(nx-l1,j,1,ie) &
-                  +f2*arr2(nx-l2,j,1,ie)
+             arr1(l1 + 1, j, 1, ie) = f1 * arr1(l1 + 1, j, 1, ie) &
+                  + f2 * arr2(l2 + 1, j, 1, ie)
+             arr1(nx - l1, j, 1, ie) = f1 * arr1(nx - l1, j, 1, ie) &
+                  + f2 * arr2(nx - l2, j, 1, ie)
           end do
           do i = i0, i1
-             arr1(i,l1+1 ,1,ie) = f1*arr1(i,l1+1 ,1,ie) &
-                  +f2*arr2(i,l2+1 ,1,ie)
-             arr1(i,ny-l1,1,ie) = f1*arr1(i,ny-l1,1,ie) &
-                  +f2*arr2(i,nx-l2,1,ie)
+             arr1(i, l1 + 1, 1, ie) = f1 * arr1(i, l1 + 1, 1, ie) &
+                  + f2 * arr2(i, l2 + 1, 1, ie)
+             arr1(i, ny - l1, 1, ie) = f1 * arr1(i, ny - l1, 1, ie) &
+                  + f2 * arr2(i, nx - l2, 1, ie)
           end do
        end do
     else
        do ie = 1, nelv
           do k = i0, i1
              do j = i0, i1
-                arr1(l1+1 ,j,k,ie) = f1*arr1(l1+1 ,j,k,ie) &
-                     +f2*arr2(l2+1 ,j,k,ie)
-                arr1(nx-l1,j,k,ie) = f1*arr1(nx-l1,j,k,ie) &
-                     +f2*arr2(nx-l2,j,k,ie)
+                arr1(l1 + 1, j, k, ie) = f1 * arr1(l1 + 1, j, k, ie) &
+                     + f2 * arr2(l2 + 1, j, k, ie)
+                arr1(nx - l1, j, k, ie) = f1 * arr1(nx - l1, j, k, ie) &
+                     + f2 * arr2(nx - l2, j, k, ie)
              end do
           end do
           do k = i0, i1
              do i = i0, i1
-                arr1(i,l1+1 ,k,ie) = f1*arr1(i,l1+1 ,k,ie) &
-                     +f2*arr2(i,l2+1 ,k,ie)
-                arr1(i,nx-l1,k,ie) = f1*arr1(i,nx-l1,k,ie) &
-                     +f2*arr2(i,nx-l2,k,ie)
+                arr1(i, l1 + 1, k, ie) = f1 * arr1(i, l1 + 1, k, ie) &
+                     + f2 * arr2(i, l2 + 1, k, ie)
+                arr1(i, nx - l1, k, ie) = f1 * arr1(i, nx - l1, k, ie) &
+                     + f2 * arr2(i, nx - l2, k, ie)
              end do
           end do
           do j = i0, i1
              do i = i0, i1
-                arr1(i,j,l1+1 ,ie) = f1*arr1(i,j,l1+1 ,ie) &
-                     +f2*arr2(i,j,l2+1 ,ie)
-                arr1(i,j,nx-l1,ie) = f1*arr1(i,j,nx-l1,ie) &
-                     +f2*arr2(i,j,nx-l2,ie)
+                arr1(i, j, l1 + 1, ie) = f1 * arr1(i, j, l1 + 1, ie) &
+                     + f2 * arr2(i, j, l2 + 1, ie)
+                arr1(i, j, nx - l1, ie) = f1 * arr1(i, j, nx - l1, ie) &
+                     + f2 * arr2(i, j, nx - l2, ie)
              end do
           end do
        end do
-    endif
+    end if
   end subroutine schwarz_extrude
 
   subroutine schwarz_compute(this, e, r)
@@ -430,15 +438,15 @@ contains
     real(kind=rp), parameter :: zero = 0.0_rp
     real(kind=rp), parameter :: one = 1.0_rp
     type(c_ptr) :: e_d, r_d
-    associate(work1 => this%work1, work1_d => this%work1_d,&
+    associate(work1 => this%work1, work1_d => this%work1_d, &
          work2 => this%work2, work2_d => this%work2_d)
 
       n = this%dof%size()
-      enx=this%Xh_schwarz%lx
-      eny=this%Xh_schwarz%ly
-      enz=this%Xh_schwarz%lz
-      if(.not. this%msh%gdim .eq. 3) enz=1
-      ns = enx*eny*enz*this%msh%nelv
+      enx = this%Xh_schwarz%lx
+      eny = this%Xh_schwarz%ly
+      enz = this%Xh_schwarz%lz
+      if (.not. this%msh%gdim .eq. 3) enz = 1
+      ns = enx * eny * enz * this%msh%nelv
       if (NEKO_BCKND_DEVICE .eq. 1) then
          r_d = device_get_ptr(r)
          e_d = device_get_ptr(e)
@@ -447,19 +455,19 @@ contains
          call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, &
               this%msh%nelv, aux_cmd_queue)
          call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one, &
-              enx,eny,enz, this%msh%nelv,aux_cmd_queue)
+              enx, eny, enz, this%msh%nelv, aux_cmd_queue)
 
          this%gs_schwarz%bcknd%gs_stream = aux_cmd_queue
-         call this%gs_schwarz%op(work1, ns, GS_OP_ADD,this%event)
+         call this%gs_schwarz%op(work1, ns, GS_OP_ADD, this%event)
          call device_event_sync(this%event)
          call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
 
-         call this%fdm%compute(work2, work1,aux_cmd_queue) ! do local solves
+         call this%fdm%compute(work2, work1, aux_cmd_queue) ! do local solves
 
          call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
-         call this%gs_schwarz%op(work2, ns, GS_OP_ADD,this%event)
+         call this%gs_schwarz%op(work2, ns, GS_OP_ADD, this%event)
          call device_event_sync(this%event)
 
          call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, &
@@ -473,7 +481,7 @@ contains
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
 
          call this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)
-         call device_col2(e_d,this%wt_d, n, aux_cmd_queue)
+         call device_col2(e_d, this%wt_d, n, aux_cmd_queue)
 
          ! switch back to the default stream on the shared gs
          if (.not. this%local_gs) then
@@ -514,35 +522,35 @@ contains
   end subroutine schwarz_compute
 
   !Apply schwarz weights along the boundary of each element.
-  subroutine schwarz_wt3d(e,wt,n, nelv)
+  subroutine schwarz_wt3d(e, wt, n, nelv)
     integer, intent(in) :: n, nelv
-    real(kind=rp), intent(inout) :: e(n,n,n,nelv)
-    real(kind=rp), intent(inout) :: wt(n,n,4,3,nelv)
+    real(kind=rp), intent(inout) :: e(n, n, n, nelv)
+    real(kind=rp), intent(inout) :: wt(n, n, 4, 3, nelv)
     integer :: ie, i, j, k
 
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
-             e(1,j,k,ie) = e(1,j,k,ie) * wt(j,k,1,1,ie)
-             e(2,j,k,ie) = e(2,j,k,ie) * wt(j,k,2,1,ie)
-             e(n-1,j,k,ie) = e(n-1,j,k,ie) * wt(j,k,3,1,ie)
-             e(n,j,k,ie) = e(n,j,k,ie) * wt(j,k,4,1,ie)
+             e(1, j, k, ie) = e(1, j, k, ie) * wt(j, k, 1, 1, ie)
+             e(2, j, k, ie) = e(2, j, k, ie) * wt(j, k, 2, 1, ie)
+             e(n - 1, j, k, ie) = e(n - 1, j, k, ie) * wt(j, k, 3, 1, ie)
+             e(n, j, k, ie) = e(n, j, k, ie) * wt(j, k, 4, 1, ie)
           end do
        end do
        do k = 1, n
           do i = 3, n-2
-             e(i,1,k,ie) = e(i,1,k,ie) * wt(i,k,1,2,ie)
-             e(i,2,k,ie) = e(i,2,k,ie) * wt(i,k,2,2,ie)
-             e(i,n-1,k,ie) = e(i,n-1,k,ie) * wt(i,k,3,2,ie)
-             e(i,n,k,ie) = e(i,n,k,ie) * wt(i,k,4,2,ie)
+             e(i, 1, k, ie) = e(i, 1, k, ie) * wt(i, k, 1, 2, ie)
+             e(i, 2, k, ie) = e(i, 2, k, ie) * wt(i, k, 2, 2, ie)
+             e(i, n - 1, k, ie) = e(i, n - 1, k, ie) * wt(i, k, 3, 2, ie)
+             e(i, n, k, ie) = e(i, n, k, ie) * wt(i, k, 4, 2, ie)
           end do
        end do
        do j = 3, n-2
           do i = 3, n-2
-             e(i,j,1,ie) = e(i,j,1,ie) * wt(i,j,1,3,ie)
-             e(i,j,2,ie) = e(i,j,2,ie) * wt(i,j,2,3,ie)
-             e(i,j,n-1,ie) = e(i,j,n-1,ie) * wt(i,j,3,3,ie)
-             e(i,j,n,ie) = e(i,j,n,ie) * wt(i,j,4,3,ie)
+             e(i, j, 1, ie) = e(i, j, 1, ie) * wt(i, j, 1, 3, ie)
+             e(i, j, 2, ie) = e(i, j, 2, ie) * wt(i, j, 2, 3, ie)
+             e(i, j, n - 1, ie) = e(i, j, n - 1, ie) * wt(i, j, 3, 3, ie)
+             e(i, j, n, ie) = e(i, j, n, ie) * wt(i, j, 4, 3, ie)
           end do
        end do
     end do
