@@ -158,8 +158,8 @@ contains
           call col2(tmp3, coef%h1(1,1,1,e), lxyz)
           call libxsmm_mmcall(ax_helm_xmm1, Xh%dxt, tmp1, tm1)
           do k = 1, Xh%lz
-              call libxsmm_mmcall(ax_helm_xmm2, tmp2(1,1,k), Xh%dy, &
-                   tm2(1,1,k))
+             call libxsmm_mmcall(ax_helm_xmm2, tmp2(1,1,k), Xh%dy, &
+                  tm2(1,1,k))
           end do
           call libxsmm_mmcall(ax_helm_xmm3, tmp3, Xh%dz, tm3)
           call add4(w(1,1,1,e), tm1, tm2, tm3, lxyz)

@@ -232,7 +232,7 @@ contains
 
   !> \f$ a(i) = b(i) * c(i) * d \f$
   subroutine device_opcolv3c(a1_d, a2_d, a3_d, &
-                             b1_d, b2_d, b3_d, c_d, d, n, gdim)
+       b1_d, b2_d, b3_d, c_d, d, n, gdim)
     type(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
     real(kind=rp) :: d
     integer :: n, gdim

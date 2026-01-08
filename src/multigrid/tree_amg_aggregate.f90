@@ -87,8 +87,8 @@ contains
                 tamg%lvl(lvl_id)%nodes(l)%dofs(lid) = linear_index(i, j, k, l, &
                      lx, ly, lz)
 
-    tamg%lvl(lvl_id)%map_f2c(linear_index(i,j,k,l, lx, ly, lz)) = &
-         l
+                tamg%lvl(lvl_id)%map_f2c(linear_index(i,j,k,l, lx, ly, lz)) = &
+                     l
                 gid_ptr = gid_ptr + 1
              end do
           end do
@@ -277,7 +277,7 @@ contains
     n_agg_nhbr = 0
     n_nhbr_loc = 0
 
-       allocate(agg_nhbr_counter(maxval(is_aggregated)), source = 0)
+    allocate(agg_nhbr_counter(maxval(is_aggregated)), source = 0)
 
     ! Count max possible neighbors to an aggregate
     do i = 1, n_elements!TODO: this is the lazy expensive way...
@@ -300,7 +300,7 @@ contains
     end do
 
     ! Allocate for neighbor info
-     allocate(agg_nhbr(n_agg_nhbr, maxval(is_aggregated)), source = -1)
+    allocate(agg_nhbr(n_agg_nhbr, maxval(is_aggregated)), source = -1)
 
     ! fill neighbor info
     do i = 1, n_elements!TODO: this is the lazy expensive way...

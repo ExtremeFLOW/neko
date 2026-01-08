@@ -97,7 +97,7 @@ contains
     associate(dof => this%dof, coef => this%coef, gs_h => this%gs_h)
 
 
-       select case (dof%Xh%lx)
+      select case (dof%Xh%lx)
       case (14)
          call jacobi_update_lx14(this%d, dof%Xh%dxt, dof%Xh%dyt, dof%Xh%dzt, &
               coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, &
