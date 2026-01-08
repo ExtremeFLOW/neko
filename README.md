@@ -73,17 +73,17 @@ When using Neko in a scientific publication, please add a citation to the follow
 * Jansson, N., Karp, M., Podobas, A., Markidis, S. and Schlatter, P., 2024. *Neko: A modern, portable, and scalable framework for high-fidelity computational fluid dynamics*. Computer & Fluids, 275.
 * Karp, M., Stanly, R., Mukha, T., Galimberti, L., Toosi, S., Song, H., Dalcin,
   L., Rezaeiravesh, S., Jansson, N., Markidis, S., Parsani, M., Bose, S., Lele,
-  S., Schlatter, P., 2025. "Effects of lower floating-point precision on
-  scale-resolving numerical simulations of turbulence". Journal of Computational
-  Physics 510, 114600.
+  S., Schlatter, P., 2025. *Effects of lower floating-point precision on
+  scale-resolving numerical simulations of turbulence*. Journal of Computational
+  Physics, 510, 114600.
   [https://doi.org/10.1016/j.jcp.2025.114600](https://doi.org/10.1016/j.jcp.2025.114600)
 
 
 ### Flow physics
-* Massaro, D., Karp, M., Jansson, N., Markidis, S., Schlatter, P., 2024. "Direct numerical simulation of the turbulent flow around a Flettner rotor". Nature Scientific Reports 14, 3004. [https://doi.org/10.1038/s41598-024-53194-x](https://doi.org/10.1038/s41598-024-53194-x)
-* Stanly, R., Bagheri, E., Mukha, T., Schlatter, P., 2026. "Influence of
-  turbulence inflow conditions on aeroacoustics of wall-bounded flows".
-  *International Journal of Heat and Fluid Flow* 118, 110216.
+* Massaro, D., Karp, M., Jansson, N., Markidis, S., Schlatter, P., 2024. *Direct numerical simulation of the turbulent flow around a Flettner rotor*. Nature Scientific Reports 14, 3004. [https://doi.org/10.1038/s41598-024-53194-x](https://doi.org/10.1038/s41598-024-53194-x)
+* Stanly, R., Bagheri, E., Mukha, T., Schlatter, P., 2026. *Influence of
+  turbulence inflow conditions on aeroacoustics of wall-bounded flows*.
+  International Journal of Heat and Fluid Flow, 118, 110216.
   [https://doi.org/10.1016/j.ijheatfluidflow.2025.110216](https://doi.org/10.1016/j.ijheatfluidflow.2025.110216)
 
 ## Acknowledgments
