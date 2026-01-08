@@ -30,7 +30,7 @@ cmake -S json-fortran -B json-fortran/build -DCMAKE_INSTALL_PREFIX=${JSON_INSTAL
 cmake --build json-fortran/build --parallel
 cmake --install json-fortran/build
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JSON_INSTALL}/lib/ #On some systems lib should be replaced with lib64
-export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib/pkgconfig 
+export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib/pkgconfig
 
 ```
 
@@ -41,7 +41,7 @@ cd neko
 ./configure --prefix=/path/to/neko_install # Where you want to install neko
 make install
 ```
-More detailed installation instructions and all the different options (such as how to install Neko for GPUs) can be found in the documentation available at https://neko.cfd. 
+More detailed installation instructions and all the different options (such as how to install Neko for GPUs) can be found in the documentation available at https://neko.cfd.
 
 ## Running examples
 After the project has been built
@@ -74,6 +74,10 @@ When using Neko in a scientific publication, please add a citation to the follow
 
 ### Flow physics
 * Massaro, D., Karp, M., Jansson, N., Markidis, S., Schlatter, P., 2024. "Direct numerical simulation of the turbulent flow around a Flettner rotor". Nature Scientific Reports 14, 3004. [https://doi.org/10.1038/s41598-024-53194-x](https://doi.org/10.1038/s41598-024-53194-x)
+* Stanly, R., Bagheri, E., Mukha, T., Schlatter, P., 2026. "Influence of
+  turbulence inflow conditions on aeroacoustics of wall-bounded flows".
+  *International Journal of Heat and Fluid Flow* 118, 110216.
+  [https://doi.org/10.1016/j.ijheatfluidflow.2025.110216](https://doi.org/10.1016/j.ijheatfluidflow.2025.110216)
 
 ## Acknowledgments
 The development of Neko was supported by the European Commission Horizon 2020 project grant *EPiGRAM-HS: Exascale Programming Models for Heterogeneous Systems* (grant reference 801039), the European High Performance Computing Joint Unertaking (JU) and Sweden, Germany, Spain, Greece and Denmark under grant "CEEC - Centre of Excellence for Exascale CFD" (grant agreement No 101093393), the Swedish Research Council project grant *Efficient Algorithms for Exascale Computational Fluid Dynamics* (grant reference 2019-04723) and the SeRC Exascale Simulation Software Initiative (SESSI). The Neko logo was designed by Robert Hansen Jagrelius.
