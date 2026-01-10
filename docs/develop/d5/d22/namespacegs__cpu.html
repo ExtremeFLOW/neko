@@ -122,27 +122,27 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab462d9a566f77c1f642aa36a8c58791c" id="r_ab462d9a566f77c1f642aa36a8c58791c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#ab462d9a566f77c1f642aa36a8c58791c">gs_cpu_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:ab462d9a566f77c1f642aa36a8c58791c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy backend deallocation.  <br /></td></tr>
 <tr class="separator:ab462d9a566f77c1f642aa36a8c58791c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9efc97271dbcfc09b7da65b33b22024" id="r_aa9efc97271dbcfc09b7da65b33b22024"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#aa9efc97271dbcfc09b7da65b33b22024">gs_gather_cpu</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, op, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">shrd</a>)</td></tr>
-<tr class="memdesc:aa9efc97271dbcfc09b7da65b33b22024"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel.  <br /></td></tr>
-<tr class="separator:aa9efc97271dbcfc09b7da65b33b22024"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12423f1ca516ed9de07ac811317729c8" id="r_a12423f1ca516ed9de07ac811317729c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#a12423f1ca516ed9de07ac811317729c8">gs_gather_kernel_add</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b)</td></tr>
-<tr class="memdesc:a12423f1ca516ed9de07ac811317729c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel for addition of data \( v(dg(i)) = v(dg(i)) + u(gd(i)) \).  <br /></td></tr>
-<tr class="separator:a12423f1ca516ed9de07ac811317729c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a974599f87d5473ca6e043f5f6f276837" id="r_a974599f87d5473ca6e043f5f6f276837"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#a974599f87d5473ca6e043f5f6f276837">gs_gather_kernel_mul</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b)</td></tr>
-<tr class="memdesc:a974599f87d5473ca6e043f5f6f276837"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel for multiplication of data \( v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \).  <br /></td></tr>
-<tr class="separator:a974599f87d5473ca6e043f5f6f276837"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac86e65fcd35ad765f18abf5e64ffac26" id="r_ac86e65fcd35ad765f18abf5e64ffac26"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#ac86e65fcd35ad765f18abf5e64ffac26">gs_gather_kernel_min</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b)</td></tr>
-<tr class="memdesc:ac86e65fcd35ad765f18abf5e64ffac26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel for minimum of data \( v(dg(i)) = \min(v(dg(i)), u(gd(i))) \).  <br /></td></tr>
-<tr class="separator:ac86e65fcd35ad765f18abf5e64ffac26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac953001f66ee043f225c907ce2cd0583" id="r_ac953001f66ee043f225c907ce2cd0583"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#ac953001f66ee043f225c907ce2cd0583">gs_gather_kernel_max</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b)</td></tr>
-<tr class="memdesc:ac953001f66ee043f225c907ce2cd0583"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel for maximum of data \( v(dg(i)) = \max(v(dg(i)), u(gd(i))) \).  <br /></td></tr>
-<tr class="separator:ac953001f66ee043f225c907ce2cd0583"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6eefd9f38438274502c4c0bd80f1eaa9" id="r_a6eefd9f38438274502c4c0bd80f1eaa9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#a6eefd9f38438274502c4c0bd80f1eaa9">gs_scatter_cpu</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">shrd</a>, event)</td></tr>
-<tr class="memdesc:a6eefd9f38438274502c4c0bd80f1eaa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scatter kernel.  <br /></td></tr>
-<tr class="separator:a6eefd9f38438274502c4c0bd80f1eaa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b1bfc9f39b50d38b32c8c795ef207af" id="r_a1b1bfc9f39b50d38b32c8c795ef207af"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#a1b1bfc9f39b50d38b32c8c795ef207af">gs_scatter_kernel</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b)</td></tr>
-<tr class="memdesc:a1b1bfc9f39b50d38b32c8c795ef207af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scatter kernel \( u(gd(i) = v(dg(i)) \).  <br /></td></tr>
-<tr class="separator:a1b1bfc9f39b50d38b32c8c795ef207af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd76e1b548f4625e861fd22117144b28" id="r_acd76e1b548f4625e861fd22117144b28"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#acd76e1b548f4625e861fd22117144b28">gs_gather_cpu</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bo</a>, op, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">shrd</a>)</td></tr>
+<tr class="memdesc:acd76e1b548f4625e861fd22117144b28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel.  <br /></td></tr>
+<tr class="separator:acd76e1b548f4625e861fd22117144b28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a881ae7e575c04f73dd9b36b899345e9e" id="r_a881ae7e575c04f73dd9b36b899345e9e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#a881ae7e575c04f73dd9b36b899345e9e">gs_gather_kernel_add</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bo</a>)</td></tr>
+<tr class="memdesc:a881ae7e575c04f73dd9b36b899345e9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel for addition of data \( v(dg(i)) = v(dg(i)) + u(gd(i)) \).  <br /></td></tr>
+<tr class="separator:a881ae7e575c04f73dd9b36b899345e9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b75aa37d2e3d37468ec665e8544a930" id="r_a8b75aa37d2e3d37468ec665e8544a930"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#a8b75aa37d2e3d37468ec665e8544a930">gs_gather_kernel_mul</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bo</a>)</td></tr>
+<tr class="memdesc:a8b75aa37d2e3d37468ec665e8544a930"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel for multiplication of data \( v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \).  <br /></td></tr>
+<tr class="separator:a8b75aa37d2e3d37468ec665e8544a930"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2ae76f06d4beed2c5d3f5f2782828eb" id="r_af2ae76f06d4beed2c5d3f5f2782828eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#af2ae76f06d4beed2c5d3f5f2782828eb">gs_gather_kernel_min</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bo</a>)</td></tr>
+<tr class="memdesc:af2ae76f06d4beed2c5d3f5f2782828eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel for minimum of data \( v(dg(i)) = \min(v(dg(i)), u(gd(i))) \).  <br /></td></tr>
+<tr class="separator:af2ae76f06d4beed2c5d3f5f2782828eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe227c77caf373408bd3cc4924269f95" id="r_afe227c77caf373408bd3cc4924269f95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#afe227c77caf373408bd3cc4924269f95">gs_gather_kernel_max</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">o</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bo</a>)</td></tr>
+<tr class="memdesc:afe227c77caf373408bd3cc4924269f95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather kernel for maximum of data \( v(dg(i)) = \max(v(dg(i)), u(gd(i))) \).  <br /></td></tr>
+<tr class="separator:afe227c77caf373408bd3cc4924269f95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd1cddaab7db83030e40dbd130ef48db" id="r_abd1cddaab7db83030e40dbd130ef48db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#abd1cddaab7db83030e40dbd130ef48db">gs_scatter_cpu</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bo</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">shrd</a>, event)</td></tr>
+<tr class="memdesc:abd1cddaab7db83030e40dbd130ef48db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scatter kernel.  <br /></td></tr>
+<tr class="separator:abd1cddaab7db83030e40dbd130ef48db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b1cfc49268777ec290ddb2639065ae9" id="r_a3b1cfc49268777ec290ddb2639065ae9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d22/namespacegs__cpu.html#a3b1cfc49268777ec290ddb2639065ae9">gs_scatter_kernel</a> (v, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>, b, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bo</a>)</td></tr>
+<tr class="memdesc:a3b1cfc49268777ec290ddb2639065ae9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scatter kernel \( u(gd(i) = v(dg(i)) \).  <br /></td></tr>
+<tr class="separator:a3b1cfc49268777ec290ddb2639065ae9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="ab462d9a566f77c1f642aa36a8c58791c" name="ab462d9a566f77c1f642aa36a8c58791c"></a>
@@ -221,8 +221,8 @@ Functions/Subroutines</h2></td></tr>
 
 </div>
 </div>
-<a id="aa9efc97271dbcfc09b7da65b33b22024" name="aa9efc97271dbcfc09b7da65b33b22024"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9efc97271dbcfc09b7da65b33b22024">&#9670;&#160;</a></span>gs_gather_cpu()</h2>
+<a id="acd76e1b548f4625e861fd22117144b28" name="acd76e1b548f4625e861fd22117144b28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd76e1b548f4625e861fd22117144b28">&#9670;&#160;</a></span>gs_gather_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -293,6 +293,12 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>bo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>op</em>, </td>
         </tr>
@@ -319,24 +325,24 @@ Functions/Subroutines</h2></td></tr>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d22/namespacegs__cpu_aa9efc97271dbcfc09b7da65b33b22024_cgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_aa9efc97271dbcfc09b7da65b33b22024_cgraph" alt=""/></div>
-<map name="ad5/d22/namespacegs__cpu_aa9efc97271dbcfc09b7da65b33b22024_cgraph" id="ad5/d22/namespacegs__cpu_aa9efc97271dbcfc09b7da65b33b22024_cgraph">
+<div class="center"><img src="../../d5/d22/namespacegs__cpu_acd76e1b548f4625e861fd22117144b28_cgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_acd76e1b548f4625e861fd22117144b28_cgraph" alt=""/></div>
+<map name="ad5/d22/namespacegs__cpu_acd76e1b548f4625e861fd22117144b28_cgraph" id="ad5/d22/namespacegs__cpu_acd76e1b548f4625e861fd22117144b28_cgraph">
 <area shape="rect" title="Gather kernel." alt="" coords="5,80,175,105"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#a12423f1ca516ed9de07ac811317729c8" title="Gather kernel for addition of data ." alt="" coords="225,5,443,31"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#a881ae7e575c04f73dd9b36b899345e9e" title="Gather kernel for addition of data ." alt="" coords="225,5,443,31"/>
 <area shape="poly" title=" " alt="" coords="120,77,222,39,253,31,254,36,223,45,122,82"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#ac953001f66ee043f225c907ce2cd0583" title="Gather kernel for maximum of data ." alt="" coords="223,55,445,80"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#afe227c77caf373408bd3cc4924269f95" title="Gather kernel for maximum of data ." alt="" coords="223,55,445,80"/>
 <area shape="poly" title=" " alt="" coords="174,81,209,78,209,83,175,87"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#ac86e65fcd35ad765f18abf5e64ffac26" title="Gather kernel for minimum of data ." alt="" coords="225,104,443,129"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#af2ae76f06d4beed2c5d3f5f2782828eb" title="Gather kernel for minimum of data ." alt="" coords="225,104,443,129"/>
 <area shape="poly" title=" " alt="" coords="175,98,211,102,211,107,174,104"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#a974599f87d5473ca6e043f5f6f276837" title="Gather kernel for multiplication of data ." alt="" coords="225,153,443,179"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#a8b75aa37d2e3d37468ec665e8544a930" title="Gather kernel for multiplication of data ." alt="" coords="225,153,443,179"/>
 <area shape="poly" title=" " alt="" coords="124,103,223,138,259,148,257,153,222,143,122,108"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a12423f1ca516ed9de07ac811317729c8" name="a12423f1ca516ed9de07ac811317729c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a12423f1ca516ed9de07ac811317729c8">&#9670;&#160;</a></span>gs_gather_kernel_add()</h2>
+<a id="a881ae7e575c04f73dd9b36b899345e9e" name="a881ae7e575c04f73dd9b36b899345e9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a881ae7e575c04f73dd9b36b899345e9e">&#9670;&#160;</a></span>gs_gather_kernel_add()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -396,7 +402,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>b</em>&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>bo</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -411,22 +423,22 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d22/namespacegs__cpu_a12423f1ca516ed9de07ac811317729c8_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_a12423f1ca516ed9de07ac811317729c8_icgraph" alt=""/></div>
-<map name="ad5/d22/namespacegs__cpu_a12423f1ca516ed9de07ac811317729c8_icgraph" id="ad5/d22/namespacegs__cpu_a12423f1ca516ed9de07ac811317729c8_icgraph">
+<div class="center"><img src="../../d5/d22/namespacegs__cpu_a881ae7e575c04f73dd9b36b899345e9e_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_a881ae7e575c04f73dd9b36b899345e9e_icgraph" alt=""/></div>
+<map name="ad5/d22/namespacegs__cpu_a881ae7e575c04f73dd9b36b899345e9e_icgraph" id="ad5/d22/namespacegs__cpu_a881ae7e575c04f73dd9b36b899345e9e_icgraph">
 <area shape="rect" title="Gather kernel for addition of data ." alt="" coords="223,5,440,31"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#aa9efc97271dbcfc09b7da65b33b22024" title="Gather kernel." alt="" coords="5,5,175,31"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#acd76e1b548f4625e861fd22117144b28" title="Gather kernel." alt="" coords="5,5,175,31"/>
 <area shape="poly" title=" " alt="" coords="209,21,175,21,175,15,209,15"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="ac953001f66ee043f225c907ce2cd0583" name="ac953001f66ee043f225c907ce2cd0583"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac953001f66ee043f225c907ce2cd0583">&#9670;&#160;</a></span>gs_gather_kernel_max()</h2>
+<a id="afe227c77caf373408bd3cc4924269f95" name="afe227c77caf373408bd3cc4924269f95"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe227c77caf373408bd3cc4924269f95">&#9670;&#160;</a></span>gs_gather_kernel_max()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -486,7 +498,13 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>b</em>&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>bo</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -501,22 +519,22 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00214">214</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00212">212</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d22/namespacegs__cpu_ac953001f66ee043f225c907ce2cd0583_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_ac953001f66ee043f225c907ce2cd0583_icgraph" alt=""/></div>
-<map name="ad5/d22/namespacegs__cpu_ac953001f66ee043f225c907ce2cd0583_icgraph" id="ad5/d22/namespacegs__cpu_ac953001f66ee043f225c907ce2cd0583_icgraph">
+<div class="center"><img src="../../d5/d22/namespacegs__cpu_afe227c77caf373408bd3cc4924269f95_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_afe227c77caf373408bd3cc4924269f95_icgraph" alt=""/></div>
+<map name="ad5/d22/namespacegs__cpu_afe227c77caf373408bd3cc4924269f95_icgraph" id="ad5/d22/namespacegs__cpu_afe227c77caf373408bd3cc4924269f95_icgraph">
 <area shape="rect" title="Gather kernel for maximum of data ." alt="" coords="223,5,445,31"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#aa9efc97271dbcfc09b7da65b33b22024" title="Gather kernel." alt="" coords="5,5,175,31"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#acd76e1b548f4625e861fd22117144b28" title="Gather kernel." alt="" coords="5,5,175,31"/>
 <area shape="poly" title=" " alt="" coords="209,21,175,21,175,15,209,15"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="ac86e65fcd35ad765f18abf5e64ffac26" name="ac86e65fcd35ad765f18abf5e64ffac26"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac86e65fcd35ad765f18abf5e64ffac26">&#9670;&#160;</a></span>gs_gather_kernel_min()</h2>
+<a id="af2ae76f06d4beed2c5d3f5f2782828eb" name="af2ae76f06d4beed2c5d3f5f2782828eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2ae76f06d4beed2c5d3f5f2782828eb">&#9670;&#160;</a></span>gs_gather_kernel_min()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -576,7 +594,13 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>b</em>&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>bo</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -591,22 +615,22 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00175">175</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00174">174</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d22/namespacegs__cpu_ac86e65fcd35ad765f18abf5e64ffac26_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_ac86e65fcd35ad765f18abf5e64ffac26_icgraph" alt=""/></div>
-<map name="ad5/d22/namespacegs__cpu_ac86e65fcd35ad765f18abf5e64ffac26_icgraph" id="ad5/d22/namespacegs__cpu_ac86e65fcd35ad765f18abf5e64ffac26_icgraph">
+<div class="center"><img src="../../d5/d22/namespacegs__cpu_af2ae76f06d4beed2c5d3f5f2782828eb_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_af2ae76f06d4beed2c5d3f5f2782828eb_icgraph" alt=""/></div>
+<map name="ad5/d22/namespacegs__cpu_af2ae76f06d4beed2c5d3f5f2782828eb_icgraph" id="ad5/d22/namespacegs__cpu_af2ae76f06d4beed2c5d3f5f2782828eb_icgraph">
 <area shape="rect" title="Gather kernel for minimum of data ." alt="" coords="223,5,441,31"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#aa9efc97271dbcfc09b7da65b33b22024" title="Gather kernel." alt="" coords="5,5,175,31"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#acd76e1b548f4625e861fd22117144b28" title="Gather kernel." alt="" coords="5,5,175,31"/>
 <area shape="poly" title=" " alt="" coords="209,21,175,21,175,15,209,15"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a974599f87d5473ca6e043f5f6f276837" name="a974599f87d5473ca6e043f5f6f276837"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a974599f87d5473ca6e043f5f6f276837">&#9670;&#160;</a></span>gs_gather_kernel_mul()</h2>
+<a id="a8b75aa37d2e3d37468ec665e8544a930" name="a8b75aa37d2e3d37468ec665e8544a930"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b75aa37d2e3d37468ec665e8544a930">&#9670;&#160;</a></span>gs_gather_kernel_mul()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -666,7 +690,13 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>b</em>&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>bo</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -685,18 +715,18 @@ Here is the caller graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d22/namespacegs__cpu_a974599f87d5473ca6e043f5f6f276837_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_a974599f87d5473ca6e043f5f6f276837_icgraph" alt=""/></div>
-<map name="ad5/d22/namespacegs__cpu_a974599f87d5473ca6e043f5f6f276837_icgraph" id="ad5/d22/namespacegs__cpu_a974599f87d5473ca6e043f5f6f276837_icgraph">
+<div class="center"><img src="../../d5/d22/namespacegs__cpu_a8b75aa37d2e3d37468ec665e8544a930_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_a8b75aa37d2e3d37468ec665e8544a930_icgraph" alt=""/></div>
+<map name="ad5/d22/namespacegs__cpu_a8b75aa37d2e3d37468ec665e8544a930_icgraph" id="ad5/d22/namespacegs__cpu_a8b75aa37d2e3d37468ec665e8544a930_icgraph">
 <area shape="rect" title="Gather kernel for multiplication of data ." alt="" coords="223,5,441,31"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#aa9efc97271dbcfc09b7da65b33b22024" title="Gather kernel." alt="" coords="5,5,175,31"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#acd76e1b548f4625e861fd22117144b28" title="Gather kernel." alt="" coords="5,5,175,31"/>
 <area shape="poly" title=" " alt="" coords="209,21,175,21,175,15,209,15"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a6eefd9f38438274502c4c0bd80f1eaa9" name="a6eefd9f38438274502c4c0bd80f1eaa9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6eefd9f38438274502c4c0bd80f1eaa9">&#9670;&#160;</a></span>gs_scatter_cpu()</h2>
+<a id="abd1cddaab7db83030e40dbd130ef48db" name="abd1cddaab7db83030e40dbd130ef48db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd1cddaab7db83030e40dbd130ef48db">&#9670;&#160;</a></span>gs_scatter_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -761,6 +791,12 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>bo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>shrd</em>, </td>
         </tr>
@@ -784,22 +820,22 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000008">Todo:</a></b></dt><dd>Make the kernel abstract </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00252">252</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00249">249</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d22/namespacegs__cpu_a6eefd9f38438274502c4c0bd80f1eaa9_cgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_a6eefd9f38438274502c4c0bd80f1eaa9_cgraph" alt=""/></div>
-<map name="ad5/d22/namespacegs__cpu_a6eefd9f38438274502c4c0bd80f1eaa9_cgraph" id="ad5/d22/namespacegs__cpu_a6eefd9f38438274502c4c0bd80f1eaa9_cgraph">
+<div class="center"><img src="../../d5/d22/namespacegs__cpu_abd1cddaab7db83030e40dbd130ef48db_cgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_abd1cddaab7db83030e40dbd130ef48db_cgraph" alt=""/></div>
+<map name="ad5/d22/namespacegs__cpu_abd1cddaab7db83030e40dbd130ef48db_cgraph" id="ad5/d22/namespacegs__cpu_abd1cddaab7db83030e40dbd130ef48db_cgraph">
 <area shape="rect" title="Scatter kernel." alt="" coords="5,13,177,38"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#a1b1bfc9f39b50d38b32c8c795ef207af" title="Scatter kernel ." alt="" coords="225,5,368,45"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#a3b1cfc49268777ec290ddb2639065ae9" title="Scatter kernel ." alt="" coords="225,5,368,45"/>
 <area shape="poly" title=" " alt="" coords="177,23,211,23,211,28,177,28"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a1b1bfc9f39b50d38b32c8c795ef207af" name="a1b1bfc9f39b50d38b32c8c795ef207af"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b1bfc9f39b50d38b32c8c795ef207af">&#9670;&#160;</a></span>gs_scatter_kernel()</h2>
+<a id="a3b1cfc49268777ec290ddb2639065ae9" name="a3b1cfc49268777ec290ddb2639065ae9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b1cfc49268777ec290ddb2639065ae9">&#9670;&#160;</a></span>gs_scatter_kernel()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -853,7 +889,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>b</em>&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nb</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>bo</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -868,14 +910,14 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00270">270</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html#l00268">268</a> of file <a class="el" href="../../d6/d75/gs__cpu_8f90_source.html">gs_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d22/namespacegs__cpu_a1b1bfc9f39b50d38b32c8c795ef207af_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_a1b1bfc9f39b50d38b32c8c795ef207af_icgraph" alt=""/></div>
-<map name="ad5/d22/namespacegs__cpu_a1b1bfc9f39b50d38b32c8c795ef207af_icgraph" id="ad5/d22/namespacegs__cpu_a1b1bfc9f39b50d38b32c8c795ef207af_icgraph">
+<div class="center"><img src="../../d5/d22/namespacegs__cpu_a3b1cfc49268777ec290ddb2639065ae9_icgraph.png" border="0" usemap="#ad5/d22/namespacegs__cpu_a3b1cfc49268777ec290ddb2639065ae9_icgraph" alt=""/></div>
+<map name="ad5/d22/namespacegs__cpu_a3b1cfc49268777ec290ddb2639065ae9_icgraph" id="ad5/d22/namespacegs__cpu_a3b1cfc49268777ec290ddb2639065ae9_icgraph">
 <area shape="rect" title="Scatter kernel ." alt="" coords="225,5,368,45"/>
-<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#a6eefd9f38438274502c4c0bd80f1eaa9" title="Scatter kernel." alt="" coords="5,13,177,38"/>
+<area shape="rect" href="../../d5/d22/namespacegs__cpu.html#abd1cddaab7db83030e40dbd130ef48db" title="Scatter kernel." alt="" coords="5,13,177,38"/>
 <area shape="poly" title=" " alt="" coords="212,28,178,28,178,23,212,23"/>
 </map>
 </div>
@@ -888,7 +930,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d5/d22/namespacegs__cpu.html">gs_cpu</a></li>
-    <li class="footer">Generated on Fri Jan 9 2026 03:54:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Jan 10 2026 03:50:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
