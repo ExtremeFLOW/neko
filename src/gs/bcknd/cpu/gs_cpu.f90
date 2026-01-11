@@ -287,7 +287,7 @@ contains
        end do
     end do
 
-    do concurrent (i = (k + b(nb) + 1):m)
+    do concurrent (i = (bo(nb) + b(nb) + 1):m)
        u(gd(i)) = v(dg(i))
     end do
 
