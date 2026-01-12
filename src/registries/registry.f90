@@ -81,21 +81,6 @@ module registry
      !> Add an alias to a field in the registry.
      procedure, pass(this) :: add_alias => registry_add_alias
 
-     !> Get pointer to a stored field by index.
-     procedure, pass(this) :: get_field_by_index => registry_get_field_by_index
-     !> Get pointer to a stored vector by index.
-     procedure, pass(this) :: get_vector_by_index => &
-          registry_get_vector_by_index
-     !> Get pointer to a stored matrix by index.
-     procedure, pass(this) :: get_matrix_by_index => &
-          registry_get_matrix_by_index
-     !> Get pointer to a stored real scalar by index.
-     procedure, pass(this) :: get_real_scalar_by_index => &
-          registry_get_real_scalar_by_index
-     !> Get pointer to a stored integer scalar by index.
-     procedure, pass(this) :: get_integer_scalar_by_index => &
-          registry_get_integer_scalar_by_index
-
      !> Get pointer to a stored field by name.
      procedure, pass(this) :: get_field_by_name => registry_get_field_by_name
      !> Get pointer to a stored vector by name.
@@ -110,17 +95,15 @@ module registry
           registry_get_integer_scalar_by_name
 
      !> Generic field getter
-     generic :: get_field => get_field_by_index, get_field_by_name
+     generic :: get_field =>  get_field_by_name
      !> Generic vector getter
-     generic :: get_vector => get_vector_by_index, get_vector_by_name
+     generic :: get_vector => get_vector_by_name
      !> Generic matrix getter
-     generic :: get_matrix => get_matrix_by_index, get_matrix_by_name
+     generic :: get_matrix => get_matrix_by_name
      !> Generic real scalar getter
-     generic :: get_real_scalar => get_real_scalar_by_index, &
-          get_real_scalar_by_name
+     generic :: get_real_scalar => get_real_scalar_by_name
      !> Generic integer scalar getter
-     generic :: get_integer_scalar => get_integer_scalar_by_index, &
-          get_integer_scalar_by_name
+     generic :: get_integer_scalar => get_integer_scalar_by_name
 
      !> Check if an entry with a given name is already in the registry.
      procedure, pass(this) :: entry_exists => registry_entry_exists
@@ -437,119 +420,6 @@ contains
             " could not be found in the registry")
     end if
   end subroutine registry_add_alias
-
-  ! ========================================================================== !
-  ! Methods for retrieving objects from the registry by index
-
-  !> Get pointer to a stored field by index.
-  function registry_get_field_by_index(this, i) result(f)
-    class(registry_t), target, intent(in) :: this
-    integer, intent(in) :: i
-    type(field_t), pointer :: f
-    character(len=:), allocatable :: buffer
-
-    if (i < 1) then
-       call neko_error("Field index must be > 1")
-    else if (i > this%n_entries()) then
-       call neko_error("Field index exceeds number of stored fields")
-    endif
-
-    if (this%entries(i)%get_type() .ne. 'field') then
-       write(buffer, *) "Requested index ", i, " is not a field, but a ", &
-            this%entries(i)%get_type()
-       call neko_error(buffer)
-    end if
-
-    f => this%entries(i)%get_field()
-  end function registry_get_field_by_index
-
-  !> Get pointer to a stored vector by index.
-  function registry_get_vector_by_index(this, i) result(f)
-    class(registry_t), target, intent(in) :: this
-    integer, intent(in) :: i
-    type(vector_t), pointer :: f
-    character(len=:), allocatable :: buffer
-
-    if (i < 1) then
-       call neko_error("Vector index must be > 1")
-    else if (i > this%n_entries()) then
-       call neko_error("Vector index exceeds number of stored vectors")
-    endif
-
-    if (this%entries(i)%get_type() .ne. 'vector') then
-       write(buffer, *) "Requested index ", i, " is not a vector, but a ", &
-            this%entries(i)%get_type()
-       call neko_error(buffer)
-    end if
-
-    f => this%entries(i)%get_vector()
-  end function registry_get_vector_by_index
-
-  !> Get pointer to a stored matrix by index.
-  function registry_get_matrix_by_index(this, i) result(f)
-    class(registry_t), target, intent(in) :: this
-    integer, intent(in) :: i
-    type(matrix_t), pointer :: f
-    character(len=:), allocatable :: buffer
-
-    if (i < 1) then
-       call neko_error("Matrix index must be > 1")
-    else if (i > this%n_entries()) then
-       call neko_error("Matrix index exceeds number of stored matrices")
-    endif
-
-    if (this%entries(i)%get_type() .ne. 'matrix') then
-       write(buffer, *) "Requested index ", i, " is not a matrix, but a ", &
-            this%entries(i)%get_type()
-       call neko_error(buffer)
-    end if
-
-    f => this%entries(i)%get_matrix()
-  end function registry_get_matrix_by_index
-
-  !> Get pointer to a stored real scalar by index.
-  function registry_get_real_scalar_by_index(this, i) result(s)
-    class(registry_t), target, intent(in) :: this
-    integer, intent(in) :: i
-    real(kind=rp), pointer :: s
-    character(len=:), allocatable :: buffer
-
-    if (i < 1) then
-       call neko_error("Scalar index must be > 1")
-    else if (i > this%n_entries()) then
-       call neko_error("Scalar index exceeds number of stored scalars")
-    endif
-
-    if (this%entries(i)%get_type() .ne. 'real_scalar') then
-       write(buffer, *) "Requested index ", i, " is not a real_scalar, but a ", &
-            this%entries(i)%get_type()
-       call neko_error(buffer)
-    end if
-
-    s => this%entries(i)%get_real_scalar()
-  end function registry_get_real_scalar_by_index
-
-  !> Get pointer to a stored integer scalar by index.
-  function registry_get_integer_scalar_by_index(this, i) result(s)
-    class(registry_t), target, intent(in) :: this
-    integer, intent(in) :: i
-    integer, pointer :: s
-    character(len=:), allocatable :: buffer
-
-    if (i < 1) then
-       call neko_error("Scalar index must be > 1")
-    else if (i > this%n_entries()) then
-       call neko_error("Scalar index exceeds number of stored scalars")
-    endif
-
-    if (this%entries(i)%get_type() .ne. 'integer_scalar') then
-       write(buffer, *) "Requested index ", i, " is not an integer_scalar, but a ", &
-            this%entries(i)%get_type()
-       call neko_error(buffer)
-    end if
-
-    s => this%entries(i)%get_integer_scalar()
-  end function registry_get_integer_scalar_by_index
 
   ! ========================================================================== !
   ! Methods for retrieving objects from the registry by name
