@@ -328,7 +328,7 @@ contains
     real(kind=rp), intent(in) :: z, L_ob, z0h
     real(kind=rp) :: slaw
 
-    slaw = log(z/z0h) - corr_h_conv(z, L_ob) + corr_h_conv(z0h, L_ob)
+    slaw = log(z/z0h) - corr_h_convective(z, L_ob) + corr_h_convective(z0h, L_ob)
   end function slaw_h_convective
 
   function corr_m_convective(z,L_ob) result(corr)
