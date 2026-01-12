@@ -223,7 +223,9 @@ contains
             L_lower = L_ob - fd_h
 
             ! Compute L_ob based on stability and bc_type
-            if (.not. associated(f_ptr)) .or. (.not. associated(dfdl_ptr)) call neko_error("ERROR: Unassociated pointer for f or dfdl")
+            if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
+              call neko_error("ERROR: Unassociated pointer for f or dfdl")
+            end if
             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
             L_ob = L_ob - f/dfdl
