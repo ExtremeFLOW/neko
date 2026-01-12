@@ -11,38 +11,43 @@ module most_cpu
 
   abstract interface
      function slaw_m_interface(z,L_ob,z0) result(slaw)
-        real(kind=rp), intent(in) :: z, L_ob, z0
-        real(kind=rp) :: slaw
+      import rp
+      real(kind=rp), intent(in) :: z, L_ob, z0
+      real(kind=rp) :: slaw
      end function slaw_m_interface
 
      function slaw_h_interface(z,L_ob,z0h) result(slaw)
-        real(kind=rp), intent(in) :: z, L_ob, z0h
-        real(kind=rp) :: slaw
+      import rp
+      real(kind=rp), intent(in) :: z, L_ob, z0h
+      real(kind=rp) :: slaw
      end function slaw_h_interface
 
      function corr_m_interface(z,L_ob) result(corr)
-        real(kind=rp), intent(in) :: z, L_ob
-        real(kind=rp) :: corr
+      import rp
+      real(kind=rp), intent(in) :: z, L_ob
+      real(kind=rp) :: corr
      end function corr_m_interface
 
      function corr_h_interface(z,L_ob) result(corr)
-        real(kind=rp), intent(in) :: z, L_ob
-        real(kind=rp) :: corr
+      import rp
+      real(kind=rp), intent(in) :: z, L_ob
+      real(kind=rp) :: corr
      end function corr_h_interface
 
      function f_interface(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
-        real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
-        real(kind=rp) :: f
-        procedure(slaw_m_interface) :: slaw_m
-        procedure(slaw_h_interface) :: slaw_h
+      import rp
+      real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
+      real(kind=rp) :: f
+      procedure(slaw_m_interface) :: slaw_m
+      procedure(slaw_h_interface) :: slaw_h
      end function f_interface
 
      function dfdl_interface(l_upper, l_lower, z, z0, z0h, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-        real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
-        real(kind=rp) :: dfdl
-        procedure(slaw_m_interface) :: slaw_m
-        procedure(slaw_h_interface) :: slaw_h
-        real(kind=rp) :: dfdl
+      import rp
+      real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
+      real(kind=rp) :: dfdl
+      procedure(slaw_m_interface) :: slaw_m
+      procedure(slaw_h_interface) :: slaw_h
      end function dfdl_interface
   end interface
 
@@ -153,6 +158,10 @@ contains
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
 
+    ! debug only:
+    ts  = 300.0_rp
+    q = 0.05_rp
+
     do i=1, n_nodes
    
       ! Sample the variables
@@ -179,7 +188,7 @@ contains
    
       end if
       ! Compute thermal roughness length from Zilitinkevich 1995
-      z0h = z0 !* exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))  this would make it change in time!
+      z0h = z0 !* exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))  this would make it change in time, but also REALLY small...
 
       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type 
       ! Maybe redundant, but needed to initialise Rib
