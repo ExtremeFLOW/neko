@@ -32,7 +32,7 @@
 !
 !
 !> Implements `most_t`.
-module most_convective
+module most
   use field, only: field_t
   use num_types, only : rp
   use json_module, only : json_file
