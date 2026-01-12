@@ -43,10 +43,10 @@ TEMNPORARY FILE:: DEVELOP FROM SCRATCH!!!!
 #include <stdio.h>
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-#include "most_convective_kernel.h"
+#include "most_kernel.h"
 
 extern "C" {
-  void cuda_most_convective_compute(void *u_d, void *v_d, void *w_d, void *temp_d,
+  void cuda_most_compute(void *u_d, void *v_d, void *w_d, void *temp_d,
           void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
           void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
@@ -57,7 +57,7 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     if (*n_nodes > 0) {
-    most_convective_compute<real>
+    most_compute<real>
     <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
                                     (int *) ind_r_d, (int *) ind_s_d, 
                                     (int *) ind_t_d, (int *) ind_e_d,

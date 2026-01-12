@@ -40,10 +40,10 @@ TEMPORARY PLACEHOLDER FILE: TO DEVELOP FROM ZERO!!!!
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include "most_convective_kernel.h"
+#include "most_kernel.h"
 
 extern "C" {
-  void hip_most_convective_compute(void *u_d, void *v_d, void *w_d, void *temp_d,
+  void hip_most_compute(void *u_d, void *v_d, void *w_d, void *temp_d,
           void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
           void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
@@ -52,7 +52,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
     if (*n_nodes > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(most_convective_compute<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(most_compute<real>),
                                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                                       (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
                                       (int *) ind_r_d, (int *) ind_s_d,

@@ -1,5 +1,5 @@
-#ifndef MOST_CONVECTIVE_KERNEL_H
-#define MOST_CONVECTIVE_KERNEL_H
+#ifndef MOST_KERNEL_H
+#define MOST_KERNEL_H
 
 #include <cmath>
 #include <algorithm>
@@ -13,7 +13,7 @@
  * 
  */
 template<typename T>
-__global__ void most_convective_compute(const T* __restrict__ u_d,
+__global__ void most_compute(const T* __restrict__ u_d,
                                       const T* __restrict__ v_d,
                                       const T* __restrict__ w_d,
                                       const T* __restrict__ temp_d,
@@ -74,4 +74,4 @@ __global__ void most_convective_compute(const T* __restrict__ u_d,
     }
 }
 
-#endif // MOST_CONVECTIVE_KERNEL_H
+#endif // MOST_KERNEL_H
