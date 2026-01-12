@@ -35,7 +35,7 @@ module most_cpu
      end function corr_h_interface
 
      function f_interface(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
-      import rp
+      import rp, slaw_m_interface, slaw_h_interface
       real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
       real(kind=rp) :: f
       procedure(slaw_m_interface) :: slaw_m
@@ -43,7 +43,7 @@ module most_cpu
      end function f_interface
 
      function dfdl_interface(l_upper, l_lower, z, z0, z0h, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-      import rp
+      import rp, slaw_m_interface, slaw_h_interface
       real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
       real(kind=rp) :: dfdl
       procedure(slaw_m_interface) :: slaw_m
