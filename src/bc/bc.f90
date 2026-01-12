@@ -36,7 +36,7 @@ module bc
   use num_types, only : rp
   use device, only : HOST_TO_DEVICE, device_memcpy, &
        device_free, device_map, DEVICE_TO_HOST, glb_cmd_queue
-  use iso_c_binding, only: c_associated
+  use iso_c_binding, only : c_associated
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use space, only : space_t
@@ -524,13 +524,13 @@ contains
        end do
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
-               HOST_TO_DEVICE, sync=.true.)
+               HOST_TO_DEVICE, sync = .true.)
        end if
        !Check if some point that was not zeroed was zeroed on another element
        call this%coef%gs_h%op(test_field, GS_OP_ADD)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
-               DEVICE_TO_HOST, sync=.true.)
+               DEVICE_TO_HOST, sync = .true.)
        end if
        msk_c = 0
        do i = 1, this%dof%size()

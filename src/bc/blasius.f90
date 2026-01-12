@@ -36,8 +36,10 @@ module blasius
   use coefs, only : coef_t
   use utils, only : nonlinear_index
   use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_alloc
-  use device_inhom_dirichlet
-  use flow_profile
+  use device_inhom_dirichlet, only : device_inhom_dirichlet_apply_vector
+  use flow_profile, only : blasius_profile, blasius_linear, blasius_quadratic, &
+       blasius_cubic, blasius_quartic, blasius_sin, blasius_tanh
+  use utils, only : neko_error
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   use bc, only : bc_t
@@ -255,7 +257,7 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(blax_d) .and. strong_ .and. this%msk(0) .gt. 0) then
+      if (.not. c_associated(blax_d) .and. strong_ .and. m .gt. 0) then
          allocate(bla_x(m), bla_y(m), bla_z(m)) ! Temp arrays
 
          if (rp .eq. REAL32) then

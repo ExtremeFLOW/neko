@@ -11,6 +11,11 @@
     file.
   - Added submodule `case_file_utils` to `json_utils` for extracting JSON
     entry values from either the JSON itself or the `neko_const_regitry`.
+- Add min/max operations when applying strong boundary conditions for the
+  scalar, mimicing the procedure for the fluid. Needed with meshes where an
+  element touches the boundary with only an edge.
+- Fix `user` scalar boundary conditions only being applied once in the beginning
+  of the simulation.
 - Fix `mean_field_output_t` initialization, causing `start_time` to not be
   respected by the `user_stats` simulation component.
 - Fix field assignment operator to correctly handle name assignment only when

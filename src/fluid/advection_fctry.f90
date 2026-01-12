@@ -80,7 +80,7 @@ contains
     end if
 
     if (present(use_dummy)) then
-       if (use_dummy .eqv. .true.) then
+       if (use_dummy) then
           allocate(adv_dummy_t::object)
           return
        end if

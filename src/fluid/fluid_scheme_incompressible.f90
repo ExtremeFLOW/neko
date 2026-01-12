@@ -37,12 +37,12 @@ module fluid_scheme_incompressible
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
   use num_types, only : rp, i8
-  use fluid_source_term, only: fluid_source_term_t
+  use fluid_source_term, only : fluid_source_term_t
   use field, only : field_t
   use space, only : GLL
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
-  use coefs, only: coef_t
+  use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
@@ -610,7 +610,7 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine fluid_scheme_update_material_properties
 

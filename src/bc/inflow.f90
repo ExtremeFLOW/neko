@@ -32,7 +32,7 @@
 !
 !> Defines inflow dirichlet conditions
 module inflow
-  use device_inflow
+  use device_inflow, only : device_inflow_apply_vector
   use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc

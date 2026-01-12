@@ -59,7 +59,7 @@ module force_torque
        device_glsum, device_vcross
   use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_Allreduce
   use comm, only : NEKO_COMM
-  use device, only: device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE
 
   implicit none
   private
@@ -512,10 +512,10 @@ contains
        dgtq(12) = device_glsum(this%s23msk%x_d, n_pts)
     end if
     dgtq = this%scale*dgtq
-    write(log_buf,'(A, I4, A, A)') 'Force and torque on zone ', &
-         this%zone_id,'  ', this%zone_name
+    write(log_buf, '(A, I4, A, A)') 'Force and torque on zone ', &
+         this%zone_id, '  ', this%zone_name
     call neko_log%message(log_buf)
-    write(log_buf,'(A)') &
+    write(log_buf, '(A)') &
          'Time step, time, total force/torque, pressure, viscous, direction'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &

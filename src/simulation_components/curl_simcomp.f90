@@ -204,10 +204,10 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine curl_init_from_controllers_properties(this, &
-       case, order, preprocess_control, preprocess_value, compute_control, &
-       compute_value, output_control, output_value, field_names, computed_field, &
-       filename, precision)
+  subroutine curl_init_from_controllers_properties(this, case, order, &
+       preprocess_control, preprocess_value, compute_control, compute_value, &
+       output_control, output_value, field_names, computed_field, filename, &
+       precision)
     class(curl_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order

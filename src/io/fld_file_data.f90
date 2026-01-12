@@ -248,7 +248,7 @@ contains
     this%t_counter = 0
     this%meta_nsamples = 0
     this%meta_start_counter = 0
-    if(allocated(this%idx)) deallocate(this%idx)
+    if (allocated(this%idx)) deallocate(this%idx)
   end subroutine fld_file_data_free
 
   !> Generates a global_interpolation object to interpolate the fld data.
