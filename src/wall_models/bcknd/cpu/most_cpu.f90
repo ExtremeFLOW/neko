@@ -225,7 +225,7 @@ contains
             ! Compute L_ob based on stability and bc_type
             if (.not. associated(f_ptr)) .or. (.not. associated(dfdl_ptr)) call neko_error("ERROR: Unassociated pointer for f or dfdl")
             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
-            dfdl = dfdl_ptr(l_upper, l_lower, h, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
+            dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
             L_ob = L_ob - f/dfdl
 
             if (abs(L_ob) > 20000 .or. abs(L_ob) < 1e-5_rp) then
@@ -273,8 +273,8 @@ contains
 
   !--------------- Stable ----------------
 
-  function slaw_m_stable(z,L_ob,z_0) result(slaw)
-    real(kind=rp), intent(in) :: z,L_ob,z_0
+  function slaw_m_stable(z,L_ob,z0) result(slaw)
+    real(kind=rp), intent(in) :: z,L_ob,z0
     real(kind=rp) :: slaw
 
     slaw = log(z/z0)-corr_m_stable(z,L_ob)+corr_m_stable(z0,L_ob)
