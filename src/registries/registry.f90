@@ -95,7 +95,7 @@ module registry
           registry_get_integer_scalar_by_name
 
      !> Generic field getter
-     generic :: get_field =>  get_field_by_name
+     generic :: get_field => get_field_by_name
      !> Generic vector getter
      generic :: get_vector => get_vector_by_name
      !> Generic matrix getter
