@@ -61,7 +61,7 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
+  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh, &
                                          Xh)
     class(ax_helm_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
@@ -364,7 +364,8 @@ contains
 
   end subroutine ax_helm_stress_lx
 
-  subroutine ax_helm_stress_lx14(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx14(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 14
@@ -1514,7 +1515,8 @@ contains
 
   end subroutine ax_helm_stress_lx12
 
-  subroutine ax_helm_stress_lx11(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx11(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 11
@@ -1860,7 +1862,8 @@ contains
 
   end subroutine ax_helm_stress_lx11
 
-  subroutine ax_helm_stress_lx10(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx10(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 10
