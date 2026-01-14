@@ -1,6 +1,8 @@
 # Changelog
 
 ## Develop
+- Introduce deprecation warning functionality. Allowing marking functions
+  and classes as deprecated, with optional custom messages.
 - Add min/max operations when applying strong boundary conditions for the
   scalar, mimicing the procedure for the fluid. Needed with meshes where an
   element touches the boundary with only an edge.
@@ -13,3 +15,7 @@
   pre-existing names.
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
+
+### Deprecated features
+- `operator::ortho` calls with implicit device arrays are deprecated. Please use
+  `device_ortho` instead.
