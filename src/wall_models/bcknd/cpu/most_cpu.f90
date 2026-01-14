@@ -267,6 +267,22 @@ contains
       tau_z(i) = -utau**2 * wi / magu
     end do
 
+    call neko_log%section('Wall model quick look')
+    write(log_buf, '(A,E15.7)') 'Ri_b: ', Ri_b
+    call neko_log%message(trim(log_buf))
+    write(log_buf, '(A,E15.7)') 'utau: ', utau
+    call neko_log%message(trim(log_buf))
+    write(log_buf, '(A,E15.7)') 'magu: ', magu
+    call neko_log%message(trim(log_buf))
+    write(log_buf, '(A,E15.7)') 'ts: ', ts
+    call neko_log%message(trim(log_buf))
+    write(log_buf, '(A,E15.7)') 'ti: ', ti
+    call neko_log%message(trim(log_buf))
+    write(log_buf, '(A,E15.7)') 'q: ', q
+    call neko_log%message(trim(log_buf))
+    write(log_buf, '(A,E15.7)') 'hi: ', hi
+    call neko_log%message(trim(log_buf))
+
   end subroutine most_compute_cpu
 
   !================================================
