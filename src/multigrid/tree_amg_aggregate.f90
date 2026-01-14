@@ -167,7 +167,8 @@ contains
              aggregate_size(naggs) = 1
              do side = 1, n_facet
                 nhbr = facet_neigh(side, i) - offset_el
-                if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then ! if nhbr exists
+                ! if nhbr exists
+                if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then 
                    if (is_aggregated(nhbr) .eq. -1) then
                       is_aggregated(nhbr) = naggs
                       aggregate_size(naggs) = aggregate_size(naggs) + 1
