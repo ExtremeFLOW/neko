@@ -6,10 +6,15 @@
 !
 module user
   use neko
+  use fld_file_output, only: fld_file_output_t
+  use csv_file,  only: csv_file_t
   implicit none
 
   ! Global user variables
   type(field_t) :: w1
+  type(fld_file_output_t) :: output
+  type(csv_file_t) :: csv_reader
+  type(matrix_t)   :: test_matrix
 
 contains
 
@@ -103,6 +108,7 @@ contains
     integer :: ntot, i
     real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo, e3
     type(coef_t), pointer :: coef
+    integer :: nrows, ncols
 
     if (mod(time%tstep, 50) .ne. 0) return
 
@@ -110,6 +116,27 @@ contains
     u => neko_registry%get_field('u')
     v => neko_registry%get_field('v')
     w => neko_registry%get_field('w')
+
+    !------- try to break things ------------!
+    ! init
+    call csv_reader%init('test_csv.csv')
+    call output%init(sp, 'test_fld', 3)
+    call output%fields%assign(1, u)
+    call output%fields%assign(2, v)
+    call output%fields%assign(3, w)
+    ! stamp fld
+    call output%sample(1.0_rp)
+    ! read csv
+    nrows = csv_reader%count_lines() - 1
+    ncols = 4
+    call test_matrix%init(nrows, ncols)
+    call csv_reader%read(test_matrix)
+    ! try stamping another fld
+    call output%sample(1.0_rp)
+    ! bail out
+    call neko_error("ok this worked")
+    !----------------------------------------!
+
 
     omega_x => neko_registry%get_field("omega_x")
     omega_y => neko_registry%get_field("omega_y")
