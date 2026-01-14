@@ -66,6 +66,7 @@ module logger
      procedure, pass(this) :: header => log_header
      procedure, pass(this) :: error => log_error
      procedure, pass(this) :: warning => log_warning
+     procedure, pass(this) :: deprecation => log_deprecation
      procedure, pass(this) :: end_section => log_end_section
 
      procedure, private, pass(this) :: print_section_header => &
@@ -80,8 +81,12 @@ module logger
   integer, public, parameter :: NEKO_LOG_INFO = 1
   !> Verbose log level
   integer, public, parameter :: NEKO_LOG_VERBOSE = 2
+  !> Deprecation warning level
+  integer, public, parameter :: NEKO_LOG_DEPRECATION_WARN = 5
   !> Debug log level
   integer, public, parameter :: NEKO_LOG_DEBUG = 10
+  !> Deprecation error level
+  integer, public, parameter :: NEKO_LOG_DEPRECATION_ERROR = 15
 
 contains
 
@@ -269,6 +274,34 @@ contains
     end if
 
   end subroutine log_warning
+
+  !> Write a deprecation warning to a log
+  subroutine log_deprecation(this, feature, removal_version)
+    class(log_t), intent(in) :: this
+    character(len=*), intent(in) :: feature
+    character(len=*), intent(in), optional :: removal_version
+    character(len=LOG_SIZE) :: msg
+
+    if (this%level_ .lt. NEKO_LOG_DEPRECATION_WARN) return
+
+    write(msg, '(A,A,A)', advance='no') 'The feature "', trim(feature), &
+         '" is deprecated and will be removed'
+
+    if (present(removal_version)) then
+       write(msg(len_trim(msg)+1:), '(A,A)') &
+            ' in version ', trim(removal_version)
+    else
+       write(msg(len_trim(msg)+1:), '(A)') '.'
+    end if
+
+    if (this%level_ .ge. NEKO_LOG_DEPRECATION_ERROR) then
+       call this%error(trim(msg))
+       call neko_error("Deprecation error encountered")
+    else
+       call this%warning(trim(msg))
+    end if
+
+  end subroutine log_deprecation
 
   !> Begin a new log section
   subroutine log_section(this, msg, lvl)
