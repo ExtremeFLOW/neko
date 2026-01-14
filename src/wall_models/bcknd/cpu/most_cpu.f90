@@ -282,6 +282,7 @@ contains
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7)') 'hi: ', hi
     call neko_log%message(trim(log_buf))
+    call neko_log%end_section()
 
   end subroutine most_compute_cpu
 
