@@ -28,7 +28,9 @@ A number of logging levels are supported.
 - `NEKO_LOG_LEVEL=0`   : Quiet mode, minimal logging during execution.
 - `NEKO_LOG_LEVEL=1`   : Default information mode, adding step informations.
 - `NEKO_LOG_LEVEL=2`   : Verbose mode, logging extra details.
+- `NEKO_LOG_LEVEL=5`   : Deprecations are printed as warnings.
 - `NEKO_LOG_LEVEL=10`  : Debug mode.
+- `NEKO_LOG_LEVEL=15`  : Deprecations trigger errors stopping execution.
 
 ### Gather-scatter communication backend details
 
