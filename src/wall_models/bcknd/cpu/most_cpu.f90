@@ -1,6 +1,7 @@
 module most_cpu
   use num_types, only : rp
   use utils, only : neko_error
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -157,10 +158,11 @@ contains
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
+    character(len=LOG_SIZE) :: log_buf
 
     ! debug only:
-    ts  = 300.0_rp
-    q = 0.05_rp
+    ! ts  = 300.0_rp
+    ! q = 0.05_rp
 
     do i=1, n_nodes
    
@@ -178,7 +180,7 @@ contains
       wi = wi - normu * n_z(i)
 
       ! Compute velocity magnitude
-      magu = sqrt(ui**2 + wi**2)  ! does every number need to be _rp?
+      magu = sqrt(ui**2 + wi**2) 
 
       ! utau initialisation
       if (tstep < 1) then
@@ -260,11 +262,9 @@ contains
       end if
 
       ! Distribute according to the velocity vector
-      if (magu>tiny(magu)) then
-        tau_x(i) = -utau**2 * ui / magu
-        tau_y(i) = -utau**2 * vi / magu
-        tau_z(i) = -utau**2 * wi / magu
-      end if
+      tau_x(i) = -utau**2 * ui / magu
+      tau_y(i) = -utau**2 * vi / magu
+      tau_z(i) = -utau**2 * wi / magu
     end do
 
   end subroutine most_compute_cpu
