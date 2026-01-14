@@ -124,7 +124,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = u(gd(i)) + u(gd(i+1))
+          tmp = u(gd(i)) + u(gd(i+1))
           v(dg(i)) = tmp
        end do
     end if
@@ -163,7 +163,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = u(gd(i)) * u(gd(i+1))
+          tmp = u(gd(i)) * u(gd(i+1))
           v(dg(i)) = tmp
        end do
     end if
@@ -202,7 +202,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = min(u(gd(i)), u(gd(i+1)))
+          tmp = min(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
        end do
     end if
@@ -241,7 +241,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = max(u(gd(i)), u(gd(i+1)))
+          tmp = max(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
        end do
     end if

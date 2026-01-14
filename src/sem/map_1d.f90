@@ -146,7 +146,7 @@ contains
     do e = 1, nelv
        el_min = minval(line(:, :, :, e))
        min_vals(:, :, :, e) = el_min
-       ! Check if this element is on the bottom, 
+       ! Check if this element is on the bottom,
        ! in this case assign el_lvl = i = 1
        if (relcmp(el_min, glb_min, this%tol)) then
           if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
