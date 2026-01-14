@@ -147,7 +147,8 @@ contains
           no_nhbr_agg = .true.
           do side = 1, n_facet
              nhbr = facet_neigh(side, i) - offset_el
-             if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then ! if nhbr exists
+             ! if nhbr exists
+             if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then 
                 if (is_aggregated(nhbr) .ne. -1) then
                    no_nhbr_agg = .false.
                 end if
