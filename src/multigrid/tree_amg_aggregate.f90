@@ -100,13 +100,15 @@ contains
   end subroutine aggregate_finest_level
 
   !> First pass of a greedy aggregation
-  !! Loop through all dofs and aggregate on dof that has all unaggregated neighbors
+  !! Loop through all dofs and aggregate on dof that has all unaggregated
+  !! neighbors.
   !! @param naggs The number of aggregates that have been created
   !! @param max_aggs The maximum number of aggregates to allow to be created
   !! @param facet_neigh Dof adjacency information
   !! @param offset_el Offset for facet_neigh
   !! @param n_facet Max number of adjecnt dofs (ex. 6 if element is a cube)
-  !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
+  !! @param is_aggregated Array containing aggregate info. Maps from dof id to
+  !! agg id.
   !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_greedy_first_pass(naggs, max_aggs, n_elements, &
        facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
@@ -148,7 +150,7 @@ contains
           do side = 1, n_facet
              nhbr = facet_neigh(side, i) - offset_el
              ! if nhbr exists
-             if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then 
+             if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then
                 if (is_aggregated(nhbr) .ne. -1) then
                    no_nhbr_agg = .false.
                 end if
@@ -168,7 +170,7 @@ contains
              do side = 1, n_facet
                 nhbr = facet_neigh(side, i) - offset_el
                 ! if nhbr exists
-                if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then 
+                if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then
                    if (is_aggregated(nhbr) .eq. -1) then
                       is_aggregated(nhbr) = naggs
                       aggregate_size(naggs) = aggregate_size(naggs) + 1
@@ -188,7 +190,8 @@ contains
   !! @param facet_neigh Dof adjacency information
   !! @param offset_el Offset for facet_neigh
   !! @param n_facet Max number of adjecnt dofs (ex. 6 if element is a cube)
-  !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
+  !! @param is_aggregated Array containing aggregate info. Maps from dof id to
+  !! agg id.
   !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_greedy_second_pass(naggs, max_aggs, n_elements, &
        facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
@@ -212,7 +215,7 @@ contains
           do side = 1, n_facet
              nhbr = facet_neigh(side, i) - offset_el
              ! if nhbr exists
-             if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then 
+             if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then
                 if (is_aggregated(nhbr) .ne. -1) then
                    tst_agg = is_aggregated(nhbr)
                    tst_size = aggregate_size(tst_agg)
@@ -258,13 +261,15 @@ contains
   end subroutine agg_greedy_second_pass
 
   !> Create information on which aggregates are "adjacent" to eachother
-  !! @param agg_nhbr Aggregate adjacency information (same structure as facet_neigh)
+  !! @param agg_nhbr Aggregate adjacency information (same structure as
+  !! facet_neigh)
   !! @param n_agg_nhbr The max number of aggregate neighbors over all aggregates
   !! @param n_elements The number of elements (dofs)
   !! @param facet_neigh Dof adjacency information
   !! @param offset_el Offset for facet_neigh
   !! @param n_facet Max number of adjecnt dofs (ex. 6 if element is a cube)
-  !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
+  !! @param is_aggregated Array containing aggregate info. Maps from dof id to
+  !! agg id
   subroutine agg_fill_nhbr_info(agg_nhbr, n_agg_nhbr, n_elements, &
        facet_neigh, offset_el, n_facet, is_aggregated)
     integer, allocatable, intent(inout) :: agg_nhbr(:, :)
@@ -384,7 +389,8 @@ contains
 
     call aggregation_monitor_phase1(lvl_id, n_elements, naggs, is_aggregated)
 
-    ! Second pass of greedy aggregation, adding unaggregated dofs to neighboring aggregates.
+    ! Second pass of greedy aggregation, adding unaggregated dofs to neighboring
+    ! aggregates.
     call agg_greedy_second_pass(naggs, max_aggs, n_elements, &
          facet_neigh, offset_el, n_facet, &
          is_aggregated, aggregate_size)
@@ -576,7 +582,8 @@ contains
     integer, intent(in) :: lvl, ndof, nagg
     character(len=LOG_SIZE) :: log_buf
     !TODO: calculate min and max agg size
-    !write(log_buf, '(A8,I2,A23,I6)') '-- level',lvl,'-- Aggregation: Done.', nagg
+    !write(log_buf, '(A8,I2,A23,I6)') '-- level',lvl,'-- Aggregation: Done.', &
+    ! nagg
     write(log_buf, '(A26,I6)') 'Aggregation: Done.', nagg
     call neko_log%message(log_buf)
   end subroutine aggregation_monitor_final
