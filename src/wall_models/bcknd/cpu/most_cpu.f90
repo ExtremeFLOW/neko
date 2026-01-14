@@ -123,7 +123,7 @@ contains
       slaw_h_ptr => slaw_h_stable
       corr_m_ptr => corr_m_stable
       corr_h_ptr => corr_h_stable
-    elseif (Ri_b < 0.01) then
+    elseif (Ri_b < -0.01) then
       slaw_m_ptr => slaw_m_convective
       slaw_h_ptr => slaw_h_convective
       corr_m_ptr => corr_m_convective
