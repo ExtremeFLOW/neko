@@ -211,7 +211,8 @@ contains
           tst_size = 999 ! TODO: replace with large number
           do side = 1, n_facet
              nhbr = facet_neigh(side, i) - offset_el
-             if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then ! if nhbr exists
+             ! if nhbr exists
+             if ((nhbr .gt. 0) .and. (nhbr .le. n_elements)) then 
                 if (is_aggregated(nhbr) .ne. -1) then
                    tst_agg = is_aggregated(nhbr)
                    tst_size = aggregate_size(tst_agg)
