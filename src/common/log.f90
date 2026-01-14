@@ -334,7 +334,7 @@ contains
     call this%message('***')
 
     if (this%level_ .ge. NEKO_LOG_DEPRECATION_ERROR) then
-       error stop 'Deprecated feature used: ' // trim(feature)
+       call neko_error('Deprecated feature used: ' // trim(feature))
     end if
 
   end subroutine log_deprecated
