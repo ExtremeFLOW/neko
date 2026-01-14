@@ -284,7 +284,7 @@ contains
 
     if (this%level_ .lt. NEKO_LOG_DEPRECATION_WARN) return
 
-    write(msg, '(A,A,A)', advance='no') 'The feature "', trim(feature), &
+    write(msg, '(A,A,A)') 'The feature "', trim(feature), &
          '" is deprecated and will be removed'
 
     if (present(removal_version)) then
