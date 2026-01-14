@@ -249,10 +249,10 @@ contains
         select case (bc_type)
           case ("neumann")
             ! Compute u* with the new Obukhov length
-            utau = kappa*magu/slaw_m_ptr(L_ob, hi, z0)
+            utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
           case ("dirichlet")
             ! Compute u* with the new Obukhov length
-            utau = kappa*magu/slaw_m_ptr(L_ob, hi, z0)
+            utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
             ! and compute q from here
             q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0h)  ! z0h placeholder
           case default
