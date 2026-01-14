@@ -66,12 +66,13 @@ module operators
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr
+  use logger, only : neko_log
   implicit none
   private
 
-  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
-       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
-       rotate_cyc
+  public :: dudxyz, opgrad, ortho, device_ortho, cdtp, conv1, curl, cfl, &
+       cfl_compressible, lambda2op, strain_rate, div, grad, set_convect_rst, &
+       runge_kutta, rotate_cyc
 
   interface rotate_cyc
      module procedure rotate_cyc_r1
@@ -226,6 +227,9 @@ contains
     real(kind=rp) :: c
     type(c_ptr) :: x_d
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_log%deprecated('Operator: ortho, implicit device', &
+            'v2.0.0', 'Please call device_ortho instead.')
+
        x_d = device_get_ptr(x)
        c = device_glsum(x_d, n)/glb_n_points
        call device_cadd(x_d, -c, n)
@@ -235,6 +239,21 @@ contains
     end if
 
   end subroutine ortho
+
+  !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
+  !! @param x_d The device vector to orthogonolize.
+  !! @param glb_n_points The global number of non-unique gll points in the grid.
+  !! @note This is equivalent to subtracting the mean of `x` from each of its elements.
+  subroutine device_ortho(x_d, glb_n_points, n)
+    integer, intent(in) :: n
+    integer(kind=i8), intent(in) :: glb_n_points
+    type(c_ptr), intent(inout) :: x_d
+    real(kind=rp) :: c
+
+    c = device_glsum(x_d, n) / glb_n_points
+    call device_cadd(x_d, -c, n)
+
+  end subroutine device_ortho
 
   !> Apply D^T to a scalar field, where D is the derivative matrix.
   !! @param dtx Will store the result.
