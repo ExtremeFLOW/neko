@@ -131,6 +131,7 @@ contains
     ncols = 4
     call test_matrix%init(nrows, ncols)
     call csv_reader%read(test_matrix)
+    call neko_log%message("csv file read correctly")
     ! try stamping another fld
     call output%sample(1.0_rp)
     ! bail out
