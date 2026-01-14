@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,6 @@ module gs_device
 
   !> Gather-scatter backend for offloading devices
   type, public, extends(gs_bcknd_t) :: gs_device_t
-     integer, allocatable :: local_blk_off(:) !< Local block offset
-     integer, allocatable :: shared_blk_off(:) !< Shared block offset
      type(c_ptr) :: local_gs_d = C_NULL_PTR !< Dev. ptr local gs-ops
      type(c_ptr) :: local_dof_gs_d = C_NULL_PTR !< Dev. ptr local dof to gs map.
      type(c_ptr) :: local_gs_dof_d = C_NULL_PTR !< Dev. ptr local gs to dof map.
@@ -146,9 +144,6 @@ contains
     this%nlocal = nlocal
     this%nshared = nshared
 
-    allocate(this%local_blk_off(nlcl_blks))
-    allocate(this%shared_blk_off(nshrd_blks))
-
     this%local_gs_d = C_NULL_PTR
     this%local_dof_gs_d = C_NULL_PTR
     this%local_gs_dof_d = C_NULL_PTR
@@ -174,14 +169,6 @@ contains
   !> Dummy backend deallocation
   subroutine gs_device_free(this)
     class(gs_device_t), intent(inout) :: this
-
-    if (allocated(this%local_blk_off)) then
-       deallocate(this%local_blk_off)
-    end if
-
-    if (allocated(this%shared_blk_off)) then
-       deallocate(this%shared_blk_off)
-    end if
 
     if (c_associated(this%local_gs_d)) then
        call device_free(this%local_gs_d)
@@ -231,7 +218,7 @@ contains
   end subroutine gs_device_free
 
   !> Gather kernel
-  subroutine gs_gather_device(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
+  subroutine gs_gather_device(this, v, m, o, dg, u, n, gd, nb, b, bo, op, shrd)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -241,6 +228,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: bo
     integer, intent(in) :: o
     integer, intent(in) :: op
     logical, intent(in) :: shrd
@@ -252,8 +240,7 @@ contains
     if (.not. shrd) then
        associate(v_d => this%local_gs_d, dg_d => this%local_dof_gs_d, &
             gd_d => this%local_gs_dof_d, b_d => this%local_blk_len_d, &
-            bo => this%local_blk_off, bo_d => this%local_blk_off_d, &
-            strm => this%gs_stream)
+            bo_d => this%local_blk_off_d, strm => this%gs_stream)
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
@@ -286,10 +273,6 @@ contains
 
             if (.not. c_associated(bo_d)) then
                call device_map(bo, bo_d, nb)
-               bo(1) = 0
-               do i = 2, nb
-                  bo(i) = bo(i - 1) + b(i - 1)
-               end do
                call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
                     sync = .false., strm = strm)
             end if
@@ -312,8 +295,7 @@ contains
     else if (shrd) then
        associate(v_d => this%shared_gs_d, dg_d => this%shared_dof_gs_d, &
             gd_d => this%shared_gs_dof_d, b_d => this%shared_blk_len_d, &
-            bo => this%shared_blk_off, bo_d => this%shared_blk_off_d, &
-            strm => this%gs_stream)
+            bo_d => this%shared_blk_off_d, strm => this%gs_stream)
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
@@ -346,10 +328,6 @@ contains
 
             if (.not. c_associated(bo_d)) then
                call device_map(bo, bo_d, nb)
-               bo(1) = 0
-               do i = 2, nb
-                  bo(i) = bo(i - 1) + b(i - 1)
-               end do
                call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
                     sync = .false., strm = strm)
             end if
@@ -386,7 +364,7 @@ contains
   end subroutine gs_gather_device
 
   !> Scatter kernel
-  subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b, shrd, event)
+  subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b, bo, shrd, event)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -396,6 +374,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: bo
     logical, intent(in) :: shrd
     type(c_ptr) :: event
     type(c_ptr) :: u_d
