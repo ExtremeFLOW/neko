@@ -66,7 +66,7 @@ module logger
      procedure, pass(this) :: header => log_header
      procedure, pass(this) :: error => log_error
      procedure, pass(this) :: warning => log_warning
-     procedure, pass(this) :: deprecation => log_deprecation
+     procedure, pass(this) :: deprecated => log_deprecated
      procedure, pass(this) :: end_section => log_end_section
 
      procedure, private, pass(this) :: print_section_header => &
@@ -87,6 +87,9 @@ module logger
   integer, public, parameter :: NEKO_LOG_DEBUG = 10
   !> Deprecation error level
   integer, public, parameter :: NEKO_LOG_DEPRECATION_ERROR = 15
+
+  !> List of already logged deprecated features
+  character(len=50), dimension(:), allocatable :: deprecated_list
 
 contains
 
@@ -140,6 +143,10 @@ contains
     this%indent_ = 0
     this%level_ = NEKO_LOG_INFO
     this%unit_ = -1
+
+    if (allocated(deprecated_list)) then
+       deallocate(deprecated_list)
+    end if
 
   end subroutine log_free
 
@@ -276,32 +283,61 @@ contains
   end subroutine log_warning
 
   !> Write a deprecation warning to a log
-  subroutine log_deprecation(this, feature, removal_version)
-    class(log_t), intent(in) :: this
+  !! @param feature Name of the deprecated feature
+  !! @param removal_version Optional version when the feature will be removed
+  !! @param extra_info Optional additional message to print
+  subroutine log_deprecated(this, feature, removal_version, extra_info)
+    class(log_t), intent(inout) :: this
     character(len=*), intent(in) :: feature
     character(len=*), intent(in), optional :: removal_version
+    character(len=*), intent(in), optional :: extra_info
     character(len=LOG_SIZE) :: msg
+    character(len=50), dimension(:), allocatable :: deprecated_list_local
+    integer :: i
 
     if (this%level_ .lt. NEKO_LOG_DEPRECATION_WARN) return
 
+    if (.not. allocated(deprecated_list)) then
+       allocate(character(len=50) :: deprecated_list(1))
+       deprecated_list = trim(feature)
+    else
+       ! Check that the feature have not already been logged
+       do i = 1, size(deprecated_list)
+          if (trim(deprecated_list(i)) .eq. trim(feature)) return
+       end do
+
+       ! Save the feature to the list of deprecated features
+       call move_alloc(deprecated_list, deprecated_list_local)
+       allocate(character(len=50)::deprecated_list(size(deprecated_list_local)+1))
+       deprecated_list(1:size(deprecated_list_local)) = deprecated_list_local
+       deprecated_list(size(deprecated_list_local) + 1) = trim(feature)
+       deallocate(deprecated_list_local)
+    end if
+
+    ! Construct deprecation message
+    write(msg, '(A,A)') '*** DEPRECATION: ', trim(feature)
+    call this%message(msg)
     write(msg, '(A,A,A)') 'The feature "', trim(feature), &
-         '" is deprecated and will be removed'
+         '" is deprecated.'
+    call this%message(msg)
 
     if (present(removal_version)) then
-       write(msg(len_trim(msg)+1:), '(A,A)') &
-            ' in version ', trim(removal_version)
-    else
-       write(msg(len_trim(msg)+1:), '(A)') '.'
+       write(msg, '(A,A,A)') 'It will be removed in version ', &
+            trim(removal_version), '.'
+       call this%message(msg)
     end if
+
+    if (present(extra_info)) then
+       call this%message(extra_info)
+    end if
+
+    call this%message('***')
 
     if (this%level_ .ge. NEKO_LOG_DEPRECATION_ERROR) then
-       call this%error(trim(msg))
-       call neko_error("Deprecation error encountered")
-    else
-       call this%warning(trim(msg))
+       error stop 'Deprecated feature used: ' // trim(feature)
     end if
 
-  end subroutine log_deprecation
+  end subroutine log_deprecated
 
   !> Begin a new log section
   subroutine log_section(this, msg, lvl)
