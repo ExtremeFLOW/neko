@@ -39,15 +39,15 @@ submodule (json_utils) case_file_utils
 
 contains
 
-!> Retrieves a real either from the json or from the corresponding scalar
-!! in the `neko_const_registry`.
-!! @details First tries to retrieve the value from the JSON, looking for a real
-!! entry under the given name. If not found, it looks for the same entry, but
-!! with a string value. The retrieved string is the name looked up in the
-!! `neko_const_registry` as a scalar, and the data is copied from there.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
+  !> Retrieves a real either from the json or from the corresponding scalar
+  !! in the `neko_const_registry`.
+  !! @details First tries to retrieve the value from the JSON, looking for a real
+  !! entry under the given name. If not found, it looks for the same entry, but
+  !! with a string value. The retrieved string is the name looked up in the
+  !! `neko_const_registry` as a scalar, and the data is copied from there.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   module subroutine json_get_or_lookup_real(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -75,10 +75,10 @@ contains
     val = real(neko_const_registry%get_real_scalar(reg_name), kind=sp)
   end subroutine json_get_or_lookup_real
 
-!> Same as `json_get_or_lookup_real`, but for double precision.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
+  !> Same as `json_get_or_lookup_real`, but for double precision.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   module subroutine json_get_or_lookup_double(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -106,16 +106,16 @@ contains
     val = real(neko_const_registry%get_real_scalar(reg_name), kind=dp)
   end subroutine json_get_or_lookup_double
 
-!> Retrieves an integer either from the json or from the corresponding scalar
-!! in the `neko_const_registry`.
-!! @details First tries to retrieve the value from the JSON, looking for an int
-!! entry under the given name. If not found, it looks for the same entry, but
-!! with a string value. The retrieved string is the name looked up in the
-!! `neko_const_registry` as a scalar, and the data is copied from there,
-!! using explicit conversion to an int.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
+  !> Retrieves an integer either from the json or from the corresponding scalar
+  !! in the `neko_const_registry`.
+  !! @details First tries to retrieve the value from the JSON, looking for an int
+  !! entry under the given name. If not found, it looks for the same entry, but
+  !! with a string value. The retrieved string is the name looked up in the
+  !! `neko_const_registry` as a scalar, and the data is copied from there,
+  !! using explicit conversion to an int.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   module subroutine json_get_or_lookup_integer(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -143,17 +143,17 @@ contains
     val = neko_const_registry%get_integer_scalar(reg_name)
   end subroutine json_get_or_lookup_integer
 
-!> Retrieves a real either from the json or from the corresponding scalar
-!! in the `neko_registry`, otherwise sets the default value.
-!! @details First tries to retrieve the value from the JSON, looking for a real
-!! entry under the given name. If not found, it looks for the same entry, but
-!! with a string value. If this fails, the default value is assigned. Otherwise,
-!! the retrieved string is the name looked up in the `neko_const_registry` as a
-!! scalar, and the data is copied from there.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
-!! @param[in] defalt The default value to be used if the parameter is not found
+  !> Retrieves a real either from the json or from the corresponding scalar
+  !! in the `neko_registry`, otherwise sets the default value.
+  !! @details First tries to retrieve the value from the JSON, looking for a real
+  !! entry under the given name. If not found, it looks for the same entry, but
+  !! with a string value. If this fails, the default value is assigned. Otherwise,
+  !! the retrieved string is the name looked up in the `neko_const_registry` as a
+  !! scalar, and the data is copied from there.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
+  !! @param[in] defalt The default value to be used if the parameter is not found
   module subroutine json_get_or_lookup_or_default_real(json, name,&
        val, default)
     type(json_file), intent(inout) :: json
@@ -187,11 +187,11 @@ contains
     end if
   end subroutine json_get_or_lookup_or_default_real
 
-!> Same as `json_get_or_lookup_or_default_real`, but for doubles.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
-!! @param[in] defalt The default value to be used if the parameter is not found
+  !> Same as `json_get_or_lookup_or_default_real`, but for doubles.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
+  !! @param[in] defalt The default value to be used if the parameter is not found
   module subroutine json_get_or_lookup_or_default_double(json, name, &
        val, default)
     type(json_file), intent(inout) :: json
@@ -225,18 +225,18 @@ contains
     end if
   end subroutine json_get_or_lookup_or_default_double
 
-!> Retrieves an integer either from the json or from the corresponding scalar
-!! in the `neko_registry`, otherwise sets the default value.
-!! @details First tries to retrieve the value from the JSON, looking for an int
-!! entry under the given name. If not found, it looks for the same entry, but
-!! with a string value. If this fails, the default value is assigned. Otherwise,
-!! the retrieved string is the name looked up in the `neko_const_registry` as a
-!! scalar, and the data is copied from there, using explicit convresion to an
-!! int.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
-!! @param[in] defalt The default value to be used if the parameter is not found
+  !> Retrieves an integer either from the json or from the corresponding scalar
+  !! in the `neko_registry`, otherwise sets the default value.
+  !! @details First tries to retrieve the value from the JSON, looking for an int
+  !! entry under the given name. If not found, it looks for the same entry, but
+  !! with a string value. If this fails, the default value is assigned. Otherwise,
+  !! the retrieved string is the name looked up in the `neko_const_registry` as a
+  !! scalar, and the data is copied from there, using explicit convresion to an
+  !! int.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
+  !! @param[in] defalt The default value to be used if the parameter is not found
   module subroutine json_get_or_lookup_or_default_integer(json, &
        name, val, default)
     type(json_file), intent(inout) :: json
@@ -270,15 +270,15 @@ contains
     end if
   end subroutine json_get_or_lookup_or_default_integer
 
-!> Retrieves a real array either from the json or from the corresponding vector
-!! in the `neko_registry`.
-!! @details First tries to retrieve the values from the JSON, looking for a real
-!! array entry under the given name. If not found, it looks for the same entry,
-!! but with a string value. The retrieved string is the name looked up in the
-!! `neko_const_registry` as a scalar, and the data is copied from there.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
+  !> Retrieves a real array either from the json or from the corresponding vector
+  !! in the `neko_registry`.
+  !! @details First tries to retrieve the values from the JSON, looking for a real
+  !! array entry under the given name. If not found, it looks for the same entry,
+  !! but with a string value. The retrieved string is the name looked up in the
+  !! `neko_const_registry` as a scalar, and the data is copied from there.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   module subroutine json_get_or_lookup_real_array(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -316,10 +316,10 @@ contains
     val = real(vec_ptr%x, kind=sp)
   end subroutine json_get_or_lookup_real_array
 
-!> Sampe as `json_get_or_lookup_real_array`, but for double precision.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
+  !> Sampe as `json_get_or_lookup_real_array`, but for double precision.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   module subroutine json_get_or_lookup_double_array(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -351,15 +351,15 @@ contains
     val = real(vec_ptr%x, kind=dp)
   end subroutine json_get_or_lookup_double_array
 
-!> Retrieves an int array either from the json or from the corresponding vector
-!! in the `neko_registry`.
-!! @details First tries to retrieve the values from the JSON, looking for an int
-!! array entry under the given name. If not found, it looks for the same entry,
-!! but with a string value. The retrieved string is the name looked up in the
-!! `neko_const_registry` as a scalar, and the data is copied from there.
-!! @param[inout] json The json to retrieve the parameter from.
-!! @param[in] name The full path to the parameter.
-!! @param[out] value The variable to be populated with the retrieved parameter
+  !> Retrieves an int array either from the json or from the corresponding vector
+  !! in the `neko_registry`.
+  !! @details First tries to retrieve the values from the JSON, looking for an int
+  !! array entry under the given name. If not found, it looks for the same entry,
+  !! but with a string value. The retrieved string is the name looked up in the
+  !! `neko_const_registry` as a scalar, and the data is copied from there.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   module subroutine json_get_or_lookup_integer_array(json, name, &
        val)
     type(json_file), intent(inout) :: json
