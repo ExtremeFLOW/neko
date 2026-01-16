@@ -3,7 +3,7 @@
 ## Develop
 - *BEAKING* JSON case file parsing now uses strict type checking. This means,
   for example, that providing an integer like 2 for a real entry will throw an
-  error, one should set 2.0. Descriptive error and warning messeges are issued.
+  error, one should set 2.0. Descriptive error and warning messages are issued.
 - Added the possibilty to provide global constants in the case file under the
   `constants` object.
   - Added real scalar entries to `registry_t`.
@@ -11,6 +11,7 @@
     file.
   - Added submodule `case_file_utils` to `json_utils` for extracting JSON
     entry values from either the JSON itself or the `neko_const_regitry`.
+- Add missing free operators for `output_t` class.
 - Add min/max operations when applying strong boundary conditions for the
   scalar, mimicing the procedure for the fluid. Needed with meshes where an
   element touches the boundary with only an edge.

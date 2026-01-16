@@ -70,7 +70,8 @@ module operators
   private
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
-       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, rotate_cyc
+       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
+       rotate_cyc
 
   interface rotate_cyc
      module procedure rotate_cyc_r1
@@ -459,11 +460,12 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: max_wave_speed
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: &
+         max_wave_speed
     real(kind=rp) :: cfl_compressible
 
     cfl_compressible = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
-                          Xh, coef, nelv, gdim)
+         Xh, coef, nelv, gdim)
 
   end function cfl_compressible
 

@@ -165,6 +165,7 @@ contains
   subroutine fluid_output_free(this)
     class(fluid_output_t), intent(inout) :: this
 
+    call this%free_base()
     call this%fluid%free()
 
   end subroutine fluid_output_free

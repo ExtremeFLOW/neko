@@ -42,6 +42,7 @@ module chkp_output
      type(chkp_t), pointer :: chkp
    contains
      procedure, pass(this) :: init => chkp_output_init
+     procedure, pass(this) :: free => chkp_output_free
      procedure, pass(this) :: sample => chkp_output_sample
   end type chkp_output_t
 
@@ -72,6 +73,14 @@ contains
     call this%init_base(fname, overwrite = overwrite)
     this%chkp => chkp
   end subroutine chkp_output_init
+
+  subroutine chkp_output_free(this)
+    class(chkp_output_t), intent(inout) :: this
+
+    call this%free_base()
+    call this%chkp%free()
+
+  end subroutine chkp_output_free
 
   !> Sample a checkpoint at time @a t
   subroutine chkp_output_sample(this, t)
