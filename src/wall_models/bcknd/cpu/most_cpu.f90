@@ -154,7 +154,7 @@ contains
     integer, intent(in) :: h_idx
     integer :: i, count
     integer, parameter :: max_count = 20
-    real(kind=rp) :: ui, vi, wi, ti, hi
+    real(kind=rp) :: ui, vi, wi, ti, ts, hi
     real(kind=rp) :: magu, utau, normu, z0h
     real(kind=rp) :: L_ob, L_upper, L_lower, L_backup, L_old
     real(kind=rp) :: Ri_b, f, dfdl, fd_h    
