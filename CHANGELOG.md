@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Add missing free operators for `output_t` class.
 - Add min/max operations when applying strong boundary conditions for the
   scalar, mimicing the procedure for the fluid. Needed with meshes where an
   element touches the boundary with only an edge.
