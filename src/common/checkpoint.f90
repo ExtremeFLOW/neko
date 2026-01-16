@@ -172,56 +172,36 @@ contains
 
          if (associated(this%u) .and. associated(this%v) .and. &
               associated(this%w) .and. associated(this%p)) then
-            call device_memcpy(u%x, u%x_d, u%dof%size(), DEVICE_TO_HOST, &
-                 sync = .false.)
-            call device_memcpy(v%x, v%x_d, v%dof%size(), DEVICE_TO_HOST, &
-                 sync = .false.)
-            call device_memcpy(w%x, w%x_d, w%dof%size(), DEVICE_TO_HOST, &
-                 sync = .false.)
-            call device_memcpy(p%x, p%x_d, p%dof%size(), DEVICE_TO_HOST, &
-                 sync = .false.)
+            call u%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call v%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call w%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call p%copy_from(DEVICE_TO_HOST, sync = .false.)
          end if
 
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
               associated(this%wlag)) then
-            call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                 u%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                 u%dof%size(), DEVICE_TO_HOST, sync = .false.)
+            call ulag%lf(1)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call ulag%lf(2)%copy_from(DEVICE_TO_HOST, sync = .false.)
 
-            call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                 v%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                 v%dof%size(), DEVICE_TO_HOST, sync = .false.)
+            call vlag%lf(1)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call vlag%lf(2)%copy_from(DEVICE_TO_HOST, sync = .false.)
 
-            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
+            call wlag%lf(1)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call wlag%lf(2)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abx1%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abx2%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%aby1%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%aby2%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abz1%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abz2%copy_from(DEVICE_TO_HOST, sync = .false.)
          end if
+
          if (associated(this%s)) then
-            call device_memcpy(this%s%x, this%s%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%abs1%x, this%abs1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(this%abs2%x, this%abs2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
+            call this%s%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%slag%lf(1)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%slag%lf(2)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abs1%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abs2%copy_from(DEVICE_TO_HOST, sync = .false.)
          end if
 
          ! Multi-scalar lag field synchronization
@@ -240,13 +220,9 @@ contains
          ! Multi-scalar ABX field synchronization
          if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
             do i = 1, size(this%scalar_abx1)
-               call device_memcpy(this%scalar_abx1(i)%ptr%x, &
-                    this%scalar_abx1(i)%ptr%x_d, &
-                    this%scalar_abx1(i)%ptr%dof%size(), DEVICE_TO_HOST, &
+               call this%scalar_abx1(i)%ptr%copy_from(DEVICE_TO_HOST, &
                     sync = .false.)
-               call device_memcpy(this%scalar_abx2(i)%ptr%x, &
-                    this%scalar_abx2(i)%ptr%x_d, &
-                    this%scalar_abx2(i)%ptr%dof%size(), DEVICE_TO_HOST, &
+               call this%scalar_abx2(i)%ptr%copy_from(DEVICE_TO_HOST, &
                     sync = .false.)
             end do
          end if
@@ -268,45 +244,31 @@ contains
 
          if (associated(this%u) .and. associated(this%v) .and. &
               associated(this%w)) then
-            call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
+            call u%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call v%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call w%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call p%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
 
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
               associated(this%wlag)) then
-            call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
+            call ulag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call ulag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-            call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
+            call vlag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call vlag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                 w%dof%size(), HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                 w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+            call wlag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call wlag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
-         if (associated(this%s)) then
-            call device_memcpy(this%s%x, this%s%x_d, &
-                 this%s%dof%size(), HOST_TO_DEVICE, sync = .false.)
 
-            call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                 this%s%dof%size(), HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                 this%s%dof%size(), HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(this%abs1%x, this%abs1%x_d, &
-                 w%dof%size(), HOST_TO_DEVICE, sync = .false.)
-            call device_memcpy(this%abs2%x, this%abs2%x_d, &
-                 w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+         if (associated(this%s)) then
+            call this%s%copy_from(HOST_TO_DEVICE, sync = .false.)
+
+            call this%slag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%slag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%abs1%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%abs2%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
 
          ! Multi-scalar lag field synchronization
@@ -320,8 +282,7 @@ contains
                  slag_size = slag%size()
                  dof_size = slag%f%dof%size()
                  do j = 1, slag_size
-                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         dof_size, HOST_TO_DEVICE, sync = .false.)
+                    call slag%lf(j)%copy_from(HOST_TO_DEVICE, sync = .false.)
                  end do
                end block
             end do
@@ -330,13 +291,9 @@ contains
          ! Multi-scalar ABX field synchronization
          if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
             do i = 1, size(this%scalar_abx1)
-               call device_memcpy(this%scalar_abx1(i)%ptr%x, &
-                    this%scalar_abx1(i)%ptr%x_d, &
-                    this%scalar_abx1(i)%ptr%dof%size(), HOST_TO_DEVICE, &
+               call this%scalar_abx1(i)%ptr%copy_from(HOST_TO_DEVICE, &
                     sync = .false.)
-               call device_memcpy(this%scalar_abx2(i)%ptr%x, &
-                    this%scalar_abx2(i)%ptr%x_d, &
-                    this%scalar_abx2(i)%ptr%dof%size(), HOST_TO_DEVICE, &
+               call this%scalar_abx2(i)%ptr%copy_from(HOST_TO_DEVICE, &
                     sync = .false.)
             end do
          end if
