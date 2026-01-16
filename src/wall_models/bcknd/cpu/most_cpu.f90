@@ -140,15 +140,18 @@ contains
 
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &  
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, bc_type, ts, q, tstep)  ! ts, q in input only temporarily
+       kappa, z0, bc_type, zone_idx, h_idx, q, tstep)  ! q in input only temporarily
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: kappa, z0
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(inout) :: ts,q   ! should this be multidimensional?
+    real(kind=rp), intent(inout) :: q   ! should this be multidimensional?
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
+    integer, intent(in) :: zone_idx(:)  ! WARNING: only supports wall model on ONE boundary atm!
+    integer :: ts_idx(3)
+    integer, intent(in) :: h_idx
     integer :: i, count
     integer, parameter :: max_count = 20
     real(kind=rp) :: ui, vi, wi, ti, hi
@@ -163,6 +166,32 @@ contains
     ! debug only:
     ! ts  = 300.0_rp
     ! q = 0.05_rp
+    ! call neko_field_registry%add_field(this%coef%dof, "sampling_height", &
+    !      ignore_existing=.true.)
+    ! h_field => neko_field_registry%get_field_by_name("sampling_height")
+
+    ! WARNING: only supports wall model on ONE boundary atm!
+    if (size(zone_idx) /= 1) then 
+      call neko_error("The MOST wall model is only applicable to ONE boundary")
+    end if
+
+    ! Select the ts offset based on fid
+    select case (zone_idx(1))
+      case (1)
+        ts_idx = [h_idx, 0, 0 ]
+      case (2)
+        ts_idx = [-h_idx, 0, 0]
+      case (3)
+        ts_idx = [0, h_idx, 0 ]
+      case (4)
+        ts_idx = [0, -h_idx, 0]
+      case (5)
+        ts_idx = [0, 0, h_idx ]
+      case (6)
+        ts_idx = [0, 0, -h_idx]
+      case default
+        call neko_error("The face index is not correct (most_cpu.f90)")
+    end select
 
     do i=1, n_nodes
    
@@ -171,6 +200,7 @@ contains
       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
       ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+      ts = temp(ind_r(i)-ts_idx(1), ind_s(i)-ts_idx(2), ind_t(i)-ts_idx(3), ind_e(i))
       hi = h(i)
 
       ! Project on horizontal directions
