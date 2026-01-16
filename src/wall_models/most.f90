@@ -56,11 +56,12 @@ module most
      !> The von Karman coefficient.
      real(kind=rp) :: kappa = 0.41_rp
      !> The roughness height
-     real(kind=rp) :: z0 = 0.0_rp
+     real(kind=rp) :: z0 = 0.1_rp
      !> The type of temperature boundary condition
      character(len=:), allocatable :: bc_type
+     integer, allocatable :: zone_idx
+     integer :: h_idx
      real(kind=rp) :: q
-     real(kind=rp) :: ts 
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => most_init
@@ -87,7 +88,7 @@ contains
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
   subroutine most_init(this, scheme_name, coef, msk, facet, &
-       h_index, json)   ! add bc_type to arguments (also down below) ? 
+       h_index, json)   
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
@@ -97,16 +98,19 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, z0
     character(len=:), allocatable :: bc_type
-    real(kind=rp) :: ts, q
+    integer, allocatable :: zone_idx(:)
+    integer :: h_idx
+    real(kind=rp) :: q
 
     call json_get_or_default(json, "kappa", kappa, 0.41_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
-    call json_get_or_default(json, "ts_value", ts, 300.0_rp)
+    call json_get_or_default(json, "h_index", h_idx, 1)
+    call json_get_or_default(json, "zone_indices", zone_idx, [5])
     call json_get_or_default(json, "flux_value", q, 0.05_rp)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
-         kappa, z0, bc_type, ts, q)
+         kappa, z0, bc_type, zone_idx, h_idx, q)
   end subroutine most_init
 
   !> Constructor from JSON.
@@ -121,7 +125,8 @@ contains
     call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
-    call json_get_or_default(json, "ts_value", this%ts, 300.0_rp)
+    call json_get_or_default(json, "zone_indices", this%zone_idx, [5])
+    call json_get_or_default(json, "h_index", this%h_idx, 1)
     call json_get_or_default(json, "flux_value", this%q, 0.05_rp)
 
   end subroutine most_partial_init
@@ -147,23 +152,26 @@ contains
   !! @param kappa The von Karman coefficient.
   !! @param z0 The roughness height.
   subroutine most_init_from_components(this, scheme_name, coef, msk, &
-       facet, h_index, kappa, z0, bc_type, ts, q)
+       facet, h_index, kappa, z0, bc_type, zone_idx, h_idx, q)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
+    integer, allocatable, intent(in) :: zone_idx(:)
+    integer, intent(in) :: h_idx
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: kappa
-    real(kind=rp), intent(in) :: z0, ts, q
+    real(kind=rp), intent(in) :: z0, q
 
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
     this%z0 = z0
     this%bc_type = bc_type
-    this%ts = ts
+    this%zone_idx = zone_idx
+    this%h_idx = h_idx
     this%q = q
 
   end subroutine most_init_from_components
@@ -201,13 +209,14 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%z0, tstep)    ! added s%x !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            this%z0, tstep)   
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%z0, this%bc_type, this%ts, this%q, tstep)    ! added s%x , ts, q and bc_type !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            this%z0, this%bc_type, this%zone_idx, this%h_idx, &
+            this%q, tstep)   
     end if
 
   end subroutine most_compute
