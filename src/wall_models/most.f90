@@ -59,7 +59,7 @@ module most
      real(kind=rp) :: z0 = 0.1_rp
      !> The type of temperature boundary condition
      character(len=:), allocatable :: bc_type
-     integer, allocatable :: zone_idx
+     integer, allocatable :: zone_idx(:)
      integer :: h_idx
      real(kind=rp) :: q
    contains
