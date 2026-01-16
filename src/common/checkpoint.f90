@@ -82,7 +82,7 @@ module checkpoint
      type(field_ptr_t), allocatable :: scalar_abx1(:) !< ABX1 fields for each scalar
      type(field_ptr_t), allocatable :: scalar_abx2(:) !< ABX2 fields for each scalar
 
-     real(kind=dp) :: t !< Restart time (valid after load)
+     real(kind=dp) :: t = 0d0 !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
      type(space_t) :: previous_Xh
      real(kind=rp) :: mesh2mesh_tol = NEKO_EPS*1e3_rp
@@ -91,6 +91,7 @@ module checkpoint
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
      procedure, pass(this) :: sync_device => chkp_sync_device
+     procedure, pass(this) :: add_fluid => chkp_add_fluid
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
      procedure, pass(this) :: restart_time => chkp_restart_time
@@ -100,31 +101,11 @@ module checkpoint
 contains
 
   !> Initialize checkpoint structure with mandatory data
-  subroutine chkp_init(this, u, v, w, p)
+  subroutine chkp_init(this)
     class(chkp_t), intent(inout) :: this
-    type(field_t), intent(in), target :: u
-    type(field_t), intent(in), target :: v
-    type(field_t), intent(in), target :: w
-    type(field_t), intent(in), target :: p
 
-    ! Check that all velocity components are defined on the same
-    ! function space
-    if ( u%Xh .ne. v%Xh .or. &
-         u%Xh .ne. w%Xh ) then
-       call neko_error('Different function spaces for each velocity component')
-    end if
-
-    ! Check that both velocity and pressure is defined on the same mesh
-    if ( u%msh%nelv .ne. p%msh%nelv ) then
-       call neko_error('Velocity and pressure defined on different meshes')
-    end if
-
-    this%u => u
-    this%v => v
-    this%w => w
-    this%p => p
-
-    this%t = 0d0
+    ! Make sure the object is clean
+    call this%free()
 
   end subroutine chkp_init
 
@@ -132,31 +113,44 @@ contains
   subroutine chkp_free(this)
     class(chkp_t), intent(inout) :: this
 
-    nullify(this%u)
-    nullify(this%v)
-    nullify(this%w)
-    nullify(this%p)
+    this%t = 0d0
 
-    nullify(this%ulag)
-    nullify(this%vlag)
-    nullify(this%wlag)
+    if (associated(this%u)) nullify(this%u)
+    if (associated(this%v)) nullify(this%v)
+    if (associated(this%w)) nullify(this%w)
+    if (associated(this%p)) nullify(this%p)
 
-    ! Scalar cleanup
-    nullify(this%s)
-    nullify(this%slag)
-    nullify(this%abs1)
-    nullify(this%abs2)
+    if (associated(this%ulag)) nullify(this%ulag)
+    if (associated(this%vlag)) nullify(this%vlag)
+    if (associated(this%wlag)) nullify(this%wlag)
 
-    ! Free scalar lag list
+    if (associated(this%tlag)) nullify(this%tlag)
+    if (associated(this%dtlag)) nullify(this%dtlag)
+
+    if (associated(this%abx1)) nullify(this%abx1)
+    if (associated(this%abx2)) nullify(this%abx2)
+    if (associated(this%aby1)) nullify(this%aby1)
+    if (associated(this%aby2)) nullify(this%aby2)
+    if (associated(this%abz1)) nullify(this%abz1)
+    if (associated(this%abz2)) nullify(this%abz2)
+
+    if (associated(this%s)) nullify(this%s)
+    if (associated(this%slag)) nullify(this%slag)
+    if (associated(this%abs1)) nullify(this%abs1)
+    if (associated(this%abs2)) nullify(this%abs2)
+
     call this%scalar_lags%free()
 
-    ! Free multi-scalar ABX field arrays
     if (allocated(this%scalar_abx1)) then
        deallocate(this%scalar_abx1)
     end if
+
     if (allocated(this%scalar_abx2)) then
        deallocate(this%scalar_abx2)
     end if
+
+    call this%previous_mesh%free()
+    call this%previous_Xh%free()
 
   end subroutine chkp_free
 
@@ -301,6 +295,33 @@ contains
     end if
 
   end subroutine chkp_sync_device
+
+  !> Add a fluid to the checkpoint
+  subroutine chkp_add_fluid(this, u, v, w, p)
+    class(chkp_t), intent(inout) :: this
+    type(field_t), target :: u
+    type(field_t), target :: v
+    type(field_t), target :: w
+    type(field_t), target :: p
+
+    ! Check that all velocity components are defined on the same
+    ! function space
+    if ( u%Xh .ne. v%Xh .or. &
+         u%Xh .ne. w%Xh ) then
+       call neko_error('Different function spaces for each velocity component')
+    end if
+
+    ! Check that both velocity and pressure is defined on the same mesh
+    if ( u%msh%nelv .ne. p%msh%nelv ) then
+       call neko_error('Velocity and pressure defined on different meshes')
+    end if
+
+    this%u => u
+    this%v => v
+    this%w => w
+    this%p => p
+
+  end subroutine chkp_add_fluid
 
   !> Add lagged velocity terms
   subroutine chkp_add_lag(this, ulag, vlag, wlag)
