@@ -65,6 +65,8 @@ module mean_field_output
    contains
      !> Constructor
      procedure, pass(this) :: init => mean_field_output_init
+     !> Destructor
+     procedure, pass(this) :: free => mean_field_output_free
      !> Sample, i.e. extract the values of the fields, average, and write.
      procedure, pass(this) :: sample => mean_field_output_sample
   end type mean_field_output_t
@@ -142,6 +144,19 @@ contains
     end do
 
   end subroutine mean_field_output_init
+
+  !> Destructor
+  subroutine mean_field_output_free(this)
+    class(mean_field_output_t), intent(inout) :: this
+
+    call this%free_base()
+
+    nullify(this%mean_fields)
+    call this%map_1d%free()
+    call this%map_2d%free()
+    call this%fields%free()
+
+  end subroutine mean_field_output_free
 
   !> Sample the mean solution at time @a t and reset
   subroutine mean_field_output_sample(this, t)

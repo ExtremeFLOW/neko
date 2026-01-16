@@ -94,7 +94,7 @@ module checkpoint
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
      procedure, pass(this) :: restart_time => chkp_restart_time
-     final :: chkp_free
+     procedure, pass(this) :: free => chkp_free
   end type chkp_t
 
 contains
@@ -130,7 +130,7 @@ contains
 
   !> Reset checkpoint
   subroutine chkp_free(this)
-    type(chkp_t), intent(inout) :: this
+    class(chkp_t), intent(inout) :: this
 
     nullify(this%u)
     nullify(this%v)
