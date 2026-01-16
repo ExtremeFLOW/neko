@@ -147,10 +147,8 @@ contains
     nullify(this%abs1)
     nullify(this%abs2)
 
-    ! Free scalar lag list if it was initialized
-    if (allocated(this%scalar_lags%items)) then
-       call this%scalar_lags%free()
-    end if
+    ! Free scalar lag list
+    call this%scalar_lags%free()
 
     ! Free multi-scalar ABX field arrays
     if (allocated(this%scalar_abx1)) then
@@ -227,22 +225,17 @@ contains
          end if
 
          ! Multi-scalar lag field synchronization
-         if (allocated(this%scalar_lags%items) .and. &
-              this%scalar_lags%size() > 0) then
-            do i = 1, this%scalar_lags%size()
-               block
-                 type(field_series_t), pointer :: slag
-                 integer :: slag_size, dof_size
-                 slag => this%scalar_lags%get(i)
-                 slag_size = slag%size()
-                 dof_size = slag%f%dof%size()
-                 do j = 1, slag_size
-                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         dof_size, DEVICE_TO_HOST, sync = .false.)
-                 end do
-               end block
-            end do
-         end if
+         do i = 1, this%scalar_lags%size()
+            block
+              type(field_series_t), pointer :: slag
+              integer :: slag_size
+              slag => this%scalar_lags%get(i)
+              slag_size = slag%size()
+              do j = 1, slag_size
+                 call slag%lf(j)%copy_from(DEVICE_TO_HOST, sync = .false.)
+              end do
+            end block
+         end do
 
          ! Multi-scalar ABX field synchronization
          if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
