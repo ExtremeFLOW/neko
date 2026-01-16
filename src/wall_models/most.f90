@@ -106,7 +106,7 @@ contains
     call json_get_or_default(json, "z0", z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get_or_default(json, "h_index", h_idx, 1)
-    call json_get_or_default(json, "zone_indices", zone_idx, [5])
+    call json_get(json, "zone_indices", zone_idx)
     call json_get_or_default(json, "flux_value", q, 0.05_rp)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
@@ -125,7 +125,7 @@ contains
     call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
-    call json_get_or_default(json, "zone_indices", this%zone_idx, [5])
+    call json_get(json, "zone_indices", this%zone_idx)
     call json_get_or_default(json, "h_index", this%h_idx, 1)
     call json_get_or_default(json, "flux_value", this%q, 0.05_rp)
 
