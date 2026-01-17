@@ -644,6 +644,7 @@ var hierarchy =
     [ "space::operator(.eq.)", "d2/d73/interfacespace_1_1operator_07_8eq_8_08.html", null ],
     [ "space::operator(.ne.)", "de/d17/interfacespace_1_1operator_07_8ne_8_08.html", null ],
     [ "output_controller::output_controller_t", "d4/d3d/structoutput__controller_1_1output__controller__t.html", null ],
+    [ "output::output_free", "d0/d5c/interfaceoutput_1_1output__free.html", null ],
     [ "output::output_ptr_t", "dc/d4d/structoutput_1_1output__ptr__t.html", null ],
     [ "output::output_sample", "dd/df1/interfaceoutput_1_1output__sample.html", null ],
     [ "output::output_t", "dd/d5f/structoutput_1_1output__t.html", [

@@ -200,7 +200,7 @@ $(document).ready(function(){initNavTree('d3/d71/checkpoint_8f90_source.html','.
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno"><a class="line" href="../../d9/d88/structcheckpoint_1_1chkp__t.html#ab1bb5ba54ad54fce85f19660a86a2081">   94</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: add_lag =&gt; <a class="code hl_function" href="../../d3/d51/namespacecheckpoint.html#a9140f802d3a51cbd693d7d004202dcaf">chkp_add_lag</a></div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno"><a class="line" href="../../d9/d88/structcheckpoint_1_1chkp__t.html#a4f642649e03c8278603963862beb1215">   95</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: add_scalar =&gt; <a class="code hl_function" href="../../d3/d51/namespacecheckpoint.html#af63b8c4fc6e7b320c19bb196cda3a8d8">chkp_add_scalar</a></div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno"><a class="line" href="../../d9/d88/structcheckpoint_1_1chkp__t.html#a6e8f28d16a52b02b4eecbddab94a739e">   96</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: restart_time =&gt; <a class="code hl_function" href="../../d3/d51/namespacecheckpoint.html#a4690a123d6f80666a70b4783269d2c82">chkp_restart_time</a></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="../../d9/d88/structcheckpoint_1_1chkp__t.html#a353621a69fc1a257551a328566c737e4">   97</a></span>     final :: <a class="code hl_function" href="../../d3/d51/namespacecheckpoint.html#a47098711c5654f34b1e72a8eba70cb79">chkp_free</a></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="../../d9/d88/structcheckpoint_1_1chkp__t.html#ac1a5982719b770929819faff36dec35c">   97</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code hl_function" href="../../d3/d51/namespacecheckpoint.html#a47098711c5654f34b1e72a8eba70cb79">chkp_free</a></div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a></div>
 </div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
@@ -238,7 +238,7 @@ $(document).ready(function(){initNavTree('d3/d71/checkpoint_8f90_source.html','.
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
 <div class="foldopen" id="foldopen00132" data-start="" data-end="">
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno"><a class="line" href="../../d3/d51/namespacecheckpoint.html#a47098711c5654f34b1e72a8eba70cb79">  132</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d51/namespacecheckpoint.html#a47098711c5654f34b1e72a8eba70cb79">chkp_free</a>(this)</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <span class="keyword">nullify</span>(this%u)</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keyword">nullify</span>(this%v)</div>
@@ -547,7 +547,7 @@ $(document).ready(function(){initNavTree('d3/d71/checkpoint_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d3/d71/checkpoint_8f90.html">checkpoint.f90</a></li>
-    <li class="footer">Generated on Fri Jan 16 2026 03:54:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Jan 17 2026 03:49:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

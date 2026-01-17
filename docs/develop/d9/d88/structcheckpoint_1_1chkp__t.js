@@ -1,8 +1,8 @@
 var structcheckpoint_1_1chkp__t =
 [
-    [ "chkp_free", "d9/d88/structcheckpoint_1_1chkp__t.html#a353621a69fc1a257551a328566c737e4", null ],
     [ "add_lag", "d9/d88/structcheckpoint_1_1chkp__t.html#ab1bb5ba54ad54fce85f19660a86a2081", null ],
     [ "add_scalar", "d9/d88/structcheckpoint_1_1chkp__t.html#a4f642649e03c8278603963862beb1215", null ],
+    [ "free", "d9/d88/structcheckpoint_1_1chkp__t.html#ac1a5982719b770929819faff36dec35c", null ],
     [ "init", "d9/d88/structcheckpoint_1_1chkp__t.html#a9fe2da13b4cbb4812686a279b20e3a89", null ],
     [ "restart_time", "d9/d88/structcheckpoint_1_1chkp__t.html#a6e8f28d16a52b02b4eecbddab94a739e", null ],
     [ "sync_device", "d9/d88/structcheckpoint_1_1chkp__t.html#a1c04e0452b634f1d915b09c5df3890a0", null ],
