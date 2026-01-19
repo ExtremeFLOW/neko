@@ -82,11 +82,10 @@ module logger
   !> Verbose log level
   integer, public, parameter :: NEKO_LOG_VERBOSE = 2
   !> Deprecation warning level
-  integer, public, parameter :: NEKO_LOG_DEPRECATION_WARN = 5
+  integer, public, parameter :: NEKO_LOG_DEPRECATION_ERROR = 5
   !> Debug log level
   integer, public, parameter :: NEKO_LOG_DEBUG = 10
   !> Deprecation error level
-  integer, public, parameter :: NEKO_LOG_DEPRECATION_ERROR = 15
 
   !> List of already logged deprecated features
   character(len=50), dimension(:), allocatable :: deprecated_list
