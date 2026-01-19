@@ -42,6 +42,7 @@ module TKE_SGS_cpu
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use math, only : col2
+  use operators, only : dudxyz
   implicit none
   private
 
