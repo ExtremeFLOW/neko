@@ -16,3 +16,7 @@
   pre-existing names.
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
+
+### Deprecated features
+- `operator::ortho` calls with implicit device arrays are deprecated. Please use
+  `device_ortho` instead.
