@@ -36,7 +36,7 @@ module TKE_SGS_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
   use scratch_registry, only : neko_scratch_registry
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
@@ -77,13 +77,13 @@ contains
     real(kind=rp) :: l, N2
     integer :: e, i
 
-    TKE => neko_field_registry%get_field_by_name("TKE")
-    Temperature => neko_field_registry%get_field_by_name("Temperature")
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    TKE => neko_registry%get_field_by_name("TKE")
+    Temperature => neko_registry%get_field_by_name("Temperature")
+    u => neko_registry%get_field_by_name("u")
+    v => neko_registry%get_field_by_name("v")
+    w => neko_registry%get_field_by_name("w")
 
-    call neko_scratch_registry%request_field(dTdz, temp_indices(1))
+    call neko_scratch_registry%request_field(dTdz, temp_indices(1), .false.)
 
    ! Calculate vertical temperature gradients
     select case (vert_dir)
@@ -120,15 +120,15 @@ contains
     end do
 
     ! Compute velocity gradients
-    call neko_scratch_registry%request_field(a11, temp_indices(2))
-    call neko_scratch_registry%request_field(a12, temp_indices(3))
-    call neko_scratch_registry%request_field(a13, temp_indices(4))
-    call neko_scratch_registry%request_field(a21, temp_indices(5))
-    call neko_scratch_registry%request_field(a22, temp_indices(6))
-    call neko_scratch_registry%request_field(a23, temp_indices(7))
-    call neko_scratch_registry%request_field(a31, temp_indices(8))
-    call neko_scratch_registry%request_field(a32, temp_indices(9))
-    call neko_scratch_registry%request_field(a33, temp_indices(10))
+    call neko_scratch_registry%request_field(a11, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(a12, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(a13, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(a21, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(a22, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(a23, temp_indices(7), .false.)
+    call neko_scratch_registry%request_field(a31, temp_indices(8), .false.)
+    call neko_scratch_registry%request_field(a32, temp_indices(9), .false.)
+    call neko_scratch_registry%request_field(a33, temp_indices(10), .false.)
 
     call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)

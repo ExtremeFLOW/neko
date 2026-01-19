@@ -43,7 +43,7 @@ module TKE_SGS
   use neko_config, only : NEKO_BCKND_DEVICE
   use TKE_SGS_cpu, only : TKE_SGS_compute_cpu
   ! use TKE_SGS_device, only : TKE_SGS_compute_device
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
@@ -145,9 +145,9 @@ contains
     call this%free()
 
     call this%init_base(fluid, nut_name, delta_type, if_ext)
-    this%nutheta => neko_field_registry%get_field(trim(nutheta_name))
-    this%alphat => neko_field_registry%get_field(trim(alphat_name))
-    this%source_e => neko_field_registry%get_field(trim(source_e_name))
+    this%nutheta => neko_registry%get_field(trim(nutheta_name))
+    this%alphat => neko_registry%get_field(trim(alphat_name))
+    this%source_e => neko_registry%get_field(trim(source_e_name))
 
   end subroutine TKE_SGS_init_from_components
 
