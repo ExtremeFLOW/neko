@@ -637,14 +637,14 @@ contains
   end subroutine opr_device_conv1
 
   subroutine opr_device_convect_scalar(du, u_d, cr_d, cs_d, ct_d, &
-            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
+       Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
     type(space_t), intent(in) :: Xh_GL
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
     type(coef_t), intent(in) :: coef_GL
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), intent(inout) :: &
-                   du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+         du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
     type(c_ptr) :: cr_d, cs_d, ct_d, u_d
     real(kind=rp) :: ud(Xh_GL%lx*Xh_GL%lx*Xh_GL%lx)
     type(c_ptr) :: du_d, ud_d
@@ -891,7 +891,7 @@ contains
     type(coef_t) :: coef
     integer :: idir, ncyc
     real(rp), dimension(coef%Xh%lx*coef%Xh%ly*coef%Xh%lz*coef%msh%nelv) :: &
-               vx, vy, vz
+         vx, vy, vz
     type(c_ptr) :: vx_d, vy_d, vz_d
 
     vx_d = device_get_ptr(vx)
@@ -908,9 +908,9 @@ contains
          ncyc, idir)
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
-          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
-          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
-          ncyc, idir)
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
 #elif HAVE_OPENCL
     !>@todo opr_device_rotate_cyc_r1 for OPENCL
     call neko_error('No device backend configured for rotate_cyc')
@@ -923,7 +923,7 @@ contains
     type(coef_t) :: coef
     integer :: idir, ncyc
     real(rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: &
-              vx, vy, vz
+         vx, vy, vz
     type(c_ptr) :: vx_d, vy_d, vz_d
 
     vx_d = device_get_ptr(vx)
@@ -940,9 +940,9 @@ contains
          ncyc, idir)
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
-          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
-          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
-          ncyc, idir)
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
 #elif HAVE_OPENCL
     !>@todo opr_device_rotate_cyc_r4 for OPENCL
     call neko_error('No device backend configured for rotate_cyc')
@@ -952,29 +952,29 @@ contains
   end subroutine opr_device_rotate_cyc_r4
 
   subroutine opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
-            Xh, coef)
+       Xh, coef)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(c_ptr) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d
 
 #ifdef HAVE_HIP
     call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           Xh%w3_d, coef%msh%nelv, Xh%lx)
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%w3_d, coef%msh%nelv, Xh%lx)
 #elif HAVE_CUDA
     call cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           Xh%w3_d, coef%msh%nelv, Xh%lx)
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%w3_d, coef%msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
     call opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           Xh%w3_d, coef%msh%nelv, Xh%lx)
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%w3_d, coef%msh%nelv, Xh%lx)
 #else
     call neko_error('No device backend configured')
 #endif
