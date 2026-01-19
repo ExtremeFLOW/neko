@@ -81,6 +81,11 @@ contains
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
 
+    if (associated(object)) then
+       call object%free()
+       nullify(object)
+    end if
+
     call json_get(json, "type", type)
 
     select case (trim(type))

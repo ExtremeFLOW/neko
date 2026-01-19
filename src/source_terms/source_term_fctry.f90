@@ -88,6 +88,11 @@ contains
     character(len=:), allocatable, intent(in) :: type_name
     integer :: i
 
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
+
     select case (trim(type_name))
     case ("constant")
        allocate(const_source_term_t::object)

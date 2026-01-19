@@ -83,6 +83,11 @@ contains
     character(len=:), allocatable, intent(in) :: type_name
     integer :: i
 
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
+
     select case (trim(type_name) )
     case ("spalding")
        allocate(spalding_t::object)

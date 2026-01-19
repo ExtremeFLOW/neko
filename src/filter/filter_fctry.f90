@@ -55,8 +55,11 @@ contains
     character(len=:), allocatable :: type_string
 
     if (allocated(object)) then
+       call object%free()
        deallocate(object)
-    else if (trim(type_name) .eq. 'elementwise') then
+    end if
+
+    if (trim(type_name) .eq. 'elementwise') then
        allocate(elementwise_filter_t::object)
     else if (trim(type_name) .eq. 'PDE') then
        allocate(pde_filter_t::object)
