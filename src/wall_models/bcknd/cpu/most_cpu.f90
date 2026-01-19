@@ -230,7 +230,7 @@ contains
 
         if (abs(Ri_b) <= 0.01) then
           ! Neutral (L_ob undefined)
-          L_ob = 0   
+          L_ob = 0.0_rp   
         else
           ! Obukhov based on the previous-step utau
           L_ob= -(ti*utau**3)/(kappa*g*q)  ! this is only initialisation (ts,ti,300 doesn't matter)
@@ -251,22 +251,17 @@ contains
 
             ! Compute L_ob based on stability and bc_type
             if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
-              call neko_error("ERROR: Unassociated pointer for f or dfdl")
+              call neko_error("Unassociated pointer for f or dfdl")
             end if
             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
             L_ob = L_ob - f/dfdl
 
             if (abs(L_ob) > 20000 .or. abs(L_ob) < 1e-5_rp) then
-                count = max_count
+              count = max_count
+              call neko_error("Obukhov length did not converge (MOST wall model)") 
             end if
           end do
-        end if
-
-        ! Error handling 
-        if (count .eq. max_count) then
-            L_ob = L_backup
-            call neko_error("ERROR: Obukhov length did not converge (MOST wall model)") 
         end if
 
         ! Based on stability and bc_type, compute utau/q 
@@ -281,7 +276,7 @@ contains
             ! and compute q from here
             q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0h)  ! z0h placeholder
           case default
-            call neko_error("ERROR: Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+            call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
         end select 
 
       end if
@@ -294,6 +289,8 @@ contains
 
     call neko_log%section('Wall model quick look')
     write(log_buf, '(A,E15.7)') 'Ri_b: ', Ri_b
+    call neko_log%message(trim(log_buf))
+    write(log_buf, '(A,E15.7)') 'L_ob: ', L_ob
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7)') 'utau: ', utau
     call neko_log%message(trim(log_buf))
