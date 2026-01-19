@@ -506,6 +506,23 @@ contains
     end associate
 
   end subroutine opr_device_opgrad
+
+  !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
+  !! @param x_d The device vector to orthogonolize.
+  !! @param glb_n_points The global number of non-unique gll points in the grid.
+  !! @note This is equivalent to subtracting the mean of `x` from each of its
+  !! elements.
+  subroutine device_ortho(x_d, glb_n_points, n)
+    integer, intent(in) :: n
+    integer(kind=i8), intent(in) :: glb_n_points
+    type(c_ptr), intent(inout) :: x_d
+    real(kind=rp) :: c
+
+    c = device_glsum(x_d, n) / glb_n_points
+    call device_cadd(x_d, -c, n)
+
+  end subroutine device_ortho
+
   subroutine opr_device_lambda2(lambda2, u, v, w, coef)
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: lambda2
