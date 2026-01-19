@@ -156,8 +156,8 @@ contains
     integer, parameter :: max_count = 20
     real(kind=rp) :: ui, vi, wi, ti, ts, hi
     real(kind=rp) :: magu, utau, normu, z0h
-    real(kind=rp) :: L_ob, L_upper, L_lower, L_backup, L_old
-    real(kind=rp) :: Ri_b, f, dfdl, fd_h    
+    real(kind=rp) :: L_ob, L_upper, L_lower, L_old
+    real(kind=rp) :: Ri_b, f, dfdl, fd_h, L_new, L_sign    
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
@@ -228,23 +228,31 @@ contains
         ! Get q, Ri, f, dfdl based on bc_type 
         call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
-        if (abs(Ri_b) <= 0.01) then
+        if (abs(Ri_b) <= 1.0e-2_rp) then
           ! Neutral (L_ob undefined)
-          L_ob = 0.0_rp   
+          L_ob = 0.0_rp
+          call set_stability_regime(Ri_b)
         else
-          ! Obukhov based on the previous-step utau
-          L_ob= -(ti*utau**3)/(kappa*g*q)  ! this is only initialisation (ts,ti,300 doesn't matter)
-          L_backup = L_ob
-          L_old = 0
+          ! Determine target regime sign
+          if (Ri_b > 0.0_rp) then
+            L_ob = hi / max(Ri_b, 0.01_rp)  ! Stable guess
+            L_sign = 1.0_rp
+          else
+            L_ob = hi / min(Ri_b, -0.01_rp) ! Convective guess
+            L_sign = -1.0_rp
+          end if
+
+          L_old = 1.0e10_rp
           count = 0
           ! Set slaw and corr pointers based on stability
           call set_stability_regime(Ri_b)
 
           ! Find Obukhov length
-          do while  ((abs(L_old - L_ob)/abs(L_ob) .gt. tol) .and. (count .lt. max_count))
+          do while  ((abs(L_old - L_ob)/abs(L_ob) > tol) .and. (count < max_count))
             ! Switch between stable and convective based on bulk Richardson (Ri_b)
             L_old = L_ob
             count = count + 1
+
             fd_h = NR_step*L_ob
             L_upper = L_ob + fd_h
             L_lower = L_ob - fd_h
@@ -253,15 +261,27 @@ contains
             if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
               call neko_error("Unassociated pointer for f or dfdl")
             end if
+
             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
-            L_ob = L_ob - f/dfdl
+            if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
+            L_new = L_ob - f/dfdl
 
-            if (abs(L_ob) > 20000 .or. abs(L_ob) < 1e-5_rp) then
-              count = max_count
-              call neko_error("Obukhov length did not converge (MOST wall model)") 
+            ! Avoid regime crossing during Newton iter
+            if (L_new*L_sign <= 0.0_rp) then
+              ! "damp update" (stay on same side)
+              L_new = 0.5_rp * L_ob
             end if
+
+            ! Bound L_ob
+            L_ob = sign(max(abs(L_new), 1.0e-2_rp), L_sign)
+            L_ob = sign(min(abs(L_ob), 1.0e5_rp), L_sign)
           end do
+
+          if (abs(L_ob) > 4.5e4_rp .or. abs(L_ob) < 1e-5_rp) then
+            count = max_count
+            call neko_error("Obukhov length did not converge (MOST wall model)") 
+          end if
         end if
 
         ! Based on stability and bc_type, compute utau/q 
@@ -281,7 +301,8 @@ contains
 
       end if
 
-      ! Distribute according to the velocity vector
+      ! Distribute according to the velocity vector and bound magu to avoid 0 division
+      magu = max(magu, 1.0e-6_rp)
       tau_x(i) = -utau**2 * ui / magu
       tau_y(i) = -utau**2 * vi / magu
       tau_z(i) = -utau**2 * wi / magu
