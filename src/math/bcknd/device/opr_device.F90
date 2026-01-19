@@ -41,7 +41,7 @@ module opr_device
   use utils, only : neko_error
   use interpolation, only : interpolator_t
   use device_math, only : device_sub3, device_rzero, device_copy, device_col2, &
-       device_glsum
+       device_glsum, device_cadd
   use device_mathops, only : device_opcolv
   use, intrinsic :: iso_c_binding
   implicit none
@@ -50,7 +50,8 @@ module opr_device
   public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_curl, &
        opr_device_cfl, opr_device_lambda2, opr_device_set_convect_rst, &
-       opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4
+       opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4, &
+       device_ortho
 
 #ifdef HAVE_HIP
   interface

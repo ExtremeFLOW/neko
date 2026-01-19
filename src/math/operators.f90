@@ -70,7 +70,7 @@ module operators
   implicit none
   private
 
-  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
+  public :: dudxyz, opgrad, cdtp, conv1, curl, cfl, cfl_compressible, &
        lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
        rotate_cyc
 
@@ -226,15 +226,16 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp) :: c
     type(c_ptr) :: x_d
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: ortho, implicit device', &
             'v2.0.0', 'Please call device_ortho instead.')
 
        x_d = device_get_ptr(x)
-       c = device_glsum(x_d, n)/glb_n_points
+       c = device_glsum(x_d, n) / glb_n_points
        call device_cadd(x_d, -c, n)
     else
-       c = glsum(x, n)/glb_n_points
+       c = glsum(x, n) / glb_n_points
        call cadd(x, -c, n)
     end if
 
