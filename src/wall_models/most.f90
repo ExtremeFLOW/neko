@@ -44,6 +44,7 @@ module most
   use most_device, only : most_compute_device   
   use most_cpu, only : most_compute_cpu
   use scratch_registry, only : neko_scratch_registry
+  use utils, only : neko_error
   implicit none
   private
 
@@ -59,7 +60,7 @@ module most
      real(kind=rp) :: z0 = 0.1_rp
      !> The type of temperature boundary condition
      character(len=:), allocatable :: bc_type
-     integer, allocatable :: zone_idx(:)
+     integer :: zone_idx
      integer :: h_idx
      real(kind=rp) :: q
    contains
@@ -98,7 +99,8 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, z0
     character(len=:), allocatable :: bc_type
-    integer, allocatable :: zone_idx(:)
+    integer, allocatable :: zone_idx_arr(:)
+    integer :: zone_idx
     integer :: h_idx
     real(kind=rp) :: q
 
@@ -106,8 +108,16 @@ contains
     call json_get_or_default(json, "z0", z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get_or_default(json, "h_index", h_idx, 1)
-    call json_get(json, "zone_indices", zone_idx)
     call json_get_or_default(json, "flux_value", q, 0.05_rp)
+
+    call json_get(json, "zone_indices", zone_idx_arr)
+    if (.not. allocated(zone_idx_arr)) then
+      call neko_error("zone_indices not provided")
+    end if
+    if (size(zone_idx_arr) /= 1) then
+      call neko_error("MOST wall model supports exactly one boundary")
+    end if
+    zone_idx = zone_idx_arr(1)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, z0, bc_type, zone_idx, h_idx, q)
@@ -120,14 +130,23 @@ contains
     class(most_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
+    integer, allocatable :: zone_idx_arr(:)
 
     call this%partial_init_base(coef, json)
     call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
-    call json_get(json, "zone_indices", this%zone_idx)
     call json_get_or_default(json, "h_index", this%h_idx, 1)
     call json_get_or_default(json, "flux_value", this%q, 0.05_rp)
+
+    call json_get(json, "zone_indices", zone_idx_arr)
+    if (.not. allocated(zone_idx_arr)) then
+      call neko_error("zone_indices not provided")
+    end if
+    if (size(zone_idx_arr) /= 1) then
+      call neko_error("MOST wall model supports exactly one boundary")
+    end if
+    this%zone_idx = zone_idx_arr(1)
 
   end subroutine most_partial_init
 
@@ -156,7 +175,7 @@ contains
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
-    integer, allocatable, intent(in) :: zone_idx(:)
+    integer, intent(in) :: zone_idx
     integer, intent(in) :: h_idx
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
