@@ -295,7 +295,7 @@ contains
     character(len=50), dimension(:), allocatable :: deprecated_list_local
     integer :: i
 
-    if (this%level_ .lt. NEKO_LOG_DEPRECATION_WARN) return
+    if (this%level_ .lt. NEKO_LOG_QUIET) return
 
     if (.not. allocated(deprecated_list)) then
        allocate(character(len=50) :: deprecated_list(1))
