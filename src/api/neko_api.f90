@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2025, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,49 +33,11 @@
 !> Neko C API
 module neko_api
   use neko
+  use neko_api_user, only : neko_api_user_cb_register, &
+       neko_api_user_cb_get_field
   use, intrinsic :: iso_c_binding
   implicit none
   private
-
-  interface
-     !> Register callbacks
-     !! @param user User interface type
-     !! @param initial_cb Initial condition callback
-     !! @param preprocess_cb Pre timestep callback
-     !! @param compute_cb End of timestep callback
-     !! @param dirichlet_cb User boundary condition callback
-     !! @param material_cb Material properties callback
-     !! @param source_cb Source term callback
-     module subroutine neko_api_user_cb_register(user, initial_cb, &
-          preprocess_cb, compute_cb, dirichlet_cb, material_cb, source_cb)
-       type(user_t), intent(inout) :: user
-       type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
-       type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
-     end subroutine neko_api_user_cb_register
-  end interface
-
-  interface
-     !> Retrive a pointer to a field for the currently active callback
-     !! @param field_name Field list entry
-     module function neko_api_user_cb_get_field_by_name(field_name) result(f)
-       character(len=*), intent(in) :: field_name
-       type(field_t), pointer :: f
-     end function neko_api_user_cb_get_field_by_name
-  end interface
-
-  interface
-     !> Retrive a pointer to a field for the currently active callback
-     !! @param field_idx Field index in the field list
-     module function neko_api_user_cb_get_field_by_index(field_idx) result(f)
-       integer, intent(in) :: field_idx
-       type(field_t), pointer :: f
-     end function neko_api_user_cb_get_field_by_index
-  end interface
-
-  interface neko_api_user_cb_get_field
-     module procedure neko_api_user_cb_get_field_by_name, &
-          neko_api_user_cb_get_field_by_index
-  end interface neko_api_user_cb_get_field
 
 contains
 
@@ -123,18 +85,18 @@ contains
   end subroutine neko_api_job_info
 
   !> Initialise a Neko field registry
-  subroutine neko_api_field_registry_init() bind(c, name="neko_field_registry_init")
+  subroutine neko_api_registry_init() bind(c, name="neko_registry_init")
 
-    call neko_field_registry%init()
+    call neko_registry%init()
 
-  end subroutine neko_api_field_registry_init
+  end subroutine neko_api_registry_init
 
   !> Destroy a Neko field registry
-  subroutine neko_api_field_registry_free() bind(c, name="neko_field_registry_free")
+  subroutine neko_api_registry_free() bind(c, name="neko_registry_free")
 
-    call neko_field_registry%free()
+    call neko_registry%free()
 
-  end subroutine neko_api_field_registry_free
+  end subroutine neko_api_registry_free
 
   !> Allocate memory for a Neko case
   !! @param case_iptr Opaque pointer for the created Neko case
@@ -381,7 +343,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
 
     field_ptr = c_loc(field%x)
 
@@ -404,7 +366,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
 
     field_lx = field%Xh%lx
 
@@ -427,7 +389,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
 
     field_nelv = field%msh%nelv
 
@@ -450,7 +412,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
 
     field_size = field%dof%size()
 
@@ -477,7 +439,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
     call neko_api_wrap_dofmap(field%dof, dof_ptr, x_ptr, y_ptr, z_ptr)
 
   end subroutine neko_api_field_dofmap
@@ -551,7 +513,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
     call neko_api_wrap_space(field%Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
          wx, wy, wz, dx, dy, dz)
 

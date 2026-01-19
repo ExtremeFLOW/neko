@@ -128,10 +128,22 @@ EXTRA_DIST = \
 	tests/integration/tests/test_examples/test_examples.py\
 	tests/integration/tests/test_cylinder/test_cylinder.py\
 	tests/integration/tests/test_cylinder/cylinder_part1.case\
-	tests/integration/tests/test_cylinder/reflog1_dp.csv\
-	tests/integration/tests/test_cylinder/reflog1_sp.csv\
-	tests/integration/tests/test_cylinder/reflog2_dp.csv\
-	tests/integration/tests/test_cylinder/reflog2_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cpu_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cpu_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cpu_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cpu_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cuda_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cuda_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cuda_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cuda_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_hip_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_hip_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_hip_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_hip_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_opencl_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_opencl_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_opencl_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_opencl_sp.csv\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 

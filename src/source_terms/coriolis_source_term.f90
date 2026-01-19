@@ -45,7 +45,7 @@ module coriolis_source_term
   use coriolis_source_term_cpu, only : coriolis_source_term_compute_cpu
   use coriolis_source_term_device, only : coriolis_source_term_compute_device
   use field, only : field_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use time_state, only : time_state_t
   implicit none
   private
@@ -169,9 +169,9 @@ contains
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call coriolis_source_term_compute_device(u, v, w, this%fields, &

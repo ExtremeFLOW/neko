@@ -44,7 +44,7 @@ module boussinesq_source_term
   use boussinesq_source_term_cpu, only : boussinesq_source_term_compute_cpu
   use boussinesq_source_term_device, only : &
        boussinesq_source_term_compute_device
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use time_state, only : time_state_t
   implicit none
   private
@@ -143,10 +143,10 @@ contains
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
 
-    if (.not. neko_field_registry%field_exists(scalar_name)) then
-       call neko_field_registry%add_field(this%fields%dof(1), scalar_name)
+    if (.not. neko_registry%field_exists(scalar_name)) then
+       call neko_registry%add_field(this%fields%dof(1), scalar_name)
     end if
-    this%s => neko_field_registry%get_field(scalar_name)
+    this%s => neko_registry%get_field(scalar_name)
 
     this%ref_value = ref_value
     this%g = g

@@ -9,6 +9,7 @@ math/bcknd/device/hip/set_convect_rst.lo : math/bcknd/device/hip/set_convect_rst
 math/bcknd/device/hip/opr_opgrad.lo : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
 math/bcknd/device/hip/opr_lambda2.lo : math/bcknd/device/hip/opr_lambda2.hip math/bcknd/device/hip/lambda2_kernel.h
 math/bcknd/device/hip/opr_cfl.lo : math/bcknd/device/hip/opr_cfl.hip math/bcknd/device/hip/cfl_kernel.h
+math/bcknd/device/hip/opr_rotate_cyc.lo : math/bcknd/device/hip/opr_rotate_cyc.hip math/bcknd/device/hip/rotate_kernel.h
 math/bcknd/device/hip/ax_helm.lo : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h
 math/bcknd/device/hip/ax_helm_full.lo : math/bcknd/device/hip/ax_helm_full.hip math/bcknd/device/hip/ax_helm_full_kernel.h
 math/bcknd/device/hip/schwarz.lo : math/bcknd/device/hip/schwarz.hip math/bcknd/device/hip/schwarz_kernel.h
@@ -32,6 +33,11 @@ common/bcknd/device/hip/rhs_maker.lo : common/bcknd/device/hip/rhs_maker.hip com
 common/bcknd/device/hip/projection.lo : common/bcknd/device/hip/projection.hip common/bcknd/device/hip/projection_kernel.h
 common/bcknd/device/hip/gradient_jump_penalty.lo : common/bcknd/device/hip/gradient_jump_penalty.hip common/bcknd/device/hip/gradient_jump_penalty_kernel.h
 fluid/bcknd/device/hip/pnpn_res.lo : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h
+fluid/bcknd/device/hip/euler_res.lo : fluid/bcknd/device/hip/euler_res.hip fluid/bcknd/device/hip/euler_res_kernel.h
+fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
+fluid/bcknd/device/hip/compressible_ops_compute_entropy.lo : fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
+fluid/bcknd/device/hip/compressible_ops_update.lo : fluid/bcknd/device/hip/compressible_ops_update.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
+fluid/regularization/bcknd/device/hip/entropy_viscosity.lo : fluid/regularization/bcknd/device/hip/entropy_viscosity.hip fluid/regularization/bcknd/device/hip/entropy_viscosity_kernel.h
 scalar/bcknd/device/hip/scalar_residual.lo : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.lo : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
 les/bcknd/device/hip/dynamic_smagorinsky_nut.lo : les/bcknd/device/hip/dynamic_smagorinsky_nut.hip les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h
@@ -77,6 +83,11 @@ bc/bcknd/device/cuda/dong_outflow.lo : bc/bcknd/device/cuda/dong_outflow.cu bc/b
 common/bcknd/device/cuda/rhs_maker.lo : common/bcknd/device/cuda/rhs_maker.cu common/bcknd/device/cuda/sumab_kernel.h common/bcknd/device/cuda/makeext_kernel.h common/bcknd/device/cuda/makebdf_kernel.h common/bcknd/device/cuda/makeoifs_kernel.h
 common/bcknd/device/cuda/projection.lo : common/bcknd/device/cuda/projection.cu common/bcknd/device/cuda/projection_kernel.h
 fluid/bcknd/device/cuda/pnpn_res.lo : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h
+fluid/bcknd/device/cuda/euler_res.lo : fluid/bcknd/device/cuda/euler_res.cu fluid/bcknd/device/cuda/euler_res_kernel.h
+fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
+fluid/bcknd/device/cuda/compressible_ops_compute_entropy.lo : fluid/bcknd/device/cuda/compressible_ops_compute_entropy.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
+fluid/bcknd/device/cuda/compressible_ops_update.lo : fluid/bcknd/device/cuda/compressible_ops_update.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
+fluid/regularization/bcknd/device/cuda/entropy_viscosity.lo : fluid/regularization/bcknd/device/cuda/entropy_viscosity.cu fluid/regularization/bcknd/device/cuda/entropy_viscosity_kernel.h
 fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.lo : fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h
 common/bcknd/device/cuda/gradient_jump_penalty.lo : common/bcknd/device/cuda/gradient_jump_penalty.cu common/bcknd/device/cuda/gradient_jump_penalty_kernel.h
 scalar/bcknd/device/cuda/scalar_residual.lo : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
@@ -120,6 +131,8 @@ fluid/stress_formulation/bcknd/device/opencl/pnpn_stress_res.lo : fluid/stress_f
 fluid/bcknd/device/opencl/euler_res.lo : fluid/bcknd/device/opencl/euler_res.c fluid/bcknd/device/opencl/euler_res_kernel.cl.h
 fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.c fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed_kernel.cl.h
 fluid/bcknd/device/opencl/compressible_ops_compute_entropy.lo : fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c fluid/bcknd/device/opencl/compressible_ops_compute_entropy_kernel.cl.h
+fluid/bcknd/device/opencl/compressible_ops_update.lo : fluid/bcknd/device/opencl/compressible_ops_update.c fluid/bcknd/device/opencl/compressible_ops_update_kernel.cl.h
+fluid/regularization/bcknd/device/opencl/entropy_viscosity.lo : fluid/regularization/bcknd/device/opencl/entropy_viscosity.c fluid/regularization/bcknd/device/opencl/entropy_viscosity_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
 sem/bcknd/device/opencl/local_interpolation.lo : sem/bcknd/device/opencl/local_interpolation.c sem/bcknd/device/opencl/local_interpolation_kernel.cl.h

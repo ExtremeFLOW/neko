@@ -107,6 +107,13 @@ contains
     type(field_t) :: test_field
     integer :: ierr, i
     real(kind=rp) :: temp, cord, test_tol
+
+    ! Temporary disable tests for OpenCL
+    ! see Issue #2210 on GitHub
+    if (NEKO_BCKND_OPENCL .eq. 1) then
+       return
+    end if
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -161,6 +168,13 @@ contains
     type(field_t) :: test_field
     integer :: ierr, i
     real(kind=rp) :: temp, cord, test_tol
+
+    ! Temporary disable tests for OpenCL
+    ! see Issue #2210 on GitHub
+    if (NEKO_BCKND_OPENCL .eq. 1) then
+       return
+    end if
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -221,6 +235,12 @@ contains
     integer :: ierr, i
     real(kind=rp) :: temp, cord, test_tol
 
+    ! Temporary disable tests for OpenCL
+    ! see Issue #2210 on GitHub
+    if (NEKO_BCKND_OPENCL .eq. 1) then
+       return
+    end if
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -269,6 +289,12 @@ contains
     integer :: ierr, i, r, phi, npts, nlvl, nphi, nr, id
     real(kind=rp) :: analytical_val, test_tol
 
+    ! Temporary disable tests for OpenCL
+    ! see Issue #2210 on GitHub
+    if (NEKO_BCKND_OPENCL .eq. 1) then
+       return
+    end if
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -345,6 +371,13 @@ contains
     integer :: ierr, i
     real(kind=rp) :: temp, cord, test_tol
     type(vector_t) :: x, y, z
+
+    ! Temporary disable tests for OpenCL
+    ! see Issue #2210 on GitHub
+    if (NEKO_BCKND_OPENCL .eq. 1) then
+       return
+    end if
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()

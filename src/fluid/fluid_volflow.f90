@@ -75,8 +75,8 @@ module fluid_volflow
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
-  use json_utils, only: json_get
-  use scratch_registry, only : scratch_registry_t
+  use json_utils, only : json_get
+  use scratch_registry, only : neko_scratch_registry
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
@@ -90,11 +90,9 @@ module fluid_volflow
      logical :: avflow
      real(kind=rp) :: flow_rate
      real(kind=rp) :: dtlag = 0d0
-     real(kind=rp) :: bdlag = 0d0 !< Really quite pointless since we do not vary the timestep
+     real(kind=rp) :: bdlag = 0d0 !< Pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=rp) :: domain_length, base_flow
-     !> Manager for temporary fields
-     type(scratch_registry_t) :: scratch
    contains
      procedure, pass(this) :: init => fluid_vol_flow_init
      procedure, pass(this) :: free => fluid_vol_flow_free
@@ -131,8 +129,6 @@ contains
        call this%p_vol%init(dm_Xh, 'p_vol')
     end if
 
-    call this%scratch%init(dm_Xh, 3, 1)
-
   end subroutine fluid_vol_flow_init
 
   subroutine fluid_vol_flow_free(this)
@@ -143,8 +139,6 @@ contains
     call this%w_vol%free()
     call this%p_vol%free()
 
-    call this%scratch%free()
-
   end subroutine fluid_vol_flow_free
 
   !> Compute flow adjustment
@@ -153,7 +147,8 @@ contains
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
        ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
+       vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(coef_t), intent(inout) :: c_Xh
@@ -177,9 +172,9 @@ contains
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: temp_indices(3)
 
-    call this%scratch%request_field(ta1, temp_indices(1))
-    call this%scratch%request_field(ta2, temp_indices(2))
-    call this%scratch%request_field(ta3, temp_indices(3))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
 
 
     associate(msh => c_Xh%msh, p_vol => this%p_vol, &
@@ -325,7 +320,7 @@ contains
       end if
     end associate
 
-    call this%scratch%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine fluid_vol_flow_compute
 
   !> Adjust flow volume
@@ -340,7 +335,8 @@ contains
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
        c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
+       vel_max_iter)
 
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w, p
@@ -372,7 +368,7 @@ contains
       ifcomp = 0.0_rp
 
       if ((.not. abscmp(dt, this%dtlag)) .or. &
-          (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) then
+           (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) then
          ifcomp = 1.0_rp
       end if
 

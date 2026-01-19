@@ -35,20 +35,22 @@ module fluid_scheme_compressible
   use field_math, only : field_cfill, field_col2, field_col3, &
        field_cmult2, field_cmult, field_addcol3, field_add2
 
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
   use num_types, only : rp
   use mesh, only : mesh_t
-  use scratch_registry, only : scratch_registry_t
+  use scratch_registry, only : neko_scratch_registry
   use space, only : GLL
   use user_intf, only : user_t
   use json_utils, only : json_get_or_default
   use mpi_f08
   use operators, only : cfl_compressible
-  use compressible_ops_cpu, only : compressible_ops_cpu_compute_max_wave_speed, &
+  use compressible_ops_cpu, only : &
+       compressible_ops_cpu_compute_max_wave_speed, &
        compressible_ops_cpu_compute_entropy
-  use compressible_ops_device, only : compressible_ops_device_compute_max_wave_speed, &
+  use compressible_ops_device, only : &
+       compressible_ops_device_compute_max_wave_speed, &
        compressible_ops_device_compute_entropy
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_state, only : time_state_t
@@ -59,7 +61,8 @@ module fluid_scheme_compressible
   private
 
   !> Base type of compressible fluid formulations.
-  type, public, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_compressible_t
+  type, public, abstract, extends(fluid_scheme_base_t) :: &
+       fluid_scheme_compressible_t
      !> The momentum field
      type(field_t), pointer :: m_x => null() !< x-component of Momentum
      type(field_t), pointer :: m_y => null() !< y-component of Momentum
@@ -67,6 +70,7 @@ module fluid_scheme_compressible
      type(field_t), pointer :: E => null() !< Total energy
      type(field_t), pointer :: max_wave_speed => null() !< Maximum wave speed field
      type(field_t), pointer :: S => null() !< Entropy field
+     type(field_t), pointer :: effective_visc => null() !< Effective artificial viscosity field
 
      real(kind=rp) :: gamma
 
@@ -74,8 +78,6 @@ module fluid_scheme_compressible
      integer(kind=i8) :: glb_n_points
      !> Global number of GLL points for the fluid (unique)
      integer(kind=i8) :: glb_unique_points
-
-     type(scratch_registry_t) :: scratch !< Manager for temporary fields
 
    contains
      !> Constructors
@@ -137,8 +139,8 @@ contains
 
     call this%c_Xh%init(this%gs_Xh)
 
-    ! Local scratch registry
-    call this%scratch%init(this%dm_Xh, 10, 2)
+    ! Assign Dofmap to scratch registry
+    call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
     ! Case parameters
     this%params => params
@@ -147,50 +149,55 @@ contains
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
 
     ! Fill mu and rho field with the physical value
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_rho")
-    this%mu => neko_field_registry%get_field(this%name // "_mu")
-    this%rho => neko_field_registry%get_field(this%name // "_rho")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_mu")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_rho")
+    this%mu => neko_registry%get_field(this%name // "_mu")
+    this%rho => neko_registry%get_field(this%name // "_rho")
     call field_cfill(this%mu, 0.0_rp, this%mu%size())
 
     ! Assign momentum fields
-    call neko_field_registry%add_field(this%dm_Xh, "m_x")
-    call neko_field_registry%add_field(this%dm_Xh, "m_y")
-    call neko_field_registry%add_field(this%dm_Xh, "m_z")
-    this%m_x => neko_field_registry%get_field("m_x")
-    this%m_y => neko_field_registry%get_field("m_y")
-    this%m_z => neko_field_registry%get_field("m_z")
+    call neko_registry%add_field(this%dm_Xh, "m_x")
+    call neko_registry%add_field(this%dm_Xh, "m_y")
+    call neko_registry%add_field(this%dm_Xh, "m_z")
+    this%m_x => neko_registry%get_field("m_x")
+    this%m_y => neko_registry%get_field("m_y")
+    this%m_z => neko_registry%get_field("m_z")
     call this%m_x%init(this%dm_Xh, "m_x")
     call this%m_y%init(this%dm_Xh, "m_y")
     call this%m_z%init(this%dm_Xh, "m_z")
 
     ! Assign energy field
-    call neko_field_registry%add_field(this%dm_Xh, "E")
-    this%E => neko_field_registry%get_field("E")
+    call neko_registry%add_field(this%dm_Xh, "E")
+    this%E => neko_registry%get_field("E")
     call this%E%init(this%dm_Xh, "E")
 
     ! Assign maximum wave speed field
-    call neko_field_registry%add_field(this%dm_Xh, "max_wave_speed")
-    this%max_wave_speed => neko_field_registry%get_field("max_wave_speed")
+    call neko_registry%add_field(this%dm_Xh, "max_wave_speed")
+    this%max_wave_speed => neko_registry%get_field("max_wave_speed")
     call this%max_wave_speed%init(this%dm_Xh, "max_wave_speed")
 
     ! Assign entropy field
-    call neko_field_registry%add_field(this%dm_Xh, "S")
-    this%S => neko_field_registry%get_field("S")
+    call neko_registry%add_field(this%dm_Xh, "S")
+    this%S => neko_registry%get_field("S")
     call this%S%init(this%dm_Xh, "S")
 
+    ! Assign effective artificial viscosity field
+    call neko_registry%add_field(this%dm_Xh, "effective_visc")
+    this%effective_visc => neko_registry%get_field("effective_visc")
+    call this%effective_visc%init(this%dm_Xh, "effective_visc")
+
     ! ! Assign velocity fields
-    call neko_field_registry%add_field(this%dm_Xh, "u")
-    call neko_field_registry%add_field(this%dm_Xh, "v")
-    call neko_field_registry%add_field(this%dm_Xh, "w")
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
+    call neko_registry%add_field(this%dm_Xh, "u")
+    call neko_registry%add_field(this%dm_Xh, "v")
+    call neko_registry%add_field(this%dm_Xh, "w")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
     call this%u%init(this%dm_Xh, "u")
     call this%v%init(this%dm_Xh, "v")
     call this%w%init(this%dm_Xh, "w")
-    call neko_field_registry%add_field(this%dm_Xh, 'p')
-    this%p => neko_field_registry%get_field('p')
+    call neko_registry%add_field(this%dm_Xh, 'p')
+    this%p => neko_registry%get_field('p')
     call this%p%init(this%dm_Xh, "p")
 
     !
@@ -293,7 +300,7 @@ contains
     integer :: temp_indices(1)
 
     n = this%dm_Xh%size()
-    call this%scratch%request_field(temp, temp_indices(1))
+    call neko_scratch_registry%request_field(temp, temp_indices(1), .false.)
 
     !> Initialize the momentum field
     call field_col3(this%m_x, this%u, this%rho)
@@ -310,7 +317,7 @@ contains
     call field_cmult(temp, 0.5_rp, n)
     call field_add2(this%E, temp, n)
 
-    call this%scratch%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
     !> Compute initial maximum wave speed from initial conditions
     call this%compute_max_wave_speed()
@@ -357,9 +364,11 @@ contains
 
     !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, this%gamma, n)
+       call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, &
+            this%gamma, n)
     else
-       call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, this%rho%x, this%gamma, n)
+       call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, &
+            this%rho%x, this%gamma, n)
     end if
 
   end subroutine fluid_scheme_compressible_compute_entropy
@@ -374,8 +383,9 @@ contains
 
     !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compressible_ops_device_compute_max_wave_speed(this%max_wave_speed, &
-            this%u, this%v, this%w, this%gamma, this%p, this%rho, n)
+       call compressible_ops_device_compute_max_wave_speed( &
+            this%max_wave_speed, this%u, this%v, this%w, this%gamma, this%p, &
+            this%rho, n)
     else
        call compressible_ops_cpu_compute_max_wave_speed(this%max_wave_speed%x, &
             this%u%x, this%v%x, this%w%x, this%gamma, this%p%x, this%rho%x, n)
@@ -425,13 +435,15 @@ contains
     call neko_log%message(log_buf)
 
     ! Compressible-specific parameters
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, 0.5_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, &
+         0.5_rp)
     write(log_buf, '(A,ES13.6)') 'c_avisc_low:', real_val
     call neko_log%message(log_buf)
 
     call json_get_or_default(params, 'case.numerics.time_order', integer_val, 4)
     write(log_buf, '(A, I0)') 'RK order   : ', integer_val
     call neko_log%message(log_buf)
+    call neko_log%end_section()
 
   end subroutine fluid_scheme_compressible_log_solver_info
 

@@ -32,11 +32,11 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
-  use field_registry, only : neko_field_registry
-  use logger, only: neko_log, LOG_SIZE
+  use registry, only : neko_registry
+  use logger, only : neko_log, LOG_SIZE
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
@@ -47,6 +47,7 @@ module fluid_pnpn
        rhs_maker_ext_fctry, rhs_maker_oifs_fctry
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use scratch_registry, only : neko_scratch_registry
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
   use projection, only : projection_t
@@ -72,7 +73,7 @@ module fluid_pnpn
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
-  use bc_list, only: bc_list_t
+  use bc_list, only : bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
@@ -266,8 +267,8 @@ contains
 
     ! Add pressure field to the registry. For this scheme it is in the same
     ! Xh as the velocity
-    call neko_field_registry%add_field(this%dm_Xh, 'p')
-    this%p => neko_field_registry%get_field('p')
+    call neko_registry%add_field(this%dm_Xh, 'p')
+    this%p => neko_registry%get_field('p')
 
     !
     ! Select governing equations via associated residual and Ax types
@@ -280,9 +281,10 @@ contains
     call json_get_or_default(params, "case.fluid.full_stress_formulation", &
          this%full_stress_formulation, .false.)
 
-    call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, .false.)
+    call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
+         .false.)
 
-    if (this%full_stress_formulation .eqv. .true.) then
+    if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
 
@@ -305,7 +307,7 @@ contains
 
 
     if (params%valid_path('case.fluid.nut_field')) then
-       if (this%full_stress_formulation .eqv. .false.) then
+       if (.not. this%full_stress_formulation) then
           call neko_error("You need to set full_stress_formulation to " // &
                "true for the fluid to have a spatially varying " // &
                "viscocity field.")
@@ -526,11 +528,13 @@ contains
        call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
        do i = 1, this%ulag%size()
-          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, this%wlag%lf(i)%x, 1, this%c_Xh)
+          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
+               this%wlag%lf(i)%x, 1, this%c_Xh)
           call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
-          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, this%wlag%lf(i)%x, 0, this%c_Xh)
+          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
+               this%wlag%lf(i)%x, 0, this%c_Xh)
        end do
     end if
 
@@ -924,7 +928,7 @@ contains
                 error stop
              end if
 
-             if (marked_zones(zone_indices(j)) .eqv. .true.) then
+             if (marked_zones(zone_indices(j))) then
                 write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
@@ -993,7 +997,7 @@ contains
                 ! mark the same faces as in ordinary velocity dirichlet
                 ! conditions.
                 ! Additionally we mark the special PnPn pressure  bc.
-                if (bc_i%strong .eqv. .true.) then
+                if (bc_i%strong) then
                    call this%bc_vel_res%mark_facets(bc_i%marked_facet)
                    call this%bc_du%mark_facets(bc_i%marked_facet)
                    call this%bc_dv%mark_facets(bc_i%marked_facet)
@@ -1010,7 +1014,7 @@ contains
        ! Make sure all labeled zones with non-zero size have been marked
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
-               (marked_zones(i) .eqv. .false.)) then
+               (.not. marked_zones(i))) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No fluid boundary condition assigned to zone ", i
              error stop
@@ -1034,7 +1038,7 @@ contains
              call this%bcs_prs%append(bc_i)
 
              ! Mark strong bcs in the dummy dp bc to force zero change.
-             if (bc_i%strong .eqv. .true.) then
+             if (bc_i%strong) then
                 call this%bc_dp%mark_facets(bc_i%marked_facet)
              end if
 
@@ -1075,6 +1079,15 @@ contains
     this%prs_dirichlet = .not. this%bclst_dp%is_empty()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
+
+
+    if (allocated(marked_zones)) then
+       deallocate(marked_zones)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
+    end if
 
   end subroutine fluid_pnpn_setup_bcs
 
@@ -1120,8 +1133,7 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call this%scratch%request_field(bdry_field, temp_index)
-    bdry_field = 0.0_rp
+    call neko_scratch_registry%request_field(bdry_field, temp_index, .true.)
 
 
 
@@ -1207,7 +1219,7 @@ contains
     call bdry_file%init('bdry.fld')
     call bdry_file%write(bdry_field)
 
-    call this%scratch%relinquish_field(temp_index)
+    call neko_scratch_registry%relinquish_field(temp_index)
   end subroutine fluid_pnpn_write_boundary_conditions
 
 end module fluid_pnpn

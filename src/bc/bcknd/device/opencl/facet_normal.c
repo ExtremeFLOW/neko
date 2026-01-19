@@ -87,4 +87,5 @@ void opencl_facet_normal_apply_surfvec(void *msk, void *facet,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }

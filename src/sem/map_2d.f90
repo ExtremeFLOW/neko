@@ -43,6 +43,7 @@ module map_2d
    contains
      procedure, pass(this) :: init_int => map_2d_init
      procedure, pass(this) :: init_char => map_2d_init_char
+     procedure, pass(this) :: free => map_2d_free
      generic :: init => init_int, init_char
      procedure, pass(this) :: average_file => map_2d_average
      procedure, pass(this) :: average_list => map_2d_average_field_list
@@ -51,7 +52,7 @@ module map_2d
 
 contains
 
-  subroutine map_2d_init(this,coef, dir, tol)
+  subroutine map_2d_init(this, coef, dir, tol)
     class(map_2d_t), intent(inout) :: this
     type(coef_t), intent(inout), target :: coef
     integer, intent(in) :: dir
@@ -163,6 +164,22 @@ contains
     call this%init(coef,idir,tol)
 
   end subroutine map_2d_init_char
+
+  subroutine map_2d_free(this)
+    class(map_2d_t), intent(inout) :: this
+
+    if (allocated(this%idx_2d)) then
+       deallocate(this%idx_2d)
+    end if
+
+    if (allocated(this%el_idx_2d)) then
+       deallocate(this%el_idx_2d)
+    end if
+
+    nullify(this%msh)
+    nullify(this%dof)
+    nullify(this%coef)
+  end subroutine map_2d_free
 
 
   !> Computes average if field list in one direction and outputs 2D field

@@ -35,7 +35,7 @@ module wale_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
   use scratch_registry, only : neko_scratch_registry
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : dudxyz, strain_rate
   use coefs, only : coef_t
@@ -80,31 +80,31 @@ contains
 
 
     if (if_ext .eqv. .true.) then
-       u => neko_field_registry%get_field_by_name("u_e")
-       v => neko_field_registry%get_field_by_name("v_e")
-       w => neko_field_registry%get_field_by_name("w_e")
+       u => neko_registry%get_field_by_name("u_e")
+       v => neko_registry%get_field_by_name("v_e")
+       w => neko_registry%get_field_by_name("w_e")
     else
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
+       u => neko_registry%get_field_by_name("u")
+       v => neko_registry%get_field_by_name("v")
+       w => neko_registry%get_field_by_name("w")
     end if
 
-    call neko_scratch_registry%request_field(g11, temp_indices(1))
-    call neko_scratch_registry%request_field(g12, temp_indices(2))
-    call neko_scratch_registry%request_field(g13, temp_indices(3))
-    call neko_scratch_registry%request_field(g21, temp_indices(4))
-    call neko_scratch_registry%request_field(g22, temp_indices(5))
-    call neko_scratch_registry%request_field(g23, temp_indices(6))
-    call neko_scratch_registry%request_field(g31, temp_indices(7))
-    call neko_scratch_registry%request_field(g32, temp_indices(8))
-    call neko_scratch_registry%request_field(g33, temp_indices(9))
+    call neko_scratch_registry%request_field(g11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(g12, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(g13, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(g21, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(g22, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(g23, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(g31, temp_indices(7), .false.)
+    call neko_scratch_registry%request_field(g32, temp_indices(8), .false.)
+    call neko_scratch_registry%request_field(g33, temp_indices(9), .false.)
 
-    call neko_scratch_registry%request_field(s11, temp_indices(10))
-    call neko_scratch_registry%request_field(s22, temp_indices(11))
-    call neko_scratch_registry%request_field(s33, temp_indices(12))
-    call neko_scratch_registry%request_field(s12, temp_indices(13))
-    call neko_scratch_registry%request_field(s13, temp_indices(14))
-    call neko_scratch_registry%request_field(s23, temp_indices(15))
+    call neko_scratch_registry%request_field(s11, temp_indices(10), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(11), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(12), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(13), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(14), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(15), .false.)
 
 
     ! Compute the velocity gradient tensor g
@@ -145,32 +145,32 @@ contains
        do concurrent(i = 1:coef%Xh%lxyz)
           ! gij^2 = g_ik * g_kj
           gsqr_11 = g11%x(i,1,1,e)*g11%x(i,1,1,e) + &
-                g12%x(i,1,1,e)*g21%x(i,1,1,e) + &
-                g13%x(i,1,1,e)*g31%x(i,1,1,e)
+               g12%x(i,1,1,e)*g21%x(i,1,1,e) + &
+               g13%x(i,1,1,e)*g31%x(i,1,1,e)
           gsqr_12 = g11%x(i,1,1,e)*g12%x(i,1,1,e) + &
-                g12%x(i,1,1,e)*g22%x(i,1,1,e) + &
-                g13%x(i,1,1,e)*g32%x(i,1,1,e)
+               g12%x(i,1,1,e)*g22%x(i,1,1,e) + &
+               g13%x(i,1,1,e)*g32%x(i,1,1,e)
           gsqr_13 = g11%x(i,1,1,e)*g13%x(i,1,1,e) + &
-                g12%x(i,1,1,e)*g23%x(i,1,1,e) + &
-                g13%x(i,1,1,e)*g33%x(i,1,1,e)
+               g12%x(i,1,1,e)*g23%x(i,1,1,e) + &
+               g13%x(i,1,1,e)*g33%x(i,1,1,e)
           gsqr_21 = g21%x(i,1,1,e)*g11%x(i,1,1,e) + &
-                g22%x(i,1,1,e)*g21%x(i,1,1,e) + &
-                g23%x(i,1,1,e)*g31%x(i,1,1,e)
+               g22%x(i,1,1,e)*g21%x(i,1,1,e) + &
+               g23%x(i,1,1,e)*g31%x(i,1,1,e)
           gsqr_22 = g21%x(i,1,1,e)*g12%x(i,1,1,e) + &
-                g22%x(i,1,1,e)*g22%x(i,1,1,e) + &
-                g23%x(i,1,1,e)*g32%x(i,1,1,e)
+               g22%x(i,1,1,e)*g22%x(i,1,1,e) + &
+               g23%x(i,1,1,e)*g32%x(i,1,1,e)
           gsqr_23 = g21%x(i,1,1,e)*g13%x(i,1,1,e) + &
-                g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
-                g23%x(i,1,1,e)*g33%x(i,1,1,e)
+               g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
+               g23%x(i,1,1,e)*g33%x(i,1,1,e)
           gsqr_31 = g31%x(i,1,1,e)*g11%x(i,1,1,e) + &
-                g32%x(i,1,1,e)*g21%x(i,1,1,e) + &
-                g33%x(i,1,1,e)*g31%x(i,1,1,e)
+               g32%x(i,1,1,e)*g21%x(i,1,1,e) + &
+               g33%x(i,1,1,e)*g31%x(i,1,1,e)
           gsqr_32 = g31%x(i,1,1,e)*g12%x(i,1,1,e) + &
-                g32%x(i,1,1,e)*g22%x(i,1,1,e) + &
-                g33%x(i,1,1,e)*g32%x(i,1,1,e)
+               g32%x(i,1,1,e)*g22%x(i,1,1,e) + &
+               g33%x(i,1,1,e)*g32%x(i,1,1,e)
           gsqr_33 = g31%x(i,1,1,e)*g13%x(i,1,1,e) + &
-                g32%x(i,1,1,e)*g23%x(i,1,1,e) + &
-                g33%x(i,1,1,e)*g33%x(i,1,1,e)
+               g32%x(i,1,1,e)*g23%x(i,1,1,e) + &
+               g33%x(i,1,1,e)*g33%x(i,1,1,e)
 
           ! sdij components
           sd11 = gsqr_11 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)
@@ -182,15 +182,15 @@ contains
 
           ! Sdij*Sdij
           Sdij_Sdij = sd11*sd11 + sd22*sd22 + sd33*sd33 + &
-                            2.0_rp * (sd12*sd12 + sd13*sd13 + sd23*sd23)
+               2.0_rp * (sd12*sd12 + sd13*sd13 + sd23*sd23)
           ! Sij*Sij
           Sij_Sij = s11%x(i,1,1,e)*s11%x(i,1,1,e) + s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
-                    s33%x(i,1,1,e)*s33%x(i,1,1,e) + 2.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
-                    s13%x(i,1,1,e)*s13%x(i,1,1,e) + s23%x(i,1,1,e)*s23%x(i,1,1,e))
+               s33%x(i,1,1,e)*s33%x(i,1,1,e) + 2.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
+               s13%x(i,1,1,e)*s13%x(i,1,1,e) + s23%x(i,1,1,e)*s23%x(i,1,1,e))
 
           ! Wale operator
           OP_wale = Sdij_Sdij**(3.0_rp / 2.0_rp) / &
-                    max((Sij_Sij**(5.0_rp / 2.0_rp) + Sdij_Sdij**(5.0_rp / 4.0_rp)), NEKO_EPS)
+               max((Sij_Sij**(5.0_rp / 2.0_rp) + Sdij_Sdij**(5.0_rp / 4.0_rp)), NEKO_EPS)
 
           ! turbulent viscosity
           nut%x(i,1,1,e) = c_w**2 * delta%x(i,1,1,e)**2 * OP_wale * coef%mult(i,1,1,e)

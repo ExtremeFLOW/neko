@@ -1,5 +1,5 @@
 module field_list
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use field, only : field_ptr_t, field_t
   use iso_c_binding, only : c_ptr
   use num_types, only : rp
@@ -29,7 +29,8 @@ module field_list
      !> Point item at given index.
      generic :: assign => assign_to_ptr, assign_to_field_ptr
      procedure, pass(this) :: assign_to_ptr => field_list_assign_to_ptr
-     procedure, pass(this) :: assign_to_field_ptr => field_list_assign_to_field_ptr
+     procedure, pass(this) :: assign_to_field_ptr => &
+          field_list_assign_to_field_ptr
      procedure, pass(this) :: assign_to_field => field_list_assign_to_field
 
      !> Get device pointer for a given index.
@@ -90,7 +91,7 @@ contains
 
     nullify(f)
 
-    do i=1, this%size()
+    do i = 1, this%size()
        if (this%name(i) .eq. trim(name)) then
           f => this%items(i)%ptr
           return
@@ -100,7 +101,7 @@ contains
     if (pe_rank .eq. 0) then
        write(error_unit,*) "Current field list contents:"
 
-       do i=1, this%size()
+       do i = 1, this%size()
           write(error_unit,*) "- ", this%name(i)
        end do
     end if
@@ -132,7 +133,7 @@ contains
 
     if (allocated(this%items)) then
        n_fields = this%size()
-       do i=1, n_fields
+       do i = 1, n_fields
           if (associated(this%items(i)%ptr)) then
              call this%items(i)%ptr%free()
           end if

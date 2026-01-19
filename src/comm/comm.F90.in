@@ -165,6 +165,7 @@ contains
 
     call MPI_Barrier(NEKO_COMM, ierr)
     call MPI_Comm_free(NEKO_COMM, ierr)
+    call MPI_Comm_free(NEKO_GLOBAL_COMM, ierr)
 
 #ifdef HAVE_NCCL
     call neko_comm_nccl_finalize()

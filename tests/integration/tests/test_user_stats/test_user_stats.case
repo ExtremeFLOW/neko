@@ -40,7 +40,7 @@
         "absolute_tolerance": 1e-07,
         "max_iterations": 800
       },
-      "output_control": "never",
+      "output_control": "never"
     },
     "scalar": {
       "enabled": true,
@@ -69,9 +69,8 @@
         "compute_control": "tsteps",
         "compute_value": 1,
         "output_control": "tsteps",
-        "output_value": 500,
-
-      },
+        "output_value": 500
+      }
     ]
   }
 }

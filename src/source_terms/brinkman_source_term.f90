@@ -40,7 +40,7 @@ module brinkman_source_term
   use math, only : cfill_mask, pwmax2
   use device_math, only : device_cfill_mask, device_pwmax2
   use field_math, only : field_pwmax2, field_subcol3, field_copy
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use mappings, only : smooth_step_field, step_function_field, &
        permeability_field
   use file, only : file_t
@@ -151,16 +151,16 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Allocate the permeability and indicator field
 
-    call neko_field_registry%add_field(coef%dof, 'brinkman_indicator', .true.)
-    call neko_field_registry%add_field(coef%dof, 'brinkman_indicator_unfiltered', &
+    call neko_registry%add_field(coef%dof, 'brinkman_indicator', .true.)
+    call neko_registry%add_field(coef%dof, 'brinkman_indicator_unfiltered', &
          .true.)
-    call neko_field_registry%add_field(coef%dof, 'brinkman_permeability', &
+    call neko_registry%add_field(coef%dof, 'brinkman_permeability', &
          .true.)
 
-    this%indicator => neko_field_registry%get_field('brinkman_indicator')
+    this%indicator => neko_registry%get_field('brinkman_indicator')
     this%indicator_unfiltered => &
-         neko_field_registry%get_field('brinkman_indicator_unfiltered')
-    this%brinkman => neko_field_registry%get_field('brinkman_permeability')
+         neko_registry%get_field('brinkman_indicator_unfiltered')
+    this%brinkman => neko_registry%get_field('brinkman_permeability')
 
     ! ------------------------------------------------------------------------ !
     ! Select which constructor should be called
@@ -261,9 +261,9 @@ contains
 
     n = this%fields%item_size(1)
 
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
+    u => neko_registry%get_field('u')
+    v => neko_registry%get_field('v')
+    w => neko_registry%get_field('w')
 
     fu => this%fields%get(1)
     fv => this%fields%get(2)

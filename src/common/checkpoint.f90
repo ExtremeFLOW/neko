@@ -32,7 +32,7 @@
 !
 !> Defines a checkpoint
 module checkpoint
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, dp
   use field_series, only : field_series_t
   use field_series_list, only : field_series_list_t
@@ -40,8 +40,8 @@ module checkpoint
   use device, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
        device_sync, glb_cmd_queue
   use field, only : field_t, field_ptr_t
-  use utils, only : neko_error, filename_suffix_pos
-  use mesh, only: mesh_t
+  use utils, only : neko_error
+  use mesh, only : mesh_t
   use math, only : NEKO_EPS
   implicit none
   private
@@ -94,7 +94,7 @@ module checkpoint
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
      procedure, pass(this) :: restart_time => chkp_restart_time
-     final :: chkp_free
+     procedure, pass(this) :: free => chkp_free
   end type chkp_t
 
 contains
@@ -130,7 +130,7 @@ contains
 
   !> Reset checkpoint
   subroutine chkp_free(this)
-    type(chkp_t), intent(inout) :: this
+    class(chkp_t), intent(inout) :: this
 
     nullify(this%u)
     nullify(this%v)
@@ -168,62 +168,67 @@ contains
     integer :: i, j
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(u=>this%u, v=>this%v, w=>this%w, &
-            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag, &
-            p=>this%p)
+       associate(u => this%u, v => this%v, w => this%w, &
+            ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
+            p => this%p)
 
          if (associated(this%u) .and. associated(this%v) .and. &
               associated(this%w) .and. associated(this%p)) then
-            call device_memcpy(u%x, u%x_d, u%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(v%x, v%x_d, v%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(w%x, w%x_d, w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(p%x, p%x_d, p%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            call device_memcpy(u%x, u%x_d, u%dof%size(), DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(v%x, v%x_d, v%dof%size(), DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(w%x, w%x_d, w%dof%size(), DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(p%x, p%x_d, p%dof%size(), DEVICE_TO_HOST, &
+                 sync = .false.)
          end if
 
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
               associated(this%wlag)) then
             call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                 u%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 u%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                 u%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 u%dof%size(), DEVICE_TO_HOST, sync = .false.)
 
             call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                 v%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 v%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                 v%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 v%dof%size(), DEVICE_TO_HOST, sync = .false.)
 
             call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
          end if
          if (associated(this%s)) then
             call device_memcpy(this%s%x, this%s%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 this%s%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 this%s%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 this%s%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abs1%x, this%abs1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 w%dof%size(), DEVICE_TO_HOST, sync = .false.)
          end if
 
          ! Multi-scalar lag field synchronization
-         if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
+         if (allocated(this%scalar_lags%items) .and. &
+              this%scalar_lags%size() > 0) then
             do i = 1, this%scalar_lags%size()
                block
                  type(field_series_t), pointer :: slag
@@ -233,7 +238,7 @@ contains
                  dof_size = slag%f%dof%size()
                  do j = 1, slag_size
                     call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         dof_size, DEVICE_TO_HOST, sync=.false.)
+                         dof_size, DEVICE_TO_HOST, sync = .false.)
                  end do
                end block
             end do
@@ -242,10 +247,14 @@ contains
          ! Multi-scalar ABX field synchronization
          if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
             do i = 1, size(this%scalar_abx1)
-               call device_memcpy(this%scalar_abx1(i)%ptr%x, this%scalar_abx1(i)%ptr%x_d, &
-                    this%scalar_abx1(i)%ptr%dof%size(), DEVICE_TO_HOST, sync=.false.)
-               call device_memcpy(this%scalar_abx2(i)%ptr%x, this%scalar_abx2(i)%ptr%x_d, &
-                    this%scalar_abx2(i)%ptr%dof%size(), DEVICE_TO_HOST, sync=.false.)
+               call device_memcpy(this%scalar_abx1(i)%ptr%x, &
+                    this%scalar_abx1(i)%ptr%x_d, &
+                    this%scalar_abx1(i)%ptr%dof%size(), DEVICE_TO_HOST, &
+                    sync = .false.)
+               call device_memcpy(this%scalar_abx2(i)%ptr%x, &
+                    this%scalar_abx2(i)%ptr%x_d, &
+                    this%scalar_abx2(i)%ptr%dof%size(), DEVICE_TO_HOST, &
+                    sync = .false.)
             end do
          end if
        end associate
@@ -260,55 +269,56 @@ contains
     integer :: i, j
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(u=>this%u, v=>this%v, w=>this%w, &
-            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
-            p=>this%p)
+       associate(u => this%u, v => this%v, w => this%w, &
+            ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
+            p => this%p)
 
          if (associated(this%u) .and. associated(this%v) .and. &
               associated(this%w)) then
             call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
          end if
 
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
               associated(this%wlag)) then
             call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
 
             call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
 
-            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, w%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, w%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
+                 w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
+                 w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          end if
          if (associated(this%s)) then
-            call device_memcpy(this%s%x, this%s%x_d, this%s%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(this%s%x, this%s%x_d, &
+                 this%s%dof%size(), HOST_TO_DEVICE, sync = .false.)
 
             call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                 this%s%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                 this%s%dof%size(), HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                 this%s%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                 this%s%dof%size(), HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(this%abs1%x, this%abs1%x_d, &
-                 w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                 w%dof%size(), HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
-                 w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                 w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          end if
 
          ! Multi-scalar lag field synchronization
-         if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
+         if (allocated(this%scalar_lags%items) .and. &
+              this%scalar_lags%size() > 0) then
             do i = 1, this%scalar_lags%size()
                block
                  type(field_series_t), pointer :: slag
@@ -318,7 +328,7 @@ contains
                  dof_size = slag%f%dof%size()
                  do j = 1, slag_size
                     call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         dof_size, HOST_TO_DEVICE, sync=.false.)
+                         dof_size, HOST_TO_DEVICE, sync = .false.)
                  end do
                end block
             end do
@@ -327,10 +337,14 @@ contains
          ! Multi-scalar ABX field synchronization
          if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
             do i = 1, size(this%scalar_abx1)
-               call device_memcpy(this%scalar_abx1(i)%ptr%x, this%scalar_abx1(i)%ptr%x_d, &
-                    this%scalar_abx1(i)%ptr%dof%size(), HOST_TO_DEVICE, sync=.false.)
-               call device_memcpy(this%scalar_abx2(i)%ptr%x, this%scalar_abx2(i)%ptr%x_d, &
-                    this%scalar_abx2(i)%ptr%dof%size(), HOST_TO_DEVICE, sync=.false.)
+               call device_memcpy(this%scalar_abx1(i)%ptr%x, &
+                    this%scalar_abx1(i)%ptr%x_d, &
+                    this%scalar_abx1(i)%ptr%dof%size(), HOST_TO_DEVICE, &
+                    sync = .false.)
+               call device_memcpy(this%scalar_abx2(i)%ptr%x, &
+                    this%scalar_abx2(i)%ptr%x_d, &
+                    this%scalar_abx2(i)%ptr%dof%size(), HOST_TO_DEVICE, &
+                    sync = .false.)
             end do
          end if
        end associate

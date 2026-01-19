@@ -255,7 +255,7 @@ contains
       end do
 
       rtr = glsc3(tmp, coef%mult, coef%binv, n)
-      rnorm = sqrt(rtr*norm_fac)
+      rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
@@ -321,7 +321,7 @@ contains
 
          rtr = glsc3(tmp, coef%mult, coef%binv, n)
          if (iter .eq. 1) rtr0 = rtr
-         rnorm = sqrt(rtr * norm_fac)
+         rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)
          if (rnorm .lt. this%abs_tol) then
             exit

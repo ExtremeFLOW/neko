@@ -17,7 +17,7 @@ on:
         description: "The version of the pFUnit library to use."
         type: string
         required: false
-        default: "v4.4.2"
+        default: "v4.15.0"
 
 jobs:
   GNU:
@@ -79,7 +79,7 @@ jobs:
             setup-env: |
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
-              
+
           - os: macos-15
             setup-env: |
               brew install openmpi automake libtool
@@ -131,7 +131,30 @@ jobs:
           cache-dependency-path: "**/requirements-tests.txt"
 
       - name: Setup - Install Python dependencies
-        run: pip install -r .github/workflows/extra/requirements-tests.txt
+#        env:
+#          MPICC: mpicc
+#          MPI4PY_BUILD_WITH_MPI: "1"
+#          PIP_NO_BINARY: "mpi4py"
+        run: |
+          pip install -r .github/workflows/extra/requirements-tests.txt
+#          pip install --no-binary=mpi4py mpi4py
+
+
+#      - name: Check MPI vendor used by mpi4py
+#        run: |
+#          python - << 'EOF'
+#          from mpi4py import MPI
+#          print("MPI vendor:", MPI.get_vendor())
+#          print("MPI version:", MPI.Get_version())
+#          EOF
+
+#      - name: Debug MPI in CI
+#        run: |
+#          which mpirun || echo "mpirun not found"
+#          mpirun --version || echo "mpirun --version failed"
+#          echo "Running simple MPI hello..."
+#          mpirun --oversubscribe -np 2 hostname
+
 
       # Setup matrix environment
       - name: Setup - Matrix environment
@@ -173,7 +196,7 @@ jobs:
           PFUNIT_VERSION: ${{ inputs.pfunit-version }}
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
         run: |
-          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.12.0"; fi
+          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.15.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
 
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT

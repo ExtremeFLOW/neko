@@ -78,6 +78,7 @@ void opencl_tnsr3d(void *v, int *nv, void *u, int *nu,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,\
                                       1, NULL, &global_item_size,              \
                                       &local_item_size, 0, NULL, NULL));       \
+      CL_CHECK(clReleaseKernel(kernel));                                       \
     }                                                                          \
    break
 
@@ -131,6 +132,7 @@ void opencl_tnsr3d_el_list(void *v, int *nv, void *u, int *nu,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,\
                                       1, NULL, &global_item_size,              \
                                       &local_item_size, 0, NULL, NULL));       \
+      CL_CHECK(clReleaseKernel(kernel));                                       \
     }                                                                          \
    break
 

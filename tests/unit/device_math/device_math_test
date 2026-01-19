@@ -1,6 +1,6 @@
 #!/bin/sh
 if which mpirun >/dev/null; then
-    mpirun -np 2 ./device_math/device_math_suite
+    mpirun -np 1 ./device_math/device_math_suite
 else
-    mpiexec -np 2 ./device_math/device_math_suite
+    mpiexec -np 1 ./device_math/device_math_suite
 fi

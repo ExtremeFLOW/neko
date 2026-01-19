@@ -7,7 +7,7 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
-    user%source_term => source_term
+    user%source_term => mms_source_term
     user%mesh_setup => user_mesh_scale
   end subroutine user_setup
 
@@ -25,7 +25,7 @@ contains
   end subroutine user_mesh_scale
 
   !> Set source term
-  subroutine source_term(scheme_name, rhs, time)
+  subroutine mms_source_term(scheme_name, rhs, time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
@@ -49,7 +49,7 @@ contains
             HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end subroutine source_term
+  end subroutine mms_source_term
 
   !> User initial condition for the scalar
   subroutine initial_conditions(scheme_name, fields)

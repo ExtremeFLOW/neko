@@ -36,14 +36,14 @@ module scalar_stats_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use time_state, only : time_state_t
   use field, only : field_t
-  use scalar_stats, only: scalar_stats_t
+  use scalar_stats, only : scalar_stats_t
   use scalar_stats_output, only : scalar_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use utils, only: NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
   use comm, only : NEKO_COMM
@@ -113,20 +113,20 @@ contains
     call json_get_or_default(json, 'field', &
          sname, 's')
 
-    s => neko_field_registry%get_field_by_name(sname)
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
-    p => neko_field_registry%get_field("p")
+    s => neko_registry%get_field_by_name(sname)
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
+    p => neko_registry%get_field("p")
     coef => case%fluid%c_Xh
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set, filename)
+       call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, &
+            coef, start_time, hom_dir, stat_set, filename)
     else
-       call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set)
+       call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, &
+            coef, start_time, hom_dir, stat_set)
     end if
 
   end subroutine scalar_stats_simcomp_init_from_json
@@ -140,8 +140,8 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
-  subroutine scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, coef, &
-       start_time, hom_dir, stat_set, fname)
+  subroutine scalar_stats_simcomp_init_from_components(this, s, u, v, w, &
+       p, coef, start_time, hom_dir, stat_set, fname)
     class(scalar_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
@@ -177,7 +177,7 @@ contains
     end if
 
     call this%stats_output%init(this%stats, this%start_time, &
-         hom_dir = hom_dir,name = stats_fname, &
+         hom_dir = hom_dir, name = stats_fname, &
          path = this%case%output_directory)
 
     call this%case%output_controller%add(this%stats_output, &
@@ -199,7 +199,7 @@ contains
     class(scalar_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
-    character(len=5) :: prefix,suffix
+    character(len=5) :: prefix, suffix
     integer :: last_slash_pos
     real(kind=rp) :: t
     t = time%t
@@ -207,7 +207,7 @@ contains
     if (this%default_fname) then
        fname = this%stats_output%file_%get_base_fname()
        write (prefix, '(I5)') this%stats_output%file_%get_counter()
-       call filename_suffix(fname,suffix)
+       call filename_suffix(fname, suffix)
        last_slash_pos = &
             filename_tslash_pos(fname)
        if (last_slash_pos .ne. 0) then

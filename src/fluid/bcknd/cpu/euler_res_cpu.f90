@@ -40,11 +40,9 @@ module euler_res_cpu
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
   use num_types, only : rp
-  use operators, only: div, rotate_cyc
-  use math, only: subcol3, copy, sub2, add2, add3, &
-       col2, col3, addcol3, cmult, cfill, invcol3
+  use operators, only : div, rotate_cyc
   use gs_ops, only : GS_OP_ADD
-  use scratch_registry, only: neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
   implicit none
@@ -68,58 +66,56 @@ contains
   !> @param coef Coefficients for spatial discretization
   !> @param gs Gather-scatter operator for parallel communication
   !> @param h Mesh size field
-  !> @param c_avisc_low Low-order artificial viscosity coefficient
+  !> @param effective_visc Effective artificial viscosity field
   !> @param rk_scheme Runge-Kutta time integration scheme
   !> @param dt Time step size
   subroutine advance_primitive_variables_cpu(rho_field, m_x, m_y, m_z, &
        E, p, u, v, w, Ax, &
-       coef, gs, h, c_avisc_low, rk_scheme, dt)
+       coef, gs, h, effective_visc, rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-    type(field_t), intent(in) :: p, u, v, w, h
+    type(field_t), intent(in) :: p, u, v, w, h, effective_visc
     class(Ax_t), intent(inout) :: Ax
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
-    real(kind=rp) :: c_avisc_low
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
     integer :: n, s, i, j, k
-    real(kind=rp) :: t, c
     type(field_t), pointer :: k_rho_1, k_rho_2, k_rho_3, k_rho_4, &
          k_m_x_1, k_m_x_2, k_m_x_3, k_m_x_4, &
          k_m_y_1, k_m_y_2, k_m_y_3, k_m_y_4, &
          k_m_z_1, k_m_z_2, k_m_z_3, k_m_z_4, &
          k_E_1, k_E_2, k_E_3, k_E_4, &
          temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E
-    integer :: temp_indices(25)
+    integer :: tmp_indices(25)
     type(field_list_t) :: k_rho, k_m_x, k_m_y, k_m_z, k_E
 
     n = p%dof%size()
     s = rk_scheme%order
-    call neko_scratch_registry%request_field(k_rho_1, temp_indices(1))
-    call neko_scratch_registry%request_field(k_rho_2, temp_indices(2))
-    call neko_scratch_registry%request_field(k_rho_3, temp_indices(3))
-    call neko_scratch_registry%request_field(k_rho_4, temp_indices(4))
-    call neko_scratch_registry%request_field(k_m_x_1, temp_indices(5))
-    call neko_scratch_registry%request_field(k_m_x_2, temp_indices(6))
-    call neko_scratch_registry%request_field(k_m_x_3, temp_indices(7))
-    call neko_scratch_registry%request_field(k_m_x_4, temp_indices(8))
-    call neko_scratch_registry%request_field(k_m_y_1, temp_indices(9))
-    call neko_scratch_registry%request_field(k_m_y_2, temp_indices(10))
-    call neko_scratch_registry%request_field(k_m_y_3, temp_indices(11))
-    call neko_scratch_registry%request_field(k_m_y_4, temp_indices(12))
-    call neko_scratch_registry%request_field(k_m_z_1, temp_indices(13))
-    call neko_scratch_registry%request_field(k_m_z_2, temp_indices(14))
-    call neko_scratch_registry%request_field(k_m_z_3, temp_indices(15))
-    call neko_scratch_registry%request_field(k_m_z_4, temp_indices(16))
-    call neko_scratch_registry%request_field(k_E_1, temp_indices(17))
-    call neko_scratch_registry%request_field(k_E_2, temp_indices(18))
-    call neko_scratch_registry%request_field(k_E_3, temp_indices(19))
-    call neko_scratch_registry%request_field(k_E_4, temp_indices(20))
-    call neko_scratch_registry%request_field(temp_rho, temp_indices(21))
-    call neko_scratch_registry%request_field(temp_m_x, temp_indices(22))
-    call neko_scratch_registry%request_field(temp_m_y, temp_indices(23))
-    call neko_scratch_registry%request_field(temp_m_z, temp_indices(24))
-    call neko_scratch_registry%request_field(temp_E, temp_indices(25))
+    call neko_scratch_registry%request_field(k_rho_1, tmp_indices(1), .true.)
+    call neko_scratch_registry%request_field(k_rho_2, tmp_indices(2), .true.)
+    call neko_scratch_registry%request_field(k_rho_3, tmp_indices(3), .true.)
+    call neko_scratch_registry%request_field(k_rho_4, tmp_indices(4), .true.)
+    call neko_scratch_registry%request_field(k_m_x_1, tmp_indices(5), .true.)
+    call neko_scratch_registry%request_field(k_m_x_2, tmp_indices(6), .true.)
+    call neko_scratch_registry%request_field(k_m_x_3, tmp_indices(7), .true.)
+    call neko_scratch_registry%request_field(k_m_x_4, tmp_indices(8), .true.)
+    call neko_scratch_registry%request_field(k_m_y_1, tmp_indices(9), .true.)
+    call neko_scratch_registry%request_field(k_m_y_2, tmp_indices(10), .true.)
+    call neko_scratch_registry%request_field(k_m_y_3, tmp_indices(11), .true.)
+    call neko_scratch_registry%request_field(k_m_y_4, tmp_indices(12), .true.)
+    call neko_scratch_registry%request_field(k_m_z_1, tmp_indices(13), .true.)
+    call neko_scratch_registry%request_field(k_m_z_2, tmp_indices(14), .true.)
+    call neko_scratch_registry%request_field(k_m_z_3, tmp_indices(15), .true.)
+    call neko_scratch_registry%request_field(k_m_z_4, tmp_indices(16), .true.)
+    call neko_scratch_registry%request_field(k_E_1, tmp_indices(17), .true.)
+    call neko_scratch_registry%request_field(k_E_2, tmp_indices(18), .true.)
+    call neko_scratch_registry%request_field(k_E_3, tmp_indices(19), .true.)
+    call neko_scratch_registry%request_field(k_E_4, tmp_indices(20), .true.)
+    call neko_scratch_registry%request_field(temp_rho, tmp_indices(21), .false.)
+    call neko_scratch_registry%request_field(temp_m_x, tmp_indices(22), .false.)
+    call neko_scratch_registry%request_field(temp_m_y, tmp_indices(23), .false.)
+    call neko_scratch_registry%request_field(temp_m_z, tmp_indices(24), .false.)
+    call neko_scratch_registry%request_field(temp_E, tmp_indices(25), .false.)
 
     ! Initialize Runge-Kutta stage variables for each conserved quantity
     call k_rho%init(4)
@@ -151,25 +147,32 @@ contains
     ! Loop over Runge-Kutta stages
     do i = 1, s
        ! Copy current solution state to temporary arrays for this RK stage
-       call copy(temp_rho%x, rho_field%x, n)
-       call copy(temp_m_x%x, m_x%x, n)
-       call copy(temp_m_y%x, m_y%x, n)
-       call copy(temp_m_z%x, m_z%x, n)
-       call copy(temp_E%x, E%x, n)
+       do concurrent (k = 1:n)
+          temp_rho%x(k,1,1,1) = rho_field%x(k,1,1,1)
+          temp_m_x%x(k,1,1,1) = m_x%x(k,1,1,1)
+          temp_m_y%x(k,1,1,1) = m_y%x(k,1,1,1)
+          temp_m_z%x(k,1,1,1) = m_z%x(k,1,1,1)
+          temp_E%x(k,1,1,1) = E%x(k,1,1,1)
+       end do
 
        ! Accumulate previous stage contributions using RK coefficients
        do j = 1, i-1
           do concurrent (k = 1:n)
              temp_rho%x(k,1,1,1) = temp_rho%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_rho%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_rho%items(j)%ptr%x(k,1,1,1)
              temp_m_x%x(k,1,1,1) = temp_m_x%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_x%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_m_x%items(j)%ptr%x(k,1,1,1)
              temp_m_y%x(k,1,1,1) = temp_m_y%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_y%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_m_y%items(j)%ptr%x(k,1,1,1)
              temp_m_z%x(k,1,1,1) = temp_m_z%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_z%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_m_z%items(j)%ptr%x(k,1,1,1)
              temp_E%x(k,1,1,1) = temp_E%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_E%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * &
+                  k_E%items(j)%ptr%x(k,1,1,1)
           end do
        end do
 
@@ -179,7 +182,7 @@ contains
             k_E%items(i)%ptr, &
             temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
             p, u, v, w, Ax, &
-            coef, gs, h, c_avisc_low)
+            coef, gs, h, effective_visc)
     end do
 
     ! Update the solution
@@ -198,7 +201,7 @@ contains
        end do
     end do
 
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(tmp_indices)
 
   end subroutine advance_primitive_variables_cpu
 
@@ -222,28 +225,26 @@ contains
   !> @param coef Spatial discretization coefficients
   !> @param gs Gather-scatter operator for parallel communication
   !> @param h Mesh size field
-  !> @param c_avisc_low Low-order artificial viscosity coefficient
+  !> @param effective_visc Effective artificial viscosity field
   subroutine evaluate_rhs_cpu(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
        rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-       coef, gs, h, c_avisc_low)
+       coef, gs, h, effective_visc)
     type(field_t), intent(inout) :: rhs_rho_field, &
          rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-    type(field_t), intent(in) :: p, u, v, w, h
+    type(field_t), intent(in) :: p, u, v, w, h, effective_visc
     class(Ax_t), intent(inout) :: Ax
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
-    real(kind=rp) :: c_avisc_low
     integer :: i, n
-    type(field_t), pointer :: temp, f_x, f_y, f_z, &
+    type(field_t), pointer :: f_x, f_y, f_z, &
          visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
-    integer :: temp_indices(9)
+    integer :: tmp_indices(8)
 
     n = coef%dof%size()
-    call neko_scratch_registry%request_field(temp, temp_indices(1))
-    call neko_scratch_registry%request_field(f_x, temp_indices(2))
-    call neko_scratch_registry%request_field(f_y, temp_indices(3))
-    call neko_scratch_registry%request_field(f_z, temp_indices(4))
+    call neko_scratch_registry%request_field(f_x, tmp_indices(1), .false.)
+    call neko_scratch_registry%request_field(f_y, tmp_indices(2), .false.)
+    call neko_scratch_registry%request_field(f_z, tmp_indices(3), .false.)
 
     !> rho = rho - dt * div(m)
     ! Compute density flux divergence
@@ -253,26 +254,32 @@ contains
     ! Compute momentum flux divergences
     ! m_x
     do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
-            + p%x(i,1,1,1)
-       f_y%x(i,1,1,1) = m_x%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
-       f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
+       f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * m_x%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
+       f_y%x(i,1,1,1) = m_x%x(i,1,1,1) * m_y%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
+       f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * m_z%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
     end do
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_y
     do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_y%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
-       f_y%x(i,1,1,1) = m_y%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
-            + p%x(i,1,1,1)
-       f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
+       f_x%x(i,1,1,1) = m_y%x(i,1,1,1) * m_x%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
+       f_y%x(i,1,1,1) = m_y%x(i,1,1,1) * m_y%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
+       f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * m_z%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
     end do
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_z
     do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_z%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
-       f_y%x(i,1,1,1) = m_z%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
-       f_z%x(i,1,1,1) = m_z%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
-            + p%x(i,1,1,1)
+       f_x%x(i,1,1,1) = m_z%x(i,1,1,1) * m_x%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
+       f_y%x(i,1,1,1) = m_z%x(i,1,1,1) * m_y%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1)
+       f_z%x(i,1,1,1) = m_z%x(i,1,1,1) * m_z%x(i,1,1,1) / &
+            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
     end do
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
 
@@ -301,18 +308,28 @@ contains
        rhs_E%x(i,1,1,1) = rhs_E%x(i,1,1,1) * coef%mult(i,1,1,1)
     end do
 
-    call neko_scratch_registry%request_field(visc_rho, temp_indices(5))
-    call neko_scratch_registry%request_field(visc_m_x, temp_indices(6))
-    call neko_scratch_registry%request_field(visc_m_y, temp_indices(7))
-    call neko_scratch_registry%request_field(visc_m_z, temp_indices(8))
-    call neko_scratch_registry%request_field(visc_E, temp_indices(9))
+    call neko_scratch_registry%request_field(visc_rho, tmp_indices(4), .false.)
+    call neko_scratch_registry%request_field(visc_m_x, tmp_indices(5), .false.)
+    call neko_scratch_registry%request_field(visc_m_y, tmp_indices(6), .false.)
+    call neko_scratch_registry%request_field(visc_m_z, tmp_indices(7), .false.)
+    call neko_scratch_registry%request_field(visc_E, tmp_indices(8), .false.)
 
-    ! Calculate artificial diffusion
+    ! Set h1 coefficient to the effective viscosity for the Laplacian operator
+    do concurrent (i = 1:n)
+       coef%h1(i,1,1,1) = effective_visc%x(i,1,1,1)
+    end do
+
+    ! Calculate artificial diffusion with variable viscosity
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
+
+    ! Reset h1 coefficient back to 1.0 for other operations
+    do concurrent (i = 1:n)
+       coef%h1(i,1,1,1) = 1.0_rp
+    end do
 
     ! gs
     call gs%op(visc_rho, GS_OP_ADD)
@@ -324,21 +341,21 @@ contains
     call gs%op(visc_E, GS_OP_ADD)
 
     ! Move div to the rhs and apply artificial viscosity
-    ! i.e., calculate -div(grad(f)) + div(visc*grad(u))
+    ! The viscosity coefficient is already included in the Laplacian operator
     do concurrent (i = 1:n)
        rhs_rho_field%x(i,1,1,1) = -rhs_rho_field%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
        rhs_m_x%x(i,1,1,1) = -rhs_m_x%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
        rhs_m_y%x(i,1,1,1) = -rhs_m_y%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
        rhs_m_z%x(i,1,1,1) = -rhs_m_z%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
        rhs_E%x(i,1,1,1) = -rhs_E%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
     end do
 
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine evaluate_rhs_cpu
 
 end module euler_res_cpu

@@ -725,9 +725,9 @@ makeneko user.f90 mykernel.cu
 Neko uses the concept of `registry` as a practical way to retrieve fields and
 point zones anywhere in the user file.
 
-The field registry `neko_field_registry` is often used in user functions where
+The registry `neko_registry` is often used in user functions where
 certain fields are not directly accessible as arguments. One can retrieve any
-field in the registry by its `name` with `neko_field_registry%%get_field(name)`.
+field in the registry by its `name` with `neko_registry%%get_field(name)`.
 Default fields that are added to the registry are `u,v,w,p` and `s` if running
 with the scalar enabled. For a practical example of usage, see the
 [rayleigh benard example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh_benard/rayleigh.f90#L102-L105)
@@ -739,7 +739,8 @@ example:
 - If running with `simulation_components.lambda2` enabled, the field `lambda2`
   will be accessible in the registry.
 
-@note You can add your own fields to the registry with `neko_field_registry%%add_field` (see field_registry::field_add).
+@note You can add your own fields to the registry with `neko_registry%%add_field`
+(see registry::field_add).
 
 The point zone registry, `neko_point_zone_registry`, can be used to retrieve
 pointers to `point_zone_t` objects defined in the case file. See

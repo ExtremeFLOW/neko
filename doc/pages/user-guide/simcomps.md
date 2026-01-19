@@ -288,7 +288,7 @@ time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
 ### field_writer {#simcomp_field_writer}
 Outputs registered 3D fields to an `.fld` file. Requires a list of field names
 in the `fields` keyword. Primarily to be used for outputting new fields defined
-in the user file. The fields are added to then `neko_field_registry` object and
+in the user file. The fields are added to then `neko_registry` object and
 are expected to be updated in the user file, or, perhaps, by other simcomps.
 Since this simcomp does not compute anything `compute_` configuration is
 irrelevant.

@@ -42,7 +42,7 @@ module vreman
   use neko_config, only : NEKO_BCKND_DEVICE
   use vreman_cpu, only : vreman_compute_cpu
   use vreman_device, only : vreman_compute_device
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
@@ -143,12 +143,12 @@ contains
        associate(ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag, ext_bdf => this%ext_bdf)
 
-         u => neko_field_registry%get_field_by_name("u")
-         v => neko_field_registry%get_field_by_name("v")
-         w => neko_field_registry%get_field_by_name("w")
-         u_e => neko_field_registry%get_field_by_name("u_e")
-         v_e => neko_field_registry%get_field_by_name("v_e")
-         w_e => neko_field_registry%get_field_by_name("w_e")
+         u => neko_registry%get_field_by_name("u")
+         v => neko_registry%get_field_by_name("v")
+         w => neko_registry%get_field_by_name("w")
+         u_e => neko_registry%get_field_by_name("u_e")
+         v_e => neko_registry%get_field_by_name("v_e")
+         w_e => neko_registry%get_field_by_name("w_e")
 
          call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
               ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)

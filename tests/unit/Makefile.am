@@ -26,16 +26,14 @@ SUBDIRS = tuple\
 	  octree\
 	  vector\
 	  matrix\
+	  registry\
 	  scratch_registry\
-	  vector_scratch_registry\
-	  matrix_scratch_registry\
-	  field_registry\
-	  vector_registry\
 	  fast3d\
 	  time_scheme\
 	  time_scheme_controller\
-		runge_kutta_scheme\
+	  runge_kutta_scheme\
 	  time_based_controller\
+	  json_utils\
 	  point_interpolation
 
 TESTS = device/device_test\
@@ -66,16 +64,14 @@ TESTS = device/device_test\
 	octree/octree_test\
 	vector/vector_test\
 	matrix/matrix_test\
+	registry/registry_test\
 	scratch_registry/scratch_registry_test\
-	vector_scratch_registry/vector_scratch_registry_test\
-	matrix_scratch_registry/matrix_scratch_registry_test\
-	field_registry/field_registry_test\
-	vector_registry/vector_registry_test\
 	fast3d/fast3d_test\
 	time_scheme/time_scheme_test\
 	time_scheme_controller/time_scheme_controller_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
 	time_based_controller/time_based_controller_test\
+	json_utils/json_utils_test\
 	point_interpolation/point_interpolation_test
 
 # Note we need to list .pf and runner scripts manually
@@ -91,7 +87,7 @@ EXTRA_DIST = \
 	tuple/tuple.pf\
 	point/point.pf\
 	signal/signal.pf\
-	space/space.pf\
+	space/space_test.pf\
 	jobctrl/jobctrl_parallel.pf\
 	dofmap/dofmap_parallel.pf\
 	field/field_parallel.pf\
@@ -133,11 +129,14 @@ EXTRA_DIST = \
 	octree/octree.pf\
 	vector/vector_parallel.pf\
 	matrix/matrix_parallel.pf\
+	registry/test_registry.pf\
+	registry/test_field_registry.pf\
+	registry/test_vector_registry.pf\
+	registry/test_matrix_registry.pf\
 	scratch_registry/test_scratch_registry.pf\
-	vector_scratch_registry/test_vector_scratch_registry.pf\
-	matrix_scratch_registry/test_matrix_scratch_registry.pf\
-	field_registry/test_field_registry.pf\
-	vector_registry/test_vector_registry.pf\
+	scratch_registry/test_field_scratch_registry.pf\
+	scratch_registry/test_vector_scratch_registry.pf\
+	scratch_registry/test_matrix_scratch_registry.pf\
 	fast3d/test_fd_weights_full.pf\
 	fast3d/test_setup_intp.pf\
 	time_scheme/test_bdf.pf\
@@ -145,6 +144,7 @@ EXTRA_DIST = \
 	time_scheme/test_ab.pf\
 	time_scheme_controller/test_time_scheme_controller.pf\
 	runge_kutta_scheme/test_runge_kutta_scheme.pf\
+	json_utils/test_json_utils.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test

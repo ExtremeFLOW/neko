@@ -84,6 +84,7 @@ void rhs_maker_sumab_opencl(void *u, void *v, void *w,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void rhs_maker_ext_opencl(void *abx1, void *aby1, void *abz1,
@@ -121,6 +122,7 @@ void rhs_maker_ext_opencl(void *abx1, void *aby1, void *abz1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void scalar_rhs_maker_ext_opencl(void *fs_lag, void *fs_laglag, void *fs,
@@ -151,6 +153,7 @@ void scalar_rhs_maker_ext_opencl(void *fs_lag, void *fs_laglag, void *fs,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void rhs_maker_bdf_opencl(void *ulag1, void *ulag2, void *vlag1,
@@ -196,6 +199,7 @@ void rhs_maker_bdf_opencl(void *ulag1, void *ulag2, void *vlag1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void scalar_rhs_maker_bdf_opencl(void *s_lag, void *s_laglag, void *fs,
@@ -231,6 +235,7 @@ void scalar_rhs_maker_bdf_opencl(void *s_lag, void *s_laglag, void *fs,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void rhs_maker_oifs_opencl(void *phi_x, void *phi_y, void *phi_z,
@@ -262,6 +267,7 @@ void rhs_maker_oifs_opencl(void *phi_x, void *phi_y, void *phi_z,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void scalar_rhs_maker_oifs_opencl(void *phi_s, void *bf_s,
@@ -288,4 +294,5 @@ void scalar_rhs_maker_oifs_opencl(void *phi_s, void *bf_s,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }

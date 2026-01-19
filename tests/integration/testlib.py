@@ -57,10 +57,18 @@ def run_neko(launcher_script, nprocs, case_file, neko, log_file):
     """
     cmd = [launcher_script, str(nprocs), case_file, neko]
 
-    with open(log_file, "w") as f:
-            result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT,
-                                    text=True)
-
+    try:
+        with open(log_file, "w") as f:
+            result = subprocess.run(
+                cmd,
+                stdout=f,
+                stderr=subprocess.STDOUT,
+                text=True
+            )
+    except Exception as e:
+        with open(log_file, "a") as f:
+            f.write(f"\n[pytest wrapper] Failed to start process:\n{repr(e)}\n")
+        raise
     return result
 
 def parse_log(log_file, output_file):

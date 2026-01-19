@@ -231,7 +231,7 @@ contains
     !
     ! Setup scratch registry
     !
-    call neko_scratch_registry%init(this%fluid%dm_Xh, 10, 10)
+    call neko_scratch_registry%set_dofmap(this%fluid%dm_Xh)
 
     !
     ! Setup scalar scheme
@@ -508,6 +508,10 @@ contains
 
     call neko_log%end_section()
 
+    call scalar_params%destroy()
+    call numerics_params%destroy()
+    call json_subdict%destroy()
+
   end subroutine case_init_common
 
   !> Deallocate a case
@@ -529,6 +533,10 @@ contains
     call this%f_out%free()
 
     call this%output_controller%free()
+
+    if (allocated(this%output_directory)) then
+       deallocate(this%output_directory)
+    end if
 
   end subroutine case_free
 

@@ -82,6 +82,7 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 
 }
 
@@ -112,6 +113,7 @@ void opencl_masked_gather_copy(void *a, void *b, void *mask, int *n, int *m,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 
 }
 
@@ -142,6 +144,7 @@ void opencl_masked_scatter_copy(void *a, void *b, void *mask, int *n, int *m,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 
 }
 
@@ -171,7 +174,8 @@ void opencl_cfill_mask(void* a, void* c, int* size, void* mask, int* mask_size,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
-  }
+  CL_CHECK(clReleaseKernel(kernel));
+}
 
 /** Fortran wrapper for rzero
  * Zero a real vector
@@ -220,6 +224,7 @@ void opencl_cmult(void *a, real *c, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for cmult2
@@ -247,6 +252,7 @@ void opencl_cmult2(void *a, void *b, real *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for cdiv
@@ -272,6 +278,7 @@ void opencl_cdiv(void *a, real *c, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for cdiv2
@@ -299,6 +306,7 @@ void opencl_cdiv2(void *a, void *b, real *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for cadd
@@ -324,6 +332,7 @@ void opencl_radd(void *a, real *c, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for cadd
@@ -351,6 +360,7 @@ void opencl_cadd2(void *a, void *b, real *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for cfill
@@ -376,6 +386,7 @@ void opencl_cfill(void *a, real *c, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -402,6 +413,7 @@ void opencl_add2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -430,6 +442,7 @@ void opencl_add3(void *a, void *b, void *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -459,6 +472,7 @@ void opencl_add4(void *a, void *b, void *c, void *d, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -488,6 +502,7 @@ void opencl_add2s1(void *a, void *b, real *c1, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -517,6 +532,7 @@ void opencl_add2s2(void *a, void *b, real *c1, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -548,6 +564,7 @@ void opencl_add2s2_many(void *x, void *p, void *alpha, int *j, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 
 }
 
@@ -578,6 +595,7 @@ void opencl_addsqr2s2(void *a, void *b, real *c1, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -608,6 +626,7 @@ void opencl_add3s2(void *a, void *b, void * c, real *c1, real *c2, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -640,6 +659,7 @@ void opencl_add4s3(void *a, void *b, void * c, void * d, real *c1, real *c2,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -675,6 +695,7 @@ void opencl_add5s4(void *a, void *b, void * c, void * d, void * e, real *c1,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -700,6 +721,7 @@ void opencl_invcol1(void *a, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -726,6 +748,7 @@ void opencl_invcol2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -752,6 +775,7 @@ void opencl_col2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -780,6 +804,7 @@ void opencl_col3(void *a, void *b, void *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -808,6 +833,7 @@ void opencl_subcol3(void *a, void *b, void *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -834,6 +860,7 @@ void opencl_sub2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -862,6 +889,7 @@ void opencl_sub3(void *a, void *b, void *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -890,6 +918,7 @@ void opencl_addcol3(void *a, void *b, void *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -919,6 +948,7 @@ void opencl_addcol4(void *a, void *b, void *c, void *d, int *n,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -948,6 +978,7 @@ void opencl_addcol3s2(void *a, void *b, void *c, real *s, int *n,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -982,6 +1013,7 @@ void opencl_vdot3(void *dot, void *u1, void *u2, void *u3,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -1020,6 +1052,7 @@ void opencl_vcross(void *u1, void *u2, void *u3,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 
 }
 
@@ -1079,6 +1112,8 @@ real opencl_glsc3(void *a, void *b, void *c, int *n,
   for (i = 0; i < nb; i++) {
     res += bufred[i];
   }
+
+  CL_CHECK(clReleaseKernel(kernel));
 
   return res;
 }
@@ -1146,6 +1181,8 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
         h[k] += bufred[i*(*j)+k];
     }
   }
+
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -1182,7 +1219,6 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-
   CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
                                nb * sizeof(real), buf, 1, &kern_wait, NULL));
 
@@ -1193,6 +1229,7 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
+  CL_CHECK(clReleaseKernel(kernel));
 
   return res;
 }
@@ -1231,7 +1268,6 @@ real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-
   CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
                                nb * sizeof(real), buf, 1, &kern_wait, NULL));
 
@@ -1242,6 +1278,7 @@ real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
+  CL_CHECK(clReleaseKernel(kernel));
 
   return res;
 }
@@ -1279,7 +1316,6 @@ real opencl_glsum(void *a, int *n, cl_command_queue cmd_queue) {
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-
   CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
                                nb * sizeof(real), buf, 1, &kern_wait, NULL));
 
@@ -1290,10 +1326,35 @@ real opencl_glsum(void *a, int *n, cl_command_queue cmd_queue) {
 
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
+  CL_CHECK(clReleaseKernel(kernel));
 
   return res;
 }
 
+
+/** Fortran wrapper for absval
+ * Absolute value \f$ a_i = |a_i| \f$
+ */
+void opencl_absval(void *a, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "absval_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
 
 /** Fortran wrapper for cadd
  * Add a scalar to vector \f$ a = \sum a_i + s \f$
@@ -1318,4 +1379,229 @@ void opencl_iadd(void *a, int *c, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for pwmax_vec2
+ *
+ * Compute the maximum of two vectors \f$ a = \max(a, b) \f$
+ */
+void opencl_pwmax_vec2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmax_vec2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for pwmax_vec3
+ *
+ * Compute the maximum of two vectors \f$ a = \max(b, c) \f$
+ */
+void opencl_pwmax_vec3(void *a, void *b, void *c,
+                       int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmax_vec3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for pwmax_sca2
+ *
+ * Compute the maximum of vector and scalar \f$ a = \max(a, c) \f$
+ */
+void opencl_pwmax_sca2(void *a, real *c, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmax_sca2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for pwmax_sca3
+ *
+ * Compute the maximum of vector and scalar \f$ a = \max(b, c) \f$
+ */
+void opencl_pwmax_sca3(void *a, void *b, real *c,
+                       int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmax_sca3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for pwmin_vec2
+ *
+ * Compute the minimum of two vectors \f$ a = \min(a, b) \f$
+ */
+void opencl_pwmin_vec2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmin_vec2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for pwmin_vec3
+ *
+ * Compute the minimum of two vectors \f$ a = \min(b, c) \f$
+ */
+void opencl_pwmin_vec3(void *a, void *b, void *c,
+                       int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmin_vec3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for pwmin_sca2
+ *
+ * Compute the minimum of vector and scalar \f$ a = \min(a, c) \f$
+ */
+void opencl_pwmin_sca2(void *a, real *c, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmin_sca2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/** Fortran wrapper for pwmin_sca3
+ *
+ * Compute the minimum of vector and scalar \f$ a = \min(b, c) \f$
+ */
+void opencl_pwmin_sca3(void *a, void *b, real *c,
+                       int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmin_sca3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }

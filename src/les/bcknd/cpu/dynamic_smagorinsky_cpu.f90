@@ -36,7 +36,7 @@ module dynamic_smagorinsky_cpu
   use field_list, only : field_list_t
   use math, only : cadd, NEKO_EPS, col2, sub2, col3, cmult
   use scratch_registry, only : neko_scratch_registry
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
@@ -90,23 +90,23 @@ contains
     end if
 
     if (if_ext .eqv. .true.) then
-       u => neko_field_registry%get_field_by_name("u_e")
-       v => neko_field_registry%get_field_by_name("v_e")
-       w => neko_field_registry%get_field_by_name("w_e")
+       u => neko_registry%get_field_by_name("u_e")
+       v => neko_registry%get_field_by_name("v_e")
+       w => neko_registry%get_field_by_name("w_e")
     else
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
+       u => neko_registry%get_field_by_name("u")
+       v => neko_registry%get_field_by_name("v")
+       w => neko_registry%get_field_by_name("w")
     end if
 
 
-    call neko_scratch_registry%request_field(s11, temp_indices(1))
-    call neko_scratch_registry%request_field(s22, temp_indices(2))
-    call neko_scratch_registry%request_field(s33, temp_indices(3))
-    call neko_scratch_registry%request_field(s12, temp_indices(4))
-    call neko_scratch_registry%request_field(s13, temp_indices(5))
-    call neko_scratch_registry%request_field(s23, temp_indices(6))
-    call neko_scratch_registry%request_field(s_abs, temp_indices(7))
+    call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(s_abs, temp_indices(7), .false.)
 
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
@@ -178,9 +178,9 @@ contains
     type(field_t), pointer :: fu, fv, fw
 
     ! Use test filter for the velocity fields
-    call neko_scratch_registry%request_field(fu, temp_indices(1))
-    call neko_scratch_registry%request_field(fv, temp_indices(2))
-    call neko_scratch_registry%request_field(fw, temp_indices(3))
+    call neko_scratch_registry%request_field(fu, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(fv, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(fw, temp_indices(3), .false.)
     call test_filter%apply(fu, u)
     call test_filter%apply(fv, v)
     call test_filter%apply(fw, w)
@@ -253,13 +253,13 @@ contains
 
     delta_ratio2 = ((test_filter%nx-1.0_rp)/(test_filter%nt-1.0_rp))**2
 
-    call neko_scratch_registry%request_field(fs11, temp_indices(1))
-    call neko_scratch_registry%request_field(fs22, temp_indices(2))
-    call neko_scratch_registry%request_field(fs33, temp_indices(3))
-    call neko_scratch_registry%request_field(fs12, temp_indices(4))
-    call neko_scratch_registry%request_field(fs13, temp_indices(5))
-    call neko_scratch_registry%request_field(fs23, temp_indices(6))
-    call neko_scratch_registry%request_field(fs_abs, temp_indices(7))
+    call neko_scratch_registry%request_field(fs11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(fs22, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(fs33, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(fs12, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(fs13, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(fs23, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(fs_abs, temp_indices(7), .false.)
     !! The first term:
     !!                      _____ ____
     !! (delta_test/delta)^2 s_abs*s_ij

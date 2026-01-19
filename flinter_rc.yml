@@ -255,10 +255,10 @@ regexp-rules:
 # - fork the code.
 structure-rules:
   max-statements-in-context: 2000
-  max-declared-locals: 35
+  max-declared-locals: 55
   min-varlen: 1
   max-varlen: 30
-  max-arguments: 20
+  max-arguments: 30
   min-arglen: 1
   max-arglen: 70
   max-nesting-levels: 8

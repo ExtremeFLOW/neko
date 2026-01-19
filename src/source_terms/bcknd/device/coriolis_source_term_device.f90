@@ -63,12 +63,12 @@ contains
     type(field_t), pointer :: tmp_u, tmp_v, tmp_w
     type(field_t), pointer :: tmp_fu, tmp_fv, tmp_fw
 
-    call neko_scratch_registry%request_field(tmp_u, tmp_index(1))
-    call neko_scratch_registry%request_field(tmp_v, tmp_index(2))
-    call neko_scratch_registry%request_field(tmp_w, tmp_index(3))
-    call neko_scratch_registry%request_field(tmp_fu, tmp_index(4))
-    call neko_scratch_registry%request_field(tmp_fv, tmp_index(5))
-    call neko_scratch_registry%request_field(tmp_fw, tmp_index(6))
+    call neko_scratch_registry%request_field(tmp_u, tmp_index(1), .false.)
+    call neko_scratch_registry%request_field(tmp_v, tmp_index(2), .false.)
+    call neko_scratch_registry%request_field(tmp_w, tmp_index(3), .false.)
+    call neko_scratch_registry%request_field(tmp_fu, tmp_index(4), .false.)
+    call neko_scratch_registry%request_field(tmp_fv, tmp_index(5), .false.)
+    call neko_scratch_registry%request_field(tmp_fw, tmp_index(6), .false.)
 
     ! The RHS components
     fu => fields%get_by_index(1)

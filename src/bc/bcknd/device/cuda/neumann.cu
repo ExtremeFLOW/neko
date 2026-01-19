@@ -60,4 +60,31 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
+  /**
+   * Fortran wrapper for device neumann apply vector
+   */
+  void cuda_neumann_apply_vector(void *msk, void *facet,
+                                 void *x, void *y, void *z,
+                                 void *flux_x, void *flux_y, void *flux_z,
+                                 void *area, int *lx, int *m,
+                                 cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m) + 1024 - 1)/ 1024, 1, 1);
+
+    neumann_apply_vector_kernel<real>
+      <<<nblcks, nthrds, 0, strm>>>((int *) msk,
+                                    (int *) facet,
+                                    (real *) x,
+                                    (real *) y,
+                                    (real *) z,
+                                    (real *) flux_x,
+                                    (real *) flux_y,
+                                    (real *) flux_z,
+                                    (real *) area,
+                                    *lx,
+                                    *m);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
 }

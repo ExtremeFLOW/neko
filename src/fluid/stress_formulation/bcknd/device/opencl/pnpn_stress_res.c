@@ -92,6 +92,7 @@ void pnpn_prs_stress_res_part1_opencl(void *ta1, void *ta2, void *ta3,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void pnpn_prs_stress_res_part3_opencl(void *p_res, void *ta1, void *ta2,
@@ -127,4 +128,5 @@ void pnpn_prs_stress_res_part3_opencl(void *p_res, void *ta1, void *ta2,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }
