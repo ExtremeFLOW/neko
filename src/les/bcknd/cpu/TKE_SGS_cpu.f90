@@ -55,17 +55,18 @@ contains
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The eddy viscosity field.
-  !! @param nutheta The eddy diffusivity field for temperature.
-  !! @param alphat The eddy diffusivity field for TKE.
+  !! @param temperature_alphat The eddy diffusivity field for temperature.
+  !! @param TKE_alphat The eddy diffusivity field for TKE.
   !! @param source_e The source terms for TKE equation.
   !! @param delta The LES lengthscale.
   !! @param c_k The TKE_SGS model constant
-  subroutine TKE_SGS_compute_cpu(t, tstep, coef, nut, nutheta, alphat, source_e, &
+  subroutine TKE_SGS_compute_cpu(t, tstep, coef, nut, temperature_alphat, &
+                                 TKE_alphat, source_e, &
                                  delta, c_k, T0, g, vert_dir)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
-    type(field_t), intent(inout) :: nut, nutheta, alphat, source_e
+    type(field_t), intent(inout) :: nut, temperature_alphat, TKE_alphat, source_e
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_k, T0, g
     character(len=*), intent(in) :: vert_dir
@@ -115,9 +116,9 @@ contains
        nut%x(i,1,1,1) = c_k * l * sqrt(TKE%x(i,1,1,1))
 
        ! Eddy diffusivity for temperature
-       nutheta%x(i,1,1,1) = (1.0_rp + 2.0_rp * l/delta%x(i,1,1,1)) &
+       temperature_alphat%x(i,1,1,1) = (1.0_rp + 2.0_rp * l/delta%x(i,1,1,1)) &
                            * nut%x(i,1,1,1) 
-       alphat%x(i,1,1,1) = 2.0_rp * nut%x(i,1,1,1) ! Eddy diffusivity of TKE
+       TKE_alphat%x(i,1,1,1) = 2.0_rp * nut%x(i,1,1,1) ! Eddy diffusivity of TKE
     end do
 
     ! Compute velocity gradients
@@ -163,7 +164,7 @@ contains
                +  s33*a33%x(i,1,1,1))
 
        ! Buoyancy term
-       buoyancy = -g/T0 * nutheta%x(i,1,1,1) * dTdz%x(i,1,1,1)
+       buoyancy = -g/T0 * temperature_alphat%x(i,1,1,1) * dTdz%x(i,1,1,1)
 
        ! Dissipation term
        dissipation = -(0.19_rp + 0.74_rp / delta%x(i,1,1,1)) &
