@@ -57,16 +57,17 @@ contains
   !! @param nut The eddy viscosity field.
   !! @param temperature_alphat The eddy diffusivity field for temperature.
   !! @param TKE_alphat The eddy diffusivity field for TKE.
-  !! @param source_e The source terms for TKE equation.
+  !! @param TKE_source The source terms for TKE equation.
   !! @param delta The LES lengthscale.
   !! @param c_k The TKE_SGS model constant
   subroutine TKE_SGS_compute_cpu(t, tstep, coef, nut, temperature_alphat, &
-                                 TKE_alphat, source_e, &
+                                 TKE_alphat, TKE_source, &
                                  delta, c_k, T0, g, vert_dir)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
-    type(field_t), intent(inout) :: nut, temperature_alphat, TKE_alphat, source_e
+    type(field_t), intent(inout) :: nut, temperature_alphat
+    type(field_t), intent(inout) :: TKE_alphat, TKE_source
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_k, T0, g
     character(len=*), intent(in) :: vert_dir
@@ -77,6 +78,7 @@ contains
     real(kind=rp) :: shear, buoyancy, dissipation
     integer :: temp_indices(10)
     real(kind=rp) :: l, N2
+    real(kind=rp) :: eps=1.0e-10_rp
     integer :: e, i
 
     TKE => neko_registry%get_field_by_name("TKE")
@@ -101,26 +103,7 @@ contains
 
     call coef%gs_h%op(dTdz, GS_OP_ADD)
     call col2(dTdz%x, coef%mult, nut%dof%size())
-
-    ! Determine static stability and length scale
-    do concurrent (i = 1:coef%dof%size())
-       N2 = dTdz%x(i,1,1,1) * g / T0
-       if (N2 .gt. 0.0_rp) then
-          l = 0.76_rp * sqrt(TKE%x(i,1,1,1) / abs(N2))
-          l = min(l, delta%x(i,1,1,1))
-       else
-          l = delta%x(i,1,1,1)
-       end if
-       
-       ! Eddy viscosity
-       nut%x(i,1,1,1) = c_k * l * sqrt(TKE%x(i,1,1,1))
-
-       ! Eddy diffusivity for temperature
-       temperature_alphat%x(i,1,1,1) = (1.0_rp + 2.0_rp * l/delta%x(i,1,1,1)) &
-                           * nut%x(i,1,1,1) 
-       TKE_alphat%x(i,1,1,1) = 2.0_rp * nut%x(i,1,1,1) ! Eddy diffusivity of TKE
-    end do
-
+    
     ! Compute velocity gradients
     call neko_scratch_registry%request_field(a11, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(a12, temp_indices(3), .false.)
@@ -144,7 +127,24 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
+    ! Determine static stability and length scale
     do concurrent (i = 1:coef%dof%size())
+       N2 = dTdz%x(i,1,1,1) * g / T0
+       if (N2 .gt. 0.0_rp) then
+          l = 0.76_rp * sqrt(abs(TKE%x(i,1,1,1)) / abs(N2))
+          l = min(l, delta%x(i,1,1,1))
+       else
+          l = delta%x(i,1,1,1)
+       end if
+       
+       ! Eddy viscosity
+       nut%x(i,1,1,1) = c_k * l * sqrt(abs(TKE%x(i,1,1,1)))
+
+       ! Eddy diffusivity for temperature
+       temperature_alphat%x(i,1,1,1) = (1.0_rp + 2.0_rp * l/delta%x(i,1,1,1)) &
+                           * nut%x(i,1,1,1) 
+       TKE_alphat%x(i,1,1,1) = 2.0_rp * nut%x(i,1,1,1) ! Eddy diffusivity of TKE
+
        s11 = a11%x(i,1,1,1) + a11%x(i,1,1,1)
        s22 = a22%x(i,1,1,1) + a22%x(i,1,1,1)
        s33 = a33%x(i,1,1,1) + a33%x(i,1,1,1)
@@ -166,12 +166,18 @@ contains
        ! Buoyancy term
        buoyancy = -g/T0 * temperature_alphat%x(i,1,1,1) * dTdz%x(i,1,1,1)
 
-       ! Dissipation term
-       dissipation = -(0.19_rp + 0.74_rp / delta%x(i,1,1,1)) &
-                           * sqrt(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1))
+       ! make sure dissipation is zero when TKE is zero
+       if (TKE%x(i,1,1,1) .lt. eps) then
+          TKE%x(i,1,1,1) = 0.0_rp
+          dissipation = 0.0_rp
+       else
+          dissipation = -(0.19_rp + 0.74_rp / delta%x(i,1,1,1)) &
+                     * sqrt(abs(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1))) &
+                     / l
+       end if
        
        ! Add three source terms together
-       source_e%x(i,1,1,1) = shear + buoyancy + dissipation
+       TKE_source%x(i,1,1,1) = shear + buoyancy + dissipation
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
