@@ -1,6 +1,8 @@
 # Changelog
 
 ## Develop
+- Introduce deprecation warning functionality. Allowing marking functions
+  and classes as deprecated, with optional custom messages.
 - Add missing free operators for `output_t` class.
 - Add min/max operations when applying strong boundary conditions for the
   scalar, mimicing the procedure for the fluid. Needed with meshes where an
