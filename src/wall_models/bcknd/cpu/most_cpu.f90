@@ -7,9 +7,6 @@ module most_cpu
 
   public :: most_compute_cpu
 
-  ! TO DO:
-  ! - where to get ts [registry thing]?  and z0h [case file]?
-
   abstract interface
      function slaw_m_interface(z,L_ob,z0) result(slaw)
       import rp
@@ -154,7 +151,7 @@ contains
     integer, intent(in) :: h_idx
     integer :: i, count
     integer, parameter :: max_count = 20
-    real(kind=rp) :: ui, vi, wi, ti, ts, hi
+    real(kind=rp) :: ui, vi, ti, ts, hi
     real(kind=rp) :: magu, utau, normu, z0h
     real(kind=rp) :: L_ob, L_upper, L_lower, L_old
     real(kind=rp) :: Ri_b, f, dfdl, fd_h, L_new, L_sign    
@@ -193,23 +190,21 @@ contains
       ! Sample the variables
       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-      wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
       ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
       ts = temp(ind_r(i)-ts_idx(1), ind_s(i)-ts_idx(2), ind_t(i)-ts_idx(3), ind_e(i))
       hi = h(i)
 
       ! Project on horizontal directions
-      normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)
+      normu = ui * n_x(i) + vi * n_y(i)
       ui = ui - normu * n_x(i) 
       vi = vi - normu * n_y(i)
-      wi = wi - normu * n_z(i)
 
       ! Compute velocity magnitude
-      magu = sqrt(ui**2 + wi**2) 
+      magu = sqrt(ui**2 + vi**2) 
 
       ! utau initialisation
       if (tstep < 1) then
-        utau = sqrt( sqrt( tau_x(i)**2 + tau_y(i)**2 + tau_z(i)**2 ) ) 
+        utau = sqrt( sqrt( tau_x(i)**2 + tau_y(i)**2 ) ) 
       else 
         utau = magu*kappa / log(hi/z0)
    
@@ -305,7 +300,7 @@ contains
       magu = max(magu, 1.0e-6_rp)
       tau_x(i) = -utau**2 * ui / magu
       tau_y(i) = -utau**2 * vi / magu
-      tau_z(i) = -utau**2 * wi / magu
+      tau_z(i) = 0
     end do
 
     call neko_log%section('Wall model quick look')
