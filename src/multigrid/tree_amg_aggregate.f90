@@ -209,7 +209,7 @@ contains
        if (is_aggregated(i) .eq. -1) then
           ! dof i is unaggregated. Check neighbors, add to smallest neighbor
           tnt_agg = -1
-          tnt_size = 999 ! TODO: replace with large number
+          tnt_size = huge(0) ! TODO: replace with large number
           tst_agg = -1
           tst_size = 999 ! TODO: replace with large number
           do side = 1, n_facet
