@@ -269,11 +269,11 @@ contains
             end if
 
             ! Bound L_ob
-            L_ob = sign(max(abs(L_new), 1.0e-2_rp), L_sign)
-            L_ob = sign(min(abs(L_ob), 1.0e5_rp), L_sign)
+            L_ob = sign(max(abs(L_new), 1.0e-4_rp), L_sign)
+            L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
           end do
 
-          if (abs(L_ob) > 4.5e4_rp .or. abs(L_ob) < 1e-5_rp) then
+          if (abs(L_ob) > 5e4_rp .or. abs(L_ob) < 1e-5_rp) then
             count = max_count
             call neko_error("Obukhov length did not converge (MOST wall model)") 
           end if
