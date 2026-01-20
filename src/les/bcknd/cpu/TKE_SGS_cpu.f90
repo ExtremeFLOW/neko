@@ -129,16 +129,21 @@ contains
 
     ! Determine static stability and length scale
     do concurrent (i = 1:coef%dof%size())
+       ! correct TKE if negative or nearly zero
+       if (TKE%x(i,1,1,1) .lt. eps) then
+          TKE%x(i,1,1,1) = eps
+       end if
+
        N2 = dTdz%x(i,1,1,1) * g / T0
        if (N2 .gt. 0.0_rp) then
-          l = 0.76_rp * sqrt(abs(TKE%x(i,1,1,1)) / abs(N2))
+          l = 0.76_rp * sqrt(TKE%x(i,1,1,1) / abs(N2))
           l = min(l, delta%x(i,1,1,1))
        else
           l = delta%x(i,1,1,1)
        end if
        
        ! Eddy viscosity
-       nut%x(i,1,1,1) = c_k * l * sqrt(abs(TKE%x(i,1,1,1)))
+       nut%x(i,1,1,1) = c_k * l * sqrt(TKE%x(i,1,1,1))
 
        ! Eddy diffusivity for temperature
        temperature_alphat%x(i,1,1,1) = (1.0_rp + 2.0_rp * l/delta%x(i,1,1,1)) &
@@ -166,15 +171,9 @@ contains
        ! Buoyancy term
        buoyancy = -g/T0 * temperature_alphat%x(i,1,1,1) * dTdz%x(i,1,1,1)
 
-       ! make sure dissipation is zero when TKE is zero
-       if (TKE%x(i,1,1,1) .lt. eps) then
-          TKE%x(i,1,1,1) = 0.0_rp
-          dissipation = 0.0_rp
-       else
-          dissipation = -(0.19_rp + 0.74_rp / delta%x(i,1,1,1)) &
-                     * sqrt(abs(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1))) &
+       dissipation = -(0.19_rp + 0.74_rp / delta%x(i,1,1,1)) &
+                     * sqrt(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1)) &
                      / l
-       end if
        
        ! Add three source terms together
        TKE_source%x(i,1,1,1) = shear + buoyancy + dissipation
