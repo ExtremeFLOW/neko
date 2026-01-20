@@ -211,7 +211,7 @@ contains
           tnt_agg = -1
           tnt_size = huge(0) ! TODO: replace with large number
           tst_agg = -1
-          tst_size = 999 ! TODO: replace with large number
+          tst_size = huge(0) ! TODO: replace with large number
           do side = 1, n_facet
              nhbr = facet_neigh(side, i) - offset_el
              ! if nhbr exists
