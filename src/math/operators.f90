@@ -70,7 +70,7 @@ module operators
   implicit none
   private
 
-  public :: dudxyz, opgrad, cdtp, conv1, curl, cfl, cfl_compressible, &
+  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
        lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
        rotate_cyc
 
