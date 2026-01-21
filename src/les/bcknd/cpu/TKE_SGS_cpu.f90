@@ -82,7 +82,7 @@ contains
     integer :: e, i
 
     TKE => neko_registry%get_field_by_name("TKE")
-    Temperature => neko_registry%get_field_by_name("Temperature")
+    Temperature => neko_registry%get_field_by_name("temperature")
     u => neko_registry%get_field_by_name("u")
     v => neko_registry%get_field_by_name("v")
     w => neko_registry%get_field_by_name("w")
