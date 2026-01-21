@@ -78,7 +78,8 @@ module mesh_manager
      !> Apply data read from mesh file to mesh manager structures
      procedure(mesh_manager_free), pass(this), deferred :: mesh_file_apply
      !> Perform refinement/coarsening on the mesh manager side
-     procedure(mesh_manager_refine), pass(this), deferred :: refine
+     procedure(mesh_manager_refine_coarsen), pass(this), deferred :: &
+          refine_coarsen
      !> Construct neko mesh type based on mesh manager data
      procedure(mesh_manager_mesh), pass(this), deferred :: mesh_construct
   end type mesh_manager_t
@@ -117,12 +118,12 @@ module mesh_manager
      !> Perform refinement/coarsening on the mesh manager side
      !! @param[in]   ref_mark     refinement flag
      !! @param[out]  ifmod        mesh modification flag
-     subroutine mesh_manager_refine(this, ref_mark, ifmod)
+     subroutine mesh_manager_refine_coarsen(this, ref_mark, ifmod)
        import mesh_manager_t, i4
        class(mesh_manager_t), intent(inout) :: this
        integer(i4), dimension(:), intent(in) :: ref_mark
        logical, intent(out) :: ifmod
-     end subroutine mesh_manager_refine
+     end subroutine mesh_manager_refine_coarsen
 
      !> Construct neko mesh type based on mesh manager data
      !! @param[inout]   mesh     neko mesh type

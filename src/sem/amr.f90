@@ -82,7 +82,7 @@ module amr
      !> Restart components
      procedure, pass(this) :: restart => amr_restart
      !> Refine/coarsen
-     procedure, pass(this) :: refine => amr_refine
+     procedure, pass(this) :: refine_coarsen => amr_refine_coarsen
   end type amr_t
 
 contains
@@ -250,7 +250,7 @@ contains
   !! @param[inout]   mesh          neko mesh type
   !! @param[in]      user          user interface
   !! @param[in]      time          time state
-  subroutine amr_refine(this, mesh_manager, mesh, user, time)
+  subroutine amr_refine_coarsen(this, mesh_manager, mesh, user, time)
     class(amr_t), intent(inout) :: this
     class(mesh_manager_t), intent(inout) :: mesh_manager
     type(mesh_t), intent(inout) :: mesh
@@ -271,12 +271,12 @@ contains
     call user%amr_refine_flag(time, ref_mark, ifrefine)
 
     if (ifrefine) then
-       call neko_log%section("Mesh refinement")
+       call neko_log%section("Mesh refinement/coarsening")
 
-       call profiler_start_region("Mesh refinement", 30)
+       call profiler_start_region("Mesh refine/coarsen", 30)
 
        ! Perform p4est refinement/coarsening
-       call mesh_manager%refine(ref_mark, ifmod)
+       call mesh_manager%refine_coarsen(ref_mark, ifmod)
 
        if (ifmod) then
           write(log_buf, '(a)') 'Restarting solver'
@@ -295,13 +295,13 @@ contains
           call this%reconstruct%map_free()
        end if
 
-       call profiler_end_region("Mesh refinement", 30)
+       call profiler_end_region("Mesh refine/coarsen", 30)
 
        call neko_log%end_section()
     end if
 
     deallocate(ref_mark)
 
-  end subroutine amr_refine
+  end subroutine amr_refine_coarsen
 
 end module amr

@@ -92,7 +92,7 @@ module mesh_manager_p4est
      !> Apply data from nmsh file to mesh manager structures
      procedure, pass(this) :: mesh_file_apply => p4est_mesh_file_apply
      !> Perform refinement/coarsening on the mesh manager side
-     procedure, pass(this) :: refine => p4est_refine
+     procedure, pass(this) :: refine_coarsen => p4est_refine_coarsen
      !> Construct neko mesh type based on mesh manager data
      procedure, pass(this) :: mesh_construct => p4est_mesh_construct
 #ifdef HAVE_P4EST
@@ -1274,7 +1274,7 @@ contains
   !> Perform refinement/coarsening on the mesh manager side
   !! @param  ref_mark     refinement flag
   !! @param[out]  ifmod        mesh modification flag
-  subroutine p4est_refine(this, ref_mark, ifmod)
+  subroutine p4est_refine_coarsen(this, ref_mark, ifmod)
     class(mesh_manager_p4est_t), intent(inout) :: this
     integer(i4), dimension(:), intent(in) :: ref_mark
     character(len=LOG_SIZE) :: log_buf
@@ -1292,7 +1292,7 @@ contains
     integer(i4), target, allocatable, dimension(:, :) :: map, rfn
     integer(i4), target, allocatable, dimension(:, :, :) :: crs
 
-    call profiler_start_region("p4est refine", 31)
+    call profiler_start_region("p4est refine/coarsen", 31)
 
     write(log_buf, '(a)') 'p4est refinement/coarsening'
     call neko_log%message(log_buf, NEKO_LOG_INFO)
@@ -1333,7 +1333,7 @@ contains
           ! set refinement flag
           ifmod = .true.
 
-          write(log_buf, '(a)') 'p4est refinement; mesh changed'
+          write(log_buf, '(a)') 'p4est refinement/coarsening; mesh changed'
           call neko_log%message(log_buf, NEKO_LOG_INFO)
 
           ! import new data; just a simple geometry representation
@@ -1355,7 +1355,7 @@ contains
        else
           ! regenerate the ghost layer
           call wp4est_ghost_new()
-          write(log_buf, '(a)') 'p4est refinement; mesh not changed'
+          write(log_buf, '(a)') 'p4est refinement/coarsening; mesh not changed'
           call neko_log%message(log_buf, NEKO_LOG_INFO)
        end if
 
@@ -1365,9 +1365,9 @@ contains
     end select
 
 
-    call profiler_end_region("p4est refine", 31)
+    call profiler_end_region("p4est refine/coarsen", 31)
 
-  end subroutine p4est_refine
+  end subroutine p4est_refine_coarsen
 
   !> Construct neko mesh type based on mesh manager data
   !! @param[inout]   mesh     neko mesh type

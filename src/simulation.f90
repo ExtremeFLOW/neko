@@ -204,7 +204,7 @@ contains
 
     ! Error indicator and AMR refinement
     if (C%amr%ifamr()) then
-       call C%amr%refine(C%mesh_manager, C%msh, C%user, C%time)
+       call C%amr%refine_coarsen(C%mesh_manager, C%msh, C%user, C%time)
     end if
 
   end subroutine simulation_step

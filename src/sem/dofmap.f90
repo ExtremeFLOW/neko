@@ -45,8 +45,6 @@ module dofmap
   use element, only : element_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
-!!$  use comm, only : pe_size, pe_rank, NEKO_COMM
-!!$  use mpi_f08
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
 
   implicit none
@@ -151,133 +149,6 @@ contains
                           HOST_TO_DEVICE, sync = .false.)
     end if
 
-!!$    testing_save : block
-!!$      integer, save :: icall = 0
-!!$      integer :: il, jl, kl, ll, ierr, iunit
-!!$      character(len=2) :: sicall, spe_id, slx1, slx2
-!!$      character(len=:), allocatable :: sfmt1, sfmt2, sfmt3
-!!$      call MPI_Barrier(NEKO_COMM, ierr)
-!!$      write(spe_id, '(i2.2)') pe_rank
-!!$      icall = icall + 1
-!!$      write(sicall, '(i2.2)') icall
-!!$      open(newunit=iunit,file='dofmap'//spe_id//'_'//sicall//'.txt')
-!!$      write(iunit,*) 'TEST',pe_rank,msh%nelv,Xh%lx
-!!$      write(iunit,*) 'MESH', msh%mpts,msh%glb_mpts, &
-!!$           msh%mfcs,msh%glb_mfcs,msh%meds,msh%glb_meds
-!!$      write(iunit,*) 'VRT',msh%conn%vrt%lnum, msh%conn%vrt%gnum
-!!$      write(iunit,*) 'EDG',msh%conn%edg%lnum, msh%conn%edg%gnum
-!!$      write(iunit,*) 'FCS',msh%conn%fcs%lnum, msh%conn%fcs%gnum
-!!$      write(iunit,*) '======================================='
-!!$      write(iunit,*) '  '
-!!$      do il = 1, msh%nelv
-!!$         write(iunit,'(a,3i7)') 'ELEMENT', pe_rank, msh%offset_el + il, il
-!!$         write(iunit,'(a,11i7)') 'VRT', pe_rank, msh%offset_el + il, il,&
-!!$              msh%conn%vrt%gidx(msh%conn%vrt%map(:, il))
-!!$         write(iunit,'(a,9i7)') 'FCS', pe_rank, msh%offset_el + il, il,&
-!!$              msh%conn%fcs%gidx(msh%conn%fcs%map(:, il))
-!!$         write(iunit,'(a,9i7)') 'FAL', pe_rank, msh%offset_el + il, il,&
-!!$              msh%conn%fcs%algn(:, il)
-!!$         write(iunit,'(a,15i7)') 'EDG', pe_rank, msh%offset_el + il, il,&
-!!$              msh%conn%edg%gidx(msh%conn%edg%map(:, il))
-!!$         write(iunit,'(a,15i7)') 'EAL', pe_rank, msh%offset_el + il, il,&
-!!$              msh%conn%edg%algn(:, il)
-!!$
-!!$         write(slx1, '(i2.2)') Xh%lx + 4
-!!$         sfmt1 = '('//slx1//'i7)'
-!!$         write(slx2, '(i2.2)') Xh%lx
-!!$         sfmt2 = '(4i7,'//slx2//'l7)'
-!!$         sfmt3 = '(a,3i4,'//slx2//'f9.5)'
-!!$
-!!$         write(iunit,*) '  '
-!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 1
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%dof(1, jl, kl, il), jl= 1, Xh%lx)
-!!$         end do
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%shared_dof(1, jl, kl, il),jl = 1, Xh%lx)
-!!$         end do
-!!$
-!!$         write(iunit,*) '  '
-!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 2
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%dof(Xh%lx, jl, kl, il), jl= 1, Xh%lx)
-!!$         end do
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%shared_dof(Xh%lx, jl, kl, il),jl = 1, Xh%lx)
-!!$         end do
-!!$
-!!$         write(iunit,*) '  '
-!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 3
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%dof(jl, 1, kl, il), jl= 1, Xh%lx)
-!!$         end do
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%shared_dof(jl, 1, kl, il),jl = 1, Xh%lx)
-!!$         end do
-!!$
-!!$         write(iunit,*) '  '
-!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 4
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%dof(jl, Xh%lx, kl, il), jl= 1, Xh%lx)
-!!$         end do
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%shared_dof(jl, Xh%lx, kl, il),jl = 1, Xh%lx)
-!!$         end do
-!!$
-!!$         write(iunit,*) '  '
-!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 5
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%dof(jl, kl, 1, il), jl= 1, Xh%lx)
-!!$         end do
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%shared_dof(jl, kl, 1, il),jl = 1, Xh%lx)
-!!$         end do
-!!$
-!!$         write(iunit,*) '  '
-!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 6
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%dof(jl, kl, Xh%lx, il), jl= 1, Xh%lx)
-!!$         end do
-!!$         do kl = Xh%lx, 1, -1
-!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
-!!$                 (this%shared_dof(jl, kl, Xh%lx, il),jl = 1, Xh%lx)
-!!$         end do
-!!$         write(iunit,*) '======================================='
-!!$      end do
-!!$      write(iunit,*) '  '
-!!$      write(iunit,*) 'COORDINATES test'
-!!$      write(iunit,*) '  '
-!!$      do il = 1, msh%nelv
-!!$         do ll = 1, Xh%lz
-!!$            do kl = 1, Xh%ly
-!!$               write(iunit, sfmt3) 'x',il, ll, kl, &
-!!$                    & (this%x(jl,kl,ll,il),jl=1,Xh%lx)
-!!$               write(iunit, sfmt3) 'y',il, ll, kl, &
-!!$                    & (this%y(jl,kl,ll,il),jl=1,Xh%lx)
-!!$               write(iunit, sfmt3) 'z',il, ll, kl, &
-!!$                    & (this%z(jl,kl,ll,il),jl=1,Xh%lx)
-!!$               write(iunit,*) '  '
-!!$            end do
-!!$            write(iunit,*) '-----------------------------------------'
-!!$         end do
-!!$         write(iunit,*) '======================================='
-!!$      end do
-!!$      close(iunit)
-!!$      call MPI_Barrier(NEKO_COMM, ierr)
-!!$      call neko_error('This is not error.')
-!!$    end block testing_save
-
    end subroutine dofmap_init
 
   !> Destructor.
@@ -334,19 +205,46 @@ contains
   end function dofmap_size
 
   !> AMR restart
-  !! @param[in]  reconstruct   data reconstruction type
-  !! @param[in]  counter       restart counter
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
   subroutine dofmap_amr_restart(this, reconstruct, counter)
     class(dofmap_t), intent(inout) :: this
-    type(amr_reconstruct_t), intent(in) :: reconstruct
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
 
-    ! Was this component already refined?
+    ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
 
-    write(*,*) 'TEST dofmap registered'
+    ! reconstruct coordinates
+    call reconstruct%refine_coarsen(this%x, this%x_d)
+    call reconstruct%refine_coarsen(this%y, this%y_d)
+    call reconstruct%refine_coarsen(this%z, this%z_d)
+
+    ! reconstruct mapping of degrees of freedom
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%dof)) deallocate(this%dof)
+       allocate(this%dof(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+       if (allocated(this%shared_dof)) deallocate(this%shared_dof)
+       allocate(this%shared_dof(this%Xh%lx, this%Xh%ly, this%Xh%lz, &
+            this%msh%nelv))
+    end if
+
+    this%dof = 0
+    this%shared_dof = .false.
+
+    !> @todo implement for 2d elements
+    if (this%msh%gdim .eq. 3) then
+       call dofmap_number_points(this)
+       call dofmap_number_edges(this)
+       call dofmap_number_faces(this)
+    else
+       call dofmap_number_points(this)
+       call dofmap_number_edges(this)
+    end if
+
+    this%ntot = this%Xh%lx* this%Xh%ly * this%Xh%lz * this%msh%nelv
 
   end subroutine dofmap_amr_restart
 

@@ -85,19 +85,23 @@ module mesh_manager_transfer
      end subroutine mesh_manager_element_dist
 
      !> Get refinement/coarsening vectors sizes and mappings
-     !! @param[out]    nold    old element number
-     !! @param[out]    nnew    new element number
-     !! @param[out]    nref    refinement mapping size
-     !! @param[out]    ncrs    coarsening mapping size
-     !! @param[inout]  rmap    refinement mapping (element and child position)
-     !! @param[inout]  cmap    coarsening mapping (element position)
+     !! @param[out]    nold       old element number
+     !! @param[out]    nnew       new element number
+     !! @param[out]    nref       refinement mapping size
+     !! @param[out]    ncrs       coarsening mapping size
+     !! @param[inout]  rmap       refinement mapping (elem. and child position)
+     !! @param[inout]  cmap       coarsening mapping (elem. and child position)
+     !! @param[out]    nchildren  mesh manager children number
+     !! @param[out]    ifchange   mesh change flag
+     !! @param[in]     lx, ly, lz element dimensions
      subroutine mesh_manager_vector_map(this, nold, nnew, nref, ncrs, rmap, &
-          cmap)
+          cmap, nchildren, ifchange, lx, ly, lz)
        import mesh_manager_transfer_t, rp
        class(mesh_manager_transfer_t), intent(inout) :: this
-       integer, intent(out) :: nold, nnew, nref, ncrs
-       integer, dimension(:, :), allocatable, intent(inout) :: rmap
-       integer, dimension(:), allocatable, intent(inout) :: cmap
+       integer, intent(out) :: nold, nnew, nref, ncrs, nchildren
+       integer, dimension(:, :), allocatable, intent(inout) :: rmap, cmap
+       logical, intent(out) :: ifchange
+       integer, intent(in) :: lx, ly, lz
      end subroutine mesh_manager_vector_map
 
      !> Construct vectors for refinement/coarsening
@@ -108,7 +112,8 @@ module mesh_manager_transfer
        import mesh_manager_transfer_t, rp
        class(mesh_manager_transfer_t), intent(inout) :: this
        real(rp), dimension(:, :, :, :), intent(in) :: vin
-       real(rp), dimension(:, :, :, :), intent(out) :: vout, vcrs
+       real(rp), dimension(:, :, :, :), intent(out) :: vout
+       real(rp), dimension(:, :, :, :, :), intent(out) :: vcrs
      end subroutine mesh_manager_vector_constr
   end interface
 

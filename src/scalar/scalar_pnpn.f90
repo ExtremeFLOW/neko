@@ -566,17 +566,17 @@ contains
   end subroutine scalar_pnpn_setup_bcs_
 
   !> AMR restart
-  !! @param[in]  reconstruct   data reconstruction type
+  !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]  counter       restart counter
   subroutine scalar_pnpn_amr_restart(this, reconstruct, &
        counter)
     class(scalar_pnpn_t), intent(inout) :: this
-    type(amr_reconstruct_t), intent(in) :: reconstruct
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
 
     !call neko_error('Nothing done for AMR reconstruction')
 
-    ! Was this component already refined?
+    ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter

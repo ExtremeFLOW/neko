@@ -543,17 +543,17 @@ contains
   end subroutine fluid_scheme_compressible_euler_restart
 
   !> AMR restart
-  !! @param[in]  reconstruct   data reconstruction type
-  !! @param[in]  counter       restart counter
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
   subroutine fluid_scheme_compressible_euler_amr_restart(this, reconstruct, &
        counter)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
-    type(amr_reconstruct_t), intent(in) :: reconstruct
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
 
     call neko_error('Nothing done for AMR reconstruction')
 
-    ! Was this component already refined?
+    ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter

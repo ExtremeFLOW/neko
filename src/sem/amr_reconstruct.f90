@@ -33,52 +33,31 @@
 !> The vector reconstruction/interpolation routines for AMR
 module amr_reconstruct
   use neko_config
-  use num_types, only : i8, rp
+  use num_types, only : rp
   use utils, only : neko_error, neko_warning
-  use speclib, only : igllm
-  use space, only : space_t, GLL
+  use amr_interpolate, only : amr_interpolate_t, amr_nchildren
   use device
   use mxm_wrapper, only: mxm
-  use math, only : invcol1
   use mesh_manager_transfer, only : mesh_manager_transfer_t
   use, intrinsic :: iso_c_binding
 
   implicit none
   private
 
-  ! number of children; 3D only
-  integer, parameter :: amr_nchildren = 8
-
   !> Type for vector/field reconstruction
   type, public :: amr_reconstruct_t
      !> pointer mesh manager data transfer
      class(mesh_manager_transfer_t), pointer :: transfer
-     !> Function space \f$ X_h \f$
-     type(space_t) :: Xh
-     !> Interpolation operators; coarse to fine
-     real(rp), allocatable, dimension(:, :, :) :: x_cr2fn, x_cr2fnT
-     real(rp), allocatable, dimension(:, :, :) :: y_cr2fn, y_cr2fnT
-     real(rp), allocatable, dimension(:, :, :) :: z_cr2fn, z_cr2fnT
-     !> Interpolation operators; fine to coarse
-     real(rp), allocatable, dimension(:, :, :) :: x_fn2cr, x_fn2crT
-     real(rp), allocatable, dimension(:, :, :) :: y_fn2cr, y_fn2crT
-     real(rp), allocatable, dimension(:, :, :) :: z_fn2cr, z_fn2crT
-     ! used for coarsening after children face summation
-     ! I assume lx=ly=lz, but in general there should be 3 face and edge arrays
-     !> Point multiplicity; element
-     real(rp), allocatable, dimension(:, :, :) :: el_mult
-     !> Point multiplicity; face
-     real(rp), allocatable, dimension(:, :) :: fc_mult
-     !> Point multiplicity; edge
-     real(rp), allocatable, dimension(:) :: ed_mult
+     !> AMR function space \f$ X_h \f$
+     type(amr_interpolate_t) :: interpolate
 
      !> Work space for single element refinement
      real(rp), allocatable, dimension(:, :, :, :) :: tmp
 
      ! Arrays sizes
-     !> Old element number
+     !> Old number of elements
      integer :: nold
-     !> New element number
+     !> New number of elements
      integer :: nnew
      !> Refinement mapping size
      integer :: nref
@@ -86,31 +65,18 @@ module amr_reconstruct
      integer :: ncrs
      !> Refinement mapping (element and child position)
      integer, dimension(:, :), allocatable :: rmap
-     !> Coarsening mapping (element position)
-     integer, dimension(:), allocatable :: cmap
+     !> Coarsening mapping (element and child position)
+     integer, dimension(:, :), allocatable :: cmap
      !> Output vector for refinement
      real(rp), allocatable, dimension(:, :, :, :) :: vout
      !> Vector with additional data for coarsening
      real(rp), allocatable, dimension(:, :, :, :, :) :: vcrs
+     !> Is local mesh changed
+     logical :: ifchange
 
      !
      ! Device pointers (if present)
      !
-     type(c_ptr) :: x_cr2fn_d = C_NULL_PTR
-     type(c_ptr) :: x_cr2fnT_d = C_NULL_PTR
-     type(c_ptr) :: y_cr2fn_d = C_NULL_PTR
-     type(c_ptr) :: y_cr2fnT_d = C_NULL_PTR
-     type(c_ptr) :: z_cr2fn_d = C_NULL_PTR
-     type(c_ptr) :: z_cr2fnT_d = C_NULL_PTR
-     type(c_ptr) :: x_fn2cr_d = C_NULL_PTR
-     type(c_ptr) :: x_fn2crT_d = C_NULL_PTR
-     type(c_ptr) :: y_fn2cr_d = C_NULL_PTR
-     type(c_ptr) :: y_fn2crT_d = C_NULL_PTR
-     type(c_ptr) :: z_fn2cr_d = C_NULL_PTR
-     type(c_ptr) :: z_fn2crT_d = C_NULL_PTR
-     type(c_ptr) :: el_mult_d = C_NULL_PTR
-     type(c_ptr) :: fc_mult_d = C_NULL_PTR
-     type(c_ptr) :: ed_mult_d = C_NULL_PTR
      ! should tmp be on device?
    contains
      !> Initialise type
@@ -119,16 +85,15 @@ module amr_reconstruct
      procedure, pass(this) :: free => amr_reconstruct_free
      !> Get refinement/coarsening mapping
      procedure, pass(this) :: map_get => amr_reconstruct_map_get
-     !> free refinement/coarsening mapping
+     !> Free refinement/coarsening mapping
      procedure, pass(this) :: map_free => amr_reconstruct_map_free
-     !> Single field coarsening operation
-     procedure, pass(this) :: coarsen_single => amr_reconstruct_coarsen_single
+     !> Perform refinement/coarsening on a single vector
+     procedure, pass(this) :: refine_coarsen => amr_reconstruct_refine_coarsen
      !> Map single coarse to fine element
      procedure, pass(this) :: map_c2f => amr_reconstruct_map_c2f
      !> Map single fine to coarse element
      procedure, pass(this) :: map_f2c => amr_reconstruct_map_f2c
   end type amr_reconstruct_t
-
 
 contains
   !> Initialise type
@@ -139,215 +104,26 @@ contains
     class(amr_reconstruct_t), intent(inout) :: this
     class(mesh_manager_transfer_t), target, intent(in) :: transfer
     integer, intent(in) :: gdim, lx
-    integer :: il, jl, kl, nt2
-    real(rp), allocatable, dimension(:) :: tmpl
 
     call this%free()
 
     ! mesh manager data transfer
     this%transfer => transfer
 
-    ! functional space
-    if (gdim .ne. 3) &
-         call neko_error('AMR reconstruction supports 3D domain only')
-    call this%Xh%init(GLL, lx, lx, lx)
+    call this%interpolate%init(gdim, lx)
 
-    associate(Xh => this%Xh)
-
-      ! work array
-      allocate(tmpl(max(Xh%lx, Xh%ly, Xh%lz)))
-
-      ! interpolation operators
-      ! x-direction
-      allocate(this%x_cr2fn(Xh%lx, Xh%lx, 2), source = 0.0_rp)
-      allocate(this%x_cr2fnT, source = this%x_cr2fn)
-      allocate(this%x_fn2cr, source = this%x_cr2fn)
-      allocate(this%x_fn2crT, source = this%x_cr2fn)
-
-      ! coarse -> fine
-      ! negative
-      do concurrent (il = 1: Xh%lx)
-         tmpl(il) = 0.5_rp * (Xh%zg(il,1) - 1.0_rp)
-      end do
-      call igllm(this%x_cr2fn, this%x_cr2fnT, Xh%zg(:, 1), tmpl, Xh%lx, Xh%lx, &
-           Xh%lx, Xh%lx)
-      ! positive; we use symmetry
-      do concurrent (jl = 1: Xh%lx, il = 1: Xh%lx)
-         this%x_cr2fn(Xh%lx-il+1, Xh%lx-jl+1, 2) = this%x_cr2fn(il, jl, 1)
-         this%x_cr2fnT(Xh%lx-il+1, Xh%lx-jl+1, 2) = this%x_cr2fnT(il, jl, 1)
-      end do
-      ! fine -> coarse
-      ! negative
-      nt2 = Xh%lx/2 + mod(Xh%lx, 2)
-      do concurrent (il=1: nt2)
-         tmpl(il) = 2.0_rp * Xh%zg(il, 1) + 1.0_rp
-      end do
-      call igllm(this%x_fn2cr, this%x_fn2crT, Xh%zg(:, 1), tmpl, Xh%lx, &
-           nt2, Xh%lx, Xh%lx)
-      ! positive; we use symmetry
-      do concurrent (jl = 1: Xh%lx, il = 1: nt2)
-         this%x_fn2cr(Xh%lx-il+1, Xh%lx-jl+1, 2) = this%x_fn2cr(il, jl, 1)
-         this%x_fn2crT(Xh%lx-il+1, Xh%lx-jl+1, 2) = this%x_fn2crT(il, jl, 1)
-      end do
-
-      ! y-direction
-      allocate(this%y_cr2fn(Xh%ly, Xh%ly, 2), source = 0.0_rp)
-      allocate(this%y_cr2fnT, source = this%y_cr2fn)
-      allocate(this%y_fn2cr, source = this%y_cr2fn)
-      allocate(this%y_fn2crT, source = this%y_cr2fn)
-
-      ! coarse -> fine
-      ! negative
-      do concurrent (il = 1: Xh%ly)
-         tmpl(il) = 0.5_rp * (Xh%zg(il, 2) - 1.0_rp)
-      end do
-      call igllm(this%y_cr2fn, this%y_cr2fnT, Xh%zg(:, 2), tmpl, Xh%ly, Xh%ly, &
-           Xh%ly, Xh%ly)
-      ! positive; we use symmetry
-      do concurrent (jl = 1: Xh%ly, il = 1: Xh%ly)
-         this%y_cr2fn(Xh%ly-il+1, Xh%ly-jl+1, 2) = this%y_cr2fn(il, jl, 1)
-         this%y_cr2fnT(Xh%ly-il+1, Xh%ly-jl+1, 2) = this%y_cr2fnT(il, jl, 1)
-      end do
-      ! fine -> coarse
-      ! negative
-      nt2 = Xh%ly/2 + mod(Xh%ly, 2)
-      do concurrent (il = 1: nt2)
-         tmpl(il) = 2.0_rp * Xh%zg(il, 2) + 1.0_rp
-      end do
-      call igllm(this%y_fn2cr, this%y_fn2crT, Xh%zg(:, 2), tmpl, Xh%ly, nt2, &
-           Xh%ly, Xh%ly)
-      ! positive; we use symmetry
-      do concurrent (jl = 1: Xh%ly, il = 1: nt2)
-         this%y_fn2cr(Xh%ly-il+1, Xh%ly-jl+1, 2) = this%y_fn2cr(il, jl, 1)
-         this%y_fn2crT(Xh%ly-il+1, Xh%ly-jl+1, 2) = this%y_fn2crT(il, jl, 1)
-      end do
-
-      ! z-direction
-      if (gdim == 3) then
-         allocate(this%z_cr2fn(Xh%lz, Xh%lz, 2), source = 0.0_rp)
-         allocate(this%z_cr2fnT, source = this%z_cr2fn)
-         allocate(this%z_fn2cr, source = this%z_cr2fn)
-         allocate(this%z_fn2crT, source = this%z_cr2fn)
-
-         ! coarse -> fine
-         ! negative
-         do concurrent (il = 1: Xh%lz)
-            tmpl(il) = 0.5_rp * (Xh%zg(il, 3) - 1.0_rp)
-         end do
-         call igllm(this%z_cr2fn, this%z_cr2fnT, Xh%zg(:, 3), &
-              &tmpl, Xh%lz, Xh%lz, Xh%lz, Xh%lz)
-         ! positive; we use symmetry
-         do concurrent (jl = 1: Xh%lz, il = 1: Xh%lz)
-            this%z_cr2fn(Xh%lz-il+1, Xh%lz-jl+1, 2) = this%z_cr2fn(il, jl, 1)
-            this%z_cr2fnT(Xh%lz-il+1, Xh%lz-jl+1, 2) = this%z_cr2fnT(il, jl, 1)
-         end do
-         ! fine -> coarse
-         ! negative
-         nt2 = Xh%lz/2 + mod(Xh%lz, 2)
-         do concurrent (il = 1: nt2)
-            tmpl(il) = 2.0_rp * Xh%zg(il, 3) + 1.0_rp
-         end do
-         call igllm(this%z_fn2cr, this%z_fn2crT, Xh%zg(:, 3), tmpl, Xh%lz, &
-              nt2, Xh%lz, Xh%lz)
-         ! positive; we use symmetry
-         do concurrent (jl = 1: Xh%lz, il = 1: nt2)
-            this%z_fn2cr(Xh%lz-il+1, Xh%lz-jl+1, 2) = this%z_fn2cr(il, jl, 1)
-            this%z_fn2crT(Xh%lz-il+1, Xh%lz-jl+1, 2) = this%z_fn2crT(il, jl, 1)
-         end do
-      end if
-
-      ! multiplicity arrays
-      if ((Xh%lx /= Xh%ly) .or. ((Xh%lz /= 1) .and. (Xh%lz /= Xh%lx))) &
-           call neko_error('AMR does not support lx /= ly /= lz (for lz /= 1)')
-      allocate(this%el_mult(Xh%lx, Xh%ly, Xh%lz), source = 0.0_rp)
-      allocate(this%fc_mult(Xh%lx, Xh%lx), source = 0.0_rp)
-      allocate(this%ed_mult(Xh%lx), source = 0.0_rp)
-      ! X
-      if (mod(Xh%lx, 2) == 1) then
-         il = Xh%lx/2 + 1
-         do concurrent (kl = 1: Xh%lz, jl = 1: Xh%ly)
-            this%el_mult(il, jl, kl) = this%el_mult(il, jl, kl) + 1.0_rp
-         end do
-      end if
-      ! Y
-      if (mod(Xh%ly, 2) == 1) then
-         jl = Xh%ly/2 + 1
-         do concurrent (kl = 1: Xh%lz, il = 1: Xh%lx)
-            this%el_mult(il, jl, kl) = this%el_mult(il, jl, kl) + 1.0_rp
-         end do
-         if (mod(Xh%lx, 2) == 1) then
-            il = Xh%lx/2 + 1
-            do concurrent (kl = 1: Xh%lz)
-               this%el_mult(il, jl, kl) = this%el_mult(il, jl, kl) + 1.0_rp
-            end do
-         end if
-      end if
-      ! Z
-      if (gdim == 3) then
-         if (mod(Xh%lz, 2) == 1) then
-            kl = Xh%lz/2 + 1
-            do concurrent (jl = 1: Xh%ly, il = 1: Xh%lx)
-               this%el_mult(il, jl, kl) = this%el_mult(il, jl, kl) + 1.0_rp
-            end do
-            if (mod(Xh%lx, 2) == 1) then
-               il = Xh%lx/2 + 1
-               do concurrent (jl = 1: Xh%ly)
-                  this%el_mult(il, jl, kl) = this%el_mult(il, jl, kl) + 1.0_rp
-               end do
-            end if
-            if (mod(Xh%ly, 2) == 1) then
-               jl = Xh%ly/2 + 1
-               do concurrent (il = 1: Xh%lx)
-                  this%el_mult(il, jl, kl) = this%el_mult(il, jl, kl) + 1.0_rp
-               end do
-            end if
-            if ((mod(Xh%lx, 2) == 1).and.(mod(Xh%ly,2 ) == 1)) then
-               il = Xh%lx/2 + 1
-               jl = Xh%ly/2 + 1
-               this%el_mult(il, jl, kl) = this%el_mult(il, jl, kl) + 1.0_rp
-            end if
-         end if
-      end if
-      ! calculate inverse
-      nt2 = Xh%lx * Xh%ly * Xh%lz
-      call invcol1(this%el_mult, nt2)
-
-      ! to get proper J^-1 on faces and edges for fast diagonalisation method
-      ! I assume here LX1 = LY1 = LZ1, so only one array is needed
-      !call ftovecl(this%fc_mult,this%el_mult,1,Xh%lx,Xh%ly,Xh%lz)
-      !call etovec(this%ed_mult,1,this%el_mult,Xh%lx,Xh%ly,Xh%lz)
-      ! THIS SHOLD BE CHECKED, BUT SHOULD BE FINE
-      this%fc_mult(:,:) = this%el_mult(:,:, 1)
-      this%ed_mult(:) = this%el_mult(:, 1, 1)
+    associate(Xh => this%interpolate%Xh)
 
       ! work space
       allocate(this%tmp(Xh%lx, Xh%ly, Xh%lz, 3))
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         nt2 = Xh%lxy * 2
-         call device_map(this%x_cr2fn, this%x_cr2fn_d, nt2)
-         call device_map(this%x_cr2fnT, this%x_cr2fnT_d, nt2)
-         call device_map(this%x_fn2cr, this%x_fn2cr_d, nt2)
-         call device_map(this%x_fn2crT, this%x_fn2crT_d, nt2)
-         call device_map(this%y_cr2fn, this%y_cr2fn_d, nt2)
-         call device_map(this%y_cr2fnT, this%y_cr2fnT_d, nt2)
-         call device_map(this%y_fn2cr, this%y_fn2cr_d, nt2)
-         call device_map(this%y_fn2crT, this%y_fn2crT_d, nt2)
-         call device_map(this%z_cr2fn, this%x_cr2fn_d, nt2)
-         call device_map(this%z_cr2fnT, this%z_cr2fnT_d, nt2)
-         call device_map(this%z_fn2cr, this%z_fn2cr_d, nt2)
-         call device_map(this%z_fn2crT, this%z_fn2crT_d, nt2)
-         call device_map(this%el_mult, this%el_mult_d, Xh%lxyz)
-         call device_map(this%fc_mult, this%fc_mult_d, Xh%lxy)
-         call device_map(this%ed_mult, this%ed_mult_d, Xh%lx)
          ! should tmp be on device?
       end if
 
     end associate
 
     call device_sync()
-
-    deallocate(tmpl)
 
   end subroutine amr_reconstruct_init
 
@@ -357,31 +133,12 @@ contains
 
     this%transfer => NULL()
 
-    call this%Xh%free()
+    call this%interpolate%free()
 
     this%nold = 0
     this%nnew = 0
     this%nref = 0
     this%ncrs = 0
-
-    if (allocated(this%x_cr2fn)) deallocate(this%x_cr2fn)
-    if (allocated(this%x_cr2fnT)) deallocate(this%x_cr2fnT)
-    if (allocated(this%x_fn2cr)) deallocate(this%x_fn2cr)
-    if (allocated(this%x_fn2crT)) deallocate(this%x_fn2crT)
-
-    if (allocated(this%y_cr2fn)) deallocate(this%y_cr2fn)
-    if (allocated(this%y_cr2fnT)) deallocate(this%y_cr2fnT)
-    if (allocated(this%y_fn2cr)) deallocate(this%y_fn2cr)
-    if (allocated(this%y_fn2crT)) deallocate(this%y_fn2crT)
-
-    if (allocated(this%z_cr2fn)) deallocate(this%z_cr2fn)
-    if (allocated(this%z_cr2fnT)) deallocate(this%z_cr2fnT)
-    if (allocated(this%z_fn2cr)) deallocate(this%z_fn2cr)
-    if (allocated(this%z_fn2crT)) deallocate(this%z_fn2crT)
-
-    if (allocated(this%el_mult)) deallocate(this%el_mult)
-    if (allocated(this%fc_mult)) deallocate(this%fc_mult)
-    if (allocated(this%ed_mult)) deallocate(this%ed_mult)
 
     if (allocated(this%tmp)) deallocate(this%tmp)
 
@@ -390,24 +147,11 @@ contains
     if (allocated(this%vout)) deallocate(this%vout)
     if (allocated(this%vcrs)) deallocate(this%vcrs)
 
+    this%ifchange = .false.
+
     !
     ! Cleanup the device (if present)
     !
-    if (c_associated(this%x_cr2fn_d)) call device_free(this%x_cr2fn_d)
-    if (c_associated(this%x_cr2fnT_d)) call device_free(this%x_cr2fnT_d)
-    if (c_associated(this%y_cr2fn_d)) call device_free(this%y_cr2fn_d)
-    if (c_associated(this%y_cr2fnT_d)) call device_free(this%y_cr2fnT_d)
-    if (c_associated(this%z_cr2fn_d)) call device_free(this%z_cr2fn_d)
-    if (c_associated(this%z_cr2fnT_d)) call device_free(this%z_cr2fnT_d)
-    if (c_associated(this%x_fn2cr_d)) call device_free(this%x_fn2cr_d)
-    if (c_associated(this%x_fn2crT_d)) call device_free(this%x_fn2crT_d)
-    if (c_associated(this%y_fn2cr_d)) call device_free(this%y_fn2cr_d)
-    if (c_associated(this%y_fn2crT_d)) call device_free(this%y_fn2crT_d)
-    if (c_associated(this%z_fn2cr_d)) call device_free(this%z_fn2cr_d)
-    if (c_associated(this%z_fn2crT_d)) call device_free(this%z_fn2crT_d)
-    if (c_associated(this%el_mult_d)) call device_free(this%el_mult_d)
-    if (c_associated(this%fc_mult_d)) call device_free(this%fc_mult_d)
-    if (c_associated(this%ed_mult_d)) call device_free(this%ed_mult_d)
     ! should tmp be on device?
 
   end subroutine amr_reconstruct_free
@@ -415,13 +159,22 @@ contains
   !> Get refinement/coarsening mapping
   subroutine amr_reconstruct_map_get(this)
     class(amr_reconstruct_t), intent(inout) :: this
+    integer :: nchildren
 
     call this%transfer%vector_map(this%nold, this%nnew, this%nref, this%ncrs, &
-         this%rmap, this%cmap)
+         this%rmap, this%cmap, nchildren, this%ifchange, &
+         this%interpolate%Xh%lx, this%interpolate%Xh%ly, this%interpolate%Xh%lz)
 
+    ! sanity check
+    if (amr_nchildren .ne. nchildren) &
+         call neko_error('Inconsistent children number for mesh manager and &
+         &refinement routines.')
+
+    associate(Xh => this%interpolate%Xh)
     ! get coarsening vector
-    allocate(this%vcrs(this%Xh%lx, this%Xh%ly, this%Xh%lz, amr_nchildren, &
-         this%ncrs))
+      if (this%ifchange) allocate(this%vcrs(Xh%lx, Xh%ly, Xh%lz, &
+           amr_nchildren, this%ncrs))
+    end associate
   end subroutine amr_reconstruct_map_get
 
   !> Free refinement/coarsening mapping
@@ -440,72 +193,107 @@ contains
     if (allocated(this%vout)) deallocate(this%vout)
     if (allocated(this%vcrs)) deallocate(this%vcrs)
 
+    this%ifchange = .false.
+
   end subroutine amr_reconstruct_map_free
 
-  !> @brief Perform a single field coarsening operation
-  !! @param[inout] vcf     coarsened vector
-  subroutine amr_reconstruct_coarsen_single(this, vfc)
+  !> Perform refinement/coarsening on a single vector
+  !! @param[inout] vec    vector for refinement/coarsening
+  !! @param[inout] vec_d  device pointer to vector
+  subroutine amr_reconstruct_refine_coarsen(this, vec, vec_d)
     class(amr_reconstruct_t), intent(inout) :: this
-    real(rp), dimension(:,:,:,:), intent(inout) :: vfc
+    real(rp), dimension(:, :, :, :), allocatable, intent(inout) :: vec
+    type(c_ptr), optional, intent(inout) :: vec_d
     integer :: il, jl, itmp
     integer, dimension(3) :: ch_pos
 
-!!$    ! JUST A PLACEHOLDER FOR NOW
-!!$    ! I assume el_lst(1) gives position of the coarse block
-!!$    ! and final ch_pos() = 1,1,1
-!!$    ! loop over coarsened elements
-!!$    do il= 1, this%transfer%coarsen_nr
-!!$       ! loop over all the children
-!!$       do jl= 1, amr_nchildren
-!!$          ! get child position
-!!$          itmp = this%transfer%coarsen(2, jl, il) ! new position in the array
-!!$          ch_pos(3) = (jl-1)/4 + 1 ! z position
-!!$          ch_pos(2) = mod((jl - 1)/2, 2) + 1 ! y position
-!!$          ch_pos(1) = mod(jl - 1, 2) +1 ! x position
-!!$          ! coarsen; 3D only
-!!$          call this%map_f2c(3, ch_pos, vfc(:,:,:,itmp), this%tmp(:,:,:,3))
-!!$          ! sum contributions
-!!$          if (jl == 1) then
-!!$             vfc(:,:,:,itmp) = this%tmp(:,:,:,3)
-!!$          else
-!!$             vfc(:,:,:,itmp) =  vfc(:,:,:,itmp) + this%tmp(:,:,:,3)
-!!$          end if
-!!$       end do
-!!$       vfc(:,:,:,itmp) =  vfc(:,:,:,itmp)*this%el_mult(:,:,:)
-!!$    end do
+    if (this%ifchange) then
+       associate(int => this%interpolate)
+         ! check device pointer
+         if (present(vec_d) .and. NEKO_BCKND_DEVICE .eq. 1) then
+            call neko_error('AMR reconstruction; nothing done for device')
+         end if
 
-  end subroutine amr_reconstruct_coarsen_single
+         ! CPU part
+         allocate(this%vout(int%Xh%lx, int%Xh%ly, int%Xh%lz, this%nnew))
+         call this%transfer%vector_constr(vec, this%vout, this%vcrs)
+         ! refinement
+         if (this%nref .gt. 0) then
+            do il = 1, this%nref
+               ! get child position with respect to the parent
+               ! (0...amr_nchildren - 1)
+               itmp = this%rmap(2, il)
+               ch_pos(3) = itmp / 4 + 1 ! z position
+               ch_pos(2) = mod(itmp / 2, 2) + 1 ! y position
+               ch_pos(1) = mod(itmp, 2) + 1 ! x position
+               call this%map_c2f(int%gdim, ch_pos, &
+                    this%vout(:, :, :, this%rmap(1, il)))
+            end do
+         end if
+         ! coarsening
+         if (this%ncrs .gt. 0) then
+            do il = 1, this%ncrs
+               this%vout(:, :, :, this%cmap(1, il)) = 0.0_rp
+               do jl = 1, amr_nchildren
+                  ! get child position with respect to the parent
+                  ! (0...amr_nchildren - 1)
+                  itmp = this%cmap(1 + jl, il)
+                  ch_pos(3) = itmp / 4 + 1 ! z position
+                  ch_pos(2) = mod(itmp / 2, 2) + 1 ! y position
+                  ch_pos(1) = mod(itmp, 2) + 1 ! x position
+                  call this%map_f2c(int%gdim, ch_pos, &
+                       this%vcrs(:, :, :, jl, il), this%tmp(:, :, :, 3))
+                  ! accumulate result
+                  this%vout(:, :, :, this%cmap(1, il)) = &
+                       this%vout(:, :, :, this%cmap(1, il)) + &
+                       this%tmp(:, :, :, 3)
+               end do
+               ! reduce multiplicity
+               this%vout(:, :, :, this%cmap(1, il)) = &
+                    this%vout(:, :, :, this%cmap(1, il)) * int%el_mult(:, :, :)
+            end do
+         end if
+         call move_alloc(this%vout, vec)
+
+         ! check device pointer
+         if (present(vec_d) .and. NEKO_BCKND_DEVICE .eq. 1) then
+            call neko_error('AMR reconstruction; nothing done for device; 2')
+         end if
+       end associate
+    end if
+
+  end subroutine amr_reconstruct_refine_coarsen
 
   !> @brief Map a single coarse element to a fine one
   !! @param[in]    gdim    geometrical dimension
   !! @param[in]    ch_pos  child position
-  !! @param[in]    vc      coarse element vector
-  !! @param[out]   vf      fine element vector
-  subroutine amr_reconstruct_map_c2f(this, gdim, ch_pos, vc, vf)
+  !! @param[inout] vcf     coarse (input) and fine (output) element vector
+  subroutine amr_reconstruct_map_c2f(this, gdim, ch_pos, vcf)
     class(amr_reconstruct_t), intent(inout) :: this
     integer, intent(in) :: gdim
     integer, dimension(3), intent(in) :: ch_pos
-    real(rp), dimension(:,:,:), intent(in) :: vc
-    real(rp), dimension(:,:,:), intent(out) :: vf
+    real(rp), dimension(:,:,:), intent(inout) :: vcf
     integer :: iz
 
-    if (gdim == 3) then ! 3D
-       call mxm(this%x_cr2fn(:,:, ch_pos(1)), this%Xh%lx, vc, &
-            & this%Xh%lx, this%tmp(:,:,:, 1), this%Xh%lyz)
-       do iz = 1, this%Xh%lz
-          call mxm(this%tmp(:,:, iz, 1), this%Xh%lx,&
-               & this%y_cr2fnT(:,:, ch_pos(2)),&
-               & this%Xh%ly, this%tmp(:,:, iz, 2), this%Xh%ly)
-       end do
-       call mxm(this%tmp(:,:,:, 2), this%Xh%lxy,&
-            & this%z_cr2fnT(:,:, ch_pos(3)),&
-            & this%Xh%lz, vf, this%Xh%lz)
-    else ! 2D
-       call mxm(this%x_cr2fn(:,:, ch_pos(1)), this%Xh%lx, vc, this%Xh%lz,&
-            & this%tmp(:,:,1,1), this%Xh%lyz)
-       call mxm(this%tmp(:,:,1,1), this%Xh%lx, this%y_cr2fnT(:,:, ch_pos(2)),&
-            & this%Xh%ly, vf, this%Xh%ly)
-    end if
+    associate(int => this%interpolate)
+      if (gdim == 3) then ! 3D
+         call mxm(int%x_cr2fn(:,:, ch_pos(1)), int%Xh%lx, vcf, &
+              & int%Xh%lx, this%tmp(:,:,:, 1), int%Xh%lyz)
+         do iz = 1, int%Xh%lz
+            call mxm(this%tmp(:,:, iz, 1), int%Xh%lx,&
+                 & int%y_cr2fnT(:,:, ch_pos(2)),&
+                 & int%Xh%ly, this%tmp(:,:, iz, 2), int%Xh%ly)
+         end do
+         call mxm(this%tmp(:,:,:, 2), int%Xh%lxy,&
+              & int%z_cr2fnT(:,:, ch_pos(3)),&
+              & int%Xh%lz, vcf, int%Xh%lz)
+      else ! 2D
+         call mxm(int%x_cr2fn(:,:, ch_pos(1)), int%Xh%lx, vcf, int%Xh%lz,&
+              & this%tmp(:,:,1,1), int%Xh%lyz)
+         call mxm(this%tmp(:,:,1,1), int%Xh%lx, int%y_cr2fnT(:,:, ch_pos(2)),&
+              & int%Xh%ly, vcf, int%Xh%ly)
+      end if
+    end associate
 
   end subroutine amr_reconstruct_map_c2f
 
@@ -522,23 +310,25 @@ contains
     real(rp), dimension(:,:,:), intent(out) :: vc
     integer :: iz
 
-    if (gdim == 3) then ! 3D
-       call mxm(this%x_fn2cr(:,:, ch_pos(1)), this%Xh%lx, vf, &
-            & this%Xh%lx, this%tmp(:,:,:, 1), this%Xh%lyz)
-       do iz = 1, this%Xh%lz
-          call mxm(this%tmp(:,:, iz, 1), this%Xh%lx,&
-               & this%y_fn2crT(:,:, ch_pos(2)),&
-               & this%Xh%ly, this%tmp(:,:, iz, 2), this%Xh%ly)
-       end do
-       call mxm(this%tmp(:,:,:, 2), this%Xh%lxy,&
-            & this%z_fn2crT(:,:, ch_pos(3)),&
-            & this%Xh%lz, vc, this%Xh%lz)
-    else ! 2D
-       call mxm(this%x_fn2cr(:,:, ch_pos(1)), this%Xh%lx, vf, this%Xh%lz,&
-            & this%tmp(:,:,1,1), this%Xh%lyz)
-       call mxm(this%tmp(:,:,1,1), this%Xh%lx, this%y_fn2crT(:,:, ch_pos(2)),&
-            & this%Xh%ly, vc, this%Xh%ly)
-    end if
+    associate(int => this%interpolate)
+      if (gdim == 3) then ! 3D
+         call mxm(int%x_fn2cr(:,:, ch_pos(1)), int%Xh%lx, vf, &
+              & int%Xh%lx, this%tmp(:,:,:, 1), int%Xh%lyz)
+         do iz = 1, int%Xh%lz
+            call mxm(this%tmp(:,:, iz, 1), int%Xh%lx,&
+                 & int%y_fn2crT(:,:, ch_pos(2)),&
+                 & int%Xh%ly, this%tmp(:,:, iz, 2), int%Xh%ly)
+         end do
+         call mxm(this%tmp(:,:,:, 2), int%Xh%lxy,&
+              & int%z_fn2crT(:,:, ch_pos(3)),&
+              & int%Xh%lz, vc, int%Xh%lz)
+      else ! 2D
+         call mxm(int%x_fn2cr(:,:, ch_pos(1)), int%Xh%lx, vf, int%Xh%lz,&
+              & this%tmp(:,:,1,1), int%Xh%lyz)
+         call mxm(this%tmp(:,:,1,1), int%Xh%lx, int%y_fn2crT(:,:, ch_pos(2)),&
+              & int%Xh%ly, vc, int%Xh%ly)
+      end if
+    end associate
 
   end subroutine amr_reconstruct_map_f2c
 

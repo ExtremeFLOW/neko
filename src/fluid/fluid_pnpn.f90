@@ -1214,14 +1214,14 @@ contains
   end subroutine fluid_pnpn_write_boundary_conditions
 
   !> AMR restart
-  !! @param[in]  reconstruct   data reconstruction type
-  !! @param[in]  counter       restart counter
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
   subroutine fluid_pnpn_amr_restart(this, reconstruct, counter)
     class(fluid_pnpn_t), intent(inout) :: this
-    type(amr_reconstruct_t), intent(in) :: reconstruct
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
 
-    ! Was this component already refined?
+    ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter

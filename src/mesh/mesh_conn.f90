@@ -56,6 +56,12 @@ module mesh_conn
      integer(i4) :: nobj
      !> Element to object mapping
      integer(i4), allocatable, dimension(:,:) :: map
+     !> Global mapping of object to element component (inverse to map)
+     ! first dimension: 1 - MPI rank, 2- local element number,
+     ! 3 - position in element
+     integer(i4), allocatable, dimension(:,:) :: gmap
+     !> Offset in the global mapping
+     integer(i4), allocatable, dimension(:) :: goff
      !> Is object alignment directly specified
      logical :: ifalgn
      !> Edge alignment
@@ -142,6 +148,8 @@ contains
        this%hang(:, :) = hang(:, :)
     end if
 
+    ! Place to generate global in verse mapping (gmap, goff)
+
   end subroutine mesh_conn_obj_init
 
   !> Free object connectivity information
@@ -158,6 +166,8 @@ contains
     if (allocated(this%gidx)) deallocate(this%gidx)
     if (allocated(this%share)) deallocate(this%share)
     if (allocated(this%map)) deallocate(this%map)
+    if (allocated(this%gmap)) deallocate(this%gmap)
+    if (allocated(this%goff)) deallocate(this%goff)
     if (allocated(this%algn)) deallocate(this%algn)
     if (allocated(this%hang)) deallocate(this%hang)
 
