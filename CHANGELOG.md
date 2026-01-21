@@ -11,6 +11,8 @@
     file.
   - Added submodule `case_file_utils` to `json_utils` for extracting JSON
     entry values from either the JSON itself or the `neko_const_regitry`.
+- Introduce deprecation warning functionality. Allowing marking functions
+  and classes as deprecated, with optional custom messages.
 - Add missing free operators for `output_t` class.
 - Add min/max operations when applying strong boundary conditions for the
   scalar, mimicing the procedure for the fluid. Needed with meshes where an
@@ -24,3 +26,7 @@
   pre-existing names.
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
+
+### Deprecated features
+- `operator::ortho` calls with implicit device arrays are deprecated. Please use
+  `device_ortho` instead.

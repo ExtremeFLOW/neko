@@ -66,6 +66,7 @@ module operators
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr
+  use logger, only : neko_log
   implicit none
   private
 
@@ -225,12 +226,16 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp) :: c
     type(c_ptr) :: x_d
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_log%deprecated('Operator: ortho, implicit device', &
+            'v2.0.0', 'Please call device_ortho instead.')
+
        x_d = device_get_ptr(x)
-       c = device_glsum(x_d, n)/glb_n_points
+       c = device_glsum(x_d, n) / glb_n_points
        call device_cadd(x_d, -c, n)
     else
-       c = glsum(x, n)/glb_n_points
+       c = glsum(x, n) / glb_n_points
        call cadd(x, -c, n)
     end if
 

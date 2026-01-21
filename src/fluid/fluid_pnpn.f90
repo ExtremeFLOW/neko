@@ -81,6 +81,7 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho, rotate_cyc
+  use opr_device, only : device_ortho
   use time_state, only : time_state_t
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
@@ -752,7 +753,11 @@ contains
            mu_tot, rho, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
-      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
+      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
+         call device_ortho(p_res%x_d, this%glb_n_points, n)
+      else if (.not. this%prs_dirichlet) then
+         call ortho(p_res%x, this%glb_n_points, n)
+      end if
 
       call gs_Xh%op(p_res, GS_OP_ADD, event)
       call device_event_sync(event)
@@ -785,7 +790,11 @@ contains
 
       ! Update the pressure with the increment. Demean if necessary.
       call field_add2(p, dp, n)
-      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n)
+      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
+         call device_ortho(p%x_d, this%glb_n_points, n)
+      else if (.not. this%prs_dirichlet) then
+         call ortho(p%x, this%glb_n_points, n)
+      end if
 
       ! Compute velocity residual.
       call profiler_start_region('Velocity_residual', 19)
