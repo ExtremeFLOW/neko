@@ -1,6 +1,7 @@
 var structlogger_1_1log__t =
 [
     [ "begin", "d0/d7b/structlogger_1_1log__t.html#ac3a388ed267fbf556230042943a183df", null ],
+    [ "deprecated", "d0/d7b/structlogger_1_1log__t.html#a1f983a3f9b703c8cf0dd072c5e4e8d6e", null ],
     [ "end", "d0/d7b/structlogger_1_1log__t.html#abff71c02307ab6c6c79ff10c8622f4ba", null ],
     [ "end_section", "d0/d7b/structlogger_1_1log__t.html#a1f70a73399f2963f27fd02889558be20", null ],
     [ "error", "d0/d7b/structlogger_1_1log__t.html#abe2e034f563c8ac833b780c188ef5796", null ],

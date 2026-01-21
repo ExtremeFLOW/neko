@@ -2,6 +2,7 @@ var namespacelogger =
 [
     [ "log_t", "d0/d7b/structlogger_1_1log__t.html", "d0/d7b/structlogger_1_1log__t" ],
     [ "log_begin", "d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea", null ],
+    [ "log_deprecated", "d8/da0/namespacelogger.html#a27280588c2592499db261e7aae3ac3d2", null ],
     [ "log_end", "d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4", null ],
     [ "log_end_section", "d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8", null ],
     [ "log_end_section_c", "d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f", null ],
@@ -19,9 +20,11 @@ var namespacelogger =
     [ "log_section_c", "d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55", null ],
     [ "log_warning", "d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf", null ],
     [ "log_warning_c", "d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a", null ],
+    [ "deprecated_list", "d8/da0/namespacelogger.html#a9b1dc1e942679306ad6117121416a31a", null ],
     [ "log_size", "d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6", null ],
     [ "neko_log", "d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce", null ],
     [ "neko_log_debug", "d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c", null ],
+    [ "neko_log_deprecation_error", "d8/da0/namespacelogger.html#ac7b1b4e3a668a4070faadd1f1ab7338f", null ],
     [ "neko_log_info", "d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02", null ],
     [ "neko_log_quiet", "d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754", null ],
     [ "neko_log_verbose", "d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb", null ]

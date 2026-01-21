@@ -1,5 +1,13 @@
 var NAVTREEINDEX87 =
 {
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a3a6a9180d01388a61971e7955aa4d8be":[1,0,342,0,1],
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a4f463e723c8542e295c90057d94dd4a0":[2,0,290,0,5],
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a4f463e723c8542e295c90057d94dd4a0":[1,0,342,0,5],
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a4fba248a3e5ad7be6789ed756a88776f":[1,0,342,0,6],
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a4fba248a3e5ad7be6789ed756a88776f":[2,0,290,0,6],
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a85574f0489be9692da7e764753026381":[2,0,290,0,4],
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a85574f0489be9692da7e764753026381":[1,0,342,0,4],
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#aa7a0b5f5b869c63fe07730bd543b0eb5":[2,0,290,0,2],
 "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#aa7a0b5f5b869c63fe07730bd543b0eb5":[1,0,342,0,2],
 "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#af42cc6d3ecb898236d8f1d27d77dfe2f":[2,0,290,0,0],
 "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#af42cc6d3ecb898236d8f1d27d77dfe2f":[1,0,342,0,0],
@@ -241,13 +249,5 @@ var NAVTREEINDEX87 =
 "de/d68/opr__rotate__cyc_8cu_source.html":[3,0,3,15,0,1,0,25],
 "de/d70/interfacefluid__scheme__base_1_1fluid__base__init__all__intrf.html":[1,0,147,1],
 "de/d70/interfacefluid__scheme__base_1_1fluid__base__init__all__intrf.html":[2,0,126,1],
-"de/d70/interfacefluid__scheme__base_1_1fluid__base__init__all__intrf.html#acbce0415d9ac260bb786e30b778502c7":[2,0,126,1,0],
-"de/d70/interfacefluid__scheme__base_1_1fluid__base__init__all__intrf.html#acbce0415d9ac260bb786e30b778502c7":[1,0,147,1,0],
-"de/d72/interfacecuda__intf_1_1cudaeventdestroy.html":[1,0,65,4],
-"de/d72/interfacecuda__intf_1_1cudaeventdestroy.html":[2,0,55,4],
-"de/d72/interfacecuda__intf_1_1cudaeventdestroy.html#a1a7a6e542ae06d201195a491bd85c809":[1,0,65,4,0],
-"de/d72/interfacecuda__intf_1_1cudaeventdestroy.html#a1a7a6e542ae06d201195a491bd85c809":[2,0,55,4,0],
-"de/d74/structsimcomp__executor_1_1simcomp__executor__t.html":[2,0,257,0],
-"de/d74/structsimcomp__executor_1_1simcomp__executor__t.html":[1,0,302,0],
-"de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a28b5f7c8e9033a511baebc180f162e07":[1,0,302,0,3]
+"de/d70/interfacefluid__scheme__base_1_1fluid__base__init__all__intrf.html#acbce0415d9ac260bb786e30b778502c7":[2,0,126,1,0]
 };

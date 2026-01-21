@@ -1,5 +1,13 @@
 var NAVTREEINDEX83 =
 {
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a960a87216248268ba6f103fbf94d655f":[2,0,248,0,14],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a960a87216248268ba6f103fbf94d655f":[1,0,290,0,14],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a96585c5142f49214dba338d7e6d9c5b4":[2,0,248,0,65],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a96585c5142f49214dba338d7e6d9c5b4":[1,0,290,0,65],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a9a3f744ef34cc48e28a5e5e37b9ec6b4":[1,0,290,0,10],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a9a3f744ef34cc48e28a5e5e37b9ec6b4":[2,0,248,0,10],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a9d1dd7678829ef095726aa491f062775":[2,0,248,0,12],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a9d1dd7678829ef095726aa491f062775":[1,0,290,0,12],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#aa08668c8abcd4a22287c1345c7764fd9":[1,0,290,0,62],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#aa08668c8abcd4a22287c1345c7764fd9":[2,0,248,0,62],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#aaa6961c8449f0ad33f3bf7e86e719c45":[2,0,248,0,36],
@@ -241,13 +249,5 @@ var NAVTREEINDEX83 =
 "dd/dd2/namespacedofmap.html#aef4f92bde297686a0415243142af0999":[1,0,103,3],
 "dd/dd2/structchkp__file_1_1chkp__file__t.html":[1,0,49,0],
 "dd/dd2/structchkp__file_1_1chkp__file__t.html":[2,0,45,0],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a14dde2dfb24f2d73f73730250428166c":[1,0,49,0,23],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a14dde2dfb24f2d73f73730250428166c":[2,0,45,0,23],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a23d346f88cb9e67fc5e7c3fee8f68bec":[2,0,45,0,16],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a23d346f88cb9e67fc5e7c3fee8f68bec":[1,0,49,0,16],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a31367fccf095b1ae11da3b6be9934b6b":[2,0,45,0,10],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a31367fccf095b1ae11da3b6be9934b6b":[1,0,49,0,10],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a348c38fcfe4de5c515221da1561ce5b3":[2,0,45,0,17],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a348c38fcfe4de5c515221da1561ce5b3":[1,0,49,0,17],
-"dd/dd2/structchkp__file_1_1chkp__file__t.html#a4260b8d62365eb8ec6a22c62d3bb2558":[1,0,49,0,11]
+"dd/dd2/structchkp__file_1_1chkp__file__t.html#a14dde2dfb24f2d73f73730250428166c":[1,0,49,0,23]
 };

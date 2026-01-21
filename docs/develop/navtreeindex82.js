@@ -1,5 +1,13 @@
 var NAVTREEINDEX82 =
 {
+"dd/d8e/structcg__device_1_1cg__device__t.html#ab1fca305f46d23b34109a62c6b9199e6":[2,0,40,0,14],
+"dd/d8e/structcg__device_1_1cg__device__t.html#ab1fca305f46d23b34109a62c6b9199e6":[1,0,44,0,14],
+"dd/d8e/structcg__device_1_1cg__device__t.html#ab332bd6ee706aaacb6cd8bcbb3adb351":[1,0,44,0,9],
+"dd/d8e/structcg__device_1_1cg__device__t.html#ab332bd6ee706aaacb6cd8bcbb3adb351":[2,0,40,0,9],
+"dd/d8e/structcg__device_1_1cg__device__t.html#ab5eef5340b8b15f0edcc182d229312dc":[2,0,40,0,26],
+"dd/d8e/structcg__device_1_1cg__device__t.html#ab5eef5340b8b15f0edcc182d229312dc":[1,0,44,0,26],
+"dd/d8e/structcg__device_1_1cg__device__t.html#ac1d6f73c1f911ed43a09738d9deb9ca1":[1,0,44,0,22],
+"dd/d8e/structcg__device_1_1cg__device__t.html#ac1d6f73c1f911ed43a09738d9deb9ca1":[2,0,40,0,22],
 "dd/d8e/structcg__device_1_1cg__device__t.html#ac6f6aa8a8e3963516abc2c90ae21d5ff":[2,0,40,0,29],
 "dd/d8e/structcg__device_1_1cg__device__t.html#ac6f6aa8a8e3963516abc2c90ae21d5ff":[1,0,44,0,29],
 "dd/d8e/structcg__device_1_1cg__device__t.html#acfc0c4dfa969f05abfb2dadd7b732f88":[2,0,40,0,11],
@@ -241,13 +249,5 @@ var NAVTREEINDEX82 =
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a920520e8f2da168f2a1ecd386b4540f2":[1,0,290,0,6],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a920520e8f2da168f2a1ecd386b4540f2":[2,0,248,0,6],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a93ce907f6d3cb79f67ef911f05fbaeaf":[1,0,290,0,54],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a93ce907f6d3cb79f67ef911f05fbaeaf":[2,0,248,0,54],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a960a87216248268ba6f103fbf94d655f":[2,0,248,0,14],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a960a87216248268ba6f103fbf94d655f":[1,0,290,0,14],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a96585c5142f49214dba338d7e6d9c5b4":[2,0,248,0,65],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a96585c5142f49214dba338d7e6d9c5b4":[1,0,290,0,65],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a9a3f744ef34cc48e28a5e5e37b9ec6b4":[1,0,290,0,10],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a9a3f744ef34cc48e28a5e5e37b9ec6b4":[2,0,248,0,10],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a9d1dd7678829ef095726aa491f062775":[2,0,248,0,12],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a9d1dd7678829ef095726aa491f062775":[1,0,290,0,12]
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a93ce907f6d3cb79f67ef911f05fbaeaf":[2,0,248,0,54]
 };
