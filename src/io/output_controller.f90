@@ -32,8 +32,8 @@
 !
 !> Implements `output_controller_t`
 module output_controller
-  use output, only: output_t, output_ptr_t
-  use fld_file, only: fld_file_t
+  use output, only : output_t, output_ptr_t
+  use fld_file, only : fld_file_t
   use comm
   use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE

@@ -237,8 +237,8 @@ contains
     class(weak_gradient_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call opgrad(this%gradient_x%x, this%gradient_y%x, this%gradient_z%x, this%u%x,&
-         this%case%fluid%c_Xh)
+    call opgrad(this%gradient_x%x, this%gradient_y%x, this%gradient_z%x, &
+         this%u%x, this%case%fluid%c_Xh)
   end subroutine weak_gradient_compute
 
 end module weak_gradient_simcomp

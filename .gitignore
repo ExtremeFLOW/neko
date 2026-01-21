@@ -65,6 +65,7 @@ src/python/pyneko/intf.py
 # Ignore temporary files
 *~
 *.swp
+linter-report.txt
 
 # Explicitly ignore binaries to avoid confusion
 neko
@@ -91,3 +92,6 @@ libneko*.so
 
 pixi.lock
 install
+
+# Mac
+.DS_Store

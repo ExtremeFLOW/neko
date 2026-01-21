@@ -40,7 +40,7 @@ module neumann
   use json_module, only : json_file
   use json_utils, only : json_get
   use math, only : cfill, copy, abscmp
-  use vector, only: vector_t
+  use vector, only : vector_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_copy
   use device, only : device_memcpy, DEVICE_TO_HOST
@@ -144,6 +144,7 @@ contains
        call neko_error("Neumann BC flux must be a scalar or a 3-component" // &
             " vector.")
     end if
+    allocate(this%flux(size(this%init_flux_)))
   end subroutine neumann_init_from_components_array
 
   !> Constructor from components, using an signle flux.
@@ -157,7 +158,7 @@ contains
     call this%init_base(coef)
     allocate(this%init_flux_(1))
     this%init_flux_(1) = flux
-
+    allocate(this%flux(size(this%init_flux_)))
   end subroutine neumann_init_from_components_single
 
   !> Boundary condition apply for a generic Neumann condition
@@ -184,18 +185,21 @@ contains
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
-          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
+          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
           select case (facet)
           case (1,2)
              x(k) = x(k) + &
-                  this%flux(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux(1)%x(i) * &
+                  this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
              x(k) = x(k) + &
-                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux(1)%x(i) * &
+                  this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
              x(k) = x(k) + &
-                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux(1)%x(i) * &
+                  this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
     end if
@@ -227,30 +231,39 @@ contains
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
-          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
+          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
           select case (facet)
           case (1,2)
              x(k) = x(k) + &
-                  this%flux(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux(1)%x(i) * &
+                  this%coef%area(idx(2), idx(3), facet, idx(4))
              y(k) = y(k) + &
-                  this%flux(2)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux(2)%x(i) * &
+                  this%coef%area(idx(2), idx(3), facet, idx(4))
              z(k) = z(k) + &
-                  this%flux(3)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux(3)%x(i) * &
+                  this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
              x(k) = x(k) + &
-                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux(1)%x(i) * &
+                  this%coef%area(idx(1), idx(3), facet, idx(4))
              y(k) = y(k) + &
-                  this%flux(2)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux(2)%x(i) * &
+                  this%coef%area(idx(1), idx(3), facet, idx(4))
              z(k) = z(k) + &
-                  this%flux(3)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux(3)%x(i) * &
+                  this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
              x(k) = x(k) + &
-                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux(1)%x(i) * &
+                  this%coef%area(idx(1), idx(2), facet, idx(4))
              y(k) = y(k) + &
-                  this%flux(2)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux(2)%x(i) * &
+                  this%coef%area(idx(1), idx(2), facet, idx(4))
              z(k) = z(k) + &
-                  this%flux(3)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux(3)%x(i) * &
+                  this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
     end if
@@ -325,7 +338,7 @@ contains
     integer :: i, j
 
     if (present(only_facets)) then
-       if (only_facets .eqv. .false.) then
+       if (.not. only_facets) then
           call neko_error("For neumann_t, only_facets has to be true.")
        end if
     end if
@@ -333,7 +346,7 @@ contains
     call this%finalize_base(.true.)
 
     ! Allocate flux vectors and assign to initial constant values
-    do i = 1,size(this%init_flux_)
+    do i = 1, size(this%init_flux_)
        call this%flux(i)%init(this%msk(0))
        this%flux(i) = this%init_flux_(i)
     end do

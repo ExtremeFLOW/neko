@@ -23,11 +23,11 @@ void neko_device_init();
 /* Destroy a Neko device layer */
 void neko_device_finalize();
 
-/* Initialise a Neko field registry */
-void neko_field_registry_init();
+/* Initialise a Neko registry */
+void neko_registry_init();
 
-/* Destroy a Neko field registry */
-void neko_field_registry_free();
+/* Destroy a Neko registry */
+void neko_registry_free();
 
 /* Allocate memory for a Neko case */
 void neko_case_allocate(int **case_iptr);

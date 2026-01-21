@@ -52,7 +52,7 @@ module field
      type(dofmap_t), pointer :: dof !< Dofmap
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
-     character(len=80) :: name !< Name of the field
+     character(len=80) :: name = "" !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
    contains
      procedure, private, pass(this) :: init_common => field_init_common
@@ -168,6 +168,7 @@ contains
   subroutine field_free(this)
     class(field_t), intent(inout) :: this
 
+    this%name = ""
     if (allocated(this%x)) then
        deallocate(this%x)
     end if
@@ -218,7 +219,9 @@ contains
 
     this%Xh => g%Xh
     this%msh => g%msh
-    this%name = g%name
+    if (len_trim(this%name) == 0) then
+       this%name = g%name
+    end if
 
     if (.not. g%internal_dofmap) then
        this%dof => g%dof

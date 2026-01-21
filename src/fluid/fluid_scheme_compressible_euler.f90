@@ -31,18 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_compressible_euler
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use comm, only : NEKO_COMM
   use advection, only : advection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
-  use field_math, only : field_add2, field_cfill, field_cmult, &
-       field_copy, field_col2, field_col3, &
-       field_addcol3, field_sub2, field_invcol2
+  use operators, only : div, rotate_cyc
+  use field_series, only : field_series_t
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use time_scheme_controller, only : time_scheme_controller_t
   use math, only : col2
   use device_math, only : device_col2
   use field, only : field_t
-  use fluid_scheme_compressible, only: fluid_scheme_compressible_t
+  use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use scratch_registry, only : neko_scratch_registry
-  use gs_ops, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
+  use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
@@ -52,17 +55,24 @@ module fluid_scheme_compressible_euler
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
   use ax_product, only : ax_t, ax_helm_factory
-  use coefs, only: coef_t
-  use euler_residual, only: euler_rhs_t, euler_rhs_factory
+  use coefs, only : coef_t
+  use euler_residual, only : euler_rhs_t, euler_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
-  use bc_list, only: bc_list_t
+  use bc_list, only : bc_list_t
   use bc, only : bc_t
   use utils, only : neko_error, neko_type_error
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
+  use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
+       compressible_ops_cpu_update_mxyz_p_ruvw, &
+       compressible_ops_cpu_update_e
+  use compressible_ops_device, only : compressible_ops_device_update_uvw, &
+       compressible_ops_device_update_mxyz_p_ruvw, &
+       compressible_ops_device_update_e
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use regularization, only : regularization_t, regularization_factory
   use amr_reconstruct, only : amr_reconstruct_t
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
   private
 
@@ -77,6 +87,8 @@ module fluid_scheme_compressible_euler
      class(euler_rhs_t), allocatable :: euler_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
+     class(regularization_t), allocatable :: regularization
+
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_density
    contains
@@ -88,6 +100,7 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
+     procedure, pass(this), private :: setup_regularization
      !> AMR restart
      procedure, pass(this) :: amr_restart => &
           fluid_scheme_compressible_euler_amr_restart
@@ -185,7 +198,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(p => this%p, rho => this%rho, &
             u => this%u, v => this%v, w => this%w, &
-            m_x => this%m_x, m_y => this%m_y, m_z => this%m_z)
+            m_x => this%m_x, m_y => this%m_y, m_z => this%m_z, &
+            effective_visc => this%effective_visc)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(rho%x, rho%x_d, rho%dof%size(), &
@@ -202,6 +216,8 @@ contains
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(effective_visc%x, effective_visc%x_d, &
+              effective_visc%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
 
@@ -210,8 +226,9 @@ contains
 
     ! Compute h
     call this%compute_h()
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
-         this%c_avisc_low, 0.5_rp)
+
+    ! Initialize regularization
+    call this%setup_regularization(params)
 
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
@@ -233,13 +250,23 @@ contains
        deallocate(this%Ax)
     end if
 
+    if (allocated(this%euler_rhs)) then
+       deallocate(this%euler_rhs)
+    end if
+
     call this%drho%free()
     call this%dm_x%free()
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
+    call this%h%free()
 
-    ! call this%scheme_free()
+    if (allocated(this%regularization)) then
+       call this%regularization%free()
+       deallocate(this%regularization)
+    end if
+
+    call this%bcs_density%free()
 
     call this%free_amr_base()
 
@@ -251,6 +278,7 @@ contains
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
+    use entropy_viscosity, only : entropy_viscosity_t
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -276,12 +304,15 @@ contains
          dm_z => this%dm_z, dE => this%dE, &
          euler_rhs => this%euler_rhs, h => this%h, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
-         ext_bdf => this%ext_bdf, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
+      ! Compute artificial viscosity
+      call this%regularization%compute(time, time%tstep, time%dt)
+
+      ! Execute RHS step with effective viscosity field
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, Ax, &
-           c_Xh, gs_Xh, h, c_avisc_low, &
+           c_Xh, gs_Xh, h, this%effective_visc, &
            rk_scheme, dt)
 
       !> Apply density boundary conditions
@@ -289,44 +320,51 @@ contains
 
       !> Update variables
       ! Update u, v, w
-      call field_copy(u, m_x, n)
-      call field_invcol2(u, rho, n)
-      call field_copy(v, m_y, n)
-      call field_invcol2(v, rho, n)
-      call field_copy(w, m_z, n)
-      call field_invcol2(w, rho, n)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call compressible_ops_device_update_uvw(u%x_d, v%x_d, w%x_d, &
+              m_x%x_d, m_y%x_d, m_z%x_d, rho%x_d, n)
+      else
+         call compressible_ops_cpu_update_uvw(u%x, v%x, w%x, &
+              m_x%x, m_y%x, m_z%x, rho%x, n)
+      end if
 
       !> Apply velocity boundary conditions
       call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
            dm_Xh%size(), time, strong = .true.)
-      call field_copy(m_x, u, n)
-      call field_col2(m_x, rho, n)
-      call field_copy(m_y, v, n)
-      call field_col2(m_y, rho, n)
-      call field_copy(m_z, w, n)
-      call field_col2(m_z, rho, n)
 
-      !> Update p = (gamma - 1) * (E - 0.5 * rho * (u^2 + v^2 + w^2))
-      call field_col3(temp, u, u, n)
-      call field_addcol3(temp, v, v, n)
-      call field_addcol3(temp, w, w, n)
-      call field_col2(temp, rho, n)
-      call field_cmult(temp, 0.5_rp, n)
-      call field_copy(p, E, n)
-      call field_sub2(p, temp, n)
-      call field_cmult(p, this%gamma - 1.0_rp, n)
+      !> Update m_x, m_y, m_z, p and temp (ruvw)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call compressible_ops_device_update_mxyz_p_ruvw(m_x%x_d, m_y%x_d, &
+              m_z%x_d, p%x_d, temp%x_d, u%x_d, v%x_d, w%x_d, E%x_d, &
+              rho%x_d, this%gamma, n)
+      else
+         call compressible_ops_cpu_update_mxyz_p_ruvw(m_x%x, m_y%x, m_z%x, &
+              p%x, temp%x, u%x, v%x, w%x, E%x, rho%x, this%gamma, n)
+      end if
 
       !> Apply pressure boundary conditions
       call this%bcs_prs%apply(p, time)
-      ! TODO: Make sure pressure is positive
-      ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
-      call field_copy(E, p, n)
-      call field_cmult(E, 1.0_rp / (this%gamma - 1.0_rp), n)
-      ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
-      call field_add2(E, temp, n)
+
+
+      !> Update E
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call compressible_ops_device_update_e(E%x_d, p%x_d, &
+              temp%x_d, this%gamma, n)
+      else
+         call compressible_ops_cpu_update_e(E%x, p%x, temp%x, this%gamma, n)
+      end if
+
 
       !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
       call this%compute_entropy()
+
+      !> Update entropy lag series for entropy viscosity
+      if (allocated(this%regularization)) then
+         select type (reg => this%regularization)
+         type is (entropy_viscosity_t)
+            call reg%update_lag()
+         end select
+      end if
 
       !> Update maximum wave speed for CFL computation
       call this%compute_max_wave_speed()
@@ -394,7 +432,7 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(log_buf,'(A,I0,A)') "Error: Zone ", zone_indices(j), &
+                write(log_buf, '(A,I0,A)') "Error: Zone ", zone_indices(j), &
                      " has zero size"
                 call neko_error(log_buf)
              end if
@@ -477,47 +515,44 @@ contains
     ly_half = this%c_Xh%Xh%ly / 2
     lz_half = this%c_Xh%Xh%lz / 2
 
-    do e = 1, this%c_Xh%msh%nelv
-       do k = 1, this%c_Xh%Xh%lz
+    do concurrent (e = 1:this%c_Xh%msh%nelv)
+       do concurrent (k = 1:this%c_Xh%Xh%lz, &
+            j = 1:this%c_Xh%Xh%ly, i = 1:this%c_Xh%Xh%lx)
           km = max(1, k-1)
           kp = min(this%c_Xh%Xh%lz, k+1)
 
-          do j = 1, this%c_Xh%Xh%ly
-             jm = max(1, j-1)
-             jp = min(this%c_Xh%Xh%ly, j+1)
+          jm = max(1, j-1)
+          jp = min(this%c_Xh%Xh%ly, j+1)
 
-             do i = 1, this%c_Xh%Xh%lx
-                im = max(1, i-1)
-                ip = min(this%c_Xh%Xh%lx, i+1)
+          im = max(1, i-1)
+          ip = min(this%c_Xh%Xh%lx, i+1)
 
-                di = (this%c_Xh%dof%x(ip, j, k, e) - &
-                     this%c_Xh%dof%x(im, j, k, e))**2 &
-                     + (this%c_Xh%dof%y(ip, j, k, e) - &
-                     this%c_Xh%dof%y(im, j, k, e))**2 &
-                     + (this%c_Xh%dof%z(ip, j, k, e) - &
-                     this%c_Xh%dof%z(im, j, k, e))**2
+          di = (this%c_Xh%dof%x(ip, j, k, e) - &
+               this%c_Xh%dof%x(im, j, k, e))**2 &
+               + (this%c_Xh%dof%y(ip, j, k, e) - &
+               this%c_Xh%dof%y(im, j, k, e))**2 &
+               + (this%c_Xh%dof%z(ip, j, k, e) - &
+               this%c_Xh%dof%z(im, j, k, e))**2
 
-                dj = (this%c_Xh%dof%x(i, jp, k, e) - &
-                     this%c_Xh%dof%x(i, jm, k, e))**2 &
-                     + (this%c_Xh%dof%y(i, jp, k, e) - &
-                     this%c_Xh%dof%y(i, jm, k, e))**2 &
-                     + (this%c_Xh%dof%z(i, jp, k, e) - &
-                     this%c_Xh%dof%z(i, jm, k, e))**2
+          dj = (this%c_Xh%dof%x(i, jp, k, e) - &
+               this%c_Xh%dof%x(i, jm, k, e))**2 &
+               + (this%c_Xh%dof%y(i, jp, k, e) - &
+               this%c_Xh%dof%y(i, jm, k, e))**2 &
+               + (this%c_Xh%dof%z(i, jp, k, e) - &
+               this%c_Xh%dof%z(i, jm, k, e))**2
 
-                dk = (this%c_Xh%dof%x(i, j, kp, e) - &
-                     this%c_Xh%dof%x(i, j, km, e))**2 &
-                     + (this%c_Xh%dof%y(i, j, kp, e) - &
-                     this%c_Xh%dof%y(i, j, km, e))**2 &
-                     + (this%c_Xh%dof%z(i, j, kp, e) - &
-                     this%c_Xh%dof%z(i, j, km, e))**2
+          dk = (this%c_Xh%dof%x(i, j, kp, e) - &
+               this%c_Xh%dof%x(i, j, km, e))**2 &
+               + (this%c_Xh%dof%y(i, j, kp, e) - &
+               this%c_Xh%dof%y(i, j, km, e))**2 &
+               + (this%c_Xh%dof%z(i, j, kp, e) - &
+               this%c_Xh%dof%z(i, j, km, e))**2
 
-                di = sqrt(di) / (ip - im)
-                dj = sqrt(dj) / (jp - jm)
-                dk = sqrt(dk) / (kp - km)
-                this%h%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+          di = sqrt(di) / (ip - im)
+          dj = sqrt(dj) / (jp - jm)
+          dk = sqrt(dk) / (kp - km)
+          this%h%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
 
-             end do
-          end do
        end do
     end do
 
@@ -541,6 +576,48 @@ contains
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_euler_restart
+
+  subroutine setup_regularization(this, params)
+    use entropy_viscosity, only : entropy_viscosity_t, &
+         entropy_viscosity_set_fields
+    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(json_file) :: reg_json
+    type(json_core) :: json_core_inst
+    type(json_value), pointer :: reg_params
+    character(len=:), allocatable :: buffer
+    real(kind=rp) :: c_avisc_entropy_val
+    character(len=:), allocatable :: regularization_type
+
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
+         this%c_avisc_low, 0.5_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_entropy', &
+         c_avisc_entropy_val, 1.0_rp)
+
+    call json_core_inst%initialize()
+    call json_core_inst%create_object(reg_params, '')
+    call json_core_inst%add(reg_params, 'c_avisc_entropy', c_avisc_entropy_val)
+    call json_core_inst%add(reg_params, 'c_avisc_low', this%c_avisc_low)
+    call json_core_inst%print_to_string(reg_params, buffer)
+    call json_core_inst%destroy(reg_params)
+
+    call reg_json%initialize()
+    call reg_json%load_from_string(buffer)
+
+    regularization_type = 'entropy_viscosity'
+
+    call regularization_factory(this%regularization, regularization_type, &
+         reg_json, this%c_Xh, this%dm_Xh, this%effective_visc)
+
+    select type (reg => this%regularization)
+    type is (entropy_viscosity_t)
+       call entropy_viscosity_set_fields(reg, this%S, this%u, this%v, this%w, &
+            this%h, this%max_wave_speed, this%msh, this%Xh, this%gs_Xh)
+    end select
+
+    call reg_json%destroy()
+
+  end subroutine setup_regularization
 
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type

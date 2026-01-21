@@ -35,9 +35,9 @@
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
-  use num_types, only: rp
+  use num_types, only : rp
   use field, only : field_t
-  use field_list, only: field_list_t
+  use field_list, only : field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
@@ -51,7 +51,7 @@ module scalar_scheme
   use bc, only : bc_t
   use bc_list, only : bc_list_t
   use precon, only : pc_t, precon_factory, precon_destroy
-  use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
+  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -62,7 +62,7 @@ module scalar_scheme
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
   use utils, only : neko_error, neko_warning
-  use comm, only: NEKO_COMM
+  use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
@@ -537,7 +537,7 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
 
   end subroutine scalar_scheme_update_material_properties
@@ -591,7 +591,7 @@ contains
           write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
                ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
-          write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
+          write(log_buf, '(A)') 'Specific heat capacity will be set to 1, '
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'conductivity to 1/Pe. Assumes density is 1.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
@@ -633,7 +633,7 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine scalar_scheme_set_material_properties
 

@@ -49,7 +49,7 @@ module bc_list
      ! The items of the list.
      class(bc_ptr_t), allocatable, private :: items(:)
      !> Number of items in the list that are themselves allocated.
-     integer, private :: size_
+     integer, private :: size_ = 0
      !> Capacity, i.e. the size of the items list. Some items may themselves be
      !! unallocated.
      integer, private :: capacity

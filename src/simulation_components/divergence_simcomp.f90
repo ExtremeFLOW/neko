@@ -99,12 +99,13 @@ contains
     character(len=:), allocatable :: computed_field
 
 
-    call json_get_or_default(json, "computed_field", computed_field, "divergence")
+    call json_get_or_default(json, "computed_field", computed_field, &
+         "divergence")
     call json_get(json, "fields", field_names)
 
     if (size(field_names) .ne. 3) then
-       call neko_error("The divergence simcomp requires exactly 3 entries in " // &
-            "fieldes.")
+       call neko_error("The divergence simcomp requires exactly 3 entries in " &
+            // "fieldes.")
     end if
 
     fields(1) = trim(computed_field)
@@ -236,7 +237,8 @@ contains
     class(divergence_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call div(this%divergence%x, this%u%x, this%v%x, this%w%x, this%case%fluid%c_Xh)
+    call div(this%divergence%x, this%u%x, this%v%x, this%w%x, &
+         this%case%fluid%c_Xh)
 
   end subroutine divergence_compute
 

@@ -237,8 +237,8 @@ contains
     class(gradient_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call grad(this%gradient_x%x, this%gradient_y%x, this%gradient_z%x, this%u%x,&
-         this%case%fluid%c_Xh)
+    call grad(this%gradient_x%x, this%gradient_y%x, this%gradient_z%x, &
+         this%u%x, this%case%fluid%c_Xh)
   end subroutine gradient_compute
 
 end module gradient_simcomp

@@ -59,9 +59,8 @@
 !
 !> Adam-Bashforth scheme for time integration.
 module ab_time_scheme
-  use neko_config
   use num_types, only : rp
-  use time_scheme, only: time_scheme_t
+  use time_scheme, only : time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
   implicit none
@@ -98,17 +97,17 @@ contains
        coeffs(1) = 1.0_rp
     case (2)
        coeffs(2) = -0.5_rp * dt(1) / dt(2)
-       coeffs(1) =  1.0_rp - coeffs(2)
+       coeffs(1) = 1.0_rp - coeffs(2)
     case (3)
-       dts =  dt(2) + dt(3)
-       dta =  dt(1) / dt(2)
-       dtb =  dt(2) / dt(3)
-       dtc =  dt(1) / dt(3)
-       dtd =  dts / dt(2)
-       dte =  dt(1) / dts
-       coeffs(3) =  dte*( 0.5_rp*dtb + dtc/3.0_rp )
+       dts = dt(2) + dt(3)
+       dta = dt(1) / dt(2)
+       dtb = dt(2) / dt(3)
+       dtc = dt(1) / dt(3)
+       dtd = dts / dt(2)
+       dte = dt(1) / dts
+       coeffs(3) = dte*( 0.5_rp*dtb + dtc/3.0_rp )
        coeffs(2) = -0.5_rp * dta - coeffs(3) * dtd
-       coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
+       coeffs(1) = 1.0_rp - coeffs(2) - coeffs(3)
     case default
        call neko_error("The order of the AB time scheme must be 1 to 3.")
     end select

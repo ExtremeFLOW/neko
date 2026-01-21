@@ -59,8 +59,8 @@
 !
 module math
   use num_types, only : rp, dp, sp, qp, i4, i8, xp
-  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
-  use mpi_f08, only: MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
+  use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_Allreduce
   implicit none
   private
@@ -628,7 +628,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_xp / real(a(i),xp)
+       a(i) = 1.0_xp / real(a(i), xp)
     end do
 
   end subroutine invcol1
@@ -637,11 +637,11 @@ contains
   subroutine invcol3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b,c
+    real(kind=rp), dimension(n), intent(in) :: b, c
     integer :: i
 
     do i = 1, n
-       a(i) = real(b(i),xp) / c(i)
+       a(i) = real(b(i), xp) / c(i)
     end do
 
   end subroutine invcol3
@@ -654,7 +654,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_xp / real(b(i),xp)
+       a(i) = 1.0_xp / real(b(i), xp)
     end do
 
   end subroutine invers2
@@ -841,7 +841,7 @@ contains
     real(kind=rp), intent(in) :: c1
     integer :: i
 
-    do i = 1,n
+    do i = 1, n
        a(i) = a(i) + c1 * ( b(i) * b(i) )
     end do
 
@@ -855,7 +855,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = real(a(i),xp) /b(i)
+       a(i) = real(a(i), xp) / b(i)
     end do
 
   end subroutine invcol2
@@ -1691,9 +1691,9 @@ contains
 
     ! Calculate the inverse determinant of the matrix
     ! first index x,y,z, second r, s, t
-    detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
+    detinv = 1.0_xp / real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2) &
          - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
-         + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
+         + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1), xp)
     ! Calculate the inverse of the matrix
     ! first index r, s, t, second x, y, z
     B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))

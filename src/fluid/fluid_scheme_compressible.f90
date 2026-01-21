@@ -46,9 +46,11 @@ module fluid_scheme_compressible
   use json_utils, only : json_get_or_default
   use mpi_f08
   use operators, only : cfl_compressible
-  use compressible_ops_cpu, only : compressible_ops_cpu_compute_max_wave_speed, &
+  use compressible_ops_cpu, only : &
+       compressible_ops_cpu_compute_max_wave_speed, &
        compressible_ops_cpu_compute_entropy
-  use compressible_ops_device, only : compressible_ops_device_compute_max_wave_speed, &
+  use compressible_ops_device, only : &
+       compressible_ops_device_compute_max_wave_speed, &
        compressible_ops_device_compute_entropy
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_state, only : time_state_t
@@ -59,7 +61,8 @@ module fluid_scheme_compressible
   private
 
   !> Base type of compressible fluid formulations.
-  type, public, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_compressible_t
+  type, public, abstract, extends(fluid_scheme_base_t) :: &
+       fluid_scheme_compressible_t
      !> The momentum field
      type(field_t), pointer :: m_x => null() !< x-component of Momentum
      type(field_t), pointer :: m_y => null() !< y-component of Momentum
@@ -67,6 +70,7 @@ module fluid_scheme_compressible
      type(field_t), pointer :: E => null() !< Total energy
      type(field_t), pointer :: max_wave_speed => null() !< Maximum wave speed field
      type(field_t), pointer :: S => null() !< Entropy field
+     type(field_t), pointer :: effective_visc => null() !< Effective artificial viscosity field
 
      real(kind=rp) :: gamma
 
@@ -176,6 +180,11 @@ contains
     call neko_registry%add_field(this%dm_Xh, "S")
     this%S => neko_registry%get_field("S")
     call this%S%init(this%dm_Xh, "S")
+
+    ! Assign effective artificial viscosity field
+    call neko_registry%add_field(this%dm_Xh, "effective_visc")
+    this%effective_visc => neko_registry%get_field("effective_visc")
+    call this%effective_visc%init(this%dm_Xh, "effective_visc")
 
     ! ! Assign velocity fields
     call neko_registry%add_field(this%dm_Xh, "u")
@@ -355,9 +364,11 @@ contains
 
     !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, this%gamma, n)
+       call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, &
+            this%gamma, n)
     else
-       call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, this%rho%x, this%gamma, n)
+       call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, &
+            this%rho%x, this%gamma, n)
     end if
 
   end subroutine fluid_scheme_compressible_compute_entropy
@@ -372,8 +383,9 @@ contains
 
     !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compressible_ops_device_compute_max_wave_speed(this%max_wave_speed, &
-            this%u, this%v, this%w, this%gamma, this%p, this%rho, n)
+       call compressible_ops_device_compute_max_wave_speed( &
+            this%max_wave_speed, this%u, this%v, this%w, this%gamma, this%p, &
+            this%rho, n)
     else
        call compressible_ops_cpu_compute_max_wave_speed(this%max_wave_speed%x, &
             this%u%x, this%v%x, this%w%x, this%gamma, this%p%x, this%rho%x, n)
@@ -423,7 +435,8 @@ contains
     call neko_log%message(log_buf)
 
     ! Compressible-specific parameters
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, 0.5_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, &
+         0.5_rp)
     write(log_buf, '(A,ES13.6)') 'c_avisc_low:', real_val
     call neko_log%message(log_buf)
 

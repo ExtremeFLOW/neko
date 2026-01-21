@@ -66,11 +66,13 @@ module operators
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr
+  use logger, only : neko_log
   implicit none
   private
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
-       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, rotate_cyc
+       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
+       rotate_cyc
 
   interface rotate_cyc
      module procedure rotate_cyc_r1
@@ -224,12 +226,16 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp) :: c
     type(c_ptr) :: x_d
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_log%deprecated('Operator: ortho, implicit device', &
+            'v2.0.0', 'Please call device_ortho instead.')
+
        x_d = device_get_ptr(x)
-       c = device_glsum(x_d, n)/glb_n_points
+       c = device_glsum(x_d, n) / glb_n_points
        call device_cadd(x_d, -c, n)
     else
-       c = glsum(x, n)/glb_n_points
+       c = glsum(x, n) / glb_n_points
        call cadd(x, -c, n)
     end if
 
@@ -459,25 +465,12 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: max_wave_speed
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: &
+         max_wave_speed
     real(kind=rp) :: cfl_compressible
-    integer :: ierr, n
-    type(field_t), pointer :: zero_vector
-    integer :: ind
 
-    n = Xh%lx * Xh%ly * Xh%lz * nelv
-
-    ! Request a scratch field for zero vector
-    call neko_scratch_registry%request_field(zero_vector, ind, .false.)
-
-    ! Initialize zero vector
-    call field_rzero(zero_vector)
-
-    ! Use incompressible CFL with max_wave_speed as u-component, zero v and w
-    cfl_compressible = cfl(dt, max_wave_speed, zero_vector%x, zero_vector%x, Xh, coef, nelv, gdim)
-
-    ! Release the scratch field
-    call neko_scratch_registry%relinquish_field(ind)
+    cfl_compressible = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
+         Xh, coef, nelv, gdim)
 
   end function cfl_compressible
 

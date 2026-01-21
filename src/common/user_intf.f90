@@ -37,7 +37,7 @@ module user_intf
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
-  use field_dirichlet, only: field_dirichlet_update
+  use field_dirichlet, only : field_dirichlet_update
   use num_types, only : rp
   use json_module, only : json_file
   use json_utils, only : json_extract_item, json_get, json_get_or_default
