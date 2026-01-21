@@ -78,7 +78,7 @@ contains
     real(kind=rp) :: shear, buoyancy, dissipation
     integer :: temp_indices(10)
     real(kind=rp) :: l, N2
-    real(kind=rp) :: eps=1.0e-10_rp
+    real(kind=rp) :: eps=1.0e-9_rp
     integer :: e, i
 
     TKE => neko_registry%get_field_by_name("TKE")
@@ -171,7 +171,7 @@ contains
        ! Buoyancy term
        buoyancy = -g/T0 * temperature_alphat%x(i,1,1,1) * dTdz%x(i,1,1,1)
 
-       dissipation = -(0.19_rp + 0.74_rp / delta%x(i,1,1,1)) &
+       dissipation = -(0.19_rp + 0.74_rp * l/ delta%x(i,1,1,1)) &
                      * sqrt(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1)) &
                      / l
        
