@@ -78,7 +78,7 @@ contains
     class(chkp_output_t), intent(inout) :: this
 
     call this%free_base()
-    call this%chkp%free()
+    nullify(this%chkp)
 
   end subroutine chkp_output_free
 

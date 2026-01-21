@@ -416,8 +416,7 @@ contains
     ! Should be in init_base maybe?
     this%chkp => chkp
     ! This is probably scheme specific
-    ! Should not be init really, but more like, add fluid or something...
-    call this%chkp%init(this%u, this%v, this%w, this%p)
+    call this%chkp%add_fluid(this%u, this%v, this%w, this%p)
 
     this%chkp%abx1 => this%abx1
     this%chkp%abx2 => this%abx2
