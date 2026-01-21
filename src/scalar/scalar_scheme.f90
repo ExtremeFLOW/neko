@@ -57,7 +57,8 @@ module scalar_scheme
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use registry, only : neko_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
@@ -277,13 +278,13 @@ contains
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
     call json_get(params, 'solver.preconditioner', precon_params)
-    call json_get(params, 'solver.absolute_tolerance', &
+    call json_get_or_lookup(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.projection_space_size', &
          this%projection_dim, 0)
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
@@ -345,7 +346,7 @@ contains
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.max_iterations', &
          integer_val, KSP_MAX_ITER)
     call json_get_or_default(params, &
@@ -595,7 +596,7 @@ contains
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'Pe', const_lambda)
+          call json_get_or_lookup(params, 'Pe', const_lambda)
           write(log_buf, '(A,ES13.6)') 'Pe         :', const_lambda
           call neko_log%message(log_buf)
 
@@ -605,8 +606,8 @@ contains
           const_lambda = 1.0_rp/const_lambda
           ! Dimensional case
        else
-          call json_get(params, 'lambda', const_lambda)
-          call json_get(params, 'cp', const_cp)
+          call json_get_or_lookup(params, 'lambda', const_lambda)
+          call json_get_or_lookup(params, 'cp', const_cp)
        end if
     end if
     ! We need to fill the fields based on the parsed const values
