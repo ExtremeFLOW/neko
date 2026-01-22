@@ -427,7 +427,7 @@ contains
     call json%info(name, found = found, var_type = var_type)
 
     if (found .and. (var_type .ne. 6)) then
-       call neko_error("Parameter " // name // " present, but  is not a real")
+       call neko_error("Parameter " // name // " present, but is not a real")
     end if
 
     call json%get(name, value, found)
@@ -457,7 +457,7 @@ contains
     call json%info(name, found = found, var_type = var_type)
 
     if (found .and. (var_type .ne. 6)) then
-       call neko_error("Parameter " // name // " present, but  is not a real")
+       call neko_error("Parameter " // name // " present, but is not a real")
     end if
 
     call json%get(name, value, found)
