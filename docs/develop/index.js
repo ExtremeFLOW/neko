@@ -37,12 +37,13 @@ var index =
         [ "High-level structure", "dd/d33/case-file.html#autotoc_md45", null ],
         [ "Output frequency control", "dd/d33/case-file.html#autotoc_md46", null ],
         [ "The case object", "dd/d33/case-file.html#autotoc_md47", [
-          [ "Time control", "dd/d33/case-file.html#autotoc_md48", null ],
-          [ "Restarts and joblimit", "dd/d33/case-file.html#autotoc_md49", null ],
-          [ "Boundary type numbering in the \"output_boundary\" field", "dd/d33/case-file.html#autotoc_md50", null ]
+          [ "Constants", "dd/d33/case-file.html#autotoc_md48", null ],
+          [ "Time control", "dd/d33/case-file.html#autotoc_md49", null ],
+          [ "Restarts and joblimit", "dd/d33/case-file.html#autotoc_md50", null ],
+          [ "Boundary type numbering in the \"output_boundary\" field", "dd/d33/case-file.html#autotoc_md51", null ]
         ] ],
-        [ "Numerics", "dd/d33/case-file.html#autotoc_md51", null ],
-        [ "Fluid", "dd/d33/case-file.html#autotoc_md52", [
+        [ "Numerics", "dd/d33/case-file.html#autotoc_md52", null ],
+        [ "Fluid", "dd/d33/case-file.html#case-file_fluid", [
           [ "Material properties", "dd/d33/case-file.html#autotoc_md53", null ],
           [ "Compressible flows", "dd/d33/case-file.html#autotoc_md54", [
             [ "Compressible boundary conditions", "dd/d33/case-file.html#autotoc_md55", null ]

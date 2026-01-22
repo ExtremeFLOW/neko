@@ -104,13 +104,14 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <div class="toc"><h3>Table of Contents</h3>
 <ul><li class="level1"><a href="#autotoc_md45">High-level structure</a></li>
 <li class="level1"><a href="#autotoc_md46">Output frequency control</a></li>
-<li class="level1"><a href="#autotoc_md47">The case object</a><ul><li class="level2"><a href="#autotoc_md48">Time control</a></li>
-<li class="level2"><a href="#autotoc_md49">Restarts and joblimit</a></li>
-<li class="level2"><a href="#autotoc_md50">Boundary type numbering in the &quot;output_boundary&quot; field</a></li>
+<li class="level1"><a href="#autotoc_md47">The case object</a><ul><li class="level2"><a href="#autotoc_md48">Constants</a></li>
+<li class="level2"><a href="#autotoc_md49">Time control</a></li>
+<li class="level2"><a href="#autotoc_md50">Restarts and joblimit</a></li>
+<li class="level2"><a href="#autotoc_md51">Boundary type numbering in the &quot;output_boundary&quot; field</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md51">Numerics</a></li>
-<li class="level1"><a href="#autotoc_md52">Fluid</a><ul><li class="level2"><a href="#autotoc_md53">Material properties</a></li>
+<li class="level1"><a href="#autotoc_md52">Numerics</a></li>
+<li class="level1"><a href="#case-file_fluid">Fluid</a><ul><li class="level2"><a href="#autotoc_md53">Material properties</a></li>
 <li class="level2"><a href="#autotoc_md54">Compressible flows</a><ul><li class="level3"><a href="#autotoc_md55">Compressible boundary conditions</a></li>
 </ul>
 </li>
@@ -146,28 +147,29 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <li class="level1"><a href="#autotoc_md75">Runtime statistics</a></li>
 </ul>
 </div>
-<div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and, and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
+<div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
 <h1><a class="anchor" id="autotoc_md45"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">    &quot;version&quot;: 1.0</div>
+<div class="line">    &quot;version&quot;: 1.0,</div>
 <div class="line">    &quot;case&quot;: {</div>
-<div class="line">        &quot;time&quot;: {}</div>
-<div class="line">        &quot;numerics&quot;: {}</div>
-<div class="line">        &quot;fluid&quot;: {}</div>
-<div class="line">        &quot;scalar&quot;: {}</div>
-<div class="line">        &quot;simulation_components&quot; : []</div>
+<div class="line">        &quot;constants&quot;: [],</div>
+<div class="line">        &quot;time&quot;: {},</div>
+<div class="line">        &quot;numerics&quot;: {},</div>
+<div class="line">        &quot;fluid&quot;: {},</div>
+<div class="line">        &quot;scalar&quot;: {},</div>
+<div class="line">        &quot;simulation_components&quot; : [],</div>
 <div class="line">        &quot;point_zones&quot; : []</div>
 <div class="line">    }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> Neko also supports multiple scalar fields, using the keyword <code>scalars</code> in the case object. Users can define multiple scalar fields, and each field can have its own boundary conditions, source terms, and solver settings. When using multiple scalar fields, the <code>name</code> property of each scalar field is used to identify the scalar field in the user file, defaulted to <code>s_1, s_2, ...</code>.</p>
-<p>The <code>version</code> keyword is reserved to track changes in the format of the file. The subsections below we list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
+<p>The <code>version</code> keyword is reserved to track changes in the format of the file. The subsections below list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
 <h1><a class="anchor" id="autotoc_md46"></a>
 Output frequency control</h1>
 <p>A common scheme for controlling the output frequency is applied for various outputs. It is described already now in order to clarify the meaning of several parameters found in the tables below.</p>
 <p>The frequency is controlled by two parameters, ending with <code>_control</code> and <code>_value</code>, respectively. The latter name is perhaps not ideal, but it is somewhat difficult to come up with a good one, suggestions are welcome.</p>
-<p>The <code>_value</code> parameter is a number, that defines the output frequency, but the interpretation of that number depends on the choice of <code>_control</code>. The three following options are possible.</p><ol type="1">
+<p>The <code>_value</code> parameter is a <em>real</em> number, that defines the output frequency, but the interpretation of that number depends on the choice of <code>_control</code>. The three following options are possible.</p><ol type="1">
 <li><code>simulationtime</code>, then <code>_value</code> is the time interval between the outputs.</li>
 <li><code>tsteps</code>, then <code>_value</code> is the number of time steps between the outputs.</li>
 <li><code>nsamples</code>, then <code>_value</code> is the total number of outputs that will be performed in the course of the simulation.</li>
@@ -219,8 +221,40 @@ The case object</h1>
 <td class="markdownTableBodyNone"><code>output_at_end</code>   </td><td class="markdownTableBodyNone">Whether to always write all enabled output at the end of the run.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md48"></a>
+Constants</h2>
+<p>The <code>constants</code> array allows the user to define parameters that are global to the case file, and can be referred to when setting the values of other parameters. Two types of parameters can be defined: scalars and arrays. Each is represented as a subobject inside the <code>constants</code> object and should containt two entries: <code>name</code> and <code>value</code>. Here is an example:</p>
+<div class="fragment"><div class="line">&quot;constants&quot;:</div>
+<div class="line">[</div>
+<div class="line">  {</div>
+<div class="line">    &quot;name&quot;: &quot;const1&quot;,</div>
+<div class="line">    &quot;value&quot;: 3.5</div>
+<div class="line">  },</div>
+<div class="line">  {</div>
+<div class="line">    &quot;name&quot;: &quot;vector1&quot;,</div>
+<div class="line">    &quot;value&quot;: [1, 0, 1]</div>
+<div class="line">  }</div>
+<div class="line">]</div>
+</div><!-- fragment --><p>Other parameters in the case file that require a scalar or array entry, can instead be defined as a string, pointing to the name of the corresponding parameter in the <code>constants</code> object. As an example, recall that output frequency is controlled by the keyword <code>output_value</code>. It is a plausible scenario that the frequency is the same for multiple solvers, simulation components, etc. Assuming a simulation with both <a class="el" href="../../dd/d33/case-file.html#case-file_fluid">fluid</a> and [scalar](<a class="el" href="../../dd/d33/case-file.html#case-file_scalar">Scalar</a>) solvers active, the following could be used.</p>
+<div class="fragment"><div class="line">&quot;constants&quot;:</div>
+<div class="line">[</div>
+<div class="line">  {</div>
+<div class="line">    &quot;name&quot;: &quot;common_output_value&quot;,</div>
+<div class="line">    &quot;value&quot;: 10</div>
+<div class="line">  }</div>
+<div class="line">],</div>
+<div class="line">&quot;fluid&quot;:</div>
+<div class="line">{</div>
+<div class="line">  &quot;output_value&quot;: &quot;common_output_value&quot;</div>
+<div class="line">},</div>
+<div class="line">&quot;scalar&quot;:</div>
+<div class="line">{</div>
+<div class="line">  &quot;output_value&quot;: &quot;common_output_value&quot;</div>
+<div class="line">}</div>
+</div><!-- fragment --><p> The advantage is that this guarantees that the fluid and scalar output will be in sync, and if one wants to change the frequency only does that in one place in the case file. Another use case is demonstrated in the <code>hemi</code> example, where the freestream velocity is defined under <code>constants</code> and then used to setup both initial and boundary conditions.</p>
+<p>Under the hood, Neko stores the constants in an object called <code>neko_const_registry</code>, which is of the type <code>registry_t</code> (same as <code>neko_registry</code>). The object is accessible in the <a class="el" href="../../d6/def/user-file.html">user file</a>.</p>
+<h2><a class="anchor" id="autotoc_md49"></a>
 Time control</h2>
-<p>The time control object is used to define the time-stepping of the simulation, including the time-step size, the start and end time, and the variables related to the variable time-stepping algorithm.</p>
+<p>The <code>time</code> object is used to define the time-stepping of the simulation, including the time-step size, the start and end time, and the variables related to the variable time-stepping algorithm.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
@@ -255,11 +289,11 @@ Time control</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>cfl_running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md49"></a>
+<h2><a class="anchor" id="autotoc_md50"></a>
 Restarts and joblimit</h2>
 <p>Restarts will restart the simulation from the exact state at a given time that the checkpoint was written. This means that the flow field and potential scalars will be at the exact same values before as after restarts. However, derived quantities from the flow field and any observables are not guaranteed to be restarted. In addition, Neko does not guarantee that any files are not overwritten. As such, it is recommended to run in different directories if doing large scale simulations that require many restarts. Unless <code>output_at_end</code> is disabled Neko will also ensure that all output is written to file when reaching the <code>end_time</code> or the <code>job_timelimit</code>. In particular, unless <code>output_checkpoints</code> and <code>output_at_end</code> are set to false a checkpoint at the final time will be written as to avoid losing progress as far as possible.</p>
 <dl class="section attention"><dt>Attention</dt><dd>For simulations requiring restarts, it is recommended to run each restart in a different output directory as a precaution to avoid potential overwritings of files.</dd></dl>
-<h2><a class="anchor" id="autotoc_md50"></a>
+<h2><a class="anchor" id="autotoc_md51"></a>
 Boundary type numbering in the "output_boundary" field</h2>
 <p>When the <code>output_boundary</code> setting is set to <code>true</code>, and additional <code>.fld</code> file will be stored in the beginning of the simulation, where the recognized boundary conditions for the fluid will be marked with an integer number. This is a good way to debug the simulation setup. The value of the number depends on the type of the boundary as follows.</p>
 <table class="markdownTable">
@@ -287,7 +321,7 @@ Boundary type numbering in the "output_boundary" field</h2>
 <td class="markdownTableBodyNone">blasius_profile   </td><td class="markdownTableBodyNone">11   </td></tr>
 </table>
 <p>For a description of the boundary conditions themselves, see below.</p>
-<h1><a class="anchor" id="autotoc_md51"></a>
+<h1><a class="anchor" id="autotoc_md52"></a>
 Numerics</h1>
 <p>Used to define the properties of the numerical discretization.</p>
 <table class="markdownTable">
@@ -306,7 +340,7 @@ Numerics</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>oifs_target_cfl</code>   </td><td class="markdownTableBodyNone">The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>1.9</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md52"></a>
+<h1><a class="anchor" id="case-file_fluid"></a>
 Fluid</h1>
 <p>The configuration of the fluid solver and the flow problem. Contains multiple subobjects for various parts of the setup.</p>
 <h2><a class="anchor" id="autotoc_md53"></a>
@@ -1194,7 +1228,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Jan 21 2026 03:58:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 22 2026 04:01:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

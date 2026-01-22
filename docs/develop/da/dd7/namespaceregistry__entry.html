@@ -105,7 +105,7 @@ $(document).ready(function(){initNavTree('da/dd7/namespaceregistry__entry.html',
 </div><!--header-->
 <div class="contents">
 
-<p>Defines a registry entry for storing and requesting temporary objects This is used in the scratch registries to store temporary fields, vectors, and matrices.  
+<p>Defines a registry entry for storing and requesting temporary objects This is used in the registries to store a scalar, vector, matrix or field.  
 </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -124,6 +124,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a56316fbde7964f7bbce990d763083da8" id="r_a56316fbde7964f7bbce990d763083da8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd7/namespaceregistry__entry.html#a56316fbde7964f7bbce990d763083da8">init_register_matrix</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, nrows, ncols, name)</td></tr>
 <tr class="memdesc:a56316fbde7964f7bbce990d763083da8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a register entry.  <br /></td></tr>
 <tr class="separator:a56316fbde7964f7bbce990d763083da8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a535562454a1935004ebd4be50aa7b977" id="r_a535562454a1935004ebd4be50aa7b977"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd7/namespaceregistry__entry.html#a535562454a1935004ebd4be50aa7b977">init_register_real_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">val</a>, name)</td></tr>
+<tr class="memdesc:a535562454a1935004ebd4be50aa7b977"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a scalar register entry.  <br /></td></tr>
+<tr class="separator:a535562454a1935004ebd4be50aa7b977"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c4cd19e190eb1723fe43fa221d647bd" id="r_a8c4cd19e190eb1723fe43fa221d647bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd7/namespaceregistry__entry.html#a8c4cd19e190eb1723fe43fa221d647bd">init_register_integer_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">val</a>, name)</td></tr>
+<tr class="memdesc:a8c4cd19e190eb1723fe43fa221d647bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize an integer scalar register entry.  <br /></td></tr>
+<tr class="separator:a8c4cd19e190eb1723fe43fa221d647bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a996c4f10e815770e90db8dfd405fcaad" id="r_a996c4f10e815770e90db8dfd405fcaad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd7/namespaceregistry__entry.html#a996c4f10e815770e90db8dfd405fcaad">free_register</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a996c4f10e815770e90db8dfd405fcaad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a register entry.  <br /></td></tr>
 <tr class="separator:a996c4f10e815770e90db8dfd405fcaad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,6 +151,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:acedfce28cd2622f840edc90262dbc84c" id="r_acedfce28cd2622f840edc90262dbc84c"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd7/namespaceregistry__entry.html#acedfce28cd2622f840edc90262dbc84c">get_matrix</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:acedfce28cd2622f840edc90262dbc84c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the matrix pointer of the registry entry.  <br /></td></tr>
 <tr class="separator:acedfce28cd2622f840edc90262dbc84c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0241e01b1da7a7fc9bce4c1ba10ab3fc" id="r_a0241e01b1da7a7fc9bce4c1ba10ab3fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd7/namespaceregistry__entry.html#a0241e01b1da7a7fc9bce4c1ba10ab3fc">get_real_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a0241e01b1da7a7fc9bce4c1ba10ab3fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the real scalar pointer of the registry entry.  <br /></td></tr>
+<tr class="separator:a0241e01b1da7a7fc9bce4c1ba10ab3fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8a12dacf40f8f5f39c46eee0796ffff" id="r_ae8a12dacf40f8f5f39c46eee0796ffff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd7/namespaceregistry__entry.html#ae8a12dacf40f8f5f39c46eee0796ffff">get_integer_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:ae8a12dacf40f8f5f39c46eee0796ffff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the integer scalar pointer of the registry entry.  <br /></td></tr>
+<tr class="separator:ae8a12dacf40f8f5f39c46eee0796ffff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a996c4f10e815770e90db8dfd405fcaad" name="a996c4f10e815770e90db8dfd405fcaad"></a>
@@ -171,7 +183,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00139">139</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00193">193</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 
 </div>
 </div>
@@ -199,15 +211,53 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00185">185</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00242">242</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/dd7/namespaceregistry__entry_a967172fedbb0a6710a871d627b4ddc26_icgraph.png" border="0" usemap="#ada/dd7/namespaceregistry__entry_a967172fedbb0a6710a871d627b4ddc26_icgraph" alt=""/></div>
 <map name="ada/dd7/namespaceregistry__entry_a967172fedbb0a6710a871d627b4ddc26_icgraph" id="ada/dd7/namespaceregistry__entry_a967172fedbb0a6710a871d627b4ddc26_icgraph">
 <area shape="rect" title="Get the field pointer of the registry entry." alt="" coords="183,5,324,45"/>
-<area shape="rect" href="../../db/d1a/structregistry_1_1registry__t.html#a96a5449c3daa160f798756fdd53f1e4c" title="Generic field getter." alt="" coords="5,5,135,45"/>
+<area shape="rect" href="../../db/d1a/structregistry_1_1registry__t.html#a9db2f2ddf7a8c654ac5f8db15abbd9e7" title="Generic field getter." alt="" coords="5,5,135,45"/>
 <area shape="poly" title=" " alt="" coords="169,28,135,28,135,23,169,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ae8a12dacf40f8f5f39c46eee0796ffff" name="ae8a12dacf40f8f5f39c46eee0796ffff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae8a12dacf40f8f5f39c46eee0796ffff">&#9670;&#160;</a></span>get_integer_scalar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> registry_entry::get_integer_scalar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../df/db9/structregistry__entry_1_1registry__entry__t.html">registry_entry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00286">286</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd7/namespaceregistry__entry_ae8a12dacf40f8f5f39c46eee0796ffff_icgraph.png" border="0" usemap="#ada/dd7/namespaceregistry__entry_ae8a12dacf40f8f5f39c46eee0796ffff_icgraph" alt=""/></div>
+<map name="ada/dd7/namespaceregistry__entry_ae8a12dacf40f8f5f39c46eee0796ffff_icgraph" id="ada/dd7/namespaceregistry__entry_ae8a12dacf40f8f5f39c46eee0796ffff_icgraph">
+<area shape="rect" title="Get the integer scalar pointer of the registry entry." alt="" coords="216,5,357,45"/>
+<area shape="rect" href="../../db/d1a/structregistry_1_1registry__t.html#a25a50914ee032d6f68db4669aa7cec56" title="Generic integer scalar getter." alt="" coords="5,5,168,45"/>
+<area shape="poly" title=" " alt="" coords="202,28,168,28,168,23,202,23"/>
 </map>
 </div>
 
@@ -237,14 +287,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00264">264</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/dd7/namespaceregistry__entry_acedfce28cd2622f840edc90262dbc84c_icgraph.png" border="0" usemap="#ada/dd7/namespaceregistry__entry_acedfce28cd2622f840edc90262dbc84c_icgraph" alt=""/></div>
 <map name="ada/dd7/namespaceregistry__entry_acedfce28cd2622f840edc90262dbc84c_icgraph" id="ada/dd7/namespaceregistry__entry_acedfce28cd2622f840edc90262dbc84c_icgraph">
 <area shape="rect" title="Get the matrix pointer of the registry entry." alt="" coords="183,5,324,45"/>
-<area shape="rect" href="../../db/d1a/structregistry_1_1registry__t.html#a407cfc807c9fae8b9e59a14964bd1b6c" title="Generic matrix getter." alt="" coords="5,5,135,45"/>
+<area shape="rect" href="../../db/d1a/structregistry_1_1registry__t.html#aa18e65d1398d459774a1343fafadcfbe" title="Generic matrix getter." alt="" coords="5,5,135,45"/>
 <area shape="poly" title=" " alt="" coords="169,28,135,28,135,23,169,23"/>
 </map>
 </div>
@@ -275,7 +325,45 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00221">221</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a0241e01b1da7a7fc9bce4c1ba10ab3fc" name="a0241e01b1da7a7fc9bce4c1ba10ab3fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0241e01b1da7a7fc9bce4c1ba10ab3fc">&#9670;&#160;</a></span>get_real_scalar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> registry_entry::get_real_scalar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../df/db9/structregistry__entry_1_1registry__entry__t.html">registry_entry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00275">275</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd7/namespaceregistry__entry_a0241e01b1da7a7fc9bce4c1ba10ab3fc_icgraph.png" border="0" usemap="#ada/dd7/namespaceregistry__entry_a0241e01b1da7a7fc9bce4c1ba10ab3fc_icgraph" alt=""/></div>
+<map name="ada/dd7/namespaceregistry__entry_a0241e01b1da7a7fc9bce4c1ba10ab3fc_icgraph" id="ada/dd7/namespaceregistry__entry_a0241e01b1da7a7fc9bce4c1ba10ab3fc_icgraph">
+<area shape="rect" title="Get the real scalar pointer of the registry entry." alt="" coords="195,5,336,45"/>
+<area shape="rect" href="../../db/d1a/structregistry_1_1registry__t.html#ae836a312803536979f271d03a2db3d2d" title="Generic real scalar getter." alt="" coords="5,5,147,45"/>
+<area shape="poly" title=" " alt="" coords="181,28,147,28,147,23,181,23"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -303,7 +391,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00171">171</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00228">228</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 
 </div>
 </div>
@@ -331,14 +419,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00196">196</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00253">253</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/dd7/namespaceregistry__entry_acc0b4db0e9bb178913d4a0a58fc08979_icgraph.png" border="0" usemap="#ada/dd7/namespaceregistry__entry_acc0b4db0e9bb178913d4a0a58fc08979_icgraph" alt=""/></div>
 <map name="ada/dd7/namespaceregistry__entry_acc0b4db0e9bb178913d4a0a58fc08979_icgraph" id="ada/dd7/namespaceregistry__entry_acc0b4db0e9bb178913d4a0a58fc08979_icgraph">
 <area shape="rect" title="Get the vector pointer of the registry entry." alt="" coords="183,5,324,45"/>
-<area shape="rect" href="../../db/d1a/structregistry_1_1registry__t.html#a5857973f42fd2b8525de7d861d30c077" title="Generic vector getter." alt="" coords="5,5,135,45"/>
+<area shape="rect" href="../../db/d1a/structregistry_1_1registry__t.html#ac1b2c780ebddff289c9e7884873e0602" title="Generic vector getter." alt="" coords="5,5,135,45"/>
 <area shape="poly" title=" " alt="" coords="169,28,135,28,135,23,169,23"/>
 </map>
 </div>
@@ -377,7 +465,51 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a8c4cd19e190eb1723fe43fa221d647bd" name="a8c4cd19e190eb1723fe43fa221d647bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c4cd19e190eb1723fe43fa221d647bd">&#9670;&#160;</a></span>init_register_integer_scalar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> registry_entry::init_register_integer_scalar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../df/db9/structregistry__entry_1_1registry__entry__t.html">registry_entry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>val</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00172">172</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 
 </div>
 </div>
@@ -427,7 +559,51 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00129">129</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a535562454a1935004ebd4be50aa7b977" name="a535562454a1935004ebd4be50aa7b977"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a535562454a1935004ebd4be50aa7b977">&#9670;&#160;</a></span>init_register_real_scalar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> registry_entry::init_register_real_scalar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../df/db9/structregistry__entry_1_1registry__entry__t.html">registry_entry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>val</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00151">151</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 
 </div>
 </div>
@@ -471,7 +647,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 
 </div>
 </div>
@@ -499,7 +675,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00178">178</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html#l00235">235</a> of file <a class="el" href="../../d4/d0a/registry__entry_8f90_source.html">registry_entry.f90</a>.</p>
 
 </div>
 </div>
@@ -509,7 +685,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/dd7/namespaceregistry__entry.html">registry_entry</a></li>
-    <li class="footer">Generated on Wed Jan 21 2026 03:58:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 22 2026 04:01:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

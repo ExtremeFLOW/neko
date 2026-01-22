@@ -9,6 +9,7 @@ var opr__device_8F90 =
     [ "opr_device::hip_cfl", "d5/d51/interfaceopr__device_1_1hip__cfl.html", "d5/d51/interfaceopr__device_1_1hip__cfl" ],
     [ "opr_device::hip_rotate_cyc", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc" ],
     [ "opr_device::hip_set_convect_rst", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst" ],
+    [ "device_ortho", "df/d36/opr__device_8F90.html#a98b6c537e40cda3676ab93c5523d7bc7", null ],
     [ "opr_device_cdtp", "df/d36/opr__device_8F90.html#a5976c035ccc91cc8b346fc866e476775", null ],
     [ "opr_device_cfl", "df/d36/opr__device_8F90.html#a8c94efab56085f4843490a6ab2c842c4", null ],
     [ "opr_device_conv1", "df/d36/opr__device_8F90.html#ae04611fe66a4b513beb0157ac526838b", null ],

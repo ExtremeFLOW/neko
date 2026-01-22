@@ -149,7 +149,7 @@ $(document).ready(function(){initNavTree('d0/d28/device__mathops_8F90_source.htm
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00042" data-start="" data-end="">
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="../../dd/d0d/interfacedevice__mathops_1_1hip__opchsign.html#a699e7c3bd0baead3c546de9ea8c30bdb">   42</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dd/d0d/interfacedevice__mathops_1_1hip__opchsign.html">hip_opchsign</a>(a1_d, a2_d, a3_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>          bind(c, name=<span class="stringliteral">&#39;hip_opchsign&#39;</span>)</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>          bind(c, name = <span class="stringliteral">&#39;hip_opchsign&#39;</span>)</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
@@ -160,7 +160,7 @@ $(document).ready(function(){initNavTree('d0/d28/device__mathops_8F90_source.htm
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00051" data-start="" data-end="">
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../db/d97/interfacedevice__mathops_1_1hip__opcolv.html#ade902d8c131e790050c68fc5d4070eab">   51</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../db/d97/interfacedevice__mathops_1_1hip__opcolv.html">hip_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>          bind(c, name=<span class="stringliteral">&#39;hip_opcolv&#39;</span>)</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>          bind(c, name = <span class="stringliteral">&#39;hip_opcolv&#39;</span>)</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, c_d</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
@@ -170,231 +170,240 @@ $(document).ready(function(){initNavTree('d0/d28/device__mathops_8F90_source.htm
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00060" data-start="" data-end="">
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html#adf94fc400122912b9f21396c1427fd3c">   60</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html">hip_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n) &amp;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>          bind(c, name=<span class="stringliteral">&#39;hip_opcolv3c&#39;</span>)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keywordtype">       real</span>(c_rp) :: d</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html#adf94fc400122912b9f21396c1427fd3c">   60</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html">hip_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>          c_d, d, gdim, n) &amp;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>          bind(c, name = <span class="stringliteral">&#39;hip_opcolv3c&#39;</span>)</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordtype">       real</span>(c_rp) :: d</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
 </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html">hip_opcolv3c</a></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="keyword">interface</span></div>
-<div class="foldopen" id="foldopen00071" data-start="" data-end="">
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html#a115f2aae1b6f8b2aa793475f90f2f06d">   71</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html">hip_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n) &amp;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>          bind(c, name=<span class="stringliteral">&#39;hip_opadd2cm&#39;</span>)</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html">hip_opcolv3c</a></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keyword">interface</span></div>
+<div class="foldopen" id="foldopen00072" data-start="" data-end="">
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html#a115f2aae1b6f8b2aa793475f90f2f06d">   72</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html">hip_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>          c, gdim, n) &amp;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>          bind(c, name = <span class="stringliteral">&#39;hip_opadd2cm&#39;</span>)</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
 </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html">hip_opadd2cm</a></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="keyword">interface</span></div>
-<div class="foldopen" id="foldopen00082" data-start="" data-end="">
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html#a5597cd7cda317185fc5ce9f6558befa3">   82</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html">hip_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>          bind(c, name=<span class="stringliteral">&#39;hip_opadd2col&#39;</span>)</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html">hip_opadd2cm</a></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>  <span class="keyword">interface</span></div>
+<div class="foldopen" id="foldopen00084" data-start="" data-end="">
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html#a5597cd7cda317185fc5ce9f6558befa3">   84</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html">hip_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>          c_d, gdim, n) &amp;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>          bind(c, name = <span class="stringliteral">&#39;hip_opadd2col&#39;</span>)</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
 </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html">hip_opadd2col</a></div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a1289f482b3e1dd687ca1ef4e1c4ae9cc">cuda_opchsign</a>(a1_d, a2_d, a3_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>          bind(c, name=<span class="stringliteral">&#39;cuda_opchsign&#39;</span>)</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a1289f482b3e1dd687ca1ef4e1c4ae9cc">cuda_opchsign</a></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af">cuda_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>          bind(c, name=<span class="stringliteral">&#39;cuda_opcolv&#39;</span>)</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, c_d</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af">cuda_opcolv</a></div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a3dd08286ff11f13f24302fc1d06c6bd0">cuda_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n) &amp;</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>          bind(c, name=<span class="stringliteral">&#39;cuda_opcolv3c&#39;</span>)</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="keywordtype">       real</span>(c_rp) :: d</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a3dd08286ff11f13f24302fc1d06c6bd0">cuda_opcolv3c</a></div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62b3651eaaf1b089b51001f3e13f083b">cuda_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n) &amp;</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>          bind(c, name=<span class="stringliteral">&#39;cuda_opadd2cm&#39;</span>)</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62b3651eaaf1b089b51001f3e13f083b">cuda_opadd2cm</a></div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a961fb77bbbc6433bfa57d0f9506c3846">cuda_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>          bind(c, name=<span class="stringliteral">&#39;cuda_opadd2col&#39;</span>)</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a961fb77bbbc6433bfa57d0f9506c3846">cuda_opadd2col</a></div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af1c95bdbd1a81ab3817e85164931764e">opencl_opchsign</a>(a1_d, a2_d, a3_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>          bind(c, name=<span class="stringliteral">&#39;opencl_opchsign&#39;</span>)</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af1c95bdbd1a81ab3817e85164931764e">opencl_opchsign</a></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span> </div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033">opencl_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>          bind(c, name=<span class="stringliteral">&#39;opencl_opcolv&#39;</span>)</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, c_d</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033">opencl_opcolv</a></div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#a39329dc63c2b24ee76e52552ec588d19">opencl_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n) &amp;</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>          bind(c, name=<span class="stringliteral">&#39;opencl_opcolv3c&#39;</span>)</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="keywordtype">       real</span>(c_rp) :: d</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#a39329dc63c2b24ee76e52552ec588d19">opencl_opcolv3c</a></div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc">opencl_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n) &amp;</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>          bind(c, name=<span class="stringliteral">&#39;opencl_opadd2cm&#39;</span>)</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc">opencl_opadd2cm</a></div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af84633acad96673e1261fcd3ad602cfa">opencl_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n) &amp;</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>          bind(c, name=<span class="stringliteral">&#39;opencl_opadd2col&#39;</span>)</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af84633acad96673e1261fcd3ad602cfa">opencl_opadd2col</a></div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="preprocessor"></span> </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">device_opchsign</a>, <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">device_opcolv</a>, <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">device_opcolv3c</a>, &amp;</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>       <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">device_opadd2cm</a>, <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">device_opadd2col</a></div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
-<div class="foldopen" id="foldopen00195" data-start="" data-end="">
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">  195</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">device_opchsign</a>(a1_d, a2_d, a3_d, gdim, n)</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../dd/d0d/interfacedevice__mathops_1_1hip__opchsign.html">hip_opchsign</a>(a1_d, a2_d, a3_d, gdim, n)</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a1289f482b3e1dd687ca1ef4e1c4ae9cc">cuda_opchsign</a>(a1_d, a2_d, a3_d, gdim, n)</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af1c95bdbd1a81ab3817e85164931764e">opencl_opchsign</a>(a1_d, a2_d, a3_d, gdim, n)</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html">hip_opadd2col</a></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a1289f482b3e1dd687ca1ef4e1c4ae9cc">cuda_opchsign</a>(a1_d, a2_d, a3_d, gdim, n) &amp;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>          bind(c, name = <span class="stringliteral">&#39;cuda_opchsign&#39;</span>)</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a1289f482b3e1dd687ca1ef4e1c4ae9cc">cuda_opchsign</a></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af">cuda_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n) &amp;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>          bind(c, name = <span class="stringliteral">&#39;cuda_opcolv&#39;</span>)</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, c_d</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af">cuda_opcolv</a></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a3dd08286ff11f13f24302fc1d06c6bd0">cuda_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>          c_d, d, gdim, n) &amp;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>          bind(c, name = <span class="stringliteral">&#39;cuda_opcolv3c&#39;</span>)</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="keywordtype">       real</span>(c_rp) :: d</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a3dd08286ff11f13f24302fc1d06c6bd0">cuda_opcolv3c</a></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62b3651eaaf1b089b51001f3e13f083b">cuda_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>          c, gdim, n) &amp;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>          bind(c, name = <span class="stringliteral">&#39;cuda_opadd2cm&#39;</span>)</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62b3651eaaf1b089b51001f3e13f083b">cuda_opadd2cm</a></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a961fb77bbbc6433bfa57d0f9506c3846">cuda_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>          c_d, gdim, n) &amp;</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>          bind(c, name = <span class="stringliteral">&#39;cuda_opadd2col&#39;</span>)</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a961fb77bbbc6433bfa57d0f9506c3846">cuda_opadd2col</a></div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af1c95bdbd1a81ab3817e85164931764e">opencl_opchsign</a>(a1_d, a2_d, a3_d, gdim, n) &amp;</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>          bind(c, name = <span class="stringliteral">&#39;opencl_opchsign&#39;</span>)</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af1c95bdbd1a81ab3817e85164931764e">opencl_opchsign</a></div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033">opencl_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n) &amp;</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>          bind(c, name = <span class="stringliteral">&#39;opencl_opcolv&#39;</span>)</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, c_d</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033">opencl_opcolv</a></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#a39329dc63c2b24ee76e52552ec588d19">opencl_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>          c_d, d, gdim, n) &amp;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>          bind(c, name = <span class="stringliteral">&#39;opencl_opcolv3c&#39;</span>)</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keywordtype">       real</span>(c_rp) :: d</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#a39329dc63c2b24ee76e52552ec588d19">opencl_opcolv3c</a></div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc">opencl_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>          c, gdim, n) &amp;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>          bind(c, name = <span class="stringliteral">&#39;opencl_opadd2cm&#39;</span>)</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc">opencl_opadd2cm</a></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af84633acad96673e1261fcd3ad602cfa">opencl_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, &amp;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>          c_d, gdim, n) &amp;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>          bind(c, name = <span class="stringliteral">&#39;opencl_opadd2col&#39;</span>)</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>       <span class="keywordtype">integer(c_int)</span> :: gdim, n</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af84633acad96673e1261fcd3ad602cfa">opencl_opadd2col</a></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="preprocessor"></span> </div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">device_opchsign</a>, <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">device_opcolv</a>, <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">device_opcolv3c</a>, &amp;</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>       <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">device_opadd2cm</a>, <a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">device_opadd2col</a></div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
+<div class="foldopen" id="foldopen00204" data-start="" data-end="">
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">  204</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">device_opchsign</a>(a1_d, a2_d, a3_d, gdim, n)</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../dd/d0d/interfacedevice__mathops_1_1hip__opchsign.html">hip_opchsign</a>(a1_d, a2_d, a3_d, gdim, n)</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a1289f482b3e1dd687ca1ef4e1c4ae9cc">cuda_opchsign</a>(a1_d, a2_d, a3_d, gdim, n)</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af1c95bdbd1a81ab3817e85164931764e">opencl_opchsign</a>(a1_d, a2_d, a3_d, gdim, n)</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="preprocessor">#endif</span></div>
 </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">device_opchsign</a></div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
-<div class="foldopen" id="foldopen00210" data-start="" data-end="">
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">  210</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">device_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n)</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d, c_d</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d97/interfacedevice__mathops_1_1hip__opcolv.html">hip_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n)</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af">cuda_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n)</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033">opencl_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n)</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">device_opchsign</a></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
+<div class="foldopen" id="foldopen00219" data-start="" data-end="">
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">  219</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">device_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n)</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d, c_d</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d97/interfacedevice__mathops_1_1hip__opcolv.html">hip_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n)</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af">cuda_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n)</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033">opencl_opcolv</a>(a1_d, a2_d, a3_d, c_d, gdim, n)</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="preprocessor">#endif</span></div>
 </div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">device_opcolv</a></div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
-<div class="foldopen" id="foldopen00225" data-start="" data-end="">
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">  225</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">device_opcolv3c</a>(a1_d, a2_d, a3_d, &amp;</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>                             b1_d, b2_d, b3_d, c_d, d, n, gdim)</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: d</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html">hip_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a3dd08286ff11f13f24302fc1d06c6bd0">cuda_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#a39329dc63c2b24ee76e52552ec588d19">opencl_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">device_opcolv</a></div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span> </div>
+<div class="foldopen" id="foldopen00234" data-start="" data-end="">
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">  234</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">device_opcolv3c</a>(a1_d, a2_d, a3_d, &amp;</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>       b1_d, b2_d, b3_d, c_d, d, n, gdim)</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: d</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html">hip_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a3dd08286ff11f13f24302fc1d06c6bd0">cuda_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#a39329dc63c2b24ee76e52552ec588d19">opencl_opcolv3c</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="preprocessor">#endif</span></div>
 </div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">device_opcolv3c</a></div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
-<div class="foldopen" id="foldopen00242" data-start="" data-end="">
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">  242</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">device_opadd2cm</a> (a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, n, gdim)</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html">hip_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62b3651eaaf1b089b51001f3e13f083b">cuda_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc">opencl_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">device_opcolv3c</a></div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
+<div class="foldopen" id="foldopen00251" data-start="" data-end="">
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">  251</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">device_opadd2cm</a> (a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, n, gdim)</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html">hip_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a62b3651eaaf1b089b51001f3e13f083b">cuda_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc">opencl_opadd2cm</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="preprocessor">#endif</span></div>
 </div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">device_opadd2cm</a></div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
-<div class="foldopen" id="foldopen00258" data-start="" data-end="">
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">  258</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">device_opadd2col</a> (a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, n, gdim)</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html">hip_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a961fb77bbbc6433bfa57d0f9506c3846">cuda_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af84633acad96673e1261fcd3ad602cfa">opencl_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">device_opadd2cm</a></div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
+<div class="foldopen" id="foldopen00267" data-start="" data-end="">
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno"><a class="line" href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">  267</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">device_opadd2col</a> (a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, n, gdim)</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordtype">type</span>(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keywordtype">integer</span> :: n, gdim</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html">hip_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/db5/mathops_8cu.html#a961fb77bbbc6433bfa57d0f9506c3846">cuda_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/d69/mathops_8c.html#af84633acad96673e1261fcd3ad602cfa">opencl_opadd2col</a>(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="preprocessor">#endif</span></div>
 </div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">device_opadd2col</a></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d7/de8/namespacedevice__mathops.html">device_mathops</a></div>
-<div class="ttc" id="ainterfacedevice__mathops_1_1hip__opadd2cm_html"><div class="ttname"><a href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html">device_mathops::hip_opadd2cm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00071">device_mathops.F90:71</a></div></div>
-<div class="ttc" id="ainterfacedevice__mathops_1_1hip__opadd2col_html"><div class="ttname"><a href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html">device_mathops::hip_opadd2col</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00082">device_mathops.F90:82</a></div></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">device_opadd2col</a></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d7/de8/namespacedevice__mathops.html">device_mathops</a></div>
+<div class="ttc" id="ainterfacedevice__mathops_1_1hip__opadd2cm_html"><div class="ttname"><a href="../../d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html">device_mathops::hip_opadd2cm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00072">device_mathops.F90:72</a></div></div>
+<div class="ttc" id="ainterfacedevice__mathops_1_1hip__opadd2col_html"><div class="ttname"><a href="../../d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html">device_mathops::hip_opadd2col</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00084">device_mathops.F90:84</a></div></div>
 <div class="ttc" id="ainterfacedevice__mathops_1_1hip__opchsign_html"><div class="ttname"><a href="../../dd/d0d/interfacedevice__mathops_1_1hip__opchsign.html">device_mathops::hip_opchsign</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00042">device_mathops.F90:42</a></div></div>
 <div class="ttc" id="ainterfacedevice__mathops_1_1hip__opcolv3c_html"><div class="ttname"><a href="../../df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html">device_mathops::hip_opcolv3c</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00060">device_mathops.F90:60</a></div></div>
 <div class="ttc" id="ainterfacedevice__mathops_1_1hip__opcolv_html"><div class="ttname"><a href="../../db/d97/interfacedevice__mathops_1_1hip__opcolv.html">device_mathops::hip_opcolv</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00051">device_mathops.F90:51</a></div></div>
@@ -410,11 +419,11 @@ $(document).ready(function(){initNavTree('d0/d28/device__mathops_8F90_source.htm
 <div class="ttc" id="amathops_8cu_html_a62c8b601530d663d2e9037689bd033af"><div class="ttname"><a href="../../dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af">cuda_opcolv</a></div><div class="ttdeci">void cuda_opcolv(void *a1, void *a2, void *a3, void *c, int *gdim, int *n)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/db5/mathops_8cu_source.html#l00055">mathops.cu:55</a></div></div>
 <div class="ttc" id="amathops_8cu_html_a961fb77bbbc6433bfa57d0f9506c3846"><div class="ttname"><a href="../../dd/db5/mathops_8cu.html#a961fb77bbbc6433bfa57d0f9506c3846">cuda_opadd2col</a></div><div class="ttdeci">void cuda_opadd2col(void *a1, void *a2, void *a3, void *b1, void *b2, void *b3, void *c, int *gdim, int *n)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/db5/mathops_8cu_source.html#l00101">mathops.cu:101</a></div></div>
 <div class="ttc" id="anamespacedevice__mathops_html"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html">device_mathops</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00033">device_mathops.F90:33</a></div></div>
-<div class="ttc" id="anamespacedevice__mathops_html_a8e8c095aec871774aeaaa17c4bad7453"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">device_mathops::device_opchsign</a></div><div class="ttdeci">subroutine, public device_opchsign(a1_d, a2_d, a3_d, gdim, n)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00195">device_mathops.F90:196</a></div></div>
-<div class="ttc" id="anamespacedevice__mathops_html_a902393d1adbb4c35e678944af95039e7"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">device_mathops::device_opadd2col</a></div><div class="ttdeci">subroutine, public device_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, n, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00258">device_mathops.F90:259</a></div></div>
-<div class="ttc" id="anamespacedevice__mathops_html_acef639b59143ad977e3dfb680394e1d4"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">device_mathops::device_opadd2cm</a></div><div class="ttdeci">subroutine, public device_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, n, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00242">device_mathops.F90:243</a></div></div>
-<div class="ttc" id="anamespacedevice__mathops_html_ad675163c1b5c8230ad78093d33d65ace"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">device_mathops::device_opcolv3c</a></div><div class="ttdeci">subroutine, public device_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, n, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00225">device_mathops.F90:227</a></div></div>
-<div class="ttc" id="anamespacedevice__mathops_html_ad6cc81913f3bc439a1da4649557b8912"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">device_mathops::device_opcolv</a></div><div class="ttdeci">subroutine, public device_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00210">device_mathops.F90:211</a></div></div>
+<div class="ttc" id="anamespacedevice__mathops_html_a8e8c095aec871774aeaaa17c4bad7453"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453">device_mathops::device_opchsign</a></div><div class="ttdeci">subroutine, public device_opchsign(a1_d, a2_d, a3_d, gdim, n)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00204">device_mathops.F90:205</a></div></div>
+<div class="ttc" id="anamespacedevice__mathops_html_a902393d1adbb4c35e678944af95039e7"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7">device_mathops::device_opadd2col</a></div><div class="ttdeci">subroutine, public device_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, n, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00267">device_mathops.F90:268</a></div></div>
+<div class="ttc" id="anamespacedevice__mathops_html_acef639b59143ad977e3dfb680394e1d4"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4">device_mathops::device_opadd2cm</a></div><div class="ttdeci">subroutine, public device_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, n, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00251">device_mathops.F90:252</a></div></div>
+<div class="ttc" id="anamespacedevice__mathops_html_ad675163c1b5c8230ad78093d33d65ace"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace">device_mathops::device_opcolv3c</a></div><div class="ttdeci">subroutine, public device_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, n, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00234">device_mathops.F90:236</a></div></div>
+<div class="ttc" id="anamespacedevice__mathops_html_ad6cc81913f3bc439a1da4649557b8912"><div class="ttname"><a href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912">device_mathops::device_opcolv</a></div><div class="ttdeci">subroutine, public device_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d28/device__mathops_8F90_source.html#l00219">device_mathops.F90:220</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ad604d43a6e18e80802dcc80ed820d8b1"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">num_types::c_rp</a></div><div class="ttdeci">integer, parameter, public c_rp</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00013">num_types.f90:13</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
@@ -425,7 +434,7 @@ $(document).ready(function(){initNavTree('d0/d28/device__mathops_8F90_source.htm
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../d0/d28/device__mathops_8F90.html">device_mathops.F90</a></li>
-    <li class="footer">Generated on Wed Jan 21 2026 03:58:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 22 2026 04:01:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

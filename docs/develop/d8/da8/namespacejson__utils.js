@@ -3,6 +3,8 @@ var namespacejson__utils =
     [ "json_extract_item", "d9/d2b/interfacejson__utils_1_1json__extract__item.html", "d9/d2b/interfacejson__utils_1_1json__extract__item" ],
     [ "json_get", "d7/d48/interfacejson__utils_1_1json__get.html", "d7/d48/interfacejson__utils_1_1json__get" ],
     [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ],
+    [ "json_get_or_lookup", "da/d05/interfacejson__utils_1_1json__get__or__lookup.html", "da/d05/interfacejson__utils_1_1json__get__or__lookup" ],
+    [ "json_get_or_lookup_or_default", "d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html", "d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default" ],
     [ "json_extract_item_from_array", "d8/da8/namespacejson__utils.html#a676fe75290b2ea73d99971cb8dbdb729", null ],
     [ "json_extract_item_from_name", "d8/da8/namespacejson__utils.html#a1fc9296024e5aece2174f714c31c2f50", null ],
     [ "json_get_double", "d8/da8/namespacejson__utils.html#aa088520fcc25a630ff016d711ca7ae5c", null ],

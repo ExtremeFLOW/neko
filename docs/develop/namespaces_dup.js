@@ -393,7 +393,7 @@ var namespaces_dup =
     [ "mxm_wrapper", "d1/d15/namespacemxm__wrapper.html", "d1/d15/namespacemxm__wrapper" ],
     [ "neko", "dd/d62/namespaceneko.html", [
       [ "neko_finalize", "dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8", null ],
-      [ "neko_init", "dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff", null ],
+      [ "neko_init", "dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd", null ],
       [ "neko_job_info", "dd/d62/namespaceneko.html#a12ac3a3e9d30fbc66d5a77e012e90edb", null ],
       [ "neko_solve", "dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04", null ]
     ] ],
@@ -421,6 +421,8 @@ var namespaces_dup =
       [ "neko_api_output_ctrl_execute", "d5/dd3/namespaceneko__api.html#a5c1d3f1515b68fe4143251e11195ed7a", null ],
       [ "neko_api_registry_free", "d5/dd3/namespaceneko__api.html#ab56cde4b331af6941b42456d16cfd4bd", null ],
       [ "neko_api_registry_init", "d5/dd3/namespaceneko__api.html#a4b7b3d38b17b2a3aa182bce4502a1b5d", null ],
+      [ "neko_api_scratch_registry_free", "d5/dd3/namespaceneko__api.html#a9e526a03b763b9d785de9f5a5aa5a949", null ],
+      [ "neko_api_scratch_registry_init", "d5/dd3/namespaceneko__api.html#a92caec830432e9d1dccc1d86c21ff0e9", null ],
       [ "neko_api_solve", "d5/dd3/namespaceneko__api.html#aa2e5d30535577ecbd6961683b9b644a7", null ],
       [ "neko_api_step", "d5/dd3/namespaceneko__api.html#a3ab40aa9d20ed1039a44d6f37c94adbf", null ],
       [ "neko_api_user_cb_field_by_index", "d5/dd3/namespaceneko__api.html#a876c2a70e4f0363034b88b2a30135100", null ],

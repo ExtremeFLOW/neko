@@ -23,6 +23,8 @@ var neko_8h =
     [ "neko_job_info", "da/d03/neko_8h.html#a708b3eb1233ece9386057552a35074c9", null ],
     [ "neko_registry_free", "da/d03/neko_8h.html#a1a0e383849a8f011229741a86cd2e461", null ],
     [ "neko_registry_init", "da/d03/neko_8h.html#a52ec4c2b143fc649b038f46a996249bc", null ],
+    [ "neko_scratch_registry_free", "da/d03/neko_8h.html#ac03386e4d7e415935bd2cdc745c59b1b", null ],
+    [ "neko_scratch_registry_init", "da/d03/neko_8h.html#a1996f1cf62114a3b8a00a48084a1440f", null ],
     [ "neko_solve", "da/d03/neko_8h.html#a937491990815e3e52c66bb02f86353b9", null ],
     [ "neko_step", "da/d03/neko_8h.html#a02ef7d9d94140acc06c4e994ae456c50", null ]
 ];

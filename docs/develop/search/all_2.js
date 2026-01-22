@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['b_0',['b',['../d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab',1,'coefs::coef_t::b'],['../df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f',1,'rough_log_law::rough_log_law_t::b'],['../df/df1/structspalding_1_1spalding__t.html#a6584a371ff654faa790f13a1384eae0c',1,'spalding::spalding_t::b'],['../d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html#a190a483be322d460f5891a99ca22b7c3',1,'pyneko.intf.neko_coef_t.B']]],
+  ['b_0',['b',['../d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html#a190a483be322d460f5891a99ca22b7c3',1,'pyneko.intf.neko_coef_t.B'],['../d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab',1,'coefs::coef_t::b'],['../df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f',1,'rough_log_law::rough_log_law_t::b'],['../df/df1/structspalding_1_1spalding__t.html#a6584a371ff654faa790f13a1384eae0c',1,'spalding::spalding_t::b']]],
   ['b_20scope_1',['B. Scope',['../d0/d47/dev_patterns.html#autotoc_md28',1,'']]],
   ['b_5fd_2',['b_d',['../d0/dea/structcoefs_1_1coef__t.html#ad69b4e6f1ba2b7aed698abc59ad21f49',1,'coefs::coef_t']]],
   ['backend_20details_3',['Gather-scatter communication backend details',['../da/dd6/appendices.html#autotoc_md1',1,'']]],
@@ -139,7 +139,7 @@ var searchData=
   ['blst_136',['blst',['../d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a4d39858e7d8ca3d011382fba26cdaaad',1,'tree_amg::tamg_hierarchy_t']]],
   ['boundaries_137',['Specifying the boundaries',['../dd/d33/case-file.html#autotoc_md57',1,'']]],
   ['boundary_20conditions_138',['boundary conditions',['../dd/d33/case-file.html#autotoc_md68',1,'Boundary conditions'],['../dd/d33/case-file.html#case-file_fluid-boundary-conditions',1,'Boundary conditions'],['../dd/d33/case-file.html#autotoc_md55',1,'Compressible boundary conditions'],['../d6/def/user-file.html#user-file_field-dirichlet-update',1,'Dirichlet boundary conditions']]],
-  ['boundary_20type_20numbering_20in_20the_20output_5fboundary_20field_139',['Boundary type numbering in the &quot;output_boundary&quot; field',['../dd/d33/case-file.html#autotoc_md50',1,'']]],
+  ['boundary_20type_20numbering_20in_20the_20output_5fboundary_20field_139',['Boundary type numbering in the &quot;output_boundary&quot; field',['../dd/d33/case-file.html#autotoc_md51',1,'']]],
   ['boussinesq_5fsource_5fterm_140',['boussinesq_source_term',['../d0/d10/namespaceboussinesq__source__term.html',1,'']]],
   ['boussinesq_5fsource_5fterm_2ef90_141',['boussinesq_source_term.f90',['../d7/d54/boussinesq__source__term_8f90.html',1,'']]],
   ['boussinesq_5fsource_5fterm_5fcompute_142',['boussinesq_source_term_compute',['../d0/d10/namespaceboussinesq__source__term.html#aaee9b03347869ec2dc5de2613b67ded0',1,'boussinesq_source_term']]],

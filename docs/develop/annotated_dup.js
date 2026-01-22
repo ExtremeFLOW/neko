@@ -814,7 +814,9 @@ var annotated_dup =
     [ "json_utils", "d8/da8/namespacejson__utils.html", [
       [ "json_extract_item", "d9/d2b/interfacejson__utils_1_1json__extract__item.html", "d9/d2b/interfacejson__utils_1_1json__extract__item" ],
       [ "json_get", "d7/d48/interfacejson__utils_1_1json__get.html", "d7/d48/interfacejson__utils_1_1json__get" ],
-      [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ]
+      [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ],
+      [ "json_get_or_lookup", "da/d05/interfacejson__utils_1_1json__get__or__lookup.html", "da/d05/interfacejson__utils_1_1json__get__or__lookup" ],
+      [ "json_get_or_lookup_or_default", "d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html", "d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default" ]
     ] ],
     [ "krylov", "db/d6d/namespacekrylov.html", [
       [ "ksp_init_intrf", "d0/db4/interfacekrylov_1_1ksp__init__intrf.html", "d0/db4/interfacekrylov_1_1ksp__init__intrf" ],

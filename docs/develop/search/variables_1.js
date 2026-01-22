@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['b_0',['b',['../df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f',1,'rough_log_law::rough_log_law_t::b'],['../d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab',1,'coefs::coef_t::b'],['../d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html#a190a483be322d460f5891a99ca22b7c3',1,'pyneko.intf.neko_coef_t.B'],['../df/df1/structspalding_1_1spalding__t.html#a6584a371ff654faa790f13a1384eae0c',1,'spalding::spalding_t::b']]],
+  ['b_0',['b',['../d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab',1,'coefs::coef_t::b'],['../d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html#a190a483be322d460f5891a99ca22b7c3',1,'pyneko.intf.neko_coef_t.B'],['../df/df1/structspalding_1_1spalding__t.html#a6584a371ff654faa790f13a1384eae0c',1,'spalding::spalding_t::b'],['../df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f',1,'rough_log_law::rough_log_law_t::b']]],
   ['b_5fd_1',['b_d',['../d0/dea/structcoefs_1_1coef__t.html#ad69b4e6f1ba2b7aed698abc59ad21f49',1,'coefs::coef_t']]],
   ['base_5fflow_2',['base_flow',['../d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#ab4ff9d9fa63c4550732ad23cbd5caa2e',1,'fluid_volflow::fluid_volflow_t']]],
   ['baseflow_5fis_5fic_3',['baseflow_is_ic',['../d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#ae20c17504e2699759a816e30c1d57726',1,'sponge_source_term::sponge_source_term_t']]],

@@ -212,7 +212,7 @@ $(document).ready(function(){initNavTree('dc/da0/fluid__pnpn__bc__fctry_8f90_sou
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>            FLUID_PNPN_KNOWN_BCS)</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="keywordflow">    end select</span></div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keyword">call </span>json_get(json, <span class="stringliteral">&quot;zone_indices&quot;</span>, zone_indices)</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keyword">call </span>json_get_or_lookup(json, <span class="stringliteral">&quot;zone_indices&quot;</span>, zone_indices)</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keyword">call </span>object%init(coef, json)</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(zone_indices)</div>
@@ -286,7 +286,7 @@ $(document).ready(function(){initNavTree('dc/da0/fluid__pnpn__bc__fctry_8f90_sou
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>            FLUID_PNPN_KNOWN_BCS)</div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="keywordflow">    end select</span></div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keyword">call </span>json_get(json, <span class="stringliteral">&quot;zone_indices&quot;</span>, zone_indices)</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keyword">call </span>json_get_or_lookup(json, <span class="stringliteral">&quot;zone_indices&quot;</span>, zone_indices)</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keyword">call </span>object%init(coef, json)</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(zone_indices)</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       <span class="keyword">call </span>object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))</div>
@@ -345,7 +345,7 @@ $(document).ready(function(){initNavTree('dc/da0/fluid__pnpn__bc__fctry_8f90_sou
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../dc/da0/fluid__pnpn__bc__fctry_8f90.html">fluid_pnpn_bc_fctry.f90</a></li>
-    <li class="footer">Generated on Wed Jan 21 2026 03:58:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 22 2026 04:01:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

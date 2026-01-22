@@ -139,7 +139,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="../../de/d3f/namespaceopencl__math.html">   33</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../de/d3f/namespaceopencl__math.html">opencl_math</a></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span>: <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">public</span></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
@@ -147,7 +147,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00039" data-start="" data-end="">
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="../../d6/d58/interfaceopencl__math_1_1opencl__copy.html#ac4c51cfa40a62c38cad938d2307195a1">   39</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/d58/interfaceopencl__math_1_1opencl__copy.html">opencl_copy</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>          bind(c, name = <span class="stringliteral">&#39;opencl_copy&#39;</span>)</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
@@ -156,7 +156,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00046" data-start="" data-end="">
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d1/da7/interfaceopencl__math_1_1opencl__masked__copy.html#aafd0a93d815fbc4e8cb320cafe9437f3">   46</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/da7/interfaceopencl__math_1_1opencl__masked__copy.html">opencl_masked_copy</a>(a_d, b_d, mask_d, n, n_mask, strm) &amp;</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>          bind(c, name = <span class="stringliteral">&#39;opencl_masked_copy&#39;</span>)</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d, strm</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       <span class="keywordtype">integer(c_int)</span> :: n, n_mask</div>
 </div>
@@ -165,7 +165,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00053" data-start="" data-end="">
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../d2/df7/interfaceopencl__math_1_1opencl__masked__gather__copy.html#a2f5f57903e4b4fc2029d8fbec5416be8">   53</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/df7/interfaceopencl__math_1_1opencl__masked__gather__copy.html">opencl_masked_gather_copy</a>(a_d, b_d, mask_d, n, n_mask, strm) &amp;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>          bind(c, name = <span class="stringliteral">&#39;opencl_masked_gather_copy&#39;</span>)</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d, strm</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keywordtype">integer(c_int)</span> :: n, n_mask</div>
 </div>
@@ -174,7 +174,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00060" data-start="" data-end="">
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../d5/d45/interfaceopencl__math_1_1opencl__masked__scatter__copy.html#afcacdb03df8ce3881737bbfb9515ffe3">   60</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d45/interfaceopencl__math_1_1opencl__masked__scatter__copy.html">opencl_masked_scatter_copy</a>(a_d, b_d, mask_d, n, n_mask, strm) &amp;</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>          bind(c, name = <span class="stringliteral">&#39;opencl_masked_scatter_copy&#39;</span>)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d, strm</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">integer(c_int)</span> :: n, n_mask</div>
 </div>
@@ -183,7 +183,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00067" data-start="" data-end="">
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="../../d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html#a384bf67dfac4af4a5df06ee6b6c51f9f">   67</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html">opencl_cfill_mask</a>(a_d, c, n, mask_d, n_mask, strm) &amp;</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>          bind(c, name = <span class="stringliteral">&#39;opencl_cfill_mask&#39;</span>)</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
@@ -197,7 +197,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00079" data-start="" data-end="">
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="../../d1/d21/interfaceopencl__math_1_1opencl__cmult.html#a57409144222748cc369130de2563b952">   79</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d21/interfaceopencl__math_1_1opencl__cmult.html">opencl_cmult</a>(a_d, c, n, strm) &amp;</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>          bind(c, name = <span class="stringliteral">&#39;opencl_cmult&#39;</span>)</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
@@ -208,7 +208,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00088" data-start="" data-end="">
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="../../d8/db0/interfaceopencl__math_1_1opencl__cmult2.html#a3264fd0a2232782d6d936137a04ccc7b">   88</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d8/db0/interfaceopencl__math_1_1opencl__cmult2.html">opencl_cmult2</a>(a_d, b_d, c, n, strm) &amp;</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>          bind(c, name = <span class="stringliteral">&#39;opencl_cmult2&#39;</span>)</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
@@ -219,7 +219,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00097" data-start="" data-end="">
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="../../dc/d84/interfaceopencl__math_1_1opencl__cdiv.html#ac194f081b97e592fab57bd62ba064ed8">   97</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/d84/interfaceopencl__math_1_1opencl__cdiv.html">opencl_cdiv</a>(a_d, c, n, strm) &amp;</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>          bind(c, name = <span class="stringliteral">&#39;opencl_cdiv&#39;</span>)</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
@@ -230,7 +230,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00106" data-start="" data-end="">
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="../../dd/dbc/interfaceopencl__math_1_1opencl__cdiv2.html#a980bd5ca14204495481034766b45bc20">  106</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dd/dbc/interfaceopencl__math_1_1opencl__cdiv2.html">opencl_cdiv2</a>(a_d, b_d, c, n, strm) &amp;</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>          bind(c, name = <span class="stringliteral">&#39;opencl_cdiv2&#39;</span>)</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
@@ -241,7 +241,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00115" data-start="" data-end="">
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno"><a class="line" href="../../df/dc7/interfaceopencl__math_1_1opencl__radd.html#aa9505dc31ed8cd25d6ab20c29530f189">  115</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/dc7/interfaceopencl__math_1_1opencl__radd.html">opencl_radd</a>(a_d, c, n, strm) &amp;</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>          bind(c, name = <span class="stringliteral">&#39;opencl_radd&#39;</span>)</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
@@ -252,7 +252,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00124" data-start="" data-end="">
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno"><a class="line" href="../../dc/de6/interfaceopencl__math_1_1opencl__iadd.html#afca2883beb315db051032efcd498f6bb">  124</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/de6/interfaceopencl__math_1_1opencl__iadd.html">opencl_iadd</a>(a_d, c, n, strm) &amp;</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>          bind(c, name = <span class="stringliteral">&#39;opencl_iadd&#39;</span>)</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>       <span class="keywordtype">integer(c_int)</span> :: c</div>
@@ -263,7 +263,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00133" data-start="" data-end="">
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno"><a class="line" href="../../d5/dc0/interfaceopencl__math_1_1opencl__cadd2.html#a6c19c14cde6874fd68ad1d0856ccbf6f">  133</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/dc0/interfaceopencl__math_1_1opencl__cadd2.html">opencl_cadd2</a>(a_d, b_d, c, n, strm) &amp;</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>          bind(c, name = <span class="stringliteral">&#39;opencl_cadd2&#39;</span>)</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
 <div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: b_d</div>
@@ -276,7 +276,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00144" data-start="" data-end="">
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno"><a class="line" href="../../d3/d21/interfaceopencl__math_1_1opencl__cfill.html#aa15d0c363910cb58b262551aa7b18ec9">  144</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d3/d21/interfaceopencl__math_1_1opencl__cfill.html">opencl_cfill</a>(a_d, c, n, strm) &amp;</div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>          bind(c, name = <span class="stringliteral">&#39;opencl_cfill&#39;</span>)</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: strm</div>
@@ -288,7 +288,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00154" data-start="" data-end="">
 <div class="line"><a id="l00154" name="l00154"></a><span class="lineno"><a class="line" href="../../d0/d46/interfaceopencl__math_1_1opencl__rzero.html#a48139879d26352f76f2bc7bb5f19aa15">  154</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/d46/interfaceopencl__math_1_1opencl__rzero.html">opencl_rzero</a>(a_d, n, strm) &amp;</div>
 <div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>          bind(c, name = <span class="stringliteral">&#39;opencl_rzero&#39;</span>)</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
@@ -297,7 +297,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00161" data-start="" data-end="">
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno"><a class="line" href="../../de/d53/interfaceopencl__math_1_1opencl__rone.html#ad945a0c230e8880663b0ec0903331509">  161</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/d53/interfaceopencl__math_1_1opencl__rone.html">opencl_rone</a>(a_d, n, strm) &amp;</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>          bind(c, name = <span class="stringliteral">&#39;opencl_rone&#39;</span>)</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
@@ -306,7 +306,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00168" data-start="" data-end="">
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno"><a class="line" href="../../d7/dae/interfaceopencl__math_1_1opencl__add2.html#a02ecb528d480fbe0752ed090c09c1980">  168</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/dae/interfaceopencl__math_1_1opencl__add2.html">opencl_add2</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add2&#39;</span>)</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -316,7 +316,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00176" data-start="" data-end="">
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno"><a class="line" href="../../d1/d64/interfaceopencl__math_1_1opencl__add4.html#a8cebc34d8d776a5a414eba8567681cb6">  176</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d64/interfaceopencl__math_1_1opencl__add4.html">opencl_add4</a>(a_d, b_d, c_d, d_d, n, strm) &amp;</div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add4&#39;</span>)</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d, strm</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -326,7 +326,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00184" data-start="" data-end="">
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno"><a class="line" href="../../d2/d3e/interfaceopencl__math_1_1opencl__add2s1.html#a5d8292d23bb4d5006e3eade888f0590a">  184</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/d3e/interfaceopencl__math_1_1opencl__add2s1.html">opencl_add2s1</a>(a_d, b_d, c1, n, strm) &amp;</div>
 <div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add2s1&#39;</span>)</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
@@ -338,7 +338,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00194" data-start="" data-end="">
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno"><a class="line" href="../../d7/dfa/interfaceopencl__math_1_1opencl__add2s2.html#a5ed42c5e6f65220e02c9edef9bc049d9">  194</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/dfa/interfaceopencl__math_1_1opencl__add2s2.html">opencl_add2s2</a>(a_d, b_d, c1, n, strm) &amp;</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add2s2&#39;</span>)</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
@@ -350,7 +350,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00204" data-start="" data-end="">
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno"><a class="line" href="../../d0/dab/interfaceopencl__math_1_1opencl__add2s2__many.html#aa51d68c3c789f30b846a67647749c2dc">  204</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/dab/interfaceopencl__math_1_1opencl__add2s2__many.html">opencl_add2s2_many</a>(y_d, x_d_d, a_d, j, n, strm) &amp;</div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add2s2_many&#39;</span>)</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: y_d, x_d_d, a_d, strm</div>
@@ -361,7 +361,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00213" data-start="" data-end="">
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno"><a class="line" href="../../d7/d89/interfaceopencl__math_1_1opencl__addsqr2s2.html#a00fabceba519edfe05d4da0135c8f3f2">  213</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/d89/interfaceopencl__math_1_1opencl__addsqr2s2.html">opencl_addsqr2s2</a>(a_d, b_d, c1, n, strm) &amp;</div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>          bind(c, name = <span class="stringliteral">&#39;opencl_addsqr2s2&#39;</span>)</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
@@ -373,7 +373,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00223" data-start="" data-end="">
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno"><a class="line" href="../../d8/d95/interfaceopencl__math_1_1opencl__add3s2.html#a44e4a0d433fa657b11dbfc0afb1832af">  223</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d8/d95/interfaceopencl__math_1_1opencl__add3s2.html">opencl_add3s2</a>(a_d, b_d, c_d, c1, c2, n, strm) &amp;</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add3s2&#39;</span>)</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
@@ -385,7 +385,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00233" data-start="" data-end="">
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno"><a class="line" href="../../dc/d18/interfaceopencl__math_1_1opencl__add4s3.html#a27515a4eb403186503ee045f541a0c5a">  233</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/d18/interfaceopencl__math_1_1opencl__add4s3.html">opencl_add4s3</a>(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm) &amp;</div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add4s3&#39;</span>)</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d, strm</div>
@@ -398,7 +398,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno"><a class="line" href="../../da/d86/interfaceopencl__math_1_1opencl__add5s4.html#add07aee12846fa752dea9f9417597fe6">  243</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d86/interfaceopencl__math_1_1opencl__add5s4.html">opencl_add5s4</a>(a_d, b_d, c_d, d_d, e_d, &amp;</div>
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>          c1, c2, c3, c4, n, strm) &amp;</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add5s4&#39;</span>)</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d, e_d, strm</div>
@@ -410,7 +410,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00254" data-start="" data-end="">
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno"><a class="line" href="../../dc/da5/interfaceopencl__math_1_1opencl__invcol1.html#a4ed6853bb47a19c62515cab20f4857f0">  254</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/da5/interfaceopencl__math_1_1opencl__invcol1.html">opencl_invcol1</a>(a_d, n, strm) &amp;</div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>          bind(c, name = <span class="stringliteral">&#39;opencl_invcol1&#39;</span>)</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -420,7 +420,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00262" data-start="" data-end="">
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno"><a class="line" href="../../d2/d86/interfaceopencl__math_1_1opencl__invcol2.html#a395750e4e7c42eb80ea243cd79a5eaae">  262</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/d86/interfaceopencl__math_1_1opencl__invcol2.html">opencl_invcol2</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>          bind(c, name = <span class="stringliteral">&#39;opencl_invcol2&#39;</span>)</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -430,7 +430,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00270" data-start="" data-end="">
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno"><a class="line" href="../../db/d7d/interfaceopencl__math_1_1opencl__col2.html#a78be22758d719fd677a47f5bd514a650">  270</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../db/d7d/interfaceopencl__math_1_1opencl__col2.html">opencl_col2</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>          bind(c, name = <span class="stringliteral">&#39;opencl_col2&#39;</span>)</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -440,7 +440,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00278" data-start="" data-end="">
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno"><a class="line" href="../../de/d46/interfaceopencl__math_1_1opencl__col3.html#adad8e0209de5cdd6474151a0afe02704">  278</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/d46/interfaceopencl__math_1_1opencl__col3.html">opencl_col3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          bind(c, name = <span class="stringliteral">&#39;opencl_col3&#39;</span>)</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -450,7 +450,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00286" data-start="" data-end="">
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno"><a class="line" href="../../d0/d1e/interfaceopencl__math_1_1opencl__subcol3.html#a092e6a919be6f25a888365ff0e69f120">  286</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/d1e/interfaceopencl__math_1_1opencl__subcol3.html">opencl_subcol3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>          bind(c, name = <span class="stringliteral">&#39;opencl_subcol3&#39;</span>)</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -460,7 +460,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00294" data-start="" data-end="">
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno"><a class="line" href="../../d1/dfa/interfaceopencl__math_1_1opencl__sub2.html#ab47f8d35f1e4d6993c0d9e31cbf47ec7">  294</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/dfa/interfaceopencl__math_1_1opencl__sub2.html">opencl_sub2</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>          bind(c, name = <span class="stringliteral">&#39;opencl_sub2&#39;</span>)</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -470,7 +470,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00302" data-start="" data-end="">
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno"><a class="line" href="../../d2/dc8/interfaceopencl__math_1_1opencl__sub3.html#a6e2389119b26452b847b500e5f601f7b">  302</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/dc8/interfaceopencl__math_1_1opencl__sub3.html">opencl_sub3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>          bind(c, name = <span class="stringliteral">&#39;opencl_sub3&#39;</span>)</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -480,7 +480,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00310" data-start="" data-end="">
 <div class="line"><a id="l00310" name="l00310"></a><span class="lineno"><a class="line" href="../../d2/d91/interfaceopencl__math_1_1opencl__add3.html#a27a7311e4f4b0f891dcec5be379961c0">  310</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/d91/interfaceopencl__math_1_1opencl__add3.html">opencl_add3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>          bind(c, name = <span class="stringliteral">&#39;opencl_add3&#39;</span>)</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -490,7 +490,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00318" data-start="" data-end="">
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno"><a class="line" href="../../d0/dd8/interfaceopencl__math_1_1opencl__addcol3.html#a28684a6eb0121b5508e4bcc9ffdc16ec">  318</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/dd8/interfaceopencl__math_1_1opencl__addcol3.html">opencl_addcol3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>          bind(c, name = <span class="stringliteral">&#39;opencl_addcol3&#39;</span>)</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -500,7 +500,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00326" data-start="" data-end="">
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno"><a class="line" href="../../dd/ddf/interfaceopencl__math_1_1opencl__addcol4.html#adefa1a044ade9afd455f73a3196fb5c6">  326</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dd/ddf/interfaceopencl__math_1_1opencl__addcol4.html">opencl_addcol4</a>(a_d, b_d, c_d, d_d, n, strm) &amp;</div>
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>          bind(c, name = <span class="stringliteral">&#39;opencl_addcol4&#39;</span>)</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d, strm</div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -510,7 +510,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00334" data-start="" data-end="">
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno"><a class="line" href="../../dd/d62/interfaceopencl__math_1_1opencl__addcol3s2.html#a59e082c5501fb27c124d70dbc5cbdd63">  334</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dd/d62/interfaceopencl__math_1_1opencl__addcol3s2.html">opencl_addcol3s2</a>(a_d, b_d, c_d, s, n, strm) &amp;</div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>          bind(c, name = <span class="stringliteral">&#39;opencl_addcol3s2&#39;</span>)</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span><span class="keywordtype">       real</span>(c_rp) :: s</div>
@@ -522,7 +522,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="line"><a id="l00343" name="l00343"></a><span class="lineno"><a class="line" href="../../dc/dd1/interfaceopencl__math_1_1opencl__vdot3.html#a1055804b937afacd13beaef763840993">  343</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/dd1/interfaceopencl__math_1_1opencl__vdot3.html">opencl_vdot3</a>(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &amp;</div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>          n, strm) &amp;</div>
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>          bind(c, name = <span class="stringliteral">&#39;opencl_vdot3&#39;</span>)</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d</div>
 <div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: strm</div>
@@ -534,7 +534,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="line"><a id="l00353" name="l00353"></a><span class="lineno"><a class="line" href="../../da/df7/interfaceopencl__math_1_1opencl__vcross.html#a543daad2ea1c4e61bacfb45ee845b4c0">  353</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/df7/interfaceopencl__math_1_1opencl__vcross.html">opencl_vcross</a>(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &amp;</div>
 <div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>          w1_d, w2_d, w3_d, n, strm) &amp;</div>
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>          bind(c, name = <span class="stringliteral">&#39;opencl_vcross&#39;</span>)</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: u1_d, u2_d, u3_d</div>
 <div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: v1_d, v2_d, v3_d</div>
 <div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: w1_d, w2_d, w3_d</div>
@@ -546,7 +546,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00364" data-start="" data-end="">
 <div class="line"><a id="l00364" name="l00364"></a><span class="lineno"><a class="line" href="../../df/d06/interfaceopencl__math_1_1opencl__glsc3.html#aa2de301fab4c270378cf06016aaa7fd4">  364</a></span><span class="keywordtype">     real</span>(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a>) function <a class="code hl_interface" href="../../df/d06/interfaceopencl__math_1_1opencl__glsc3.html">opencl_glsc3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>          bind(c, name = <span class="stringliteral">&#39;opencl_glsc3&#39;</span>)</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
@@ -557,7 +557,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00373" data-start="" data-end="">
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno"><a class="line" href="../../df/d22/interfaceopencl__math_1_1opencl__glsc3__many.html#a6720f8268b0a8d820aea25f45ae1b7ac">  373</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/d22/interfaceopencl__math_1_1opencl__glsc3__many.html">opencl_glsc3_many</a>(h, w_d, v_d_d, mult_d, j, n, strm) &amp;</div>
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>          bind(c, name = <span class="stringliteral">&#39;opencl_glsc3_many&#39;</span>)</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>       <span class="keywordtype">integer(c_int)</span> :: j, n</div>
@@ -569,7 +569,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00383" data-start="" data-end="">
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno"><a class="line" href="../../d5/d41/interfaceopencl__math_1_1opencl__glsc2.html#a25f4bddaac1f736e0bcfb1fd5161f040">  383</a></span><span class="keywordtype">     real</span>(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a>) function <a class="code hl_interface" href="../../d5/d41/interfaceopencl__math_1_1opencl__glsc2.html">opencl_glsc2</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>          bind(c, name = <span class="stringliteral">&#39;opencl_glsc2&#39;</span>)</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
@@ -580,7 +580,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00392" data-start="" data-end="">
 <div class="line"><a id="l00392" name="l00392"></a><span class="lineno"><a class="line" href="../../de/d8a/interfaceopencl__math_1_1opencl__glsubnorm2.html#a7128916ca7b929f2a28a2d6dc03ab515">  392</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../de/d8a/interfaceopencl__math_1_1opencl__glsubnorm2.html">opencl_glsubnorm2</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>          bind(c, name = <span class="stringliteral">&#39;opencl_glsubnorm2&#39;</span>)</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>       <span class="keywordtype">import </span>c_rp</div>
 <div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
@@ -591,7 +591,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00401" data-start="" data-end="">
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno"><a class="line" href="../../de/d14/interfaceopencl__math_1_1opencl__glsum.html#aeaaa6491aa5536ab15336b53cad90120">  401</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../de/d14/interfaceopencl__math_1_1opencl__glsum.html">opencl_glsum</a>(a_d, n, strm) &amp;</div>
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>          bind(c, name = <span class="stringliteral">&#39;opencl_glsum&#39;</span>)</div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>       <span class="keywordtype">import </span>c_rp</div>
 <div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
@@ -602,7 +602,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00410" data-start="" data-end="">
 <div class="line"><a id="l00410" name="l00410"></a><span class="lineno"><a class="line" href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html#ae9a94451e8022031c7b707d6866c93d6">  410</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d62/interfaceopencl__math_1_1opencl__absval.html">opencl_absval</a>(a_d, n, strm) &amp;</div>
 <div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>          bind(c, name = <span class="stringliteral">&#39;opencl_absval&#39;</span>)</div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_int</div>
 <div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
@@ -617,7 +617,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00423" data-start="" data-end="">
 <div class="line"><a id="l00423" name="l00423"></a><span class="lineno"><a class="line" href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html#af3da98b4b500a4ae6fd6dc36463a5a2f">  423</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html">opencl_pwmax_vec2</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_vec2&#39;</span>)</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
@@ -626,7 +626,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00430" data-start="" data-end="">
 <div class="line"><a id="l00430" name="l00430"></a><span class="lineno"><a class="line" href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html#a71a3a4b0ac9561e972415d6c8869ab10">  430</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html">opencl_pwmax_vec3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_vec3&#39;</span>)</div>
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
@@ -635,7 +635,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00437" data-start="" data-end="">
 <div class="line"><a id="l00437" name="l00437"></a><span class="lineno"><a class="line" href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html#a91c9896db440a51bc3b959ab4ad69a7b">  437</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html">opencl_pwmax_sca2</a>(a_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_sca2&#39;</span>)</div>
-<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>       <span class="keywordtype">import </span>c_rp</div>
 <div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
@@ -646,7 +646,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00446" data-start="" data-end="">
 <div class="line"><a id="l00446" name="l00446"></a><span class="lineno"><a class="line" href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html#af0fad7ebb19cac2fea69a7df4e47a66b">  446</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html">opencl_pwmax_sca3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmax_sca3&#39;</span>)</div>
-<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>       <span class="keywordtype">import </span>c_rp</div>
 <div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
@@ -657,7 +657,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00455" data-start="" data-end="">
 <div class="line"><a id="l00455" name="l00455"></a><span class="lineno"><a class="line" href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html#aa2394998c3398b685ba3c3f187041923">  455</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html">opencl_pwmin_vec2</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_vec2&#39;</span>)</div>
-<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
@@ -666,7 +666,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00462" data-start="" data-end="">
 <div class="line"><a id="l00462" name="l00462"></a><span class="lineno"><a class="line" href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html#a4b4847f19c1ea3f7d642e17622431553">  462</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html">opencl_pwmin_vec3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_vec3&#39;</span>)</div>
-<div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
 <div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
@@ -675,7 +675,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00469" data-start="" data-end="">
 <div class="line"><a id="l00469" name="l00469"></a><span class="lineno"><a class="line" href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html#a6ef283b59da0eed32c4da7062d881f7b">  469</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html">opencl_pwmin_sca2</a>(a_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_sca2&#39;</span>)</div>
-<div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span>       <span class="keywordtype">import </span>c_rp</div>
 <div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
 <div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
@@ -686,7 +686,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div class="foldopen" id="foldopen00478" data-start="" data-end="">
 <div class="line"><a id="l00478" name="l00478"></a><span class="lineno"><a class="line" href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html#accf2f512875ffa652f7eea1c7770707f">  478</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html">opencl_pwmin_sca3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
 <div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span>          bind(c, name = <span class="stringliteral">&#39;opencl_pwmin_sca3&#39;</span>)</div>
-<div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_int, c_ptr</div>
 <div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span>       <span class="keywordtype">import </span>c_rp</div>
 <div class="line"><a id="l00482" name="l00482"></a><span class="lineno">  482</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00483" name="l00483"></a><span class="lineno">  483</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
@@ -758,7 +758,7 @@ $(document).ready(function(){initNavTree('d1/d96/opencl__math_8f90_source.html',
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d1/d96/opencl__math_8f90.html">opencl_math.f90</a></li>
-    <li class="footer">Generated on Wed Jan 21 2026 03:58:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 22 2026 04:01:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

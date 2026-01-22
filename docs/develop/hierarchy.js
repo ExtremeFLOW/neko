@@ -517,6 +517,8 @@ var hierarchy =
     [ "json_utils::json_extract_item", "d9/d2b/interfacejson__utils_1_1json__extract__item.html", null ],
     [ "json_utils::json_get", "d7/d48/interfacejson__utils_1_1json__get.html", null ],
     [ "json_utils::json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", null ],
+    [ "json_utils::json_get_or_lookup", "da/d05/interfacejson__utils_1_1json__get__or__lookup.html", null ],
+    [ "json_utils::json_get_or_lookup_or_default", "d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html", null ],
     [ "krylov::ksp_init_intrf", "d0/db4/interfacekrylov_1_1ksp__init__intrf.html", null ],
     [ "krylov::ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", null ],
     [ "krylov::ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", null ],

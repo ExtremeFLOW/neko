@@ -109,9 +109,9 @@ $(document).ready(function(){initNavTree('dd/d62/namespaceneko.html','../../'); 
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a647e539d6b0950b6569c6752b8f007ff" id="r_a647e539d6b0950b6569c6752b8f007ff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff">neko_init</a> (c)</td></tr>
-<tr class="memdesc:a647e539d6b0950b6569c6752b8f007ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise Neko.  <br /></td></tr>
-<tr class="separator:a647e539d6b0950b6569c6752b8f007ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7428543ecc3d1960dc260270d94466bd" id="r_a7428543ecc3d1960dc260270d94466bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd">neko_init</a> (c, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">filename</a>)</td></tr>
+<tr class="memdesc:a7428543ecc3d1960dc260270d94466bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise Neko.  <br /></td></tr>
+<tr class="separator:a7428543ecc3d1960dc260270d94466bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf12d6da8fb2dd09f7ff843e0356ee04" id="r_abf12d6da8fb2dd09f7ff843e0356ee04"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04">neko_solve</a> (c)</td></tr>
 <tr class="memdesc:abf12d6da8fb2dd09f7ff843e0356ee04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main driver to solve a case <em>C</em>.  <br /></td></tr>
 <tr class="separator:abf12d6da8fb2dd09f7ff843e0356ee04"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -139,7 +139,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d1f/neko_8f90_source.html#l00256">256</a> of file <a class="el" href="../../d5/d1f/neko_8f90_source.html">neko.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d1f/neko_8f90_source.html#l00262">262</a> of file <a class="el" href="../../d5/d1f/neko_8f90_source.html">neko.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -185,8 +185,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a647e539d6b0950b6569c6752b8f007ff" name="a647e539d6b0950b6569c6752b8f007ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a647e539d6b0950b6569c6752b8f007ff">&#9670;&#160;</a></span>neko_init()</h2>
+<a id="a7428543ecc3d1960dc260270d94466bd" name="a7428543ecc3d1960dc260270d94466bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7428543ecc3d1960dc260270d94466bd">&#9670;&#160;</a></span>neko_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -195,8 +195,18 @@ Here is the call graph for this function:</div>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> neko::neko_init </td>
           <td>(</td>
           <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
-          <td class="paramname"><em>c</em></td><td>)</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>filename</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -205,8 +215,8 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dd/d62/namespaceneko_a647e539d6b0950b6569c6752b8f007ff_cgraph.png" border="0" usemap="#add/d62/namespaceneko_a647e539d6b0950b6569c6752b8f007ff_cgraph" alt=""/></div>
-<map name="add/d62/namespaceneko_a647e539d6b0950b6569c6752b8f007ff_cgraph" id="add/d62/namespaceneko_a647e539d6b0950b6569c6752b8f007ff_cgraph">
+<div class="center"><img src="../../dd/d62/namespaceneko_a7428543ecc3d1960dc260270d94466bd_cgraph.png" border="0" usemap="#add/d62/namespaceneko_a7428543ecc3d1960dc260270d94466bd_cgraph" alt=""/></div>
+<map name="add/d62/namespaceneko_a7428543ecc3d1960dc260270d94466bd_cgraph" id="add/d62/namespaceneko_a7428543ecc3d1960dc260270d94466bd_cgraph">
 <area shape="rect" title="Initialise Neko." alt="" coords="5,363,125,389"/>
 <area shape="rect" href="../../d3/d8f/namespacecomm.html#a08a353f1ee66ac93674f48d999819eec" title=" " alt="" coords="187,190,327,215"/>
 <area shape="poly" title=" " alt="" coords="70,362,106,296,136,258,172,225,181,219,184,223,175,229,139,261,111,299,75,364"/>
@@ -299,7 +309,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d1f/neko_8f90_source.html#l00280">280</a> of file <a class="el" href="../../d5/d1f/neko_8f90_source.html">neko.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d1f/neko_8f90_source.html#l00286">286</a> of file <a class="el" href="../../d5/d1f/neko_8f90_source.html">neko.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -337,7 +347,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d1f/neko_8f90_source.html#l00231">231</a> of file <a class="el" href="../../d5/d1f/neko_8f90_source.html">neko.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d1f/neko_8f90_source.html#l00237">237</a> of file <a class="el" href="../../d5/d1f/neko_8f90_source.html">neko.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -383,7 +393,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d62/namespaceneko.html">neko</a></li>
-    <li class="footer">Generated on Wed Jan 21 2026 03:58:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 22 2026 04:01:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

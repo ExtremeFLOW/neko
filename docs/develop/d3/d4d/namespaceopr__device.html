@@ -135,6 +135,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:abc0d21999d04728a18514d4c422219ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5bf8b83c33e9c73125c466a6fab72df" id="r_ad5bf8b83c33e9c73125c466a6fab72df"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df">opr_device_opgrad</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ux</a>, uy, uz, u, coef)</td></tr>
 <tr class="separator:ad5bf8b83c33e9c73125c466a6fab72df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98b6c537e40cda3676ab93c5523d7bc7" id="r_a98b6c537e40cda3676ab93c5523d7bc7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a98b6c537e40cda3676ab93c5523d7bc7">device_ortho</a> (x_d, glb_n_points, n)</td></tr>
+<tr class="memdesc:a98b6c537e40cda3676ab93c5523d7bc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.  <br /></td></tr>
+<tr class="separator:a98b6c537e40cda3676ab93c5523d7bc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae39e101d94720e35947ae37ba3154d31" id="r_ae39e101d94720e35947ae37ba3154d31"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#ae39e101d94720e35947ae37ba3154d31">opr_device_lambda2</a> (lambda2, u, v, w, coef)</td></tr>
 <tr class="separator:ae39e101d94720e35947ae37ba3154d31"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5976c035ccc91cc8b346fc866e476775" id="r_a5976c035ccc91cc8b346fc866e476775"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a5976c035ccc91cc8b346fc866e476775">opr_device_cdtp</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dtx</a>, x, dr, ds, dt, coef)</td></tr>
@@ -155,6 +158,60 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a9de98814162021b7db7db8b303167684"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a98b6c537e40cda3676ab93c5523d7bc7" name="a98b6c537e40cda3676ab93c5523d7bc7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98b6c537e40cda3676ab93c5523d7bc7">&#9670;&#160;</a></span>device_ortho()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> opr_device::device_ortho </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>x_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=i8), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>glb_n_points</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x_d</td><td>The device vector to orthogonolize. </td></tr>
+    <tr><td class="paramname">glb_n_points</td><td>The global number of non-unique gll points in the grid. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>This is equivalent to subtracting the mean of <code>x</code> from each of its elements. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00517">517</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d4d/namespaceopr__device_a98b6c537e40cda3676ab93c5523d7bc7_cgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a98b6c537e40cda3676ab93c5523d7bc7_cgraph" alt=""/></div>
+<map name="ad3/d4d/namespaceopr__device_a98b6c537e40cda3676ab93c5523d7bc7_cgraph" id="ad3/d4d/namespaceopr__device_a98b6c537e40cda3676ab93c5523d7bc7_cgraph">
+<area shape="rect" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="5,5,149,45"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2bfbeed670b2e6b704a1a2c4e5bc03c4" title="Sum a vector of length n." alt="" coords="197,5,355,45"/>
+<area shape="poly" title=" " alt="" coords="149,23,184,23,184,28,149,28"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a5976c035ccc91cc8b346fc866e476775" name="a5976c035ccc91cc8b346fc866e476775"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5976c035ccc91cc8b346fc866e476775">&#9670;&#160;</a></span>opr_device_cdtp()</h2>
 
@@ -205,7 +262,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00539">539</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00558">558</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -312,7 +369,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00833">833</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00852">852</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -414,7 +471,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00575">575</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00594">594</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -525,7 +582,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00622">622</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00641">641</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -622,7 +679,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00667">667</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00686">686</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -700,7 +757,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00432">432</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00434">434</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -840,7 +897,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00509">509</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00528">528</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -907,7 +964,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00467">467</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00469">469</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1004,7 +1061,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00873">873</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00892">892</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1065,7 +1122,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00905">905</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00924">924</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1154,7 +1211,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00937">937</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00956">956</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1183,7 +1240,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d4d/namespaceopr__device.html">opr_device</a></li>
-    <li class="footer">Generated on Wed Jan 21 2026 03:58:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jan 22 2026 04:01:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
