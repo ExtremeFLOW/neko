@@ -159,7 +159,7 @@ contains
     end do
     if (if_corr .eqv. .true.) then
           theta => neko_field_registry%get_field_by_name("temperature")
-          call neko_scratch_registry%request_field(dTdz, temp_indices(12))
+          call neko_scratch_registry%request_field(dTdz, temp_indices(1))
           ! Calculate Richardson number
           select case (vert_dir)
           case ("x")
