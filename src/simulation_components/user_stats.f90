@@ -219,6 +219,10 @@ contains
     do i = 1, this%n_avg_fields
        field_to_avg => neko_registry%get_field(trim(this%field_names(i)))
        call this%mean_fields(i)%init(field_to_avg)
+
+       ! Add pointers to the mean fields in the field registry
+       call neko_registry%add_field(this%mean_fields(i)%mf, trim(this%mean_fields(i)%mf%name))
+
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
