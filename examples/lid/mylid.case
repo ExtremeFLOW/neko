@@ -21,7 +21,12 @@
             "dealias": true
         },
 	"simulation_components": 
-	[
+	[		
+	    {
+	      "type": "curl",
+	      "fields": ["u", "v", "w"],
+	      "computed_field": "w"
+	    },
 	    {
       		"type": "fluid_stats",
       		"compute_control": "tsteps",
@@ -29,14 +34,18 @@
       		"output_control": "simulationtime",
       		"output_value": 20.0,
       		"start_time":0.0,
-      		"set_of_stats":"basic"
+      		"set_of_stats":"full"
     	   },
-
+	   {
+		"type": "user_stats",
+		"fields": ["w_x", "w_y", "w_z"],
+		"output_file": "vort_stat"	
+	   },
 	   {
 	     "type": "probes",
 	     "compute_control": "tsteps",
 	     "compute_value"    : 10,
-	     "fields": ["u","uuop"],
+	     "fields": ["u","uu","pdudx", "mean_w_x"],
 	     "output_file":  "out.csv",
 	     "points": [
 	        {
