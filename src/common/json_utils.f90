@@ -44,7 +44,7 @@
 module json_utils
   use num_types, only : rp, dp, sp
   use json_module, only : json_file, json_value, json_core
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error
   use math, only : abscmp
   implicit none
   private
@@ -427,8 +427,7 @@ contains
     call json%info(name, found = found, var_type = var_type)
 
     if (found .and. (var_type .ne. 6)) then
-       call neko_warning("Parameter " // name // &
-            " is not a real, using default if allowed")
+       call neko_error("Parameter " // name // " present, but is not a real")
     end if
 
     call json%get(name, value, found)
@@ -458,8 +457,7 @@ contains
     call json%info(name, found = found, var_type = var_type)
 
     if (found .and. (var_type .ne. 6)) then
-       call neko_warning("Parameter " // name // &
-            " is not a real, using default if allowed")
+       call neko_error("Parameter " // name // " present, but is not a real")
     end if
 
     call json%get(name, value, found)
@@ -488,8 +486,8 @@ contains
     call json%info(name, found = found, var_type = var_type)
 
     if (found .and. (var_type .ne. 5)) then
-       call neko_warning("Parameter " // name // &
-            " is not an integer, using default if allowed")
+       call neko_error("Parameter " // name // " present, but " // &
+            "is not an integer")
     end if
 
     call json%get(name, value, found)
@@ -518,8 +516,7 @@ contains
     call json%info(name, found = found, var_type = var_type)
 
     if ((found) .and. (var_type .ne. 4)) then
-       call neko_warning("Parameter " // name // &
-            " is not a logical, using default if allowed")
+       call neko_error("Parameter " // name // " present, but is not a logical")
     end if
 
     call json%get(name, value, found)
@@ -548,8 +545,8 @@ contains
     call json%info(name, found = found, var_type = var_type)
 
     if (found .and. (var_type .ne. 7)) then
-       call neko_warning("Parameter " // name // &
-            " is not a string, using default if allowed")
+       call neko_error("Parameter " // name // &
+            " present, but is not a string")
     end if
 
     call json%get(name, value, found)
