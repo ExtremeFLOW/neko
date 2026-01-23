@@ -391,6 +391,8 @@ neko_fortran_SOURCES = \
 	les/bcknd/device/device_wale_nut.F90\
   les/TKE_SGS.f90\
 	les/bcknd/cpu/TKE_SGS_cpu.f90\
+	les/bcknd/device/TKE_SGS_device.f90\
+	les/bcknd/device/device_TKE_SGS_nut.F90\
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/rough_log_law.f90\
@@ -472,6 +474,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/hip/smagorinsky_nut.hip\
 	les/bcknd/device/hip/dynamic_smagorinsky_nut.hip\
 	les/bcknd/device/hip/wale_nut.hip\
+	les/bcknd/device/hip/TKE_SGS_nut.hip\
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
@@ -532,6 +535,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/cuda/smagorinsky_nut.cu\
 	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu\
 	les/bcknd/device/cuda/wale_nut.cu\
+	les/bcknd/device/cuda/TKE_SGS_nut.cu\
 	comm/bcknd/device/cuda/comm_nvshmem.cu\
 	wall_models/bcknd/device/cuda/wall_model.cu\
 	wall_models/bcknd/device/cuda/spalding.cu\
@@ -718,6 +722,7 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
 	les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h\
 	les/bcknd/device/cuda/wale_nut_kernel.h\
+	les/bcknd/device/cuda/TKE_SGS_nut_kernel.h\
 	wall_models/bcknd/device/cuda/wall_model_kernel.h\
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
@@ -773,6 +778,7 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/smagorinsky_nut_kernel.h\
 	les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h\
 	les/bcknd/device/hip/wale_nut_kernel.h\
+	les/bcknd/device/hip/TKE_SGS_nut_kernel.h\
 	wall_models/bcknd/device/hip/wall_model_kernel.h\
 	wall_models/bcknd/device/hip/spalding_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\

@@ -30,27 +30,27 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the CPU kernel for the `TKE_SGS_t` type.
-module TKE_SGS_cpu
-  use utils, only : neko_error
+!> Implements the device kernel for the `TKE_SGS_t` type.
+module TKE_SGS_device
   use num_types, only : rp
-  use field_list, only : field_list_t
+  use utils, only : neko_error
+  use math, only : NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
-  use operators, only : strain_rate
+  use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use math, only : col2, NEKO_EPS
-  use operators, only : dudxyz
+  use device_math, only : device_col2
+  use device_TKE_SGS_nut, only : device_TKE_SGS_nut_compute
   implicit none
   private
 
-  public :: TKE_SGS_compute_cpu
+  public :: TKE_SGS_compute_device
 
 contains
 
-  !> Compute eddy viscosity on the CPU.
+  !> Compute eddy viscosity on the device.
   !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
@@ -61,9 +61,10 @@ contains
   !! @param TKE_source The source terms for TKE equation.
   !! @param delta The LES lengthscale.
   !! @param c_k The TKE_SGS model constant
-  subroutine TKE_SGS_compute_cpu(if_ext, t, tstep, coef, nut, temperature_alphat, &
-                                 TKE_alphat, TKE_source, &
-                                 delta, c_k, T0, g, vert_dir)
+  subroutine TKE_SGS_compute_device(if_ext, t, tstep, coef, nut, &
+                                    temperature_alphat, &
+                                    TKE_alphat, TKE_source, &
+                                    delta, c_k, T0, g, vert_dir)
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -73,14 +74,11 @@ contains
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_k, T0, g
     character(len=*), intent(in) :: vert_dir
+
     type(field_t), pointer :: TKE, Temperature, dTdz
     type(field_t), pointer :: u, v, w
-    real(kind=rp):: s11, s22, s33, s12, s13, s23
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33    
-    real(kind=rp) :: shear, buoyancy, dissipation
     integer :: temp_indices(10)
-    real(kind=rp) :: l, N2
-    integer :: e, i
 
     TKE => neko_registry%get_field_by_name("TKE")
     Temperature => neko_registry%get_field_by_name("temperature")
@@ -109,7 +107,7 @@ contains
     end select
 
     call coef%gs_h%op(dTdz, GS_OP_ADD)
-    call col2(dTdz%x, coef%mult, nut%dof%size())
+    call device_col2(dTdz%x_d, coef%mult_d, nut%dof%size())
     
     ! Compute velocity gradients
     call neko_scratch_registry%request_field(a11, temp_indices(2), .false.)
@@ -133,7 +131,7 @@ contains
     call dudxyz (a31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-    
+
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
     call coef%gs_h%op(a13, GS_OP_ADD)
@@ -144,69 +142,26 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
-    call col2(a11%x, coef%mult, nut%dof%size())
-    call col2(a12%x, coef%mult, nut%dof%size())
-    call col2(a13%x, coef%mult, nut%dof%size())
-    call col2(a21%x, coef%mult, nut%dof%size())
-    call col2(a22%x, coef%mult, nut%dof%size())
-    call col2(a23%x, coef%mult, nut%dof%size())
-    call col2(a31%x, coef%mult, nut%dof%size())
-    call col2(a32%x, coef%mult, nut%dof%size())
-    call col2(a33%x, coef%mult, nut%dof%size())
+    call device_col2(a11%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(a12%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(a13%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(a21%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(a22%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(a23%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(a31%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(a32%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(a33%x_d, coef%mult_d, nut%dof%size())
 
-    ! Determine static stability and length scale
-    do concurrent (i = 1:coef%dof%size())
-       ! correct TKE if negative or nearly zero
-       if (TKE%x(i,1,1,1) .lt. NEKO_EPS) then
-          TKE%x(i,1,1,1) = NEKO_EPS
-       end if
-
-       N2 = dTdz%x(i,1,1,1) * g / T0
-       if (N2 .gt. 0.0_rp) then
-          l = 0.76_rp * sqrt(TKE%x(i,1,1,1) / N2)
-          l = min(l, delta%x(i,1,1,1))
-       else
-          l = delta%x(i,1,1,1)
-       end if
-       
-       ! Eddy viscosity
-       nut%x(i,1,1,1) = c_k * l * sqrt(TKE%x(i,1,1,1))
-
-       ! Eddy diffusivity for temperature
-       temperature_alphat%x(i,1,1,1) = (1.0_rp + 2.0_rp * l/delta%x(i,1,1,1)) &
-                           * nut%x(i,1,1,1) 
-       TKE_alphat%x(i,1,1,1) = 2.0_rp * nut%x(i,1,1,1) ! Eddy diffusivity of TKE
-
-       s11 = a11%x(i,1,1,1) + a11%x(i,1,1,1)
-       s22 = a22%x(i,1,1,1) + a22%x(i,1,1,1)
-       s33 = a33%x(i,1,1,1) + a33%x(i,1,1,1)
-       s12 = a12%x(i,1,1,1) + a21%x(i,1,1,1)
-       s13 = a13%x(i,1,1,1) + a31%x(i,1,1,1)
-       s23 = a23%x(i,1,1,1) + a32%x(i,1,1,1)
-       ! Shear term
-       shear = nut%x(i,1,1,1) &
-               * (s11*a11%x(i,1,1,1) &
-               +  s12*a12%x(i,1,1,1) &
-               +  s13*a13%x(i,1,1,1) &
-               +  s12*a21%x(i,1,1,1) &
-               +  s22*a22%x(i,1,1,1) &
-               +  s23*a23%x(i,1,1,1) &
-               +  s13*a31%x(i,1,1,1) &
-               +  s23*a32%x(i,1,1,1) &
-               +  s33*a33%x(i,1,1,1))
-
-       ! Buoyancy term
-       buoyancy = -g/T0 * temperature_alphat%x(i,1,1,1) * dTdz%x(i,1,1,1)
-
-       dissipation = -(0.19_rp + 0.74_rp * l/ delta%x(i,1,1,1)) &
-                     * sqrt(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1)) &
-                     / l
-       
-       ! Add three source terms together
-       TKE_source%x(i,1,1,1) = shear + buoyancy + dissipation
-    end do
+    call device_TKE_SGS_nut_compute(TKE%x_d, dTdz%x_d, &
+         a11%x_d, a12%x_d, a13%x_d, &
+         a21%x_d, a22%x_d, a23%x_d, &
+         a31%x_d, a32%x_d, a33%x_d, &
+         delta%x_d, nut%x_d, temperature_alphat%x_d, &
+         TKE_alphat%x_d, TKE_source%x_d, &
+         c_k, T0, g, NEKO_EPS, a11%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
-  end subroutine TKE_SGS_compute_cpu
+  end subroutine TKE_SGS_compute_device
 
-end module TKE_SGS_cpu
+end module TKE_SGS_device
+

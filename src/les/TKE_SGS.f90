@@ -42,7 +42,7 @@ module TKE_SGS
   use json_module, only : json_file
   use neko_config, only : NEKO_BCKND_DEVICE
   use TKE_SGS_cpu, only : TKE_SGS_compute_cpu
-  ! use TKE_SGS_device, only : TKE_SGS_compute_device
+  use TKE_SGS_device, only : TKE_SGS_compute_device
   use registry, only : neko_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
@@ -181,9 +181,12 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("TKE SGS model is not implemented on device yet.")
+       call TKE_SGS_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%temperature_alphat, this%TKE_alphat, this%TKE_source, &
+            this%delta, this%c_k, this%T0, this%g, &
+            this%vertical_dir)
     else
-       call TKE_SGS_compute_cpu(t, tstep, this%coef, &
+       call TKE_SGS_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%temperature_alphat, this%TKE_alphat, this%TKE_source, &
             this%delta, this%c_k, this%T0, this%g, &
             this%vertical_dir)
