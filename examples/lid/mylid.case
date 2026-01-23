@@ -8,7 +8,7 @@
         "output_at_end": false,
         "output_checkpoints": false,
         "time": {
-            "end_time": 300.0,
+            "end_time": 0.0,
             "variable_timestep": true,
             "max_timestep": 0.25e-2,
             // some options for timestepping to play around
@@ -36,7 +36,7 @@
 	     "type": "probes",
 	     "compute_control": "tsteps",
 	     "compute_value"    : 10,
-	     "fields": ["u","uu"],
+	     "fields": ["u","uuop"],
 	     "output_file":  "out.csv",
 	     "points": [
 	        {
