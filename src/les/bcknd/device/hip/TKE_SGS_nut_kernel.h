@@ -71,7 +71,6 @@ __global__ void TKE_SGS_nut_compute(T *__restrict__ TKE,
   T shear, buoyancy, dissipation;
 
   for (int i = idx; i < n; i += str) {
-    const T TKE_r = TKE[i];
     const T dTdz_r = dTdz[i];
     const T a11_r = a11[i];
     const T a12_r = a12[i];
@@ -84,9 +83,10 @@ __global__ void TKE_SGS_nut_compute(T *__restrict__ TKE,
     const T a33_r = a33[i];
     const T delta_r = delta[i];
 
-    if (TKE_r < eps) {
+    if (TKE[i] < eps) {
       TKE[i] = eps;
     }
+    const T TKE_r = TKE[i];
     
     N2 = dTdz_r * g / T0;
     if (N2 > 0.0) {
@@ -100,6 +100,7 @@ __global__ void TKE_SGS_nut_compute(T *__restrict__ TKE,
     nut[i] = c_k * l * sqrt(TKE_r);
     temperature_alphat[i] = (1.0 + 2.0 * l/delta_r) * nut[i];
     TKE_alphat[i] = 2.0 * nut[i];
+
     s11 = a11_r + a11_r;
     s22 = a22_r + a22_r;
     s33 = a33_r + a33_r;
