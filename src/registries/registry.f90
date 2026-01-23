@@ -69,9 +69,11 @@ module registry
      procedure, private, pass(this) :: expand => registry_expand
 
      !> Add a field to the registry.
-     procedure, pass(this) :: add_field => registry_add_field
+     procedure, pass(this) :: add_new_field => registry_add_field
      !> Add a pointer to a field to the registry.
      procedure, pass(this) :: add_field_ptr => registry_add_field_ptr
+     !> Generic procedure to add a field.
+     generic :: add_field => add_new_field, add_field_ptr
      !> Add a vector to the registry.
      procedure, pass(this) :: add_vector => registry_add_vector
      !> Add a matrix to the registry.
@@ -475,7 +477,7 @@ contains
 
     do i = 1, this%n_entries()
 
-       ! index(x, 'y') searches for substrings in x matching the pattern 'b'
+       ! index(x, 'y') searches for substrings in x matching the pattern 'y'.
        ! .eq. 1 means that the substring 'y' was found at position 1 in x
        if (index(this%entries(i)%get_type(), 'field') .eq. 1 .and. &
             this%entries(i)%get_name() .eq. trim(name)) then
@@ -648,7 +650,7 @@ contains
     found = .false.
     do i = 1, this%n_entries()
        
-       ! index(x, 'y') searches for substrings in x matching the pattern 'y'
+       ! index(x, 'y') searches for substrings in x matching the pattern 'y'.
        ! .eq. 1 means that the substring 'y' was found at position 1 in x
        if (index(this%entries(i)%get_type(), 'field') .eq. 1 .and. &
             this%entries(i)%get_name() .eq. trim(name)) then
@@ -874,8 +876,9 @@ contains
     class(registry_t), intent(in) :: this
     character(len=*), optional, intent(in) :: type
     character(len=:), allocatable :: filter_type
-    character(len=14), parameter :: types(5) = (/ &
+    character(len=14), parameter :: types(6) = (/ &
          'field         ', &
+         'field_ptr     ', &
          'vector        ', &
          'matrix        ', &
          'real_scalar   ', &

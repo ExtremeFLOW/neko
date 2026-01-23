@@ -315,7 +315,7 @@ contains
     !
     do i = 1, this%stat_fields%size()
        f => this%stat_fields%get(i)
-       call neko_registry%add_field_ptr(this%stat_fields%items(i)%ptr, &
+       call neko_registry%add_field(this%stat_fields%items(i)%ptr, &
                trim(f%name))
     end do
 
