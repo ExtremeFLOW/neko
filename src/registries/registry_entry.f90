@@ -65,8 +65,9 @@ module registry_entry
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
      procedure, pass(this) :: init_field => init_register_field
+     procedure, pass(this) :: init_field_ptr => init_register_field_ptr
      !> Destructor
-     procedure, pass(this) :: free => free_register
+     procedure, pass(this) :: free => free_registry_entry
 
      !> Getters that return a pointer to the object in the entry.
      procedure, pass(this) :: get_name
@@ -81,7 +82,9 @@ module registry_entry
 
 contains
 
-!> Initialize a register entry
+  !> Register a field as an entry in the registry.
+  !! @param dof The map of degrees of freedom.
+  !! @param name The name of the field.
   subroutine init_register_field(this, dof, name)
     class(registry_entry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
@@ -103,7 +106,35 @@ contains
 
   end subroutine init_register_field
 
-  !> Initialize a register entry
+  !> Register a field pointer as an entry in the registry.
+  !! @note Differs from init_register_field in that no field is allocated,
+  !! the field pointer simply points to an external target that exists 
+  !! out of the scope of the registry.
+  !! @param target_field The target to which the registry entry will point.
+  !! @param name The name of the field.
+  subroutine init_register_field_ptr(this, target_field, name)
+    class(registry_entry_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    type(field_t), intent(in), target :: target_field
+
+    if (this%allocated) then
+       call neko_error("scratch_registry::init_register_field: " &
+            // "Register entry is already allocated.")
+    end if
+
+    call this%free() 
+
+    this%field_ptr => target_field
+
+    this%name = trim(name)
+    this%type = 'field_ptr'
+    this%allocated = .true.
+
+  end subroutine init_register_field_ptr
+  
+  !> Initialize a registry entry as a vector.
+  !! @param n Size of the vector to allocate.
+  !! @param The name of the vector in the registry.
   subroutine init_register_vector(this, n, name)
     class(registry_entry_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -125,7 +156,10 @@ contains
 
   end subroutine init_register_vector
 
-  !> Initialize a register entry
+  !> Initialize a registry entry as a matrix.
+  !! @param nrows Number of rows to allocate.
+  !! @param ncols Number of columns to allocate.
+  !! @param The name of the matrix in the registry.
   subroutine init_register_matrix(this, nrows, ncols, name)
     class(registry_entry_t), intent(inout) :: this
     integer, intent(in) :: nrows, ncols
@@ -147,7 +181,9 @@ contains
 
   end subroutine init_register_matrix
 
-  !> Initialize a scalar register entry
+  !> Initialize a registry entry as a real.
+  !! @param val Value of the scalar (real).
+  !! @param name Name of the scalar in the registry.
   subroutine init_register_real_scalar(this, val, name)
     class(registry_entry_t), intent(inout) :: this
     real(kind=rp), intent(in) :: val
@@ -168,7 +204,9 @@ contains
 
   end subroutine init_register_real_scalar
 
-  !> Initialize an integer scalar register entry
+  !> Initialize a registry entry as an integer.
+  !! @param val Value of the scalar (integer).
+  !! @param name Name of the scalar in the registry.
   subroutine init_register_integer_scalar(this, val, name)
     class(registry_entry_t), intent(inout) :: this
     integer, intent(in) :: val
@@ -187,15 +225,19 @@ contains
     this%type = 'integer_scalar'
     this%allocated = .true.
 
-  end subroutine init_register_integer_scalar
+  end subroutine init_register_integer_scalar 
 
-  !> Free a register entry
-  subroutine free_register(this)
+  !> Free a registry entry
+  subroutine free_registry_entry(this)
     class(registry_entry_t), intent(inout) :: this
 
     if (associated(this%field_ptr)) then
-       call this%field_ptr%free()
-       deallocate(this%field_ptr)
+       if (this%get_type() .eq. 'field') then
+          call this%field_ptr%free()
+          deallocate(this%field_ptr)
+       else ! 'field_ptr' in this case
+          nullify(this%field_ptr)
+       end if
     end if
 
     if (associated(this%vector_ptr)) then
@@ -215,7 +257,7 @@ contains
     if (allocated(this%type)) deallocate(this%type)
     this%allocated = .false.
 
-  end subroutine free_register
+  end subroutine free_registry_entry
 
   !> Get the name of the registry entry
   pure function get_name(this) result(name)
@@ -242,9 +284,12 @@ contains
   function get_field(this) result(field_ptr)
     class(registry_entry_t), target, intent(in) :: this
     type(field_t), pointer :: field_ptr
-    if (this%get_type() .ne. 'field') then
+    
+    ! index(x, 'y') searches for substrings in x matching the pattern 'b'.
+    ! .eq. 1 means that the substring 'y' was found at position 1 in x
+    if (index(this%get_type(), 'field') .ne. 1) then
        call neko_error("registry_entry::get_field: " &
-            // "Registry entry is not of type 'field'.")
+            // "Registry entry is neither of type 'field' nor 'field_ptr'.")
     end if
     field_ptr => this%field_ptr
   end function get_field

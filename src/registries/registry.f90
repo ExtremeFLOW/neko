@@ -70,6 +70,8 @@ module registry
 
      !> Add a field to the registry.
      procedure, pass(this) :: add_field => registry_add_field
+     !> Add a pointer to a field to the registry.
+     procedure, pass(this) :: add_field_ptr => registry_add_field_ptr
      !> Add a vector to the registry.
      procedure, pass(this) :: add_vector => registry_add_vector
      !> Add a matrix to the registry.
@@ -253,6 +255,44 @@ contains
 
   end subroutine registry_add_field
 
+  !> Add a field pointer to the registry, pointing to a field that is located
+  !! outside of the registry. 
+  !! @param name The name of the field.
+  !! @param target_field The field on which to point (target).
+  !! @param ignore_existing If true, will do nothing if the field is already in
+  !! the registry. If false, will throw an error. Optional, defaults to false.
+  subroutine registry_add_field_ptr(this, target_field, name, ignore_existing)
+    class(registry_t), intent(inout) :: this
+    type(field_t), target, intent(in) :: target_field
+    character(len=*), target, intent(in) :: name
+    logical, optional, intent(in) :: ignore_existing
+    logical :: ignore_existing_
+
+    ignore_existing_ = .false.
+    if (present(ignore_existing)) then
+       ignore_existing_ = ignore_existing
+    end if
+
+    if (this%field_exists(name)) then
+       if (ignore_existing_) then
+          return
+       else
+          call neko_error("Field with name " // name // &
+               " is already registered")
+       end if
+    end if
+
+    if (this%n_entries() .eq. this%get_size()) then
+       call this%expand()
+    end if
+
+    this%n_entries_ = this%n_entries_ + 1
+
+    ! initialize the field at the appropriate index
+    call this%entries(this%n_entries_)%init_field_ptr(target_field, name)
+
+  end subroutine registry_add_field_ptr
+
   !> Add a vector to the registry.
   !! @param n The size of the vector.
   !! @param name The name of the vector.
@@ -434,7 +474,10 @@ contains
     integer :: i
 
     do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'field' .and. &
+
+       ! index(x, 'y') searches for substrings in x matching the pattern 'b'
+       ! .eq. 1 means that the substring 'y' was found at position 1 in x
+       if (index(this%entries(i)%get_type(), 'field') .eq. 1 .and. &
             this%entries(i)%get_name() .eq. trim(name)) then
           f => this%entries(i)%get_field()
           return
@@ -604,7 +647,10 @@ contains
 
     found = .false.
     do i = 1, this%n_entries()
-       if (this%entries(i)%get_type() .eq. 'field' .and. &
+       
+       ! index(x, 'y') searches for substrings in x matching the pattern 'y'
+       ! .eq. 1 means that the substring 'y' was found at position 1 in x
+       if (index(this%entries(i)%get_type(), 'field') .eq. 1 .and. &
             this%entries(i)%get_name() .eq. trim(name)) then
           found = .true.
           return
@@ -714,6 +760,19 @@ contains
     end do
   end function registry_n_fields
 
+  !> Get the number of field pointers stored in the registry
+  pure function registry_n_field_ptrs(this) result(n)
+    class(registry_t), intent(in) :: this
+    integer :: n, i
+
+    n = 0
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'field_ptr') then
+          n = n + 1
+       end if
+    end do
+  end function registry_n_field_ptrs
+  
   !> Get the number of vector stored in the registry
   pure function registry_n_vectors(this) result(n)
     class(registry_t), intent(in) :: this

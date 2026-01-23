@@ -43,6 +43,7 @@ module fluid_stats
   use coefs, only : coef_t
   use field, only : field_t
   use field_list, only : field_list_t
+  use registry, only: neko_registry
   use stats_quant, only : stats_quant_t
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -169,6 +170,8 @@ contains
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(in) :: u, v, w, p
     character(*), intent(in), optional :: set
+    type(field_t), pointer :: f
+    integer :: i
 
     call this%free()
     this%coef => coef
@@ -305,6 +308,16 @@ contains
        call this%stat_fields%assign_to_field(43, this%e13%mf)
        call this%stat_fields%assign_to_field(44, this%e23%mf)
     end if
+
+ 
+    !
+    ! Add pointers to the statistics fields to the registry
+    !
+    do i = 1, this%stat_fields%size()
+       f => this%stat_fields%get(i)
+       call neko_registry%add_field_ptr(this%stat_fields%items(i)%ptr, &
+               trim(f%name))
+    end do
 
   end subroutine fluid_stats_init
 
