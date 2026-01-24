@@ -34,7 +34,7 @@
 module box_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
   use math, only: abscmp
   implicit none
@@ -75,13 +75,13 @@ contains
     real(kind=rp) :: xmin, xmax, ymin, ymax, zmin, zmax
     logical :: invert
 
-    call json_get(json, "x_bounds", values)
+    call json_get_or_lookup(json, "x_bounds", values)
     xmin = values(1)
     xmax = values(2)
-    call json_get(json, "y_bounds", values)
+    call json_get_or_lookup(json, "y_bounds", values)
     ymin = values(1)
     ymax = values(2)
-    call json_get(json, "z_bounds", values)
+    call json_get_or_lookup(json, "z_bounds", values)
     zmin = values(1)
     zmax = values(2)
     call json_get(json, "name", str_read)
@@ -104,7 +104,7 @@ contains
   !! @param zmin Lower z-bound of the box coordinates.
   !! @param zmax Upper z-bound of the box coordinates.
   subroutine box_point_zone_init_common(this, size, name, invert, xmin, xmax, &
-                                        ymin, ymax, zmin, zmax)
+       ymin, ymax, zmin, zmax)
     class(box_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
@@ -172,15 +172,15 @@ contains
 
     ! inside x if xmin <= x <= xmax
     in_x = ( (x .gt. this%xmin .and. x .lt. this%xmax) .or. &
-           (abscmp(x, this%xmin) .or. abscmp(x, this%xmax)))
+         (abscmp(x, this%xmin) .or. abscmp(x, this%xmax)))
 
     ! inside y if ymin <= y <= ymax
     in_y = ( (y .gt. this%ymin .and. y .lt. this%ymax) .or. &
-           (abscmp(y, this%ymin) .or. abscmp(y, this%ymax)))
+         (abscmp(y, this%ymin) .or. abscmp(y, this%ymax)))
 
     ! inside z if zmin <= z <= zmax
     in_z = ( (z .gt. this%zmin .and. z .lt. this%zmax) .or. &
-           (abscmp(z, this%zmin) .or. abscmp(z, this%zmax)))
+         (abscmp(z, this%zmin) .or. abscmp(z, this%zmax)))
 
     is_inside = in_x .and. in_y .and. in_z
   end function box_point_zone_criterion

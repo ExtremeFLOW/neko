@@ -50,7 +50,7 @@ module wall_model
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   use device, only : device_map, device_free, device_get_ptr
   use wall_model_device, only : wall_model_compute_mag_field_device
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_lookup
   implicit none
   private
 
@@ -317,7 +317,7 @@ contains
 
     this%coef => coef
     this%dof => coef%dof
-    call json_get(json, "h_index", this%h_index)
+    call json_get_or_lookup(json, "h_index", this%h_index)
     call json_get(json, "scheme_name", this%scheme_name)
 
     this%mu => neko_registry%get_field_by_name(this%scheme_name // "_mu")

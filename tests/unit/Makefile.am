@@ -26,6 +26,7 @@ SUBDIRS = tuple\
 	  octree\
 	  vector\
 	  matrix\
+	  case_file_utils\
 	  registry\
 	  scratch_registry\
 	  fast3d\
@@ -64,6 +65,7 @@ TESTS = device/device_test\
 	octree/octree_test\
 	vector/vector_test\
 	matrix/matrix_test\
+	case_file_utils/case_file_utils_test\
 	registry/registry_test\
 	scratch_registry/scratch_registry_test\
 	fast3d/fast3d_test\
@@ -129,6 +131,7 @@ EXTRA_DIST = \
 	octree/octree.pf\
 	vector/vector_parallel.pf\
 	matrix/matrix_parallel.pf\
+	case_file_utils/test_case_file_utils.pf\
 	registry/test_registry.pf\
 	registry/test_field_registry.pf\
 	registry/test_vector_registry.pf\
