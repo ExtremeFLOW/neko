@@ -360,22 +360,23 @@ contains
                'case.scalar.initial_condition', json_subdict)
 
           if (trim(string_val) .ne. 'user') then
-             if (trim(this%scalars%scalar_fields(1)%name) .eq. 'temperature') then
-                call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
-                     this%scalars%scalar_fields(1)%c_Xh, &
-                     this%scalars%scalar_fields(1)%gs_Xh, &
+             if (trim(this%scalars%scalar_fields(1)%scheme%name) .eq. &
+                  'temperature') then
+                call set_scalar_ic(this%scalars%scalar_fields(1)%scheme%s, &
+                     this%scalars%scalar_fields(1)%scheme%c_Xh, &
+                     this%scalars%scalar_fields(1)%scheme%gs_Xh, &
                      string_val, json_subdict, 0)
              else
-                call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
-                     this%scalars%scalar_fields(1)%c_Xh, &
-                     this%scalars%scalar_fields(1)%gs_Xh, &
+                call set_scalar_ic(this%scalars%scalar_fields(1)%scheme%s, &
+                     this%scalars%scalar_fields(1)%scheme%c_Xh, &
+                     this%scalars%scalar_fields(1)%scheme%gs_Xh, &
                      string_val, json_subdict, 1)
              end if
           else
-             call set_scalar_ic(this%scalars%scalar_fields(1)%name, &
-                  this%scalars%scalar_fields(1)%s, &
-                  this%scalars%scalar_fields(1)%c_Xh, &
-                  this%scalars%scalar_fields(1)%gs_Xh, &
+             call set_scalar_ic(this%scalars%scalar_fields(1)%scheme%name, &
+                  this%scalars%scalar_fields(1)%scheme%s, &
+                  this%scalars%scalar_fields(1)%scheme%c_Xh, &
+                  this%scalars%scalar_fields(1)%scheme%gs_Xh, &
                   this%user%initial_conditions)
           end if
 
@@ -389,32 +390,33 @@ contains
                   json_subdict)
 
              if (trim(string_val) .ne. 'user') then
-                if (trim(this%scalars%scalar_fields(i)%name) .eq. 'temperature') then
-                   call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                        this%scalars%scalar_fields(i)%c_Xh, &
-                        this%scalars%scalar_fields(i)%gs_Xh, &
+                if (trim(this%scalars%scalar_fields(i)%scheme%name) .eq. &
+                     'temperature') then
+                   call set_scalar_ic(this%scalars%scalar_fields(i)%scheme%s, &
+                        this%scalars%scalar_fields(i)%scheme%c_Xh, &
+                        this%scalars%scalar_fields(i)%scheme%gs_Xh, &
                         string_val, json_subdict, 0)
                    temperature_found = .true.
                 else
                    if (temperature_found) then
                       ! if temperature is found, other scalars start from index 1
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                           this%scalars%scalar_fields(i)%c_Xh, &
-                           this%scalars%scalar_fields(i)%gs_Xh, &
+                      call set_scalar_ic(this%scalars%scalar_fields(i)%scheme%s, &
+                           this%scalars%scalar_fields(i)%scheme%c_Xh, &
+                           this%scalars%scalar_fields(i)%scheme%gs_Xh, &
                            string_val, json_subdict, i - 1)
                    else
                       ! if temperature is not found, other scalars start from index 0
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                           this%scalars%scalar_fields(i)%c_Xh, &
-                           this%scalars%scalar_fields(i)%gs_Xh, &
+                      call set_scalar_ic(this%scalars%scalar_fields(i)%scheme%s, &
+                           this%scalars%scalar_fields(i)%scheme%c_Xh, &
+                           this%scalars%scalar_fields(i)%scheme%gs_Xh, &
                            string_val, json_subdict, i)
                    end if
                 end if
              else
-                call set_scalar_ic(this%scalars%scalar_fields(i)%name,&
-                     this%scalars%scalar_fields(i)%s, &
-                     this%scalars%scalar_fields(i)%c_Xh, &
-                     this%scalars%scalar_fields(i)%gs_Xh, &
+                call set_scalar_ic(this%scalars%scalar_fields(i)%scheme%name,&
+                     this%scalars%scalar_fields(i)%scheme%s, &
+                     this%scalars%scalar_fields(i)%scheme%c_Xh, &
+                     this%scalars%scalar_fields(i)%scheme%gs_Xh, &
                      this%user%initial_conditions)
              end if
           end do
