@@ -13,7 +13,7 @@ import json5
 import json
 import numpy as np
 from numpy.testing import assert_allclose
-from conftest import RP
+from conftest import RP, BACKEND
 
 
 def test_cylinder(launcher_script, request, tmp_path):
@@ -56,7 +56,7 @@ def test_cylinder(launcher_script, request, tmp_path):
     ), f"neko process failed with exit code {result.returncode}"
 
     # Reference parsed log data
-    ref_data = np.genfromtxt(join(test_dir, "reflog1_" + RP + ".csv"),
+    ref_data = np.genfromtxt(join(test_dir, "reflog1_" + BACKEND + "_" + RP + ".csv"),
          delimiter=",", names=True)
 
     # Parse the log file from the test run
@@ -103,7 +103,7 @@ def test_cylinder(launcher_script, request, tmp_path):
     ), f"neko process failed with exit code {result.returncode}"
 
     # Reference parsed log data
-    ref_data = np.genfromtxt(join(test_dir, "reflog2_" + RP + ".csv"),
+    ref_data = np.genfromtxt(join(test_dir, "reflog2_" + BACKEND + "_" + RP + ".csv"),
         delimiter=",", names=True)
 
     # Parse the log file from the test run
@@ -136,4 +136,3 @@ def test_cylinder(launcher_script, request, tmp_path):
         (parsed_data_part1["pressure_start_residual"][0] -
          parsed_data_part2["pressure_start_residual"][0]) / parsed_data_part1["pressure_start_residual"][0] < 1e-6
     )
-

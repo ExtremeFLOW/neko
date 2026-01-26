@@ -37,7 +37,8 @@ module operators
   use num_types, only : rp, i8
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
        opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
-       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst
+       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst, &
+       opr_cpu_rotate_cyc_r1, opr_cpu_rotate_cyc_r4
   use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_opgrad, &
        opr_sx_conv1, opr_sx_convect_scalar, opr_sx_cdtp, &
        opr_sx_dudxyz, opr_sx_lambda2, opr_sx_set_convect_rst
@@ -46,7 +47,8 @@ module operators
        opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_dudxyz, &
-       opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst
+       opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst, &
+       opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -60,14 +62,22 @@ module operators
        device_glsum, device_add3s2, device_invcol2, device_invcol3, &
        device_col2, device_add5s4
   use scratch_registry, only : neko_scratch_registry
+  use vector, only : vector_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr
+  use logger, only : neko_log
   implicit none
   private
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
-       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta
+       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
+       rotate_cyc
+
+  interface rotate_cyc
+     module procedure rotate_cyc_r1
+     module procedure rotate_cyc_r4
+  end interface rotate_cyc
 
 contains
 
@@ -117,7 +127,7 @@ contains
        res_d = device_get_ptr(res)
     end if
 
-    call neko_scratch_registry%request_field(work, ind)
+    call neko_scratch_registry%request_field(work, ind, .false.)
 
     ! Get dux / dx
     call dudxyz(res, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
@@ -216,12 +226,16 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp) :: c
     type(c_ptr) :: x_d
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_log%deprecated('Operator: ortho, implicit device', &
+            'v2.0.0', 'Please call device_ortho instead.')
+
        x_d = device_get_ptr(x)
-       c = device_glsum(x_d, n)/glb_n_points
+       c = device_glsum(x_d, n) / glb_n_points
        call device_cadd(x_d, -c, n)
     else
-       c = glsum(x, n)/glb_n_points
+       c = glsum(x, n) / glb_n_points
        call cadd(x, -c, n)
     end if
 
@@ -451,25 +465,12 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: max_wave_speed
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: &
+         max_wave_speed
     real(kind=rp) :: cfl_compressible
-    integer :: ierr, n
-    type(field_t), pointer :: zero_vector
-    integer :: ind
 
-    n = Xh%lx * Xh%ly * Xh%lz * nelv
-
-    ! Request a scratch field for zero vector
-    call neko_scratch_registry%request_field(zero_vector, ind)
-
-    ! Initialize zero vector
-    call field_rzero(zero_vector)
-
-    ! Use incompressible CFL with max_wave_speed as u-component, zero v and w
-    cfl_compressible = cfl(dt, max_wave_speed, zero_vector%x, zero_vector%x, Xh, coef, nelv, gdim)
-
-    ! Release the scratch field
-    call neko_scratch_registry%relinquish_field(ind)
+    cfl_compressible = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
+         Xh, coef, nelv, gdim)
 
   end function cfl_compressible
 
@@ -600,7 +601,7 @@ contains
        cy_d = device_get_ptr(cy)
        cz_d = device_get_ptr(cz)
        call opr_device_set_convect_rst(cr%x_d, cs%x_d, ct%x_d, &
-       cx_d, cy_d, cz_d, Xh, coef)
+            cx_d, cy_d, cz_d, Xh, coef)
     else
        call opr_cpu_set_convect_rst(cr%x, cs%x, ct%x, cx, cy, cz, Xh, coef)
     end if
@@ -635,101 +636,98 @@ contains
     type(field_list_t) :: conv_k1, conv_k23, conv_k4
     real(kind=rp) :: c1, c2, c3
     type(field_t), pointer :: u1, k1, k2, k3, k4
-    real(kind=rp), dimension(n_GL) :: u1_GL
-    integer :: ind(5), i, e
-    type(c_ptr) :: u1_GL_d
+    type(vector_t), pointer :: u1_GL
+    integer :: ind(6), i, e
 
-    call neko_scratch_registry%request_field(u1, ind(1))
-    call neko_scratch_registry%request_field(k1, ind(2))
-    call neko_scratch_registry%request_field(k2, ind(3))
-    call neko_scratch_registry%request_field(k3, ind(4))
-    call neko_scratch_registry%request_field(k4, ind(5))
+    call neko_scratch_registry%request_field(u1, ind(1), .false.)
+    call neko_scratch_registry%request_field(k1, ind(2), .false.)
+    call neko_scratch_registry%request_field(k2, ind(3), .false.)
+    call neko_scratch_registry%request_field(k3, ind(4), .false.)
+    call neko_scratch_registry%request_field(k4, ind(5), .false.)
+    call neko_scratch_registry%request_vector(u1_GL, ind(6), n_GL, .false.)
 
     c1 = 1.0_rp
     c2 = -dtau/2.
     c3 = -dtau
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(u1_GL, u1_GL_d, n_GL)
 
        ! Stage 1:
        call device_invcol3(u1%x_d, phi%x_d, coef%B_d, n)
-       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
-       call convect_scalar(k1%x, u1_GL, conv_k1%items(1)%ptr, &
-                           conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call convect_scalar(k1%x, u1_GL%x, conv_k1%items(1)%ptr, &
+            conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k1%x_d, coef%B_d, n)
 
        ! Stage 2:
        call device_add3s2(u1%x_d, phi%x_d, k1%x_d, c1, c2, n)
        call device_invcol2(u1%x_d, coef%B_d, n)
-       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
-       call convect_scalar(k2%x, u1_GL, conv_k23%items(1)%ptr, &
-                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call convect_scalar(k2%x, u1_GL%x, conv_k23%items(1)%ptr, &
+            conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k2%x_d, coef%B_d, n)
 
        ! Stage 3:
        call device_add3s2(u1%x_d, phi%x_d, k2%x_d, c1, c2, n)
        call device_invcol2(u1%x_d, coef%B_d, n)
-       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
-       call convect_scalar(k3%x, u1_GL, conv_k23%items(1)%ptr, &
-                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call convect_scalar(k3%x, u1_GL%x, conv_k23%items(1)%ptr, &
+            conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k3%x_d, coef%B_d, n)
 
        ! Stage 4:
        call device_add3s2(u1%x_d, phi%x_d, k3%x_d, c1, c3, n)
        call device_invcol2(u1%x_d, coef%B_d, n)
-       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
-       call convect_scalar(k4%x, u1_GL, conv_k4%items(1)%ptr, &
-                           conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call convect_scalar(k4%x, u1_GL%x, conv_k4%items(1)%ptr, &
+            conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k4%x_d, coef%B_d, n)
 
        c1 = -dtau/6.
        c2 = -dtau/3.
 
        call device_add5s4(phi%x_d, k1%x_d, k2%x_d, k3%x_d, k4%x_d, &
-                          c1, c2, c2, c1, n)
-
-       call device_free(u1_GL_d)
+            c1, c2, c2, c1, n)
 
     else
 
        ! Stage 1:
        call invcol3(u1%x, phi%x, coef%B, n)
-       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
-       call convect_scalar(k1%x, u1_GL, conv_k1%items(1)%ptr, &
-                           conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call convect_scalar(k1%x, u1_GL%x, conv_k1%items(1)%ptr, &
+            conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k1%x, coef%B, n)
 
        ! Stage 2:
        call add3s2(u1%x, phi%x, k1%x, c1, c2, n)
        call invcol2(u1%x, coef%B, n)
-       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
-       call convect_scalar(k2%x, u1_GL, conv_k23%items(1)%ptr, &
-                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call convect_scalar(k2%x, u1_GL%x, conv_k23%items(1)%ptr, &
+            conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k2%x, coef%B, n)
 
        ! Stage 3:
        call add3s2(u1%x, phi%x, k2%x, c1, c2, n)
        call invcol2(u1%x, coef%B, n)
-       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
-       call convect_scalar(k3%x, u1_GL, conv_k23%items(1)%ptr, &
-                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call convect_scalar(k3%x, u1_GL%x, conv_k23%items(1)%ptr, &
+            conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k3%x, coef%B, n)
 
        ! Stage 4:
        call add3s2(u1%x, phi%x, k3%x, c1, c3, n)
        call invcol2(u1%x, coef%B, n)
-       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
-       call convect_scalar(k4%x, u1_GL, conv_k4%items(1)%ptr, &
-                           conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call convect_scalar(k4%x, u1_GL%x, conv_k4%items(1)%ptr, &
+            conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k4%x, coef%B, n)
 
        c1 = -dtau/6.
@@ -740,5 +738,32 @@ contains
     call neko_scratch_registry%relinquish_field(ind)
 
   end subroutine runge_kutta
+
+  subroutine rotate_cyc_r1(vx, vy, vz, idir, coef)
+    real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
+    integer, intent(in) :: idir
+    type(coef_t), intent(in) :: coef
+    if (coef%cyclic) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
+       else
+          call opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
+       end if
+    end if
+  end subroutine rotate_cyc_r1
+
+  subroutine rotate_cyc_r4(vx, vy, vz, idir, coef)
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
+    integer, intent(in) :: idir
+    type(coef_t), intent(in) :: coef
+    if (coef%cyclic) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
+       else
+          call opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)
+       end if
+    end if
+  end subroutine rotate_cyc_r4
+
 
 end module operators

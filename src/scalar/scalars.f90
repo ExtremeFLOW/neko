@@ -33,26 +33,25 @@
 !> Contains the scalars_t type that manages multiple scalar fields.
 
 module scalars
-  use num_types, only: rp
-  use scalar_pnpn, only: scalar_pnpn_t
-  use scalar_scheme, only: scalar_scheme_t
-  use scalar_aux, only: scalar_step_info
-  use mesh, only: mesh_t
-  use space, only: space_t
-  use gather_scatter, only: gs_t
-  use time_scheme_controller, only: time_scheme_controller_t
-  use time_step_controller, only: time_step_controller_t
-  use json_module, only: json_file
-  use json_utils, only: json_get, json_get_or_default, json_extract_item
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use field_series, only: field_series_t
-  use field_registry, only: neko_field_registry
-  use checkpoint, only: chkp_t
-  use krylov, only: ksp_t, ksp_monitor_t
-  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use user_intf, only: user_t
-  use utils, only: neko_error
+  use num_types, only : rp
+  use scalar_pnpn, only : scalar_pnpn_t
+  use scalar_scheme, only : scalar_scheme_t
+  use scalar_aux, only : scalar_step_info
+  use mesh, only : mesh_t
+  use space, only : space_t
+  use gather_scatter, only : gs_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use time_step_controller, only : time_step_controller_t
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use field_series, only : field_series_t
+  use checkpoint, only : chkp_t
+  use krylov, only : ksp_t, ksp_monitor_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use user_intf, only : user_t
+  use utils, only : neko_error
   use coefs, only : coef_t
   use time_state, only : time_state_t
   implicit none
@@ -102,7 +101,7 @@ contains
     integer :: i, j
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: field_names(:)
-    character(len=256) :: error_msg
+    character(len=256) :: error_msg, buffer
 
     ! Allocate the scalar fields
     ! If there are more scalar_scheme_t types, add a factory function here
@@ -116,18 +115,15 @@ contains
        call json_extract_item(params, "", i, json_subdict)
 
        ! Try to get name from JSON, generate one if not found or empty
-       if (json_subdict%valid_path('name')) then
-          call json_get(json_subdict, 'name', field_name)
-       else
-          field_name = ''
-       end if
+       call json_get_or_default(json_subdict, 'name', field_name, '')
 
        ! If name is empty or not provided, generate a default one
        if (len_trim(field_name) == 0) then
           if (n_scalars == 1) then
              field_name = 's' ! Single scalar gets default name 's'
           else
-             write(field_name, '(A,I0)') 's_', i
+             write(buffer, '(A,I0)') 's_', i
+             field_name = trim(buffer)
           end if
        end if
 
@@ -138,9 +134,9 @@ contains
           j = 1
           do while (j < i)
              if (trim(field_names(i)) == trim(field_names(j))) then
-                write(field_name, '(A,I0)') trim(field_names(i))//'_', j
-                field_names(i) = trim(field_name)
-                j = 1 ! Start over to check if new name is unique
+                call neko_error("Duplicate scalar field name detected: "// &
+                     trim(field_names(i)) // &
+                     ". Please provide unique names for each scalar field.")
              else
                 j = j + 1
              end if
@@ -163,7 +159,7 @@ contains
        call this%register_lags_with_checkpoint(chkp)
     else
        ! For single scalar, use legacy interface
-       select type(scalar => this%scalar_fields(1))
+       select type (scalar => this%scalar_fields(1))
        type is (scalar_pnpn_t)
           call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
        end select
@@ -197,7 +193,7 @@ contains
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
     ! Register single scalar with checkpoint
-    select type(scalar => this%scalar_fields(1))
+    select type (scalar => this%scalar_fields(1))
     type is (scalar_pnpn_t)
        call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
     end select
@@ -211,14 +207,25 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     integer :: i
     type(ksp_monitor_t), dimension(size(this%scalar_fields)) :: ksp_results
+    logical :: all_frozen
+
+    all_frozen = .true.
 
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
+       all_frozen = all_frozen .and. this%scalar_fields(i)%freeze
        call this%scalar_fields(i)%step(time, ext_bdf, dt_controller, &
             ksp_results(i))
     end do
 
-    call scalar_step_info(time, ksp_results)
+    if (.not. all_frozen) then
+       call ksp_results(i)%print_header()
+    end if
+
+    do i = 1, size(this%scalar_fields)
+       if (this%scalar_fields(i)%freeze) cycle
+       call scalar_step_info(time, ksp_results(i))
+    end do
   end subroutine scalars_step
 
   !> Restart from checkpoint data
@@ -271,17 +278,18 @@ contains
 
     n_scalars = size(this%scalar_fields)
 
-    ! Allocate ABX field arrays
+    ! Allocate ABX field arrays and lag field list in checkpoint
     allocate(chkp%scalar_abx1(n_scalars))
     allocate(chkp%scalar_abx2(n_scalars))
+    call chkp%scalar_lags%init(n_scalars)
 
     ! Add all scalar lag fields to the checkpoint list and populate ABX fields
     do i = 1, n_scalars
        call chkp%scalar_lags%append(this%scalar_fields(i)%slag)
 
        ! Cast to scalar_pnpn_t to access ABX fields
-       select type(scalar_field => this%scalar_fields(i))
-       type is(scalar_pnpn_t)
+       select type (scalar_field => this%scalar_fields(i))
+       type is (scalar_pnpn_t)
           call associate_scalar_abx_fields(chkp, i, scalar_field)
        end select
     end do

@@ -51,6 +51,7 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
 ltmain.sh
+*.cl.h
 
 # Ignore installation files
 lib/*
@@ -64,6 +65,7 @@ src/python/pyneko/intf.py
 # Ignore temporary files
 *~
 *.swp
+linter-report.txt
 
 # Explicitly ignore binaries to avoid confusion
 neko
@@ -90,3 +92,6 @@ libneko*.so
 
 pixi.lock
 install
+
+# Mac
+.DS_Store

@@ -39,6 +39,7 @@ module glb_intrp_comm
   use, intrinsic :: iso_c_binding
   use mpi_f08, only : MPI_Test, MPI_STATUS_IGNORE, MPI_Status, &
        MPI_Request, MPI_Isend, MPI_IRecv, MPI_Comm
+  !$ use omp_lib
   implicit none
   private
 

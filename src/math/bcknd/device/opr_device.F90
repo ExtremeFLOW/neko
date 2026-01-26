@@ -33,14 +33,15 @@
 !> Operators accelerator backends
 module opr_device
   use gather_scatter, only : GS_OP_ADD
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, i8
   use device, only : device_get_ptr, device_event_sync, device_map, device_free
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
   use utils, only : neko_error
   use interpolation, only : interpolator_t
-  use device_math, only : device_sub3, device_rzero, device_copy, device_col2
+  use device_math, only : device_sub3, device_rzero, device_copy, device_col2, &
+       device_glsum, device_cadd
   use device_mathops, only : device_opcolv
   use, intrinsic :: iso_c_binding
   implicit none
@@ -48,7 +49,9 @@ module opr_device
 
   public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_curl, &
-       opr_device_cfl, opr_device_lambda2, opr_device_set_convect_rst
+       opr_device_cfl, opr_device_lambda2, opr_device_set_convect_rst, &
+       opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4, &
+       device_ortho
 
 #ifdef HAVE_HIP
   interface
@@ -149,6 +152,19 @@ module opr_device
        real(c_rp) :: dt
        integer(c_int) :: nel, lx
      end function hip_cfl
+  end interface
+
+  interface
+     subroutine hip_rotate_cyc(vx_d, vy_d, vz_d, &
+          x_d, y_d, z_d, &
+          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          bind(c, name = 'hip_rotate_cyc')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: vx_d, vy_d, vz_d
+       type(c_ptr), value :: x_d, y_d, z_d
+       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       integer(c_int) :: ncyc, idir
+     end subroutine hip_rotate_cyc
   end interface
 
   interface
@@ -265,6 +281,19 @@ module opr_device
        real(c_rp) :: dt
        integer(c_int) :: nel, lx
      end function cuda_cfl
+  end interface
+
+  interface
+     subroutine cuda_rotate_cyc(vx_d, vy_d, vz_d, &
+          x_d, y_d, z_d, &
+          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          bind(c, name = 'cuda_rotate_cyc')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: vx_d, vy_d, vz_d
+       type(c_ptr), value :: x_d, y_d, z_d
+       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       integer(c_int) :: ncyc, idir
+     end subroutine cuda_rotate_cyc
   end interface
 
   interface
@@ -479,6 +508,23 @@ contains
     end associate
 
   end subroutine opr_device_opgrad
+
+  !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
+  !! @param x_d The device vector to orthogonolize.
+  !! @param glb_n_points The global number of non-unique gll points in the grid.
+  !! @note This is equivalent to subtracting the mean of `x` from each of its
+  !! elements.
+  subroutine device_ortho(x_d, glb_n_points, n)
+    integer, intent(in) :: n
+    integer(kind=i8), intent(in) :: glb_n_points
+    type(c_ptr), intent(inout) :: x_d
+    real(kind=rp) :: c
+
+    c = device_glsum(x_d, n) / glb_n_points
+    call device_cadd(x_d, -c, n)
+
+  end subroutine device_ortho
+
   subroutine opr_device_lambda2(lambda2, u, v, w, coef)
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: lambda2
@@ -593,14 +639,14 @@ contains
   end subroutine opr_device_conv1
 
   subroutine opr_device_convect_scalar(du, u_d, cr_d, cs_d, ct_d, &
-            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
+       Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
     type(space_t), intent(in) :: Xh_GL
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
     type(coef_t), intent(in) :: coef_GL
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), intent(inout) :: &
-                   du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+         du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
     type(c_ptr) :: cr_d, cs_d, ct_d, u_d
     real(kind=rp) :: ud(Xh_GL%lx*Xh_GL%lx*Xh_GL%lx)
     type(c_ptr) :: du_d, ud_d
@@ -779,16 +825,20 @@ contains
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
 
     if (present(event)) then
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
        call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
        call device_event_sync(event)
        call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
        call device_event_sync(event)
        call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
        call device_event_sync(event)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
     else
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
        call c_Xh%gs_h%op(w1, GS_OP_ADD)
        call c_Xh%gs_h%op(w2, GS_OP_ADD)
        call c_Xh%gs_h%op(w3, GS_OP_ADD)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
     end if
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
@@ -839,30 +889,94 @@ contains
 #endif
   end function opr_device_cfl
 
+  subroutine opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
+    type(coef_t) :: coef
+    integer :: idir, ncyc
+    real(rp), dimension(coef%Xh%lx*coef%Xh%ly*coef%Xh%lz*coef%msh%nelv) :: &
+         vx, vy, vz
+    type(c_ptr) :: vx_d, vy_d, vz_d
+
+    vx_d = device_get_ptr(vx)
+    vy_d = device_get_ptr(vy)
+    vz_d = device_get_ptr(vz)
+    ncyc = coef%cyc_msk(0) - 1
+
+    if (ncyc .le. 0) return
+
+#ifdef HAVE_HIP
+    call hip_rotate_cyc(vx_d, vy_d, vz_d, &
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
+#elif HAVE_CUDA
+    call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
+#elif HAVE_OPENCL
+    !>@todo opr_device_rotate_cyc_r1 for OPENCL
+    call neko_error('No device backend configured for rotate_cyc')
+#else
+    call neko_error('No device backend configured for rotate_cyc')
+#endif
+  end subroutine opr_device_rotate_cyc_r1
+
+  subroutine opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
+    type(coef_t) :: coef
+    integer :: idir, ncyc
+    real(rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: &
+         vx, vy, vz
+    type(c_ptr) :: vx_d, vy_d, vz_d
+
+    vx_d = device_get_ptr(vx)
+    vy_d = device_get_ptr(vy)
+    vz_d = device_get_ptr(vz)
+    ncyc = coef%cyc_msk(0) - 1
+
+    if (ncyc .le. 0) return
+
+#ifdef HAVE_HIP
+    call hip_rotate_cyc(vx_d, vy_d, vz_d, &
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
+#elif HAVE_CUDA
+    call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
+#elif HAVE_OPENCL
+    !>@todo opr_device_rotate_cyc_r4 for OPENCL
+    call neko_error('No device backend configured for rotate_cyc')
+#else
+    call neko_error('No device backend configured for rotate_cyc')
+#endif
+  end subroutine opr_device_rotate_cyc_r4
+
   subroutine opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
-            Xh, coef)
+       Xh, coef)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(c_ptr) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d
 
 #ifdef HAVE_HIP
     call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           Xh%w3_d, coef%msh%nelv, Xh%lx)
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%w3_d, coef%msh%nelv, Xh%lx)
 #elif HAVE_CUDA
     call cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           Xh%w3_d, coef%msh%nelv, Xh%lx)
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%w3_d, coef%msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
     call opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           Xh%w3_d, coef%msh%nelv, Xh%lx)
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%w3_d, coef%msh%nelv, Xh%lx)
 #else
     call neko_error('No device backend configured')
 #endif

@@ -53,18 +53,20 @@ module mean_field_output
      !> Pointers to the fields inside the mean_fields
      type(field_list_t) :: fields
      !> Time to start output
-     real(kind=rp) :: start_time
+     real(kind=rp) :: start_time = 0.0_rp
      !> Number of fields
-     integer :: n_fields
+     integer :: n_fields = 0
      !> Space averaging object for 2 homogeneous directions.
      type(map_1d_t) :: map_1d
      !> Space averaging object for 1 homogeneous direction.
      type(map_2d_t) :: map_2d
      !> The dimension of the output fields. Either 1, 2, or 3.
-     integer :: output_dim
+     integer :: output_dim = 0
    contains
      !> Constructor
      procedure, pass(this) :: init => mean_field_output_init
+     !> Destructor
+     procedure, pass(this) :: free => mean_field_output_free
      !> Sample, i.e. extract the values of the fields, average, and write.
      procedure, pass(this) :: sample => mean_field_output_sample
   end type mean_field_output_t
@@ -92,6 +94,8 @@ contains
     real(kind=rp), intent(in) :: start_time
     character(len=1024) :: fname
     integer :: i
+
+    this%start_time = start_time
 
     if (trim(avg_dir) .eq. 'none' .or. &
          trim(avg_dir) .eq. 'x' .or.&
@@ -140,6 +144,19 @@ contains
     end do
 
   end subroutine mean_field_output_init
+
+  !> Destructor
+  subroutine mean_field_output_free(this)
+    class(mean_field_output_t), intent(inout) :: this
+
+    call this%free_base()
+
+    nullify(this%mean_fields)
+    call this%map_1d%free()
+    call this%map_2d%free()
+    call this%fields%free()
+
+  end subroutine mean_field_output_free
 
   !> Sample the mean solution at time @a t and reset
   subroutine mean_field_output_sample(this, t)

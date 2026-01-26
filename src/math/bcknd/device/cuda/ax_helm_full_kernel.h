@@ -204,24 +204,18 @@ __global__ void __launch_bounds__(LX*LX,3)
          wttmp * dtdz_local;
     
     T s11 = 0.0;
+    T s22 = 0.0;
+    T s33 = 0.0;
     T s12 = 0.0;
     T s13 = 0.0;
-    T s21 = 0.0;
-    T s22 = 0.0;
     T s23 = 0.0;
-    T s31 = 0.0;
-    T s32 = 0.0;
-    T s33 = 0.0;
 
     s11 = dj*(u1 + u1);
+    s22 = dj*(v2 + v2);
+    s33 = dj*(w3 + w3);
     s12 = dj*(u2 + v1);
     s13 = dj*(u3 + w1);
-    s21 = dj*(v1 + u2);
-    s22 = dj*(v2 + v2);
     s23 = dj*(v3 + w2);
-    s31 = dj*(w1 + u3);
-    s32 = dj*(w2 + v3);
-    s33 = dj*(w3 + w3);
 
     shur[ij] = drdx_local * s11 +
                drdy_local * s12 +
@@ -233,24 +227,24 @@ __global__ void __launch_bounds__(LX*LX,3)
                dtdy_local * s12 +
                dtdz_local * s13;
     
-    shvr[ij] = drdx_local * s21 +
+    shvr[ij] = drdx_local * s12 +
                drdy_local * s22 +
                drdz_local * s23;
-    shvs[ij] = dsdx_local * s21 +
+    shvs[ij] = dsdx_local * s12 +
                dsdy_local * s22 +
                dsdz_local * s23;
-    rvt =      dtdx_local * s21 +
+    rvt =      dtdx_local * s12 +
                dtdy_local * s22 +
                dtdz_local * s23;
 
-    shwr[ij] = drdx_local * s31 +
-               drdy_local * s32 +
+    shwr[ij] = drdx_local * s13 +
+               drdy_local * s23 +
                drdz_local * s33;
-    shws[ij] = dsdx_local * s31 +
-               dsdy_local * s32 +
+    shws[ij] = dsdx_local * s13 +
+               dsdy_local * s23 +
                dsdz_local * s33;
-    rwt =      dtdx_local * s31 +
-               dtdy_local * s32 +
+    rwt =      dtdx_local * s13 +
+               dtdy_local * s23 +
                dtdz_local * s33;
 
     __syncthreads();
@@ -451,24 +445,18 @@ __global__ void __launch_bounds__(LX*LX,3)
          wttmp * dtdz_local;
     
     T s11 = 0.0;
+    T s22 = 0.0;
+    T s33 = 0.0;
     T s12 = 0.0;
     T s13 = 0.0;
-    T s21 = 0.0;
-    T s22 = 0.0;
     T s23 = 0.0;
-    T s31 = 0.0;
-    T s32 = 0.0;
-    T s33 = 0.0;
 
     s11 = dj*(u1 + u1);
+    s22 = dj*(v2 + v2);
+    s33 = dj*(w3 + w3);
     s12 = dj*(u2 + v1);
     s13 = dj*(u3 + w1);
-    s21 = dj*(v1 + u2);
-    s22 = dj*(v2 + v2);
     s23 = dj*(v3 + w2);
-    s31 = dj*(w1 + u3);
-    s32 = dj*(w2 + v3);
-    s33 = dj*(w3 + w3);
 
     shur[ij] = drdx_local * s11 +
                drdy_local * s12 +
@@ -480,24 +468,24 @@ __global__ void __launch_bounds__(LX*LX,3)
                dtdy_local * s12 +
                dtdz_local * s13;
     
-    shvr[ij] = drdx_local * s21 +
+    shvr[ij] = drdx_local * s12 +
                drdy_local * s22 +
                drdz_local * s23;
-    shvs[ij_p] = dsdx_local * s21 +
+    shvs[ij_p] = dsdx_local * s12 +
                dsdy_local * s22 +
                dsdz_local * s23;
-    rvt =      dtdx_local * s21 +
+    rvt =      dtdx_local * s12 +
                dtdy_local * s22 +
                dtdz_local * s23;
 
-    shwr[ij] = drdx_local * s31 +
-               drdy_local * s32 +
+    shwr[ij] = drdx_local * s13 +
+               drdy_local * s23 +
                drdz_local * s33;
-    shws[ij_p] = dsdx_local * s31 +
-               dsdy_local * s32 +
+    shws[ij_p] = dsdx_local * s13 +
+               dsdy_local * s23 +
                dsdz_local * s33;
-    rwt =      dtdx_local * s31 +
-               dtdy_local * s32 +
+    rwt =      dtdx_local * s13 +
+               dtdy_local * s23 +
                dtdz_local * s33;
 
     __syncthreads();

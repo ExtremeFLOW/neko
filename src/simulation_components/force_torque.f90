@@ -38,13 +38,14 @@ module force_torque
   use time_based_controller, only : time_based_controller_t
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use field, only : field_t
   use operators, only : curl
   use case, only : case_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use coefs, only : coef_t
   use operators, only : strain_rate
   use vector, only : vector_t
@@ -58,7 +59,7 @@ module force_torque
        device_glsum, device_vcross
   use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_Allreduce
   use comm, only : NEKO_COMM
-  use device, only: device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE
 
   implicit none
   private
@@ -130,12 +131,11 @@ contains
     call this%init_base(json, case)
 
     call json_get_or_default(json, 'fluid_name', fluid_name, 'fluid')
-    call json_get(json, 'zone_id', zone_id)
+    call json_get_or_lookup(json, 'zone_id', zone_id)
     call json_get_or_default(json, 'zone_name', zone_name, ' ')
-    call json_get_or_default(json, 'scale', scale, 1.0_rp)
+    call json_get_or_lookup_or_default(json, 'scale', scale, 1.0_rp)
     call json_get_or_default(json, 'long_print', long_print, .false.)
-    call json_get(json, 'center', center)
-
+    call json_get_or_lookup(json, 'center', center)
     call this%init_common(fluid_name, zone_id, zone_name, center, scale, &
          case%fluid%c_xh, long_print)
   end subroutine force_torque_init_from_json
@@ -256,11 +256,11 @@ contains
        this%print_format = '(I7,E13.5,E13.5,E13.5,E13.5,A)'
     end if
 
-    this%u => neko_field_registry%get_field_by_name("u")
-    this%v => neko_field_registry%get_field_by_name("v")
-    this%w => neko_field_registry%get_field_by_name("w")
-    this%p => neko_field_registry%get_field_by_name("p")
-    this%mu => neko_field_registry%get_field_by_name(fluid_name // '_mu_tot')
+    this%u => neko_registry%get_field_by_name("u")
+    this%v => neko_registry%get_field_by_name("v")
+    this%w => neko_registry%get_field_by_name("w")
+    this%p => neko_registry%get_field_by_name("p")
+    this%mu => neko_registry%get_field_by_name(fluid_name // '_mu_tot')
 
 
     call this%bc%init_base(this%coef)
@@ -345,6 +345,31 @@ contains
     class(force_torque_t), intent(inout) :: this
     call this%free_base()
 
+    call this%n1%free()
+    call this%n2%free()
+    call this%n3%free()
+
+    call this%r1%free()
+    call this%r2%free()
+    call this%r3%free()
+
+    call this%force1%free()
+    call this%force2%free()
+    call this%force3%free()
+
+    call this%force4%free()
+    call this%force5%free()
+    call this%force6%free()
+
+    call this%pmsk%free()
+    call this%mu_msk%free()
+    call this%s11msk%free()
+    call this%s22msk%free()
+    call this%s33msk%free()
+    call this%s12msk%free()
+    call this%s13msk%free()
+    call this%s23msk%free()
+
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)
@@ -366,12 +391,12 @@ contains
 
     n_pts = this%bc%msk(0)
 
-    call neko_scratch_registry%request_field(s11, temp_indices(1))
-    call neko_scratch_registry%request_field(s12, temp_indices(2))
-    call neko_scratch_registry%request_field(s13, temp_indices(3))
-    call neko_scratch_registry%request_field(s22, temp_indices(4))
-    call neko_scratch_registry%request_field(s23, temp_indices(5))
-    call neko_scratch_registry%request_field(s33, temp_indices(6))
+    call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(6), .false.)
 
     call strain_rate(s11%x, s22%x, s33%x, s12%x, &
          s13%x, s23%x, this%u, this%v, this%w, this%coef)
@@ -487,10 +512,10 @@ contains
        dgtq(12) = device_glsum(this%s23msk%x_d, n_pts)
     end if
     dgtq = this%scale*dgtq
-    write(log_buf,'(A, I4, A, A)') 'Force and torque on zone ', &
-         this%zone_id,'  ', this%zone_name
+    write(log_buf, '(A, I4, A, A)') 'Force and torque on zone ', &
+         this%zone_id, '  ', this%zone_name
     call neko_log%message(log_buf)
-    write(log_buf,'(A)') &
+    write(log_buf, '(A)') &
          'Time step, time, total force/torque, pressure, viscous, direction'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &

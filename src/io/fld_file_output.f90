@@ -45,9 +45,11 @@ module fld_file_output
      ! The list of fields to save.
      type(field_list_t) :: fields
    contains
-     ! Constructor.
+     !> Constructor.
      procedure, pass(this) :: init => fld_file_output_init
-     ! Writes the data.
+     !> Destructor
+     procedure, pass(this) :: free => fld_file_output_free
+     !> Writes the data.
      procedure, pass(this) :: sample => fld_file_output_sample
   end type fld_file_output_t
 
@@ -76,7 +78,16 @@ contains
 
     call this%fields%init(nfields)
 
-   end subroutine fld_file_output_init
+  end subroutine fld_file_output_init
+
+  !> Destructor
+  subroutine fld_file_output_free(this)
+    class(fld_file_output_t), intent(inout) :: this
+
+    call this%free_base()
+    call this%fields%free()
+
+  end subroutine fld_file_output_free
 
   !> Writes the data.
   !! @param t The time value.
@@ -90,7 +101,7 @@ contains
          do i = 1, size(fields)
             call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
                  fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                 sync=(i .eq. size(fields))) ! Sync on the last field
+                 sync = (i .eq. size(fields))) ! Sync on the last field
          end do
        end associate
 

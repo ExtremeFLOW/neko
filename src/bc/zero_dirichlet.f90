@@ -32,7 +32,8 @@
 !
 !> Defines a zero-valued Dirichlet boundary condition.
 module zero_dirichlet
-  use device_zero_dirichlet
+  use device_zero_dirichlet, only : device_zero_dirichlet_apply_scalar, &
+       device_zero_dirichlet_apply_vector
   use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr

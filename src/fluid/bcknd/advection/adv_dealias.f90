@@ -32,19 +32,19 @@
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module adv_dealias
-  use advection, only: advection_t
-  use num_types, only: rp
-  use math, only: vdot3, sub2
-  use space, only: space_t, GL
-  use field, only: field_t
-  use coefs, only: coef_t
-  use device_math, only: device_vdot3, device_sub2
-  use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
+  use advection, only : advection_t
+  use num_types, only : rp
+  use math, only : vdot3, sub2
+  use space, only : space_t, GL
+  use field, only : field_t
+  use coefs, only : coef_t
+  use device_math, only : device_vdot3, device_sub2
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
        NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
-  use operators, only: opgrad
-  use interpolation, only: interpolator_t
-  use device, only: device_map, device_get_ptr, device_free
-  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
+  use operators, only : opgrad
+  use interpolation, only : interpolator_t
+  use device, only : device_map, device_get_ptr, device_free
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 

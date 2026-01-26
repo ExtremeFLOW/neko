@@ -34,34 +34,34 @@
 !> A PDE based filter
 
 module PDE_filter
-  use num_types, only: rp
-  use json_module, only: json_file
-  use json_utils, only: json_get_or_default, json_get
-  use field_registry, only: neko_field_registry
-  use field, only: field_t
-  use coefs, only: coef_t
-  use ax_product, only: ax_t, ax_helm_factory
-  use krylov, only: ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only: pc_t, precon_factory, precon_destroy
+  use num_types, only : rp
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_default, json_get
+  use registry, only : neko_registry
+  use field, only : field_t
+  use coefs, only : coef_t
+  use ax_product, only : ax_t, ax_helm_factory
+  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
+  use precon, only : pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
-  use neumann, only: neumann_t
-  use profiler, only: profiler_start_region, profiler_end_region
-  use gather_scatter, only: gs_t, GS_OP_ADD
-  use pnpn_residual, only: pnpn_prs_res_t
-  use mesh, only: mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use field_registry, only: neko_field_registry
-  use filter, only: filter_t
-  use scratch_registry, only: neko_scratch_registry
-  use field_math, only: field_copy, field_add3
-  use coefs, only: coef_t
-  use logger, only: neko_log, LOG_SIZE
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use dofmap, only: dofmap_t
-  use jacobi, only: jacobi_t
-  use device_jacobi, only: device_jacobi_t
-  use sx_jacobi, only: sx_jacobi_t
-  use utils, only: neko_error
-  use device_math, only: device_cfill, device_subcol3, device_cmult
+  use neumann, only : neumann_t
+  use profiler, only : profiler_start_region, profiler_end_region
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use pnpn_residual, only : pnpn_prs_res_t
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
+  use registry, only : neko_registry
+  use filter, only : filter_t
+  use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy, field_add3
+  use coefs, only : coef_t
+  use logger, only : neko_log, LOG_SIZE
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use dofmap, only : dofmap_t
+  use jacobi, only : jacobi_t
+  use device_jacobi, only : device_jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use utils, only : neko_error
+  use device_math, only : device_cfill, device_subcol3, device_cmult
   implicit none
   private
 

@@ -34,8 +34,8 @@
 module logger
   use comm, only : pe_rank
   use num_types, only : rp
-  use utils, only: neko_error
-  use, intrinsic :: iso_fortran_env, only: stdout => output_unit, &
+  use utils, only : neko_error
+  use, intrinsic :: iso_fortran_env, only : stdout => output_unit, &
        stderr => error_unit
   implicit none
   private
@@ -51,6 +51,9 @@ module logger
      integer, private :: tab_size_
      integer, private :: level_
      integer, private :: unit_
+
+     character(len=LOG_SIZE), private :: section_header = ""
+
    contains
      procedure, pass(this) :: init => log_init
      procedure, pass(this) :: free => log_free
@@ -63,7 +66,11 @@ module logger
      procedure, pass(this) :: header => log_header
      procedure, pass(this) :: error => log_error
      procedure, pass(this) :: warning => log_warning
+     procedure, pass(this) :: deprecated => log_deprecated
      procedure, pass(this) :: end_section => log_end_section
+
+     procedure, private, pass(this) :: print_section_header => &
+          log_print_section_header
   end type log_t
 
   !> Global log stream
@@ -74,8 +81,13 @@ module logger
   integer, public, parameter :: NEKO_LOG_INFO = 1
   !> Verbose log level
   integer, public, parameter :: NEKO_LOG_VERBOSE = 2
+  !> Deprecation error level
+  integer, public, parameter :: NEKO_LOG_DEPRECATION_ERROR = 5
   !> Debug log level
   integer, public, parameter :: NEKO_LOG_DEBUG = 10
+
+  !> List of already logged deprecated features
+  character(len=50), dimension(:), allocatable :: deprecated_list
 
 contains
 
@@ -130,6 +142,10 @@ contains
     this%level_ = NEKO_LOG_INFO
     this%unit_ = -1
 
+    if (allocated(deprecated_list)) then
+       deallocate(deprecated_list)
+    end if
+
   end subroutine log_free
 
   !> Increase indention level
@@ -154,6 +170,8 @@ contains
        this%section_id_ = this%section_id_ - 1
        this%indent_ = this%indent_ - this%tab_size_
     end if
+
+    this%section_header = ""
 
   end subroutine log_end
 
@@ -192,7 +210,7 @@ contains
 
   !> Write a message to a log
   subroutine log_message(this, msg, lvl)
-    class(log_t), intent(in) :: this
+    class(log_t), intent(inout) :: this
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
     integer :: lvl_
@@ -205,6 +223,10 @@ contains
 
     if (lvl_ .gt. this%level_) then
        return
+    end if
+
+    if (len_trim(this%section_header) .gt. 0) then
+       call this%print_section_header(lvl)
     end if
 
     if (pe_rank .eq. 0) then
@@ -258,14 +280,74 @@ contains
 
   end subroutine log_warning
 
+  !> Write a deprecation warning to a log
+  !! @param feature Name of the deprecated feature
+  !! @param removal_version Optional version when the feature will be removed
+  !! @param extra_info Optional additional message to print
+  subroutine log_deprecated(this, feature, removal_version, extra_info)
+    class(log_t), intent(inout) :: this
+    character(len=*), intent(in) :: feature
+    character(len=*), intent(in), optional :: removal_version
+    character(len=*), intent(in), optional :: extra_info
+    character(len=LOG_SIZE) :: msg
+    character(len=50), dimension(:), allocatable :: deprecated_list_local
+    integer :: i
+
+    if (this%level_ .lt. NEKO_LOG_QUIET) return
+
+    if (.not. allocated(deprecated_list)) then
+       allocate(character(len=50) :: deprecated_list(1))
+       deprecated_list = trim(feature)
+    else
+       ! Check that the feature have not already been logged
+       do i = 1, size(deprecated_list)
+          if (trim(deprecated_list(i)) .eq. trim(feature)) return
+       end do
+
+       ! Save the feature to the list of deprecated features
+       call move_alloc(deprecated_list, deprecated_list_local)
+       allocate(character(len=50)::deprecated_list(size(deprecated_list_local)+1))
+       deprecated_list(1:size(deprecated_list_local)) = deprecated_list_local
+       deprecated_list(size(deprecated_list_local) + 1) = trim(feature)
+       deallocate(deprecated_list_local)
+    end if
+
+    ! Construct deprecation message
+    write(msg, '(A,A)') '*** DEPRECATION: ', trim(feature)
+    call this%message(msg)
+    write(msg, '(A,A,A)') 'The feature "', trim(feature), &
+         '" is deprecated.'
+    call this%message(msg)
+
+    if (present(removal_version)) then
+       write(msg, '(A,A,A)') 'It will be removed in version ', &
+            trim(removal_version), '.'
+       call this%message(msg)
+    end if
+
+    if (present(extra_info)) then
+       call this%message(extra_info)
+    end if
+
+    call this%message('***')
+
+    if (this%level_ .ge. NEKO_LOG_DEPRECATION_ERROR) then
+       call neko_error('Deprecated feature used: ' // trim(feature))
+    end if
+
+  end subroutine log_deprecated
+
   !> Begin a new log section
   subroutine log_section(this, msg, lvl)
     class(log_t), intent(inout) :: this
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
 
-    character(len=LOG_SIZE) :: log_msg
     integer :: pre, pos
+
+    if (len_trim(this%section_header) .gt. 0) then
+       call this%print_section_header(lvl)
+    end if
 
     call this%begin()
 
@@ -273,13 +355,36 @@ contains
        pre = (30 - len_trim(msg)) / 2
        pos = 30 - (len_trim(msg) + pre)
 
-       write(log_msg, '(A,A,A)') repeat('-', pre), trim(msg), repeat('-', pos)
-
-       call this%newline(lvl)
-       call this%message(trim(log_msg), lvl)
+       write(this%section_header, '(A,A,A)') &
+            repeat('-', pre), trim(msg), repeat('-', pos)
     end if
 
   end subroutine log_section
+
+  !> Print a section header
+  subroutine log_print_section_header(this, lvl)
+    class(log_t), intent(inout) :: this
+    integer, optional :: lvl
+    integer :: lvl_
+
+    if (present(lvl)) then
+       lvl_ = lvl
+    else
+       lvl_ = NEKO_LOG_INFO
+    end if
+
+    if (lvl_ .gt. this%level_) then
+       return
+    end if
+
+    if (pe_rank .eq. 0) then
+       call this%newline(lvl)
+       call this%indent()
+       write(this%unit_, '(A)') trim(this%section_header)
+       this%section_header = ""
+    end if
+
+  end subroutine log_print_section_header
 
   !> End a log section
   subroutine log_end_section(this, msg, lvl)

@@ -72,6 +72,7 @@ void opencl_zero_dirichlet_apply_scalar(void *msk, void *x, int *m,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -102,5 +103,5 @@ void opencl_zero_dirichlet_apply_vector(void *msk, void *x, void *y,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
-
+  CL_CHECK(clReleaseKernel(kernel));
 }

@@ -5,10 +5,10 @@
 The case file defines all the parameters of a simulation.
 The format of the file is JSON, making it easy to read and write case files
 using the majority of the popular programming languages.
-JSON is hierarchical and, and consists of parameter blocks enclosed in curly
+JSON is hierarchical and consists of parameter blocks enclosed in curly
 braces.
 These blocks are referred to as objects.
-The case file makes use objects to separate the configuration of different parts
+The case file makes use of objects to separate the configuration of different parts
  of the solver.
 We refer the reader to the examples shipped with the code to get a good
 idea of how a case file looks.
@@ -20,13 +20,14 @@ The current high-level structure of the case file is shown below.
 
 ~~~~~~~~~~~~~~~{.json}
 {
-    "version": 1.0
+    "version": 1.0,
     "case": {
-        "time": {}
-        "numerics": {}
-        "fluid": {}
-        "scalar": {}
-        "simulation_components" : []
+        "constants": [],
+        "time": {},
+        "numerics": {},
+        "fluid": {},
+        "scalar": {},
+        "simulation_components" : [],
         "point_zones" : []
     }
 }
@@ -38,8 +39,9 @@ multiple scalar fields, the `name` property of each scalar field is used to
 identify the scalar field in the user file, defaulted to `s_1, s_2, ...`.
 
 The `version` keyword is reserved to track changes in the format of the file.
-The subsections below we list all the configuration options for each of the high-level objects.
-Some parameters will have default values, and are therefore optional.
+The subsections below list all the configuration options for each of the
+high-level objects. Some parameters will have default values, and are therefore
+optional.
 
 ## Output frequency control
 A common scheme for controlling the output frequency is applied for various
@@ -52,9 +54,9 @@ The frequency is controlled by two parameters, ending with `_control` and
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
 
-The `_value` parameter is a number, that defines the output frequency, but the
-interpretation of that number depends on the choice of `_control`.
-The three following options are possible.
+The `_value` parameter is a *real* number, that defines the output frequency,
+but the interpretation of that number depends on the choice of `_control`. The
+three following options are possible.
 1. `simulationtime`, then `_value` is the time interval between the outputs.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
@@ -80,7 +82,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_partitions`   | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
 | `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
 | `checkpoint_control`  | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
-| `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
+| `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                       | -             |
 | `checkpoint_filename` | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
 | `checkpoint_format`   | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
@@ -89,9 +91,64 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
+### Constants
+The `constants` array allows the user to define parameters that are global to
+the case file, and can be referred to when setting the values of other
+parameters. Two types of parameters can be defined: scalars and arrays. Each is
+represented as a subobject inside the `constants` object and should containt two
+entries: `name` and `value`. Here is an example:
+
+```json
+"constants":
+[
+  {
+    "name": "const1",
+    "value": 3.5
+  },
+  {
+    "name": "vector1",
+    "value": [1, 0, 1]
+  }
+]
+```
+
+Other parameters in the case file that require a scalar or array entry, can
+instead be defined as a string, pointing to the name of the corresponding
+parameter in the `constants` object. As an example, recall that output frequency
+is controlled by the keyword `output_value`. It is a plausible scenario that the
+frequency is the same for multiple solvers, simulation components, etc. Assuming
+a simulation with both [fluid](@ref case-file_fluid) and [scalar](@ref
+case-file_scalar) solvers active, the following could be used.
+
+```json
+"constants":
+[
+  {
+    "name": "common_output_value",
+    "value": 10
+  }
+],
+"fluid":
+{
+  "output_value": "common_output_value"
+},
+"scalar":
+{
+  "output_value": "common_output_value"
+}
+```
+The advantage is that this guarantees that the fluid and scalar output will be
+in sync, and if one wants to change the frequency only does that in one place in
+the case file. Another use case is demonstrated in the `hemi` example, where the
+freestream velocity is defined under `constants` and then used to setup both
+initial and boundary conditions.
+
+Under the hood, Neko stores the constants in an object called
+`neko_const_registry`, which is of the type `registry_t` (same as
+`neko_registry`). The object is accessible in the [user file](@ref user-file).
 
 ### Time control
-The time control object is used to define the time-stepping of the simulation,
+The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
 to the variable time-stepping algorithm.
 
@@ -143,7 +200,6 @@ of the boundary as follows.
 | velocity_value                  | 2   |
 | outflow, normal_outflow (+dong) | 3   |
 | symmetry                        | 4   |
-| user_velocity_pointwise         | 5   |
 | periodic                        | 6   |
 | user_velocity                   | 7   |
 | user_pressure                   | 8   |
@@ -165,7 +221,7 @@ Used to define the properties of the numerical discretization.
 | `oifs`                       | Whether to apply the Operator-Integration-Factor-Splitting (OIFS).                                              | `true` or `false`          | `false`                         |
 | `oifs_target_cfl`            | The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.                      | Positive real              | `1.9`                           |
 
-## Fluid
+## Fluid {#case-file_fluid}
 
 The configuration of the fluid solver and the flow problem.
 Contains multiple subobjects for various parts of the setup.
@@ -201,6 +257,86 @@ stress tensor requires solving the 3 equations for the velocity components in a
 coupled manner, which requires an appropriate linear solver. By default, Neko
 will use the simplified form of the tensor, and the full one must be selected
 by the user by setting `full_stress_formulation` to true.
+
+### Compressible flows
+
+Neko supports compressible flow simulations via the compressible solver.
+To enable compressible flow, set `"scheme": "compressible"` in the fluid
+configuration. This solver integrates the compressible Euler equations (full
+Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time
+integration scheme with artificial viscosity for stability.
+
+The compressible solver requires the following parameters:
+
+| Name    | Description                              | Admissible values | Default value |
+| ------- | ---------------------------------------- | ----------------- | ------------- |
+| `gamma` | Ratio of specific heats for ideal gas    | Positive reals    | `1.4`         |
+
+Additional numerics parameters specific to compressible flows:
+
+| Name                | Description                                       | Admissible values | Default value |
+| ------------------- | ------------------------------------------------- | ----------------- | ------------- |
+| `c_avisc_low`       | Coefficient for low-order artificial viscosity    | Positive reals    | `0.5`         |
+| `c_avisc_entropy`   | Coefficient for entropy-based artificial viscosity| Positive reals    | `1.0`         |
+
+The compressible solver uses variable time-stepping controlled by the CFL
+number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
+control object.
+
+Example configuration:
+~~~~~~~~~~~~~~~{.json}
+{
+  "fluid": {
+    "scheme": "compressible",
+    "gamma": 1.4,
+    "initial_condition": {
+      "type": "user"
+    },
+    "boundary_conditions": [
+      {
+        "type": "velocity_value",
+        "zone_indices": [1],
+        "value": [3, 0, 0]
+      },
+      {
+        "type": "density_value",
+        "zone_indices": [1],
+        "value": 1.4
+      },
+      {
+        "type": "pressure_value",
+        "zone_indices": [1],
+        "value": 1
+      }
+    ],
+    "output_control": "nsamples",
+    "output_value": 20
+  },
+  "numerics": {
+    "time_order": 3,
+    "polynomial_order": 5,
+    "c_avisc_low": 0.5,
+    "c_avisc_entropy": 0.5
+  }
+}
+~~~~~~~~~~~~~~~
+
+#### Compressible boundary conditions
+
+The compressible solver supports the following boundary conditions:
+
+| Boundary Condition  | Description                                |
+| ------------------- | ------------------------------------------ |
+| velocity_value      | Dirichlet condition for velocity (inflow)  |
+| density_value       | Dirichlet condition for density            |
+| pressure_value      | Dirichlet condition for pressure           |
+| no_slip             | Zero velocity wall                         |
+| symmetry            | Symmetry plane                             |
+| outflow             | Pressure outlet (zero gradient)            |
+| normal_outflow      | Normal outflow condition                   |
+
+For examples of compressible flow setups, see the `euler_1d_sod`,
+`euler_2d_forward_facing_step`, and `euler_tgv` examples.
 
 ### Turbulence modelling
 
@@ -270,7 +406,6 @@ table below.
 | blasius_profile         | A Blasius velocity profile.                                                                                                                            |
 | user_velocity           | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
 | user_pressure           | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
-| user_velocity_pointwise | The pointwise user-defined Dirichlet condition for velocity.                                                                                           |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -388,17 +523,6 @@ A more detailed description of each boundary condition is provided below.
     "h_index": 1
   }
   ```
-* `user_pointwise`. Allows to set the velocity values using the appropriate
-  routine in the user file. The routine is executed on a pointwise basis, which
-  is reflected in the name of this condition. It is advisable to instead use the
-  more general `user_velocity` condition. Requires no additional keywords.
-
-  ```json
-  {
-    "type": "user_pointwise",
-    "zone_indices": [1, 2]
-  }
-  ```
 * `user_velocity`, a Dirichlet boundary for more complex velocity profiles. This boundary
   condition uses a [more advanced user
   interface](#user-file_field-dirichlet-update).
@@ -446,13 +570,12 @@ file documentation.
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
-
-| Name             | Description                                                                                        | Admissible values            | Default value |
-| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
-| `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
-| `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
-| `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
-| `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`   |
+   | Name             | Description                                                                                        | Admissible values            | Default value |
+   |------------------|----------------------------------------------------------------------------------------------------|------------------------------|---------------|
+   | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
+   | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
+   | `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
+   | `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`   |
 
    @attention Interpolating a field from the same mesh but different
    polynomial order is performed implicitly and does not require to enable
@@ -467,13 +590,13 @@ file documentation.
    ~~~~~~~~~~~~~~~
    The output `#std 4 ...` indicates single precision,
    whereas `#std 8 ...` indicates double precision.
-   Neko write single precision `fld` files by default. To write your
+   Neko writes single precision `fld` files by default. To write your
    files in double precision, set `case.output_precision` to
    `"double"`.
 
-   @attention Neko does not detect wether interpolation is needed or not.
+   @attention Neko does not automatically detect if interpolation is needed.
    Interpolation will always be performed if `"interpolate"` is set
-   to `true` even if the field file matches with the current simulation.
+   to `true`, even if the field file matches with the current simulation.
 
 
 ### Source terms {#case-file_fluid-source-term}
@@ -539,15 +662,15 @@ The following types are currently implemented.
    - `reference_point`: Array with 3 values. Deifines any point on the rotaion
    axis.
 
-5. `user_pointwise`, the values are set inside the compiled user file, using the
-   pointwise user file subroutine. Only works on CPUs!
-6. `user_vector`, the values are set inside the compiled user file, using the
-   non-pointwise user file subroutine. Should be used when running on the GPU.
-7. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
-8. `gradient_jump_penalty`, perform gradient_jump_penalisation.
-
 @note Notice that to perform simulation in a rotating reference frame one has to
 define both `coriolis` and `centrifugal` source terms in a consistent way.
+
+5. `user`, the values are set inside the compiled user file, using the
+   corresponding user file subroutine.
+6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
+8. `sponge`, adds a sponge term based on a reference velocity field, which is
+   applied in a user-specified region of the domain.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -693,6 +816,243 @@ uses the following parameters:
 * `scaling_exponent`, the scaling parameter \f$ b \f$ for \f$ P > 1 \f$, default
   to be `4.0`.
 
+#### Sponge
+
+The sponge source term adds a term to each of the momentum equations of the form
+
+\f$ \mathbf{\lambda} f(\mathbf{x}) ( \mathbf{u}^{bf} - \mathbf{u}) \f$
+
+where:
+
+- \f$ \mathbf{\lambda} \f$ is a 3-element vector of amplitudes of the sponge forcing in each Cartesian direction,
+- \f$ \mathbf{u}^{\text{bf}} \f$ is a reference (baseflow) velocity field,
+- \f$ f(\mathbf{x}) \f$ is a user-defined sponge mask field, defining where the sponge is active.
+
+Amplitudes are specified using the `amplitudes` keyword with an array of
+3 reals. Any of those values can be set to 0 to suppress the forcing in that
+particular direction. For example `[1.0, 1.0, 0.0]` will multiply the fringe
+field by 1, 1, and 0 in the `x`, `y` and `z` directions respectively,
+effectively removing the forcing in the `z` direction.
+
+The reference velocity field, or `baseflow` can be set from three methods:
+1. `constant`, applies constant values according to the `values` keyword:
+
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   "source_terms": [
+      {
+         "type": "sponge",
+         "amplitudes": [1.0, 1.0, 1.0],
+         "baseflow": {
+             "method": "constant",
+             "value": [2.0, 0.0, 0.0]
+         }
+      }
+   ]
+   ```
+   </details>
+
+2. `field`, where the velocity fields are retrieved from an `fld` file.
+   Uses the same parameters as the field initial condition.
+   @note The same parameters as the `field` initial condition apply here.
+
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   "source_terms": [
+      {
+         "type": "sponge",
+         "amplitudes": [1.0, 1.0, 1.0],
+         "baseflow": {
+             "method": "field",
+             "file_name": "my_field0.f00016",
+             "mesh_file_name": "my_field0.f00000",
+             "interpolate": true,
+             "tolerance": 1e-6
+         }
+      }
+   ]
+   ```
+   </details>
+
+3. `user`, where the velocity field is set according to what
+   is defined in the user file. Useful for setting
+   velocity fields manually. In this case, the base flow fields must be
+   created and added to the `neko_registry` (see fortran code snippet
+   below).
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   "source_terms": [
+      {
+         "type": "sponge",
+         "amplitudes": [1.0, 1.0, 1.0],
+         "baseflow": {
+             "method": "user"
+         }
+      }
+   ]
+   ```
+   </details>
+
+Finally, the fringe function field must be filled by the user. This must be
+done through the user file by adding the fringe field to the
+`neko_registry` in either `user_init_modules` or `fluid_user_ic` (more
+specifically, before the first call to compute the sponge source term).
+
+The fringe field must be set by adding a field to the `neko_registry`
+under a specific name that can be retrieved internally. By default, Neko will
+search for the field `"sponge_fringe"` in the registry, but this can be changed
+by setting the parameter `fringe_registry_name`, which is important when using
+more than one sponge source term.
+
+The same principle applies for the base flow fields (if `"method": "user"`).
+By default, neko will search for the base flow fields in the registry using
+the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
+This prefix can be changed by setting the parameter `bf_registry_prefix`.
+
+<details>
+<summary><b><u>Example using `user_init_modules`</u></b></summary>
+
+```fortran
+module user
+  use neko
+  implicit none
+
+contains
+
+  ! Register user-defined functions (see user_intf.f90)
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%initialize => user_initialize
+  end subroutine user_setup
+
+  ! User-defined initialization called just before time loop starts
+  subroutine user_initialize(t)
+    type(time_state_t), intent(in) :: t
+
+    type(field_t), pointer :: u, fringe, ubf, vbf, wbf
+    real(kind=rp) :: x, y, xmin1, delta_rise1, xmin2, delta_rise2
+    integer :: i, imask
+
+    !
+    ! 1. Add the "sponge_field" to the field registry.
+    !    NOTE: The name of the fringe field in the registry
+    !    can be changed with the parameter `fringe_registry_name`.
+    !
+    !
+    u => neko_registry%get_field("u")
+    call neko_registry%add_field(u%dof,"sponge_fringe")
+    fringe => neko_registry%get_field("sponge_fringe")
+
+    ! Initialize the base flows
+    call neko_registry%add_field(u%dof,"sponge_bf_u")
+    ubf => neko_registry%get_field("sponge_bf_u")
+    call neko_registry%add_field(u%dof,"sponge_bf_v")
+    vbf => neko_registry%get_field("sponge_bf_v")
+    call neko_registry%add_field(u%dof,"sponge_bf_w")
+    wbf => neko_registry%get_field("sponge_bf_w")
+
+    !
+    ! 2. Set the function f(x,y,z) from 0 to 1. in two zones of the mesh,
+    !    a top region in x \in [xmin1, +\infty[, y \in [0, +\infty[
+    !  and a bottom region x \in [xmin2, +\infty[, y \in ]-\infty, 0[
+    !
+    !    A smoothing function S(x) is applied at the beginning of each zone,
+    !    with a rising distance of delta_rise1 and delta_rise2
+    !
+
+    ! Bottom boundary
+    xmin1 = 3.0_rp
+    delta_rise1 = 3.0_rp
+
+    ! Top boundary
+    xmin2 = 20.0_rp
+    delta_rise2 = 7.0_rp
+
+    fringe = 0.0_rp
+    do i = 1, fringe%size()
+        x = fringe%dof%x(i,1,1,1)
+        y = fringe%dof%y(i,1,1,1)
+
+        ! Bottom boundary
+        if ( (y .lt. 0.0_rp) .and. (x .gt. xmin1)) then
+           fringe%x(i,1,1,1) = S( (x - xmin1)/delta_rise1 )
+
+        ! Top boundary
+        else if ( (y .gt. 0.0_rp) .and. (x .gt. xmin2)) then
+           fringe%x(i,1,1,1) = S( (x - xmin2)/delta_rise2 )
+        end if
+
+       ! Set ubf,vbf to something random
+       ubf%x(i,1,1,1) = sin(3.1415926_rp*2.0_rp/10.0_rp * x)
+       vbf%x(i,1,1,1) = cos(3.1415926_rp*2.0_rp/10.0_rp * y)
+
+    end do
+
+    wbf = 0.0_rp
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
+            HOST_TO_DEVICE, .false.)
+       call device_memcpy(vbf%x, vbf%x_d, vbf%size(), &
+            HOST_TO_DEVICE, .false.)
+       call device_memcpy(fringe%x, fringe%x_d, fringe%size(), &
+            HOST_TO_DEVICE, .false.)
+    end if
+
+    ! NOTE: You can dump the fringe field to file using the `dump_fields`
+    ! parameter. The fringe field will be stored under `pressure`.
+
+    nullify(fringe)
+    nullify(u)
+    nullify(ubf)
+    nullify(vbf)
+    nullify(wbf)
+
+  end subroutine user_initialize
+
+  ! Smooth step function, 0 if x <= 0, 1 if x >= 1, 1/erp(1/(x-1) + 1/x) between 0 and 1
+  function S(x) result(y)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp)             :: y
+
+    if ( x.le.0._rp ) then
+       y = 0._rp
+    else if ( x.ge.1._rp ) then
+       y = 1._rp
+    else
+       y = 1._rp / (1._rp + exp( 1._rp/(x-1._rp) + 1._rp/x))
+    end if
+
+  end function S
+
+end module user
+```
+
+</details>
+
+In order to visualize your baseflow and fringe field, you may set
+`dump_fields` to `true`. An `fld` file will be written to disk as
+`spng_fields.fld`(note, not in `output_directory`) with the fringe field
+stored as `pressure`. You may change the name of the field file by setting
+`dump_file_name` (must have the extension `fld`).
+
+The parameters for the sponge source term are summarized in the table below:
+
+| Name                     | Description                                                                 | Admissible values                     | Default value       |
+|--------------------------|-----------------------------------------------------------------------------|---------------------------------------|---------------------|
+| `amplitudes`             | Sponge forcing strength in each Cartesian direction                         | Array of 3 reals                      | -                   |
+| `baseflow.method`        | Method to define the reference (baseflow) velocity                          | `"constant"`, `"field"`, `"user"` | -          |
+| `baseflow.value`        | Velocity vector for constant baseflow                                       | Array of 3 reals                      | -                   |
+| `baseflow.file_name`     | File containing baseflow velocity field                                     | String                                | -                   |
+| `baseflow.mesh_file_name`| Mesh file corresponding to the baseflow field                               | String                                | -                   |
+| `baseflow.interpolate`   | Whether to interpolate field values to current mesh                         | Boolean                               | `false`             |
+| `baseflow.tolerance`     | Tolerance for interpolation convergence                                     | Real                                  | -                   |
+| `fringe_registry_name`   | Name of the fringe mask field in `neko_registry`                      | String                                | `"sponge_fringe"`   |
+| `baseflow_registry_prefix`   | Prefix of the base flow fields in `neko_registry`                      | String                                | `"sponge_bf"`   |
+| `dump_fields`            | If `true`, dumps the fringe and baseflow fields for visualization           | Boolean                               | `false`             |
+| `dump_file_name`         | Name of the `fld` file in which to dump the base flow and fringe fields     | String ending with `fld`              | `spng_fields.fld`   |
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
@@ -735,6 +1095,12 @@ convergence criteria. This is done by setting the
 `case.fluid.strict_convergence` keyword to `true`. This will force the solver to
 converge to the specified tolerance within the specified number of iterations.
 If the solver does not converge, the simulation will be terminated.
+This can in some situations cause issues if the initial condition is far from a
+valid solution. Therefore a user can allow an initial stabilization phase by
+setting the `case.fluid.allow_stabilization` keyword to `true`. In this case,
+the strict convergence will be ignored untill all components of the velocity
+field converge within the specified tolerance. After this initial stabilization
+phase, strict convergence will be enforced for the rest of the simulation.
 
 ### Multilevel preconditioners
 The multilevel preconditioners, `hsmg` and `phmg`, come with an
@@ -829,6 +1195,8 @@ concisely directly in the table.
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                               | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                           | `false`       |
+| `strict_convergence`                    | Whether to enforce strict convergence in the linear solvers.                                      | `true` or `false`                                           | `false`       |
+| `allow_stabilization`                   | Whether to allow an initial stabilization phase before enforcing strict convergence.              | `true` or `false`                                           | `false`       |
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
 | `full_stress_formulation`               | Whether to use the full form of the visous stress tensor term.                                    | `true` or `false`                                           | `false`       |
 
@@ -876,13 +1244,6 @@ Four types of conditions are available for the scalar:
   {
     "type": "neumann",
     "flux": 1,
-    "zone_indices": [1, 2]
-  }
-  ```
-* `user_pointwise`. Sets the scalar in the pointwise user interface routine.
-  ```json
-  {
-    "type": "user_poinwise",
     "zone_indices": [1, 2]
   }
   ```

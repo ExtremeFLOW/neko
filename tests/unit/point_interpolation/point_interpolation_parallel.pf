@@ -10,7 +10,7 @@ module point_interpolation_parallel
   use space
   use point
   use datadist
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
   use device
   use neko_config
   implicit none
@@ -32,6 +32,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
+    call comm_init
   end subroutine setUp
 
   subroutine tearDown(this)

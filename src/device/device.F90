@@ -36,7 +36,7 @@ module device
   use opencl_intf
   use cuda_intf
   use hip_intf
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use htable, only : htable_cptr_t, h_cptr_t
   use utils, only : neko_error
   use opencl_prgm_lib

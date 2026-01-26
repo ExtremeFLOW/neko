@@ -35,9 +35,9 @@
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
-  use num_types, only: rp
+  use num_types, only : rp
   use field, only : field_t
-  use field_list, only: field_list_t
+  use field_list, only : field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
@@ -51,27 +51,27 @@ module scalar_scheme
   use bc, only : bc_t
   use bc_list, only : bc_list_t
   use precon, only : pc_t, precon_factory, precon_destroy
-  use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
+  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use registry, only : neko_registry
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
   use utils, only : neko_error, neko_warning
-  use comm, only: NEKO_COMM
+  use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
   use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
-       field_copy
+       field_copy, field_col2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
-  use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
@@ -124,6 +124,8 @@ module scalar_scheme
      type(chkp_t), pointer :: chkp => null()
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
+     !> The turbulent diffusivity field name
+     character(len=:), allocatable :: alphat_field_name
      !> Density.
      type(field_t), pointer :: rho => null()
      !> Thermal diffusivity.
@@ -138,6 +140,8 @@ module scalar_scheme
      type(field_list_t) :: material_properties
      procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
+     !> Freeze the scheme, i.e. do nothing in step()
+     logical :: freeze = .false.
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -253,11 +257,12 @@ contains
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
-    real(kind=rp) :: GJP_param_a, GJP_param_b
+    type(json_file) :: json_subdict
+    logical :: nut_dependency
 
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
+    this%u => neko_registry%get_field('u')
+    this%v => neko_registry%get_field('v')
+    this%w => neko_registry%get_field('w')
     this%rho => rho
 
     ! Assign a name
@@ -265,18 +270,21 @@ contains
     ! default.
     call json_get(params, 'name', this%name)
 
+    ! Set the freeze flag
+    call json_get_or_default(params, 'freeze', this%freeze, .false.)
+
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
     call json_get(params, 'solver.preconditioner', precon_params)
-    call json_get(params, 'solver.absolute_tolerance', &
+    call json_get_or_lookup(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.projection_space_size', &
          this%projection_dim, 0)
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
@@ -295,10 +303,10 @@ contains
     this%params => params
     this%msh => msh
 
-    call neko_field_registry%add_field(this%dm_Xh, this%name, &
+    call neko_registry%add_field(this%dm_Xh, this%name, &
          ignore_existing = .true.)
 
-    this%s => neko_field_registry%get_field(this%name)
+    this%s => neko_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -314,11 +322,17 @@ contains
     !
     ! Turbulence modelling
     !
-    if (params%valid_path('nut_field')) then
-       call json_get(params, 'Pr_t', this%pr_turb)
-       call json_get(params, 'nut_field', this%nut_field_name)
-    else
-       this%nut_field_name = ""
+    this%alphat_field_name = ""
+    this%nut_field_name = ""
+    if (params%valid_path('alphat')) then
+       call json_get(this%params, 'alphat', json_subdict)
+       call json_get(json_subdict, 'nut_dependency', nut_dependency)
+       if (nut_dependency) then
+          call json_get(json_subdict, 'Pr_t', this%pr_turb)
+          call json_get(json_subdict, 'nut_field', this%nut_field_name)
+       else
+          call json_get(json_subdict, 'alphat_field', this%alphat_field_name)
+       end if
     end if
 
     !
@@ -332,7 +346,7 @@ contains
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.max_iterations', &
          integer_val, KSP_MAX_ITER)
     call json_get_or_default(params, &
@@ -478,7 +492,7 @@ contains
   subroutine scalar_scheme_update_material_properties(this, time)
     class(scalar_scheme_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    type(field_t), pointer :: nut
+    type(field_t), pointer :: nut, alphat
     integer :: index
     ! Factor to transform nu_t to lambda_t
     type(field_t), pointer :: lambda_factor
@@ -487,15 +501,33 @@ contains
          time)
 
     ! factor = rho * cp / pr_turb
-    if (len(trim(this%nut_field_name)) > 0) then
-       nut => neko_field_registry%get_field(this%nut_field_name)
+    if (len_trim(this%nut_field_name) .gt. 0 &
+         .and. len_trim(this%alphat_field_name) .eq. 0 ) then
+       nut => neko_registry%get_field(this%nut_field_name)
 
        ! lambda_tot = lambda + rho * cp * nut / pr_turb
-       call neko_scratch_registry%request_field(lambda_factor, index)
-       call field_col3(lambda_factor, this%cp, this%rho)
+       call neko_scratch_registry%request_field(lambda_factor, index, .false.)
        call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
+       call field_col2(lambda_factor, this%cp)
+       call field_col2(lambda_factor, this%rho)
        call field_add3(this%lambda_tot, this%lambda, lambda_factor)
        call neko_scratch_registry%relinquish_field(index)
+
+    else if (len_trim(this%alphat_field_name) .gt. 0 &
+         .and. len_trim(this%nut_field_name) .eq. 0 ) then
+       alphat => neko_registry%get_field(this%alphat_field_name)
+
+       ! lambda_tot = lambda + rho * cp * alphat
+       call neko_scratch_registry%request_field(lambda_factor, index, .false.)
+       call field_col3(lambda_factor, this%cp, alphat)
+       call field_col2(lambda_factor, this%rho)
+       call field_add3(this%lambda_tot, this%lambda, lambda_factor)
+       call neko_scratch_registry%relinquish_field(index)
+
+    else if (len_trim(this%alphat_field_name) .gt. 0 &
+         .and. len_trim(this%nut_field_name) .gt. 0 ) then
+       call neko_error("Conflicting definition of eddy diffusivity " // &
+            "for the scalar equation")
     end if
 
     ! Since cp is a fields and we use the %x(1,1,1,1) of the
@@ -504,7 +536,7 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
 
   end subroutine scalar_scheme_update_material_properties
@@ -527,12 +559,12 @@ contains
 
     ! Fill lambda field with the physical value
 
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda_tot")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_cp")
-    this%lambda => neko_field_registry%get_field(this%name // "_lambda")
-    this%lambda_tot => neko_field_registry%get_field(this%name // "_lambda_tot")
-    this%cp => neko_field_registry%get_field(this%name // "_cp")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_lambda")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_lambda_tot")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_cp")
+    this%lambda => neko_registry%get_field(this%name // "_lambda")
+    this%lambda_tot => neko_registry%get_field(this%name // "_lambda_tot")
+    this%cp => neko_registry%get_field(this%name // "_cp")
 
     call this%material_properties%init(2)
     call this%material_properties%assign(1, this%cp)
@@ -558,13 +590,13 @@ contains
           write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
                ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
-          write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
+          write(log_buf, '(A)') 'Specific heat capacity will be set to 1, '
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'conductivity to 1/Pe. Assumes density is 1.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'Pe', const_lambda)
+          call json_get_or_lookup(params, 'Pe', const_lambda)
           write(log_buf, '(A,ES13.6)') 'Pe         :', const_lambda
           call neko_log%message(log_buf)
 
@@ -574,8 +606,8 @@ contains
           const_lambda = 1.0_rp/const_lambda
           ! Dimensional case
        else
-          call json_get(params, 'lambda', const_lambda)
-          call json_get(params, 'cp', const_cp)
+          call json_get_or_lookup(params, 'lambda', const_lambda)
+          call json_get_or_lookup(params, 'cp', const_cp)
        end if
     end if
     ! We need to fill the fields based on the parsed const values
@@ -600,7 +632,7 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine scalar_scheme_set_material_properties
 

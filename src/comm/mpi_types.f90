@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2023, The Neko Authors
+! Copyright (c) 2019-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,11 @@
 !
 !> MPI derived types
 module neko_mpi_types
-  use comm
-  use mpi_f08
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Type_size, MPI_Type_create_struct, MPI_Type_commit, &
+       MPI_Get_address, MPI_REAL, MPI_DOUBLE_PRECISION, MPI_CHARACTER, &
+       MPI_INTEGER, MPI_LOGICAL, MPI_INTEGER2, MPI_ADDRESS_KIND, &
+       MPI_Datatype, MPI_Aint_diff
   use re2, only : re2v1_xyz_t, re2v1_xy_t, re2v1_curve_t, re2v1_bc_t, &
        re2v2_xyz_t, re2v2_xy_t, re2v2_curve_t, re2v2_bc_t
   use nmsh, only : nmsh_quad_t, nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t

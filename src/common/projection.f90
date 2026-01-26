@@ -148,14 +148,15 @@ contains
     allocate(this%xx(n, this%L))
     allocate(this%bb(n, this%L))
     allocate(this%xbar(n))
-    allocate(this%xx_d(this%L))
-    allocate(this%bb_d(this%L))
     call rzero(this%xbar, n)
     do i = 1, this%L
        call rzero(this%xx(1, i), n)
        call rzero(this%bb(1, i), n)
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       allocate(this%xx_d(this%L))
+       allocate(this%bb_d(this%L))
 
        call device_map(this%xbar, this%xbar_d, n)
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L, c_size_t))
