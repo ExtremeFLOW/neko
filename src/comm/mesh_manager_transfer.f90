@@ -32,7 +32,6 @@
 !
 !> Abstract types for mesh manager data redistribution
 module mesh_manager_transfer
-  use mpi_f08
   use num_types, only : rp
   use comm, only : NEKO_COMM, pe_rank
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &

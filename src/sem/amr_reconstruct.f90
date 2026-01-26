@@ -32,14 +32,14 @@
 !
 !> The vector reconstruction/interpolation routines for AMR
 module amr_reconstruct
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use utils, only : neko_error, neko_warning
   use amr_interpolate, only : amr_interpolate_t, amr_nchildren
-  use device
+  use device, only : device_sync
   use mxm_wrapper, only: mxm
   use mesh_manager_transfer, only : mesh_manager_transfer_t
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
 
   implicit none
   private

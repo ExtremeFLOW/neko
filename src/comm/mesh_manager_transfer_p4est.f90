@@ -972,7 +972,6 @@ contains
                 call MPI_Irecv(this%buff_rcv(: , :, :, start), dim, &
                      MPI_REAL_PRECISION, src, 0, NEKO_COMM, rcv_req, ierr)
                 ifwait_rcv = .true.
-                jl = jl + 1
              else
                 ifwait_rcv = .false.
              end if
@@ -989,7 +988,6 @@ contains
                 call MPI_Isend(this%buff_snd(: , :, :, start), dim, &
                      MPI_REAL_PRECISION, dst, 0, NEKO_COMM, snd_req, ierr)
                 ifwait_snd = .true.
-                kl = kl + 1
              else
                 ifwait_snd = .false.
              end if
@@ -998,10 +996,16 @@ contains
           end if
 
           ! receive
-          if (ifwait_rcv) call MPI_Wait(rcv_req, MPI_STATUS_IGNORE, ierr)
+          if (ifwait_rcv) then
+             call MPI_Wait(rcv_req, MPI_STATUS_IGNORE, ierr)
+             jl = jl + 1
+          end if
 
           ! send
-          if (ifwait_snd) call MPI_Wait(snd_req, MPI_STATUS_IGNORE, ierr)
+          if (ifwait_snd) then
+             call MPI_Wait(snd_req, MPI_STATUS_IGNORE, ierr)
+             kl = kl + 1
+          end if
        end do
     end if
 

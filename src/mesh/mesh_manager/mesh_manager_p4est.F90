@@ -32,7 +32,9 @@
 !
 !> Main interface for data exchange and manipulation between p4est and neko
 module mesh_manager_p4est
-  use mpi_f08
+  use mpi_f08, only : MPI_WTIME, MPI_Barrier, MPI_Allreduce, MPI_Scan, &
+       MPI_IRecv, MPI_Send, MPI_Waitall, MPI_INTEGER, &
+       MPI_INTEGER8, MPI_SUM, MPI_MAX, MPI_Request, MPI_Status
   use num_types, only : i4, i8, rp, dp
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
@@ -46,7 +48,7 @@ module mesh_manager_p4est
   use hex, only : hex_t
   use mesh_conn, only : mesh_conn_t
   use mesh, only : mesh_t, mesh_generate_flags, NEKO_MSH_MAX_ZLBLS
-  use nmsh, only: nmsh_mesh_t
+  use nmsh, only : nmsh_mesh_t
   use manager_mesh, only : manager_mesh_t
   use manager_geom_p4est, only : manager_geom_node_ind_p4est_t, &
        manager_geom_p4est_t
@@ -54,7 +56,7 @@ module mesh_manager_p4est
   use manager_mesh_p4est, only : manager_mesh_p4est_t
   use mesh_manager, only : mesh_manager_t
   use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
-  use, intrinsic :: iso_c_binding, only : c_null_char
+  use, intrinsic :: iso_c_binding, only : c_null_char, c_loc
 
   implicit none
 
@@ -825,7 +827,7 @@ contains
        select type (vrt => conn%vrt)
        type is (manager_conn_obj_p4est_t)
           call vrt%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
-               itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+               itmp8v1, itmp4v1, itmp4v3, itmp4v2, nvert, nelt, vmap)
        end select
 
        call wp4est_lnodes_del()
@@ -847,8 +849,8 @@ contains
        itmp8lv(2) = gnum ! for stamping log
        select type (fcs => conn%fcs)
        type is (manager_conn_obj_p4est_t)
-          call fcs%init_data(lnum_in, lown, goff, gnum, &
-               nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+          call fcs%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
+               itmp8v1, itmp4v1, itmp4v3, itmp4v2, nface, nelt, fmap)
        end select
 
        call wp4est_lnodes_del()
@@ -870,8 +872,8 @@ contains
        itmp8lv(3) = gnum ! for stamping log
        select type (edg => conn%edg)
        type is (manager_conn_obj_p4est_t)
-          call edg%init_data(lnum_in, lown, goff, gnum, &
-               nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+          call edg%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
+               itmp8v1, itmp4v1, itmp4v3, itmp4v2, nedge, nelt, emap)
        end select
 
        write(log_buf, frmt3) gdim, itmp8lv
@@ -1388,6 +1390,11 @@ contains
     ! this file
     ! There are some differences in a concept, so not everything can be filled
     ! in properly
+
+    ! For now just a copy of the local mesh manager type without taking into
+    ! account mesh transfer and partitioning
+    if (this%transfer%ifpartition) &
+         call neko_error('Nothing done for partitioning; mesh_construct')
 
     ! Free neko mesh type
     call mesh%free()
@@ -2057,63 +2064,136 @@ contains
   subroutine p4est_conn_mapping_fill(conn, connmm)
     type(mesh_conn_t), intent(inout) :: conn
     type(manager_conn_p4est_t), intent(in) :: connmm
-    logical, allocatable, dimension(:) :: share
-    integer :: il, jl
+    logical, allocatable, dimension(:) :: lshare
+    integer, allocatable, dimension(:) :: rank, rankshare, sharemap, rankoff
+    integer :: il, jl, itmp, irank, idim
 
     call conn%init(connmm%tdim, connmm%nel, connmm%hngel)
 
     select type (vrt => connmm%vrt)
     type is (manager_conn_obj_p4est_t)
-       allocate(share(vrt%lnum))
-       share(:) = .false.
-       do il = 1, vrt%nrank
-          if (vrt%rank(il) == pe_rank) then
-             do jl = vrt%off(il), vrt%off(il + 1) - 1
-                share(vrt%share(jl)) = .true.
-             end do
-             exit
-          end if
-       end do
-       call conn%vrt%init(vrt%lnum, vrt%gnum, connmm%nel, connmm%nvrt, &
-            vrt%gidx, share, connmm%vmap)
-       deallocate(share)
+       ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
+       call p4est_conn_mapping_convert(vrt, lshare, rank, rankshare, sharemap, &
+            rankoff)
+       if (vrt%nrank .gt. 0) then
+          call conn%vrt%init(vrt%lnum, vrt%gnum, connmm%nel, connmm%nvrt, &
+               vrt%gidx, lshare, connmm%vmap, sharelist = vrt%glist, &
+               rank = rank, rankshare = rankshare, sharemap = sharemap, &
+               rankoff = rankoff, lmap = vrt%lmap, lmapoff = vrt%lmapoff, &
+               gmap = vrt%gmap, gmapoff = vrt%gmapoff)
+          deallocate(rank, rankshare, sharemap, rankoff)
+       else
+          call conn%vrt%init(vrt%lnum, vrt%gnum, connmm%nel, connmm%nvrt, &
+               vrt%gidx, lshare, connmm%vmap)
+       end if
+       deallocate(lshare)
     end select
 
     select type (edg => connmm%edg)
     type is (manager_conn_obj_p4est_t)
-       allocate(share(edg%lnum))
-       share(:) = .false.
-       do il = 1, edg%nrank
-          if (edg%rank(il) == pe_rank) then
-             do jl = edg%off(il), edg%off(il + 1) - 1
-                share(edg%share(jl)) = .true.
-             end do
-             exit
-          end if
-       end do
-       call conn%edg%init(edg%lnum, edg%gnum, connmm%nel, connmm%nedg, &
-            edg%gidx, share, connmm%emap, connmm%ealgn, connmm%hnged)
-       deallocate(share)
+       ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
+       call p4est_conn_mapping_convert(edg, lshare, rank, rankshare, sharemap, &
+            rankoff)
+       if (edg%nrank .gt. 0) then
+          call conn%edg%init(edg%lnum, edg%gnum, connmm%nel, connmm%nedg, &
+               edg%gidx, lshare, connmm%emap, sharelist = edg%glist, &
+               lmap = edg%lmap, lmapoff = edg%lmapoff, &
+               gmap = edg%gmap, gmapoff = edg%gmapoff, &
+               algn = connmm%ealgn, hang = connmm%hnged)
+          deallocate(rank, rankshare, sharemap, rankoff)
+       else
+          call conn%edg%init(edg%lnum, edg%gnum, connmm%nel, connmm%nedg, &
+               edg%gidx, lshare, connmm%emap, algn = connmm%ealgn, &
+               hang = connmm%hnged)
+       end if
+       deallocate(lshare)
     end select
 
     select type (fcs => connmm%fcs)
     type is (manager_conn_obj_p4est_t)
-       allocate(share(fcs%lnum))
-       share(:) = .false.
-       do il = 1, fcs%nrank
-          if (fcs%rank(il) == pe_rank) then
-             do jl = fcs%off(il), fcs%off(il + 1) - 1
-                share(fcs%share(jl)) = .true.
+       ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
+       call p4est_conn_mapping_convert(fcs, lshare, rank, rankshare, sharemap, &
+            rankoff)
+       if (fcs%nrank .gt. 0) then
+          call conn%fcs%init(fcs%lnum, fcs%gnum, connmm%nel, connmm%nfcs, &
+               fcs%gidx, lshare, connmm%fmap, sharelist = fcs%glist, &
+               lmap = fcs%lmap, lmapoff = fcs%lmapoff, &
+               gmap = fcs%gmap, gmapoff = fcs%gmapoff, &
+               algn = connmm%falgn, hang = connmm%hngfc)
+          deallocate(rank, rankshare, sharemap, rankoff)
+       else
+          call conn%fcs%init(fcs%lnum, fcs%gnum, connmm%nel, connmm%nfcs, &
+               fcs%gidx, lshare, connmm%fmap, algn = connmm%falgn, &
+               hang = connmm%hngfc)
+       end if
+       deallocate(lshare)
+    end select
+
+  end subroutine p4est_conn_mapping_fill
+
+  !> Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
+  !! @param[inout]   mmobj      mesh manager object
+  !! @param[inout]   lshare     flag indicating sharing with other MPI ranks
+  !! @param[inout]   rank       list of ranks sharing objects
+  !! @param[inout]   rankshare  list of shared objects with respect to MPI rank
+  !! @param[inout]   sharemap   mapping of the local number to the remote one
+  !! @param[inout]   rankoff    offset in the rankshare and sharemap
+  subroutine p4est_conn_mapping_convert(mmobj, lshare, rank, rankshare, &
+       sharemap, rankoff)
+    type(manager_conn_obj_p4est_t)  :: mmobj
+    logical, allocatable, dimension(:), intent(inout) :: lshare
+    integer, allocatable, dimension(:), intent(inout) :: rank, rankshare, &
+         sharemap, rankoff
+    integer :: il, jl, itmp, irank, idim
+
+    allocate(lshare(mmobj%lnum))
+    lshare(:) = .false.
+    if (mmobj%nrank .gt. 0) then
+       ! fill sharing info
+       do il = 1, mmobj%nrank
+          if (mmobj%rank(il) == pe_rank) then
+             do jl = mmobj%off(il), mmobj%off(il + 1) - 1
+                lshare(mmobj%share(jl)) = .true.
              end do
              exit
           end if
        end do
-       call conn%fcs%init(fcs%lnum, fcs%gnum, connmm%nel, connmm%nfcs, &
-            fcs%gidx, share, connmm%fmap, connmm%falgn, connmm%hngfc)
-       deallocate(share)
-    end select
+       ! find current rank
+       irank = 0
+       do il = 1, mmobj%nrank
+          if (mmobj%rank(il) .eq. pe_rank) then
+             irank = il
+             exit
+          end if
+       end do
+       if (irank .eq. 0) &
+            call neko_error('current rank not found in the list')
+       ! current rank space
+       idim = mmobj%off(irank + 1) - mmobj%off(irank)
+       allocate(rank(mmobj%nrank - 1), rankoff(mmobj%nrank), &
+            rankshare(mmobj%off(mmobj%nrank + 1) - idim - 1), &
+            sharemap(mmobj%off(mmobj%nrank + 1) - idim - 1))
+       ! fill arrays removing current rank data
+       do il = 1, irank - 1
+          rank(il) = mmobj%rank(il)
+          rankoff(il) = mmobj%off(il)
+       end do
+       do il = irank + 1, mmobj%nrank
+          rank(il - 1) = mmobj%rank(il)
+          rankoff(il - 1) = mmobj%off(il) - idim
+       end do
+       rankoff(mmobj%nrank) = mmobj%off(mmobj%nrank + 1) - idim
+       do il = 1, mmobj%off(irank) - 1
+          rankshare(il) = mmobj%share(il)
+          sharemap(il) = mmobj%sharemap(il)
+       end do
+       do il = mmobj%off(irank + 1), mmobj%off(mmobj%nrank + 1) - 1
+          rankshare(il - idim) = mmobj%share(il)
+          sharemap(il - idim) = mmobj%sharemap(il)
+       end do
+    end if
 
-  end subroutine p4est_conn_mapping_fill
+  end subroutine p4est_conn_mapping_convert
 
   !> Fill the mesh type with boundary condition information
   !! @param[inout]   mesh      neko mesh type

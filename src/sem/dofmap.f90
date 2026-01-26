@@ -259,14 +259,14 @@ contains
     Xh => this%Xh
 
     associate (vrt => msh%conn%vrt)
-      do il = 1, msh%nelv
-         do jl = 1, msh%npts
+      do il = 1, vrt%nel
+         do jl = 1, vrt%nobj
             ix = mod(jl - 1, 2)     * (Xh%lx - 1) + 1
             iy = (mod(jl - 1, 4)/2) * (Xh%ly - 1) + 1
             iz = ((jl - 1)/4)       * (Xh%lz - 1) + 1
-            loc_id = msh%conn%vrt%map(jl, il)
+            loc_id = vrt%map(jl, il)
             this%dof(ix, iy, iz, il) = vrt%gidx(loc_id)
-            this%shared_dof(ix, iy, iz, il) = vrt%share(loc_id)
+            this%shared_dof(ix, iy, iz, il) = vrt%lshare(loc_id)
          end do
       end do
     end associate
@@ -334,7 +334,7 @@ contains
             ! just num_dofs_edges(1)
             edge_id = edge_offset + (edg%gidx(loc_id) - 1_i8) * &
                  num_dofs_edges(1)
-            shared_dof = edg%share(loc_id)
+            shared_dof = edg%lshare(loc_id)
             loc_id = (jl - 1)/4 + 1
             ! edge alignment
             select case (edg%algn(jl, il))
@@ -428,7 +428,7 @@ contains
             ! just num_dofs_faces(1)
             facet_id = facet_offset + (fcs%gidx(loc_id) - 1_i8) * &
                  num_dofs_faces(1)
-            shared_dof = fcs%share(loc_id)
+            shared_dof = fcs%lshare(loc_id)
             loc_id = (jl - 1)/2 + 1
             ! face alignment
             select case (fcs%algn(jl, il))

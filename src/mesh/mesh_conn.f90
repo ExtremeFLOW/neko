@@ -48,23 +48,48 @@ module mesh_conn
      integer(i8) :: gnum
      !> Global indexing of unique objects of given type
      integer(i8), allocatable, dimension(:) :: gidx
-     !> Flag indicating sharing with other MPI ranks
-     logical, allocatable, dimension(:) :: share
+     !> Logical flag indicating sharing with other MPI ranks
+     ! size of lnum
+     logical, allocatable, dimension(:) :: lshare
+     !> Number of shared objects
+     integer(i4) :: nshare
+     !> List of shared objects (local number)
+     integer(i4), allocatable, dimension(:) :: sharelist
+     !> Number of MPI ranks sharing objects
+     integer(i4) :: nrank
+     !> List of ranks sharing objects
+     integer(i4), allocatable, dimension(:) :: rank
+     !> List of shared objects with respect to MPI rank
+     integer(i4), allocatable, dimension(:) :: rankshare
+     !> Mapping of the shared objects local number to the remote local number
+     integer(i4), allocatable, dimension(:) :: sharemap
+     !> Offset in the rankshare and sharemap lists
+     ! size of nrank + 1
+     integer(i4), allocatable, dimension(:) :: rankoff
      !> Local number of elements
      integer(i4) :: nel
      !> Number of objects per element
      integer(i4) :: nobj
      !> Element to object mapping
      integer(i4), allocatable, dimension(:,:) :: map
-     !> Global mapping of object to element component (inverse to map)
+     !> Local mapping of object to element component
+     ! inverse to map; related to the local numbering
+     ! first dimension: 1- local element number, 2 - position in element
+     integer(i4), allocatable, dimension(:,:) :: lmap
+     !> Offset in the local mapping
+     ! size of lnum + 1
+     integer(i4), allocatable, dimension(:) :: lmapoff
+     !> Global mapping of object to element component
+     ! like lmap, but for shared objects; related to sharelist
      ! first dimension: 1 - MPI rank, 2- local element number,
      ! 3 - position in element
      integer(i4), allocatable, dimension(:,:) :: gmap
      !> Offset in the global mapping
-     integer(i4), allocatable, dimension(:) :: goff
+     ! size of nshare + 1
+     integer(i4), allocatable, dimension(:) :: gmapoff
      !> Is object alignment directly specified
      logical :: ifalgn
-     !> Edge alignment
+     !> Object alignment
      integer(i4), allocatable, dimension(:,:) :: algn
      !> Are hanging object directly specified
      logical :: ifhang
@@ -95,24 +120,36 @@ module mesh_conn
 contains
 
   !> Initialise object connectivity information
-  !! @param[in]    lnum     local number of objects
-  !! @param[in]    gnum     global number of objects
-  !! @param[in]    nel      local number of elements
-  !! @param[in]    nobj     number of objects per element
-  !! @param[in]    gidx     object global id
-  !! @param[in]    share    sharing with other ranks
-  !! @param[in]    map      element to objects mapping
-  !! @param[in]    algn     object alignment information
-  !! @param[in]    hang     object hanging information
-  subroutine mesh_conn_obj_init(this, lnum, gnum, nel, nobj, gidx, share, map, &
-       algn, hang)
+  !! @param[in]    lnum       local number of objects
+  !! @param[in]    gnum       global number of objects
+  !! @param[in]    nel        local number of elements
+  !! @param[in]    nobj       number of objects per element
+  !! @param[in]    gidx       object global id
+  !! @param[in]    lshare     flag indicating sharing with other ranks
+  !! @param[in]    map        element to objects mapping
+  !! @param[in]    sharelist  List of shared objects (local number)
+  !! @param[in]    rank       Number of MPI ranks sharing objects
+  !! @param[in]    rankshare  List of shared objects with respect to MPI rank
+  !! @param[in]    sharemap   Mapping of shared objects lid to the remote lid
+  !! @param[in]    rankoff    Offset in the rankshare and sharemap lists
+  !! @param[in]    lmap       Local mapping of object to element component
+  !! @param[in]    lmapoff    Offset in the local mapping
+  !! @param[in]    gmap       Global mapping of object to element component
+  !! @param[in]    gmapoff    Offset in the global mapping
+  !! @param[in]    algn       object alignment information
+  !! @param[in]    hang       object hanging information
+  subroutine mesh_conn_obj_init(this, lnum, gnum, nel, nobj, gidx, lshare, &
+       map, sharelist, rank, rankshare, sharemap, rankoff, lmap, lmapoff, &
+       gmap, gmapoff, algn, hang)
     class(mesh_conn_obj_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, nel, nobj
     integer(i8), intent(in) :: gnum
     integer(i8), dimension(:), intent(in) :: gidx
-    logical, dimension(:), intent(in) :: share
+    logical, dimension(:), intent(in) :: lshare
     integer(i4), dimension(:, :), intent(in) :: map
-    integer(i4), dimension(:, :), optional, intent(in) :: algn, hang
+    integer(i4), dimension(:), optional, intent(in) :: sharelist, rank, &
+         rankshare, sharemap, rankoff, lmapoff, gmapoff
+    integer(i4), dimension(:, :), optional, intent(in) :: lmap, gmap, algn, hang
 
     call this%free()
 
@@ -121,14 +158,59 @@ contains
     this%nel = nel
     this%nobj = nobj
 
-    allocate(this%gidx(lnum), this%share(lnum), this%map(nobj, nel))
+    allocate(this%gidx(lnum), this%lshare(lnum), this%map(nobj, nel))
     ! sanity check
-    if (lnum .ne. size(gidx) .or. lnum .ne. size(share) .or. &
+    if (lnum .ne. size(gidx) .or. lnum .ne. size(lshare) .or. &
          nel .ne. size(map, 2) .or. nobj .ne. size(map, 1)) &
          call neko_error('Inconsistent array sizes; conn_obj')
     this%gidx(:) = gidx(:)
-    this%share(:) = share(:)
+    this%lshare(:) = lshare(:)
     this%map(:, :) = map(:, :)
+
+    if (present(sharelist)) then
+       this%nshare = size(sharelist)
+       allocate(this%sharelist(this%nshare))
+       this%sharelist(:) = sharelist(:)
+
+       if (present(gmap) .and. present(gmapoff)) then
+          ! sanity check
+          if ((this%nshare + 1) .ne. size(gmapoff) .or. 3 .ne. size(gmap, 1) &
+               .or. (gmapoff(this%nshare + 1) - 1) .ne. size(gmap, 2)) &
+               call neko_error('Inconsistent array sizes; conn_obj%gmap')
+          allocate(this%gmap(3, gmapoff(this%nshare + 1) - 1), &
+               this%gmapoff(this%nshare + 1))
+          this%gmap(:, :) = gmap(:, :)
+          this%gmapoff(:) = gmapoff(:)
+       end if
+    end if
+
+    if (present(rank) .and. present(rankshare) .and. present(sharemap) &
+         .and. present(rankoff)) then
+       this%nrank = size(rank)
+       ! sanity check
+       if ((this%nrank + 1) .ne. size(rankoff) .or. &
+            (rankoff(this%nrank + 1) - 1) .ne. size(rankshare) .or. &
+            (rankoff(this%nrank + 1) - 1) .ne. size(sharemap)) &
+            call neko_error('Inconsistent array sizes; conn_obj%rank')
+       allocate(this%rank(this%nrank), this%rankoff(this%nrank + 1), &
+            this%rankshare(rankoff(this%nrank + 1) - 1), &
+            this%sharemap(rankoff(this%nrank + 1) - 1))
+       this%rank(:) = rank(:)
+       this%rankshare(:) = rankshare(:)
+       this%sharemap(:) = sharemap(:)
+       this%rankoff(:) = rankoff(:)
+    end if
+
+    if (present(lmap) .and. present(lmapoff)) then
+       ! sanity check
+       if ((this%lnum + 1) .ne. size(lmapoff) .or. 2 .ne. size(lmap, 1) &
+            .or. (lmapoff(this%lnum + 1) - 1) .ne. size(lmap, 2)) &
+            call neko_error('Inconsistent array sizes; conn_obj%lmap')
+       allocate(this%lmap(2, lmapoff(this%lnum + 1) - 1), &
+            this%lmapoff(this%lnum + 1))
+       this%lmap(:, :) = lmap(:, :)
+       this%lmapoff(:) = lmapoff(:)
+    end if
 
     if (present(algn)) then
        ! sanity check
@@ -158,16 +240,25 @@ contains
 
     this%lnum = 0
     this%gnum = 0
+    this%nshare = 0
+    this%nrank = 0
     this%nel = 0
     this%nobj = 0
     this%ifalgn = .false.
     this%ifhang = .false.
 
     if (allocated(this%gidx)) deallocate(this%gidx)
-    if (allocated(this%share)) deallocate(this%share)
+    if (allocated(this%lshare)) deallocate(this%lshare)
+    if (allocated(this%sharelist)) deallocate(this%sharelist)
+    if (allocated(this%rank)) deallocate(this%rank)
+    if (allocated(this%rankshare)) deallocate(this%rankshare)
+    if (allocated(this%sharemap)) deallocate(this%sharemap)
+    if (allocated(this%rankoff)) deallocate(this%rankoff)
     if (allocated(this%map)) deallocate(this%map)
+    if (allocated(this%lmap)) deallocate(this%lmap)
+    if (allocated(this%lmapoff)) deallocate(this%lmapoff)
     if (allocated(this%gmap)) deallocate(this%gmap)
-    if (allocated(this%goff)) deallocate(this%goff)
+    if (allocated(this%gmapoff)) deallocate(this%gmapoff)
     if (allocated(this%algn)) deallocate(this%algn)
     if (allocated(this%hang)) deallocate(this%hang)
 
@@ -213,7 +304,5 @@ contains
     if (allocated(this%hang)) deallocate(this%hang)
 
   end subroutine mesh_conn_free
-
-
 
 end module mesh_conn

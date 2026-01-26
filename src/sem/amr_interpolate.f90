@@ -32,14 +32,14 @@
 !
 !> The interpolation arrays for AMR
 module amr_interpolate
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use utils, only : neko_error, neko_warning
   use speclib, only : igllm
   use space, only : space_t, GLL
   use math, only : invcol1
-  use device
-  use, intrinsic :: iso_c_binding
+  use device, only : device_map, device_free, device_sync
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
 
   implicit none
   private
