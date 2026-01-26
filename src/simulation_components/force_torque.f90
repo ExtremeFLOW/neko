@@ -44,7 +44,8 @@ module force_torque
   use field, only : field_t
   use operators, only : curl
   use case, only : case_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use coefs, only : coef_t
   use operators, only : strain_rate
   use vector, only : vector_t
@@ -130,12 +131,11 @@ contains
     call this%init_base(json, case)
 
     call json_get_or_default(json, 'fluid_name', fluid_name, 'fluid')
-    call json_get(json, 'zone_id', zone_id)
+    call json_get_or_lookup(json, 'zone_id', zone_id)
     call json_get_or_default(json, 'zone_name', zone_name, ' ')
-    call json_get_or_default(json, 'scale', scale, 1.0_rp)
+    call json_get_or_lookup_or_default(json, 'scale', scale, 1.0_rp)
     call json_get_or_default(json, 'long_print', long_print, .false.)
-    call json_get(json, 'center', center)
-
+    call json_get_or_lookup(json, 'center', center)
     call this%init_common(fluid_name, zone_id, zone_name, center, scale, &
          case%fluid%c_xh, long_print)
   end subroutine force_torque_init_from_json

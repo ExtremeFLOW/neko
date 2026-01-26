@@ -27,7 +27,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 160,
+            "Re": 160.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [1.0, 0.0, 0.0]

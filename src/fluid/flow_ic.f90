@@ -47,7 +47,8 @@ module flow_ic
   use device_math, only : device_col2
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup_or_default, json_get_or_lookup
   use point_zone, only : point_zone_t
   use point_zone_registry, only : neko_point_zone_registry
   use fld_file_data, only : fld_file_data_t
@@ -93,7 +94,7 @@ contains
     !
     if (trim(type) .eq. 'uniform') then
 
-       call json_get(params, 'value', uinf)
+       call json_get_or_lookup(params, 'value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
 
        !
@@ -101,9 +102,9 @@ contains
        !
     else if (trim(type) .eq. 'blasius') then
 
-       call json_get(params, 'delta', delta)
+       call json_get_or_lookup(params, 'delta', delta)
        call json_get(params, 'approximation', read_str)
-       call json_get(params, 'freestream_velocity', uinf)
+       call json_get_or_lookup(params, 'freestream_velocity', uinf)
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
 
@@ -112,9 +113,9 @@ contains
        !
     else if (trim(type) .eq. 'point_zone') then
 
-       call json_get(params, 'base_value', uinf)
+       call json_get_or_lookup(params, 'base_value', uinf)
        call json_get(params, 'zone_name', read_str)
-       call json_get(params, 'zone_value', zone_value)
+       call json_get_or_lookup(params, 'zone_value', zone_value)
 
        call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
 
@@ -127,7 +128,8 @@ contains
        fname = trim(read_str)
        call json_get_or_default(params, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(params, 'tolerance', tol, 0.000001_rp)
+       call json_get_or_lookup_or_default(params, 'tolerance', tol, &
+            0.000001_rp)
        call json_get_or_default(params, 'mesh_file_name', read_str, "none")
        mesh_fname = trim(read_str)
 

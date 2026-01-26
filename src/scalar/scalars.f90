@@ -286,9 +286,10 @@ contains
 
     n_scalars = size(this%scalar_fields)
 
-    ! Allocate ABX field arrays
+    ! Allocate ABX field arrays and lag field list in checkpoint
     allocate(chkp%scalar_abx1(n_scalars))
     allocate(chkp%scalar_abx2(n_scalars))
+    call chkp%scalar_lags%init(n_scalars)
 
     ! Add all scalar lag fields to the checkpoint list and populate ABX fields
     do i = 1, n_scalars

@@ -88,6 +88,7 @@ contains
   subroutine neko_api_registry_init() bind(c, name="neko_registry_init")
 
     call neko_registry%init()
+    call neko_const_registry%init()
 
   end subroutine neko_api_registry_init
 
@@ -97,6 +98,20 @@ contains
     call neko_registry%free()
 
   end subroutine neko_api_registry_free
+
+  !> Initialise a Neko scratch registry
+  subroutine neko_api_scratch_registry_init() bind(c, name="neko_scratch_registry_init")
+
+    call neko_scratch_registry%init()
+
+  end subroutine neko_api_scratch_registry_init
+
+  !> Destroy a Neko scratch registry
+  subroutine neko_api_scratch_registry_free() bind(c, name="neko_scratch_registry_free")
+
+    call neko_scratch_registry%free()
+
+  end subroutine neko_api_scratch_registry_free
 
   !> Allocate memory for a Neko case
   !! @param case_iptr Opaque pointer for the created Neko case

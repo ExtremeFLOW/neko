@@ -19,7 +19,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 200,
+            "Re": 200.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [ 1.0, 0.0, 0.0 ]
@@ -45,7 +45,7 @@
             "boundary_conditions": [
                 {
                     "type": "velocity_value",
-                    "value": [ 1, 0, 0 ],
+                    "value": [ 1.0, 0.0, 0.0 ],
                     "zone_indices": [ 1 ]
                 },
                 {
@@ -76,7 +76,7 @@
                 "compute_value": 1,
                 "zone_id": 7,
                 "zone_name": "Cylinder",
-                "center": [ 0, 0, 0 ]
+                "center": [ 0.0, 0.0, 0.0 ]
             }
         ]
     }

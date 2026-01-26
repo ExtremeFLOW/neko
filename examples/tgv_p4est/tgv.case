@@ -7,7 +7,7 @@
             "type": "p4est",
             "tree_file": "512.tree",
             "ref_level_max": 2,
-	    "log_level": 0
+	    "log_level": 8
         },
 	"runtime_statistics" : {
             "enabled" : true
@@ -19,7 +19,9 @@
         "job_timelimit": "00:00:00",
         "time": {
             "end_time": 0.5,
-            "timestep": 1e-2
+            "variable_timestep": true,
+            "max_timestep": 0.25e-2,
+            "target_cfl": 0.3
         },
         "numerics": {
             "time_order": 3,
@@ -28,7 +30,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 360,
+            "Re": 360.0,
             "initial_condition": {
                 "type": "user"
             },
@@ -51,7 +53,7 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 1
+            "output_value": 1.0
         },
         "simulation_components":
         [

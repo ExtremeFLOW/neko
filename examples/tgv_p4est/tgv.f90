@@ -185,7 +185,7 @@ contains
     logical, intent(out) :: ifrefine
 
     ref_mark(:) = 1
-    ifrefine = .true.
+    ifrefine = .false.
 
   end subroutine amr_refine_flag
 
