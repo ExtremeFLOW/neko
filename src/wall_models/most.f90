@@ -39,7 +39,7 @@ module most
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use json_utils, only : json_get_or_default, json_get
   use most_device, only : most_compute_device   
   use most_cpu, only : most_compute_cpu
@@ -217,10 +217,10 @@ contains
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
-    temp => neko_field_registry%get_field("temperature")   
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
+    temp => neko_registry%get_field("temperature")   
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &

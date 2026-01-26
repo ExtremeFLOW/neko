@@ -163,9 +163,9 @@ contains
     ! debug only:
     ! ts  = 300.0_rp
     ! q = 0.05_rp
-    ! call neko_field_registry%add_field(this%coef%dof, "sampling_height", &
+    ! call neko_registry%add_field(this%coef%dof, "sampling_height", &
     !      ignore_existing=.true.)
-    ! h_field => neko_field_registry%get_field_by_name("sampling_height")
+    ! h_field => neko_registry%get_field_by_name("sampling_height")
 
     ! Select the ts offset based on fid
     select case (zone_idx)
