@@ -42,6 +42,7 @@ module vreman_cpu
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use utils, only : neko_error
+  use utils, only : neko_error
   implicit none
   private
 
