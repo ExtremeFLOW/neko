@@ -161,6 +161,7 @@ contains
        end do
     end do
     if (if_corr .eqv. .true.) then
+<<<<<<< HEAD
           theta => neko_registry%get_field_by_name("temperature")
           call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
           call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
@@ -173,6 +174,16 @@ contains
           else
                call neko_error("The gravity vector must have at least one nonzero component")
           endif
+=======
+          theta => neko_field_registry%get_field_by_name("temperature")
+          call neko_scratch_registry%request_field(dTdx, temp_indices(1))
+          call neko_scratch_registry%request_field(dTdy, temp_indices(1))
+          call neko_scratch_registry%request_field(dTdz, temp_indices(1))
+
+          ! Calculate Richardson number
+          gmag = sqrt(vlsc2(g, g, 3))
+          n = g / gmag
+>>>>>>> 6c6f3df678 (Rewrite for arbitrary vertical direction)
           call grad(dTdx%x, dTdy%x, dTdz%x, theta%x, coef)
           do concurrent (e = 1:coef%msh%nelv)
                do concurrent (i = 1:coef%Xh%lxyz)
@@ -184,6 +195,7 @@ contains
 
                     ! Shear component (denominator in Ri definition)
                     ! Directional derivative of velocity
+<<<<<<< HEAD
                     du_n(1) = a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) +&
                             a13%x(i,1,1,e)*n(3)
                     du_n(2) = a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
@@ -191,6 +203,19 @@ contains
                     du_n(3) = a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) +&
                             a33%x(i,1,1,e)*n(3)
 
+=======
+                    du_n(1) = a11%x(i,1,1,e)*n(1) + a21%x(i,1,1,e)*n(2) +&
+                            a31%x(i,1,1,e)*n(3)
+                    du_n(2) = a12%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
+                            a32%x(i,1,1,e)*n(3)
+                    du_n(3) = a13%x(i,1,1,e)*n(1) + a23%x(i,1,1,e)*n(2) +&
+                            a33%x(i,1,1,e)*n(3)
+
+                    ! Todo:
+                    ! - check if anything should be rewritten using math functions
+                    ! - define all variables
+
+>>>>>>> 6c6f3df678 (Rewrite for arbitrary vertical direction)
                     ! Component parallel to n
                     du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
 
@@ -205,6 +230,10 @@ contains
                     ! Richardson number
                     ri = buoyancy / (shear_sq + NEKO_EPS)
 
+<<<<<<< HEAD
+=======
+                    correction = (1 - ri/ri_c)**0.5
+>>>>>>> 6c6f3df678 (Rewrite for arbitrary vertical direction)
 
                     if (ri .le. ri_c) then
                          correction = (1 - ri/ri_c)**0.5
