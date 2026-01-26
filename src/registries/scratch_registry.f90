@@ -46,10 +46,12 @@ module scratch_registry
 
   use dofmap, only : dofmap_t
   use utils, only : neko_error
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
-  type, public :: scratch_registry_t
+  type, public, extends(amr_restart_component_t) :: scratch_registry_t
      !> list of scratch fields
      type(registry_entry_t), private, allocatable :: entries(:)
      !> Tracks which fields are used
@@ -111,6 +113,9 @@ module scratch_registry
      procedure, pass(this) :: relinquish_multiple
      !> Generic relinquish procedure
      generic :: relinquish => relinquish_single, relinquish_multiple
+
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => scratch_registry_amr_restart
   end type scratch_registry_t
 
   !> Global scratch registry
@@ -175,6 +180,8 @@ contains
     this%n_entries = 0
     this%n_inuse = 0
     this%expansion_size = 10
+
+    call this%free_amr_base()
 
   end subroutine scratch_registry_free
 
@@ -528,5 +535,40 @@ contains
     end do
     this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_multiple
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  subroutine scratch_registry_amr_restart(this, reconstruct, counter)
+    class(scratch_registry_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    integer :: il
+    type(field_t), pointer :: fld
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! reconstruct fields
+    do il = 1, this%get_size()
+       if (this%entries(il)%get_type() .eq. 'field' .and. &
+            this%entries(il)%is_allocated()) then
+          if (this%inuse(il)) call neko_error("scratch_registry::amr_restart: &
+               &scratch field cannot be used while refining.")
+          fld => this%entries(il)%get_field()
+          ! reconstruct, or simply reallocate????????????
+          call fld%amr_restart(reconstruct, counter)
+       end if
+    end do
+
+    ! For now not clear what to do with matrix and vector
+
+    ! reconstruct dofmap; It is safe, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+
+  end subroutine scratch_registry_amr_restart
 
 end module scratch_registry

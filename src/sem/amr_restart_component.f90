@@ -32,6 +32,7 @@
 !
 !> Abstract type for AMR restart component
 module amr_restart_component
+  use utils, only : neko_error, neko_warning
   use amr_reconstruct, only : amr_reconstruct_t
 
   implicit none
@@ -46,7 +47,7 @@ module amr_restart_component
      !> Component name
      character(len=:), allocatable :: cmp_name
      !> Restart counter
-     integer :: counter
+     integer :: counter = 0
    contains
      !> Initialise base type
      procedure, pass(this) :: init_amr_base => amr_restart_init_base
@@ -75,14 +76,25 @@ contains
   !! @param[in]  name      component name
   subroutine amr_restart_init_base(this, lst_pos, name)
     class(amr_restart_component_t), intent(inout) :: this
-    integer, intent(in) :: lst_pos
-    character(len=*), intent(in) :: name
+    integer, intent(in), optional :: lst_pos
+    character(len=*), intent(in), optional :: name
+
+    ! check if the component was already added to the list
+    if (this%listed) then
+       call neko_warning('AMR component '//trim(this%cmp_name)//&
+            ' already listed.')
+    end if
 
     call this%free_amr_base()
 
-    this%listed = .true.
-    this%lst_pos = lst_pos
-    this%cmp_name = trim(name)
+    if (present(lst_pos)) then
+       this%listed = .true.
+       this%lst_pos = lst_pos
+    end if
+
+    if (present(name)) then
+       this%cmp_name = trim(name)
+    end if
 
   end subroutine amr_restart_init_base
 

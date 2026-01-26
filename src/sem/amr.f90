@@ -39,6 +39,8 @@ module amr
   use profiler, only : profiler_start_region, profiler_end_region
   use time_state, only : time_state_t
   use user_intf, only : user_t
+  use registry, only : neko_registry
+  use scratch_registry, only : neko_scratch_registry
   use mesh, only : mesh_t
   use mesh_manager_transfer, only : mesh_manager_transfer_t
   use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
@@ -152,7 +154,7 @@ contains
        end do
        if (itmp .ne. 0) then
           this%components(itmp)%cmp => component
-          call component%init_amr_base(itmp, name)
+          call component%init_amr_base(itmp, trim(name))
        else
           allocate(tmp(this%ncomponents + 1))
           do il = 1, this%ncomponents
@@ -160,7 +162,7 @@ contains
           end do
           this%ncomponents = this%ncomponents + 1
           tmp(this%ncomponents)%cmp => component
-          call component%init_amr_base(this%ncomponents, name)
+          call component%init_amr_base(this%ncomponents, trim(name))
           deallocate(this%components)
           call MOVE_ALLOC(tmp, this%components)
        end if
@@ -230,6 +232,10 @@ contains
 
     ! update restart counter
     this%counter = this%counter + 1
+
+    ! Start with registries
+    call neko_registry%amr_restart(this%reconstruct, this%counter)
+    call neko_scratch_registry%amr_restart(this%reconstruct, this%counter)
 
     ! restart components
     if (allocated(this%components)) then

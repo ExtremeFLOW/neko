@@ -33,13 +33,15 @@
 !> Contains the `field_serties_t` type.
 module field_series
   use field, only : field_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
   !> Stores a series (sequence) of fields, logically connected to a base field,
   !! and arranged according to some ordering.
   !! Currently used to store time-lagged values of solution fields.
-  type, public :: field_series_t
+  type, public, extends(amr_restart_component_t) :: field_series_t
      type(field_t), pointer :: f => null()
      type(field_t), allocatable :: lf(:)
      integer, private :: len = 0
@@ -52,6 +54,8 @@ module field_series
      procedure, pass(this) :: set => field_series_set
      !> Return the size of the field series.
      procedure, pass(this) :: size => field_series_size
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_series_amr_restart
   end type field_series_t
 
   !> A wrapper for a pointer to a `field_series_t`.
@@ -103,6 +107,8 @@ contains
        deallocate(this%lf)
     end if
 
+    call this%free_amr_base()
+
   end subroutine field_series_free
 
   !> Return the size of the field series
@@ -136,5 +142,30 @@ contains
     end do
 
   end subroutine field_series_set
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  subroutine field_series_amr_restart(this, reconstruct, counter)
+    class(field_series_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! reconstruct field series data
+    do il = 1, this%len
+       call this%lf(il)%amr_restart(reconstruct, counter)
+    end do
+
+    ! reconstruct reference fields; It is safe, as AMR restart prevents
+    ! recursive reconstructions
+    call this%f%amr_restart(reconstruct, counter)
+
+  end subroutine field_series_amr_restart
 
 end module field_series

@@ -83,7 +83,9 @@ module fluid_pnpn
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
   use time_state, only : time_state_t
-  use comm, only : NEKO_COMM
+  
+  use comm, only : NEKO_COMM, pe_rank !!!! pe_rank added
+  
   use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
        MPI_INTEGER, MPI_LOGICAL
@@ -1251,6 +1253,24 @@ contains
     ! Reconstruct dofmap
     call this%dm_Xh%amr_restart(reconstruct, counter)
 
+    ! PLACEHOLDER FOR GS
+
+    ! PLACEHOLDER FOR COEF
+
+    ! Reconstruct velocity fields
+    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter)
+    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter)
+    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter)
+    if (associated(this%p)) call this%p%amr_restart(reconstruct, counter)
+
+    ! Reconstruct lag arrays
+    call this%ulag%amr_restart(reconstruct, counter)
+    call this%vlag%amr_restart(reconstruct, counter)
+    call this%wlag%amr_restart(reconstruct, counter)
+
+    
+    write(*,*) 'TEST', pe_rank
+    
   end subroutine fluid_pnpn_amr_restart
 
 end module fluid_pnpn

@@ -40,11 +40,13 @@ module field
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  type, public :: field_t
+  type, public, extends(amr_restart_component_t) :: field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
 
      type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
@@ -76,6 +78,8 @@ module field
      !! @note We don't overload operator(+), to avoid
      !! the extra assignemnt operator
      generic :: add => add_field, add_scalar
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_amr_restart
   end type field_t
 
   !> field_ptr_t, To easily obtain a pointer to a field
@@ -185,6 +189,8 @@ contains
     if (c_associated(this%x_d)) then
        call device_free(this%x_d)
     end if
+
+    call this%free_amr_base()
 
   end subroutine field_free
 
@@ -304,5 +310,27 @@ contains
 
     size = this%dof%size()
   end function field_size
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  subroutine field_amr_restart(this, reconstruct, counter)
+    class(field_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! reconstruct field data
+    call reconstruct%refine_coarsen(this%x, this%x_d)
+
+    ! reconstruct dofmap; No need to check internal_dofmap flag, as AMR
+    ! restart prevents recursive reconstructions
+    call this%dof%amr_restart(reconstruct, counter)
+
+  end subroutine field_amr_restart
 
 end module field
