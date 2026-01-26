@@ -226,7 +226,6 @@ contains
         if (abs(Ri_b) <= 1.0e-2_rp) then
           ! Neutral (L_ob undefined)
           L_ob = 0.0_rp
-          call set_stability_regime(Ri_b)
         else
           ! Determine target regime sign
           if (Ri_b > 0.0_rp) then
