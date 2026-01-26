@@ -36,7 +36,6 @@ submodule (wall_model) wall_model_fctry
   use vreman, only : vreman_t   ! add new models
   use spalding, only : spalding_t
   use rough_log_law, only : rough_log_law_t   ! add new models
-  use most_convective, only : most_convective_t 
   use most, only : most_t 
   use utils, only : neko_type_error
   use utils, only : neko_type_registration_error
@@ -46,7 +45,6 @@ submodule (wall_model) wall_model_fctry
   character(len=20) :: WALLM_KNOWN_TYPES(3) = [character(len=20) :: &
        "spalding", &
        "rough_log_law", &
-       "most_convective" &
        "most"]  ! here as well add models
 
 contains
@@ -99,8 +97,6 @@ contains
        allocate(spalding_t::object)
     case ("rough_log_law")
        allocate(rough_log_law_t::object)
-    case ("most_convective")
-       allocate(most_convective_t::object)
     case ("most")
        allocate(most_t::object)
     case default
