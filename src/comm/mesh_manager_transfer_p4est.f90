@@ -33,8 +33,9 @@
 !> Types for mesh manager data redistribution
 module mesh_manager_transfer_p4est
   use mpi_f08, only : MPI_Allreduce, MPI_Sendrecv, MPI_Irecv, MPI_Isend, &
-       MPI_Wait, MPI_IN_PLACE, MPI_LOGICAL, MPI_INTEGER, MPI_INTEGER8, &
-       MPI_LOR, MPI_MAX, MPI_STATUS_IGNORE, MPI_Status, MPI_Request
+       MPI_Wait, MPI_Get_count, MPI_IN_PLACE, MPI_LOGICAL, MPI_INTEGER, &
+       MPI_INTEGER8, MPI_LOR, MPI_MAX, MPI_STATUS_IGNORE, MPI_Status, &
+       MPI_Request
   use num_types, only : i4, i8, rp, dp
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
@@ -542,11 +543,10 @@ contains
     integer, intent(out) :: cmmsame, cmmref, cmmcrs
     integer, dimension(:, :), allocatable, intent(inout) :: cmmapl
     integer, dimension(:), allocatable, intent(inout) :: ind
-    integer :: il, jl, kl, ll, ml, itmp, bmax, src, dst, ierr
-    integer(i8), dimension(:), allocatable :: cmmgidxl, cmmgidxls, rbuf_gl, &
-         sbuf_gl
-    integer, dimension(:), allocatable :: rbuf_loc, sbuf_loc, ngh_dst, &
-         ind_dst, vtmp
+    integer :: il, jl, kl, ll, ml, itmp, bmax, src, dst, ierr, n_recv
+    integer(i8), dimension(:), allocatable :: cmmgidxl, cmmgidxls
+    integer(i8), dimension(:, :), allocatable :: rbuf, sbuf
+    integer, dimension(:), allocatable :: ngh_dst, ind_dst, vtmp
     integer, parameter :: lda = 5 ! tuple length
     integer, dimension(lda) :: aa ! tmp array fro sorting
     integer, parameter :: nkey = 2 ! number of keys
@@ -707,9 +707,9 @@ contains
     end if
     call MPI_Allreduce(MPI_IN_PLACE, bmax, 1, MPI_INTEGER, MPI_MAX, &
          NEKO_COMM, ierr)
-    bmax = bmax + 1 ! first entrance gives number of elements
-    allocate(rbuf_gl(bmax), rbuf_loc(bmax), sbuf_gl(bmax), &
-         sbuf_loc(bmax))
+    allocate(rbuf(2, bmax), sbuf(2, bmax))
+    ! take int account data  amount is doubled
+    bmax = bmax * 2
 
     ! get list of destination neighbours
     if (this%nrank_rcv .gt. 0) then
@@ -729,43 +729,34 @@ contains
        dst = modulo(pe_rank + il, pe_size)
        ! destination depends on receiving requests, take advantage of the
        ! fact destinations are ordered
-       sbuf_loc(1) = 0
-       sbuf_gl(1) = 0
+       ll = 0
        if (this%nrank_rcv .gt. 0) then
           if (ngh_dst(jl) .eq. il) then
-             sbuf_loc(1) = this%off_rcv(ind_dst(jl) + 1) - &
-                  this%off_rcv(ind_dst(jl))
-             sbuf_gl(1) = sbuf_loc(1)
-             do kl = 1, sbuf_loc(1)
-                sbuf_loc(1 + kl) = &
+             ll = this%off_rcv(ind_dst(jl) + 1) - this%off_rcv(ind_dst(jl))
+             do kl = 1, ll
+                sbuf(1, kl) = & ! old element local index
                      this%elem_lst_rcv(this%off_rcv(ind_dst(jl)) + kl - 1)
-                sbuf_gl(1 + kl) = &
+                sbuf(2, kl) = & ! old element global index
                      cmmgidxls(this%off_rcv(ind_dst(jl)) + kl - 1)
              end do
              jl = jl + 1
           end if
        end if
-       ! element local number
-       kl = sbuf_loc(1) + 1
-       call MPI_Sendrecv(sbuf_loc(1: kl), kl, MPI_INTEGER, dst, 0, &
-            rbuf_loc, bmax, MPI_INTEGER, src, 0, NEKO_COMM, status, ierr)
-       ! global element number
-       call MPI_Sendrecv(sbuf_gl(1: kl), kl, MPI_INTEGER8, dst, 0, &
-            rbuf_gl, bmax, MPI_INTEGER8, src, 0, NEKO_COMM, status, ierr)
-       if (rbuf_gl(1) .gt. 0 .or. rbuf_loc(1) .gt. 0) then
+       ll = ll * 2
+       call MPI_Sendrecv(sbuf, ll, MPI_INTEGER8, dst, 0, &
+            rbuf, bmax, MPI_INTEGER8, src, 0, NEKO_COMM, status, ierr)
+       call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+       if (n_recv .gt. 0) then
+          n_recv = n_recv / 2
           ! check if the received data is consistent with local one by
           ! comparing global element numbers
           ifconsistent = .true.
-          if (int(rbuf_gl(1), i4) .ne. rbuf_loc(1)) ifconsistent = .false.
-          if (ifconsistent) then
-             do kl = 1, rbuf_loc(1)
-                if (rbuf_gl(kl + 1) .ne. &
-                     this%gidx_old(rbuf_loc(kl + 1))) then
-                   ifconsistent = .false.
-                   exit
-                end if
-             end do
-          end if
+          do kl = 1, n_recv
+             if (rbuf(2, kl) .ne. this%gidx_old(int(rbuf(1, kl), i4))) then
+                ifconsistent = .false.
+                exit
+             end if
+          end do
           if (.not. ifconsistent) &
                call neko_error('Inconsistent global element number; &
                &vector_map')
@@ -776,10 +767,10 @@ contains
              this%rank_lst_snd(1) = src
              allocate(this%off_snd(2))
              this%off_snd(1) = 1
-             this%off_snd(2) = rbuf_loc(1) + 1
-             allocate(this%elem_lst_snd(rbuf_loc(1)))
-             do kl = 1, rbuf_loc(1)
-                this%elem_lst_snd(kl) = rbuf_loc(kl + 1)
+             this%off_snd(2) = n_recv + 1
+             allocate(this%elem_lst_snd(n_recv))
+             do kl = 1, n_recv
+                this%elem_lst_snd(kl) = int(rbuf(1, kl), i4)
              end do
           else
              this%nrank_snd = this%nrank_snd + 1
@@ -793,15 +784,15 @@ contains
              do kl = 1, this%nrank_snd
                 vtmp(kl) = this%off_snd(kl)
              end do
-             vtmp(this%nrank_snd + 1) = vtmp(this%nrank_snd) + rbuf_loc(1)
+             vtmp(this%nrank_snd + 1) = vtmp(this%nrank_snd) + n_recv
              call move_alloc(vtmp, this%off_snd)
              allocate(vtmp(this%off_snd(this%nrank_snd + 1) -1))
              do kl = 1, this%off_snd(this%nrank_snd) - 1
                 vtmp(kl) = this%elem_lst_snd(kl)
              end do
-             do kl = 1, rbuf_loc(1)
+             do kl = 1, n_recv
                 vtmp(this%off_snd(this%nrank_snd) - 1 + kl) = &
-                     rbuf_loc(kl + 1)
+                     int(rbuf(1, kl), i4)
              end do
              call move_alloc(vtmp, this%elem_lst_snd)
           end if
@@ -894,10 +885,8 @@ contains
 
     if (allocated(cmmgidxl)) deallocate(cmmgidxl)
     if (allocated(cmmgidxls)) deallocate(cmmgidxls)
-    if (allocated(rbuf_gl)) deallocate(rbuf_gl)
-    if (allocated(rbuf_loc)) deallocate(rbuf_loc)
-    if (allocated(sbuf_gl)) deallocate(sbuf_gl)
-    if (allocated(sbuf_loc)) deallocate(sbuf_loc)
+    if (allocated(rbuf)) deallocate(rbuf)
+    if (allocated(sbuf)) deallocate(sbuf)
     if (allocated(ngh_dst)) deallocate(ngh_dst)
     if (allocated(ind_dst)) deallocate(ind_dst)
     if (allocated(vtmp)) deallocate(vtmp)
