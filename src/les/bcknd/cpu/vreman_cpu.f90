@@ -34,11 +34,11 @@
 module vreman_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS, col2
+  use math, only : cadd, NEKO_EPS, col2, vlsc2
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
-  use operators, only : dudxyz
+  use operators, only : dudxyz, grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use utils, only : neko_error
@@ -58,19 +58,19 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
-                                if_corr, vert_dir, ri_c, theta0, g)
+                                if_corr, ri_c, theta0, g)
     logical, intent(in) :: if_ext, if_corr
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
-    real(kind=rp), intent(in) :: c, ri_c, theta0, g
+    real(kind=rp), intent(in) :: c, ri_c, theta0
+    real(kind=rp), intent(in) :: g(3)
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
-    type(field_t), pointer :: theta, dTdz, dudz, dvdz
-    character(len=:), allocatable :: vert_dir
+    type(field_t), pointer :: theta, dTdx, dTdy, dTdz
 
     real(kind=rp) :: beta11
     real(kind=rp) :: beta12
@@ -81,8 +81,10 @@ contains
     real(kind=rp) :: b_beta
     real(kind=rp) :: aijaij
     integer :: temp_indices(9)
-    integer :: e, i
-    real(kind=rp) ::  ri, correction
+    integer :: e, i, j
+    real(kind=rp) ::  gmag, ri, correction, buoyancy, shear_sq
+    real(kind=rp) :: n(3), du_n(3), sh(3)
+    real(kind=rp) :: du_parallel
 
     if (if_ext .eqv. .true.) then
        u => neko_registry%get_field_by_name("u_e")
@@ -159,30 +161,51 @@ contains
     end do
     if (if_corr .eqv. .true.) then
           theta => neko_field_registry%get_field_by_name("temperature")
+          call neko_scratch_registry%request_field(dTdx, temp_indices(1))
+          call neko_scratch_registry%request_field(dTdy, temp_indices(1))
           call neko_scratch_registry%request_field(dTdz, temp_indices(1))
-          ! Calculate Richardson number
-          select case (vert_dir)
-          case ("x")
-               call dudxyz(dTdz%x, theta%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-               dudz => a21
-               dvdz => a31
-          case ("y")
-               call dudxyz(dTdz%x, theta%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-               dudz => a12
-               dvdz => a32
-          case ("z")
-               call dudxyz(dTdz%x, theta%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-               dudz => a13
-               dvdz => a23
-          case default
-               call neko_error("Invalid specified vertical direction.")
-          end select
 
+          ! Calculate Richardson number
+          gmag = sqrt(vlsc2(g, g, 3))
+          n = g / gmag
+          call grad(dTdx%x, dTdy%x, dTdz%x, theta%x, coef)
           do concurrent (e = 1:coef%msh%nelv)
                do concurrent (i = 1:coef%Xh%lxyz)
-                    ri = g / theta0 * dTdz%x(i,1,1,e) / &
-                         (dudz%x(i,1,1,e)**2 + dvdz%x(i,1,1,e)**2 + NEKO_EPS)
+
+                    ! Buoyancy component (numerator in Ri definition)
+                    buoyancy = (g(1) * dTdx%x(i,1,1,e) + &
+                                g(2) * dTdy%x(i,1,1,e) + &
+                                g(3) * dTdz%x(i,1,1,e)) / theta0
+
+                    ! Shear component (denominator in Ri definition)
+                    ! Directional derivative of velocity
+                    du_n(1) = a11%x(i,1,1,e)*n(1) + a21%x(i,1,1,e)*n(2) +&
+                            a31%x(i,1,1,e)*n(3)
+                    du_n(2) = a12%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
+                            a32%x(i,1,1,e)*n(3)
+                    du_n(3) = a13%x(i,1,1,e)*n(1) + a23%x(i,1,1,e)*n(2) +&
+                            a33%x(i,1,1,e)*n(3)
+
+                    ! Todo:
+                    ! - check if anything should be rewritten using math functions
+                    ! - define all variables
+
+                    ! Component parallel to n
+                    du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
+
+                    ! Perpendicular (shear) components
+                    do concurrent (j = 1:3)
+                         sh(j) = du_n(j) - du_parallel*n(j)
+                    end do
+
+                    ! Shear magnitude squared
+                    shear_sq = sh(1)*sh(1) + sh(2)*sh(2) + sh(3)*sh(3)
+
+                    ! Richardson number
+                    ri = buoyancy / (shear_sq + NEKO_EPS)
+
                     correction = (1 - ri/ri_c)**0.5
+
                     if (ri .le. ri_c) then
                          nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
                     else

@@ -37,9 +37,10 @@ module vreman
   use les_model, only : les_model_t
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get
   use json_module, only : json_file
   use neko_config, only : NEKO_BCKND_DEVICE
+  use utils, only : neko_error
   use vreman_cpu, only : vreman_compute_cpu
   use vreman_device, only : vreman_compute_device
   use registry, only : neko_registry
@@ -52,8 +53,8 @@ module vreman
   type, public, extends(les_model_t) :: vreman_t
      !> Model constant, defaults to 0.07.
      real(kind=rp) :: c
-     real(kind=rp) :: ri_c, theta0, g
-     character(len=:), allocatable :: vertical_dir
+     real(kind=rp) :: ri_c, theta0
+     real(kind=rp), allocatable :: g(:)
      logical :: if_corr
    contains
      !> Constructor from JSON.
@@ -76,9 +77,9 @@ contains
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
-    real(kind=rp) :: c, ri_c, theta0, g
+    real(kind=rp) :: c, ri_c, theta0
     character(len=:), allocatable :: delta_type
-    character(len=:), allocatable :: vertical_dir
+    real(kind=rp), allocatable :: g(:)
     logical :: if_ext, if_corr
     character(len=LOG_SIZE) :: log_buf
 
@@ -88,10 +89,13 @@ contains
     call json_get_or_default(json, "c", c, 0.07_rp)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
-    call json_get_or_default(json, "vertical_direction", vertical_dir, "z")
     call json_get_or_default(json, "ri_c", ri_c, 0.25_rp)
     call json_get_or_default(json, "theta0", theta0, 293.0_rp)
-    call json_get_or_default(json, "g", g, 9.81_rp)
+    call json_get(json, "g", g)
+
+    if (.not. size(g) == 3) then
+       call neko_error("The gravity vector should have 3 components")
+    end if
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Vreman'
@@ -107,7 +111,7 @@ contains
     call neko_log%end_section()
 
     call vreman_init_from_components(this, fluid, c, nut_name, &
-         delta_type, if_ext, if_corr, vertical_dir, ri_c, theta0, g)
+         delta_type, if_ext, if_corr, ri_c, theta0, g)
   end subroutine vreman_init
 
   !> Constructor from components.
@@ -117,13 +121,13 @@ contains
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether trapolate the velocity.
   subroutine vreman_init_from_components(this, fluid, c, nut_name, &
-       delta_type, if_ext, if_corr, vertical_dir, ri_c, theta0, g)
+       delta_type, if_ext, if_corr, ri_c, theta0, g)
     class(vreman_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
-    real(kind=rp) :: c, ri_c, theta0, g
+    real(kind=rp) :: c, ri_c, theta0
+    real(kind=rp), allocatable :: g(:)
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
-    character(len=*), intent(in) :: vertical_dir
     logical, intent(in) :: if_ext, if_corr
 
     call this%free()
@@ -131,7 +135,6 @@ contains
     call this%init_base(fluid, nut_name, delta_type, if_ext)
     this%c = c
     this%if_corr = if_corr
-    this%vertical_dir = trim(vertical_dir)
     this%ri_c = ri_c
     this%theta0 = theta0
     this%g = g
@@ -180,7 +183,7 @@ contains
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c, this%if_corr, &
-            this%vertical_dir, this%ri_c, this%theta0, this%g)
+            this%ri_c, this%theta0, this%g)
     end if
 
   end subroutine vreman_compute
