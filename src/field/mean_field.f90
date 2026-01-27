@@ -84,8 +84,8 @@ contains
        write(name, '(A,A)') 'mean_', trim(f%name)
     end if
 
-    call neko_registry%add_field(f%dof, field_name) 
-    this%mf => neko_registry%get_field(field_name)
+    call neko_registry%add_field(f%dof, name) 
+    this%mf => neko_registry%get_field(name)
 
   end subroutine mean_field_init
 
@@ -96,7 +96,6 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
-    call this%mf%free()
 
   end subroutine mean_field_free
 
