@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,48 +38,52 @@ module device_symmetry
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l) &
+     subroutine hip_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+          x, y, z, m, n, l, strm) &
           bind(c, name='hip_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
-       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z
+       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
      end subroutine hip_symmetry_apply_vector
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l) &
+     subroutine cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+          x, y, z, m, n, l, strm) &
           bind(c, name='cuda_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
-       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z
+       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
      end subroutine cuda_symmetry_apply_vector
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l) &
+     subroutine opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+          x, y, z, m, n, l, strm) &
           bind(c, name='opencl_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
-       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z
+       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
      end subroutine opencl_symmetry_apply_vector
   end interface
 #endif
 
 contains
 
-  subroutine device_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l)
+  subroutine device_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+       x, y, z, m, n, l, strm)
     integer, intent(in) :: m, n, l
-    type(c_ptr) :: xmsk, ymsk, zmsk, x, y, z
+    type(c_ptr) :: xmsk, ymsk, zmsk, x, y, z, strm
 
 #ifdef HAVE_HIP
-    call hip_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l)
+    call hip_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
 #elif HAVE_CUDA
-    call cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l)
+    call cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
 #elif HAVE_OPENCL
-    call opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l)
+    call opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
 #else
     call neko_error('No device backend configured')
 #endif

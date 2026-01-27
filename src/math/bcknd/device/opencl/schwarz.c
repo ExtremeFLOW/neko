@@ -79,6 +79,7 @@ void opencl_schwarz_extrude(void *arr1, int *l1, real *f1,
       CL_CHECK(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL,          \
                                       &global_item_size,                       \
                                       &local_item_size, 0, NULL, NULL));       \
+      CL_CHECK(clReleaseKernel(kernel));                                       \
      }                                                                         \
     break
 
@@ -122,6 +123,7 @@ void opencl_schwarz_toext3d(void *a, void *b, int *nx, int *nel,
   CL_CHECK(clEnqueueNDRangeKernel(command_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void opencl_schwarz_toreg3d(void *b, void *a, int *nx, int *nel,
@@ -145,4 +147,5 @@ void opencl_schwarz_toreg3d(void *b, void *a, int *nx, int *nel,
   CL_CHECK(clEnqueueNDRangeKernel(command_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }

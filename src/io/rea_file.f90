@@ -33,19 +33,19 @@
 !> NEKTON session data reader
 !! @details This module is used to read NEKTON session data in ascii
 module rea_file
-  use generic_file
-  use num_types
-  use utils
-  use mesh
-  use point
-  use map
-  use rea
+  use generic_file, only : generic_file_t
+  use num_types, only : rp, dp
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use point, only :point_t
+  use map, only : map_t
+  use rea, only : rea_t, rea_free
   use re2_file, only: re2_file_t
-  use map_file
+  use map_file, only : map_file_t
   use comm
-  use datadist
-  use htable
-  use logger
+  use datadist, only : linear_dist_t
+  use htable, only : htable_pt_t
+  use logger, only : LOG_SIZE, neko_log, NEKO_LOG_DEBUG
+  use utils, only : neko_error, filename_chsuffix
   implicit none
   private
 
@@ -86,7 +86,7 @@ contains
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
     type(map_file_t) :: map_file
-    character(len=1024) :: re2_fname, map_fname
+    character(len=1024) :: re2_fname, map_fname, fname
     integer :: start_el, end_el, nel, edge
     type(linear_dist_t) :: dist
     type(map_t) :: nm
@@ -127,9 +127,9 @@ contains
        call neko_error('Reading NEKTON session data only implemented in serial')
     end if
 
-
-    open(newunit=file_unit,file=trim(this%fname), status='old', iostat=ierr)
-    call neko_log%message('Reading NEKTON file ' // this%fname)
+    fname = this%get_fname()
+    open(newunit=file_unit,file=trim(fname), status='old', iostat=ierr)
+    call neko_log%message('Reading NEKTON file ' // fname)
 
     read(file_unit, *)
     read(file_unit, *)
@@ -165,7 +165,7 @@ contains
     read(file_unit, *)
     read(file_unit, *) nelgs,ndim, nelgv
     if (nelgs .lt. 0) then
-       re2_fname = trim(this%fname(1:scan(trim(this%fname), &
+       re2_fname = trim(fname(1:scan(trim(fname), &
             '.', back=.true.)))//'re2'
        call re2_file%init(re2_fname)
        call re2_file%read(msh)
@@ -174,10 +174,10 @@ contains
 1      format('gdim = ', i1, ', nelements =', i7)
        call neko_log%message(log_Buf)
 
-       call filename_chsuffix(this%fname, map_fname, 'map')
+       call filename_chsuffix(fname, map_fname, 'map')
        inquire(file=map_fname, exist=read_map)
        if (read_map) then
-          call map_init(nm, nelgv, 2**ndim)
+          call nm%init(nelgv, 2**ndim)
           call map_file%init(map_fname)
           call map_file%read(nm)
        else
@@ -203,7 +203,7 @@ contains
              read(file_unit, *) (yc(j),j=1,4)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 4
-                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
+                   call p(j)%init(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
@@ -218,7 +218,7 @@ contains
              read(file_unit, *) (zc(j),j=5,8)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 8
-                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
+                   call p(j)%init(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
@@ -284,7 +284,7 @@ contains
        read(file_unit,*)
        read(file_unit,*)
        if (.not. read_bcs) then ! Mark zones in the mesh
-          call neko_log%message("Reading boundary conditions", neko_log_debug)
+          call neko_log%message("Reading boundary conditions", NEKO_LOG_DEBUG)
           allocate(cbc(6,nelgv))
           allocate(bc_data(6,2*ndim,nelgv))
           off = 0

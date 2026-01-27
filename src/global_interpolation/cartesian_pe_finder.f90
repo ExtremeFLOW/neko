@@ -48,7 +48,7 @@ module cartesian_pe_finder
        MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_INTEGER8, &
        MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, MPI_Wait, &
        MPI_Exscan, MPI_Request, MPI_Status, &
-       MPI_Alltoall, MPI_IN_PLACE
+       MPI_Alltoall, MPI_IN_PLACE, MPI_Barrier
   implicit none
   private
 
@@ -64,10 +64,11 @@ module cartesian_pe_finder
      !! Set to true when operation has succeeded
      logical :: flag
      !> Buffer with data to send/recieve
-     real(kind=i8), allocatable :: data(:)
+     real(kind=dp), allocatable :: data(:)
      integer :: size = 0
+   contains
+     procedure, pass(this) :: free => i8_mpi_free
   end type i8_mpi_t
-
 
 
   !> Implements global interpolation for arbitrary points in the domain.
@@ -100,6 +101,16 @@ module cartesian_pe_finder
   end type cartesian_pe_finder_t
 
 contains
+
+  !> Destructor for i8_mpi_t.
+  subroutine i8_mpi_free(this)
+    class(i8_mpi_t), intent(inout) :: this
+
+    if (allocated(this%data)) then
+       deallocate(this%data)
+    end if
+
+  end subroutine i8_mpi_free
 
   !> Initialize the global interpolation object on a set of coordinates.
   !! @param x x-coordinates.
@@ -144,15 +155,16 @@ contains
     call MPI_Comm_rank(this%comm, this%pe_rank, ierr)
     call MPI_Comm_size(this%comm, this%pe_size, ierr)
 
-    this%glob_n_boxes = int(n_boxes,i8)**3
+    this%glob_n_boxes = int(n_boxes, i8)**3
     this%n_boxes = n_boxes
     this%nelv = nelv
-    this%n_boxes_per_pe = (this%glob_n_boxes+int(this%pe_size-1,i8))/int(this%pe_size,i8)
+    this%n_boxes_per_pe = (this%glob_n_boxes + int(this%pe_size - 1, i8))/ &
+         int(this%pe_size, i8)
 
-    allocate(this%send_buf(0:this%pe_size-1))
-    allocate(this%recv_buf(0:this%pe_size-1))
-    allocate(this%pe_map(0:this%n_boxes_per_pe-1))
-    do i = 0, this%n_boxes_per_pe-1
+    allocate(this%send_buf(0:this%pe_size - 1))
+    allocate(this%recv_buf(0:this%pe_size - 1))
+    allocate(this%pe_map(0:this%n_boxes_per_pe - 1))
+    do i = 0, this%n_boxes_per_pe - 1
        call this%pe_map(i)%init()
     end do
     call MPI_Exscan(this%nelv, this%offset_el, 1, &
@@ -248,7 +260,7 @@ contains
        !move it to do scaling
        lx2 = Xh%lx/2
        if (mod(Xh%lx,2) .eq. 0) then
-          lin_idx = linear_index(lx2,lx2,lx2, e, Xh%lx, Xh%lx, Xh%lx)
+          lin_idx = linear_index(lx2, lx2, lx2, e, Xh%lx, Xh%lx, Xh%lx)
           center_x = x(lin_idx)
           center_y = y(lin_idx)
           center_z = z(lin_idx)
@@ -259,7 +271,7 @@ contains
           do i = lx2, lx2+1
              do j = lx2, lx2 + 1
                 do k = lx2, lx2 + 1
-                   lin_idx = linear_index(i,j,k,e, Xh%lx, Xh%lx, Xh%lx)
+                   lin_idx = linear_index(i, j, k, e, Xh%lx, Xh%lx, Xh%lx)
                    center_x = center_x + x(lin_idx)
                    center_y = center_y + y(lin_idx)
                    center_z = center_z + z(lin_idx)
@@ -285,7 +297,7 @@ contains
        do i = 1, Xh%lx - 1
           do j = 1, Xh%ly - 1
              do k = 1, Xh%lz - 1
-                lin_idx = linear_index(i,j,k, 1, Xh%lx, Xh%lx, Xh%lx)
+                lin_idx = linear_index(i, j, k, 1, Xh%lx, Xh%lx, Xh%lx)
                 max_bb_x = el_x(lin_idx)
                 min_bb_x = el_x(lin_idx)
                 max_bb_y = el_y(lin_idx)
@@ -405,9 +417,9 @@ contains
     n_boxes = this%n_boxes
 
 
-    global_box_id(1) = int((x - this%min_x_global)/this%res_x,i8)
-    global_box_id(2) = int((y - this%min_y_global)/this%res_y,i8)
-    global_box_id(3) = int((z - this%min_z_global)/this%res_z,i8)
+    global_box_id(1) = int((x - this%min_x_global) / this%res_x, i8)
+    global_box_id(2) = int((y - this%min_y_global) / this%res_y, i8)
+    global_box_id(3) = int((z - this%min_z_global) / this%res_z, i8)
   end function get_global_idx
 
   function get_pe_idx(this, global_idx) result(pe_id)
@@ -415,7 +427,7 @@ contains
     integer(kind=i8), intent(in) :: global_idx
     integer :: pe_id
     !Get x id and then divide by the number of x boxes per rank to get the correct pe id
-    pe_id = global_idx/int(this%n_boxes_per_pe,i8)
+    pe_id = global_idx / int(this%n_boxes_per_pe, i8)
   end function get_pe_idx
 
 
@@ -426,13 +438,13 @@ contains
 
     if (allocated(this%send_buf)) then
        do i = 0, this%pe_size-1
-          if (allocated(this%send_buf(i)%data)) deallocate(this%send_buf(i)%data)
+          call this%send_buf(i)%free()
        end do
        deallocate(this%send_buf)
     end if
     if (allocated(this%recv_buf)) then
        do i = 0, this%pe_size-1
-          if (allocated(this%recv_buf(i)%data)) deallocate(this%recv_buf(i)%data)
+          call this%recv_buf(i)%free()
        end do
        deallocate(this%recv_buf)
     end if
@@ -459,39 +471,13 @@ contains
     type(stack_i8_t), allocatable :: work_pe_ids(:), work_pt_ids(:)
     type(stack_i8_t), allocatable :: temp_pe_ids(:), temp_pt_ids(:)
     integer, allocatable :: n_work_ids(:), n_temp_ids(:)
-    integer(i8), pointer :: ids(:) => Null()
-    integer(i8), pointer :: pt_id(:) => Null()
-    integer, pointer :: pe_cands(:) => Null()
-    integer(i8), pointer :: pe_cands8(:) => Null()
-    integer(i8), pointer :: pt_ids(:) => Null()
+    integer(i8), pointer :: ids(:)
+    integer(i8), pointer :: pt_id(:)
+    integer, pointer :: pe_cands(:)
+    integer(i8), pointer :: pe_cands8(:)
+    integer(i8), pointer :: pt_ids(:)
     integer :: ierr
-    if (allocated(work_pe_ids)) then
-       do i = 0, this%pe_size-1
-          call work_pe_ids(i)%free()
-       end do
-       deallocate(work_pe_ids)
-    end if
-    if (allocated(temp_pe_ids)) then
-       do i = 0, this%pe_size-1
-          call temp_pe_ids(i)%free()
-       end do
-       deallocate(temp_pe_ids)
-    end if
-    if (allocated(temp_pt_ids)) then
-       do i = 0, this%pe_size-1
-          call temp_pt_ids(i)%free()
-       end do
-       deallocate(temp_pt_ids)
-    end if
-    if (allocated(work_pt_ids)) then
-       do i = 0, this%pe_size-1
-          call work_pt_ids(i)%free()
-       end do
-       deallocate(work_pt_ids)
-    end if
-    if (allocated(n_work_ids)) deallocate(n_work_ids)
-    if (allocated(n_temp_ids)) deallocate(n_temp_ids)
-    !Should dellocate properly I think
+
     allocate(work_pe_ids(0:this%pe_size-1))
     allocate(work_pt_ids(0:this%pe_size-1))
     allocate(temp_pe_ids(0:this%pe_size-1))
@@ -564,7 +550,8 @@ contains
                 n_work_ids(i) = n_work_ids(i) + 1
              end do
              if (this%pe_map(int(loc_id))%size() .lt. 1) then
-                print *, 'No PE candidates found for point:', points(1,pt_ids(j)), &
+                print *, 'No PE candidates found for point:', &
+                     points(1,pt_ids(j)), &
                      points(2,pt_ids(j)), points(3,pt_ids(j))
              end if
           end do
@@ -614,12 +601,19 @@ contains
        end do
        deallocate(work_pt_ids)
     end if
-    if (allocated(n_work_ids)) deallocate(n_work_ids)
-    if (allocated(n_temp_ids)) deallocate(n_temp_ids)
+
+    if (allocated(n_work_ids)) then
+       deallocate(n_work_ids)
+    end if
+
+    if (allocated(n_temp_ids)) then
+       deallocate(n_temp_ids)
+    end if
   end subroutine cartesian_pe_finder_find_batch
 
 
-  subroutine send_recv_data(this, recv_values, n_recv_values, send_values, n_send_values)
+  subroutine send_recv_data(this, recv_values, n_recv_values, &
+       send_values, n_send_values)
     class(cartesian_pe_finder_t), intent(inout) :: this
     type(stack_i8_t), intent(inout) :: recv_values(0:this%pe_size-1)
     type(stack_i8_t), intent(inout) :: send_values(0:this%pe_size-1)
@@ -682,4 +676,3 @@ contains
 
   end subroutine send_recv_data
 end module cartesian_pe_finder
-

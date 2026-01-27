@@ -7,12 +7,32 @@ includedir_pkg=${prefix}/include/neko
 FC=@FC@
 FCFLAGS='@FCFLAGS@'
 
+# Setup accelerator backend
+HAVE_CUDA_BCKND=@cuda_bcknd@
+if [ $HAVE_CUDA_BCKND -eq 1 ]; then
+    NVCC=@NVCC@
+    CUDA_CFLAGS='@CUDA_CFLAGS@'
+    CUDA_ARCH='@CUDA_ARCH@'
+fi
+
+HAVE_HIP_BCKND=@hip_bcknd@
+if [ $HAVE_HIP_BCKND -eq 1 ]; then
+    HIPCC=@HIPCC@
+    HIP_HIPCC_FLAGS='@HIP_HIPCC_FLAGS@'
+fi
+
 printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
 printf "%s\n" '@NEKO_BUILD_INFO@'
 
 # Ensure user provides at least one .f90 file
 if [ $# -eq 0 ]; then
-    echo "Usage: makeneko <file1.f90> <file2.f90>"
+    if [ $HAVE_CUDA_BCKND -eq 1 ]; then
+        echo "Usage: makeneko <file1.f90> <file2.f90> <file3.cu>"
+    elif [ $HAVE_HIP_BCKND -eq 1 ]; then
+        echo "Usage: makeneko <file1.f90> <file2.f90> <file3.hip>"
+    else
+        echo "Usage: makeneko <file1.f90> <file2.f90>"
+    fi
     exit 1
 fi
 
@@ -24,12 +44,27 @@ if [ -f usr_driver.f90 ]; then
 fi
 
 
-# Collect user-provided .f90 files
+# Collect user-provided .f90, .cu and .hip files
 USER_FILES=""
+USER_BCKND_FILES=""
 for file in "$@"; do
     case "$file" in
         *.f90|*.F90) USER_FILES="$USER_FILES $file" ;;
-        *) echo "Warning: Ignoring non-Fortran file '$file'" ;;
+        *)
+            if [ $HAVE_CUDA_BCKND -eq 1 ]; then
+                case "$file" in
+                    *.cu) USER_BCKND_FILES="$USER_BCKND_FILES $file" ;;
+                    *) echo "Warning: Ignoring non-Fortran file '$file'" ;;
+                esac
+            elif [ $HAVE_HIP_BCKND -eq 1 ]; then
+                case "$file" in
+                    *.hip) USER_BCKND_FILES="$USER_BCKND_FILES $file" ;;
+                    *) echo "Warning: Ignoring non-Fortran file '$file'" ;;
+                esac
+            else
+                echo "Warning: Ignoring non-Fortran file '$file'"
+            fi
+            ;;
     esac
 done
 
@@ -146,8 +181,22 @@ cat >> usr_driver.f90 << _ACEOF
 end program usrneko
 _ACEOF
 
+# Compile backend files
+USER_BCKND_OBJ=''
+if [ ! -z "$USER_BCKND_FILES" ]; then
+    for file in $USER_BCKND_FILES; do
+        if [ $HAVE_CUDA_BCKND -eq 1 ]; then
+            $NVCC -c $CUDA_ARCH $CUDA_CFLAGS -I$includedir_pkg -I./ "$file" -o "${file%.cu}.o"
+            USER_BCKND_OBJ="$USER_BCKND_OBJ ${file%.cu}.o"
+        elif [ $HAVE_HIP_BCKND -eq 1 ]; then
+            $HIPCC -c $HIP_HIPCC_FLAGS -I$includedir_pkg -I./ "$file" -o "${file%.hip}.o"
+            USER_BCKND_OBJ="$USER_BCKND_OBJ ${file%.hip}.o"
+        fi
+    done
+fi
+
 # Compile everything
-$FC $FCFLAGS -I$includedir_pkg -L$libdir $USER_FILES usr_driver.f90 -lneko @LDFLAGS@ @LIBS@ -o neko
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $USER_FILES $USER_BCKND_OBJ usr_driver.f90 -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
 printf "%s\n" ' Done!'

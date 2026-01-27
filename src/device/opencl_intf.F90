@@ -105,6 +105,10 @@ module opencl_intf
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_CUSTOM = 16
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_ALL = int(Z'FFFFFFFF', i8)
 
+  !> Queue properties
+  integer(c_int64_t), parameter :: CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE = 1
+  integer(c_int64_t), parameter :: CL_QUEUE_PROFILING_ENABLE = 2
+
   interface
      integer(c_int) function clGetPlatformIDs(num_entries, platforms, &
           num_platforms) bind(c, name = 'clGetPlatformIDs')
@@ -401,9 +405,10 @@ module opencl_intf
 
 contains
 
-  subroutine opencl_init(glb_cmd_queue, aux_cmd_queue)
+  subroutine opencl_init(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    type(c_ptr), intent(inout) :: prf_cmd_queue
     type(c_ptr), target :: platform_id
     integer(c_int) :: num_platforms, num_devices, ierr
     integer(c_intptr_t) :: ctx_prop(3)
@@ -411,12 +416,12 @@ contains
     integer :: i
 
     if (clGetPlatformIDs(1, c_loc(platform_id), &
-                         num_platforms) .ne. CL_SUCCESS) then
+         num_platforms) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a platform id')
     end if
 
     if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &
-                       c_loc(glb_device_id), num_devices) .ne. CL_SUCCESS) then
+         c_loc(glb_device_id), num_devices) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a device id')
     end if
 
@@ -427,7 +432,7 @@ contains
     end if
 
     glb_ctx = clCreateContext(C_NULL_PTR, num_devices, c_loc(glb_device_id), &
-                              C_NULL_FUNPTR, C_NULL_PTR, ierr)
+         C_NULL_FUNPTR, C_NULL_PTR, ierr)
 
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create an OpenCL context')
@@ -439,23 +444,30 @@ contains
        end if
     end if
 
-    glb_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, &
-                                         ierr)
+    glb_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, &
+         queue_props, ierr)
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create a command queue')
     end if
 
-    aux_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, &
-                                         ierr)
+    aux_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, &
+         queue_props, ierr)
+    if (ierr .ne. CL_SUCCESS) then
+       call neko_error('Failed to create a command queue')
+    end if
+
+    prf_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, &
+         CL_QUEUE_PROFILING_ENABLE, ierr)
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create a command queue')
     end if
 
   end subroutine opencl_init
 
-  subroutine opencl_finalize(glb_cmd_queue, aux_cmd_queue)
+  subroutine opencl_finalize(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    type(c_ptr), intent(inout) :: prf_cmd_queue
 
     if (c_associated(glb_ctx)) then
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then
@@ -478,6 +490,13 @@ contains
        aux_cmd_queue = C_NULL_PTR
     end if
 
+    if (c_associated(prf_cmd_queue)) then
+       if (clReleaseCommandQueue(prf_cmd_queue) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release command queue')
+       end if
+       prf_cmd_queue = C_NULL_PTR
+    end if
+
     if (c_associated(glb_device_id)) then
        if (clReleaseDevice(glb_device_id) .ne. CL_SUCCESS) then
           call neko_error('Failed to release device')
@@ -492,7 +511,7 @@ contains
     integer(c_size_t), target :: name_len
 
     if (clGetDeviceInfo(glb_device_id, CL_DEVICE_NAME, int(1024, i8), &
-                        c_loc(c_name), c_loc(name_len)) .ne. CL_SUCCESS) then
+         c_loc(c_name), c_loc(name_len)) .ne. CL_SUCCESS) then
        call neko_error('Failed to query device')
     end if
 
@@ -505,13 +524,13 @@ contains
     type(c_ptr), target :: platform_id
     integer(c_int) :: num_platforms, num_devices
 
-    if (clGetPlatformIDs(1, c_loc(platform_id), &
-                         num_platforms) .ne. CL_SUCCESS) then
+    if (clGetPlatformIDs(1, c_loc(platform_id), num_platforms) &
+         .ne. CL_SUCCESS) then
        call neko_error('Failed to get a platform id')
     end if
 
     if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 0, &
-                       C_NULL_PTR, num_devices) .ne. CL_SUCCESS) then
+         C_NULL_PTR, num_devices) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a device id')
     end if
 

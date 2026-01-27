@@ -1,0 +1,4 @@
+pytest
+json5
+numpy
+git+https://github.com/ExtremeFLOW/pySEMTools.git

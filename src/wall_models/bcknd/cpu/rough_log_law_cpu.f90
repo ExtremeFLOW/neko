@@ -33,7 +33,6 @@
 !> Implements the CPU kernel for the `rough_log_law_t` type.
 module rough_log_law_cpu
   use num_types, only : rp
-  use logger, only : neko_log, NEKO_LOG_DEBUG
   implicit none
   private
 
@@ -43,13 +42,13 @@ contains
   !> Compute the wall shear stress on CPU using the rough log-law model.
   !! @param tstep The current time-step.
   subroutine rough_log_law_compute_cpu(u, v, w, ind_r, ind_s, ind_t, ind_e, &
-       n_x, n_y, n_z, nu, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+       n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
        kappa, B, z0, tstep)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: nu, kappa, B, z0
+    real(kind=rp), intent(in) :: kappa, B, z0
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu

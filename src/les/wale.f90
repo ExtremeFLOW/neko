@@ -42,7 +42,8 @@ module wale
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use wale_cpu, only : wale_compute_cpu
-  use field_registry, only : neko_field_registry
+  use wale_device, only : wale_compute_device
+  use registry, only : neko_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
@@ -143,12 +144,12 @@ contains
        associate(ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag, ext_bdf => this%ext_bdf)
 
-         u => neko_field_registry%get_field_by_name("u")
-         v => neko_field_registry%get_field_by_name("v")
-         w => neko_field_registry%get_field_by_name("w")
-         u_e => neko_field_registry%get_field_by_name("u_e")
-         v_e => neko_field_registry%get_field_by_name("v_e")
-         w_e => neko_field_registry%get_field_by_name("w_e")
+         u => neko_registry%get_field_by_name("u")
+         v => neko_registry%get_field_by_name("v")
+         w => neko_registry%get_field_by_name("w")
+         u_e => neko_registry%get_field_by_name("u_e")
+         v_e => neko_registry%get_field_by_name("v_e")
+         w_e => neko_registry%get_field_by_name("w_e")
 
          call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
               ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
@@ -158,7 +159,8 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("Wale model not implemented on accelarators yet.")
+       call wale_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c_w)
     else
        call wale_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c_w)

@@ -41,15 +41,17 @@ module output
   type, public, abstract :: output_t
      type(file_t) :: file_
    contains
-     procedure, pass(this) :: init_base => output_init
+     procedure, pass(this) :: init_base => output_init_base
+     procedure, pass(this) :: free_base => output_free_base
      procedure, pass(this) :: set_counter => output_set_counter
      procedure, pass(this) :: set_start_counter => output_set_start_counter
      procedure(output_sample), pass(this), deferred :: sample
+     procedure(output_free), pass(this), deferred :: free
   end type output_t
 
   !> Wrapper around an `output_t` pointer.
   type, public :: output_ptr_t
-     class(output_t), pointer :: ptr
+     class(output_t), pointer :: ptr => null()
   end type output_ptr_t
 
   !> Abstract interface for sampling an output type at time @a t
@@ -60,6 +62,11 @@ module output
        class(output_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
      end subroutine output_sample
+
+     subroutine output_free(this)
+       import :: output_t
+       class(output_t), intent(inout) :: this
+     end subroutine output_free
   end interface
 
 contains
@@ -67,23 +74,17 @@ contains
   !> Output constructor.
   !! @param fname Name of the output file.
   !! @param precision Output precision (sp or dp).
-  subroutine output_init(this, fname, precision, layout)
+  subroutine output_init_base(this, fname, precision, layout, overwrite)
     class(output_t), intent(inout) :: this
     character(len=*), intent(inout) :: fname
     integer, intent(in), optional :: precision
     integer, intent(in), optional :: layout
+    logical, intent(in), optional :: overwrite
 
-    if (present(precision) .and. present(layout)) then
-       this%file_ = file_t(fname, precision = precision, layout = layout)
-    else if (present(precision)) then
-       this%file_ = file_t(fname, precision = precision)
-    else if (present(layout)) then
-       this%file_ = file_t(fname, layout = layout)
-    else
-       this%file_ = file_t(fname)
-    end if
+    call this%file_%init(fname, precision = precision, layout = layout, &
+         overwrite = overwrite)
 
-  end subroutine output_init
+  end subroutine output_init_base
 
   !> Update the output's file counter
   subroutine output_set_counter(this, n)
@@ -99,5 +100,10 @@ contains
     call this%file_%set_start_counter(n)
   end subroutine output_set_start_counter
 
+  !> Free the output
+  subroutine output_free_base(this)
+    class(output_t), intent(inout) :: this
+    call this%file_%free()
+  end subroutine output_free_base
 
 end module output

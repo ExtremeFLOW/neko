@@ -18,7 +18,7 @@
             "Ra": 1750,
             "source_terms": [
                 {
-                    "type": "user_vector"
+                    "type": "user"
                 }
             ],
             "initial_condition": {
@@ -57,6 +57,7 @@
             ]
         },
         "scalar": {
+            "name": "temperature",
             "enabled": true,
             "Pr": 0.71,
             "solver": {

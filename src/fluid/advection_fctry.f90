@@ -79,7 +79,7 @@ contains
     end if
 
     if (present(use_dummy)) then
-       if (use_dummy .eqv. .true.) then
+       if (use_dummy) then
           allocate(adv_dummy_t::object)
           return
        end if
@@ -93,7 +93,7 @@ contains
     call json_get_or_default(json, 'dealiased_polynomial_order', &
          lxd, ( 3 * (order + 1) ) / 2)
 
-    call json_get_or_default(json, 'target_cfl', ctarget, 1.9_rp)
+    call json_get_or_default(json, 'oifs_target_cfl', ctarget, 1.9_rp)
 
 
     if (oifs) then

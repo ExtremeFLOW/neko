@@ -34,7 +34,6 @@
 module gs_device_nccl
   use num_types, only : rp, c_rp
   use gs_comm, only : gs_comm_t
-  use gs_ops
   use stack, only : stack_i4_t
   use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
@@ -78,7 +77,7 @@ module gs_device_nccl
 #ifdef HAVE_HIP
   interface
      subroutine hip_gs_pack(u_d, buf_d, dof_d, offset, n, stream) &
-          bind(c, name='hip_gs_pack')
+          bind(c, name = 'hip_gs_pack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: n, offset
@@ -88,7 +87,7 @@ module gs_device_nccl
 
   interface
      subroutine hip_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
-          bind(c, name='hip_gs_unpack')
+          bind(c, name = 'hip_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: op, offset, n
@@ -98,7 +97,7 @@ module gs_device_nccl
 #elif HAVE_CUDA
   interface
      subroutine cuda_gs_pack(u_d, buf_d, dof_d, offset, n, stream) &
-          bind(c, name='cuda_gs_pack')
+          bind(c, name = 'cuda_gs_pack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: n, offset
@@ -108,7 +107,7 @@ module gs_device_nccl
 
   interface
      subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
-          bind(c, name='cuda_gs_unpack')
+          bind(c, name = 'cuda_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: op, offset, n
@@ -120,7 +119,7 @@ module gs_device_nccl
   interface
      subroutine device_nccl_sendrecv(sbuf_d, soffset, scount, srank, &
           rbuf_d, roffset, rcount, rrank, nbytes, stream) &
-          bind(c, name='device_nccl_sendrecv')
+          bind(c, name = 'device_nccl_sendrecv')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: soffset, scount, roffset, rcount
@@ -193,7 +192,7 @@ contains
        end select
     end do
 
-    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync = .true.)
 
     deallocate(dofs)
     call doftable%free()
@@ -227,7 +226,8 @@ contains
     ! Create a set of non-blocking streams
     allocate(this%stream(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call device_stream_create_with_priority(this%stream(i), 1, STRM_HIGH_PRIO)
+       call device_stream_create_with_priority(this%stream(i), 1, &
+            STRM_HIGH_PRIO)
     end do
 
     allocate(this%event(size(this%recv_pe)))

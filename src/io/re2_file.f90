@@ -33,20 +33,23 @@
 !> NEKTON mesh data in re2 format
 !! @details This module is used to read/write binary NEKTION mesh data
 module re2_file
-  use generic_file, only: generic_file_t
-  use num_types, only: rp
-  use utils
-  use mesh, only: mesh_t
-  use point, only: point_t
+  use generic_file, only : generic_file_t
+  use num_types, only : rp, i8, sp, dp
+  use map_file, only : map_file_t
+  use mesh, only : mesh_t
+  use point, only : point_t
+  use neko_mpi_types
+  use datadist, only : linear_dist_t
+  use map, only : map_t
+  use mesh, only : NEKO_MSH_MAX_ZLBLS
+  use logger, only : neko_log, LOG_SIZE
+  use utils, only : neko_error, filename_chsuffix
+  use re2, only : Re2_ENDIAN_TEST, RE2_HDR_SIZE, re2v1_xyz_t, re2v1_xy_t, &
+       re2v1_curve_t, re2v1_bc_t, re2v2_xyz_t, re2v2_xy_t, &
+       re2v2_curve_t, re2v2_bc_t
+  use htable, only : htable_pt_t
   use comm
   use mpi_f08
-  use neko_mpi_types
-  use datadist
-  use re2
-  use map
-  use map_file
-  use htable
-  use logger, only: neko_log, LOG_SIZE
   implicit none
   private
 
@@ -86,7 +89,7 @@ contains
     type(linear_dist_t) :: dist
     type(map_t) :: nm
     type(map_file_t) :: map_file
-    character(len=1024) :: map_fname
+    character(len=1024) :: fname, map_fname
     logical :: read_map
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
@@ -105,8 +108,9 @@ contains
     end select
 
     v2_format = .false.
-    open(newunit=file_unit,file=trim(this%fname), status='old', iostat=ierr)
-    call neko_log%message('Reading binary NEKTON file ' // this%fname)
+    fname = trim(this%get_fname())
+    open(newunit=file_unit,file=trim(fname), status='old', iostat=ierr)
+    call neko_log%message('Reading binary NEKTON file ' // fname)
 
     read(file_unit,'(a80)') hdr_full
     read(hdr_full, '(a5)') hdr_ver
@@ -138,18 +142,16 @@ contains
     call neko_log%message(log_buf)
     close(file_unit)
 
-    call filename_chsuffix(this%fname, map_fname,'map')
+    call filename_chsuffix(fname, map_fname,'map')
 
     inquire(file=map_fname, exist=read_map)
     if (read_map) then
-       call map_init(nm, nelv, 2**ndim)
+       call nm%init(nelv, 2**ndim)
        call map_file%init(map_fname)
        call map_file%read(nm)
-    else
-       call neko_log%warning('No NEKTON map file found')
     end if
 
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
     if (ierr .ne. 0) then
@@ -248,17 +250,18 @@ contains
     call MPI_Exscan(msh%nelv, element_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-    call neko_log%message('Writing data as a binary NEKTON file ' // this%fname)
+    call neko_log%message('Writing data as a binary NEKTON file ' // &
+         this%get_fname())
 
     if (pe_rank .eq. 0) then
-       open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
+       open(unit=9,file=trim(this%get_fname()), status='new', iostat=ierr)
        write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
             nelgv, RE2_HDR_STR
        close(9)
     end if
 
     call MPI_Barrier(NEKO_COMM, ierr)
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(this%get_fname()), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
 
@@ -342,7 +345,7 @@ contains
                re2v1_data_xy, nelv, MPI_RE2V1_DATA_XY, status, ierr)
           do i = 1, nelv
              do j = 1, 4
-                p(j) = point_t(real(re2v1_data_xy(i)%x(j),dp), &
+                call p(j)%init(real(re2v1_data_xy(i)%x(j),dp), &
                      real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
@@ -359,7 +362,7 @@ contains
                re2v2_data_xy, nelv, MPI_RE2V2_DATA_XY, status, ierr)
           do i = 1, nelv
              do j = 1, 4
-                p(j) = point_t(re2v2_data_xy(i)%x(j), &
+                call p(j)%init(re2v2_data_xy(i)%x(j), &
                      re2v2_data_xy(i)%y(j), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
@@ -379,7 +382,7 @@ contains
                re2v1_data_xyz, nelv, MPI_RE2V1_DATA_XYZ, status, ierr)
           do i = 1, nelv
              do j = 1, 8
-                p(j) = point_t(real(re2v1_data_xyz(i)%x(j),dp), &
+                call p(j)%init(real(re2v1_data_xyz(i)%x(j),dp), &
                      real(re2v1_data_xyz(i)%y(j),dp),&
                      real(re2v1_data_xyz(i)%z(j),dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
@@ -398,7 +401,7 @@ contains
                re2v2_data_xyz, nelv, MPI_RE2V2_DATA_XYZ, status, ierr)
           do i = 1, nelv
              do j = 1, 8
-                p(j) = point_t(re2v2_data_xyz(i)%x(j), &
+                call p(j)%init(re2v2_data_xyz(i)%x(j), &
                      re2v2_data_xyz(i)%y(j),&
                      re2v2_data_xyz(i)%z(j))
                 call re2_file_add_point(htp, p(j), pt_idx)

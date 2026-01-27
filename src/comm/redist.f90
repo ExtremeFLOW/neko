@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,18 +32,21 @@
 !
 !> Redistribution routines
 module redist
-  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
-  use neko_mpi_types
-  use mpi_f08
+  use mesh_field, only : mesh_fld_t
+  use neko_mpi_types, only : MPI_NMSH_ZONE, MPI_NMSH_HEX, &
+       MPI_NMSH_CURVE
+  use mpi_f08, only : MPI_Status, MPI_Allreduce, MPI_Sendrecv, &
+       MPI_Get_count, MPI_INTEGER, MPI_MAX, MPI_IN_PLACE
   use htable, only : htable_i4_t
   use point, only : point_t
   use stack, only : stack_i4_t, stack_nh_t, stack_nc_t, stack_nz_t
   use curve, only : curve_t
-  use comm
+  use comm, only : pe_size, pe_rank, NEKO_COMM
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use nmsh, only : nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
   use element, only : element_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -123,7 +126,7 @@ contains
        end do
        call new_mesh_dist(parts%data(i))%push(el)
     end do
-
+    nullify(ep)
 
     gdim = msh%gdim
     call msh%free()
@@ -213,7 +216,7 @@ contains
     type is (nmsh_hex_t)
        do i = 1, new_mesh_dist(pe_rank)%size()
           do j = 1, 8
-             p(j) = point_t(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
+             call p(j)%init(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
           end do
           call msh%add_element(i, np(i)%el_idx, &
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
@@ -232,6 +235,9 @@ contains
        end do
     end select
     call new_mesh_dist(pe_rank)%free()
+    if (allocated(new_mesh_dist)) then
+       deallocate(new_mesh_dist)
+    end if
 
 
     !
@@ -242,7 +248,7 @@ contains
     ! We should use the %array() procedure, which works great for
     ! GNU, Intel and NEC, but it breaks horribly on Cray when using
     ! certain data types
-    select type(zp => new_zone_dist(pe_rank)%data)
+    select type (zp => new_zone_dist(pe_rank)%data)
     type is (nmsh_zone_t)
        do i = 1, new_zone_dist(pe_rank)%size()
           if (zp(i)%type .eq. 5) then
@@ -304,15 +310,15 @@ contains
           if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
              call neko_error('Missing element after redistribution')
           end if
-          select case(zp(i)%type)
-          case(5)
+          select case (zp(i)%type)
+          case (5)
              if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
                 call neko_error('Missing periodic element after redistribution')
              end if
 
              call msh%mark_periodic_facet(zp(i)%f, new_el_idx, &
                   zp(i)%p_f, zp(i)%p_e, zp(i)%glb_pt_ids)
-          case(7)
+          case (7)
              call msh%mark_labeled_facet(zp(i)%f, new_el_idx, zp(i)%p_f)
           end select
        end do
@@ -320,8 +326,8 @@ contains
           if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
              call neko_error('Missing element after redistribution')
           end if
-          select case(zp(i)%type)
-          case(5)
+          select case (zp(i)%type)
+          case (5)
              if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
                 call neko_error('Missing periodic element after redistribution')
              end if
@@ -332,6 +338,9 @@ contains
        end do
     end select
     call new_zone_dist(pe_rank)%free()
+    if (allocated(new_zone_dist)) then
+       deallocate(new_zone_dist)
+    end if
 
 
     !
@@ -347,6 +356,9 @@ contains
        end do
     end select
     call new_curve_dist(pe_rank)%free()
+    if (allocated(new_curve_dist)) then
+       deallocate(new_curve_dist)
+    end if
 
 
     call msh%finalize()
@@ -370,7 +382,7 @@ contains
        lbl = 0
     end if
 
-    select type(zp => z)
+    select type (zp => z)
     type is (facet_zone_periodic_t)
        do i = 1, zp%size
           zone_el = zp%facet_el(i)%x(2)

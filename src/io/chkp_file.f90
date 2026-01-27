@@ -31,37 +31,49 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Neko checkpoint file format
-!! @details this module defines interface to read/write Neko's ceckpoint files
+!! @details this module defines interface to read/write Neko's checkpoint files
 module chkp_file
-  use generic_file
-  use field_series
-  use checkpoint
-  use num_types
-  use field
-  use dofmap, only: dofmap_t
-  use device_math
-  use utils
-  use space
-  use mesh
-  use math
-  use interpolation
-  use neko_mpi_types
-  use comm
-  use global_interpolation
+  use generic_file, only : generic_file_t
+  use field_series, only : field_series_t
+  use checkpoint, only : chkp_t
+  use num_types, only : rp, dp, i8
+  use field, only : field_t
+  use dofmap, only : dofmap_t
+  use utils, only : neko_error, filename_suffix_pos
+  use space, only : space_t, GLL
+  use mesh, only : mesh_t
+  use math, only : rzero
+  use interpolation, only : interpolator_t
+  use neko_mpi_types, only : MPI_REAL_PREC_SIZE, MPI_INTEGER_SIZE, &
+       MPI_DOUBLE_PRECISION_SIZE, MPI_REAL_PREC_SIZE
+  use global_interpolation, only : global_interpolation_t
+  use logger, only : neko_log, NEKO_LOG_VERBOSE
+  use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_File, MPI_Status, MPI_OFFSET_KIND, MPI_MODE_CREATE, &
+       MPI_MODE_RDONLY, MPI_MODE_WRONLY, MPI_INFO_NULL, MPI_INTEGER, &
+       MPI_DOUBLE_PRECISION, MPI_LOGICAL, MPI_SUCCESS, &
+       MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
+       MPI_File_read_at_all, MPI_File_write_at_all, MPI_Bcast
   implicit none
   private
 
   !> Interface for Neko checkpoint files
   type, public, extends(generic_file_t) :: chkp_file_t
-     type(space_t), pointer :: chkp_Xh !< Function space in the loaded checkpoint file
-     type(space_t), pointer :: sim_Xh !< Function space used in the simulation
-     type(interpolator_t) :: space_interp !< Interpolation when only changing lx
-     type(global_interpolation_t) :: global_interp !< Interpolation for different meshes
-     logical :: mesh2mesh !< Flag if previous mesh difers from current.
+     !> Function space in the loaded checkpoint file
+     type(space_t), pointer :: chkp_Xh
+     !> Function space used in the simulation
+     type(space_t), pointer :: sim_Xh
+     !> Interpolation when only changing lx
+     type(interpolator_t) :: space_interp
+     !> Interpolation for different meshes
+     type(global_interpolation_t) :: global_interp
+     !> Flag if previous mesh difers from current.
+     logical :: mesh2mesh
    contains
      procedure :: read => chkp_file_read
      procedure :: read_field => chkp_read_field
      procedure :: write => chkp_file_write
+     procedure :: set_overwrite => chkp_file_set_overwrite
   end type chkp_file_t
 
 contains
@@ -76,10 +88,10 @@ contains
     character(len=1024) :: fname
     integer :: ierr, suffix_pos, optional_fields
     type(field_t), pointer :: u, v, w, p, s
-    type(field_t), pointer :: abx1,abx2
-    type(field_t), pointer :: aby1,aby2
-    type(field_t), pointer :: abz1,abz2
-    type(field_t), pointer :: abs1,abs2
+    type(field_t), pointer :: abx1, abx2
+    type(field_t), pointer :: aby1, aby2
+    type(field_t), pointer :: abz1, abz2
+    type(field_t), pointer :: abs1, abs2
     type(field_series_t), pointer :: ulag => null()
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
@@ -90,16 +102,17 @@ contains
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
-    logical :: write_lag, write_scalar, write_dtlag, write_scalarlag, write_abvel
+    logical :: write_lag, write_scalar, write_dtlag
+    logical :: write_scalarlag, write_abvel
     integer :: i
 
     if (present(t)) then
-       time = real(t,dp)
+       time = real(t, kind = dp)
     else
-       time = 0d0
+       time = 0.0_dp
     end if
 
-    select type(data)
+    select type (data)
     type is (chkp_t)
 
        if ( .not. associated(data%u) .or. &
@@ -166,14 +179,12 @@ contains
        call neko_error('Invalid data')
     end select
 
-
-    suffix_pos = filename_suffix_pos(this%fname)
-    write(id_str, '(i5.5)') this%counter
-    fname = trim(this%fname(1:suffix_pos-1))//id_str//'.chkp'
-
-
     dof_offset = int(msh%offset_el, i8) * int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8)
     n_glb_dofs = int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8) * int(msh%glb_nelv, i8)
+
+    ! Retrieve the filename and increment the counter if we are not overwriting
+    if (.not. this%overwrite) call this%increment_counter()
+    fname = trim(this%get_fname())
 
     call MPI_File_open(NEKO_COMM, trim(fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
@@ -188,12 +199,14 @@ contains
     ! Dump mandatory checkpoint data
     !
 
-    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE, i8)
     byte_offset = byte_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
     call MPI_File_write_at_all(fh, byte_offset,u%x, u%dof%size(), &
          MPI_REAL_PRECISION, status, ierr)
-    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE, i8)
     mpi_offset = mpi_offset +&
          n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
@@ -271,9 +284,11 @@ contains
     end if
 
     if (write_dtlag) then
-       call MPI_File_write_at_all(fh, mpi_offset, tlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_write_at_all(fh, mpi_offset, tlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
-       call MPI_File_write_at_all(fh, mpi_offset, dtlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_write_at_all(fh, mpi_offset, dtlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
@@ -338,7 +353,9 @@ contains
 
     call MPI_File_close(fh, ierr)
 
-    this%counter = this%counter + 1
+    if (ierr .ne. MPI_SUCCESS) then
+       call neko_error('Error writing checkpoint file ' // trim(fname))
+    end if
 
   end subroutine chkp_file_write
 
@@ -358,17 +375,18 @@ contains
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
     type(MPI_File) :: fh
-    type(field_t), pointer :: abx1,abx2
-    type(field_t), pointer :: aby1,aby2
-    type(field_t), pointer :: abz1,abz2
-    type(field_t), pointer :: abs1,abs2
+    type(field_t), pointer :: abx1, abx2
+    type(field_t), pointer :: aby1, aby2
+    type(field_t), pointer :: abz1, abz2
+    type(field_t), pointer :: abs1, abs2
     real(kind=rp), allocatable :: x_coord(:,:,:,:)
     real(kind=rp), allocatable :: y_coord(:,:,:,:)
     real(kind=rp), allocatable :: z_coord(:,:,:,:)
     real(kind=rp), pointer :: dtlag(:), tlag(:)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
-    integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel, optional_fields, have_dtlag
+    integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel
+    integer :: optional_fields, have_dtlag
     integer :: have_abvel, have_scalarlag
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
     real(kind=rp) :: tol
@@ -378,7 +396,7 @@ contains
 
     call this%check_exists()
 
-    select type(data)
+    select type (data)
     type is (chkp_t)
 
        if ( .not. associated(data%u) .or. &
@@ -449,9 +467,10 @@ contains
        call neko_error('Invalid data')
     end select
 
-
-
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    fname = trim(this%get_fname())
+    call neko_log%message("Reading checkpoint from file: " // trim(fname), &
+         NEKO_LOG_VERBOSE)
+    call MPI_File_open(NEKO_COMM, trim(fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     call MPI_File_read_all(fh, glb_nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
@@ -493,11 +512,13 @@ contains
     ! Read mandatory checkpoint data
     !
 
-    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE, i8)
     byte_offset = byte_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
     call this%read_field(fh, byte_offset, u%x, nel)
-    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE, i8)
     mpi_offset = mpi_offset +&
          n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
@@ -551,9 +572,11 @@ contains
     end if
 
     if (read_dtlag .and. have_dtlag .eq. 1) then
-       call MPI_File_read_at_all(fh, mpi_offset, tlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_read_at_all(fh, mpi_offset, tlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
-       call MPI_File_read_at_all(fh, mpi_offset, dtlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_read_at_all(fh, mpi_offset, dtlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
@@ -602,6 +625,10 @@ contains
 
     call MPI_File_close(fh, ierr)
 
+    if (ierr .ne. MPI_SUCCESS) then
+       call neko_error('Error reading checkpoint file ' // trim(fname))
+    end if
+
     call this%global_interp%free()
     call this%space_interp%free()
 
@@ -639,4 +666,9 @@ contains
     deallocate(read_array)
   end subroutine chkp_read_field
 
+  subroutine chkp_file_set_overwrite(this, overwrite)
+    class(chkp_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    this%overwrite = overwrite
+  end subroutine chkp_file_set_overwrite
 end module chkp_file

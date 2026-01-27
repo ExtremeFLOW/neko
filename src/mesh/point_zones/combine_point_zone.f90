@@ -67,7 +67,7 @@ module combine_point_zone
      procedure, pass(this) :: init => combine_point_zone_init_from_json
      !> Destructor.
      procedure, pass(this) :: free => combine_point_zone_free
-     !> Defines the criterion of selection of a GLL point in the combine point 
+     !> Defines the criterion of selection of a GLL point in the combine point
      !! zone.
      procedure, pass(this) :: criterion => combine_point_zone_criterion
   end type combine_point_zone_t
@@ -200,6 +200,8 @@ contains
 
     if (allocated(this%names)) deallocate(this%names)
 
+    if (allocated(this%operator)) deallocate(this%operator)
+
     this%n_zones = 0
     this%n_internal_zones = 0
     this%n_external_zones = 0
@@ -231,7 +233,7 @@ contains
     integer :: i
 
     is_inside = this%zones(1)%pz%criterion(x, &
-               y, z, j, k, l, e) .neqv. this%zones(1)%pz%invert
+         y, z, j, k, l, e) .neqv. this%zones(1)%pz%invert
 
     do i = 2, this%n_zones
        select case (trim(this%operator))

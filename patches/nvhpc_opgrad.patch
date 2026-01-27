@@ -1,0 +1,19 @@
+diff --git a/src/math/operators.f90 b/src/math/operators.f90
+index 1b5513772c..3c9a4d6be5 100644
+--- a/src/math/operators.f90
++++ b/src/math/operators.f90
+@@ -174,10 +174,10 @@ contains
+   !! @note Equals wgradm1 in Nek5000, the weak form of the gradient.
+   subroutine opgrad(ux, uy, uz, u, coef, es, ee)
+     type(coef_t), intent(in) :: coef
+-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
+-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
+-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
+-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
++    real(kind=rp), intent(inout) :: ux(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv)
++    real(kind=rp), intent(inout) :: uy(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv)
++    real(kind=rp), intent(inout) :: uz(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv)
++    real(kind=rp), intent(in) :: u(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv)
+     integer, optional :: es, ee
+     integer :: eblk_start, eblk_end
+ 

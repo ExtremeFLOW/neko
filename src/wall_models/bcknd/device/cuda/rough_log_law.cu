@@ -42,7 +42,7 @@
 extern "C" {
   void cuda_rough_log_law_compute(void *u_d, void *v_d, void *w_d,
           void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
-          void *n_x_d, void *n_y_d, void *n_z_d, real *nu, void *h_d,
+          void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
           int *n_nodes, int *lx, real *kappa, real *B, real *z0, int *tstep) {
     
@@ -50,15 +50,17 @@ extern "C" {
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
+    if (*n_nodes > 0) {
     rough_log_law_compute<real>
     <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d,
                                     (int *) ind_r_d, (int *) ind_s_d, 
                                     (int *) ind_t_d, (int *) ind_e_d,
                                     (real *) n_x_d, (real *) n_y_d, 
-                                    (real *) n_z_d, *nu, (real *) h_d,
+                                    (real *) n_z_d, (real *) h_d,
                                     (real *) tau_x_d, (real *) tau_y_d, 
                                     (real *) tau_z_d,
                                     *n_nodes, *lx, *kappa, *B, *z0);
     CUDA_CHECK(cudaGetLastError());
+    }
   }
 }

@@ -77,7 +77,7 @@ program mesh_checker
      end if
   end do
 
-  mesh_file = file_t(trim(mesh_fname))
+  call mesh_file%init(trim(mesh_fname))
   call mesh_file%read(msh)
 
   call Xh%init(1, 3, 3, 3)
@@ -137,7 +137,7 @@ program mesh_checker
         call bdry_mask%free()
      end do
 
-     bdry_file = file_t('zone_indices.fld')
+     call bdry_file%init('zone_indices.fld')
      call bdry_file%write(bdry_field)
 
      call dofmap%free()

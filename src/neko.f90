@@ -32,12 +32,17 @@
 !
 !> Master module
 module neko
-  use num_types, only : rp, sp, dp, qp
+  use num_types, only : rp, sp, dp, qp, c_rp
   use comm
   use utils
   use logger
-  use math
-  use field_math
+  use math, only : abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, &
+       cfill, glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, &
+       invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
+       sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
+       add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
+       glsc3, glsc4, sort, masked_copy_0, cfill_mask, relcmp, glimax, glimin, &
+       swap, reord, flipv, cadd2, pi, absval
   use speclib
   use dofmap, only : dofmap_t
   use space, only : space_t, GL, GLL, GJ
@@ -45,7 +50,7 @@ module neko
   use uset
   use stack
   use tuple
-  use mesh, only : mesh_t
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use point, only : point_t
   use mesh_field, only : mesh_fld_t
   use map
@@ -65,7 +70,7 @@ module neko
   use ax_product, only : ax_t, ax_helm_factory
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
-  use case, only : case_t, case_init, case_free
+  use case, only : case_t
   use output_controller, only : output_controller_t
   use output, only : output_t
   use simulation, only : simulation_step, simulation_init, simulation_finalize
@@ -79,14 +84,21 @@ module neko
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
   use device
-  use device_math
+  use device_math, only : device_copy, device_rzero, device_rone, &
+       device_cmult, device_cmult2, device_cadd, device_cfill, device_add2, &
+       device_add2s1, device_add2s2, device_addsqr2s2, device_add3s2, &
+       device_invcol1, device_invcol2, device_col2, device_col3, &
+       device_subcol3, device_sub2, device_sub3, device_addcol3, &
+       device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
+       device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
+       device_masked_copy_0, device_cfill_mask, device_add3, device_cadd2, &
+       device_absval
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use cpr, only : cpr_t, cpr_init, cpr_free
   use fluid_stats, only : fluid_stats_t
   use field_list, only : field_list_t
-  use fluid_user_source_term
-  use scalar_user_source_term
+  use user_source_term, only : user_source_term_t
   use vector, only : vector_t, vector_ptr_t
   use matrix, only : matrix_t
   use tensor
@@ -95,13 +107,13 @@ module neko
        simulation_component_allocator, simulation_component_allocate, &
        register_simulation_component
   use probes, only : probes_t
-  use spectral_error
+  use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
-  use field_registry, only : neko_field_registry
-  use scratch_registry, only : neko_scratch_registry
+  use registry, only : neko_registry, registry_t
+  use scratch_registry, only : neko_scratch_registry, scratch_registry_t
   use simcomp_executor, only : neko_simcomps
   use data_streamer, only : data_streamer_t
   use time_interpolator, only : time_interpolator_t
@@ -114,8 +126,7 @@ module neko
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
-       json_extract_object
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use bc_list, only : bc_list_t
   use les_model, only : les_model_t, les_model_allocate, register_les_model, &
        les_model_factory, les_model_allocator
@@ -125,6 +136,7 @@ module neko
   use curl_simcomp, only : curl_t
   use gradient_simcomp, only : gradient_t
   use weak_gradient_simcomp, only : weak_gradient_t
+  use force_torque, only : force_torque_t
   use lambda2, only : lambda2_t
   use time_based_controller, only : time_based_controller_t
   use time_step_controller, only : time_step_controller_t
@@ -132,6 +144,7 @@ module neko
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
   use, intrinsic :: iso_fortran_env
+  use mpi_f08
   !$ use omp_lib
   implicit none
 
@@ -155,7 +168,8 @@ contains
     call device_init
 
     call neko_log%init()
-    call neko_field_registry%init()
+    call neko_registry%init()
+    call neko_scratch_registry%init()
 
     call neko_log%header(NEKO_VERSION, NEKO_BUILD_INFO)
 
@@ -196,7 +210,7 @@ contains
        !
        ! Create case
        !
-       call case_init(C, case_file)
+       call C%init(case_file)
 
        !
        ! Setup runtime statistics
@@ -220,7 +234,7 @@ contains
     type(json_file) :: dt_params
     real(kind=dp) :: tstep_loop_start_time
 
-    call json_extract_object(C%params, 'case.time', dt_params)
+    call json_get(C%params, 'case.time', dt_params)
     call dt_controller%init(dt_params)
 
     call C%time%reset()
@@ -248,11 +262,13 @@ contains
     call neko_scratch_registry%free()
 
     if (present(C)) then
-       call case_free(C)
+       call C%free()
     end if
 
-    call neko_field_registry%free()
+    call neko_registry%free()
     call neko_user_access%free()
+    call neko_log%free()
+
     call device_finalize
     call neko_mpi_types_free
     call comm_free

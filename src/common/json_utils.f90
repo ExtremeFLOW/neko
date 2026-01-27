@@ -35,11 +35,15 @@ module json_utils
   use num_types, only : rp, dp, sp
   use json_module, only : json_file, json_value, json_core
   use utils, only : neko_error
+  use math, only : abscmp
   implicit none
   private
 
   public :: json_get, json_get_or_default, json_extract_item, &
-       json_extract_object
+       json_no_defaults
+
+  !> If true, the json_get_or_default routines will not add missing parameters
+  logical :: json_no_defaults = .false.
 
   !> Retrieves a parameter by name or throws an error
   interface json_get
@@ -103,11 +107,20 @@ contains
     character(len=*), intent(in) :: name
     integer, intent(out) :: value
 
+    real(kind=rp) :: test_real
+
     if (.not. json%valid_path(name)) then
        call neko_error("Parameter " // name // " missing from the case file")
     end if
 
     call json%get(name, value)
+    call json%get(name, test_real)
+
+    if (.not. abscmp(real(value, kind=rp), test_real)) then
+       call neko_error("Parameter " // name // " is not an integer value")
+    end if
+
+
   end subroutine json_get_integer
 
   !> Retrieves a logical parameter by name or throws an error
@@ -183,11 +196,21 @@ contains
     character(len=*), intent(in) :: name
     integer, allocatable, intent(out) :: value(:)
 
+    real(kind=rp), allocatable :: test_real(:)
+    integer :: i
+
     if (.not. json%valid_path(name)) then
        call neko_error("Parameter " // name // " missing from the case file")
     end if
 
     call json%get(name, value)
+    call json%get(name, test_real)
+
+    do i = 1, size(value)
+       if (.not. abscmp(real(value(i), kind=rp), test_real(i))) then
+          call neko_error("Parameter " // name // " is not an integer array")
+       end if
+    end do
   end subroutine json_get_integer_array
 
   !> Retrieves a logical array parameter by name or throws an error
@@ -254,21 +277,23 @@ contains
   subroutine json_get_subdict(json, key, output)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: key
-    type(json_file), intent(out) :: output
+    type(json_file), intent(inout) :: output
 
-    type(json_value), pointer :: child
-    logical :: valid
+    type(json_value), pointer :: ptr
+    type(json_core) :: core
+    logical :: found
+    character(len=:), allocatable :: buffer
 
-    valid = .false.
-    call json%get(key, child, valid)
-    if (.not. valid) then
-       call neko_error('Parameter "' // &
-            trim(key) // '" missing from the case file')
+    call json%get_core(core)
+    call json%get(key, ptr, found)
+
+    if (.not. found) then
+       call neko_error("Parameter " // &
+            trim(key) // " missing from the case file")
     end if
 
-    call output%initialize()
-    call output%add(child)
-    nullify(child)
+    call core%print_to_string(ptr, buffer)
+    call output%load_from_string(buffer)
 
   end subroutine json_get_subdict
 
@@ -286,9 +311,11 @@ contains
 
     call json%get(name, value, found)
 
-    if (.not. found) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
+    else if (.not. found) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
   end subroutine json_get_or_default_real
 
@@ -306,9 +333,11 @@ contains
 
     call json%get(name, value, found)
 
-    if (.not. found) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
+    else if (.not. found) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
   end subroutine json_get_or_default_double
 
@@ -326,9 +355,11 @@ contains
 
     call json%get(name, value, found)
 
-    if (.not. found) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
+    else if (.not. found) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
   end subroutine json_get_or_default_integer
 
@@ -346,9 +377,11 @@ contains
 
     call json%get(name, value, found)
 
-    if (.not. found) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
+    else if (.not. found) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
   end subroutine json_get_or_default_logical
 
@@ -366,9 +399,11 @@ contains
 
     call json%get(name, value, found)
 
-    if (.not. found) then
+    if ((.not. found) .and. (.not. json_no_defaults)) then
        value = default
        call json%add(name, value)
+    else if (.not. found) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
   end subroutine json_get_or_default_string
 
@@ -421,31 +456,5 @@ contains
     call item%load_from_string(buffer)
 
   end subroutine json_extract_item_from_name
-
-  !> Extract object as a separate  JSON dictionary.
-  !! @param[inout] json The JSON with the object to be extracted.
-  !! @param[in] name The name of the object to extract.
-  !! @param[inout] object The extracted JSON object.
-  subroutine json_extract_object(json, name, object)
-    type(json_file), intent(inout) :: json
-    character(len=*), intent(in) :: name
-    type(json_file), intent(inout) :: object
-
-    type(json_value), pointer :: ptr
-    type(json_core)  :: core
-    logical :: found
-    character(len=:), allocatable :: buffer
-
-    call json%get_core(core)
-    call json%get(name, ptr, found)
-
-    if (.not. found) then
-       call neko_error("Object " // name // " missing from the case file")
-    end if
-
-    call core%print_to_string(ptr, buffer)
-    call object%load_from_string(buffer)
-
-  end subroutine json_extract_object
 
 end module json_utils

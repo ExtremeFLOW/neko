@@ -38,7 +38,7 @@ module derivative_simcomp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use time_state, only : time_state_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : dudxyz
   use case, only : case_t
@@ -57,11 +57,11 @@ module derivative_simcomp
      !> The derivative field
      type(field_t), pointer :: du
      !> Derivatives of r with respect to the direction of derivation.
-     real(kind=rp), pointer :: dr(:,:,:,:)
+     real(kind=rp), pointer, contiguous :: dr(:,:,:,:)
      !> Derivatives of s with respect to the direction of derivation.
-     real(kind=rp), pointer :: ds(:,:,:,:)
+     real(kind=rp), pointer, contiguous :: ds(:,:,:,:)
      !> Derivatives of t with respect to the direction of derivation.
-     real(kind=rp), pointer :: dt(:,:,:,:)
+     real(kind=rp), pointer, contiguous :: dt(:,:,:,:)
      !> Output writer.
      type(field_writer_t) :: writer
 
@@ -90,7 +90,7 @@ contains
 
   !> Constructor from json.
   subroutine derivative_init_from_json(this, json, case)
-    class(derivative_t), intent(inout) :: this
+    class(derivative_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: field_name
@@ -126,9 +126,9 @@ contains
     character(len=*) :: computed_field
     character(len=*) :: direction
 
-    this%u => neko_field_registry%get_field_by_name(trim(field_name))
+    this%u => neko_registry%get_field_by_name(trim(field_name))
 
-    this%du => neko_field_registry%get_field_by_name(&
+    this%du => neko_registry%get_field_by_name(&
          "d" // field_name // "_d" // direction)
 
     if (direction .eq. "x") then

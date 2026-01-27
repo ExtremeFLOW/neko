@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -56,13 +56,12 @@ module global_interpolation
        MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_MIN, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
        MPI_ISend, MPI_IRecv
-  use gs_mpi, only: gs_mpi_t
-  use gs_ops, only: GS_OP_SET
+  use glb_intrp_comm, only : glb_intrp_comm_t
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: copy, NEKO_EPS
   use structs, only : array_ptr_t
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
+  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -104,12 +103,12 @@ module global_interpolation
      !> List of owning elements.
      !! Note this is 0 indexed
      integer, allocatable :: el_owner0(:)
-     type(c_ptr) :: el_owner0_d = c_null_ptr
+     type(c_ptr) :: el_owner0_d = C_NULL_PTR
 
      !> Local points (points in this ranks domain)
      integer :: n_points_local
      integer, allocatable :: el_owner0_local(:)
-     type(c_ptr) :: el_owner0_local_d = c_null_ptr
+     type(c_ptr) :: el_owner0_local_d = C_NULL_PTR
      real(kind=rp), allocatable :: rst_local(:,:)
      real(kind=rp), allocatable :: xyz_local(:,:)
      !> Interpolator for local points.
@@ -138,8 +137,8 @@ module global_interpolation
      class(el_finder_t), allocatable :: el_finder
      !> Object to find rst coordinates
      type(legendre_rst_finder_t) :: rst_finder
-     !> Things for gather-scatter operation (sending interpolated values back and forth)
-     type(gs_mpi_t) :: gs_comm
+     !> Things for communication operation (sending interpolated values back and forth)
+     type(glb_intrp_comm_t) :: glb_intrp_comm
      !> Working vectors for global interpolation
      type(vector_t) :: temp_local, temp
 
@@ -276,38 +275,39 @@ contains
     call this%y%init(n)
     call this%z%init(n)
     call copy(this%x%x, x, n)
-    call this%x%copyto(HOST_TO_DEVICE,.false.)
+    call this%x%copy_from(HOST_TO_DEVICE,.false.)
     call copy(this%y%x, y, n)
-    call this%y%copyto(HOST_TO_DEVICE,.false.)
+    call this%y%copy_from(HOST_TO_DEVICE,.false.)
     call copy(this%z%x, z, n)
-    call this%z%copyto(HOST_TO_DEVICE,.false.)
+    call this%z%copy_from(HOST_TO_DEVICE,.false.)
     call this%Xh%init(Xh%t, lx, ly, lz)
 
 
+    call neko_log%section('Global Interpolation')
 
     call neko_log%message('Initializing global interpolation')
     call get_environment_variable("NEKO_GLOBAL_INTERP_EL_FINDER", &
          mode_str, envvar_len)
 
     if (envvar_len .gt. 0) then
-       if (mode_str(1:envvar_len) == 'unsafe') then
-          allocate(cartesian_el_finder_t :: this%el_finder)
+       if (mode_str(1:envvar_len) == 'AABB') then
+          allocate(aabb_el_finder_t :: this%el_finder)
        end if
     end if
     call get_environment_variable("NEKO_GLOBAL_INTERP_PE_FINDER", &
          mode_str, envvar_len)
 
     if (envvar_len .gt. 0) then
-       if (mode_str(1:envvar_len) == 'unsafe') then
-          allocate(cartesian_pe_finder_t :: this%pe_finder)
+       if (mode_str(1:envvar_len) == 'AABB') then
+          allocate(aabb_pe_finder_t :: this%pe_finder)
        end if
     end if
 
     if (.not. allocated(this%el_finder)) then
-       allocate(aabb_el_finder_t :: this%el_finder)
+       allocate(cartesian_el_finder_t :: this%el_finder)
     end if
     if (.not. allocated(this%pe_finder)) then
-       allocate(aabb_pe_finder_t :: this%pe_finder)
+       allocate(cartesian_pe_finder_t :: this%pe_finder)
     end if
     select type(el_find => this%el_finder)
     type is (aabb_el_finder_t)
@@ -358,6 +358,7 @@ contains
     write(log_buf, '(A,E15.7)') &
          'Global interpolation initialized (s):', time1-time_start
     call neko_log%message(log_buf)
+    call neko_log%end_section()
   end subroutine global_interpolation_init_xyz
 
 
@@ -421,7 +422,7 @@ contains
        call device_free(this%el_owner0_d)
     end if
 
-    call this%gs_comm%free()
+    call this%glb_intrp_comm%free()
 
 
   end subroutine global_interpolation_free_points
@@ -455,27 +456,25 @@ contains
     type(vector_t) :: resx
     type(vector_t) :: resy
     type(vector_t) :: resz
-    type(c_ptr) :: el_cands_d = c_null_ptr
+    type(c_ptr) :: el_cands_d
     type(matrix_t) :: res
     integer :: i, j, stupid_intent
     type(stack_i4_t), target :: all_el_candidates
     integer, allocatable :: n_el_cands(:)
-    integer, pointer :: pe_cands(:) => Null()
-    integer, pointer :: el_cands(:) => Null()
-    integer, pointer :: point_ids(:) => NUll()
-    integer, pointer :: send_recv(:) => NUll()
+    integer, contiguous, pointer :: el_cands(:), point_ids(:), send_recv(:)
     real(kind=rp), allocatable :: res_results(:,:)
     real(kind=rp), allocatable :: rst_results(:,:)
     integer, allocatable :: el_owner_results(:)
     integer :: ierr, ii, n_point_cand, n_glb_point_cand, point_id, rank
     real(kind=rp) :: time1, time2, time_start
-    !Temp stuff for gs_comm
+    !Temp stuff for glb_intrp_comm
     type(stack_i4_t) :: send_pe, recv_pe
-    type(gs_mpi_t) :: gs_find, gs_find_back
+    type(glb_intrp_comm_t) :: glb_intrp_find, glb_intrp_find_back
     type(stack_i4_t) :: send_pe_find, recv_pe_find
 
-
-    call gs_find%init_dofs(this%pe_size)
+    el_cands_d = C_NULL_PTR
+    call neko_log%section('Global Interpolation')
+    call glb_intrp_find%init_dofs(this%pe_size)
     call send_pe_find%init()
     call recv_pe_find%init()
     call MPI_Barrier(this%comm)
@@ -498,10 +497,11 @@ contains
     ! n_points_pe_local -> how many points local on this rank that other pes might want
     this%n_points_pe_local = 0
     this%n_points_local = 0
-    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, MPI_INTEGER, &
-         MPI_SUM, this%comm, ierr)
+    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, &
+         1, MPI_INTEGER, MPI_SUM, this%comm, ierr)
     call MPI_Alltoall(this%n_points_pe, 1, MPI_INTEGER,&
          this%n_points_pe_local, 1, MPI_INTEGER, this%comm, ierr)
+
     !Set up offset arrays
     this%n_points_offset_pe_local(0) = 0
     this%n_points_offset_pe(0) = 0
@@ -516,45 +516,48 @@ contains
           call send_pe_find%push(i)
           point_ids => this%points_at_pe(i)%array()
           do j = 1, this%n_points_pe(i)
-             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
-             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
-             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+3)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+3)
           end do
        end if
        if (this%n_points_pe_local(i) .gt. 0) then
           call recv_pe_find%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
-             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
-             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
+             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
+             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
+             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
           end do
        end if
     end do
 
 
 
-    call gs_find%init(send_pe_find, recv_pe_find, this%comm)
+    call glb_intrp_find%init(send_pe_find, recv_pe_find, this%comm)
 
-    call gs_find_back%init_dofs(this%pe_size)
+    call glb_intrp_find_back%init_dofs(this%pe_size)
     ii = 0
     do i = 0, (this%pe_size-1)
-       send_recv => gs_find%recv_dof(i)%array()
-       do j = 1, gs_find%recv_dof(i)%size()
-          call gs_find_back%send_dof(i)%push(send_recv(j))
+       send_recv => glb_intrp_find%recv_dof(i)%array()
+       do j = 1, glb_intrp_find%recv_dof(i)%size()
+          call glb_intrp_find_back%send_dof(i)%push(send_recv(j))
        end do
-       send_recv => gs_find%send_dof(i)%array()
-       do j = 1, gs_find%send_dof(i)%size()
+       send_recv => glb_intrp_find%send_dof(i)%array()
+       do j = 1, glb_intrp_find%send_dof(i)%size()
           ii = ii + 1
-          call gs_find_back%recv_dof(i)%push(ii)
+          call glb_intrp_find_back%recv_dof(i)%push(ii)
        end do
     end do
 
-    call gs_find_back%init(recv_pe_find, send_pe_find, this%comm)
+    call glb_intrp_find_back%init(recv_pe_find, send_pe_find, this%comm)
 
 
-    if (allocated(this%xyz_local)) deallocate(this%xyz_local)
+    if (allocated(this%xyz_local)) then
+       deallocate(this%xyz_local)
+    end if
     allocate(this%xyz_local(3, this%n_points_local))
-    call gs_find%sendrecv(this%xyz, this%xyz_local, this%n_points*3, this%n_points_local*3, GS_OP_SET)
+    call glb_intrp_find%sendrecv(this%xyz, this%xyz_local, this%n_points*3, &
+         this%n_points_local*3)
 
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
@@ -563,11 +566,15 @@ contains
     call neko_log%message(log_buf)
     !Okay, now we need to find the rst...
     call all_el_candidates%init()
-    if (allocated(n_el_cands)) deallocate(n_el_cands)
+
+    if (allocated(n_el_cands)) then
+       deallocate(n_el_cands)
+    end if
+
     allocate(n_el_cands(this%n_points_local))
     !> Find element candidates at this rank
-    call this%el_finder%find_batch(this%xyz_local, this%n_points_local, all_el_candidates, n_el_cands)
-
+    call this%el_finder%find_batch(this%xyz_local, this%n_points_local, &
+         all_el_candidates, n_el_cands)
 
     n_point_cand = all_el_candidates%size()
     if (n_point_cand .gt. 1e8) then
@@ -603,11 +610,11 @@ contains
     time1 = MPI_Wtime()
     el_cands => all_el_candidates%array()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call x_t%copyto(HOST_TO_DEVICE,.false.)
+       call x_t%copy_from(HOST_TO_DEVICE,.false.)
 
-       call y_t%copyto(HOST_TO_DEVICE,.false.)
+       call y_t%copy_from(HOST_TO_DEVICE,.false.)
 
-       call z_t%copyto(HOST_TO_DEVICE,.false.)
+       call z_t%copy_from(HOST_TO_DEVICE,.false.)
        call device_map(el_cands, el_cands_d,n_point_cand)
        call device_memcpy(el_cands, el_cands_d,n_point_cand, &
             HOST_TO_DEVICE, .true.)
@@ -618,10 +625,10 @@ contains
          el_cands, n_point_cand, &
          resx, resy, resz)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call rst_local_cand%copyto(DEVICE_TO_HOST,.false.)
-       call resx%copyto(DEVICE_TO_HOST,.false.)
-       call resy%copyto(DEVICE_TO_HOST,.false.)
-       call resz%copyto(DEVICE_TO_HOST,.true.)
+       call rst_local_cand%copy_from(DEVICE_TO_HOST,.false.)
+       call resx%copy_from(DEVICE_TO_HOST,.false.)
+       call resy%copy_from(DEVICE_TO_HOST,.false.)
+       call resz%copy_from(DEVICE_TO_HOST,.true.)
        call device_deassociate(el_cands)
        call device_free(el_cands_d)
     end if
@@ -683,31 +690,31 @@ contains
     this%rst = 1e2
     this%pe_owner = -1
     this%el_owner0 = -1
-    call gs_find_back%sendrecv(this%xyz_local, res_results, &
-         this%n_points_local*3, n_glb_point_cand*3, GS_OP_SET)
-    call gs_find_back%sendrecv(this%rst_local, rst_results, &
-         this%n_points_local*3, n_glb_point_cand*3, GS_OP_SET)
-    do i = 1, size(gs_find_back%send_pe)
-       rank = gs_find_back%send_pe(i)
+    call glb_intrp_find_back%sendrecv(this%xyz_local, res_results, &
+         this%n_points_local*3, n_glb_point_cand*3)
+    call glb_intrp_find_back%sendrecv(this%rst_local, rst_results, &
+         this%n_points_local*3, n_glb_point_cand*3)
+    do i = 1, size(glb_intrp_find_back%send_pe)
+       rank = glb_intrp_find_back%send_pe(i)
        call MPI_Isend(this%el_owner0_local(this%n_points_offset_pe_local(rank)+1),&
             this%n_points_pe_local(rank), &
             MPI_INTEGER, rank, 0, &
-            this%comm, gs_find_back%send_buf(i)%request, ierr)
-       gs_find_back%send_buf(i)%flag = .false.
+            this%comm, glb_intrp_find_back%send_buf(i)%request, ierr)
+       glb_intrp_find_back%send_buf(i)%flag = .false.
     end do
-    do i = 1, size(gs_find_back%recv_pe)
-       rank = gs_find_back%recv_pe(i)
+    do i = 1, size(glb_intrp_find_back%recv_pe)
+       rank = glb_intrp_find_back%recv_pe(i)
        call MPI_IRecv(el_owner_results(this%n_points_offset_pe(rank)+1),&
             this%n_points_pe(rank), &
             MPI_INTEGER, rank, 0, &
-            this%comm, gs_find_back%recv_buf(i)%request, ierr)
-       gs_find_back%recv_buf(i)%flag = .false.
+            this%comm, glb_intrp_find_back%recv_buf(i)%request, ierr)
+       glb_intrp_find_back%recv_buf(i)%flag = .false.
     end do
-    call gs_find_back%nbwait_no_op()
+    call glb_intrp_find_back%nbwait_no_op()
     ii = 0
-    do i = 1, size(gs_find_back%recv_pe)
-       point_ids => this%points_at_pe(gs_find_back%recv_pe(i))%array()
-       do j = 1, this%n_points_pe(gs_find_back%recv_pe(i))
+    do i = 1, size(glb_intrp_find_back%recv_pe)
+       point_ids => this%points_at_pe(glb_intrp_find_back%recv_pe(i))%array()
+       do j = 1, this%n_points_pe(glb_intrp_find_back%recv_pe(i))
           point_id = point_ids(j)
           ii = ii + 1
           if (rst_cmp(this%rst(:,point_id), rst_results(:,ii), &
@@ -715,7 +722,7 @@ contains
                this%pe_owner(point_ids(j)) .eq. -1 ) then
              this%rst(:,point_ids(j)) = rst_results(:,ii)
              res%x(:,point_ids(j)) = res_results(:,ii)
-             this%pe_owner(point_ids(j)) = gs_find_back%recv_pe(i)
+             this%pe_owner(point_ids(j)) = glb_intrp_find_back%recv_pe(i)
              this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
           !  if (this%pe_rank .eq. 0) print *,point_id,  &
@@ -723,9 +730,9 @@ contains
        end do
     end do
 
-    !OK, now I know the correct rst values
-    !of the points I want
-    !We now send the correct rsts to the correct rank (so a point only belongs to one rank)
+    !OK, now I know the correct rst values of the points I want We now
+    !send the correct rsts to the correct rank (so a point only
+    !belongs to one rank)
     do i = 0, this%pe_size-1
        call this%points_at_pe(i)%clear()
        this%n_points_pe(i) = 0
@@ -756,40 +763,40 @@ contains
     end do
     call send_pe_find%free()
     call recv_pe_find%free()
-    call gs_find%free()
+    call glb_intrp_find%free()
     call send_pe_find%init()
     call recv_pe_find%init()
-    call gs_find%init_dofs(this%pe_size)
+    call glb_intrp_find%init_dofs(this%pe_size)
     !setup comm to send xyz and rst to chosen ranks
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
           call send_pe_find%push(i)
           point_ids => this%points_at_pe(i)%array()
           do j = 1, this%n_points_pe(i)
-             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
-             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
-             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+3)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+3)
           end do
        end if
        if (this%n_points_pe_local(i) .gt. 0) then
           call recv_pe_find%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
-             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
-             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
+             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
+             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
+             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
           end do
        end if
     end do
 
 
-    call gs_find%init(send_pe_find, recv_pe_find, this%comm)
-    call gs_find%sendrecv(this%xyz, this%xyz_local, this%n_points*3, &
-         this%n_points_local*3, GS_OP_SET)
-    call gs_find%sendrecv(this%rst, this%rst_local, this%n_points*3, &
-         this%n_points_local*3, GS_OP_SET)
+    call glb_intrp_find%init(send_pe_find, recv_pe_find, this%comm)
+    call glb_intrp_find%sendrecv(this%xyz, this%xyz_local, this%n_points*3, &
+         this%n_points_local*3)
+    call glb_intrp_find%sendrecv(this%rst, this%rst_local, this%n_points*3, &
+         this%n_points_local*3)
     ii = 0
-    do i = 1, size(gs_find%send_pe)
-       rank = gs_find%send_pe(i)
+    do i = 1, size(glb_intrp_find%send_pe)
+       rank = glb_intrp_find%send_pe(i)
        point_ids => this%points_at_pe(rank)%array()
        do j = 1, this%n_points_pe(rank)
           ii = ii + 1
@@ -798,41 +805,41 @@ contains
        call MPI_Isend(el_owner_results(this%n_points_offset_pe(rank)+1),&
             this%n_points_pe(rank), &
             MPI_INTEGER, rank, 0, &
-            this%comm, gs_find%send_buf(i)%request, ierr)
-       gs_find%send_buf(i)%flag = .false.
+            this%comm, glb_intrp_find%send_buf(i)%request, ierr)
+       glb_intrp_find%send_buf(i)%flag = .false.
     end do
-    do i = 1, size(gs_find%recv_pe)
-       rank = gs_find%recv_pe(i)
+    do i = 1, size(glb_intrp_find%recv_pe)
+       rank = glb_intrp_find%recv_pe(i)
        call MPI_IRecv(this%el_owner0_local(this%n_points_offset_pe_local(rank)+1), &
             this%n_points_pe_local(rank), &
             MPI_INTEGER, rank, 0, &
-            this%comm, gs_find%recv_buf(i)%request, ierr)
-       gs_find%recv_buf(i)%flag = .false.
+            this%comm, glb_intrp_find%recv_buf(i)%request, ierr)
+       glb_intrp_find%recv_buf(i)%flag = .false.
     end do
-    call gs_find%nbwait_no_op()
+    call glb_intrp_find%nbwait_no_op()
 
-    call gs_find%free()
+    call glb_intrp_find%free()
 
     !Set up final way of doing communication
     call send_pe%init()
     call recv_pe%init()
-    call this%gs_comm%init_dofs(this%pe_size)
+    call this%glb_intrp_comm%init_dofs(this%pe_size)
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
           call recv_pe%push(i)
           point_ids => this%points_at_pe(i)%array()
           do j = 1, this%n_points_pe(i)
-             call this%gs_comm%recv_dof(i)%push(point_ids(j))
+             call this%glb_intrp_comm%recv_dof(i)%push(point_ids(j))
           end do
        end if
        if (this%n_points_pe_local(i) .gt. 0) then
           call send_pe%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call this%gs_comm%send_dof(i)%push(j+this%n_points_offset_pe_local(i))
+             call this%glb_intrp_comm%send_dof(i)%push(j+this%n_points_offset_pe_local(i))
           end do
        end if
     end do
-    call this%gs_comm%init(send_pe, recv_pe,this%comm)
+    call this%glb_intrp_comm%init(send_pe, recv_pe,this%comm)
 
     !Initialize working arrays for evaluation
     call this%temp_local%init(this%n_points_local)
@@ -856,7 +863,7 @@ contains
     !Free stuff
     call send_pe%free()
     call recv_pe%free()
-    call gs_find_back%free()
+    call glb_intrp_find_back%free()
     call send_pe_find%free()
     call recv_pe_find%free()
     call x_t%free()
@@ -868,9 +875,6 @@ contains
     call resz%free()
     call res%free()
     call all_el_candidates%free()
-    if (associated(pe_cands)) pe_cands => Null()
-    if (associated(el_cands)) pe_cands => Null()
-    if (associated(point_ids)) point_ids => Null()
 
     if (allocated(n_el_cands)) deallocate(n_el_cands)
     if (allocated(rst_results)) deallocate(rst_results)
@@ -881,7 +885,8 @@ contains
     write(log_buf, '(A,E15.7)') 'Global interpolation find points done, time (s):', &
          time2-time_start
     call neko_log%message(log_buf)
-
+    call neko_log%end_section()
+    call neko_log%newline()
   end subroutine global_interpolation_find_common
 
   !> Check the points for validity
@@ -1115,8 +1120,8 @@ contains
                this%n_points_local, DEVICE_TO_HOST, .true.)
        end if
        interp_values = 0.0_rp
-       call this%gs_comm%sendrecv(this%temp_local%x, interp_values, &
-            this%n_points_local, this%n_points, GS_OP_SET)
+       call this%glb_intrp_comm%sendrecv(this%temp_local%x, interp_values, &
+            this%n_points_local, this%n_points)
        if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
           interp_d = device_get_ptr(interp_values)
           call device_memcpy(interp_values, interp_d, &
@@ -1130,9 +1135,11 @@ contains
   end subroutine global_interpolation_evaluate
 
 
-  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance
-  !! res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord for point 1 and 2
-  !! tol specifies the range for the rst coordinate to be within: (r,s,t) in (-1+tol,1+tol)^3.
+  !> Compares two sets of rst coordinates and checks whether rst2 is
+  !! better than rst1 given a tolerance res1 and res2 are the
+  !! distances to the interpolated xyz coordinate and true xyz coord
+  !! for point 1 and 2 tol specifies the range for the rst coordinate
+  !! to be within: (r,s,t) in (-1+tol,1+tol)^3.
   !! @param rst1 local coordinates for point 1
   !! @param rst2 local coordinates for point 2
   !! @param rst1 distance between xyz(rst1) and the true xyz coordinate

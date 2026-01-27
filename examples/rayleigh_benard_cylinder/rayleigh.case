@@ -24,6 +24,7 @@
             "source_terms": [
                 {
                     "type": "boussinesq",
+                    "scalar_field": "temperature",
                     "g": [ 0, 0, 1 ],
                     "reference_value": 0,
                     "beta": 1
@@ -65,6 +66,7 @@
             ]
         },
         "scalar": {
+            "name": "temperature",
             "enabled": true,
             "Pr": 1.0,
             "initial_condition": {
@@ -81,7 +83,7 @@
             },
             "boundary_conditions": [
                 {
-                    "type": "user_pointwise",
+                    "type": "user",
                     "zone_indices": [ 1, 2 ]
                 },
                 {
@@ -100,7 +102,7 @@
                 "output_file": "output.csv",
                 "fields": [
                     "w",
-                    "s"
+                    "temperature"
                 ]
             }
         ]

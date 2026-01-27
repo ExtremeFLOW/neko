@@ -32,12 +32,12 @@
 !
 !> Generic buffer that is extended with buffers of varying rank
 module buffer_1d
-  use num_types
-  use vector
+  use num_types, only : dp, sp, i8, rp
+  use vector, only : vector_t
 #ifdef HAVE_ADIOS2_FORTRAN
   use adios2
 #endif
-  use buffer
+  use buffer, only : buffer_t, buffer_set_precision
   implicit none
 
   type, extends(buffer_t) :: buffer_1d_t
@@ -184,7 +184,7 @@ contains
     type(vector_t), intent(inout) :: x
     integer :: n, i
 
-    n = x%n
+    n = x%size()
 
     if (this%dp_precision) then
        do i = 1, n

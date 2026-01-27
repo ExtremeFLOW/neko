@@ -44,8 +44,10 @@ module fusedcg_cpld_device
   use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
   use device
   use utils, only : neko_error
-  use comm, only : NEKO_COMM, MPI_IN_PLACE, MPI_Allreduce, &
-       MPI_SUM, MPI_REAL_PRECISION, pe_size
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_IN_PLACE, MPI_Allreduce, &
+       MPI_SUM
+  use operators, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
@@ -497,6 +499,18 @@ contains
        end do
     end if
 
+    if (c_associated(this%p1_d_d)) then
+       call device_free(this%p1_d_d)
+    end if
+
+    if (c_associated(this%p2_d_d)) then
+       call device_free(this%p2_d_d)
+    end if
+
+    if (c_associated(this%p3_d_d)) then
+       call device_free(this%p3_d_d)
+    end if
+
     nullify(this%M)
 
     if (c_associated(this%gs_event1)) then
@@ -585,7 +599,10 @@ contains
       ksp_results%res_final = rnorm
       ksp_results(1)%iter = 0
       ksp_results(2:3)%iter = -1
-      if(abscmp(rnorm, 0.0_rp)) return
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
       call this%monitor_start('fcpldCG')
       do iter = 1, max_iter
          call this%M%solve(z1, r1, n)
@@ -604,6 +621,8 @@ contains
 
          call Ax%compute_vector(w1, w2, w3, &
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
+
+         call rotate_cyc(w1, w2, w3, 1, coef)
          call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
          call blstx%apply(w1, n)
@@ -613,6 +632,7 @@ contains
          call gs_h%op(w3, n, GS_OP_ADD, this%gs_event3)
          call device_event_sync(this%gs_event3)
          call blstz%apply(w3, n)
+         call rotate_cyc(w1, w2, w3, 0, coef)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &
               p2_d(p_cur), p3_d(p_cur), tmp_d, n)

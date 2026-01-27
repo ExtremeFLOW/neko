@@ -44,12 +44,12 @@ extern "C" {
     // Define hip grid and block dimensions
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
-    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
     // Launch the hip kernel
-    wall_model_compute_mag_field<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
-                                    (real *) tau_field_d, (int *) msk_d, *m);
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(wall_model_compute_mag_field<real>),
+                                      nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                                      (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
+                                      (real *) tau_field_d, (int *) msk_d, *m);
 
     // Check for hip errors
     HIP_CHECK(hipGetLastError());

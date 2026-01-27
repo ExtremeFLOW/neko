@@ -42,7 +42,7 @@ module probes
   use field_list, only: field_list_t
   use time_state, only : time_state_t
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use dofmap, only: dofmap_t
   use json_module, only : json_file, json_value, json_core
   use json_utils, only : json_get, json_extract_item, json_get_or_default
@@ -50,12 +50,15 @@ module probes
   use tensor, only: trsp
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
-  use comm
-  use device
   use file, only : file_t, file_free
   use csv_file, only : csv_file_t
   use case, only : case_t
   use, intrinsic :: iso_c_binding
+  use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : device_memcpy, DEVICE_TO_HOST, device_map, device_free
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, &
+       MPI_DOUBLE_PRECISION, MPI_Gatherv, MPI_Gather, MPI_Exscan
   implicit none
   private
 
@@ -124,7 +127,7 @@ contains
 
   !> Constructor from json.
   subroutine probes_init_from_json(this, json, case)
-    class(probes_t), intent(inout) :: this
+    class(probes_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: output_file
@@ -152,7 +155,7 @@ contains
     do i = 1, this%n_fields
 
        call this%sampled_fields%assign(i, &
-       & neko_field_registry%get_field(trim(this%which_fields(i))))
+       & neko_registry%get_field(trim(this%which_fields(i))))
     end do
 
     ! Setup the required arrays and initialize variables.
@@ -201,7 +204,7 @@ contains
        end select
     end do
 
-    call mpi_allreduce(this%n_local_probes, this%n_global_probes, 1, &
+    call MPI_Allreduce(this%n_local_probes, this%n_global_probes, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
@@ -404,7 +407,7 @@ contains
 
     lx = dof%Xh%lx
     do i = 1, zone%size
-       idx = zone%mask(i)
+       idx = zone%mask%get(i)
 
        nlindex = nonlinear_index(idx, lx, lx, lx)
        x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
@@ -485,7 +488,7 @@ contains
     end if
 
     !> Initialize the output file
-    this%fout = file_t(trim(output_file))
+    call this%fout%init(trim(output_file))
 
     select type (ft => this%fout%file_type)
     type is (csv_file_t)
@@ -532,6 +535,7 @@ contains
   !> Destructor
   subroutine probes_free(this)
     class(probes_t), intent(inout) :: this
+    integer :: i
 
     if (allocated(this%xyz)) then
        deallocate(this%xyz)
@@ -559,7 +563,21 @@ contains
        deallocate(this%global_output_values)
     end if
 
+    if (allocated(this%which_fields)) then
+       deallocate(this%which_fields)
+    end if
+
+    if (allocated(this%out_values_d)) then
+       do i = 1, size(this%out_values_d)
+          if (c_associated(this%out_values_d(i))) then
+             call device_free(this%out_values_d(i))
+          end if
+       end do
+       deallocate(this%out_values_d)
+    end if
+
     call this%global_interp%free()
+    call this%mat_out%free()
 
   end subroutine probes_free
 
@@ -697,7 +715,7 @@ contains
     !> Supporting variables
     type(file_t) :: file_in
 
-    file_in = file_t(trim(points_file))
+    call file_in%init(trim(points_file))
     !> Reads on rank 0 and distributes the probes across the different ranks
     select type (ft => file_in%file_type)
     type is (csv_file_t)

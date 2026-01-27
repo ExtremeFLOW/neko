@@ -34,23 +34,26 @@
 !! @details this module defines the interface to write ADIOS2 files
 !! to use compression
 module bp_file
-  use generic_file
-  use field_list
-  use dofmap, only: dofmap_t
-  use vector, only: vector_t
-  use space, only: space_t
-  use mesh, only: mesh_t
-  use structs, only: array_ptr_t
-  use fld_file_data
-  use utils
-  use datadist
-  use comm
+  use num_types, only : dp, sp, i8, rp
+  use generic_file, only : generic_file_t
+  use field_list, only : field_list_t
+  use dofmap, only : dofmap_t
+  use vector, only : vector_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use structs, only : array_ptr_t
+  use fld_file_data, only : fld_file_data_t
+  use utils, only : neko_error
+  use datadist, only : linear_dist_t
+  use comm, only : pe_size, pe_rank, NEKO_COMM
 #ifdef HAVE_ADIOS2_FORTRAN
   use adios2
+  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
 #endif
-  use buffer_1d
-  use buffer_4d
-  use buffer_4d_npar
+  use buffer_1d, only : buffer_1d_t
+  use buffer_4d, only : buffer_4d_t
+  use buffer_4d_npar, only : buffer_4d_npar_t
+  use buffer, only : buffer_t
   implicit none
   private
 
@@ -90,7 +93,7 @@ contains
     character(len=132) :: hdr
     character :: rdcode(10)
     character(len=8) :: id_str
-    character(len=1024) :: fname
+    character(len=1024) :: fname, base_fname
     character(len=1024) :: start_field
     integer :: i, j, ierr, n, suffix_pos, tslash_pos
     integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
@@ -186,15 +189,27 @@ contains
           u%ptr => data%items(2)%ptr%x(:,1,1,1)
           v%ptr => data%items(3)%ptr%x(:,1,1,1)
           w%ptr => data%items(4)%ptr%x(:,1,1,1)
-          tem%ptr => data%items(5)%ptr%x(:,1,1,1)
-          n_scalar_fields = data%size() - 5
-          allocate(scalar_fields(n_scalar_fields))
-          do i = 1, n_scalar_fields
-             scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
-          end do
+          ! Check if position 5 is a temperature field by name
+          if (trim(data%name(5)) .eq. 'temperature') then
+             ! Position 5 is temperature, remaining fields are scalars
+             tem%ptr => data%items(5)%ptr%x(:,1,1,1)
+             n_scalar_fields = data%size() - 5
+             allocate(scalar_fields(n_scalar_fields))
+             do i = 1, n_scalar_fields
+                scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
+             end do
+             write_temperature = .true.
+          else
+             ! All remaining fields are scalars (no temperature field)
+             n_scalar_fields = data%size() - 4
+             allocate(scalar_fields(n_scalar_fields))
+             do i = 1, n_scalar_fields
+                scalar_fields(i)%ptr => data%items(i+4)%ptr%x(:,1,1,1)
+             end do
+             write_temperature = .false.
+          end if
           write_pressure = .true.
           write_velocity = .true.
-          write_temperature = .true.
        case default
           call neko_error('This many fields not supported yet, bp_file')
        end select
@@ -306,9 +321,10 @@ contains
     ! Adapt filename with counter
     !> @todo write into single file with multiple steps
     !> @todo write into function because of code duplication
-    suffix_pos = filename_suffix_pos(this%fname)
+    base_fname = this%get_base_fname()
+    suffix_pos = filename_suffix_pos(base_fname)
     write(id_str, '(i5.5,a)') this%counter, '.bp'
-    fname = trim(this%fname(1:suffix_pos-1)) // "0." // id_str
+    fname = trim(base_fname(1:suffix_pos-1)) // "0." // id_str
 
     if (.not. adios%valid) then
        !> @todo enable parsing XML filename
@@ -415,13 +431,13 @@ contains
 
     ! Write metadata file
     if (pe_rank .eq. 0) then
-       tslash_pos = filename_tslash_pos(this%fname)
+       tslash_pos = filename_tslash_pos(base_fname)
        write(start_field, "(I5,A7)") this%start_counter, '.adios2'
        open(unit = newunit(file_unit), &
-            file = trim(this%fname(1:suffix_pos - 1)) &
+            file = trim(base_fname(1:suffix_pos - 1)) &
             // trim(adjustl(start_field)), status='replace')
        write(file_unit, fmt = '(A,A,A)') 'filetemplate:         ', &
-            this%fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
+            base_fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
        write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
        write(file_unit, fmt = '(A,i5)') 'numtimesteps: ', &
             (this%counter + 1) - this%start_counter
@@ -441,7 +457,7 @@ contains
     class(*), target, intent(inout) :: data
     character(len=132) :: hdr
     integer :: ierr, suffix_pos, i, j
-    character(len=1024) :: fname, meta_fname, string
+    character(len=1024) :: fname, meta_fname, string, base_fname
     logical :: meta_file, read_mesh, read_velocity, read_pressure
     logical :: read_temp
     character(len=8) :: id_str
@@ -459,8 +475,9 @@ contains
 
     select type (data)
     type is (fld_file_data_t)
-       suffix_pos = filename_suffix_pos(this%fname)
-       meta_fname = trim(this%fname(1:suffix_pos-1))
+       base_fname = this%get_base_fname()
+       suffix_pos = filename_suffix_pos(base_fname)
+       meta_fname = trim(base_fname(1:suffix_pos-1))
        call filename_chsuffix(meta_fname, meta_fname,'adios2')
 
        !> @ todo debug and check if correct strings and filenames are extracted
@@ -501,10 +518,10 @@ contains
           end if
        else
           ! @todo write into function because of code duplication
-          !suffix_pos = filename_suffix_pos(this%fname)
+          !suffix_pos = filename_suffix_pos(base_fname)
           !write(id_str, '(i5.5,a)') this%counter, '.bp'
-          !fname = trim(this%fname(1:suffix_pos-1))//'.'//id_str
-          fname = this%fname
+          !fname = trim(base_fname(1:suffix_pos-1))//'.'//id_str
+          fname = base_fname
        end if
 
        if (.not.adios%valid) then

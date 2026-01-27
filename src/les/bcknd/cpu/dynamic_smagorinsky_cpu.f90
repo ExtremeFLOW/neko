@@ -30,13 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the CPU kernel for the `smagorinsky_t` type.
+!> Implements the CPU kernel for the `dynamic_smagorinsky_t` type.
 module dynamic_smagorinsky_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
   use math, only : cadd, NEKO_EPS, col2, sub2, col3, cmult
   use scratch_registry, only : neko_scratch_registry
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
@@ -90,23 +90,23 @@ contains
     end if
 
     if (if_ext .eqv. .true.) then
-       u => neko_field_registry%get_field_by_name("u_e")
-       v => neko_field_registry%get_field_by_name("v_e")
-       w => neko_field_registry%get_field_by_name("w_e")
+       u => neko_registry%get_field_by_name("u_e")
+       v => neko_registry%get_field_by_name("v_e")
+       w => neko_registry%get_field_by_name("w_e")
     else
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
+       u => neko_registry%get_field_by_name("u")
+       v => neko_registry%get_field_by_name("v")
+       w => neko_registry%get_field_by_name("w")
     end if
 
 
-    call neko_scratch_registry%request_field(s11, temp_indices(1))
-    call neko_scratch_registry%request_field(s22, temp_indices(2))
-    call neko_scratch_registry%request_field(s33, temp_indices(3))
-    call neko_scratch_registry%request_field(s12, temp_indices(4))
-    call neko_scratch_registry%request_field(s13, temp_indices(5))
-    call neko_scratch_registry%request_field(s23, temp_indices(6))
-    call neko_scratch_registry%request_field(s_abs, temp_indices(7))
+    call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(s_abs, temp_indices(7), .false.)
 
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
@@ -117,6 +117,15 @@ contains
     call coef%gs_h%op(s12%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
+
+    do concurrent (i = 1:u%dof%size())
+       s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s22%x(i,1,1,1) = s22%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s33%x(i,1,1,1) = s33%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s12%x(i,1,1,1) = s12%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s13%x(i,1,1,1) = s13%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s23%x(i,1,1,1) = s23%x(i,1,1,1) * coef%mult(i,1,1,1)
+    end do
 
     do concurrent (i = 1:u%dof%size())
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
@@ -140,7 +149,7 @@ contains
        end if
        c_dyn%x(i,1,1,1) = max(c_dyn%x(i,1,1,1),0.0_rp)
        nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 &
-            * s_abs%x(i,1,1,1) * coef%mult(i,1,1,1)
+            * s_abs%x(i,1,1,1)
     end do
 
     call coef%gs_h%op(nut, GS_OP_ADD)
@@ -157,6 +166,7 @@ contains
   !! @param v y-velocity resolved (only filtered once)
   !! @param w z-velocity resolved (only filtered once)
   !! @param test_filter
+  !! @param n
   subroutine compute_lij_cpu(lij, u, v, w, test_filter, n)
     type(field_t), intent(inout) :: lij(6)
     type(field_t), pointer, intent(in) :: u, v, w
@@ -168,16 +178,16 @@ contains
     type(field_t), pointer :: fu, fv, fw
 
     ! Use test filter for the velocity fields
-    call neko_scratch_registry%request_field(fu, temp_indices(1))
-    call neko_scratch_registry%request_field(fv, temp_indices(2))
-    call neko_scratch_registry%request_field(fw, temp_indices(3))
+    call neko_scratch_registry%request_field(fu, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(fv, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(fw, temp_indices(3), .false.)
     call test_filter%apply(fu, u)
     call test_filter%apply(fv, v)
     call test_filter%apply(fw, w)
 
     !! The first term
     do concurrent (i = 1:n)
-       lij(1)%x(i,1,1,1) = fu%x(I,1,1,1) * fu%x(i,1,1,1)
+       lij(1)%x(i,1,1,1) = fu%x(i,1,1,1) * fu%x(i,1,1,1)
        lij(2)%x(i,1,1,1) = fv%x(i,1,1,1) * fv%x(i,1,1,1)
        lij(3)%x(i,1,1,1) = fw%x(i,1,1,1) * fw%x(i,1,1,1)
        lij(4)%x(i,1,1,1) = fu%x(i,1,1,1) * fv%x(i,1,1,1)
@@ -218,10 +228,15 @@ contains
   !!                              _____ ____   __________
   !! M_ij = ((delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij)*(delta^2)
   !! @param Mij
-  !! @param u x-velocity resolved (only filtered once)
-  !! @param v y-velocity resolved (only filtered once)
-  !! @param w z-velocity resolved (only filtered once)
+  !! @param s11
+  !! @param s22
+  !! @param s33
+  !! @param s12
+  !! @param s13
+  !! @param s23
+  !! @param s_abs
   !! @param test_filter
+  !! @param n
   subroutine compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, &
        s_abs, test_filter, delta, n)
     type(field_t), intent(inout) :: mij(6)
@@ -238,13 +253,13 @@ contains
 
     delta_ratio2 = ((test_filter%nx-1.0_rp)/(test_filter%nt-1.0_rp))**2
 
-    call neko_scratch_registry%request_field(fs11, temp_indices(1))
-    call neko_scratch_registry%request_field(fs22, temp_indices(2))
-    call neko_scratch_registry%request_field(fs33, temp_indices(3))
-    call neko_scratch_registry%request_field(fs12, temp_indices(4))
-    call neko_scratch_registry%request_field(fs13, temp_indices(5))
-    call neko_scratch_registry%request_field(fs23, temp_indices(6))
-    call neko_scratch_registry%request_field(fs_abs, temp_indices(7))
+    call neko_scratch_registry%request_field(fs11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(fs22, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(fs33, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(fs12, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(fs13, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(fs23, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(fs_abs, temp_indices(7), .false.)
     !! The first term:
     !!                      _____ ____
     !! (delta_test/delta)^2 s_abs*s_ij
@@ -318,9 +333,10 @@ contains
   !> Compute numerator and denominator for c_dyn on the CPU.
   !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
-  !! @param mij
   !! @param lij The Germano identity.
+  !! @param mij
   !! @param alpha The moving average coefficient
+  !! @param n
   subroutine compute_num_den_cpu(num, den, lij, mij, alpha, n)
     type(field_t), intent(inout) :: num, den
     type(field_t), intent(in) :: lij(6), mij(6)

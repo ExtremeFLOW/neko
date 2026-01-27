@@ -32,23 +32,21 @@
 !
 !> Compression
 module cpr
-  use gather_scatter
-  use neko_config
-  use num_types
+  use num_types, only : rp
   use field, only : field_t
   use space, only : space_t
-  use math
+  use math, only : copy, sub3, flipv, swap, reord, sort
+  use tensor, only : trsp1
   use mesh, only : mesh_t
   use coefs, only : coef_t
-  use tensor
-  use mxm_wrapper
-  use logger
+  use logger, only : neko_log, LOG_SIZE
   use dofmap, only : dofmap_t
+  use mxm_wrapper, only : mxm
   implicit none
   private
 
   !> include information needed for compressing fields
-  type, public  :: cpr_t
+  type, public :: cpr_t
      real(kind=rp), allocatable :: v(:,:) !< Transformation matrix
 
      real(kind=rp), allocatable :: vt(:,:) !< Transformation matrix transposed
@@ -59,7 +57,7 @@ module cpr
 
      real(kind=rp), allocatable :: fldhat(:,:,:,:) !< transformed Field data
 
-     type(field_t), pointer :: fld  => null()
+     type(field_t), pointer :: fld => null()
      type(space_t), pointer :: Xh => null()
      type(mesh_t), pointer :: msh => null()
      type(dofmap_t), pointer :: dof => null()

@@ -38,7 +38,6 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
   use inflow, only : inflow_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use blasius, only : blasius_t
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
@@ -48,7 +47,7 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(14) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
@@ -62,7 +61,6 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
        "user_velocity", &
        "user_pressure", &
        "blasius_profile", &
-       "user_velocity_pointwise", &
        "wall_model"]
 
 contains
@@ -77,11 +75,16 @@ contains
     class(bc_t), pointer, intent(inout) :: object
     type(fluid_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+
+    if (associated(object)) then
+       call object%free()
+       nullify(object)
+    end if
 
     call json_get(json, "type", type)
 
@@ -96,7 +99,7 @@ contains
        allocate(field_dirichlet_t::object)
        select type (obj => object)
        type is (field_dirichlet_t)
-          obj%update => user%user_dirichlet_update
+          obj%update => user%dirichlet_conditions
           call json%add("field_name", scheme%p%name)
        end select
 
@@ -127,6 +130,14 @@ contains
           end do
        end do
     end do
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
+    end if
   end subroutine pressure_bc_factory
 
   !> Factory routine for velocity boundary conditions.
@@ -137,9 +148,9 @@ contains
   !! @param user The user interface.
   module subroutine velocity_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_pnpn_t), intent(in) :: scheme
+    type(fluid_pnpn_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
@@ -162,23 +173,14 @@ contains
        allocate(shear_stress_t::object)
     case ("wall_model")
        allocate(wall_model_bc_t::object)
-       ! Kind of hack, but maybe OK? The thing is, we need the nu for
-       ! initing the wall model, and forcing the user duplicate that there
-       ! would be a nightmare.
-       call json%add("nu", scheme%mu%x(1,1,1,1) / scheme%rho%x(1,1,1,1))
+       ! Kind of hack, but  OK for now
+       call json%add("scheme_name", scheme%name)
 
     case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)
        select type (obj => object)
        type is (field_dirichlet_vector_t)
-          obj%update => user%user_dirichlet_update
-       end select
-
-    case ("user_velocity_pointwise")
-       allocate(usr_inflow_t::object)
-       select type (obj => object)
-       type is (usr_inflow_t)
-          call obj%set_eval(user%fluid_user_if)
+          obj%update => user%dirichlet_conditions
        end select
 
     case default
@@ -208,6 +210,14 @@ contains
              end do
           end do
        end do
+    end if
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
     end if
   end subroutine velocity_bc_factory
 

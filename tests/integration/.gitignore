@@ -1,0 +1,9 @@
+__pycache__
+*.chkp
+*0.f0*
+*.nek5000
+*.nmsh
+logs/
+tests/**/*.case
+**/genmeshbox*
+**/*.csv

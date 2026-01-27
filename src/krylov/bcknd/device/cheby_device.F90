@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ module cheby_device
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp
+  use num_types, only : rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
@@ -47,7 +47,8 @@ module cheby_device
        device_add2s1, device_add2s2, device_glsc3, device_copy, &
        device_sub3, device_cmult, device_add2
   use device
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, &
+       C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -72,7 +73,87 @@ module cheby_device
      procedure, pass(this) :: solve_coupled => cheby_device_solve_coupled
   end type cheby_device_t
 
+#ifdef HAVE_HIP
+  interface
+     subroutine hip_cheby_device_part1(d_d, x_d, inv_tha, n, strm) &
+          bind(c, name = 'hip_cheby_part1')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, x_d, strm
+       real(c_rp) :: inv_tha
+       integer(c_int) :: n
+     end subroutine hip_cheby_device_part1
+  end interface
+
+  interface
+     subroutine hip_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
+          bind(c, name = 'hip_cheby_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, w_d, x_d, strm
+       real(c_rp) :: tmp1, tmp2
+       integer(c_int) :: n
+     end subroutine hip_cheby_device_part2
+  end interface
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_cheby_device_part1(d_d, x_d, inv_tha, n, strm) &
+          bind(c, name = 'cuda_cheby_part1')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, x_d, strm
+       real(c_rp) :: inv_tha
+       integer(c_int) :: n
+     end subroutine cuda_cheby_device_part1
+  end interface
+
+  interface
+     subroutine cuda_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
+          bind(c, name = 'cuda_cheby_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, w_d, x_d, strm
+       real(c_rp) :: tmp1, tmp2
+       integer(c_int) :: n
+     end subroutine cuda_cheby_device_part2
+  end interface
+#endif
+
 contains
+  subroutine cheby_device_part1(d_d, x_d, inv_tha, n)
+    type(c_ptr) :: d_d, x_d
+    real(c_rp) :: inv_tha
+    integer(c_int) :: n
+#ifdef HAVE_HIP
+    call hip_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
+#elif HAVE_CUDA
+    call cuda_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
+#else !Fallback to device_math for missing device kernels
+    call device_cmult( d_d, inv_tha, n)
+    call device_add2( x_d, d_d, n)
+#endif
+  end subroutine cheby_device_part1
+
+
+
+  subroutine cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n)
+    type(c_ptr) :: d_d, w_d, x_d
+    real(c_rp) :: tmp1, tmp2
+    integer(c_int) :: n
+#ifdef HAVE_HIP
+    call hip_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
+#elif HAVE_CUDA
+    call cuda_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
+#else !Fallback to device_math for missing device kernels
+    call device_cmult( d_d, tmp1, n)
+    call device_add2s2( d_d, w_d, tmp2, n)
+    call device_add2( x_d, d_d, n)
+#endif
+  end subroutine cheby_device_part2
 
   !> Initialise a standard solver
   subroutine cheby_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
@@ -362,8 +443,9 @@ contains
       else
          call this%M%solve(d, r, n)
       end if
-      call device_cmult( d_d, (1.0_rp / this%tha), n)
-      call device_add2( x%x_d, d_d, n)
+
+      tmp1 = 1.0_rp / this%tha
+      call cheby_device_part1(d_d, x%x_d, tmp1, n)
 
       sig1 = this%tha / this%dlt
       rhok = 1.0_rp / sig1
@@ -385,9 +467,9 @@ contains
          else
             call this%M%solve(w, r, n)
          end if
-         call device_cmult( d_d, tmp1, n)
-         call device_add2s2( d_d, w_d, tmp2, n)
-         call device_add2( x%x_d, d_d, n)
+
+         call cheby_device_part2(d_d, w_d, x%x_d, tmp1, tmp2, n)
+
       end do
 
     end associate

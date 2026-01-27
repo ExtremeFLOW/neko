@@ -3,6 +3,7 @@
 [![GNU](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml)
 [![Intel](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml)
 [![Nvidia](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml)
+[![Test-suite](https://gitlab.com/ExtremeFLOW/neko-test-suite/badges/master/pipeline.svg?job=karma&key_text=Test+suite&key_width=64)](https://gitlab.com/ExtremeFLOW/neko-test-suite/-/pipelines/latest)
 
 ## About
 Neko is a portable framework for high-order spectral element flow simulations. Written in modern Fortran, Neko adopts an object-oriented approach, allowing multi-tier abstractions of the solver stack and facilitating various hardware backends ranging from general-purpose processors, CUDA and HIP enabled accelerators to SX-Aurora vector processors. Neko has its roots in the spectral element code Nek5000 from UChicago/ANL, from where many of the namings, code structure and numerical methods are adopted.
@@ -18,7 +19,7 @@ git clone https://github.com/ExtremeFLOW/neko
 Documentation for Neko is available at [neko.cfd](https://neko.cfd) and most things related to the code, cases, and different features are described there. The current (nightly) documentation is [here](https://neko.cfd/docs/develop/index.html). The documentation is always improving, in large part due to our active users and if something is missing or hard to understand, don't be afraid to start a [discussion](https://github.com/ExtremeFLOW/neko/discussions) or create a [Pull request](https://github.com/ExtremeFLOW/neko/pulls). It is a great way to help us improve and also to start getting involved in the project.
 
 ## Building the project
-To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran, and BLAS/lapack. Optional dependencies are gslib and ParMETIS. We use autotools to build the project. These instructions should work in general, but as the project is quickly developing, things might change. While we assume MPI and BLAS are installed, if JSON-Fortran is not already available it can be cloned, installed, and the correct paths set with the following commands (Skip this step if you already have an installation of JSON-Fortran).
+To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran, and BLAS/lapack. Optional dependencies are ParMETIS and HDF5. We use autotools to build the project. These instructions should work in general, but as the project is quickly developing, things might change. While we assume MPI and BLAS are installed, if JSON-Fortran is not already available it can be cloned, installed, and the correct paths set with the following commands (Skip this step if you already have an installation of JSON-Fortran).
 
 ```bash
 export JSON_INSTALL=/path/to/json-fortran_install # Where you want to install json-fortran
@@ -29,7 +30,7 @@ cmake -S json-fortran -B json-fortran/build -DCMAKE_INSTALL_PREFIX=${JSON_INSTAL
 cmake --build json-fortran/build --parallel
 cmake --install json-fortran/build
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JSON_INSTALL}/lib/ #On some systems lib should be replaced with lib64
-export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib/pkgconfig 
+export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib/pkgconfig
 
 ```
 
@@ -40,7 +41,7 @@ cd neko
 ./configure --prefix=/path/to/neko_install # Where you want to install neko
 make install
 ```
-More detailed installation instructions and all the different options (such as how to install Neko for GPUs) can be found in the documentation available at https://neko.cfd. 
+More detailed installation instructions and all the different options (such as how to install Neko for GPUs) can be found in the documentation available at https://neko.cfd.
 
 ## Running examples
 After the project has been built
@@ -70,12 +71,23 @@ When using Neko in a scientific publication, please add a citation to the follow
 * Karp, M., Massaro, D., Jansson, N., Hart, A., Wahlgren, J., Schlatter, P., and Markidis, S., 2023. *Large-Scale Direct Numerical Simulations of Turbulence Using GPUs and Modern Fortran*. The International Journal of High Performance Computing Applications, 37, 5.
 * Jansson, N., Karp, M., Perez, A., Mukha, T., Ju, Y., Liu, J., Páll, S., Laure, E., Weinkauf, T., Schumacher, J., Schlatter, P., Markidis, S., 2023. *Exploring the Ultimate Regime of Turbulent Rayleigh–Bénard Convection Through Unprecedented Spectral-Element Simulations*. SC '23: Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis.
 * Jansson, N., Karp, M., Podobas, A., Markidis, S. and Schlatter, P., 2024. *Neko: A modern, portable, and scalable framework for high-fidelity computational fluid dynamics*. Computer & Fluids, 275.
+* Karp, M., Stanly, R., Mukha, T., Galimberti, L., Toosi, S., Song, H., Dalcin,
+  L., Rezaeiravesh, S., Jansson, N., Markidis, S., Parsani, M., Bose, S., Lele,
+  S., Schlatter, P., 2025. *Effects of lower floating-point precision on
+  scale-resolving numerical simulations of turbulence*. Journal of Computational
+  Physics, 510, 114600.
+  [https://doi.org/10.1016/j.jcp.2025.114600](https://doi.org/10.1016/j.jcp.2025.114600)
+
 
 ### Flow physics
-* Massaro, D., Karp, M., Jansson, N., Markidis, S., Schlatter, P., 2024. "Direct numerical simulation of the turbulent flow around a Flettner rotor". Nature Scientific Reports 14, 3004. [https://doi.org/10.1038/s41598-024-53194-x](https://doi.org/10.1038/s41598-024-53194-x)
+* Massaro, D., Karp, M., Jansson, N., Markidis, S., Schlatter, P., 2024. *Direct numerical simulation of the turbulent flow around a Flettner rotor*. Nature Scientific Reports 14, 3004. [https://doi.org/10.1038/s41598-024-53194-x](https://doi.org/10.1038/s41598-024-53194-x)
+* Stanly, R., Bagheri, E., Mukha, T., Schlatter, P., 2026. *Influence of
+  turbulence inflow conditions on aeroacoustics of wall-bounded flows*.
+  International Journal of Heat and Fluid Flow, 118, 110216.
+  [https://doi.org/10.1016/j.ijheatfluidflow.2025.110216](https://doi.org/10.1016/j.ijheatfluidflow.2025.110216)
 
 ## Acknowledgments
-The development of Neko was supported by the European Commission Horizon 2020 project grant *EPiGRAM-HS: Exascale Programming Models for Heterogeneous Systems* (grant reference 801039), the European High Performance Computing Joint Unertaking (JU) and Sweden, Germany, Spain, Greece and Denmark under grant "CEEC - Centre of Excellence for Exascale Computing" (grant agreement No 101093393), the Swedish Research Council project grant *Efficient Algorithms for Exascale Computational Fluid Dynamics* (grant reference 2019-04723) and the SeRC Exascale Simulation Software Initiative (SESSI). The Neko logo was designed by Robert Hansen Jagrelius.
+The development of Neko was supported by the European Commission Horizon 2020 project grant *EPiGRAM-HS: Exascale Programming Models for Heterogeneous Systems* (grant reference 801039), the European High Performance Computing Joint Unertaking (JU) and Sweden, Germany, Spain, Greece and Denmark under grant "CEEC - Centre of Excellence for Exascale CFD" (grant agreement No 101093393), the Swedish Research Council project grant *Efficient Algorithms for Exascale Computational Fluid Dynamics* (grant reference 2019-04723) and the SeRC Exascale Simulation Software Initiative (SESSI). The Neko logo was designed by Robert Hansen Jagrelius.
 
 
 [<img src="https://raw.githubusercontent.com/zulip/zulip/143baa42432cde9f288bd202336ef2b11172f6e4/static/images/logo/zulip-icon-128x128.png" width="32"/>](https://zulip.com) Sponsored by Zulip, an open-source modern team chat app designed to keep both live and asynchronous conversations organized.

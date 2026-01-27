@@ -54,10 +54,10 @@ EXTRA_DIST = \
 	examples/lid/lid2d.nmsh\
 	examples/lid/lid.nmsh\
 	examples/lid/README.md\
-	examples/lid/lid2d.box\
 	examples/lid/lid2d.case\
 	examples/lid/lid.case\
-	examples/lid/lid.box\
+	examples/lid/elem_dist.csv\
+	examples/lid/plot_stat.py\
 	examples/poisson/ax_poisson.f90\
 	examples/poisson/setup.f90\
 	examples/poisson/Makefile\
@@ -72,8 +72,10 @@ EXTRA_DIST = \
 	examples/poisson/data/512.nmsh\
 	examples/poisson/data/1024.nmsh\
 	examples/poisson/driver.f90\
-	examples/2d_cylinder/ext_cyl.nmsh\
+	examples/2d_cylinder/2d_cylinder.nmsh\
 	examples/2d_cylinder/2d_cylinder.case\
+	examples/2d_cylinder/2d_cylinder.f90\
+	examples/2d_cylinder/2d_cylinder.geo\
 	examples/2d_cylinder/README.md\
 	examples/cyl_boundary_layer/cyl_bl_rot.case\
 	examples/cyl_boundary_layer/cyl_bl.f90\
@@ -116,16 +118,32 @@ EXTRA_DIST = \
 	tests/reframe/src/rocm_select_gpu_device.sh\
 	tests/reframe/src/tgv.case.template\
 	tests/reframe/src/tgv.f90\
-	tests/regression/README.md\
-	tests/regression/cylinder/cylinder_part1.case\
-	tests/regression/cylinder/cylinder_part2.case\
-	tests/regression/cylinder/ref1_dp.log\
-	tests/regression/cylinder/ref1_sp.log\
-	tests/regression/cylinder/ref2_dp.log\
-	tests/regression/cylinder/ref2_sp.log\
-	tests/regression/cylinder/small_test_cyl.nmsh\
-	tests/regression/cylinder/test_easy.sh\
-	tests/regression/cylinder/test.sh\
+	tests/integration/default_cpu_launcher.sh\
+	tests/integration/default_cuda_launcher.sh\
+	tests/integration/conftest.py\
+	tests/integration/testlib.py\
+	tests/integration/pytest.ini\
+	tests/integration/meshes/small_test_cyl.nmsh\
+	tests/integration/tests/test_demo/test_suite.py\
+	tests/integration/tests/test_examples/test_examples.py\
+	tests/integration/tests/test_cylinder/test_cylinder.py\
+	tests/integration/tests/test_cylinder/cylinder_part1.case\
+	tests/integration/tests/test_cylinder/reflog1_cpu_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cpu_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cpu_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cpu_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cuda_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cuda_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cuda_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cuda_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_hip_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_hip_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_hip_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_hip_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_opencl_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_opencl_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_opencl_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_opencl_sp.csv\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 

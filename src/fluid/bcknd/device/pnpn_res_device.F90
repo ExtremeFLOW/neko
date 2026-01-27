@@ -248,14 +248,14 @@ contains
     mu_val = mu%x(1,1,1,1)
     rho_val = rho%x(1,1,1,1)
 
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
-    call neko_scratch_registry%request_field(wa1, temp_indices(4))
-    call neko_scratch_registry%request_field(wa2, temp_indices(5))
-    call neko_scratch_registry%request_field(wa3, temp_indices(6))
-    call neko_scratch_registry%request_field(work1, temp_indices(7))
-    call neko_scratch_registry%request_field(work2, temp_indices(8))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(wa1, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(wa2, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(wa3, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(work1, temp_indices(7), .false.)
+    call neko_scratch_registry%request_field(work2, temp_indices(8), .false.)
 
     n = u%dof%size()
     gdim = c_Xh%msh%gdim
@@ -281,12 +281,14 @@ contains
     c_Xh%ifh2 = .false.
     call device_cfill(c_Xh%h1_d, 1.0_rp / rho_val, n)
 
+    call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
     call gs_Xh%op(ta1, GS_OP_ADD, event)
     call device_event_sync(event)
     call gs_Xh%op(ta2, GS_OP_ADD, event)
     call device_event_sync(event)
     call gs_Xh%op(ta3, GS_OP_ADD, event)
     call device_event_sync(event)
+    call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)
 
@@ -312,7 +314,7 @@ contains
     dtbd = 1.0_rp
 
     call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, ta1%x_d, &
-          ta2%x_d, ta3%x_d)
+         ta2%x_d, ta3%x_d)
 
 #ifdef HAVE_HIP
     call pnpn_prs_res_part3_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
@@ -320,7 +322,7 @@ contains
     call pnpn_prs_res_part3_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, &
-          n)
+         n)
 #endif
     !
     dtbd = bd / dt
@@ -338,7 +340,7 @@ contains
     call pnpn_prs_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd,&
-          n)
+         n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -372,11 +374,11 @@ contains
     c_Xh%ifh2 = .true.
 
     call Ax%compute_vector(u_res%x, v_res%x, w_res%x, &
-                           u%x, v%x, w%x, c_Xh, msh, Xh)
+         u%x, v%x, w%x, c_Xh, msh, Xh)
 
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
 
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 

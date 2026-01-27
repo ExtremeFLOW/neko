@@ -539,11 +539,10 @@ contains
     class(aabb_t), intent(in) :: this
     real(kind=dp) :: surface_area
 
-    surface_area = 2.0 * (&
-    & this%get_width() * this%get_height() &
-    & + this%get_width() * this%get_depth() &
-    & + this%get_height() * this%get_depth() &
-    &)
+    surface_area = 2.0 * ( &
+         this%get_width() * this%get_height() &
+         + this%get_width() * this%get_depth() &
+         + this%get_height() * this%get_depth())
   end function calculate_surface_area
 
   ! ========================================================================== !

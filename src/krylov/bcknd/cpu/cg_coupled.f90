@@ -40,8 +40,9 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, glsc2
+  use math, only : glsc3, glsc2, abscmp
   use utils, only : neko_error
+  use operators, only : rotate_cyc
   implicit none
   private
 
@@ -220,8 +221,6 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
-    real(kind=rp), parameter :: one = 1.0
-    real(kind=rp), parameter :: zero = 0.0
     integer :: i, iter, max_iter
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
@@ -231,14 +230,14 @@ contains
     else
        max_iter = this%max_iter
     end if
-    norm_fac = one / coef%volume
+    norm_fac = 1.0_rp / coef%volume
 
     associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
          z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
          r3 => this%r3, tmp => this%tmp, w1 => this%w1, w2 => this%w2, &
          w3 => this%w3)
 
-      rtz1 = one
+      rtz1 = 1.0_rp
       do concurrent (i = 1:n)
          x%x(i,1,1,1) = 0.0_rp
          y%x(i,1,1,1) = 0.0_rp
@@ -256,11 +255,14 @@ contains
       end do
 
       rtr = glsc3(tmp, coef%mult, coef%binv, n)
-      rnorm = sqrt(rtr*norm_fac)
+      rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if (rnorm .eq. zero) return
+      if (abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
 
       call this%monitor_start('cpldCG')
       do iter = 1, max_iter
@@ -278,7 +280,7 @@ contains
          rtz1 = glsc2(tmp, coef%mult, n)
 
          beta = rtz1 / rtz2
-         if (iter .eq. 1) beta = zero
+         if (iter .eq. 1) beta = 0.0_rp
          do concurrent (i = 1:n)
             p1(i) = p1(i) * beta + z1(i)
             p2(i) = p2(i) * beta + z2(i)
@@ -286,9 +288,13 @@ contains
          end do
 
          call Ax%compute_vector(w1, w2, w3, p1, p2, p3, coef, x%msh, x%Xh)
+
+         call rotate_cyc(w1, w2, w3, 1, coef)
          call gs_h%op(w1, n, GS_OP_ADD)
          call gs_h%op(w2, n, GS_OP_ADD)
          call gs_h%op(w3, n, GS_OP_ADD)
+         call rotate_cyc(w1, w2, w3, 0, coef)
+
          call blstx%apply_scalar(w1, n)
          call blsty%apply_scalar(w2, n)
          call blstz%apply_scalar(w3, n)
@@ -315,7 +321,7 @@ contains
 
          rtr = glsc3(tmp, coef%mult, coef%binv, n)
          if (iter .eq. 1) rtr0 = rtr
-         rnorm = sqrt(rtr * norm_fac)
+         rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)
          if (rnorm .lt. this%abs_tol) then
             exit

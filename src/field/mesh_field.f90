@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2023, The Neko Authors
+! Copyright (c) 2019-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,22 +38,23 @@ module mesh_field
   private
 
   !> @todo Add support for different data types
-  type, public ::  mesh_fld_t
+  type, public :: mesh_fld_t
      integer, allocatable :: data(:) !< Data
-     type(mesh_t), pointer :: msh    !< Mesh
+     type(mesh_t), pointer :: msh !< Mesh
      character(len=80) :: name
+   contains
+     procedure, pass(fld) :: init => mesh_field_init
+     procedure, pass(fld) :: free => mesh_field_free
   end type mesh_fld_t
-
-  public :: mesh_field_init, mesh_field_free
 
 contains
 
   subroutine mesh_field_init(fld, msh, fld_name)
-    type(mesh_fld_t), intent(inout) :: fld
+    class(mesh_fld_t), intent(inout) :: fld
     type(mesh_t), target, intent(in) :: msh
     character(len=*), optional :: fld_name
 
-    call mesh_field_free(fld)
+    call fld%free()
 
     fld%msh => msh
     if (.not. allocated(fld%data)) then
@@ -70,7 +71,7 @@ contains
   end subroutine mesh_field_init
 
   subroutine mesh_field_free(fld)
-    type(mesh_fld_t), intent(inout) :: fld
+    class(mesh_fld_t), intent(inout) :: fld
 
     if (allocated(fld%data)) then
        deallocate(fld%data)

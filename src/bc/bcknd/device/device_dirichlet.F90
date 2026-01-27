@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,74 +39,74 @@ module device_dirichlet
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_dirichlet_apply_scalar(msk, x, g, m) &
+     subroutine hip_dirichlet_apply_scalar(msk, x, g, m, strm) &
           bind(c, name='hip_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        real(c_rp) :: g
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x
+       type(c_ptr), value :: msk, x, strm
      end subroutine hip_dirichlet_apply_scalar
   end interface
 
   interface
-     subroutine hip_dirichlet_apply_vector(msk, x, y, z, g, m) &
+     subroutine hip_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
           bind(c, name='hip_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        real(c_rp) :: g
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z
+       type(c_ptr), value :: msk, x, y, z, strm
      end subroutine hip_dirichlet_apply_vector
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_dirichlet_apply_scalar(msk, x, g, m) &
+     subroutine cuda_dirichlet_apply_scalar(msk, x, g, m, strm) &
           bind(c, name='cuda_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        real(c_rp) :: g
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x
+       type(c_ptr), value :: msk, x, strm
      end subroutine cuda_dirichlet_apply_scalar
   end interface
 
   interface
-     subroutine cuda_dirichlet_apply_vector(msk, x, y, z, g, m) &
+     subroutine cuda_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
           bind(c, name='cuda_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        real(c_rp) :: g
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z
+       type(c_ptr), value :: msk, x, y, z, strm
      end subroutine cuda_dirichlet_apply_vector
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_dirichlet_apply_scalar(msk, x, g, m) &
+     subroutine opencl_dirichlet_apply_scalar(msk, x, g, m, strm) &
           bind(c, name='opencl_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        real(c_rp) :: g
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x
+       type(c_ptr), value :: msk, x, strm
      end subroutine opencl_dirichlet_apply_scalar
   end interface
 
   interface
-     subroutine opencl_dirichlet_apply_vector(msk, x, y, z, g, m) &
+     subroutine opencl_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
           bind(c, name='opencl_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        real(c_rp) :: g
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z
+       type(c_ptr), value :: msk, x, y, z, strm
      end subroutine opencl_dirichlet_apply_vector
   end interface
 #endif
@@ -115,34 +115,34 @@ module device_dirichlet
 
 contains
 
-  subroutine device_dirichlet_apply_scalar(msk, x, g, m)
+  subroutine device_dirichlet_apply_scalar(msk, x, g, m, strm)
     integer, intent(in) :: m
-    type(c_ptr) :: msk, x
+    type(c_ptr) :: msk, x, strm
     real(kind=rp), intent(in) :: g
 
 #ifdef HAVE_HIP
-    call hip_dirichlet_apply_scalar(msk, x, g, m)
+    call hip_dirichlet_apply_scalar(msk, x, g, m, strm)
 #elif HAVE_CUDA
-    call cuda_dirichlet_apply_scalar(msk, x, g, m)
+    call cuda_dirichlet_apply_scalar(msk, x, g, m, strm)
 #elif HAVE_OPENCL
-    call opencl_dirichlet_apply_scalar(msk, x, g, m)
+    call opencl_dirichlet_apply_scalar(msk, x, g, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
 
   end subroutine device_dirichlet_apply_scalar
 
-  subroutine device_dirichlet_apply_vector(msk, x, y, z, g, m)
+  subroutine device_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
     integer, intent(in) :: m
-    type(c_ptr) :: msk, x, y, z
+    type(c_ptr) :: msk, x, y, z, strm
     real(kind=rp), intent(in) :: g
 
 #ifdef HAVE_HIP
-    call hip_dirichlet_apply_vector(msk, x, y, z, g, m)
+    call hip_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
 #elif HAVE_CUDA
-    call cuda_dirichlet_apply_vector(msk, x, y, z, g, m)
+    call cuda_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
 #elif HAVE_OPENCL
-    call opencl_dirichlet_apply_vector(msk, x, y, z, g, m)
+    call opencl_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif

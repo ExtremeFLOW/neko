@@ -46,7 +46,6 @@ module gradient_jump_penalty
   use element, only : element_t
   use hex, only : hex_t
   use quad, only : quad_t
-  use operators, only : dudxyz
   use gs_ops, only : GS_OP_ADD
   use space, only : space_t, GLL
   use gather_scatter, only : gs_t
@@ -57,7 +56,9 @@ module gradient_jump_penalty
        device_gradient_jump_penalty_finalize
   use source_term, only : source_term_t
   use field_list, only : field_list_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
+  use time_state, only : time_state_t
+  use operators, only : dudxyz
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
 
   implicit none
@@ -157,11 +158,13 @@ contains
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param a, b Coefficients to determine tau
-  subroutine gradient_jump_penalty_init(this, json, fields, coef)
+  !! @param variable_name The name of the variable for this source term.
+  subroutine gradient_jump_penalty_init(this, json, fields, coef, variable_name)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), target, intent(in) :: coef
+    character(len=*), intent(in) :: variable_name
     type(field_list_t), intent(in), target :: fields
 
     real(kind=rp) :: start_time, end_time
@@ -178,7 +181,8 @@ contains
        call json_get_or_default(json, 'scaling_exponent', b, 4.0_rp)
     end if
 
-    call this%init_from_components(coef, fields, start_time, end_time, a, b)
+    call this%init_from_components(coef, fields, start_time, end_time, a, b, &
+         variable_name)
 
   end subroutine gradient_jump_penalty_init
 
@@ -186,14 +190,18 @@ contains
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param a, b Coefficients to determine tau
+  !! @param start_time When to start adding the source term.
+  !! @param end_time When to stop adding the source term.
+  !! @param variable_name The name of the variable for this source term.
   subroutine gradient_jump_penalty_init_from_components(this, coef, fields, &
-       start_time, end_time, a, b)
+       start_time, end_time, a, b, variable_name)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
     real(kind=rp), intent(in) :: a, b
+    character(len=*), intent(in) :: variable_name
 
     integer :: i, j, k, l
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
@@ -203,13 +211,14 @@ contains
 
     call this%init_base(fields, coef, start_time, end_time)
 
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
 
     if (fields%size() .eq. 1) then
        call this%s_fields%init(1)
-       call this%s_fields%assign(1, neko_field_registry%get_field("s"))
+       call this%s_fields%assign(1, &
+            neko_registry%get_field(variable_name))
     else if (fields%size() .eq. 3) then
        call this%s_fields%init(3)
        call this%s_fields%assign(1, this%u)
@@ -782,6 +791,7 @@ contains
 
     call this%Xh_GJP%free()
     call this%gs_GJP%free()
+    call this%dm_GJP%free()
 
   end subroutine gradient_jump_penalty_free
 
@@ -816,12 +826,10 @@ contains
   end subroutine gradient_jump_penalty_compute_single
 
   !> Assign the gradient jump penalty term.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine gradient_jump_penalty_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine gradient_jump_penalty_compute(this, time)
     class(gradient_jump_penalty_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i, n_fields, n
 
     n_fields = this%fields%size()

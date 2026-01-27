@@ -7,14 +7,14 @@
 !! Martin Karp 1/2-2023
 module fld_file_data
   use num_types, only : rp
-  use math, only: cmult, add2
+  use math, only : cmult, add2
   use vector, only : vector_t, vector_ptr_t
-  use field, only: field_t
-  use dofmap, only: dofmap_t
-  use space, only: space_t, GLL
-  use global_interpolation, only: global_interpolation_t
-  use utils, only: neko_error
-  use mesh, only: mesh_t
+  use field, only : field_t
+  use dofmap, only : dofmap_t
+  use space, only : space_t, GLL
+  use global_interpolation, only : global_interpolation_t
+  use utils, only : neko_error
+  use mesh, only : mesh_t
   implicit none
   private
 
@@ -76,11 +76,11 @@ contains
     class(fld_file_data_t) :: this
     integer :: i
     i = 0
-    if (this%u%n .gt. 0) i = i + 1
-    if (this%v%n .gt. 0) i = i + 1
-    if (this%w%n .gt. 0) i = i + 1
-    if (this%p%n .gt. 0) i = i + 1
-    if (this%t%n .gt. 0) i = i + 1
+    if (this%u%size() .gt. 0) i = i + 1
+    if (this%v%size() .gt. 0) i = i + 1
+    if (this%w%size() .gt. 0) i = i + 1
+    if (this%p%size() .gt. 0) i = i + 1
+    if (this%t%size() .gt. 0) i = i + 1
     i = i + this%n_scalars
 
   end function fld_file_data_size
@@ -92,19 +92,19 @@ contains
     integer, intent(in) :: n
     integer :: i, j
 
-    if(fld_file%u%n .gt. 0) then
+    if (fld_file%u%size() .gt. 0) then
        call this%u%init(n)
     end if
-    if(fld_file%v%n .gt. 0) then
+    if (fld_file%v%size() .gt. 0) then
        call this%v%init(n)
     end if
-    if(fld_file%w%n .gt. 0) then
+    if (fld_file%w%size() .gt. 0) then
        call this%w%init(n)
     end if
-    if(fld_file%p%n .gt. 0) then
+    if (fld_file%p%size() .gt. 0) then
        call this%p%init(n)
     end if
-    if(fld_file%t%n .gt. 0) then
+    if (fld_file%t%size() .gt. 0) then
        call this%t%init(n)
     end if
     this%n_scalars = fld_file%n_scalars
@@ -115,26 +115,26 @@ contains
 
   end subroutine fld_file_data_init_same
 
-  !> Genereate same fields as in another fld_file
+  !> Generate same fields as in another fld_file
   subroutine fld_file_data_init_n_fields(this, n_fields, n)
     class(fld_file_data_t), target, intent(inout) :: this
     integer, intent(in) :: n, n_fields
     integer :: i, j
 
 
-    if(n_fields .gt. 0) then
+    if (n_fields .gt. 0) then
        call this%u%init(n)
     end if
-    if(n_fields .gt. 1) then
+    if (n_fields .gt. 1) then
        call this%v%init(n)
     end if
-    if(n_fields .gt. 2) then
+    if (n_fields .gt. 2) then
        call this%w%init(n)
     end if
-    if(n_fields .gt. 3) then
+    if (n_fields .gt. 3) then
        call this%p%init(n)
     end if
-    if(n_fields .gt. 4) then
+    if (n_fields .gt. 4) then
        call this%t%init(n)
     end if
     if (n_fields .gt. 5) then
@@ -154,23 +154,23 @@ contains
     integer :: i, j
     type(vector_ptr_t), intent(inout) :: ptr_list(n)
     i = 1
-    if (this%u%n .gt. 0) then
+    if (this%u%size() .gt. 0) then
        ptr_list(i)%ptr => this%u
        i = i + 1
     end if
-    if (this%v%n .gt. 0) then
+    if (this%v%size() .gt. 0) then
        ptr_list(i)%ptr => this%v
        i = i + 1
     end if
-    if (this%w%n .gt. 0) then
+    if (this%w%size() .gt. 0) then
        ptr_list(i)%ptr => this%w
        i = i + 1
     end if
-    if (this%p%n .gt. 0) then
+    if (this%p%size() .gt. 0) then
        ptr_list(i)%ptr => this%p
        i = i + 1
     end if
-    if (this%t%n .gt. 0) then
+    if (this%t%size() .gt. 0) then
        ptr_list(i)%ptr => this%t
        i = i + 1
     end if
@@ -189,33 +189,33 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    if (this%u%n .gt. 0) call cmult(this%u%x, c, this%u%n)
-    if (this%v%n .gt. 0) call cmult(this%v%x, c, this%v%n)
-    if (this%w%n .gt. 0) call cmult(this%w%x, c, this%w%n)
-    if (this%p%n .gt. 0) call cmult(this%p%x, c, this%p%n)
-    if (this%t%n .gt. 0) call cmult(this%t%x, c, this%t%n)
+    if (this%u%size() .gt. 0) call cmult(this%u%x, c, this%u%size())
+    if (this%v%size() .gt. 0) call cmult(this%v%x, c, this%v%size())
+    if (this%w%size() .gt. 0) call cmult(this%w%x, c, this%w%size())
+    if (this%p%size() .gt. 0) call cmult(this%p%x, c, this%p%size())
+    if (this%t%size() .gt. 0) call cmult(this%t%x, c, this%t%size())
 
     do i = 1, this%n_scalars
-       if (this%s(i)%n .gt. 0) call cmult(this%s(i)%x, c, this%s(i)%n)
+       if (this%s(i)%size() .gt. 0) call cmult(this%s(i)%x, c, this%s(i)%size())
     end do
 
   end subroutine fld_file_data_scale
 
   !> Add the values in another fld file to this
-  subroutine fld_file_data_add(this, fld_data_add)
+  subroutine fld_file_data_add(this, other)
     class(fld_file_data_t), intent(inout) :: this
-    class(fld_file_data_t), intent(in) :: fld_data_add
-    integer :: i
+    class(fld_file_data_t), intent(in) :: other
+    integer :: i, n
 
-    if (this%u%n .gt. 0) call add2(this%u%x, fld_data_add%u%x, this%u%n)
-    if (this%v%n .gt. 0) call add2(this%v%x, fld_data_add%v%x, this%v%n)
-    if (this%w%n .gt. 0) call add2(this%w%x, fld_data_add%w%x, this%w%n)
-    if (this%p%n .gt. 0) call add2(this%p%x, fld_data_add%p%x, this%p%n)
-    if (this%t%n .gt. 0) call add2(this%t%x, fld_data_add%t%x, this%t%n)
+    if (this%u%size() .gt. 0) call add2(this%u%x, other%u%x, this%u%size())
+    if (this%v%size() .gt. 0) call add2(this%v%x, other%v%x, this%v%size())
+    if (this%w%size() .gt. 0) call add2(this%w%x, other%w%x, this%w%size())
+    if (this%p%size() .gt. 0) call add2(this%p%x, other%p%x, this%p%size())
+    if (this%t%size() .gt. 0) call add2(this%t%x, other%t%x, this%t%size())
 
     do i = 1, this%n_scalars
-       if (this%s(i)%n .gt. 0) call add2(this%s(i)%x, fld_data_add%s(i)%x, &
-            this%s(i)%n)
+       if (this%s(i)%size() .gt. 0) call add2(this%s(i)%x, other%s(i)%x, &
+            this%s(i)%size())
     end do
   end subroutine fld_file_data_add
 
@@ -248,20 +248,22 @@ contains
     this%t_counter = 0
     this%meta_nsamples = 0
     this%meta_start_counter = 0
-    if(allocated(this%idx)) deallocate(this%idx)
+    if (allocated(this%idx)) deallocate(this%idx)
   end subroutine fld_file_data_free
 
   !> Generates a global_interpolation object to interpolate the fld data.
+  !! @param global_interp Global interpolation object which will be initialized
+  !! and ready to be used for interpolation.
   !! @param to_dof Dofmap on which to interpolate.
   !! @param to_msh Mesh on which to interpolate.
   !! @param tolerance Tolerance for the newton iterations.
   subroutine fld_file_data_generate_interpolator(this, global_interp, to_dof, &
        to_msh, tolerance)
     class(fld_file_data_t), intent(in) :: this
+    type(global_interpolation_t), intent(inout) :: global_interp
     type(dofmap_t), intent(in), target :: to_dof
     type(mesh_t), intent(in), target :: to_msh
     real(kind=rp), intent(in) :: tolerance
-    type(global_interpolation_t), intent(inout) :: global_interp
 
     ! --- variables for interpolation
     type(space_t) :: fld_Xh
@@ -325,6 +327,7 @@ contains
     deallocate(x_coords)
     deallocate(y_coords)
     deallocate(z_coords)
+    call fld_Xh%free()
 
   end subroutine fld_file_data_generate_interpolator
 

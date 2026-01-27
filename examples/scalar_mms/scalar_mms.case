@@ -69,7 +69,7 @@
             },
             "source_terms": [
                 {
-                    "type": "user_vector"
+                    "type": "user"
                 },
                 {
                     "type": "constant",

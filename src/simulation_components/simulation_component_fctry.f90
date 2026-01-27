@@ -35,6 +35,8 @@
 submodule (simulation_component) simulation_component_fctry
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
+  use scalar_stats_simcomp, only : scalar_stats_simcomp_t
+  use user_stats, only : user_stats_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
   use les_simcomp, only : les_simcomp_t
@@ -45,23 +47,25 @@ submodule (simulation_component) simulation_component_fctry
   use gradient_simcomp, only : gradient_t
   use divergence_simcomp, only : divergence_t
   use derivative_simcomp, only : derivative_t
-  use spectral_error, only: spectral_error_t
+  use spectral_error, only : spectral_error_t
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(12) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(14) = [character(len=20) :: &
        "lambda2", &
        "probes", &
        "les_model", &
        "field_writer", &
        "fluid_stats", &
+       "scalar_stats", &
        "grad", &
        "div", &
        "curl", &
        "derivative", &
        "weak_grad", &
        "force_torque", &
+       "user_stats", &
        "spectral_error"]
 
 contains
@@ -101,6 +105,11 @@ contains
     character(len=*), intent(in):: type_name
     integer :: i
 
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
+
     select case (trim(type_name))
     case ("lambda2")
        allocate(lambda2_t::object)
@@ -124,6 +133,10 @@ contains
        allocate(force_torque_t::object)
     case ("fluid_stats")
        allocate(fluid_stats_simcomp_t::object)
+    case ("scalar_stats")
+       allocate(scalar_stats_simcomp_t::object)
+    case ("user_stats")
+       allocate(user_stats_t::object)
     case ("spectral_error")
        allocate(spectral_error_t::object)
     case default

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@
  */
 void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
                           void *u, int *n, void *gd, int *nb,
-                          void *b, void *bo, int *op) {
+                          void *b, void *bo, int *op, void *cmd_queue) {
   cl_int err;
   
   if (gs_program == NULL)
@@ -86,9 +86,10 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
       CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &b));
       CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &bo));
     
-      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel,
                                       1, NULL, &global_item_size,
                                       &local_item_size, 0, NULL, NULL));
+      CL_CHECK(clReleaseKernel(kernel));
     }
     break;
   case GS_OP_MUL:
@@ -108,9 +109,10 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
       CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &b));
       CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &bo));
     
-      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel,
                                       1, NULL, &global_item_size,
                                       &local_item_size, 0, NULL, NULL));
+      CL_CHECK(clReleaseKernel(kernel));
     }
     break;
   case GS_OP_MIN:
@@ -130,9 +132,10 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
       CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &b));
       CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &bo));
     
-      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel,
                                       1, NULL, &global_item_size,
                                       &local_item_size, 0, NULL, NULL));
+      CL_CHECK(clReleaseKernel(kernel));
     }
     break;
   case GS_OP_MAX:
@@ -152,9 +155,10 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
       CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &b));
       CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &bo));
     
-      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel,
                                       1, NULL, &global_item_size,
                                       &local_item_size, 0, NULL, NULL));
+      CL_CHECK(clReleaseKernel(kernel));
     }
     break;
   }
@@ -165,7 +169,7 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
  */
 void opencl_scatter_kernel(void *v, int *m, void *dg,
                            void *u, int *n, void *gd,
-                           int *nb, void *b, void *bo) {
+                           int *nb, void *b, void *bo, void *cmd_queue) {
   cl_int err;
 
   if (gs_program == NULL)
@@ -188,7 +192,8 @@ void opencl_scatter_kernel(void *v, int *m, void *dg,
   const size_t global_item_size = 256 * nblks;
   const size_t local_item_size = 256;
 
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }

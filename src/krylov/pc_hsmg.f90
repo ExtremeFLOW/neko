@@ -96,17 +96,17 @@ module hsmg
 
   !Struct to arrange our multigridlevels
   type, private :: multigrid_t
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(space_t), pointer :: Xh
-     type(coef_t), pointer :: coef
-     type(bc_list_t), pointer :: bclst
-     type(schwarz_t), pointer :: schwarz
-     type(field_t), pointer :: e
+     type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h => null()
+     type(space_t), pointer :: Xh => null()
+     type(coef_t), pointer :: coef => null()
+     type(bc_list_t), pointer :: bclst => null()
+     type(schwarz_t), pointer :: schwarz => null()
+     type(field_t), pointer :: e => null()
   end type multigrid_t
 
   type, public, extends(pc_t) :: hsmg_t
-     type(mesh_t), pointer :: msh
+     type(mesh_t), pointer :: msh => null()
      integer :: nlvls !< Number of levels in the multigrid
      type(multigrid_t), allocatable :: grids(:) !< array for multigrids
      type(gs_t) :: gs_crs, gs_mg !< gather scatter for lower levels
@@ -129,8 +129,8 @@ module hsmg
      real(kind=rp), allocatable :: w(:) !< work array
      type(c_ptr) :: w_d = C_NULL_PTR
      type(c_ptr) :: r_d = C_NULL_PTR
-     type(c_ptr) :: hsmg_event
-     type(c_ptr) :: gs_event
+     type(c_ptr) :: hsmg_event = C_NULL_PTR
+     type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => hsmg_init
      procedure, pass(this) :: init_from_components => &
@@ -149,7 +149,7 @@ contains
     type(json_file), intent(inout) :: hsmg_params
     character(len=:), allocatable :: crs_solver, crs_pc
     logical :: crs_monitor
-    integer :: crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree
+    integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
 
     ! Exract coarse grid parameters
 
@@ -175,25 +175,25 @@ contains
     call json_get_or_default(hsmg_params, 'coarse_grid.levels', &
          crs_tamg_lvls, 3)
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.cycles', &
-         crs_tamg_cycles, 1)
+    call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
+         crs_tamg_itrs, 1)
 
     call json_get_or_default(hsmg_params, 'coarse_grid.cheby_degree', &
          crs_tamg_cheby_degree, 5)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
-         crs_monitor, crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+         crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
 
   end subroutine hsmg_init
 
   subroutine hsmg_init_from_components(this, coef, bclst, crs_solver, crs_pc, &
-       crs_monitor, crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+       crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
     class(hsmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
     character(len=:), intent(inout), allocatable :: crs_solver, crs_pc
     logical, intent(inout) :: crs_monitor
-    integer, intent(in) :: crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree
+    integer, intent(in) :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
     integer :: n, i
     integer :: lx_crs, lx_mid
     class(bc_t), pointer :: bc_i
@@ -338,7 +338,7 @@ contains
        allocate(this%amg_solver)
        call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
             this%grids(1)%coef, this%msh, this%grids(1)%gs_h, crs_tamg_lvls, &
-            this%grids(1)%bclst, crs_tamg_cycles, crs_tamg_cheby_degree)
+            this%grids(1)%bclst, crs_tamg_itrs, crs_tamg_cheby_degree)
     else
        ! Create a backend specific preconditioner
        call precon_factory(this%pc_crs, crs_pc)
@@ -417,6 +417,14 @@ contains
        deallocate(this%r)
     end if
 
+    if (c_associated(this%w_d)) then
+       call device_free(this%w_d)
+    end if
+
+    if (c_associated(this%r_d)) then
+       call device_free(this%r_d)
+    end if
+
     call this%schwarz%free()
     call this%schwarz_mg%free()
 
@@ -425,11 +433,20 @@ contains
     call this%e%free()
     call this%e_mg%free()
     call this%e_crs%free()
+    call this%wf%free()
 
     call this%gs_crs%free()
     call this%gs_mg%free()
     call this%interp_mid_crs%free()
     call this%interp_fine_mid%free()
+
+    call this%bc_crs%free()
+    call this%bc_mg%free()
+    call this%bc_reg%free()
+
+    call this%bclst_reg%free()
+    call this%bclst_crs%free()
+    call this%bclst_mg%free()
 
     if (allocated(this%crs_solver)) then
        call this%crs_solver%free()
@@ -439,6 +456,18 @@ contains
     if (allocated(this%pc_crs)) then
        call precon_destroy(this%pc_crs)
     end if
+
+    if (c_associated(this%hsmg_event)) then
+       call device_event_destroy(this%hsmg_event)
+    end if
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
+    end if
+
+    call this%dm_crs%free()
+    call this%dm_mg%free()
+    call this%Xh_crs%free()
+    call this%Xh_mg%free()
 
   end subroutine hsmg_free
 
@@ -458,7 +487,7 @@ contains
        r_d = device_get_ptr(r)
        !We should not work with the input
        call device_copy(this%r_d, r_d, n)
-       call this%bclst_reg%apply_scalar(r, n)
+       call this%bclst_reg%apply_scalar(this%r, n)
 
        !OVERLAPPING Schwarz exchange and solve
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
@@ -470,8 +499,9 @@ contains
        call this%grids(2)%gs_h%op(this%e%x, &
             this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
+       !This should probably be double checked again
        call device_copy(this%r_d, r_d, n)
-       call this%bclst_reg%apply_scalar(r, n)
+       call this%bclst_reg%apply_scalar(this%r, n)
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
        call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
        !OVERLAPPING Schwarz exchange and solve

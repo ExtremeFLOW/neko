@@ -48,6 +48,11 @@ contains
     character(len=*) :: type_name
     character(len=:), allocatable :: type_string
 
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
+
     select case (trim(type_name))
     case ('pnpn')
        allocate(fluid_pnpn_t::object)

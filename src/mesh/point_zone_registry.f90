@@ -185,6 +185,9 @@ contains
 
     end if
 
+    call Xh%free()
+    call dof%free()
+
   end subroutine point_zone_registry_init
 
   !> Constructs a combine_point_zone_t object.
@@ -277,7 +280,7 @@ contains
     ! Check if point zone exists with the input name
     if (this%point_zone_exists(trim(str_read))) then
        call neko_error("Field with name " // trim(str_read) // &
-                       " is already registered")
+            " is already registered")
     end if
 
     !
@@ -365,7 +368,7 @@ contains
 
     if (.not. found) then
        call neko_error("Point zone " // trim(name) // &
-                       " could not be found in the registry")
+            " could not be found in the registry")
     end if
   end function get_point_zone_by_name
 

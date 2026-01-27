@@ -31,9 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_base
-  use bc, only : bc_t
-  use checkpoint, only : chkp_t
-  use coefs, only: coef_t
+  use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use dofmap, only : dofmap_t
   use field, only : field_t
@@ -44,16 +42,14 @@ module fluid_scheme_base
   use num_types, only : rp
   use checkpoint, only : chkp_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
-  use space, only : space_t, GLL
+  use space, only : space_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use time_step_controller, only : time_step_controller_t
-  use user_intf, only : user_t, user_material_properties
-  use usr_inflow, only : usr_inflow_eval
+  use user_intf, only : user_t, user_material_properties_intf
   use utils, only : neko_error
   use bc_list, only : bc_list_t
   use field_list, only : field_list_t
-  use time_state, only: time_state_t
+  use time_state, only : time_state_t
   implicit none
   private
   public :: fluid_scheme_base_t, fluid_scheme_base_factory
@@ -100,10 +96,10 @@ module fluid_scheme_base
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
 
      !> Density field
-     type(field_t) :: rho
+     type(field_t), pointer :: rho => null()
 
      !> The dynamic viscosity
-     type(field_t) :: mu
+     type(field_t), pointer :: mu => null()
 
      !> A helper that packs material properties to pass to the user routine.
      type(field_list_t) :: material_properties
@@ -112,7 +108,7 @@ module fluid_scheme_base
      logical :: freeze = .false.
 
      !> User material properties routine
-     procedure(user_material_properties), nopass, pointer :: &
+     procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
 
    contains
@@ -130,9 +126,11 @@ module fluid_scheme_base
      !> Set the user inflow
      procedure(validate_intrf), pass(this), deferred :: validate
      !> Compute the CFL number
-     procedure(fluid_scheme_base_compute_cfl_intrf), pass(this), deferred :: compute_cfl
+     procedure(fluid_scheme_base_compute_cfl_intrf), pass(this), deferred :: &
+          compute_cfl
      !> Set rho and mu
-     procedure(update_material_properties), pass(this), deferred:: update_material_properties
+     procedure(update_material_properties), pass(this), deferred :: &
+          update_material_properties
   end type fluid_scheme_base_t
 
   !> Initialize all fields
@@ -251,7 +249,7 @@ module fluid_scheme_base
   abstract interface
      subroutine fluid_scheme_setup_bcs_intrf(this, user, params)
        import fluid_scheme_base_t, user_t, json_file
-       class(fluid_scheme_base_t), intent(inout) :: this
+       class(fluid_scheme_base_t), target, intent(inout) :: this
        type(user_t), target, intent(in) :: user
        type(json_file), intent(inout) :: params
      end subroutine fluid_scheme_setup_bcs_intrf
@@ -267,11 +265,10 @@ module fluid_scheme_base
 
   !> Abstract interface to sets rho and mu
   abstract interface
-     subroutine update_material_properties(this, t, tstep)
-       import fluid_scheme_base_t, rp
+     subroutine update_material_properties(this, time)
+       import fluid_scheme_base_t, time_state_t
        class(fluid_scheme_base_t), intent(inout) :: this
-       real(kind=rp),intent(in) :: t
-       integer, intent(in) :: tstep
+       type(time_state_t), intent(in) :: time
      end subroutine update_material_properties
   end interface
 

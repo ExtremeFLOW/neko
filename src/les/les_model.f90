@@ -41,7 +41,7 @@ module les_model
   use field, only : field_t
   use field_series, only : field_series_t
   use json_module, only : json_file
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
@@ -208,11 +208,11 @@ contains
     associate(dofmap => fluid%dm_Xh, &
          coef => fluid%c_Xh)
 
-      call neko_field_registry%add_field(dofmap, trim(nut_name), .true.)
-      call neko_field_registry%add_field(dofmap, "les_delta", .true.)
-      this%nut => neko_field_registry%get_field(trim(nut_name))
-      this%delta => neko_field_registry%get_field("les_delta")
-      this%coef => coef
+      call neko_registry%add_field(dofmap, trim(nut_name), .true.)
+      call neko_registry%add_field(dofmap, "les_delta", .true.)
+      this%nut => neko_registry%get_field(trim(nut_name))
+      this%delta => neko_registry%get_field("les_delta")
+      this%coef => fluid%c_Xh
       this%delta_type = delta_type
       this%if_ext = if_ext
 
@@ -253,6 +253,15 @@ contains
     nullify(this%nut)
     nullify(this%delta)
     nullify(this%coef)
+    nullify(this%ulag)
+    nullify(this%vlag)
+    nullify(this%wlag)
+    nullify(this%ext_bdf)
+
+    if (allocated(this%delta_type)) then
+       deallocate(this%delta_type)
+    end if
+
     if (allocated(this%sumab)) then
        deallocate(this%sumab)
     end if
@@ -313,8 +322,10 @@ contains
           do k = 1, this%coef%Xh%lx * this%coef%Xh%ly * this%coef%Xh%lz
              volume_element = volume_element + this%coef%B(k, 1, 1, e)
           end do
-          this%delta%x(:,:,:,e) = (volume_element / this%coef%Xh%lx &
-               / this%coef%Xh%ly / this%coef%Xh%lz)**(1.0_rp / 3.0_rp)
+          this%delta%x(:,:,:,e) = (volume_element / &
+               (this%coef%Xh%lx - 1.0_rp) / &
+               (this%coef%Xh%ly - 1.0_rp) / &
+               (this%coef%Xh%lz - 1.0_rp) ) ** (1.0_rp / 3.0_rp)
        end do
     else if (this%delta_type .eq. "pointwise") then
        do e = 1, this%coef%msh%nelv

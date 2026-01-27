@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,10 @@
 !> Defines a field
 module field
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math
-  use num_types, only : rp
-  use device
-  use math, only : add2, copy, cadd
+  use device_math, only : device_add2, device_cadd, device_cfill, device_copy
+  use num_types, only : rp, c_rp
+  use device, only : device_map, device_free, device_memset, device_memcpy
+  use math, only : add2, copy, cadd, cfill
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
@@ -52,7 +52,7 @@ module field
      type(dofmap_t), pointer :: dof !< Dofmap
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
-     character(len=80) :: name !< Name of the field
+     character(len=80) :: name = "" !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
    contains
      procedure, private, pass(this) :: init_common => field_init_common
@@ -64,7 +64,7 @@ module field
      procedure, private, pass(this) :: assign_scalar => field_assign_scalar
      procedure, private, pass(this) :: add_field => field_add_field
      procedure, private, pass(this) :: add_scalar => field_add_scalar
-     procedure, pass(this) :: copyto => field_copyto
+     procedure, pass(this) :: copy_from => field_copy_from
      procedure, pass(this) :: free => field_free
      !> Return the size of the field.
      procedure, pass(this) :: size => field_size
@@ -153,6 +153,12 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          n = lx * ly * lz * nelv
          call device_map(this%x, this%x_d, n)
+         block
+           real(c_rp) :: rp_dummy
+           integer(c_size_t) :: s
+           s = c_sizeof(rp_dummy) * n
+           call device_memset(this%x_d, 0, s, sync = .true.)
+         end block
       end if
     end associate
 
@@ -162,6 +168,7 @@ contains
   subroutine field_free(this)
     class(field_t), intent(inout) :: this
 
+    this%name = ""
     if (allocated(this%x)) then
        deallocate(this%x)
     end if
@@ -185,17 +192,16 @@ contains
   !! @param this field to copy to/from device/host
   !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
   !! @sync whether the memcopy to be blocking or not
-  subroutine field_copyto(this, memdir, sync)
+  subroutine field_copy_from(this, memdir, sync)
     class(field_t), intent(inout) :: this
     integer, intent(in) :: memdir
     logical, intent(in) :: sync
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%x, this%x_d, this%size(), &
-            memdir, sync)
+       call device_memcpy(this%x, this%x_d, this%size(), memdir, sync)
     end if
 
-  end subroutine field_copyto
+  end subroutine field_copy_from
 
 
   !> Assignment \f$ this = G \f$
@@ -206,19 +212,28 @@ contains
     type(field_t), intent(in) :: g
 
     if (allocated(this%x)) then
-       if (this%Xh .ne. g%Xh) then
+       if (.not. associated(this%Xh, g%Xh)) then
           call this%free()
        end if
     end if
 
     this%Xh => g%Xh
     this%msh => g%msh
-    this%dof => g%dof
+    if (len_trim(this%name) == 0) then
+       this%name = g%name
+    end if
 
-
-    this%Xh%lx = g%Xh%lx
-    this%Xh%ly = g%Xh%ly
-    this%Xh%lz = g%Xh%lz
+    if (.not. g%internal_dofmap) then
+       this%dof => g%dof
+    else
+       if (this%internal_dofmap) then
+          call this%dof%free()
+       else
+          allocate(this%dof)
+          this%internal_dofmap = .true.
+       end if
+       call this%dof%init(this%msh, this%Xh)
+    end if
 
     if (.not. allocated(this%x)) then
 
@@ -247,15 +262,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%x_d, a, this%size())
     else
-       do i = 1, this%msh%nelv
-          do l = 1, this%Xh%lz
-             do k = 1, this%Xh%ly
-                do j = 1, this%Xh%lx
-                   this%x(j, k, l, i) = a
-                end do
-             end do
-          end do
-       end do
+       call cfill(this%x, a, this%size())
     end if
 
   end subroutine field_assign_scalar
@@ -299,4 +306,3 @@ contains
   end function field_size
 
 end module field
-

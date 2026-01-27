@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -42,20 +42,21 @@ extern "C" {
    * Fortran wrapper for device inhom_dirichlet apply vector
    */
   void cuda_inhom_dirichlet_apply_vector(void *msk, void *x, void *y, void *z,
-                                 void *bla_x, void *bla_y, void *bla_z, int *m) {
+                                         void *bla_x, void *bla_y, void *bla_z,
+                                         int *m, cudaStream_t strm) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     inhom_dirichlet_apply_vector_kernel<real>
-      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
-                                                            (real *) x,
-                                                            (real *) y,
-                                                            (real *) z,
-                                                            (real *) bla_x,
-                                                            (real *) bla_y,
-                                                            (real *) bla_z,
-                                                            *m);
+      <<<nblcks, nthrds, 0, strm>>>((int *) msk,
+                                    (real *) x,
+                                    (real *) y,
+                                    (real *) z,
+                                    (real *) bla_x,
+                                    (real *) bla_y,
+                                    (real *) bla_z,
+                                    *m);
     CUDA_CHECK(cudaGetLastError());
   }
  
@@ -63,16 +64,17 @@ extern "C" {
    * Fortran wrapper for device inhom_dirichlet apply scalar
    */
   void cuda_inhom_dirichlet_apply_scalar(void *msk, void *x,
-                                 void *bla_x, int *m) {
+                                         void *bla_x, int *m,
+                                         cudaStream_t strm) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     inhom_dirichlet_apply_scalar_kernel<real>
-      <<<nblcks, nthrds>>>((int *) msk,
-                           (real *) x, 
-                           (real *) bla_x,
-                           *m);
+      <<<nblcks, nthrds, 0, strm>>>((int *) msk,
+                                    (real *) x, 
+                                    (real *) bla_x,
+                                    *m);
     CUDA_CHECK(cudaGetLastError());
   }
  

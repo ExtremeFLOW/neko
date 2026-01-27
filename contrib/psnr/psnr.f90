@@ -135,12 +135,12 @@ program psnr
   end if
 
   if (pe_rank .eq. 0) write(*,*) 'Reading file:', trim(original_fname)
-  original_file = file_t(trim(original_fname), precision = file_precision)
+  call original_file%init(trim(original_fname), precision = file_precision)
   call original_data%init()
   call original_file%read(original_data)
 
   if (pe_rank .eq. 0) write(*,*) 'Reading file:', trim(compressed_fname)
-  compressed_file = file_t(trim(compressed_fname), precision = file_precision)
+  call compressed_file%init(trim(compressed_fname), precision = file_precision)
   call compressed_data%init()
   call compressed_file%read(compressed_data)
 
@@ -152,30 +152,30 @@ program psnr
      call compressed_file%read(compressed_data)
 
      n_scalars = compressed_data%size() - 5
-     if (compressed_data%u%n .eq. original_data%u%n) then
+     if (compressed_data%u%size() .eq. original_data%u%size()) then
         write(*,*) "Error in velocity components"
         call calculate_psnr_rp(original_data%u%x, compressed_data%u%x, &
-             compressed_data%u%n)
+             compressed_data%u%size())
         call calculate_psnr_rp(original_data%v%x, compressed_data%v%x, &
-             compressed_data%v%n)
+             compressed_data%v%size())
         call calculate_psnr_rp(original_data%w%x, compressed_data%w%x, &
-             compressed_data%w%n)
+             compressed_data%w%size())
      end if
-     if (compressed_data%u%n .eq. original_data%p%n) then
+     if (compressed_data%u%size() .eq. original_data%p%size()) then
         write(*,*) "Error in pressure"
         call calculate_psnr_rp(original_data%p%x, compressed_data%p%x, &
-             compressed_data%p%n)
+             compressed_data%p%size())
      end if
-     if (compressed_data%u%n .eq. original_data%t%n) then
+     if (compressed_data%u%size() .eq. original_data%t%size()) then
         write(*,*) "Error in temperature"
         call calculate_psnr_rp(original_data%t%x, compressed_data%t%x, &
-             compressed_data%t%n)
+             compressed_data%t%size())
      end if
      do j = 1, n_scalars
-        if (compressed_data%s(j)%n .eq. original_data%s(j)%n) then
+        if (compressed_data%s(j)%size() .eq. original_data%s(j)%size()) then
            write(*,*) "Error in scalar ", j
            call calculate_psnr_rp(original_data%s(j)%x, &
-                compressed_data%s(j)%x, compressed_data%s(j)%n)
+                compressed_data%s(j)%x, compressed_data%s(j)%size())
         end if
      end do
 

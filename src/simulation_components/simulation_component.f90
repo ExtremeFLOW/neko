@@ -112,7 +112,7 @@ module simulation_component
      !! @param case The case_t object.
      subroutine simulation_component_init(this, json, case)
        import simulation_component_t, json_file, case_t
-       class(simulation_component_t), intent(inout) :: this
+       class(simulation_component_t), intent(inout), target :: this
        type(json_file), intent(inout) :: json
        class(case_t), intent(inout), target :: case
      end subroutine simulation_component_init
@@ -327,6 +327,10 @@ contains
     class(simulation_component_t), intent(inout) :: this
 
     nullify(this%case)
+
+    call this%preprocess_controller%free()
+    call this%compute_controller%free()
+    call this%output_controller%free()
   end subroutine simulation_component_free_base
 
   !> Wrapper for calling `preprocess_` based on the `preprocess_controller`.

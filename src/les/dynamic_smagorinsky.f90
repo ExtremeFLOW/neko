@@ -36,14 +36,14 @@ module dynamic_smagorinsky
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use elementwise_filter, only : elementwise_filter_t
   use dynamic_smagorinsky_cpu, only : dynamic_smagorinsky_compute_cpu
   use logger, only : LOG_SIZE, neko_log
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use dynamic_smagorinsky_device, only : dynamic_smagorinsky_compute_device
   implicit none
   private
@@ -83,10 +83,12 @@ contains
     class(dynamic_smagorinsky_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
+    type(json_file) :: json_subdict
     character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
     logical :: if_ext
+    character(len=:), allocatable :: filter_type
     character(len=LOG_SIZE) :: log_buf
 
     associate(dofmap => fluid%dm_Xh, &
@@ -98,7 +100,23 @@ contains
 
       call this%free()
       call this%init_base(fluid, nut_name, delta_type, if_ext)
-      call this%test_filter%init(json, coef)
+      call json_get(json, "test_filter", json_subdict)
+      call this%test_filter%init(json_subdict, coef)
+      if (json%valid_path('filter.transfer_function')) then
+         call neko_error("Dynamic Smagorinsky model does not support " // &
+              "transfer function specified in the json file. " // &
+              "Please hard-code it in " // &
+              "subroutine set_ds_filt() in " // &
+              "src/les/dynamic_smagorisnky.f90")
+      end if
+      if (json%valid_path('filter.type')) then
+         call json_get(json, "filter.type", filter_type)
+         if (trim(filter_type) .ne. "elementwise") then
+            call neko_error("Currently only elementwise filter is supported &
+            &for dynamic smagorinsky model.")
+         end if
+      end if
+
       call set_ds_filt(this%test_filter)
 
       call neko_log%section('LES model')
@@ -158,12 +176,12 @@ contains
        associate(ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag, ext_bdf => this%ext_bdf)
 
-         u => neko_field_registry%get_field_by_name("u")
-         v => neko_field_registry%get_field_by_name("v")
-         w => neko_field_registry%get_field_by_name("w")
-         u_e => neko_field_registry%get_field_by_name("u_e")
-         v_e => neko_field_registry%get_field_by_name("v_e")
-         w_e => neko_field_registry%get_field_by_name("w_e")
+         u => neko_registry%get_field_by_name("u")
+         v => neko_registry%get_field_by_name("v")
+         w => neko_registry%get_field_by_name("w")
+         u_e => neko_registry%get_field_by_name("u_e")
+         v_e => neko_registry%get_field_by_name("v_e")
+         w_e => neko_registry%get_field_by_name("w_e")
 
          call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
               ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
@@ -197,24 +215,24 @@ contains
     end if
     if (mod(filter_1d%nx,2) .eq. 0) then ! number of grid spacing is odd
        ! cutoff at polynomial order int((filter_1d%nx)/2)
-       filter_1d%trnsfr(int((filter_1d%nx)/2)) = 0.95_rp
-       filter_1d%trnsfr(int((filter_1d%nx)/2) + 1) = 0.50_rp
-       filter_1d%trnsfr(int((filter_1d%nx)/2) + 2) = 0.05_rp
+       filter_1d%transfer(int((filter_1d%nx)/2)) = 0.95_rp
+       filter_1d%transfer(int((filter_1d%nx)/2) + 1) = 0.50_rp
+       filter_1d%transfer(int((filter_1d%nx)/2) + 2) = 0.05_rp
        if ((int((filter_1d%nx)/2) + 2) .lt. filter_1d%nx) then
           do i = int((filter_1d%nx)/2) + 3, filter_1d%nx
-             filter_1d%trnsfr(i) = 0.0_rp
+             filter_1d%transfer(i) = 0.0_rp
           end do
        end if
        ! make delta_ratio = (nx-1)/(nt-1) as close to 2
        filter_1d%nt = int(filter_1d%nx/2) + 1
     else ! number of grid spacing is even
        ! cutoff at polynomial order int((filter_1d%nx-1)/2)
-       filter_1d%trnsfr(int((filter_1d%nx-1)/2)) = 0.95_rp
-       filter_1d%trnsfr(int((filter_1d%nx-1)/2) + 1) = 0.50_rp
-       filter_1d%trnsfr(int((filter_1d%nx-1)/2) + 2) = 0.05_rp
+       filter_1d%transfer(int((filter_1d%nx-1)/2)) = 0.95_rp
+       filter_1d%transfer(int((filter_1d%nx-1)/2) + 1) = 0.50_rp
+       filter_1d%transfer(int((filter_1d%nx-1)/2) + 2) = 0.05_rp
        if ((int((filter_1d%nx-1)/2) + 2) .lt. filter_1d%nx) then
           do i = int((filter_1d%nx-1)/2) + 3, filter_1d%nx
-             filter_1d%trnsfr(i) = 0.0_rp
+             filter_1d%transfer(i) = 0.0_rp
           end do
        end if
        ! make delta_ratio = (nx-1)/(nt-1) = 2

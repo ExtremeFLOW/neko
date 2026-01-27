@@ -80,8 +80,8 @@ module projection
   use utils, only : neko_warning
   use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
-  use comm, only : NEKO_COMM, pe_rank, MPI_Allreduce, MPI_IN_PLACE, &
-       MPI_SUM, MPI_REAL_PRECISION
+  use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
        c_sizeof, C_NULL_PTR, c_loc, c_associated
   implicit none
@@ -148,14 +148,15 @@ contains
     allocate(this%xx(n, this%L))
     allocate(this%bb(n, this%L))
     allocate(this%xbar(n))
-    allocate(this%xx_d(this%L))
-    allocate(this%bb_d(this%L))
     call rzero(this%xbar, n)
     do i = 1, this%L
        call rzero(this%xx(1, i), n)
        call rzero(this%bb(1, i), n)
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       allocate(this%xx_d(this%L))
+       allocate(this%bb_d(this%L))
 
        call device_map(this%xbar, this%xbar_d, n)
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L, c_size_t))
@@ -204,6 +205,7 @@ contains
              call device_free(this%xx_d(i))
           end if
        end do
+       deallocate(this%xx_d)
     end if
     if (c_associated(this%xx_d_d)) then
        call device_free(this%xx_d_d)
@@ -220,6 +222,7 @@ contains
              call device_free(this%bb_d(i))
           end if
        end do
+       deallocate(this%bb_d)
     end if
     if (c_associated(this%bb_d_d)) then
        call device_free(this%bb_d_d)

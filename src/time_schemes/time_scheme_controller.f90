@@ -33,11 +33,11 @@
 !> Compound scheme for the advection and diffusion operators in a transport
 !! equation.
 module time_scheme_controller
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use bdf_time_scheme, only: bdf_time_scheme_t
-  use ext_time_scheme, only: ext_time_scheme_t
-  use ab_time_scheme, only: ab_time_scheme_t
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use ext_time_scheme, only : ext_time_scheme_t
+  use ab_time_scheme, only : ab_time_scheme_t
   use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -99,7 +99,7 @@ module time_scheme_controller
      procedure, pass(this) :: free => time_scheme_controller_free
      !> Set the time coefficients
      procedure, pass(this) :: set_coeffs => &
-       time_scheme_controller_set_coeffs
+          time_scheme_controller_set_coeffs
   end type time_scheme_controller_t
 
 contains
@@ -149,12 +149,12 @@ contains
     real(kind=rp), dimension(4) :: diff_coeffs_old
 
     associate( &
-      nadv          => this%nadv, &
-      ndiff         => this%ndiff, &
-      adv_coeffs    => this%advection_coeffs, &
-      adv_coeffs_d  => this%advection_coeffs_d, &
-      diff_coeffs   => this%diffusion_coeffs, &
-      diff_coeffs_d => this%diffusion_coeffs_d)
+         nadv => this%nadv, &
+         ndiff => this%ndiff, &
+         adv_coeffs => this%advection_coeffs, &
+         adv_coeffs_d => this%advection_coeffs_d, &
+         diff_coeffs => this%diffusion_coeffs, &
+         diff_coeffs_d => this%diffusion_coeffs_d)
 
       adv_coeffs_old = adv_coeffs
       diff_coeffs_old = diff_coeffs
@@ -195,14 +195,14 @@ contains
       if (c_associated(adv_coeffs_d)) then
          if (maxval(abs(adv_coeffs - adv_coeffs_old)) .gt. 1e-10_rp) then
             call device_memcpy(adv_coeffs, adv_coeffs_d, 4, &
-                               HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
          end if
       end if
 
       if (c_associated(diff_coeffs_d)) then
          if (maxval(abs(diff_coeffs - diff_coeffs_old)) .gt. 1e-10_rp) then
             call device_memcpy(diff_coeffs, diff_coeffs_d, 4, &
-                               HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
          end if
       end if
     end associate

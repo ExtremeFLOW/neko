@@ -33,10 +33,11 @@
 !> NEKTON map file
 !! @details This module is used to read/write NEKTON vertex mapping data
 module map_file
-  use generic_File
-  use utils
+  use num_types, only : rp
+  use generic_file, only : generic_file_t
+  use utils, only : neko_error
   use comm
-  use map
+  use map, only : map_t
   implicit none
   private
 
@@ -56,19 +57,21 @@ contains
     type(map_t), pointer :: nm
     integer :: j, k, neli, nnzi, ierr
     integer :: file_unit
+    character(len=1024) :: fname
 
     call this%check_exists()
 
-    select type(data)
+    select type (data)
     type is (map_t)
        nm => data
     class default
        call neko_error("Invalid output data")
     end select
 
-    open(newunit=file_unit, file=trim(this%fname), status='old', iostat=ierr)
+    fname = trim(this%get_fname())
+    open(newunit = file_unit, file = fname, status = 'old', iostat = ierr)
     if (pe_rank .eq. 0) then
-       write(*, '(A,A)') " Reading NEKTON map file ", this%fname
+       write(*, '(A,A)') " Reading NEKTON map file ", trim(fname)
     end if
 
     read(file_unit, *) neli, nnzi
@@ -76,10 +79,10 @@ contains
     !> @todo Check if neli matches map%nel
 
     do j = 1, nm%nel
-       read(file_unit, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)
+       read(file_unit, *) nm%imap(j), (nm%vertex(k, j), k = 1, nm%nlv)
     end do
 
-    close(unit=file_unit)
+    close(unit = file_unit)
 
   end subroutine map_file_read
 

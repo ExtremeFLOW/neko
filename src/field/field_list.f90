@@ -1,4 +1,5 @@
 module field_list
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use field, only : field_ptr_t, field_t
   use iso_c_binding, only : c_ptr
   use num_types, only : rp
@@ -6,6 +7,7 @@ module field_list
   use dofmap, only : dofmap_t
   use mesh, only : mesh_t
   use utils, only : neko_error
+  use comm, only : pe_rank
   implicit none
   private
 
@@ -27,7 +29,8 @@ module field_list
      !> Point item at given index.
      generic :: assign => assign_to_ptr, assign_to_field_ptr
      procedure, pass(this) :: assign_to_ptr => field_list_assign_to_ptr
-     procedure, pass(this) :: assign_to_field_ptr => field_list_assign_to_field_ptr
+     procedure, pass(this) :: assign_to_field_ptr => &
+          field_list_assign_to_field_ptr
      procedure, pass(this) :: assign_to_field => field_list_assign_to_field
 
      !> Get device pointer for a given index.
@@ -86,12 +89,22 @@ contains
     character(len=*), intent(in) :: name
     integer :: i
 
-    do i=1, this%size()
-      if (this%name(i) .eq. trim(name)) then
-         f => this%items(i)%ptr
-         return
-      end if
+    nullify(f)
+
+    do i = 1, this%size()
+       if (this%name(i) .eq. trim(name)) then
+          f => this%items(i)%ptr
+          return
+       end if
     end do
+
+    if (pe_rank .eq. 0) then
+       write(error_unit,*) "Current field list contents:"
+
+       do i = 1, this%size()
+          write(error_unit,*) "- ", this%name(i)
+       end do
+    end if
 
     call neko_error("No field with name " // trim(name) // " found in list")
   end function field_list_get_by_name
@@ -120,7 +133,7 @@ contains
 
     if (allocated(this%items)) then
        n_fields = this%size()
-       do i=1, n_fields
+       do i = 1, n_fields
           if (associated(this%items(i)%ptr)) then
              call this%items(i)%ptr%free()
           end if
@@ -143,7 +156,7 @@ contains
 
   function field_list_x(this, i) result(x)
     class(field_list_t), target, intent(in) :: this
-    real(kind=rp), pointer :: x(:,:,:,:)
+    real(kind=rp), pointer, contiguous :: x(:,:,:,:)
     integer, intent(in) :: i
     x => this%items(i)%ptr%x
   end function field_list_x
