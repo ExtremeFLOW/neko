@@ -7,6 +7,14 @@ module most_cpu
 
   public :: most_compute_cpu
 
+  ! Note:
+  ! I actually tried to avoid going into the neutral regime altogether (i.e. take out the if abs(Ri)<1e-3 part)
+  ! AI tells me it's not safe/correct because I approach neutrality only asymptotically, and usign slaw_m/h which were 
+  ! obtained by assuming z/L=0.01. However, the results look better in this way (IMO), so I have to understand if that's 
+  ! or not. 
+  ! By doing it without neutral, I actually get an appreciable difference between roughlog and most, and I also get the
+  ! uw flux to go exactly zero above the inversion. I also get a very slightly different v-profile than Nek though
+
   abstract interface
      function slaw_m_interface(z,L_ob,z0) result(slaw)
       import rp
@@ -261,15 +269,16 @@ contains
             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
             L_new = L_ob - f/dfdl
 
-            ! Avoid regime crossing during Newton iter
-            if (L_new*L_sign <= 0.0_rp) then
-              ! "damp update" (stay on same side)
-              L_new = 0.5_rp * L_ob
-            end if
+            !!! Optional bounding
+            ! ! Avoid regime crossing during Newton iter
+            ! if (L_new*L_sign <= 0.0_rp) then
+            !   ! "damp update" (stay on same side)
+            !   L_new = 0.5_rp * L_ob
+            ! end if
 
-            ! Bound L_ob
-            L_ob = sign(max(abs(L_new), 1.0e-4_rp), L_sign)
-            L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
+            ! ! Bound L_ob
+            ! L_ob = sign(max(abs(L_new), 1.0e-4_rp), L_sign)
+            ! L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
           end do
 
           if (abs(L_ob) > 5e4_rp .or. abs(L_ob) < 1e-5_rp) then
