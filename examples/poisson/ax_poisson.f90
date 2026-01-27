@@ -64,6 +64,7 @@ contains
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
 
+    ! @todo don't assume lx = ly = lz
     associate( D => Xh%dx, Dt => Xh%dxt, &
          G11 => coef%G11, G22 => coef%G22, G33 => coef%G33, &
          G12 => coef%G12, G13 => coef%G13, G23 => coef%G23, &
@@ -76,8 +77,8 @@ contains
          do j = 1, lx * lx
             do i = 1, lx
                tmp = 0.0_rp
-               do k = 1, lx
-                  tmp = tmp + D(i,k) * u(k,j,1,e)
+               do l = 1, lx
+                  tmp = tmp + D(i,l) * u(l,j,1,e)
                end do
                wur(i,j,1) = tmp
             end do
@@ -125,8 +126,8 @@ contains
          do j = 1, lx*lx
             do i = 1, lx
                tmp = 0.0_rp
-               do k = 1, lx
-                  tmp = tmp + Dt(i,k) * ur(k,j,1)
+               do l = 1, lx
+                  tmp = tmp + Dt(i,l) * ur(l,j,1)
                end do
                w(i,j,1,e) = tmp
             end do
