@@ -37,6 +37,7 @@ module gs_device_mpi
   use stack, only : stack_i4_t
   use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
+  use mpi_f08, only : MPI_Comm
   use device, only : device_memcpy, device_alloc, device_event_create, &
        device_event_destroy, device_stream_create_with_priority, device_sync, &
        device_stream_wait_event, device_get_ptr, device_event_record, &

@@ -56,8 +56,6 @@ module point
      procedure :: point_scalar_mult
      procedure, pass(p1) :: dist => point_euclid_dist
      procedure, pass(x) :: point_mat_mult
-     procedure, pass(this) :: init => point_init_from_array
-     procedure, pass(this) :: free => point_free
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
