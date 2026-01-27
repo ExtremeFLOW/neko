@@ -210,7 +210,7 @@ contains
    
       end if
       ! Compute thermal roughness length from Zilitinkevich 1995
-      z0h = z0 !* exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))  this would make it change in time, but also REALLY small...
+      z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))  
 
       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type 
       ! Maybe redundant, but needed to initialise Rib
