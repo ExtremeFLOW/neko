@@ -558,8 +558,8 @@ contains
           if (this%inuse(il)) call neko_error("scratch_registry::amr_restart: &
                &scratch field cannot be used while refining.")
           fld => this%entries(il)%get_field()
-          ! reconstruct, or simply reallocate????????????
-          call fld%amr_restart(reconstruct, counter)
+          ! no valuable data so reallocate not reconstruct
+          call fld%amr_reallocate(reconstruct, counter)
        end if
     end do
 
