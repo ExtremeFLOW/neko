@@ -97,7 +97,9 @@ contains
        nullify(this%f)
     end if
 
-    nullify(this%mf)
+    if (associated(this%mf)) then
+         nullify(this%mf)
+    end if
 
   end subroutine mean_field_free
 
