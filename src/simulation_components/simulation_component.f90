@@ -390,7 +390,6 @@ contains
        call json_get_or_lookup_or_default(json_object, json_path, &
             output_value_int, compute_value_int)
        output_value = real(output_value_int, kind=rp)
-       write(*,*) "Output value int: ", output_value_int
     else if (output_control .eq. "simulationtime") then
        ! Read as real
        call json_get_or_lookup_or_default(json_object, json_path, &
