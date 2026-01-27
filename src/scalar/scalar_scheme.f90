@@ -165,10 +165,13 @@ module scalar_scheme
      procedure(scalar_scheme_restart_intrf), pass(this), deferred :: restart
   end type scalar_scheme_t
 
-  !> Pointer to a @ref `bc_t`
-  type, public :: scalar_ptr_t
+  !> Pointer to a @ref `scalar_scheme_t`
+  type, public :: scalar_scheme_ptr_t
      class(scalar_scheme_t), pointer :: scheme => null()
-  end type scalar_ptr_t
+   contains
+     !> Destructor for the pointer object.
+     procedure, pass(this) :: free => scalar_scheme_ptr_free
+  end type scalar_scheme_ptr_t
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
@@ -640,5 +643,14 @@ contains
             DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine scalar_scheme_set_material_properties
+
+  subroutine scalar_scheme_ptr_free(this)
+    class(scalar_scheme_ptr_t), intent(inout) :: this
+
+    if (associated(this%scheme)) then
+       call this%scheme%free()
+       nullify(this%scheme)
+    end if
+  end subroutine scalar_scheme_ptr_free
 
 end module scalar_scheme

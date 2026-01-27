@@ -35,7 +35,7 @@
 module scalars
   use num_types, only : rp
   use scalar_pnpn, only : scalar_pnpn_t
-  use scalar_scheme, only : scalar_scheme_t, scalar_ptr_t
+  use scalar_scheme, only : scalar_scheme_ptr_t
   use scalar_aux, only : scalar_step_info
   use mesh, only : mesh_t
   use space, only : space_t
@@ -60,7 +60,7 @@ module scalars
   !> Type to manage multiple scalar transport equations
   type, public :: scalars_t
      !> The scalar fields
-     type(scalar_ptr_t), allocatable :: scalar_fields(:)
+     type(scalar_scheme_ptr_t), allocatable :: scalar_fields(:)
      !> Shared KSP solver for all scalar fields
      class(ksp_t), allocatable :: shared_ksp
    contains
@@ -102,7 +102,7 @@ contains
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: field_names(:)
     character(len=256) :: error_msg, buffer
-    
+
     ! Allocate the array of the scalar scheme pointers
     allocate(this%scalar_fields(n_scalars))
     ! Collect and validate field names for all scalars
@@ -147,7 +147,7 @@ contains
 
        ! Use the processed field names for all scalars
        call json_subdict%add('name', trim(field_names(i)))
-       
+
        ! Allocate the scalar fields
        ! If there are more scalar_scheme_t types, add a factory function here
        allocate(scalar_pnpn_t :: this%scalar_fields(i)%scheme)
@@ -248,7 +248,7 @@ contains
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
        call this%scalar_fields(i)%scheme%slag%set( &
-               this%scalar_fields(i)%scheme%s)
+            this%scalar_fields(i)%scheme%s)
        call this%scalar_fields(i)%scheme%validate()
     end do
   end subroutine scalars_validate
@@ -261,7 +261,7 @@ contains
     ! Iterate through all scalar fields
     if (allocated(this%scalar_fields)) then
        do i = 1, size(this%scalar_fields)
-          call this%scalar_fields(i)%scheme%free()
+          call this%scalar_fields(i)%free()
        end do
        deallocate(this%scalar_fields)
     end if
