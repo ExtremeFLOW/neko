@@ -551,6 +551,10 @@ contains
 
     this%counter = counter
 
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+
     ! reconstruct fields
     do il = 1, this%get_size()
        if (this%entries(il)%get_type() .eq. 'field' .and. &
@@ -563,11 +567,7 @@ contains
        end if
     end do
 
-    ! For now not clear what to do with matrix and vector
-
-    ! reconstruct dofmap; It is safe, as AMR restart prevents recursive
-    ! reconstructions
-    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+    ! For now nothing done with matrices and vectors
 
   end subroutine scratch_registry_amr_restart
 

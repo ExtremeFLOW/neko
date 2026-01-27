@@ -157,14 +157,14 @@ contains
 
     this%counter = counter
 
+    ! reconstruct reference fields; It is safe to call it here, as AMR restart
+    ! prevents recursive reconstructions
+    if (associated(this%f)) call this%f%amr_restart(reconstruct, counter)
+
     ! reconstruct field series data
     do il = 1, this%len
        call this%lf(il)%amr_restart(reconstruct, counter)
     end do
-
-    ! reconstruct reference fields; It is safe, as AMR restart prevents
-    ! recursive reconstructions
-    call this%f%amr_restart(reconstruct, counter)
 
   end subroutine field_series_amr_restart
 

@@ -1255,7 +1255,8 @@ contains
 
     ! PLACEHOLDER FOR GS
 
-    ! PLACEHOLDER FOR COEF
+    ! reconstruct coef
+    call this%c_Xh%amr_restart(reconstruct, counter)
 
     ! Reconstruct velocity fields
     if (associated(this%u)) call this%u%amr_restart(reconstruct, counter)
@@ -1269,7 +1270,7 @@ contains
     call this%wlag%amr_restart(reconstruct, counter)
 
     
-    write(*,*) 'TEST', pe_rank
+    write(*,*) 'TESTfluid', pe_rank
     
   end subroutine fluid_pnpn_amr_restart
 

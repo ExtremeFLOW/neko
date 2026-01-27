@@ -327,12 +327,12 @@ contains
 
     this%counter = counter
 
-    ! reconstruct field data
-    call reconstruct%refine_coarsen(this%x, this%x_d)
-
     ! reconstruct dofmap; No need to check internal_dofmap flag, as AMR
     ! restart prevents recursive reconstructions
-    call this%dof%amr_restart(reconstruct, counter)
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+
+    ! reconstruct field data
+    call reconstruct%refine_coarsen(this%x, this%x_d)
 
   end subroutine field_amr_restart
 
@@ -349,6 +349,10 @@ contains
 
     this%counter = counter
 
+    ! reconstruct dofmap; No need to check internal_dofmap flag, as AMR
+    ! restart prevents recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+
     ! reallocate arrays
     if (reconstruct%nold .ne. reconstruct%nnew) then
        if (allocated(this%x)) then
@@ -362,9 +366,6 @@ contains
        end if
     end if
 
-    ! reconstruct dofmap; No need to check internal_dofmap flag, as AMR
-    ! restart prevents recursive reconstructions
-    call this%dof%amr_restart(reconstruct, counter)
-
   end subroutine field_amr_reallocate
+
 end module field
