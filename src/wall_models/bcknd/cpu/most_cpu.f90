@@ -123,12 +123,12 @@ contains
   subroutine set_stability_regime(Ri_b)
     real(kind=rp), intent(in) :: Ri_b
 
-    if (Ri_b > 0.001) then
+    if (Ri_b > 0.005) then
       slaw_m_ptr => slaw_m_stable
       slaw_h_ptr => slaw_h_stable
       corr_m_ptr => corr_m_stable
       corr_h_ptr => corr_h_stable
-    elseif (Ri_b < -0.001) then
+    elseif (Ri_b < -0.005) then
       slaw_m_ptr => slaw_m_convective
       slaw_h_ptr => slaw_h_convective
       corr_m_ptr => corr_m_convective
@@ -231,7 +231,7 @@ contains
         ! Get q, Ri, f, dfdl based on bc_type 
         call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
-        if (abs(Ri_b) <= 1.0e-3_rp) then
+        if (abs(Ri_b) <= 5.0e-3_rp) then
           ! Neutral (L_ob undefined)
           L_ob = 1.0e+10_rp
         else
