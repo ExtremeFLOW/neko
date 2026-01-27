@@ -472,7 +472,7 @@ contains
     real(kind=rp) :: dfdl
 
     dfdl = (-z/l_upper*slaw_h(z, l_upper, z0h)/slaw_m(z, l_upper, z0)**2)  ! conv
-    dfdl=dfdl + (z/l_lower*slaw_h(z, l_lower, z0h)/slaw_m(z, l_lower, z0)**2)  ! conv
+    dfdl = dfdl + (z/l_lower*slaw_h(z, l_lower, z0h)/slaw_m(z, l_lower, z0)**2)  ! conv
     dfdl = dfdl/(2*fd_h)
   end function dfdl_dirichlet
   
