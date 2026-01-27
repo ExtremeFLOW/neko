@@ -97,6 +97,8 @@ contains
        nullify(this%f)
     end if
 
+    nullify(this%mf)
+
   end subroutine mean_field_free
 
   !> Resets a the mean field and the averaging time value to zero.
