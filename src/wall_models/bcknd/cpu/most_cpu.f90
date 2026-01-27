@@ -40,6 +40,14 @@ module most_cpu
 
   public :: most_compute_cpu
 
+  ! Note:
+  ! I actually tried to avoid going into the neutral regime altogether (i.e. take out the if abs(Ri)<1e-3 part)
+  ! AI tells me it's not safe/correct because I approach neutrality only asymptotically, and usign slaw_m/h which were 
+  ! obtained by assuming z/L=0.01. However, the results look better in this way (IMO), so I have to understand if that's 
+  ! or not. 
+  ! By doing it without neutral, I actually get an appreciable difference between roughlog and most, and I also get the
+  ! uw flux to go exactly zero above the inversion. I also get a very slightly different v-profile than Nek though
+
   abstract interface
      function slaw_m_interface(z,L_ob,z0) result(slaw)
       import rp
