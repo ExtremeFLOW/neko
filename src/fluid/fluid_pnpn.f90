@@ -57,7 +57,8 @@ module fluid_pnpn
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use json_module, only : json_file
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
@@ -80,6 +81,7 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho, rotate_cyc
+  use opr_device, only : device_ortho
   use time_state, only : time_state_t
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
@@ -284,7 +286,7 @@ contains
     ! Select governing equations via associated residual and Ax types
     !
 
-    call json_get(params, 'case.numerics.time_order', integer_val)
+    call json_get_or_lookup(params, 'case.numerics.time_order', integer_val)
     allocate(this%ext_bdf)
     call this%ext_bdf%init(integer_val)
 
@@ -391,7 +393,7 @@ contains
     ! Setup pressure solver
     call neko_log%section("Pressure solver")
 
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'case.fluid.pressure_solver.max_iterations', &
          solver_maxiter, 800)
     call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
@@ -399,7 +401,8 @@ contains
          precon_type)
     call json_get(params, &
          'case.fluid.pressure_solver.preconditioner', precon_params)
-    call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
+    call json_get_or_lookup(params, &
+         'case.fluid.pressure_solver.absolute_tolerance', &
          abs_tol)
     call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
          monitor, .false.)
@@ -425,8 +428,7 @@ contains
     ! Should be in init_base maybe?
     this%chkp => chkp
     ! This is probably scheme specific
-    ! Should not be init really, but more like, add fluid or something...
-    call this%chkp%init(this%u, this%v, this%w, this%p)
+    call this%chkp%add_fluid(this%u, this%v, this%w, this%p)
 
     this%chkp%abx1 => this%abx1
     this%chkp%abx2 => this%abx2
@@ -760,7 +762,11 @@ contains
            mu_tot, rho, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
-      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
+      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
+         call device_ortho(p_res%x_d, this%glb_n_points, n)
+      else if (.not. this%prs_dirichlet) then
+         call ortho(p_res%x, this%glb_n_points, n)
+      end if
 
       call gs_Xh%op(p_res, GS_OP_ADD, event)
       call device_event_sync(event)
@@ -793,7 +799,11 @@ contains
 
       ! Update the pressure with the increment. Demean if necessary.
       call field_add2(p, dp, n)
-      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n)
+      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
+         call device_ortho(p%x_d, this%glb_n_points, n)
+      else if (.not. this%prs_dirichlet) then
+         call ortho(p%x, this%glb_n_points, n)
+      end if
 
       ! Compute velocity residual.
       call profiler_start_region('Velocity_residual', 19)
@@ -919,7 +929,7 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call json_get(bc_subdict, "zone_indices", zone_indices)
+          call json_get_or_lookup(bc_subdict, "zone_indices", zone_indices)
 
           ! Check that we are not trying to assing a bc to zone, for which one
           ! has already been assigned and that the zone has more than 0 size

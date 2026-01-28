@@ -36,6 +36,7 @@ submodule(fluid_scheme_compressible_euler) euler_bc_fctry
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
   use symmetry, only : symmetry_t
+  use json_utils, only : json_get_or_lookup
   implicit none
 
   ! List of all possible types created by the boundary condition factories
@@ -78,7 +79,7 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
@@ -118,7 +119,7 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
@@ -172,7 +173,7 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))

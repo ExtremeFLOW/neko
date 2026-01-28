@@ -5,10 +5,10 @@
 The case file defines all the parameters of a simulation.
 The format of the file is JSON, making it easy to read and write case files
 using the majority of the popular programming languages.
-JSON is hierarchical and, and consists of parameter blocks enclosed in curly
+JSON is hierarchical and consists of parameter blocks enclosed in curly
 braces.
 These blocks are referred to as objects.
-The case file makes use objects to separate the configuration of different parts
+The case file makes use of objects to separate the configuration of different parts
  of the solver.
 We refer the reader to the examples shipped with the code to get a good
 idea of how a case file looks.
@@ -20,13 +20,14 @@ The current high-level structure of the case file is shown below.
 
 ~~~~~~~~~~~~~~~{.json}
 {
-    "version": 1.0
+    "version": 1.0,
     "case": {
-        "time": {}
-        "numerics": {}
-        "fluid": {}
-        "scalar": {}
-        "simulation_components" : []
+        "constants": [],
+        "time": {},
+        "numerics": {},
+        "fluid": {},
+        "scalar": {},
+        "simulation_components" : [],
         "point_zones" : []
     }
 }
@@ -38,8 +39,9 @@ multiple scalar fields, the `name` property of each scalar field is used to
 identify the scalar field in the user file, defaulted to `s_1, s_2, ...`.
 
 The `version` keyword is reserved to track changes in the format of the file.
-The subsections below we list all the configuration options for each of the high-level objects.
-Some parameters will have default values, and are therefore optional.
+The subsections below list all the configuration options for each of the
+high-level objects. Some parameters will have default values, and are therefore
+optional.
 
 ## Output frequency control
 A common scheme for controlling the output frequency is applied for various
@@ -52,9 +54,9 @@ The frequency is controlled by two parameters, ending with `_control` and
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
 
-The `_value` parameter is a number, that defines the output frequency, but the
-interpretation of that number depends on the choice of `_control`.
-The three following options are possible.
+The `_value` parameter is a *real* number, that defines the output frequency,
+but the interpretation of that number depends on the choice of `_control`. The
+three following options are possible.
 1. `simulationtime`, then `_value` is the time interval between the outputs.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
@@ -80,7 +82,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_partitions`   | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
 | `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
 | `checkpoint_control`  | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
-| `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
+| `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                       | -             |
 | `checkpoint_filename` | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
 | `checkpoint_format`   | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
@@ -89,9 +91,64 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
+### Constants
+The `constants` array allows the user to define parameters that are global to
+the case file, and can be referred to when setting the values of other
+parameters. Two types of parameters can be defined: scalars and arrays. Each is
+represented as a subobject inside the `constants` object and should containt two
+entries: `name` and `value`. Here is an example:
+
+```json
+"constants":
+[
+  {
+    "name": "const1",
+    "value": 3.5
+  },
+  {
+    "name": "vector1",
+    "value": [1, 0, 1]
+  }
+]
+```
+
+Other parameters in the case file that require a scalar or array entry, can
+instead be defined as a string, pointing to the name of the corresponding
+parameter in the `constants` object. As an example, recall that output frequency
+is controlled by the keyword `output_value`. It is a plausible scenario that the
+frequency is the same for multiple solvers, simulation components, etc. Assuming
+a simulation with both [fluid](@ref case-file_fluid) and [scalar](@ref
+case-file_scalar) solvers active, the following could be used.
+
+```json
+"constants":
+[
+  {
+    "name": "common_output_value",
+    "value": 10
+  }
+],
+"fluid":
+{
+  "output_value": "common_output_value"
+},
+"scalar":
+{
+  "output_value": "common_output_value"
+}
+```
+The advantage is that this guarantees that the fluid and scalar output will be
+in sync, and if one wants to change the frequency only does that in one place in
+the case file. Another use case is demonstrated in the `hemi` example, where the
+freestream velocity is defined under `constants` and then used to setup both
+initial and boundary conditions.
+
+Under the hood, Neko stores the constants in an object called
+`neko_const_registry`, which is of the type `registry_t` (same as
+`neko_registry`). The object is accessible in the [user file](@ref user-file).
 
 ### Time control
-The time control object is used to define the time-stepping of the simulation,
+The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
 to the variable time-stepping algorithm.
 
@@ -164,7 +221,7 @@ Used to define the properties of the numerical discretization.
 | `oifs`                       | Whether to apply the Operator-Integration-Factor-Splitting (OIFS).                                              | `true` or `false`          | `false`                         |
 | `oifs_target_cfl`            | The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.                      | Positive real              | `1.9`                           |
 
-## Fluid
+## Fluid {#case-file_fluid}
 
 The configuration of the fluid solver and the flow problem.
 Contains multiple subobjects for various parts of the setup.

@@ -9,7 +9,7 @@
             "end_time": 1.0,
             "timestep": 0.0001,
             "variable_timestep": true,
-            "target_cfl": 0.2,
+            "target_cfl": 0.2
         },
         "numerics": {
             "time_order": 3,
