@@ -370,6 +370,7 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/device_gradient_jump_penalty.F90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
+  les/fluid_sgs_stats.f90\
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/bcknd/device/vreman_device.f90\
