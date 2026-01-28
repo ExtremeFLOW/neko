@@ -224,6 +224,7 @@ neko_fortran_SOURCES = \
 	simulation_components/probes.F90\
 	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
+	simulation_components/fluid_sgs_stats_simcomp.f90\
 	simulation_components/scalar_stats_simcomp.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\

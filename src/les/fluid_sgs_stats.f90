@@ -77,7 +77,7 @@ module fluid_sgs_stats
      type(coef_t), pointer :: coef
 
      !> Specify the name of the eddy viscosity field.
-     character(10) :: nut_name
+     character(10) :: nut_field
 
      !> Number of statistical fields to be computed.
      integer :: n_stats = 7
@@ -103,13 +103,13 @@ contains
   !! @param u The x component of velocity.
   !! @param v The y component of velocity.
   !! @param w The z component of velocity.
-  !! @param nut_name Specifies the name of the nut field.
+  !! @param nut_field Specifies the name of the nut field.
   !! Optional, defaults to `uut`.
-  subroutine fluid_sgs_stats_init(this, coef, u, v, w, nut_name)
+  subroutine fluid_sgs_stats_init(this, coef, u, v, w, nut_field)
     class(fluid_sgs_stats_t), intent(inout), target:: this
     type(coef_t), target :: coef
     type(field_t), target, intent(in) :: u, v, w
-    character(*), intent(in), optional :: nut_name
+    character(*), intent(in), optional :: nut_field
 
     call this%free()
     this%coef => coef
@@ -118,12 +118,12 @@ contains
     this%v => v
     this%w => w
 
-    if (present(nut_name)) then
-       this%nut_name = trim(nut_name)
+    if (present(nut_field)) then
+       this%nut_field = trim(nut_field)
     else
-       this%nut_name = 'nut'
+       this%nut_field = 'nut'
     end if
-    this%nut => neko_registry%get_field_by_name(this%nut_name)
+    this%nut => neko_registry%get_field_by_name(this%nut_field)
 
     ! Initialize work fields
     call this%stats_work%init(this%u%dof, 'stats')
