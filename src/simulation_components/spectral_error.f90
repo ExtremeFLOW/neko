@@ -117,8 +117,11 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
 
+    character(len=:), allocatable :: name
     character(len=20) :: fields(3)
 
+    call json_get_or_default(json, "name", name, "spectral_error")
+    this%name = name
     !> Add keyword "fields" to the json so that the field writer
     ! picks it up. Will also add those fields to the registry.
     fields(1) = "u_hat"

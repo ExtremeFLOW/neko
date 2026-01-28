@@ -72,6 +72,7 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: name
+    character(len=:), allocatable :: model_name
     character(len=:), allocatable :: nut_field
     character(len=20) :: fields(2)
 
@@ -79,6 +80,7 @@ contains
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry if missing.
+    call json_get_or_default(json, "name", name, "les")
     call json_get_or_default(json, "nut_field", nut_field, "nut")
     fields(1) = "les_delta"
     fields(2) = nut_field
@@ -88,9 +90,10 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call json_get(json, "model", name)
+    call json_get(json, "model", model_name)
+    this%name = name
 
-    call les_model_factory(this%les_model, name, case%fluid, json)
+    call les_model_factory(this%les_model, model_name, case%fluid, json)
   end subroutine les_simcomp_init_from_json
 
   !> Destructor.

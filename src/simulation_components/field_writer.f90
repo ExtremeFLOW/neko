@@ -41,7 +41,7 @@ module field_writer
   use registry, only : neko_registry
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default
   use time_based_controller, only : time_based_controller_t
   implicit none
   private
@@ -82,30 +82,33 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
+    character(len=:), allocatable :: name
     character(len=:), allocatable :: precision
     character(len=20), allocatable :: fields(:)
 
     call this%init_base(json, case)
     call json_get(json, "fields", fields)
+    call json_get_or_default(json, "name", name, "field_writer")
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (json%valid_path("output_precision")) then
           call json_get(json, "output_precision", precision)
           if (precision == "double") then
-             call this%init_common(fields, filename, dp)
+             call this%init_common(name, fields, filename, dp)
           else
-             call this%init_common(fields, filename, sp)
+             call this%init_common(name, fields, filename, sp)
           end if
        else
-          call this%init_common(fields, filename)
+          call this%init_common(name, fields, filename)
        end if
     else
-       call this%init_common(fields)
+       call this%init_common(name, fields)
     end if
   end subroutine field_writer_init_from_json
 
   !> Constructor from components, passing controllers.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller The controller for running preprocessing.
@@ -116,10 +119,11 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_from_controllers(this, case, order, &
+  subroutine field_writer_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
        fields, filename, precision)
     class(field_writer_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     type(time_based_controller_t), intent(in) :: preprocess_controller
@@ -131,12 +135,13 @@ contains
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%init_common(fields, filename, precision)
+    call this%init_common(name, fields, filename, precision)
 
   end subroutine field_writer_init_from_controllers
 
   !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller Control mode for preprocessing.
@@ -150,10 +155,11 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_from_controllers_properties(this, &
+  subroutine field_writer_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, fields, filename, precision)
     class(field_writer_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
@@ -169,24 +175,27 @@ contains
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%init_common(fields, filename, precision)
+    call this%init_common(name, fields, filename, precision)
 
   end subroutine field_writer_init_from_controllers_properties
 
   !> Common part of both constructors.
+  !! @param name The unique name of the simcomp.
   !! @param fields Array of field names to be sampled.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_common(this, fields, filename, precision)
+  subroutine field_writer_init_common(this, name, fields, filename, precision)
     class(field_writer_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     character(len=20), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=20) :: fieldi
     integer :: i
 
+    this%name = name
     ! Regsiter fields if they don't exist.
     do i = 1, size(fields)
        fieldi = trim(fields(i))
