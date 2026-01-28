@@ -153,6 +153,7 @@ neko_fortran_SOURCES = \
 	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/fluid_stats_output.f90\
+	io/fluid_sgs_stats_output.f90\
 	io/scalar_stats_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
