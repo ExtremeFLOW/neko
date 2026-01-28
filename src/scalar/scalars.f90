@@ -261,7 +261,11 @@ contains
     ! Iterate through all scalar fields
     if (allocated(this%scalar_fields)) then
        do i = 1, size(this%scalar_fields)
-          call this%scalar_fields(i)%free()
+          if (associated(this%scalar_fields(i)%scheme)) then
+             call this%scalar_fields(i)%scheme%free()
+             nullify(this%scalar_fields(i)%scheme)
+          end if
+          deallocate(this%scalar_fields(i)%scheme)
        end do
        deallocate(this%scalar_fields)
     end if
