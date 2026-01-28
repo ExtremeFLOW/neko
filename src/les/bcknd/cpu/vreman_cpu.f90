@@ -184,16 +184,12 @@ contains
 
                     ! Shear component (denominator in Ri definition)
                     ! Directional derivative of velocity
-                    du_n(1) = a11%x(i,1,1,e)*n(1) + a21%x(i,1,1,e)*n(2) +&
-                            a31%x(i,1,1,e)*n(3)
-                    du_n(2) = a12%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
-                            a32%x(i,1,1,e)*n(3)
-                    du_n(3) = a13%x(i,1,1,e)*n(1) + a23%x(i,1,1,e)*n(2) +&
+                    du_n(1) = a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) +&
+                            a13%x(i,1,1,e)*n(3)
+                    du_n(2) = a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
+                            a23%x(i,1,1,e)*n(3)
+                    du_n(3) = a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) +&
                             a33%x(i,1,1,e)*n(3)
-
-                    ! Todo:
-                    ! - check if anything should be rewritten using math functions
-                    ! - define all variables
 
                     ! Component parallel to n
                     du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
