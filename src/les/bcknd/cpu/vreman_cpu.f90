@@ -162,9 +162,9 @@ contains
     end do
     if (if_corr .eqv. .true.) then
           theta => neko_field_registry%get_field_by_name("temperature")
-          call neko_scratch_registry%request_field(dTdx, temp_indices(1))
-          call neko_scratch_registry%request_field(dTdy, temp_indices(1))
-          call neko_scratch_registry%request_field(dTdz, temp_indices(1))
+          call neko_scratch_registry%request_field(dTdx, temp_indices(10), .false.)
+          call neko_scratch_registry%request_field(dTdy, temp_indices(11), .false.)
+          call neko_scratch_registry%request_field(dTdz, temp_indices(12), .false.)
 
           ! Calculate Richardson number
           gmag = sqrt(vlsc2(g, g, 3))
