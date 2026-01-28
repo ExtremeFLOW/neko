@@ -161,15 +161,18 @@ contains
        end do
     end do
     if (if_corr .eqv. .true.) then
-          theta => neko_field_registry%get_field_by_name("temperature")
-          call neko_scratch_registry%request_field(dTdx, temp_indices(10), .false.)
-          call neko_scratch_registry%request_field(dTdy, temp_indices(11), .false.)
-          call neko_scratch_registry%request_field(dTdz, temp_indices(12), .false.)
+          theta => neko_registry%get_field_by_name("temperature")
+          call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
+          call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
+          call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
 
           ! Calculate Richardson number
           gmag = sqrt(vlsc2(g, g, 3))
-          n = g / gmag
-
+          if (gmag > NEKO_EPS) then
+               n = g / gmag
+          else
+               call neko_error("The gravity vector must have at least one nonzero component")
+          endif
           call grad(dTdx%x, dTdy%x, dTdz%x, theta%x, coef)
           do concurrent (e = 1:coef%msh%nelv)
                do concurrent (i = 1:coef%Xh%lxyz)
@@ -202,6 +205,10 @@ contains
                     ! Richardson number
                     ri = buoyancy / (shear_sq + NEKO_EPS)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5fdef4b747 (Bug fix and safety checks)
                     if (ri .le. ri_c) then
                          correction = (1 - ri/ri_c)**0.5
                          nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
@@ -210,8 +217,13 @@ contains
                     end if
                end do
           end do
+<<<<<<< HEAD
           call neko_scratch_registry%relinquish_field(temp_indices)
     end if
+=======
+          call neko_scratch_registry%relinquish_field(temp_indices_buoy)
+     end if
+>>>>>>> 5fdef4b747 (Bug fix and safety checks)
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())
