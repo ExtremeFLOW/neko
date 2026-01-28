@@ -81,7 +81,7 @@ contains
     real(kind=rp) :: beta33
     real(kind=rp) :: b_beta
     real(kind=rp) :: aijaij
-    integer :: temp_indices(9)
+    integer :: temp_indices(12)
     integer :: e, i, j
     real(kind=rp) ::  gmag, ri, correction, buoyancy, shear_sq
     real(kind=rp) :: n(3), du_n(3), sh(3)
@@ -162,9 +162,9 @@ contains
     end do
     if (if_corr .eqv. .true.) then
           theta => neko_field_registry%get_field_by_name("temperature")
-          call neko_scratch_registry%request_field(dTdx, temp_indices(1))
-          call neko_scratch_registry%request_field(dTdy, temp_indices(1))
-          call neko_scratch_registry%request_field(dTdz, temp_indices(1))
+          call neko_scratch_registry%request_field(dTdx, temp_indices(10), .false.)
+          call neko_scratch_registry%request_field(dTdy, temp_indices(11), .false.)
+          call neko_scratch_registry%request_field(dTdz, temp_indices(12), .false.)
 
           ! Calculate Richardson number
           gmag = sqrt(vlsc2(g, g, 3))
