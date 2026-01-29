@@ -1,0 +1,281 @@
+! Copyright (c) 2025, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Computes the subgrid-scale contributions for Reynolds stresses.
+!! We use the Reynolds decomposition for a field u = <u> + u' = U + u'
+!! Spatial derivatives i.e. du/dx we denote dudx
+module fluid_sgs_stats
+  use mean_field, only : mean_field_t
+  use num_types, only : rp
+  use field_math, only : field_cmult, field_col3
+  use operators, only : strain_rate
+  use coefs, only : coef_t
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use stats_quant, only : stats_quant_t
+  use registry, only : neko_registry
+  implicit none
+  private
+
+  type, public, extends(stats_quant_t) :: fluid_sgs_stats_t
+     !> Work fields
+     type(field_t) :: stats_work
+     type(field_t) :: s11_work
+     type(field_t) :: s22_work
+     type(field_t) :: s33_work
+     type(field_t) :: s12_work
+     type(field_t) :: s13_work
+     type(field_t) :: s23_work
+
+     !> Pointers to the instantenious quantities.
+     type(field_t), pointer :: nut !< nut
+     type(field_t), pointer :: u !< u
+     type(field_t), pointer :: v !< v
+     type(field_t), pointer :: w !< w
+
+     type(mean_field_t) :: nut_mean !< <nut>
+
+     type(mean_field_t) :: uu_sgs !< <uu_sgs> = <2nut*S11>
+     type(mean_field_t) :: vv_sgs !< <vv_sgs> = <2nut*S22>
+     type(mean_field_t) :: ww_sgs !< <ww_sgs> = <2nut*S33>
+     type(mean_field_t) :: uv_sgs !< <uv_sgs> = <2nut*S12>
+     type(mean_field_t) :: uw_sgs !< <uw_sgs> = <2nut*S13>
+     type(mean_field_t) :: vw_sgs !< <vw_sgs> = <2nut*S23>
+
+     type(mean_field_t) :: s11_mean
+     type(mean_field_t) :: s22_mean
+     type(mean_field_t) :: s33_mean
+     type(mean_field_t) :: s12_mean
+     type(mean_field_t) :: s13_mean
+     type(mean_field_t) :: s23_mean
+
+     !> SEM coefficients.
+     type(coef_t), pointer :: coef
+
+     !> Specify the name of the eddy viscosity field.
+     character(10) :: nut_field
+
+     !> Number of statistical fields to be computed.
+     integer :: n_stats = 13
+
+     !> A list of size n_stats, whith entries pointing to the fields that will
+     !! be output (the field components above.) Used to write the output.
+     type(field_list_t) :: stat_fields
+   contains
+     !> Constructor.
+     procedure, pass(this) :: init => fluid_sgs_stats_init
+     !> Destructor.
+     procedure, pass(this) :: free => fluid_sgs_stats_free
+     !> Update all the mean value fields with a new sample.
+     procedure, pass(this) :: update => fluid_sgs_stats_update
+     !> Reset all the computed means values and sampling times to zero.
+     procedure, pass(this) :: reset => fluid_sgs_stats_reset
+  end type fluid_sgs_stats_t
+
+contains
+
+  !> Constructor. Initialize the fields associated with fluid_sgs_stats.
+  !! @param coef SEM coefficients.
+  !! @param u The x component of velocity.
+  !! @param v The y component of velocity.
+  !! @param w The z component of velocity.
+  !! @param nut_field Specifies the name of the nut field.
+  !! Optional, defaults to `uut`.
+  subroutine fluid_sgs_stats_init(this, coef, u, v, w, nut_field)
+    class(fluid_sgs_stats_t), intent(inout), target:: this
+    type(coef_t), target :: coef
+    type(field_t), target, intent(in) :: u, v, w
+    character(*), intent(in), optional :: nut_field
+
+    call this%free()
+    this%coef => coef
+
+    this%u => u
+    this%v => v
+    this%w => w
+
+    if (present(nut_field)) then
+       this%nut_field = trim(nut_field)
+    else
+       this%nut_field = 'nut'
+    end if
+    this%nut => neko_registry%get_field_by_name(this%nut_field)
+
+    ! Initialize work fields
+    call this%stats_work%init(this%u%dof, 'stats')
+    call this%s11_work%init(this%u%dof, 's11_work')
+    call this%s22_work%init(this%u%dof, 's22_work')
+    call this%s33_work%init(this%u%dof, 's33_work')
+    call this%s12_work%init(this%u%dof, 's12_work')
+    call this%s13_work%init(this%u%dof, 's13_work')
+    call this%s23_work%init(this%u%dof, 's23_work')
+
+    ! Initialize mean fields
+    call this%nut_mean%init(this%nut)
+
+    call this%uu_sgs%init(this%stats_work, 'uu_sgs')
+    call this%vv_sgs%init(this%stats_work, 'vv_sgs')
+    call this%ww_sgs%init(this%stats_work, 'ww_sgs')
+    call this%uv_sgs%init(this%stats_work, 'uv_sgs')
+    call this%uw_sgs%init(this%stats_work, 'uw_sgs')
+    call this%vw_sgs%init(this%stats_work, 'vw_sgs')
+
+    call this%s11_mean%init(this%s11_work, 's11')
+    call this%s22_mean%init(this%s22_work, 's22')
+    call this%s33_mean%init(this%s33_work, 's33')
+    call this%s12_mean%init(this%s12_work, 's12')
+    call this%s13_mean%init(this%s13_work, 's13')
+    call this%s23_mean%init(this%s23_work, 's23')
+
+    allocate(this%stat_fields%items(this%n_stats))
+
+    call this%stat_fields%assign_to_field(1, this%nut_mean%mf)
+
+    call this%stat_fields%assign_to_field(2, this%uu_sgs%mf)
+    call this%stat_fields%assign_to_field(3, this%vv_sgs%mf)
+    call this%stat_fields%assign_to_field(4, this%ww_sgs%mf)
+    call this%stat_fields%assign_to_field(5, this%uv_sgs%mf)
+    call this%stat_fields%assign_to_field(6, this%uw_sgs%mf)
+    call this%stat_fields%assign_to_field(7, this%vw_sgs%mf)
+    call this%stat_fields%assign_to_field(8, this%s11_mean%mf)
+    call this%stat_fields%assign_to_field(9, this%s22_mean%mf)
+    call this%stat_fields%assign_to_field(10, this%s33_mean%mf)
+    call this%stat_fields%assign_to_field(11, this%s12_mean%mf)
+    call this%stat_fields%assign_to_field(12, this%s13_mean%mf)
+    call this%stat_fields%assign_to_field(13, this%s23_mean%mf)
+
+  end subroutine fluid_sgs_stats_init
+
+  !> Updates all fields with a new sample.
+  !! @param k Time elapsed since the last update.
+  subroutine fluid_sgs_stats_update(this, k)
+    class(fluid_sgs_stats_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: k
+    integer :: n
+
+    associate(stats_work => this%stats_work)
+      n = stats_work%dof%size()
+
+      call this%nut_mean%update(k)
+
+      call strain_rate(this%s11_work%x, &
+                       this%s22_work%x, &
+                       this%s33_work%x, &
+                       this%s12_work%x, &
+                       this%s13_work%x, &
+                       this%s23_work%x, this%u, this%v, this%w, this%coef)
+
+      call this%s11_mean%update(k)
+      call this%s22_mean%update(k)
+      call this%s33_mean%update(k)
+      call this%s12_mean%update(k)
+      call this%s13_mean%update(k)
+      call this%s23_mean%update(k)
+
+      ! form the double sij tensor
+      call field_cmult(this%s11_work, 2.0_rp)
+      call field_cmult(this%s22_work, 2.0_rp)
+      call field_cmult(this%s33_work, 2.0_rp)
+      call field_cmult(this%s12_work, 2.0_rp)
+      call field_cmult(this%s13_work, 2.0_rp)
+      call field_cmult(this%s23_work, 2.0_rp)
+
+      call field_col3(stats_work, this%nut, this%s11_work)
+      call this%uu_sgs%update(k)
+      call field_col3(stats_work, this%nut, this%s22_work)
+      call this%vv_sgs%update(k)
+      call field_col3(stats_work, this%nut, this%s33_work)
+      call this%ww_sgs%update(k)
+      call field_col3(stats_work, this%nut, this%s12_work)
+      call this%uv_sgs%update(k)
+      call field_col3(stats_work, this%nut, this%s13_work)
+      call this%uw_sgs%update(k)
+      call field_col3(stats_work, this%nut, this%s23_work)
+      call this%vw_sgs%update(k)
+
+    end associate
+
+  end subroutine fluid_sgs_stats_update
+
+
+  !> Destructor.
+  subroutine fluid_sgs_stats_free(this)
+    class(fluid_sgs_stats_t), intent(inout) :: this
+
+    call this%stats_work%free()
+    call this%s11_work%free()
+    call this%s22_work%free()
+    call this%s33_work%free()
+    call this%s12_work%free()
+    call this%s13_work%free()
+    call this%s23_work%free()
+
+    call this%nut_mean%free()
+
+    call this%uu_sgs%free()
+    call this%vv_sgs%free()
+    call this%ww_sgs%free()
+    call this%uv_sgs%free()
+    call this%uw_sgs%free()
+    call this%vw_sgs%free()
+
+    call this%s11_mean%free()
+    call this%s22_mean%free()
+    call this%s33_mean%free()
+    call this%s12_mean%free()
+    call this%s13_mean%free()
+    call this%s23_mean%free()
+
+    nullify(this%coef)
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%nut)
+
+  end subroutine fluid_sgs_stats_free
+
+  !> Resets all the computed means values and sampling times to zero.
+  subroutine fluid_sgs_stats_reset(this)
+    class(fluid_sgs_stats_t), intent(inout), target:: this
+
+    call this%nut_mean%reset()
+
+    call this%uu_sgs%reset()
+    call this%vv_sgs%reset()
+    call this%ww_sgs%reset()
+    call this%uv_sgs%reset()
+    call this%uw_sgs%reset()
+    call this%vw_sgs%reset()
+
+  end subroutine fluid_sgs_stats_reset
+
+end module fluid_sgs_stats
