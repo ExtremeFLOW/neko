@@ -2150,13 +2150,8 @@ contains
     lshare(:) = .false.
     if (mmobj%nrank .gt. 0) then
        ! fill sharing info
-       do il = 1, mmobj%nrank
-          if (mmobj%rank(il) == pe_rank) then
-             do jl = mmobj%off(il), mmobj%off(il + 1) - 1
-                lshare(mmobj%share(jl)) = .true.
-             end do
-             exit
-          end if
+       do il = 1, size(mmobj%glist)
+          lshare(mmobj%glist(il)) = .true.
        end do
        ! find current rank
        irank = 0

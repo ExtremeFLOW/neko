@@ -1321,7 +1321,7 @@ contains
 
     ! reconstruct gs; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
-    !if (associated(this%gx_h)) call this%gx_h%amr_restart(reconstruct, counter)
+    if (associated(this%gs_h)) call this%gs_h%amr_restart(reconstruct, counter)
 
     !!! THERE ARE 2 INITIALISATION ROUTINES, BUT ONLY init_all IS USED HERE!!!
 

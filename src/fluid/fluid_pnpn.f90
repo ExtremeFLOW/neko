@@ -1250,10 +1250,11 @@ contains
 
     this%counter = counter
 
-    ! Reconstruct dofmap
+    ! reconstruct dofmap
     call this%dm_Xh%amr_restart(reconstruct, counter)
 
-    ! PLACEHOLDER FOR GS
+    ! reconstruct gs
+    call this%gs_Xh%amr_restart(reconstruct, counter)
 
     ! reconstruct coef
     call this%c_Xh%amr_restart(reconstruct, counter)

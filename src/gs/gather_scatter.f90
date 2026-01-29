@@ -61,11 +61,13 @@ module gather_scatter
   use profiler, only : profiler_start_region, profiler_end_region
   use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_free, &
        device_map, device_deassociate
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
-  type, public :: gs_t
+  type, public, extends(amr_restart_component_t) :: gs_t
      real(kind=rp), allocatable :: local_gs(:) !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:) !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:) !< Local gs to dof mapping
@@ -93,6 +95,8 @@ module gather_scatter
      procedure, pass(gs) :: init => gs_init
      procedure, pass(gs) :: free => gs_free
      generic :: op => gs_op_fld, gs_op_r4, gs_op_vector
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gs_amr_restart
   end type gs_t
 
   ! Expose available gather-scatter operation
@@ -404,6 +408,8 @@ contains
        deallocate(gs%comm)
     end if
 
+    call gs%free_amr_base()
+
   end subroutine gs_free
 
   !> Setup mapping of dofs to gather-scatter operations
@@ -432,7 +438,6 @@ contains
     !!but having many collisions makes the init take too long.
     !!This is really critical to performance of the init
     call sdm%init(dofmap%size(), i)
-
 
     call local_dof%init()
     call dof_local%init()
@@ -1475,5 +1480,84 @@ contains
     call profiler_end_region("gather_scatter", 5)
 
   end subroutine gs_op_vector
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  subroutine gs_amr_restart(this, reconstruct, counter)
+    class(gs_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    integer :: ierr
+    integer(i8) :: glb_nlocal, glb_nshared
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%dofmap)) &
+         call this%dofmap%amr_restart(reconstruct, counter)
+
+    ! clear space
+    deallocate(this%local_dof_gs, this%local_gs_dof, this%local_blk_len, &
+         this%local_blk_off, this%local_gs, this%shared_dof_gs, &
+         this%shared_gs_dof, this%shared_blk_len, this%shared_blk_off, &
+         this%shared_gs)
+    this%nlocal = 0
+    this%local_facet_offset = 0
+    this%nlocal_blks = 0
+    this%nshared = 0
+    this%shared_facet_offset = 0
+    this%nshared_blks = 0
+
+    ! reconstruct comm; for now just clearing stacks and deallocating arrays,
+    ! as gs_schedule calls comm%init
+    if (allocated(this%comm)) &
+         call this%comm%amr_restart(reconstruct, counter)
+
+    call gs_init_mapping(this)
+
+    call gs_schedule(this)
+
+    ! Global number of points not needing to be sent over mpi for gs operations
+    ! "Internal points"
+    glb_nlocal = int(this%nlocal, i8)
+    ! Global number of points needing to be communicated with other pes/ranks
+    ! "external points"
+    glb_nshared = int(this%nshared, i8)
+    ! Can be thought of a measure of the volume of this rank (glb_nlocal) and
+    ! the surface area (glb_nshared) that is shared with other ranks
+    ! Lots of internal volume compared to surface that needs communication is
+    ! good
+
+    if (pe_rank .eq. 0) then
+       call MPI_Reduce(MPI_IN_PLACE, glb_nlocal, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+
+       call MPI_Reduce(MPI_IN_PLACE, glb_nshared, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+    else
+       call MPI_Reduce(glb_nlocal, glb_nlocal, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+
+       call MPI_Reduce(glb_nshared, glb_nshared, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+    end if
+
+    log_buf = 'Reconstructing Gather-Scatter'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,I12)') 'Avg. internal: ', glb_nlocal/pe_size
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,I12)') 'Avg. external: ', glb_nshared/pe_size
+    call neko_log%message(log_buf)
+
+    ! PLACE FOR RECONSTRUCTING BACK-END
+    ! for now do nothing, as cpu does not store anything
+
+  end subroutine gs_amr_restart
 
 end module gather_scatter
