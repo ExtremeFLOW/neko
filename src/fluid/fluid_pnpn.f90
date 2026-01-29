@@ -36,7 +36,7 @@ module fluid_pnpn
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
   use registry, only : neko_registry
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
@@ -1244,11 +1244,19 @@ contains
     class(fluid_pnpn_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
+    character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
+
+    if (allocated(this%name)) then
+       log_buf = 'Reconstructing Fluid PnPn: '//trim(this%name)
+    else
+       log_buf = 'Reconstructing Fluid PnPn'
+    end if
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct dofmap
     call this%dm_Xh%amr_restart(reconstruct, counter)
@@ -1259,7 +1267,7 @@ contains
     ! reconstruct coef
     call this%c_Xh%amr_restart(reconstruct, counter)
 
-    ! Reconstruct velocity fields
+    ! reconstruct simulation variables
     if (associated(this%u)) call this%u%amr_restart(reconstruct, counter)
     if (associated(this%v)) call this%v%amr_restart(reconstruct, counter)
     if (associated(this%w)) call this%w%amr_restart(reconstruct, counter)

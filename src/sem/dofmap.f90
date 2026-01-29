@@ -43,6 +43,7 @@ module dofmap
   use device
   use math, only : add3, copy, rone, rzero
   use element, only : element_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
@@ -211,11 +212,15 @@ contains
     class(dofmap_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
+    character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
+
+    log_buf = 'Reconstructing Dofmap'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct coordinates
     call reconstruct%refine_coarsen(this%x, this%x_d)

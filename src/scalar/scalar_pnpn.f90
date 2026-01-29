@@ -56,7 +56,7 @@ module scalar_pnpn
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG, NEKO_LOG_VERBOSE
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get, json_get_or_default, json_extract_item
@@ -615,6 +615,7 @@ contains
     class(scalar_pnpn_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
+    character(len=LOG_SIZE) :: log_buf
 
     !call neko_error('Nothing done for AMR reconstruction')
 
@@ -622,6 +623,13 @@ contains
     if (this%counter .eq. counter) return
 
     this%counter = counter
+
+    if (allocated(this%name)) then
+       log_buf = 'Reconstructing Scalar PnPn: '//trim(this%name)
+    else
+       log_buf = 'Reconstructing Scalar PnPn'
+    end if
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
   end subroutine scalar_pnpn_amr_restart
 

@@ -47,6 +47,7 @@ module coefs
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index, neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
@@ -1309,11 +1310,15 @@ contains
     class(coef_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
+    character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
+
+    log_buf = 'Reconstructing Coefs'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions

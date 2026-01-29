@@ -45,7 +45,7 @@ module registry
   use comm, only : pe_rank
   use json_module, only : json_file
   use json_utils, only : json_get
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   implicit none
@@ -888,6 +888,7 @@ contains
     class(registry_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
+    character(len=LOG_SIZE) :: log_buf
     integer :: il
     type(field_t), pointer :: fld
 
@@ -895,6 +896,9 @@ contains
     if (this%counter .eq. counter) return
 
     this%counter = counter
+
+    log_buf = 'Reconstructing Registry'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct fields
     do il = 1, this%n_entries()

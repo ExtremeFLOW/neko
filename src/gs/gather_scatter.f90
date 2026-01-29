@@ -57,7 +57,7 @@ module gather_scatter
   use htable, only : htable_i8_t, htable_iter_i8_t
   use stack, only : stack_i4_t
   use utils, only : neko_error, linear_index
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use profiler, only : profiler_start_region, profiler_end_region
   use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_free, &
        device_map, device_deassociate
@@ -1497,6 +1497,9 @@ contains
 
     this%counter = counter
 
+    log_buf = 'Reconstructing Gather-Scatter'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
     if (associated(this%dofmap)) &
@@ -1548,12 +1551,10 @@ contains
             MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
     end if
 
-    log_buf = 'Reconstructing Gather-Scatter'
-    call neko_log%message(log_buf)
     write(log_buf, '(A,I12)') 'Avg. internal: ', glb_nlocal/pe_size
-    call neko_log%message(log_buf)
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
     write(log_buf, '(A,I12)') 'Avg. external: ', glb_nshared/pe_size
-    call neko_log%message(log_buf)
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! PLACE FOR RECONSTRUCTING BACK-END
     ! for now do nothing, as cpu does not store anything

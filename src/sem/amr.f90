@@ -277,6 +277,7 @@ contains
     call user%amr_refine_flag(time, ref_mark, ifrefine)
 
     if (ifrefine) then
+       call neko_log%begin()
        call neko_log%section("Mesh refinement/coarsening")
 
        call profiler_start_region("Mesh refine/coarsen", 30)
@@ -286,7 +287,7 @@ contains
 
        if (ifmod) then
           write(log_buf, '(a)') 'Restarting solver'
-          call neko_log%message(log_buf, NEKO_LOG_INFO)
+          call neko_log%section(log_buf)
 
           ! Reconstruct neko mesh
           call mesh_manager%mesh_construct(mesh, .false.)
@@ -299,11 +300,14 @@ contains
 
           ! Free mapping for vector reconstruction
           call this%reconstruct%map_free()
+
+          call neko_log%end_section()
        end if
 
        call profiler_end_region("Mesh refine/coarsen", 30)
 
        call neko_log%end_section()
+       call neko_log%end()
     end if
 
     deallocate(ref_mark)

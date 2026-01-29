@@ -323,6 +323,7 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter
     integer :: il
+    character(len=LOG_SIZE) :: log_buf
 
     call neko_error('Nothing done for AMR reconstruction')
 
@@ -330,6 +331,9 @@ contains
     if (this%counter .eq. counter) return
 
     this%counter = counter
+
+    log_buf = 'Reconstructing Scalars'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     do il = 1, size(this%scalar_fields(:))
        call this%scalar_fields(il)%amr_restart(reconstruct, counter)
