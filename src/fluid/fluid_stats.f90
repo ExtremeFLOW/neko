@@ -171,7 +171,8 @@ contains
     character(*), intent(in), optional :: set
     character(*), intent(in), optional :: name
 
-    character(len=80) :: unique_name
+    character(len=1024) :: unique_name
+    unique_name = ""
 
     call this%free()
     this%coef => coef
@@ -191,10 +192,10 @@ contains
        this%n_stats = 44
     end if
 
+    ! If a name is specified and is not the default name, add it
+    ! as a prefix to the mean field names, followed by a "/".
     if (present(name) .and. trim(name) .ne. "fluid_stats") then
-       unique_name = name // "_"
-    else
-       unique_name = ""
+       unique_name = name // "/"
     end if
 
     call this%stats_work%init(this%u%dof, 'stats')
