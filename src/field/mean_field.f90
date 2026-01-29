@@ -84,8 +84,8 @@ contains
        write(name, '(A,A)') 'mean_', trim(f%name)
     end if
 
-    call neko_registry%add_field(f%dof, name)
-    this%mf => neko_registry%get_field(name)
+    call neko_registry%add_field(f%dof, trim(name))
+    this%mf => neko_registry%get_field(trim(name))
 
   end subroutine mean_field_init
 

@@ -164,11 +164,14 @@ contains
   !! @param p The pressure.
   !! @param set Specifies the subset of the statistics to be collected.
   !! Optional. Either `basic` or `full`, defaults to `full`.
-  subroutine fluid_stats_init(this, coef, u, v, w, p, set)
+  subroutine fluid_stats_init(this, coef, u, v, w, p, set, name)
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(in) :: u, v, w, p
     character(*), intent(in), optional :: set
+    character(*), intent(in), optional :: name
+
+    character(len=80) :: unique_name
 
     call this%free()
     this%coef => coef
@@ -188,22 +191,28 @@ contains
        this%n_stats = 44
     end if
 
+    if (present(name) .and. trim(name) .ne. "fluid_stats") then
+       unique_name = name // "_"
+    else
+       unique_name = ""
+    end if
+
     call this%stats_work%init(this%u%dof, 'stats')
     call this%stats_u%init(this%u%dof, 'u temp')
     call this%stats_v%init(this%u%dof, 'v temp')
     call this%stats_w%init(this%u%dof, 'w temp')
     call this%stats_p%init(this%u%dof, 'p temp')
-    call this%u_mean%init(this%u)
-    call this%v_mean%init(this%v)
-    call this%w_mean%init(this%w)
-    call this%p_mean%init(this%p)
-    call this%uu%init(this%stats_u, 'uu')
-    call this%vv%init(this%stats_v, 'vv')
-    call this%ww%init(this%stats_w, 'ww')
-    call this%uv%init(this%stats_work, 'uv')
-    call this%uw%init(this%stats_work, 'uw')
-    call this%vw%init(this%stats_work, 'vw')
-    call this%pp%init(this%stats_p, 'pp')
+    call this%u_mean%init(this%u, trim(unique_name) // 'mean_u')
+    call this%v_mean%init(this%v, trim(unique_name) // 'mean_v')
+    call this%w_mean%init(this%w, trim(unique_name) // 'mean_w')
+    call this%p_mean%init(this%p, trim(unique_name) // 'mean_p')
+    call this%uu%init(this%stats_u , trim(unique_name) // 'uu')
+    call this%vv%init(this%stats_v , trim(unique_name) // 'vv')
+    call this%ww%init(this%stats_w , trim(unique_name) // 'ww')
+    call this%uv%init(this%stats_work, trim(unique_name) // 'uv')
+    call this%uw%init(this%stats_work, trim(unique_name) // 'uw')
+    call this%vw%init(this%stats_work, trim(unique_name) // 'vw')
+    call this%pp%init(this%stats_p , trim(unique_name) // 'pp')
 
     if (this%n_stats .eq. 44) then
        call this%dudx%init(this%u%dof, 'dudx')
@@ -216,21 +225,21 @@ contains
        call this%dwdy%init(this%u%dof, 'dwdy')
        call this%dwdz%init(this%u%dof, 'dwdz')
 
-       call this%uuu%init(this%stats_work, 'uuu')
-       call this%vvv%init(this%stats_work, 'vvv')
-       call this%www%init(this%stats_work, 'www')
-       call this%uuv%init(this%stats_work, 'uuv')
-       call this%uuw%init(this%stats_work, 'uuw')
-       call this%uvv%init(this%stats_work, 'uvv')
-       call this%uvw%init(this%stats_work, 'uvw')
-       call this%vvw%init(this%stats_work, 'vvw')
-       call this%uww%init(this%stats_work, 'uww')
-       call this%vww%init(this%stats_work, 'vww')
-       call this%uuuu%init(this%stats_work, 'uuuu')
-       call this%vvvv%init(this%stats_work, 'vvvv')
-       call this%wwww%init(this%stats_work, 'wwww')
+       call this%uuu%init(this%stats_work, trim(unique_name) // 'uuu')
+       call this%vvv%init(this%stats_work, trim(unique_name) // 'vvv')
+       call this%www%init(this%stats_work, trim(unique_name) // 'www')
+       call this%uuv%init(this%stats_work, trim(unique_name) // 'uuv')
+       call this%uuw%init(this%stats_work, trim(unique_name) // 'uuw')
+       call this%uvv%init(this%stats_work, trim(unique_name) // 'uvv')
+       call this%uvw%init(this%stats_work, trim(unique_name) // 'uvw')
+       call this%vvw%init(this%stats_work, trim(unique_name) // 'vvw')
+       call this%uww%init(this%stats_work, trim(unique_name) // 'uww')
+       call this%vww%init(this%stats_work, trim(unique_name) // 'vww')
+       call this%uuuu%init(this%stats_work, trim(unique_name) // 'uuuu')
+       call this%vvvv%init(this%stats_work, trim(unique_name) // 'vvvv')
+       call this%wwww%init(this%stats_work, trim(unique_name) // 'wwww')
        !> Pressure
-       call this%ppp%init(this%stats_work, 'ppp')
+       call this%ppp%init(this%stats_work , trim(unique_name) // 'ppp')
        call this%pppp%init(this%stats_work, 'pppp')
        !> Pressure * velocity
        call this%pu%init(this%stats_work, 'pu')
