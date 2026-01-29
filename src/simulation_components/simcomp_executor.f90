@@ -245,7 +245,7 @@ contains
   !! within bounds.
   subroutine simcomp_executor_finalize(this)
     class(simcomp_executor_t), intent(inout) :: this
-    integer :: i, order, max_order
+    integer :: i, j, order, max_order
     logical :: order_found, previous_found
 
     class(simulation_component_wrapper_t), allocatable :: tmp_simcomps(:)
@@ -315,6 +315,17 @@ contains
     if (allocated(order_list)) then
        deallocate(order_list)
     end if
+
+    ! Check that names are unique
+    do i = 1, this%n_simcomps - 1
+       do j = i + 1, this%n_simcomps
+          if (this%simcomps(i)%simcomp%name .eq. &
+               this%simcomps(j)%simcomp%name) then
+             call neko_error("Simulation component names must be unique. " // &
+                  "Duplicate name: " // trim(this%simcomps(i)%simcomp%name))
+          end if
+       end do
+    end do
 
     this%finalized = .true.
   end subroutine simcomp_executor_finalize
