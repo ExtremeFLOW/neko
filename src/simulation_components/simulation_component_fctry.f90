@@ -35,6 +35,7 @@
 submodule (simulation_component) simulation_component_fctry
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
+  use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
   use scalar_stats_simcomp, only : scalar_stats_simcomp_t
   use user_stats, only : user_stats_t
   use lambda2, only : lambda2_t
@@ -52,12 +53,13 @@ submodule (simulation_component) simulation_component_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(14) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(15) = [character(len=20) :: &
        "lambda2", &
        "probes", &
        "les_model", &
        "field_writer", &
        "fluid_stats", &
+       "fluid_sgs_stats", &
        "scalar_stats", &
        "grad", &
        "div", &
@@ -133,6 +135,8 @@ contains
        allocate(force_torque_t::object)
     case ("fluid_stats")
        allocate(fluid_stats_simcomp_t::object)
+    case ("fluid_sgs_stats")
+       allocate(fluid_sgs_stats_simcomp_t::object)
     case ("scalar_stats")
        allocate(scalar_stats_simcomp_t::object)
     case ("user_stats")

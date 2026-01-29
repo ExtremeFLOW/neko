@@ -138,6 +138,13 @@ contains
     call this%uw_sgs%init(this%stats_work, 'uw_sgs')
     call this%vw_sgs%init(this%stats_work, 'vw_sgs')
 
+    call this%double_s11%init(this%u%dof, 'double_s11')
+    call this%double_s22%init(this%u%dof, 'double_s22')
+    call this%double_s33%init(this%u%dof, 'double_s33')
+    call this%double_s12%init(this%u%dof, 'double_s12')
+    call this%double_s13%init(this%u%dof, 'double_s13')
+    call this%double_s23%init(this%u%dof, 'double_s23')
+
     allocate(this%stat_fields%items(this%n_stats))
 
     call this%stat_fields%assign_to_field(1, this%nut_mean%mf)
