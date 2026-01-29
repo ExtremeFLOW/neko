@@ -339,8 +339,14 @@ keywords:
     - `c_s`: The Smagorinsky constant, defaults to 0.17.
   - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
     - `test_filter`: The test filter for the dynamic Smagorinsky model
-  - `vreman`: The Vreman model. Configured by the following additional keyword:
+  - `vreman`: The Vreman model. Configured by the following additional keywords:
     - `c`: The model constant, defaults to 0.07.
+    - `buoyancy_correction`: Whether or not to apply a correction to the eddy viscosity field based on the local Richardson number as described by Moeng and Sullivan 2015 (http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2). Assumes a scalar field named `temperature` is present. Defaults to `false`.
+      - `true`: Add a buoyancy correction according to the following parameters:
+        - `ri_c`: The critical Richardson number, defaults to 0.25.
+        - `theta0`: The reference temperature, defaults to 293 K.
+        - `g`: The gravity vector.
+      - `false`: Compute the standard Vreman eddy viscosity.
   - `sigma`: The Sigma model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
