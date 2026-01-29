@@ -205,10 +205,6 @@ contains
                     ! Richardson number
                     ri = buoyancy / (shear_sq + NEKO_EPS)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 5fdef4b747 (Bug fix and safety checks)
                     if (ri .le. ri_c) then
                          correction = (1 - ri/ri_c)**0.5
                          nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
@@ -217,13 +213,8 @@ contains
                     end if
                end do
           end do
-<<<<<<< HEAD
-          call neko_scratch_registry%relinquish_field(temp_indices)
-    end if
-=======
           call neko_scratch_registry%relinquish_field(temp_indices_buoy)
      end if
->>>>>>> 5fdef4b747 (Bug fix and safety checks)
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())
