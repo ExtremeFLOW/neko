@@ -91,10 +91,13 @@ contains
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
     call json_get_or_default(json, "ri_c", ri_c, 0.25_rp)
     call json_get_or_default(json, "theta0", theta0, 293.0_rp)
-    call json_get(json, "g", g)
-
-    if (.not. size(g) == 3) then
-       call neko_error("The gravity vector should have 3 components")
+    if (if_corr .eqv. .true.) then
+      call json_get(json, "g", g)
+      if (.not. size(g) == 3) then
+         call neko_error("The gravity vector should have 3 components")
+      end if
+    else
+      g = [0.0, 0.0, 0.0] ! This value is not used
     end if
 
     call neko_log%section('LES model')
