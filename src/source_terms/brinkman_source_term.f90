@@ -40,12 +40,13 @@ module brinkman_source_term
   use math, only : cfill_mask, pwmax2
   use device_math, only : device_cfill_mask, device_pwmax2
   use field_math, only : field_pwmax2, field_subcol3, field_copy
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use mappings, only : smooth_step_field, step_function_field, &
        permeability_field
   use file, only : file_t
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use tri_mesh, only : tri_mesh_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -134,12 +135,12 @@ contains
 
 
     ! Mandatory fields for the general source term
-    call json_get_or_default(json, "start_time", start_time, 0.0_rp)
-    call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
+    call json_get_or_lookup_or_default(json, "start_time", start_time, 0.0_rp)
+    call json_get_or_lookup_or_default(json, "end_time", end_time, huge(0.0_rp))
 
     ! Read the options for the permeability field
-    call json_get(json, 'brinkman.limits', brinkman_limits)
-    call json_get(json, 'brinkman.penalty', brinkman_penalty)
+    call json_get_or_lookup(json, 'brinkman.limits', brinkman_limits)
+    call json_get_or_lookup(json, 'brinkman.penalty', brinkman_penalty)
 
     if (size(brinkman_limits) .ne. 2) then
        call neko_error('brinkman_limits must be a 2 element array of reals')
@@ -151,16 +152,16 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Allocate the permeability and indicator field
 
-    call neko_field_registry%add_field(coef%dof, 'brinkman_indicator', .true.)
-    call neko_field_registry%add_field(coef%dof, 'brinkman_indicator_unfiltered', &
+    call neko_registry%add_field(coef%dof, 'brinkman_indicator', .true.)
+    call neko_registry%add_field(coef%dof, 'brinkman_indicator_unfiltered', &
          .true.)
-    call neko_field_registry%add_field(coef%dof, 'brinkman_permeability', &
+    call neko_registry%add_field(coef%dof, 'brinkman_permeability', &
          .true.)
 
-    this%indicator => neko_field_registry%get_field('brinkman_indicator')
+    this%indicator => neko_registry%get_field('brinkman_indicator')
     this%indicator_unfiltered => &
-         neko_field_registry%get_field('brinkman_indicator_unfiltered')
-    this%brinkman => neko_field_registry%get_field('brinkman_permeability')
+         neko_registry%get_field('brinkman_indicator_unfiltered')
+    this%brinkman => neko_registry%get_field('brinkman_permeability')
 
     ! ------------------------------------------------------------------------ !
     ! Select which constructor should be called
@@ -261,9 +262,9 @@ contains
 
     n = this%fields%item_size(1)
 
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
+    u => neko_registry%get_field('u')
+    v => neko_registry%get_field('v')
+    w => neko_registry%get_field('w')
 
     fu => this%fields%get(1)
     fv => this%fields%get(2)
@@ -399,8 +400,8 @@ contains
     case ('none')
        ! Do nothing
     case ('bounding_box')
-       call json_get(json, 'mesh_transform.box_min', box_min)
-       call json_get(json, 'mesh_transform.box_max', box_max)
+       call json_get_or_lookup(json, 'mesh_transform.box_min', box_min)
+       call json_get_or_lookup(json, 'mesh_transform.box_max', box_max)
        call json_get_or_default(json, 'mesh_transform.keep_aspect_ratio', &
             keep_aspect_ratio, .true.)
 
@@ -450,7 +451,7 @@ contains
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
     case ('smooth_step')
-       call json_get(json, 'distance_transform.value', scalar_d)
+       call json_get_or_lookup(json, 'distance_transform.value', scalar_d)
        scalar_r = real(scalar_d, kind=rp)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)
@@ -458,7 +459,7 @@ contains
 
     case ('step')
 
-       call json_get(json, 'distance_transform.value', scalar_d)
+       call json_get_or_lookup(json, 'distance_transform.value', scalar_d)
        scalar_r = real(scalar_d, kind=rp)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)

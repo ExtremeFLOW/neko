@@ -37,12 +37,13 @@ module vreman
   use les_model, only : les_model_t
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get
   use json_module, only : json_file
   use neko_config, only : NEKO_BCKND_DEVICE
+  use utils, only : neko_error
   use vreman_cpu, only : vreman_compute_cpu
   use vreman_device, only : vreman_compute_device
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
@@ -52,6 +53,9 @@ module vreman
   type, public, extends(les_model_t) :: vreman_t
      !> Model constant, defaults to 0.07.
      real(kind=rp) :: c
+     real(kind=rp) :: ri_c, theta0
+     real(kind=rp), allocatable :: g(:)
+     logical :: if_corr
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => vreman_init
@@ -73,9 +77,10 @@ contains
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
-    real(kind=rp) :: c
+    real(kind=rp) :: c, ri_c, theta0
     character(len=:), allocatable :: delta_type
-    logical :: if_ext
+    real(kind=rp), allocatable :: g(:)
+    logical :: if_ext, if_corr
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
@@ -83,6 +88,17 @@ contains
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_default(json, "c", c, 0.07_rp)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
+    call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
+    call json_get_or_default(json, "ri_c", ri_c, 0.25_rp)
+    call json_get_or_default(json, "theta0", theta0, 293.0_rp)
+    if (if_corr .eqv. .true.) then
+      call json_get(json, "g", g)
+      if (.not. size(g) == 3) then
+         call neko_error("The gravity vector should have 3 components")
+      end if
+    else
+      g = [0.0, 0.0, 0.0] ! This value is not used
+    end if
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Vreman'
@@ -93,10 +109,12 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
     call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'buoyancy correction : ', if_corr
+    call neko_log%message(log_buf)
     call neko_log%end_section()
 
     call vreman_init_from_components(this, fluid, c, nut_name, &
-         delta_type, if_ext)
+         delta_type, if_ext, if_corr, ri_c, theta0, g)
   end subroutine vreman_init
 
   !> Constructor from components.
@@ -106,18 +124,23 @@ contains
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether trapolate the velocity.
   subroutine vreman_init_from_components(this, fluid, c, nut_name, &
-       delta_type, if_ext)
+       delta_type, if_ext, if_corr, ri_c, theta0, g)
     class(vreman_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
-    real(kind=rp) :: c
+    real(kind=rp) :: c, ri_c, theta0
+    real(kind=rp), allocatable :: g(:)
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
-    logical, intent(in) :: if_ext
+    logical, intent(in) :: if_ext, if_corr
 
     call this%free()
 
     call this%init_base(fluid, nut_name, delta_type, if_ext)
     this%c = c
+    this%if_corr = if_corr
+    this%ri_c = ri_c
+    this%theta0 = theta0
+    this%g = g
 
   end subroutine vreman_init_from_components
 
@@ -143,12 +166,12 @@ contains
        associate(ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag, ext_bdf => this%ext_bdf)
 
-         u => neko_field_registry%get_field_by_name("u")
-         v => neko_field_registry%get_field_by_name("v")
-         w => neko_field_registry%get_field_by_name("w")
-         u_e => neko_field_registry%get_field_by_name("u_e")
-         v_e => neko_field_registry%get_field_by_name("v_e")
-         w_e => neko_field_registry%get_field_by_name("w_e")
+         u => neko_registry%get_field_by_name("u")
+         v => neko_registry%get_field_by_name("v")
+         w => neko_registry%get_field_by_name("w")
+         u_e => neko_registry%get_field_by_name("u_e")
+         v_e => neko_registry%get_field_by_name("v_e")
+         w_e => neko_registry%get_field_by_name("w_e")
 
          call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
               ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
@@ -158,11 +181,16 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
-            this%nut, this%delta, this%c)
+      if (if_corr .eqv. .false.) then
+        call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
+              this%nut, this%delta, this%c)
+      else
+        call neko_error("Vreman with buoyancy correction is not implemented on device yet")
+      end if
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
-            this%nut, this%delta, this%c)
+            this%nut, this%delta, this%c, this%if_corr, &
+            this%ri_c, this%theta0, this%g)
     end if
 
   end subroutine vreman_compute

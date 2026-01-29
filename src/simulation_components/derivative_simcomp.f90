@@ -38,7 +38,7 @@ module derivative_simcomp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use time_state, only : time_state_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : dudxyz
   use case, only : case_t
@@ -126,9 +126,9 @@ contains
     character(len=*) :: computed_field
     character(len=*) :: direction
 
-    this%u => neko_field_registry%get_field_by_name(trim(field_name))
+    this%u => neko_registry%get_field_by_name(trim(field_name))
 
-    this%du => neko_field_registry%get_field_by_name(&
+    this%du => neko_registry%get_field_by_name(&
          "d" // field_name // "_d" // direction)
 
     if (direction .eq. "x") then

@@ -47,7 +47,8 @@ module flow_ic
   use device_math, only : device_col2
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup_or_default, json_get_or_lookup
   use point_zone, only : point_zone_t
   use point_zone_registry, only : neko_point_zone_registry
   use fld_file_data, only : fld_file_data_t
@@ -57,6 +58,7 @@ module flow_ic
   use interpolation, only : interpolator_t
   use space, only : space_t, GLL
   use field_list, only : field_list_t
+  use operators, only : rotate_cyc
   implicit none
   private
 
@@ -65,7 +67,7 @@ module flow_ic
           set_compressible_flow_ic_usr
   end interface set_flow_ic
 
-  public :: set_flow_ic
+  public :: set_flow_ic, set_flow_ic_fld
 
 contains
 
@@ -92,7 +94,7 @@ contains
     !
     if (trim(type) .eq. 'uniform') then
 
-       call json_get(params, 'value', uinf)
+       call json_get_or_lookup(params, 'value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
 
        !
@@ -100,9 +102,9 @@ contains
        !
     else if (trim(type) .eq. 'blasius') then
 
-       call json_get(params, 'delta', delta)
+       call json_get_or_lookup(params, 'delta', delta)
        call json_get(params, 'approximation', read_str)
-       call json_get(params, 'freestream_velocity', uinf)
+       call json_get_or_lookup(params, 'freestream_velocity', uinf)
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
 
@@ -111,9 +113,9 @@ contains
        !
     else if (trim(type) .eq. 'point_zone') then
 
-       call json_get(params, 'base_value', uinf)
+       call json_get_or_lookup(params, 'base_value', uinf)
        call json_get(params, 'zone_name', read_str)
-       call json_get(params, 'zone_value', zone_value)
+       call json_get_or_lookup(params, 'zone_value', zone_value)
 
        call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
 
@@ -126,7 +128,8 @@ contains
        fname = trim(read_str)
        call json_get_or_default(params, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(params, 'tolerance', tol, 0.000001_rp)
+       call json_get_or_lookup_or_default(params, 'tolerance', tol, &
+            0.000001_rp)
        call json_get_or_default(params, 'mesh_file_name', read_str, "none")
        mesh_fname = trim(read_str)
 
@@ -240,9 +243,11 @@ contains
     end if
 
     ! Ensure continuity across elements for initial conditions
+    call rotate_cyc(u%x, v%x, w%x, 1, coef)
     call gs%op(u%x, u%dof%size(), GS_OP_ADD)
     call gs%op(v%x, v%dof%size(), GS_OP_ADD)
     call gs%op(w%x, w%dof%size(), GS_OP_ADD)
+    call rotate_cyc(u%x, v%x, w%x, 0, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(u%x_d, coef%mult_d, u%dof%size())
@@ -266,8 +271,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%message("Type : uniform")
-    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", (uinf(i), ", ", i=1, 2), &
-         uinf(3), "]"
+    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", &
+         (uinf(i), ", ", i = 1, 2), uinf(3), "]"
     call neko_log%message(log_buf)
 
     u = uinf(1)
@@ -522,12 +527,12 @@ contains
 
        ! Sync coordinates to device for the interpolation
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(fld_data%x%x, fld_data%x%x_d, fld_data%x%size(),&
-               HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(fld_data%y%x, fld_data%y%x_d, fld_data%y%size(),&
-               HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(fld_data%z%x, fld_data%z%x_d, fld_data%z%size(),&
-               HOST_TO_DEVICE, sync=.true.)
+          call device_memcpy(fld_data%x%x, fld_data%x%x_d, fld_data%x%size(), &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(fld_data%y%x, fld_data%y%x_d, fld_data%y%size(), &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(fld_data%z%x, fld_data%z%x_d, fld_data%z%size(), &
+               HOST_TO_DEVICE, sync = .true.)
        end if
 
        ! Generates an interpolator object and performs the point search

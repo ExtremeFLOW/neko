@@ -40,8 +40,8 @@
 
 extern "C" {
 
-  void euler_res_part_visc_hip(void *rhs, void *Binv, void * h,
-                              void *lap_sol, real *c_avisc, int *n) {
+  void euler_res_part_visc_hip(void *rhs, void *Binv, void *lap_sol,
+                              void *effective_visc, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -49,8 +49,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_visc_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) rhs, (real *) Binv, 
-                       (real *) lap_sol, (real *) h,
-                       *c_avisc, *n);
+                       (real *) lap_sol, (real *) effective_visc, *n);
     HIP_CHECK(hipGetLastError());
   }
 

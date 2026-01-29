@@ -81,6 +81,11 @@ contains
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
 
+    if (associated(object)) then
+       call object%free()
+       nullify(object)
+    end if
+
     call json_get(json, "type", type)
 
     select case (trim(type))
@@ -106,7 +111,7 @@ contains
             FLUID_PNPN_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
@@ -125,6 +130,14 @@ contains
           end do
        end do
     end do
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
+    end if
   end subroutine pressure_bc_factory
 
   !> Factory routine for velocity boundary conditions.
@@ -178,7 +191,7 @@ contains
             FLUID_PNPN_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
@@ -197,6 +210,14 @@ contains
              end do
           end do
        end do
+    end if
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
     end if
   end subroutine velocity_bc_factory
 

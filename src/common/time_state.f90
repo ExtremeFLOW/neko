@@ -36,7 +36,8 @@ module time_state
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
   use checkpoint, only : chkp_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_lookup, json_get_or_default, &
+       json_get_or_lookup_or_default
   implicit none
   private
 
@@ -73,11 +74,11 @@ contains
     real(kind=rp) :: end_time
     logical :: is_variable
 
-    call json_get_or_default(params, 'start_time', start_time, 0.0_rp)
-    call json_get(params, 'end_time', end_time)
+    call json_get_or_lookup_or_default(params, 'start_time', start_time, 0.0_rp)
+    call json_get_or_lookup(params, 'end_time', end_time)
     call json_get_or_default(params, 'variable_timestep', is_variable, .false.)
     if (.not. is_variable) then
-       call json_get(params, 'timestep', time_step)
+       call json_get_or_lookup(params, 'timestep', time_step)
     else
        ! randomly set an initial dt to get cfl when dt is variable
        time_step = 1.0_rp

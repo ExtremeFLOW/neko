@@ -40,7 +40,7 @@ module filter
   use json_module, only : json_file
   use coefs, only : coef_t
   use json_utils, only : json_get_or_default, json_get
-  use field, only: field_t
+  use field, only : field_t
   implicit none
   private
 

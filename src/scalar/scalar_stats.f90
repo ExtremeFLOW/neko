@@ -355,7 +355,8 @@ contains
 
          call device_col3(stats_work%x_d, this%stats_ss%x_d, this%s%x_d, n)
          call this%sss%update(k)
-         call device_col3(stats_work%x_d, this%stats_ss%x_d, this%stats_ss%x_d, n)
+         call device_col3(stats_work%x_d, this%stats_ss%x_d, &
+              this%stats_ss%x_d, n)
          call this%ssss%update(k)
 
          call device_col3(stats_work%x_d, this%u%x_d, this%stats_ss%x_d, n)

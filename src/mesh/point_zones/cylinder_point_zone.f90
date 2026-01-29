@@ -34,7 +34,7 @@
 module cylinder_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
   use utils, only: neko_error
   implicit none
@@ -75,9 +75,9 @@ contains
     logical :: invert
 
     call json_get(json, "name", name)
-    call json_get(json, "start", p0)
-    call json_get(json, "end", p1)
-    call json_get(json, "radius", radius)
+    call json_get_or_lookup(json, "start", p0)
+    call json_get_or_lookup(json, "end", p1)
+    call json_get_or_lookup(json, "radius", radius)
 
     ! Needed to use `shape` because of input name.
     if (all(shape(p0) .ne. (/3/))) then

@@ -35,7 +35,7 @@ module vreman_device
   use num_types, only : rp
   use math, only : NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
@@ -81,24 +81,24 @@ contains
     integer :: e, i
 
     if (if_ext .eqv. .true.) then
-       u => neko_field_registry%get_field_by_name("u_e")
-       v => neko_field_registry%get_field_by_name("v_e")
-       w => neko_field_registry%get_field_by_name("w_e")
+       u => neko_registry%get_field_by_name("u_e")
+       v => neko_registry%get_field_by_name("v_e")
+       w => neko_registry%get_field_by_name("w_e")
     else
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
+       u => neko_registry%get_field_by_name("u")
+       v => neko_registry%get_field_by_name("v")
+       w => neko_registry%get_field_by_name("w")
     end if
 
-    call neko_scratch_registry%request_field(a11, temp_indices(1))
-    call neko_scratch_registry%request_field(a12, temp_indices(2))
-    call neko_scratch_registry%request_field(a13, temp_indices(3))
-    call neko_scratch_registry%request_field(a21, temp_indices(4))
-    call neko_scratch_registry%request_field(a22, temp_indices(5))
-    call neko_scratch_registry%request_field(a23, temp_indices(6))
-    call neko_scratch_registry%request_field(a31, temp_indices(7))
-    call neko_scratch_registry%request_field(a32, temp_indices(8))
-    call neko_scratch_registry%request_field(a33, temp_indices(9))
+    call neko_scratch_registry%request_field(a11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(a12, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(a13, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(a21, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(a22, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(a23, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(a31, temp_indices(7), .false.)
+    call neko_scratch_registry%request_field(a32, temp_indices(8), .false.)
+    call neko_scratch_registry%request_field(a33, temp_indices(9), .false.)
 
     ! Compute the derivatives of the velocity (the alpha tensor)
     call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)

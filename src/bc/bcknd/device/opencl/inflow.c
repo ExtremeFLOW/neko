@@ -83,4 +83,5 @@ void opencl_inflow_apply_vector(void *msk, void *x, void *y,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
+  CL_CHECK(clReleaseKernel(kernel));
 }

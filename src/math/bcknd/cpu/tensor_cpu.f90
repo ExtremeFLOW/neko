@@ -11,7 +11,7 @@ contains
   subroutine tnsr2d_el_cpu(v, nv, u, nu, A, Bt)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv), u(nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv)
     real(kind=rp) :: work(0:nu**2*nv)
 
     call mxm(A, nv, u, nu, work, nu)
@@ -22,7 +22,7 @@ contains
   subroutine tnsr3d_el_cpu(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu),Bt(nu, nv),Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
 
     if (nv .eq. nu) then
        select case (nv)
@@ -79,7 +79,7 @@ contains
   subroutine tnsr3d_el_nvnu_cpu(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu),Bt(nu, nv),Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     real(kind=rp) :: tmp
     integer :: i, j, k, l, nunu, nvnu, nvnv
@@ -129,8 +129,9 @@ contains
 
   subroutine tnsr3d_el_1_nu_cpu(v, u, nu, A, Bt, Ct)
     integer, intent(in) :: nu
-    real(kind=rp), intent(inout) :: v(1), u(nu*nu*nu)
-    real(kind=rp), intent(inout) :: A(1,nu),Bt(nu, 1),Ct(nu,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(nu*nu*nu)
+    real(kind=rp), intent(in) :: A(1, nu), Bt(nu, 1), Ct(nu, 1)
     real(kind=rp) :: work(nu**2), work2(nu)
     real(kind=rp) :: tmp
     integer :: i, j, k, l, nunu
@@ -165,8 +166,9 @@ contains
   subroutine tnsr3d_el_1_4_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 4
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
     integer :: i, j, l
     integer :: ii, jj
@@ -195,8 +197,9 @@ contains
   subroutine tnsr3d_el_1_6_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 6
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
     integer :: i, j, l
     integer :: ii, jj
@@ -231,8 +234,9 @@ contains
   subroutine tnsr3d_el_1_8_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 8
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
     integer :: i, j, l
     integer :: ii, jj
@@ -275,8 +279,9 @@ contains
   subroutine tnsr3d_el_1_10_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 10
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
     integer :: i, j, l
     integer :: ii, jj
@@ -324,8 +329,9 @@ contains
   subroutine tnsr3d_el_1_12_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 12
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
     integer :: i, j, l
     integer :: ii, jj
@@ -1141,9 +1147,9 @@ contains
 
   subroutine tnsr3d_cpu(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
 
     if (nu .eq. 2 .and. nv .eq. 4) then
        call tnsr3d_nu2nv4_cpu(v, u, A, Bt, Ct, nelv)
@@ -1157,9 +1163,9 @@ contains
 
   subroutine tnsr3d_nvnu_cpu(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
     integer :: nunu, nvnu, nvnv
@@ -1168,7 +1174,7 @@ contains
     nunu = nu * nu
     nvnv = nv * nv
 
-    do ie = 1,nelv
+    do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
              ii = i + nv * (j - 1)
@@ -1216,13 +1222,13 @@ contains
     integer, parameter :: nvnu = 8
     integer, parameter :: nvnv = 16
     integer, intent(in) :: nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
 
-    do ie = 1,nelv
+    do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
              ii = i + nv * (j - 1)
@@ -1260,9 +1266,9 @@ contains
     integer, parameter :: nu = 4
     integer, parameter :: nunu = 16
     integer, intent(in) :: nv, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
     integer :: nvnu, nvnv
@@ -1270,7 +1276,7 @@ contains
     nvnu = nv * nu
     nvnv = nv * nv
 
-    do ie = 1,nelv
+    do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
              ii = i + nv * (j - 1)
@@ -1311,7 +1317,7 @@ contains
   subroutine tnsr1_3d_cpu(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
 
     if (nu .eq. 4 .and. nv .eq. 2) then
        call tnsr1_3d_nu4nv2_cpu(v, A, Bt, Ct, nelv)
@@ -1324,7 +1330,7 @@ contains
   subroutine tnsr1_3d_nvnu_cpu(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     integer :: e, e0, ee, es, iu, iv, nu3, nv3
     integer :: i, j, k, l, ii, jj, kk
@@ -1339,16 +1345,16 @@ contains
     es = 1
     ee = nelv
 
-    if (nv.gt.nu) then
+    if (nv .gt. nu) then
        e0 = nelv
        es = -1
        ee = 1
-    endif
+    end if
 
     nu3 = nu**3
     nv3 = nv**3
 
-    do e = e0,ee,es
+    do e = e0, ee, es
        iu = (e-1)*nu3
        iv = (e-1)*nv3
 
@@ -1403,13 +1409,13 @@ contains
     integer, parameter :: nvnvnv = 8
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     integer :: e, iu, iv
     integer :: i, j, k, l, ii, jj
     real(kind=rp) :: tmp
 
-    do e = 1,nelv
+    do e = 1, nelv
        iu = (e-1)*nununu
        iv = (e-1)*nvnvnv
 

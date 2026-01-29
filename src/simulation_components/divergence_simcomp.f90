@@ -37,7 +37,7 @@ module divergence_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use time_state, only : time_state_t
   use operators, only : div
@@ -99,12 +99,13 @@ contains
     character(len=:), allocatable :: computed_field
 
 
-    call json_get_or_default(json, "computed_field", computed_field, "divergence")
+    call json_get_or_default(json, "computed_field", computed_field, &
+         "divergence")
     call json_get(json, "fields", field_names)
 
     if (size(field_names) .ne. 3) then
-       call neko_error("The divergence simcomp requires exactly 3 entries in " // &
-            "fieldes.")
+       call neko_error("The divergence simcomp requires exactly 3 entries in " &
+            // "fieldes.")
     end if
 
     fields(1) = trim(computed_field)
@@ -126,11 +127,11 @@ contains
     character(len=*) :: field_names(3)
     character(len=*) :: computed_field
 
-    this%u => neko_field_registry%get_field_by_name(field_names(1))
-    this%v => neko_field_registry%get_field_by_name(field_names(2))
-    this%w => neko_field_registry%get_field_by_name(field_names(3))
+    this%u => neko_registry%get_field_by_name(field_names(1))
+    this%v => neko_registry%get_field_by_name(field_names(2))
+    this%w => neko_registry%get_field_by_name(field_names(3))
 
-    this%divergence => neko_field_registry%get_field_by_name(computed_field)
+    this%divergence => neko_registry%get_field_by_name(computed_field)
 
   end subroutine divergence_init_common
 
@@ -236,7 +237,8 @@ contains
     class(divergence_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call div(this%divergence%x, this%u%x, this%v%x, this%w%x, this%case%fluid%c_Xh)
+    call div(this%divergence%x, this%u%x, this%v%x, this%w%x, &
+         this%case%fluid%c_Xh)
 
   end subroutine divergence_compute
 

@@ -32,11 +32,11 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
-  use field_registry, only : neko_field_registry
-  use logger, only: neko_log, LOG_SIZE
+  use registry, only : neko_registry
+  use logger, only : neko_log, LOG_SIZE
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
@@ -47,6 +47,7 @@ module fluid_pnpn
        rhs_maker_ext_fctry, rhs_maker_oifs_fctry
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use scratch_registry, only : neko_scratch_registry
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
   use projection, only : projection_t
@@ -56,7 +57,8 @@ module fluid_pnpn
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use json_module, only : json_file
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
@@ -72,13 +74,14 @@ module fluid_pnpn
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
-  use bc_list, only: bc_list_t
+  use bc_list, only : bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t
   use file, only : file_t
-  use operators, only : ortho
+  use operators, only : ortho, rotate_cyc
+  use opr_device, only : device_ortho
   use time_state, only : time_state_t
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
@@ -266,21 +269,24 @@ contains
 
     ! Add pressure field to the registry. For this scheme it is in the same
     ! Xh as the velocity
-    call neko_field_registry%add_field(this%dm_Xh, 'p')
-    this%p => neko_field_registry%get_field('p')
+    call neko_registry%add_field(this%dm_Xh, 'p')
+    this%p => neko_registry%get_field('p')
 
     !
     ! Select governing equations via associated residual and Ax types
     !
 
-    call json_get(params, 'case.numerics.time_order', integer_val)
+    call json_get_or_lookup(params, 'case.numerics.time_order', integer_val)
     allocate(this%ext_bdf)
     call this%ext_bdf%init(integer_val)
 
     call json_get_or_default(params, "case.fluid.full_stress_formulation", &
          this%full_stress_formulation, .false.)
 
-    if (this%full_stress_formulation .eqv. .true.) then
+    call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
+         .false.)
+
+    if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
 
@@ -303,7 +309,7 @@ contains
 
 
     if (params%valid_path('case.fluid.nut_field')) then
-       if (this%full_stress_formulation .eqv. .false.) then
+       if (.not. this%full_stress_formulation) then
           call neko_error("You need to set full_stress_formulation to " // &
                "true for the fluid to have a spatially varying " // &
                "viscocity field.")
@@ -377,7 +383,7 @@ contains
     ! Setup pressure solver
     call neko_log%section("Pressure solver")
 
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'case.fluid.pressure_solver.max_iterations', &
          solver_maxiter, 800)
     call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
@@ -385,7 +391,8 @@ contains
          precon_type)
     call json_get(params, &
          'case.fluid.pressure_solver.preconditioner', precon_params)
-    call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
+    call json_get_or_lookup(params, &
+         'case.fluid.pressure_solver.absolute_tolerance', &
          abs_tol)
     call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
          monitor, .false.)
@@ -411,8 +418,7 @@ contains
     ! Should be in init_base maybe?
     this%chkp => chkp
     ! This is probably scheme specific
-    ! Should not be init really, but more like, add fluid or something...
-    call this%chkp%init(this%u, this%v, this%w, this%p)
+    call this%chkp%add_fluid(this%u, this%v, this%w, this%p)
 
     this%chkp%abx1 => this%abx1
     this%chkp%abx2 => this%abx2
@@ -515,15 +521,22 @@ contains
 
     if (allocated(chkp%previous_mesh%elements) &
          .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
+
+       call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
        call this%gs_Xh%op(this%u, GS_OP_ADD)
        call this%gs_Xh%op(this%v, GS_OP_ADD)
        call this%gs_Xh%op(this%w, GS_OP_ADD)
        call this%gs_Xh%op(this%p, GS_OP_ADD)
+       call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
        do i = 1, this%ulag%size()
+          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
+               this%wlag%lf(i)%x, 1, this%c_Xh)
           call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
+          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
+               this%wlag%lf(i)%x, 0, this%c_Xh)
        end do
     end if
 
@@ -739,7 +752,11 @@ contains
            mu_tot, rho, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
-      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
+      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
+         call device_ortho(p_res%x_d, this%glb_n_points, n)
+      else if (.not. this%prs_dirichlet) then
+         call ortho(p_res%x, this%glb_n_points, n)
+      end if
 
       call gs_Xh%op(p_res, GS_OP_ADD, event)
       call device_event_sync(event)
@@ -772,7 +789,11 @@ contains
 
       ! Update the pressure with the increment. Demean if necessary.
       call field_add2(p, dp, n)
-      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n)
+      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
+         call device_ortho(p%x_d, this%glb_n_points, n)
+      else if (.not. this%prs_dirichlet) then
+         call ortho(p%x, this%glb_n_points, n)
+      end if
 
       ! Compute velocity residual.
       call profiler_start_region('Velocity_residual', 19)
@@ -784,12 +805,14 @@ contains
            mu_tot, rho, ext_bdf%diffusion_coeffs(1), &
            dt, dm_Xh%size())
 
+      call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
       call gs_Xh%op(u_res, GS_OP_ADD, event)
       call device_event_sync(event)
       call gs_Xh%op(v_res, GS_OP_ADD, event)
       call device_event_sync(event)
       call gs_Xh%op(w_res, GS_OP_ADD, event)
       call device_event_sync(event)
+      call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
 
       ! Set residual to zero at strong velocity boundaries.
       call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
@@ -838,7 +861,8 @@ contains
       end if
 
       call fluid_step_info(time, ksp_results, &
-           this%full_stress_formulation, this%strict_convergence)
+           this%full_stress_formulation, this%strict_convergence, &
+           this%allow_stabilization)
 
     end associate
     call profiler_end_region('Fluid', 1)
@@ -895,7 +919,7 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call json_get(bc_subdict, "zone_indices", zone_indices)
+          call json_get_or_lookup(bc_subdict, "zone_indices", zone_indices)
 
           ! Check that we are not trying to assing a bc to zone, for which one
           ! has already been assigned and that the zone has more than 0 size
@@ -914,7 +938,7 @@ contains
                 error stop
              end if
 
-             if (marked_zones(zone_indices(j)) .eqv. .true.) then
+             if (marked_zones(zone_indices(j))) then
                 write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
@@ -983,7 +1007,7 @@ contains
                 ! mark the same faces as in ordinary velocity dirichlet
                 ! conditions.
                 ! Additionally we mark the special PnPn pressure  bc.
-                if (bc_i%strong .eqv. .true.) then
+                if (bc_i%strong) then
                    call this%bc_vel_res%mark_facets(bc_i%marked_facet)
                    call this%bc_du%mark_facets(bc_i%marked_facet)
                    call this%bc_dv%mark_facets(bc_i%marked_facet)
@@ -1000,7 +1024,7 @@ contains
        ! Make sure all labeled zones with non-zero size have been marked
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
-               (marked_zones(i) .eqv. .false.)) then
+               (.not. marked_zones(i))) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No fluid boundary condition assigned to zone ", i
              error stop
@@ -1024,7 +1048,7 @@ contains
              call this%bcs_prs%append(bc_i)
 
              ! Mark strong bcs in the dummy dp bc to force zero change.
-             if (bc_i%strong .eqv. .true.) then
+             if (bc_i%strong) then
                 call this%bc_dp%mark_facets(bc_i%marked_facet)
              end if
 
@@ -1065,6 +1089,15 @@ contains
     this%prs_dirichlet = .not. this%bclst_dp%is_empty()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
+
+
+    if (allocated(marked_zones)) then
+       deallocate(marked_zones)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
+    end if
 
   end subroutine fluid_pnpn_setup_bcs
 
@@ -1110,8 +1143,7 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call this%scratch%request_field(bdry_field, temp_index)
-    bdry_field = 0.0_rp
+    call neko_scratch_registry%request_field(bdry_field, temp_index, .true.)
 
 
 
@@ -1197,7 +1229,7 @@ contains
     call bdry_file%init('bdry.fld')
     call bdry_file%write(bdry_field)
 
-    call this%scratch%relinquish_field(temp_index)
+    call neko_scratch_registry%relinquish_field(temp_index)
   end subroutine fluid_pnpn_write_boundary_conditions
 
 end module fluid_pnpn

@@ -35,7 +35,7 @@ module smagorinsky_device
   use num_types, only : rp
   use field_list, only : field_list_t
   use scratch_registry, only : neko_scratch_registry
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
@@ -72,21 +72,21 @@ contains
     integer :: e, i
 
     if (if_ext .eqv. .true.) then
-       u => neko_field_registry%get_field_by_name("u_e")
-       v => neko_field_registry%get_field_by_name("v_e")
-       w => neko_field_registry%get_field_by_name("w_e")
+       u => neko_registry%get_field_by_name("u_e")
+       v => neko_registry%get_field_by_name("v_e")
+       w => neko_registry%get_field_by_name("w_e")
     else
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
+       u => neko_registry%get_field_by_name("u")
+       v => neko_registry%get_field_by_name("v")
+       w => neko_registry%get_field_by_name("w")
     end if
 
-    call neko_scratch_registry%request_field(s11, temp_indices(1))
-    call neko_scratch_registry%request_field(s22, temp_indices(2))
-    call neko_scratch_registry%request_field(s33, temp_indices(3))
-    call neko_scratch_registry%request_field(s12, temp_indices(4))
-    call neko_scratch_registry%request_field(s13, temp_indices(5))
-    call neko_scratch_registry%request_field(s23, temp_indices(6))
+    call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(6), .false.)
 
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)

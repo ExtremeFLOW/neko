@@ -245,7 +245,7 @@ contains
                 std = (total - avg)**2 / nsamples
                 sem = std / sqrt(real(nsamples, dp))
              end select
-             write(fmt, '(A,I0,A)') '(A', RT_STATS_MAX_NAME_LEN, &
+             write(fmt, '(A, I0, A)') '(A', RT_STATS_MAX_NAME_LEN, &
                   ',1x,E15.7,2x,E15.7,2x,E15.7)'
              write(log_buf, fmt) this%rt_stats_id(i), total, avg, &
                   2.5758_dp * sem
@@ -266,10 +266,10 @@ contains
              if (nsamples .gt. 0) then
                 select type (region_sample => this%elapsed_time(i)%data)
                 type is (double precision)
-                   profile_data%x(1:nsamples,col_idx) = &
+                   profile_data%x(1:nsamples, col_idx) = &
                         region_sample(1:nsamples)
                    call MPI_Allreduce(MPI_IN_PLACE, &
-                        profile_data%x(1:nsamples,col_idx), nsamples, &
+                        profile_data%x(1:nsamples, col_idx), nsamples, &
                         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM)
                    profile_data%x(1:nsamples, col_idx) = &
                         profile_data%x(1:nsamples, col_idx) / pe_size

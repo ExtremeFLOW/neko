@@ -41,7 +41,7 @@ module les_model
   use field, only : field_t
   use field_series, only : field_series_t
   use json_module, only : json_file
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
@@ -208,10 +208,10 @@ contains
     associate(dofmap => fluid%dm_Xh, &
          coef => fluid%c_Xh)
 
-      call neko_field_registry%add_field(dofmap, trim(nut_name), .true.)
-      call neko_field_registry%add_field(dofmap, "les_delta", .true.)
-      this%nut => neko_field_registry%get_field(trim(nut_name))
-      this%delta => neko_field_registry%get_field("les_delta")
+      call neko_registry%add_field(dofmap, trim(nut_name), .true.)
+      call neko_registry%add_field(dofmap, "les_delta", .true.)
+      this%nut => neko_registry%get_field(trim(nut_name))
+      this%delta => neko_registry%get_field("les_delta")
       this%coef => fluid%c_Xh
       this%delta_type = delta_type
       this%if_ext = if_ext

@@ -37,7 +37,7 @@ module coriolis_source_term
   use num_types, only : rp
   use field_list, only : field_list_t
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get_or_lookup, json_get_or_lookup_or_default
   use source_term, only : source_term_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -45,7 +45,7 @@ module coriolis_source_term
   use coriolis_source_term_cpu, only : coriolis_source_term_compute_cpu
   use coriolis_source_term_device, only : coriolis_source_term_compute_device
   use field, only : field_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use time_state, only : time_state_t
   implicit none
   private
@@ -87,21 +87,21 @@ contains
     real(kind=rp) :: omega, phi, f, pi
     real(kind=rp) :: start_time, end_time
 
-    call json_get_or_default(json, "start_time", start_time, 0.0_rp)
-    call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
+    call json_get_or_lookup_or_default(json, "start_time", start_time, 0.0_rp)
+    call json_get_or_lookup_or_default(json, "end_time", end_time, huge(0.0_rp))
 
     if (json%valid_path("geostrophic_wind")) then
-       call json_get(json, "geostrophic_wind", u_geo)
+       call json_get_or_lookup(json, "geostrophic_wind", u_geo)
     else
        allocate(u_geo(3))
        u_geo = 0.0_rp
     end if
 
     if (json%valid_path("rotation_vector")) then
-       call json_get(json, "rotation_vector", rotation_vec)
+       call json_get_or_lookup(json, "rotation_vector", rotation_vec)
     else if (json%valid_path("omega") .and. json%valid_path("phi")) then
-       call json_get(json, "phi", phi)
-       call json_get(json, "omega", omega)
+       call json_get_or_lookup(json, "phi", phi)
+       call json_get_or_lookup(json, "omega", omega)
 
        allocate(rotation_vec(3))
        pi = 4 * atan(1.0_rp)
@@ -109,7 +109,7 @@ contains
        rotation_vec(2) = omega * cos(phi * pi / 180 )
        rotation_vec(3) = omega * sin(phi * pi / 180)
     else if (json%valid_path("f")) then
-       call json_get(json, "f", f)
+       call json_get_or_lookup(json, "f", f)
 
        allocate(rotation_vec(3))
        rotation_vec(1) = 0.0_rp
@@ -169,9 +169,9 @@ contains
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call coriolis_source_term_compute_device(u, v, w, this%fields, &

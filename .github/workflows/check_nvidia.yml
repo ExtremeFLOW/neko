@@ -53,7 +53,11 @@ jobs:
       # ---------------------------------------------------------------------- #
       # System level setup
       # ---------------------------------------------------------------------- #
-
+      - name: Maximize build space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/share/swift /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/chromium /o[t/microsoft /opt/google /opt/az /usr/local/share/powershell /usr/local/julia* 
+          sudo docker image prune --all --force
+          sudo docker builder prune -a
       - name: Setup - Checkout
         uses: actions/checkout@v4
         with:
@@ -89,13 +93,14 @@ jobs:
 
       - name: Setup - Install NVIDIA HPC SDK
         run: |
-          sudo apt-get install -y nvhpc-25-9
+          sudo apt-get install -y nvhpc-25-11
+          sudo apt-get clean
 
       - name: Setup - Environment
         id: setup-env
         run: |
           export NVARCH=`uname -s`_`uname -m`
-          export NVVER=25.9
+          export NVVER=25.11
           export NVCOMPILERS=/opt/nvidia/hpc_sdk
           export PATH=$NVCOMPILERS/$NVARCH/$NVVER/compilers/bin:$PATH
           export PATH=$NVCOMPILERS/$NVARCH/$NVVER/comm_libs/mpi/bin:$PATH

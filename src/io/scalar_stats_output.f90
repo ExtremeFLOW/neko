@@ -59,6 +59,8 @@ module scalar_stats_output
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_stats_output_init
+     !> Destructor
+     procedure, pass(this) :: free => scalar_stats_output_free
      !> Samples the fields computed by the `stats` component.
      procedure, pass(this) :: sample => scalar_stats_output_sample
   end type scalar_stats_output_t
@@ -77,10 +79,10 @@ contains
     character(len=1024) :: fname
 
     if (trim(hom_dir) .eq. 'none' .or. &
-        trim(hom_dir) .eq. 'x' .or.&
-        trim(hom_dir) .eq. 'y' .or.&
-        trim(hom_dir) .eq. 'z'&
-       ) then
+         trim(hom_dir) .eq. 'x' .or.&
+         trim(hom_dir) .eq. 'y' .or.&
+         trim(hom_dir) .eq. 'z'&
+         ) then
        if (present(name) .and. present(path)) then
           fname = trim(path) // trim(name) // '.fld'
        else if (present(name)) then
@@ -94,8 +96,8 @@ contains
        this%output_dim = 3
 
        if (trim(hom_dir) .eq. 'x' .or.&
-           trim(hom_dir) .eq. 'y' .or.&
-           trim(hom_dir) .eq. 'z' ) then
+            trim(hom_dir) .eq. 'y' .or.&
+            trim(hom_dir) .eq. 'z' ) then
           call this%map_2d%init_char(stats%coef, hom_dir, 1e-7_rp)
           this%output_dim = 2
        end if
@@ -117,6 +119,18 @@ contains
     this%stats => stats
     this%T_begin = T_begin
   end subroutine scalar_stats_output_init
+
+  !> Destructor
+  subroutine scalar_stats_output_free(this)
+    class(scalar_stats_output_t), intent(inout) :: this
+
+    call this%free_base()
+
+    nullify(this%stats)
+    call this%map_1d%free()
+    call this%map_2d%free()
+
+  end subroutine scalar_stats_output_free
 
   !> Sample scalar_stats at time @a t
   subroutine scalar_stats_output_sample(this, t)
@@ -142,6 +156,17 @@ contains
             call this%file_%write(avg_output_1d, t)
          else if (this%output_dim .eq. 2) then
             call this%map_2d%average(output_2d, this%stats%stat_fields)
+            !Switch around fields to get correct orders
+            do i = 1, this%map_2d%n_2d
+               u = output_2d%v%x(i)
+               v = output_2d%w%x(i)
+               w = output_2d%p%x(i)
+               p = output_2d%u%x(i)
+               output_2d%p%x(i) = p
+               output_2d%u%x(i) = u
+               output_2d%v%x(i) = v
+               output_2d%w%x(i) = w
+            end do
 
             call this%file_%write(output_2d, t)
          else

@@ -44,9 +44,9 @@ module fld_file
   use fld_file_data, only : fld_file_data_t
   use vector, only : vector_t
   use space, only : space_t
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   use mesh, only : mesh_t
-  use utils, only: filename_suffix_pos, filename_chsuffix, filename_name, &
+  use utils, only : filename_suffix_pos, filename_chsuffix, filename_name, &
        filename_path, neko_error
   use comm
   use datadist, only : linear_dist_t
@@ -218,27 +218,15 @@ contains
           u%ptr => data%items(2)%ptr%x(:,1,1,1)
           v%ptr => data%items(3)%ptr%x(:,1,1,1)
           w%ptr => data%items(4)%ptr%x(:,1,1,1)
-          ! Check if position 5 is a temperature field by name
-          if (trim(data%name(5)) .eq. 'temperature') then
-             ! Position 5 is temperature, remaining fields are scalars
-             tem%ptr => data%items(5)%ptr%x(:,1,1,1)
-             n_scalar_fields = data%size() - 5
-             allocate(scalar_fields(n_scalar_fields))
-             do i = 1, n_scalar_fields
-                scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
-             end do
-             write_temperature = .true.
-          else
-             ! All remaining fields are scalars (no temperature field)
-             n_scalar_fields = data%size() - 4
-             allocate(scalar_fields(n_scalar_fields))
-             do i = 1, n_scalar_fields
-                scalar_fields(i)%ptr => data%items(i+4)%ptr%x(:,1,1,1)
-             end do
-             write_temperature = .false.
-          end if
+          tem%ptr => data%items(5)%ptr%x(:,1,1,1)
+          n_scalar_fields = data%size() - 5
+          allocate(scalar_fields(n_scalar_fields))
+          do i = 1, n_scalar_fields
+             scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
+          end do
           write_pressure = .true.
           write_velocity = .true.
+          write_temperature = .true.
        case default
           call neko_error('This many fields not supported yet, fld_file')
        end select
@@ -537,6 +525,9 @@ contains
 
     if (allocated(tmp_dp)) deallocate(tmp_dp)
     if (allocated(tmp_sp)) deallocate(tmp_sp)
+    if (allocated(tempo)) deallocate(tempo)
+    if (allocated(scalar_fields)) deallocate(scalar_fields)
+
   end subroutine fld_file_write
 
   subroutine fld_file_write_metadata_vector(this, fh, byte_offset, x, y, z, &

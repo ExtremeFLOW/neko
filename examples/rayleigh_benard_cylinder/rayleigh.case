@@ -5,12 +5,12 @@
         "output_at_end": true,
         "output_boundary": true,
         "time": {
-            "end_time": 250,
+            "end_time": 250.0,
             "timestep": 2e-3
         },
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
-        "checkpoint_value": 50,
+        "checkpoint_value": 50.0,
         "job_timelimit": "12:00:00",
         "numerics": {
             "time_order": 3,
@@ -25,9 +25,9 @@
                 {
                     "type": "boussinesq",
                     "scalar_field": "temperature",
-                    "g": [ 0, 0, 1 ],
-                    "reference_value": 0,
-                    "beta": 1
+                    "g": [ 0.0, 0.0, 1.0 ],
+                    "reference_value": 0.0,
+                    "beta": 1.0
                 }
             ],
             "initial_condition": {
@@ -57,7 +57,7 @@
                 "max_iterations": 800
             },
             "output_control": "nsamples",
-            "output_value": 10,
+            "output_value": 10.0,
             "boundary_conditions": [
                 {
                     "type": "no_slip",
@@ -88,7 +88,7 @@
                 },
                 {
                     "type": "neumann",
-                    "flux": 0,
+                    "flux": 0.0,
                     "zone_indices": [ 3 ]
                 }
             ]
@@ -97,7 +97,7 @@
             {
                 "type": "probes",
                 "compute_control": "simulationtime",
-                "compute_value": 1,
+                "compute_value": 1.0,
                 "points_file": "probes.csv",
                 "output_file": "output.csv",
                 "fields": [

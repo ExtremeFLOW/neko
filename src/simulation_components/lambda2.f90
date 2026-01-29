@@ -38,7 +38,7 @@ module lambda2
   use num_types, only : rp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use time_state, only : time_state_t
   use operators, only : lambda2op
@@ -113,10 +113,10 @@ contains
   subroutine lambda2_init_common(this)
     class(lambda2_t), intent(inout) :: this
 
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
-    this%lambda2 => neko_field_registry%get_field("lambda2")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
+    this%lambda2 => neko_registry%get_field("lambda2")
 
   end subroutine lambda2_init_common
 
