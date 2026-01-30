@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 !
 !> Computes the subgrid-scale contributions for Reynolds stresses.
 !! We use the Reynolds decomposition for a field u = <u> + u' = U + u'
-!! Spatial derivatives i.e. du/dx we denote dudx
 module fluid_sgs_stats
   use mean_field, only : mean_field_t
   use num_types, only : rp
@@ -81,9 +80,6 @@ module fluid_sgs_stats
      !> SEM coefficients.
      type(coef_t), pointer :: coef
 
-     !> Specify the name of the eddy viscosity field.
-     character(10) :: nut_field
-
      !> Number of statistical fields to be computed.
      integer :: n_stats = 13
 
@@ -109,7 +105,7 @@ contains
   !! @param v The y component of velocity.
   !! @param w The z component of velocity.
   !! @param nut_field Specifies the name of the nut field.
-  !! Optional, defaults to `uut`.
+  !! Optional, defaults to `nut`.
   subroutine fluid_sgs_stats_init(this, coef, u, v, w, nut_field)
     class(fluid_sgs_stats_t), intent(inout), target:: this
     type(coef_t), target :: coef
@@ -124,11 +120,11 @@ contains
     this%w => w
 
     if (present(nut_field)) then
-       this%nut_field = trim(nut_field)
+       this%nut => neko_registry%get_field_by_name(trim(nut_field))
     else
-       this%nut_field = 'nut'
+       this%nut => neko_registry%get_field_by_name('nut')
     end if
-    this%nut => neko_registry%get_field_by_name(this%nut_field)
+    
 
     ! Initialize work fields
     call this%stats_work%init(this%u%dof, 'stats')
@@ -149,12 +145,12 @@ contains
     call this%uw_sgs%init(this%stats_work, 'uw_sgs')
     call this%vw_sgs%init(this%stats_work, 'vw_sgs')
 
-    call this%s11_mean%init(this%s11_work, 's11')
-    call this%s22_mean%init(this%s22_work, 's22')
-    call this%s33_mean%init(this%s33_work, 's33')
-    call this%s12_mean%init(this%s12_work, 's12')
-    call this%s13_mean%init(this%s13_work, 's13')
-    call this%s23_mean%init(this%s23_work, 's23')
+    call this%s11_mean%init(this%s11_work, 's11_mean')
+    call this%s22_mean%init(this%s22_work, 's22_mean')
+    call this%s33_mean%init(this%s33_work, 's33_mean')
+    call this%s12_mean%init(this%s12_work, 's12_mean')
+    call this%s13_mean%init(this%s13_work, 's13_mean')
+    call this%s23_mean%init(this%s23_work, 's23_mean')
 
     allocate(this%stat_fields%items(this%n_stats))
 
@@ -275,6 +271,13 @@ contains
     call this%uv_sgs%reset()
     call this%uw_sgs%reset()
     call this%vw_sgs%reset()
+
+    call this%s11_mean%reset()
+    call this%s22_mean%reset()
+    call this%s33_mean%reset()
+    call this%s12_mean%reset()
+    call this%s13_mean%reset()
+    call this%s23_mean%reset()
 
   end subroutine fluid_sgs_stats_reset
 
