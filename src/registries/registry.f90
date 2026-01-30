@@ -898,8 +898,8 @@ contains
 
     this%counter = counter
 
-    log_buf = 'Reconstructing Registry'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+    log_buf = 'Registry'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct fields
     do il = 1, this%n_entries()
@@ -910,6 +910,8 @@ contains
     end do
 
     ! For now not clear what to do with matrix and vector
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
   end subroutine registry_amr_restart
 

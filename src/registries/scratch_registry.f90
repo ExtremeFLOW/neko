@@ -554,8 +554,8 @@ contains
 
     this%counter = counter
 
-    log_buf = 'Reconstructing Scratch Registry'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+    log_buf = 'Scratch Registry'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
@@ -575,6 +575,8 @@ contains
     end do
 
     ! For now nothing done with matrices and vectors
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
   end subroutine scratch_registry_amr_restart
 
