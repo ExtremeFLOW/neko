@@ -59,10 +59,6 @@ module scalar_sgs_stats
      type(mean_field_t) :: alphatdsdy !< <alphat*dsdy>
      type(mean_field_t) :: alphatdsdz !< <alphat*dsdz>
 
-     type(mean_field_t) :: dsdx_mean
-     type(mean_field_t) :: dsdy_mean
-     type(mean_field_t) :: dsdz_mean
-
      !> gradients
      type(field_t) :: dsdx_work
      type(field_t) :: dsdy_work
@@ -71,7 +67,7 @@ module scalar_sgs_stats
      !> SEM coefficients.
      type(coef_t), pointer :: coef
      !> Number of statistical fields to be computed.
-     integer :: n_stats = 7
+     integer :: n_stats = 4
      !> A list of size n_stats, whith entries pointing to the fields that will
      !! be output (the field components above.) Used to write the output.
      type(field_list_t) :: stat_fields
@@ -117,19 +113,12 @@ contains
     call this%alphatdsdy%init(this%stats_work, 'alphatdsdy')
     call this%alphatdsdz%init(this%stats_work, 'alphatdsdz')
 
-    call this%dsdx_mean%init(this%dsdx_work, 'dsdx_mean')
-    call this%dsdy_mean%init(this%dsdy_work, 'dsdy_mean')
-    call this%dsdz_mean%init(this%dsdz_work, 'dsdz_mean')
-
     allocate(this%stat_fields%items(this%n_stats))
 
     call this%stat_fields%assign_to_field(1, this%alphat_mean%mf)
     call this%stat_fields%assign_to_field(2, this%alphatdsdx%mf)
     call this%stat_fields%assign_to_field(3, this%alphatdsdy%mf)
     call this%stat_fields%assign_to_field(4, this%alphatdsdz%mf)
-    call this%stat_fields%assign_to_field(5, this%dsdx_mean%mf)
-    call this%stat_fields%assign_to_field(6, this%dsdy_mean%mf)
-    call this%stat_fields%assign_to_field(7, this%dsdz_mean%mf)
 
   end subroutine scalar_sgs_stats_init
 
@@ -149,10 +138,6 @@ contains
                 this%dsdy_work%x, &
                 this%dsdz_work%x, &
                 this%s%x, this%coef)
-
-      call this%dsdx_mean%update(k)
-      call this%dsdy_mean%update(k)
-      call this%dsdz_mean%update(k)
 
       call field_col3(stats_work, this%alphat, this%dsdx_work)
       call this%alphatdsdx%update(k)
@@ -181,10 +166,6 @@ contains
     call this%alphatdsdy%free()
     call this%alphatdsdz%free()
 
-    call this%dsdx_mean%free()
-    call this%dsdy_mean%free()
-    call this%dsdz_mean%free()
-
     nullify(this%coef)
     nullify(this%s)
     nullify(this%alphat)
@@ -200,10 +181,6 @@ contains
     call this%alphatdsdx%reset()
     call this%alphatdsdy%reset()
     call this%alphatdsdz%reset()
-
-    call this%dsdx_mean%reset()
-    call this%dsdy_mean%reset()
-    call this%dsdz_mean%reset()
 
   end subroutine scalar_sgs_stats_reset
 
