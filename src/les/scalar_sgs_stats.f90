@@ -91,16 +91,18 @@ contains
   !> Constructor. Initialize the fields associated with scalar_sgs_stats.
   !! @param coef SEM coefficients. Optional.
   !! @param s The scalar.
-  subroutine scalar_sgs_stats_init(this, coef, s)
+  !! @param alphat_field Specifies the name of the alphat field.
+  subroutine scalar_sgs_stats_init(this, coef, s, alphat_field)
     class(scalar_sgs_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(in) :: s
+    character(len=*), intent(in) :: alphat_field
 
     call this%free()
     this%coef => coef
 
     this%s => s
-    this%alphat => neko_registry%get_field(s%alphat_field_name)
+    this%alphat => neko_registry%get_field(alphat_field)
 
     ! Initialize work fields
     call this%stats_work%init(this%s%dof, 'stats')

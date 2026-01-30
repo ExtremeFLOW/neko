@@ -97,6 +97,7 @@ contains
     real(kind=rp) :: start_time
     type(field_t), pointer :: s
     type(coef_t), pointer :: coef
+    character(len=:), allocatable :: alphat_field
 
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
@@ -105,17 +106,19 @@ contains
          start_time, 0.0_rp)
     call json_get_or_default(json, 'field', &
          sname, 's')
+    call json_get_or_default(json, 'alphat_field', &
+         alphat_field, 'alphat')
 
     s => neko_registry%get_field(sname)
-    coef => case%scalar%c_Xh
+    coef => case%fluid%c_Xh
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        call scalar_sgs_stats_simcomp_init_from_components(this, s, coef, &
-            start_time, hom_dir, filename)
+            start_time, hom_dir, alphat_field, filename)
     else
        call scalar_sgs_stats_simcomp_init_from_components(this, s, coef, &
-            start_time, hom_dir)
+            start_time, hom_dir, alphat_field)
     end if
 
   end subroutine scalar_sgs_stats_simcomp_init_from_json
@@ -127,13 +130,15 @@ contains
   !! @param coef sem coefs
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
+  !! @param alphat_field name of the eddy diffusivity field
   subroutine scalar_sgs_stats_simcomp_init_from_components(this, s, coef, &
-       start_time, hom_dir, fname)
+       start_time, hom_dir, alphat_field, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
     type(field_t), intent(in), target :: s
     type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: alphat_field
     character(len=*), intent(in), optional :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
     character(len=LOG_SIZE) :: log_buf
@@ -142,13 +147,15 @@ contains
     call neko_log%section('scalar stats')
     write(log_buf, '(A,A)') 'Scalar field: ', trim(s%name)
     call neko_log%message(log_buf)
+    write(log_buf, '(A,A)') 'Eddy diffusivity field: ', trim(alphat_field)
+    call neko_log%message(log_buf)
     write(log_buf, '(A,E15.7)') 'Start time: ', start_time
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
 
 
-    call this%stats%init(coef, s)
+    call this%stats%init(coef, s, alphat_field)
 
     this%start_time = start_time
     this%time = start_time
