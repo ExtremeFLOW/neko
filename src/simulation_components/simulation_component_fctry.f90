@@ -37,6 +37,7 @@ submodule (simulation_component) simulation_component_fctry
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
   use scalar_stats_simcomp, only : scalar_stats_simcomp_t
+  use scalar_sgs_stats_simcomp, only : scalar_sgs_stats_simcomp_t
   use user_stats, only : user_stats_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
@@ -53,7 +54,7 @@ submodule (simulation_component) simulation_component_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(15) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(16) = [character(len=20) :: &
        "lambda2", &
        "probes", &
        "les_model", &
@@ -61,6 +62,7 @@ submodule (simulation_component) simulation_component_fctry
        "fluid_stats", &
        "fluid_sgs_stats", &
        "scalar_stats", &
+       "scalar_sgs_stats", &
        "grad", &
        "div", &
        "curl", &
@@ -139,6 +141,8 @@ contains
        allocate(fluid_sgs_stats_simcomp_t::object)
     case ("scalar_stats")
        allocate(scalar_stats_simcomp_t::object)
+    case ("scalar_sgs_stats")
+       allocate(scalar_sgs_stats_simcomp_t::object)
     case ("user_stats")
        allocate(user_stats_t::object)
     case ("spectral_error")
