@@ -37,7 +37,7 @@ module fluid_pnpn
   use symmetry, only : symmetry_t
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use num_types, only : rp
+  use num_types, only : rp, i8 ! added for amr
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
@@ -85,7 +85,8 @@ module fluid_pnpn
   use time_state, only : time_state_t
   
   use comm, only : NEKO_COMM, pe_rank !!!! pe_rank added
-  
+
+  use math, only : glsum ! added for amr
   use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
        MPI_INTEGER, MPI_LOGICAL
@@ -1253,11 +1254,11 @@ contains
     this%counter = counter
 
     if (allocated(this%name)) then
-       log_buf = 'Reconstructing Fluid PnPn: '//trim(this%name)
+       log_buf = 'Fluid PnPn: '//trim(this%name)
     else
-       log_buf = 'Reconstructing Fluid PnPn'
+       log_buf = 'Fluid PnPn'
     end if
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct dofmap
     call this%dm_Xh%amr_restart(reconstruct, counter, tstep)
@@ -1302,10 +1303,20 @@ contains
     ! fluid source term?????
 
     ! Krylov solver
+    call this%ksp_vel%amr_restart(reconstruct, counter, tstep)
+    call this%ksp_prs%amr_restart(reconstruct, counter, tstep)
 
     ! Preconditioners
+    call this%pc_vel%amr_restart(reconstruct, counter, tstep)
+    call this%pc_prs%amr_restart(reconstruct, counter, tstep)
 
     ! Projection space
+    if (this%vel_projection_dim .gt. 0) then
+       call this%proj_vel%amr_restart(reconstruct, counter, tstep)
+    end if
+    if (this%pr_projection_dim .gt. 0) then
+       call this%proj_prs%amr_restart(reconstruct, counter, tstep)
+    end if
 
     ! Reconstruct extrapolation velocity
     if (associated(this%u_e)) call this%u_e%amr_restart(reconstruct, counter, &
@@ -1320,6 +1331,8 @@ contains
          call this%mu_tot%amr_restart(reconstruct, counter, tstep)
 
     ! global number of points
+    this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
 
     ! Reallocate right hand side?????????????????????
     call this%p_res%amr_reallocate(reconstruct, counter, tstep)
@@ -1347,8 +1360,9 @@ contains
     call this%advz%amr_restart(reconstruct, counter, tstep)
 
 
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
     
-    write(*,*) 'TESTfluid', pe_rank
+    write(*,*) 'TESTfluid', pe_rank, this%glb_n_points, this%glb_unique_points
     
   end subroutine fluid_pnpn_amr_restart
 
