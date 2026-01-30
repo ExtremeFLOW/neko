@@ -64,7 +64,7 @@ var searchData=
   ['scalar_5fstats_5freset_61',['scalar_stats_reset',['../dc/d5e/namespacescalar__stats.html#aea3f472640330a29d0adbc37048c6cc3',1,'scalar_stats']]],
   ['scalar_5fstats_5fsimcomp_5fcompute_62',['scalar_stats_simcomp_compute',['../d5/df8/namespacescalar__stats__simcomp.html#a5affabdd092c919c15d5b8d23d416bd0',1,'scalar_stats_simcomp']]],
   ['scalar_5fstats_5fsimcomp_5ffree_63',['scalar_stats_simcomp_free',['../d5/df8/namespacescalar__stats__simcomp.html#a0bd924b91658dd83a966081584b7f538',1,'scalar_stats_simcomp']]],
-  ['scalar_5fstats_5fsimcomp_5finit_5ffrom_5fcomponents_64',['scalar_stats_simcomp_init_from_components',['../d5/df8/namespacescalar__stats__simcomp.html#a77bbca8ad8d1576447d7fc169a085252',1,'scalar_stats_simcomp']]],
+  ['scalar_5fstats_5fsimcomp_5finit_5ffrom_5fcomponents_64',['scalar_stats_simcomp_init_from_components',['../d5/df8/namespacescalar__stats__simcomp.html#a30915401c838ca338d62371a2d8da761',1,'scalar_stats_simcomp']]],
   ['scalar_5fstats_5fsimcomp_5finit_5ffrom_5fjson_65',['scalar_stats_simcomp_init_from_json',['../d5/df8/namespacescalar__stats__simcomp.html#a292899ef0f36791980625f85ae3c87aa',1,'scalar_stats_simcomp']]],
   ['scalar_5fstats_5fsimcomp_5frestart_66',['scalar_stats_simcomp_restart',['../d5/df8/namespacescalar__stats__simcomp.html#a2b3aef6d8abf2a19f442e73c8ef5a7fb',1,'scalar_stats_simcomp']]],
   ['scalar_5fstats_5fupdate_67',['scalar_stats_update',['../dc/d5e/namespacescalar__stats.html#aa5566a78671c59995c5eeb1d7fd19c5a',1,'scalar_stats']]],

@@ -38,6 +38,7 @@ var structprobes_1_1probes__t =
     [ "n_local_probes_tot", "d7/dd3/structprobes_1_1probes__t.html#adf6e85520dc7d532f48c40a17648e713", null ],
     [ "n_local_probes_tot_offset", "d7/dd3/structprobes_1_1probes__t.html#a5e20990a0ee8f2545dd0ba133a97ec7a", null ],
     [ "n_probes_offset", "d7/dd3/structprobes_1_1probes__t.html#ab98c0b617033df34b9d23fd5ee53b0fa", null ],
+    [ "name", "d7/dd3/structprobes_1_1probes__t.html#a5bbbafdd10fc5f071a23b4f96383d5e5", null ],
     [ "order", "d7/dd3/structprobes_1_1probes__t.html#a94c0ad573141501bb354fd8c3f93a830", null ],
     [ "out_vals_trsp", "d7/dd3/structprobes_1_1probes__t.html#aff4278fc9ae5fb5f6494b12c6c3627f1", null ],
     [ "out_values", "d7/dd3/structprobes_1_1probes__t.html#a17f125bb7e216cb50bd667a1546b8dd6", null ],
