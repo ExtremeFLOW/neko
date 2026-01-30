@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Add option for writing the mesh in every output.
 - *BEAKING* JSON case file parsing now uses strict type checking. This means,
   for example, that providing an integer like 2 for a real entry will throw an
   error, one should set 2.0. Descriptive error and warning messages are issued.
