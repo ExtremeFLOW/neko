@@ -99,10 +99,12 @@ contains
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: stat_set
     character(len=:), allocatable :: sname
+    character(len=:), allocatable :: name
     real(kind=rp) :: start_time
     type(field_t), pointer :: s, u, v, w, p
     type(coef_t), pointer :: coef
 
+    call json_get_or_default(json, "name", name, "scalar_stats")
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
@@ -119,19 +121,21 @@ contains
     w => neko_registry%get_field("w")
     p => neko_registry%get_field("p")
     coef => case%fluid%c_Xh
+    this%name = name
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, &
-            coef, start_time, hom_dir, stat_set, filename)
+       call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
+            p, coef, start_time, hom_dir, stat_set, filename)
     else
-       call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, &
-            coef, start_time, hom_dir, stat_set)
+       call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
+            p, coef, start_time, hom_dir, stat_set)
     end if
 
   end subroutine scalar_stats_simcomp_init_from_json
 
   !> Actual constructor.
+  !! @param name The unique name of the simcomp.
   !! @param s scalar
   !! @param u x-velocity
   !! @param v x-velocity
@@ -140,9 +144,10 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
-  subroutine scalar_stats_simcomp_init_from_components(this, s, u, v, w, &
+  subroutine scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
        p, coef, start_time, hom_dir, stat_set, fname)
     class(scalar_stats_simcomp_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
@@ -153,6 +158,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=5) :: prefix
 
+    this%name = name
     call neko_log%section('Scalar stats')
     write(log_buf, '(A,A)') 'Scalar field: ', trim(s%name)
     call neko_log%message(log_buf)

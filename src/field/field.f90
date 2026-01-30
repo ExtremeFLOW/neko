@@ -182,6 +182,7 @@ contains
     end if
 
     if (this%internal_dofmap) then
+       call this%dof%free()
        deallocate(this%dof)
        this%internal_dofmap = .false.
     end if
