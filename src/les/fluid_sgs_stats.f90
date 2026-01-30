@@ -70,18 +70,11 @@ module fluid_sgs_stats
      type(mean_field_t) :: uw_sgs !< <uw_sgs> = <2nut*S13>
      type(mean_field_t) :: vw_sgs !< <vw_sgs> = <2nut*S23>
 
-     type(mean_field_t) :: s11_mean
-     type(mean_field_t) :: s22_mean
-     type(mean_field_t) :: s33_mean
-     type(mean_field_t) :: s12_mean
-     type(mean_field_t) :: s13_mean
-     type(mean_field_t) :: s23_mean
-
      !> SEM coefficients.
      type(coef_t), pointer :: coef
 
      !> Number of statistical fields to be computed.
-     integer :: n_stats = 13
+     integer :: n_stats = 7
 
      !> A list of size n_stats, whith entries pointing to the fields that will
      !! be output (the field components above.) Used to write the output.
@@ -145,13 +138,6 @@ contains
     call this%uw_sgs%init(this%stats_work, 'uw_sgs')
     call this%vw_sgs%init(this%stats_work, 'vw_sgs')
 
-    call this%s11_mean%init(this%s11_work, 's11_mean')
-    call this%s22_mean%init(this%s22_work, 's22_mean')
-    call this%s33_mean%init(this%s33_work, 's33_mean')
-    call this%s12_mean%init(this%s12_work, 's12_mean')
-    call this%s13_mean%init(this%s13_work, 's13_mean')
-    call this%s23_mean%init(this%s23_work, 's23_mean')
-
     allocate(this%stat_fields%items(this%n_stats))
 
     call this%stat_fields%assign_to_field(1, this%nut_mean%mf)
@@ -162,12 +148,6 @@ contains
     call this%stat_fields%assign_to_field(5, this%uv_sgs%mf)
     call this%stat_fields%assign_to_field(6, this%uw_sgs%mf)
     call this%stat_fields%assign_to_field(7, this%vw_sgs%mf)
-    call this%stat_fields%assign_to_field(8, this%s11_mean%mf)
-    call this%stat_fields%assign_to_field(9, this%s22_mean%mf)
-    call this%stat_fields%assign_to_field(10, this%s33_mean%mf)
-    call this%stat_fields%assign_to_field(11, this%s12_mean%mf)
-    call this%stat_fields%assign_to_field(12, this%s13_mean%mf)
-    call this%stat_fields%assign_to_field(13, this%s23_mean%mf)
 
   end subroutine fluid_sgs_stats_init
 
@@ -189,13 +169,6 @@ contains
                        this%s12_work%x, &
                        this%s13_work%x, &
                        this%s23_work%x, this%u, this%v, this%w, this%coef)
-
-      call this%s11_mean%update(k)
-      call this%s22_mean%update(k)
-      call this%s33_mean%update(k)
-      call this%s12_mean%update(k)
-      call this%s13_mean%update(k)
-      call this%s23_mean%update(k)
 
       ! form the double sij tensor
       call field_cmult(this%s11_work, 2.0_rp)
@@ -244,13 +217,6 @@ contains
     call this%uw_sgs%free()
     call this%vw_sgs%free()
 
-    call this%s11_mean%free()
-    call this%s22_mean%free()
-    call this%s33_mean%free()
-    call this%s12_mean%free()
-    call this%s13_mean%free()
-    call this%s23_mean%free()
-
     nullify(this%coef)
     nullify(this%u)
     nullify(this%v)
@@ -271,13 +237,6 @@ contains
     call this%uv_sgs%reset()
     call this%uw_sgs%reset()
     call this%vw_sgs%reset()
-
-    call this%s11_mean%reset()
-    call this%s22_mean%reset()
-    call this%s33_mean%reset()
-    call this%s12_mean%reset()
-    call this%s13_mean%reset()
-    call this%s23_mean%reset()
 
   end subroutine fluid_sgs_stats_reset
 
