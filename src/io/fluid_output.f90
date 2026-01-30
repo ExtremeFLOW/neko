@@ -84,7 +84,7 @@ contains
        end if
     end if
 
-    if present(always_write_mesh) then
+    if (present(always_write_mesh)) then
        this%always_write_mesh = always_write_mesh
     end if
 
