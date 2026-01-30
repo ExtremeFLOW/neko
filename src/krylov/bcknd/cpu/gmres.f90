@@ -44,6 +44,7 @@ module gmres
   use neko_config, only : NEKO_BLK_SIZE
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -64,6 +65,8 @@ module gmres
      procedure, pass(this) :: free => gmres_free
      procedure, pass(this) :: solve => gmres_solve
      procedure, pass(this) :: solve_coupled => gmres_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gmres_amr_restart
   end type gmres_t
 
 contains
@@ -156,6 +159,8 @@ contains
     end if
 
     nullify(this%M)
+
+    call this%free_amr_base()
 
   end subroutine gmres_free
 
@@ -388,6 +393,22 @@ contains
 
   end function gmres_solve_coupled
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine gmres_amr_restart(this, reconstruct, counter, tstep)
+    class(gmres_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    write(*, *) 'TESTgmres'
+
+  end subroutine gmres_amr_restart
+
 end module gmres
-
-

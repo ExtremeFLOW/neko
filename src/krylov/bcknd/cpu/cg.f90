@@ -44,6 +44,7 @@ module cg
   use math, only : glsc3, rzero, copy, abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -61,6 +62,8 @@ module cg
      procedure, pass(this) :: free => cg_free
      procedure, pass(this) :: solve => cg_solve
      procedure, pass(this) :: solve_coupled => cg_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => cg_amr_restart
   end type cg_t
 
 contains
@@ -133,6 +136,8 @@ contains
     end if
 
     nullify(this%M)
+
+    call this%free_amr_base()
 
   end subroutine cg_free
 
@@ -286,6 +291,22 @@ contains
 
   end function cg_solve_coupled
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine cg_amr_restart(this, reconstruct, counter, tstep)
+    class(cg_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    write(*, *) 'TESTcg'
+
+  end subroutine cg_amr_restart
+
 end module cg
-
-

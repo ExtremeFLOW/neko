@@ -44,6 +44,8 @@ module cg_device
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1
+  use utils, only : neko_error ! added for amr
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
 
@@ -63,6 +65,8 @@ module cg_device
      procedure, pass(this) :: free => cg_device_free
      procedure, pass(this) :: solve => cg_device_solve
      procedure, pass(this) :: solve_coupled => cg_device_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => cg_device_amr_restart
   end type cg_device_t
 
 contains
@@ -157,6 +161,8 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
+
+    call this%free_amr_base()
 
   end subroutine cg_device_free
 
@@ -263,5 +269,23 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cg_device_solve_coupled
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine cg_device_amr_restart(this, reconstruct, counter, tstep)
+    class(cg_device_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('CG_DEV: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine cg_device_amr_restart
 
 end module cg_device

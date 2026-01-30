@@ -43,6 +43,8 @@ module gmres_sx
   use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2, abscmp
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08
+  use utils, only : neko_error ! added for amr
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -66,6 +68,8 @@ module gmres_sx
      procedure, pass(this) :: free => sx_gmres_free
      procedure, pass(this) :: solve => sx_gmres_solve
      procedure, pass(this) :: solve_coupled => sx_gmres_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => sx_gmres_amr_restart
   end type sx_gmres_t
 
 contains
@@ -173,6 +177,8 @@ contains
     end if
 
     nullify(this%M)
+
+    call this%free_amr_base()
 
   end subroutine sx_gmres_free
 
@@ -358,6 +364,22 @@ contains
 
   end function sx_gmres_solve_coupled
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine sx_gmres_amr_restart(this, reconstruct, counter, tstep)
+    class(sx_gmres_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('GMRES_SX: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine sx_gmres_amr_restart
+
 end module gmres_sx
-
-

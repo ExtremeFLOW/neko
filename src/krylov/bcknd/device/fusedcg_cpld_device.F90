@@ -48,6 +48,7 @@ module fusedcg_cpld_device
   use mpi_f08, only : MPI_IN_PLACE, MPI_Allreduce, &
        MPI_SUM
   use operators, only : rotate_cyc
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
@@ -96,6 +97,8 @@ module fusedcg_cpld_device
      procedure, pass(this) :: free => fusedcg_cpld_device_free
      procedure, pass(this) :: solve => fusedcg_cpld_device_solve
      procedure, pass(this) :: solve_coupled => fusedcg_cpld_device_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => fusedcg_cpld_device_amr_restart
   end type fusedcg_cpld_device_t
 
 #ifdef HAVE_CUDA
@@ -525,6 +528,8 @@ contains
        call device_event_destroy(this%gs_event3)
     end if
 
+    call this%free_amr_base()
+
   end subroutine fusedcg_cpld_device_free
 
   !> Pipelined PCG solve coupled solve
@@ -687,5 +692,23 @@ contains
     ksp_results%converged = .false.
 
   end function fusedcg_cpld_device_solve
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine fusedcg_cpld_device_amr_restart(this, reconstruct, counter, tstep)
+    class(fusedcg_cpld_device_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('FCG_CPLD_DEV: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine fusedcg_cpld_device_amr_restart
 
 end module fusedcg_cpld_device

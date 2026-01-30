@@ -47,6 +47,7 @@ module cg_cpld_device
   use device_mathops, only : device_opadd2cm
   use utils, only : neko_error
   use operators, only : rotate_cyc
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
 
@@ -91,6 +92,7 @@ module cg_cpld_device
      procedure, pass(this) :: free => cg_cpld_device_free
      procedure, pass(this) :: solve => cg_cpld_device_nop
      procedure, pass(this) :: solve_coupled => cg_cpld_device_solve
+     procedure, pass(this) :: amr_restart => cg_cpld_device_amr_restart
   end type cg_cpld_device_t
 
 contains
@@ -276,6 +278,8 @@ contains
        call device_event_destroy(this%gs_event)
     end if
 
+    call this%free_amr_base()
+
   end subroutine cg_cpld_device_free
 
   function cg_cpld_device_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) &
@@ -428,5 +432,23 @@ contains
     ksp_results%converged = this%is_converged(iter, rnorm)
 
   end function cg_cpld_device_solve
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine cg_cpld_device_amr_restart(this, reconstruct, counter, tstep)
+    class(cg_cpld_device_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('CG_CPLD_DEV: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine cg_cpld_device_amr_restart
 
 end module cg_cpld_device
