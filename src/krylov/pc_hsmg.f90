@@ -89,6 +89,7 @@ module hsmg
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
   use logger, only : neko_log, LOG_SIZE
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
   implicit none
@@ -138,6 +139,8 @@ module hsmg
      procedure, pass(this) :: free => hsmg_free
      procedure, pass(this) :: solve => hsmg_solve
      procedure, pass(this) :: update => hsmg_set_h
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => hsmg_amr_restart
   end type hsmg_t
 
 contains
@@ -469,6 +472,8 @@ contains
     call this%Xh_crs%free()
     call this%Xh_mg%free()
 
+    call this%free_amr_base()
+
   end subroutine hsmg_free
 
   !> The h1mg preconditioner from Nek5000.
@@ -619,4 +624,23 @@ contains
     end if
     call profiler_end_region('HSMG_solve', 8)
   end subroutine hsmg_solve
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine hsmg_amr_restart(this, reconstruct, counter, tstep)
+    class(hsmg_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    write(*, *) 'TESThsmg'
+
+  end subroutine hsmg_amr_restart
+
 end module hsmg

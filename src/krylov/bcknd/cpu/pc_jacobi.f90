@@ -38,6 +38,7 @@ module jacobi
   use num_types, only : rp
   use dofmap, only : dofmap_t
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -52,6 +53,8 @@ module jacobi
      procedure, pass(this) :: free => jacobi_free
      procedure, pass(this) :: solve => jacobi_solve
      procedure, pass(this) :: update => jacobi_update
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => jacobi_amr_restart
   end type jacobi_t
 
 contains
@@ -79,6 +82,9 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%coef)
+
+    call this%free_amr_base()
+
   end subroutine jacobi_free
 
   !> The jacobi preconditioner \f$ J z = r \f$
@@ -1380,5 +1386,23 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx2
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine jacobi_amr_restart(this, reconstruct, counter, tstep)
+    class(jacobi_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    write(*, *) 'TESTjacobi'
+
+  end subroutine jacobi_amr_restart
 
 end module jacobi
