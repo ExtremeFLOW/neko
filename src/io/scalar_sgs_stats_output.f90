@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements `fluid_sgs_stats_ouput_t`.
-module fluid_sgs_stats_output
-  use fluid_sgs_stats, only : fluid_sgs_stats_t
+!> Implements `scalar_sgs_stats_ouput_t`.
+module scalar_sgs_stats_output
+  use scalar_sgs_stats, only : scalar_sgs_stats_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use map_1d, only : map_1d_t
@@ -44,11 +44,11 @@ module fluid_sgs_stats_output
   implicit none
   private
 
-  !> Defines an output for the sgs statistics for fluid computed using the
-  !! `fluid_sgs_stats_t` object.
-  type, public, extends(output_t) :: fluid_sgs_stats_output_t
+  !> Defines an output for the sgs statistics for scalar computed using the
+  !! `scalar_sgs_stats_t` object.
+  type, public, extends(output_t) :: scalar_sgs_stats_output_t
      !> Pointer to the object computing the statistics.
-     type(fluid_sgs_stats_t), pointer :: stats => null()
+     type(scalar_sgs_stats_t), pointer :: stats => null()
      !> Space averaging object for 2 homogeneous directions.
      type(map_1d_t) :: map_1d
      !> Space averaging object for 1 homogeneous direction.
@@ -58,21 +58,21 @@ module fluid_sgs_stats_output
      integer :: output_dim
    contains
      !> Constructor.
-     procedure, pass(this) :: init => fluid_sgs_stats_output_init
+     procedure, pass(this) :: init => scalar_sgs_stats_output_init
      !> Destructor
-     procedure, pass(this) :: free => fluid_sgs_stats_output_free
+     procedure, pass(this) :: free => scalar_sgs_stats_output_free
      !> Samples the fields computed by the `stats` component.
-     procedure, pass(this) :: sample => fluid_sgs_stats_output_sample
-  end type fluid_sgs_stats_output_t
+     procedure, pass(this) :: sample => scalar_sgs_stats_output_sample
+  end type scalar_sgs_stats_output_t
 
 
 contains
 
   !> Constructor.
-  subroutine fluid_sgs_stats_output_init(this, stats, T_begin, &
+  subroutine scalar_sgs_stats_output_init(this, stats, T_begin, &
                                          hom_dir, name, path)
-    class(fluid_sgs_stats_output_t), intent(inout) :: this
-    type(fluid_sgs_stats_t), intent(inout), target :: stats
+    class(scalar_sgs_stats_output_t), intent(inout) :: this
+    type(scalar_sgs_stats_t), intent(inout), target :: stats
     real(kind=rp), intent(in) :: T_begin
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in), optional :: name
@@ -89,9 +89,9 @@ contains
        else if (present(name)) then
           fname = trim(name) // '.fld'
        else if (present(path)) then
-          fname = trim(path) // 'fluid_sgs_stats.fld'
+          fname = trim(path) // 'scalar_sgs_stats.fld'
        else
-          fname = 'fluid_sgs_stats.fld'
+          fname = 'scalar_sgs_stats.fld'
        end if
 
        this%output_dim = 3
@@ -108,9 +108,9 @@ contains
        else if (present(name)) then
           fname = trim(name) // '.csv'
        else if (present(path)) then
-          fname = trim(path) // 'fluid_sgs_stats.csv'
+          fname = trim(path) // 'scalar_sgs_stats.csv'
        else
-          fname = 'fluid_sgs_stats.csv'
+          fname = 'scalar_sgs_stats.csv'
        end if
        call this%map_1d%init_char(stats%coef, hom_dir, 1e-7_rp)
        this%output_dim = 1
@@ -119,11 +119,11 @@ contains
     call this%init_base(fname)
     this%stats => stats
     this%T_begin = T_begin
-  end subroutine fluid_sgs_stats_output_init
+  end subroutine scalar_sgs_stats_output_init
 
   !> Destructor
-  subroutine fluid_sgs_stats_output_free(this)
-    class(fluid_sgs_stats_output_t), intent(inout) :: this
+  subroutine scalar_sgs_stats_output_free(this)
+    class(scalar_sgs_stats_output_t), intent(inout) :: this
 
     call this%free_base()
 
@@ -131,11 +131,11 @@ contains
     call this%map_1d%free()
     call this%map_2d%free()
 
-  end subroutine fluid_sgs_stats_output_free
+  end subroutine scalar_sgs_stats_output_free
 
-  !> Sample fluid_sgs_stats at time @a t
-  subroutine fluid_sgs_stats_output_sample(this, t)
-    class(fluid_sgs_stats_output_t), intent(inout) :: this
+  !> Sample scalar_sgs_stats at time @a t
+  subroutine scalar_sgs_stats_output_sample(this, t)
+    class(scalar_sgs_stats_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
     type(matrix_t) :: avg_output_1d
@@ -163,6 +163,6 @@ contains
          call this%stats%reset()
       end if
     end associate
-  end subroutine fluid_sgs_stats_output_sample
+  end subroutine scalar_sgs_stats_output_sample
 
-end module fluid_sgs_stats_output
+end module scalar_sgs_stats_output

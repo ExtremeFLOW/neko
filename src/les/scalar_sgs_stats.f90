@@ -1,0 +1,208 @@
+! Copyright (c) 2025, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Computes the subgrid-scale contributions for the scalar fluxes.
+!! We use the Reynolds decomposition for a field u = <u> + u' = U + u'
+module scalar_sgs_stats
+  use mean_field, only : mean_field_t
+  use num_types, only : rp
+  use field_math, only : field_cmult, field_col3
+  use operators, only : grad
+  use coefs, only : coef_t
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use stats_quant, only : stats_quant_t
+  use registry, only : neko_registry
+  implicit none
+  private
+
+  type, public, extends(stats_quant_t) :: scalar_sgs_stats_t
+     !> Work fields
+     type(field_t) :: stats_work
+
+     !> Pointers to the instantenious quantities.
+     type(field_t), pointer :: alphat !< scalar diffusivity
+     type(field_t), pointer :: s !< scalar
+
+     type(mean_field_t) :: alphat_mean !< <alphat>
+
+     type(mean_field_t) :: alphatdsdx !< <alphat*dsdx>
+     type(mean_field_t) :: alphatdsdy !< <alphat*dsdy>
+     type(mean_field_t) :: alphatdsdz !< <alphat*dsdz>
+
+     type(mean_field_t) :: dsdx_mean
+     type(mean_field_t) :: dsdy_mean
+     type(mean_field_t) :: dsdz_mean
+
+     !> gradients
+     type(field_t) :: dsdx_work
+     type(field_t) :: dsdy_work
+     type(field_t) :: dsdz_work
+
+     !> SEM coefficients.
+     type(coef_t), pointer :: coef
+     !> Number of statistical fields to be computed.
+     integer :: n_stats = 7
+     !> A list of size n_stats, whith entries pointing to the fields that will
+     !! be output (the field components above.) Used to write the output.
+     type(field_list_t) :: stat_fields
+   contains
+     !> Constructor.
+     procedure, pass(this) :: init => scalar_sgs_stats_init
+     !> Destructor.
+     procedure, pass(this) :: free => scalar_sgs_stats_free
+     !> Update all the mean value fields with a new sample.
+     procedure, pass(this) :: update => scalar_sgs_stats_update
+     !> Reset all the computed means values and sampling times to zero.
+     procedure, pass(this) :: reset => scalar_sgs_stats_reset
+  end type scalar_sgs_stats_t
+
+contains
+
+  !> Constructor. Initialize the fields associated with scalar_sgs_stats.
+  !! @param coef SEM coefficients. Optional.
+  !! @param s The scalar.
+  subroutine scalar_sgs_stats_init(this, coef, s)
+    class(scalar_sgs_stats_t), intent(inout), target:: this
+    type(coef_t), target, optional :: coef
+    type(field_t), target, intent(in) :: s
+
+    call this%free()
+    this%coef => coef
+
+    this%s => s
+    this%alphat => neko_registry%get_field(s%alphat_field_name)
+
+    ! Initialize work fields
+    call this%stats_work%init(this%s%dof, 'stats')
+    call this%dsdx_work%init(this%s%dof, 'dsdx_work')
+    call this%dsdy_work%init(this%s%dof, 'dsdy_work')
+    call this%dsdz_work%init(this%s%dof, 'dsdz_work')
+
+    ! Initialize mean fields
+    call this%alphat_mean%init(this%alphat)
+
+    call this%alphatdsdx%init(this%stats_work, 'alphatdsdx')
+    call this%alphatdsdy%init(this%stats_work, 'alphatdsdy')
+    call this%alphatdsdz%init(this%stats_work, 'alphatdsdz')
+
+    call this%dsdx_mean%init(this%dsdx_work, 'dsdx_mean')
+    call this%dsdy_mean%init(this%dsdy_work, 'dsdy_mean')
+    call this%dsdz_mean%init(this%dsdz_work, 'dsdz_mean')
+
+    allocate(this%stat_fields%items(this%n_stats))
+
+    call this%stat_fields%assign_to_field(1, this%alphat_mean%mf)
+    call this%stat_fields%assign_to_field(2, this%alphatdsdx%mf)
+    call this%stat_fields%assign_to_field(3, this%alphatdsdy%mf)
+    call this%stat_fields%assign_to_field(4, this%alphatdsdz%mf)
+    call this%stat_fields%assign_to_field(5, this%dsdx_mean%mf)
+    call this%stat_fields%assign_to_field(6, this%dsdy_mean%mf)
+    call this%stat_fields%assign_to_field(7, this%dsdz_mean%mf)
+
+  end subroutine scalar_sgs_stats_init
+
+  !> Updates all fields with a new sample.
+  !! @param k Time elapsed since the last update.
+  subroutine scalar_sgs_stats_update(this, k)
+    class(scalar_sgs_stats_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: k
+    integer :: n
+
+    associate(stats_work => this%stats_work)
+      n = stats_work%dof%size()
+
+      call this%alphat_mean%update(k)
+
+      call grad(this%dsdx_work%x, &
+                this%dsdy_work%x, &
+                this%dsdz_work%x, &
+                this%s%x, this%coef)
+
+      call this%dsdx_mean%update(k)
+      call this%dsdy_mean%update(k)
+      call this%dsdz_mean%update(k)
+
+      call field_col3(stats_work, this%alphat, this%dsdx_work)
+      call this%alphatdsdx%update(k)
+      call field_col3(stats_work, this%alphat, this%dsdy_work)
+      call this%alphatdsdy%update(k)
+      call field_col3(stats_work, this%alphat, this%dsdz_work)
+      call this%alphatdsdz%update(k)
+
+    end associate
+
+  end subroutine scalar_sgs_stats_update
+
+
+  !> Destructor.
+  subroutine scalar_sgs_stats_free(this)
+    class(scalar_sgs_stats_t), intent(inout) :: this
+
+    call this%stats_work%free()
+    call this%dsdx_work%free()
+    call this%dsdy_work%free()
+    call this%dsdz_work%free()
+
+    call this%alphat_mean%free()
+
+    call this%alphatdsdx%free()
+    call this%alphatdsdy%free()
+    call this%alphatdsdz%free()
+
+    call this%dsdx_mean%free()
+    call this%dsdy_mean%free()
+    call this%dsdz_mean%free()
+
+    nullify(this%coef)
+    nullify(this%s)
+    nullify(this%alphat)
+
+  end subroutine scalar_sgs_stats_free
+
+  !> Resets all the computed means values and sampling times to zero.
+  subroutine scalar_sgs_stats_reset(this)
+    class(scalar_sgs_stats_t), intent(inout), target:: this
+
+    call this%alphat_mean%reset()
+
+    call this%alphatdsdx%reset()
+    call this%alphatdsdy%reset()
+    call this%alphatdsdz%reset()
+
+    call this%dsdx_mean%reset()
+    call this%dsdy_mean%reset()
+    call this%dsdz_mean%reset()
+
+  end subroutine scalar_sgs_stats_reset
+
+end module scalar_sgs_stats
