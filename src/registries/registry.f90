@@ -884,10 +884,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine registry_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine registry_amr_restart(this, reconstruct, counter, tstep)
     class(registry_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
     integer :: il
     type(field_t), pointer :: fld
@@ -904,7 +905,7 @@ contains
     do il = 1, this%n_entries()
        if (this%entries(il)%get_type() .eq. 'field') then
           fld => this%entries(il)%get_field()
-          call fld%amr_restart(reconstruct, counter)
+          call fld%amr_restart(reconstruct, counter, tstep)
        end if
     end do
 

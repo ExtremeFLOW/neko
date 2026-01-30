@@ -540,10 +540,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine scratch_registry_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine scratch_registry_amr_restart(this, reconstruct, counter, tstep)
     class(scratch_registry_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
     integer :: il
     type(field_t), pointer :: fld
@@ -558,7 +559,8 @@ contains
 
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
-    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
 
     ! reconstruct fields
     do il = 1, this%get_size()
@@ -568,7 +570,7 @@ contains
                &scratch field cannot be used while refining.")
           fld => this%entries(il)%get_field()
           ! no valuable data so reallocate not reconstruct
-          call fld%amr_reallocate(reconstruct, counter)
+          call fld%amr_reallocate(reconstruct, counter, tstep)
        end if
     end do
 

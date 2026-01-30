@@ -61,11 +61,12 @@ module amr_restart_component
      !> Restart the component
      !! @param[inout]  reconstruct   data reconstruction type
      !! @param[in]     counter       restart counter
-     subroutine amr_restart_comp(this, reconstruct, counter)
+     !! @param[in]     tstep         time step
+     subroutine amr_restart_comp(this, reconstruct, counter, tstep)
        import amr_restart_component_t, amr_reconstruct_t
        class(amr_restart_component_t), intent(inout) :: this
        type(amr_reconstruct_t), intent(inout) :: reconstruct
-       integer, intent(in) :: counter
+       integer, intent(in) :: counter, tstep
      end subroutine amr_restart_comp
   end interface
 

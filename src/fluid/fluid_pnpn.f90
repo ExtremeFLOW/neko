@@ -1240,10 +1240,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine fluid_pnpn_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine fluid_pnpn_amr_restart(this, reconstruct, counter, tstep)
     class(fluid_pnpn_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -1259,24 +1260,92 @@ contains
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct dofmap
-    call this%dm_Xh%amr_restart(reconstruct, counter)
+    call this%dm_Xh%amr_restart(reconstruct, counter, tstep)
 
     ! reconstruct gs
-    call this%gs_Xh%amr_restart(reconstruct, counter)
+    call this%gs_Xh%amr_restart(reconstruct, counter, tstep)
 
     ! reconstruct coef
-    call this%c_Xh%amr_restart(reconstruct, counter)
+    call this%c_Xh%amr_restart(reconstruct, counter, tstep)
 
     ! reconstruct simulation variables
-    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter)
-    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter)
-    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter)
-    if (associated(this%p)) call this%p%amr_restart(reconstruct, counter)
+    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%p)) call this%p%amr_restart(reconstruct, counter, tstep)
 
     ! Reconstruct lag arrays
-    call this%ulag%amr_restart(reconstruct, counter)
-    call this%vlag%amr_restart(reconstruct, counter)
-    call this%wlag%amr_restart(reconstruct, counter)
+    call this%ulag%amr_restart(reconstruct, counter, tstep)
+    call this%vlag%amr_restart(reconstruct, counter, tstep)
+    call this%wlag%amr_restart(reconstruct, counter, tstep)
+
+    ! Reconstruct checkpoint
+    ! LEFT FOR FUTURE
+
+    ! Reallocate right hand side??????????????????????
+    if (associated(this%f_x)) call this%f_x%amr_reallocate(reconstruct, &
+         counter, tstep)
+    if (associated(this%f_y)) call this%f_y%amr_reallocate(reconstruct, &
+         counter, tstep)
+    if (associated(this%f_z)) call this%f_z%amr_reallocate(reconstruct, &
+         counter, tstep)
+
+    ! Reconstruct material properties
+    if (associated(this%rho)) call this%rho%amr_restart(reconstruct, counter, &
+         tstep)
+    if (associated(this%mu)) call this%mu%amr_restart(reconstruct, counter, &
+         tstep)
+    call this%material_properties%amr_restart(reconstruct, counter, tstep)
+
+    ! boundary conditions
+
+    ! fluid source term?????
+
+    ! Krylov solver
+
+    ! Preconditioners
+
+    ! Projection space
+
+    ! Reconstruct extrapolation velocity
+    if (associated(this%u_e)) call this%u_e%amr_restart(reconstruct, counter, &
+         tstep)
+    if (associated(this%v_e)) call this%v_e%amr_restart(reconstruct, counter, &
+         tstep)
+    if (associated(this%w_e)) call this%w_e%amr_restart(reconstruct, counter, &
+         tstep)
+
+    ! Reconstruct total viscosity
+    if (associated(this%mu_tot)) &
+         call this%mu_tot%amr_restart(reconstruct, counter, tstep)
+
+    ! global number of points
+
+    ! Reallocate right hand side?????????????????????
+    call this%p_res%amr_reallocate(reconstruct, counter, tstep)
+    call this%u_res%amr_reallocate(reconstruct, counter, tstep)
+    call this%v_res%amr_reallocate(reconstruct, counter, tstep)
+    call this%w_res%amr_reallocate(reconstruct, counter, tstep)
+
+    ! Reallocate updates?????????????????????????????
+    call this%dp%amr_reallocate(reconstruct, counter, tstep)
+    call this%du%amr_reallocate(reconstruct, counter, tstep)
+    call this%dv%amr_reallocate(reconstruct, counter, tstep)
+    call this%dw%amr_reallocate(reconstruct, counter, tstep)
+
+    ! Reconstruct time variables
+    call this%abx1%amr_restart(reconstruct, counter, tstep)
+    call this%aby1%amr_restart(reconstruct, counter, tstep)
+    call this%abz1%amr_restart(reconstruct, counter, tstep)
+    call this%abx2%amr_restart(reconstruct, counter, tstep)
+    call this%aby2%amr_restart(reconstruct, counter, tstep)
+    call this%abz2%amr_restart(reconstruct, counter, tstep)
+
+    ! Reconstruct advection terms
+    call this%advx%amr_restart(reconstruct, counter, tstep)
+    call this%advy%amr_restart(reconstruct, counter, tstep)
+    call this%advz%amr_restart(reconstruct, counter, tstep)
+
 
     
     write(*,*) 'TESTfluid', pe_rank

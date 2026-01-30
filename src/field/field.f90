@@ -318,10 +318,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine field_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine field_amr_restart(this, reconstruct, counter, tstep)
     class(field_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -334,7 +335,8 @@ contains
 
     ! reconstruct dofmap; No need to check internal_dofmap flag, as AMR
     ! restart prevents recursive reconstructions
-    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
 
     ! reconstruct field data
     call reconstruct%refine_coarsen(this%x, this%x_d)
@@ -344,10 +346,11 @@ contains
   !> AMR reallocate; used for arrays not containing valuable data
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine field_amr_reallocate(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine field_amr_reallocate(this, reconstruct, counter, tstep)
     class(field_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -360,7 +363,8 @@ contains
 
     ! reconstruct dofmap; No need to check internal_dofmap flag, as AMR
     ! restart prevents recursive reconstructions
-    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
 
     ! reallocate arrays
     if (reconstruct%nold .ne. reconstruct%nnew) then

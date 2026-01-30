@@ -147,10 +147,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine field_series_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine field_series_amr_restart(this, reconstruct, counter, tstep)
     class(field_series_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
     integer :: il
 
@@ -164,11 +165,11 @@ contains
 
     ! reconstruct reference fields; It is safe to call it here, as AMR restart
     ! prevents recursive reconstructions
-    if (associated(this%f)) call this%f%amr_restart(reconstruct, counter)
+    if (associated(this%f)) call this%f%amr_restart(reconstruct, counter, tstep)
 
     ! reconstruct field series data
     do il = 1, this%len
-       call this%lf(il)%amr_restart(reconstruct, counter)
+       call this%lf(il)%amr_restart(reconstruct, counter, tstep)
     end do
 
   end subroutine field_series_amr_restart

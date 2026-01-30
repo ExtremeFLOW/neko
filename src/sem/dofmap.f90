@@ -208,10 +208,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine dofmap_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine dofmap_amr_restart(this, reconstruct, counter, tstep)
     class(dofmap_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?

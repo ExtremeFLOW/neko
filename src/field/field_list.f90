@@ -7,6 +7,7 @@ module field_list
   use mesh, only : mesh_t
   use utils, only : neko_error
   use comm, only : pe_rank
+  use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
@@ -265,10 +266,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine field_list_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine field_list_amr_restart(this, reconstruct, counter, tstep)
     class(field_list_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
     integer :: il
 
@@ -284,7 +286,7 @@ contains
     if (allocated(this%items)) then
        do il = 1, This%size()
           if (associated(this%items(il)%ptr)) &
-               call this%items(il)%ptr%amr_restart(reconstruct, counter)
+               call this%items(il)%ptr%amr_restart(reconstruct, counter, tstep)
        end do
     end if
 

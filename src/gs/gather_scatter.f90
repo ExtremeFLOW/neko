@@ -1484,10 +1484,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine gs_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine gs_amr_restart(this, reconstruct, counter, tstep)
     class(gs_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     integer :: ierr
     integer(i8) :: glb_nlocal, glb_nshared
     character(len=LOG_SIZE) :: log_buf
@@ -1503,7 +1504,7 @@ contains
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
     if (associated(this%dofmap)) &
-         call this%dofmap%amr_restart(reconstruct, counter)
+         call this%dofmap%amr_restart(reconstruct, counter, tstep)
 
     ! clear space
     deallocate(this%local_dof_gs, this%local_gs_dof, this%local_blk_len, &
@@ -1520,7 +1521,7 @@ contains
     ! reconstruct comm; for now just clearing stacks and deallocating arrays,
     ! as gs_schedule calls comm%init
     if (allocated(this%comm)) &
-         call this%comm%amr_restart(reconstruct, counter)
+         call this%comm%amr_restart(reconstruct, counter, tstep)
 
     call gs_init_mapping(this)
 

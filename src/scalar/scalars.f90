@@ -317,11 +317,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine scalars_amr_restart(this, reconstruct, &
-       counter)
+  !! @param[in]     tstep         time step
+  subroutine scalars_amr_restart(this, reconstruct, counter, tstep)
     class(scalars_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     integer :: il
     character(len=LOG_SIZE) :: log_buf
 
@@ -336,7 +336,7 @@ contains
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     do il = 1, size(this%scalar_fields(:))
-       call this%scalar_fields(il)%amr_restart(reconstruct, counter)
+       call this%scalar_fields(il)%amr_restart(reconstruct, counter, tstep)
     end do
 
   end subroutine scalars_amr_restart

@@ -389,10 +389,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine gs_device_shmem_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine gs_device_shmem_amr_restart(this, reconstruct, counter, tstep)
     class(gs_device_shmem_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
 
     call neko_error('device_shmem; Nothing done for AMR reconstruction')
 

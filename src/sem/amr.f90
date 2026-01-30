@@ -225,24 +225,27 @@ contains
 
   !> Restart components
   !! @param[in]      user          user interface
-  subroutine amr_restart(this, user)
+  !! @param[in]      time          time state
+  subroutine amr_restart(this, user, time)
     class(amr_t), intent(inout) :: this
     type(user_t), intent(in) :: user
+    type(time_state_t), intent(in) :: time
     integer :: il
 
     ! update restart counter
     this%counter = this%counter + 1
 
     ! Start with registries
-    call neko_registry%amr_restart(this%reconstruct, this%counter)
-    call neko_scratch_registry%amr_restart(this%reconstruct, this%counter)
+    call neko_registry%amr_restart(this%reconstruct, this%counter, time%tstep)
+    call neko_scratch_registry%amr_restart(this%reconstruct, this%counter, &
+         time%tstep)
 
     ! restart components
     if (allocated(this%components)) then
        do il = 1, this%ncomponents
           if (associated(this%components(il)%cmp)) &
                call this%components(il)%cmp%amr_restart(this%reconstruct, &
-               this%counter)
+               this%counter, time%tstep)
        end do
     end if
 
@@ -296,7 +299,7 @@ contains
           call this%reconstruct%map_get()
 
           ! restart solver
-          call this%restart(user)
+          call this%restart(user, time)
 
           ! Free mapping for vector reconstruction
           call this%reconstruct%map_free()

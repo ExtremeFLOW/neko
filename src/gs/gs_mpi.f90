@@ -41,6 +41,7 @@ module gs_mpi
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use utils, only : neko_error
   !$ use omp_lib
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding
   implicit none
@@ -265,10 +266,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine gs_mpi_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine gs_mpi_amr_restart(this, reconstruct, counter, tstep)
     class(gs_mpi_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     integer :: il
 
     ! Was this component already restarted?

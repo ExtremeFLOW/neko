@@ -609,12 +609,12 @@ contains
 
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
-  !! @param[in]  counter       restart counter
-  subroutine scalar_pnpn_amr_restart(this, reconstruct, &
-       counter)
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine scalar_pnpn_amr_restart(this, reconstruct, counter, tstep)
     class(scalar_pnpn_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
     !call neko_error('Nothing done for AMR reconstruction')

@@ -1306,10 +1306,11 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  subroutine coef_amr_restart(this, reconstruct, counter)
+  !! @param[in]     tstep         time step
+  subroutine coef_amr_restart(this, reconstruct, counter, tstep)
     class(coef_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -1322,11 +1323,13 @@ contains
 
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
-    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter)
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
 
     ! reconstruct gs; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
-    if (associated(this%gs_h)) call this%gs_h%amr_restart(reconstruct, counter)
+    if (associated(this%gs_h)) call this%gs_h%amr_restart(reconstruct, &
+         counter, tstep)
 
     !!! THERE ARE 2 INITIALISATION ROUTINES, BUT ONLY init_all IS USED HERE!!!
 
