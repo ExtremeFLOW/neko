@@ -43,16 +43,20 @@ module projection_vel
   use device, only : device_get_ptr
   use device_math, only : device_copy, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
-  use, intrinsic :: iso_c_binding
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use time_step_controller, only : time_step_controller_t
   use projection, only : projection_t, proj_ortho
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
+  use, intrinsic :: iso_c_binding
 
   implicit none
   private
 
-  type, public :: projection_vel_t
+  type, public, extends(amr_restart_component_t) :: projection_vel_t
      type(projection_t) :: proj_u, proj_v, proj_w
-     integer :: activ_step
+     integer :: activ_step ! steps to activate projection
+     integer :: activ_init ! initial activation step; for AMR
      integer :: L
    contains
      procedure, pass(this) :: init => projection_init_vel
@@ -60,6 +64,8 @@ module projection_vel
      procedure, pass(this) :: pre_solving => projection_pre_solving_vel
      procedure, pass(this) :: post_solving => projection_post_solving_vel
      procedure, pass(this) :: project_back => bcknd_project_back_vel
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => projection_vel_amr_restart
   end type projection_vel_t
 
 contains
@@ -81,6 +87,7 @@ contains
 
     this%L = L
     this%activ_step = activ_step
+    this%activ_init = this%activ_step
 
 
   end subroutine projection_init_vel
@@ -129,7 +136,7 @@ contains
     ! for all three velocity equations are the same
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if ((.not. dt_controller%is_variable_dt) .or. &
-            (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
+            (dt_controller%dt_last_change .gt. this%activ_init - 1)) then
           call this%project_back(x_u, x_v, x_w, Ax, coef, bclst_u, bclst_v, &
                bclst_w, gs_h, n)
        end if
@@ -237,4 +244,36 @@ contains
     call proj_ortho(this%proj_w, coef, n)
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back_vel
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine projection_vel_amr_restart(this, reconstruct, counter, tstep)
+    class(projection_vel_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    if (this%L .le. 0) return ! no projection
+
+    log_buf = 'Velocity projection'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+    ! postpone activation
+    this%activ_step = tstep + this%activ_init
+
+    ! reset component
+    call this%proj_u%amr_restart(reconstruct, counter, tstep)
+    call this%proj_v%amr_restart(reconstruct, counter, tstep)
+    call this%proj_w%amr_restart(reconstruct, counter, tstep)
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine projection_vel_amr_restart
+
 end module projection_vel

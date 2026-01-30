@@ -48,7 +48,7 @@ module amr_reconstruct
   type, public :: amr_reconstruct_t
      !> pointer mesh manager data transfer
      class(mesh_manager_transfer_t), pointer :: transfer
-     !> AMR function space \f$ X_h \f$
+     !> AMR interpolation arrays
      type(amr_interpolate_t) :: interpolate
 
      !> Work space for single element refinement
