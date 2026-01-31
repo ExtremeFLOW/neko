@@ -294,9 +294,6 @@ contains
     end if
     call this%params%info('case.scalars', found = found, var_type = var_type)
     if (found) then
-       if (var_type .ne. 4) then
-          call neko_error('case.scalars must be a JSON array.')
-       end if
        call this%params%info('case.scalars', n_children = n_scalars)
        if (n_scalars > 0) then
           scalar = .true.
