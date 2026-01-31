@@ -97,7 +97,7 @@ contains
     type(user_t), target, intent(in) :: user
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
-    TYPE(field_t), TARGET, INTENT(IN) :: rho
+    type(field_t), target, intent(in) :: rho
     type(chkp_t), target, intent(inout) :: chkp
     type(json_file) :: json_subdict
     integer :: i, j
@@ -188,7 +188,6 @@ contains
 
     ! Ensure the scalar has a name (default "s")
     call json_get_or_default(params, 'name', field_name, 's')
-    call params%print()
 
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
