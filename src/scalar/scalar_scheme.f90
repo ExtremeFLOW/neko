@@ -35,9 +35,9 @@
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
-  use num_types, only: rp
+  use num_types, only : rp
   use field, only : field_t
-  use field_list, only: field_list_t
+  use field_list, only : field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
@@ -51,18 +51,19 @@ module scalar_scheme
   use bc, only : bc_t
   use bc_list, only : bc_list_t
   use precon, only : pc_t, precon_factory, precon_destroy
-  use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
+  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use registry, only : neko_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
   use utils, only : neko_error, neko_warning, NEKO_FNAME_LEN
-  use comm, only: NEKO_COMM
+  use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
@@ -282,13 +283,13 @@ contains
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
     call json_get(params, 'solver.preconditioner', precon_params)
-    call json_get(params, 'solver.absolute_tolerance', &
+    call json_get_or_lookup(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.projection_space_size', &
          this%projection_dim, 0)
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
@@ -350,7 +351,7 @@ contains
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'solver.max_iterations', &
          integer_val, KSP_MAX_ITER)
     call json_get_or_default(params, &
@@ -540,7 +541,7 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
 
   end subroutine scalar_scheme_update_material_properties
@@ -594,13 +595,13 @@ contains
           write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
                ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
-          write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
+          write(log_buf, '(A)') 'Specific heat capacity will be set to 1, '
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'conductivity to 1/Pe. Assumes density is 1.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'Pe', const_lambda)
+          call json_get_or_lookup(params, 'Pe', const_lambda)
           write(log_buf, '(A,ES13.6)') 'Pe         :', const_lambda
           call neko_log%message(log_buf)
 
@@ -610,8 +611,8 @@ contains
           const_lambda = 1.0_rp/const_lambda
           ! Dimensional case
        else
-          call json_get(params, 'lambda', const_lambda)
-          call json_get(params, 'cp', const_cp)
+          call json_get_or_lookup(params, 'lambda', const_lambda)
+          call json_get_or_lookup(params, 'cp', const_cp)
        end if
     end if
     ! We need to fill the fields based on the parsed const values
@@ -636,7 +637,7 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine scalar_scheme_set_material_properties
 

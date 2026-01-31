@@ -32,14 +32,14 @@
 !
 !> @brief Module containing Signed Distance Functions.
 module signed_distance
-  use num_types, only: dp, rp
-  use field, only: field_t
-  use tri, only: tri_t
-  use tri_mesh, only: tri_mesh_t
-  use aabb_tree, only: aabb_tree_t
-  use device, only: device_memcpy, HOST_TO_DEVICE
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use utils, only: neko_error, neko_warning
+  use num_types, only : dp, rp
+  use field, only : field_t
+  use tri, only : tri_t
+  use tri_mesh, only : tri_mesh_t
+  use aabb_tree, only : aabb_tree_t
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use utils, only : neko_error, neko_warning
 
   implicit none
   private
@@ -70,7 +70,7 @@ contains
        max_dist = huge(0.0_dp)
     end if
 
-    select type(object)
+    select type (object)
     type is (tri_mesh_t)
        call signed_distance_field_tri_mesh(field_data, object, max_dist)
 
@@ -143,9 +143,9 @@ contains
   !! @param mesh Boundary mesh
   !! @return Signed distance value
   function tri_mesh_brute_force(mesh, p, max_distance) result(distance)
-    use tri, only: tri_t
-    use point, only: point_t
-    use num_types, only: dp
+    use tri, only : tri_t
+    use point, only : point_t
+    use num_types, only : dp
 
     implicit none
 
@@ -191,10 +191,11 @@ contains
   !! @param p Point
   !! @param max_distance Maximum distance outside the mesh
   !! @return Signed distance value
-  function tri_mesh_aabb_tree(tree, object_list, p, max_distance) result(distance)
-    use aabb, only: aabb_t
-    use aabb_tree, only: aabb_node_t, AABB_NULL_NODE
-    use stack, only: stack_i4_t
+  function tri_mesh_aabb_tree(tree, object_list, p, max_distance) &
+       result(distance)
+    use aabb, only : aabb_t
+    use aabb_tree, only : aabb_node_t, AABB_NULL_NODE
+    use stack, only : stack_i4_t
     implicit none
 
     class(aabb_tree_t), intent(in) :: tree
@@ -243,7 +244,8 @@ contains
     ! Grab a random object and compute the distance to it
     call random_number(random_value)
     current_object_index = floor(random_value * size(object_list) + 1)
-    call element_distance(object_list(current_object_index), p, distance, weighted_sign)
+    call element_distance(object_list(current_object_index), p, distance, &
+         weighted_sign)
     distance = distance + object_list(current_object_index)%diameter()
 
     ! Update the search box to the new distance and push the root node
@@ -264,7 +266,8 @@ contains
           end if
 
           current_object_index = current_node%get_object_index()
-          call element_distance(object_list(current_object_index), p, current_distance, current_sign)
+          call element_distance(object_list(current_object_index), p, &
+               current_distance, current_sign)
 
           ! Update the weighted sign, if the relative difference is small
           if (abs(current_distance - distance) / distance .lt. tol) then
@@ -317,7 +320,7 @@ contains
     real(kind=dp), intent(out) :: distance
     real(kind=dp), intent(out), optional :: weighted_sign
 
-    select type(element)
+    select type (element)
     type is (tri_t)
        call element_distance_triangle(element, p, distance, weighted_sign)
 

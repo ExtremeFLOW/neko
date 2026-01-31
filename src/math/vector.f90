@@ -32,15 +32,15 @@
 !
 !> Defines a vector
 module vector
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use num_types, only: rp
-  use device, only: device_map, device_free, device_deassociate, &
-       device_memcpy, device_sync
-  use math, only: cfill, copy
-  use device_math, only: device_copy, device_cfill, device_cmult, &
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use device, only : device_map, device_free, device_deassociate, &
+       device_memcpy, device_sync, HOST_TO_DEVICE
+  use math, only : cfill, copy
+  use device_math, only : device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
        device_col2, device_invcol3, device_cdiv2
-  use utils, only: neko_error
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -65,10 +65,12 @@ module vector
      procedure, pass(v) :: vector_assign_vector
      !> Assignment \f$ v = s \f$.
      procedure, pass(v) :: vector_assign_scalar
+     !> Assignment \f$ v = array \f$.
+     procedure, pass(v) :: vector_assign_array
 
      !> Assignments
      generic :: assignment(=) => vector_assign_vector, &
-          vector_assign_scalar
+          vector_assign_scalar, vector_assign_array
 
      ! Private interfaces
      procedure, pass(a), private :: alloc => vector_allocate
@@ -178,5 +180,19 @@ contains
     end if
 
   end subroutine vector_assign_scalar
+
+  !> Assignment \f$ v = array \f$.
+  subroutine vector_assign_array(v, array)
+    class(vector_t), intent(inout) :: v
+    real(kind=rp), intent(in) :: array(:)
+
+    call v%alloc(size(array))
+    v%x = array
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call v%copy_from(HOST_TO_DEVICE, .true.)
+    end if
+
+  end subroutine vector_assign_array
 
 end module vector

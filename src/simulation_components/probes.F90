@@ -45,7 +45,8 @@ module probes
   use registry, only : neko_registry
   use dofmap, only: dofmap_t
   use json_module, only : json_file, json_value, json_core
-  use json_utils, only : json_get, json_extract_item, json_get_or_default
+  use json_utils, only : json_get, json_extract_item, json_get_or_default, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use global_interpolation, only: global_interpolation_t
   use tensor, only: trsp
   use point_zone, only: point_zone_t
@@ -149,7 +150,8 @@ contains
     call json%info('fields', n_children = this%n_fields)
     call json_get(json, 'fields', this%which_fields)
     call json_get(json, 'output_file', output_file)
-    call json_get_or_default(json, 'start_time', this%start_time, -1.0_rp)
+    call json_get_or_lookup_or_default(json, 'start_time', this%start_time, &
+         -1.0_rp)
 
     call this%sampled_fields%init(this%n_fields)
     do i = 1, this%n_fields
@@ -249,7 +251,7 @@ contains
 
     ! Ensure only rank 0 reads the coordinates.
     if (pe_rank .ne. 0) return
-    call json_get(json, 'coordinates', rp_list_reader)
+    call json_get_or_lookup(json, 'coordinates', rp_list_reader)
 
     if (mod(size(rp_list_reader), 3) /= 0) then
        call neko_error('Invalid number of coordinates.')
@@ -278,9 +280,9 @@ contains
 
     ! Ensure only rank 0 reads the coordinates.
     if (pe_rank .ne. 0) return
-    call json_get(json, "start", start)
-    call json_get(json, "end", end)
-    call json_get(json, "amount", n_points)
+    call json_get_or_lookup(json, "start", start)
+    call json_get_or_lookup(json, "end", end)
+    call json_get_or_lookup(json, "amount", n_points)
 
     ! If either start or end is not of length 3, error out
     if (size(start) /= 3 .or. size(end) /= 3) then
@@ -325,10 +327,10 @@ contains
 
     ! Ensure only rank 0 reads the coordinates.
     if (pe_rank .ne. 0) return
-    call json_get(json, "center", center)
-    call json_get(json, "normal", normal)
-    call json_get(json, "radius", radius)
-    call json_get(json, "amount", n_points)
+    call json_get_or_lookup(json, "center", center)
+    call json_get_or_lookup(json, "normal", normal)
+    call json_get_or_lookup(json, "radius", radius)
+    call json_get_or_lookup(json, "amount", n_points)
     call json_get(json, "axis", axis)
 
     ! If either center or normal is not of length 3, error out

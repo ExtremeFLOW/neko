@@ -9,7 +9,7 @@
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 100,
         "time": {
-            "end_time": 200,
+            "end_time": 200.0,
             "timestep": 0.02,
             "variable_timestep": true,
             "target_cfl": 0.4
@@ -21,7 +21,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 5000,
+            "Re": 5000.0,
             "initial_condition": {
                 "type": "user"
             },
@@ -55,7 +55,7 @@
                 }
             ],
             "output_control": "simulationtime",
-            "output_value": 1
+            "output_value": 1.0
         },
         "simulation_components":
         [
@@ -65,18 +65,18 @@
             {
                 "type": "force_torque",
                 "compute_control": "tsteps",
-                "compute_value": 10,
+                "compute_value": 10.0,
                 "zone_id": 3,
                 "zone_name": "Bottom wall",
-                "center": [ 0, 0, 0 ]
+                "center": [ 0.0, 0.0, 0.0 ]
             },
             {
                 "type": "force_torque",
                 "compute_control": "tsteps",
-                "compute_value": 10,
+                "compute_value": 10.0,
                 "zone_id": 4,
                 "zone_name": "Top wall",
-                "center": [ 0, 0, 0 ]
+                "center": [ 0.0, 0.0, 0.0 ]
             }
         ]
     }

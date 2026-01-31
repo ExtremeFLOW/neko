@@ -6,7 +6,7 @@
         "output_boundary": true,
         "output_checkpoints": false,
         "time": {
-            "end_time": 100,
+            "end_time": 100.0,
             "timestep": 8e-4
         },
         "output_directory": "results_user",
@@ -17,7 +17,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 500,
+            "Re": 500.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [ 1.0, 0.0, 0.0 ]
@@ -64,7 +64,7 @@
                 }
             ],
             "output_control": "nsamples",
-            "output_value": 400
+            "output_value": 400.0
         }
     }
 }

@@ -40,7 +40,7 @@ module rough_log_law
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get_or_lookup
   use rough_log_law_device, only : rough_log_law_compute_device
   use rough_log_law_cpu, only : rough_log_law_compute_cpu
   use scratch_registry, only : neko_scratch_registry
@@ -95,9 +95,9 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B, z0
 
-    call json_get_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get(json, "B", B)
-    call json_get(json, "z0", z0)
+    call json_get_or_lookup(json, "kappa", kappa)
+    call json_get_or_lookup(json, "B", B)
+    call json_get_or_lookup(json, "z0", z0)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, B, z0)
@@ -112,9 +112,9 @@ contains
     type(json_file), intent(inout) :: json
 
     call this%partial_init_base(coef, json)
-    call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
-    call json_get(json, "B", this%B)
-    call json_get(json, "z0", this%z0)
+    call json_get_or_lookup(json, "kappa", this%kappa)
+    call json_get_or_lookup(json, "B", this%B)
+    call json_get_or_lookup(json, "z0", this%z0)
 
   end subroutine rough_log_law_partial_init
 

@@ -9,7 +9,7 @@
         "output_checkpoints": false,
         "output_at_end": true,
         "time": {
-            "end_time": 5,
+            "end_time": 5.0,
             "variable_timestep": true,
             "max_timestep": 0.25e-2,
             "target_cfl": 0.3
@@ -21,7 +21,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 160,
+            "Re": 160.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [1.0, 0.0, 0.0]

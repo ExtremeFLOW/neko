@@ -6,7 +6,7 @@
     "output_boundary": false,
     "output_checkpoints": false,
     "time": {
-        "end_time": 2,
+        "end_time": 2.0,
         "timestep": 0.001
     },
     "numerics": {
@@ -16,8 +16,8 @@
     },
     "fluid": {
       "scheme": "pnpn",
-      "mu": 1,
-      "rho": 1,
+      "mu": 1.0,
+      "rho": 1.0,
       "freeze": true,
       "initial_condition": {
         "type": "user"
@@ -41,7 +41,7 @@
         "max_iterations": 800
       },
       "output_control": "nsamples",
-      "output_value": 100
+      "output_value": 100.0
     },
     "scalar": {
       "enabled": true,
@@ -64,7 +64,7 @@
       {
         "type": "probes",
         "compute_control": "nsamples",
-        "compute_value": 1,
+        "compute_value": 1.0,
         "points_file": "probes.csv",
         "output_file": "output.csv",
         "fields": [

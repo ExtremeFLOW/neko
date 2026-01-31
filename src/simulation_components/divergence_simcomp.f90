@@ -97,14 +97,16 @@ contains
     character(len=20) :: fields(1)
     character(len=20), allocatable :: field_names(:)
     character(len=:), allocatable :: computed_field
+    character(len=:), allocatable :: name
 
-
-    call json_get_or_default(json, "computed_field", computed_field, "divergence")
+    call json_get_or_default(json, "name", name, "divergence")
+    call json_get_or_default(json, "computed_field", computed_field, &
+         "divergence")
     call json_get(json, "fields", field_names)
 
     if (size(field_names) .ne. 3) then
-       call neko_error("The divergence simcomp requires exactly 3 entries in " // &
-            "fieldes.")
+       call neko_error("The divergence simcomp requires exactly 3 entries in " &
+            // "fieldes.")
     end if
 
     fields(1) = trim(computed_field)
@@ -115,17 +117,20 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call divergence_init_common(this, field_names, computed_field)
+    call divergence_init_common(this, name, field_names, computed_field)
   end subroutine divergence_init_from_json
 
   !> Actual constructor.
+  !! @param name The unique name of the simcomp.
   !! @param field_names The name of the fields to compute the divergence of.
   !! @param computed_field The base name of the divergence field components.
-  subroutine divergence_init_common(this, field_names, computed_field)
+  subroutine divergence_init_common(this, name, field_names, computed_field)
     class(divergence_t), intent(inout) :: this
+    character(len=*) :: name
     character(len=*) :: field_names(3)
     character(len=*) :: computed_field
 
+    this%name = name
     this%u => neko_registry%get_field_by_name(field_names(1))
     this%v => neko_registry%get_field_by_name(field_names(2))
     this%w => neko_registry%get_field_by_name(field_names(3))
@@ -135,6 +140,7 @@ contains
   end subroutine divergence_init_common
 
   !> Constructor from components, passing controllers.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller The controller for running preprocessing.
@@ -145,10 +151,11 @@ contains
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine divergence_init_from_controllers(this, case, order, &
+  subroutine divergence_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
        field_names, computed_field, filename, precision)
     class(divergence_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     type(time_based_controller_t), intent(in) :: preprocess_controller
@@ -165,14 +172,16 @@ contains
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%writer%init_from_components(case, order, preprocess_controller, &
-         compute_controller, output_controller, fields, filename, precision)
-    call this%init_common(field_names, computed_field)
+    call this%writer%init_from_components("field_writer", case, order, &
+         preprocess_controller, compute_controller, output_controller, fields, &
+         filename, precision)
+    call this%init_common(name, field_names, computed_field)
 
   end subroutine divergence_init_from_controllers
 
   !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller Control mode for preprocessing.
@@ -187,11 +196,12 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine divergence_init_from_controllers_properties(this, &
+  subroutine divergence_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, field_names, &
        computed_field, filename, precision)
     class(divergence_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
@@ -212,10 +222,10 @@ contains
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%writer%init_from_components(case, order, preprocess_control, &
-         preprocess_value, compute_control, compute_value, output_control, &
-         output_value, fields, filename, precision)
-    call this%init_common(field_names, computed_field)
+    call this%writer%init_from_components("field_writer", case, order, &
+         preprocess_control, preprocess_value, compute_control, compute_value, &
+         output_control, output_value, fields, filename, precision)
+    call this%init_common(name, field_names, computed_field)
 
   end subroutine divergence_init_from_controllers_properties
 
@@ -236,7 +246,8 @@ contains
     class(divergence_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call div(this%divergence%x, this%u%x, this%v%x, this%w%x, this%case%fluid%c_Xh)
+    call div(this%divergence%x, this%u%x, this%v%x, this%w%x, &
+         this%case%fluid%c_Xh)
 
   end subroutine divergence_compute
 

@@ -33,8 +33,8 @@
 !> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
-  use num_types, only: rp
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use num_types, only : rp
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
@@ -43,12 +43,13 @@ module scalar_pnpn
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
-  use device, only : HOST_TO_DEVICE, device_memcpy
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &
+       device_event_sync
+  use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
-  use field_series, only: field_series_t
-  use registry, only: neko_registry
+  use field_series, only : field_series_t
+  use registry, only : neko_registry
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
   use device_math, only : device_add2s2, device_col2
@@ -130,6 +131,8 @@ module scalar_pnpn
      procedure, pass(this) :: free => scalar_pnpn_free
      !> Solve for the current timestep.
      procedure, pass(this) :: step => scalar_pnpn_step
+     !> Apply strong boundary conditions
+     procedure, pass(this) :: apply_strong_bcs => scalar_scheme_apply_strong_bcs
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
      !> Sync lag field data to registry for checkpointing
@@ -209,11 +212,13 @@ contains
 
       call this%s_res%init(dm_Xh, "s_res")
 
-      call this%abx1%init(dm_Xh, trim(this%name)//"_abx1")
-      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
+      call this%abx1%init(dm_Xh, trim(this%name) // "_abx1")
+      call neko_registry%add_field(dm_Xh, trim(this%name) // "_abx1", &
+           ignore_existing = .true.)
 
-      call this%abx2%init(dm_Xh, trim(this%name)//"_abx2")
-      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
+      call this%abx2%init(dm_Xh, trim(this%name) // "_abx2")
+      call neko_registry%add_field(dm_Xh, trim(this%name) // "_abx2", &
+           ignore_existing = .true.)
 
       call this%advs%init(dm_Xh, "advs")
 
@@ -406,7 +411,7 @@ contains
       call slag%update()
 
       !> Apply strong boundary conditions.
-      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), time, .true.)
+      call this%apply_strong_bcs(time)
 
       ! Update material properties if necessary
       call this%update_material_properties(time)
@@ -506,15 +511,15 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
-                     "Zone index ", zone_indices(j), &
+                write(error_unit, '(A, A, I0, A, A, I0, A)') &
+                     "*** ERROR ***: ", "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
-                     "does not exist in the mesh. Check scalar boundary condition ", &
-                     i, "."
+                     "does not exist in the mesh. Check scalar boundary ", &
+                     "condition ", i, "."
                 error stop
              end if
 
-             if (marked_zones(zone_indices(j)) .eqv. .true.) then
+             if (marked_zones(zone_indices(j))) then
                 write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
@@ -536,7 +541,7 @@ contains
        ! Make sure all labeled zones with non-zero size have been marked
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
-               (marked_zones(i) .eqv. .false.)) then
+               (.not. marked_zones(i))) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No scalar boundary condition assigned to zone ", i
              error stop
@@ -559,6 +564,43 @@ contains
 
     end if
   end subroutine scalar_pnpn_setup_bcs_
+
+  !> Apply strong boundary conditions.
+  !! @param time The current time state.
+  subroutine scalar_scheme_apply_strong_bcs(this, time)
+    class(scalar_pnpn_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    integer :: i
+    class(bc_t), pointer :: bc_i
+    bc_i => null()
+
+    ! First apply call, sets the Dirichlet value, let's call it d.
+    call this%bcs%apply(this%s, time = time, strong = .true.)
+    ! If we now have local nodes sharing the same global node, and with
+    ! some nodes not masked as Dirichlet, the node which *is* masked
+    ! will have the value d, and the the other ones just some value u.
+    ! Take a nodewise minimum between the local nodes.
+    ! Now, all local nodes store m = min(d, u)
+    call this%gs_Xh%op(this%s, GS_OP_MIN, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
+
+    ! Second apply call, so Dirichlet nodes again store d, the rest still store
+    ! m, where m < d by construction.
+    call this%bcs%apply(this%s, time = time, strong = .true.)
+    ! Now apply a max, which guarantees that d wins and gets stored in all the
+    ! local nodes.
+    call this%gs_Xh%op(this%s, GS_OP_MAX, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
+
+    ! Reset updated flags
+    do i = 1, this%bcs%size()
+       bc_i => this%bcs%get(i)
+       bc_i%updated = .false.
+    end do
+    nullify(bc_i)
+
+  end subroutine scalar_scheme_apply_strong_bcs
 
 
 end module scalar_pnpn

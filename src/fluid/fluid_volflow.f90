@@ -75,7 +75,7 @@ module fluid_volflow
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_lookup
   use scratch_registry, only : neko_scratch_registry
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
@@ -90,7 +90,7 @@ module fluid_volflow
      logical :: avflow
      real(kind=rp) :: flow_rate
      real(kind=rp) :: dtlag = 0d0
-     real(kind=rp) :: bdlag = 0d0 !< Really quite pointless since we do not vary the timestep
+     real(kind=rp) :: bdlag = 0d0 !< Pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=rp) :: domain_length, base_flow
    contains
@@ -113,8 +113,9 @@ contains
     call this%free()
 
     !Initialize vol_flow (if there is a forced volume flow)
-    call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
-    call json_get(params, 'case.fluid.flow_rate_force.value', rate)
+    call json_get_or_lookup(params, 'case.fluid.flow_rate_force.direction', &
+         direction)
+    call json_get_or_lookup(params, 'case.fluid.flow_rate_force.value', rate)
     call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
          average)
 
@@ -147,7 +148,8 @@ contains
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
        ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
+       vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(coef_t), intent(inout) :: c_Xh
@@ -334,7 +336,8 @@ contains
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
        c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
+       vel_max_iter)
 
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w, p

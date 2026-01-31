@@ -37,6 +37,7 @@
 module lambda2
   use num_types, only : rp
   use json_module, only : json_file
+  use json_utils, only : json_get_or_default
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
   use field, only : field_t
@@ -95,9 +96,11 @@ contains
     class(lambda2_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target ::case
+    character(len=:), allocatable :: name
     character(len=20) :: fields(1)
     type(field_t), pointer :: u, v, w, lambda2
 
+    call json_get_or_default(json, "name", name, "lambda2")
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
     fields(1) = "lambda2"
@@ -106,13 +109,16 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call this%init_common()
+    call this%init_common(name)
   end subroutine lambda2_init_from_json
 
   !> Common part of constructors.
-  subroutine lambda2_init_common(this)
+  !! @param name The unique name of the simcomp
+  subroutine lambda2_init_common(this, name)
     class(lambda2_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
 
+    this%name = name
     this%u => neko_registry%get_field("u")
     this%v => neko_registry%get_field("v")
     this%w => neko_registry%get_field("w")
@@ -121,6 +127,7 @@ contains
   end subroutine lambda2_init_common
 
   !> Constructor from components, passing controllers.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller The controller for running preprocessing.
@@ -129,10 +136,11 @@ contains
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine lambda2_init_from_controllers(this, case, order, &
+  subroutine lambda2_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
        filename, precision)
     class(lambda2_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     type(time_based_controller_t), intent(in) :: preprocess_controller
@@ -146,14 +154,16 @@ contains
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%writer%init_from_components(case, order, preprocess_controller, &
-         compute_controller, output_controller, fields, filename, precision)
-    call this%init_common()
+    call this%writer%init_from_components("field_writer", case, order, &
+         preprocess_controller, compute_controller, output_controller, fields, &
+         filename, precision)
+    call this%init_common(name)
 
   end subroutine lambda2_init_from_controllers
 
   !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller Control mode for preprocessing.
@@ -166,10 +176,11 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine lambda2_init_from_controllers_properties(this, &
+  subroutine lambda2_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, filename, precision)
     class(lambda2_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
@@ -187,10 +198,10 @@ contains
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%writer%init_from_components(case, order, preprocess_control, &
-         preprocess_value, compute_control, compute_value, output_control, &
-         output_value, fields, filename, precision)
-    call this%init_common()
+    call this%writer%init_from_components("field_writer", case, order, &
+         preprocess_control, preprocess_value, compute_control, compute_value, &
+         output_control, output_value, fields, filename, precision)
+    call this%init_common(name)
 
   end subroutine lambda2_init_from_controllers_properties
 

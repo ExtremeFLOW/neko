@@ -44,9 +44,9 @@ module fld_file
   use fld_file_data, only : fld_file_data_t
   use vector, only : vector_t
   use space, only : space_t
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   use mesh, only : mesh_t
-  use utils, only: filename_suffix_pos, filename_chsuffix, filename_name, &
+  use utils, only : filename_suffix_pos, filename_chsuffix, filename_name, &
        filename_path, neko_error
   use comm
   use datadist, only : linear_dist_t
