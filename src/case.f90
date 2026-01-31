@@ -281,11 +281,22 @@ contains
     ! @todo no scalar factory for now, probably not needed
     scalar = .false.
     n_scalars = 0
-    if (this%params%valid_path('case.scalar')) then
+
+    call this%params%info('case.scalar', found = found, var_type = var_type)
+    if (found) then
+       if (var_type .ne. 2) then
+          call neko_error('case.scalar must be a JSON object.')
+       end if
+
        call json_get_or_default(this%params, 'case.scalar.enabled', scalar, &
             .true.)
        n_scalars = 1
-    else if (this%params%valid_path('case.scalars')) then
+    end if
+    call this%params%info('case.scalars', found = found, var_type = var_type)
+    if (found) then
+       if (var_type .ne. 4) then
+          call neko_error('case.scalars must be a JSON array.')
+       end if
        call this%params%info('case.scalars', n_children = n_scalars)
        if (n_scalars > 0) then
           scalar = .true.
@@ -514,6 +525,10 @@ contains
     call this%f_out%free()
 
     call this%output_controller%free()
+
+    if (allocated(this%output_directory)) then
+       deallocate(this%output_directory)
+    end if
 
   end subroutine case_free
 
