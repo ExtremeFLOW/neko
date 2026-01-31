@@ -4,6 +4,5 @@ __pycache__
 *.nek5000
 *.nmsh
 logs/
-tests/**/*.case
 **/genmeshbox*
 **/*.csv
