@@ -76,9 +76,11 @@ contains
     end if
 
     if (n_scalars .eq. 2) then
-       if (.not. all(abs(t%x - 2.0_rp) < NEKO_EPS)) then
-          call neko_error("Incorrect values in temperature")
-       end if
+       do i = 1, t%dof%size()
+          if (.not. abscmp(t%x(i,1,1,1), 2.0_rp)) then
+             call neko_error("Incorrect values in temperature")
+          end if
+       end do
     end if
   end subroutine preprocess
 end module user
