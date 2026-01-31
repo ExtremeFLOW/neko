@@ -131,7 +131,7 @@ contains
 
        field_names(i) = trim(field_name)
 
-       ! If there's a duplicate, append a number until unique
+       ! If there's a duplicate, throw an error
        if (n_scalars > 1) then
           j = 1
           do while (j < i)
@@ -180,15 +180,15 @@ contains
     type(chkp_t), target, intent(inout) :: chkp
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
-    TYPE(field_t), TARGET, INTENT(IN) :: rho
+    type(field_t), target, intent(in) :: rho
+    character(len=:), allocatable :: field_name
 
     ! Allocate a single scalar field
     allocate(scalar_pnpn_t::this%scalar_fields(1))
 
-    ! Set the scalar name to "s"
-    if (.not. params%valid_path('name')) then
-       call params%add('name', 's')
-    end if
+    ! Ensure the scalar has a name (default "s")
+    call json_get_or_default(params, 'name', field_name, 's')
+    call params%print()
 
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
