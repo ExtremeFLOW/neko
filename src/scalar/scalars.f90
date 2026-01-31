@@ -317,11 +317,10 @@ contains
 
     n_scalars = size(this%scalar_fields)
 
-    if (n_scalars .eq. 1) then
+    if (params%valid_path("case.scalar")) then
        call json_get(params, 'case.scalar.initial_condition', json_subdict)
        call this%scalar_fields(1)%initial_conditions(json_subdict, user, 0)
     else
-
        do i = 1, n_scalars
           call json_extract_item(params, 'case.scalars', i, scalar_params)
           call json_get(scalar_params, 'initial_condition', json_subdict)
