@@ -565,9 +565,10 @@ file documentation.
       - `sin`, sine function approximation.
       - `tanh`, hyperbolic tangent approximation of Savaş (2012). In this case `delta` is the 99\% thickness.
 4. `point_zone`, the values are set to a constant base value, supplied under the
-   `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
-   `case.point_zones` object. See more about [point zones](@ref point-zones).
+   `base_value` keyword, and then assigned the `zone_value` inside a point zone.
+   The point zone is specified by the `zone_name` keyword, and should be defined
+   in the `case.point_zones` object. See more about [point zones](@ref
+   point-zones).
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
    | Name             | Description                                                                                        | Admissible values            | Default value |
