@@ -90,7 +90,7 @@ def test_cylinder(launcher_script, request, tmp_path):
 
     case["case"]["restart_file"] = "fluid00001.chkp"
 
-    case_file = join("tests", "test_demo", test_name + ".case")
+    case_file = join("tests", "test_cylinder", test_name + ".case")
     with open(case_file, "w") as f:
         json.dump(case, f, indent=4)
 
