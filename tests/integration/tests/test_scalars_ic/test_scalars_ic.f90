@@ -11,8 +11,8 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
-    user%preprocess         => preprocess
-    user%startup            => startup
+    user%preprocess => preprocess
+    user%startup => startup
   end subroutine user_setup
 
   !> User initial condition for the scalar

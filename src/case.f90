@@ -359,7 +359,7 @@ contains
        if (this%params%valid_path('case.restart_file')) then
           call neko_log%message("Restart file specified, " // &
                "initial conditions ignored")
-       else 
+       else
           call this%scalars%initial_conditions(this%params, this%user)
        end if
 
