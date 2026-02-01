@@ -35,7 +35,7 @@
 module scalar_sgs_stats
   use mean_field, only : mean_field_t
   use num_types, only : rp
-  use field_math, only : field_cmult, field_col3
+  use field_math, only : field_cmult, field_col3, field_cmult2
   use operators, only : grad
   use coefs, only : coef_t
   use field, only : field_t
@@ -50,8 +50,10 @@ module scalar_sgs_stats
      type(field_t) :: stats_work
 
      !> Pointers to the instantenious quantities.
-     type(field_t), pointer :: alphat !< scalar diffusivity
-     type(field_t), pointer :: s !< scalar
+     type(field_t), pointer :: alphat => null() !< scalar diffusivity
+     type(field_t), pointer :: nut => null() !< scalar diffusivity
+     real(kind=rp) :: pr_turb !< turbulent Prandtl number
+     type(field_t), pointer :: s => null() !< scalar
 
      type(mean_field_t) :: alphat_mean !< <alphat>
 
@@ -65,15 +67,17 @@ module scalar_sgs_stats
      type(field_t) :: dsdz_work
 
      !> SEM coefficients.
-     type(coef_t), pointer :: coef
+     type(coef_t), pointer :: coef => null()
      !> Number of statistical fields to be computed.
      integer :: n_stats = 4
      !> A list of size n_stats, whith entries pointing to the fields that will
      !! be output (the field components above.) Used to write the output.
      type(field_list_t) :: stat_fields
    contains
+     generic :: init => init_alphat, init_nut
      !> Constructor.
-     procedure, pass(this) :: init => scalar_sgs_stats_init
+     procedure, pass(this) :: init_alphat => scalar_sgs_stats_init_alphat
+     procedure, pass(this) :: init_nut => scalar_sgs_stats_init_nut
      !> Destructor.
      procedure, pass(this) :: free => scalar_sgs_stats_free
      !> Update all the mean value fields with a new sample.
@@ -85,10 +89,11 @@ module scalar_sgs_stats
 contains
 
   !> Constructor. Initialize the fields associated with scalar_sgs_stats.
+  !> This version uses alphat directly.
   !! @param coef SEM coefficients. Optional.
   !! @param s The scalar.
   !! @param alphat_field Specifies the name of the alphat field.
-  subroutine scalar_sgs_stats_init(this, coef, s, alphat_field)
+  subroutine scalar_sgs_stats_init_alphat(this, coef, s, alphat_field)
     class(scalar_sgs_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(in) :: s
@@ -120,7 +125,50 @@ contains
     call this%stat_fields%assign_to_field(3, this%alphatdsdy%mf)
     call this%stat_fields%assign_to_field(4, this%alphatdsdz%mf)
 
-  end subroutine scalar_sgs_stats_init
+  end subroutine scalar_sgs_stats_init_alphat
+
+  !> Constructor. Initialize the fields associated with scalar_sgs_stats.
+  !> This version uses nut field and turbulent Prandtl number.
+  !! @param coef SEM coefficients. Optional.
+  !! @param s The scalar.
+  !! @param nut_field Specifies the name of the nut field.
+  !! @param pr_turb Turbulent Prandtl number.
+  subroutine scalar_sgs_stats_init_nut(this, coef, s, nut_field, pr_turb)
+    class(scalar_sgs_stats_t), intent(inout), target:: this
+    type(coef_t), target, optional :: coef
+    type(field_t), target, intent(in) :: s
+    character(len=*), intent(in) :: nut_field
+    real(kind=rp), intent(in) :: pr_turb
+
+    call this%free()
+    this%coef => coef
+
+    this%s => s
+    this%nut => neko_registry%get_field(nut_field)
+    this%pr_turb = pr_turb
+    call this%alphat%init(this%nut%dof, 'alphat_temp')
+
+    ! Initialize work fields
+    call this%stats_work%init(this%s%dof, 'stats')
+    call this%dsdx_work%init(this%s%dof, 'dsdx_work')
+    call this%dsdy_work%init(this%s%dof, 'dsdy_work')
+    call this%dsdz_work%init(this%s%dof, 'dsdz_work')
+
+    ! Initialize mean fields
+    call this%alphat_mean%init(this%alphat)
+
+    call this%alphatdsdx%init(this%stats_work, 'alphatdsdx')
+    call this%alphatdsdy%init(this%stats_work, 'alphatdsdy')
+    call this%alphatdsdz%init(this%stats_work, 'alphatdsdz')
+
+    allocate(this%stat_fields%items(this%n_stats))
+
+    call this%stat_fields%assign_to_field(1, this%alphat_mean%mf)
+    call this%stat_fields%assign_to_field(2, this%alphatdsdx%mf)
+    call this%stat_fields%assign_to_field(3, this%alphatdsdy%mf)
+    call this%stat_fields%assign_to_field(4, this%alphatdsdz%mf)
+
+  end subroutine scalar_sgs_stats_init_nut
 
   !> Updates all fields with a new sample.
   !! @param k Time elapsed since the last update.
@@ -131,7 +179,7 @@ contains
 
     associate(stats_work => this%stats_work)
       n = stats_work%dof%size()
-
+      call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
       call this%alphat_mean%update(k)
 
       call grad(this%dsdx_work%x, &
