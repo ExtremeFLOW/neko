@@ -305,7 +305,7 @@ Similar to fluid statistics, scalar SGS statistics are enabled in the case file 
 
 \*The name of the written statistics file will by default be `scalar_sgs_statsX0.f0000X,..., scalar_sgs_statsX0.f0000Y` where X is the number of the first outputted statistic of the current run.
 
-In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
+In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work if the eddy diffusivity field is registered:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation_components":
@@ -313,7 +313,33 @@ In addition, one can specify the usual controls for the output, in the same mann
     {
       "type": "scalar_sgs_stats",
       "field": "temperature",
-      "alphat_field": "temperature_alphat",
+      "alphat": {
+        "nut_dependency": false,
+        "alphat_field": "temperature_alphat"
+      },
+      "compute_control": "tsteps",
+      "compute_value": 4,
+      "output_control": "simulationtime",
+      "output_value": 20,
+      "start_time": 60.0,
+      "avg_direction":"xz",
+    }
+  ]
+~~~~~~~~~~~~~~~
+
+Otherwise, if one does not use model for the scalar eddy diffusivity but relates it with the eddy viscosity, the following would work is one specify a turbulent Prandtl number to be for instance 0.7 and the output will give the eddy diffusivity field as the edy viscosity field divided by the turbulent Prandtl number:
+
+~~~~~~~~~~~~~~~{.json}
+"simulation_components":
+  [
+    {
+      "type": "scalar_sgs_stats",
+      "field": "temperature",
+      "alphat": {
+        "nut_dependency": true,
+        "Pr_t": 0.7,
+        "nut_field": "nut"
+      },
       "compute_control": "tsteps",
       "compute_value": 4,
       "output_control": "simulationtime",
