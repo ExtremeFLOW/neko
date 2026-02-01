@@ -140,7 +140,7 @@ contains
     integer :: i
     type(matrix_t) :: avg_output_1d
     type(fld_file_data_t) :: output_2d
-
+    real(kind=rp) :: u, v, w, p
     associate (out_fields => this%stats%stat_fields%items)
       if (t .ge. this%T_begin) then
          if ( NEKO_BCKND_DEVICE .eq. 1) then
