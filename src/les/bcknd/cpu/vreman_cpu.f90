@@ -57,6 +57,11 @@ contains
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
+  !! @param if_corr Whether to apply buoyancy correction.
+  !! @param scalar_name The name of the scalar field for buoyancy corection.
+  !! @param ri_c Critical Richardson number.
+  !! @param ref_temp Reference temperature for Richardson number.
+  !! @param g The gravity vector.
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
        if_corr, scalar_name, ri_c, ref_temp, g)
     logical, intent(in) :: if_ext, if_corr
