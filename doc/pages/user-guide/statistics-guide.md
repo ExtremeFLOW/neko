@@ -244,7 +244,7 @@ e_{ws} &= \frac{\partial w}{\partial x}  \frac{\partial s}{\partial x} + \frac{\
 $$
 
 # Fluid Subgrid-Scale (SGS) Statistics
-In the fluid SGS statistics in Neko, subgrid-scale (SGS) contribution to the anisotropic part of the Reynolds stresses are computed, in a similar fashion to the fluid statistics. In total, 7 statical quantities are computed.
+In the fluid SGS statistics in Neko, subgrid-scale (SGS) contribution to the anisotropic part of the Reynolds stresses are computed, in a similar fashion to the fluid statistics. In total, 7 statistical quantities are computed.
 
 ## Using statistics
 Similar to fluid statistics, fluid SGS statistics are enabled in the case file as a simcomp with an additional argument `nut_field` for the name of the eddy viscosity field:
