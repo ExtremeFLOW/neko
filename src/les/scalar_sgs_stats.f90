@@ -146,6 +146,8 @@ contains
     this%s => s
     this%nut => neko_registry%get_field(nut_field)
     this%pr_turb = pr_turb
+
+    allocate(this%alphat)
     call this%alphat%init(this%nut%dof, 'alphat_temp')
 
     ! Initialize work fields
