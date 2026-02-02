@@ -53,7 +53,7 @@ module vreman
   type, public, extends(les_model_t) :: vreman_t
      !> Model constant, defaults to 0.07.
      real(kind=rp) :: c
-     real(kind=rp) :: ri_c, theta0
+     real(kind=rp) :: ri_c, reference_temperature
      real(kind=rp), allocatable :: g(:)
      logical :: if_corr
    contains
@@ -78,10 +78,7 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
 
-    real(kind=rp) :: c, ri_c, theta0
-    character(len=:), allocatable :: delta_type
-    real(kind=rp), allocatable :: g(:)
-    real(kind=rp) :: c, ri_c, theta0
+    real(kind=rp) :: c, ri_c, reference_temperature
     character(len=:), allocatable :: delta_type
     real(kind=rp), allocatable :: g(:)
     logical :: if_ext, if_corr
@@ -93,8 +90,8 @@ contains
     call json_get_or_default(json, "c", c, 0.07_rp)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
-    call json_get_or_default(json, "ri_c", ri_c, 0.25_rp)
-    call json_get_or_default(json, "theta0", theta0, 293.0_rp)
+    call json_get_or_default(json, "Ri_c", ri_c, 0.25_rp)
+    call json_get_or_default(json, "reference_temperature", reference_temperature, 293.0_rp)
     if (if_corr) then
       call json_get(json, "g", g)
       if (.not. size(g) == 3) then
@@ -118,7 +115,7 @@ contains
     call neko_log%end_section()
 
     call vreman_init_from_components(this, fluid, c, nut_name, &
-         delta_type, if_ext, if_corr, ri_c, theta0, g)
+         delta_type, if_ext, if_corr, ri_c, reference_temperature, g)
 
   end subroutine vreman_init
 
@@ -129,10 +126,10 @@ contains
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether trapolate the velocity.
   subroutine vreman_init_from_components(this, fluid, c, nut_name, &
-       delta_type, if_ext, if_corr, ri_c, theta0, g)
+       delta_type, if_ext, if_corr, ri_c, reference_temperature, g)
     class(vreman_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
-    real(kind=rp) :: c, ri_c, theta0
+    real(kind=rp) :: c, ri_c, reference_temperature
     real(kind=rp), allocatable :: g(:)
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
@@ -144,7 +141,7 @@ contains
     this%c = c
     this%if_corr = if_corr
     this%ri_c = ri_c
-    this%theta0 = theta0
+    this%reference_temperature = reference_temperature
     this%g = g
 
   end subroutine vreman_init_from_components
@@ -195,7 +192,7 @@ contains
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c, this%if_corr, &
-            this%ri_c, this%theta0, this%g)
+            this%ri_c, this%reference_temperature, this%g)
     end if
 
   end subroutine vreman_compute

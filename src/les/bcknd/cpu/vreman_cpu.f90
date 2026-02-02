@@ -58,14 +58,14 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
-                                if_corr, ri_c, theta0, g)
+                                if_corr, ri_c, reference_temperature, g)
     logical, intent(in) :: if_ext, if_corr
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
-    real(kind=rp), intent(in) :: c, ri_c, theta0
+    real(kind=rp), intent(in) :: c, ri_c, reference_temperature
     real(kind=rp), intent(in) :: g(3)
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
@@ -180,7 +180,8 @@ contains
                     ! Buoyancy component (numerator in Ri definition)
                     buoyancy = (g(1) * dTdx%x(i,1,1,e) + &
                                 g(2) * dTdy%x(i,1,1,e) + &
-                                g(3) * dTdz%x(i,1,1,e)) / theta0
+                                g(3) * dTdz%x(i,1,1,e)) / &
+                                reference_temperature
 
                     ! Shear component (denominator in Ri definition)
                     ! Directional derivative of velocity
