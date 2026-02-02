@@ -35,7 +35,7 @@
 module scalars
   use num_types, only : rp
   use scalar_pnpn, only : scalar_pnpn_t
-  use scalar_scheme, only : scalar_scheme_t
+  use scalar_scheme, only : scalar_scheme_ptr_t
   use scalar_aux, only : scalar_step_info
   use mesh, only : mesh_t
   use space, only : space_t
@@ -60,7 +60,7 @@ module scalars
   !> Type to manage multiple scalar transport equations
   type, public :: scalars_t
      !> The scalar fields
-     class(scalar_scheme_t), allocatable :: scalar_fields(:)
+     type(scalar_scheme_ptr_t), allocatable :: scalar_fields(:)
      !> Shared KSP solver for all scalar fields
      class(ksp_t), allocatable :: shared_ksp
    contains
@@ -103,10 +103,8 @@ contains
     character(len=:), allocatable :: field_names(:)
     character(len=256) :: error_msg, buffer
 
-    ! Allocate the scalar fields
-    ! If there are more scalar_scheme_t types, add a factory function here
-    allocate(scalar_pnpn_t::this%scalar_fields(n_scalars))
-
+    ! Allocate the array of the scalar scheme pointers
+    allocate(this%scalar_fields(n_scalars))
     ! Collect and validate field names for all scalars
     allocate(character(len=256) :: field_names(n_scalars))
 
@@ -150,7 +148,10 @@ contains
        ! Use the processed field names for all scalars
        call json_subdict%add('name', trim(field_names(i)))
 
-       call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
+       ! Allocate the scalar fields
+       ! If there are more scalar_scheme_t types, add a factory function here
+       allocate(scalar_pnpn_t :: this%scalar_fields(i)%scheme)
+       call this%scalar_fields(i)%scheme%init(msh, coef, gs, json_subdict, &
             numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
 
@@ -159,7 +160,7 @@ contains
        call this%register_lags_with_checkpoint(chkp)
     else
        ! For single scalar, use legacy interface
-       select type (scalar => this%scalar_fields(1))
+       select type (scalar => this%scalar_fields(1)%scheme)
        type is (scalar_pnpn_t)
           call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
        end select
@@ -181,7 +182,7 @@ contains
     TYPE(field_t), TARGET, INTENT(IN) :: rho
 
     ! Allocate a single scalar field
-    allocate(scalar_pnpn_t::this%scalar_fields(1))
+    allocate(scalar_pnpn_t::this%scalar_fields(1)%scheme)
 
     ! Set the scalar name to "s"
     if (.not. params%valid_path('name')) then
@@ -189,11 +190,11 @@ contains
     end if
 
     ! Initialize it directly with the params
-    call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
+    call this%scalar_fields(1)%scheme%init(msh, coef, gs, params, numerics_params, &
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
     ! Register single scalar with checkpoint
-    select type (scalar => this%scalar_fields(1))
+    select type (scalar => this%scalar_fields(1)%scheme)
     type is (scalar_pnpn_t)
        call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
     end select
@@ -213,8 +214,8 @@ contains
 
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
-       all_frozen = all_frozen .and. this%scalar_fields(i)%freeze
-       call this%scalar_fields(i)%step(time, ext_bdf, dt_controller, &
+       all_frozen = all_frozen .and. this%scalar_fields(i)%scheme%freeze
+       call this%scalar_fields(i)%scheme%step(time, ext_bdf, dt_controller, &
             ksp_results(i))
     end do
 
@@ -223,7 +224,7 @@ contains
     end if
 
     do i = 1, size(this%scalar_fields)
-       if (this%scalar_fields(i)%freeze) cycle
+       if (this%scalar_fields(i)%scheme%freeze) cycle
        call scalar_step_info(time, ksp_results(i))
     end do
   end subroutine scalars_step
@@ -236,7 +237,7 @@ contains
 
     n_scalars = size(this%scalar_fields)
     do i = 1, size(this%scalar_fields)
-       call this%scalar_fields(i)%restart(chkp)
+       call this%scalar_fields(i)%scheme%restart(chkp)
     end do
   end subroutine scalars_restart
 
@@ -246,8 +247,9 @@ contains
     integer :: i
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
-       call this%scalar_fields(i)%slag%set(this%scalar_fields(i)%s)
-       call this%scalar_fields(i)%validate()
+       call this%scalar_fields(i)%scheme%slag%set( &
+            this%scalar_fields(i)%scheme%s)
+       call this%scalar_fields(i)%scheme%validate()
     end do
   end subroutine scalars_validate
 
@@ -288,10 +290,10 @@ contains
 
     ! Add all scalar lag fields to the checkpoint list and populate ABX fields
     do i = 1, n_scalars
-       call chkp%scalar_lags%append(this%scalar_fields(i)%slag)
+       call chkp%scalar_lags%append(this%scalar_fields(i)%scheme%slag)
 
        ! Cast to scalar_pnpn_t to access ABX fields
-       select type (scalar_field => this%scalar_fields(i))
+       select type (scalar_field => this%scalar_fields(i)%scheme)
        type is (scalar_pnpn_t)
           call associate_scalar_abx_fields(chkp, i, scalar_field)
        end select
