@@ -123,12 +123,12 @@ contains
   subroutine set_stability_regime(Ri_b)
     real(kind=rp), intent(in) :: Ri_b
 
-    if (Ri_b > 0.005) then
+    if (Ri_b > 0.01_rp) then
       slaw_m_ptr => slaw_m_stable
       slaw_h_ptr => slaw_h_stable
       corr_m_ptr => corr_m_stable
       corr_h_ptr => corr_h_stable
-    elseif (Ri_b < -0.005) then
+    elseif (Ri_b < -0.01_rp) then
       slaw_m_ptr => slaw_m_convective
       slaw_h_ptr => slaw_h_convective
       corr_m_ptr => corr_m_convective
@@ -231,7 +231,7 @@ contains
         ! Get q, Ri, f, dfdl based on bc_type 
         call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
-        if (abs(Ri_b) <= 5.0e-3_rp) then
+        if (abs(Ri_b) <= 0.01_rp) then
           ! Neutral (L_ob undefined)
           L_ob = 1.0e+10_rp
         else
@@ -269,16 +269,15 @@ contains
             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
             L_new = L_ob - f/dfdl
 
-            !!! Optional bounding
-            ! ! Avoid regime crossing during Newton iter
-            ! if (L_new*L_sign <= 0.0_rp) then
-            !   ! "damp update" (stay on same side)
-            !   L_new = 0.5_rp * L_ob
-            ! end if
+            ! Avoid regime crossing during Newton iter
+            if (L_new*L_sign <= 0.0_rp) then
+              ! "damp update" (stay on same side)
+              L_new = 0.5_rp * L_ob
+            end if
 
-            ! ! Bound L_ob
-            ! L_ob = sign(max(abs(L_new), 1.0e-4_rp), L_sign)
-            ! L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
+            ! Bound L_ob
+            L_ob = sign(max(abs(L_new), 1.0e-6_rp), L_sign)
+            L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
           end do
 
           if (abs(L_ob) > 5e4_rp .or. abs(L_ob) < 1e-5_rp) then
