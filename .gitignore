@@ -90,3 +90,14 @@ libneko*.so
 
 pixi.lock
 install
+
+examples/zalesak_disk_multiphase/.venv
+examples/zalesak_disk_multiphase/archive
+examples/advecting_drop_multiphase/postprocessing
+examples/advecting_drop_multiphase/visualization_output_eps_0_02_gamma_0_01
+examples/advecting_drop_multiphase/advecting_drop_param_analysis_data
+examples/zalesak_disk_multiphase/postprocessing
+
+examples/zalesak_disk_multiphase/gamma_0.01_epsilon_0.02
+examples/zalesak_disk_multiphase/data
+examples/advecting_drop_multiphase/data
