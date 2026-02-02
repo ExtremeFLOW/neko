@@ -98,9 +98,9 @@ contains
     type(field_series_t), pointer :: ulag => null()
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
-    type(field_series_t), pointer :: wm_lag_x => null()
-    type(field_series_t), pointer :: wm_lag_y => null()
-    type(field_series_t), pointer :: wm_lag_z => null()
+    type(field_series_t), pointer :: wm_x_lag => null()
+    type(field_series_t), pointer :: wm_y_lag => null()
+    type(field_series_t), pointer :: wm_z_lag => null()
     type(field_series_t), pointer :: slag => null()
     real(kind=rp), pointer :: msh_x(:,:,:,:) => null()
     real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
@@ -109,6 +109,8 @@ contains
     real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()   
     real(kind=rp), pointer :: pivot_pos(:) => null()
     real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
+    real(kind=rp), pointer :: basis_pos(:) => null()
+    real(kind=rp), pointer :: basis_vel_lag(:,:) => null()
     real(kind=rp), pointer :: dtlag(:), tlag(:)
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
@@ -200,13 +202,15 @@ contains
           wm_x => data%wm_x
           wm_y => data%wm_y
           wm_z => data%wm_z
-          wm_lag_x => data%wm_lag_x
-          wm_lag_y => data%wm_lag_y
-          wm_lag_z => data%wm_lag_z
+          wm_x_lag => data%wm_x_lag
+          wm_y_lag => data%wm_y_lag
+          wm_z_lag => data%wm_z_lag
           Blag => data%Blag
           Blaglag => data%Blaglag
           pivot_pos => data%pivot_pos
           pivot_vel_lag => data%pivot_vel_lag
+          basis_pos => data%basis_pos
+          basis_vel_lag => data%basis_vel_lag
           optional_fields = optional_fields + 32
           write_ale = .true.
        end if
@@ -424,41 +428,41 @@ contains
             MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
-       do i = 1, wm_lag_x%size()
+       do i = 1, wm_x_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
           ! We should not need this extra associate block, ant it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
-          associate (x => wm_lag_x%lf(i)%x)
+          associate (x => wm_x_lag%lf(i)%x)
             call MPI_File_write_at_all(fh, byte_offset, x, &
-                 wm_lag_x%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+                 wm_x_lag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
           end associate
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
 
-       do i = 1, wm_lag_y%size()
+       do i = 1, wm_y_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
           ! We should not need this extra associate block, ant it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
-          associate (x => wm_lag_y%lf(i)%x)
+          associate (x => wm_y_lag%lf(i)%x)
             call MPI_File_write_at_all(fh, byte_offset, x, &
-                 wm_lag_y%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+                 wm_y_lag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
           end associate
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
 
-       do i = 1, wm_lag_z%size()
+       do i = 1, wm_z_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
           ! We should not need this extra associate block, ant it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
-          associate (x => wm_lag_z%lf(i)%x)
+          associate (x => wm_z_lag%lf(i)%x)
             call MPI_File_write_at_all(fh, byte_offset, x, &
-                 wm_lag_z%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+                 wm_z_lag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
           end associate
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
@@ -475,13 +479,22 @@ contains
            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
-       call MPI_File_write_at_all(fh, mpi_offset, pivot_pos, 3, &
+       call MPI_File_write_at_all(fh, mpi_offset, pivot_pos, size(pivot_pos), &
             MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + 3_i8 * int(MPI_REAL_PREC_SIZE, i8)
-       call MPI_File_write_at_all(fh, mpi_offset, pivot_vel_lag, 9, &
-            MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + 9_i8 * int(MPI_REAL_PREC_SIZE, i8)
-
+       mpi_offset = mpi_offset + &
+            int(size(pivot_pos), i8) * int(MPI_REAL_PREC_SIZE, i8)
+       call MPI_File_write_at_all(fh, mpi_offset, pivot_vel_lag, &
+            size(pivot_vel_lag), MPI_REAL_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + &
+            int(size(pivot_vel_lag), i8) * int(MPI_REAL_PREC_SIZE, i8)
+       call MPI_File_write_at_all(fh, mpi_offset, basis_pos, &
+            size(basis_pos), MPI_REAL_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + &
+            int(size(basis_pos), i8) * int(MPI_REAL_PREC_SIZE, i8)
+       call MPI_File_write_at_all(fh, mpi_offset, basis_vel_lag, &
+            size(basis_vel_lag), MPI_REAL_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + &
+            int(size(basis_vel_lag), i8) * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
     call MPI_File_close(fh, ierr)
@@ -507,9 +520,9 @@ contains
     type(field_series_t), pointer :: ulag => null()
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
-    type(field_series_t), pointer :: wm_lag_x => null()
-    type(field_series_t), pointer :: wm_lag_y => null()
-    type(field_series_t), pointer :: wm_lag_z => null()
+    type(field_series_t), pointer :: wm_x_lag => null()
+    type(field_series_t), pointer :: wm_y_lag => null()
+    type(field_series_t), pointer :: wm_z_lag => null()
     type(field_series_t), pointer :: slag => null()
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
@@ -525,6 +538,8 @@ contains
     real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
     real(kind=rp), pointer :: pivot_pos(:) => null()
     real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
+    real(kind=rp), pointer :: basis_pos(:) => null()
+    real(kind=rp), pointer :: basis_vel_lag(:,:) => null()
     real(kind=rp), allocatable :: x_coord(:,:,:,:)
     real(kind=rp), allocatable :: y_coord(:,:,:,:)
     real(kind=rp), allocatable :: z_coord(:,:,:,:)
@@ -615,13 +630,15 @@ contains
           wm_x => data%wm_x
           wm_y => data%wm_y
           wm_z => data%wm_z
-          wm_lag_x => data%wm_lag_x
-          wm_lag_y => data%wm_lag_y
-          wm_lag_z => data%wm_lag_z
+          wm_x_lag => data%wm_x_lag
+          wm_y_lag => data%wm_y_lag
+          wm_z_lag => data%wm_z_lag
           Blag => data%Blag
           Blaglag => data%Blaglag
           pivot_pos => data%pivot_pos
           pivot_vel_lag => data%pivot_vel_lag
+          basis_pos => data%basis_pos
+          basis_vel_lag => data%basis_vel_lag
           read_ale = .true.
        end if
 
@@ -823,22 +840,22 @@ contains
        call this%read_field(fh, byte_offset, wm_z%x, nel)
        mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)   
        
-       do i = 1, wm_lag_x%size()
+       do i = 1, wm_x_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call this%read_field(fh, byte_offset, wm_lag_x%lf(i)%x, nel)
+          call this%read_field(fh, byte_offset, wm_x_lag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do  
-       do i = 1, wm_lag_y%size()
+       do i = 1, wm_y_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call this%read_field(fh, byte_offset, wm_lag_y%lf(i)%x, nel)
+          call this%read_field(fh, byte_offset, wm_y_lag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do       
-       do i = 1, wm_lag_z%size()
+       do i = 1, wm_z_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call this%read_field(fh, byte_offset, wm_lag_z%lf(i)%x, nel)
+          call this%read_field(fh, byte_offset, wm_z_lag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do            
        byte_offset = mpi_offset + &
@@ -852,12 +869,24 @@ contains
        mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
        call MPI_File_read_at_all(fh, mpi_offset, pivot_pos, &
-            3, MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + 3_i8 * int(MPI_REAL_PREC_SIZE, i8)
+            size(pivot_pos), MPI_REAL_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + int(size(pivot_pos), i8) &
+       * int(MPI_REAL_PREC_SIZE, i8)
 
        call MPI_File_read_at_all(fh, mpi_offset, pivot_vel_lag, &
-            9, MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + 9_i8 * int(MPI_REAL_PREC_SIZE, i8)
+            size(pivot_vel_lag), MPI_REAL_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + int(size(pivot_vel_lag), i8) &
+       * int(MPI_REAL_PREC_SIZE, i8)
+
+       call MPI_File_read_at_all(fh, mpi_offset, basis_pos, &
+            size(basis_pos), MPI_REAL_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + &
+            int(size(basis_pos), i8) * int(MPI_REAL_PREC_SIZE, i8)
+
+       call MPI_File_read_at_all(fh, mpi_offset, basis_vel_lag, &
+            size(basis_vel_lag), MPI_REAL_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + &
+            int(size(basis_vel_lag), i8) * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
 

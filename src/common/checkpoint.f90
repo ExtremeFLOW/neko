@@ -91,9 +91,9 @@ module checkpoint
      type(field_t), pointer :: wm_x => null()
      type(field_t), pointer :: wm_y => null()
      type(field_t), pointer :: wm_z => null()
-     type(field_series_t), pointer :: wm_lag_x => null()
-     type(field_series_t), pointer :: wm_lag_y => null()
-     type(field_series_t), pointer :: wm_lag_z => null()
+     type(field_series_t), pointer :: wm_x_lag => null()
+     type(field_series_t), pointer :: wm_y_lag => null()
+     type(field_series_t), pointer :: wm_z_lag => null()
      real(kind=rp), pointer :: msh_x(:,:,:,:) => null()
      real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
      real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
@@ -101,8 +101,8 @@ module checkpoint
      real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
      real(kind=rp), pointer :: Blag(:,:,:,:) => null()
      real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
-
-
+     real(kind=rp), pointer :: basis_pos(:) => null()
+     real(kind=rp), pointer :: basis_vel_lag(:,:) => null()
    contains
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
@@ -169,10 +169,10 @@ contains
     nullify(this%wm_y)
     nullify(this%wm_z)
 
-    nullify(this%wm_lag_x)
-    nullify(this%wm_lag_y)
-    nullify(this%wm_lag_z)
-  
+    nullify(this%wm_x_lag)
+    nullify(this%wm_y_lag)
+    nullify(this%wm_z_lag)
+    nullify(this%basis_vel_lag)
 
     ! Free scalar lag list if it was initialized
     if (allocated(this%scalar_lags%items)) then
@@ -397,27 +397,32 @@ contains
 
   !> Add a mesh velocity to checkpointing
   subroutine chkp_add_ale(this, x, y, z, Blag, Blaglag, wm_x, wm_y, wm_z, &
-                          wm_lag_x, wm_lag_y, wm_lag_z, pivot_pos, pivot_vel_lag)
+                          wm_x_lag, wm_y_lag, wm_z_lag, &
+                          pivot_pos, pivot_vel_lag, basis_pos, &
+                          basis_vel_lag)
     class(chkp_t), intent(inout) :: this
     type(field_t), target, intent(in) :: wm_x, wm_y, wm_z
     real(kind=rp), intent(in), pointer :: pivot_pos(:), pivot_vel_lag(:,:)
-    type(field_series_t), target, intent(in) :: wm_lag_x, wm_lag_y, wm_lag_z
+    type(field_series_t), target, intent(in) :: wm_x_lag, wm_y_lag, wm_z_lag
     real(kind=rp), intent(in), pointer :: x(:,:,:,:), y(:,:,:,:), z(:,:,:,:)
     real(kind=rp), pointer, intent(in) :: Blag(:,:,:,:), Blaglag(:,:,:,:)
-
+    real(kind=rp), intent(in), pointer :: basis_pos(:)
+    real(kind=rp), intent(in), pointer :: basis_vel_lag(:,:)
     this%msh_x => x
     this%msh_y => y
     this%msh_z => z
     this%wm_x => wm_x
     this%wm_y => wm_y
     this%wm_z => wm_z
-    this%wm_lag_x => wm_lag_x
-    this%wm_lag_y => wm_lag_y
-    this%wm_lag_z => wm_lag_z
+    this%wm_x_lag => wm_x_lag
+    this%wm_y_lag => wm_y_lag
+    this%wm_z_lag => wm_z_lag
     this%Blag => Blag
     this%Blaglag => Blaglag
     this%pivot_pos => pivot_pos
     this%pivot_vel_lag => pivot_vel_lag
+    this%basis_pos => basis_pos 
+    this%basis_vel_lag => basis_vel_lag
   end subroutine chkp_add_ale
 
   !> Return restart time from a loaded checkpoint
