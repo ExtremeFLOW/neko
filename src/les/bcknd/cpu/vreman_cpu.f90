@@ -58,7 +58,7 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
-                                if_corr, scalar_name, ri_c, ref_temp, g)
+       if_corr, scalar_name, ri_c, ref_temp, g)
     logical, intent(in) :: if_ext, if_corr
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -84,7 +84,7 @@ contains
     integer :: temp_indices(9)
     integer :: temp_indices_buoy(3)
     integer :: e, i, j
-    real(kind=rp) ::  gmag, ri, correction, buoyancy, shear_sq
+    real(kind=rp) :: gmag, ri, correction, buoyancy, shear_sq
     real(kind=rp) :: n(3), du_n(3), sh(3)
     real(kind=rp) :: du_parallel
 
@@ -162,60 +162,60 @@ contains
        end do
     end do
     if (if_corr) then
-          temperature => neko_registry%get_field_by_name(scalar_name)
-          call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
-          call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
-          call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
+       temperature => neko_registry%get_field_by_name(scalar_name)
+       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
+       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
+       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
 
-          ! Calculate Richardson number
-          gmag = sqrt(vlsc2(g, g, 3))
-          if (gmag > NEKO_EPS) then
-               n = g / gmag
-          else
-               call neko_error("The gravity vector must have at least one nonzero component")
-          endif
-          call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
-          do concurrent (e = 1:coef%msh%nelv)
-               do concurrent (i = 1:coef%Xh%lxyz)
+       ! Calculate Richardson number
+       gmag = sqrt(vlsc2(g, g, 3))
+       if (gmag > NEKO_EPS) then
+          n = g / gmag
+       else
+          call neko_error("The gravity vector must have at least one nonzero component")
+       endif
+       call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
+       do concurrent (e = 1:coef%msh%nelv)
+          do concurrent (i = 1:coef%Xh%lxyz)
 
-                    ! Buoyancy component (numerator in Ri definition)
-                    buoyancy = (g(1) * dTdx%x(i,1,1,e) + &
-                                g(2) * dTdy%x(i,1,1,e) + &
-                                g(3) * dTdz%x(i,1,1,e)) / ref_temp
+             ! Buoyancy component (numerator in Ri definition)
+             buoyancy = (g(1) * dTdx%x(i,1,1,e) + &
+                  g(2) * dTdy%x(i,1,1,e) + &
+                  g(3) * dTdz%x(i,1,1,e)) / ref_temp
 
-                    ! Shear component (denominator in Ri definition)
-                    ! Directional derivative of velocity
-                    du_n(1) = a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) +&
-                            a13%x(i,1,1,e)*n(3)
-                    du_n(2) = a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
-                            a23%x(i,1,1,e)*n(3)
-                    du_n(3) = a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) +&
-                            a33%x(i,1,1,e)*n(3)
+             ! Shear component (denominator in Ri definition)
+             ! Directional derivative of velocity
+             du_n(1) = a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) +&
+                  a13%x(i,1,1,e)*n(3)
+             du_n(2) = a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
+                  a23%x(i,1,1,e)*n(3)
+             du_n(3) = a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) +&
+                  a33%x(i,1,1,e)*n(3)
 
-                    ! Component parallel to n
-                    du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
+             ! Component parallel to n
+             du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
 
-                    ! Perpendicular (shear) components
-                    do concurrent (j = 1:3)
-                         sh(j) = du_n(j) - du_parallel*n(j)
-                    end do
+             ! Perpendicular (shear) components
+             do concurrent (j = 1:3)
+                sh(j) = du_n(j) - du_parallel*n(j)
+             end do
 
-                    ! Shear magnitude squared
-                    shear_sq = sh(1)*sh(1) + sh(2)*sh(2) + sh(3)*sh(3)
+             ! Shear magnitude squared
+             shear_sq = sh(1)*sh(1) + sh(2)*sh(2) + sh(3)*sh(3)
 
-                    ! Richardson number
-                    ri = buoyancy / (shear_sq + NEKO_EPS)
+             ! Richardson number
+             ri = buoyancy / (shear_sq + NEKO_EPS)
 
-                    if (ri .le. ri_c) then
-                         correction = sqrt(1 - ri/ri_c)
-                         nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
-                    else
-                         nut%x(i,1,1,e) = NEKO_EPS
-                    end if
-               end do
+             if (ri .le. ri_c) then
+                correction = sqrt(1 - ri/ri_c)
+                nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
+             else
+                nut%x(i,1,1,e) = NEKO_EPS
+             end if
           end do
-          call neko_scratch_registry%relinquish_field(temp_indices_buoy)
-     end if
+       end do
+       call neko_scratch_registry%relinquish_field(temp_indices_buoy)
+    end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())

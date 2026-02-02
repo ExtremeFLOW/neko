@@ -96,12 +96,12 @@ contains
     call json_get_or_default(json, "Ri_c", ri_c, 0.25_rp)
     call json_get_or_default(json, "reference_temperature", ref_temp, 293.0_rp)
     if (if_corr) then
-      call json_get(json, "g", g)
-      if (.not. size(g) == 3) then
-         call neko_error("The gravity vector should have 3 components")
-      end if
+       call json_get(json, "g", g)
+       if (.not. size(g) == 3) then
+          call neko_error("The gravity vector should have 3 components")
+       end if
     else
-      g = [0.0, 0.0, 0.0] ! This value is not used
+       g = [0.0, 0.0, 0.0] ! This value is not used
     end if
 
     call neko_log%section('LES model')
@@ -193,12 +193,12 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      if (this%if_corr .eqv. .false.) then
-        call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
-              this%nut, this%delta, this%c)
-      else
-        call neko_error("Vreman with buoyancy correction is not implemented on device yet")
-      end if
+       if (this%if_corr .eqv. .false.) then
+          call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
+               this%nut, this%delta, this%c)
+       else
+          call neko_error("Vreman with buoyancy correction is not implemented on device yet")
+       end if
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c, this%if_corr, &
