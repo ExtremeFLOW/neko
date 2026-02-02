@@ -49,19 +49,19 @@ module most
   private
 
   !> Wall model based on the Monin-Obukhov Similarity Theory for atmospheric
-  !! boundary layer flows.
-  !! >>> WRITE BETTER DESCRIPTION!  <<<<
+  !! boundary layer flows. Automatically switches between stable, unstable and n
+  !! neutral layer formulations based on the Richardson number.
   !!
   type, public, extends(wall_model_t) :: most_t
-
      !> The von Karman coefficient.
      real(kind=rp) :: kappa = 0.41_rp
      !> The roughness height
      real(kind=rp) :: z0 = 0.1_rp
-     !> The type of temperature boundary condition
+     !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
-     integer :: zone_idx
-     integer :: h_idx
+     !> The face and index of the sampling point
+     integer :: zone_idx,h_idx
+     !> the heat flux value set in the case file
      real(kind=rp) :: q
    contains
      !> Constructor from JSON.
@@ -143,6 +143,7 @@ contains
     if (.not. allocated(zone_idx_arr)) then
       call neko_error("zone_indices not provided")
     end if
+    ! At the moment we only support this bc on one boundary at the time
     if (size(zone_idx_arr) /= 1) then
       call neko_error("MOST wall model supports exactly one boundary")
     end if
@@ -170,6 +171,10 @@ contains
   !! @param h_index The off-wall index of the sampling cell.
   !! @param kappa The von Karman coefficient.
   !! @param z0 The roughness height.
+  !! @param bc_type The type of bc set for temperature in the case file.
+  !! @param zone_idx The face id from which the sampling point is taken.
+  !! @param h_idx The sampling point index (normal to the zone_idx face).
+  !! @param The heat flux at the surface boundary condition.
   subroutine most_init_from_components(this, scheme_name, coef, msk, &
        facet, h_index, kappa, z0, bc_type, zone_idx, h_idx, q)
     class(most_t), intent(inout) :: this

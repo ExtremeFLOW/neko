@@ -1,3 +1,36 @@
+! Copyright (c) 2025, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Implements the CPU kernel for the `most_t` type.
 module most_cpu
   use num_types, only : rp
   use utils, only : neko_error
@@ -6,14 +39,6 @@ module most_cpu
   private
 
   public :: most_compute_cpu
-
-  ! Note:
-  ! I actually tried to avoid going into the neutral regime altogether (i.e. take out the if abs(Ri)<1e-3 part)
-  ! AI tells me it's not safe/correct because I approach neutrality only asymptotically, and usign slaw_m/h which were 
-  ! obtained by assuming z/L=0.01. However, the results look better in this way (IMO), so I have to understand if that's 
-  ! or not. 
-  ! By doing it without neutral, I actually get an appreciable difference between roughlog and most, and I also get the
-  ! uw flux to go exactly zero above the inversion. I also get a very slightly different v-profile than Nek though
 
   abstract interface
      function slaw_m_interface(z,L_ob,z0) result(slaw)
@@ -57,14 +82,9 @@ module most_cpu
      end function dfdl_interface
   end interface
 
-  !===============================
-  ! 3. Procedure pointers
-  !===============================
-  !
+
   ! These will point to the correct functions
   ! depending on stability regime and bc_type.
-  !
-
   procedure(slaw_m_interface), pointer :: slaw_m_ptr => null()
   procedure(slaw_h_interface), pointer :: slaw_h_ptr => null()
   procedure(corr_m_interface), pointer :: corr_m_ptr => null()
@@ -74,13 +94,10 @@ module most_cpu
 
 contains
 
-  !================================================
-  ! 4. User-facing selectors for stability regime
-  !================================================
-
+  !> Selects different expressions for the similarity functions in  MOST
+  !> based on the type of bottom boundary condition for temperature.
   subroutine select_bc_operators(bc_type)
     character(len=*), intent(in) :: bc_type
-
     select case (bc_type)
     case ("neumann")
       f_ptr    => f_neumann
@@ -93,6 +110,7 @@ contains
     end select
   end subroutine select_bc_operators
 
+  !> Computes the Richardson number.
   subroutine compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(in)    :: g, hi, ti, ts, magu, kappa
@@ -101,15 +119,14 @@ contains
     select case (bc_type)
     case ("neumann")
       Ri_b = - g*hi / ti*q / (magu**3*kappa**2)
-
     case ("dirichlet")
       Ri_b = g*hi/ti*(ti - ts)/magu**2
-
     case default
       call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
     end select
   end subroutine compute_Ri_b
 
+  !> Initialises q when the temperature surface bc is dirichlet.
   subroutine init_q(bc_type, hi, ti, ts, kappa, utau, z0h, q)
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(in)    :: hi, ti, ts, kappa, utau, z0h
@@ -120,6 +137,7 @@ contains
     end if
   end subroutine init_q
 
+  !> Sets the stability regime based on the Richardson number value (quite arbitrary).
   subroutine set_stability_regime(Ri_b)
     real(kind=rp), intent(in) :: Ri_b
 
@@ -139,22 +157,20 @@ contains
     end if
   end subroutine set_stability_regime
 
-  !================================================
-  ! 5. Main wall-flux routine
-  !================================================
-
+  !> Main routine to compute the surface stresses based on MOST.
+  !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &  
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, bc_type, zone_idx, h_idx, q, tstep)  ! q in input only temporarily
+       kappa, z0, bc_type, zone_idx, h_idx, q, tstep)  
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: kappa, z0
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(inout) :: q   ! should this be multidimensional?
+    real(kind=rp), intent(inout) :: q  ! only supports scalar at the moment
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
-    integer, intent(in) :: zone_idx  ! WARNING: only supports wall model on ONE boundary atm!
+    integer, intent(in) :: zone_idx  ! only supports wall model on ONE boundary atm!
     integer :: ts_idx(3)
     integer, intent(in) :: h_idx
     integer :: i, count
@@ -167,13 +183,6 @@ contains
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
     character(len=LOG_SIZE) :: log_buf
-
-    ! debug only:
-    ! ts  = 300.0_rp
-    ! q = 0.05_rp
-    ! call neko_registry%add_field(this%coef%dof, "sampling_height", &
-    !      ignore_existing=.true.)
-    ! h_field => neko_registry%get_field_by_name("sampling_height")
 
     ! Select the ts offset based on fid
     select case (zone_idx)
@@ -194,7 +203,6 @@ contains
     end select
 
     do i=1, n_nodes
-   
       ! Sample the variables
       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
@@ -217,7 +225,7 @@ contains
         utau = magu*kappa / log(hi/z0)
    
       end if
-      ! Compute thermal roughness length from Zilitinkevich 1995
+      ! Compute thermal roughness length from Zilitinkevich, 1995
       z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))  
 
       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type 
@@ -263,13 +271,12 @@ contains
             if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
               call neko_error("Unassociated pointer for f or dfdl")
             end if
-
             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
             L_new = L_ob - f/dfdl
 
-            ! Avoid regime crossing during Newton iter
+            ! Avoid regime crossing during Newton iter (otherwise crash)
             if (L_new*L_sign <= 0.0_rp) then
               ! "damp update" (stay on same side)
               L_new = 0.5_rp * L_ob
@@ -296,7 +303,7 @@ contains
             ! Compute u* with the new Obukhov length
             utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
             ! and compute q from here
-            q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0h)  ! z0h placeholder
+            q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0h) 
           case default
             call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
         end select 
@@ -310,6 +317,7 @@ contains
       tau_z(i) = 0
     end do
 
+    ! Print some indicative quantities (these are just point quantities: don't trust 100%)
     call neko_log%section('Wall model quick look')
     write(log_buf, '(A,E15.7)') 'Ri_b: ', Ri_b
     call neko_log%message(trim(log_buf))
@@ -331,12 +339,7 @@ contains
 
   end subroutine most_compute_cpu
 
-  !================================================
-  ! 6. Concrete similarity functions
-  !================================================
-
-  !--------------- Stable ----------------
-
+  !> Similarity laws and corrections for the STABLE regime:
   function slaw_m_stable(z,L_ob,z0) result(slaw)
     real(kind=rp), intent(in) :: z,L_ob,z0
     real(kind=rp) :: slaw
@@ -354,9 +357,8 @@ contains
   function corr_m_stable(z,L_ob) result(corr)
     real(kind=rp), intent(in) :: z,L_ob
     real(kind=rp) :: corr
-    real(kind=rp) :: a, b, c, d  ! parameter
+    real(kind=rp) :: a, b, c, d  
     real(kind=rp) :: zeta
-
     zeta = z/L_ob
     a = 1.0_rp
     b = 0.6666666_rp
@@ -365,7 +367,7 @@ contains
     corr = - a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d
   end function corr_m_stable
 
-  function corr_h_stable(z,L_ob) result(corr)    ! identical to corr_m_stable...?
+  function corr_h_stable(z,L_ob) result(corr) 
     real(kind=rp), intent(in) :: z,L_ob
     real(kind=rp) :: corr
     real(kind=rp) :: a, b, c, d
@@ -379,8 +381,7 @@ contains
     corr = -b * (zeta-c/d)*exp(-d*zeta)-(1.0_rp+ 0.6666666_rp * a * zeta)**1.5_rp-b*c/d + 1.0_rp
   end function corr_h_stable
 
-  !--------------- Convective ----------------
-
+  !> Similarity laws and corrections for the UNSTABLE (convective) regime:
   function slaw_m_convective(z,L_ob,z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
@@ -417,8 +418,7 @@ contains
     corr = 2*log(0.5_rp*(1 + xi**2))
   end function corr_h_convective
 
-  !--------------- Neutral ----------------
-
+  !> Similarity laws and corrections for the NEUTRAL regime:
   function slaw_m_neutral(z,L_ob,z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
@@ -433,8 +433,7 @@ contains
     slaw = log(z/z0h)
   end function slaw_h_neutral
 
-  !------------- Similarity laws --------------
-
+  !> Simialrity laws (different for neumann and dirichlet bc's)
   function f_neumann(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
     real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
     procedure(slaw_m_interface) :: slaw_m
