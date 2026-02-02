@@ -95,7 +95,7 @@ contains
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
     call json_get_or_default(json, "ri_c", ri_c, 0.25_rp)
     call json_get_or_default(json, "theta0", theta0, 293.0_rp)
-    if (if_corr .eqv. .true.) then
+    if (if_corr) then
       call json_get(json, "g", g)
       if (.not. size(g) == 3) then
          call neko_error("The gravity vector should have 3 components")
@@ -166,7 +166,7 @@ contains
 
     type(field_t), pointer :: u, v, w, u_e, v_e, w_e
 
-    if (this%if_ext .eqv. .true.) then
+    if (this%if_ext) then
        ! Extrapolate the velocity fields
        associate(ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag, ext_bdf => this%ext_bdf)

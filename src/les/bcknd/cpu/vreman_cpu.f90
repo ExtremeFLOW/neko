@@ -160,7 +160,7 @@ contains
                * coef%mult(i,1,1,e)
        end do
     end do
-    if (if_corr .eqv. .true.) then
+    if (if_corr) then
           theta => neko_registry%get_field_by_name("temperature")
           call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
           call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
