@@ -206,7 +206,7 @@ contains
                     ri = buoyancy / (shear_sq + NEKO_EPS)
 
                     if (ri .le. ri_c) then
-                         correction = (1 - ri/ri_c)**0.5
+                         correction = sqrt(1 - ri/ri_c)
                          nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
                     else
                          nut%x(i,1,1,e) = NEKO_EPS
