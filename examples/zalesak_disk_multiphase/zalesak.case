@@ -1,8 +1,9 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "20x20.nmsh",
+        "mesh_file": "40x40.nmsh",
         "output_boundary": true,
+        "output_directory": "data/visualization_eps_0_01_gamma_0_1",
         "time": {
             "end_time": 6.28318530718,
             "variable_timestep": false,
@@ -39,13 +40,13 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 0.01,
+            "output_value": 0.25,
             "boundary_conditions": []
         },
         "scalar": {
             "enabled": true,
             "epsilon": 0.01,
-            "gamma": 0.01,
+            "gamma": 0.1,
             "source_terms": [
                 {
                     "type": "user"
