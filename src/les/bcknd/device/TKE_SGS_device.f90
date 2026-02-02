@@ -55,20 +55,25 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
+  !! @param temperature_field_name The name of the temperature field.
+  !! @param TKE_field_name The name of the TKE field.
   !! @param nut The eddy viscosity field.
   !! @param temperature_alphat The eddy diffusivity field for temperature.
   !! @param TKE_alphat The eddy diffusivity field for TKE.
   !! @param TKE_source The source terms for TKE equation.
   !! @param delta The LES lengthscale.
   !! @param c_k The TKE_SGS model constant
-  subroutine TKE_SGS_compute_device(if_ext, t, tstep, coef, nut, &
-                                    temperature_alphat, &
+  subroutine TKE_SGS_compute_device(if_ext, t, tstep, coef, &
+                                    temperature_field_name, TKE_field_name, &
+                                    nut, temperature_alphat, &
                                     TKE_alphat, TKE_source, &
                                     delta, c_k, T0, g, vert_dir)
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: temperature_field_name
+    character(len=*), intent(in) :: TKE_field_name
     type(field_t), intent(inout) :: nut, temperature_alphat
     type(field_t), intent(inout) :: TKE_alphat, TKE_source
     type(field_t), intent(in) :: delta
@@ -80,8 +85,8 @@ contains
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33    
     integer :: temp_indices(10)
 
-    TKE => neko_registry%get_field_by_name("TKE")
-    Temperature => neko_registry%get_field_by_name("temperature")
+    TKE => neko_registry%get_field_by_name(TKE_field_name)
+    Temperature => neko_registry%get_field_by_name(temperature_field_name)
     if (if_ext .eqv. .true.) then
        u => neko_registry%get_field_by_name("u_e")
        v => neko_registry%get_field_by_name("v_e")

@@ -59,6 +59,10 @@ module TKE_SGS
      real(kind=rp) :: g
      !> Vertical direction
      character(len=:), allocatable :: vertical_dir
+     !> Temperature field name
+     character(len=:), allocatable :: temperature_field_name
+     !> TKE field name
+     character(len=:), allocatable :: TKE_field_name
      !> Eddy diffusivity for temperature and TKE
      type(field_t), pointer :: temperature_alphat => null()
      type(field_t), pointer :: TKE_alphat => null()
@@ -92,12 +96,16 @@ contains
     logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
 
+    call json_get_or_default(json, "temperature_field", &
+                            this%temperature_field_name, "temperature")
+    call json_get_or_default(json, "TKE_field", this%TKE_field_name, "TKE")
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "temperature_alphat_field", &
                             temperature_alphat_name, "temperature_alphat")
     call json_get_or_default(json, "TKE_alphat_field", TKE_alphat_name, &
                             "TKE_alphat")
-    call json_get_or_default(json, "TKE_source_field", TKE_source_name, "TKE_source")
+    call json_get_or_default(json, "TKE_source_field", TKE_source_name, &
+                            "TKE_source")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_k", this%c_k, 0.10_rp)
     call json_get(json, "T0", this%T0)
@@ -182,11 +190,13 @@ contains
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call TKE_SGS_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%temperature_field_name, this%TKE_field_name, &
             this%nut, this%temperature_alphat, this%TKE_alphat, this%TKE_source, &
             this%delta, this%c_k, this%T0, this%g, &
             this%vertical_dir)
     else
        call TKE_SGS_compute_cpu(this%if_ext, t, tstep, this%coef, &
+            this%temperature_field_name, this%TKE_field_name, &
             this%nut, this%temperature_alphat, this%TKE_alphat, this%TKE_source, &
             this%delta, this%c_k, this%T0, this%g, &
             this%vertical_dir)
