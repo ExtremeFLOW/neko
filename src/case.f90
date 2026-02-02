@@ -495,7 +495,7 @@ contains
     call json_get_or_default(this%params, 'case.fluid.output_format', &
          file_format, 'fld')
     call json_get_or_default(this%params, &
-                             'case.fluid.output_always_write_mesh', &
+                             'case.fluid.output_mesh_in_all_files', &
                              logical_val, .false.)
     call this%output_controller%init(this%time%end_time)
     if (scalar) then
