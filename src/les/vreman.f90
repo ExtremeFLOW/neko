@@ -54,7 +54,7 @@ module vreman
      !> Model constant, defaults to 0.07.
      real(kind=rp) :: c
      real(kind=rp) :: ri_c, reference_temperature
-     real(kind=rp), allocatable :: g(:)
+     real(kind=rp) :: g(3)
      logical :: if_corr
    contains
      !> Constructor from JSON.
@@ -130,7 +130,7 @@ contains
     class(vreman_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c, ri_c, reference_temperature
-    real(kind=rp), allocatable :: g(:)
+    real(kind=rp) :: g(3)
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
     logical, intent(in) :: if_ext, if_corr
