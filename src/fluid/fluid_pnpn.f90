@@ -101,13 +101,7 @@ module fluid_pnpn
 
      !> ALE Manager 
      type(ale_manager_t) :: ale
-     
-     !> Pointers to geometry history (B matrices) used in rhs_maker
-     !> If ALE is active, these point to ale%Blag. 
-     !> If not, they point to c_Xh%B.
-     real(kind=rp), pointer :: Blag(:,:,:,:) => null()
-     real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
- 
+
      ! ! Implicit operators, i.e. the left-hand-side of the Helmholz problem.
      !
 
@@ -364,18 +358,9 @@ contains
     call this%dv%init(this%dm_Xh, 'dv')
     call this%dw%init(this%dm_Xh, 'dw')
     call this%dp%init(this%dm_Xh, 'dp')
-
     ! Initialize ALE
-    call this%ale%init(this%c_Xh, params) 
-    if (this%ale%active) then
-       this%Blag => this%ale%Blag
-       this%Blaglag => this%ale%Blaglag
-    else
-       ! if ale_active = false, Blag and Blaglag point to the original B.
-       this%Blag => this%c_Xh%B
-       this%Blaglag => this%c_Xh%B
-    end if
-
+    call this%ale%init(this%c_Xh, params, user) 
+   
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
 
@@ -448,12 +433,15 @@ contains
     ! Add checkpoint data for ALE.
     if (this%ale%active) then
       call this%chkp%add_ale(this%c_Xh%dof%x, this%c_Xh%dof%y, this%c_Xh%dof%z, &
-                            this%Blag, this%Blaglag, &
-                            this%ale%wm_x, this%ale%wm_y, this%ale%wm_z, &
-                            this%ale%wm_lag_x, this%ale%wm_lag_y, this%ale%wm_lag_z, &
-                            this%ale%ale_pivot%pos, this%ale%ale_pivot%vel_lag)
+           this%c_Xh%Blag, this%c_Xh%Blaglag, &
+           this%ale%wm_x, this%ale%wm_y, this%ale%wm_z, &
+           this%ale%wm_x_lag, this%ale%wm_y_lag, &
+           this%ale%wm_z_lag, &
+           this%ale%global_pivot_pos, &      
+           this%ale%global_pivot_vel_lag, &
+           this%ale%global_basis_pos, &
+           this%ale%global_basis_vel_lag)
     end if
-
 
     call neko_log%end_section()
 
@@ -563,10 +551,8 @@ contains
        end do
     end if
 
-    if (this%ale%active) then
-      call this%c_Xh%update_metrics()
-      call this%adv%update_metrics(this%c_Xh, .true.)
-    end if
+    call this%ale%set_coef_restart(this%c_Xh, this%adv, chkp%t)
+
 
   end subroutine fluid_pnpn_restart
 
@@ -600,8 +586,6 @@ contains
     call this%w_res%free()
 
     call this%ale%free()
-    nullify(this%Blag)
-    nullify(this%Blaglag)
 
     call this%du%free()
     call this%dv%free()
@@ -708,7 +692,7 @@ contains
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
          ext_bdf => this%ext_bdf, event => glb_cmd_event, &
-         Blag => this%Blag, Blaglag => this%Blaglag, ale => this%ale)
+         ale => this%ale)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
@@ -726,9 +710,10 @@ contains
             call neko_error("ALE is not yet supported with OIFS time integration.")
          end if
          !> adds div.(u_i*wm) to RHS
-         call this%adv%compute_ale(u, v, w, ale%wm_x, ale%wm_y, ale%wm_z, &
-                                  f_x, f_y, f_z, &
-                                  Xh, c_Xh, dm_Xh%size())
+         call this%adv%compute_ale(u, v, w, &
+              ale%wm_x, ale%wm_y, ale%wm_z, &
+              f_x, f_y, f_z, &
+              Xh, c_Xh, dm_Xh%size())
       end if
 
 
@@ -757,7 +742,7 @@ contains
          call this%adv%compute(u, v, w, &
               f_x, f_y, f_z, &
               Xh, this%c_Xh, dm_Xh%size())
-              
+
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
          ! previous time-step. Now, this value is used in the explicit time
@@ -774,7 +759,8 @@ contains
          ! are just the initial B matrix, filled at initialization.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
               u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
-              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n, Blag, Blaglag)
+              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n, &
+              c_Xh%Blag, c_Xh%Blaglag)
 
       end if
 
@@ -786,7 +772,7 @@ contains
          call c_Xh%update_metrics()
          ! Update the metrics used by the adv operator for delaiasing (coef_GL)
          ! Maps the updated coef_GLL to coef_GL.
-         call this%adv%update_metrics(c_Xh, .true.)      
+         call this%adv%update_metrics(c_Xh, .true.)     
       end if
 
       call ulag%update()
@@ -801,7 +787,6 @@ contains
 
       ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)
-
       call prs_res%compute(p, p_res,&
            u, v, w, &
            u_e, v_e, w_e, &
@@ -811,8 +796,10 @@ contains
            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
            mu_tot, rho, event)
 
+
       ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
+
 
       call gs_Xh%op(p_res, GS_OP_ADD, event)
       call device_event_sync(event)
@@ -936,6 +923,7 @@ contains
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
+    logical :: ale_active_local, any_moving_wall, moving_
     logical :: found
     ! Monitor which boundary zones have been marked
     logical, allocatable :: marked_zones(:)
@@ -944,6 +932,11 @@ contains
     ! For ALE, we set a flag while reading the BCs
     character(len=:), allocatable :: bc_type_str 
     this%ale%has_moving_boundary = .false.
+    any_moving_wall = .false.
+    ale_active_local = .false.
+    call json_get_or_default(params, &
+         'case.fluid.ale.ale_active', &
+         ale_active_local, .false.)
 
     ! Lists for the residuals and solution increments
     call this%bclst_vel_res%init()
@@ -982,9 +975,13 @@ contains
 
           call json_get(bc_subdict, "zone_indices", zone_indices)
 
-          ! Set the ALE flag to true if there is any moving_boundary 
+          ! Set the ALE flag to true if there is any moving no_slip wall 
           call json_get(bc_subdict, "type", bc_type_str)
-          if (trim(bc_type_str) .eq. 'moving_boundary') then
+          moving_ = .false.
+          if (trim(bc_type_str) .eq. "no_slip") then
+             call json_get_or_default(bc_subdict, "moving", moving_, .false.)
+          end if
+          if (moving_) then
              this%ale%has_moving_boundary = .true.
           end if
 
@@ -1088,10 +1085,11 @@ contains
           end if
        end do
 
-       if (this%ale%has_moving_boundary .neqv. this%ale%active) then   
-         call neko_error("ALE is activated. But, there is no 'moving_boundary' in the &
-              &boundary condition list! Double check the BC list.")
-       end if
+          if (this%ale%active .and. (.not. this%ale%has_moving_boundary)) then
+             call neko_error("Case file error: ALE is active, &
+                  &but no moving wall was found. " // &
+                  "Use type='no_slip' with 'moving': true in case file.")
+          end if
 
        ! Make sure all labeled zones with non-zero size have been marked
        do i = 1, size(this%msh%labeled_zones)
@@ -1180,7 +1178,7 @@ contains
     use blasius, only : blasius_t
     use field_dirichlet_vector, only : field_dirichlet_vector_t
     use dong_outflow, only : dong_outflow_t
-    use field_moving, only : field_moving_t
+    use no_slip, only : no_slip_t
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(dirichlet_t) :: bdry_mask
     type(field_t), pointer :: bdry_field
@@ -1194,7 +1192,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A)') 'Condition-value pairs: '
     call neko_log%message(log_buf)
-    write(log_buf, '(A)') '  no_slip                         = 1'
+    write(log_buf, '(A)') '  no_slip (stationary wall)       = 1'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  velocity_value                  = 2'
     call neko_log%message(log_buf)
@@ -1214,7 +1212,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  blasius_profile                 = 11'
     call neko_log%message(log_buf)
-    write(log_buf, '(A)') '  moving_boundary                 = 12'
+    write(log_buf, '(A)') '  no_slip (moving wall)           = 12'
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
@@ -1255,20 +1253,20 @@ contains
     do i = 1, this%bcs_vel%size()
        bci => this%bcs_vel%get(i)
        select type (bc => bci)
-       type is (zero_dirichlet_t)
-          call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)
+       type is (no_slip_t)
+          if (bc%is_moving) then
+             ! moving wall 
+             call bdry_mask%init_from_components(this%c_Xh, 12.0_rp) 
+          else
+             ! stationary wall 
+             call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)  
+          end if
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
        type is (inflow_t)
           call bdry_mask%init_from_components(this%c_Xh, 2.0_rp)
-          call bdry_mask%mark_facets(bci%marked_facet)
-          call bdry_mask%finalize()
-          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
-          call bdry_mask%free()
-       type is (field_moving_t)
-          call bdry_mask%init_from_components(this%c_Xh, 12.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
