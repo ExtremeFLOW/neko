@@ -53,9 +53,10 @@ module vreman
   type, public, extends(les_model_t) :: vreman_t
      !> Model constant, defaults to 0.07.
      real(kind=rp) :: c
-     real(kind=rp) :: ri_c, reference_temperature
+     real(kind=rp) :: ri_c, ref_temp
      real(kind=rp) :: g(3)
      logical :: if_corr
+     character(len=:), allocatable :: scalar_name
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => vreman_init
@@ -78,9 +79,10 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
 
-    real(kind=rp) :: c, ri_c, reference_temperature
-    character(len=:), allocatable :: delta_type
+    real(kind=rp) :: c, ri_c, ref_temp
     real(kind=rp), allocatable :: g(:)
+    character(len=:), allocatable :: scalar_name
+    character(len=:), allocatable :: delta_type
     logical :: if_ext, if_corr
     character(len=LOG_SIZE) :: log_buf
 
@@ -90,8 +92,9 @@ contains
     call json_get_or_default(json, "c", c, 0.07_rp)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
+    call json_get_or_default(json, "scalar_field", scalar_name, "temperature")
     call json_get_or_default(json, "Ri_c", ri_c, 0.25_rp)
-    call json_get_or_default(json, "reference_temperature", reference_temperature, 293.0_rp)
+    call json_get_or_default(json, "reference_temperature", ref_temp, 293.0_rp)
     if (if_corr) then
       call json_get(json, "g", g)
       if (.not. size(g) == 3) then
@@ -115,7 +118,7 @@ contains
     call neko_log%end_section()
 
     call vreman_init_from_components(this, fluid, c, nut_name, &
-         delta_type, if_ext, if_corr, ri_c, reference_temperature, g)
+         delta_type, if_ext, if_corr, scalar_name, ri_c, ref_temp, g)
 
   end subroutine vreman_init
 
@@ -124,13 +127,19 @@ contains
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
   !! @param delta_type The type of filter size.
-  !! @param if_ext Whether trapolate the velocity.
+  !! @param if_ext Whether to extrapolate the velocity.
+  !! @param if_corr Whether to apply buoyancy correction.
+  !! @param scalar_name The name of the scalar field for buoyancy corection.
+  !! @param ri_c Critical Richardson number.
+  !! @param ref_temp Reference temperature for Richardson number.
+  !! @param g The gravity vector.
   subroutine vreman_init_from_components(this, fluid, c, nut_name, &
-       delta_type, if_ext, if_corr, ri_c, reference_temperature, g)
+       delta_type, if_ext, if_corr, scalar_name, ri_c, ref_temp, g)
     class(vreman_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
-    real(kind=rp) :: c, ri_c, reference_temperature
+    real(kind=rp) :: c, ri_c, ref_temp
     real(kind=rp) :: g(3)
+    character(len=*), intent(in) :: scalar_name
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
     logical, intent(in) :: if_ext, if_corr
@@ -141,8 +150,9 @@ contains
     this%c = c
     this%if_corr = if_corr
     this%ri_c = ri_c
-    this%reference_temperature = reference_temperature
+    this%ref_temp = ref_temp
     this%g = g
+    this%scalar_name = scalar_name
 
   end subroutine vreman_init_from_components
 
@@ -192,7 +202,7 @@ contains
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c, this%if_corr, &
-            this%ri_c, this%reference_temperature, this%g)
+            this%scalar_name, this%ri_c, this%ref_temp, this%g)
     end if
 
   end subroutine vreman_compute

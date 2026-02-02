@@ -58,19 +58,20 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
-                                if_corr, ri_c, reference_temperature, g)
+                                if_corr, scalar_name, ri_c, ref_temp, g)
     logical, intent(in) :: if_ext, if_corr
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
-    real(kind=rp), intent(in) :: c, ri_c, reference_temperature
+    character(len=*), intent(in) :: scalar_name
+    real(kind=rp), intent(in) :: c, ri_c, ref_temp
     real(kind=rp), intent(in) :: g(3)
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
-    type(field_t), pointer :: theta, dTdx, dTdy, dTdz
+    type(field_t), pointer :: temperature, dTdx, dTdy, dTdz
 
     real(kind=rp) :: beta11
     real(kind=rp) :: beta12
@@ -161,7 +162,7 @@ contains
        end do
     end do
     if (if_corr) then
-          theta => neko_registry%get_field_by_name("temperature")
+          temperature => neko_registry%get_field_by_name(scalar_name)
           call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
           call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
           call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
@@ -173,15 +174,14 @@ contains
           else
                call neko_error("The gravity vector must have at least one nonzero component")
           endif
-          call grad(dTdx%x, dTdy%x, dTdz%x, theta%x, coef)
+          call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
           do concurrent (e = 1:coef%msh%nelv)
                do concurrent (i = 1:coef%Xh%lxyz)
 
                     ! Buoyancy component (numerator in Ri definition)
                     buoyancy = (g(1) * dTdx%x(i,1,1,e) + &
                                 g(2) * dTdy%x(i,1,1,e) + &
-                                g(3) * dTdz%x(i,1,1,e)) / &
-                                reference_temperature
+                                g(3) * dTdz%x(i,1,1,e)) / ref_temp
 
                     ! Shear component (denominator in Ri definition)
                     ! Directional derivative of velocity
