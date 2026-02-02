@@ -47,6 +47,7 @@ module coefs
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index
+  use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -90,7 +91,8 @@ module coefs
      real(kind=rp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
      real(kind=rp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
      real(kind=rp), allocatable :: Binv(:,:,:,:) !< Inverted Mass matrix/volume matrix
-
+     real(kind=rp), pointer :: Blag(:,:,:,:) => null() !< Lagged Mass matrix/volume matrix
+     real(kind=rp), pointer :: Blaglag(:,:,:,:) => null() !< lag-lagged Mass matrix/volume matrix
      real(kind=rp), allocatable :: area(:,:,:,:) !< Facet area
      real(kind=rp), allocatable :: nx(:,:,:,:) !< x-direction of facet normal
      real(kind=rp), allocatable :: ny(:,:,:,:) !< y-direction of facet normal
@@ -142,6 +144,8 @@ module coefs
      type(c_ptr) :: jac_d = C_NULL_PTR
      type(c_ptr) :: jacinv_d = C_NULL_PTR
      type(c_ptr) :: B_d = C_NULL_PTR
+     type(c_ptr) :: Blag_d = C_NULL_PTR
+     type(c_ptr) :: Blaglag_d = C_NULL_PTR
      type(c_ptr) :: Binv_d = C_NULL_PTR
      type(c_ptr) :: area_d = C_NULL_PTR
      type(c_ptr) :: nx_d = C_NULL_PTR
@@ -160,6 +164,8 @@ module coefs
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
      procedure, pass(this) :: update_metrics => coef_update_metrics
+     procedure, pass(this) :: enable_B_history => coef_enable_lagged_mass
+     procedure, pass(this) :: update_B_history => coef_update_lagged_mass
      generic :: init => init_empty, init_all
   end type coef_t
 
@@ -213,7 +219,7 @@ contains
 
   !> Initialize coefficients
   subroutine coef_init_all(this, gs_h)
-    class(coef_t), intent(inout) :: this
+    class(coef_t), intent(inout), target :: this
     type(gs_t), intent(inout), target :: gs_h
     integer :: n, m, ncyc
     call this%free()
@@ -269,6 +275,10 @@ contains
     allocate(this%B(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%Binv(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
+    ! We do this so in a static simulation we don't allocate extra memory
+    this%Blag => this%B
+    this%Blaglag => this%B
+    
     allocate(this%h1(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%h2(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
@@ -320,6 +330,9 @@ contains
        call device_map(this%jacinv, this%jacinv_d, n)
        call device_map(this%B, this%B_d, n)
        call device_map(this%Binv, this%Binv_d, n)
+
+       this%Blag_d = this%B_d
+       this%Blaglag_d = this%B_d
 
        m = this%Xh%lx * this%Xh%ly * 6 * this%msh%nelv
 
@@ -388,7 +401,7 @@ contains
 
   !> Deallocate coefficients
   subroutine coef_free(this)
-    class(coef_t), intent(inout) :: this
+    class(coef_t), intent(inout), target :: this
 
     if (allocated(this%G11)) then
        deallocate(this%G11)
@@ -417,6 +430,16 @@ contains
     if (allocated(this%mult)) then
        deallocate(this%mult)
     end if
+
+    if (associated(this%Blag) .and. .not. associated(this%Blag, this%B)) then
+       deallocate(this%Blag)
+    end if
+    nullify(this%Blag)
+   
+    if (associated(this%Blaglag) .and. .not. associated(this%Blaglag, this%B)) then
+       deallocate(this%Blaglag)
+    end if
+    nullify(this%Blaglag)
 
     if (allocated(this%B)) then
        deallocate(this%B)
@@ -667,6 +690,16 @@ contains
     if (c_associated(this%jacinv_d)) then
        call device_free(this%jacinv_d)
     end if
+
+    if (c_associated(this%Blag_d) .and. .not. c_associated(this%Blag_d, this%B_d)) then
+       call device_free(this%Blag_d)
+    end if
+    this%Blag_d = C_NULL_PTR
+
+    if (c_associated(this%Blaglag_d) .and. .not. c_associated(this%Blaglag_d, this%B_d)) then
+       call device_free(this%Blaglag_d)
+    end if
+    this%Blaglag_d = C_NULL_PTR
 
     if (c_associated(this%B_d)) then
        call device_free(this%B_d)
@@ -1254,19 +1287,80 @@ contains
 
   !> Recompute and update geometric factors (ALE)
   subroutine coef_update_metrics(this)
-   class(coef_t), intent(inout) :: this
+    class(coef_t), intent(inout) :: this
 
-   call coef_generate_dxyzdrst(this)
-
-   call coef_generate_geo(this)
-
-   call coef_generate_area_and_normal(this)
-
-   call coef_generate_mass(this)
-
-   if (this%cyclic) then
-      call coef_generate_cyclic_bc(this)
-   end if
-
+    call coef_generate_dxyzdrst(this)
+    call coef_generate_geo(this)
+    call coef_generate_area_and_normal(this)
+    call coef_generate_mass(this)
+    if (this%cyclic) then
+       call coef_generate_cyclic_bc(this)
+    end if
   end subroutine coef_update_metrics
+
+  !> Enable separate memory for lagged B matrices if needed.
+  !> For eg. when mesh moves.
+  subroutine coef_enable_lagged_mass(this)
+    class(coef_t), intent(inout), target :: this
+    integer :: n
+    integer(c_size_t) :: n_bytes
+
+    ! Return if already allocated distinctly 
+    if (.not. associated(this%Blag, this%B)) return
+
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+    
+    if (rp .eq. REAL32) then
+       n_bytes = int(n, c_size_t) * 4_c_size_t
+    else
+       n_bytes = int(n, c_size_t) * 8_c_size_t
+    end if
+
+    nullify(this%Blag)
+    nullify(this%Blaglag)
+
+    allocate(this%Blag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%Blaglag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+
+    this%Blag = this%B
+    this%Blaglag = this%B
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_alloc(this%Blag_d, n_bytes)
+       call device_alloc(this%Blaglag_d, n_bytes)
+
+       call device_memcpy(this%Blag, this%Blag_d, n, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%Blaglag, this%Blaglag_d, n, HOST_TO_DEVICE, sync=.true.)
+    end if
+
+  end subroutine coef_enable_lagged_mass
+
+  !> Update history: Blaglag = Blag, Blag = B
+  subroutine coef_update_lagged_mass(this)
+    class(coef_t), intent(inout), target :: this
+    integer :: n
+    integer(c_size_t) :: n_bytes
+
+    if (associated(this%Blag, this%B)) return
+
+    this%Blaglag = this%Blag
+    this%Blag = this%B
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+       if (rp .eq. REAL32) then
+          n_bytes = int(n, c_size_t) * 4_c_size_t
+       else
+          n_bytes = int(n, c_size_t) * 8_c_size_t
+       end if       
+
+       call device_memcpy(this%Blaglag_d, this%Blag_d, n_bytes, &
+                          DEVICE_TO_DEVICE, sync=.false.)
+                          
+       call device_memcpy(this%Blag_d, this%B_d, n_bytes, &
+                          DEVICE_TO_DEVICE, sync=.true.)
+    end if
+
+  end subroutine coef_update_lagged_mass
+
 end module coefs
