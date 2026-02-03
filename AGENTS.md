@@ -137,3 +137,35 @@ you are done, you should run `make check` in the test folder and make sure it
 compiles. If you cannot run this command yourself, you should ask the user to do
 it. Only when this succeds should you start populating the .pf with actual
 tests.
+
+## Code review
+You may be asked to review new code, in the context of a PR or a local git
+branch with changes with respect to develop. Your review will be kept to
+assessing the criteria outlined below, and not be a general review based on your
+opinion about good code. Essentially, you will be an intelligent static code
+analyzer, to compensate for the lack of those for Fortran. For the moment, you
+will only check Fortran code, and documentation, not CUDA and other accelerator
+code. Here is the list of things you need to check.
+
+- For all new files in the PR / branch.
+  - Any subroutine that creates a local `allocatable`, must also manually
+    `deallocate` it.
+  - Any type that that has `pointer` or `allocatable` components must have a
+    routine, in which the pointers are nullified and the allocatable are
+    deallocated. In concrete types, this routine must be called `free`, in types
+    with `deferred` procedures, it may be called `free_base` or similar, always
+    with a `free_` prefix.
+  - If a type has a destructor (`free` or similar) and a constructor (`init` or
+    similar), the constructor must begin with calling the destructor.
+  - All procedures, including type-bound, must have Doxygen documentation,
+    including @param for each dummy argument.
+- For *all* files changed in the PR / branch.
+  - Check for typos in the English in the documentation and the docstrings.
+  - Check the copyright statement in the header at the top of the Fortran files,
+    make sure it is the correct year(s).
+  - If the new code adds or modifies JSON paramters in the case file, this must
+    be documented in the User Guide. You can detect that by seeing lines that
+    use subroutines from the `json_utils` module, or directly using the
+    `json_file` type-bound procedures.
+- If CHANGELOG.md is not changed, and the PR at least seems to introduces
+  meaningful changes,  issue a reminder.
