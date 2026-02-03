@@ -203,8 +203,8 @@ contains
     end select
 
     ! debug only:
-    ts  = 300.0_rp
-    q = 0.05_rp
+    ! ts  = 300.0_rp
+    ! q = 0.05_rp
 
     do i=1, n_nodes
       ! Sample the variables
