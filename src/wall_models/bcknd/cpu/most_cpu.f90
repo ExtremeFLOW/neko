@@ -202,7 +202,7 @@ contains
         call neko_error("The face index is not correct (most_cpu.f90)")
     end select
 
-    z0t = z0 
+    z0h = z0 
     do i=1, n_nodes
       ! Sample the variables
       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
