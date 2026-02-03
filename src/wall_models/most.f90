@@ -197,51 +197,51 @@ contains
     this%zone_idx = zone_idx
     this%h_idx = h_idx
     this%q = q
-    !> Destructor for the most_t (base) class.
-    subroutine most_free(this)
-      class(most_t), intent(inout) :: this
-
-      call this%free_base()
-
-    end subroutine most_free
-
-    !> Compute the wall shear stress.
-    !> @param t The time value.
-    !> @param tstep The time iteration.
-    subroutine most_compute(this, t, tstep)
-      class(most_t), intent(inout) :: this
-      real(kind=rp), intent(in) :: t
-      integer, intent(in) :: tstep
-      type(field_t), pointer :: u
-      type(field_t), pointer :: v
-      type(field_t), pointer :: w
-      type(field_t), pointer :: temp
-      integer :: i
-      real(kind=rp) :: ui, vi, wi, magu, utau, normu
-
-      u => neko_registry%get_field("u")
-      v => neko_registry%get_field("v")
-      w => neko_registry%get_field("w")
-      temp => neko_registry%get_field("temperature")
-
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
-              this%ind_s_d, this%ind_t_d, this%ind_e_d, &
-              this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-              this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
-              this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-              this%z0, tstep)
-      else
-         call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
-              this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
-              this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
-              this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-              this%z0, this%bc_type, this%zone_idx, this%h_idx, &
-              this%q, tstep)
-      end if
-
-    end subroutine most_compute
-
   end subroutine most_init_from_components
+
+  !> Destructor for the most_t (base) class.
+  subroutine most_free(this)
+    class(most_t), intent(inout) :: this
+
+    call this%free_base()
+
+  end subroutine most_free
+
+  !> Compute the wall shear stress.
+  !> @param t The time value.
+  !> @param tstep The time iteration.
+  subroutine most_compute(this, t, tstep)
+    class(most_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    type(field_t), pointer :: u
+    type(field_t), pointer :: v
+    type(field_t), pointer :: w
+    type(field_t), pointer :: temp
+    integer :: i
+    real(kind=rp) :: ui, vi, wi, magu, utau, normu
+
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
+    temp => neko_registry%get_field("temperature")
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+        call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
+            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
+            this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
+            this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
+            this%z0, tstep)
+    else
+        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
+            this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
+            this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+            this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
+            this%z0, this%bc_type, this%zone_idx, this%h_idx, &
+            this%q, tstep)
+    end if
+
+  end subroutine most_compute
 
 end module most
