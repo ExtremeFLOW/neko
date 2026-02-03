@@ -166,7 +166,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0, z0t
+    real(kind=rp), intent(in) :: kappa, z0
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(inout) :: q  ! only supports scalar at the moment
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
@@ -202,6 +202,7 @@ contains
         call neko_error("The face index is not correct (most_cpu.f90)")
     end select
 
+    z0t = z0 
     do i=1, n_nodes
       ! Sample the variables
       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
@@ -304,7 +305,7 @@ contains
             ! and compute q from here
             q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0h) 
           case default
-            call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+            call neko_error("ERROR: Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
         end select 
 
       end if
