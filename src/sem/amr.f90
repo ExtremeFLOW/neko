@@ -250,7 +250,7 @@ contains
          time%tstep)
 
     ! let user reconstruct fields
-    call user%amr_reconstruct(this%reconstruct, this%counter)
+    call user%amr_reconstruct(this%reconstruct, this%counter, time%tstep)
 
   end subroutine amr_restart
 
