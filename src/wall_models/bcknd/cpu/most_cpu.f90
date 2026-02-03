@@ -170,11 +170,7 @@ contains
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(inout) :: q  ! only supports scalar at the moment
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
-<<<<<<< HEAD
     integer, intent(in) :: zone_idx  ! only supports wall model on ONE boundary atm!
-=======
-    integer, intent(in) :: zone_idx  ! WARNING: only supports wall model on ONE boundary atm!
->>>>>>> d60331e56a (increased robustness by making zone_idx scalar)
     integer :: ts_idx(3)
     integer, intent(in) :: h_idx
     integer :: i, count
@@ -333,7 +329,7 @@ contains
             ! and compute q from here
             q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0h) 
           case default
-            call neko_error("ERROR: Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+            call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
         end select 
 
       end if
