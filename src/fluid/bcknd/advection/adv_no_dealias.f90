@@ -42,6 +42,9 @@ module adv_no_dealias
   use neko_config, only : NEKO_BCKND_DEVICE
   use operators, only : conv1
   use device, only : device_free, device_map, device_get_ptr
+  use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -62,6 +65,8 @@ module adv_no_dealias
      !! the RHS
      procedure, pass(this) :: compute_scalar => &
           compute_scalar_advection_no_dealias
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => adv_no_dealias_amr_restart
   end type adv_no_dealias_t
 
 contains
@@ -90,6 +95,9 @@ contains
     if (c_associated(this%temp_d)) then
        call device_free(this%temp_d)
     end if
+
+    call this%free_amr_base()
+
   end subroutine free_no_dealias
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
@@ -183,5 +191,25 @@ contains
     end if
 
   end subroutine compute_scalar_advection_no_dealias
+
+  subroutine adv_no_dealias_amr_restart(this, reconstruct, counter, tstep)
+    class(adv_no_dealias_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Advection no dealias'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine adv_no_dealias_amr_restart
 
 end module adv_no_dealias

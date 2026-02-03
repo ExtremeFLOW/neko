@@ -690,11 +690,15 @@ contains
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
       ! Compute the source terms
-      call this%source_term%compute(time)
+    call this%source_term%compute(time)
 
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), time, strong = .false.)
+
+          
+    write(*,*) 'TESTfluidSTEP1', pe_rank, oifs
+    
 
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
@@ -721,6 +725,10 @@ contains
          call this%adv%compute(u, v, w, &
               f_x, f_y, f_z, &
               Xh, this%c_Xh, dm_Xh%size())
+
+                   
+    write(*,*) 'TESTfluidSTEP2', pe_rank
+    
 
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
@@ -1281,9 +1289,9 @@ contains
     call this%wlag%amr_restart(reconstruct, counter, tstep)
 
     ! Reconstruct checkpoint
-    ! LEFT FOR FUTURE
+    ! LEFT FOR FUTURE !!!!!!!
 
-    ! Reallocate right hand side??????????????????????
+    ! Reallocate right hand side
     if (associated(this%f_x)) call this%f_x%amr_reallocate(reconstruct, &
          counter, tstep)
     if (associated(this%f_y)) call this%f_y%amr_reallocate(reconstruct, &
@@ -1301,8 +1309,12 @@ contains
     ! boundary conditions
 
     ! fluid source term?????
+    ! it is not clear is source term need to be reconstructed, as rhs is allredy
+    ! reconstructed, and the rest of the fields seem to be taken from registries
+    ! gradient_jump_penalty certainly requires
+    ! LEFT FOR FUTURE !!!!!!!
 
-    ! Krylov solver
+    ! Krylov solvers
     call this%ksp_vel%amr_restart(reconstruct, counter, tstep)
     call this%ksp_prs%amr_restart(reconstruct, counter, tstep)
 
@@ -1312,9 +1324,11 @@ contains
 
     ! Projection space
     if (this%vel_projection_dim .gt. 0) then
+       ! activation step updated in the type only
        call this%proj_vel%amr_restart(reconstruct, counter, tstep)
     end if
     if (this%pr_projection_dim .gt. 0) then
+       ! activation step updated in the type only
        call this%proj_prs%amr_restart(reconstruct, counter, tstep)
     end if
 
@@ -1326,7 +1340,7 @@ contains
     if (associated(this%w_e)) call this%w_e%amr_restart(reconstruct, counter, &
          tstep)
 
-    ! Reconstruct total viscosity
+    ! Reconstruct total viscosity?????????
     if (associated(this%mu_tot)) &
          call this%mu_tot%amr_restart(reconstruct, counter, tstep)
 
@@ -1346,6 +1360,9 @@ contains
     call this%dv%amr_reallocate(reconstruct, counter, tstep)
     call this%dw%amr_reallocate(reconstruct, counter, tstep)
 
+    ! Helmholtz operator (Ax_***), residuals (pnpn_***_res_t), rhs
+    ! contributions (rhs_marker_***_t) do not require restart
+
     ! Reconstruct time variables
     call this%abx1%amr_restart(reconstruct, counter, tstep)
     call this%aby1%amr_restart(reconstruct, counter, tstep)
@@ -1358,6 +1375,9 @@ contains
     call this%advx%amr_restart(reconstruct, counter, tstep)
     call this%advy%amr_restart(reconstruct, counter, tstep)
     call this%advz%amr_restart(reconstruct, counter, tstep)
+
+    ! Advection
+    call this%adv%amr_restart(reconstruct, counter, tstep)
 
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
