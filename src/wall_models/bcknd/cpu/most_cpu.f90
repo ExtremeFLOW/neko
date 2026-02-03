@@ -170,7 +170,11 @@ contains
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(inout) :: q  ! only supports scalar at the moment
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
+<<<<<<< HEAD
     integer, intent(in) :: zone_idx  ! only supports wall model on ONE boundary atm!
+=======
+    integer, intent(in) :: zone_idx  ! WARNING: only supports wall model on ONE boundary atm!
+>>>>>>> d60331e56a (increased robustness by making zone_idx scalar)
     integer :: ts_idx(3)
     integer, intent(in) :: h_idx
     integer :: i, count
@@ -209,13 +213,8 @@ contains
     !      ignore_existing=.true.)
     ! h_field => neko_field_registry%get_field_by_name("sampling_height")
 
-    ! WARNING: only supports wall model on ONE boundary atm!
-    if (size(zone_idx) /= 1) then 
-      call neko_error("The MOST wall model is only applicable to ONE boundary")
-    end if
-
     ! Select the ts offset based on fid
-    select case (zone_idx(1))
+    select case (zone_idx)
       case (1)
         ts_idx = [h_idx, 0, 0 ]
       case (2)
