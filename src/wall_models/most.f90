@@ -41,7 +41,7 @@ module most
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
   use json_utils, only : json_get_or_default, json_get
-  use most_device, only : most_compute_device   
+  use most_device, only : most_compute_device
   use most_cpu, only : most_compute_cpu
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error
@@ -89,7 +89,7 @@ contains
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
   subroutine most_init(this, scheme_name, coef, msk, facet, &
-       h_index, json)   
+       h_index, json)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
@@ -112,10 +112,10 @@ contains
 
     call json_get(json, "zone_indices", zone_idx_arr)
     if (.not. allocated(zone_idx_arr)) then
-      call neko_error("zone_indices not provided")
+       call neko_error("zone_indices not provided")
     end if
     if (size(zone_idx_arr) /= 1) then
-      call neko_error("MOST wall model supports exactly one boundary")
+       call neko_error("MOST wall model supports exactly one boundary")
     end if
     zone_idx = zone_idx_arr(1)
 
@@ -141,11 +141,11 @@ contains
 
     call json_get(json, "zone_indices", zone_idx_arr)
     if (.not. allocated(zone_idx_arr)) then
-      call neko_error("zone_indices not provided")
+       call neko_error("zone_indices not provided")
     end if
     ! At the moment we only support this bc on one boundary at the time
     if (size(zone_idx_arr) /= 1) then
-      call neko_error("MOST wall model supports exactly one boundary")
+       call neko_error("MOST wall model supports exactly one boundary")
     end if
     this%zone_idx = zone_idx_arr(1)
 
@@ -197,50 +197,50 @@ contains
     this%zone_idx = zone_idx
     this%h_idx = h_idx
     this%q = q
-  !> Destructor for the most_t (base) class.
-  subroutine most_free(this)
-    class(most_t), intent(inout) :: this
+    !> Destructor for the most_t (base) class.
+    subroutine most_free(this)
+      class(most_t), intent(inout) :: this
 
-    call this%free_base()
+      call this%free_base()
 
-  end subroutine most_free
+    end subroutine most_free
 
-  !> Compute the wall shear stress.
-  !> @param t The time value.
-  !> @param tstep The time iteration.
-  subroutine most_compute(this, t, tstep)
-    class(most_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(field_t), pointer :: u
-    type(field_t), pointer :: v
-    type(field_t), pointer :: w
-    type(field_t), pointer :: temp
-    integer :: i
-    real(kind=rp) :: ui, vi, wi, magu, utau, normu
+    !> Compute the wall shear stress.
+    !> @param t The time value.
+    !> @param tstep The time iteration.
+    subroutine most_compute(this, t, tstep)
+      class(most_t), intent(inout) :: this
+      real(kind=rp), intent(in) :: t
+      integer, intent(in) :: tstep
+      type(field_t), pointer :: u
+      type(field_t), pointer :: v
+      type(field_t), pointer :: w
+      type(field_t), pointer :: temp
+      integer :: i
+      real(kind=rp) :: ui, vi, wi, magu, utau, normu
 
-    u => neko_registry%get_field("u")
-    v => neko_registry%get_field("v")
-    w => neko_registry%get_field("w")
-    temp => neko_registry%get_field("temperature")   
+      u => neko_registry%get_field("u")
+      v => neko_registry%get_field("v")
+      w => neko_registry%get_field("w")
+      temp => neko_registry%get_field("temperature")
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
-            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
-            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-            this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
-            this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%z0, tstep)   
-    else
-       call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
-            this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
-            this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
-            this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%z0, this%bc_type, this%zone_idx, this%h_idx, &
-            this%q, tstep)   
-    end if
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
+              this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+              this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
+              this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
+              this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
+              this%z0, tstep)
+      else
+         call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
+              this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
+              this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+              this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
+              this%z0, this%bc_type, this%zone_idx, this%h_idx, &
+              this%q, tstep)
+      end if
 
-  end subroutine most_compute
+    end subroutine most_compute
 
 
-end module most
+  end subroutine most_init_from_components
