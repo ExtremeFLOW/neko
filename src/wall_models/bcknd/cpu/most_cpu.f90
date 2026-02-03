@@ -287,6 +287,7 @@ contains
             ! Switch between stable and convective based on bulk Richardson (Ri_b)
             L_old = L_ob
             count = count + 1
+
             fd_h = NR_step*L_ob
             L_upper = L_ob + fd_h
             L_lower = L_ob - fd_h
@@ -295,6 +296,7 @@ contains
             if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
               call neko_error("Unassociated pointer for f or dfdl")
             end if
+
             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
