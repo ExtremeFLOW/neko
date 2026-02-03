@@ -166,7 +166,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0
+    real(kind=rp), intent(in) :: kappa, z0, z0t
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(inout) :: q  ! only supports scalar at the moment
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
@@ -262,7 +262,6 @@ contains
             ! Switch between stable and convective based on bulk Richardson (Ri_b)
             L_old = L_ob
             count = count + 1
-
             fd_h = NR_step*L_ob
             L_upper = L_ob + fd_h
             L_lower = L_ob - fd_h
