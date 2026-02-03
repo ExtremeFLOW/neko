@@ -197,9 +197,6 @@ contains
     this%zone_idx = zone_idx
     this%h_idx = h_idx
     this%q = q
-
-  end subroutine most_init_from_components
-
   !> Destructor for the most_t (base) class.
   subroutine most_free(this)
     class(most_t), intent(inout) :: this
