@@ -235,11 +235,6 @@ contains
     ! update restart counter
     this%counter = this%counter + 1
 
-    ! Start with registries
-    call neko_registry%amr_restart(this%reconstruct, this%counter, time%tstep)
-    call neko_scratch_registry%amr_restart(this%reconstruct, this%counter, &
-         time%tstep)
-
     ! restart components
     if (allocated(this%components)) then
        do il = 1, this%ncomponents
@@ -248,6 +243,11 @@ contains
                this%counter, time%tstep)
        end do
     end if
+
+    ! registries
+    call neko_registry%amr_restart(this%reconstruct, this%counter, time%tstep)
+    call neko_scratch_registry%amr_restart(this%reconstruct, this%counter, &
+         time%tstep)
 
     ! let user reconstruct fields
     call user%amr_reconstruct(this%reconstruct, this%counter)

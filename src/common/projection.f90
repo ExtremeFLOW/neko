@@ -762,15 +762,9 @@ contains
 
     ! reallocate arrays
     if (reconstruct%nold .ne. reconstruct%nnew) then
-       if (allocated(this%xx)) then
-          deallocate(this%xx)
-       end if
-       if (allocated(this%bb)) then
-          deallocate(this%bb)
-       end if
-       if (allocated(this%xbar)) then
-          deallocate(this%xbar)
-       end if
+       if (allocated(this%xx)) deallocate(this%xx)
+       if (allocated(this%bb)) deallocate(this%bb)
+       if (allocated(this%xbar)) deallocate(this%xbar)
 
        allocate(this%xx(ntot, this%L))
        allocate(this%bb(ntot, this%L))
