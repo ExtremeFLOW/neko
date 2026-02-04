@@ -100,7 +100,7 @@ contains
     type(coef_t), pointer :: coef
     character(len=:), allocatable :: alphat_field
 
-    call json_get_or_default(json, "name", name, "fluid_sgs_stats")
+    call json_get_or_default(json, "name", name, "scalar_sgs_stats")
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
