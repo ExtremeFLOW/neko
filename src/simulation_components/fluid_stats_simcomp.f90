@@ -100,10 +100,12 @@ contains
     character(len=20), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: stat_set
+    character(len=:), allocatable :: name
     real(kind=rp) :: start_time
     type(field_t), pointer :: u, v, w, p
     type(coef_t), pointer :: coef
 
+    call json_get_or_default(json, "name", name, "fluid_stats")
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
@@ -118,19 +120,21 @@ contains
     w => neko_registry%get_field("w")
     p => neko_registry%get_field("p")
     coef => case%fluid%c_Xh
+    this%name = name
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set, filename)
+       call fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
+            coef, start_time, hom_dir, stat_set, filename)
     else
-       call fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set)
+       call fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
+            coef, start_time, hom_dir, stat_set)
     end if
 
   end subroutine fluid_stats_simcomp_init_from_json
 
   !> Actual constructor.
+  !! @param name Unique name of the simcomp.
   !! @param u x-velocity
   !! @param v x-velocity
   !! @param w x-velocity
@@ -138,9 +142,10 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
-  subroutine fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
-       start_time, hom_dir, stat_set, fname)
+  subroutine fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
+       coef, start_time, hom_dir, stat_set, fname)
     class(fluid_stats_simcomp_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
@@ -159,9 +164,9 @@ contains
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
 
-
     call this%stats%init(coef, u, v, w, p, stat_set)
 
+    this%name = name
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then

@@ -58,6 +58,8 @@ module simulation_component
      type(time_based_controller_t) :: output_controller
      !> The execution order, lowest excutes first.
      integer :: order
+     !> Unique name of the simcomp.
+     character(:), allocatable :: name
    contains
      !> Constructor for the simulation_component_t (base) class.
      procedure, pass(this) :: init_base => simulation_component_init_base
@@ -407,6 +409,10 @@ contains
     class(simulation_component_t), intent(inout) :: this
 
     nullify(this%case)
+
+    if (allocated(this%name)) then
+       deallocate(this%name)
+    end if
 
     call this%preprocess_controller%free()
     call this%compute_controller%free()
