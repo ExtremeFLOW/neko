@@ -165,7 +165,7 @@ contains
         neko_registry%get_field(trim(temperature_alphat_name))
     this%TKE_alphat => neko_registry%get_field(trim(TKE_alphat_name))
     this%TKE_source => neko_registry%get_field(trim(TKE_source_name))
-    this%g = g
+    this%g = -g
 
   end subroutine deardorff_init_from_components
 
