@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements `TKE_SGS_t`.
-module TKE_SGS
+!> Implements `deardorff_t`.
+module deardorff
   use utils, only : neko_error
   use num_types, only : rp
   use field, only : field_t
@@ -41,16 +41,16 @@ module TKE_SGS
   use json_utils, only : json_get_or_default, json_get
   use json_module, only : json_file
   use neko_config, only : NEKO_BCKND_DEVICE
-  use TKE_SGS_cpu, only : TKE_SGS_compute_cpu
-  use TKE_SGS_device, only : TKE_SGS_compute_device
+  use deardorff_cpu, only : deardorff_compute_cpu
+  use deardorff_device, only : deardorff_compute_device
   use registry, only : neko_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
-  !> Implements the TKE_SGS LES model.
+  !> Implements the deardorff LES model.
   !! @note Reference DOI: 10.1175/1520-0493(1963)091<0099:GCEWTP>2.3.CO;2
-  type, public, extends(les_model_t) :: TKE_SGS_t
+  type, public, extends(les_model_t) :: deardorff_t
      !> Model constant, defaults to 0.10.
      real(kind=rp) :: c_k
      !> The reference temperature
@@ -70,22 +70,22 @@ module TKE_SGS
      type(field_t), pointer :: TKE_source => null()
    contains
      !> Constructor from JSON.
-     procedure, pass(this) :: init => TKE_SGS_init
+     procedure, pass(this) :: init => deardorff_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-          TKE_SGS_init_from_components
+          deardorff_init_from_components
      !> Destructor.
-     procedure, pass(this) :: free => TKE_SGS_free
+     procedure, pass(this) :: free => deardorff_free
      !> Compute eddy viscosity.
-     procedure, pass(this) :: compute => TKE_SGS_compute
-  end type TKE_SGS_t
+     procedure, pass(this) :: compute => deardorff_compute
+  end type deardorff_t
 
 contains
   !> Constructor.
   !! @param fluid The fluid_scheme_base_t object.
   !! @param json A dictionary with parameters.
-  subroutine TKE_SGS_init(this, fluid, json)
-    class(TKE_SGS_t), intent(inout) :: this
+  subroutine deardorff_init(this, fluid, json)
+    class(deardorff_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
@@ -120,7 +120,7 @@ contains
     end if
 
     call neko_log%section('LES model')
-    write(log_buf, '(A)') 'Model : TKE_SGS'
+    write(log_buf, '(A)') 'Model : deardorff'
     call neko_log%message(log_buf)
     write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
     call neko_log%message(log_buf)
@@ -130,11 +130,11 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call TKE_SGS_init_from_components(this, fluid, nut_name, &
+    call deardorff_init_from_components(this, fluid, nut_name, &
          temperature_alphat_name, TKE_alphat_name, TKE_source_name, &
          delta_type, if_ext)
 
-  end subroutine TKE_SGS_init
+  end subroutine deardorff_init
 
   !> Constructor from components.
   !! @param fluid The fluid_scheme_base_t object.
@@ -144,10 +144,10 @@ contains
   !! @param TKE_source_name The name of the source term in the TKE equation
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether trapolate the velocity.
-  subroutine TKE_SGS_init_from_components(this, fluid, &
+  subroutine deardorff_init_from_components(this, fluid, &
        nut_name, temperature_alphat_name, TKE_alphat_name, TKE_source_name, &
        delta_type, if_ext)
-    class(TKE_SGS_t), intent(inout) :: this
+    class(deardorff_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c_k
     character(len=*), intent(in) :: nut_name
@@ -170,38 +170,38 @@ contains
     this%TKE_alphat => neko_registry%get_field(trim(TKE_alphat_name))
     this%TKE_source => neko_registry%get_field(trim(TKE_source_name))
 
-  end subroutine TKE_SGS_init_from_components
+  end subroutine deardorff_init_from_components
 
   !> Destructor for the les_model_t (base) class.
-  subroutine TKE_SGS_free(this)
-    class(TKE_SGS_t), intent(inout) :: this
+  subroutine deardorff_free(this)
+    class(deardorff_t), intent(inout) :: this
 
     call this%free_base()
-  end subroutine TKE_SGS_free
+  end subroutine deardorff_free
 
   !> Compute eddy viscosity.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine TKE_SGS_compute(this, t, tstep)
-    class(TKE_SGS_t), intent(inout) :: this
+  subroutine deardorff_compute(this, t, tstep)
+    class(deardorff_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call TKE_SGS_compute_device(this%if_ext, t, tstep, this%coef, &
+       call deardorff_compute_device(this%if_ext, t, tstep, this%coef, &
             this%temperature_field_name, this%TKE_field_name, &
             this%nut, this%temperature_alphat, this%TKE_alphat, this%TKE_source, &
             this%delta, this%c_k, this%T0, this%g, &
             this%vertical_dir)
     else
-       call TKE_SGS_compute_cpu(this%if_ext, t, tstep, this%coef, &
+       call deardorff_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%temperature_field_name, this%TKE_field_name, &
             this%nut, this%temperature_alphat, this%TKE_alphat, this%TKE_source, &
             this%delta, this%c_k, this%T0, this%g, &
             this%vertical_dir)
     end if
 
-  end subroutine TKE_SGS_compute
+  end subroutine deardorff_compute
 
-end module TKE_SGS
+end module deardorff

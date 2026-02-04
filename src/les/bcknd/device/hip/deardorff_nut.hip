@@ -35,10 +35,10 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include "TKE_SGS_nut_kernel.h"
+#include "deardorff_nut_kernel.h"
 
 extern "C" {
-  void hip_TKE_SGS_nut_compute(void *TKE, void *dTdz,
+  void hip_deardorff_nut_compute(void *TKE, void *dTdz,
                              void *a11, void *a12, void *a13,
                              void *a21, void *a22, void *a23,
                              void *a31, void *a32, void *a33, 
@@ -48,7 +48,7 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(TKE_SGS_nut_compute<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(deardorff_nut_compute<real>),
                     nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                     (real *) TKE, (real *) dTdz,
                     (real *) a11, (real *) a12, (real *) a13,

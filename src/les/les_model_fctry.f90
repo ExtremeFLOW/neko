@@ -37,7 +37,7 @@ submodule (les_model) les_model_fctry
   use sigma, only : sigma_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use wale, only : wale_t
-  use TKE_SGS, only : TKE_SGS_t
+  use deardorff, only : deardorff_t
   use utils, only : neko_type_registration_error
   implicit none
 
@@ -48,7 +48,7 @@ submodule (les_model) les_model_fctry
        "dymamic_smagorinsky", &
        "sigma", &
        "wale", &
-       "TKE_SGS"]
+       "deardorff"]
 
 contains
   !> LES model factory.
@@ -93,8 +93,8 @@ contains
        allocate(sigma_t::object)
     case ('wale')
        allocate(wale_t::object)
-    case ('TKE_SGS')
-       allocate(TKE_SGS_t::object)
+    case ('deardorff')
+       allocate(deardorff_t::object)
     case default
        do i = 1, les_model_registry_size
           if (trim(type_name) == trim(les_model_registry(i)%type_name)) then

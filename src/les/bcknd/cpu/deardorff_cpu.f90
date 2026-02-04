@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the CPU kernel for the `TKE_SGS_t` type.
-module TKE_SGS_cpu
+!> Implements the CPU kernel for the `deardorff_t` type.
+module deardorff_cpu
   use utils, only : neko_error
   use num_types, only : rp
   use field_list, only : field_list_t
@@ -46,7 +46,7 @@ module TKE_SGS_cpu
   implicit none
   private
 
-  public :: TKE_SGS_compute_cpu
+  public :: deardorff_compute_cpu
 
 contains
 
@@ -62,8 +62,8 @@ contains
   !! @param TKE_alphat The eddy diffusivity field for TKE.
   !! @param TKE_source The source terms for TKE equation.
   !! @param delta The LES lengthscale.
-  !! @param c_k The TKE_SGS model constant
-  subroutine TKE_SGS_compute_cpu(if_ext, t, tstep, coef, &
+  !! @param c_k The deardorff model constant
+  subroutine deardorff_compute_cpu(if_ext, t, tstep, coef, &
                                  temperature_field_name, TKE_field_name, &
                                  nut, temperature_alphat, &
                                  TKE_alphat, TKE_source, &
@@ -213,6 +213,6 @@ contains
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
-  end subroutine TKE_SGS_compute_cpu
+  end subroutine deardorff_compute_cpu
 
-end module TKE_SGS_cpu
+end module deardorff_cpu

@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the device kernel for the `TKE_SGS_t` type.
-module TKE_SGS_device
+!> Implements the device kernel for the `deardorff_t` type.
+module deardorff_device
   use num_types, only : rp
   use utils, only : neko_error
   use math, only : NEKO_EPS
@@ -42,11 +42,11 @@ module TKE_SGS_device
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use device_math, only : device_col2
-  use device_TKE_SGS_nut, only : device_TKE_SGS_nut_compute
+  use device_deardorff_nut, only : device_deardorff_nut_compute
   implicit none
   private
 
-  public :: TKE_SGS_compute_device
+  public :: deardorff_compute_device
 
 contains
 
@@ -62,8 +62,8 @@ contains
   !! @param TKE_alphat The eddy diffusivity field for TKE.
   !! @param TKE_source The source terms for TKE equation.
   !! @param delta The LES lengthscale.
-  !! @param c_k The TKE_SGS model constant
-  subroutine TKE_SGS_compute_device(if_ext, t, tstep, coef, &
+  !! @param c_k The deardorff model constant
+  subroutine deardorff_compute_device(if_ext, t, tstep, coef, &
                                     temperature_field_name, TKE_field_name, &
                                     nut, temperature_alphat, &
                                     TKE_alphat, TKE_source, &
@@ -157,7 +157,7 @@ contains
     call device_col2(a32%x_d, coef%mult_d, nut%dof%size())
     call device_col2(a33%x_d, coef%mult_d, nut%dof%size())
 
-    call device_TKE_SGS_nut_compute(TKE%x_d, dTdz%x_d, &
+    call device_deardorff_nut_compute(TKE%x_d, dTdz%x_d, &
          a11%x_d, a12%x_d, a13%x_d, &
          a21%x_d, a22%x_d, a23%x_d, &
          a31%x_d, a32%x_d, a33%x_d, &
@@ -166,7 +166,7 @@ contains
          c_k, T0, g, NEKO_EPS, a11%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
-  end subroutine TKE_SGS_compute_device
+  end subroutine deardorff_compute_device
 
-end module TKE_SGS_device
+end module deardorff_device
 

@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_TKE_SGS_nut
+module device_deardorff_nut
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
   use num_types, only: rp, c_rp
   use utils, only: neko_error
@@ -42,12 +42,12 @@ module device_TKE_SGS_nut
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_TKE_SGS_nut_compute(TKE_d, dTdz_d, &
+     subroutine hip_deardorff_nut_compute(TKE_d, dTdz_d, &
                    a11_d, a12_d, a13_d, &
                    a21_d, a22_d, a23_d, &
                    a31_d, a32_d, a33_d, &
                    delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
-                   c_k, T0, g, eps, n) bind(C,name="hip_TKE_SGS_nut_compute")
+                   c_k, T0, g, eps, n) bind(C,name="hip_deardorff_nut_compute")
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: TKE_d, dTdz_d, &
@@ -58,17 +58,17 @@ module device_TKE_SGS_nut
                              TKE_alphat, TKE_source
        integer(c_int) :: n
        real(c_rp) :: c_k, T0, g, eps
-     end subroutine hip_TKE_SGS_nut_compute
+     end subroutine hip_deardorff_nut_compute
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_TKE_SGS_nut_compute(TKE_d, dTdz_d, &
+     subroutine cuda_deardorff_nut_compute(TKE_d, dTdz_d, &
                   a11_d, a12_d, a13_d, &
                   a21_d, a22_d, a23_d, &
                   a31_d, a32_d, a33_d, &
                   delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
                   c_k, T0, g, eps, n) &
-          bind(c, name = 'cuda_TKE_SGS_nut_compute')
+          bind(c, name = 'cuda_deardorff_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: TKE_d, dTdz_d, &
@@ -79,17 +79,17 @@ module device_TKE_SGS_nut
                              TKE_alphat, TKE_source
        integer(c_int) :: n
        real(c_rp) :: c_k, T0, g, eps
-     end subroutine cuda_TKE_SGS_nut_compute
+     end subroutine cuda_deardorff_nut_compute
   end interface
 #elif HAVE_OPENCL
 #endif
 
-  public :: device_TKE_SGS_nut_compute
+  public :: device_deardorff_nut_compute
 
 contains
 
   !> Compute the eddy viscosity field for the Sigma model indevice
-  subroutine device_TKE_SGS_nut_compute(TKE_d, dTdz_d, a11_d, a12_d, a13_d, &
+  subroutine device_deardorff_nut_compute(TKE_d, dTdz_d, a11_d, a12_d, a13_d, &
               a21_d, a22_d, a23_d, &
               a31_d, a32_d, a33_d, &
               delta_d, &
@@ -103,25 +103,25 @@ contains
     integer :: n
     real(kind=rp) :: c_k, T0, g, eps
 #if HAVE_HIP
-    call hip_TKE_SGS_nut_compute(TKE_d, dTdz_d, &
+    call hip_deardorff_nut_compute(TKE_d, dTdz_d, &
                   a11_d, a12_d, a13_d, &
                   a21_d, a22_d, a23_d, &
                   a31_d, a32_d, a33_d, &
                   delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
                   c_k, T0, g, eps, n)
 #elif HAVE_CUDA
-    call cuda_TKE_SGS_nut_compute(TKE_d, dTdz_d, &
+    call cuda_deardorff_nut_compute(TKE_d, dTdz_d, &
                   a11_d, a12_d, a13_d, &
                   a21_d, a22_d, a23_d, &
                   a31_d, a32_d, a33_d, &
                   delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
                   c_k, T0, g, eps, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for device_TKE_SGS_nut')
+    call neko_error('opencl backend is not supported for device_deardorff_nut')
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_TKE_SGS_nut_compute
+  end subroutine device_deardorff_nut_compute
 
   
-end module device_TKE_SGS_nut
+end module device_deardorff_nut

@@ -37,14 +37,14 @@
 #include <stdio.h>
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-#include "TKE_SGS_nut_kernel.h"
+#include "deardorff_nut_kernel.h"
 
 extern "C" {
   #include <common/neko_log.h>
 }
 
 extern "C" {
-  void cuda_TKE_SGS_nut_compute(void *TKE, void *dTdz,
+  void cuda_deardorff_nut_compute(void *TKE, void *dTdz,
                              void *a11, void *a12, void *a13,
                              void *a21, void *a22, void *a23,
                              void *a31, void *a32, void *a33, 
@@ -56,7 +56,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    TKE_SGS_nut_compute<real>
+    deardorff_nut_compute<real>
     <<<nblcks, nthrds, 0, stream>>>((real *) TKE, (real *) dTdz,
                                     (real *) a11, (real *) a12, (real *) a13,
                                     (real *) a21, (real *) a22, (real *) a23,

@@ -1,5 +1,5 @@
-#ifndef __COMMON_TKE_SGS_NUT_KERNEL_H__
-#define __COMMON_TKE_SGS_NUT_KERNEL_H__
+#ifndef __COMMON_deardorff_NUT_KERNEL_H__
+#define __COMMON_deardorff_NUT_KERNEL_H__
 /*
  Copyright (c) 2025, The Neko Authors
  All rights reserved.
@@ -35,12 +35,12 @@
 */
 
 /**
- * Device kernel for TKE_SGS_nut_compute
+ * Device kernel for deardorff_nut_compute
  */
 #include <cmath>
 #include <algorithm>
 template< typename T>
-__global__ void TKE_SGS_nut_compute(T *__restrict__ TKE,
+__global__ void deardorff_nut_compute(T *__restrict__ TKE,
                                     const T *__restrict__ dTdz,
                                     const T * __restrict__ a11,
                                     const T * __restrict__ a12,
@@ -117,4 +117,4 @@ __global__ void TKE_SGS_nut_compute(T *__restrict__ TKE,
     TKE_source[i] = shear + buoyancy + dissipation;
   }
 }
-#endif // __COMMON_TKE_SGS_NUT_KERNEL_H__
+#endif // __COMMON_deardorff_NUT_KERNEL_H__
