@@ -34,7 +34,7 @@
 module point_zone
   use stack, only: stack_i4_t
   use num_types, only: rp
-  use utils, only: neko_error, nonlinear_index
+  use utils, only: neko_error, nonlinear_index, linear_index
   use dofmap, only: dofmap_t
   use json_module, only: json_file
   use neko_config, only: NEKO_BCKND_DEVICE
@@ -59,6 +59,9 @@ module point_zone
      character(len=80) :: name
      !> If we select the inverse of the criterion or not
      logical :: invert = .false.
+     !> If we select to mark all points in the element containing points that
+     !! satisfy the criterion
+     logical :: mark_full_elements = .false.
    contains
      !> Constructor for the point_zone_t base type.
      procedure, pass(this) :: init_base => point_zone_init_base
@@ -293,7 +296,8 @@ contains
 
     lx = dof%Xh%lx
 
-    do i = 1, dof%size()
+    i = 1
+    do while (i <= dof%size())
        nlindex = nonlinear_index(i, lx, lx, lx)
        x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
        y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
@@ -304,8 +308,25 @@ contains
        ie = nlindex(4)
 
        if (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
-          idx = i
-          call this%add(idx)
+          
+          if (.not. this%mark_full_elements) then
+             idx = i
+             call this%add(idx)
+             i = i + 1
+          else
+             do ix = 1, lx
+                do iy = 1, lx
+                   do iz = 1, lx
+                      idx = linear_index(ix, iy, iz, ie, lx, lx, lx)
+                      call this%add(idx)
+                   end do
+                end do
+             end do
+             i = idx + 1
+          end if 
+       else 
+          i = i + 1
+          
        end if
     end do
 
