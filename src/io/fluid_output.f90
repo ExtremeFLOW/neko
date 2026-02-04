@@ -44,14 +44,12 @@ module fluid_output
   use scalars, only : scalars_t
   use registry, only : neko_registry
   use field, only : field_t
-  use fld_file, only : fld_file_t
   implicit none
   private
 
   !> Fluid output
   type, public, extends(output_t) :: fluid_output_t
      type(field_list_t) :: fluid
-     logical :: always_write_mesh = .false.
    contains
      procedure, pass(this) :: init => fluid_output_init
      procedure, pass(this) :: sample => fluid_output_sample
@@ -61,7 +59,7 @@ module fluid_output
 contains
 
   subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, &
-       path, fmt, layout, always_write_mesh)
+       path, fmt, layout)
     class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
     class(fluid_scheme_base_t), intent(in), target :: fluid
@@ -69,7 +67,6 @@ contains
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     character(len=*), intent(in), optional :: fmt
-    logical, intent(in), optional :: always_write_mesh
     integer, intent(in), optional :: layout
     character(len=1024) :: fname
     integer :: i, j, n_scalars
@@ -82,10 +79,6 @@ contains
        if (fmt .eq. 'adios2') then
           suffix = '.bp'
        end if
-    end if
-
-    if (present(always_write_mesh)) then
-       this%always_write_mesh = always_write_mesh
     end if
 
     if (present(name) .and. present(path)) then
@@ -195,14 +188,7 @@ contains
 
     end if
 
-    select type (ft => this%file_%file_type)
-       ! Only fld files have the option to write the mesh at command
-    type is (fld_file_t)
-       ft%write_mesh = this%always_write_mesh
-       call ft%write(this%fluid, t)
-    class default
-       call ft%write(this%fluid, t)
-    end select
+    call this%file_%write(this%fluid, t)
 
   end subroutine fluid_output_sample
 
