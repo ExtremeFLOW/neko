@@ -74,10 +74,10 @@ contains
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c
-    logical, intent(in), optional :: if_corr
-    character(len=*), intent(in), optional :: scalar_name
-    real(kind=rp), intent(in), optional :: ri_c, ref_temp
-    real(kind=rp), intent(in), optional :: g(3)
+    logical, intent(in) :: if_corr
+    character(len=*), intent(in) :: scalar_name
+    real(kind=rp), intent(in) :: ri_c, ref_temp
+    real(kind=rp), intent(in) :: g(3)
 
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
