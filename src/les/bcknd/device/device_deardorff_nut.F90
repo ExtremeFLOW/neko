@@ -42,27 +42,31 @@ module device_deardorff_nut
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_deardorff_nut_compute(TKE_d, dTdz_d, &
+     subroutine hip_deardorff_nut_compute(TKE_d, &
+                   dTdx_d, dTdy_d, dTdz_d, &
                    a11_d, a12_d, a13_d, &
                    a21_d, a22_d, a23_d, &
                    a31_d, a32_d, a33_d, &
                    delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
-                   c_k, T0, g, eps, n) bind(C,name="hip_deardorff_nut_compute")
+                   c_k, T0, g1, g2, g3, &
+                   eps, n) bind(C,name="hip_deardorff_nut_compute")
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr), value :: TKE_d, dTdz_d, &
+       type(c_ptr), value :: TKE_d, &
+                             dTdx_d, dTdy_d, dTdz_d, &
                              a11_d, a12_d, a13_d, &
                              a21_d, a22_d, a23_d, &
                              a31_d, a32_d, a33_d, &
                              delta_d, nut_d, temperature_alphat, &
                              TKE_alphat, TKE_source
        integer(c_int) :: n
-       real(c_rp) :: c_k, T0, g, eps
+       real(c_rp) :: c_k, T0, g1, g2, g3, eps
      end subroutine hip_deardorff_nut_compute
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_deardorff_nut_compute(TKE_d, dTdz_d, &
+     subroutine cuda_deardorff_nut_compute(TKE_d, &
+                  dTdx_d, dTdy_d, dTdz_d, &
                   a11_d, a12_d, a13_d, &
                   a21_d, a22_d, a23_d, &
                   a31_d, a32_d, a33_d, &
@@ -71,14 +75,15 @@ module device_deardorff_nut
           bind(c, name = 'cuda_deardorff_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr), value :: TKE_d, dTdz_d, &
+       type(c_ptr), value :: TKE_d, &
+                             dTdx_d, dTdy_d, dTdz_d, &
                              a11_d, a12_d, a13_d, &
                              a21_d, a22_d, a23_d, &
                              a31_d, a32_d, a33_d, &
                              delta_d, nut_d, temperature_alphat, &
                              TKE_alphat, TKE_source
        integer(c_int) :: n
-       real(c_rp) :: c_k, T0, g, eps
+       real(c_rp) :: c_k, T0, g1, g2, g3, eps
      end subroutine cuda_deardorff_nut_compute
   end interface
 #elif HAVE_OPENCL
@@ -89,33 +94,36 @@ module device_deardorff_nut
 contains
 
   !> Compute the eddy viscosity field for the Sigma model indevice
-  subroutine device_deardorff_nut_compute(TKE_d, dTdz_d, a11_d, a12_d, a13_d, &
+  subroutine device_deardorff_nut_compute(TKE_d, &
+              dTdx_d, dTdy_d, dTdz_d, a11_d, a12_d, a13_d, &
               a21_d, a22_d, a23_d, &
               a31_d, a32_d, a33_d, &
               delta_d, &
               nut_d, temperature_alphat, TKE_alphat, TKE_source, &
               c_k, T0, g, eps, n)
-    type(c_ptr) :: TKE_d, dTdz_d, &
+    type(c_ptr) :: TKE_d, dTdx_d, dTdy_d, dTdz_d, &
                    a11_d, a12_d, a13_d, &
                    a21_d, a22_d, a23_d, &
                    a31_d, a32_d, a33_d, &
                    delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source
     integer :: n
-    real(kind=rp) :: c_k, T0, g, eps
+    real(kind=rp) :: c_k, T0, g(3), eps
 #if HAVE_HIP
-    call hip_deardorff_nut_compute(TKE_d, dTdz_d, &
+    call hip_deardorff_nut_compute(TKE_d, &
+                  dTdx_d, dTdy_d, dTdz_d, &
                   a11_d, a12_d, a13_d, &
                   a21_d, a22_d, a23_d, &
                   a31_d, a32_d, a33_d, &
                   delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
-                  c_k, T0, g, eps, n)
+                  c_k, T0, g(1), g(2), g(3), eps, n)
 #elif HAVE_CUDA
-    call cuda_deardorff_nut_compute(TKE_d, dTdz_d, &
+    call cuda_deardorff_nut_compute(TKE_d, &
+                  dTdx_d, dTdy_d, dTdz_d, &
                   a11_d, a12_d, a13_d, &
                   a21_d, a22_d, a23_d, &
                   a31_d, a32_d, a33_d, &
                   delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
-                  c_k, T0, g, eps, n)
+                  c_k, T0, g(1), g(2), g(3), eps, n)
 #elif HAVE_OPENCL
     call neko_error('opencl backend is not supported for device_deardorff_nut')
 #else

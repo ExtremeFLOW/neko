@@ -1,5 +1,5 @@
-#ifndef __COMMON_deardorff_NUT_KERNEL_H__
-#define __COMMON_deardorff_NUT_KERNEL_H__
+#ifndef __COMMON_DEARDORFF_NUT_KERNEL_H__
+#define __COMMON_DEARDORFF_NUT_KERNEL_H__
 /*
  Copyright (c) 2025, The Neko Authors
  All rights reserved.
@@ -41,6 +41,8 @@
 #include <algorithm>
 template< typename T>
 __global__ void deardorff_nut_compute(T *__restrict__ TKE,
+                                    const T *__restrict__ dTdx,
+                                    const T *__restrict__ dTdy,
                                     const T *__restrict__ dTdz,
                                     const T * __restrict__ a11,
                                     const T * __restrict__ a12,
@@ -58,7 +60,9 @@ __global__ void deardorff_nut_compute(T *__restrict__ TKE,
                                     T * __restrict__ TKE_source,
                                     const T c_k,
                                     const T T0,
-                                    const T g,
+                                    const T g1,
+                                    const T g2,
+                                    const T g3,
                                     const T eps,
                                     const int n){
 
@@ -71,6 +75,8 @@ __global__ void deardorff_nut_compute(T *__restrict__ TKE,
   T shear, buoyancy, dissipation;
 
   for (int i = idx; i < n; i += str) {
+    const T dTdx_r = dTdx[i];
+    const T dTdy_r = dTdy[i];
     const T dTdz_r = dTdz[i];
     const T a11_r = a11[i];
     const T a12_r = a12[i];
@@ -87,8 +93,8 @@ __global__ void deardorff_nut_compute(T *__restrict__ TKE,
       TKE[i] = eps;
     }
     const T TKE_r = TKE[i];
-    
-    N2 = dTdz_r * g / T0;
+
+    N2 = (dTdx_r * g1 + dTdy_r * g2 + dTdz_r * g3) / T0;
     if (N2 > 0.0) {
       l = 0.76 * sqrt(TKE_r / N2);
       l = min(l, delta_r);
@@ -111,10 +117,12 @@ __global__ void deardorff_nut_compute(T *__restrict__ TKE,
     shear = nut[i] * (s11*a11_r + s12*a12_r + s13*a13_r
                     + s12*a21_r + s22*a22_r + s23*a23_r
                     + s13*a31_r + s23*a32_r + s33*a33_r);
-    buoyancy = - temperature_alphat[i] * g / T0 * dTdz_r;
+    buoyancy = - (dTdx_r * g1 + 
+                  dTdy_r * g2 + 
+                  dTdz_r * g3) * temperature_alphat[i] / T0;
     dissipation = - (0.19 + 0.74 * l/delta_r) * sqrt(TKE_r*TKE_r*TKE_r) / l;
 
     TKE_source[i] = shear + buoyancy + dissipation;
   }
 }
-#endif // __COMMON_deardorff_NUT_KERNEL_H__
+#endif // __COMMON_DEARDORFF_NUT_KERNEL_H__

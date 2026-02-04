@@ -63,11 +63,13 @@ contains
   !! @param TKE_source The source terms for TKE equation.
   !! @param delta The LES lengthscale.
   !! @param c_k The deardorff model constant
+  !! @param T0 The reference temperature.
+  !! @param g The gravitational acceleration vector.
   subroutine deardorff_compute_device(if_ext, t, tstep, coef, &
                                     temperature_field_name, TKE_field_name, &
                                     nut, temperature_alphat, &
                                     TKE_alphat, TKE_source, &
-                                    delta, c_k, T0, g, vert_dir)
+                                    delta, c_k, T0, g)
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -77,16 +79,16 @@ contains
     type(field_t), intent(inout) :: nut, temperature_alphat
     type(field_t), intent(inout) :: TKE_alphat, TKE_source
     type(field_t), intent(in) :: delta
-    real(kind=rp), intent(in) :: c_k, T0, g
-    character(len=*), intent(in) :: vert_dir
+    real(kind=rp), intent(in) :: c_k, T0, g(3)
 
-    type(field_t), pointer :: TKE, Temperature, dTdz
+    type(field_t), pointer :: TKE, temperature
+    type(field_t), pointer :: dTdx, dTdy, dTdz
     type(field_t), pointer :: u, v, w
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33    
-    integer :: temp_indices(10)
+    integer :: temp_indices(12)
 
     TKE => neko_registry%get_field_by_name(TKE_field_name)
-    Temperature => neko_registry%get_field_by_name(temperature_field_name)
+    temperature => neko_registry%get_field_by_name(temperature_field_name)
     if (if_ext .eqv. .true.) then
        u => neko_registry%get_field_by_name("u_e")
        v => neko_registry%get_field_by_name("v_e")
@@ -97,33 +99,30 @@ contains
        w => neko_registry%get_field_by_name("w")
     end if
 
-    call neko_scratch_registry%request_field(dTdz, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(dTdx, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(dTdy, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(dTdz, temp_indices(3), .false.)
 
    ! Calculate vertical temperature gradients
-    select case (vert_dir)
-    case ("x")
-       call dudxyz(dTdz%x, Temperature%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    case ("y")
-       call dudxyz(dTdz%x, Temperature%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    case ("z")
-       call dudxyz(dTdz%x, Temperature%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-    case default
-       call neko_error("Invalid specified vertical direction.")
-    end select
+    call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
 
+    call coef%gs_h%op(dTdx, GS_OP_ADD)
+    call coef%gs_h%op(dTdy, GS_OP_ADD)
     call coef%gs_h%op(dTdz, GS_OP_ADD)
-    call device_col2(dTdz%x_d, coef%mult_d, nut%dof%size())
+    call col2(dTdx%x, coef%mult, nut%dof%size())
+    call col2(dTdy%x, coef%mult, nut%dof%size())
+    call col2(dTdz%x, coef%mult, nut%dof%size())
     
     ! Compute velocity gradients
-    call neko_scratch_registry%request_field(a11, temp_indices(2), .false.)
-    call neko_scratch_registry%request_field(a12, temp_indices(3), .false.)
-    call neko_scratch_registry%request_field(a13, temp_indices(4), .false.)
-    call neko_scratch_registry%request_field(a21, temp_indices(5), .false.)
-    call neko_scratch_registry%request_field(a22, temp_indices(6), .false.)
-    call neko_scratch_registry%request_field(a23, temp_indices(7), .false.)
-    call neko_scratch_registry%request_field(a31, temp_indices(8), .false.)
-    call neko_scratch_registry%request_field(a32, temp_indices(9), .false.)
-    call neko_scratch_registry%request_field(a33, temp_indices(10), .false.)
+    call neko_scratch_registry%request_field(a11, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(a12, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(a13, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(a21, temp_indices(7), .false.)
+    call neko_scratch_registry%request_field(a22, temp_indices(8), .false.)
+    call neko_scratch_registry%request_field(a23, temp_indices(9), .false.)
+    call neko_scratch_registry%request_field(a31, temp_indices(10), .false.)
+    call neko_scratch_registry%request_field(a32, temp_indices(11), .false.)
+    call neko_scratch_registry%request_field(a33, temp_indices(12), .false.)
 
     call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
@@ -157,7 +156,8 @@ contains
     call device_col2(a32%x_d, coef%mult_d, nut%dof%size())
     call device_col2(a33%x_d, coef%mult_d, nut%dof%size())
 
-    call device_deardorff_nut_compute(TKE%x_d, dTdz%x_d, &
+    call device_deardorff_nut_compute(TKE%x_d, &
+         dTdx%x_d, dTdy%x_d, dTdz%x_d, &
          a11%x_d, a12%x_d, a13%x_d, &
          a21%x_d, a22%x_d, a23%x_d, &
          a31%x_d, a32%x_d, a33%x_d, &

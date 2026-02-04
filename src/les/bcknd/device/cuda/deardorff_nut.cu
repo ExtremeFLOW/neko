@@ -44,27 +44,30 @@ extern "C" {
 }
 
 extern "C" {
-  void cuda_deardorff_nut_compute(void *TKE, void *dTdz,
+  void cuda_deardorff_nut_compute(void *TKE, 
+                             void *dTdx, void *dTdy, void *dTdz,
                              void *a11, void *a12, void *a13,
                              void *a21, void *a22, void *a23,
                              void *a31, void *a32, void *a33, 
                              void *delta, void *nut, void *temperature_alphat,
                              void *TKE_alphat, void *TKE_source,
-                             real *c_k, real *T0, real *g, real *eps, int * n){
-    
+                             real *c_k, real *T0, 
+                             real *g1, real *g2, real *g3, real *eps, int * n){
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     deardorff_nut_compute<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) TKE, (real *) dTdz,
+    <<<nblcks, nthrds, 0, stream>>>((real *) TKE, 
+                                    (real *) dTdx, (real *) dTdy, (real *) dTdz,
                                     (real *) a11, (real *) a12, (real *) a13,
                                     (real *) a21, (real *) a22, (real *) a23,
                                     (real *) a31, (real *) a32, (real *) a33,
                                     (real *) delta, (real *) nut, 
                                     (real *) temperature_alphat,
                                     (real *) TKE_alphat, (real *) TKE_source,
-                                    *c_k, *T0, *g, *eps, *n);
+                                    *c_k, *T0, *g1, *g2, *g3, *eps, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 }

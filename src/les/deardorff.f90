@@ -56,9 +56,7 @@ module deardorff
      !> The reference temperature
      real(kind=rp) :: T0
      !> The gravitational acceleration
-     real(kind=rp) :: g
-     !> Vertical direction
-     character(len=:), allocatable :: vertical_dir
+     real(kind=rp) :: g(3)
      !> Temperature field name
      character(len=:), allocatable :: temperature_field_name
      !> TKE field name
@@ -91,7 +89,6 @@ contains
     character(len=:), allocatable :: nut_name
     character(len=:), allocatable :: temperature_alphat_name, TKE_alphat_name
     character(len=:), allocatable :: TKE_source_name
-    character(len=:), allocatable :: vertical_dir
     character(len=:), allocatable :: delta_type
     logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
@@ -110,8 +107,6 @@ contains
     call json_get_or_default(json, "c_k", this%c_k, 0.10_rp)
     call json_get(json, "T0", this%T0)
     call json_get(json, "g", this%g)
-    call json_get_or_default(json, "vertical_direction", vertical_dir, "z")
-    this%vertical_dir = trim(vertical_dir)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
     if (if_ext) then
@@ -192,14 +187,12 @@ contains
        call deardorff_compute_device(this%if_ext, t, tstep, this%coef, &
             this%temperature_field_name, this%TKE_field_name, &
             this%nut, this%temperature_alphat, this%TKE_alphat, this%TKE_source, &
-            this%delta, this%c_k, this%T0, this%g, &
-            this%vertical_dir)
+            this%delta, this%c_k, this%T0, this%g)
     else
        call deardorff_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%temperature_field_name, this%TKE_field_name, &
             this%nut, this%temperature_alphat, this%TKE_alphat, this%TKE_source, &
-            this%delta, this%c_k, this%T0, this%g, &
-            this%vertical_dir)
+            this%delta, this%c_k, this%T0, this%g)
     end if
 
   end subroutine deardorff_compute
