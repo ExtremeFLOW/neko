@@ -184,7 +184,7 @@ __global__ void vreman_nut_compute_buoy(const T * __restrict__ a11,
             out = eps;
         }
 
-        nut[i] = out * mult[i];
+        nut[i] = out;
     }
 }
 #endif // __COMMON_VREMAN_NUT_KERNEL_H__
