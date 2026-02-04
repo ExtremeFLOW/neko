@@ -179,6 +179,20 @@ contains
     this%msh => msh
     this%Xh => Xh
 
+    call coef_allocate_empty(this)
+
+    !
+    ! Setup device memory (if present)
+    !
+
+    call coef_device_empty(this)
+
+  end subroutine coef_init_empty
+
+  !> Allocate selected arrays
+  subroutine coef_allocate_empty(this)
+    type(coef_t), intent(inout) :: this
+
     allocate(this%drdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%dsdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%dtdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
@@ -191,29 +205,31 @@ contains
     allocate(this%dsdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%dtdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
+  end subroutine coef_allocate_empty
 
-    !
-    ! Setup device memory (if present)
-    !
+  !> Setup device for selected arrays
+  subroutine coef_device_empty(this)
+    type(coef_t), intent(inout) :: this
+    integer :: ntot
 
-    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+    ntot = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call device_map(this%drdx, this%drdx_d, n)
-       call device_map(this%drdy, this%drdy_d, n)
-       call device_map(this%drdz, this%drdz_d, n)
+       call device_map(this%drdx, this%drdx_d, ntot)
+       call device_map(this%drdy, this%drdy_d, ntot)
+       call device_map(this%drdz, this%drdz_d, ntot)
 
-       call device_map(this%dsdx, this%dsdx_d, n)
-       call device_map(this%dsdy, this%dsdy_d, n)
-       call device_map(this%dsdz, this%dsdz_d, n)
+       call device_map(this%dsdx, this%dsdx_d, ntot)
+       call device_map(this%dsdy, this%dsdy_d, ntot)
+       call device_map(this%dsdz, this%dsdz_d, ntot)
 
-       call device_map(this%dtdx, this%dtdx_d, n)
-       call device_map(this%dtdy, this%dtdy_d, n)
-       call device_map(this%dtdz, this%dtdz_d, n)
+       call device_map(this%dtdx, this%dtdx_d, ntot)
+       call device_map(this%dtdy, this%dtdy_d, ntot)
+       call device_map(this%dtdz, this%dtdz_d, ntot)
 
     end if
 
-  end subroutine coef_init_empty
+  end subroutine coef_device_empty
 
   !> Initialize coefficients
   subroutine coef_init_all(this, gs_h)
@@ -1331,25 +1347,45 @@ contains
     if (associated(this%gs_h)) call this%gs_h%amr_restart(reconstruct, &
          counter, tstep)
 
-    !!! THERE ARE 2 INITIALISATION ROUTINES, BUT ONLY init_all IS USED HERE!!!
+    ! There are two ways of initialisation and I distinguish them by checking
+    ! association of dofmap
+    if (associated(this%dof)) then
+       ! reconstruct all
+       ! mapping of degrees of freedom
+       if (reconstruct%nold .ne. reconstruct%nnew) then
+          ! Reallocate all arrays
+          call coef_deallocate_all(this)
+          call coef_allocate_all(this)
 
-    ! reconstruct mapping of degrees of freedom
-    if (reconstruct%nold .ne. reconstruct%nnew) then
-       ! Reallocate all arrays
-       call coef_deallocate_all(this)
-       call coef_allocate_all(this)
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             ! added in utils module; could be removed
+             call neko_error('Coef reconstruct:: Nothing done for device.')
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ! added in utils module; could be removed
-          call neko_error('Coef reconstruct:: Nothing done for device.')
-
-          call coef_device_free_all(this)
-          call coef_device_all(this)
+             call coef_device_free_all(this)
+             call coef_device_all(this)
+          end if
        end if
-    end if
 
-    ! Fill all data
-    call coef_fill_all(this)
+       ! Fill all data
+       call coef_fill_all(this)
+    else
+       ! reallocate some of the arrays
+       if (reconstruct%nold .ne. reconstruct%nnew) then
+          ! Reallocate all arrays
+          call coef_deallocate_all(this)
+          call coef_allocate_empty(this)
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             ! added in utils module; could be removed
+             call neko_error('Coef reconstruct:: Nothing done for device.')
+
+             call coef_device_free_all(this)
+             call coef_device_empty(this)
+          end if
+       end if
+
+       ! no filling data this time
+    end if
 
   end subroutine coef_amr_restart
 
