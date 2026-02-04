@@ -98,7 +98,9 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
     character(len=:), allocatable :: avg_dir
+    character(len=:), allocatable :: name
 
+    call json_get_or_default(json, "name", name, "user_stats")
     call this%init_base(json, case)
 
     !> Get the number of stat fields and their names
@@ -108,7 +110,7 @@ contains
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
     call json_get_or_default(json, 'output_file', filename, 'user_stats')
 
-    call user_stats_init_common(this, this%start_time, &
+    call user_stats_init_common(this, name, this%start_time, &
          case%fluid%c_Xh, avg_dir, filename = filename)
   end subroutine user_stats_init_from_json
 
@@ -120,6 +122,7 @@ contains
   end subroutine user_stats_restart
 
   !> Constructor from components, passing controllers.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller The controller for running preprocessing.
@@ -131,10 +134,11 @@ contains
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine user_stats_init_from_controllers(this, case, order, &
+  subroutine user_stats_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
        start_time, coef, avg_dir, filename, precision)
     class(user_stats_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     type(time_based_controller_t), intent(in) :: preprocess_controller
@@ -148,12 +152,13 @@ contains
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%init_common(start_time, coef, avg_dir, filename, precision)
+    call this%init_common(name, start_time, coef, avg_dir, filename, precision)
 
   end subroutine user_stats_init_from_controllers
 
   !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller Control mode for preprocessing.
@@ -169,11 +174,12 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine user_stats_init_from_controllers_properties(this, &
+  subroutine user_stats_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, start_time, coef, avg_dir, &
        filename, precision)
     class(user_stats_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
@@ -191,18 +197,20 @@ contains
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%init_common(start_time, coef, avg_dir, filename, precision)
+    call this%init_common(name, start_time, coef, avg_dir, filename, precision)
 
   end subroutine user_stats_init_from_controllers_properties
 
 
   !> Common part of constructors
+  !! @param name The unique name of the simcomp.
   !! @param start_time The start time for gathering samples for the average.
   !! @param coef The SEM coefficients.
   !! @param avg_dir The averaging direction.
-  subroutine user_stats_init_common(this, start_time, coef, avg_dir, &
+  subroutine user_stats_init_common(this, name, start_time, coef, avg_dir, &
        filename, precision)
     class(user_stats_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     character(len=*), intent(in) :: filename
     integer, intent(in), optional :: precision
     real(kind=rp), intent(in) :: start_time
@@ -211,6 +219,7 @@ contains
     integer :: i
     type(field_t), pointer :: field_to_avg
 
+    this%name = name
     this%start_time = start_time
     this%time = start_time
 
@@ -222,7 +231,7 @@ contains
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
-         this%start_time, coef, avg_dir, name=filename)
+         this%start_time, coef, avg_dir, name = filename)
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)

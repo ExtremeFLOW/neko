@@ -51,6 +51,7 @@ module fluid_output
   !> Fluid output
   type, public, extends(output_t) :: fluid_output_t
      type(field_list_t) :: fluid
+     logical :: always_write_mesh = .false.
    contains
      procedure, pass(this) :: init => fluid_output_init
      procedure, pass(this) :: sample => fluid_output_sample
@@ -59,8 +60,8 @@ module fluid_output
 
 contains
 
-  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, path, &
-       fmt, layout)
+  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, &
+       path, fmt, layout, always_write_mesh)
     class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
     class(fluid_scheme_base_t), intent(in), target :: fluid
@@ -68,6 +69,7 @@ contains
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     character(len=*), intent(in), optional :: fmt
+    logical, intent(in), optional :: always_write_mesh
     integer, intent(in), optional :: layout
     character(len=1024) :: fname
     integer :: i, j, n_scalars
@@ -80,6 +82,10 @@ contains
        if (fmt .eq. 'adios2') then
           suffix = '.bp'
        end if
+    end if
+
+    if (present(always_write_mesh)) then
+       this%always_write_mesh = always_write_mesh
     end if
 
     if (present(name) .and. present(path)) then
@@ -166,6 +172,7 @@ contains
   subroutine fluid_output_free(this)
     class(fluid_output_t), intent(inout) :: this
 
+    call this%free_base()
     call this%fluid%free()
 
   end subroutine fluid_output_free
@@ -188,12 +195,10 @@ contains
 
     end if
 
-    ! Check if mesh velocity is registered --> ALE is active.
-    if (neko_registry%field_exists("wm_x")) is_ale = .true.
-
-    select type (ft => this%file_%file_type) 
+    select type (ft => this%file_%file_type)
+       ! Only fld files have the option to write the mesh at command
     type is (fld_file_t)
-       ft%always_write_mesh = is_ale
+       ft%write_mesh = this%always_write_mesh
        call ft%write(this%fluid, t)
     class default
        call ft%write(this%fluid, t)

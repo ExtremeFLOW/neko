@@ -32,18 +32,18 @@
 !
 !> Defines user dirichlet condition for a scalar field.
 module field_dirichlet
-  use num_types, only: rp
-  use coefs, only: coef_t
-  use dirichlet, only: dirichlet_t
-  use bc, only: bc_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use dirichlet, only : dirichlet_t
+  use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use utils, only: split_string
+  use utils, only : split_string
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only: masked_copy_0
-  use device_math, only: device_masked_copy_0
+  use math, only : masked_copy_0
+  use device_math, only : device_masked_copy_0
   use dofmap, only : dofmap_t
-  use utils, only: neko_error
+  use utils, only : neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
   use json_utils, only : json_get

@@ -1,6 +1,28 @@
 # Changelog
 
 ## Develop
+- Added an option for writing the mesh in every output field file.
+- *BREAKING* All simcomps now have a `name` keyword in the case file. A default
+  name is assigned, but all `name`s must be unique. If you have two or more
+  simcomps of the same `type`, you must manually provide each a unique `name`.
+- *BREAKING* JSON case file parsing now uses strict type checking. This means,
+  for example, that providing an integer like 2 for a real entry will throw an
+  error, one should set 2.0. Descriptive error and warning messages are issued.
+- Added the possibilty to provide global constants in the case file under the
+  `constants` object.
+  - Added real scalar entries to `registry_t`.
+  - Added `neko_const_registry` to store global constants defined in the case
+    file.
+  - Added submodule `case_file_utils` to `json_utils` for extracting JSON
+    entry values from either the JSON itself or the `neko_const_regitry`.
+- Introduce deprecation warning functionality. Allowing marking functions
+  and classes as deprecated, with optional custom messages.
+- Add missing free operators for `output_t` class.
+- Add min/max operations when applying strong boundary conditions for the
+  scalar, mimicing the procedure for the fluid. Needed with meshes where an
+  element touches the boundary with only an edge.
+- Fix `user` scalar boundary conditions only being applied once in the beginning
+  of the simulation.
 - Fix `mean_field_output_t` initialization, causing `start_time` to not be
   respected by the `user_stats` simulation component.
 - Fix field assignment operator to correctly handle name assignment only when
@@ -8,3 +30,7 @@
   pre-existing names.
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
+
+### Deprecated features
+- `operator::ortho` calls with implicit device arrays are deprecated. Please use
+  `device_ortho` instead.

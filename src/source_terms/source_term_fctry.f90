@@ -45,7 +45,7 @@ submodule (source_term) source_term_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SOURCE_KNOWN_TYPES(7) = [character(len=20) :: &
+  character(len=25) :: SOURCE_KNOWN_TYPES(7) = [character(len=25) :: &
        "constant", &
        "boussinesq", &
        "coriolis", &
@@ -87,6 +87,11 @@ contains
     class(source_term_t), allocatable, intent(inout) :: object
     character(len=:), allocatable, intent(in) :: type_name
     integer :: i
+
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
 
     select case (trim(type_name))
     case ("constant")

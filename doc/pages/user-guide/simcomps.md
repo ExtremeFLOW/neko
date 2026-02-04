@@ -18,6 +18,13 @@ Each simcomp is defined as a single JSON object at are added to an array
 of objects called `simulation_components`, which resides directly under the
 `case` object.
 
+All simcomps support a `name` keyword in their JSON object. When ommitted, a
+default `name`, which as a rule coincided with its `type`. For completness,
+these default names are provided for each simcomp in the documentation below.
+However, each simcomp's name must be unique, so if two or more simcomps of the
+same type are present in case, a unique `name` for each must be provided
+manually.
+
 ## List of simulation components
 
 The following is a list of simulation components that are currently available
@@ -36,11 +43,11 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
 - User defined components \ref user-file_simcomps
-- Fluid statistics simcomp, "fluid_stats", for more details see the 
+- Fluid statistics simcomp, "fluid_stats", for more details see the
   [statistics guide](@ref statistics-guide)
-- Scalar statistics simcomp, "scalar_stats", for more details see the 
+- Scalar statistics simcomp, "scalar_stats", for more details see the
   [statistics guide](@ref statistics-guide)
-- User statistics simcomp, "user_stats" \ref user_stats 
+- User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output
@@ -54,7 +61,8 @@ will sync the `output_` parameter to that of the fluid. Choosing `never` will
 suppress output all together. If no parameters for the `output_` parameters are
 provided, they are set to be the same as for `compute_`. In order to simplify
 the configuration, the `compute_control` can be set to `fluid_output` to sync
-the computation to the fluid output.
+the computation to the fluid output. All `_value` keywords can also be strings
+pointing to an entry under `constants.scalars`.
 
 For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
@@ -68,6 +76,7 @@ vorticity fields will be added to the main `.fld` file.
 ~~~~~~~~~~~~~~~{.json}
 {
   "type": "curl",
+  "name": "curl",
   "field_names": ["u", "v", "w"],
   "computed_field": "vorticity"
   "compute_control": "tsteps",
@@ -88,7 +97,7 @@ name.
 
 All of these simcomps also support saving the result to `.fld` files. The \ref
 simcomp_field_writer simcomp is used for that under the hood, so the associated
-JSON keywords can be found in its documentation (`output_filename`, 
+JSON keywords can be found in its documentation (`output_filename`,
 `precision`).
 
 #### derivative {#simcomp_derivative}
@@ -96,11 +105,12 @@ Computes the derivative of field along a chosen direction (x, y, or z). The
 field to derivate is controlled by the `field` keyword and the direction by the
 `direction` keyword. The simcomp will, by default, register the computed
 derivative in the registry as `d[field]_d[direction]`, where the values in the
-brackets correspond to the choice of the user keywords. 
+brackets correspond to the choice of the user keywords.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "derivative",
+   "name": "derivative",
    "field": "u",
    "direction": "y"
    "computed_field": "dudy"
@@ -114,6 +124,7 @@ the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "curl"
+   "name": "curl"
    "fields": ["u", "v", "w"],
    "computed_field": "vorticity"
  }
@@ -126,6 +137,7 @@ the divergence.  By default, registers the result in `div`.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "divergence"
+   "name": "divergence"
    "fields": ["u", "v", "w"],
    "computed_field": "continuity"
  }
@@ -136,11 +148,12 @@ Computes the gradient of a field.
 The field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
 `grad_[field]_x`, `grad_[field]_y`, `grad_[field]_z` where the
-value in the brackets corresponds to the choice of the user keyword. 
+value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "gradient"
+   "name": "gradient"
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
@@ -152,11 +165,12 @@ gradient term appears in the weak formulation of the governing equations. The
 field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
 `weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
-value in the brackets corresponds to the choice of the user keyword. 
+value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "weak_gradient"
+   "name": "weak_gradient"
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
@@ -169,19 +183,20 @@ and s1 if neko is run with one scalar. To output in a different `fld` series, us
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "lambda2"
+   "name": "lambda2"
  }
  ~~~~~~~~~~~~~~~
 
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
-generated in a variety of ways, but the most common is to use the `csv` type. 
+generated in a variety of ways, but the most common is to use the `csv` type.
 
 Mandatory fields for this simcomp are:
 - `fields`: a list of fields to probe. Should be a list of field names that exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
 - `output_file`: Name of the file in which to output the probed fields. Must be
   `.csv`.
 
-It is also possible to set a `start_time` before which the probes will not be 
+It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
 
 #### Supported types
@@ -248,10 +263,11 @@ executed (same behavior as the statistics).
   ~~~~~~~~~~~~~~~
 
  #### Example usage
- 
+
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "probes",
+   "name": "probes",
    "compute_control": "simulationtime",
    "compute_value"    : 1,
    "fields": ["w","s"],
@@ -295,6 +311,7 @@ irrelevant.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "field_writer",
+   "name": "field_writer",
    "fields": ["my_field1", "my_field2"],
    "output_filename": "myfields",
    "precision": "double",
@@ -314,6 +331,7 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "force_torque",
+   "name": "force_torque",
    "zone_id": 1,
    "center": [0.0, 0.0, 0.0],
    "zone_name": "some chosen name, optional",
@@ -360,13 +378,14 @@ keywords:
   compute the eddy viscosity.
   - `true`: extrapolate the velocity as the same order as
   the time scheme.
-  - `false`: the default option, disable the extrapolation. 
-  In this case, the estimation of the eddy viscosity is of first order, while 
+  - `false`: the default option, disable the extrapolation.
+  In this case, the estimation of the eddy viscosity is of first order, while
   circumvent the risk of unstable extrapolation.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "les_model"
+   "name": "les_model"
    "model": "smagorinsky",
    "delta_type": "pointwise",
    "output_control" : "never"
@@ -414,6 +433,7 @@ keywords:
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "user_stats",
+   "name": "user_stats",
    "fields": ["s"],
    "avg_direction": "xz",
    "output_file": "s_average"
@@ -432,5 +452,6 @@ in 3 additional fields appended to the field files.
 ~~~~~~~~~~~~~~~{.json}
  {
    "type": "spectral_error"
+   "name": "spectral_error"
  }
  ~~~~~~~~~~~~~~~

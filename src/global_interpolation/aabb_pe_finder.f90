@@ -131,12 +131,12 @@ contains
     do i = 1, nelv
        id1 = lx*ly*lz*(i-1)+1
        id2 = lx*ly*lz*(i)
-       call local_aabb(i)%init( real((/minval(x(id1:id2)), &
+       call local_aabb(i)%init(real([minval(x(id1:id2)), &
             minval(y(id1:id2)), &
-            minval(z(id1:id2))/), dp), &
-            real((/maxval(x(id1:id2)), &
+            minval(z(id1:id2))], dp), &
+            real([maxval(x(id1:id2)), &
             maxval(y(id1:id2)), &
-            maxval(z(id1:id2))/), dp))
+            maxval(z(id1:id2))], dp))
        call local_aabb_tree%insert_object(local_aabb(i), i)
     end do
 
@@ -154,13 +154,13 @@ contains
        print *, this%pe_box_num, this%glob_map_size
     end if
 
-    allocate(rank_xyz_max(3,this%glob_map_size))
-    allocate(rank_xyz_min(3,this%glob_map_size))
-    allocate(min_xyz(3,this%pe_box_num))
-    allocate(max_xyz(3,this%pe_box_num))
+    allocate(rank_xyz_max(3, this%glob_map_size))
+    allocate(rank_xyz_min(3, this%glob_map_size))
+    allocate(min_xyz(3, this%pe_box_num))
+    allocate(max_xyz(3, this%pe_box_num))
 
     i = 1
-    id_lvl = (/local_aabb_tree%get_root_index(), 0/)
+    id_lvl = [local_aabb_tree%get_root_index(), 0]
     call traverse_stack%init()
     call traverse_stack%push(id_lvl)
 
@@ -176,11 +176,11 @@ contains
           i = i + 1
        else if (2**lvl < this%pe_box_num) then
           if (node%get_left_index() .ne. AABB_NULL_NODE) then
-             temp_id_lvl = (/node%get_left_index(), lvl+1/)
+             temp_id_lvl = [node%get_left_index(), lvl + 1]
              call traverse_stack%push(temp_id_lvl)
           end if
           if (node%get_right_index() .ne. AABB_NULL_NODE) then
-             temp_id_lvl = (/node%get_right_index(), lvl+1/)
+             temp_id_lvl = [node%get_right_index(), lvl + 1]
              call traverse_stack%push(temp_id_lvl)
           end if
        end if
@@ -213,7 +213,7 @@ contains
     do i = 1, this%glob_map_size
        call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
     end do
-    call this%global_aabb_tree%build_from_aabb(this%global_aabb,padding)
+    call this%global_aabb_tree%build_from_aabb(this%global_aabb, padding)
     deallocate(local_aabb)
     deallocate(rank_xyz_max)
     deallocate(rank_xyz_min)
@@ -254,7 +254,7 @@ contains
        n_points, points_at_pe, n_points_pe)
     class(aabb_pe_finder_t), intent(inout) :: this
     integer, intent(in) :: n_points
-    real(kind=rp), intent(in) :: points(3,n_points)
+    real(kind=rp), intent(in) :: points(3, n_points)
     type(stack_i4_t), intent(inout) :: points_at_pe(0:(this%pe_size-1))
     integer, intent(inout) :: n_points_pe(0:(this%pe_size-1))
     type(stack_i4_t) :: pe_candidates
@@ -275,7 +275,7 @@ contains
     !> Check which ranks might have this point
     do i = 1, n_points
        call marked_rank%clear()
-       pt_xyz = (/ points(1,i), points(2,i), points(3,i) /)
+       pt_xyz = [points(1, i), points(2, i), points(3, i)]
        call my_point%init(pt_xyz)
        call pe_candidates%clear()
        call this%find(my_point, pe_candidates)

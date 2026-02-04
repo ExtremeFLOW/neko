@@ -149,7 +149,7 @@ contains
        !move it to do scaling
        lx2 = Xh%lx/2
        if (mod(Xh%lx,2) .eq. 0) then
-          lin_idx = linear_index(lx2,lx2,lx2, e, Xh%lx, Xh%lx, Xh%lx)
+          lin_idx = linear_index(lx2, lx2, lx2, e, Xh%lx, Xh%lx, Xh%lx)
           center_x = x(lin_idx)
           center_y = y(lin_idx)
           center_z = z(lin_idx)
@@ -220,7 +220,7 @@ contains
                               k2 .ge. 1 .and. k2 .le. this%n_boxes) then
                             el_idx = linear_index(i2, j2, k2, 1, &
                                  this%n_boxes, this%n_boxes, this%n_boxes)
-                            if (marked_box%get(el_idx,htable_data) .ne. 0)then
+                            if (marked_box%get(el_idx, htable_data) .ne. 0) then
                                call marked_box%set(el_idx, htable_data)
                                call this%el_map(el_idx)%push(e)
                             end if
@@ -266,9 +266,9 @@ contains
     integer :: idxs(3)
     integer :: x_id, y_id, z_id
 
-    x_id = int(real(x - this%min_x,xp) / this%x_res)
-    y_id = int(real(y - this%min_y,xp) / this%y_res)
-    z_id = int(real(z - this%min_z,xp) / this%z_res)
+    x_id = int(real(x - this%min_x, xp) / this%x_res)
+    y_id = int(real(y - this%min_y, xp) / this%y_res)
+    z_id = int(real(z - this%min_z, xp) / this%z_res)
     if (x_id .eq. -1) then
        x_id = 0
     end if
@@ -304,7 +304,7 @@ contains
     integer, pointer :: el_cands(:)
 
     call el_candidates%clear()
-    idx = this%compute_idx(real(my_point%x(1),rp), &
+    idx = this%compute_idx(real(my_point%x(1), rp), &
          real(my_point%x(2), rp), real(my_point%x(3), rp))
     el_cands => this%el_map(idx)%array()
     do i = 1, this%el_map(idx)%size()
@@ -318,7 +318,7 @@ contains
        all_el_candidates, n_el_cands)
     class(cartesian_el_finder_t), intent(inout) :: this
     integer, intent(in) :: n_points
-    real(kind=rp), intent(in) :: points(3,n_points)
+    real(kind=rp), intent(in) :: points(3, n_points)
     type(stack_i4_t), intent(inout) :: all_el_candidates
     integer, intent(inout) :: n_el_cands(n_points)
     integer :: i, j, adjusted_index

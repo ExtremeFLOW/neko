@@ -59,6 +59,8 @@ module scalar_stats_output
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_stats_output_init
+     !> Destructor
+     procedure, pass(this) :: free => scalar_stats_output_free
      !> Samples the fields computed by the `stats` component.
      procedure, pass(this) :: sample => scalar_stats_output_sample
   end type scalar_stats_output_t
@@ -117,6 +119,18 @@ contains
     this%stats => stats
     this%T_begin = T_begin
   end subroutine scalar_stats_output_init
+
+  !> Destructor
+  subroutine scalar_stats_output_free(this)
+    class(scalar_stats_output_t), intent(inout) :: this
+
+    call this%free_base()
+
+    nullify(this%stats)
+    call this%map_1d%free()
+    call this%map_2d%free()
+
+  end subroutine scalar_stats_output_free
 
   !> Sample scalar_stats at time @a t
   subroutine scalar_stats_output_sample(this, t)

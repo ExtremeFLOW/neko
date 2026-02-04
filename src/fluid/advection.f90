@@ -37,8 +37,8 @@ module advection
   use field, only : field_t
   use coefs, only : coef_t
   use json_module, only : json_file
-  use field_series, only: field_series_t
-  use time_scheme_controller, only: time_scheme_controller_t
+  use field_series, only : field_series_t
+  use time_scheme_controller, only : time_scheme_controller_t
   implicit none
   private
 

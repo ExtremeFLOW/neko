@@ -34,7 +34,7 @@
 !> Implements `elementwise_filter_t`.
 module elementwise_filter
   use num_types, only : rp
-  use filter, only: filter_t
+  use filter, only : filter_t
   use math, only : rzero, rone, copy
   use field, only : field_t
   use coefs, only : coef_t
@@ -195,8 +195,8 @@ contains
     type(field_t), intent(in) :: F_in
 
     ! F_out = fh x fh x fh x F_in
-    call tnsr3d(F_out%x, this%nx, F_in%x, this%nx, this%fh, this%fht, this%fht, &
-         this%coef%msh%nelv)
+    call tnsr3d(F_out%x, this%nx, F_in%x, this%nx, this%fh, this%fht, &
+         this%fht, this%coef%msh%nelv)
 
   end subroutine elementwise_field_filter_3d
 
@@ -227,13 +227,13 @@ contains
        z = zpts(j)
        call legendre_poly(Lj, z, n)
        select case (filter_type)
-       case("Boyd")
+       case ("Boyd")
           pht%x(1,j) = Lj(1)
           pht%x(2,j) = Lj(2)
-          do k=3,nx
-             pht%x(k,j) = Lj(k)-Lj(k-2)
+          do k = 3, nx
+             pht%x(k, j) = Lj(k) - Lj(k - 2)
           end do
-       case("nonBoyd")
+       case ("nonBoyd")
           pht%x(:,j) = Lj
        end select
     end do
@@ -245,8 +245,8 @@ contains
 
     diag = 0.0_rp
 
-    do i=1,nx
-       diag(i,i) = transfer(i)
+    do i = 1, nx
+       diag(i, i) = transfer(i)
     end do
 
     call mxm (diag, nx, pht%x, nx, fh, nx) !          -1

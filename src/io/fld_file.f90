@@ -44,9 +44,9 @@ module fld_file
   use fld_file_data, only : fld_file_data_t
   use vector, only : vector_t
   use space, only : space_t
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   use mesh, only : mesh_t
-  use utils, only: filename_suffix_pos, filename_chsuffix, filename_name, &
+  use utils, only : filename_suffix_pos, filename_chsuffix, filename_name, &
        filename_path, neko_error
   use comm
   use datadist, only : linear_dist_t
@@ -63,7 +63,7 @@ module fld_file
   !> Interface for NEKTON fld files
   type, public, extends(generic_file_t) :: fld_file_t
      logical :: dp_precision = .false. !< Precision of output data
-     logical:: always_write_mesh = .false.
+     logical :: write_mesh = .false. !< Whether to write the mesh
    contains
      procedure :: read => fld_file_read
      procedure :: write => fld_file_write
@@ -282,10 +282,12 @@ contains
     !
 
     call this%increment_counter()
-    write_mesh = (this%get_counter() .eq. this%get_start_counter())
-    ! For ALE, we always need to write the mesh in .fld files for visualization.
-    if (this%always_write_mesh)  write_mesh = .true.
-
+    ! Check if I should write the mesh. Always override at the start counters
+    if (.not. this%write_mesh) then
+       write_mesh = (this%get_counter() .eq. this%get_start_counter())
+    else
+       write_mesh = this%write_mesh
+    end if
     call MPI_Allreduce(MPI_IN_PLACE, write_mesh, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, write_velocity, 1, &

@@ -32,7 +32,7 @@
 !
 !> Defines a dong outflow condition
 module dong_outflow
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use dirichlet, only : dirichlet_t
   use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE, device_free
   use num_types, only : rp, c_rp
@@ -227,7 +227,7 @@ contains
     real(kind=rp) :: normal_xyz(3)
 
     if (present(only_facets)) then
-       if (only_facets .eqv. .false.) then
+       if (.not. only_facets) then
           call neko_error("For dong_outflow_t, only_facets has to be true.")
        end if
     end if

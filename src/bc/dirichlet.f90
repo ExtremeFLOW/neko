@@ -32,12 +32,13 @@
 !
 !> Defines a dirichlet boundary condition
 module dirichlet
-  use device_dirichlet
+  use device_dirichlet, only : device_dirichlet_apply_scalar, &
+       device_dirichlet_apply_vector
   use num_types, only : rp
   use bc, only : bc_t
   use coefs, only : coef_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get_or_lookup
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
   implicit none
@@ -76,7 +77,7 @@ contains
     real(kind=rp) :: g
 
     call this%init_base(coef)
-    call json_get(json , "value", g)
+    call json_get_or_lookup(json , "value", g)
 
     this%g = g
   end subroutine dirichlet_init

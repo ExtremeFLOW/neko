@@ -34,14 +34,14 @@
 !! are used to modify fields in a way that is useful for various
 !! simulations.
 module mappings
-  use field, only: field_t
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use num_types, only: rp
-  use utils, only: neko_error
+  use field, only : field_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use utils, only : neko_error
 
-  use mappings_cpu, only: smooth_step_cpu, permeability_cpu, &
+  use mappings_cpu, only : smooth_step_cpu, permeability_cpu, &
        step_function_cpu
-  use mappings_device, only: smooth_step_device, permeability_device, &
+  use mappings_device, only : smooth_step_device, permeability_device, &
        step_function_device
 
   implicit none
