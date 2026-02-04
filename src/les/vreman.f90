@@ -197,7 +197,9 @@ contains
           call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
                this%nut, this%delta, this%c)
        else
-          call neko_error("Vreman with buoyancy correction is not implemented on device yet")
+          call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
+               this%nut, this%delta, this%c, this%if_corr,             &
+        this%scalar_name, this%ri_c, this%ref_temp, this%g)
        end if
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
