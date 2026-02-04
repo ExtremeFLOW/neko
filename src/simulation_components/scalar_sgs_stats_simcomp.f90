@@ -94,11 +94,13 @@ contains
     character(len=20), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: sname
+    character(len=:), allocatable :: name
     real(kind=rp) :: start_time
     type(field_t), pointer :: s
     type(coef_t), pointer :: coef
     character(len=:), allocatable :: alphat_field
 
+    call json_get_or_default(json, "name", name, "fluid_sgs_stats")
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
@@ -111,6 +113,7 @@ contains
 
     s => neko_registry%get_field(sname)
     coef => case%fluid%c_Xh
+    this%name = name
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
