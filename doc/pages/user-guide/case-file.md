@@ -1215,15 +1215,35 @@ specific heat capacity and thermal conductivity. These are provided as `cp` and
 `lambda`. Similarly to the fluid, one can provide the Peclet number, `Pe`, as an
 alternative. In this case, `cp` is set to 1 and `lambda` to the inverse of `Pe`.
 
-As for the fluid, turbulence modelling is enabled by setting the `nut_field` to
-the name matching that set for the simulation component with the LES model.
-Additionally, the turbulent Prandtl number, `Pr_t` should be set. The eddy
-viscosity values will be divided by it to produce eddy diffusivity.
+Different from the setup in the fluid, turbulence modelling is enabled by setting the `alphat` json entry.
 
 ### Turbulence modelling
 
-The configuration is identical to the Fluid, however, one additionally has to
-provide the value of the turbulent Prandl number via the `Pr_t` keyword.
+The user could choose to either relate the eddy diffusivity field to the eddy viscosity
+field in the Fluid, or model the eddy diffusivity field by some particular SGS models,
+by setting up the `nut_dependency` entry.
+If the eddy diffusivity field is associated to the eddy viscosity field by a coefficient
+`Pr_t`, the eddy viscosity values will be divided by it to produce eddy diffusivity.
+And the corresponding setting could be done by the following:
+
+```json
+"alphat":{
+    "nut_dependency": true,
+    "nut_field": "nut",
+    "Pr_t": 0.7
+},
+```
+
+Otherwise one could have some SGS models providing an eddy diffusivity field, and the
+user could set it up by the following manner to include an eddy diffusivity field called
+`temperature_alphat`:
+
+```json
+"alphat":{
+    "nut_dependency": false,
+    "alphat_field": "temperature_alphat"
+},
+```
 
 ### Boundary conditions
 
