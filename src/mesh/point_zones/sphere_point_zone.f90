@@ -95,6 +95,8 @@ contains
   !> Initializes a sphere point zone from its center coordinates and radius.
   !! @param size Size of the scratch stack.
   !! @param name Name of the sphere point zone.
+  !! @param full_elements Whether to mark all points in the element containing
+  !! points that satisfy the criterion.
   !! @param x0 Sphere center's x-coordinate.
   !! @param y0 Sphere center's y-coordinate.
   !! @param z0 Sphere center's z-coordinate.
