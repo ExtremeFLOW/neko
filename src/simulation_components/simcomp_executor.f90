@@ -320,7 +320,8 @@ contains
     do i = 1, this%n_simcomps - 1
        do j = i + 1, this%n_simcomps
           if (this%simcomps(i)%simcomp%name .eq. &
-               this%simcomps(j)%simcomp%name) then
+               this%simcomps(j)%simcomp%name .and. &
+               .not.(this%simcomps(i)%simcomp%name .eq. 0)) then
              call neko_error("Simulation component names must be unique. " // &
                   "Duplicate name: " // trim(this%simcomps(i)%simcomp%name))
           end if
