@@ -7,6 +7,7 @@ module ale_routines_device
   use ab_time_scheme, only : ab_time_scheme_t
   use mesh, only : mesh_t
   use utils, only : neko_error
+  use device_math, only : device_add2s2
   use ale_rigid_kinematics
   implicit none
   private
