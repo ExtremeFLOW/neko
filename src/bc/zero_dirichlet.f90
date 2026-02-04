@@ -231,17 +231,24 @@ contains
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
-    write(*,*) 'TESTzeroDIRICHLET'
-
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
 
-    log_buf = 'Zero dirichlet'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    ! AMR refinement/coarsening cannot change reduce/increase number of bc, so
+    ! check if there is anything to do
+    if (this%msk(0) .gt. 0) then
+
+       log_buf = 'Zero dirichlet'
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!       call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!       call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+       
+       write(*,*) 'TESTzeroDIRICHLET', this%msk(0)
+       
+    end if
 
   end subroutine zero_dirichlet_amr_restart
 

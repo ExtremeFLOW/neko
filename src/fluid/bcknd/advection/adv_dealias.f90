@@ -511,16 +511,18 @@ contains
     if (associated(this%coef_GLL)) call this%coef_GLL%amr_restart(reconstruct, &
          counter, tstep)
 
-    ! reallocate coef_GL
-    call this%coef_GL%amr_restart(reconstruct, counter, tstep)
-    ! fill coef_GL data
-    call init_dealias_data(this)
+    if (associated(this%coef_GLL)) then
+       ! reallocate coef_GL
+       call this%coef_GL%amr_restart(reconstruct, counter, tstep)
+       ! fill coef_GL data
+       call init_dealias_data(this)
 
-    if (reconstruct%nold .ne. reconstruct%nnew) then
-       call free_dealias_allocate(this)
-       call free_dealias_device(this)
+       if (reconstruct%nold .ne. reconstruct%nnew) then
+          call free_dealias_allocate(this)
+          call free_dealias_device(this)
 
-       call init_dealias_device(this)
+          call init_dealias_device(this)
+       end if
     end if
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
