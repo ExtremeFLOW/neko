@@ -207,6 +207,8 @@ contains
   !! @param name Name of the point zone.
   !! @param invert Flag to indicate wether or not to invert the selection
   !! of points.
+  !! @param full_elements Whether to mark all points in the element containing
+  !! points that satisfy the criterion.
   subroutine point_zone_init_base(this, size, name, invert, full_elements)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
