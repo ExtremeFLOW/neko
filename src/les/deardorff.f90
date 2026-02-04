@@ -90,6 +90,7 @@ contains
     character(len=:), allocatable :: temperature_alphat_name, TKE_alphat_name
     character(len=:), allocatable :: TKE_source_name
     character(len=:), allocatable :: delta_type
+    real(kind=rp), allocatable :: g(:)
     logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
 
@@ -106,13 +107,11 @@ contains
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_k", this%c_k, 0.10_rp)
     call json_get(json, "T0", this%T0)
-    call json_get(json, "g", this%g)
-    call json_get_or_default(json, "extrapolation", if_ext, .false.)
-
-    if (if_ext) then
-       call neko_error("Velocity extrapolation is not &
-                      supported by TKE SGS model.")
+    call json_get(json, "g", g)
+    if (.not. size(g) == 3) then
+      call neko_error("The gravity vector should have 3 components")
     end if
+    call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : deardorff'
@@ -126,7 +125,7 @@ contains
     call neko_log%end_section()
 
     call deardorff_init_from_components(this, fluid, nut_name, &
-         temperature_alphat_name, TKE_alphat_name, TKE_source_name, &
+         temperature_alphat_name, TKE_alphat_name, TKE_source_name, g, &
          delta_type, if_ext)
 
   end subroutine deardorff_init
@@ -137,17 +136,19 @@ contains
   !! @param temperature_alphat_name The name of the Eddy diffusivity field for temperature.
   !! @param TKE_alphat_name The name of the Eddy diffusivity field for TKE.
   !! @param TKE_source_name The name of the source term in the TKE equation
+  !! @param g The gravitational acceleration vector.
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether trapolate the velocity.
   subroutine deardorff_init_from_components(this, fluid, &
        nut_name, temperature_alphat_name, TKE_alphat_name, TKE_source_name, &
-       delta_type, if_ext)
+       g, delta_type, if_ext)
     class(deardorff_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c_k
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: temperature_alphat_name, TKE_alphat_name
     character(len=*), intent(in) :: TKE_source_name
+    real(kind=rp), intent(in) :: g(3)
     character(len=*), intent(in) :: delta_type
     logical, intent(in) :: if_ext
 
@@ -164,6 +165,7 @@ contains
         neko_registry%get_field(trim(temperature_alphat_name))
     this%TKE_alphat => neko_registry%get_field(trim(TKE_alphat_name))
     this%TKE_source => neko_registry%get_field(trim(TKE_source_name))
+    this%g = g
 
   end subroutine deardorff_init_from_components
 

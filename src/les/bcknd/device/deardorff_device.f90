@@ -38,7 +38,7 @@ module deardorff_device
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
-  use operators, only : dudxyz
+  use operators, only : grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use device_math, only : device_col2
@@ -124,17 +124,9 @@ contains
     call neko_scratch_registry%request_field(a32, temp_indices(11), .false.)
     call neko_scratch_registry%request_field(a33, temp_indices(12), .false.)
 
-    call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-
-    call dudxyz (a21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-
-    call dudxyz (a31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call grad(a11%x, a12%x, a13%x, u%x, coef)
+    call grad(a21%x, a22%x, a23%x, v%x, coef)
+    call grad(a31%x, a32%x, a33%x, w%x, coef)
 
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
