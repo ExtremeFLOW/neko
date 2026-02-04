@@ -74,6 +74,7 @@ contains
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: xmin, xmax, ymin, ymax, zmin, zmax
     logical :: invert
+    logical :: full_elements
 
     call json_get_or_lookup(json, "x_bounds", values)
     xmin = values(1)
@@ -88,8 +89,9 @@ contains
 
     call json_get(json, "name", str_read)
     call json_get_or_default(json, "invert", invert, .false.)
+    call json_get_or_default(json, "full_elements", full_elements, .false.)
 
-    call box_point_zone_init_common(this, size, trim(str_read), invert, &
+    call box_point_zone_init_common(this, size, trim(str_read), invert, full_elements, &
          xmin, xmax, ymin, ymax, zmin, zmax)
 
   end subroutine box_point_zone_init_from_json
@@ -103,12 +105,13 @@ contains
   !! @param ymax Upper y-bound of the box coordinates.
   !! @param zmin Lower z-bound of the box coordinates.
   !! @param zmax Upper z-bound of the box coordinates.
-  subroutine box_point_zone_init_common(this, size, name, invert, xmin, xmax, &
+  subroutine box_point_zone_init_common(this, size, name, invert, full_elements, xmin, xmax, &
        ymin, ymax, zmin, zmax)
     class(box_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
     logical, intent(in) :: invert
+    logical, intent(in) :: full_elements
     real(kind=rp), intent(in) :: xmin
     real(kind=rp), intent(in) :: xmax
     real(kind=rp), intent(in) :: ymin
@@ -116,7 +119,7 @@ contains
     real(kind=rp), intent(in) :: zmin
     real(kind=rp), intent(in) :: zmax
 
-    call this%init_base(size, name, invert)
+    call this%init_base(size, name, invert, full_elements)
 
     this%xmin = xmin
     this%xmax = xmax

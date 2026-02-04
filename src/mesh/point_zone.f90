@@ -61,7 +61,7 @@ module point_zone
      logical :: invert = .false.
      !> If we select to mark all points in the element containing points that
      !! satisfy the criterion
-     logical :: mark_full_elements = .false.
+     logical :: full_elements = .false.
    contains
      !> Constructor for the point_zone_t base type.
      procedure, pass(this) :: init_base => point_zone_init_base
