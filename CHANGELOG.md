@@ -1,6 +1,8 @@
 # Changelog
 
 ## Develop
+- Added the `full_elements` option to point_zones. Include all points in an
+  element in the mask.
 - *BREAKING* All simcomps now have a `name` keyword in the case file. A default
   name is assigned, but all `name`s must be unique. If you have two or more
   simcomps of the same `type`, you must manually provide each a unique `name`.
