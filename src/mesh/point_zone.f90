@@ -207,11 +207,12 @@ contains
   !! @param name Name of the point zone.
   !! @param invert Flag to indicate wether or not to invert the selection
   !! of points.
-  subroutine point_zone_init_base(this, size, name, invert)
+  subroutine point_zone_init_base(this, size, name, invert, full_elements)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
     logical, intent(in) :: invert
+    logical, intent(in) :: full_elements
 
     call point_zone_free_base(this)
 
@@ -223,6 +224,7 @@ contains
 
     this%name = trim(name)
     this%invert = invert
+    this%full_elements = full_elements
 
   end subroutine point_zone_init_base
 
@@ -308,8 +310,8 @@ contains
        ie = nlindex(4)
 
        if (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
-          
-          if (.not. this%mark_full_elements) then
+
+          if (.not. this%full_elements) then
              idx = i
              call this%add(idx)
              i = i + 1
@@ -323,10 +325,10 @@ contains
                 end do
              end do
              i = idx + 1
-          end if 
-       else 
+          end if
+       else
           i = i + 1
-          
+
        end if
     end do
 
