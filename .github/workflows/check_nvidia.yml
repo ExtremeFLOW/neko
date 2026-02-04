@@ -93,14 +93,14 @@ jobs:
 
       - name: Setup - Install NVIDIA HPC SDK
         run: |
-          sudo apt-get install -y nvhpc-25-11
+          sudo apt-get install -y nvhpc-26-1
           sudo apt-get clean
 
       - name: Setup - Environment
         id: setup-env
         run: |
           export NVARCH=`uname -s`_`uname -m`
-          export NVVER=25.11
+          export NVVER=26.1
           export NVCOMPILERS=/opt/nvidia/hpc_sdk
           export PATH=$NVCOMPILERS/$NVARCH/$NVVER/compilers/bin:$PATH
           export PATH=$NVCOMPILERS/$NVARCH/$NVVER/comm_libs/mpi/bin:$PATH
@@ -159,7 +159,7 @@ jobs:
 
       - name: Build - Install Neko
         if: matrix.backend == 'cpu'
-        run: make -j ${{ steps.setup-env.outputs.nproc }} install
+        run: ulimit -s unlimited && make -j ${{ steps.setup-env.outputs.nproc }} install
 
       # ---------------------------------------------------------------------- #
       # Testing
@@ -211,4 +211,4 @@ jobs:
       - name: Dist - Build
         run: |
           cd releng/neko-*
-          make -j $(nproc)
+          ulimit -s unlimited && make -j $(nproc)
