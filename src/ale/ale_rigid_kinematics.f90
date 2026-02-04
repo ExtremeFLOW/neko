@@ -47,12 +47,12 @@ module ale_rigid_kinematics
   implicit none
   private
 
-  public :: ale_config_t
-  public :: ale_body_t
-  public :: stiffness_geometry_t
-  public :: pivot_state_t
-  public :: body_kinematics_t
-  public :: point_tracker_t
+!  public :: ale_config_t
+!  public :: ale_body_t
+!  public :: stiffness_geometry_t
+!  public :: pivot_state_t
+!  public :: body_kinematics_t
+!  public :: point_tracker_t
   public :: compute_body_kinematics_built_in
   public :: update_pivot_location
   public :: init_pivot_state
