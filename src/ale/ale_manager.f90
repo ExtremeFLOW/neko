@@ -1488,7 +1488,7 @@ subroutine ale_manager_init(this, coef, json, user)
     call out_file%init("mesh_preview.fld")
     select type (ft => out_file%file_type)
     type is (fld_file_t)
-       ft%always_write_mesh = .true.
+       ft%write_mesh = .true.
     end select
 
     call out_file%set_counter(file_index)
