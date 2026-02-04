@@ -75,50 +75,10 @@ module fld_file
      procedure :: set_precision => fld_file_set_precision
      procedure :: get_fld_fname => fld_file_get_fld_fname
      procedure :: get_meta_fname => fld_file_get_meta_fname
-     procedure :: count_scalrs => fld_file_count_scalars
   end type fld_file_t
 
 
 contains
-  !> Counts the number of scalars that will be written to file, depending
-  !! on the data provided, and the flags to skip certain fields.
-  function fld_file_count_scalars(this, data) result(n)
-    class(fld_file_t), intent(inout) :: this
-    class(*), target, intent(in) :: data
-    integer :: n, size, idx
-
-    select type (data)
-    type is (fld_file_data_t)
-    type is (field_list_t)
-       size = data%size()
-       idx = 1
-       if (.not. this%skip_pressure) then
-          if (idx .le. size) idx = idx + 1
-       end if
-       if (.not. this%skip_velocity) then
-          if (idx + 2 .le. size) then
-             idx = idx + 3
-          end if
-       end if
-       if (.not. this%skip_temperature) then
-          if (idx .le. size) idx = idx + 1
-       end if
-       if (idx .le. size) then
-          n = size - idx + 1
-       else
-          n = 0
-       end if
-    type is (field_t)
-       ! Only a single field to write, goes into p or t, unless both skipped
-       if (this%skip_pressure .and. this%skip_temperature) then
-          n = 1
-       else
-          n = 0
-       end if
-    class default
-       call neko_error('Invalid data passed to fld_file_t.')
-    end select
-  end function fld_file_count_scalars
 
   !> Map a field_list_t to fld file output slots.
   !! @param this The fld file object.
@@ -222,6 +182,7 @@ contains
     type(array_ptr_t), allocatable :: scalar_fields(:)
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: FLD_DATA_SIZE, n_scalar_fields
+    type(field_list_t) :: dummy_list
 
     if (present(t)) then
        time = real(t, dp)
@@ -306,10 +267,13 @@ contains
           idx(i) = data%idx(i)
        end do
     type is (field_t)
-       p%ptr => data%x(:,1,1,1)
-       dof => data%dof
-       write_pressure = .true.
-       write_velocity = .false.
+       call dummy_list%init(1)
+       call dummy_list%assign(1, data)
+       call fld_file_select_from_field_list(this, dummy_list, p, u, v, w, tem, &
+            scalar_fields, n_scalar_fields, write_pressure, write_velocity, &
+            write_temperature, dof)
+       nullify(dummy_list%items(1)%ptr)
+       deallocate(dummy_list%items)
     type is (field_list_t)
        call fld_file_select_from_field_list(this, data, p, u, v, w, tem, &
             scalar_fields, n_scalar_fields, write_pressure, write_velocity, &
