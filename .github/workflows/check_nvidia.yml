@@ -146,9 +146,9 @@ jobs:
             mkdir ${{ github.workspace }}/install
             echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
-            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --prefix=${{ github.workspace }}/install
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O0" --enable-real=${RP} --prefix=${{ github.workspace }}/install
           elif [ "$BACKEND" == "cuda" ]; then
-            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" LDFLAGS="-lstdc++" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O0" LDFLAGS="-lstdc++" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
           else
             echo "Unknown backend: $BACKEND"
             exit 1
@@ -200,9 +200,9 @@ jobs:
         run: |
           cd releng/neko-*
           if [ "$BACKEND" == "cpu" ]; then
-            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP}
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O0" --enable-real=${RP}
           elif [ "$BACKEND" == "cuda" ]; then
-            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" LDFLAGS="-lstdc++" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O0" LDFLAGS="-lstdc++" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
           else
             echo "Unknown backend: $BACKEND"
             exit 1
