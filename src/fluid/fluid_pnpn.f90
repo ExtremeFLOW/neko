@@ -1397,6 +1397,7 @@ contains
     call this%adv%amr_restart(reconstruct, counter, tstep)
 
     ! Volume flow
+    call this%vol_flow%amr_restart(reconstruct, counter, tstep)
 
     ! statistics
 

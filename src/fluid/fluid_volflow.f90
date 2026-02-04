@@ -81,11 +81,14 @@ module fluid_volflow
   use ax_product, only : ax_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
   !> Defines volume flow
-  type, public :: fluid_volflow_t
+  type, public, extends(amr_restart_component_t) :: fluid_volflow_t
      integer :: flow_dir !< these two should be moved to params
      logical :: avflow
      real(kind=rp) :: flow_rate
@@ -98,6 +101,8 @@ module fluid_volflow
      procedure, pass(this) :: free => fluid_vol_flow_free
      procedure, pass(this) :: adjust => fluid_vol_flow
      procedure, private, pass(this) :: compute => fluid_vol_flow_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => fluid_vol_flow_amr_restart
   end type fluid_volflow_t
 
 contains
@@ -139,6 +144,8 @@ contains
     call this%v_vol%free()
     call this%w_vol%free()
     call this%p_vol%free()
+
+    call this%free_amr_base()
 
   end subroutine fluid_vol_flow_free
 
@@ -435,5 +442,33 @@ contains
 
   end subroutine fluid_vol_flow
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine fluid_vol_flow_amr_restart(this, reconstruct, counter, tstep)
+    class(fluid_volflow_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    if (this%flow_dir .ne. 0) then
+       log_buf = 'Volume flow'
+       call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+       call this%u_vol%amr_restart(reconstruct, counter, tstep)
+       call this%v_vol%amr_restart(reconstruct, counter, tstep)
+       call this%w_vol%amr_restart(reconstruct, counter, tstep)
+       call this%p_vol%amr_restart(reconstruct, counter, tstep)
+
+       call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    end if
+
+  end subroutine fluid_vol_flow_amr_restart
 
 end module fluid_volflow
