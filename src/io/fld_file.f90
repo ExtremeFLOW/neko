@@ -68,6 +68,7 @@ module fld_file
      logical :: skip_pressure = .false. !< Skip writing pressure field
      logical :: skip_velocity = .false. !< Skip writing velocity field
      logical :: skip_temperature = .false. !< Skip writing temperature field
+     logical :: write_mesh = .false. !< Whether to write the mesh
    contains
      procedure :: read => fld_file_read
      procedure :: write => fld_file_write
@@ -363,7 +364,12 @@ contains
     !
 
     call this%increment_counter()
-    write_mesh = (this%get_counter() .eq. this%get_start_counter())
+    ! Check if I should write the mesh. Always override at the start counters
+    if (.not. this%write_mesh) then
+       write_mesh = (this%get_counter() .eq. this%get_start_counter())
+    else
+       write_mesh = this%write_mesh
+    end if
     call MPI_Allreduce(MPI_IN_PLACE, write_mesh, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, write_velocity, 1, &
