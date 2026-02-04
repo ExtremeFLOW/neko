@@ -53,12 +53,13 @@ module bc
   use time_state, only : time_state_t
   use field, only : field_t
   use file, only : file_t
+  use amr_restart_component, only : amr_restart_component_t
 
   implicit none
   private
 
   !> Base type for a boundary condition
-  type, public, abstract :: bc_t
+  type, public, abstract, extends(amr_restart_component_t) :: bc_t
      !> The linear index of each node in each boundary facet
      integer, allocatable :: msk(:)
      !> A list of facet ids (1 to 6), one for each element in msk

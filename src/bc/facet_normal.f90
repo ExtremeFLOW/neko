@@ -47,6 +47,8 @@ module facet_normal
   use device, only : device_map, device_memcpy, device_free, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
   use time_state, only : time_state_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -72,6 +74,8 @@ module facet_normal
      procedure, pass(this) :: free => facet_normal_free
      !> Finalize.
      procedure, pass(this) :: finalize => facet_normal_finalize
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => facet_normal_amr_restart
   end type facet_normal_t
 
 contains
@@ -220,6 +224,8 @@ contains
     call this%nz%free()
     call this%work%free()
 
+    call this%free_amr_base()
+
   end subroutine facet_normal_free
 
   !> Finalize
@@ -312,5 +318,29 @@ contains
     call unique_point_idx%free()
 
   end subroutine facet_normal_finalize
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine facet_normal_amr_restart(this, reconstruct, counter, tstep)
+    class(facet_normal_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    write(*,*) 'TESTfacetNORMAL'
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Facet normal'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine facet_normal_amr_restart
 
 end module facet_normal

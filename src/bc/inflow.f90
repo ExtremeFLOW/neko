@@ -40,6 +40,9 @@ module inflow
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup
   use time_state, only : time_state_t
+  use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -57,6 +60,8 @@ module inflow
      procedure, pass(this) :: free => inflow_free
      !> Finalize.
      procedure, pass(this) :: finalize => inflow_finalize
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => inflow_amr_restart
   end type inflow_t
 
 contains
@@ -153,6 +158,9 @@ contains
     class(inflow_t), target, intent(inout) :: this
 
     call this%free_base()
+
+    call this%free_amr_base()
+
   end subroutine inflow_free
 
   !> Finalize
@@ -172,5 +180,30 @@ contains
     call this%finalize_base(only_facets_)
   end subroutine inflow_finalize
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine inflow_amr_restart(this, reconstruct, counter, tstep)
+    class(inflow_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    write(*,*) 'TESTinflow'
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Inflow'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine inflow_amr_restart
 
 end module inflow

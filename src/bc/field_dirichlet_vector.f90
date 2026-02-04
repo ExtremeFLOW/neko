@@ -49,6 +49,8 @@ module field_dirichlet_vector
   use field_list, only : field_list_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   use time_state, only : time_state_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -88,6 +90,8 @@ module field_dirichlet_vector
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => &
           field_dirichlet_vector_apply_scalar_dev
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_dirichlet_vector_amr_restart
   end type field_dirichlet_vector_t
 
 contains
@@ -139,6 +143,9 @@ contains
     if (associated(this%update)) then
        nullify(this%update)
     end if
+
+    call this%free_amr_base()
+
   end subroutine field_dirichlet_vector_free
 
   !> No-op apply scalar.
@@ -276,5 +283,32 @@ contains
     call this%bc_w%finalize(only_facets_)
 
   end subroutine field_dirichlet_vector_finalize
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine field_dirichlet_vector_amr_restart(this, reconstruct, counter, &
+       tstep)
+    class(field_dirichlet_vector_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    write(*,*) 'TESTfieldDIRICHLETvector'
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Field dirichlet vector'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine field_dirichlet_vector_amr_restart
 
 end module field_dirichlet_vector
