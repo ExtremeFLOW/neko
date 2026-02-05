@@ -63,6 +63,7 @@ module vector_math
   use vector, only : vector_t
   use mask, only : mask_t
   use device
+  use utils, only : neko_error
   use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
        add2, add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, &
        invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, &
