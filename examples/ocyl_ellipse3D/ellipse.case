@@ -102,6 +102,7 @@
         [
             {
                 "type": "force_torque",
+                "name": "center_attached",
                 "compute_control": "tsteps",
                 "compute_value": 1,
                 "zone_id": 1,
@@ -113,6 +114,7 @@
 
             {
                 "type": "force_torque",
+                "name": "center_fixed",
                 "compute_control": "tsteps",
                 "compute_value": 1,
                 "zone_id": 1,

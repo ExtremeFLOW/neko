@@ -6,7 +6,7 @@
         "output_boundary": true,
         "output_checkpoints": true,
         "checkpoint_control": "tsteps",
-        "checkpoint_value": 5000,
+        "checkpoint_value": 5000.0,
         "time": {
             "end_time": 20.0,
             "variable_timestep": false,
@@ -19,7 +19,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 100,
+            "Re": 100.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [ 1.0, 0.0, 0.0 ]
@@ -107,7 +107,7 @@
                 { "type": "no_slip", "zone_indices": [ 7 ], "moving": true }
             ],
             "output_control": "tsteps",
-            "output_value": 100.0
+            "output_value": 100
         },
 
         "simulation_components":
@@ -117,6 +117,7 @@
                 "compute_control": "tsteps",
                 "compute_value": 1,
                 "zone_id": 6,
+                "name": "left_cyl",
                 "zone_name": "left_cylinder_fixed",
                 "center_type": "fixed",
                 "center": [0.0, 0.0, 0.0]
@@ -127,6 +128,7 @@
                 "compute_control": "tsteps",
                 "compute_value": 1,
                 "zone_id": 7,
+                "name": "right_cyl",
                 "zone_name": "right_cylinder_pivot",
                 "center": [ 4.5, 0.0, 0.0 ],
                 "center_type": "pivot",
