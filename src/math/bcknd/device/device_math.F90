@@ -168,7 +168,7 @@ contains
 #elif HAVE_CUDA
     call cuda_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
-    call neko_error('masked gather copy with mask_t not implemented for OpenCL')
+    call opencl_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif
