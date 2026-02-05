@@ -109,9 +109,9 @@ contains
     call coef%gs_h%op(dTdx, GS_OP_ADD)
     call coef%gs_h%op(dTdy, GS_OP_ADD)
     call coef%gs_h%op(dTdz, GS_OP_ADD)
-    call col2(dTdx%x, coef%mult, nut%dof%size())
-    call col2(dTdy%x, coef%mult, nut%dof%size())
-    call col2(dTdz%x, coef%mult, nut%dof%size())
+    call device_col2(dTdx%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(dTdy%x_d, coef%mult_d, nut%dof%size())
+    call device_col2(dTdz%x_d, coef%mult_d, nut%dof%size())
     
     ! Compute velocity gradients
     call neko_scratch_registry%request_field(a11, temp_indices(4), .false.)
