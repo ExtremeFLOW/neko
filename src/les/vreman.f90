@@ -193,8 +193,8 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-         call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
-            this%nut, this%delta, this%c, this%if_corr,             &
+       call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c, this%if_corr, &
             this%scalar_name, this%ri_c, this%ref_temp, this%g)
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &

@@ -42,7 +42,7 @@ module vreman_device
   use gs_ops, only : GS_OP_ADD
   use device_math, only : device_col2
   use device_vreman_nut, only : device_vreman_nut_compute, &
-                                device_vreman_nut_compute_buoy
+       device_vreman_nut_compute_buoy
 
   implicit none
   private
@@ -65,7 +65,7 @@ contains
   !! @param ref_temp Reference temperature for Richardson number.
   !! @param g The gravity vector.
   subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c,&
-                                   if_corr, scalar_name, ri_c, ref_temp, g)
+       if_corr, scalar_name, ri_c, ref_temp, g)
 
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
@@ -139,30 +139,30 @@ contains
     call coef%gs_h%op(a33, GS_OP_ADD)
 
     if (if_corr) then
-      temperature => neko_registry%get_field_by_name(scalar_name)
+       temperature => neko_registry%get_field_by_name(scalar_name)
 
-      call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
-      call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
-      call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
+       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
+       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
+       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
 
-      call dudxyz(dTdx%x, temperature%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-      call dudxyz(dTdy%x, temperature%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-      call dudxyz(dTdz%x, temperature%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call dudxyz(dTdx%x, temperature%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call dudxyz(dTdy%x, temperature%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call dudxyz(dTdz%x, temperature%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-      call device_vreman_nut_compute_buoy(a11%x_d, a12%x_d, a13%x_d,  &
-                  a21%x_d, a22%x_d, a23%x_d,                                  &
-                  a31%x_d, a32%x_d, a33%x_d,                                  &
-                  delta%x_d, nut%x_d, coef%mult_d,                            &
-                  c, NEKO_EPS, a11%dof%size(),                                &
-                  dTdx%x_d, dTdy%x_d, dTdz%x_d,                               &
-                  g, ri_c, ref_temp)
-      call neko_scratch_registry%relinquish_field(temp_indices_buoy)
+       call device_vreman_nut_compute_buoy(a11%x_d, a12%x_d, a13%x_d, &
+            a21%x_d, a22%x_d, a23%x_d, &
+            a31%x_d, a32%x_d, a33%x_d, &
+            delta%x_d, nut%x_d, coef%mult_d, &
+            c, NEKO_EPS, a11%dof%size(), &
+            dTdx%x_d, dTdy%x_d, dTdz%x_d, &
+            g, ri_c, ref_temp)
+       call neko_scratch_registry%relinquish_field(temp_indices_buoy)
     else
-      call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
-          a21%x_d, a22%x_d, a23%x_d, &
-          a31%x_d, a32%x_d, a33%x_d, &
-          delta%x_d, nut%x_d, coef%mult_d, &
-          c, NEKO_EPS, a11%dof%size())
+       call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
+            a21%x_d, a22%x_d, a23%x_d, &
+            a31%x_d, a32%x_d, a33%x_d, &
+            delta%x_d, nut%x_d, coef%mult_d, &
+            c, NEKO_EPS, a11%dof%size())
     end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
