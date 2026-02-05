@@ -173,7 +173,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=5) :: prefix
 
-    call neko_log%section('scalar stats')
+    call neko_log%section('scalar SGS stats')
     write(log_buf, '(A,A)') 'Scalar field: ', trim(s%name)
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Eddy diffusivity field: ', trim(alphat_field)

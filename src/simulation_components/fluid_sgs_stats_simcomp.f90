@@ -256,7 +256,7 @@ contains
 
        sample_time = MPI_WTIME() - sample_start_time
 
-       call neko_log%section('Fluid stats')
+       call neko_log%section('Fluid SGS stats')
        write(log_buf, '(A,E15.7)') 'Sampling at time:', t
        call neko_log%message(log_buf)
        write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', &
