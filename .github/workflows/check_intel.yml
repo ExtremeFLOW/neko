@@ -99,10 +99,10 @@ jobs:
            pytest --max_nprocs=2 --real_precision=${RP}
            cd ../..
 
-#      - name: Archive integration test report
-#        if: failure()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: Intel Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-#          path: tests/integration/logs
-#          retention-days: 1
+      - name: Archive integration test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Intel Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+          path: tests/integration/logs
+          retention-days: 1
