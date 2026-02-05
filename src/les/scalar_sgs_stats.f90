@@ -42,6 +42,7 @@ module scalar_sgs_stats
   use field_list, only : field_list_t
   use stats_quant, only : stats_quant_t
   use registry, only : neko_registry
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
@@ -62,9 +63,9 @@ module scalar_sgs_stats
      type(mean_field_t) :: alphatdsdz !< <alphat*dsdz>
 
      !> gradients
-     type(field_t) :: dsdx_work
-     type(field_t) :: dsdy_work
-     type(field_t) :: dsdz_work
+     type(field_t), pointer :: dsdx_work
+     type(field_t), pointer :: dsdy_work
+     type(field_t), pointer :: dsdz_work
 
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
@@ -107,9 +108,6 @@ contains
 
     ! Initialize work fields
     call this%stats_work%init(this%s%dof, 'stats')
-    call this%dsdx_work%init(this%s%dof, 'dsdx_work')
-    call this%dsdy_work%init(this%s%dof, 'dsdy_work')
-    call this%dsdz_work%init(this%s%dof, 'dsdz_work')
 
     ! Initialize mean fields
     call this%alphat_mean%init(this%alphat)
@@ -152,9 +150,6 @@ contains
 
     ! Initialize work fields
     call this%stats_work%init(this%s%dof, 'stats')
-    call this%dsdx_work%init(this%s%dof, 'dsdx_work')
-    call this%dsdy_work%init(this%s%dof, 'dsdy_work')
-    call this%dsdz_work%init(this%s%dof, 'dsdz_work')
 
     ! Initialize mean fields
     call this%alphat_mean%init(this%alphat)
@@ -178,9 +173,18 @@ contains
     class(scalar_sgs_stats_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
     integer :: n
+    integer :: temp_indices(3)
 
     associate(stats_work => this%stats_work)
       n = stats_work%dof%size()
+
+      call neko_scratch_registry%request_field(this%dsdx_work, &
+                                               temp_indices(1), .false.)
+      call neko_scratch_registry%request_field(this%dsdy_work, &
+                                               temp_indices(2), .false.)
+      call neko_scratch_registry%request_field(this%dsdz_work, &
+                                               temp_indices(3), .false.)
+
       call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
       call this%alphat_mean%update(k)
 
@@ -198,6 +202,7 @@ contains
 
     end associate
 
+    call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine scalar_sgs_stats_update
 
 
@@ -206,9 +211,6 @@ contains
     class(scalar_sgs_stats_t), intent(inout) :: this
 
     call this%stats_work%free()
-    call this%dsdx_work%free()
-    call this%dsdy_work%free()
-    call this%dsdz_work%free()
 
     call this%alphat_mean%free()
 
