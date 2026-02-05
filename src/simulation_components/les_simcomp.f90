@@ -80,7 +80,7 @@ contains
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry if missing.
-    call json_get_or_default(json, "name", name, "les")
+    call json_get_or_default(json, "name", name, "les_model")
     call json_get_or_default(json, "nut_field", nut_field, "nut")
     fields(1) = "les_delta"
     fields(2) = nut_field
