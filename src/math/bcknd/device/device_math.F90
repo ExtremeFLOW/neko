@@ -164,7 +164,7 @@ contains
     end if
 
 #if HAVE_HIP
-    call neko_error('masked gather copy with mask_t not implemented for HIP')
+    call hip_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_CUDA
     call cuda_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
