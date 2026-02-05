@@ -99,6 +99,8 @@ contains
   !> Initializes a box point zone from its coordinates.
   !! @param size Size of the scratch stack.
   !! @param name Name of the box point zone.
+  !! @param full_elements Whether to mark all points in the element containing
+  !! points that satisfy the criterion.
   !! @param xmin Lower x-bound of the box coordinates.
   !! @param xmax Upper x-bound of the box coordinates.
   !! @param ymin Lower y-bound of the box coordinates.

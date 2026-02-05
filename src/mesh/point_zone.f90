@@ -207,6 +207,8 @@ contains
   !! @param name Name of the point zone.
   !! @param invert Flag to indicate wether or not to invert the selection
   !! of points.
+  !! @param full_elements Whether to mark all points in the element containing
+  !! points that satisfy the criterion.
   subroutine point_zone_init_base(this, size, name, invert, full_elements)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
@@ -316,9 +318,9 @@ contains
              call this%add(idx)
              i = i + 1
           else
-             do ix = 1, lx
+             do iz = 1, lx
                 do iy = 1, lx
-                   do iz = 1, lx
+                   do ix = 1, lx
                       idx = linear_index(ix, iy, iz, ie, lx, lx, lx)
                       call this%add(idx)
                    end do

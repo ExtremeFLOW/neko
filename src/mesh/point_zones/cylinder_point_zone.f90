@@ -104,6 +104,8 @@ contains
   !> Initializes a cylinder point zone from its endpoint coordinates and radius.
   !! @param size Size of the scratch stack.
   !! @param name Name of the cylinder point zone.
+  !! @param full_elements Whether to mark all points in the element containing
+  !! points that satisfy the criterion.
   !! @param p0 Coordinates of the first endpoint.
   !! @param p1 Coordinates of the second endpoint.
   !! @param radius Sphere radius.
