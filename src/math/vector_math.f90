@@ -76,7 +76,8 @@ module vector_math
        device_invcol2, device_col2, device_col3, device_subcol3, &
        device_add3s2, device_addcol3, device_addcol4, device_glsum, &
        device_glsc2, device_glsc3, device_masked_gather_copy_0, &
-       device_masked_scatter_copy_0, device_glsubnorm, device_invcol3
+       device_masked_gather_copy_aligned, device_masked_scatter_copy_0, &
+       device_glsubnorm, device_invcol3
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -757,7 +758,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        mask_d = mask%get_d()
        b_d = device_get_ptr(b)
-       call neko_error("Masked copy with mask_t not implemented")
+       call device_masked_gather_copy_aligned(a%x_d, b_d, mask_d, n, mask%size())
     else
        call masked_gather_copy(a%x, b, mask%get(), n, mask%size())
     end if

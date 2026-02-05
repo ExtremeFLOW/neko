@@ -1,3 +1,5 @@
+#include <cstdio>   // declares printf for nvcc device compilation
+
 #ifndef __MATH_MATH_KERNEL_H__
 #define __MATH_MATH_KERNEL_H__
 /*
@@ -65,6 +67,25 @@ __global__ void masked_gather_copy_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n_mask; i += str) {
     a[i] = b[mask[i+1]-1];
+  }
+}
+
+
+/**
+ * Device kernel for masked gather copy with aligned mask
+ */
+template< typename T >
+__global__ void masked_gather_copy_aligned_kernel(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,
+                                   const int n,
+                                   const int n_mask) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[i] = b[mask[i]];  
   }
 }
 
