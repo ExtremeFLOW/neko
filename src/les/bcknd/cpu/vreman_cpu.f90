@@ -93,7 +93,7 @@ contains
     real(kind=rp) :: n(3), du_n(3), sh(3)
     real(kind=rp) :: du_parallel
 
-    if (if_ext .eqv. .true.) then
+    if (if_ext) then
        u => neko_registry%get_field_by_name("u_e")
        v => neko_registry%get_field_by_name("v_e")
        w => neko_registry%get_field_by_name("w_e")
