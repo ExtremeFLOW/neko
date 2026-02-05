@@ -183,6 +183,7 @@ contains
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: FLD_DATA_SIZE, n_scalar_fields
     type(field_list_t) :: dummy_list
+    type(field_t), pointer :: ptr
 
     if (present(t)) then
        time = real(t, dp)
@@ -268,11 +269,13 @@ contains
        end do
     type is (field_t)
        call dummy_list%init(1)
-       call dummy_list%assign(1, data)
+       ptr => data ! For the sake of intel
+       call dummy_list%assign(1, ptr)
        call fld_file_select_from_field_list(this, dummy_list, p, u, v, w, tem, &
             scalar_fields, n_scalar_fields, write_pressure, write_velocity, &
             write_temperature, dof)
        nullify(dummy_list%items(1)%ptr)
+       nullify(ptr)
        deallocate(dummy_list%items)
     type is (field_list_t)
        call fld_file_select_from_field_list(this, data, p, u, v, w, tem, &
