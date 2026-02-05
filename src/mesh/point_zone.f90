@@ -318,9 +318,9 @@ contains
              call this%add(idx)
              i = i + 1
           else
-             do ix = 1, lx
+             do iz = 1, lx
                 do iy = 1, lx
-                   do iz = 1, lx
+                   do ix = 1, lx
                       idx = linear_index(ix, iy, iz, ie, lx, lx, lx)
                       call this%add(idx)
                    end do
