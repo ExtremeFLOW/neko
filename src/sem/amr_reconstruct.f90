@@ -44,6 +44,48 @@ module amr_reconstruct
   implicit none
   private
 
+  !> Type for field reconstruction for given lx
+  type :: amr_reconstruct_lx_t
+     !> Initialisation flag
+     logical :: ifinit = .false.
+     !> Polynomial order + 1
+     integer :: lx
+     !> 3D element size
+     integer :: lxyz
+     !> AMR interpolation arrays
+     type(amr_interpolate_t) :: interpolate
+     !> Work space for single element refinement
+     real(rp), allocatable, dimension(:, :, :, :) :: tmp
+     !> Output vector for refinement
+     real(rp), allocatable, dimension(:, :, :, :) :: vout
+     !> Vector with additional data for coarsening
+     real(rp), allocatable, dimension(:, :, :, :, :) :: vcrs
+     !> Receive buffer
+     real(rp), allocatable, dimension(:, :, :, :) :: buff_rcv
+     !> Send buffer
+     real(rp), allocatable, dimension(:, :, :, :) :: buff_snd
+     !
+     ! Device pointers (if present)
+     !
+     ! should some stuff be on device?
+   contains
+     !> Initialise type
+     procedure, pass(this) :: init => amr_reconstruct_lx_init
+     !> Free type
+     procedure, pass(this) :: free => amr_reconstruct_lx_free
+     !> Initialise type
+     procedure, pass(this) :: buff_get => amr_reconstruct_lx_buff_get
+     !> Free type
+     procedure, pass(this) :: buff_free => amr_reconstruct_lx_buff_free
+     !> Perform refinement/coarsening on a single vector for given lx
+     procedure, pass(this) :: refine_coarsen => &
+          amr_reconstruct_lx_refine_coarsen
+     !> Map single coarse to fine element
+     procedure, pass(this) :: map_c2f => amr_reconstruct_lx_map_c2f
+     !> Map single fine to coarse element
+     procedure, pass(this) :: map_f2c => amr_reconstruct_lx_map_f2c
+  end type amr_reconstruct_lx_t
+
   !> Type for vector/field reconstruction
   type, public :: amr_reconstruct_t
      !> Primary number of grid points in 1D
@@ -54,11 +96,8 @@ module amr_reconstruct
      integer :: lxyz
      !> pointer mesh manager data transfer
      class(mesh_manager_transfer_t), pointer :: transfer
-     !> AMR interpolation arrays
-     type(amr_interpolate_t) :: interpolate
-
-     !> Work space for single element refinement
-     real(rp), allocatable, dimension(:, :, :, :) :: tmp
+     !> AMR interpolation operators for various lx
+     type(amr_reconstruct_lx_t), dimension(:), allocatable :: recon
 
      ! Arrays sizes
      !> Old number of elements
@@ -69,21 +108,21 @@ module amr_reconstruct
      integer :: nref
      !> Coarsening mapping size
      integer :: ncrs
+     !> Receive buffer size
+     integer :: nrcv
+     !> Send buffer size
+     integer :: nsnd
      !> Refinement mapping (element and child position)
      integer, dimension(:, :), allocatable :: rmap
      !> Coarsening mapping (element and child position)
      integer, dimension(:, :), allocatable :: cmap
-     !> Output vector for refinement
-     real(rp), allocatable, dimension(:, :, :, :) :: vout
-     !> Vector with additional data for coarsening
-     real(rp), allocatable, dimension(:, :, :, :, :) :: vcrs
      !> Is local mesh changed
      logical :: ifchange
 
      !
      ! Device pointers (if present)
      !
-     ! should tmp be on device?
+     ! should some stuff be on device?
    contains
      !> Initialise type
      procedure, pass(this) :: init => amr_reconstruct_init
@@ -95,197 +134,160 @@ module amr_reconstruct
      procedure, pass(this) :: map_free => amr_reconstruct_map_free
      !> Perform refinement/coarsening on a single vector
      procedure, pass(this) :: refine_coarsen => amr_reconstruct_refine_coarsen
-     !> Map single coarse to fine element
-     procedure, pass(this) :: map_c2f => amr_reconstruct_map_c2f
-     !> Map single fine to coarse element
-     procedure, pass(this) :: map_f2c => amr_reconstruct_map_f2c
   end type amr_reconstruct_t
 
 contains
   !> Initialise type
-  !! @param[in]  transfer     mesh manager data transfer type
   !! @param[in]  gdim         geometrical mesh dimension
   !! @param[in]  lx           polynomial order + 1
-  subroutine amr_reconstruct_init(this, transfer, gdim, lx)
-    class(amr_reconstruct_t), intent(inout) :: this
-    class(mesh_manager_transfer_t), target, intent(in) :: transfer
+  subroutine amr_reconstruct_lx_init(this, gdim, lx)
+    class(amr_reconstruct_lx_t), intent(inout) :: this
     integer, intent(in) :: gdim, lx
 
     call this%free()
 
-    ! Primary number of point in 1D, 2D and 3D. Required by solvers and
-    ! projections, as they just get a whole vector length at initialisation.
+    this%ifinit = .true.
     ! I assume lx = ly = lz.
     this%lx = lx
-    this%lxy = this%lx * lx
-    this%lxyz = this%lxy * lx
-
-    ! mesh manager data transfer
-    this%transfer => transfer
+    this%lxyz = lx * lx * lx
 
     call this%interpolate%init(gdim, lx)
 
-    associate(Xh => this%interpolate%Xh)
+    ! work space
+    allocate(this%tmp(this%lx, this%lx, this%lx, 3))
 
-      ! work space
-      allocate(this%tmp(Xh%lx, Xh%ly, Xh%lz, 3))
+!    if (NEKO_BCKND_DEVICE .eq. 1) then
+!       ! should tmp be on device?
+!    end if
+!    call device_sync()
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         ! should tmp be on device?
-      end if
-
-    end associate
-
-    call device_sync()
-
-  end subroutine amr_reconstruct_init
+  end subroutine amr_reconstruct_lx_init
 
   !> Free type
-  subroutine amr_reconstruct_free(this)
-    class(amr_reconstruct_t), intent(inout) :: this
-
-    this%transfer => NULL()
+  subroutine amr_reconstruct_lx_free(this)
+    class(amr_reconstruct_lx_t), intent(inout) :: this
 
     call this%interpolate%free()
 
+    this%ifinit = .false.
     this%lx = 0
-    this%lxy = 0
     this%lxyz = 0
-    this%nold = 0
-    this%nnew = 0
-    this%nref = 0
-    this%ncrs = 0
 
     if (allocated(this%tmp)) deallocate(this%tmp)
-
-    if (allocated(this%rmap)) deallocate(this%rmap)
-    if (allocated(this%cmap)) deallocate(this%cmap)
-    if (allocated(this%vout)) deallocate(this%vout)
-    if (allocated(this%vcrs)) deallocate(this%vcrs)
-
-    this%ifchange = .false.
+    call this%buff_free()
 
     !
     ! Cleanup the device (if present)
     !
     ! should tmp be on device?
 
-  end subroutine amr_reconstruct_free
+  end subroutine amr_reconstruct_lx_free
 
-  !> Get refinement/coarsening mapping
-  subroutine amr_reconstruct_map_get(this)
-    class(amr_reconstruct_t), intent(inout) :: this
-    integer :: nchildren
+  !> Allocate buffer arrays
+  !! @param[in]    nrcv      Receive buffer size
+  !! @param[in]    nsnd      Send buffer size
+  !! @param[in]    ncrs      Coarsening mapping size
+  subroutine amr_reconstruct_lx_buff_get(this, nrcv, nsnd, ncrs)
+    class(amr_reconstruct_lx_t), intent(inout) :: this
+    integer, intent(in) :: nrcv, nsnd, ncrs
 
-    call this%transfer%vector_map(this%nold, this%nnew, this%nref, this%ncrs, &
-         this%rmap, this%cmap, nchildren, this%ifchange, &
-         this%interpolate%Xh%lx, this%interpolate%Xh%ly, this%interpolate%Xh%lz)
+    allocate(this%buff_rcv(this%lx, this%lx, this%lx, nrcv), &
+         this%buff_snd(this%lx, this%lx, this%lx, nsnd), &
+         this%vcrs(this%lx, this%lx, this%lx, amr_nchildren, ncrs))
 
-    ! sanity check
-    if (amr_nchildren .ne. nchildren) &
-         call neko_error('Inconsistent children number for mesh manager and &
-         &refinement routines.')
+  end subroutine amr_reconstruct_lx_buff_get
 
-    associate(Xh => this%interpolate%Xh)
-    ! get coarsening vector
-      if (this%ifchange) allocate(this%vcrs(Xh%lx, Xh%ly, Xh%lz, &
-           amr_nchildren, this%ncrs))
-    end associate
-  end subroutine amr_reconstruct_map_get
+  !> Free buffer arrays
+  subroutine amr_reconstruct_lx_buff_free(this)
+    class(amr_reconstruct_lx_t), intent(inout) :: this
 
-  !> Free refinement/coarsening mapping
-  subroutine amr_reconstruct_map_free(this)
-    class(amr_reconstruct_t), intent(inout) :: this
-
-    call this%transfer%vector_map_free()
-
-    this%nold = 0
-    this%nnew = 0
-    this%nref = 0
-    this%ncrs = 0
-
-    if (allocated(this%rmap)) deallocate(this%rmap)
-    if (allocated(this%cmap)) deallocate(this%cmap)
     if (allocated(this%vout)) deallocate(this%vout)
     if (allocated(this%vcrs)) deallocate(this%vcrs)
+    if (allocated(this%buff_rcv)) deallocate(this%buff_rcv)
+    if (allocated(this%buff_snd)) deallocate(this%buff_snd)
 
-    this%ifchange = .false.
-
-  end subroutine amr_reconstruct_map_free
+  end subroutine amr_reconstruct_lx_buff_free
 
   !> Perform refinement/coarsening on a single vector
-  !! @param[inout] vec    vector for refinement/coarsening
-  !! @param[inout] vec_d  device pointer to vector
-  subroutine amr_reconstruct_refine_coarsen(this, vec, vec_d)
-    class(amr_reconstruct_t), intent(inout) :: this
+  !! @param[inout] transfer  data transfer type
+  !! @param[in]    nnew      new number of elements
+  !! @param[in]    nref      Refinement mapping size
+  !! @param[in]    ncrs      Coarsening mapping size
+  !! @param[in]    rmap      Refinement mapping
+  !! @param[in]    cmap      Coarsening mapping
+  !! @param[inout] vec       vector for refinement/coarsening
+  !! @param[inout] vec_d     device pointer to vector
+  subroutine amr_reconstruct_lx_refine_coarsen(this, transfer, nnew, nref, &
+       ncrs, rmap, cmap, vec, vec_d)
+    class(amr_reconstruct_lx_t), intent(inout) :: this
+    class(mesh_manager_transfer_t), intent(inout) :: transfer
+    integer, intent(in) :: nnew, nref, ncrs
+    integer, dimension(:, :),intent(in) :: rmap, cmap
     real(rp), dimension(:, :, :, :), allocatable, intent(inout) :: vec
     type(c_ptr), optional, intent(inout) :: vec_d
     integer :: il, jl, itmp
     integer, dimension(3) :: ch_pos
 
-    if (this%ifchange) then
-       associate(int => this%interpolate)
-         ! check device pointer
-         if (present(vec_d) .and. NEKO_BCKND_DEVICE .eq. 1) then
-            call neko_error('AMR reconstruction; nothing done for device')
-         end if
+    associate(int => this%interpolate)
+      ! check device pointer
+      if (present(vec_d) .and. NEKO_BCKND_DEVICE .eq. 1) then
+         call neko_error('AMR reconstruction; nothing done for device')
+      end if
 
-         ! CPU part
-         allocate(this%vout(int%Xh%lx, int%Xh%ly, int%Xh%lz, this%nnew))
-         call this%transfer%vector_constr(vec, this%vout, this%vcrs)
-         ! refinement
-         if (this%nref .gt. 0) then
-            do il = 1, this%nref
+      ! CPU part
+      allocate(this%vout(this%lx, this%lx, this%lx, nnew))
+      call transfer%vector_constr(vec, this%vout, this%vcrs, this%buff_rcv, &
+           this%buff_snd, this%lxyz)
+      ! refinement
+      if (nref .gt. 0) then
+         do il = 1, nref
+            ! get child position with respect to the parent
+            ! (0...nchildren - 1)
+            itmp = rmap(2, il)
+            ch_pos(3) = itmp / 4 + 1 ! z position
+            ch_pos(2) = mod(itmp / 2, 2) + 1 ! y position
+            ch_pos(1) = mod(itmp, 2) + 1 ! x position
+            call this%map_c2f(int%gdim, ch_pos, this%vout(:, :, :, rmap(1, il)))
+         end do
+      end if
+      ! coarsening
+      if (ncrs .gt. 0) then
+         do il = 1, ncrs
+            this%vout(:, :, :, cmap(1, il)) = 0.0_rp
+            do jl = 1, amr_nchildren
                ! get child position with respect to the parent
                ! (0...amr_nchildren - 1)
-               itmp = this%rmap(2, il)
+               itmp = cmap(1 + jl, il)
                ch_pos(3) = itmp / 4 + 1 ! z position
                ch_pos(2) = mod(itmp / 2, 2) + 1 ! y position
                ch_pos(1) = mod(itmp, 2) + 1 ! x position
-               call this%map_c2f(int%gdim, ch_pos, &
-                    this%vout(:, :, :, this%rmap(1, il)))
-            end do
-         end if
-         ! coarsening
-         if (this%ncrs .gt. 0) then
-            do il = 1, this%ncrs
-               this%vout(:, :, :, this%cmap(1, il)) = 0.0_rp
-               do jl = 1, amr_nchildren
-                  ! get child position with respect to the parent
-                  ! (0...amr_nchildren - 1)
-                  itmp = this%cmap(1 + jl, il)
-                  ch_pos(3) = itmp / 4 + 1 ! z position
-                  ch_pos(2) = mod(itmp / 2, 2) + 1 ! y position
-                  ch_pos(1) = mod(itmp, 2) + 1 ! x position
-                  call this%map_f2c(int%gdim, ch_pos, &
+               call this%map_f2c(int%gdim, ch_pos, &
                        this%vcrs(:, :, :, jl, il), this%tmp(:, :, :, 3))
-                  ! accumulate result
-                  this%vout(:, :, :, this%cmap(1, il)) = &
-                       this%vout(:, :, :, this%cmap(1, il)) + &
-                       this%tmp(:, :, :, 3)
-               end do
-               ! reduce multiplicity
-               this%vout(:, :, :, this%cmap(1, il)) = &
-                    this%vout(:, :, :, this%cmap(1, il)) * int%el_mult(:, :, :)
+               ! accumulate result
+               this%vout(:, :, :, cmap(1, il)) = &
+                    this%vout(:, :, :, cmap(1, il)) + this%tmp(:, :, :, 3)
             end do
-         end if
-         call move_alloc(this%vout, vec)
+            ! reduce multiplicity
+            this%vout(:, :, :, cmap(1, il)) = &
+                 this%vout(:, :, :, cmap(1, il)) * int%el_mult(:, :, :)
+         end do
+      end if
+      call move_alloc(this%vout, vec)
 
-         ! check device pointer
-         if (present(vec_d) .and. NEKO_BCKND_DEVICE .eq. 1) then
-            call neko_error('AMR reconstruction; nothing done for device; 2')
-         end if
-       end associate
-    end if
+      ! check device pointer
+      if (present(vec_d) .and. NEKO_BCKND_DEVICE .eq. 1) then
+         call neko_error('AMR reconstruction; nothing done for device; 2')
+      end if
+    end associate
 
-  end subroutine amr_reconstruct_refine_coarsen
+  end subroutine amr_reconstruct_lx_refine_coarsen
 
   !> @brief Map a single coarse element to a fine one
   !! @param[in]    gdim    geometrical dimension
   !! @param[in]    ch_pos  child position
   !! @param[inout] vcf     coarse (input) and fine (output) element vector
-  subroutine amr_reconstruct_map_c2f(this, gdim, ch_pos, vcf)
-    class(amr_reconstruct_t), intent(inout) :: this
+  subroutine amr_reconstruct_lx_map_c2f(this, gdim, ch_pos, vcf)
+    class(amr_reconstruct_lx_t), intent(inout) :: this
     integer, intent(in) :: gdim
     integer, dimension(3), intent(in) :: ch_pos
     real(rp), dimension(:,:,:), intent(inout) :: vcf
@@ -311,15 +313,15 @@ contains
       end if
     end associate
 
-  end subroutine amr_reconstruct_map_c2f
+  end subroutine amr_reconstruct_lx_map_c2f
 
   !> @brief Map a single fine element to a coarse one
   !! @param[in]    gdim    geometrical dimension
   !! @param[in]    ch_pos  child position
   !! @param[in]    vf      fine element vector
   !! @param[out]   vc      coarse element vector
-  subroutine amr_reconstruct_map_f2c(this, gdim, ch_pos, vf, vc)
-    class(amr_reconstruct_t), intent(inout) :: this
+  subroutine amr_reconstruct_lx_map_f2c(this, gdim, ch_pos, vf, vc)
+    class(amr_reconstruct_lx_t), intent(inout) :: this
     integer, intent(in) :: gdim
     integer, dimension(3), intent(in) :: ch_pos
     real(rp), dimension(:,:,:), intent(in) :: vf
@@ -346,6 +348,151 @@ contains
       end if
     end associate
 
-  end subroutine amr_reconstruct_map_f2c
+  end subroutine amr_reconstruct_lx_map_f2c
+
+  !> Initialise type
+  !! @param[in]  transfer     mesh manager data transfer type
+  !! @param[in]  gdim         geometrical mesh dimension
+  !! @param[in]  lx           polynomial order + 1
+  subroutine amr_reconstruct_init(this, transfer, gdim, lx)
+    class(amr_reconstruct_t), intent(inout) :: this
+    class(mesh_manager_transfer_t), target, intent(in) :: transfer
+    integer, intent(in) :: gdim, lx
+    integer :: il
+
+    call this%free()
+
+    ! Primary number of point in 1D, 2D and 3D. Required by solvers and
+    ! projections, as they just get a whole vector length at initialisation.
+    ! I assume lx = ly = lz.
+    this%lx = lx
+    this%lxy = this%lx * lx
+    this%lxyz = this%lxy * lx
+
+    ! mesh manager data transfer
+    this%transfer => transfer
+
+    ! THIS ISN'T SMART, BUT FOR NOW I INITIALISE ALL
+    ! AMR reconstruction operators for various lx
+    allocate(this%recon(2: lx))
+    do il = 2, lx
+       call this%recon(il)%init(gdim, il)
+    end do
+
+!    if (NEKO_BCKND_DEVICE .eq. 1) then
+!       ! should tmp be on device?
+!    end if
+!    call device_sync()
+
+  end subroutine amr_reconstruct_init
+
+  !> Free type
+  subroutine amr_reconstruct_free(this)
+    class(amr_reconstruct_t), intent(inout) :: this
+    integer :: il
+
+    this%transfer => NULL()
+
+    if (allocated(this%recon)) then
+       do il = 2, this%lx
+          call this%recon(il)%free()
+       end do
+       deallocate(this%recon)
+    end if
+
+    this%lx = 0
+    this%lxy = 0
+    this%lxyz = 0
+    this%nold = 0
+    this%nnew = 0
+    this%nref = 0
+    this%ncrs = 0
+    this%nrcv = 0
+    this%nsnd = 0
+    this%ifchange = .false.
+
+    if (allocated(this%rmap)) deallocate(this%rmap)
+    if (allocated(this%cmap)) deallocate(this%cmap)
+
+    !
+    ! Cleanup the device (if present)
+    !
+    ! should some stuff be on device?
+
+  end subroutine amr_reconstruct_free
+
+  !> Get refinement/coarsening mapping
+  subroutine amr_reconstruct_map_get(this)
+    class(amr_reconstruct_t), intent(inout) :: this
+    integer :: nchildren, il
+
+    call this%transfer%vector_map(this%nold, this%nnew, this%nref, this%ncrs, &
+         this%rmap, this%cmap, nchildren, this%ifchange, this%nrcv, this%nsnd)
+
+    ! sanity check
+    if (amr_nchildren .ne. nchildren) &
+         call neko_error('Inconsistent children number for mesh manager and &
+         &refinement routines.')
+
+    ! THIS ISN'T SMART, BUT FOR NOW I ALLOCATE ALL
+    ! get work space
+    if (this%ifchange) then
+       do il = 2, this%lx
+          call this%recon(il)%buff_get(this%nrcv, this%nsnd, this%ncrs)
+       end do
+    end if
+
+  end subroutine amr_reconstruct_map_get
+
+  !> Free refinement/coarsening mapping
+  subroutine amr_reconstruct_map_free(this)
+    class(amr_reconstruct_t), intent(inout) :: this
+    integer :: il
+
+    call this%transfer%vector_map_free()
+
+    this%nold = 0
+    this%nnew = 0
+    this%nref = 0
+    this%ncrs = 0
+    this%nrcv = 0
+    this%nsnd = 0
+    this%ifchange = .false.
+
+    if (allocated(this%rmap)) deallocate(this%rmap)
+    if (allocated(this%cmap)) deallocate(this%cmap)
+
+    do il = 2, this%lx
+       call this%recon(il)%buff_free()
+    end do
+
+  end subroutine amr_reconstruct_map_free
+
+  !> Perform refinement/coarsening on a single vector
+  !! @param[inout] vec    vector for refinement/coarsening
+  !! @param[in]    lx     polynomial order + 1
+  !! @param[inout] vec_d  device pointer to vector
+  subroutine amr_reconstruct_refine_coarsen(this, vec, lx, vec_d)
+    class(amr_reconstruct_t), intent(inout) :: this
+    real(rp), dimension(:, :, :, :), allocatable, intent(inout) :: vec
+    integer, intent(in) :: lx
+    type(c_ptr), optional, intent(inout) :: vec_d
+    integer :: il, jl, itmp
+    integer, dimension(3) :: ch_pos
+
+    if (lx .lt. 2 .or. lx .gt. this%lx) &
+         call neko_error('Polynomial order outside the assumed range')
+
+    if (this%ifchange) then
+       if (present(vec_d) .and. NEKO_BCKND_DEVICE .eq. 1) then
+          call this%recon(lx)%refine_coarsen(this%transfer, this%nnew, &
+               this%nref, this%ncrs, this%rmap, this%cmap, vec, vec_d)
+       else
+          call this%recon(lx)%refine_coarsen(this%transfer, this%nnew, &
+               this%nref, this%ncrs, this%rmap, this%cmap, vec)
+       end if
+    end if
+
+  end subroutine amr_reconstruct_refine_coarsen
 
 end module amr_reconstruct

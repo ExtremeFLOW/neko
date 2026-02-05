@@ -145,12 +145,6 @@ module mesh_manager_transfer_p4est
      integer(i4) :: nngh
      !> Combined neighbour list
      integer(i4), allocatable, dimension(:) :: ngh
-     !> Element size
-     integer(i4) :: size
-     !> Receive buffer
-     real(rp), allocatable, dimension(:, :, :, :) :: buff_rcv
-     !> Send buffer
-     real(rp), allocatable, dimension(:, :, :, :) :: buff_snd
    contains
      !> Destructor.
      procedure, pass(this) :: free => p4est_free
@@ -198,6 +192,8 @@ contains
     if (allocated(this%refine)) deallocate(this%refine)
     if (allocated(this%coarsen_gidx)) deallocate(this%coarsen_gidx)
     if (allocated(this%coarsen)) deallocate(this%coarsen)
+
+    call this%vector_map_free()
 
   end subroutine p4est_free
 
@@ -330,14 +326,14 @@ contains
   !! @param[inout]  cmap       coarsening mapping (elem. and child position)
   !! @param[out]    nchildren  mesh manager children number
   !! @param[out]    ifchange   mesh change flag
-  !! @param[in]     lx, ly, lz element dimensions
+  !! @param[out]    nrcv       receive buffer size
+  !! @param[out]    nsnd       send buffer size
   subroutine p4est_vector_map(this, nold, nnew, nref, ncrs, rmap, cmap, &
-       nchildren, ifchange, lx, ly, lz)
+       nchildren, ifchange, nrcv, nsnd)
     class(mesh_manager_transfer_p4est_t), intent(inout) :: this
-    integer, intent(out) :: nold, nnew, nref, ncrs, nchildren
+    integer, intent(out) :: nold, nnew, nref, ncrs, nchildren, nrcv, nsnd
     integer, dimension(:, :), allocatable, intent(inout) :: rmap, cmap
     logical, intent(out) :: ifchange
-    integer, intent(in) :: lx, ly, lz
     integer :: il, jl, kl, ml, ll, itmp1, itmp2, ierr, iref, icrs, cmmsame, &
          cmmref, cmmcrs
     integer, dimension(:, :), allocatable :: cmapl, cmmapl
@@ -516,12 +512,11 @@ contains
        end do
     end if
 
-    ! get receive/send buffers
-    this%size = lx * ly * lz
-    if (this%nrank_rcv .gt. 0) allocate(this%buff_rcv(lx, ly, lz, &
-         this%off_rcv(this%nrank_rcv + 1) - 1))
-    if (this%nrank_snd .gt. 0) allocate(this%buff_snd(lx, ly, lz, &
-         this%off_snd(this%nrank_snd + 1) - 1))
+    ! receive/send buffers size
+    nrcv = 0
+    nsnd = 0
+    if (this%nrank_rcv .gt. 0) nrcv = this%off_rcv(this%nrank_rcv + 1) - 1
+    if (this%nrank_snd .gt. 0) nsnd = this%off_snd(this%nrank_snd + 1) - 1
 
     if (allocated(cmapl)) deallocate(cmapl)
     if (allocated(cmmapl)) deallocate(cmmapl)
@@ -901,7 +896,6 @@ contains
     this%nrank_rcv = 0
     this%nrank_snd = 0
     this%nngh = 0
-    this%size = 0
 
     if (allocated(this%same_ref_fill_map)) deallocate(this%same_ref_fill_map)
     if (allocated(this%crs_fill_map)) deallocate(this%crs_fill_map)
@@ -916,34 +910,42 @@ contains
     if (allocated(this%elem_lst_snd)) deallocate(this%elem_lst_snd)
     if (allocated(this%off_snd)) deallocate(this%off_snd)
     if (allocated(this%ngh)) deallocate(this%ngh)
-    if (allocated(this%buff_rcv)) deallocate(this%buff_rcv)
-    if (allocated(this%buff_snd)) deallocate(this%buff_snd)
 
   end subroutine p4est_vector_map_free
 
   !> Construct vectors for refinement/coarsening
-  !! @param[in]   vin     original vector
-  !! @param[out]  vout    output vector for refinement
-  !! @param[out]  vcrs    vector with additional data for coarsening
-  subroutine p4est_vector_constr(this, vin, vout, vcrs)
+  !! @param[in]   vin       original vector
+  !! @param[out]  vout      output vector for refinement
+  !! @param[out]  vcrs      vector with additional data for coarsening
+  !! @param[out]  buff_rcv  receive buffer
+  !! @param[out]  buff_snd  send buffer
+  !! @param[in]   elsize    element size
+  subroutine p4est_vector_constr(this, vin, vout, vcrs, buff_rcv, buff_snd, &
+       elsize)
     class(mesh_manager_transfer_p4est_t), intent(inout) :: this
     real(rp), dimension(:, :, :, :), intent(in) :: vin
-    real(rp), dimension(:, :, :, :), intent(out) :: vout
+    real(rp), dimension(:, :, :, :), intent(out) :: vout, buff_rcv, buff_snd
     real(rp), dimension(:, :, :, :, :), intent(out) :: vcrs
+    integer, intent(in) :: elsize
     integer :: il, jl, kl, src, dst, start, dim, ierr
     logical :: ifwait_rcv, ifwait_snd
     type(MPI_Request) :: snd_req, rcv_req
 
     ! sanity check
+    il = 0
+    jl = 0
+    if (this%nrank_rcv .gt. 0) il = this%off_rcv(this%nrank_rcv + 1) - 1
+    if (this%nrank_snd .gt. 0) jl = this%off_snd(this%nrank_snd + 1) - 1
     if (size(vin, 4) .ne. this%nelt_old .or. size(vout, 4) .ne. this%nelt_neko &
-         .or. size(vcrs, 5) .ne. this%coarsen_nr) &
+         .or. size(vcrs, 5) .ne. this%coarsen_nr &
+         .or. size(buff_rcv, 4) .ne. il .or. size(buff_snd, 4) .ne. jl) &
          call neko_error('Inconsistent vector size; vector_constr')
 
     if (this%ifcomm) then
        ! fill send buffer
        if (this%nrank_snd .gt. 0) then
           do il = 1, this%off_snd(this%nrank_snd + 1) - 1
-             this%buff_snd(:, :, :, il) = vin(:, :, :, this%elem_lst_snd(il))
+             buff_snd(:, :, :, il) = vin(:, :, :, this%elem_lst_snd(il))
           end do
        end if
 
@@ -957,8 +959,8 @@ contains
              if (this%ngh(il) .eq. this%ngh_rcv(jl)) then
                 src = this%rank_lst_rcv(this%ind_rcv(jl))
                 start = this%off_rcv(this%ind_rcv(jl))
-                dim = this%size * (this%off_rcv(this%ind_rcv(jl) + 1) - start)
-                call MPI_Irecv(this%buff_rcv(: , :, :, start), dim, &
+                dim = elsize * (this%off_rcv(this%ind_rcv(jl) + 1) - start)
+                call MPI_Irecv(buff_rcv(: , :, :, start), dim, &
                      MPI_REAL_PRECISION, src, 0, NEKO_COMM, rcv_req, ierr)
                 ifwait_rcv = .true.
              else
@@ -973,8 +975,8 @@ contains
              if (this%ngh(il) .eq. this%ngh_snd(kl)) then
                 dst = this%rank_lst_snd(this%ind_snd(kl))
                 start = this%off_snd(this%ind_snd(kl))
-                dim = this%size * (this%off_snd(this%ind_snd(kl) + 1) - start)
-                call MPI_Isend(this%buff_snd(: , :, :, start), dim, &
+                dim = elsize * (this%off_snd(this%ind_snd(kl) + 1) - start)
+                call MPI_Isend(buff_snd(: , :, :, start), dim, &
                      MPI_REAL_PRECISION, dst, 0, NEKO_COMM, snd_req, ierr)
                 ifwait_snd = .true.
              else
@@ -1006,7 +1008,7 @@ contains
        else if (this%same_ref_fill_map(il) .lt. 0) then
           ! fetched data
           vout(:, :, :, il) = &
-               this%buff_rcv(:, :, :, abs(this%same_ref_fill_map(il)))
+               buff_rcv(:, :, :, abs(this%same_ref_fill_map(il)))
        end if
     end do
 
@@ -1020,7 +1022,7 @@ contains
              else if (this%crs_fill_map(jl, il) .lt. 0) then
                 ! fetched data
                 vcrs(:, :, :, jl, il) = &
-                     this%buff_rcv(:, :, :, abs(this%crs_fill_map(jl, il)))
+                     buff_rcv(:, :, :, abs(this%crs_fill_map(jl, il)))
              end if
           end do
        end do

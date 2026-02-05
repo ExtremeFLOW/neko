@@ -92,27 +92,32 @@ module mesh_manager_transfer
      !! @param[inout]  cmap       coarsening mapping (elem. and child position)
      !! @param[out]    nchildren  mesh manager children number
      !! @param[out]    ifchange   mesh change flag
-     !! @param[in]     lx, ly, lz element dimensions
+     !! @param[out]    nrcv       receive buffer size
+     !! @param[out]    nsnd       send buffer size
      subroutine mesh_manager_vector_map(this, nold, nnew, nref, ncrs, rmap, &
-          cmap, nchildren, ifchange, lx, ly, lz)
+          cmap, nchildren, ifchange, nrcv, nsnd)
        import mesh_manager_transfer_t, rp
        class(mesh_manager_transfer_t), intent(inout) :: this
-       integer, intent(out) :: nold, nnew, nref, ncrs, nchildren
+       integer, intent(out) :: nold, nnew, nref, ncrs, nchildren, nrcv, nsnd
        integer, dimension(:, :), allocatable, intent(inout) :: rmap, cmap
        logical, intent(out) :: ifchange
-       integer, intent(in) :: lx, ly, lz
      end subroutine mesh_manager_vector_map
 
      !> Construct vectors for refinement/coarsening
      !! @param[in]   vin     original vector
      !! @param[out]  vout    output vector for refinement
      !! @param[out]  vcrs    vector with additional data for coarsening
-     subroutine mesh_manager_vector_constr(this, vin, vout, vcrs)
+     !! @param[out]  buff_rcv  receive buffer
+     !! @param[out]  buff_snd  send buffer
+     !! @param[in]   elsize    element size
+     subroutine mesh_manager_vector_constr(this, vin, vout, vcrs, buff_rcv, &
+          buff_snd, elsize)
        import mesh_manager_transfer_t, rp
        class(mesh_manager_transfer_t), intent(inout) :: this
        real(rp), dimension(:, :, :, :), intent(in) :: vin
-       real(rp), dimension(:, :, :, :), intent(out) :: vout
+       real(rp), dimension(:, :, :, :), intent(out) :: vout, buff_rcv, buff_snd
        real(rp), dimension(:, :, :, :, :), intent(out) :: vcrs
+       integer, intent(in) :: elsize
      end subroutine mesh_manager_vector_constr
   end interface
 

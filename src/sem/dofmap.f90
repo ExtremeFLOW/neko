@@ -224,9 +224,9 @@ contains
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct coordinates
-    call reconstruct%refine_coarsen(this%x, this%x_d)
-    call reconstruct%refine_coarsen(this%y, this%y_d)
-    call reconstruct%refine_coarsen(this%z, this%z_d)
+    call reconstruct%refine_coarsen(this%x, this%Xh%lx, this%x_d)
+    call reconstruct%refine_coarsen(this%y, this%Xh%lx, this%y_d)
+    call reconstruct%refine_coarsen(this%z, this%Xh%lx, this%z_d)
 
     ! reconstruct mapping of degrees of freedom
     if (reconstruct%nold .ne. reconstruct%nnew) then

@@ -340,7 +340,7 @@ contains
          tstep)
 
     ! reconstruct field data
-    call reconstruct%refine_coarsen(this%x, this%x_d)
+    call reconstruct%refine_coarsen(this%x, this%dof%Xh%lx, this%x_d)
 
   end subroutine field_amr_restart
 
