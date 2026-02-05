@@ -144,20 +144,19 @@ contains
     if (associated(this%tlag)) nullify(this%tlag)
     if (associated(this%dtlag)) nullify(this%dtlag)
 
+    ! ALE cleanup
+    if (associated(this%wm_x)) nullify(this%wm_x)
+    if (associated(this%wm_y)) nullify(this%wm_y)
+    if (associated(this%wm_z)) nullify(this%wm_z)
+    if (associated(this%wm_x_lag)) nullify(this%wm_x_lag)
+    if (associated(this%wm_y_lag)) nullify(this%wm_y_lag)
+    if (associated(this%wm_z_lag)) nullify(this%wm_z_lag)
+    if (associated(this%basis_vel_lag)) nullify(this%basis_vel_lag)
+
     if (associated(this%abx1)) nullify(this%abx1)
     if (associated(this%abx2)) nullify(this%abx2)
     if (associated(this%aby1)) nullify(this%aby1)
     if (associated(this%aby2)) nullify(this%aby2)
-
-    ! ALE cleanup
-    nullify(this%wm_x)
-    nullify(this%wm_y)
-    nullify(this%wm_z)
-
-    nullify(this%wm_x_lag)
-    nullify(this%wm_y_lag)
-    nullify(this%wm_z_lag)
-    nullify(this%basis_vel_lag)
     if (associated(this%abz1)) nullify(this%abz1)
     if (associated(this%abz2)) nullify(this%abz2)
 
@@ -225,6 +224,33 @@ contains
             call this%abs2%copy_from(DEVICE_TO_HOST, sync = .false.)
          end if
 
+         ! ALE field synchronization
+         if (associated(this%wm_x) .and. associated(this%wm_y) .and. &
+              associated(this%wm_z)) then
+            call this%wm_x%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%wm_y%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%wm_z%copy_from(DEVICE_TO_HOST, sync = .false.)
+
+            if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) &
+                 .and. associated(this%wm_z_lag)) then
+                
+               call this%wm_x_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_x_lag%lf(2)%copy_from(DEVICE_TO_HOST, & 
+                    sync = .false.)
+
+               call this%wm_y_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_y_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+
+               call this%wm_z_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_z_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+            end if
+         end if        
+
          ! Multi-scalar lag field synchronization
          do i = 1, this%scalar_lags%size()
             block
@@ -290,6 +316,31 @@ contains
             call this%slag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%abs1%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%abs2%copy_from(HOST_TO_DEVICE, sync = .false.)
+         end if
+
+         ! ALE field synchronization
+         if (associated(this%wm_x) .and. associated(this%wm_y) .and. &
+              associated(this%wm_z)) then
+            call this%wm_x%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%wm_y%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%wm_z%copy_from(HOST_TO_DEVICE, sync = .false.)
+            if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) .and. &
+                associated(this%wm_z_lag)) then
+               call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+
+               call this%wm_y_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_y_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+
+               call this%wm_z_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_z_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+            end if
          end if
 
          ! Multi-scalar lag field synchronization
@@ -380,7 +431,7 @@ contains
 
   end subroutine chkp_add_scalar
 
-  !> Add a mesh velocity to checkpointing
+  !> Add mesh velocity and other required variables to checkpointing
   subroutine chkp_add_ale(this, x, y, z, Blag, Blaglag, wm_x, wm_y, wm_z, &
                           wm_x_lag, wm_y_lag, wm_z_lag, &
                           pivot_pos, pivot_vel_lag, basis_pos, &
