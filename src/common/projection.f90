@@ -758,7 +758,7 @@ contains
     this%activ_step = tstep + this%activ_init
     this%m = 0
     this%proj_m = 0
-    ntot = reconstruct%nnew * reconstruct%interpolate%Xh%lxyz
+    ntot = reconstruct%nnew * reconstruct%lxyz
 
     ! reallocate arrays
     if (reconstruct%nold .ne. reconstruct%nnew) then

@@ -420,7 +420,7 @@ contains
        if (allocated(this%z)) deallocate(this%z)
        if (allocated(this%v)) deallocate(this%v)
 
-       ntot = reconstruct%nnew * reconstruct%interpolate%Xh%lxyz
+       ntot = reconstruct%nnew * reconstruct%lxyz
        allocate(this%w(ntot))
        allocate(this%r(ntot))
        allocate(this%z(ntot, this%lgmres))

@@ -318,7 +318,7 @@ contains
        if (allocated(this%p)) deallocate(this%p)
        if (allocated(this%z)) deallocate(this%z)
 
-       ntot = reconstruct%nnew * reconstruct%interpolate%Xh%lxyz
+       ntot = reconstruct%nnew * reconstruct%lxyz
        allocate(this%w(ntot))
        allocate(this%r(ntot))
        allocate(this%p(ntot, CG_P_SPACE))

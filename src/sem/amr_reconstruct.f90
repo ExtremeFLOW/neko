@@ -46,6 +46,12 @@ module amr_reconstruct
 
   !> Type for vector/field reconstruction
   type, public :: amr_reconstruct_t
+     !> Primary number of grid points in 1D
+     integer :: lx
+     !> Primary number of grid points in 2D
+     integer :: lxy
+     !> Primary number of grid points in 3D
+     integer :: lxyz
      !> pointer mesh manager data transfer
      class(mesh_manager_transfer_t), pointer :: transfer
      !> AMR interpolation arrays
@@ -107,6 +113,13 @@ contains
 
     call this%free()
 
+    ! Primary number of point in 1D, 2D and 3D. Required by solvers and
+    ! projections, as they just get a whole vector length at initialisation.
+    ! I assume lx = ly = lz.
+    this%lx = lx
+    this%lxy = this%lx * lx
+    this%lxyz = this%lxy * lx
+
     ! mesh manager data transfer
     this%transfer => transfer
 
@@ -135,6 +148,9 @@ contains
 
     call this%interpolate%free()
 
+    this%lx = 0
+    this%lxy = 0
+    this%lxyz = 0
     this%nold = 0
     this%nnew = 0
     this%nref = 0
