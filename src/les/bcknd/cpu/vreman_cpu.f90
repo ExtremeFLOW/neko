@@ -184,9 +184,9 @@ contains
           do concurrent (i = 1:coef%Xh%lxyz)
 
              ! Buoyancy component (numerator in Ri definition)
-             buoyancy = (g(1) * dTdx%x(i,1,1,e) + &
-                  g(2) * dTdy%x(i,1,1,e) + &
-                  g(3) * dTdz%x(i,1,1,e)) / ref_temp
+             buoyancy = (-g(1) * dTdx%x(i,1,1,e) + &
+                  -g(2) * dTdy%x(i,1,1,e) + &
+                  -g(3) * dTdz%x(i,1,1,e)) / ref_temp
 
              ! Shear component (denominator in Ri definition)
              ! Directional derivative of velocity
