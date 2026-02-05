@@ -193,7 +193,7 @@ contains
     real(kind=rp), optional :: tol
     real(kind=rp), optional :: pad
     type(mask_t), intent(in), optional :: mask
-    real(kind=rp) :: padding, tolerance 
+    real(kind=rp) :: padding, tolerance
     integer :: temp_nelv
 
     if (present(pad)) then
@@ -207,7 +207,7 @@ contains
     else
        tolerance = NEKO_EPS*1e3_xp ! 1% padding of the bounding boxes
     end if
-    
+
     ! Store the number of dofs
     this%n_dof = dof%size()
     ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
@@ -217,8 +217,8 @@ contains
        call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
             dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tolerance, pad=padding)
     else
-       
-      ! Initialize a helper field with the size of the mask
+
+       ! Initialize a helper field with the size of the mask
        call this%masked_field%init(mask%size())
        ! Verify that the mask size is compatible with the dofmap
        temp_nelv = mask%size() / (dof%Xh%lx*dof%Xh%ly*dof%Xh%lz)
@@ -310,7 +310,7 @@ contains
 
     ! Initialize n_dof if it was not started with a dof-based constructor
     if (this%n_dof == -1) then
-      this%n_dof = n
+       this%n_dof = n
     end if
 
     call neko_log%section('Global Interpolation')
@@ -1148,7 +1148,7 @@ contains
     call this%evaluate(interp_values, this%masked_field%x, on_host)
 
   end subroutine global_interpolation_evaluate_masked
-  
+
   !> Evalute the interpolated value in the points given a field
   !! @param interp_values Array of values in the given points.
   !! @param field Array of values used for interpolation.

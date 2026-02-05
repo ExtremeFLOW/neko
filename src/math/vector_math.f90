@@ -89,10 +89,10 @@ module vector_math
        vector_add2s2, vector_addsqr2s2, vector_cmult2, &
        vector_invcol2, vector_col2, vector_col3, vector_subcol3, &
        vector_add3s2, vector_addcol3, vector_addcol4, vector_glsum, &
-       vector_glsc2, vector_glsc3, vector_add3, vector_masked_gather_copy_0, & 
+       vector_glsc2, vector_glsc3, vector_add3, vector_masked_gather_copy_0, &
        vector_masked_gather_copy, &
        vector_masked_scatter_copy_0, vector_glsubnorm
-       
+
 
 contains
 
@@ -728,7 +728,7 @@ contains
   subroutine vector_masked_gather_copy_0(a, b, mask, n, n_mask)
     integer, intent(in) :: n, n_mask
     type(vector_t), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b 
+    real(kind=rp), dimension(n), intent(in) :: b
     integer, dimension(0:n_mask) :: mask
     type(c_ptr) :: mask_d, b_d
 
@@ -741,7 +741,7 @@ contains
     end if
 
   end subroutine vector_masked_gather_copy_0
-  
+
   !> Gather a vector to reduced contigous array
   !! \f$ a = b(mask) \f$.
   !! @param a Destination vector of size `n_mask`.
@@ -750,7 +750,7 @@ contains
   !! @param n Size of the vector `b`.
   subroutine vector_masked_gather_copy(a, b, mask, n)
     type(vector_t), intent(inout) :: a
-    real(kind=rp), dimension(:), intent(in) :: b 
+    real(kind=rp), dimension(:), intent(in) :: b
     type(mask_t), intent(in) :: mask
     integer, intent(in) :: n
     type(c_ptr) :: mask_d, b_d
