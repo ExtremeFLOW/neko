@@ -1,7 +1,11 @@
 # Changelog
 
 ## Develop
-- *BEAKING* JSON case file parsing now uses strict type checking. This means,
+- Added an option for writing the mesh in every output field file.
+- *BREAKING* All simcomps now have a `name` keyword in the case file. A default
+  name is assigned, but all `name`s must be unique. If you have two or more
+  simcomps of the same `type`, you must manually provide each a unique `name`.
+- *BREAKING* JSON case file parsing now uses strict type checking. This means,
   for example, that providing an integer like 2 for a real entry will throw an
   error, one should set 2.0. Descriptive error and warning messages are issued.
 - Added the possibilty to provide global constants in the case file under the
