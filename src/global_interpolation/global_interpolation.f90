@@ -60,6 +60,7 @@ module global_interpolation
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: copy, NEKO_EPS
+  use mask, only: mask_t
   use structs, only : array_ptr_t
   use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
   implicit none
@@ -141,6 +142,7 @@ module global_interpolation
      type(glb_intrp_comm_t) :: glb_intrp_comm
      !> Working vectors for global interpolation
      type(vector_t) :: temp_local, temp
+     type(mask_t) :: mask
 
    contains
      !> Initialize the global interpolation object based on a set of spectral elements.
@@ -179,13 +181,15 @@ contains
   !> Initialize the global interpolation object on a dofmap.
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
-  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad)
+  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask)
     class(global_interpolation_t), target, intent(inout) :: this
     type(dofmap_t) :: dof
     type(MPI_COMM), optional, intent(in) :: comm
     real(kind=rp), optional :: tol
     real(kind=rp), optional :: pad
-    real(kind=rp) :: padding, tolerance
+    type(mask_t), intent(in), optional :: mask
+    real(kind=rp) :: padding, tolerance 
+    integer :: temp_nelv
 
     if (present(pad)) then
        padding = pad
@@ -201,8 +205,18 @@ contains
     ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
     ! dof%x array and not a slice. It is done this way for
     ! to get the right dimension (see global_interpolation_init_xyz).
-    call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-         dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+    if (.not. present(mask)) then
+       call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
+            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+    else
+       this%mask = mask
+       temp_nelv = mask%size() / (dof%Xh%lx*dof%Xh%ly*dof%Xh%lz)
+       if (mod(mask%size(), dof%Xh%lx*dof%Xh%ly*dof%Xh%lz) /= 0) then
+          call neko_error("Mask size must be a multiple of the number of elements in the mesh.")
+       end if
+       call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), dof%z(mask%get(),1,1,1), &
+            dof%msh%gdim, temp_nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+    end if
 
   end subroutine global_interpolation_init_dof
 
