@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Added posibility to retrieve BCs from names and zone_indices.
 - Added an option for writing the mesh in every output field file.
 - *BREAKING* All simcomps now have a `name` keyword in the case file. A default
   name is assigned, but all `name`s must be unique. If you have two or more

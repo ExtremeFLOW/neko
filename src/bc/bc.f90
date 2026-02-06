@@ -85,6 +85,10 @@ module bc
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations
      logical :: updated = .false.
+     !!> Name of the bc
+     character(len=:), allocatable :: name
+     !!> Zone indices where the bc is applied
+    integer, allocatable :: zone_indices(:)
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base

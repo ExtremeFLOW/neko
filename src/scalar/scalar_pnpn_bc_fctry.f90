@@ -96,6 +96,8 @@ contains
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+    call json_get_or_default(json, "name", object%name, "scalar_bc")
+    object%zone_indices = zone_indices
     call object%finalize()
 
   end subroutine bc_factory

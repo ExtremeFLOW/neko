@@ -385,6 +385,10 @@ periodic pipe simulation, two periodic zones comprise the boundary conditions in
 the streamwise direction. Only one condition, corresponding to zone index 3 (the
 wall) is the specified in the case file.
 
+It is possible to name specific names to the boundary conditions through the
+`name` keyword. Boundary conditions can then be retireved in the code by using
+the name or the `zone_index` where it is applied.
+
 #### Available conditions
 The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
