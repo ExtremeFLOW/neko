@@ -1,5 +1,3 @@
-#include <cstdio>   // declares printf for nvcc device compilation
-
 #ifndef __MATH_MATH_KERNEL_H__
 #define __MATH_MATH_KERNEL_H__
 /*
