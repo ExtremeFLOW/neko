@@ -179,44 +179,44 @@ contains
     this%n_elements = other%n_elements
     this%is_set_ = other%is_set_
   end subroutine init_from_mask
-  
+
   !> Invert the contents of another mask object.
   subroutine invert_mask(this, other, total_elements)
-     class(mask_t), intent(inout) :: this
-     class(mask_t), intent(in)    :: other
-     integer, intent(in) :: total_elements
+    class(mask_t), intent(inout) :: this
+    class(mask_t), intent(in) :: other
+    integer, intent(in) :: total_elements
 
-     logical, allocatable :: present(:)
-     integer, allocatable :: new_mask(:)
-     integer :: i, j, k, v, new_size
+    logical, allocatable :: present(:)
+    integer, allocatable :: new_mask(:)
+    integer :: i, j, k, v, new_size
 
-     allocate(present(total_elements))
-     present = .false.
+    allocate(present(total_elements))
+    present = .false.
 
-     ! mark present
-     do i = 1, other%size()
+    ! mark present
+    do i = 1, other%size()
        v = other%mask(i)
        if (v >= 1 .and. v <= total_elements) present(v) = .true.
-     end do
+    end do
 
-     ! count complement
-     new_size = 0
-     do j = 1, total_elements
-        if (.not. present(j)) new_size = new_size + 1
-     end do
+    ! count complement
+    new_size = 0
+    do j = 1, total_elements
+       if (.not. present(j)) new_size = new_size + 1
+    end do
 
-     allocate(new_mask(new_size))
+    allocate(new_mask(new_size))
 
-     ! fill complement
-     k = 1
-     do j = 1, total_elements
-        if (.not. present(j)) then
-           new_mask(k) = j
-        k = k + 1
-        end if
-     end do
+    ! fill complement
+    k = 1
+    do j = 1, total_elements
+       if (.not. present(j)) then
+          new_mask(k) = j
+          k = k + 1
+       end if
+    end do
 
-     call this%init_from_array(new_mask, new_size)
+    call this%init_from_array(new_mask, new_size)
   end subroutine invert_mask
 
   !> Get the size of the mask.
