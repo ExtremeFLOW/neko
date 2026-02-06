@@ -179,7 +179,7 @@ contains
          crs_tamg_itrs, 1)
 
     call json_get_or_default(hsmg_params, 'coarse_grid.cheby_degree', &
-         crs_tamg_cheby_degree, 5)
+         crs_tamg_cheby_degree, 4)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
          crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
