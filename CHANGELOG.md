@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Added options to used masked parts of the domain when performing interpolation
 - Added the `full_elements` option to point_zones. Include all points in an
   element in the mask.
 - Added an option for writing the mesh in every output field file.
