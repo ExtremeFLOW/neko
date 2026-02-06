@@ -121,10 +121,10 @@ __global__ void vreman_nut_compute_buoy(const T * __restrict__ a11,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-        T beta11, beta22, beta33;
-        T beta12, beta13, beta23;
-        T b_beta, aijaij;
-        T nut0;
+  T beta11, beta22, beta33;
+  T beta12, beta13, beta23;
+  T b_beta, aijaij;
+  T nut0;
 
   for (int i = idx; i < n; i += str) {
 
@@ -165,11 +165,11 @@ __global__ void vreman_nut_compute_buoy(const T * __restrict__ a11,
         T du_n2 = a21_r*n1 + a22_r*n2 + a23_r*n3;
         T du_n3 = a31_r*n1 + a32_r*n2 + a33_r*n3;
 
-        T du_par = du_n1*n1 + du_n2*n2 + du_n3*n3;
+        T du_parallel = du_n1*n1 + du_n2*n2 + du_n3*n3;
 
-        T sh1 = du_n1 - du_par*n1;
-        T sh2 = du_n2 - du_par*n2;
-        T sh3 = du_n3 - du_par*n3;
+        T sh1 = du_n1 - du_parallel*n1;
+        T sh2 = du_n2 - du_parallel*n2;
+        T sh3 = du_n3 - du_parallel*n3;
 
         T shear_sq = sh1*sh1 + sh2*sh2 + sh3*sh3;
 
