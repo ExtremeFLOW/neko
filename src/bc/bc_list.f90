@@ -168,7 +168,7 @@ contains
     bc => this%items(i)%ptr
 
   end function bc_list_get
-  
+
   !> Get the item from a given name.
   !! @param name The name of the item to get.
   !! @return The item with the given name.
@@ -189,9 +189,9 @@ contains
     call neko_error("Name not found in bc_list")
 
   end function bc_list_get_from_name
-  
+
   !> Get the item from zone_index.
-  !! @param zone_index where the bc applies. 
+  !! @param zone_index where the bc applies.
   !! @return The item at the given zone_index.
   function bc_list_get_from_zone_index(this, zone_index) result(bc)
     class(bc_list_t), intent(in) :: this
