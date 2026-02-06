@@ -30,6 +30,7 @@
   pre-existing names.
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
+- Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
