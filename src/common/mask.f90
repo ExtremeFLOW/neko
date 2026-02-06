@@ -216,7 +216,7 @@ contains
         end if
      end do
 
-  call this%init_from_array(new_mask, new_size)
+     call this%init_from_array(new_mask, new_size)
   end subroutine invert_mask
 
   !> Get the size of the mask.
