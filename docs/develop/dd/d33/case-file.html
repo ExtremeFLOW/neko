@@ -980,7 +980,7 @@ Multilevel preconditioners</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>coarse_grid.iterations</code>   </td><td class="markdownTableBodyNone">Number of AMG iterations (only valid for <code>solver</code> type <code>tamg</code>)   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">5   </td></tr>
+<td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">4   </td></tr>
 </table>
 <p>For <code>phmg</code>, the following keywords are used:</p>
 <table class="markdownTable">
@@ -989,15 +989,15 @@ Multilevel preconditioners</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pcoarsening_schedule</code>   </td><td class="markdownTableBodyNone">P-multigrid coarsening schedule (polynomial order, high to low)   </td><td class="markdownTableBodyNone">Array of integers   </td><td class="markdownTableBodyNone"><code>[3, 1]</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>smoother_iterations</code>   </td><td class="markdownTableBodyNone">Number of smoother iterations in the p-multigrid parts   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">10    </td></tr>
+<td class="markdownTableBodyNone"><code>smoother_iterations</code>   </td><td class="markdownTableBodyNone">Number of smoother iterations in the p-multigrid parts   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">3    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>smoother_cheby_acc</code>   </td><td class="markdownTableBodyNone">Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set)   </td><td class="markdownTableBodyNone"><code>jacobi</code> or <code>schwarz</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>smoother_cheby_acc</code>   </td><td class="markdownTableBodyNone">Type of Chebyshev acceleration   </td><td class="markdownTableBodyNone"><code>none</code>, <code>jacobi</code> or <code>schwarz</code>   </td><td class="markdownTableBodyNone"><code>jacobi</code>    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>coarse_grid.levels</code>   </td><td class="markdownTableBodyNone">Number of AMG levels to construct (only valid for <code>solver</code> type <code>tamg</code>)   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">3    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>coarse_grid.iterations</code>   </td><td class="markdownTableBodyNone">Number of linear solver iterations for coarse grid solver   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">5   </td></tr>
+<td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">4   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md64"></a>
 Flow rate forcing</h2>
@@ -1240,7 +1240,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Feb 6 2026 04:17:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Feb 7 2026 04:15:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -234,7 +234,7 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: pcrs_sched(:)</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(phmg_params, <span class="stringliteral">&#39;smoother_iterations&#39;</span>, &amp;</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>         smoother_itrs, 10)</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>         smoother_itrs, 3)</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(phmg_params, <span class="stringliteral">&#39;smoother_cheby_acc&#39;</span>, &amp;</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>         cheby_acc, <span class="stringliteral">&quot;jacobi&quot;</span>)</div>
@@ -246,7 +246,7 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>         crs_tamg_itrs, 1)</div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(phmg_params, <span class="stringliteral">&#39;coarse_grid.cheby_degree&#39;</span>, &amp;</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>         crs_tamg_cheby_degree, 5)</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>         crs_tamg_cheby_degree, 4)</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
 <div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    <span class="keywordflow">if</span> (phmg_params%valid_path(<span class="stringliteral">&#39;pcoarsening_schedule&#39;</span>)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(phmg_params, <span class="stringliteral">&#39;pcoarsening_schedule&#39;</span>, pcrs_sched)</div>
@@ -812,7 +812,7 @@ $(document).ready(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e7871f939970ad66f8f2efbe2c80ad83.html">multigrid</a></li><li class="navelem"><a class="el" href="../../d4/da1/phmg_8f90.html">phmg.f90</a></li>
-    <li class="footer">Generated on Fri Feb 6 2026 04:17:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Feb 7 2026 04:15:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
