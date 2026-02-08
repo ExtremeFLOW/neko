@@ -11,7 +11,7 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
-    u_geo = 10
+    u_geo = 10.0_rp
 
     user%initial_conditions => user_ic
     user%source_term => TKE_source_term
@@ -32,11 +32,11 @@ contains
 
     PI = (4.*atan(1.))
 
-    kx = 5
-    ky = 7
-    lx = 40
-    ly = 40
-    eps = 0.4
+    kx = 5.0_rp
+    ky = 7.0_rp
+    lx = 40.0_rp
+    ly = 40.0_rp
+    eps = 0.4_rp
 
     ! parameters for temperature profile
     alpha_theta = 0.08_rp
@@ -50,18 +50,18 @@ contains
     ze = 600.0_rp
 
 
-    alpha = kx * PI / 1500
-    beta = ky * PI / 1500
-    gamma = lx * PI / 1500
-    delta = ly * PI / 1500
+    alpha = kx * PI / 1500.0_rp
+    beta = ky * PI / 1500.0_rp
+    gamma = lx * PI / 1500.0_rp
+    delta = ly * PI / 1500.0_rp
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = u_geo
-          v%x(i,1,1,1) = 0
-          w%x(i,1,1,1) = 0
+          v%x(i,1,1,1) = 0.0_rp
+          w%x(i,1,1,1) = 0.0_rp
           x = u%dof%x(i,1,1,1)
           y = u%dof%y(i,1,1,1)
           z = u%dof%z(i,1,1,1)
