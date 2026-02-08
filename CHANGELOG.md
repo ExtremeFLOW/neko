@@ -1,6 +1,8 @@
 # Changelog
 
 ## Develop
+- Added the `full_elements` option to point_zones. Allows including all points
+  in an element in the mask.
 - *BREAKING* The sign of the Boussinesq source term is fixed such that the input
   gravity vector could be prescribed correctly.
 - Added an option for writing the mesh in every output field file.
