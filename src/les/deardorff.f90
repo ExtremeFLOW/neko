@@ -49,7 +49,7 @@ module deardorff
   private
 
   !> Implements the deardorff LES model.
-  !! @note Reference DOI: 10.1175/1520-0493(1963)091<0099:GCEWTP>2.3.CO;2
+  !! @note Reference DOI: 10.1007/BF00119502
   type, public, extends(les_model_t) :: deardorff_t
      !> Model constant, defaults to 0.10.
      real(kind=rp) :: c_k
