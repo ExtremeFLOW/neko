@@ -80,6 +80,8 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     if (associated(object)) then
        call object%free()
@@ -117,7 +119,10 @@ contains
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
-    call json_get_or_default(json, "name", object%name, "pressure_bc")
+    
+    write(buf,'("pressure_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
     object%zone_indices = zone_indices
     call object%finalize()
 
@@ -157,6 +162,8 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     call json_get(json, "type", type)
 
@@ -198,7 +205,10 @@ contains
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
-    call json_get_or_default(json, "name", object%name, "velocity_bc")
+    
+    write(buf,'("velocity_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
     object%zone_indices = zone_indices
     call object%finalize()
 
