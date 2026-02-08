@@ -573,6 +573,16 @@ contains
             HOST_TO_DEVICE, sync = .true.)
     end if
 
+    if (.not. allocated(this%name)) then
+       allocate(character(len=1) :: this%name)
+       this%name = ""
+    end if
+
+    if (.not. allocated(this%zone_indices)) then
+       allocate(this%zone_indices(1))
+       this%zone_indices(1) = -1
+    end if
+
   end subroutine bc_finalize_base
 
   !> Write a field showing the mask of the bc
