@@ -14,12 +14,12 @@ Neko writes a file series in Nek5000 style:
 - Data files: ``<base>0.f#####`` (zero-padded index)
 - Metadata file: ``<base><start_counter>.nek5000``
 
-The ``.nek5000`` file contains the filetemplate and time range for the series
+The ``.nek5000`` file contains the file template and time range for the series
 and is used by Neko when reading a series.
 
 ## File overview
 
-Each ``.fld`` data file consists of:
+Each ``.fld`` data file is binary and consists of:
 
 1. **Header** (132 characters)
 2. **Test pattern** (single precision, value ``6.54321``)
@@ -48,7 +48,7 @@ In code, this is:
 Fields:
 
 - ``fld_data_size``: byte size of field data (``MPI_REAL_SIZE`` or
-  ``MPI_DOUBLE_PRECISION_SIZE``)
+  ``MPI_DOUBLE_PRECISION_SIZE``). In practice, this is either 4 or 8.
 - ``lx, ly, lz``: polynomial orders (GLL grid size per element direction)
 - ``glb_nelv``: global number of elements (written twice)
 - ``time``: simulation time
@@ -98,8 +98,11 @@ For vector fields, the layout per element is:
 2. All ``y`` values (``j = 1..lxyz``)
 3. All ``z`` values (``j = 1..lxyz``) if ``gdim == 3``
 
-The block size is ``gdim * lxyz * glb_nelv`` values.
+The block size is ``gdim * lxyz * glb_nelv`` values. Note that if `U` is
+written, all three components have to be present. One cannot, for example, write
+only one component of velocity.
 
+If `X` is not written, then the files does not contain the mesh!
 ### Scalar fields (P, T, S)
 
 Scalar fields are stored as ``lxyz * glb_nelv`` values in element-major order.
@@ -134,7 +137,7 @@ This is a semantic convention rather than a special file layout.
 
 The ``.fld`` format is not self-describing beyond the header. It depends on:
 
-- Endianness
+- Endianness (typically little).
 - ``MPI_INTEGER`` size
 - ``MPI_REAL`` and ``MPI_DOUBLE_PRECISION`` sizes
 
