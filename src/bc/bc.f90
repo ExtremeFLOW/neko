@@ -291,6 +291,14 @@ contains
        call device_free(this%facet_d)
        this%facet_d = C_NULL_PTR
     end if
+    
+    if (allocated(this%name)) then
+       deallocate(this%name)
+    end if
+    
+    if (allocated(this%zone_indices)) then
+       deallocate(this%zone_indices)
+    end if
 
   end subroutine bc_free_base
 
