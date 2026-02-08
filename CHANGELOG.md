@@ -1,8 +1,10 @@
 # Changelog
 
 ## Develop
-- Added the `full_elements` option to point_zones. Include all points in an
-  element in the mask.
+- Added the `full_elements` option to point_zones. Allows including all points
+  in an element in the mask.
+- *BREAKING* The sign of the Boussinesq source term is fixed such that the input
+  gravity vector could be prescribed correctly.
 - Added an option for writing the mesh in every output field file.
 - *BREAKING* All simcomps now have a `name` keyword in the case file. A default
   name is assigned, but all `name`s must be unique. If you have two or more
@@ -32,6 +34,7 @@
   pre-existing names.
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
+- Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
