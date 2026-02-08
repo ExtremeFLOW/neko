@@ -67,7 +67,7 @@ __kernel void masked_gather_copy_kernel(__global real* __restrict__ a,
 /**
  * Device kernel for masked gather copy with aligned mask
  */
-__kernel void masked_gather_copy_kernel(__global real* __restrict__ a,
+__kernel void masked_gather_copy_aligned_kernel(__global real* __restrict__ a,
                                         __global real* __restrict__ b,
                                         __global int* __restrict__ mask,
                                         const int n, const int n_mask) {
