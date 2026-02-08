@@ -38,7 +38,7 @@ module deardorff
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get_or_default, json_get, json_get_or_lookup
   use json_module, only : json_file
   use neko_config, only : NEKO_BCKND_DEVICE
   use deardorff_cpu, only : deardorff_compute_cpu
@@ -107,7 +107,7 @@ contains
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_k", this%c_k, 0.10_rp)
     call json_get(json, "T0", this%T0)
-    call json_get(json, "g", g)
+    call json_get_or_lookup(json, "g", g)
     if (.not. size(g) == 3) then
       call neko_error("The gravity vector should have 3 components")
     end if
