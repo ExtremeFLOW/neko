@@ -66,10 +66,10 @@ contains
   !! @param T0 The reference temperature.
   !! @param g The gravitational acceleration vector.
   subroutine deardorff_compute_cpu(if_ext, t, tstep, coef, &
-                                 temperature_field_name, TKE_field_name, &
-                                 nut, temperature_alphat, &
-                                 TKE_alphat, TKE_source, &
-                                 delta, c_k, T0, g)
+       temperature_field_name, TKE_field_name, &
+       nut, temperature_alphat, &
+       TKE_alphat, TKE_source, &
+       delta, c_k, T0, g)
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -84,7 +84,7 @@ contains
     type(field_t), pointer :: dTdx, dTdy, dTdz
     type(field_t), pointer :: u, v, w
     real(kind=rp):: s11, s22, s33, s12, s13, s23
-    type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33    
+    type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     real(kind=rp) :: shear, buoyancy, dissipation
     integer :: temp_indices(12)
     real(kind=rp) :: l, N2
@@ -106,7 +106,7 @@ contains
     call neko_scratch_registry%request_field(dTdy, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(dTdz, temp_indices(3), .false.)
 
-   ! Calculate vertical temperature gradients
+    ! Calculate vertical temperature gradients
     call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
 
     call coef%gs_h%op(dTdx, GS_OP_ADD)
@@ -115,7 +115,7 @@ contains
     call col2(dTdx%x, coef%mult, nut%dof%size())
     call col2(dTdy%x, coef%mult, nut%dof%size())
     call col2(dTdz%x, coef%mult, nut%dof%size())
-    
+
     ! Compute velocity gradients
     call neko_scratch_registry%request_field(a11, temp_indices(4), .false.)
     call neko_scratch_registry%request_field(a12, temp_indices(5), .false.)
@@ -159,21 +159,21 @@ contains
        end if
 
        N2 = (dTdx%x(i,1,1,1) * g(1) + &
-             dTdy%x(i,1,1,1) * g(2) + &
-             dTdz%x(i,1,1,1) * g(3)) / T0
+            dTdy%x(i,1,1,1) * g(2) + &
+            dTdz%x(i,1,1,1) * g(3)) / T0
        if (N2 .gt. 0.0_rp) then
           l = 0.76_rp * sqrt(TKE%x(i,1,1,1) / N2)
           l = min(l, delta%x(i,1,1,1))
        else
           l = delta%x(i,1,1,1)
        end if
-       
+
        ! Eddy viscosity
        nut%x(i,1,1,1) = c_k * l * sqrt(TKE%x(i,1,1,1))
 
        ! Eddy diffusivity for temperature
        temperature_alphat%x(i,1,1,1) = (1.0_rp + 2.0_rp * l/delta%x(i,1,1,1)) &
-                           * nut%x(i,1,1,1) 
+            * nut%x(i,1,1,1)
        TKE_alphat%x(i,1,1,1) = 2.0_rp * nut%x(i,1,1,1) ! Eddy diffusivity of TKE
 
        s11 = a11%x(i,1,1,1) + a11%x(i,1,1,1)
@@ -184,25 +184,25 @@ contains
        s23 = a23%x(i,1,1,1) + a32%x(i,1,1,1)
        ! Shear term
        shear = nut%x(i,1,1,1) &
-               * (s11*a11%x(i,1,1,1) &
-               +  s12*a12%x(i,1,1,1) &
-               +  s13*a13%x(i,1,1,1) &
-               +  s12*a21%x(i,1,1,1) &
-               +  s22*a22%x(i,1,1,1) &
-               +  s23*a23%x(i,1,1,1) &
-               +  s13*a31%x(i,1,1,1) &
-               +  s23*a32%x(i,1,1,1) &
-               +  s33*a33%x(i,1,1,1))
+            * (s11*a11%x(i,1,1,1) &
+            + s12*a12%x(i,1,1,1) &
+            + s13*a13%x(i,1,1,1) &
+            + s12*a21%x(i,1,1,1) &
+            + s22*a22%x(i,1,1,1) &
+            + s23*a23%x(i,1,1,1) &
+            + s13*a31%x(i,1,1,1) &
+            + s23*a32%x(i,1,1,1) &
+            + s33*a33%x(i,1,1,1))
 
        ! Buoyancy term
        buoyancy = -(g(1) * dTdx%x(i,1,1,1) + &
-                    g(2) * dTdy%x(i,1,1,1) + &
-                    g(3) * dTdz%x(i,1,1,1)) / T0 * temperature_alphat%x(i,1,1,1)
+            g(2) * dTdy%x(i,1,1,1) + &
+            g(3) * dTdz%x(i,1,1,1)) / T0 * temperature_alphat%x(i,1,1,1)
 
        dissipation = -(0.19_rp + 0.74_rp * l/ delta%x(i,1,1,1)) &
-                     * sqrt(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1)) &
-                     / l
-       
+            * sqrt(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1)) &
+            / l
+
        ! Add three source terms together
        TKE_source%x(i,1,1,1) = shear + buoyancy + dissipation
     end do

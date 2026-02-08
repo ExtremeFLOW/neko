@@ -95,21 +95,21 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "temperature_field", &
-                            this%temperature_field_name, "temperature")
+         this%temperature_field_name, "temperature")
     call json_get_or_default(json, "TKE_field", this%TKE_field_name, "TKE")
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "temperature_alphat_field", &
-                            temperature_alphat_name, "temperature_alphat")
+         temperature_alphat_name, "temperature_alphat")
     call json_get_or_default(json, "TKE_alphat_field", TKE_alphat_name, &
-                            "TKE_alphat")
+         "TKE_alphat")
     call json_get_or_default(json, "TKE_source_field", TKE_source_name, &
-                            "TKE_source")
+         "TKE_source")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_k", this%c_k, 0.10_rp)
     call json_get(json, "T0", this%T0)
     call json_get_or_lookup(json, "g", g)
     if (.not. size(g) == 3) then
-      call neko_error("The gravity vector should have 3 components")
+       call neko_error("The gravity vector should have 3 components")
     end if
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
@@ -162,7 +162,7 @@ contains
     call neko_registry%add_field(fluid%dm_Xh, trim(TKE_source_name), .true.)
 
     this%temperature_alphat => &
-        neko_registry%get_field(trim(temperature_alphat_name))
+         neko_registry%get_field(trim(temperature_alphat_name))
     this%TKE_alphat => neko_registry%get_field(trim(TKE_alphat_name))
     this%TKE_source => neko_registry%get_field(trim(TKE_source_name))
     this%g = -g

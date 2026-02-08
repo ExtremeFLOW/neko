@@ -66,10 +66,10 @@ contains
   !! @param T0 The reference temperature.
   !! @param g The gravitational acceleration vector.
   subroutine deardorff_compute_device(if_ext, t, tstep, coef, &
-                                    temperature_field_name, TKE_field_name, &
-                                    nut, temperature_alphat, &
-                                    TKE_alphat, TKE_source, &
-                                    delta, c_k, T0, g)
+       temperature_field_name, TKE_field_name, &
+       nut, temperature_alphat, &
+       TKE_alphat, TKE_source, &
+       delta, c_k, T0, g)
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -84,7 +84,7 @@ contains
     type(field_t), pointer :: TKE, temperature
     type(field_t), pointer :: dTdx, dTdy, dTdz
     type(field_t), pointer :: u, v, w
-    type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33    
+    type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     integer :: temp_indices(12)
 
     TKE => neko_registry%get_field_by_name(TKE_field_name)
@@ -103,7 +103,7 @@ contains
     call neko_scratch_registry%request_field(dTdy, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(dTdz, temp_indices(3), .false.)
 
-   ! Calculate vertical temperature gradients
+    ! Calculate vertical temperature gradients
     call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
 
     call coef%gs_h%op(dTdx, GS_OP_ADD)
@@ -112,7 +112,7 @@ contains
     call device_col2(dTdx%x_d, coef%mult_d, nut%dof%size())
     call device_col2(dTdy%x_d, coef%mult_d, nut%dof%size())
     call device_col2(dTdz%x_d, coef%mult_d, nut%dof%size())
-    
+
     ! Compute velocity gradients
     call neko_scratch_registry%request_field(a11, temp_indices(4), .false.)
     call neko_scratch_registry%request_field(a12, temp_indices(5), .false.)
