@@ -46,7 +46,7 @@ and
 for more information on which compilers and systems Neko has been used on.
 
 > [!NOTE]
-> Note that the Nvidia are failing due to a bug in the compiler. 
+> Note that the Nvidia tests are failing due to a bug in the compiler. 
 
 | Branch: master                                                                                                                                                                      | Branch: develop                                                                                                                                                                                                |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
