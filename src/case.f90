@@ -510,19 +510,19 @@ contains
             always_write_mesh = logical_val)
     end if
 
-    call json_get_or_default(this%params, 'case.fluid.output_control',&
-         string_val, 'org')
+    call json_get(this%params, 'case.fluid.output_control', string_val)
 
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
-       call json_get(this%params, 'case.nsamples', integer_val)
+       call json_get_or_lookup(this%params, 'case.nsamples', integer_val)
        real_val = real(integer_val, kind=rp)
        call this%output_controller%add(this%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
        call this%output_controller%add(this%f_out, 0.0_rp, 'never')
     else if (trim(string_val) .eq. 'tsteps' .or. &
          trim(string_val) .eq. 'nsamples') then
-       call json_get(this%params, 'case.fluid.output_value', integer_val)
+       call json_get_or_lookup(this%params, 'case.fluid.output_value', &
+            integer_val)
        real_val = real(integer_val, kind=rp)
        call this%output_controller%add(this%f_out, real_val, string_val)
     else if (trim(string_val) .eq. 'simulationtime') then
@@ -545,10 +545,18 @@ contains
             string_val, "chkp")
        call this%chkp_out%init(this%chkp, name = name,&
             path = this%output_directory, fmt = trim(string_val))
-       call json_get_or_default(this%params, 'case.checkpoint_control', &
-            string_val, "simulationtime")
-       call json_get_or_lookup_or_default(this%params, &
-            'case.checkpoint_value', real_val, 1e10_rp)
+       call json_get(this%params, 'case.checkpoint_control', &
+            string_val)
+       if (trim(string_val) .eq. 'tsteps' .or. &
+            trim(string_val) .eq. 'nsamples') then
+          call json_get_or_lookup(this%params, 'case.checkpoint_value', &
+               integer_val)
+          real_val = real(integer_val, kind=rp)
+       else if (trim(string_val) .eq. 'simulationtime') then
+          call json_get_or_lookup(this%params, 'case.checkpoint_value', &
+               real_val)
+       end if
+
        call this%output_controller%add(this%chkp_out, real_val, string_val, &
             NEKO_EPS)
     end if
