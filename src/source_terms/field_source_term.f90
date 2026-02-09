@@ -35,7 +35,7 @@ module field_source_term
   use num_types, only : rp
   use field_list, only : field_list_t
   use json_module, only : json_file
-  use json_utils, only: json_get_or_default, json_get_or_lookup, json_get
+  use json_utils, only : json_get_or_default, json_get_or_lookup, json_get
   use source_term, only : source_term_t
   use coefs, only : coef_t
   use utils, only : neko_error
@@ -50,7 +50,7 @@ module field_source_term
   !! array, with a value for each component of the source.
   type, public, extends(source_term_t) :: field_source_term_t
      !> The values for the source term, one for each field.
-     type(field_list_t) :: source_fields
+     type(field_list_t) :: registry_fields
    contains
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => field_source_term_init_from_json
@@ -115,14 +115,14 @@ contains
        call neko_error("Number of fields and field names inconsistent.")
     end if
 
-    call this%source_fields%init(size(field_names))
+    call this%registry_fields%init(size(field_names))
 
     do i = 1, size(field_names)
        ! Add zero-valued if doesn't exist.
        ! May occur due to initialization order
        call neko_registry%add_field(this%coef%dof, field_names(i), &
             ignore_existing = .true.)
-       call this%source_fields%assign(i, &
+       call this%registry_fields%assign(i, &
             neko_registry%get_field(field_names(i)))
     end do
 
@@ -133,7 +133,7 @@ contains
     class(field_source_term_t), intent(inout) :: this
 
     call this%free_base()
-    call this%source_fields%free()
+    call this%registry_fields%free()
 
   end subroutine field_source_term_free
 
@@ -147,7 +147,7 @@ contains
     n_fields = this%fields%size()
 
     do i = 1, n_fields
-       call field_add2(this%fields%get(i), this%source_fields%get(i))
+       call field_add2(this%fields%get(i), this%registry_fields%get(i))
     end do
   end subroutine field_source_term_compute
 
