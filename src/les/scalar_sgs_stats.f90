@@ -179,19 +179,19 @@ contains
       n = stats_work%dof%size()
 
       call neko_scratch_registry%request_field(this%dsdx_work, &
-                                               temp_indices(1), .false.)
+           temp_indices(1), .false.)
       call neko_scratch_registry%request_field(this%dsdy_work, &
-                                               temp_indices(2), .false.)
+           temp_indices(2), .false.)
       call neko_scratch_registry%request_field(this%dsdz_work, &
-                                               temp_indices(3), .false.)
+           temp_indices(3), .false.)
 
       call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
       call this%alphat_mean%update(k)
 
       call grad(this%dsdx_work%x, &
-                this%dsdy_work%x, &
-                this%dsdz_work%x, &
-                this%s%x, this%coef)
+           this%dsdy_work%x, &
+           this%dsdz_work%x, &
+           this%s%x, this%coef)
 
       call field_col3(stats_work, this%alphat, this%dsdx_work)
       call this%alphatdsdx%update(k)

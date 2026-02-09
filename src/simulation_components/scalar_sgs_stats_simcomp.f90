@@ -51,7 +51,7 @@ module scalar_sgs_stats_simcomp
   implicit none
   private
 
-  !> A simulation component that computes the subgrid-scale contributions 
+  !> A simulation component that computes the subgrid-scale contributions
   !! to the Reynolds stresses in LES.
   !!
   !! For further details see the Neko documentation.
@@ -67,8 +67,8 @@ module scalar_sgs_stats_simcomp
 
    contains
      generic :: init_from_components => &
-     init_from_components_alphat, &
-     init_from_components_nut
+          init_from_components_alphat, &
+          init_from_components_nut
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => scalar_sgs_stats_simcomp_init_from_json
      !> Actual constructor.
@@ -305,8 +305,7 @@ contains
   end subroutine scalar_sgs_stats_simcomp_restart
 
   !> scalar_sgs_stats, called depending on compute_control and compute_value
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time info
   subroutine scalar_sgs_stats_simcomp_compute(this, time)
     class(scalar_sgs_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time

@@ -51,7 +51,7 @@ module fluid_sgs_stats_simcomp
   implicit none
   private
 
-  !> A simulation component that computes the subgrid-scale contributions 
+  !> A simulation component that computes the subgrid-scale contributions
   !! to the Reynolds stresses in LES.
   !!
   !! For further details see the Neko documentation.
@@ -216,8 +216,7 @@ contains
   end subroutine fluid_sgs_stats_simcomp_restart
 
   !> fluid_sgs_stats, called depending on compute_control and compute_value
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time info
   subroutine fluid_sgs_stats_simcomp_compute(this, time)
     class(fluid_sgs_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time

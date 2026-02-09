@@ -225,8 +225,7 @@ contains
   end subroutine fluid_stats_simcomp_restart
 
   !> fluid_stats, called depending on compute_control and compute_value
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time info
   subroutine fluid_stats_simcomp_compute(this, time)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time

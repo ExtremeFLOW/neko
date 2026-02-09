@@ -70,7 +70,7 @@ contains
 
   !> Constructor.
   subroutine scalar_sgs_stats_output_init(this, stats, T_begin, &
-                                         hom_dir, name, path)
+       hom_dir, name, path)
     class(scalar_sgs_stats_output_t), intent(inout) :: this
     type(scalar_sgs_stats_t), intent(inout), target :: stats
     real(kind=rp), intent(in) :: T_begin

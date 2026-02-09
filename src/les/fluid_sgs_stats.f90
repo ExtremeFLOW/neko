@@ -118,7 +118,7 @@ contains
     else
        this%nut => neko_registry%get_field_by_name('nut')
     end if
-    
+
 
     ! Initialize work fields
     call this%stats_work%init(this%u%dof, 'stats')
@@ -156,28 +156,28 @@ contains
 
     associate(stats_work => this%stats_work)
       n = stats_work%dof%size()
-    
+
       call neko_scratch_registry%request_field(this%s11_work, &
-                                               temp_indices(1), .false.)
+           temp_indices(1), .false.)
       call neko_scratch_registry%request_field(this%s22_work, &
-                                               temp_indices(2), .false.)
+           temp_indices(2), .false.)
       call neko_scratch_registry%request_field(this%s33_work, &
-                                               temp_indices(3), .false.)
+           temp_indices(3), .false.)
       call neko_scratch_registry%request_field(this%s12_work, &
-                                               temp_indices(4), .false.)
+           temp_indices(4), .false.)
       call neko_scratch_registry%request_field(this%s13_work, &
-                                               temp_indices(5), .false.)
+           temp_indices(5), .false.)
       call neko_scratch_registry%request_field(this%s23_work, &
-                                               temp_indices(6), .false.)
+           temp_indices(6), .false.)
 
       call this%nut_mean%update(k)
 
       call strain_rate(this%s11_work%x, &
-                       this%s22_work%x, &
-                       this%s33_work%x, &
-                       this%s12_work%x, &
-                       this%s13_work%x, &
-                       this%s23_work%x, this%u, this%v, this%w, this%coef)
+           this%s22_work%x, &
+           this%s33_work%x, &
+           this%s12_work%x, &
+           this%s13_work%x, &
+           this%s23_work%x, this%u, this%v, this%w, this%coef)
 
       ! form the double sij tensor
       call field_cmult(this%s11_work, 2.0_rp)
