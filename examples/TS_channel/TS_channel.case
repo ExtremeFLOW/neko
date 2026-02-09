@@ -61,19 +61,22 @@
         [
             {
                 "type": "lambda2", // stored in the temperature field, check docs for more details on sim_comps
+ 	        	"compute_value": 1
             },
             {
                 "type": "force_torque",
+                "name": "force_torque_bottom_wall",
                 "compute_control": "tsteps",
-                "compute_value": 10.0,
+                "compute_value": 10,
                 "zone_id": 3,
                 "zone_name": "Bottom wall",
                 "center": [ 0.0, 0.0, 0.0 ]
             },
             {
                 "type": "force_torque",
+                "name": "force_torque_top_wall",
                 "compute_control": "tsteps",
-                "compute_value": 10.0,
+                "compute_value": 10,
                 "zone_id": 4,
                 "zone_name": "Top wall",
                 "center": [ 0.0, 0.0, 0.0 ]
