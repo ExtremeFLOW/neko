@@ -348,6 +348,7 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/centrifugal_source_term_device.f90\
 	source_terms/source_term_handler.f90\
 	source_terms/const_source_term.f90\
+	source_terms/field_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
 	source_terms/boussinesq_source_term.f90\
