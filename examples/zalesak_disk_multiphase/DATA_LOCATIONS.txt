@@ -1,0 +1,13 @@
+Data locations for zalesak_disk_multiphase parameter analysis
+=============================================================
+
+Local (macOS):
+  /Volumes/sourcecode/fortran/neko/examples/zalesak_disk_multiphase/data/
+  - zalesak_param_analysis_data/   (main sweep results, ~26 GB)
+  - frames_eps_*_gamma_*/          (animation frames for specific runs)
+  - visualization_eps_*_gamma_*/   (visualization output)
+  - zalesak_disk.mp4               (example animation)
+
+Cluster (Dardel):
+  /cfs/klemming/scratch/e/eriksie/zalesak_param_analysis_data/
+  - gamma_<value>_epsilon_<value>/ (one directory per parameter combination)

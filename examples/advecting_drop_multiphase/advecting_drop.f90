@@ -151,7 +151,9 @@ contains
     s => fields%items(1)%ptr
 
     do i = 1, s%dof%size()
-       rad = sqrt(s%dof%x(i,1,1,1)**2 +s%dof%y(i,1,1,1)**2+ s%dof%z(i,1,1,1)**2)
+       rad = sqrt((s%dof%x(i,1,1,1) - 1.0_rp)**2 + &
+           (s%dof%y(i,1,1,1) - 1.0_rp)**2 + &
+           s%dof%z(i,1,1,1)**2)
        s%x(i,1,1,1) = 0.5*(1+tanh((rad-0.15_rp)/(2*eps)))
     end do
 

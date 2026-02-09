@@ -1,0 +1,13 @@
+Data locations for advecting_drop_multiphase parameter analysis
+================================================================
+
+Local (macOS):
+  /Volumes/sourcecode/fortran/neko/examples/advecting_drop_multiphase/data/
+  - advecting_drop_param_analysis_data/   (main sweep results, ~72 GB)
+  - reference_style_plots/                (reference analysis plots)
+  - gamma_<value>_epsilon_<value>/        (individual run output)
+  - visualization_eps_*_gamma_*/          (visualization output)
+
+Cluster (Dardel):
+  /cfs/klemming/scratch/e/eriksie/advecting_drop_param_analysis_data/
+  - gamma_<value>_epsilon_<value>/ (one directory per parameter combination)

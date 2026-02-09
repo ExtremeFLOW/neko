@@ -90,3 +90,19 @@ libneko*.so
 
 pixi.lock
 install
+
+# Parameter analysis - generated output
+*.png
+*.mp4
+*.gif
+*.avi
+.DS_Store
+.mypy_cache/
+__pycache__/
+.venv/
+animation_frames*/
+archive/
+data/
+gamma_*_epsilon_*/
+visualization_output*/
+sweep_dirs.txt
