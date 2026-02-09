@@ -4,7 +4,6 @@
 ## About
 Neko is a portable framework for high-order spectral element flow simulations. Written in modern Fortran, Neko adopts an object-oriented approach, allowing multi-tier abstractions of the solver stack and facilitating various hardware backends ranging from general-purpose processors, CUDA and HIP enabled accelerators to SX-Aurora vector processors. Neko has its roots in the spectral element code Nek5000 from UChicago/ANL, from where many of the namings, code structure and numerical methods are adopted.
 
-
 ## Cloning the project
 
 ```bash
@@ -27,7 +26,6 @@ cmake --build json-fortran/build --parallel
 cmake --install json-fortran/build
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JSON_INSTALL}/lib/ #On some systems lib should be replaced with lib64
 export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib/pkgconfig
-
 ```
 
 A basic CPU version of Neko can then be installed according to the following
