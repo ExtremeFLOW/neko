@@ -57,8 +57,6 @@ for more information on which compilers and systems Neko has been used on.
 | [![Nvidia](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml/badge.svg?branch=master)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml) | [![Nvidia](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml)                     |
 |                                                                                                                                                                                     | [![Test-suite](https://gitlab.com/ExtremeFLOW/neko-test-suite/badges/master/pipeline.svg?job=karma&key_text=Test+suite&key_width=64)](https://gitlab.com/ExtremeFLOW/neko-test-suite/-/pipelines/latest) |
 
-
-
 ## Running examples
 After the project has been built
 
