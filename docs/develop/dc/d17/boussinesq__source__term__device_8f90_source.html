@@ -164,8 +164,8 @@ $(document).ready(function(){initNavTree('dc/d17/boussinesq__source__term__devic
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    n = fields%item_size(1)</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">do</span> i=1, n_fields</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a1bd061bc66a9917394de645ffd09e1f0">device_add2s2</a>(fields%x_d(i), s%x_d, g(i)*beta, n)</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d1/d1f/interfacedevice__math_1_1device__cadd.html">device_cadd</a>(fields%x_d(i), -g(i)*beta*ref_value, n)</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a1bd061bc66a9917394de645ffd09e1f0">device_add2s2</a>(fields%x_d(i), s%x_d, -g(i)*beta, n)</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d1/d1f/interfacedevice__math_1_1device__cadd.html">device_cadd</a>(fields%x_d(i), g(i)*beta*ref_value, n)</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keywordflow">    end do</span></div>
 </div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d0b/namespaceboussinesq__source__term__device.html#ab119b3913528cc79e3a5f7a3d2874ac1">boussinesq_source_term_compute_device</a></div>
@@ -188,7 +188,7 @@ $(document).ready(function(){initNavTree('dc/d17/boussinesq__source__term__devic
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_5333ab263fff069c320f5b66c5911c96.html">source_terms</a></li><li class="navelem"><a class="el" href="../../dir_89b8f2ab57928d108310b3ac1395bf66.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_d3f70890ccbe54f7721382c085099c94.html">device</a></li><li class="navelem"><a class="el" href="../../dc/d17/boussinesq__source__term__device_8f90.html">boussinesq_source_term_device.f90</a></li>
-    <li class="footer">Generated on Sun Feb 8 2026 04:21:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Feb 9 2026 04:19:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

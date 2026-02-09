@@ -217,9 +217,9 @@ $(document).ready(function(){initNavTree('df/d45/divergence__simcomp_8f90_source
 <div class="foldopen" id="foldopen00127" data-start="" data-end="">
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno"><a class="line" href="../../d8/dec/namespacedivergence__simcomp.html#a9b5417544ec203a4f9b528f47cd42690">  127</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/dec/namespacedivergence__simcomp.html#a9b5417544ec203a4f9b528f47cd42690">divergence_init_common</a>(this, name, field_names, computed_field)</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/dc5/structdivergence__simcomp_1_1divergence__t.html">divergence_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">character(len=*)</span> :: name</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordtype">character(len=*)</span> :: field_names(3)</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keywordtype">character(len=*)</span> :: computed_field</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: name</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: field_names(3)</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: computed_field</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    this%name = name</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    this%u =&gt; <a class="code hl_variable" href="../../de/d1f/namespaceregistry.html#a0a9e34b6767a995829f03d12e4b4d63c">neko_registry</a>%get_field_by_name(field_names(1))</div>
@@ -242,8 +242,8 @@ $(document).ready(function(){initNavTree('df/d45/divergence__simcomp_8f90_source
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), <span class="keywordtype">intent(in)</span> :: preprocess_controller</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), <span class="keywordtype">intent(in)</span> :: compute_controller</div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), <span class="keywordtype">intent(in)</span> :: output_controller</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">character(len=*)</span> :: field_names(3)</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordtype">character(len=*)</span> :: computed_field</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: field_names(3)</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: computed_field</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: filename</div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: precision</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
@@ -362,7 +362,7 @@ $(document).ready(function(){initNavTree('df/d45/divergence__simcomp_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../df/d45/divergence__simcomp_8f90.html">divergence_simcomp.f90</a></li>
-    <li class="footer">Generated on Sun Feb 8 2026 04:21:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Feb 9 2026 04:19:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

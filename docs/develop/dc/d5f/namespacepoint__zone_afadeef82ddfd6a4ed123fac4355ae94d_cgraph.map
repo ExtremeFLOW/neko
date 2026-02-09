@@ -1,6 +1,8 @@
 <map id="point_zone::point_zone_map" name="point_zone::point_zone_map">
-<area shape="rect" id="Node000001" title="Maps the GLL points that verify a point_zone&#39;s criterion by adding them to the stack." alt="" coords="5,29,213,55"/>
-<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="261,29,388,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,39,247,39,247,45,214,45"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="290,31,282,21,286,11,301,5,325,3,354,6,366,15,363,20,352,11,325,8,302,10,290,15,287,20,294,28"/>
+<area shape="rect" id="Node000001" title="Maps the GLL points that verify a point_zone&#39;s criterion by adding them to the stack." alt="" coords="5,43,213,68"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="261,5,400,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,40,248,29,248,35,186,45"/>
+<area shape="rect" id="Node000003" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="267,79,394,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,65,254,76,253,82,187,71"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="295,80,287,70,291,60,306,54,331,52,361,56,374,65,370,69,359,61,331,57,307,59,294,64,292,70,299,77"/>
 </map>

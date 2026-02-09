@@ -110,9 +110,10 @@ $(document).ready(function(){initNavTree('da/dd0/point-zones.html','../../'); in
 </li>
 <li class="level1"><a href="#autotoc_md142">Operations on point zones</a><ul><li class="level2"><a href="#autotoc_md143">Inversion</a></li>
 <li class="level2"><a href="#autotoc_md144">Combination</a></li>
+<li class="level2"><a href="#autotoc_md145">Including full element data</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md145">User-defined geometrical shapes</a></li>
+<li class="level1"><a href="#autotoc_md146">User-defined geometrical shapes</a></li>
 <li class="level1"><a href="#point-zones_using-point-zones">Using point zones</a></li>
 </ul>
 </div>
@@ -230,7 +231,11 @@ Combination</h2>
 <div class="line">    },</div>
 <div class="line"> </div>
 <div class="line">]</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md145"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md145"></a>
+Including full element data</h2>
+<p>By setting the keyword <code>full_elements</code> to <code>true</code>, you can indicate that you want to select all the points in an element if even 1 of them meets the <code>criterion</code>.</p>
+<p>Useful to perform full element operation on just certain parts of the domain.</p>
+<h1><a class="anchor" id="autotoc_md146"></a>
 User-defined geometrical shapes</h1>
 <p>The current version of Neko does not support user-defined shapes from the case file. That said, shapes can be defined manually into new types by extending <code>point_zone_t</code> and implementing the abstract <code>criterion</code> interface.</p>
 <h1><a class="anchor" id="point-zones_using-point-zones"></a>
@@ -258,7 +263,7 @@ Using point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sun Feb 8 2026 04:21:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Feb 9 2026 04:19:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

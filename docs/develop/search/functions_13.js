@@ -269,7 +269,7 @@ var searchData=
   ['speri_5fvar_266',['speri_var',['../d0/d29/namespacespectral__error.html#a983686cb8b794639c7c935951af0bac4',1,'spectral_error']]],
   ['sphere_5fpoint_5fzone_5fcriterion_267',['sphere_point_zone_criterion',['../d9/dfe/namespacesphere__point__zone.html#ae27ddf078b60b59f18b496f0cc9beb0f',1,'sphere_point_zone']]],
   ['sphere_5fpoint_5fzone_5ffree_268',['sphere_point_zone_free',['../d9/dfe/namespacesphere__point__zone.html#a4d81bf06284f7de62824fe70334f3276',1,'sphere_point_zone']]],
-  ['sphere_5fpoint_5fzone_5finit_5fcommon_269',['sphere_point_zone_init_common',['../d9/dfe/namespacesphere__point__zone.html#a9173988189aef82be86c553f1f90f0ec',1,'sphere_point_zone']]],
+  ['sphere_5fpoint_5fzone_5finit_5fcommon_269',['sphere_point_zone_init_common',['../d9/dfe/namespacesphere__point__zone.html#aa2c1e85902df89c165c3dd4b39512008',1,'sphere_point_zone']]],
   ['sphere_5fpoint_5fzone_5finit_5ffrom_5fjson_270',['sphere_point_zone_init_from_json',['../d9/dfe/namespacesphere__point__zone.html#a5dd7ec1f15f8f73e4cf9fa505e389862',1,'sphere_point_zone']]],
   ['split_5fstring_271',['split_string',['../d6/d84/namespaceutils.html#a2de13cdec1ab133b6f0545f467a5abcc',1,'utils']]],
   ['sponge_5fcompute_272',['sponge_compute',['../de/dfc/namespacesponge__source__term.html#a8f62d52eaea0e72b16c8ef1b6873c022',1,'sponge_source_term']]],
