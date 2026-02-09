@@ -93,7 +93,9 @@ module field
      type(field_t), pointer :: field => null()
    contains
      !> Constructor. Allocates a field and assigns the pointer.
-     generic :: init => init_internal_dof, init_external_dof
+     generic :: init => init_field, init_internal_dof, init_external_dof
+     !> Initialize a field wrapper with an allocated field
+     procedure, pass(this) :: init_field => field_wrapper_init_field
      !> Initialize a field wrapper with an internal dofmap
      procedure, pass(this) :: init_internal_dof => &
           field_wrapper_init_internal_dof
@@ -351,6 +353,16 @@ contains
 
   ! ========================================================================== !
   ! Field wrapper type subroutines
+
+  subroutine field_wrapper_init_field(this, f)
+    class(field_wrapper_t), intent(inout) :: this
+    type(field_t), intent(in) :: f
+
+    call this%free()
+    allocate(this%field)
+    this%field = f
+
+  end subroutine field_wrapper_init_field
 
   subroutine field_wrapper_init_internal_dof(this, msh, space, fld_name)
     class(field_wrapper_t), intent(inout) :: this
