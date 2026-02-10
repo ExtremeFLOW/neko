@@ -496,15 +496,20 @@ contains
          name, "field")
     call json_get_or_default(this%params, 'case.fluid.output_format', &
          file_format, 'fld')
+    call json_get_or_default(this%params, &
+                             'case.fluid.output_mesh_in_all_files', &
+                             logical_val, .false.)
     call this%output_controller%init(this%time%end_time)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
             path = trim(this%output_directory), &
-            fmt = trim(file_format), layout = layout)
+            fmt = trim(file_format), layout = layout, &
+            always_write_mesh = logical_val)
     else
        call this%f_out%init(precision, this%fluid, name = name, &
             path = trim(this%output_directory), &
-            fmt = trim(file_format), layout = layout)
+            fmt = trim(file_format), layout = layout, &
+            always_write_mesh = logical_val)
     end if
 
     call json_get_or_default(this%params, 'case.fluid.output_control',&

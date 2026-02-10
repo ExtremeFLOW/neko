@@ -144,7 +144,7 @@ To further postprocess the statistics it is suggested to look into PyNekTools wh
 
 # Scalar Statistics
 
-In the scalar statistics in Neko, various averages of a given scalar and the different velocity components, derivatives and pressure are computed, in a similar fashion to the fluid statistics. In total, 42 "raw statistics" are computed that are required to compute the mean scalar transport equation, skewness and kurtosis, as well as the scalar variance budget, and turbulent scalar flux budgets.
+In the scalar statistics in Neko, various averages of a given scalar and the different velocity components, derivatives and pressure are computed, in a similar fashion to the fluid statistics. In total, 42 "raw statistics" are computed that are required to compute the mean scalar transport equation, skewness and kurtosis, as well as the scalar variance budget, and turbulent scalar flux budgets. In order to compute the final budgets, some terms are required from the fluid statistics, namely the mean velocities and Reynolds stresses. The user is responsible for collecting these statistics separately using the `fluid_stats` simulation component (see [Fluid Statistics](#fluid-statistics)).
 
 ## Using statistics
 Similar to fluid statistics, scalar statistics are enabled in the case file as a simcomp with an additional argument `field` for the name of the scalar field to be averaged:
@@ -223,11 +223,11 @@ When averaging across a single spatial direction, `<ws>` is put into `s1` for th
 | 31 | \f$ \langle  s \frac{\partial u}{\partial y} \rangle \f$ | s26 |
 | 32 | \f$ \langle  s \frac{\partial u}{\partial z} \rangle \f$ | s27 |
 | 33 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s28 |
-| 34 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s29 |
-| 35 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s30 |
+| 34 | \f$ \langle  s \frac{\partial v}{\partial y} \rangle \f$ | s29 |
+| 35 | \f$ \langle  s \frac{\partial v}{\partial z} \rangle \f$ | s30 |
 | 36 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s31 |
-| 37 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s32 |
-| 38 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s33 |
+| 37 | \f$ \langle  s \frac{\partial w}{\partial y} \rangle \f$ | s32 |
+| 38 | \f$ \langle  s \frac{\partial w}{\partial z} \rangle \f$ | s33 |
 | 39 | \f$ \langle  e_{ss}   \rangle \f$ | s34 |
 | 40 | \f$ \langle  e_{us}   \rangle \f$ | s35 |
 | 41 | \f$ \langle  e_{vs}   \rangle \f$ | s36 |

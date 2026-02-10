@@ -1118,18 +1118,18 @@ For `hsmg`, the following keywords are used:
 | `coarse_grid.monitor`        | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)           | `true` or `false`       | `false`       |
 | `coarse_grid.levels`         | Number of AMG levels to construct (only valid for `solver` type `tamg`)                 | An integer              | 3             |
 | `coarse_grid.iterations`     | Number of AMG iterations (only valid for `solver` type `tamg`)                          | An integer              | 1             |
-| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 5             |
+| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 4             |
 
 For `phmg`, the following keywords are used:
 
-| Name                       | Description                                                                                 | Admissible values     | Default value |
-| -------------------------- | ------------------------------------------------------------------------------------------- | --------------------- | ------------- |
-| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers     | `[3, 1]`      |
-| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer            | 10            |
-| `smoother_cheby_acc`       | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set) | `jacobi` or `schwarz` | -             |
-| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer            | 3             |
-| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer            | 1             |
-| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer            | 5             |
+| Name                       | Description                                                                                 | Admissible values             | Default value |
+| -------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------- | ------------- |
+| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers             | `[3, 1]`      |
+| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer                    | 3             |
+| `smoother_cheby_acc`       | Type of Chebyshev acceleration                                                              | `none`, `jacobi` or `schwarz` | `jacobi`      |
+| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer                    | 3             |
+| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer                    | 1             |
+| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer                    | 4             |
 
 
 ### Flow rate forcing
@@ -1160,6 +1160,7 @@ concisely directly in the table.
 | `nut_field`                             | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                        | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_mesh_in_all_files`              | Indicates if the mesh should be written in every output fld file.                                | `true` or `false`                                           | `false`       |
 | `output_filename`                       | The output filename.                                                                              | String                                                      | `field`       |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |

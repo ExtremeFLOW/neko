@@ -95,11 +95,12 @@ contains
 
     character(len=:), allocatable :: str_read
     integer :: i, n_zones, i_internal, i_external
-    logical :: found, invert
+    logical :: found, invert, full_elements
 
     call json_get(json, "name", str_read)
     call json_get_or_default(json, "invert", invert, .false.)
-    call this%init_base(size, trim(str_read), invert)
+    call json_get_or_default(json, "full_elements", full_elements, .false.)
+    call this%init_base(size, trim(str_read), invert, full_elements)
 
     call json%get_core(core)
     call json%get('subsets', source_object, found)
