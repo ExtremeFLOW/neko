@@ -1,7 +1,21 @@
 # Changelog
 
 ## Develop
-- *BEAKING* JSON case file parsing now uses strict type checking. This means,
+- Added cache cleanup job for CI workflows upon PR closure.
+- Updated compiler check workflows to run on release branches and master.
+- Removed commented-out workflow sections.
+- Added compiler support section to README.
+- Restrict the `setuptools` version to be less than 81, due to a breaking change
+  in that version for flinter.
+- Added the `full_elements` option to point_zones. Allows including all points
+  in an element in the mask.
+- *BREAKING* The sign of the Boussinesq source term is fixed such that the input
+  gravity vector could be prescribed correctly.
+- Added an option for writing the mesh in every output field file.
+- *BREAKING* All simcomps now have a `name` keyword in the case file. A default
+  name is assigned, but all `name`s must be unique. If you have two or more
+  simcomps of the same `type`, you must manually provide each a unique `name`.
+- *BREAKING* JSON case file parsing now uses strict type checking. This means,
   for example, that providing an integer like 2 for a real entry will throw an
   error, one should set 2.0. Descriptive error and warning messages are issued.
 - Added the possibilty to provide global constants in the case file under the
@@ -26,6 +40,7 @@
   pre-existing names.
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
+- Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use

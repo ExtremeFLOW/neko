@@ -18,6 +18,13 @@ Each simcomp is defined as a single JSON object at are added to an array
 of objects called `simulation_components`, which resides directly under the
 `case` object.
 
+All simcomps support a `name` keyword in their JSON object. When ommitted, a
+default `name`, which as a rule coincided with its `type`. For completness,
+these default names are provided for each simcomp in the documentation below.
+However, each simcomp's name must be unique, so if two or more simcomps of the
+same type are present in case, a unique `name` for each must be provided
+manually.
+
 ## List of simulation components
 
 The following is a list of simulation components that are currently available
@@ -69,6 +76,7 @@ vorticity fields will be added to the main `.fld` file.
 ~~~~~~~~~~~~~~~{.json}
 {
   "type": "curl",
+  "name": "curl",
   "field_names": ["u", "v", "w"],
   "computed_field": "vorticity"
   "compute_control": "tsteps",
@@ -102,6 +110,7 @@ brackets correspond to the choice of the user keywords.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "derivative",
+   "name": "derivative",
    "field": "u",
    "direction": "y"
    "computed_field": "dudy"
@@ -115,6 +124,7 @@ the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "curl"
+   "name": "curl"
    "fields": ["u", "v", "w"],
    "computed_field": "vorticity"
  }
@@ -127,6 +137,7 @@ the divergence.  By default, registers the result in `div`.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "divergence"
+   "name": "divergence"
    "fields": ["u", "v", "w"],
    "computed_field": "continuity"
  }
@@ -142,6 +153,7 @@ value in the brackets corresponds to the choice of the user keyword.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "gradient"
+   "name": "gradient"
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
@@ -158,6 +170,7 @@ value in the brackets corresponds to the choice of the user keyword.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "weak_gradient"
+   "name": "weak_gradient"
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
@@ -170,6 +183,7 @@ and s1 if neko is run with one scalar. To output in a different `fld` series, us
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "lambda2"
+   "name": "lambda2"
  }
  ~~~~~~~~~~~~~~~
 
@@ -253,6 +267,7 @@ executed (same behavior as the statistics).
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "probes",
+   "name": "probes",
    "compute_control": "simulationtime",
    "compute_value"    : 1,
    "fields": ["w","s"],
@@ -296,6 +311,7 @@ irrelevant.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "field_writer",
+   "name": "field_writer",
    "fields": ["my_field1", "my_field2"],
    "output_filename": "myfields",
    "precision": "double",
@@ -315,6 +331,7 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "force_torque",
+   "name": "force_torque",
    "zone_id": 1,
    "center": [0.0, 0.0, 0.0],
    "zone_name": "some chosen name, optional",
@@ -368,6 +385,7 @@ keywords:
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "les_model"
+   "name": "les_model"
    "model": "smagorinsky",
    "delta_type": "pointwise",
    "output_control" : "never"
@@ -415,6 +433,7 @@ keywords:
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "user_stats",
+   "name": "user_stats",
    "fields": ["s"],
    "avg_direction": "xz",
    "output_file": "s_average"
@@ -433,5 +452,6 @@ in 3 additional fields appended to the field files.
 ~~~~~~~~~~~~~~~{.json}
  {
    "type": "spectral_error"
+   "name": "spectral_error"
  }
  ~~~~~~~~~~~~~~~
