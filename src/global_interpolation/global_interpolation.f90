@@ -1136,8 +1136,10 @@ contains
   !! @param interp_values Array of values in the given points.
   !! @param field Array of values used for interpolation.
   !! @param on_host If interpolation should be carried out on the host
-  !! @param mask Mask for the field. Should coincide to that given at initialization of the global_interpolation object.
-  subroutine global_interpolation_evaluate_masked(this, interp_values, field, mask, on_host)
+  !! @param mask Mask for the field. Should coincide to that given at
+  !! initialization of the global_interpolation object.
+  subroutine global_interpolation_evaluate_masked(this, interp_values, &
+    field, mask, on_host)
     class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(inout), target :: interp_values(this%n_points)
     real(kind=rp), intent(inout), target :: field(this%n_dof)
@@ -1161,8 +1163,8 @@ contains
     type(c_ptr) :: interp_d
 
     if (.not. this%all_points_local) then
-       call this%local_interp%evaluate(this%temp_local%x, this%el_owner0_local, &
-            field, this%nelv, on_host)
+       call this%local_interp%evaluate(this%temp_local%x, &
+            this%el_owner0_local, field, this%nelv, on_host)
        if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
           call device_memcpy(this%temp_local%x, this%temp_local%x_d, &
                this%n_points_local, DEVICE_TO_HOST, .true.)

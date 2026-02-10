@@ -83,7 +83,7 @@ __global__ void masked_gather_copy_aligned_kernel(T * __restrict__ a,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n_mask; i += str) {
-    a[i] = b[mask[i]];  
+    a[i] = b[mask[i]];
   }
 }
 

@@ -186,23 +186,23 @@ contains
     class(mask_t), intent(in) :: other
     integer, intent(in) :: total_elements
 
-    logical, allocatable :: present(:)
+    logical, allocatable :: found(:)
     integer, allocatable :: new_mask(:)
     integer :: i, j, k, v, new_size
 
-    allocate(present(total_elements))
-    present = .false.
+    allocate(found(total_elements))
+    found = .false.
 
     ! mark present
     do i = 1, other%size()
        v = other%mask(i)
-       if (v >= 1 .and. v <= total_elements) present(v) = .true.
+       if (v >= 1 .and. v <= total_elements) found(v) = .true.
     end do
 
     ! count complement
     new_size = 0
     do j = 1, total_elements
-       if (.not. present(j)) new_size = new_size + 1
+       if (.not. found(j)) new_size = new_size + 1
     end do
 
     allocate(new_mask(new_size))
@@ -210,7 +210,7 @@ contains
     ! fill complement
     k = 1
     do j = 1, total_elements
-       if (.not. present(j)) then
+       if (.not. found(j)) then
           new_mask(k) = j
           k = k + 1
        end if

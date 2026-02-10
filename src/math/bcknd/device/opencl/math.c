@@ -120,15 +120,15 @@ void opencl_masked_gather_copy(void *a, void *b, void *mask, int *n, int *m,
 /** Fortran wrapper for masked reduced copy with aligned mask
  * Copy a vector \f$ a = b(mask) \f$
  */
-void opencl_masked_gather_copy_aligned(void *a, void *b, void *mask, int *n, int *m,
-                               cl_command_queue cmd_queue) {
+void opencl_masked_gather_copy_aligned(void *a, void *b, void *mask, int *n,
+                              int *m, cl_command_queue cmd_queue) {
   cl_int err;
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
-  cl_kernel kernel = clCreateKernel(math_program, "masked_gather_copy_aligned_kernel",
-    &err);
+  cl_kernel kernel = clCreateKernel(math_program, 
+    "masked_gather_copy_aligned_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));

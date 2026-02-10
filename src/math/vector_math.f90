@@ -758,7 +758,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        mask_d = mask%get_d()
        b_d = device_get_ptr(b)
-       call device_masked_gather_copy_aligned(a%x_d, b_d, mask_d, n, mask%size())
+       call device_masked_gather_copy_aligned(a%x_d, b_d, mask_d, n, &
+       mask%size())
     else
        call masked_gather_copy(a%x, b, mask%get(), n, mask%size())
     end if
