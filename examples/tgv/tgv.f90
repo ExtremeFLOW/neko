@@ -83,6 +83,7 @@ contains
     type(time_state_t), intent(in) :: time
     real(kind=rp) :: t
     type(field_t), pointer :: u
+    class(simulation_component_t), pointer :: simcomp
 
     u => neko_registry%get_field('u')
 
@@ -90,8 +91,11 @@ contains
     call w1%init(u%dof, 'work1')
 
     ! call usercheck and vorticity simcomp also for tstep=0
-    call neko_simcomps%simcomps(1)%simcomp%compute(time)
+    simcomp => neko_simcomps%simcomps(1)%get()
+    call simcomp%compute(time)
     call user_calc_quantities(time)
+
+    if (associated(simcomp)) nullify(simcomp)
 
   end subroutine user_initialize
 
