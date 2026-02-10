@@ -1,7 +1,8 @@
 # Changelog
 
 ## Develop
-- Added possibility to assign names to boundary conditions in the case file. The `bc_list_t` now supports item retrieval by name or zone_index.
+- Added possibility to assign names to boundary conditions in the case file. The 
+  `bc_list_t` now supports item retrieval by name or zone_index.
 - Added the `full_elements` option to point_zones. Allows including all points
   in an element in the mask.
 - *BREAKING* The sign of the Boussinesq source term is fixed such that the input
