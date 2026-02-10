@@ -4,6 +4,10 @@
 - Runtime statistics fields are now retrievable from the registry, for both 
   fluid_stats and user_stats. The naming convention of the fields in the 
   registry is `name_of_simcomp + "/mean_" + name_of_field`.
+- Added cache cleanup job for CI workflows upon PR closure.
+- Updated compiler check workflows to run on release branches and master.
+- Removed commented-out workflow sections.
+- Added compiler support section to README.
 - Restrict the `setuptools` version to be less than 81, due to a breaking change
   in that version for flinter.
 - Added the `full_elements` option to point_zones. Allows including all points
