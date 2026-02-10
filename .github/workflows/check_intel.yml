@@ -93,11 +93,10 @@ jobs:
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install
 
       - name: Integration tests
-        timeout-minutes: 5
         run: |
            chmod +x $MAKENEKO_EXEC
            cd tests/integration
-           pytest --max_nprocs=2 --real_precision=${RP}
+           pytest --timeout 120  --max_nprocs=2 --real_precision=${RP}
            cd ../..
 
       - name: Archive integration test report
