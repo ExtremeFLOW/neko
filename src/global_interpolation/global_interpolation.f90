@@ -1139,7 +1139,7 @@ contains
   !! @param mask Mask for the field. Should coincide to that given at
   !! initialization of the global_interpolation object.
   subroutine global_interpolation_evaluate_masked(this, interp_values, &
-    field, mask, on_host)
+       field, mask, on_host)
     class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(inout), target :: interp_values(this%n_points)
     real(kind=rp), intent(inout), target :: field(this%n_dof)

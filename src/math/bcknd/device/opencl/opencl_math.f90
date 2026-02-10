@@ -58,7 +58,7 @@ module opencl_math
      end subroutine opencl_masked_gather_copy
 
      subroutine opencl_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, &
-      strm) bind(c, name = 'opencl_masked_gather_copy_aligned')
+          strm) bind(c, name = 'opencl_masked_gather_copy_aligned')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
