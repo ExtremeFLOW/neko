@@ -85,7 +85,7 @@ module bc
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations
      logical :: updated = .false.
-     !!> Name of the bc
+     !> Name of the bc
      character(len=:), allocatable :: name
      !!> Zone indices where the bc is applied
      integer, allocatable :: zone_indices(:)
