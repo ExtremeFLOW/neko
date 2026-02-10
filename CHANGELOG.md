@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Add description of the `fld` file format to the documentation.
 - Added cache cleanup job for CI workflows upon PR closure.
 - Updated compiler check workflows to run on release branches and master.
 - Removed commented-out workflow sections.
