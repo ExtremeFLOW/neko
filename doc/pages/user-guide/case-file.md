@@ -1118,18 +1118,18 @@ For `hsmg`, the following keywords are used:
 | `coarse_grid.monitor`        | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)           | `true` or `false`       | `false`       |
 | `coarse_grid.levels`         | Number of AMG levels to construct (only valid for `solver` type `tamg`)                 | An integer              | 3             |
 | `coarse_grid.iterations`     | Number of AMG iterations (only valid for `solver` type `tamg`)                          | An integer              | 1             |
-| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 5             |
+| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 4             |
 
 For `phmg`, the following keywords are used:
 
-| Name                       | Description                                                                                 | Admissible values     | Default value |
-| -------------------------- | ------------------------------------------------------------------------------------------- | --------------------- | ------------- |
-| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers     | `[3, 1]`      |
-| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer            | 10            |
-| `smoother_cheby_acc`       | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set) | `jacobi` or `schwarz` | -             |
-| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer            | 3             |
-| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer            | 1             |
-| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer            | 5             |
+| Name                       | Description                                                                                 | Admissible values             | Default value |
+| -------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------- | ------------- |
+| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers             | `[3, 1]`      |
+| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer                    | 3             |
+| `smoother_cheby_acc`       | Type of Chebyshev acceleration                                                              | `none`, `jacobi` or `schwarz` | `jacobi`      |
+| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer                    | 3             |
+| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer                    | 1             |
+| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer                    | 4             |
 
 
 ### Flow rate forcing
@@ -1160,6 +1160,7 @@ concisely directly in the table.
 | `nut_field`                             | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                        | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_mesh_in_all_files`              | Indicates if the mesh should be written in every output fld file.                                | `true` or `false`                                           | `false`       |
 | `output_filename`                       | The output filename.                                                                              | String                                                      | `field`       |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
@@ -1214,15 +1215,35 @@ specific heat capacity and thermal conductivity. These are provided as `cp` and
 `lambda`. Similarly to the fluid, one can provide the Peclet number, `Pe`, as an
 alternative. In this case, `cp` is set to 1 and `lambda` to the inverse of `Pe`.
 
-As for the fluid, turbulence modelling is enabled by setting the `nut_field` to
-the name matching that set for the simulation component with the LES model.
-Additionally, the turbulent Prandtl number, `Pr_t` should be set. The eddy
-viscosity values will be divided by it to produce eddy diffusivity.
+Different from the setup in the fluid, turbulence modelling is enabled by setting the `alphat` json entry.
 
 ### Turbulence modelling
 
-The configuration is identical to the Fluid, however, one additionally has to
-provide the value of the turbulent Prandl number via the `Pr_t` keyword.
+The user could choose to either relate the eddy diffusivity field to the eddy viscosity
+field in the Fluid, or model the eddy diffusivity field by some particular SGS models,
+by setting up the `nut_dependency` entry.
+If the eddy diffusivity field is associated to the eddy viscosity field by a coefficient
+`Pr_t`, the eddy viscosity values will be divided by it to produce eddy diffusivity.
+And the corresponding setting could be done by the following:
+
+```json
+"alphat":{
+    "nut_dependency": true,
+    "nut_field": "nut",
+    "Pr_t": 0.7
+},
+```
+
+Otherwise one could have some SGS models providing an eddy diffusivity field, and the
+user could set it up by the following manner to include an eddy diffusivity field called
+`temperature_alphat`:
+
+```json
+"alphat":{
+    "nut_dependency": false,
+    "alphat_field": "temperature_alphat"
+},
+```
 
 ### Boundary conditions
 
