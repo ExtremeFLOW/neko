@@ -83,6 +83,7 @@ contains
     type(time_state_t), intent(in) :: time
     real(kind=rp) :: t
     type(field_t), pointer :: u
+    class(simulation_component_t), pointer :: simcomp
 
     u => neko_registry%get_field('u')
 
@@ -90,8 +91,11 @@ contains
     call w1%init(u%dof, 'work1')
 
     ! call usercheck and vorticity simcomp also for tstep=0
-    call neko_simcomps%simcomps(1)%simcomp%compute(time)
+    simcomp => neko_simcomps%simcomps(1)%get()
+    call simcomp%compute(time)
     call user_calc_quantities(time)
+
+    if (associated(simcomp)) nullify(simcomp)
 
   end subroutine user_initialize
 
@@ -156,9 +160,9 @@ contains
     call field_addcol3(w1, omega_z, omega_z)
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
+       e2 = 0.5_rp * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
     else
-       e2 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
+       e2 = 0.5_rp * glsc2(w1%x, coef%B, w1%size()) / coef%volume
     end if
 
     if (pe_rank .eq. 0) then
