@@ -287,7 +287,7 @@ contains
   !> Execute preprocess_ for all simcomps.
   !! @param time The current time
   subroutine simcomp_executor_preprocess(this, time)
-    class(simcomp_executor_t), intent(inout), target :: this
+    class(simcomp_executor_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     integer :: i
 
@@ -304,7 +304,7 @@ contains
   !> Execute compute_ for all simcomps.
   !! @param time The current time
   subroutine simcomp_executor_compute(this, time)
-    class(simcomp_executor_t), intent(inout), target :: this
+    class(simcomp_executor_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     integer :: i
 
@@ -321,7 +321,7 @@ contains
   !> Execute restart for all simcomps.
   !! @param time The current time
   subroutine simcomp_executor_restart(this, time)
-    class(simcomp_executor_t), intent(inout), target :: this
+    class(simcomp_executor_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     integer :: i
 
