@@ -157,7 +157,7 @@ contains
 
     ! Init in the determined order.
     do i = 1, n_simcomps
-       call json_extract_item(case%params, root_name, i, comp_subdict)
+       call json_extract_item(case%params, root_name, order(i), comp_subdict)
 
        ! Log the component type
        call json_get(comp_subdict, "type", comp_type)
