@@ -1,0 +1,43 @@
+# Cleanup.yml
+# ---------------------------------------------------------------------------- #
+# Cleanup workflow upon merge. Remove stored caches.
+# ---------------------------------------------------------------------------- #
+
+name: Cleanup After Merge
+on:
+  pull_request_target:                 # Trigger on pull request close
+    types: closed
+
+permissions:
+  contents: read                       # Minimum permission for actions/checkout
+  pull-requests: read                  # To read PR info
+  actions: write                       # To delete caches
+
+jobs:
+  cleanup:
+    name: Cleanup Caches
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Cache from merged Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
+
+        run: |
+          echo "Fetching list of cache keys"
+          cacheKeysForPR=$(gh cache list --ref $BRANCH --limit 100 --json id --jq '.[].id')
+
+          if [ -z "$cacheKeysForPR" ]; then
+            echo "No caches found for this ref"
+          else
+            echo "Deleting caches..."
+            for cacheKey in $cacheKeysForPR
+            do
+                echo "Deleting cache with key: $cacheKey"
+                gh cache delete $cacheKey
+            done
+          fi
+          echo "Done"

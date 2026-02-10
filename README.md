@@ -1,13 +1,8 @@
 # ![Neko](https://user-images.githubusercontent.com/750135/169531665-313c3471-50d1-4c44-964a-fee7312d6459.png)
 [![DOI](https://zenodo.org/badge/338607716.svg)](https://zenodo.org/doi/10.5281/zenodo.6631055)
-[![GNU](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml)
-[![Intel](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml)
-[![Nvidia](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml)
-[![Test-suite](https://gitlab.com/ExtremeFLOW/neko-test-suite/badges/master/pipeline.svg?job=karma&key_text=Test+suite&key_width=64)](https://gitlab.com/ExtremeFLOW/neko-test-suite/-/pipelines/latest)
 
 ## About
 Neko is a portable framework for high-order spectral element flow simulations. Written in modern Fortran, Neko adopts an object-oriented approach, allowing multi-tier abstractions of the solver stack and facilitating various hardware backends ranging from general-purpose processors, CUDA and HIP enabled accelerators to SX-Aurora vector processors. Neko has its roots in the spectral element code Nek5000 from UChicago/ANL, from where many of the namings, code structure and numerical methods are adopted.
-
 
 ## Cloning the project
 
@@ -31,7 +26,6 @@ cmake --build json-fortran/build --parallel
 cmake --install json-fortran/build
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JSON_INSTALL}/lib/ #On some systems lib should be replaced with lib64
 export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib/pkgconfig
-
 ```
 
 A basic CPU version of Neko can then be installed according to the following
@@ -42,6 +36,24 @@ cd neko
 make install
 ```
 More detailed installation instructions and all the different options (such as how to install Neko for GPUs) can be found in the documentation available at https://neko.cfd.
+
+### Compiler support
+Neko is tested on GNU, Intel and Nvidia compilers. The status of the tests can
+be seen in the badges below. Additionally, Neko is commonly used on multiple
+supercomputers and clusters, please check the [documentation](https://neko.cfd)
+and
+[discussions](https://github.com/ExtremeFLOW/neko/discussions/categories/show-and-tell)
+for more information on which compilers and systems Neko has been used on.
+
+> [!NOTE]
+> Note that the Nvidia tests are failing due to a bug in the compiler. 
+
+| Branch: master                                                                                                                                                                      | Branch: develop                                                                                                                                                                                                |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [![GNU](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml/badge.svg?branch=master)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml)          | [![GNU](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml)                                    |
+| [![Intel](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml/badge.svg?branch=master)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml)    | [![Intel](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml)                              |
+| [![Nvidia](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml/badge.svg?branch=master)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml) | [![Nvidia](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml)                           |
+|                                                                                                                                                                                     | [![Nightly-Tests](https://gitlab.com/ExtremeFLOW/neko-test-suite/badges/master/pipeline.svg?job=karma&key_text=Nightly+tests&key_width=85)](https://gitlab.com/ExtremeFLOW/neko-test-suite/-/pipelines/latest) |
 
 ## Running examples
 After the project has been built
