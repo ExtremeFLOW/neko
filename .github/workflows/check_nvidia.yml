@@ -5,7 +5,10 @@ on:
   push:
     branches:
       - develop
+      - release/*
+      - master
 
+  workflow_dispatch:
   workflow_call:
     inputs:
       json-fortran-version:
@@ -55,7 +58,7 @@ jobs:
       # ---------------------------------------------------------------------- #
       - name: Maximize build space
         run: |
-          sudo rm -rf /usr/share/dotnet /usr/share/swift /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/chromium /o[t/microsoft /opt/google /opt/az /usr/local/share/powershell /usr/local/julia* 
+          sudo rm -rf /usr/share/dotnet /usr/share/swift /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/chromium /o[t/microsoft /opt/google /opt/az /usr/local/share/powershell /usr/local/julia*
           sudo docker image prune --all --force
           sudo docker builder prune -a
       - name: Setup - Checkout

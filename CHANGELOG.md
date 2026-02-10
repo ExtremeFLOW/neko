@@ -2,6 +2,16 @@
 
 ## Develop
 - Added options to used masked parts of the domain when performing interpolation
+- Updated field types with a wrapper and ensure lifetime management of field
+  data in field lists and arrays.
+- Updated Developer Patterns documentation with new information on how to manage
+  pointers and lists of complex objects.
+- Added cache cleanup job for CI workflows upon PR closure.
+- Updated compiler check workflows to run on release branches and master.
+- Removed commented-out workflow sections.
+- Added compiler support section to README.
+- Restrict the `setuptools` version to be less than 81, due to a breaking change
+  in that version for flinter.
 - Added the `full_elements` option to point_zones. Allows including all points
   in an element in the mask.
 - *BREAKING* The sign of the Boussinesq source term is fixed such that the input
