@@ -520,14 +520,6 @@ contains
 
   end subroutine simulation_component_wrapper_free
 
-  !> Getter for the simcomp pointer.
-  function simulation_component_wrapper_get(this) result(simcomp)
-    class(simulation_component_wrapper_t), intent(in), target :: this
-    class(simulation_component_t), pointer :: simcomp
-
-    simcomp => this%simcomp
-  end function simulation_component_wrapper_get
-
   !> Move assignment operator for the wrapper, needed for storing simcomps
   !! in lists and arrays.
   !! @param this The wrapper to move to.
