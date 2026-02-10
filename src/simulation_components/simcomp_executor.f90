@@ -65,8 +65,6 @@ module simcomp_executor
      procedure, pass(this) :: init => simcomp_executor_init
      !> Destructor.
      procedure, pass(this) :: free => simcomp_executor_free
-     !> Appending a new simcomp to the executor.
-     procedure, pass(this) :: add => simcomp_executor_add
      !> Execute preprocess_ for all simcomps.
      procedure, pass(this) :: preprocess => simcomp_executor_preprocess
      !> Execute compute_ for all simcomps.
@@ -159,7 +157,7 @@ contains
 
     ! Init in the determined order.
     do i = 1, n_simcomps
-       call json_extract_item(case%params, root_name, order(i), comp_subdict)
+       call json_extract_item(case%params, root_name, i, comp_subdict)
 
        ! Log the component type
        call json_get(comp_subdict, "type", comp_type)
@@ -192,49 +190,6 @@ contains
     this%finalized = .false.
   end subroutine simcomp_executor_free
 
-  !> Appending a new simcomp to the executor.
-  !! @param settings The settings for the simcomp.
-  subroutine simcomp_executor_add(this, settings)
-    class(simcomp_executor_t), intent(inout) :: this
-    type(json_file), intent(inout), optional :: settings
-
-    class(simulation_component_wrapper_t), allocatable :: tmp_simcomps(:)
-    integer :: i, position
-
-    ! Find the first empty position
-    position = 0
-    do i = 1, this%n_simcomps
-       if (.not. this%simcomps(i)%is_allocated()) then
-          position = i
-          exit
-       end if
-    end do
-
-    ! If no empty position was found, append to the end
-    if (position .eq. 0) then
-       if (this%n_simcomps .gt. 0) call move_alloc(this%simcomps, tmp_simcomps)
-       allocate(this%simcomps(this%n_simcomps + 1))
-
-       if (allocated(tmp_simcomps)) then
-          do i = 1, this%n_simcomps
-             call this%simcomps(i)%move_from(tmp_simcomps(i))
-             call tmp_simcomps(i)%free()
-          end do
-
-          deallocate(tmp_simcomps)
-       end if
-
-       this%n_simcomps = this%n_simcomps + 1
-       position = this%n_simcomps
-
-    end if
-
-    call this%simcomps(position)%init(settings, this%case)
-
-    this%finalized = .false.
-
-  end subroutine simcomp_executor_add
-
   !> Finalize the initialization.
   !! Sorts the simcomps based on the order property.
   !! Additionally we check that the order is unique, contiguous, starts at 1 and
@@ -244,7 +199,6 @@ contains
     integer :: i, j, order, max_order
     logical :: order_found, previous_found
 
-    class(simulation_component_t), pointer :: simcomp_i, simcomp_j, simcomp
     class(simulation_component_wrapper_t), allocatable :: tmp_simcomps(:)
     integer, allocatable :: order_list(:)
 
@@ -260,10 +214,9 @@ contains
     do order = 1, this%n_simcomps
        order_found = .false.
        do i = 1, this%n_simcomps
-          simcomp_i => this%simcomps(i)%get()
-          if (simcomp_i%order == order .and. order_found) then
+          if (this%simcomps(i)%simcomp%order == order .and. order_found) then
              call neko_error("Simulation component order must be unique.")
-          else if (simcomp_i%order == order) then
+          else if (this%simcomps(i)%simcomp%order == order) then
              order_found = .true.
           end if
        end do
@@ -278,8 +231,7 @@ contains
     order_list = 0
     max_order = 0
     do i = 1, this%n_simcomps
-       simcomp_i => this%simcomps(i)%get()
-       order_list(i) = simcomp_i%order
+       order_list(i) = this%simcomps(i)%simcomp%order
        if (order_list(i) .gt. max_order) then
           max_order = order_list(i)
        end if
@@ -318,18 +270,16 @@ contains
 
     ! Check that names are unique
     do i = 1, this%n_simcomps - 1
-       simcomp_i => this%simcomps(i)%get()
        do j = i + 1, this%n_simcomps
-          simcomp_j => this%simcomps(j)%get()
-          if (simcomp_i%name .eq. simcomp_j%name) then
-             call neko_error("Simulation component names must be unique. " // &
-                  "Duplicate name: " // trim(simcomp_i%name))
-          end if
+          associate(simcomp_i => this%simcomps(i)%simcomp, &
+               simcomp_j => this%simcomps(j)%simcomp)
+            if (simcomp_i%name .eq. simcomp_j%name) then
+               call neko_error("Simulation component names must be unique. " &
+                    // "Duplicate name: " // trim(simcomp_i%name))
+            end if
+          end associate
        end do
     end do
-
-    if (associated(simcomp_i)) nullify(simcomp_i)
-    if (associated(simcomp_j)) nullify(simcomp_j)
 
     this%finalized = .true.
   end subroutine simcomp_executor_finalize
@@ -339,19 +289,15 @@ contains
   subroutine simcomp_executor_preprocess(this, time)
     class(simcomp_executor_t), intent(inout), target :: this
     type(time_state_t), intent(in) :: time
-    class(simulation_component_t), pointer :: simcomp
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, size(this%simcomps)
-          simcomp => this%simcomps(i)%get()
-          call simcomp%preprocess(time)
+          call this%simcomps(i)%simcomp%preprocess(time)
        end do
     end if
-
-    if (associated(simcomp)) nullify(simcomp)
 
   end subroutine simcomp_executor_preprocess
 
@@ -360,19 +306,15 @@ contains
   subroutine simcomp_executor_compute(this, time)
     class(simcomp_executor_t), intent(inout), target :: this
     type(time_state_t), intent(in) :: time
-    class(simulation_component_t), pointer :: simcomp
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
-          simcomp => this%simcomps(i)%get()
-          call simcomp%compute(time)
+          call this%simcomps(i)%simcomp%compute(time)
        end do
     end if
-
-    if (associated(simcomp)) nullify(simcomp)
 
   end subroutine simcomp_executor_compute
 
@@ -381,17 +323,13 @@ contains
   subroutine simcomp_executor_restart(this, time)
     class(simcomp_executor_t), intent(inout), target :: this
     type(time_state_t), intent(in) :: time
-    class(simulation_component_t), pointer :: simcomp
     integer :: i
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
-          simcomp => this%simcomps(i)%get()
-          call simcomp%restart(time)
+          call this%simcomps(i)%simcomp%restart(time)
        end do
     end if
-
-    if (associated(simcomp)) nullify(simcomp)
 
   end subroutine simcomp_executor_restart
 

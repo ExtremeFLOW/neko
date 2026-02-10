@@ -105,17 +105,16 @@ module simulation_component
 
   !> A helper type that is needed to have an array of polymorphic objects
   type, public :: simulation_component_wrapper_t
-     class(simulation_component_t), allocatable, private :: simcomp
+     class(simulation_component_t), allocatable :: simcomp
    contains
      !> Constructor. Just allocates the pointer.
      procedure, pass(this) :: init => simulation_component_wrapper_init
      !> Destructor. Just deallocates the pointer.
      procedure, pass(this) :: free => simulation_component_wrapper_free
-     !> Getter for the simcomp pointer.
-     procedure, pass(this) :: get => simulation_component_wrapper_get
-     !> Move assignment operator for the wrapper, needed for storing simcomps
+     !> Move operator for the wrapper, needed for storing simcomps
      !! in lists and arrays.
-     procedure, pass(this) :: move_from => simulation_component_wrapper_move_from
+     procedure, pass(this) :: move_from => &
+          simulation_component_wrapper_move_from
      !> Return allocation status.
      procedure, pass(this) :: is_allocated => &
           simulation_component_wrapper_is_allocated
