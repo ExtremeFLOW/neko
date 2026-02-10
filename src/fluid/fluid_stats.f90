@@ -192,10 +192,10 @@ contains
        this%n_stats = 44
     end if
 
-    ! If a name is specified and is not the default name, add it
-    ! as a prefix to the mean field names, followed by a "/".
-    if (present(name) .and. trim(name) .ne. "fluid_stats") then
+    if (present(name)) then
        unique_name = name // "/"
+    else
+       unique_name = "fluid_stats/"
     end if
 
     call this%stats_work%init(this%u%dof, 'stats')

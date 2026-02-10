@@ -220,17 +220,11 @@ contains
     type(field_t), pointer :: field_to_avg
 
     character(len=1024) :: unique_name
-    unique_name = ""
+    unique_name = name // "/"
 
     this%name = name
     this%start_time = start_time
     this%time = start_time
-
-    ! If a name is specified and is not the default name, add it
-    ! as a prefix to the mean field names, followed by a "/".
-    if (trim(name) .ne. "user_stats") then
-       unique_name = name // "/"
-    end if
 
     !> Allocate and initialize the mean fields
     allocate(this%mean_fields(this%n_avg_fields))
