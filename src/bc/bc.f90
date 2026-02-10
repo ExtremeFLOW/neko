@@ -87,7 +87,7 @@ module bc
      logical :: updated = .false.
      !> Name of the bc
      character(len=:), allocatable :: name
-     !!> Zone indices where the bc is applied
+     !> Zone indices where the bc is applied
      integer, allocatable :: zone_indices(:)
    contains
      !> Constructor
