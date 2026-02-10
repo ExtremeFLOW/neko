@@ -70,7 +70,8 @@ For 1D statistics a CSV file is outputted. The first column is the time at which
 
 The statistics fields created by this simcomp are accessible from the 
 neko registry and retrievable under the following naming convention:
-`name_in_registry = name_of_simcomp + "/mean_" + name_of_field`.
+`name_in_registry = name_of_simcomp + "/mean_" + name_of_field`. Unless 
+specified, the name of the simcomp will default to `fluid_stats`.
 For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then 
 the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added 
 to the registry. 
