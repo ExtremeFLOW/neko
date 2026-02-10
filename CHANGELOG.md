@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Update the simcomp wrappers to better handle allocation and deallocation.
 - Updated field types with a wrapper and ensure lifetime management of field
   data in field lists and arrays.
 - Updated Developer Patterns documentation with new information on how to manage
