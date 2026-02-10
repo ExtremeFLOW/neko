@@ -1,7 +1,11 @@
 # Changelog
 
 ## Develop
-- Runtime statistics fields are now retrievable from the registry.
+- Runtime statistics fields are now retrievable from the registry, for both 
+  fluid_stats and user_stats. The naming convention of the fields in the 
+  registry is `name_of_simcomp + "/mean_" + name_of_field`.
+- Restrict the `setuptools` version to be less than 81, due to a breaking change
+  in that version for flinter.
 - Added the `full_elements` option to point_zones. Allows including all points
   in an element in the mask.
 - *BREAKING* The sign of the Boussinesq source term is fixed such that the input
