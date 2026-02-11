@@ -85,13 +85,6 @@ extern "C"
     const real g3 = g[2];
     const real gmag = sqrt(g1 * g1 + g2 * g2 + g3 * g3);
 
-    if (gmag <= (real)1e-30)
-    {
-      neko_log_message("The gravity vector must have at least one nonzero component");
-      CUDA_CHECK(cudaErrorInvalidValue);
-      return;
-    }
-
     const real n1 = g1 / gmag;
     const real n2 = g2 / gmag;
     const real n3 = g3 / gmag;

@@ -73,10 +73,7 @@ extern "C" {
     // Normalize g on host (as CPU and CUDA do)
     real g1 = g[0], g2 = g[1], g3 = g[2];
     real gmag = sqrt(g1*g1 + g2*g2 + g3*g3);
-    if (gmag <= 1e-30) {
-        fprintf(stderr, "gravity vector must have nonzero magnitude\n");
-        return;
-    }
+
     real n1 = g1 / gmag;
     real n2 = g2 / gmag;
     real n3 = g3 / gmag;
