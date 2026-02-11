@@ -87,6 +87,16 @@ module entropy_viscosity_device
   end interface
 
   interface
+     subroutine hip_entropy_visc_apply_physical_visc(reg_coeff_d, &
+          mu_d, n) &
+          bind(c, name = 'hip_entropy_visc_apply_physical_visc')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: reg_coeff_d, mu_d
+       integer(c_int) :: n
+     end subroutine hip_entropy_visc_apply_physical_visc
+  end interface
+
+  interface
      subroutine hip_entropy_visc_smooth_divide(reg_coeff_d, &
           temp_field_d, mult_field_d, n) &
           bind(c, name = 'hip_entropy_visc_smooth_divide')
@@ -142,6 +152,16 @@ module entropy_viscosity_device
        real(c_rp) :: c_avisc_low
        integer(c_int) :: n
      end subroutine cuda_entropy_visc_clamp_to_low_order
+  end interface
+
+  interface
+     subroutine cuda_entropy_visc_apply_physical_visc(reg_coeff_d, &
+          mu_d, n) &
+          bind(c, name = 'cuda_entropy_visc_apply_physical_visc')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: reg_coeff_d, mu_d
+       integer(c_int) :: n
+     end subroutine cuda_entropy_visc_apply_physical_visc
   end interface
 
   interface
@@ -203,6 +223,16 @@ module entropy_viscosity_device
   end interface
 
   interface
+     subroutine opencl_entropy_visc_apply_physical_visc(reg_coeff_d, &
+          mu_d, n) &
+          bind(c, name = 'opencl_entropy_visc_apply_physical_visc')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: reg_coeff_d, mu_d
+       integer(c_int), value :: n
+     end subroutine opencl_entropy_visc_apply_physical_visc
+  end interface
+
+  interface
      subroutine opencl_entropy_visc_smooth_divide(reg_coeff_d, &
           temp_field_d, mult_field_d, n) &
           bind(c, name = 'opencl_entropy_visc_smooth_divide')
@@ -217,6 +247,7 @@ module entropy_viscosity_device
             entropy_viscosity_compute_viscosity_device, &
             entropy_viscosity_apply_element_max_device, &
             entropy_viscosity_clamp_to_low_order_device, &
+            entropy_viscosity_apply_physical_visc_device, &
             entropy_viscosity_smooth_divide_device
 
 contains
@@ -304,6 +335,25 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine entropy_viscosity_clamp_to_low_order_device
+
+  !> Apply physical viscosity floor on device
+  !! @param reg_coeff_d Regularization coefficient field (modified in-place)
+  !! @param mu_d Physical viscosity field
+  !! @param n Number of points
+  subroutine entropy_viscosity_apply_physical_visc_device(reg_coeff_d, mu_d, n)
+    type(c_ptr), intent(in) :: reg_coeff_d, mu_d
+    integer, intent(in) :: n
+
+#ifdef HAVE_HIP
+    call hip_entropy_visc_apply_physical_visc(reg_coeff_d, mu_d, n)
+#elif HAVE_CUDA
+    call cuda_entropy_visc_apply_physical_visc(reg_coeff_d, mu_d, n)
+#elif HAVE_OPENCL
+    call opencl_entropy_visc_apply_physical_visc(reg_coeff_d, mu_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine entropy_viscosity_apply_physical_visc_device
 
   !> Divide by multiplicity for smoothing on device
   subroutine entropy_viscosity_smooth_divide_device(reg_coeff_d, &

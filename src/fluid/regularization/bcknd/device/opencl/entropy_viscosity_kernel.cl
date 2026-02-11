@@ -132,6 +132,20 @@ __kernel void entropy_visc_clamp_to_low_order_kernel(__global real * __restrict_
 }
 
 /**
+ * Kernel for applying physical viscosity floor
+ */
+__kernel void entropy_visc_apply_physical_visc_kernel(__global real * __restrict__ reg_coeff,
+                                                      __global const real * __restrict__ mu,
+                                                      const int n) {
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    reg_coeff[i] = fmax(reg_coeff[i], mu[i]);
+  }
+}
+
+/**
  * Kernel for dividing by multiplicity (smoothing)
  */
 __kernel void entropy_visc_smooth_divide_kernel(__global real * __restrict__ reg_coeff,

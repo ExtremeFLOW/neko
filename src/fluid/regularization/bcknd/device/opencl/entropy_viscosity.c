@@ -176,6 +176,33 @@ void opencl_entropy_visc_clamp_to_low_order(void *reg_coeff,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
+void opencl_entropy_visc_apply_physical_visc(void *reg_coeff,
+                                             void *mu,
+                                             int n) {
+  cl_int err;
+
+  if (entropy_viscosity_program == NULL)
+    opencl_kernel_jit(entropy_viscosity_kernel,
+                      (cl_program *) &entropy_viscosity_program);
+
+  cl_kernel kernel = clCreateKernel(entropy_viscosity_program,
+                                    "entropy_visc_apply_physical_visc_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &reg_coeff));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &mu));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), &n));
+
+  const int nb = (n + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
 void opencl_entropy_visc_smooth_divide(void *reg_coeff,
                                        void *temp_field,
                                        void *mult_field,

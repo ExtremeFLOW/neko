@@ -56,11 +56,13 @@ module entropy_viscosity
        entropy_viscosity_compute_viscosity_cpu, &
        entropy_viscosity_apply_element_max_cpu, &
        entropy_viscosity_clamp_to_low_order_cpu, &
+       entropy_viscosity_apply_physical_visc_cpu, &
        entropy_viscosity_smooth_divide_cpu
   use entropy_viscosity_device, only : entropy_viscosity_compute_residual_device, &
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
+       entropy_viscosity_apply_physical_visc_device, &
        entropy_viscosity_smooth_divide_device
   implicit none
   private
@@ -76,6 +78,7 @@ module entropy_viscosity
      type(field_t), pointer :: w => null()
      type(field_t), pointer :: h => null()
      type(field_t), pointer :: max_wave_speed => null()
+     type(field_t), pointer :: mu => null()
      type(mesh_t), pointer :: msh => null()
      type(space_t), pointer :: Xh => null()
      type(gs_t), pointer :: gs => null()
@@ -115,6 +118,7 @@ contains
     nullify(this%w)
     nullify(this%h)
     nullify(this%max_wave_speed)
+    nullify(this%mu)
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%gs)
@@ -134,6 +138,7 @@ contains
     nullify(this%w)
     nullify(this%h)
     nullify(this%max_wave_speed)
+    nullify(this%mu)
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%gs)
@@ -293,6 +298,15 @@ contains
             this%c_avisc_low, n)
     end if
 
+    ! effective viscosity = max(physical viscosity, artificial viscosity)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call entropy_viscosity_apply_physical_visc_device( &
+            this%reg_coeff%x_d, this%mu%x_d, n)
+    else
+       call entropy_viscosity_apply_physical_visc_cpu( &
+            this%reg_coeff%x, this%mu%x, n)
+    end if
+
     call this%apply_element_max()
 
     call this%smooth_viscosity()
@@ -347,10 +361,10 @@ contains
   end subroutine entropy_viscosity_apply_element_max
 
   subroutine entropy_viscosity_set_fields(this, S, u, v, w, h, max_wave_speed, &
-       msh, Xh, gs)
+       mu, msh, Xh, gs)
     class(entropy_viscosity_t), intent(inout) :: this
     type(field_t), target, intent(inout) :: S
-    type(field_t), target, intent(in) :: u, v, w, h, max_wave_speed
+    type(field_t), target, intent(in) :: u, v, w, h, max_wave_speed, mu
     type(mesh_t), target, intent(in) :: msh
     type(space_t), target, intent(in) :: Xh
     type(gs_t), target, intent(in) :: gs
@@ -361,6 +375,7 @@ contains
     this%w => w
     this%h => h
     this%max_wave_speed => max_wave_speed
+    this%mu => mu
     this%msh => msh
     this%Xh => Xh
     this%gs => gs

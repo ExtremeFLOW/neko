@@ -16,6 +16,7 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
+    user%material_properties => material_properties
   end subroutine user_setup
 
   subroutine initial_conditions(scheme_name, fields)
@@ -24,7 +25,7 @@ contains
 
     type (field_t), pointer :: rho, u, v, w, p
     integer :: i
-    real(kind=rp) :: x, y, cone_radius, mux, muy, r, theta
+    real(kind=rp) :: x, mux
 
     rho => fields%get_by_name("fluid_rho")
     u => fields%get_by_name("u")
@@ -53,5 +54,25 @@ contains
        end if
     end do
   end subroutine initial_conditions
+
+  subroutine material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
+
+    type(field_t), pointer :: mu, rho
+    integer :: i, nx
+
+    if (scheme_name .eq. "fluid") then
+       rho => properties%get_by_name("fluid_rho")
+       mu => properties%get_by_name("fluid_mu")
+
+       nx = mu%dof%msh%glb_nelv
+
+       do i = 1, mu%dof%size()
+          mu%x(i,1,1,1) = 1.0_rp / (nx * 30)
+       end do
+    end if
+  end subroutine material_properties
 
 end module user

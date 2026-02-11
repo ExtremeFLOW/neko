@@ -283,6 +283,12 @@ The compressible solver uses variable time-stepping controlled by the CFL
 number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
 control object.
 
+Physical viscosity can be specified via the `material_properties` user interface
+in the user file. The effective viscosity used for stabilization is computed as
+`max(physical_viscosity, artificial_viscosity)`, where the artificial viscosity
+is the minimum of entropy-based and low-order viscosities. See the user file
+documentation for details on implementing `material_properties`.
+
 Example configuration:
 ~~~~~~~~~~~~~~~{.json}
 {

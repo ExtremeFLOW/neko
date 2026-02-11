@@ -109,6 +109,21 @@ void hip_entropy_visc_clamp_to_low_order(void *reg_coeff,
   HIP_CHECK(hipGetLastError());
 }
 
+void hip_entropy_visc_apply_physical_visc(void *reg_coeff,
+                                          void *mu,
+                                          int *n) {
+  const dim3 nthrds(1024, 1, 1);
+  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(entropy_visc_apply_physical_visc_kernel<real>),
+                     nblcks, nthrds, 0, stream,
+                     (real *) reg_coeff,
+                     (real *) mu,
+                     *n);
+  HIP_CHECK(hipGetLastError());
+}
+
 void hip_entropy_visc_smooth_divide(void *reg_coeff,
                                     void *temp_field,
                                     void *mult_field,

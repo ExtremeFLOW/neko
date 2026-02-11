@@ -140,6 +140,21 @@ __global__ void entropy_visc_clamp_to_low_order_kernel(T * __restrict__ reg_coef
 }
 
 /**
+ * Kernel for applying physical viscosity floor
+ */
+template<typename T>
+__global__ void entropy_visc_apply_physical_visc_kernel(T * __restrict__ reg_coeff,
+                                                        const T * __restrict__ mu,
+                                                        const int n) {
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    reg_coeff[i] = max(reg_coeff[i], mu[i]);
+  }
+}
+
+/**
  * Kernel for dividing by multiplicity (smoothing)
  */
 template<typename T>
