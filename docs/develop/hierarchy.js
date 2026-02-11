@@ -255,6 +255,7 @@ var hierarchy =
       [ "facet_zone::facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", null ]
     ] ],
     [ "fdm::fdm_t", "de/d85/structfdm_1_1fdm__t.html", null ],
+    [ "field_array::field_array_t", "d3/db5/structfield__array_1_1field__array__t.html", null ],
     [ "field_dirichlet::field_dirichlet_update", "db/d6a/interfacefield__dirichlet_1_1field__dirichlet__update.html", null ],
     [ "field_list::field_list_t", "d3/d90/structfield__list_1_1field__list__t.html", null ],
     [ "field::field_ptr_t", "dc/dd8/structfield_1_1field__ptr__t.html", null ],
@@ -262,6 +263,7 @@ var hierarchy =
     [ "field_series::field_series_ptr_t", "de/db3/structfield__series_1_1field__series__ptr__t.html", null ],
     [ "field_series::field_series_t", "d1/d6e/structfield__series_1_1field__series__t.html", null ],
     [ "field::field_t", "d3/d5f/structfield_1_1field__t.html", null ],
+    [ "field::field_wrapper_t", "d4/d51/structfield_1_1field__wrapper__t.html", null ],
     [ "file::file_t", "d6/dae/structfile_1_1file__t.html", null ],
     [ "filter::filter_apply", "dd/dc1/interfacefilter_1_1filter__apply.html", null ],
     [ "filter::filter_free", "d5/df4/interfacefilter_1_1filter__free.html", null ],

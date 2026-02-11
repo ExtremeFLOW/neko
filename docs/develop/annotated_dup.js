@@ -486,7 +486,11 @@ var annotated_dup =
     ] ],
     [ "field", "dc/da9/namespacefield.html", [
       [ "field_ptr_t", "dc/dd8/structfield_1_1field__ptr__t.html", "dc/dd8/structfield_1_1field__ptr__t" ],
-      [ "field_t", "d3/d5f/structfield_1_1field__t.html", "d3/d5f/structfield_1_1field__t" ]
+      [ "field_t", "d3/d5f/structfield_1_1field__t.html", "d3/d5f/structfield_1_1field__t" ],
+      [ "field_wrapper_t", "d4/d51/structfield_1_1field__wrapper__t.html", "d4/d51/structfield_1_1field__wrapper__t" ]
+    ] ],
+    [ "field_array", "d8/d84/namespacefield__array.html", [
+      [ "field_array_t", "d3/db5/structfield__array_1_1field__array__t.html", "d3/db5/structfield__array_1_1field__array__t" ]
     ] ],
     [ "field_dirichlet", "db/d5b/namespacefield__dirichlet.html", [
       [ "field_dirichlet_t", "d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html", "d9/da8/structfield__dirichlet_1_1field__dirichlet__t" ],

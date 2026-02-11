@@ -204,6 +204,7 @@ var namespaces_dup =
       [ "fdm_do_fast_xsmm", "dc/da1/namespacefdm__xsmm.html#aaeba743f54a16c03e2157c64ce2322b8", null ]
     ] ],
     [ "field", "dc/da9/namespacefield.html", "dc/da9/namespacefield" ],
+    [ "field_array", "d8/d84/namespacefield__array.html", "d8/d84/namespacefield__array" ],
     [ "field_dirichlet", "db/d5b/namespacefield__dirichlet.html", "db/d5b/namespacefield__dirichlet" ],
     [ "field_dirichlet_vector", "d0/d1c/namespacefield__dirichlet__vector.html", "d0/d1c/namespacefield__dirichlet__vector" ],
     [ "field_list", "df/d2b/namespacefield__list.html", "df/d2b/namespacefield__list" ],

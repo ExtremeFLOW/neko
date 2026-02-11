@@ -1,7 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$dc/d80/structsource__term__handler_1_1source__term__handler__t.html" title="Abstract class for handling source terms." alt="" coords="5,37,184,77"/>
-<area shape="rect" id="Node000001" href="$d1/da8/structfluid__source__term_1_1fluid__source__term__t.html" title="Wrapper contaning and executing the fluid source terms." alt="" coords="241,5,392,45"/>
-<area shape="poly" id="edge177_Node000000_Node000001" title=" " alt="" coords="198,40,241,34,242,39,198,45"/>
-<area shape="rect" id="Node000002" href="$db/d55/structscalar__source__term_1_1scalar__source__term__t.html" title="Wrapper contaning and executing the scalar source terms." alt="" coords="232,69,401,109"/>
-<area shape="poly" id="edge178_Node000000_Node000002" title=" " alt="" coords="198,70,232,75,231,80,197,75"/>
+<area shape="rect" id="Node000000" href="$d9/d5a/structsource__term_1_1source__term__wrapper__t.html" title="A helper type that is needed to have an array of polymorphic objects." alt="" coords="5,5,160,45"/>
 </map>

@@ -107,6 +107,10 @@ $(document).ready(function(){initNavTree('d0/d47/dev_patterns.html','../../'); i
 <li class="level1"><a href="#autotoc_md39">C. Constructors and destructors.</a></li>
 <li class="level1"><a href="#autotoc_md40">D. Documentation</a></li>
 <li class="level1"><a href="#autotoc_md41">E. Design</a></li>
+<li class="level1"><a href="#autotoc_md42">F. Complex and Polymorphic arrays.</a><ul><li class="level2"><a href="#autotoc_md43">F.1. Object wrapper pattern</a></li>
+<li class="level2"><a href="#autotoc_md44">F.2. Object pointer pattern</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="textblock"><p>This section aims to summarize the programming conventions in Neko to guide all developers into writing code with good style and facilitate the reuse of the same programming patterns throughout the code base. It is a good idea to check your code against the guidelines here before opening a PR.</p>
@@ -205,17 +209,66 @@ E. Design</h1>
 <p class="startli">This point represents the S in SOLID, which is a set of design principles for types. Highly recommended to get acquainted with all of them.</p>
 </li>
 <li><p class="startli">When encountering code repetition, consider whether these two pieces of code will likely change at different rates and different reasons in the future. If so, code repetition is fine, it will eventually cease to exist naturally.</p>
-<p class="startli">True code duplication is when a change in one place will also necessary a change in the other. </p>
+<p class="startli">True code duplication is when a change in one place will also necessary a change in the other.</p>
 </li>
 </ol>
-</div></div><!-- contents -->
+<h1><a class="anchor" id="autotoc_md42"></a>
+F. Complex and Polymorphic arrays.</h1>
+<p>We often need to use arrays of complex or polymorphic types. Objects which support this, must implement a wrapper type following one of the two patterns below.</p><ul>
+<li>A wrapper type, maintain the lifetime of the object it wraps, allocating and deallocating it as needed.</li>
+<li>A pointer type, which just holds a pointer to an object managed elsewhere. These can be good to group a bunch of objects for easier access elsewhere.</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md43"></a>
+F.1. Object wrapper pattern</h2>
+<div class="fragment"><div class="line"><span class="keyword">type</span> :: object_wrapper_t</div>
+<div class="line">   <span class="keywordtype">type</span>(object_t), <span class="keywordtype">pointer</span> :: obj =&gt; null()</div>
+<div class="line"><span class="keyword">contains</span></div>
+<div class="line">   <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; object_wrapper_init</div>
+<div class="line">   <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; object_wrapper_free</div>
+<div class="line"><span class="keyword">end type</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">subroutine </span>object_wrapper_init(this, args, ...)</div>
+<div class="line">     <span class="keywordtype">type</span>(object_wrapper_t) :: this</div>
+<div class="line">     <span class="keyword">call </span>this%free()</div>
+<div class="line">     <span class="keyword">allocate</span>(this%obj)                    <span class="comment">! For polymorphic types</span></div>
+<div class="line">     <span class="keyword">call </span>this%obj%init(args, ...)         <span class="comment">! use a factory method instead</span></div>
+<div class="line"><span class="keyword">end subroutine</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">subroutine </span>object_wrapper_free(this)</div>
+<div class="line">     <span class="keywordtype">type</span>(object_wrapper_t) :: this</div>
+<div class="line">     <span class="keywordflow">if</span> (<span class="keyword">associated</span>(this%obj)) <span class="keywordflow">then</span></div>
+<div class="line">          <span class="keyword">call </span>this%obj%free()</div>
+<div class="line">          <span class="keyword">deallocate</span>(this%obj)</div>
+<div class="line"><span class="keywordflow">     end if</span></div>
+<div class="line"><span class="keyword">end subroutine</span></div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md44"></a>
+F.2. Object pointer pattern</h2>
+<div class="fragment"><div class="line"><span class="keyword">type</span> :: object_ptr_t</div>
+<div class="line">   <span class="keywordtype">type</span>(object_t), <span class="keywordtype">pointer</span> :: ptr =&gt; null()</div>
+<div class="line"><span class="keyword">contains</span></div>
+<div class="line">   <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; object_ptr_init</div>
+<div class="line">   <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; object_ptr_free</div>
+<div class="line"><span class="keyword">end type</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">subroutine </span>object_ptr_init(this, object)</div>
+<div class="line">     <span class="keywordtype">type</span>(object_ptr_t) :: this</div>
+<div class="line">     <span class="keywordtype">type</span>(object_t), <span class="keywordtype">target</span> :: object</div>
+<div class="line">     <span class="keyword">call </span>this%free()</div>
+<div class="line">     this%ptr_ =&gt; object</div>
+<div class="line"><span class="keyword">end subroutine</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">subroutine </span>object_ptr_free(this)</div>
+<div class="line">     <span class="keywordtype">type</span>(object_ptr_t) :: this</div>
+<div class="line">     <span class="keywordflow">if</span> (<span class="keyword">associated</span>(this%ptr)) <span class="keyword">nullify</span>(this%ptr)</div>
+<div class="line"><span class="keyword">end subroutine</span></div>
+</div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Tue Feb 10 2026 04:20:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Feb 11 2026 04:20:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
