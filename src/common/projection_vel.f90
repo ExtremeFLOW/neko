@@ -67,7 +67,7 @@ contains
   subroutine projection_init_vel(this, n, L, activ_step)
     class(projection_vel_t), target, intent(inout) :: this
     integer, intent(in) :: n
-    integer, optional, intent(in) :: L, activ_step
+    integer, intent(in) :: L, activ_step
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr

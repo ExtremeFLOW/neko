@@ -58,6 +58,8 @@ module simulation_component
      type(time_based_controller_t) :: output_controller
      !> The execution order, lowest excutes first.
      integer :: order
+     !> Unique name of the simcomp.
+     character(:), allocatable :: name
    contains
      !> Constructor for the simulation_component_t (base) class.
      procedure, pass(this) :: init_base => simulation_component_init_base
@@ -390,7 +392,6 @@ contains
        call json_get_or_lookup_or_default(json_object, json_path, &
             output_value_int, compute_value_int)
        output_value = real(output_value_int, kind=rp)
-       write(*,*) "Output value int: ", output_value_int
     else if (output_control .eq. "simulationtime") then
        ! Read as real
        call json_get_or_lookup_or_default(json_object, json_path, &
@@ -408,6 +409,10 @@ contains
     class(simulation_component_t), intent(inout) :: this
 
     nullify(this%case)
+
+    if (allocated(this%name)) then
+       deallocate(this%name)
+    end if
 
     call this%preprocess_controller%free()
     call this%compute_controller%free()
