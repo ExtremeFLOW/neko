@@ -209,24 +209,6 @@ contains
     !      ignore_existing=.true.)
     ! h_field => neko_registry%get_field_by_name("sampling_height")
 
-    ! Select the ts offset based on fid
-    select case (zone_idx)
-    case (1)
-       ts_idx = [h_idx, 0, 0 ]
-    case (2)
-       ts_idx = [-h_idx, 0, 0]
-    case (3)
-       ts_idx = [0, h_idx, 0 ]
-    case (4)
-       ts_idx = [0, -h_idx, 0]
-    case (5)
-       ts_idx = [0, 0, h_idx ]
-    case (6)
-       ts_idx = [0, 0, -h_idx]
-    case default
-       call neko_error("The face index is not correct (richardson_cpu.f90)")
-    end select
-
     do i=1, n_nodes
        ! Sample the variables
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
@@ -366,139 +348,94 @@ contains
   end subroutine richardson_compute_cpu
 
   !> Similarity laws and corrections for the STABLE regime:
-  function slaw_m_stable(z,L_ob,z0) result(slaw)
-    real(kind=rp), intent(in) :: z,L_ob,z0
-    real(kind=rp) :: slaw
+  !> Based on Mauritsen et al. 2007
+  function tau_stable(magu, ri_b, h, z0, l) result(tau)
+    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l
+    real(kind=rp) :: tau, f_tau
 
-    slaw = log(z/z0)-corr_m_stable(z,L_ob)+corr_m_stable(z0,L_ob)
-  end function slaw_m_stable
+    tau = magu**2/(log(h/z0)**2) * f_tau(ri)/f_tau(0) * (l/h)**2
+  end function tau_stable
 
-  function slaw_h_stable(z,L_ob,z0h) result(slaw)
-    real(kind=rp), intent(in) :: z,L_ob,z0h
-    real(kind=rp) :: slaw
+  function heat_flux_stable(theta2, theta1, ri, h, z1, pr,&
+                            l, utau) result(heat_flux)
+    real(kind=rp), intent(in) :: theta1, theta2, ri, h, z1, pr, l, utau
+    real(kind=rp) :: heat_flux, f_theta
 
-    slaw = log(z/z0h)-corr_h_stable(z,L_ob)+corr_h_stable(z0h,L_ob)
-  end function slaw_h_stable
+    heat_flux = (theta2 - theta1)/(log(h/z1)) * &
+                f_theta(ri)/abs(f_theta(0)) * (l/h) * utau/pr
+  end function heat_flux_stable
 
-  function corr_m_stable(z,L_ob) result(corr)
-    real(kind=rp), intent(in) :: z,L_ob
-    real(kind=rp) :: corr
-    real(kind=rp) :: a, b, c, d
-    real(kind=rp) :: zeta
-    zeta = z/L_ob
-    a = 1.0_rp
-    b = 0.6666666_rp
-    c = 5.0_rp
-    d = 0.35_rp
-    corr = - a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d
-  end function corr_m_stable
+  function f_tau_stable(ri) result(f_tau)
+    real(kind=rp), intent(in) :: ri
+    real(kind=rp) :: f_tau
 
-  function corr_h_stable(z,L_ob) result(corr)
-    real(kind=rp), intent(in) :: z,L_ob
-    real(kind=rp) :: corr
-    real(kind=rp) :: a, b, c, d
-    real(kind=rp) :: zeta
+    f_tau = 0.17 * (0.25 + 0.75 / (1 + 4*ri))
+  end function f_tau_stable
 
-    zeta = z/L_ob
-    a = 1.0_rp
-    b = 0.6666666_rp
-    c = 5.0_rp
-    d = 0.35_rp
-    corr = -b * (zeta-c/d)*exp(-d*zeta)-(1.0_rp+ 0.6666666_rp * a * zeta)**1.5_rp-b*c/d + 1.0_rp
-  end function corr_h_stable
+  function f_theta_stable(ri) result(f_theta)
+    real(kind=rp), intent(in) :: ri
+    real(kind=rp) :: f_theta
+
+    f_theta = -0.145 / (1 + 4 * ri)
+  end function f_theta_stable
 
   !> Similarity laws and corrections for the UNSTABLE (convective) regime:
-  function slaw_m_convective(z,L_ob,z0) result(slaw)
-    real(kind=rp), intent(in) :: z, L_ob, z0
-    real(kind=rp) :: slaw
+  !> Based on Louis 1979
+  function tau_convective(magu, ri, h, z0, l) result(tau)
+    real(kind=rp), intent(in) :: magu, ri, h, z0, l
+    real(kind=rp) :: tau, f_tau
+    real(kind=rp) :: a, b, c
 
-    slaw = log(z/z0) - corr_m_convective(z, L_ob) + corr_m_convective(z0, L_ob)
-  end function slaw_m_convective
+    a = 0.4 / log(h/z0)
+    b = 2
+    c = 7.4 * a**2 * b * (h/z0)**0.5
 
-  function slaw_h_convective(z,L_ob,z0h) result(slaw)
-    real(kind=rp), intent(in) :: z, L_ob, z0h
-    real(kind=rp) :: slaw
+    tau_conv = a**2 * magu**2 * F_m
+  end function tau_convective
 
-    slaw = log(z/z0h) - corr_h_convective(z, L_ob) + corr_h_convective(z0h, L_ob)
-  end function slaw_h_convective
+  function heat_flux_convective(theta2, theta1, ri, h, z1, pr,&
+                                l, utau) result(heat_flux)
+    real(kind=rp), intent(in) :: theta2, theta1, ri, h, z1, pr, l, utau
+    real(kind=rp) :: heat_flux, f_theta
+    real(kind=rp) :: a, b, c
 
-  function corr_m_convective(z,L_ob) result(corr)
-    real(kind=rp), intent(in) :: z, L_ob
-    real(kind=rp) :: xi, pi, zeta
-    real(kind=rp) :: corr
+    a = 0.4 / log(h/z1)
+    b = 2
+    c = 5.3 * a**2 * b * (h/z1)**0.5
 
-    zeta = z/L_ob
-    pi = 4*atan(1.0_rp)
-    xi = (1.0_rp - 16.0_rp*zeta)**0.25_rp
-    corr = 2*log(0.5_rp*(1 + xi)) + log(0.5_rp*(1 + xi**2)) - 2*atan(xi) + pi/2
-  end function corr_m_convective
+    heat_flux_conv = - a**2 / 0.74 * magu * &
+                       (theta2 - theta1) * F_h
 
-  function corr_h_convective(z,L_ob) result(corr)
-    real(kind=rp), intent(in) :: z, L_ob
-    real(kind=rp) :: zeta, pi, xi
-    real(kind=rp) :: corr
+  end function heat_flux_convective
 
-    zeta = z/L_ob
-    pi = 4*atan(1.0_rp)
-    xi = (1.0_rp - 16.0_rp*zeta)**0.25_rp
-    corr = 2*log(0.5_rp*(1 + xi**2))
-  end function corr_h_convective
+  function f_tau_convective(ri) result(f_tau)
+    real(kind=rp), intent(in) :: ri
+    real(kind=rp) :: f_tau
+
+    f_tau = 1 - 2*ri / (1 + c * abs(ri)**0.5)
+  end function f_tau_convective
+
+  function f_theta_convective(ri) result(f_theta)
+    real(kind=rp), intent(in) :: ri
+    real(kind=rp) :: f_theta
+
+    f_theta = 1 - 2*ri / (1 + c * abs(ri)**0.5)
+  end function f_theta_convective
 
   !> Similarity laws and corrections for the NEUTRAL regime:
-  function slaw_m_neutral(z,L_ob,z0) result(slaw)
-    real(kind=rp), intent(in) :: z, L_ob, z0
-    real(kind=rp) :: slaw
+  function tau_neutral(magu, ri_b, h, z0, l) result(tau)
+    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l
+    real(kind=rp) :: tau
 
-    slaw = log(z/z0)
-  end function slaw_m_neutral
+    tau = kappa*magu/log(h/z0)
+  end function tau_neutral
 
-  function slaw_h_neutral(z,L_ob,z0h) result(slaw)
-    real(kind=rp), intent(in) :: z, L_ob, z0h
-    real(kind=rp) :: slaw
+  function heat_flux_neutral(theta2, theta1, ri, h, z1, pr,&
+                            l, utau) result(heat_flux)
+    real(kind=rp), intent(in) :: theta2, theta1, ri, h, z1, pr, l, utau
+    real(kind=rp) :: heat_flux
 
-    slaw = log(z/z0h)
-  end function slaw_h_neutral
-
-  !> Simialrity laws (different for neumann and dirichlet bc's)
-  function f_neumann(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
-    real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
-    procedure(slaw_m_interface) :: slaw_m
-    procedure(slaw_h_interface) :: slaw_h
-    real(kind=rp) :: f
-
-    f = (Ri_b - z/L_ob/slaw_m(z, L_ob, z0)**3)
-  end function f_neumann
-
-  function dfdl_neumann(l_upper, l_lower, z, z0, z0h, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-    real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
-    procedure(slaw_m_interface) :: slaw_m
-    procedure(slaw_h_interface) :: slaw_h
-    real(kind=rp) :: dfdl
-
-    dfdl = (-z/l_upper/slaw_m(z, l_upper, z0)**3) ! conv
-    dfdl = dfdl + (z/l_lower/slaw_m(z, l_lower, z0)**3) ! conv
-    dfdl = dfdl/(2*fd_h)
-  end function dfdl_neumann
-
-  function f_dirichlet(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
-    real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
-    procedure(slaw_m_interface) :: slaw_m
-    procedure(slaw_h_interface) :: slaw_h
-    real(kind=rp) :: f
-
-    f = (Ri_b - z/L_ob*slaw_h(z, L_ob, z0h)/slaw_m(z, L_ob, z0)**2) ! conv
-  end function f_dirichlet
-
-  function dfdl_dirichlet(l_upper, l_lower, z, z0, z0h, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-    real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
-    procedure(slaw_m_interface) :: slaw_m
-    procedure(slaw_h_interface) :: slaw_h
-    real(kind=rp) :: dfdl
-
-    dfdl = (-z/l_upper*slaw_h(z, l_upper, z0h)/slaw_m(z, l_upper, z0)**2) ! conv
-    dfdl = dfdl + (z/l_lower*slaw_h(z, l_lower, z0h)/slaw_m(z, l_lower, z0)**2) ! conv
-    dfdl = dfdl/(2*fd_h)
-  end function dfdl_dirichlet
-
+    heat_flux = kappa*utau *(theta2 - theta1)/log(z/z0h)
+  end function heat_flux_neutral
 
 end module richardson_cpu
