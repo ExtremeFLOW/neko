@@ -42,8 +42,8 @@ jobs:
       CC: icx
       FC: ${{ matrix.compiler }}
       RP: ${{ matrix.precision }}
-      NEKO_EXEC: ${{ github.workspace }}/install/bin/neko
-      MAKENEKO_EXEC: ${{ github.workspace }}/install/bin/makeneko
+      NEKO_EXEC: ${{ github.workspace }}/src/neko
+      MAKENEKO_EXEC: ${{ github.workspace }}/makeneko
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
       - name: Checkout
@@ -85,11 +85,8 @@ jobs:
 
       - name: Build
         run: |
-          mkdir ${{ github.workspace }}/install
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifx --enable-real=${RP} --enable-contrib --prefix=${{ github.workspace }}/install
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifx --enable-real=${RP} --enable-contrib
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install
 
       - name: Integration tests
