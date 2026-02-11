@@ -37,6 +37,7 @@ submodule (wall_model) wall_model_fctry
   use spalding, only : spalding_t
   use rough_log_law, only : rough_log_law_t ! add new models
   use most, only : most_t
+  use richardson, only : richardson_t
   use utils, only : neko_type_error
   use utils, only : neko_type_registration_error
   implicit none
@@ -45,7 +46,8 @@ submodule (wall_model) wall_model_fctry
   character(len=20) :: WALLM_KNOWN_TYPES(3) = [character(len=20) :: &
        "spalding", &
        "rough_log_law", &
-       "most"] ! here as well add models
+       "most", &
+       "richardson"] ! here as well add models
 
 contains
 
@@ -99,6 +101,8 @@ contains
        allocate(rough_log_law_t::object)
     case ("most")
        allocate(most_t::object)
+    case ("richardson")
+       allocate(richardson_t::object)
     case default
        do i = 1, wall_model_registry_size
           if (trim(type_name) .eq. trim(wall_model_registry(i)%type_name)) then
