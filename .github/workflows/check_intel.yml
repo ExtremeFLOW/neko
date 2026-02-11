@@ -101,6 +101,7 @@ jobs:
           compiler: ${{ matrix.compiler }}
 
       - name: Build
+        id: build
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
         run: |
@@ -112,17 +113,18 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifx --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --enable-contrib --prefix=${{ github.workspace }}/install
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install
 
+      - name: Test - Check
+        if: matrix.backend == 'cpu'
+        run: |
+          make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
+
       - name: Integration tests
+        if: ${{ always() && steps.build.conclusion == 'success' }}
         run: |
            chmod +x $MAKENEKO_EXEC
            cd tests/integration
            pytest --timeout 120  --max_nprocs=2 --real_precision=${RP}
            cd ../..
-
-      - name: Test - Check
-        if: matrix.backend == 'cpu'
-        run: |
-          make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
       - name: Archive integration test report
         if: failure()
