@@ -64,22 +64,6 @@ module richardson_cpu
        real(kind=rp), intent(in) :: z, L_ob
        real(kind=rp) :: corr
      end function corr_h_interface
-
-     function f_interface(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
-       import rp, slaw_m_interface, slaw_h_interface
-       real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
-       real(kind=rp) :: f
-       procedure(slaw_m_interface) :: slaw_m
-       procedure(slaw_h_interface) :: slaw_h
-     end function f_interface
-
-     function dfdl_interface(l_upper, l_lower, z, z0, z0h, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-       import rp, slaw_m_interface, slaw_h_interface
-       real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
-       real(kind=rp) :: dfdl
-       procedure(slaw_m_interface) :: slaw_m
-       procedure(slaw_h_interface) :: slaw_h
-     end function dfdl_interface
   end interface
 
 
@@ -93,22 +77,6 @@ module richardson_cpu
   procedure(dfdl_interface), pointer :: dfdl_ptr => null()
 
 contains
-
-  !> Selects different expressions for the similarity functions in  richardson
-  !> based on the type of bottom boundary condition for temperature.
-  subroutine select_bc_operators(bc_type)
-    character(len=*), intent(in) :: bc_type
-    select case (bc_type)
-    case ("neumann")
-       f_ptr => f_neumann
-       dfdl_ptr => dfdl_neumann
-    case ("dirichlet")
-       f_ptr => f_dirichlet
-       dfdl_ptr => dfdl_dirichlet
-    case default
-       call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
-    end select
-  end subroutine select_bc_operators
 
   !> Computes the Richardson number.
   subroutine compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
@@ -142,18 +110,18 @@ contains
     real(kind=rp), intent(in) :: Ri_b
 
     if (Ri_b > 0.01_rp) then
-       slaw_m_ptr => slaw_m_stable
-       slaw_h_ptr => slaw_h_stable
-       corr_m_ptr => corr_m_stable
-       corr_h_ptr => corr_h_stable
+       tau => tau_stable
+       heat_flux => heat_flux_stable
+       f_tau => f_tau_stable
+       f_theta => f_theta_stable
     elseif (Ri_b < -0.01_rp) then
-       slaw_m_ptr => slaw_m_convective
-       slaw_h_ptr => slaw_h_convective
-       corr_m_ptr => corr_m_convective
-       corr_h_ptr => corr_h_convective
+       tau => tau_convective
+       heat_flux => heat_flux_convective
+       f_tau => f_tau_convective
+       f_theta => f_theta_convective
     else
-       slaw_m_ptr => slaw_m_neutral
-       slaw_h_ptr => slaw_h_neutral
+       tau => tau_neutral
+       heat_flux => heat_flux_neutral
     end if
   end subroutine set_stability_regime
 
@@ -173,15 +141,12 @@ contains
     integer, intent(in) :: zone_idx ! only supports wall model on ONE boundary atm!
     integer :: ts_idx(3)
     integer, intent(in) :: h_idx
-    integer :: i, count
-    integer, parameter :: max_count = 20
+    integer :: i
     real(kind=rp) :: ui, vi, ti, ts, hi
     real(kind=rp) :: magu, utau, normu, z0h
-    real(kind=rp) :: L_ob, L_upper, L_lower, L_old
-    real(kind=rp) :: Ri_b, f, dfdl, fd_h, L_new, L_sign
+    real(kind=rp) :: L_ob, Ri_b, l
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
-    real(kind=rp), parameter :: NR_step = 0.001_rp
     character(len=LOG_SIZE) :: log_buf
 
     ! Select the ts offset based on fid
@@ -237,7 +202,6 @@ contains
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
        ! Maybe redundant, but needed to initialise Rib
-       call select_bc_operators(bc_type)
        call init_q(bc_type, hi, ti, ts, kappa, utau, z0h, q)
        call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
@@ -248,70 +212,25 @@ contains
 
           if (abs(Ri_b) <= 0.01_rp) then
              ! Neutral (L_ob undefined)
-             L_ob = 1.0e+10_rp
-          else
-             ! Determine target regime sign
-             if (Ri_b > 0.0_rp) then
-                L_ob = hi / max(Ri_b, 0.01_rp) ! Stable guess
-                L_sign = 1.0_rp
-             else
-                L_ob = hi / min(Ri_b, -0.01_rp) ! Convective guess
-                L_sign = -1.0_rp
-             end if
 
-             L_old = 1.0e10_rp
-             count = 0
+          else
              ! Set slaw and corr pointers based on stability
              call set_stability_regime(Ri_b)
 
-             ! Find Obukhov length
-             do while ((abs(L_old - L_ob)/abs(L_ob) > tol) .and. (count < max_count))
-                ! Switch between stable and convective based on bulk Richardson (Ri_b)
-                L_old = L_ob
-                count = count + 1
-
-                fd_h = NR_step*L_ob
-                L_upper = L_ob + fd_h
-                L_lower = L_ob - fd_h
-
-                ! Compute L_ob based on stability and bc_type
-                if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
-                   call neko_error("Unassociated pointer for f or dfdl")
-                end if
-
-                f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
-                dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
-                if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
-                L_new = L_ob - f/dfdl
-
-                ! Avoid regime crossing during Newton iter (otherwise crash)
-                if (L_new*L_sign <= 0.0_rp) then
-                   ! "damp update" (stay on same side)
-                   L_new = 0.5_rp * L_ob
-                end if
-
-                ! Bound L_ob
-                L_ob = sign(max(abs(L_new), 1.0e-6_rp), L_sign)
-                L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
-             end do
-
-             if (abs(L_ob) > 5e4_rp .or. abs(L_ob) < 1e-5_rp) then
-                count = max_count
-                call neko_error("Obukhov length did not converge (richardson wall model)")
-             end if
           end if
 
           ! Based on stability and bc_type, compute utau/q
           call set_stability_regime(Ri_b)
+          ! Set length scale
+          l = kappa * hi
+          ! Compute u*
+          utau = sqrt(tau(magu, ri_b, hi, z0, l, kappa))
           select case (bc_type)
-          case ("neumann")
-             ! Compute u* with the new Obukhov length
-             utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
+         !  case ("neumann")
+            ! Todo: Compute ts from q here
           case ("dirichlet")
-             ! Compute u* with the new Obukhov length
-             utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
-             ! and compute q from here
-             q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0h)
+             ! Compute q
+             q = heat_flux(ti, ts, ri_b, hi, z0h, 1.0_rp, l, utau, kappa)
           case default
              call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
           end select
@@ -323,6 +242,8 @@ contains
        tau_x(i) = -utau**2 * ui / magu
        tau_y(i) = -utau**2 * vi / magu
        tau_z(i) = 0
+
+       L_ob = -(ts*utau**3)/(kappa*g*q)
     end do
 
     ! Print some indicative quantities (these are just point quantities: don't trust 100%)
@@ -349,93 +270,96 @@ contains
 
   !> Similarity laws and corrections for the STABLE regime:
   !> Based on Mauritsen et al. 2007
-  function tau_stable(magu, ri_b, h, z0, l) result(tau)
-    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l
+  function tau_stable(magu, ri_b, h, z0, l, kappa) result(tau)
+    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
     real(kind=rp) :: tau, f_tau
 
-    tau = magu**2/(log(h/z0)**2) * f_tau(ri)/f_tau(0) * (l/h)**2
+    tau = magu**2/(log(h/z0)**2) * f_tau(ri_b)/f_tau(0) * (l/h)**2
   end function tau_stable
 
-  function heat_flux_stable(theta2, theta1, ri, h, z1, pr,&
-                            l, utau) result(heat_flux)
-    real(kind=rp), intent(in) :: theta1, theta2, ri, h, z1, pr, l, utau
+  function heat_flux_stable(ti, ts, ri_b, h, z1, pr,&
+                            l, utau, kappa) result(heat_flux)
+    real(kind=rp), intent(in) :: ts, ti, ri_b, h,
+    real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
     real(kind=rp) :: heat_flux, f_theta
 
-    heat_flux = (theta2 - theta1)/(log(h/z1)) * &
-                f_theta(ri)/abs(f_theta(0)) * (l/h) * utau/pr
+    heat_flux = (ti - ts)/(log(h/z1)) * &
+                f_theta(ri_b)/abs(f_theta(0)) * (l/h) * utau/pr
   end function heat_flux_stable
 
-  function f_tau_stable(ri) result(f_tau)
-    real(kind=rp), intent(in) :: ri
+  function f_tau_stable(ri_b) result(f_tau)
+    real(kind=rp), intent(in) :: ri_b
     real(kind=rp) :: f_tau
 
-    f_tau = 0.17 * (0.25 + 0.75 / (1 + 4*ri))
+    f_tau = 0.17 * (0.25 + 0.75 / (1 + 4*ri_b))
   end function f_tau_stable
 
-  function f_theta_stable(ri) result(f_theta)
-    real(kind=rp), intent(in) :: ri
+  function f_theta_stable(ri_b) result(f_theta)
+    real(kind=rp), intent(in) :: ri_b
     real(kind=rp) :: f_theta
 
-    f_theta = -0.145 / (1 + 4 * ri)
+    f_theta = -0.145 / (1 + 4 * ri_b)
   end function f_theta_stable
 
   !> Similarity laws and corrections for the UNSTABLE (convective) regime:
   !> Based on Louis 1979
-  function tau_convective(magu, ri, h, z0, l) result(tau)
-    real(kind=rp), intent(in) :: magu, ri, h, z0, l
+  function tau_convective(magu, ri_b, h, z0, l, kappa) result(tau)
+    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
     real(kind=rp) :: tau, f_tau
     real(kind=rp) :: a, b, c
 
-    a = 0.4 / log(h/z0)
+    a =  kappa / log(h/z0)
     b = 2
     c = 7.4 * a**2 * b * (h/z0)**0.5
 
     tau_conv = a**2 * magu**2 * F_m
   end function tau_convective
 
-  function heat_flux_convective(theta2, theta1, ri, h, z1, pr,&
-                                l, utau) result(heat_flux)
-    real(kind=rp), intent(in) :: theta2, theta1, ri, h, z1, pr, l, utau
+  function heat_flux_convective(ti, ts, ri_b, h, z1, pr,&
+                                l, utau, kappa) result(heat_flux)
+    real(kind=rp), intent(in) :: ts, ti, ri_b, h,
+    real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
     real(kind=rp) :: heat_flux, f_theta
     real(kind=rp) :: a, b, c
 
-    a = 0.4 / log(h/z1)
+    a = kappa / log(h/z1)
     b = 2
     c = 5.3 * a**2 * b * (h/z1)**0.5
 
     heat_flux_conv = - a**2 / 0.74 * magu * &
-                       (theta2 - theta1) * F_h
+                       (ti - ts) * F_h
 
   end function heat_flux_convective
 
-  function f_tau_convective(ri) result(f_tau)
-    real(kind=rp), intent(in) :: ri
+  function f_tau_convective(ri_b) result(f_tau)
+    real(kind=rp), intent(in) :: ri_b
     real(kind=rp) :: f_tau
 
-    f_tau = 1 - 2*ri / (1 + c * abs(ri)**0.5)
+    f_tau = 1 - 2*ri_b / (1 + c * abs(ri_b)**0.5)
   end function f_tau_convective
 
-  function f_theta_convective(ri) result(f_theta)
-    real(kind=rp), intent(in) :: ri
+  function f_theta_convective(ri_b) result(f_theta)
+    real(kind=rp), intent(in) :: ri_b
     real(kind=rp) :: f_theta
 
-    f_theta = 1 - 2*ri / (1 + c * abs(ri)**0.5)
+    f_theta = 1 - 2*ri_b / (1 + c * abs(ri_b)**0.5)
   end function f_theta_convective
 
   !> Similarity laws and corrections for the NEUTRAL regime:
-  function tau_neutral(magu, ri_b, h, z0, l) result(tau)
-    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l
+  function tau_neutral(magu, ri_b, h, z0, l, kappa) result(tau)
+    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
     real(kind=rp) :: tau
 
-    tau = kappa*magu/log(h/z0)
+    tau = (kappa*magu/log(h/z0))**2
   end function tau_neutral
 
-  function heat_flux_neutral(theta2, theta1, ri, h, z1, pr,&
-                            l, utau) result(heat_flux)
-    real(kind=rp), intent(in) :: theta2, theta1, ri, h, z1, pr, l, utau
+  function heat_flux_neutral(ti, ts, ri_b, h, z1, pr,&
+                            l, utau, kappa) result(heat_flux)
+    real(kind=rp), intent(in) :: ts, ti, ri_b, h,
+    real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
     real(kind=rp) :: heat_flux
 
-    heat_flux = kappa*utau *(theta2 - theta1)/log(z/z0h)
+    heat_flux = kappa*utau *(ti - ts)/log(z/z0h)
   end function heat_flux_neutral
 
 end module richardson_cpu
