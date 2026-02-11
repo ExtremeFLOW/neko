@@ -74,6 +74,7 @@ contains
     real(kind=rp) :: value
     real(kind=rp) :: x0, y0, z0, radius
     logical :: invert
+    logical :: full_elements
 
     call json_get_or_lookup(json, "center", values)
     x0 = values(1)
@@ -84,8 +85,9 @@ contains
     call json_get(json, "name", str_read)
 
     call json_get_or_default(json, "invert", invert, .false.)
+    call json_get_or_default(json, "full_elements", full_elements, .false.)
 
-    call sphere_point_zone_init_common(this, size, trim(str_read), invert, &
+    call sphere_point_zone_init_common(this, size, trim(str_read), invert, full_elements, &
          x0, y0, z0, radius)
 
   end subroutine sphere_point_zone_init_from_json
@@ -93,22 +95,25 @@ contains
   !> Initializes a sphere point zone from its center coordinates and radius.
   !! @param size Size of the scratch stack.
   !! @param name Name of the sphere point zone.
+  !! @param full_elements Whether to mark all points in the element containing
+  !! points that satisfy the criterion.
   !! @param x0 Sphere center's x-coordinate.
   !! @param y0 Sphere center's y-coordinate.
   !! @param z0 Sphere center's z-coordinate.
   !! @param radius Sphere radius.
-  subroutine sphere_point_zone_init_common(this, size, name, invert, &
+  subroutine sphere_point_zone_init_common(this, size, name, invert, full_elements, &
        x0, y0, z0, radius)
     class(sphere_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
     logical, intent(in) :: invert
+    logical, intent(in) :: full_elements
     real(kind=rp), intent(in) :: x0
     real(kind=rp), intent(in) :: y0
     real(kind=rp), intent(in) :: z0
     real(kind=rp), intent(in) :: radius
 
-    call this%init_base(size, name, invert)
+    call this%init_base(size, name, invert, full_elements)
 
     this%x0 = x0
     this%y0 = y0

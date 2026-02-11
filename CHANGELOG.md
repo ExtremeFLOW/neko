@@ -1,6 +1,20 @@
 # Changelog
 
 ## Develop
+- Updated field types with a wrapper and ensure lifetime management of field
+  data in field lists and arrays.
+- Updated Developer Patterns documentation with new information on how to manage
+  pointers and lists of complex objects.
+- Added cache cleanup job for CI workflows upon PR closure.
+- Updated compiler check workflows to run on release branches and master.
+- Removed commented-out workflow sections.
+- Added compiler support section to README.
+- Restrict the `setuptools` version to be less than 81, due to a breaking change
+  in that version for flinter.
+- Added the `full_elements` option to point_zones. Allows including all points
+  in an element in the mask.
+- *BREAKING* The sign of the Boussinesq source term is fixed such that the input
+  gravity vector could be prescribed correctly.
 - Added an option for writing the mesh in every output field file.
 - *BREAKING* All simcomps now have a `name` keyword in the case file. A default
   name is assigned, but all `name`s must be unique. If you have two or more

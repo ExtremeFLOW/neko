@@ -50,6 +50,7 @@
                 "type": "curl",
                 "fields": [ "u", "v", "w" ],
                 "name": "omega",
+                "computed_field": "omega",
                 "compute_control": "tsteps",
                 "compute_value": 50
             }
