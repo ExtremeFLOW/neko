@@ -13,6 +13,11 @@ on:
         type: string
         required: false
         default: "8.4.0"
+      pfunit-version:
+        description: "The version of the pFUnit library to use."
+        type: string
+        required: false
+        default: "v4.15.0"
 
 jobs:
   Intel:
@@ -58,10 +63,13 @@ jobs:
       - name: Setup dependencies
         id: setup-deps
         env:
+          PFUNIT_VERSION: ${{ inputs.pfunit-version }}
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
         run: |
+          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.15.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
 
+          echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
       - name: Setup - Python environment
@@ -75,6 +83,15 @@ jobs:
         run: |
           pip install -r .github/workflows/extra/requirements-tests.txt
 
+      - name: Get pFUnit
+        id: get-pfunit
+        if: matrix.backend == 'cpu'
+        uses: ./.github/actions/setup_pfunit
+        with:
+          version: ${{ steps.setup-deps.outputs.pfunit-version }}
+          os: ${{ steps.setup-env.outputs.os-version }}
+          compiler: ${{ matrix.compiler }}
+
       - name: Get JSON-Fortran
         id: get-json-fortran
         uses: ./.github/actions/setup_json-fortran
@@ -84,13 +101,15 @@ jobs:
           compiler: ${{ matrix.compiler }}
 
       - name: Build
+        env:
+          PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
         run: |
           mkdir ${{ github.workspace }}/install
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           echo "PATH=${{ github.workspace }}/install/bin:${PATH}" >> $GITHUB_ENV
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifx --enable-real=${RP} --enable-contrib --prefix=${{ github.workspace }}/install
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifx --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --enable-contrib --prefix=${{ github.workspace }}/install
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install
 
       - name: Integration tests
@@ -100,10 +119,17 @@ jobs:
            pytest --timeout 120  --max_nprocs=2 --real_precision=${RP}
            cd ../..
 
+      - name: Test - Check
+        if: matrix.backend == 'cpu'
+        run: |
+          make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
+
       - name: Archive integration test report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: Intel Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/integration/logs
+          path: |
+            tests/integration/logs
+            tests/unit/test-suite.log
           retention-days: 1
