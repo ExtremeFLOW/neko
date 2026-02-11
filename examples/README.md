@@ -19,6 +19,7 @@ documented and up to date.
 - 2d_cylinder, Running Neko with a 2D mesh (creates a 1 element thick mesh)
 - advecting_cone, Test case to check for dissipation and other numerical aspects
 - api, Demonstrations of using Neko APIs for other programming languages.
+- cns_2d_shock_tube, Reflected shock-boundary layer interaction in a 2D shock tube (compressible Navier-Stokes).
 - cyl_boundary_layer, Wall-mounted cylinder simulation with different boundary
   condition options
 - euler_1d_sod, 1D Euler equation solution for the classical SOD problem.

@@ -6,16 +6,16 @@
         "output_boundary": false,
         "output_checkpoints": false,
         "time": {
-            "end_time": 0.2,
-            "timestep": 0.0001,
+            "end_time": 0.6,
+            "timestep": 1e-4,
             "variable_timestep": true,
             "target_cfl": 0.2
         },
         "numerics": {
-            "time_order": 4,
+            "time_order": 3,
             "polynomial_order": 3,
             "c_avisc_low": 0.5,
-            "c_avisc_entropy": 1.0
+            "c_avisc_entropy": 0.5
         },
         "fluid": {
             "scheme": "compressible",
@@ -27,17 +27,21 @@
                 {
                     "type": "symmetry",
                     "zone_indices": [ 1, 2 ]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 3, 4 ]
                 }
             ],
             "output_control": "nsamples",
-            "output_value": 100
+            "output_value": 60
         },
         "simulation_components": [
             {
                 "type": "field_writer",
-                "fields": ["fluid_rho", "S", "effective_visc"], // s2, s3, s4 in Paraview
+                "fields": ["fluid_rho", "S", "effective_visc"],
                 "output_control": "nsamples",
-                "output_value": 100
+                "output_value": 60
             }
         ]
     }
