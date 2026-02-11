@@ -11,10 +11,10 @@ bottom walls.
 
 Diaphragm at `x = 0.5`, fluid at rest (`u = v = 0`):
 
-| Region | ρ | p |
-|--------|-------|------------|
-| Left (`x < 0.5`) | 120.0 | 120.0 / γ |
-| Right (`x > 0.5`) | 1.2 | 1.2 / γ |
+- Left (`x < 0.5`): `rho = 120.0`
+- Right (`x > 0.5`): `rho = 1.2`
+
+Pressure `p = rho / gamma`
 
 ### Boundary Conditions
 
