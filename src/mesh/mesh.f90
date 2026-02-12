@@ -38,7 +38,8 @@ module mesh
   use hex, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_GDIM, NEKO_HEX_NFCS, &
        NEKO_HEX_NPTS
   use quad, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error, neko_warning, nonlinear_index
+  use mask, only : mask_t
   use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
   use tuple, only : tuple_i4_t, tuple4_i4_t
   use htable, only : htable_t, htable_i8_t, htable_i4_t, htable_i4t4_t,&
@@ -148,6 +149,7 @@ module mesh
      procedure, pass(this) :: create_periodic_ids => mesh_create_periodic_ids
      procedure, pass(this) :: generate_conn => mesh_generate_conn
      procedure, pass(this) :: have_point_glb_idx => mesh_have_point_glb_idx
+     procedure, pass(this) :: subset_by_mask => mesh_subset_by_mask
 
      !> Check the correct orientation of the rst coordindates.
      procedure, pass(this) :: check_right_handedness => &
@@ -1999,5 +2001,87 @@ contains
     v = cross(1)*vp3(1) + cross(2)*vp3(2) + cross(3)*vp3(3)
 
   end function parallelepiped_signed_volume
+
+  !> Create a subset of the mesh @a this in @a other based on the provided
+  !! mask.
+  !! @param this The original mesh.
+  !! @param other The subset mesh to be created.
+  !! @param mask The mask defining the subset.
+  !! @param lx the quadrature degree in x direction.
+  !! @param ly the quadrature degree in y direction.
+  !! @param lz the quadrature degree in z direction.
+  !! @note Partially lifted from nmsh_file.f90.
+  subroutine mesh_subset_by_mask(this, other, mask, lx, ly, lz)
+    class(mesh_t), intent(in) :: this
+    class(mesh_t), intent(inout) :: other
+    type(mask_t), intent(in) :: mask
+    integer, intent(in) :: lx, ly, lz
+    integer :: i, j, k, nelv, lxyz, gdim, e_m, nidx(4), nelv_c, el_c, el, i_m
+
+    call other%free()
+    lxyz = lx * ly * lz
+
+    ! Initialize
+    nelv = mask%size()/lxyz
+    call other%init(this%gdim, nelv)
+
+    ! Assing the elements
+    if (other%gdim .eq. 2) then
+       call neko_error("Subset mesh not implemented for 2d")
+    else if (other%gdim .eq. 3) then
+       do el = 1, nelv
+          i_m = 1 + lxyz * (el - 1)
+          nidx = nonlinear_index(mask%get(i_m), lx, ly, lz)
+          e_m = nidx(4) ! Actual element from the original mesh
+          ! Retrieve the points form the other mesh.
+          ! No need to shift points, since original mesh has done it.
+          call other%add_element(el, this%elements(e_m)%e%id(), &
+               this%elements(e_m)%e%pts(1)%p, &
+               this%elements(e_m)%e%pts(2)%p, &
+               this%elements(e_m)%e%pts(3)%p, &
+               this%elements(e_m)%e%pts(4)%p, &
+               this%elements(e_m)%e%pts(5)%p, &
+               this%elements(e_m)%e%pts(6)%p, &
+               this%elements(e_m)%e%pts(7)%p, &
+               this%elements(e_m)%e%pts(8)%p)
+       end do
+    else
+       if (pe_rank .eq. 0) call neko_error('Invalid dimension of mesh')
+    end if
+
+    ! Skip searching for boundaries.
+
+    ! Update the curvature
+    nelv_c = this%curve%size
+      if (nelv_c > 0) then
+      el_c = 1
+      el   = 1
+      ! 2 pointer scan
+      do while (el <= nelv .and. el_c <= nelv_c)
+
+         i_m  = 1 + lxyz * (el - 1)
+         nidx = nonlinear_index(mask%get(i_m), lx, ly, lz)
+         e_m  = nidx(4)
+
+         if (e_m < this%curve%curve_el(el_c)%el_idx) then
+            el = el + 1
+
+         else if (e_m > this%curve%curve_el(el_c)%el_idx) then
+            el_c = el_c + 1
+
+         else
+            call other%mark_curve_element(el, this%curve%curve_el(el_c)%curve_data, &
+               this%curve%curve_el(el_c)%curve_type)
+            el   = el + 1
+            el_c = el_c + 1
+         end if
+
+      end do
+      end if
+
+      ! Finalize
+      call other%finalize()
+
+  end subroutine mesh_subset_by_mask
 
 end module mesh
