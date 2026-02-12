@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Add description of the `fld` file format to the documentation.
 - Added possibility to assign names to boundary conditions in the case file. The 
   `bc_list_t` now supports item retrieval by name or zone_index.
 - Runtime statistics fields are now retrievable from the registry, for both 
