@@ -1,6 +1,9 @@
 # Changelog
 
 ## Develop
+- Runtime statistics fields are now retrievable from the registry, for both 
+  fluid_stats and user_stats. The naming convention of the fields in the 
+  registry is `name_of_simcomp + "/mean_" + name_of_field`.
 - Updated field types with a wrapper and ensure lifetime management of field
   data in field lists and arrays.
 - Updated Developer Patterns documentation with new information on how to manage
