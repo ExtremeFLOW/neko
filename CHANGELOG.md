@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Added source term for direct forcing from a field defined in the registry.
 - Added possibility to assign names to boundary conditions in the case file. The 
   `bc_list_t` now supports item retrieval by name or zone_index.
 - Runtime statistics fields are now retrievable from the registry, for both 
