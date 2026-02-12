@@ -769,7 +769,7 @@ contains
     class(scalar_scheme_wrapper_t), intent(inout) :: other
 
     ! Move the pointer
-    call move_alloc(other%scheme, this%scalar)
+    call move_alloc(other%scalar, this%scalar)
 
   end subroutine scalar_scheme_wrapper_move_from
 

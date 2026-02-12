@@ -35,7 +35,7 @@
 module scalars
   use num_types, only : rp
   use scalar_pnpn, only : scalar_pnpn_t
-  use scalar_scheme, only : scalar_scheme_ptr_t
+  use scalar_scheme, only : scalar_scheme_wrapper_t
   use scalar_aux, only : scalar_step_info
   use mesh, only : mesh_t
   use space, only : space_t
@@ -150,9 +150,7 @@ contains
        call json_subdict%add('name', trim(field_names(i)))
 
        ! Allocate the scalar fields
-       ! If there are more scalar_scheme_t types, add a factory function here
-       allocate(scalar_pnpn_t :: this%scalar_fields(i)%scheme)
-       call this%scalar_fields(i)%scheme%init(msh, coef, gs, json_subdict, &
+       call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
             numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
 
@@ -191,7 +189,7 @@ contains
     end if
 
     ! Initialize it directly with the params
-    call this%scalar_fields(1)%scheme%init(msh, coef, gs, params, numerics_params, &
+    call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
     ! Register single scalar with checkpoint
@@ -262,10 +260,7 @@ contains
     ! Iterate through all scalar fields
     if (allocated(this%scalar_fields)) then
        do i = 1, size(this%scalar_fields)
-          if (associated(this%scalar_fields(i)%scheme)) then
-             call this%scalar_fields(i)%scheme%free()
-             deallocate(this%scalar_fields(i)%scheme)
-          end if
+          call this%scalar_fields(i)%free()
        end do
        deallocate(this%scalar_fields)
     end if
