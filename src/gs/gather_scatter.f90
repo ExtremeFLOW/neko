@@ -1498,7 +1498,13 @@ contains
 
     this%counter = counter
 
-    log_buf = 'Reconstructing Gather-Scatter'
+    if (this%dofmap%Xh%lx .lt. 1e1) then
+       write(log_buf, '(A,I2)') 'Reconstructing Gather-Scatter; lx =  ', &
+            this%dofmap%Xh%lx
+    else if (this%dofmap%Xh%lx .lt. 1e2) then
+       write(log_buf, '(A,I2)') 'Reconstructing Gather-Scatter; lx =  ', &
+            this%dofmap%Xh%lx
+    end if
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents

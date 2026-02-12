@@ -1334,7 +1334,19 @@ contains
 
     this%counter = counter
 
-    log_buf = 'Reconstructing Coefs'
+    if (associated(this%dof)) then
+       ! standard initialisation of coef with space
+       if (this%dof%Xh%lx .lt. 1e1) then
+          write(log_buf, '(A,I2)') 'Reconstructing Coefs; lx =  ', &
+               this%dof%Xh%lx
+       else if (this%dof%Xh%lx .lt. 1e2) then
+          write(log_buf, '(A,I2)') 'Reconstructing Coefs; lx =  ', &
+               this%dof%Xh%lx
+       end if
+    else
+       ! advection initialises coef without space
+       log_buf = 'Reconstructing Coefs; advection'
+    end if
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents

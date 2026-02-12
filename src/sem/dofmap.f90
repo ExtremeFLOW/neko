@@ -220,7 +220,11 @@ contains
 
     this%counter = counter
 
-    log_buf = 'Reconstructing Dofmap'
+    if (this%Xh%lx .lt. 1e1) then
+       write(log_buf, '(A,I2)') 'Reconstructing Dofmap; lx =  ', this%Xh%lx
+    else if (this%Xh%lx .lt. 1e2) then
+       write(log_buf, '(A,I2)') 'Reconstructing Dofmap; lx =  ', this%Xh%lx
+    end if
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! reconstruct coordinates
