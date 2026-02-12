@@ -678,16 +678,76 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
+    integer :: lx, nl, n, nelv, gdim
+    real(kind=rp), dimension(:), allocatable :: ah, bh, ch, dh, zh, dph, jph, &
+         bgl, zglhat, dgl, jgl, wh
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
 
-    log_buf = 'Fast diagonalisation method'
+    log_buf = 'Reconstructing Fast Diagonalization Method'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+    ! dof and gs_h should be already reconstructed
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
+
+    ! reconstruct gs; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%gs_h)) call this%gs_h%amr_restart(reconstruct, &
+         counter, tstep)
+
+    ! reallocate arrays
+    lx = this%Xh%lx
+    n = lx - 1 !Polynomnial degree
+    nl = lx + 2 !Schwarz!
+    nelv = this%dof%msh%nelv
+    gdim = this%dof%msh%gdim
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%s)) deallocate(this%s)
+       if (allocated(this%d)) deallocate(this%d)
+       if (allocated(this%swplen)) deallocate(this%swplen)
+       if (allocated(this%len_lr)) deallocate(this%len_lr)
+       if (allocated(this%len_ls)) deallocate(this%len_ls)
+       if (allocated(this%len_lt)) deallocate(this%len_lt)
+       if (allocated(this%len_mr)) deallocate(this%len_mr)
+       if (allocated(this%len_ms)) deallocate(this%len_ms)
+       if (allocated(this%len_mt)) deallocate(this%len_mt)
+       if (allocated(this%len_rr)) deallocate(this%len_rr)
+       if (allocated(this%len_rs)) deallocate(this%len_rs)
+       if (allocated(this%len_rt)) deallocate(this%len_rt)
+       allocate(this%s(nl*nl, 2, gdim, nelv))
+       allocate(this%d(nl**3, nelv))
+       allocate(this%swplen(lx, lx, lx, nelv))
+       allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
+       allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
+       allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
+    end if
+
+    ! Zeroing here enables easier debugging since then
+    ! MPI messages in GS are deterministic
+    call rzero(this%swplen, this%Xh%lxyz * this%dof%msh%nelv)
+
+    ! Reinitialise fdm
+    lx = lx * lx
+    allocate(ah(lx), bh(lx), ch(lx), dh(lx), zh(lx), dph(lx), jph(lx), &
+         bgl(lx), zglhat(lx), dgl(lx), jgl(lx), wh(lx))
+
+    call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
+
+    call swap_lengths(this, this%dof%x, this%dof%y, this%dof%z, nelv, gdim)
+
+    call fdm_setup_fast(this, ah, bh, nl, n)
+
+    deallocate(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, wh)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('Fdm reconstruct:: Nothing done for device.')
+    end if
 
   end subroutine fdm_amr_restart
 
