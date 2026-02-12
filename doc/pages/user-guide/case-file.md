@@ -679,6 +679,8 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
 7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
 8. `sponge`, adds a sponge term based on a reference velocity field, which is
    applied in a user-specified region of the domain.
+9. `field`, uses fields in the `neko_registry` as values of the source term. The
+   fields are selected with the `field_names` keyword.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
