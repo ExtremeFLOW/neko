@@ -77,11 +77,14 @@ module fdm
   use fast3d, only : semhat
   use tensor, only : trsp
   use math, only : rzero, row_zero
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  type, public :: fdm_t
+  type, public, extends(amr_restart_component_t) :: fdm_t
      real(kind=rp), allocatable :: s(:,:,:,:)
      real(kind=rp), allocatable :: d(:,:)
      type(c_ptr) :: s_d = C_NULL_PTR
@@ -99,6 +102,8 @@ module fdm
      procedure, pass(this) :: init => fdm_init
      procedure, pass(this) :: free => fdm_free
      procedure, pass(this) :: compute => fdm_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => fdm_amr_restart
   end type fdm_t
 
   interface sygv
@@ -631,6 +636,8 @@ contains
        call device_free(this%swplen_d)
     end if
 
+    call this%free_amr_base()
+
   end subroutine fdm_free
 
   subroutine fdm_compute(this, e, r, stream)
@@ -662,5 +669,26 @@ contains
 
   end subroutine fdm_compute
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine fdm_amr_restart(this, reconstruct, counter, tstep)
+    class(fdm_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Fast diagonalisation method'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine fdm_amr_restart
 
 end module fdm

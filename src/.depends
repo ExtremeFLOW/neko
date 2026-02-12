@@ -124,11 +124,11 @@ math/tensor.lo : math/tensor.f90 device/device.lo config/neko_config.lo math/mxm
 math/bcknd/cpu/tensor_cpu.lo : math/bcknd/cpu/tensor_cpu.f90 math/mxm_wrapper.lo config/num_types.lo 
 math/bcknd/sx/tensor_sx.lo : math/bcknd/sx/tensor_sx.f90 math/mxm_wrapper.lo config/num_types.lo 
 math/bcknd/xsmm/tensor_xsmm.lo : math/bcknd/xsmm/tensor_xsmm.F90 math/mxm_wrapper.lo config/num_types.lo 
-math/fdm.lo : math/fdm.f90 math/tensor.lo math/fast3d.lo device/device.lo math/math.lo comm/comm.lo common/utils.lo math/bcknd/xsmm/fdm_xsmm.lo math/bcknd/sx/fdm_sx.lo math/bcknd/device/fdm_device.lo math/bcknd/cpu/fdm_cpu.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo config/num_types.lo config/neko_config.lo 
+math/fdm.lo : math/fdm.f90 sem/amr_restart_component.lo sem/amr_reconstruct.lo common/log.lo math/tensor.lo math/fast3d.lo device/device.lo math/math.lo comm/comm.lo common/utils.lo math/bcknd/xsmm/fdm_xsmm.lo math/bcknd/sx/fdm_sx.lo math/bcknd/device/fdm_device.lo math/bcknd/cpu/fdm_cpu.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo config/num_types.lo config/neko_config.lo 
 math/bcknd/cpu/fdm_cpu.lo : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.lo config/num_types.lo 
 math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo config/num_types.lo 
 math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo 
-math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
+math/schwarz.lo : math/schwarz.f90 sem/amr_restart_component.lo sem/amr_reconstruct.lo common/log.lo bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
 math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo math/math.lo device/device.lo config/num_types.lo config/neko_config.lo 
 math/vector_math.lo : math/vector_math.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo math/vector.lo config/num_types.lo config/neko_config.lo 
 registries/registry.lo : registries/registry.f90 sem/amr_restart_component.lo sem/amr_reconstruct.lo common/log.lo common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo registries/registry_entry.lo math/matrix.lo math/vector.lo field/field.lo config/num_types.lo 
