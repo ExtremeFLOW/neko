@@ -1,6 +1,15 @@
 # Changelog
 
 ## Develop
+- Added possibility to assign names to boundary conditions in the case file. The 
+  `bc_list_t` now supports item retrieval by name or zone_index.
+- Runtime statistics fields are now retrievable from the registry, for both 
+  fluid_stats and user_stats. The naming convention of the fields in the 
+  registry is `name_of_simcomp + "/mean_" + name_of_field`.
+- Updated field types with a wrapper and ensure lifetime management of field
+  data in field lists and arrays.
+- Updated Developer Patterns documentation with new information on how to manage
+  pointers and lists of complex objects.
 - Added cache cleanup job for CI workflows upon PR closure.
 - Updated compiler check workflows to run on release branches and master.
 - Removed commented-out workflow sections.
