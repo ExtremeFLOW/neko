@@ -46,7 +46,7 @@ module coefs
        device_coef_generate_dxydrst
   use mxm_wrapper, only : mxm
   use device
-  use utils, only : index_is_on_facet, linear_index
+  use utils, only : index_is_on_facet, linear_index, neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -375,14 +375,22 @@ contains
 
     ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
     allocate(this%cyc_msk(0:ncyc))
-    allocate(this%R11(ncyc))
-    allocate(this%R12(ncyc))
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%cyc_msk, this%cyc_msk_d, ncyc+1)
-       call device_map(this%R11, this%R11_d, ncyc)
-       call device_map(this%R12, this%R12_d, ncyc)
-    end if
-    call coef_generate_cyclic_bc(this)
+    this%cyc_msk(0) = ncyc + 1
+    if (ncyc.gt.0) then
+      allocate(this%R11(ncyc))
+      allocate(this%R12(ncyc))
+
+      !>Default values correspond to no rotation
+      call rone(this%R11, ncyc)
+      call rzero(this%R12, ncyc)
+
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_map(this%cyc_msk, this%cyc_msk_d, ncyc+1)
+         call device_map(this%R11, this%R11_d, ncyc)
+         call device_map(this%R12, this%R12_d, ncyc)
+      end if
+      call coef_generate_cyclic_bc(this)
+    end if 
   end subroutine coef_init_all
 
   !> Deallocate coefficients
@@ -1209,17 +1217,15 @@ contains
   subroutine coef_generate_cyclic_bc(coef)
     type(coef_t), intent(inout) :: coef
     real(kind=rp) :: un(3), len, d
-    integer :: lx, ly, lz, ntot, np
+    integer :: lx, ly, lz, np
     integer :: i, j, k, pf, pe, n, nc, ncyc
 
-    ntot = coef%dof%size()
     np = coef%msh%periodic%size
     lx = coef%Xh%lx
     ly = coef%Xh%ly
     lz = coef%Xh%lz
-    ncyc = coef%msh%periodic%size * coef%Xh%lx * coef%Xh%lx
+    ncyc =  coef%cyc_msk(0)-1
     nc = 1
-    coef%cyc_msk(0) = ncyc + 1
 
     do n = 1, np
        pf = coef%msh%periodic%facet_el(n)%x(1)
@@ -1230,18 +1236,26 @@ contains
                 if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
                    un = coef%get_normal(i, j, k, pe, pf)
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
-                   d = coef%dof%y(i, j, k, pe) * un(1) - coef%dof%x(i, j, k, pe) * un(2)
+                   if (len.gt.NEKO_EPS) then
+                     d = coef%dof%y(i, j, k, pe) * un(1) - coef%dof%x(i, j, k, pe) * un(2)
 
-                   coef%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
-                   coef%R11(nc) = un(1)/len * sign(1.0_rp, d)
-                   coef%R12(nc) = un(2)/len * sign(1.0_rp, d)
-
-                   nc = nc + 1
+                     coef%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
+                     coef%R11(nc) = un(1)/len * sign(1.0_rp, d)
+                     coef%R12(nc) = un(2)/len * sign(1.0_rp, d)
+                     nc = nc + 1
+                   else 
+                     call neko_error("x and y components of surface normals are zero. &
+                              &Cyclic assumes rotation around z-axis")
+                   end if
                 end if
              end do
           end do
        end do
     end do
+
+    if (nc - 1 /= ncyc) then
+      call neko_error("The number of cyclic GLL points were not estimated correct.")
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(coef%cyc_msk, coef%cyc_msk_d, ncyc+1, HOST_TO_DEVICE, sync=.false.)
