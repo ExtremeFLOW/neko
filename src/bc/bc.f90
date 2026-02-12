@@ -576,7 +576,6 @@ contains
     end if
 
     if (.not. allocated(this%name)) then
-       allocate(character(len=1) :: this%name)
        this%name = ""
     else
        write(log_buf, '(A,A)') 'BC assigned name :   ', trim(this%name)
