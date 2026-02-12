@@ -236,19 +236,14 @@ contains
 
     this%counter = counter
 
-    ! AMR refinement/coarsening cannot change reduce/increase number of bc, so
-    ! check if there is anything to do
-    if (this%msk(0) .gt. 0) then
-
-       log_buf = 'Zero dirichlet'
-       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-!       call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
-!       call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    log_buf = 'Zero dirichlet'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
        
-       write(*,*) 'TESTzeroDIRICHLET', this%msk(0)
+    write(*,*) 'TESTzeroDIRICHLET', this%msk(0)
        
-    end if
 
   end subroutine zero_dirichlet_amr_restart
 

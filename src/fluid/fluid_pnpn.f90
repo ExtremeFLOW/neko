@@ -83,9 +83,7 @@ module fluid_pnpn
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
   use time_state, only : time_state_t
-  
-  use comm, only : NEKO_COMM, pe_rank !!!! pe_rank added
-
+  use comm, only : NEKO_COMM
   use math, only : glsum ! added for amr
   use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
@@ -696,10 +694,6 @@ contains
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), time, strong = .false.)
 
-          
-    write(*,*) 'TESTfluidSTEP1', pe_rank, oifs
-    
-
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -725,10 +719,6 @@ contains
          call this%adv%compute(u, v, w, &
               f_x, f_y, f_z, &
               Xh, this%c_Xh, dm_Xh%size())
-
-                   
-    write(*,*) 'TESTfluidSTEP2', pe_rank
-    
 
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
@@ -1288,9 +1278,6 @@ contains
     call this%vlag%amr_restart(reconstruct, counter, tstep)
     call this%wlag%amr_restart(reconstruct, counter, tstep)
 
-    ! Reconstruct checkpoint
-    ! LEFT FOR FUTURE !!!!!!!
-
     ! Reallocate right hand side
     if (associated(this%f_x)) call this%f_x%amr_reallocate(reconstruct, &
          counter, tstep)
@@ -1306,7 +1293,7 @@ contains
          tstep)
     call this%material_properties%amr_restart(reconstruct, counter, tstep)
 
-    ! boundary conditions
+    ! boundary conditions; THIS HAVE TO BE CHECKED
     call this%bcs_prs%amr_restart(reconstruct, counter, tstep)
     call this%bcs_vel%amr_restart(reconstruct, counter, tstep)
 
@@ -1326,7 +1313,7 @@ contains
     call this%bclst_dp%amr_restart(reconstruct, counter, tstep)
 
     ! fluid source term?????
-    ! it is not clear is source term need to be reconstructed, as rhs is allredy
+    ! it is not clear is source term need to be reconstructed, as rhs is already
     ! reconstructed, and the rest of the fields seem to be taken from registries
     ! gradient_jump_penalty certainly requires
     ! LEFT FOR FUTURE !!!!!!!
@@ -1400,12 +1387,14 @@ contains
     call this%vol_flow%amr_restart(reconstruct, counter, tstep)
 
     ! statistics
+    ! LEFT FOR FUTURE !!!!!!!
+
+    ! Reconstruct checkpoint
+    ! LEFT FOR FUTURE !!!!!!!
 
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
-    
-    write(*,*) 'TESTfluid', pe_rank, this%glb_n_points, this%glb_unique_points
-    
+
   end subroutine fluid_pnpn_amr_restart
 
 end module fluid_pnpn

@@ -88,14 +88,14 @@ module hsmg
        krylov_solver_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
   implicit none
   private
 
-  !Struct to arrange our multigridlevels
+  !Struct to arrange our multigrid levels
   type, private :: multigrid_t
      type(dofmap_t), pointer :: dof => null()
      type(gs_t), pointer :: gs_h => null()
@@ -633,13 +633,77 @@ contains
     class(hsmg_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: ntot
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
 
-    write(*, *) 'TESThsmg'
+    log_buf = 'hybrid-Schwarz multigrid'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ntot = reconstruct%nnew * reconstruct%lxyz
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%w)) deallocate(this%w)
+       if (allocated(this%r)) deallocate(this%r)
+       allocate(this%w(ntot), this%r(ntot))
+    end if
+
+    ! Compute all elements as if they are deformed
+    call this%msh%all_deformed()
+
+    ! Reallocate solve and work fields?????????????????????????????
+    call this%e%amr_reallocate(reconstruct, counter, tstep)
+    call this%wf%amr_reallocate(reconstruct, counter, tstep)
+
+    ! one could reach dofmap, gs and coef for fine grid through grids
+
+    ! reconstruct coarse levels; dofmap, gs, coef, field
+    call this%dm_crs%amr_restart(reconstruct, counter, tstep)
+    call this%gs_crs%amr_restart(reconstruct, counter, tstep)
+    call this%c_crs%amr_restart(reconstruct, counter, tstep)
+    call this%e_crs%amr_restart(reconstruct, counter, tstep)
+
+    call this%dm_mg%amr_restart(reconstruct, counter, tstep)
+    call this%gs_mg%amr_restart(reconstruct, counter, tstep)
+    call this%c_mg%amr_restart(reconstruct, counter, tstep)
+    call this%e_mg%amr_restart(reconstruct, counter, tstep)
+
+    ! ax does not require restarting
+
+    ! boundary conditions
+    ! add pointer to the external bx_list to copy process from initialisation
+    ! instead of following
+!    call this%bc_crs%amr_restart(reconstruct, counter, tstep)
+!    call this%bc_mg%amr_restart(reconstruct, counter, tstep)
+!    call this%bc_reg%amr_restart(reconstruct, counter, tstep)
+    ! there is no need to work on bc lists, as they point to the already
+    ! reconstructed objects
+
+    ! reconstruct Schwarz; schwarz_crs is never initialised
+    call this%schwarz%amr_restart(reconstruct, counter, tstep)
+    call this%schwarz_mg%amr_restart(reconstruct, counter, tstep)
+    ! schwarz_crs is never initialised
+
+    ! interpolator does not require restarting
+
+    ! Krylov solver
+    if (allocated(this%amg_solver)) then
+       call neko_error('Hsmg reconstruct:: nothing done for tamg solver.')
+    else
+       call this%crs_solver%amr_restart(reconstruct, counter, tstep)
+       call this%pc_crs%amr_restart(reconstruct, counter, tstep)
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('Hsmg reconstruct:: Nothing done for device.')
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
   end subroutine hsmg_amr_restart
 
