@@ -580,12 +580,44 @@ contains
     this%counter = counter
 
     log_buf = 'Schwarz'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
+    ! dof and bclst should be already reconstructed
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
+
+    ! Reconstruct dofmap and communicator
+    call this%dm_schwarz%amr_restart(reconstruct, counter, tstep)
+    call this%gs_schwarz%amr_restart(reconstruct, counter, tstep)
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%work1)) deallocate(this%work1)
+       if (allocated(this%work2)) deallocate(this%work2)
+       if (allocated(this%wt)) deallocate(this%wt)
+       allocate(this%work1(this%dm_schwarz%size()))
+       allocate(this%work2(this%dm_schwarz%size()))
+       allocate(this%wt(this%Xh%lx, this%Xh%lx, 4, this%msh%gdim, &
+            this%msh%nelv))
+    end if
+
+    ! Restart fast diagonalization method
     call this%fdm%amr_restart(reconstruct, counter, tstep)
 
-!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    ! reconstruct gs; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    ! it has to be done here, as gs_h may be local
+    call this%gs_h%amr_restart(reconstruct, counter, tstep)
+
+    call schwarz_setup_wt(this)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('Schwarz reconstruct:: Nothing done for device.')
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
   end subroutine schwarz_amr_restart
 

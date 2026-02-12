@@ -96,6 +96,8 @@ module amr_reconstruct
      integer :: lxyz
      !> pointer mesh manager data transfer
      class(mesh_manager_transfer_t), pointer :: transfer
+     !> Size of interpolation array
+     integer :: int_lx
      !> AMR interpolation operators for various lx
      type(amr_reconstruct_lx_t), dimension(:), allocatable :: recon
 
@@ -374,8 +376,9 @@ contains
 
     ! THIS ISN'T SMART, BUT FOR NOW I INITIALISE ALL
     ! AMR reconstruction operators for various lx
-    allocate(this%recon(2: lx))
-    do il = 2, lx
+    this%int_lx = lx + 2 ! due to Schwarz
+    allocate(this%recon(2: this%int_lx))
+    do il = 2, this%int_lx
        call this%recon(il)%init(gdim, il)
     end do
 
@@ -394,7 +397,7 @@ contains
     this%transfer => NULL()
 
     if (allocated(this%recon)) then
-       do il = 2, this%lx
+       do il = 2, this%int_lx
           call this%recon(il)%free()
        end do
        deallocate(this%recon)
@@ -403,6 +406,7 @@ contains
     this%lx = 0
     this%lxy = 0
     this%lxyz = 0
+    this%int_lx = 0
     this%nold = 0
     this%nnew = 0
     this%nref = 0
@@ -437,7 +441,7 @@ contains
     ! THIS ISN'T SMART, BUT FOR NOW I ALLOCATE ALL
     ! get work space
     if (this%ifchange) then
-       do il = 2, this%lx
+       do il = 2, this%int_lx
           call this%recon(il)%buff_get(this%nrcv, this%nsnd, this%ncrs)
        end do
     end if
@@ -462,7 +466,7 @@ contains
     if (allocated(this%rmap)) deallocate(this%rmap)
     if (allocated(this%cmap)) deallocate(this%cmap)
 
-    do il = 2, this%lx
+    do il = 2, this%int_lx
        call this%recon(il)%buff_free()
     end do
 
@@ -480,7 +484,7 @@ contains
     integer :: il, jl, itmp
     integer, dimension(3) :: ch_pos
 
-    if (lx .lt. 2 .or. lx .gt. this%lx) &
+    if (lx .lt. 2 .or. lx .gt. this%int_lx) &
          call neko_error('Polynomial order outside the assumed range')
 
     if (this%ifchange) then
