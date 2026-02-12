@@ -85,7 +85,7 @@ field/field_list.lo : field/field_list.f90 comm/comm.lo common/utils.lo mesh/mes
 field/field_series.lo : field/field_series.f90 field/field.lo 
 field/field_series_list.lo : field/field_series_list.f90 common/utils.lo field/field_series.lo 
 field/mesh_field.lo : field/mesh_field.f90 mesh/mesh.lo 
-field/mean_field.lo : field/mean_field.f90 math/field_math.lo field/field.lo config/num_types.lo common/stats_quant.lo config/neko_config.lo 
+field/mean_field.lo : field/mean_field.f90 math/field_math.lo field/field.lo registries/registry.lo config/num_types.lo common/stats_quant.lo config/neko_config.lo 
 io/format/rea.lo : io/format/rea.f90 mesh/mesh.lo config/num_types.lo 
 math/bcknd/cpu/cpu_cdtp.lo : math/bcknd/cpu/cpu_cdtp.f90 math/bcknd/cpu/opr_cpu.lo 
 math/bcknd/cpu/cpu_conv1.lo : math/bcknd/cpu/cpu_conv1.f90 math/bcknd/cpu/opr_cpu.lo 
@@ -165,7 +165,7 @@ global_interpolation/legendre_rst_finder.lo : global_interpolation/legendre_rst_
 io/mean_field_output.lo : io/mean_field_output.f90 math/matrix.lo io/output.lo field/mean_field.lo device/device.lo sem/coef.lo sem/map_1d.lo sem/map_2d.lo io/fld_file_data.lo config/neko_config.lo field/field_list.lo config/num_types.lo 
 common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo 
 common/craypat.lo : common/craypat.F90 
-bc/bc.lo : bc/bc.f90 io/file.lo common/time_state.lo common/utils.lo math/math.lo gs/gs_ops.lo field/field.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
+bc/bc.lo : bc/bc.f90 io/file.lo common/time_state.lo common/log.lo common/utils.lo math/math.lo gs/gs_ops.lo field/field.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
 bc/bc_list.lo : bc/bc_list.f90 common/time_state.lo bc/bc.lo common/utils.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
 bc/dirichlet.lo : bc/dirichlet.f90 common/time_state.lo common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
 bc/neumann.lo : bc/neumann.f90 common/time_state.lo bc/bcknd/device/device_neumann.lo device/device.lo math/bcknd/device/device_math.lo config/neko_config.lo math/vector.lo math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
