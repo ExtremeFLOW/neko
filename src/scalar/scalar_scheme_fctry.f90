@@ -69,7 +69,7 @@ contains
     type(field_t), target, intent(in) :: rho
     character(len=:), allocatable :: type_name
 
-    call json_get(params, "scheme", type_name)
+    call json_get_or_default(params, "scheme", type_name, "pnpn")
 
     call scalar_scheme_allocator(object, type_name)
 
