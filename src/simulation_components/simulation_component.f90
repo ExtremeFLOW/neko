@@ -107,7 +107,7 @@ module simulation_component
   type, public :: simulation_component_wrapper_t
      class(simulation_component_t), allocatable :: simcomp
    contains
-     !> Constructor. Just allocates the pointer.
+     !> Constructor. Initializes the object.
      procedure, pass(this) :: init => simulation_component_wrapper_init
      !> Destructor. Just deallocates the pointer.
      procedure, pass(this) :: free => simulation_component_wrapper_free
