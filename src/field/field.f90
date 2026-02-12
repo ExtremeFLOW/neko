@@ -334,7 +334,7 @@ contains
 
   subroutine field_ptr_init(this, ptr)
     class(field_ptr_t), intent(inout) :: this
-    type(field_t), pointer, intent(in) :: ptr
+    type(field_t), target, intent(in) :: ptr
 
     call this%free()
 

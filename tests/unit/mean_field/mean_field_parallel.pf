@@ -94,7 +94,7 @@ contains
     call test_mean_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
 
-    call f%init(msh, Xh, 'test')
+    call f%init(msh, Xh, 'test_init')
 
     call mf%init(f)
     @assertTrue(associated(mf%f))
@@ -118,10 +118,10 @@ contains
 
     call test_mean_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
-    call f%init(msh, Xh, 'test')
+    call f%init(msh, Xh, 'test_update')
 
     f = 42.0_rp
-    call mf%init(f)
+    call mf%init(f, "f_42")
 
     do i = 1, 10
        call mf%update(1.0_rp)
@@ -135,7 +135,7 @@ contains
     @assertEqual(maxval(mf%mf%x), 42.0_rp)
     @assertEqual(mf%time, 10.0_rp)
 
-    call mf2%init(f)
+    call mf2%init(f, "f_10")
 
     do i = 1, 10
        f = real(i, rp)
