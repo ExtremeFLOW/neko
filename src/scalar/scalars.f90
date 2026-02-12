@@ -60,7 +60,7 @@ module scalars
   !> Type to manage multiple scalar transport equations
   type, public :: scalars_t
      !> The scalar fields
-     type(scalar_scheme_ptr_t), allocatable :: scalar_fields(:)
+     type(scalar_scheme_wrapper_t), allocatable :: scalar_fields(:)
      !> Shared KSP solver for all scalar fields
      class(ksp_t), allocatable :: shared_ksp
    contains
@@ -103,8 +103,10 @@ contains
     character(len=:), allocatable :: field_names(:)
     character(len=256) :: error_msg, buffer
 
-    ! Allocate the array of the scalar scheme pointers
+    ! Allocate the scalar fields
+    ! If there are more scalar_scheme_t types, add a factory function here
     allocate(this%scalar_fields(n_scalars))
+
     ! Collect and validate field names for all scalars
     allocate(character(len=256) :: field_names(n_scalars))
 
@@ -160,7 +162,7 @@ contains
        call this%register_lags_with_checkpoint(chkp)
     else
        ! For single scalar, use legacy interface
-       select type (scalar => this%scalar_fields(1)%scheme)
+       select type (scalar => this%scalar_fields(1)%scalar)
        type is (scalar_pnpn_t)
           call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
        end select
@@ -182,7 +184,7 @@ contains
     TYPE(field_t), TARGET, INTENT(IN) :: rho
 
     ! Allocate a single scalar field
-    allocate(scalar_pnpn_t::this%scalar_fields(1)%scheme)
+    allocate(this%scalar_fields(1))
 
     ! Set the scalar name to "s"
     if (.not. params%valid_path('name')) then
@@ -194,7 +196,7 @@ contains
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
     ! Register single scalar with checkpoint
-    select type (scalar => this%scalar_fields(1)%scheme)
+    select type (scalar => this%scalar_fields(1)%scalar)
     type is (scalar_pnpn_t)
        call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
     end select
@@ -214,8 +216,8 @@ contains
 
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
-       all_frozen = all_frozen .and. this%scalar_fields(i)%scheme%freeze
-       call this%scalar_fields(i)%scheme%step(time, ext_bdf, dt_controller, &
+       all_frozen = all_frozen .and. this%scalar_fields(i)%scalar%freeze
+       call this%scalar_fields(i)%scalar%step(time, ext_bdf, dt_controller, &
             ksp_results(i))
     end do
 
@@ -224,7 +226,7 @@ contains
     end if
 
     do i = 1, size(this%scalar_fields)
-       if (this%scalar_fields(i)%scheme%freeze) cycle
+       if (this%scalar_fields(i)%scalar%freeze) cycle
        call scalar_step_info(time, ksp_results(i))
     end do
   end subroutine scalars_step
@@ -237,7 +239,7 @@ contains
 
     n_scalars = size(this%scalar_fields)
     do i = 1, size(this%scalar_fields)
-       call this%scalar_fields(i)%scheme%restart(chkp)
+       call this%scalar_fields(i)%scalar%restart(chkp)
     end do
   end subroutine scalars_restart
 
@@ -247,9 +249,9 @@ contains
     integer :: i
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
-       call this%scalar_fields(i)%scheme%slag%set( &
-            this%scalar_fields(i)%scheme%s)
-       call this%scalar_fields(i)%scheme%validate()
+       call this%scalar_fields(i)%scalar%slag%set( &
+            this%scalar_fields(i)%scalar%s)
+       call this%scalar_fields(i)%scalar%validate()
     end do
   end subroutine scalars_validate
 
@@ -290,10 +292,10 @@ contains
 
     ! Add all scalar lag fields to the checkpoint list and populate ABX fields
     do i = 1, n_scalars
-       call chkp%scalar_lags%append(this%scalar_fields(i)%scheme%slag)
+       call chkp%scalar_lags%append(this%scalar_fields(i)%scalar%slag)
 
        ! Cast to scalar_pnpn_t to access ABX fields
-       select type (scalar_field => this%scalar_fields(i)%scheme)
+       select type (scalar_field => this%scalar_fields(i)%scalar)
        type is (scalar_pnpn_t)
           call associate_scalar_abx_fields(chkp, i, scalar_field)
        end select
@@ -301,7 +303,8 @@ contains
 
   end subroutine register_lags_with_checkpoint
 
-  !> Helper subroutine to associate ABX field pointers with proper TARGET attribute
+  !> Helper subroutine to associate ABX field pointers with proper TARGET
+  !! attribute
   subroutine associate_scalar_abx_fields(chkp, index, scalar_field)
     type(chkp_t), intent(inout) :: chkp
     integer, intent(in) :: index
