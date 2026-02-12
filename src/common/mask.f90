@@ -61,6 +61,7 @@ module mask
           init_from_mask
      procedure, public, pass(this) :: free => mask_free
 
+     procedure, public, pass(this) :: invert_from => invert_mask
      procedure, public, pass(this) :: size => mask_size
      procedure, public, pass(this) :: is_set => mask_is_set
      procedure, public, pass(this) :: get_d => mask_get_d
@@ -73,6 +74,7 @@ module mask
      procedure, pass(this) :: init_from_array
      procedure, pass(this) :: init_from_array_device
      procedure, pass(this) :: init_from_mask
+     procedure, pass(this) :: invert_mask
 
      ! Setters
      procedure, pass(this) :: mask_set
@@ -177,6 +179,45 @@ contains
     this%n_elements = other%n_elements
     this%is_set_ = other%is_set_
   end subroutine init_from_mask
+
+  !> Invert the contents of another mask object.
+  subroutine invert_mask(this, other, total_elements)
+    class(mask_t), intent(inout) :: this
+    class(mask_t), intent(in) :: other
+    integer, intent(in) :: total_elements
+
+    logical, allocatable :: found(:)
+    integer, allocatable :: new_mask(:)
+    integer :: i, j, k, v, new_size
+
+    allocate(found(total_elements))
+    found = .false.
+
+    ! mark present
+    do i = 1, other%size()
+       v = other%mask(i)
+       if (v >= 1 .and. v <= total_elements) found(v) = .true.
+    end do
+
+    ! count complement
+    new_size = 0
+    do j = 1, total_elements
+       if (.not. found(j)) new_size = new_size + 1
+    end do
+
+    allocate(new_mask(new_size))
+
+    ! fill complement
+    k = 1
+    do j = 1, total_elements
+       if (.not. found(j)) then
+          new_mask(k) = j
+          k = k + 1
+       end if
+    end do
+
+    call this%init_from_array(new_mask, new_size)
+  end subroutine invert_mask
 
   !> Get the size of the mask.
   pure function mask_size(this) result(n_elements)

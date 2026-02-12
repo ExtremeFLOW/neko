@@ -1,6 +1,8 @@
 # Changelog
 
 ## Develop
+- Create mesh objects from masked entries
+- Added options to used masked parts of the domain when performing interpolation
 - Runtime statistics fields are now retrievable from the registry, for both 
   fluid_stats and user_stats. The naming convention of the fields in the 
   registry is `name_of_simcomp + "/mean_" + name_of_field`.
