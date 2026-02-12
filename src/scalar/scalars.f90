@@ -103,8 +103,7 @@ contains
     character(len=:), allocatable :: field_names(:)
     character(len=256) :: error_msg, buffer
 
-    ! Allocate the scalar fields
-    ! If there are more scalar_scheme_t types, add a factory function here
+    ! Allocate the array of the scalar scheme wrappers
     allocate(this%scalar_fields(n_scalars))
 
     ! Collect and validate field names for all scalars
