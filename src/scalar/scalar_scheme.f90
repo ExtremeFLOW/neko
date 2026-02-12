@@ -228,9 +228,9 @@ module scalar_scheme
   type, public :: scalar_scheme_wrapper_t
      class(scalar_scheme_t), allocatable :: scalar
    contains
-     !> Constructor. Just allocates the pointer.
+     !> Constructor. Just allocates the object.
      procedure, pass(this) :: init => scalar_scheme_wrapper_init
-     !> Destructor. Just deallocates the pointer.
+     !> Destructor. Just deallocates the object.
      procedure, pass(this) :: free => scalar_scheme_wrapper_free
      !> Move operator for the wrapper, needed for storing schemes
      !! in lists and arrays.
