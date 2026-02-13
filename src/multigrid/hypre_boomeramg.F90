@@ -138,6 +138,16 @@ module hypre_boomeramg
   end interface
 
   interface
+     integer (c_int) function HYPRE_BoomerAMGSetRelaxOrder(solver, relax_order) &
+          bind(c, name='HYPRE_BoomerAMGSetRelaxOrder')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: solver
+       integer(c_int), value :: relax_order
+     end function HYPRE_BoomerAMGSetRelaxOrder
+  end interface
+
+  interface
      integer (c_int) function HYPRE_BoomerAMGSetNumSweeps(solver, num_sweeps) &
           bind(c, name='HYPRE_BoomerAMGSetNumSweeps')
        use, intrinsic :: iso_c_binding
@@ -198,5 +208,62 @@ module hypre_boomeramg
        integer(c_int), value :: agg_num_levels
      end function HYPRE_BoomerAMGSetAggNumLevels
   end interface
+
+  interface
+     integer (c_int) function HYPRE_BoomerAMGSetOldDefault(solver) &
+          bind(c, name='HYPRE_BoomerAMGSetOldDefault')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: solver
+     end function HYPRE_BoomerAMGSetOldDefault
+  end interface
+
+  public :: boomeramg_init, boomeramg_setup, boomeramg_solve, boomeramg_destroy
+
+contains
+
+  subroutine boomeramg_init(solver)
+     type(c_ptr), intent(inout) :: solver
+     integer :: ierr
+     ierr = HYPRE_BoomerAMGCreate(solver)
+     ierr = HYPRE_BoomerAMGSetPrintLevel(solver, 3)
+     ierr = HYPRE_BoomerAMGSetOldDefault(solver)
+     ierr = HYPRE_BoomerAMGSetRelaxType(solver, 3)
+     ierr = HYPRE_BoomerAMGSetRelaxOrder(solver, 1)
+     ierr = HYPRE_BoomerAMGSetNumSweeps(solver, 1)
+     ierr = HYPRE_BoomerAMGSetMaxLevels(solver, 20)
+     ierr = HYPRE_BoomerAMGSetTol(solver, 1.0d-7)
+  end subroutine boomeramg_init
+
+  subroutine boomeramg_setup(solver, parcsr_A, par_b, par_x)
+     type(c_ptr), intent(inout) :: solver, parcsr_A, par_b, par_x
+     integer :: ierr
+     ierr = HYPRE_BoomerAMGSetup(solver, parcsr_A, par_b, par_x)
+  end subroutine boomeramg_setup
+
+  subroutine boomeramg_solve(solver, parcsr_A, par_b, par_x)
+     type(c_ptr), intent(inout) :: solver, parcsr_A, par_b, par_x
+     integer :: ierr, myid
+     integer :: num_iterations
+     real(c_double) :: final_res_norm
+
+     ierr = HYPRE_BoomerAMGSolve(solver, parcsr_A, par_b, par_x)
+
+     ierr = HYPRE_BoomerAMGGetNumIterations(solver, num_iterations)
+     ierr = HYPRE_BoomerAMGGetFinalRelativeResidualNorm(solver, final_res_norm)
+     myid = 0
+     if ( myid .eq. 0 ) then
+        print *
+        print '(A,I2)', " Iterations = ", num_iterations
+        print '(A,ES16.8)', " Final Relative Residual Norm = ", final_res_norm
+        print *
+     endif
+  end subroutine boomeramg_solve
+
+  subroutine boomeramg_destroy(solver)
+     type(c_ptr), intent(inout) :: solver
+     integer :: ierr
+     ierr = HYPRE_BoomerAMGDestroy(solver)
+  end subroutine boomeramg_destroy
 
 end module hypre_boomeramg
