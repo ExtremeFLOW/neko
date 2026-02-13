@@ -8,15 +8,24 @@ module hypre_ij_interface
 
   ! Matrix creation and assembly
   interface
-     integer (c_int) function HYPRE_IJMatrixCreate(comm, ilower, iupper, jlower, jupper, matrix) &
-          bind(c, name='HYPRE_IJMatrixCreate')
+     integer (c_int) function HYPRE_IJMatrixCreate(ilower, iupper, jlower, jupper, matrix) &
+          bind(c, name='HYPRE_IJMatrixCreate_wrapper')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: comm
        integer(c_int), value :: ilower, iupper, jlower, jupper
        type(c_ptr) :: matrix
      end function HYPRE_IJMatrixCreate
   end interface
+  !!interface
+  !!   integer (c_int) function HYPRE_IJMatrixCreate(comm, ilower, iupper, jlower, jupper, matrix) &
+  !!        bind(c, name='HYPRE_IJMatrixCreate')
+  !!     use, intrinsic :: iso_c_binding
+  !!     implicit none
+  !!     integer(c_int), value :: comm
+  !!     integer(c_int), value :: ilower, iupper, jlower, jupper
+  !!     type(c_ptr) :: matrix
+  !!   end function HYPRE_IJMatrixCreate
+  !!end interface
 
   interface
      integer (c_int) function HYPRE_IJMatrixDestroy(matrix) &
@@ -81,15 +90,24 @@ module hypre_ij_interface
 
   ! Vector creation and assembly
   interface
-     integer (c_int) function HYPRE_IJVectorCreate(comm, jlower, jupper, vector) &
-          bind(c, name='HYPRE_IJVectorCreate')
+     integer (c_int) function HYPRE_IJVectorCreate(jlower, jupper, vector) &
+          bind(c, name='HYPRE_IJVectorCreate_wrapper')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: comm
        integer(c_int), value :: jlower, jupper
        type(c_ptr) :: vector
      end function HYPRE_IJVectorCreate
   end interface
+  !!interface
+  !!   integer (c_int) function HYPRE_IJVectorCreate(comm, jlower, jupper, vector) &
+  !!        bind(c, name='HYPRE_IJVectorCreate')
+  !!     use, intrinsic :: iso_c_binding
+  !!     implicit none
+  !!     integer(c_int), value :: comm
+  !!     integer(c_int), value :: jlower, jupper
+  !!     type(c_ptr) :: vector
+  !!   end function HYPRE_IJVectorCreate
+  !!end interface
 
   interface
      integer (c_int) function HYPRE_IJVectorDestroy(vector) &
@@ -177,7 +195,8 @@ contains
      integer :: ierr
      !TODO: may need 1->0 shift on indexing
      ! Create the matrix object
-     ierr = HYPRE_IJMatrixCreate(mpi_comm, ilower, iupper, jlower, jupper, A)
+     !ierr = HYPRE_IJMatrixCreate(mpi_comm, ilower, iupper, jlower, jupper, A)
+     ierr = HYPRE_IJMatrixCreate(ilower, iupper, jlower, jupper, A)
      ! Choose a parallel csr format storage (see hypre's user manual)
      ierr = HYPRE_IJMatrixSetObjectType(A, HYPRE_PARCSR)
      ! Initialize before setting coefficients
@@ -226,7 +245,8 @@ contains
     integer :: ierr
     !TODO: indexing may need 1->0 shift
     ! Create the vector
-    ierr = HYPRE_IJVectorCreate(mpi_comm, jlower, jupper, v)
+    !ierr = HYPRE_IJVectorCreate(mpi_comm, jlower, jupper, v)
+    ierr = HYPRE_IJVectorCreate(jlower, jupper, v)
     ierr = HYPRE_IJVectorSetObjectType(v, HYPRE_PARCSR)
     ierr = HYPRE_IJVectorInitialize(v)
   end subroutine hypre_vector_init
