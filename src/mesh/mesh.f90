@@ -2035,7 +2035,8 @@ contains
           e_m = nidx(4) ! Actual element from the original mesh
           ! Retrieve the points form the other mesh.
           ! No need to shift points, since original mesh has done it.
-          call other%add_element(el, this%elements(e_m)%e%id(), &
+          !call other%add_element(el, this%elements(e_m)%e%id(), &
+          call other%add_element(el, el + other%offset_el, &
                this%elements(e_m)%e%pts(1)%p, &
                this%elements(e_m)%e%pts(2)%p, &
                this%elements(e_m)%e%pts(3)%p, &
