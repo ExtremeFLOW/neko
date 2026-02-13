@@ -3,6 +3,8 @@ module hypre_ij_interface
   implicit none
   private
 
+  include 'HYPRE.h'
+
   ! Matrix creation and assembly
   interface
      integer (c_int) function HYPRE_IJMatrixCreate(comm, ilower, iupper, jlower, jupper, matrix) &
