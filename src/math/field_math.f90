@@ -743,7 +743,7 @@ contains
     end if
 
   end subroutine field_masked_gather_copy_0
-  
+
   !> Gather a field to reduced contigous array
   !! \f$ a = b(mask) \f$.
   !! @param a Destination field of size `n_mask`.
@@ -754,7 +754,7 @@ contains
     type(field_t), intent(inout) :: a
     real(kind=rp), dimension(:), intent(inout) :: b
     type(mask_t), intent(in) :: mask
-    integer, intent(in) :: n 
+    integer, intent(in) :: n
     type(c_ptr) :: mask_d, b_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

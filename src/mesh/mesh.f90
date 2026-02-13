@@ -2038,17 +2038,20 @@ contains
           nidx = nonlinear_index(mask%get(i_m), lx, ly, lz)
           e_m = nidx(4) ! Actual element from the original mesh
           ! Retrieve the points form the other mesh.
-          ! No need to shift points, since original mesh has done it.
-          ! Had to use a new point id to avoid issues at periodic boundaries
-          ! But this means that all points might be incorrectly marked as unique.
+          ! No need to shift points, since original
+          ! mesh has done it.
+          ! Had to use a new point id to avoid issues at
+          ! periodic boundaries
+          ! But this means that all points might be incorrectly
+          ! marked as unique.
           do j = 1, 8
              call p(j)%init(this%elements(e_m)%e%pts(j)%p%x, p_id)
              p_id = p_id + 1
           end do
-          
+
           call other%add_element(el, el + other%offset_el, &
-                                 p(1), p(2), p(3), p(4), &
-                                 p(5), p(6), p(7), p(8))
+               p(1), p(2), p(3), p(4), &
+               p(5), p(6), p(7), p(8))
        end do
     else
        if (pe_rank .eq. 0) call neko_error('Invalid dimension of mesh')
@@ -2058,36 +2061,37 @@ contains
 
     ! Update the curvature
     nelv_c = this%curve%size
-      if (nelv_c > 0) then
-      el_c = 1
-      el   = 1
-      ! 2 pointer scan
-      do while (el <= nelv .and. el_c <= nelv_c)
+    if (nelv_c > 0) then
+       el_c = 1
+       el = 1
+       ! 2 pointer scan
+       do while (el <= nelv .and. el_c <= nelv_c)
 
-         i_m  = 1 + lxyz * (el - 1)
-         nidx = nonlinear_index(mask%get(i_m), lx, ly, lz)
-         e_m  = nidx(4)
+          i_m = 1 + lxyz * (el - 1)
+          nidx = nonlinear_index(mask%get(i_m), lx, ly, lz)
+          e_m = nidx(4)
 
-         if (e_m < this%curve%curve_el(el_c)%el_idx) then
-            el = el + 1
+          if (e_m < this%curve%curve_el(el_c)%el_idx) then
+             el = el + 1
 
-         else if (e_m > this%curve%curve_el(el_c)%el_idx) then
-            el_c = el_c + 1
+          else if (e_m > this%curve%curve_el(el_c)%el_idx) then
+             el_c = el_c + 1
 
-         else
-            call other%mark_curve_element(el, this%curve%curve_el(el_c)%curve_data, &
-               this%curve%curve_el(el_c)%curve_type)
-            el   = el + 1
-            el_c = el_c + 1
-         end if
+          else
+             call other%mark_curve_element(el, &
+                  this%curve%curve_el(el_c)%curve_data, &
+                  this%curve%curve_el(el_c)%curve_type)
+             el = el + 1
+             el_c = el_c + 1
+          end if
 
-      end do
-      end if
+       end do
+    end if
 
-      ! Finalize
-      call other%finalize()
+    ! Finalize
+    call other%finalize()
 
-      other%is_submesh = .true.
+    other%is_submesh = .true.
 
   end subroutine mesh_subset_by_mask
 
