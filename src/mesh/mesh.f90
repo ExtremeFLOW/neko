@@ -118,6 +118,8 @@ module mesh
      logical :: lnumr = .false. !< valid numbering
      logical :: lgenc = .true. !< generate connectivity
 
+     logical :: is_submesh = .false. !< is this mesh a subset of another mesh?
+
      !> enables user to specify a deformation
      !! that is applied to all x,y,z coordinates generated with this mesh
      procedure(mesh_deform), pass(msh), pointer :: apply_deform => null()
@@ -2017,6 +2019,8 @@ contains
     type(mask_t), intent(in) :: mask
     integer, intent(in) :: lx, ly, lz
     integer :: i, j, k, nelv, lxyz, gdim, e_m, nidx(4), nelv_c, el_c, el, i_m
+    type(point_t) :: p(8)
+    integer :: p_id = 1
 
     call other%free()
     lxyz = lx * ly * lz
@@ -2035,16 +2039,16 @@ contains
           e_m = nidx(4) ! Actual element from the original mesh
           ! Retrieve the points form the other mesh.
           ! No need to shift points, since original mesh has done it.
-          !call other%add_element(el, this%elements(e_m)%e%id(), &
+          ! Had to use a new point id to avoid issues at periodic boundaries
+          ! But this means that all points might be incorrectly marked as unique.
+          do j = 1, 8
+             call p(j)%init(this%elements(e_m)%e%pts(j)%p%x, p_id)
+             p_id = p_id + 1
+          end do
+          
           call other%add_element(el, el + other%offset_el, &
-               this%elements(e_m)%e%pts(1)%p, &
-               this%elements(e_m)%e%pts(2)%p, &
-               this%elements(e_m)%e%pts(3)%p, &
-               this%elements(e_m)%e%pts(4)%p, &
-               this%elements(e_m)%e%pts(5)%p, &
-               this%elements(e_m)%e%pts(6)%p, &
-               this%elements(e_m)%e%pts(7)%p, &
-               this%elements(e_m)%e%pts(8)%p)
+                                 p(1), p(2), p(3), p(4), &
+                                 p(5), p(6), p(7), p(8))
        end do
     else
        if (pe_rank .eq. 0) call neko_error('Invalid dimension of mesh')
@@ -2082,6 +2086,8 @@ contains
 
       ! Finalize
       call other%finalize()
+
+      other%is_submesh = .true.
 
   end subroutine mesh_subset_by_mask
 
