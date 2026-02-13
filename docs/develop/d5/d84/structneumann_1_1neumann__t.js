@@ -41,8 +41,10 @@ var structneumann_1_1neumann__t =
     [ "msh", "d5/d84/structneumann_1_1neumann__t.html#ac9c45a8ed2e761cf3d3460567cbc4336", null ],
     [ "msk", "d5/d84/structneumann_1_1neumann__t.html#a638503614447154c642fcbc9bf5df9a6", null ],
     [ "msk_d", "d5/d84/structneumann_1_1neumann__t.html#a78a0e4bbf8808775dd18c3a5e041d92e", null ],
+    [ "name", "d5/d84/structneumann_1_1neumann__t.html#a68c65ffcae8364e96c10ab4815a2658c", null ],
     [ "strong", "d5/d84/structneumann_1_1neumann__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a", null ],
     [ "uniform_0", "d5/d84/structneumann_1_1neumann__t.html#a303a1603a04dace2a04324db96b21875", null ],
     [ "updated", "d5/d84/structneumann_1_1neumann__t.html#acec6ac3a12e639a12be6344c9b4e3208", null ],
-    [ "xh", "d5/d84/structneumann_1_1neumann__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ]
+    [ "xh", "d5/d84/structneumann_1_1neumann__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ],
+    [ "zone_indices", "d5/d84/structneumann_1_1neumann__t.html#a77af13b6f885bd953fff03b1afe50d0a", null ]
 ];

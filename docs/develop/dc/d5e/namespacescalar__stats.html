@@ -115,9 +115,9 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:aa902f89cca40665e088ac595047fe580" id="r_aa902f89cca40665e088ac595047fe580"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5e/namespacescalar__stats.html#aa902f89cca40665e088ac595047fe580">scalar_stats_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, s, u, v, w, p, set)</td></tr>
-<tr class="memdesc:aa902f89cca40665e088ac595047fe580"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initialize the fields associated with <a class="el" href="../../dc/d5e/namespacescalar__stats.html" title="Computes various statistics for the scalar fields. We use the Reynolds decomposition for a field u = ...">scalar_stats</a>.  <br /></td></tr>
-<tr class="separator:aa902f89cca40665e088ac595047fe580"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f4911f4e1d407ca0c857705c524f258" id="r_a7f4911f4e1d407ca0c857705c524f258"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5e/namespacescalar__stats.html#a7f4911f4e1d407ca0c857705c524f258">scalar_stats_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, s, u, v, w, p, set, name)</td></tr>
+<tr class="memdesc:a7f4911f4e1d407ca0c857705c524f258"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initialize the fields associated with <a class="el" href="../../dc/d5e/namespacescalar__stats.html" title="Computes various statistics for the scalar fields. We use the Reynolds decomposition for a field u = ...">scalar_stats</a>.  <br /></td></tr>
+<tr class="separator:a7f4911f4e1d407ca0c857705c524f258"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5566a78671c59995c5eeb1d7fd19c5a" id="r_aa5566a78671c59995c5eeb1d7fd19c5a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5e/namespacescalar__stats.html#aa5566a78671c59995c5eeb1d7fd19c5a">scalar_stats_update</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">k</a>)</td></tr>
 <tr class="memdesc:aa5566a78671c59995c5eeb1d7fd19c5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates all fields with a new sample.  <br /></td></tr>
 <tr class="separator:aa5566a78671c59995c5eeb1d7fd19c5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -155,12 +155,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html#l00620">620</a> of file <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html">scalar_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html#l00628">628</a> of file <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html">scalar_stats.f90</a>.</p>
 
 </div>
 </div>
-<a id="aa902f89cca40665e088ac595047fe580" name="aa902f89cca40665e088ac595047fe580"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa902f89cca40665e088ac595047fe580">&#9670;&#160;</a></span>scalar_stats_init()</h2>
+<a id="a7f4911f4e1d407ca0c857705c524f258" name="a7f4911f4e1d407ca0c857705c524f258"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f4911f4e1d407ca0c857705c524f258">&#9670;&#160;</a></span>scalar_stats_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -211,7 +211,13 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>set</em>&#160;</td>
+          <td class="paramname"><em>set</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -261,7 +267,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html#l00766">766</a> of file <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html">scalar_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html#l00774">774</a> of file <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html">scalar_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -289,7 +295,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html#l00705">705</a> of file <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html">scalar_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html#l00713">713</a> of file <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html">scalar_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -335,7 +341,7 @@ Functions/Subroutines</h2></td></tr>
 <p>Uf is u and Umf is <u></u></p>
 <p><u></u></p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html#l00330">330</a> of file <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html">scalar_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html#l00338">338</a> of file <a class="el" href="../../d7/dd3/scalar__stats_8f90_source.html">scalar_stats.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -384,7 +390,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d5e/namespacescalar__stats.html">scalar_stats</a></li>
-    <li class="footer">Generated on Thu Feb 12 2026 04:19:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Feb 13 2026 04:19:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

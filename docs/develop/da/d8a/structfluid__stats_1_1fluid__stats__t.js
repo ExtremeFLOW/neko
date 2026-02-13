@@ -1,7 +1,7 @@
 var structfluid__stats_1_1fluid__stats__t =
 [
     [ "free", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a0052df44bec383e76dbbc1e31bbc8c49", null ],
-    [ "init", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a268ff4e2f9b7b2cb768d3c521af2a02c", null ],
+    [ "init", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#ada8c8f68d695db5dd8a433791f61f952", null ],
     [ "make_strong_grad", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a3a7b0bacec3d677745631e2c952c705b", null ],
     [ "post_process", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a999e0feef61b72cf65e2c30aebb0b27c", null ],
     [ "reset", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#aba8910048ec997d4e0cefe9a8ba89cab", null ],

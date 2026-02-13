@@ -56,7 +56,7 @@ var searchData=
   ['scalar_5fscheme_5fvalidate_53',['scalar_scheme_validate',['../da/de3/namespacescalar__scheme.html#a6e4383936f487cdaaa5fffa09dc56155',1,'scalar_scheme']]],
   ['scalar_5fsource_5fterm_5finit_54',['scalar_source_term_init',['../d9/d13/namespacescalar__source__term.html#a9cf8dced71eca671ccada1a7bbb87d2e',1,'scalar_source_term']]],
   ['scalar_5fstats_5ffree_55',['scalar_stats_free',['../dc/d5e/namespacescalar__stats.html#a8456fad69bbe3d16c3cec058201eded7',1,'scalar_stats']]],
-  ['scalar_5fstats_5finit_56',['scalar_stats_init',['../dc/d5e/namespacescalar__stats.html#aa902f89cca40665e088ac595047fe580',1,'scalar_stats']]],
+  ['scalar_5fstats_5finit_56',['scalar_stats_init',['../dc/d5e/namespacescalar__stats.html#a7f4911f4e1d407ca0c857705c524f258',1,'scalar_stats']]],
   ['scalar_5fstats_5fmake_5fstrong_5fgrad_57',['scalar_stats_make_strong_grad',['../dc/d5e/namespacescalar__stats.html#a9f16421452c96ff7f4097483c68d25e9',1,'scalar_stats']]],
   ['scalar_5fstats_5foutput_5ffree_58',['scalar_stats_output_free',['../d0/d8f/namespacescalar__stats__output.html#a08b21984ad5ce9a122619a3ffe13cbe4',1,'scalar_stats_output']]],
   ['scalar_5fstats_5foutput_5finit_59',['scalar_stats_output_init',['../d0/d8f/namespacescalar__stats__output.html#ab889c059967073b70bdfb7565bb10b00',1,'scalar_stats_output']]],

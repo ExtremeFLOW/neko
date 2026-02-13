@@ -6,6 +6,7 @@ var dir_5333ab263fff069c320f5b66c5911c96 =
     [ "centrifugal_source_term.f90", "d7/dec/centrifugal__source__term_8f90.html", "d7/dec/centrifugal__source__term_8f90" ],
     [ "const_source_term.f90", "dc/dee/const__source__term_8f90.html", "dc/dee/const__source__term_8f90" ],
     [ "coriolis_source_term.f90", "da/df9/coriolis__source__term_8f90.html", "da/df9/coriolis__source__term_8f90" ],
+    [ "field_source_term.f90", "d2/d8e/field__source__term_8f90.html", "d2/d8e/field__source__term_8f90" ],
     [ "gradient_jump_penalty.f90", "db/da5/gradient__jump__penalty_8f90.html", "db/da5/gradient__jump__penalty_8f90" ],
     [ "source_term.f90", "df/d69/source__term_8f90.html", "df/d69/source__term_8f90" ],
     [ "source_term_fctry.f90", "d5/d3e/source__term__fctry_8f90.html", null ],

@@ -102,20 +102,20 @@ $(document).ready(function(){initNavTree('d0/d47/dev_patterns.html','../../'); i
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md37">A. Naming</a></li>
-<li class="level1"><a href="#autotoc_md38">B. Scope</a></li>
-<li class="level1"><a href="#autotoc_md39">C. Constructors and destructors.</a></li>
-<li class="level1"><a href="#autotoc_md40">D. Documentation</a></li>
-<li class="level1"><a href="#autotoc_md41">E. Design</a></li>
-<li class="level1"><a href="#autotoc_md42">F. Complex and Polymorphic arrays.</a><ul><li class="level2"><a href="#autotoc_md43">F.1. Object wrapper pattern</a></li>
-<li class="level2"><a href="#autotoc_md44">F.2. Object pointer pattern</a></li>
+<ul><li class="level1"><a href="#autotoc_md50">A. Naming</a></li>
+<li class="level1"><a href="#autotoc_md51">B. Scope</a></li>
+<li class="level1"><a href="#autotoc_md52">C. Constructors and destructors.</a></li>
+<li class="level1"><a href="#autotoc_md53">D. Documentation</a></li>
+<li class="level1"><a href="#autotoc_md54">E. Design</a></li>
+<li class="level1"><a href="#autotoc_md55">F. Complex and Polymorphic arrays.</a><ul><li class="level2"><a href="#autotoc_md56">F.1. Object wrapper pattern</a></li>
+<li class="level2"><a href="#autotoc_md57">F.2. Object pointer pattern</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="textblock"><p>This section aims to summarize the programming conventions in Neko to guide all developers into writing code with good style and facilitate the reuse of the same programming patterns throughout the code base. It is a good idea to check your code against the guidelines here before opening a PR.</p>
 <p>It should be noted that these are note followed universally throughout the code base as of now, but we should at least make all new code as clean as possible.</p>
-<h1><a class="anchor" id="autotoc_md37"></a>
+<h1><a class="anchor" id="autotoc_md50"></a>
 A. Naming</h1>
 <ol type="1">
 <li>Generally all names are lowercase, connected with <code>_</code> when needed. Some exceptions take place, e.g. <code>Re</code> for the Reynolds number and <code>Xh</code> for the function space, but these should be kept to a minimum.</li>
@@ -155,7 +155,7 @@ A. Naming</h1>
 <li>Use <code>free</code> for destructor TBPs.</li>
 <li>The dummy argument, which is <code>pass</code>ed to TBPs should be called <code>this</code>.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md38"></a>
+<h1><a class="anchor" id="autotoc_md51"></a>
 B. Scope</h1>
 <ol type="1">
 <li><p class="startli">Always use <code>only</code> when <code>using</code> something from another module. The <code>neko</code> module is an exception and imports everything. Additionally, current compiler limitations make it impossible to use <code>only</code> with <code>comm</code> and <code>device</code>.</p>
@@ -167,7 +167,7 @@ B. Scope</h1>
 <p class="startli">We are generally quite permissive in terms of access and rely on the developers' good judgement to not mess with the types in the wrong way. That being said, using <code>private</code> is not discouraged in any way.</p>
 </li>
 </ol>
-<h1><a class="anchor" id="autotoc_md39"></a>
+<h1><a class="anchor" id="autotoc_md52"></a>
 C. Constructors and destructors.</h1>
 <ol type="1">
 <li>If the type has a destructor, the constructor must begin with calling the destructor.</li>
@@ -180,7 +180,7 @@ C. Constructors and destructors.</h1>
 <li>In the type hierarchy, <code>init</code> should be the name of the constructor, which is introduced as a deferred procedure in the base abstract class. Same for <code>free</code> for the destructor.</li>
 <li>All type components should be fully initialized in the constructor, e.g. pointers should be associated, allocatable types allocated, etc. This implies that the constructor interface should be sufficient for the type to fully take care of its own initialization.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md40"></a>
+<h1><a class="anchor" id="autotoc_md53"></a>
 D. Documentation</h1>
 <ol type="1">
 <li>All procedures and interfaces must be documented, with the <em>minimal</em> requirement being a one-liner telling what the procedure does followed by <code>@param</code>s describing all the dummy arguments.</li>
@@ -192,7 +192,7 @@ D. Documentation</h1>
 <p class="startli">The alternative is to put it on the same line as the component, but it only works for short docstrings and cannot be multiline. Since a future component may require a long docstring, and mixing the styles does not look nice, it is better to default to putting the string above.</p>
 </li>
 </ol>
-<h1><a class="anchor" id="autotoc_md41"></a>
+<h1><a class="anchor" id="autotoc_md54"></a>
 E. Design</h1>
 <p>The points here are mostly things to consider rather than strict rules. Hopefully, they can guide towards better implementation.</p>
 <ol type="1">
@@ -212,13 +212,13 @@ E. Design</h1>
 <p class="startli">True code duplication is when a change in one place will also necessary a change in the other.</p>
 </li>
 </ol>
-<h1><a class="anchor" id="autotoc_md42"></a>
+<h1><a class="anchor" id="autotoc_md55"></a>
 F. Complex and Polymorphic arrays.</h1>
 <p>We often need to use arrays of complex or polymorphic types. Objects which support this, must implement a wrapper type following one of the two patterns below.</p><ul>
 <li>A wrapper type, maintain the lifetime of the object it wraps, allocating and deallocating it as needed.</li>
 <li>A pointer type, which just holds a pointer to an object managed elsewhere. These can be good to group a bunch of objects for easier access elsewhere.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md43"></a>
+<h2><a class="anchor" id="autotoc_md56"></a>
 F.1. Object wrapper pattern</h2>
 <div class="fragment"><div class="line"><span class="keyword">type</span> :: object_wrapper_t</div>
 <div class="line">   <span class="keywordtype">type</span>(object_t), <span class="keywordtype">pointer</span> :: obj =&gt; null()</div>
@@ -241,7 +241,7 @@ F.1. Object wrapper pattern</h2>
 <div class="line">          <span class="keyword">deallocate</span>(this%obj)</div>
 <div class="line"><span class="keywordflow">     end if</span></div>
 <div class="line"><span class="keyword">end subroutine</span></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md44"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md57"></a>
 F.2. Object pointer pattern</h2>
 <div class="fragment"><div class="line"><span class="keyword">type</span> :: object_ptr_t</div>
 <div class="line">   <span class="keywordtype">type</span>(object_t), <span class="keywordtype">pointer</span> :: ptr =&gt; null()</div>
@@ -268,7 +268,7 @@ F.2. Object pointer pattern</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Thu Feb 12 2026 04:19:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Feb 13 2026 04:19:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

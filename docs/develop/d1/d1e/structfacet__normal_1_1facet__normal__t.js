@@ -34,6 +34,7 @@ var structfacet__normal_1_1facet__normal__t =
     [ "msh", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#ac9c45a8ed2e761cf3d3460567cbc4336", null ],
     [ "msk", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a638503614447154c642fcbc9bf5df9a6", null ],
     [ "msk_d", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a78a0e4bbf8808775dd18c3a5e041d92e", null ],
+    [ "name", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a68c65ffcae8364e96c10ab4815a2658c", null ],
     [ "nx", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a96f35a70f57094f13696abd95f92a0cc", null ],
     [ "ny", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#ac8bb6c2b7ae9dc39b870d48c845845f5", null ],
     [ "nz", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#abe2ddad9ea6cd779e935a989762e7abf", null ],
@@ -42,5 +43,6 @@ var structfacet__normal_1_1facet__normal__t =
     [ "unique_mask_d", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#aab18b25dd0adea59b1e6b496902c64af", null ],
     [ "updated", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#acec6ac3a12e639a12be6344c9b4e3208", null ],
     [ "work", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a317048002c05211513e47b9e9b7bd8ba", null ],
-    [ "xh", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ]
+    [ "xh", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ],
+    [ "zone_indices", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a77af13b6f885bd953fff03b1afe50d0a", null ]
 ];

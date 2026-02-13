@@ -32,7 +32,7 @@ var searchData=
   ['ax_5fhelm_5ffull_2ehip_29',['ax_helm_full.hip',['../d0/de7/ax__helm__full_8hip.html',1,'']]],
   ['ax_5fhelm_5ffull_5fcpu_2ef90_30',['ax_helm_full_cpu.f90',['../db/d43/ax__helm__full__cpu_8f90.html',1,'']]],
   ['ax_5fhelm_5ffull_5fdevice_2ef90_31',['ax_helm_full_device.F90',['../dd/d4d/ax__helm__full__device_8F90.html',1,'']]],
-  ['ax_5fhelm_5ffull_5fkernel_2eh_32',['ax_helm_full_kernel.h',['../df/d1b/hip_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)'],['../d0/d7e/cuda_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)']]],
+  ['ax_5fhelm_5ffull_5fkernel_2eh_32',['ax_helm_full_kernel.h',['../d0/d7e/cuda_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)'],['../df/d1b/hip_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)']]],
   ['ax_5fhelm_5fkernel_2eh_33',['ax_helm_kernel.h',['../db/d6f/cuda_2ax__helm__kernel_8h.html',1,'(Global Namespace)'],['../d6/da8/hip_2ax__helm__kernel_8h.html',1,'(Global Namespace)']]],
   ['ax_5fhelm_5fsx_2ef90_34',['ax_helm_sx.f90',['../dd/d7b/ax__helm__sx_8f90.html',1,'']]],
   ['ax_5fhelm_5fxsmm_2ef90_35',['ax_helm_xsmm.F90',['../dd/de0/ax__helm__xsmm_8F90.html',1,'']]]

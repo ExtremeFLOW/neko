@@ -14,7 +14,7 @@ var structprobes_1_1probes__t =
     [ "init_base_from_components", "d7/dd3/structprobes_1_1probes__t.html#a241adc4d95c7cfb4e70c0f98d694f025", null ],
     [ "init_base_from_controllers", "d7/dd3/structprobes_1_1probes__t.html#a825c2a7c5324368d09e640de6ceb56c2", null ],
     [ "init_base_from_controllers_properties", "d7/dd3/structprobes_1_1probes__t.html#abb6fa7aea500041acfd41898443d711a", null ],
-    [ "init_from_components", "d7/dd3/structprobes_1_1probes__t.html#aadaafcb06e854f37a66077881dbf295a", null ],
+    [ "init_from_components", "d7/dd3/structprobes_1_1probes__t.html#a5b247a5e842e12f4e567b5777de51b69", null ],
     [ "parse_json", "d7/dd3/structprobes_1_1probes__t.html#a93f0c44c82b7f9d4db4a485f5e3cdcd8", null ],
     [ "preprocess", "d7/dd3/structprobes_1_1probes__t.html#a6885b522092cb5a27728f28748391969", null ],
     [ "preprocess_", "d7/dd3/structprobes_1_1probes__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],

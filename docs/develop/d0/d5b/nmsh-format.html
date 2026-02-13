@@ -102,21 +102,21 @@ $(document).ready(function(){initNavTree('d0/d5b/nmsh-format.html','../../'); in
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md6">File overview</a></li>
-<li class="level1"><a href="#autotoc_md7">Data types and portability</a></li>
-<li class="level1"><a href="#autotoc_md8">Element records</a><ul><li class="level2"><a href="#autotoc_md9">Vertex record (&lt;tt&gt;nmsh_vertex_t&lt;/tt&gt;)</a></li>
-<li class="level2"><a href="#autotoc_md10">Quad record (&lt;tt&gt;nmsh_quad_t&lt;/tt&gt;)</a></li>
-<li class="level2"><a href="#autotoc_md11">Hex record (&lt;tt&gt;nmsh_hex_t&lt;/tt&gt;)</a></li>
-<li class="level2"><a href="#autotoc_md12">Vertex ordering</a></li>
+<ul><li class="level1"><a href="#autotoc_md19">File overview</a></li>
+<li class="level1"><a href="#autotoc_md20">Data types and portability</a></li>
+<li class="level1"><a href="#autotoc_md21">Element records</a><ul><li class="level2"><a href="#autotoc_md22">Vertex record (&lt;tt&gt;nmsh_vertex_t&lt;/tt&gt;)</a></li>
+<li class="level2"><a href="#autotoc_md23">Quad record (&lt;tt&gt;nmsh_quad_t&lt;/tt&gt;)</a></li>
+<li class="level2"><a href="#autotoc_md24">Hex record (&lt;tt&gt;nmsh_hex_t&lt;/tt&gt;)</a></li>
+<li class="level2"><a href="#autotoc_md25">Vertex ordering</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md13">Zone records (boundary and periodic data)</a></li>
-<li class="level1"><a href="#autotoc_md14">Curve records (curved edges/faces)</a></li>
-<li class="level1"><a href="#autotoc_md15">2D meshes</a></li>
+<li class="level1"><a href="#autotoc_md26">Zone records (boundary and periodic data)</a></li>
+<li class="level1"><a href="#autotoc_md27">Curve records (curved edges/faces)</a></li>
+<li class="level1"><a href="#autotoc_md28">2D meshes</a></li>
 </ul>
 </div>
 <div class="textblock"><p>This appendix documents the Neko binary mesh format (<code>.nmsh</code>) as implemented in <code><a class="el" href="../../d6/d6f/nmsh_8f90.html">src/io/format/nmsh.f90</a></code> and <code><a class="el" href="../../d8/d33/nmsh__file_8f90.html">src/io/nmsh_file.f90</a></code>. The format is written and read with MPI-IO using MPI derived types, so the on-disk layout mirrors the in-memory layout of the Fortran derived types.</p>
-<h1><a class="anchor" id="autotoc_md6"></a>
+<h1><a class="anchor" id="autotoc_md19"></a>
 File overview</h1>
 <p>An <code>.nmsh</code> file is a binary stream with the following blocks, in order:</p>
 <ol type="1">
@@ -142,7 +142,7 @@ File overview</h1>
 </li>
 </ol>
 <p>If <code>nzones</code> or <code>ncurves</code> is zero, the corresponding record array is omitted.</p>
-<h1><a class="anchor" id="autotoc_md7"></a>
+<h1><a class="anchor" id="autotoc_md20"></a>
 Data types and portability</h1>
 <p>The file uses:</p>
 <ul>
@@ -151,9 +151,9 @@ Data types and portability</h1>
 </ul>
 <p>The layout is <b>not self-describing</b>. It depends on the platform endianness, <code>MPI_INTEGER</code> size, and Fortran derived-type padding/alignment. In practice, all <code>.nmsh</code> files in this repository are little-endian with 32-bit integers, but external readers should <b>not</b> assume this. For robust I/O, use Neko's <code><a class="el" href="../../da/dd2/namespacenmsh__file.html" title="Neko binary mesh data.">nmsh_file</a></code> reader/writer or convert via <code>rea2nbin</code>.</p>
 <p>All element and vertex indices stored in the file are <b>global, 1-based</b> ids as used by Neko internally.</p>
-<h1><a class="anchor" id="autotoc_md8"></a>
+<h1><a class="anchor" id="autotoc_md21"></a>
 Element records</h1>
-<h2><a class="anchor" id="autotoc_md9"></a>
+<h2><a class="anchor" id="autotoc_md22"></a>
 Vertex record (&lt;tt&gt;nmsh_vertex_t&lt;/tt&gt;)</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -163,7 +163,7 @@ Vertex record (&lt;tt&gt;nmsh_vertex_t&lt;/tt&gt;)</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>v_xyz</code>   </td><td class="markdownTableBodyNone"><code>MPI_DOUBLE_PRECISION[3]</code>   </td><td class="markdownTableBodyNone">Vertex coordinates (x, y, z)   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md10"></a>
+<h2><a class="anchor" id="autotoc_md23"></a>
 Quad record (&lt;tt&gt;nmsh_quad_t&lt;/tt&gt;)</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -173,7 +173,7 @@ Quad record (&lt;tt&gt;nmsh_quad_t&lt;/tt&gt;)</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code><a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v(1:4)</a></code>   </td><td class="markdownTableBodyNone">4×<code>nmsh_vertex_t</code>   </td><td class="markdownTableBodyNone">Quad vertices   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<h2><a class="anchor" id="autotoc_md24"></a>
 Hex record (&lt;tt&gt;nmsh_hex_t&lt;/tt&gt;)</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -183,12 +183,12 @@ Hex record (&lt;tt&gt;nmsh_hex_t&lt;/tt&gt;)</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code><a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v(1:8)</a></code>   </td><td class="markdownTableBodyNone">8×<code>nmsh_vertex_t</code>   </td><td class="markdownTableBodyNone">Hex vertices   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md25"></a>
 Vertex ordering</h2>
 <p>The writer stores vertices using the <code>vcyc_to_sym</code> mapping in <code><a class="el" href="../../d8/d33/nmsh__file_8f90.html">src/io/nmsh_file.f90</a></code>:</p>
 <div class="fragment"><div class="line">[1, 2, 4, 3, 5, 6, 8, 7]</div>
 </div><!-- fragment --><p>This is the ordering used for the <code>nmsh_hex_t</code> / <code>nmsh_quad_t</code> records. The reader swaps vertices when constructing elements to restore Neko's internal ordering. External tools should preserve the file ordering as-is.</p>
-<h1><a class="anchor" id="autotoc_md13"></a>
+<h1><a class="anchor" id="autotoc_md26"></a>
 Zone records (boundary and periodic data)</h1>
 <p>The zone record is defined by <code>nmsh_zone_t</code>:</p>
 <table class="markdownTable">
@@ -213,7 +213,7 @@ Zone records (boundary and periodic data)</h1>
 <li><code>type = 7</code>: labeled facet. <code>p_f</code> stores the zone label index.</li>
 </ul>
 <p>Other zone types are not emitted by the current writer.</p>
-<h1><a class="anchor" id="autotoc_md14"></a>
+<h1><a class="anchor" id="autotoc_md27"></a>
 Curve records (curved edges/faces)</h1>
 <p>The curve record is defined by <code>nmsh_curve_el_t</code>:</p>
 <table class="markdownTable">
@@ -233,7 +233,7 @@ Curve records (curved edges/faces)</h1>
 <li><code>4</code>: mapped curve (<code>'m'</code> in <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code>)</li>
 </ul>
 <p>Other curve types (e.g. <code>1</code> / <code>2</code> from <code>'s'</code> / <code>'e'</code>) are read but treated as unsupported by the importer.</p>
-<h1><a class="anchor" id="autotoc_md15"></a>
+<h1><a class="anchor" id="autotoc_md28"></a>
 2D meshes</h1>
 <p>If the header <code>gdim</code> is <code>2</code>, the file stores <code>nmsh_quad_t</code> records. The reader in <code>nmsh_file_read_2d</code> extrudes these into a thin 3D slab:</p>
 <ul>
@@ -249,7 +249,7 @@ Curve records (curved edges/faces)</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../da/dd6/appendices.html">Appendices</a></li>
-    <li class="footer">Generated on Thu Feb 12 2026 04:19:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Feb 13 2026 04:19:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

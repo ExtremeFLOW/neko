@@ -251,6 +251,7 @@ var namespaces_dup =
     ] ],
     [ "field_series", "d6/d32/namespacefield__series.html", "d6/d32/namespacefield__series" ],
     [ "field_series_list", "d5/d67/namespacefield__series__list.html", "d5/d67/namespacefield__series__list" ],
+    [ "field_source_term", "d4/d48/namespacefield__source__term.html", "d4/d48/namespacefield__source__term" ],
     [ "field_writer", "d9/dde/namespacefield__writer.html", "d9/dde/namespacefield__writer" ],
     [ "file", "da/d16/namespacefile.html", "da/d16/namespacefile" ],
     [ "filter", "d1/da4/namespacefilter.html", "d1/da4/namespacefilter" ],

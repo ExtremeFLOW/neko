@@ -115,9 +115,9 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a9bcfeb263302e7a74d442e1c1ccbf211" id="r_a9bcfeb263302e7a74d442e1c1ccbf211"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a9bcfeb263302e7a74d442e1c1ccbf211">fluid_stats_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, u, v, w, p, set)</td></tr>
-<tr class="memdesc:a9bcfeb263302e7a74d442e1c1ccbf211"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initialize the fields associated with <a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a>.  <br /></td></tr>
-<tr class="separator:a9bcfeb263302e7a74d442e1c1ccbf211"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adab54503649ea105c5f59518ce968d10" id="r_adab54503649ea105c5f59518ce968d10"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#adab54503649ea105c5f59518ce968d10">fluid_stats_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, u, v, w, p, set, name)</td></tr>
+<tr class="memdesc:adab54503649ea105c5f59518ce968d10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initialize the fields associated with <a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a>.  <br /></td></tr>
+<tr class="separator:adab54503649ea105c5f59518ce968d10"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f4f6b67d4aaee16ce1a646a3d23e844" id="r_a4f4f6b67d4aaee16ce1a646a3d23e844"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844">fluid_stats_update</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">k</a>)</td></tr>
 <tr class="memdesc:a4f4f6b67d4aaee16ce1a646a3d23e844"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates all fields with a new sample.  <br /></td></tr>
 <tr class="separator:a4f4f6b67d4aaee16ce1a646a3d23e844"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -158,12 +158,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00572">572</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00582">582</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
-<a id="a9bcfeb263302e7a74d442e1c1ccbf211" name="a9bcfeb263302e7a74d442e1c1ccbf211"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9bcfeb263302e7a74d442e1c1ccbf211">&#9670;&#160;</a></span>fluid_stats_init()</h2>
+<a id="adab54503649ea105c5f59518ce968d10" name="adab54503649ea105c5f59518ce968d10"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adab54503649ea105c5f59518ce968d10">&#9670;&#160;</a></span>fluid_stats_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -208,7 +208,13 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>set</em>&#160;</td>
+          <td class="paramname"><em>set</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -259,7 +265,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00710">710</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00720">720</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -333,7 +339,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00766">766</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00776">776</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -361,7 +367,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00654">654</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00664">664</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -407,7 +413,7 @@ Functions/Subroutines</h2></td></tr>
 <p>Uf is u and Umf is <u></u></p>
 <p><u></u></p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00313">313</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00323">323</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -460,7 +466,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/d7d/namespacefluid__stats.html">fluid_stats</a></li>
-    <li class="footer">Generated on Thu Feb 12 2026 04:19:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Feb 13 2026 04:19:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

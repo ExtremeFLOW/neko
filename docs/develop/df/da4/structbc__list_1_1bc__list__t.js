@@ -15,6 +15,8 @@ var structbc__list_1_1bc__list__t =
     [ "apply_vector_field", "df/da4/structbc__list_1_1bc__list__t.html#a9f9cde634c2a24f507f4333b093b3bd8", null ],
     [ "free", "df/da4/structbc__list_1_1bc__list__t.html#a1e15ce0834a1718fa195f505d540b09d", null ],
     [ "get", "df/da4/structbc__list_1_1bc__list__t.html#a9b57ca3253074dae1eacecf10de1cd14", null ],
+    [ "get_by_name", "df/da4/structbc__list_1_1bc__list__t.html#a89cdc0968bb871bbb4583d8435321265", null ],
+    [ "get_by_zone_index", "df/da4/structbc__list_1_1bc__list__t.html#a722a14184e9c67d90cae4a55c5495ec5", null ],
     [ "init", "df/da4/structbc__list_1_1bc__list__t.html#ad3827f09da91ced4275cba1295463275", null ],
     [ "is_empty", "df/da4/structbc__list_1_1bc__list__t.html#add34d05d8c9a67779c2a885f815dba16", null ],
     [ "size", "df/da4/structbc__list_1_1bc__list__t.html#a4004b00b09fbae0a6b1f5ca6e41402da", null ],

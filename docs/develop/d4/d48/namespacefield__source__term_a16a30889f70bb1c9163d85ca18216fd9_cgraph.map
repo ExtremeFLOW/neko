@@ -1,0 +1,9 @@
+<map id="field_source_term::field_source_term_compute" name="field_source_term::field_source_term_compute">
+<area shape="rect" id="Node000001" title="Computes the source term and adds the result to fields." alt="" coords="5,23,208,63"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a8ab404025f5d8cd75e11241fbb8735e3" title="Vector addition ." alt="" coords="256,31,423,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,41,242,41,242,46,208,46"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="521,5,617,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,31,507,22,507,27,423,37"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="471,55,667,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="423,49,457,53,457,58,423,55"/>
+</map>
