@@ -180,6 +180,9 @@ module hypre_ij_interface
      end function HYPRE_IJVectorGetObject
   end interface
 
+  public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_destroy
+  public :: hypre_vector_init, hypre_vector_fill, hypre_vector_assemble, hypre_vector_destroy
+
 contains
 
   !-----------------------------------------------------------------------------
