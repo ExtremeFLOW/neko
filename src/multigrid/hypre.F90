@@ -3,8 +3,6 @@ module hypre
   implicit none
   private
 
-  include 'HYPRE.h'
-
   interface
       integer (c_int) function HYPRE_Initialize() &
            bind(c, name='HYPRE_Initialize')
@@ -19,6 +17,8 @@ module hypre
       end function HYPRE_Finalize
   end interface
 
+  public :: hypre_init, hypre_fin
+
 contains
 
   subroutine hypre_init()
@@ -31,9 +31,9 @@ contains
      !call HYPRE_SetSpGemmUseVendor(0, ierr)
   end subroutine hypre_init
 
-  subroutine hypre_finalize()
+  subroutine hypre_fin()
      integer :: ierr
      ierr = HYPRE_Finalize()
-  end subroutine hypre_finalize
+  end subroutine hypre_fin
 
 end module hypre

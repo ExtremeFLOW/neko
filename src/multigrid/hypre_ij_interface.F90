@@ -3,7 +3,8 @@ module hypre_ij_interface
   implicit none
   private
 
-  include 'HYPRE.h'
+  ! HYPRE types
+  integer(c_int), parameter :: HYPRE_PARCSR = 5555
 
   ! Matrix creation and assembly
   interface
@@ -178,7 +179,7 @@ contains
      ! Create the matrix object
      ierr = HYPRE_IJMatrixCreate(mpi_comm, ilower, iupper, jlower, jupper, A)
      ! Choose a parallel csr format storage (see hypre's user manual)
-     ierr = HYPRE_IJ_MatrixSetObjectType(A, HYPRE_PARCSR)
+     ierr = HYPRE_IJMatrixSetObjectType(A, HYPRE_PARCSR)
      ! Initialize before setting coefficients
      ierr = HYPRE_IJMatrixInitialize(A)
   end subroutine hypre_matrix_init
@@ -268,7 +269,7 @@ contains
   subroutine hypre_vector_destroy(v)
      type(c_ptr), intent(inout) :: v
      integer :: ierr
-     ierr = HYPRE_IJVectorDestroy(A)
+     ierr = HYPRE_IJVectorDestroy(v)
   end subroutine hypre_vector_destroy
 
 end module hypre_ij_interface
