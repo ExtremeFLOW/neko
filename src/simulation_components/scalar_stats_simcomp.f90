@@ -170,7 +170,7 @@ contains
     call neko_log%message(log_buf)
 
 
-    call this%stats%init(coef, s, u, v, w, p, stat_set)
+    call this%stats%init(coef, s, u, v, w, p, stat_set, name)
 
     this%start_time = start_time
     this%time = start_time
