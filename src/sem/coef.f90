@@ -39,14 +39,15 @@ module coefs
   use dofmap, only : dofmap_t
   use space, only: space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
-       chsign, rzero, invers2, glsum, NEKO_EPS
+       chsign, rzero, invers2, glsum, absval, NEKO_EPS
   use mesh, only : mesh_t
   use device_math, only : device_rone, device_invcol1, device_glsum
   use device_coef, only : device_coef_generate_geo, &
        device_coef_generate_dxydrst
   use mxm_wrapper, only : mxm
   use device
-  use utils, only : index_is_on_facet, linear_index, neko_error
+  use utils, only : index_is_on_facet, linear_index, &
+       neko_error, neko_warning
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -159,6 +160,7 @@ module coefs
      procedure, pass(this) :: free => coef_free
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
+     procedure, pass(this) :: check_cyclic => coef_check_cyclic
      generic :: init => init_empty, init_all
   end type coef_t
 
@@ -393,7 +395,7 @@ contains
           call device_memcpy(this%R11, this%R11_d, ncyc, HOST_TO_DEVICE, sync=.false.)
           call device_memcpy(this%R12, this%R12_d, ncyc, HOST_TO_DEVICE, sync=.false.)
        end if
-       call coef_generate_cyclic_bc(this)
+
     end if
   end subroutine coef_init_all
 
@@ -1217,7 +1219,6 @@ contains
 
   end subroutine coef_generate_area_and_normal
 
-
   subroutine coef_generate_cyclic_bc(coef)
     type(coef_t), intent(inout) :: coef
     real(kind=rp) :: un(3), len, d
@@ -1230,7 +1231,6 @@ contains
     lz = coef%Xh%lz
     ncyc = coef%cyc_msk(0) - 1
     nc = 1
-
     do n = 1, np
        pf = coef%msh%periodic%facet_el(n)%x(1)
        pe = coef%msh%periodic%facet_el(n)%x(2)
@@ -1240,6 +1240,7 @@ contains
                 if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
                    un = coef%get_normal(i, j, k, pe, pf)
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
+                   !The following if be redundant but kept deliberately.
                    if (len.gt.NEKO_EPS) then
                       d = coef%dof%y(i, j, k, pe) * un(1) &
                         - coef%dof%x(i, j, k, pe) * un(2)
@@ -1249,9 +1250,9 @@ contains
                       coef%R12(nc) = un(2) / len * sign(1.0_rp, d)
                       nc = nc + 1
                    else
-                      call neko_error("Cyclic assumes rotation around" // &
-                                      " z-axis. x and y components of" // &
-                                      " surface normals are zero.")
+                      call neko_error("x and y components of surface normals " // &
+                                      "are zero. Cyclic rotations must be " // &
+                                      "around z-axis.")
                    end if
                 end if
              end do
@@ -1260,8 +1261,8 @@ contains
     end do
 
     if (nc - 1 /= ncyc) then
-       call neko_error("The number of cyclic GLL points were" // &
-                       " not estimated correct.")
+       call neko_error("The number of cyclic GLL points were " // &
+                       "not estimated correctly.")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -1272,5 +1273,115 @@ contains
 
   end subroutine coef_generate_cyclic_bc
 
+
+  subroutine coef_check_cyclic(this)
+    class(coef_t), intent(inout) :: this
+    !DSS is applied on vector field "norm" with all zeros
+    !except values equal to surface normals at periodic
+    !faces. The results must sum to zero
+    !Check happens in two passes -
+    !>ipass = 1 : DSS in Cartesian coordinates. If it yields 0,
+    !no cyclic rotation is required and must be switched off
+    !>ipass = 2 : DSS in TNB basis (rotation around z-axis)
+    !If yields 0, cyclic rotation is required and must be
+    !switched on. If not, then the current rotation logic
+    !is not sufficient and must be modified.
+    !The logic stops the program when cyclic flag is true
+    !but not required. The remaining cases throw warning only.
+    integer :: np, n, lx, pf, pe, i, j, k, nc, ipass, ntot, ncyc
+    real(kind=rp) :: un(3)
+    real(kind=rp), allocatable :: normx(:,:,:,:)
+    real(kind=rp), allocatable :: normy(:,:,:,:)
+    real(kind=rp), allocatable :: normz(:,:,:,:)
+    logical :: norm_dss = .false.
+
+    np = this%msh%periodic%size
+    lx = this%Xh%lx
+    ntot = this%dof%size()
+    ncyc = np*lx*lx
+
+    if (np .eq. 0) then
+       call neko_error("There are no periodic boundaries. " // &
+                      "Switch cyclic off in the case file.")
+    end if
+
+    allocate(normx(lx, lx, lx, this%msh%nelv))
+    allocate(normy(lx, lx, lx, this%msh%nelv))
+    allocate(normz(lx, lx, lx, this%msh%nelv))
+
+
+
+    do ipass = 1, 2
+       call rzero(normx, ntot)
+       call rzero(normy, ntot)
+       call rzero(normz, ntot)
+
+       if (ipass .eq. 2) then
+          call coef_generate_cyclic_bc(this)
+       end if
+
+       nc = 1
+       do n = 1, np
+          pf = this%msh%periodic%facet_el(n)%x(1)
+          pe = this%msh%periodic%facet_el(n)%x(2)
+          do k = 1, lx
+             do j = 1, lx
+                do i = 1, lx
+                   if (index_is_on_facet(i, j, k, lx, lx, lx, pf)) then
+                      un = this%get_normal(i, j, k, pe, pf)
+                      normx(i,j,k,pe) = un(1) * this%R11(nc) &
+                                     + un(2) * this%R12(nc)
+
+                      normy(i,j,k,pe) =-un(1) * this%R12(nc) &
+                                     + un(2) * this%R11(nc)
+
+                      normz(i,j,k,pe) = un(3)
+                      nc = nc + 1
+                   end if
+                end do
+             end do
+          end do
+       end do
+
+       call this%gs_h%op(normx, ntot, GS_OP_ADD)
+       call this%gs_h%op(normy, ntot, GS_OP_ADD)
+       call this%gs_h%op(normz, ntot, GS_OP_ADD)
+       call absval(normx, ntot)
+       call absval(normy, ntot)
+       call absval(normz, ntot)
+
+       norm_dss = glsum(normx, ntot)/ntot .lt. 10*neko_eps .and. &
+                 glsum(normy, ntot)/ntot .lt. 10*neko_eps .and. &
+                 glsum(normz, ntot)/ntot .lt. 10*neko_eps
+
+       if (ipass .eq. 1) then
+          if (norm_dss) then
+             if (this%cyclic) then
+                call neko_error("Cyclic rotation is not required. " // &
+                                "Switch it off in case file.")
+             else
+                exit !no need to go through ipass = 2
+             end if
+             !else : check in ipass=2 if the rotation logic is required & sufficient.
+          end if
+
+       else if (ipass .eq. 2) then
+          if (norm_dss) then
+             if (this%cyclic .eqv. .false.) then
+                call neko_warning("Cyclic rotation is required. " // &
+                                  "Switch it on in the case file.")
+                !else: Rotation is required and cyclic flag is true. Proceed
+             end if
+          else
+             call neko_warning("Cylic rotation is required, but " // &
+                               "rotation logic must be modified.")
+          end if
+       end if
+
+    end do
+    deallocate(normx)
+    deallocate(normy)
+    deallocate(normz)
+  end subroutine coef_check_cyclic
 
 end module coefs
