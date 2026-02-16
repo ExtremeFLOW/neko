@@ -1240,7 +1240,6 @@ contains
                 if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
                    un = coef%get_normal(i, j, k, pe, pf)
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
-                   !The following might be redundant but kept deliberately.
                    if (len.gt.NEKO_EPS) then
                       d = coef%dof%y(i, j, k, pe) * un(1) &
                         - coef%dof%x(i, j, k, pe) * un(2)
@@ -1358,7 +1357,7 @@ contains
                 call neko_error("Cyclic rotation is not required. " // &
                                 "Switch it off in case file.")
              else
-                exit !no need to go through ipass = 2
+                exit !no need to go ipass=2. R11, R12 = default values.
              end if
              !else : check in ipass=2 if the rotation logic is required & sufficient.
           end if
@@ -1368,6 +1367,8 @@ contains
              if (this%cyclic .eqv. .false.) then
                 call neko_warning("Cyclic rotation is required. " // &
                                   "Switch it on in the case file.")
+                !R11 and R12 are not defaults but rotate_cyc will not work
+                !as coef%cyclic is false
                 !else: Rotation is required and cyclic flag is true. Proceed.
              end if
           else
