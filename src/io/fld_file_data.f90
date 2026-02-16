@@ -23,31 +23,31 @@ module fld_file_data
   private
 
   type, public :: fld_file_data_t
-     type(vector_t) :: x !< x-coords
-     type(vector_t) :: y !< y-coords
-     type(vector_t) :: z !< z-coords
-     type(vector_t) :: u !< x-velocity field
-     type(vector_t) :: v !< y-velocity field
-     type(vector_t) :: w !< z-velocity field
-     type(vector_t) :: p !< pressure field
-     type(vector_t) :: t !< temperature
-     integer, allocatable :: idx(:) !< element idxs
-     type(vector_t), allocatable :: s(:) !< Numbered scalar fields
-     integer :: gdim !< spatial dimensions
-     integer :: n_scalars = 0 !< number of numbered scalar fields
-     real(kind=rp) :: time = 0.0 !< time of sample
-     integer :: glb_nelv = 0 !< global number of elements
-     integer :: nelv = 0 !< n elements on the pe
-     integer :: offset_el = 0 !< element offset for this pe
-     integer :: lx = 0 !< N GLL points in x
-     integer :: ly = 0
-     integer :: lz = 0
-     integer :: t_counter = 0 !< counter of samples
+     type(vector_t) :: x !< x-coordinates.
+     type(vector_t) :: y !< y-coordinates.
+     type(vector_t) :: z !< z-coordinates.
+     type(vector_t) :: u !< x-velocity field.
+     type(vector_t) :: v !< y-velocity field.
+     type(vector_t) :: w !< z-velocity field.
+     type(vector_t) :: p !< Pressure field.
+     type(vector_t) :: t !< Temperature field.
+     integer, allocatable :: idx(:) !< element indices.
+     type(vector_t), allocatable :: s(:) !< Numbered scalar fields.
+     integer :: gdim !< Spatial dimensions.
+     integer :: n_scalars = 0 !< Number of numbered scalar fields.
+     real(kind=rp) :: time = 0.0 !< Time of latest sample/read.
+     integer :: glb_nelv = 0 !< Global number of elements.
+     integer :: nelv = 0 !< Number of elements on this rank.
+     integer :: offset_el = 0 !< Element offset for this rank.
+     integer :: lx = 0 !< Number of GLL points in x.
+     integer :: ly = 0 !< Number of GLL points in y.
+     integer :: lz = 0 !< Number of GLL points in z.
+     integer :: t_counter = 0 !< counter of samples.
      ! meta file information (if any)
-     !> number of samples specified in .nek5000 file
+     !> Number of samples specified in .nek5000 file.
      integer :: meta_nsamples = 0
-     integer :: meta_start_counter = 0 !< number of first field
-     !> name of fld series as specified in .nek5000 (meta) file
+     integer :: meta_start_counter = 0 !< Index of the first field file.
+     !> name of fld series as specified in .nek5000 (meta) file.
      character(len=1024) :: fld_series_fname
    contains
      procedure, pass(this) :: init => fld_file_data_init
@@ -67,7 +67,31 @@ module fld_file_data
 
 contains
 
-  !> Reads an fld file and import fields, with/without interpolation.
+  !> Imports fields from an fld_file_data object, potentially with 
+  !! interpolation.
+  !! @param this fld_data object. Must already be initialized, no
+  !! checks are done.
+  !! @param u The field on which to import the u component of the fld data.
+  !! @param v The field on which to import the v component of the fld data.
+  !! @param w The field on which to import the w component of the fld data.
+  !! @param p The field on which to import the pressure field of the fld data.
+  !! @param t The field on which to import the temperature field of the fld 
+  !! data.
+  !! @param s_tgt_list Field list containing the fields on which to import the
+  !! scalar fields of the fld data. Unless a list of target indices is 
+  !! provided in `s_idx_list`, assigns field `i` to scalar `i`.
+  !! @param s_idx_list The list of target scalars from which to load the 
+  !! fields provided in s_tgt_list. Must have the same size as `s_tgt_list`.
+  !! For example, s_idx_list = (/2,3/) will load scalar #2 in 
+  !! `s_tgt_list%items(1)` and scalar #3 in `s_tgt_list%items(2)`. Index 0
+  !! corresponds to temperature by default. Therefore using 
+  !! `s_idx_list = (/0/)` is equivalent to using the argument `t=...`. 
+  !! @param interpolate Wether or not to interpolate the fld data.
+  !! @param If interpolation is enabled, the tolerance to use for the point 
+  !! finding.
+  !! @note If interpolation is disabled, space-to-space interpolation is still
+  !! performed within each element to allow for seamless change of polynomial
+  !! order for the same given mesh. 
   subroutine fld_file_data_import_fields(this, u, v, w, p, t, s_idx_list, &
                   s_tgt_list, interpolate, tolerance)
     class(fld_file_data_t), intent(inout) :: this
@@ -84,18 +108,25 @@ contains
     logical :: interpolate_
     real(kind=rp) :: tolerance_
     type(global_interpolation_t) :: global_interp
+    type(dofmap_t), pointer :: dof
+    type(mesh_t)  , pointer :: msh
     ! -----
     
     ! ---- For space to space interpolation
     type(space_t) :: prev_Xh
+    type(space_t) , pointer :: Xh
     type(interpolator_t) :: space_interp
     ! ----
    
     character(len=LOG_SIZE) :: log_buf
-    
-    type(dofmap_t), pointer :: dof
-    type(mesh_t)  , pointer :: msh
-    type(space_t) , pointer :: Xh
+   
+    ! ---- Default values 
+    interpolate_ = .false. 
+    if (present(interpolate)) interpolate_ = interpolate
+
+    tolerance_ = 0.000001_rp
+    if (present(tolerance)) tolerance_ = tolerance
+    ! ----
    
     ! 
     ! Handle the passing of arguments and pointers
@@ -116,7 +147,7 @@ contains
        dof => t%dof; msh => t%msh; Xh => t%Xh
     else if (present(s_tgt_list)) then
        if (s_tgt_list%size() .eq. 0) then
-          call neko_error("scalar target list is empty") 
+          call neko_error("Scalar target list is empty") 
        else
           dof => s_tgt_list%items(1)%ptr%dof
           msh => s_tgt_list%items(1)%ptr%msh
@@ -125,14 +156,6 @@ contains
     else
        call neko_error("At least one field must be passed")
     end if
-   
-    ! ---- Default values 
-    interpolate_ = .false. 
-    if (present(interpolate)) interpolate_ = interpolate
-
-    tolerance_ = 0.000001_rp
-    if (present(tolerance)) tolerance_ = tolerance
-    ! ----
 
     !
     ! Check that the data in the fld file matches the current case.
@@ -152,35 +175,38 @@ contains
     end if
 
     !
+    ! Copy all vectors to device (GPU) since everything is read on the CPU
+    !
+    if (present(u)) call this%u%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(v)) call this%v%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(w)) call this%w%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(p)) call this%p%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(t)) call this%t%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(s_tgt_list)) then
+
+       if (present(s_idx_list)) then
+          if (size(s_idx_list) .ne. s_tgt_list%size()) then
+             call neko_error("Scalar lists must have same size!")
+          end if
+
+          do i = 1, size(s_idx_list)
+             call this%s(s_idx_list(i))%copy_from(HOST_TO_DEVICE, .true.)
+          end do
+       else
+          do i = 1, s_tgt_list%size()
+             call this%s(i)%copy_from(HOST_TO_DEVICE, .true.)
+          end do
+       end if ! if present s_idx_list
+
+    end if ! present s_tgt
+
+    !
     ! Handling of interpolation and I/O
     !
     if (interpolate_) then
 
-       ! Copy all vectors to device (GPU) since everything is read on the CPU
-       if (present(u)) call this%u%copy_from(HOST_TO_DEVICE, .true.)
-       if (present(v)) call this%v%copy_from(HOST_TO_DEVICE, .true.)
-       if (present(w)) call this%w%copy_from(HOST_TO_DEVICE, .true.)
-       if (present(p)) call this%p%copy_from(HOST_TO_DEVICE, .true.)
-       if (present(t)) call this%t%copy_from(HOST_TO_DEVICE, .true.)
-       if (present(s_tgt_list)) then
-
-          if (present(s_idx_list)) then
-             if (size(s_idx_list) .ne. s_tgt_list%size()) then
-                call neko_error("Scalar lists must have same size!")
-             end if
-
-             do i = 1, size(s_idx_list)
-                call this%s(s_idx_list(i))%copy_from(HOST_TO_DEVICE, .true.)
-             end do
-          else
-             do i = 1, s_tgt_list%size()
-                call this%s(i)%copy_from(HOST_TO_DEVICE, .true.)
-             end do
-          end if ! if present s_idx_list
-
-       end if ! present s_tgt
-
        ! Throw error if dof or msh are not specified
+       ! This should never be thrown, but just in case.
        if (.not. associated(dof) .or. .not. associated(msh)) then
           call neko_error("both dof and msh must be associated")
        end if
@@ -190,11 +216,16 @@ contains
             tolerance_)
 
        ! Evaluate all the fields
-       if (present(u)) call global_interp%evaluate(u%x(:,1,1,1), this%u%x, on_host=.false.)
-       if (present(v)) call global_interp%evaluate(v%x(:,1,1,1), this%v%x, on_host=.false.)
-       if (present(w)) call global_interp%evaluate(w%x(:,1,1,1), this%w%x, on_host=.false.)
-       if (present(p)) call global_interp%evaluate(p%x(:,1,1,1), this%p%x, on_host=.false.)
-       if (present(t)) call global_interp%evaluate(t%x(:,1,1,1), this%t%x, on_host=.false.) 
+       if (present(u)) call global_interp%evaluate(u%x(:,1,1,1), this%u%x, &
+               on_host=.false.)
+       if (present(v)) call global_interp%evaluate(v%x(:,1,1,1), this%v%x, &
+               on_host=.false.)
+       if (present(w)) call global_interp%evaluate(w%x(:,1,1,1), this%w%x, &
+               on_host=.false.)
+       if (present(p)) call global_interp%evaluate(p%x(:,1,1,1), this%p%x, &
+               on_host=.false.)
+       if (present(t)) call global_interp%evaluate(t%x(:,1,1,1), this%t%x, &
+               on_host=.false.) 
        if (present(s_tgt_list)) then
 
           ! If the index list exists, use it as a "mask"
@@ -213,7 +244,8 @@ contains
           ! otherwise, just copy element-to-element
           else
              do i = 1, s_tgt_list%size()
-                call global_interp%evaluate(s_tgt_list%x(i), this%s(i)%x, on_host=.false.)
+                call global_interp%evaluate(s_tgt_list%x(i), this%s(i)%x, &
+                        on_host=.false.)
              end do
           end if ! present s_idx_list
        end if ! present s_tgt
@@ -241,6 +273,7 @@ contains
           if (present(s_idx_list)) then
              do i = 1, size(s_idx_list)
 
+                ! 0 means we want temperature
                 if (s_idx_list(i) .eq. 0) then
                    call space_interp%map(s_tgt_list%x(i), &
                            this%t%x, this%nelv, Xh)
@@ -253,7 +286,8 @@ contains
           ! otherwise, just copy element-to-element
           else
              do i = 1, s_tgt_list%size()
-                call space_interp%map(s_tgt_list%x(i), this%s(i)%x, this%nelv, Xh)
+                call space_interp%map(s_tgt_list%x(i), this%s(i)%x, &
+                        this%nelv, Xh)
              end do
           end if ! present s_idx_list
        end if ! present s_tgt
@@ -269,7 +303,9 @@ contains
 
   end subroutine fld_file_data_import_fields
 
-  !> Initialise a fld_file_data object with nelv elements with a offset_nel
+  !> Initializes a fld_file_data object.
+  !! @param nelv Number of elements (on this rank).
+  !! @param offset_el Element offset for this rank.
   subroutine fld_file_data_init(this, nelv, offset_el)
     class(fld_file_data_t), intent(inout) :: this
     integer, intent(in), optional :: nelv, offset_el
@@ -279,7 +315,8 @@ contains
     if (present(offset_el)) this%offset_el = offset_el
 
   end subroutine fld_file_data_init
-  !> Get number of fields in this fld file
+
+  !> Get the number of initialized fields in this fld file.
   function fld_file_data_size(this) result(i)
     class(fld_file_data_t) :: this
     integer :: i
