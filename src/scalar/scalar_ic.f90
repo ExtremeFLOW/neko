@@ -308,7 +308,7 @@ contains
 
     ! If we are on GPU we need to move s back to the host
     ! since set_scalar_ic_common copies it again to the device.
-    call s%copy_from(device_to_host, .false.)
+    call s%copy_from(device_to_host, .true.)
 
   end subroutine set_scalar_ic_fld
 
