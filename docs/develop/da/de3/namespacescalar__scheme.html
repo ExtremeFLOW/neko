@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('da/de3/namespacescalar__scheme.html','
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">scalar_scheme Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -110,6 +111,12 @@ $(document).ready(function(){initNavTree('da/de3/namespacescalar__scheme.html','
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate.html">scalar_scheme_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scalar scheme factory. Both constructs and initializes the object.  <a href="../../d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry.html">scalar_scheme_allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html">scalar_scheme_free_intrf</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface to dealocate a scalar formulation.  <a href="../../d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,6 +131,9 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html">scalar_scheme_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base type for a scalar advection-diffusion solver.  <a href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html">scalar_scheme_wrapper_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helper type that is needed to have an array of polymorphic objects.  <a href="../../dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -149,6 +159,27 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab72269e4be11d711d345d540ff333415" id="r_ab72269e4be11d711d345d540ff333415"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415">scalar_scheme_set_material_properties</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, params, user)</td></tr>
 <tr class="memdesc:ab72269e4be11d711d345d540ff333415"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set lamdba and cp.  <br /></td></tr>
 <tr class="separator:ab72269e4be11d711d345d540ff333415"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd868dcc3d2b06f844a21f1ee94b205a" id="r_acd868dcc3d2b06f844a21f1ee94b205a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#acd868dcc3d2b06f844a21f1ee94b205a">scalar_scheme_wrapper_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, msh, coef, gs, params, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">numerics_params</a>, user, chkp, ulag, vlag, wlag, time_scheme, rho)</td></tr>
+<tr class="memdesc:acd868dcc3d2b06f844a21f1ee94b205a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initializes the object.  <br /></td></tr>
+<tr class="separator:acd868dcc3d2b06f844a21f1ee94b205a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e8b4e8e83d114fec2685bfa33dcbd0f" id="r_a4e8b4e8e83d114fec2685bfa33dcbd0f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a4e8b4e8e83d114fec2685bfa33dcbd0f">scalar_scheme_wrapper_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a4e8b4e8e83d114fec2685bfa33dcbd0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. Just deallocates the pointer.  <br /></td></tr>
+<tr class="separator:a4e8b4e8e83d114fec2685bfa33dcbd0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0e6652746155cb08872965de48c7d19" id="r_ae0e6652746155cb08872965de48c7d19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#ae0e6652746155cb08872965de48c7d19">scalar_scheme_wrapper_move_from</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">other</a>)</td></tr>
+<tr class="memdesc:ae0e6652746155cb08872965de48c7d19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment operator for the wrapper, needed for storing schemes in lists and arrays.  <br /></td></tr>
+<tr class="separator:ae0e6652746155cb08872965de48c7d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46a743812f6d8498839084e35269ed84" id="r_a46a743812f6d8498839084e35269ed84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a46a743812f6d8498839084e35269ed84">scalar_scheme_wrapper_is_allocated</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a46a743812f6d8498839084e35269ed84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return allocation status.  <br /></td></tr>
+<tr class="separator:a46a743812f6d8498839084e35269ed84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a074811284e5f10f7b938534694b25d4a" id="r_a074811284e5f10f7b938534694b25d4a"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry.html">scalar_scheme_allocator_entry</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a074811284e5f10f7b938534694b25d4a">scalar_scheme_registry</a></td></tr>
+<tr class="memdesc:a074811284e5f10f7b938534694b25d4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of allocators for user-defined types.  <br /></td></tr>
+<tr class="separator:a074811284e5f10f7b938534694b25d4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f7f4b9ca31a4e09ce2eeb4f65caae38" id="r_a0f7f4b9ca31a4e09ce2eeb4f65caae38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a0f7f4b9ca31a4e09ce2eeb4f65caae38">scalar_scheme_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a0f7f4b9ca31a4e09ce2eeb4f65caae38"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the <code>scalar_scheme_registry</code>  <br /></td></tr>
+<tr class="separator:a0f7f4b9ca31a4e09ce2eeb4f65caae38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a57f35ef15b838ab8da7ab18d002a352b" name="a57f35ef15b838ab8da7ab18d002a352b"></a>
@@ -167,7 +198,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00367">367</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00456">456</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -245,19 +276,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00242">242</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../da/de3/namespacescalar__scheme_a2babd40d9acd6b4f4ca8dabfbe2e37e9_cgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a2babd40d9acd6b4f4ca8dabfbe2e37e9_cgraph" alt=""/></div>
-<map name="ada/de3/namespacescalar__scheme_a2babd40d9acd6b4f4ca8dabfbe2e37e9_cgraph" id="ada/de3/namespacescalar__scheme_a2babd40d9acd6b4f4ca8dabfbe2e37e9_cgraph">
-<area shape="rect" title="Initialize all related components of the current scheme." alt="" coords="5,37,172,77"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a4278b5ea1a27b4c90edd87e4f0866d02" title="Initialize a Krylov preconditioner." alt="" coords="220,5,404,45"/>
-<area shape="poly" title=" " alt="" coords="172,43,206,38,207,43,173,48"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a5f6ead3b733850e84a4bfb55ce3c1bbe" title="Initialize a linear solver." alt="" coords="222,69,402,109"/>
-<area shape="poly" title=" " alt="" coords="173,67,209,72,208,77,172,72"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00331">331</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -323,17 +342,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00460">460</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../da/de3/namespacescalar__scheme_a4278b5ea1a27b4c90edd87e4f0866d02_icgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a4278b5ea1a27b4c90edd87e4f0866d02_icgraph" alt=""/></div>
-<map name="ada/de3/namespacescalar__scheme_a4278b5ea1a27b4c90edd87e4f0866d02_icgraph" id="ada/de3/namespacescalar__scheme_a4278b5ea1a27b4c90edd87e4f0866d02_icgraph">
-<area shape="rect" title="Initialize a Krylov preconditioner." alt="" coords="220,5,404,45"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,45"/>
-<area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00549">549</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -376,7 +385,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00547">547</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00636">636</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -453,17 +462,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Currently only supporting Krylov solvers </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00445">445</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../da/de3/namespacescalar__scheme_a5f6ead3b733850e84a4bfb55ce3c1bbe_icgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a5f6ead3b733850e84a4bfb55ce3c1bbe_icgraph" alt=""/></div>
-<map name="ada/de3/namespacescalar__scheme_a5f6ead3b733850e84a4bfb55ce3c1bbe_icgraph" id="ada/de3/namespacescalar__scheme_a5f6ead3b733850e84a4bfb55ce3c1bbe_icgraph">
-<area shape="rect" title="Initialize a linear solver." alt="" coords="220,5,400,45"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,45"/>
-<area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00534">534</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -500,7 +499,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00492">492</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00581">581</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -552,7 +551,235 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00403">403</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00492">492</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="a4e8b4e8e83d114fec2685bfa33dcbd0f" name="a4e8b4e8e83d114fec2685bfa33dcbd0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e8b4e8e83d114fec2685bfa33dcbd0f">&#9670;&#160;</a></span>scalar_scheme_wrapper_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> scalar_scheme::scalar_scheme_wrapper_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html">scalar_scheme_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00753">753</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="acd868dcc3d2b06f844a21f1ee94b205a" name="acd868dcc3d2b06f844a21f1ee94b205a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd868dcc3d2b06f844a21f1ee94b205a">&#9670;&#160;</a></span>scalar_scheme_wrapper_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> scalar_scheme::scalar_scheme_wrapper_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html">scalar_scheme_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>msh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>gs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>params</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>numerics_params</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>user</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>chkp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>ulag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>vlag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>wlag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>time_scheme</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>rho</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00732">732</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="a46a743812f6d8498839084e35269ed84" name="a46a743812f6d8498839084e35269ed84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46a743812f6d8498839084e35269ed84">&#9670;&#160;</a></span>scalar_scheme_wrapper_is_allocated()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a> scalar_scheme::scalar_scheme_wrapper_is_allocated </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html">scalar_scheme_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The wrapper to check. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00778">778</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="ae0e6652746155cb08872965de48c7d19" name="ae0e6652746155cb08872965de48c7d19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0e6652746155cb08872965de48c7d19">&#9670;&#160;</a></span>scalar_scheme_wrapper_move_from()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> scalar_scheme::scalar_scheme_wrapper_move_from </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html">scalar_scheme_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html">scalar_scheme_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>other</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The wrapper to move to. </td></tr>
+    <tr><td class="paramname">other</td><td>The other wrapper to move from. Will be deallocated. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00767">767</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a074811284e5f10f7b938534694b25d4a" name="a074811284e5f10f7b938534694b25d4a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a074811284e5f10f7b938534694b25d4a">&#9670;&#160;</a></span>scalar_scheme_registry</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry.html">scalar_scheme_allocator_entry</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scalar_scheme::scalar_scheme_registry</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00315">315</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="a0f7f4b9ca31a4e09ce2eeb4f65caae38" name="a0f7f4b9ca31a4e09ce2eeb4f65caae38"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f7f4b9ca31a4e09ce2eeb4f65caae38">&#9670;&#160;</a></span>scalar_scheme_registry_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scalar_scheme::scalar_scheme_registry_size = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00319">319</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -562,7 +789,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/de3/namespacescalar__scheme.html">scalar_scheme</a></li>
-    <li class="footer">Generated on Sun Feb 15 2026 04:18:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Feb 16 2026 04:19:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

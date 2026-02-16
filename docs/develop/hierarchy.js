@@ -792,6 +792,8 @@ var hierarchy =
     [ "rhs_maker_device::scalar_rhs_maker_ext_hip", "d3/dbe/interfacerhs__maker__device_1_1scalar__rhs__maker__ext__hip.html", null ],
     [ "rhs_maker::scalar_rhs_maker_oifs", "d2/d9e/interfacerhs__maker_1_1scalar__rhs__maker__oifs.html", null ],
     [ "rhs_maker_device::scalar_rhs_maker_oifs_hip", "d9/d5d/interfacerhs__maker__device_1_1scalar__rhs__maker__oifs__hip.html", null ],
+    [ "scalar_scheme::scalar_scheme_allocate", "d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate.html", null ],
+    [ "scalar_scheme::scalar_scheme_allocator_entry", "d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry.html", null ],
     [ "scalar_scheme::scalar_scheme_free_intrf", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html", null ],
     [ "scalar_scheme::scalar_scheme_init_intrf", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html", null ],
     [ "scalar_scheme::scalar_scheme_restart_intrf", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf.html", null ],
@@ -799,6 +801,7 @@ var hierarchy =
     [ "scalar_scheme::scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", [
       [ "scalar_pnpn::scalar_pnpn_t", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html", null ]
     ] ],
+    [ "scalar_scheme::scalar_scheme_wrapper_t", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html", null ],
     [ "scalars::scalars_t", "d2/df2/structscalars_1_1scalars__t.html", null ],
     [ "schwarz::schwarz_t", "d0/d9f/structschwarz_1_1schwarz__t.html", null ],
     [ "scratch_registry::scratch_registry_t", "d8/d43/structscratch__registry_1_1scratch__registry__t.html", null ],

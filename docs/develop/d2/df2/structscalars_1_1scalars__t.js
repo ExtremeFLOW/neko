@@ -9,6 +9,6 @@ var structscalars_1_1scalars__t =
     [ "scalars_init_single", "d2/df2/structscalars_1_1scalars__t.html#aba148cbf38f5cf066038509dad829d3d", null ],
     [ "step", "d2/df2/structscalars_1_1scalars__t.html#aaa4e908bbb27d2e69e3c7e52f14af72e", null ],
     [ "validate", "d2/df2/structscalars_1_1scalars__t.html#a2668464591feb74ec4da76b33dcbc722", null ],
-    [ "scalar_fields", "d2/df2/structscalars_1_1scalars__t.html#abd3dd120b1e7ad157f4a1e20d384056f", null ],
+    [ "scalar_fields", "d2/df2/structscalars_1_1scalars__t.html#ae7ab1cf0960d65741c9620347e0a1937", null ],
     [ "shared_ksp", "d2/df2/structscalars_1_1scalars__t.html#a61687f9a83c3b7b42bf1b8d1606a929c", null ]
 ];

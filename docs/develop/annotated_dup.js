@@ -1251,11 +1251,14 @@ var annotated_dup =
       [ "scalar_residual_sx_t", "dd/dd4/structscalar__residual__sx_1_1scalar__residual__sx__t.html", "dd/dd4/structscalar__residual__sx_1_1scalar__residual__sx__t" ]
     ] ],
     [ "scalar_scheme", "da/de3/namespacescalar__scheme.html", [
+      [ "scalar_scheme_allocate", "d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate.html", "d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate" ],
+      [ "scalar_scheme_allocator_entry", "d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry.html", "d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry" ],
       [ "scalar_scheme_free_intrf", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf" ],
       [ "scalar_scheme_init_intrf", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf" ],
       [ "scalar_scheme_restart_intrf", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf.html", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf" ],
       [ "scalar_scheme_step_intrf", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf" ],
-      [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ]
+      [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ],
+      [ "scalar_scheme_wrapper_t", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t" ]
     ] ],
     [ "scalar_source_term", "d9/d13/namespacescalar__source__term.html", [
       [ "scalar_source_term_t", "db/d55/structscalar__source__term_1_1scalar__source__term__t.html", "db/d55/structscalar__source__term_1_1scalar__source__term__t" ]
