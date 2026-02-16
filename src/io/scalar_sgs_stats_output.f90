@@ -70,7 +70,7 @@ contains
 
   !> Constructor.
   subroutine scalar_sgs_stats_output_init(this, stats, T_begin, &
-                                         hom_dir, name, path)
+       hom_dir, name, path)
     class(scalar_sgs_stats_output_t), intent(inout) :: this
     type(scalar_sgs_stats_t), intent(inout), target :: stats
     real(kind=rp), intent(in) :: T_begin
@@ -140,7 +140,7 @@ contains
     integer :: i
     type(matrix_t) :: avg_output_1d
     type(fld_file_data_t) :: output_2d
-
+    real(kind=rp) :: u, v, w, p
     associate (out_fields => this%stats%stat_fields%items)
       if (t .ge. this%T_begin) then
          if ( NEKO_BCKND_DEVICE .eq. 1) then
@@ -156,6 +156,18 @@ contains
             call this%file_%write(avg_output_1d, t)
          else if (this%output_dim .eq. 2) then
             call this%map_2d%average(output_2d, this%stats%stat_fields)
+            !Switch around fields to get correct orders
+            do i = 1, this%map_2d%n_2d
+               u = output_2d%v%x(i)
+               v = output_2d%w%x(i)
+               w = output_2d%p%x(i)
+               p = output_2d%u%x(i)
+               output_2d%p%x(i) = p
+               output_2d%u%x(i) = u
+               output_2d%v%x(i) = v
+               output_2d%w%x(i) = w
+            end do
+
             call this%file_%write(output_2d, t)
          else
             call this%file_%write(this%stats%stat_fields, t)

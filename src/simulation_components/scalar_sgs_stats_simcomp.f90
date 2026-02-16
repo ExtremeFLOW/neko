@@ -51,7 +51,7 @@ module scalar_sgs_stats_simcomp
   implicit none
   private
 
-  !> A simulation component that computes the subgrid-scale contributions 
+  !> A simulation component that computes the subgrid-scale contributions
   !! to the Reynolds stresses in LES.
   !!
   !! For further details see the Neko documentation.
@@ -66,11 +66,17 @@ module scalar_sgs_stats_simcomp
      logical :: default_fname = .true.
 
    contains
+     generic :: init_from_components => &
+          init_from_components_alphat, &
+          init_from_components_nut
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => scalar_sgs_stats_simcomp_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_components => &
-          scalar_sgs_stats_simcomp_init_from_components
+     procedure, pass(this) :: init_from_components_alphat => &
+          scalar_sgs_stats_simcomp_init_from_components_alphat
+     !> Actual constructor.
+     procedure, pass(this) :: init_from_components_nut => &
+          scalar_sgs_stats_simcomp_init_from_components_nut
      !> Destructor.
      procedure, pass(this) :: free => scalar_sgs_stats_simcomp_free
      !> Does sampling for statistics.
@@ -90,6 +96,7 @@ contains
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
+    type(json_file) :: json_subdict
     character(len=:), allocatable :: filename
     character(len=20), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
@@ -98,7 +105,9 @@ contains
     real(kind=rp) :: start_time
     type(field_t), pointer :: s
     type(coef_t), pointer :: coef
-    character(len=:), allocatable :: alphat_field
+    character(len=:), allocatable :: alphat_field, nut_field
+    real(kind=rp) :: pr_turb
+    logical :: nut_dependency
 
     call json_get_or_default(json, "name", name, "scalar_sgs_stats")
     call this%init_base(json, case)
@@ -108,8 +117,15 @@ contains
          start_time, 0.0_rp)
     call json_get_or_default(json, 'field', &
          sname, 's')
-    call json_get_or_default(json, 'alphat_field', &
-         alphat_field, 'alphat')
+
+    call json_get(json, 'alphat', json_subdict)
+    call json_get(json_subdict, 'nut_dependency', nut_dependency)
+    if (nut_dependency) then
+       call json_get(json_subdict, 'Pr_t', pr_turb)
+       call json_get(json_subdict, 'nut_field', nut_field)
+    else
+       call json_get(json_subdict, 'alphat_field', alphat_field)
+    end if
 
     s => neko_registry%get_field(sname)
     coef => case%fluid%c_Xh
@@ -117,16 +133,26 @@ contains
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call scalar_sgs_stats_simcomp_init_from_components(this, s, coef, &
-            start_time, hom_dir, alphat_field, filename)
+       if (nut_dependency) then
+          call this%init_from_components(s, coef, &
+               start_time, hom_dir, nut_field, pr_turb, filename)
+       else
+          call this%init_from_components(s, coef, &
+               start_time, hom_dir, alphat_field, filename)
+       end if
     else
-       call scalar_sgs_stats_simcomp_init_from_components(this, s, coef, &
-            start_time, hom_dir, alphat_field)
+       if (nut_dependency) then
+          call this%init_from_components(s, coef, &
+               start_time, hom_dir, nut_field, pr_turb)
+       else
+          call this%init_from_components(s, coef, &
+               start_time, hom_dir, alphat_field)
+       end if
     end if
 
   end subroutine scalar_sgs_stats_simcomp_init_from_json
 
-  !> Actual constructor.
+  !> Actual constructor using directly the alphat field.
   !! @param u x-velocity
   !! @param v x-velocity
   !! @param w x-velocity
@@ -134,8 +160,8 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param alphat_field name of the eddy diffusivity field
-  subroutine scalar_sgs_stats_simcomp_init_from_components(this, s, coef, &
-       start_time, hom_dir, alphat_field, fname)
+  subroutine scalar_sgs_stats_simcomp_init_from_components_alphat(this, &
+       s, coef, start_time, hom_dir, alphat_field, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
@@ -147,7 +173,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=5) :: prefix
 
-    call neko_log%section('scalar stats')
+    call neko_log%section('scalar SGS stats')
     write(log_buf, '(A,A)') 'Scalar field: ', trim(s%name)
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Eddy diffusivity field: ', trim(alphat_field)
@@ -180,7 +206,68 @@ contains
 
     call neko_log%end_section()
 
-  end subroutine scalar_sgs_stats_simcomp_init_from_components
+  end subroutine scalar_sgs_stats_simcomp_init_from_components_alphat
+
+  !> Actual constructor using directly the nut field and the turbulent
+  !> Prandtl number.
+  !! @param u x-velocity
+  !! @param v x-velocity
+  !! @param w x-velocity
+  !! @param coef sem coefs
+  !! @param start_time time to start sampling stats
+  !! @param hom_dir directions to average in
+  !! @param nut_field name of the eddy diffusivity field
+  !! @param pr_turb turbulent Prandtl number
+  subroutine scalar_sgs_stats_simcomp_init_from_components_nut(this, &
+       s, coef, start_time, hom_dir, nut_field, pr_turb, fname)
+    class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: hom_dir
+    real(kind=rp), intent(in) :: start_time
+    type(field_t), intent(in), target :: s
+    type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: nut_field
+    real(kind=rp), intent(in) :: pr_turb
+    character(len=*), intent(in), optional :: fname
+    character(len=NEKO_FNAME_LEN) :: stats_fname
+    character(len=LOG_SIZE) :: log_buf
+    character(len=5) :: prefix
+
+    call neko_log%section('scalar stats')
+    write(log_buf, '(A,A)') 'Scalar field: ', trim(s%name)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,A)') 'Eddy viscosity field: ', trim(nut_field)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,E15.7)') 'Turbulent Prandtl number: ', pr_turb
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,E15.7)') 'Start time: ', start_time
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
+    call neko_log%message(log_buf)
+
+
+    call this%stats%init(coef, s, nut_field, pr_turb)
+
+    this%start_time = start_time
+    this%time = start_time
+    if (present(fname)) then
+       this%default_fname = .false.
+       stats_fname = fname
+    else
+       stats_fname = "scalar_sgs_stats0"
+       this%default_fname = .true.
+    end if
+
+    call this%stats_output%init(this%stats, this%start_time, &
+         hom_dir = hom_dir, name = stats_fname, &
+         path = this%case%output_directory)
+
+    call this%case%output_controller%add(this%stats_output, &
+         this%output_controller%control_value, &
+         this%output_controller%control_mode)
+
+    call neko_log%end_section()
+
+  end subroutine scalar_sgs_stats_simcomp_init_from_components_nut
 
   !> Destructor.
   subroutine scalar_sgs_stats_simcomp_free(this)
@@ -218,8 +305,7 @@ contains
   end subroutine scalar_sgs_stats_simcomp_restart
 
   !> scalar_sgs_stats, called depending on compute_control and compute_value
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time info
   subroutine scalar_sgs_stats_simcomp_compute(this, time)
     class(scalar_sgs_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time

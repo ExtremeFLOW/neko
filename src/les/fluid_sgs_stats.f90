@@ -42,18 +42,19 @@ module fluid_sgs_stats
   use field_list, only : field_list_t
   use stats_quant, only : stats_quant_t
   use registry, only : neko_registry
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
   type, public, extends(stats_quant_t) :: fluid_sgs_stats_t
      !> Work fields
      type(field_t) :: stats_work
-     type(field_t) :: s11_work
-     type(field_t) :: s22_work
-     type(field_t) :: s33_work
-     type(field_t) :: s12_work
-     type(field_t) :: s13_work
-     type(field_t) :: s23_work
+     type(field_t), pointer :: s11_work
+     type(field_t), pointer :: s22_work
+     type(field_t), pointer :: s33_work
+     type(field_t), pointer :: s12_work
+     type(field_t), pointer :: s13_work
+     type(field_t), pointer :: s23_work
 
      !> Pointers to the instantenious quantities.
      type(field_t), pointer :: nut !< nut
@@ -117,16 +118,10 @@ contains
     else
        this%nut => neko_registry%get_field_by_name('nut')
     end if
-    
+
 
     ! Initialize work fields
     call this%stats_work%init(this%u%dof, 'stats')
-    call this%s11_work%init(this%u%dof, 's11_work')
-    call this%s22_work%init(this%u%dof, 's22_work')
-    call this%s33_work%init(this%u%dof, 's33_work')
-    call this%s12_work%init(this%u%dof, 's12_work')
-    call this%s13_work%init(this%u%dof, 's13_work')
-    call this%s23_work%init(this%u%dof, 's23_work')
 
     ! Initialize mean fields
     call this%nut_mean%init(this%nut)
@@ -157,18 +152,32 @@ contains
     class(fluid_sgs_stats_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
     integer :: n
+    integer :: temp_indices(6)
 
     associate(stats_work => this%stats_work)
       n = stats_work%dof%size()
 
+      call neko_scratch_registry%request_field(this%s11_work, &
+           temp_indices(1), .false.)
+      call neko_scratch_registry%request_field(this%s22_work, &
+           temp_indices(2), .false.)
+      call neko_scratch_registry%request_field(this%s33_work, &
+           temp_indices(3), .false.)
+      call neko_scratch_registry%request_field(this%s12_work, &
+           temp_indices(4), .false.)
+      call neko_scratch_registry%request_field(this%s13_work, &
+           temp_indices(5), .false.)
+      call neko_scratch_registry%request_field(this%s23_work, &
+           temp_indices(6), .false.)
+
       call this%nut_mean%update(k)
 
       call strain_rate(this%s11_work%x, &
-                       this%s22_work%x, &
-                       this%s33_work%x, &
-                       this%s12_work%x, &
-                       this%s13_work%x, &
-                       this%s23_work%x, this%u, this%v, this%w, this%coef)
+           this%s22_work%x, &
+           this%s33_work%x, &
+           this%s12_work%x, &
+           this%s13_work%x, &
+           this%s23_work%x, this%u, this%v, this%w, this%coef)
 
       ! form the double sij tensor
       call field_cmult(this%s11_work, 2.0_rp)
@@ -193,6 +202,7 @@ contains
 
     end associate
 
+    call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine fluid_sgs_stats_update
 
 
@@ -201,12 +211,6 @@ contains
     class(fluid_sgs_stats_t), intent(inout) :: this
 
     call this%stats_work%free()
-    call this%s11_work%free()
-    call this%s22_work%free()
-    call this%s33_work%free()
-    call this%s12_work%free()
-    call this%s13_work%free()
-    call this%s23_work%free()
 
     call this%nut_mean%free()
 

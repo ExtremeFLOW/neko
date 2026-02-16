@@ -45,7 +45,11 @@ in Neko. The list will be updated as new simcomps are added.
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the
   [statistics guide](@ref statistics-guide)
+- Fluid SGS statistics simcomp, "fluid_sgs_stats", for more details see the
+  [statistics guide](@ref statistics-guide)
 - Scalar statistics simcomp, "scalar_stats", for more details see the
+  [statistics guide](@ref statistics-guide)
+- Scalar SGS statistics simcomp, "scalar_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
 - User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
@@ -439,6 +443,14 @@ keywords:
    "output_file": "s_average"
  }
  ~~~~~~~~~~~~~~~
+
+The statistics fields created by this simcomp are accessible from the 
+neko registry and retrievable under the following naming convention:
+`name_in_registry = name_of_simcomp + "/mean_" + name_of_field`. Unless 
+specified, the name of the simcomp will default to `user_stats`.
+For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then 
+the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added 
+to the registry. 
 
 ### Spectral error indicator {#simcomp_speri}
 

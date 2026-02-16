@@ -170,7 +170,7 @@ contains
     call neko_log%message(log_buf)
 
 
-    call this%stats%init(coef, s, u, v, w, p, stat_set)
+    call this%stats%init(coef, s, u, v, w, p, stat_set, name)
 
     this%start_time = start_time
     this%time = start_time
@@ -229,8 +229,7 @@ contains
   end subroutine scalar_stats_simcomp_restart
 
   !> scalar_stats, called depending on compute_control and compute_value
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time info
   subroutine scalar_stats_simcomp_compute(this, time)
     class(scalar_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
