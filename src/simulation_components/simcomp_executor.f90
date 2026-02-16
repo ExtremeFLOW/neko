@@ -65,8 +65,6 @@ module simcomp_executor
      procedure, pass(this) :: init => simcomp_executor_init
      !> Destructor.
      procedure, pass(this) :: free => simcomp_executor_free
-     !> Appending a new simcomp to the executor.
-     procedure, pass(this) :: add => simcomp_executor_add
      !> Execute preprocess_ for all simcomps.
      procedure, pass(this) :: preprocess => simcomp_executor_preprocess
      !> Execute compute_ for all simcomps.
@@ -165,8 +163,7 @@ contains
        call json_get(comp_subdict, "type", comp_type)
        call neko_log%message('- ' // trim(comp_type))
 
-       call simulation_component_factory(this%simcomps(i)%simcomp, &
-            comp_subdict, case)
+       call this%simcomps(i)%init(comp_subdict, case)
     end do
 
     ! Cleanup
@@ -184,7 +181,7 @@ contains
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
-          call this%simcomps(i)%simcomp%free
+          call this%simcomps(i)%free()
        end do
        deallocate(this%simcomps)
     end if
@@ -192,52 +189,6 @@ contains
     nullify(this%case)
     this%finalized = .false.
   end subroutine simcomp_executor_free
-
-  !> Appending a new simcomp to the executor.
-  !! @param new_object The simcomp to append.
-  !! @param settings The settings for the simcomp.
-  subroutine simcomp_executor_add(this, object, settings)
-    class(simcomp_executor_t), intent(inout) :: this
-    class(simulation_component_t), intent(in) :: object
-    type(json_file), intent(inout), optional :: settings
-
-    class(simulation_component_wrapper_t), allocatable :: tmp_simcomps(:)
-    integer :: i, position
-
-    ! Find the first empty position
-    position = 0
-    do i = 1, this%n_simcomps
-       if (.not. allocated(this%simcomps(i)%simcomp)) then
-          position = i
-          exit
-       end if
-    end do
-
-    ! If no empty position was found, append to the end
-    if (position .eq. 0) then
-       if (this%n_simcomps .gt. 0) call move_alloc(this%simcomps, tmp_simcomps)
-       allocate(this%simcomps(this%n_simcomps + 1))
-
-       if (allocated(tmp_simcomps)) then
-          do i = 1, this%n_simcomps
-             call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
-          end do
-       end if
-
-       this%n_simcomps = this%n_simcomps + 1
-       position = this%n_simcomps
-
-       if (allocated(tmp_simcomps)) deallocate(tmp_simcomps)
-    end if
-
-    this%simcomps(position)%simcomp = object
-    if (present(settings)) then
-       call this%simcomps(position)%simcomp%init(settings, this%case)
-    end if
-
-    this%finalized = .false.
-
-  end subroutine simcomp_executor_add
 
   !> Finalize the initialization.
   !! Sorts the simcomps based on the order property.
@@ -253,7 +204,7 @@ contains
 
     ! Check that all components are initialized
     do i = 1, this%n_simcomps
-       if (.not. allocated(this%simcomps(i)%simcomp)) then
+       if (.not. this%simcomps(i)%is_allocated()) then
           call neko_error("Simulation component not initialized.")
        end if
     end do
@@ -306,7 +257,8 @@ contains
     allocate(this%simcomps(this%n_simcomps))
     do i = 1, this%n_simcomps
        order = order_list(i)
-       call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(order)%simcomp)
+       call this%simcomps(order)%move_from(tmp_simcomps(i))
+       call tmp_simcomps(i)%free()
     end do
 
     if (allocated(tmp_simcomps)) then
@@ -319,11 +271,13 @@ contains
     ! Check that names are unique
     do i = 1, this%n_simcomps - 1
        do j = i + 1, this%n_simcomps
-          if (this%simcomps(i)%simcomp%name .eq. &
-               this%simcomps(j)%simcomp%name) then
-             call neko_error("Simulation component names must be unique. " // &
-                  "Duplicate name: " // trim(this%simcomps(i)%simcomp%name))
-          end if
+          associate(simcomp_i => this%simcomps(i)%simcomp, &
+               simcomp_j => this%simcomps(j)%simcomp)
+            if (simcomp_i%name .eq. simcomp_j%name) then
+               call neko_error("Simulation component names must be unique. " &
+                    // "Duplicate name: " // trim(simcomp_i%name))
+            end if
+          end associate
        end do
     end do
 
