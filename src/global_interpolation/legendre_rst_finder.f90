@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,19 +32,17 @@
 !
 
 module legendre_rst_finder
-  use num_types, only: rp, dp, xp, i8
+  use num_types, only: rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
   use space, only: space_t
   use utils, only: neko_error, neko_warning
   use vector, only: vector_t
   use matrix, only: matrix_t
-  use tensor, only: tnsr3d
   use math, only: NEKO_EPS, matinv39
   use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
   use device_local_interpolation, only: device_find_rst_legendre
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, &
-       c_sizeof, c_loc, c_bool
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
   use device, only: device_alloc, device_free, device_memcpy, &
        device_get_ptr, glb_cmd_queue
   use device_math, only: device_vlsc3
@@ -113,9 +111,9 @@ contains
          Xh%vinvt, Xh%vinvt, nelv)
 
     !> Copy the data to the device (if device exists)
-    call this%x_hat%copy_from(HOST_TO_DEVICE,.false.)
-    call this%y_hat%copy_from(HOST_TO_DEVICE,.false.)
-    call this%z_hat%copy_from(HOST_TO_DEVICE,.false.)
+    call this%x_hat%copy_from(HOST_TO_DEVICE, .false.)
+    call this%y_hat%copy_from(HOST_TO_DEVICE, .false.)
+    call this%z_hat%copy_from(HOST_TO_DEVICE, .false.)
 
   end subroutine legendre_rst_finder_init
 
@@ -191,7 +189,7 @@ contains
     type(c_ptr), intent(inout) :: resx, resy, resz
     integer, intent(in) :: n_pts
     type(vector_t) :: conv_pts
-    integer :: i, iter
+    integer :: iter
     logical :: converged
     real(kind=rp) :: conv_sum
 
@@ -245,11 +243,10 @@ contains
     real(kind=rp) :: ds_legendre(this%Xh%lx)
     real(kind=rp) :: dt_legendre(this%Xh%lx)
     real(kind=rp) :: jac(3,3)
-    real(kind=xp) :: tmp(this%Xh%lx), tmp2(this%Xh%lx)
     real(kind=xp) :: rst_d(3), jacinv(3,3)
     integer :: conv_pts
     logical :: converged
-    integer :: i, j, e, iter, lx, lx2
+    integer :: i, j, e, iter, lx
 
 
 

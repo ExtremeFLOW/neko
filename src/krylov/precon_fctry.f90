@@ -55,7 +55,6 @@ contains
   module subroutine precon_factory(pc, type_name)
     class(pc_t), allocatable, intent(inout) :: pc
     character(len=*), intent(in) :: type_name
-    character(len=:), allocatable :: type_string
 
     if (allocated(pc)) then
        call precon_destroy(pc)

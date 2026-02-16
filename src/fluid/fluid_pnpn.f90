@@ -359,12 +359,14 @@ contains
     call this%dw%init(this%dm_Xh, 'dw')
     call this%dp%init(this%dm_Xh, 'dp')
 
+    call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
 
     ! Check if we need to output boundaries
     call json_get_or_default(params, 'case.output_boundary', found, .false.)
     if (found) call this%write_boundary_conditions()
+    call neko_log%end_section()
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
          this%pr_projection_activ_step)
@@ -1116,7 +1118,6 @@ contains
     class(bc_t), pointer :: bci
     character(len=LOG_SIZE) :: log_buf
 
-    call neko_log%section("Fluid boundary conditions")
     write(log_buf, '(A)') 'Marking using integer keys in bdry0.f00000'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') 'Condition-value pairs: '
@@ -1141,7 +1142,6 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  blasius_profile                 = 11'
     call neko_log%message(log_buf)
-    call neko_log%end_section()
 
     call neko_scratch_registry%request_field(bdry_field, temp_index, .true.)
 

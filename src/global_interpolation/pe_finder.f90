@@ -33,8 +33,7 @@
 !> Implements pe_finder given a dofmap.
 !!
 module pe_finder
-  use num_types, only: rp, dp, xp
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only: rp
   use stack, only: stack_i4_t
   use mpi_f08, only: MPI_COMM
   use point, only: point_t

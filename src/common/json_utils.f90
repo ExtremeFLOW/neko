@@ -42,10 +42,9 @@
 ! json_real = 6
 ! json_string = 7
 module json_utils
-  use num_types, only : rp, dp, sp
+  use num_types, only : dp, sp
   use json_module, only : json_file, json_value, json_core
   use utils, only : neko_error
-  use math, only : abscmp
   implicit none
   private
 
@@ -306,9 +305,6 @@ contains
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     integer, allocatable, intent(out) :: value(:)
-
-    real(kind=rp), allocatable :: test_real(:)
-    integer :: i
 
     if (.not. json%valid_path(name)) then
        call neko_error("Parameter " // name // " missing from the case file")
