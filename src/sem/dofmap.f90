@@ -127,9 +127,9 @@ contains
     allocate(this%y(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
     allocate(this%z(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
 
-    this%x = 0d0
-    this%y = 0d0
-    this%z = 0d0
+    this%x = 0.0_rp
+    this%y = 0.0_rp
+    this%z = 0.0_rp
     !> @note should be intialised differently in axissymmetric case
 
     call dofmap_generate_xyz(this)
