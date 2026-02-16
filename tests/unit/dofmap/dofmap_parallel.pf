@@ -184,6 +184,7 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     character(len=50) :: msg
+    integer :: k, l, i_s, j_s, l_s, k_s
     lx = 5
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
@@ -230,6 +231,25 @@ contains
 
     call m%generate_conn()
     call d%init(m, Xh)
+
+    i_s = size(d%dof, 1)
+    j_s = size(d%dof, 2)
+    k_s = size(d%dof, 3)
+    l_s = size(d%dof, 4)
+
+    ! Debug print of all dofs
+    do i = 1, i_s
+       do j = 1, j_s
+          do k = 1, k_s
+             do l = 1, l_s
+                write(*, '(A,I0,A,I0,A,I0,A,I0)') &
+                     'i=', i, ' j=', j, ' k=', k, ' l=', l
+                write(*,*) '  dof(i,j,k,l)=', d%dof(i,j,k,l)
+             end do
+          end do
+       end do
+    end do
+
     do i = 1,lx
        do j = 1,lx
           write(msg, '(A,I0,A,I0)') 'i=', i, ' j=', j
@@ -239,8 +259,7 @@ contains
                 if( i .ne. i2 .AND. j .ne. j2) then
                    write(msg, '(A,I0,A,I0,A,I0,A,I0)') 'i=', i, ' j=', j, &
                         ' i2=', i2, ' j2=', j2
-                   @assertFalse(d%dof(lx+1-i,j,lx,1) .eq. d%dof(1,j2,i2,2), &
-                        message=msg)
+                   @assertFalse(d%dof(lx+1-i,j,lx,1) .eq. d%dof(1,j2,i2,2), message=msg)
                 endif
              end do
           end do
