@@ -401,77 +401,77 @@ contains
           !
           ! Number edges in t-direction
           !
-          call ep%edge_id(edge, 9)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
-             do j = 2, Xh%lz - 1
-                k = Xh%lz+1-j
-                this%dof(1, 1, k, i) = edge_id + (j-2)
-                this%shared_dof(1, 1, k, i) = shared_dof
-             end do
-          else
-             do j = 2, Xh%lz - 1
-                k = j
-                this%dof(1, 1, k, i) = edge_id + (j-2)
-                this%shared_dof(1, 1, k, i) = shared_dof
-             end do
-          end if
+          ! call ep%edge_id(edge, 9)
+          ! shared_dof = msh%is_shared(edge)
+          ! global_id = msh%get_global(edge)
+          ! edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
+          ! if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+          !    do j = 2, Xh%lz - 1
+          !       k = Xh%lz+1-j
+          !       this%dof(1, 1, k, i) = edge_id + (j-2)
+          !       this%shared_dof(1, 1, k, i) = shared_dof
+          !    end do
+          ! else
+          !    do j = 2, Xh%lz - 1
+          !       k = j
+          !       this%dof(1, 1, k, i) = edge_id + (j-2)
+          !       this%shared_dof(1, 1, k, i) = shared_dof
+          !    end do
+          ! end if
 
-          call ep%edge_id(edge, 10)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) then
-             do j = 2, Xh%lz - 1
-                k = Xh%lz+1-j
-                this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, 1, k, i) = shared_dof
-             end do
-          else
-             do j = 2, Xh%lz - 1
-                k = j
-                this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, 1, k, i) = shared_dof
-             end do
-          end if
+          ! call ep%edge_id(edge, 10)
+          ! shared_dof = msh%is_shared(edge)
+          ! global_id = msh%get_global(edge)
+          ! edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
+          ! if (int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) then
+          !    do j = 2, Xh%lz - 1
+          !       k = Xh%lz+1-j
+          !       this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
+          !       this%shared_dof(Xh%lx, 1, k, i) = shared_dof
+          !    end do
+          ! else
+          !    do j = 2, Xh%lz - 1
+          !       k = j
+          !       this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
+          !       this%shared_dof(Xh%lx, 1, k, i) = shared_dof
+          !    end do
+          ! end if
 
-          call ep%edge_id(edge, 11)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, 1, i)) then
-             do j = 2, Xh%lz - 1
-                k = Xh%lz+1-j
-                this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly, k, i) = shared_dof
-             end do
-          else
-             do j = 2, Xh%lz - 1
-                k = j
-                this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly, k, i) = shared_dof
-             end do
-          end if
+          ! call ep%edge_id(edge, 11)
+          ! shared_dof = msh%is_shared(edge)
+          ! global_id = msh%get_global(edge)
+          ! edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
+          ! if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, 1, i)) then
+          !    do j = 2, Xh%lz - 1
+          !       k = Xh%lz+1-j
+          !       this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
+          !       this%shared_dof(1, Xh%ly, k, i) = shared_dof
+          !    end do
+          ! else
+          !    do j = 2, Xh%lz - 1
+          !       k = j
+          !       this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
+          !       this%shared_dof(1, Xh%ly, k, i) = shared_dof
+          !    end do
+          ! end if
 
-          call ep%edge_id(edge, 12)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx, Xh%ly, 1, i)) then
-             do j = 2, Xh%lz - 1
-                k = Xh%lz+1-j
-                this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
-             end do
-          else
-             do j = 2, Xh%lz - 1
-                k = j
-                this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
-             end do
-          end if
+          ! call ep%edge_id(edge, 12)
+          ! shared_dof = msh%is_shared(edge)
+          ! global_id = msh%get_global(edge)
+          ! edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
+          ! if (int(edge%x(1), i8) .ne. this%dof(Xh%lx, Xh%ly, 1, i)) then
+          !    do j = 2, Xh%lz - 1
+          !       k = Xh%lz+1-j
+          !       this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
+          !       this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
+          !    end do
+          ! else
+          !    do j = 2, Xh%lz - 1
+          !       k = j
+          !       this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
+          !       this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
+          !    end do
+          ! end if
        type is (quad_t)
           !
           ! Number edges in r-direction
