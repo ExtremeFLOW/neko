@@ -244,7 +244,7 @@ contains
 
     size = ishft(1, ceiling(log(dble(size)) / NEKO_M_LN2))
 
-   allocate(this%key(0:size), source = key)
+    allocate(this%key(0:size), source = key)
     if (present(data)) then
        allocate(this%data(0:size), source = data)
     else
