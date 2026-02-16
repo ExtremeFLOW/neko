@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Update the simcomp wrappers to better handle allocation and deallocation.
 - Added a factory subroutine for scalar schemes, allowing for more flexible
   creation of scalar scheme objects based on JSON input.
 - Fixed a bug in the scalar scheme handler where polymorphic objects were not
