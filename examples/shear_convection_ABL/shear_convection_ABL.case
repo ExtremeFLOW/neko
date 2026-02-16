@@ -211,7 +211,10 @@
             {
                 "type": "scalar_sgs_stats",
                 "field": "temperature",
-                "alphat_field": "temperature_alphat",
+                "alphat":{
+                    "nut_dependency": false,
+                    "alphat_field": "temperature_alphat"
+                },
                 "compute_control": "simulationtime",
                 "compute_value": 10.0,
                 "output_control": "simulationtime",
