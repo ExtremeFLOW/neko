@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2023, The Neko Authors
+! Copyright (c) 2019-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -232,8 +232,8 @@ contains
   !> Initialize a hash table of type @a data
   subroutine htable_init(this, size, key, data)
     class(htable_t), intent(inout) :: this
-    integer, value :: size              !< Initial size of the table
-    class(*), intent(in) :: key            !< Type of key
+    integer, value :: size !< Initial size of the table
+    class(*), intent(in) :: key !< Type of key
     class(*), intent(in), optional :: data !< Type of data
 
     call htable_free(this)
@@ -316,8 +316,8 @@ contains
   !> Insert tuple @a (key, value) into the hash table
   recursive subroutine htable_set(this, key, data)
     class(htable_t), intent(inout) :: this
-    class(*), intent(inout) :: key   !< Table key
-    class(*), intent(inout) ::  data !< Data associated with @a key
+    class(*), intent(inout) :: key !< Table key
+    class(*), intent(inout) :: data !< Data associated with @a key
     class(htable_t), allocatable :: tmp
     integer index, i, c
 
@@ -387,7 +387,7 @@ contains
   !> Retrieve data associated with @a key into the hash table
   function htable_get(this, key, data) result(rcode)
     class(htable_t), intent(inout) :: this
-    class(*), intent(inout) :: key  !< Key to retrieve
+    class(*), intent(inout) :: key !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
     integer :: index, i, c
@@ -420,7 +420,7 @@ contains
   !> Remove a @a key from the hash table
   subroutine htable_remove(this, key)
     class(htable_t), intent(inout) :: this
-    class(*), intent(inout) :: key  !< Key to remove
+    class(*), intent(inout) :: key !< Key to remove
     integer :: index, i, c
 
     c = 0
@@ -692,7 +692,7 @@ contains
   !> Initialize an integer based hash table
   subroutine htable_i4_init(this, size, data)
     class(htable_i4_t), intent(inout) :: this
-    integer, value :: size                    !< Initial size of the table
+    integer, value :: size !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     integer :: key
 
@@ -707,7 +707,7 @@ contains
   !> Insert an integer into the hash table
   subroutine htable_i4_set(this, key, data)
     class(htable_i4_t), intent(inout) :: this
-    integer, intent(inout) :: key   !< Table key
+    integer, intent(inout) :: key !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
@@ -717,7 +717,7 @@ contains
   !> Retrive an integer with key @a key from the hash table
   function htable_i4_get(this, key, data) result(rcode)
     class(htable_i4_t), intent(inout) :: this
-    integer, intent(inout) :: key   !< Key to retrieve
+    integer, intent(inout) :: key !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
@@ -758,7 +758,7 @@ contains
   !> Remove an integer with key @a key from the hash table
   subroutine htable_i4_remove(this, key)
     class(htable_i4_t), intent(inout) :: this
-    integer, intent(inout) :: key   !< Table key
+    integer, intent(inout) :: key !< Table key
 
     call htable_remove(this, key)
 
@@ -814,7 +814,7 @@ contains
   !> Initialize an integer*8 based hash table
   subroutine htable_i8_init(this, size, data)
     class(htable_i8_t), intent(inout) :: this
-    integer, value :: size                    !< Initial size of the table
+    integer, value :: size !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     integer(kind=i8) :: key
 
@@ -829,7 +829,7 @@ contains
   !> Insert an integer*8 into the hash table
   subroutine htable_i8_set(this, key, data)
     class(htable_i8_t), intent(inout) :: this
-    integer(kind=i8), intent(inout) :: key   !< Table key
+    integer(kind=i8), intent(inout) :: key !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
@@ -839,7 +839,7 @@ contains
   !> Retrive an integer*8 with key @a key from the hash table
   function htable_i8_get(this, key, data) result(rcode)
     class(htable_i8_t), intent(inout) :: this
-    integer(kind=i8), intent(inout) :: key   !< Key to retrieve
+    integer(kind=i8), intent(inout) :: key !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
@@ -881,7 +881,7 @@ contains
   !> Remove an integer*8 with key @a key from the hash table
   subroutine htable_i8_remove(this, key)
     class(htable_i8_t), intent(inout) :: this
-    integer(kind=i8), intent(inout) :: key   !< Table key
+    integer(kind=i8), intent(inout) :: key !< Table key
 
     call htable_remove(this, key)
 
@@ -947,7 +947,7 @@ contains
   !> Initialize a double precision based hash table
   subroutine htable_r8_init(this, size, data)
     class(htable_r8_t), intent(inout) :: this
-    integer, value :: size                    !< Initial size of the table
+    integer, value :: size !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     real(kind=dp) :: key
 
@@ -963,7 +963,7 @@ contains
   subroutine htable_r8_set(this, key, data)
     class(htable_r8_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Table key
-    class(*), intent(inout) :: data     !< Data associated with @a key
+    class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
 
@@ -973,7 +973,7 @@ contains
   function htable_r8_get(this, key, data) result(rcode)
     class(htable_r8_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Key to retrieve
-    class(*), intent(inout) :: data     !< Retrieved data
+    class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
     rcode = htable_get(this, key, data)
@@ -997,7 +997,7 @@ contains
   !> Remove a double precision key @a key from the hash table
   subroutine htable_r8_remove(this, key)
     class(htable_r8_t), intent(inout) :: this
-    real(kind=dp), intent(inout) :: key   !< Table key
+    real(kind=dp), intent(inout) :: key !< Table key
 
     call htable_remove(this, key)
 
@@ -1054,7 +1054,7 @@ contains
   !> Initialize a point based hash table
   subroutine htable_pt_init(this, size, data)
     class(htable_pt_t), intent(inout) :: this
-    integer, value :: size                    !< Initial size of the table
+    integer, value :: size !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     type(point_t) :: key
 
@@ -1070,7 +1070,7 @@ contains
   subroutine htable_pt_set(this, key, data)
     class(htable_pt_t), intent(inout) :: this
     type(point_t), intent(inout) :: key !< Table key
-    class(*), intent(inout) :: data     !< Data associated with @a key
+    class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
 
@@ -1080,7 +1080,7 @@ contains
   function htable_pt_get(this, key, data) result(rcode)
     class(htable_pt_t), intent(inout) :: this
     type(point_t), intent(inout) :: key !< Key to retrieve
-    class(*), intent(inout) :: data     !< Retrieved data
+    class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
     rcode = htable_get(this, key, data)
@@ -1128,7 +1128,7 @@ contains
   !> Remove a point with key @a key from the hash table
   subroutine htable_pt_remove(this, key)
     class(htable_pt_t), intent(inout) :: this
-    type(point_t), intent(inout) :: key   !< Table key
+    type(point_t), intent(inout) :: key !< Table key
 
     call htable_remove(this, key)
 
@@ -1185,7 +1185,7 @@ contains
   !> Initialize an integer 2-tuple hash table
   subroutine htable_i4t2_init(this, size, data)
     class(htable_i4t2_t), intent(inout) :: this
-    integer, value :: size                    !< Initial size of the table
+    integer, value :: size !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     type(tuple_i4_t) :: key
 
@@ -1200,7 +1200,7 @@ contains
   !> Insert an integer 2-tuple into the hash table
   subroutine htable_i4t2_set(this, key, data)
     class(htable_i4t2_t), intent(inout) :: this
-    type(tuple_i4_t), intent(inout) :: key   !< Table key
+    type(tuple_i4_t), intent(inout) :: key !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
@@ -1210,7 +1210,7 @@ contains
   !> Retrive an integer 2-tuple with key @a key from the hash table
   function htable_i4t2_get(this, key, data) result(rcode)
     class(htable_i4t2_t), intent(inout) :: this
-    type(tuple_i4_t), intent(inout) :: key   !< Key to retrieve
+    type(tuple_i4_t), intent(inout) :: key !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
@@ -1258,7 +1258,7 @@ contains
   !> Remove an integer 2-tuple with key @a key from the hash table
   subroutine htable_i4t2_remove(this, key)
     class(htable_i4t2_t), intent(inout) :: this
-    type(tuple_i4_t), intent(inout) :: key   !< Table key
+    type(tuple_i4_t), intent(inout) :: key !< Table key
 
     call htable_remove(this, key)
 
@@ -1314,7 +1314,7 @@ contains
   !> Initialize an integer 4-tuple  hash table
   subroutine htable_i4t4_init(this, size, data)
     class(htable_i4t4_t), intent(inout) :: this
-    integer, value :: size                    !< Initial size of the table
+    integer, value :: size !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     type(tuple4_i4_t) :: key
 
@@ -1329,7 +1329,7 @@ contains
   !> Insert an integer 4-tuple into the hash table
   subroutine htable_i4t4_set(this, key, data)
     class(htable_i4t4_t), intent(inout) :: this
-    type(tuple4_i4_t), intent(inout) :: key   !< Table key
+    type(tuple4_i4_t), intent(inout) :: key !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
@@ -1339,7 +1339,7 @@ contains
   !> Retrive an integer 4-tuple with key @a key from the hash table
   function htable_i4t4_get(this, key, data) result(rcode)
     class(htable_i4t4_t), intent(inout) :: this
-    type(tuple4_i4_t), intent(inout) :: key   !< Key to retrieve
+    type(tuple4_i4_t), intent(inout) :: key !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
@@ -1387,7 +1387,7 @@ contains
   !> Remove an integer 4-tuple with key @a key from the hash table
   subroutine htable_i4t4_remove(this, key)
     class(htable_i4t4_t), intent(inout) :: this
-    type(tuple4_i4_t), intent(inout) :: key   !< Table key
+    type(tuple4_i4_t), intent(inout) :: key !< Table key
 
     call htable_remove(this, key)
 
@@ -1451,7 +1451,7 @@ contains
   !> Initialize a C pointer based  hash table
   subroutine htable_cptr_init(this, size, data)
     class(htable_cptr_t), intent(inout) :: this
-    integer, value :: size                    !< Initial size of the table
+    integer, value :: size !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     type(h_cptr_t) :: key
 
@@ -1466,7 +1466,7 @@ contains
   !> Insert a C pointer into the hash table
   subroutine htable_cptr_set(this, key, data)
     class(htable_cptr_t), target, intent(inout) :: this
-    type(h_cptr_t), intent(inout) :: key   !< Table key
+    type(h_cptr_t), intent(inout) :: key !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
@@ -1476,7 +1476,7 @@ contains
   !> Retrive a C pointer with key @a key from the hash table
   function htable_cptr_get(this, key, data) result(rcode)
     class(htable_cptr_t), target, intent(inout) :: this
-    type(h_cptr_t), intent(inout) :: key   !< Key to retrieve
+    type(h_cptr_t), intent(inout) :: key !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
@@ -1505,7 +1505,7 @@ contains
   !> Remove a C pointer with key @a key from the hash table
   subroutine htable_cptr_remove(this, key)
     class(htable_cptr_t), target, intent(inout) :: this
-    type(h_cptr_t), intent(inout) :: key   !< Table key
+    type(h_cptr_t), intent(inout) :: key !< Table key
 
     call htable_remove(this, key)
 
