@@ -366,6 +366,23 @@ keywords:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
     - `c_w`: The WALE constant, defaults to 0.55.
+  - `deardorff`: The Deardorff model dedicated to Atmospheric Boundar Layer purpose.
+    Please find the usage in examples/shear_convecton_ABL. 
+    Configured by the following additional keyword:
+    - `c_k`: The model constant, defaults to 0.1.
+    - `T0`: The reference temperature.
+    - `g`: The gravity vector.
+    - `temperature_field`: The field name of the temperature field,
+      defaults to `temperature`.
+    - `TKE_field`: The field name of the turbulent kinetic energy (TKE) field,
+      defaults to `TKE`.
+    - `temperature_alphat_field`: The field name of the eddy diffusivity field
+      for the temperature equation, defaults to `temperature_alphat`.
+    - `TKE_alphat_field`: The field name of the eddy diffusivity field
+      for the TKE equation, defauls to `TKE_alphat`.
+    - `TKE_source_field`: The field name of the source terms in the TKE equation
+      including shear production, buoyancy contribution and dissipation, defauls
+      to `TKE_source`.
 - `les_delta`: Selects the way to compute the LES filter length scale. Currently three
   alternatives are provided and the default one is `pointwise` if
   nothing is specified:
