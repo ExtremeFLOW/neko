@@ -236,12 +236,13 @@ contains
     j_s = size(d%dof, 2)
     k_s = size(d%dof, 3)
     l_s = size(d%dof, 4)
+    write(*,*) " "
 
     ! Debug print of all dofs
-    do i = 1, i_s
-       do j = 1, j_s
-          do k = 1, k_s
-             do l = 1, l_s
+    do l = 1, l_s
+       do i = 1, i_s
+          do j = 1, j_s
+             do k = 1, k_s
                 write(*, '(A,I2,A,I2,A,I2,A,I2,4X,A,I3)') &
                      'i: ', i, ' j: ', j, ' k: ', k, ' l: ', l, &
                      'dof: ', d%dof(i,j,k,l)
