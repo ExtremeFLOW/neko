@@ -367,7 +367,7 @@ contains
     call json_get_or_default(params, 'case.output_boundary', found, .false.)
     if (found) call this%write_boundary_conditions()
     call neko_log%end_section()
-    
+
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
          this%pr_projection_activ_step)
 
