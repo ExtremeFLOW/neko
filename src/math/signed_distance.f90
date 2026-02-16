@@ -143,8 +143,6 @@ contains
   !! @param mesh Boundary mesh
   !! @return Signed distance value
   function tri_mesh_brute_force(mesh, p, max_distance) result(distance)
-    use tri, only : tri_t
-    use point, only : point_t
     use num_types, only : dp
 
     implicit none

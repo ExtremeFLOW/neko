@@ -41,7 +41,6 @@ module stl_file
   use mpi_f08, only : MPI_MODE_RDONLY, MPI_INFO_NULL, &
        MPI_File_open, MPI_File_read_all, MPI_File, MPI_Status, &
        MPI_File_close
-  use utils, only : neko_error
   use comm, only : NEKO_COMM
   use stl, only : stl_hdr_t, stl_triangle_t
   implicit none
