@@ -266,7 +266,6 @@ contains
        end do
     end do
 
-    @assertTrue(.false.)
   end subroutine test_dofmap_face15
 
   @test(npes=[1])
