@@ -242,9 +242,9 @@ contains
        do j = 1, j_s
           do k = 1, k_s
              do l = 1, l_s
-                write(*, '(A,I0,A,I0,A,I0,A,I0)') &
-                     'i=', i, ' j=', j, ' k=', k, ' l=', l
-                write(*,*) '  dof(i,j,k,l)=', d%dof(i,j,k,l)
+                write(*, '(A,I2,A,I2,A,I2,A,I2,4X,A,I3)') &
+                     'i: ', i, ' j: ', j, ' k: ', k, ' l: ', l, &
+                     'dof: ', d%dof(i,j,k,l)
              end do
           end do
        end do
@@ -266,6 +266,7 @@ contains
        end do
     end do
 
+    @assertTrue(.false.)
   end subroutine test_dofmap_face15
 
   @test(npes=[1])
