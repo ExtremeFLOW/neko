@@ -788,27 +788,27 @@ contains
 
     if (face_order%x(1) .eq. face%x(1)) then
        if (face_order%x(2) .lt. face_order%x(4)) then
-          facet_idx = facet_id + j + k*lj
+          facet_idx = facet_id + int(j + k*lj, i8)
        else
-          facet_idx = facet_id + j*lk + k
+          facet_idx = facet_id + int(j*lk + k, i8)
        end if
-    else  if (face_order%x(2) .eq. face%x(1)) then
+    else if (face_order%x(2) .eq. face%x(1)) then
        if (face_order%x(3) .lt. face_order%x(1)) then
-          facet_idx = facet_id + lk*(lj-1-j) + k
+          facet_idx = facet_id + int(lk*(lj-1-j) + k, i8)
        else
-          facet_idx = facet_id + (lj-1-j) + k*lj
+          facet_idx = facet_id + int((lj-1-j) + k*lj, i8)
        end if
     else if (face_order%x(3) .eq. face%x(1)) then
        if (face_order%x(4) .lt. face_order%x(2)) then
-          facet_idx = facet_id + (lj-1-j) + lj*(lk-1-k)
+          facet_idx = facet_id + int((lj-1-j) + lj*(lk-1-k), i8)
        else
-          facet_idx = facet_id + lk*(lj-1-j) + (lk-1-k)
+          facet_idx = facet_id + int(lk*(lj-1-j) + (lk-1-k), i8)
        end if
     else if (face_order%x(4) .eq. face%x(1)) then
        if (face_order%x(1) .lt. face_order%x(3)) then
-          facet_idx = facet_id + lk*j + (lk-1-k)
+          facet_idx = facet_id + int(lk*j + (lk-1-k), i8)
        else
-          facet_idx = facet_id + j + lj*(lk-1-k)
+          facet_idx = facet_id + int(j + lj*(lk-1-k), i8)
        end if
     end if
 
