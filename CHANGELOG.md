@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Change hash table data structure from AoS to SoA.
 - Update the simcomp wrappers to better handle allocation and deallocation.
 - Added a factory subroutine for scalar schemes, allowing for more flexible
   creation of scalar scheme objects based on JSON input.
