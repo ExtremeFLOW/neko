@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,15 +38,13 @@ module scalar_stats
   use device_math, only : device_col3, device_col2, device_cfill, &
        device_invcol2, device_addcol3
   use num_types, only : rp
-  use math, only : invers2, col2, addcol3, col3, copy, subcol3
+  use math, only : invers2, col2, addcol3, col3
   use operators, only : opgrad
   use coefs, only : coef_t
   use field, only : field_t
   use field_list, only : field_list_t
   use stats_quant, only : stats_quant_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_warning
   implicit none
   private
 

@@ -2,6 +2,12 @@
 
 ## Develop
 - Added options to used masked parts of the domain when performing interpolation
+- Update the simcomp wrappers to better handle allocation and deallocation.
+- Added a factory subroutine for scalar schemes, allowing for more flexible
+  creation of scalar scheme objects based on JSON input.
+- Fixed a bug in the scalar scheme handler where polymorphic objects were not
+  being handled correctly.
+- Support for user-defined scalar schemes are now added.
 - Added source term for direct forcing from a field defined in the registry.
 - Add description of the `fld` file format to the documentation.
 - Added possibility to assign names to boundary conditions in the case file. The 
