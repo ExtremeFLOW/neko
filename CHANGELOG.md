@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Add runtime statistics for subgrid-scale contribution to the anisotropic part
+  of the residual stresses.
 - Update the simcomp wrappers to better handle allocation and deallocation.
 - Added a factory subroutine for scalar schemes, allowing for more flexible
   creation of scalar scheme objects based on JSON input.
