@@ -232,6 +232,28 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
 
+    write(*,*) " "
+
+    ! Print mesh information
+    write(*,*) "=== Mesh Information ==="
+    write(*,*) "Number of elements:", m%nelv
+    write(*,*) "Geometric dimension:", m%gdim
+    write(*,*) "Offset element:", m%offset_el
+
+    ! Print element information for each element
+    do l = 1, m%nelv
+       write(*,*) " "
+       write(*,*) "Element", l, "global ID:", m%elements(l)%e%id()
+       write(*,*) "  Vertices:"
+       do i = 1, 8
+          write(*,'(A,I2,A,3F10.5,1X,I0)') '    v', i, ': ', &
+               m%elements(l)%e%pts(i)%p%x(1), &
+               m%elements(l)%e%pts(i)%p%x(2), &
+               m%elements(l)%e%pts(i)%p%x(3), &
+               m%elements(l)%e%pts(i)%p%id()
+       end do
+    end do
+
     i_s = size(d%dof, 1)
     j_s = size(d%dof, 2)
     k_s = size(d%dof, 3)
