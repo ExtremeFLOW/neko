@@ -1240,7 +1240,7 @@ contains
                 if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
                    un = coef%get_normal(i, j, k, pe, pf)
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
-                   !The following if be redundant but kept deliberately.
+                   !The following might be redundant but kept deliberately.
                    if (len.gt.NEKO_EPS) then
                       d = coef%dof%y(i, j, k, pe) * un(1) &
                         - coef%dof%x(i, j, k, pe) * un(2)
@@ -1309,8 +1309,6 @@ contains
     allocate(normy(lx, lx, lx, this%msh%nelv))
     allocate(normz(lx, lx, lx, this%msh%nelv))
 
-
-
     do ipass = 1, 2
        call rzero(normx, ntot)
        call rzero(normy, ntot)
@@ -1370,7 +1368,7 @@ contains
              if (this%cyclic .eqv. .false.) then
                 call neko_warning("Cyclic rotation is required. " // &
                                   "Switch it on in the case file.")
-                !else: Rotation is required and cyclic flag is true. Proceed
+                !else: Rotation is required and cyclic flag is true. Proceed.
              end if
           else
              call neko_warning("Cylic rotation is required, but " // &
