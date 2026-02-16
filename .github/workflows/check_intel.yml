@@ -122,7 +122,6 @@ jobs:
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
       - name: Integration tests
-        if: ${{ always() && steps.build.conclusion == 'success' }}
         run: |
            chmod +x $MAKENEKO_EXEC
            cd tests/integration
