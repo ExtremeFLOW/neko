@@ -41,7 +41,7 @@ module richardson
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
   use json_utils, only : json_get_or_default, json_get
-  use richardson_device, only : richardson_compute_device
+  ! use richardson_device, only : richardson_compute_device
   use richardson_cpu, only : richardson_compute_cpu
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error
@@ -227,12 +227,13 @@ contains
     temp => neko_registry%get_field("temperature")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call richardson_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
-            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
-            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-            this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
-            this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%z0, tstep)
+        ! call richardson_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
+        !     this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+        !     this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
+        !     this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
+        !     this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
+        !     this%z0, tstep)
+      write(*,*) ":("
     else
         call richardson_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &

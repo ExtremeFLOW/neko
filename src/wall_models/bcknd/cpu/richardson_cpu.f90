@@ -41,40 +41,28 @@ module richardson_cpu
   public :: richardson_compute_cpu
 
   abstract interface
-     function slaw_m_interface(z,L_ob,z0) result(slaw)
+     function tau_interface(magu, ri_b, h, z0, l, kappa) result(tau)
        import rp
-       real(kind=rp), intent(in) :: z, L_ob, z0
-       real(kind=rp) :: slaw
-     end function slaw_m_interface
+       real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
+       real(kind=rp) :: tau
+     end function tau_interface
 
-     function slaw_h_interface(z,L_ob,z0h) result(slaw)
+     function heat_flux_interface(ti, ts, ri_b, h, magu, z1, pr,&
+                                l, utau, kappa) result(heat_flux)
        import rp
-       real(kind=rp), intent(in) :: z, L_ob, z0h
-       real(kind=rp) :: slaw
-     end function slaw_h_interface
+       real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
+       real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
+       real(kind=rp) :: heat_flux
+     end function heat_flux_interface
 
-     function corr_m_interface(z,L_ob) result(corr)
-       import rp
-       real(kind=rp), intent(in) :: z, L_ob
-       real(kind=rp) :: corr
-     end function corr_m_interface
-
-     function corr_h_interface(z,L_ob) result(corr)
-       import rp
-       real(kind=rp), intent(in) :: z, L_ob
-       real(kind=rp) :: corr
-     end function corr_h_interface
   end interface
 
 
   ! These will point to the correct functions
   ! depending on stability regime and bc_type.
-  procedure(slaw_m_interface), pointer :: slaw_m_ptr => null()
-  procedure(slaw_h_interface), pointer :: slaw_h_ptr => null()
-  procedure(corr_m_interface), pointer :: corr_m_ptr => null()
-  procedure(corr_h_interface), pointer :: corr_h_ptr => null()
-  procedure(f_interface), pointer :: f_ptr => null()
-  procedure(dfdl_interface), pointer :: dfdl_ptr => null()
+  procedure(tau_interface), pointer :: tau_ptr => null()
+  procedure(heat_flux_interface), pointer :: heat_flux_ptr => null()
+
 
 contains
 
@@ -110,18 +98,14 @@ contains
     real(kind=rp), intent(in) :: Ri_b
 
     if (Ri_b > 0.01_rp) then
-       tau => tau_stable
-       heat_flux => heat_flux_stable
-       f_tau => f_tau_stable
-       f_theta => f_theta_stable
+       tau_ptr => tau_stable
+       heat_flux_ptr => heat_flux_stable
     elseif (Ri_b < -0.01_rp) then
-       tau => tau_convective
-       heat_flux => heat_flux_convective
-       f_tau => f_tau_convective
-       f_theta => f_theta_convective
+       tau_ptr => tau_convective
+       heat_flux_ptr => heat_flux_convective
     else
-       tau => tau_neutral
-       heat_flux => heat_flux_neutral
+       tau_ptr => tau_neutral
+       heat_flux_ptr => heat_flux_neutral
     end if
   end subroutine set_stability_regime
 
@@ -224,13 +208,13 @@ contains
           ! Set length scale
           l = kappa * hi
           ! Compute u*
-          utau = sqrt(tau(magu, ri_b, hi, z0, l, kappa))
+          utau = sqrt(tau_ptr(magu, ri_b, hi, z0, l, kappa))
           select case (bc_type)
          !  case ("neumann")
             ! Todo: Compute ts from q here
           case ("dirichlet")
              ! Compute q
-             q = heat_flux(ti, ts, ri_b, hi, z0h, 1.0_rp, l, utau, kappa)
+             q = heat_flux_ptr(ti, ts, ri_b, hi, magu, z0h, 1.0_rp, l, utau, kappa)
           case default
              call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
           end select
@@ -272,19 +256,21 @@ contains
   !> Based on Mauritsen et al. 2007
   function tau_stable(magu, ri_b, h, z0, l, kappa) result(tau)
     real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
-    real(kind=rp) :: tau, f_tau
+    real(kind=rp) :: tau
 
-    tau = magu**2/(log(h/z0)**2) * f_tau(ri_b)/f_tau(0) * (l/h)**2
+    tau = magu**2/(log(h/z0)**2) * f_tau_stable(ri_b)/ &
+          f_tau_stable(0.0_rp) * (l/h)**2
   end function tau_stable
 
-  function heat_flux_stable(ti, ts, ri_b, h, z1, pr,&
+  function heat_flux_stable(ti, ts, ri_b, h, magu, z1, pr,&
                             l, utau, kappa) result(heat_flux)
-    real(kind=rp), intent(in) :: ts, ti, ri_b, h,
+    real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
     real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
-    real(kind=rp) :: heat_flux, f_theta
+    real(kind=rp) :: heat_flux
 
     heat_flux = (ti - ts)/(log(h/z1)) * &
-                f_theta(ri_b)/abs(f_theta(0)) * (l/h) * utau/pr
+                f_theta_stable(ri_b)/abs(f_theta_stable(0.0_rp)) * &
+                (l/h) * utau/pr
   end function heat_flux_stable
 
   function f_tau_stable(ri_b) result(f_tau)
@@ -305,41 +291,41 @@ contains
   !> Based on Louis 1979
   function tau_convective(magu, ri_b, h, z0, l, kappa) result(tau)
     real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
-    real(kind=rp) :: tau, f_tau
+    real(kind=rp) :: tau
     real(kind=rp) :: a, b, c
 
     a =  kappa / log(h/z0)
     b = 2
     c = 7.4 * a**2 * b * (h/z0)**0.5
 
-    tau_conv = a**2 * magu**2 * F_m
+    tau = a**2 * magu**2 * f_tau_convective(ri_b, c)
   end function tau_convective
 
-  function heat_flux_convective(ti, ts, ri_b, h, z1, pr,&
+  function heat_flux_convective(ti, ts, ri_b, h, magu, z1, pr,&
                                 l, utau, kappa) result(heat_flux)
-    real(kind=rp), intent(in) :: ts, ti, ri_b, h,
+    real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
     real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
-    real(kind=rp) :: heat_flux, f_theta
+    real(kind=rp) :: heat_flux
     real(kind=rp) :: a, b, c
 
     a = kappa / log(h/z1)
     b = 2
     c = 5.3 * a**2 * b * (h/z1)**0.5
 
-    heat_flux_conv = - a**2 / 0.74 * magu * &
-                       (ti - ts) * F_h
+    heat_flux = - a**2 / 0.74 * magu * &
+                       (ti - ts) * f_theta_convective(ri_b, c)
 
   end function heat_flux_convective
 
-  function f_tau_convective(ri_b) result(f_tau)
-    real(kind=rp), intent(in) :: ri_b
+  function f_tau_convective(ri_b, c) result(f_tau)
+    real(kind=rp), intent(in) :: ri_b, c
     real(kind=rp) :: f_tau
 
     f_tau = 1 - 2*ri_b / (1 + c * abs(ri_b)**0.5)
   end function f_tau_convective
 
-  function f_theta_convective(ri_b) result(f_theta)
-    real(kind=rp), intent(in) :: ri_b
+  function f_theta_convective(ri_b, c) result(f_theta)
+    real(kind=rp), intent(in) :: ri_b, c
     real(kind=rp) :: f_theta
 
     f_theta = 1 - 2*ri_b / (1 + c * abs(ri_b)**0.5)
@@ -353,13 +339,13 @@ contains
     tau = (kappa*magu/log(h/z0))**2
   end function tau_neutral
 
-  function heat_flux_neutral(ti, ts, ri_b, h, z1, pr,&
+  function heat_flux_neutral(ti, ts, ri_b, h, magu, z1, pr,&
                             l, utau, kappa) result(heat_flux)
-    real(kind=rp), intent(in) :: ts, ti, ri_b, h,
+    real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
     real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
     real(kind=rp) :: heat_flux
 
-    heat_flux = kappa*utau *(ti - ts)/log(z/z0h)
+    heat_flux = kappa*utau *(ti - ts)/log(h/z1)
   end function heat_flux_neutral
 
 end module richardson_cpu
