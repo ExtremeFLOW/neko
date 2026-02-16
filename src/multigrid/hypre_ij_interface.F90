@@ -70,6 +70,20 @@ module hypre_ij_interface
   end interface
 
   interface
+     integer (c_int) function HYPRE_IJMatrixAddToValues(matrix, nrows, ncols, rows, cols, values) &
+          bind(c, name='HYPRE_IJMatrixAddToValues')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: matrix
+       integer(c_int), value :: nrows
+       type(c_ptr), value :: ncols
+       type(c_ptr), value :: rows
+       type(c_ptr), value :: cols
+       type(c_ptr), value :: values
+     end function HYPRE_IJMatrixAddToValues
+  end interface
+
+  interface
      integer (c_int) function HYPRE_IJMatrixAssemble(matrix) &
           bind(c, name='HYPRE_IJMatrixAssemble')
        use, intrinsic :: iso_c_binding
@@ -184,7 +198,6 @@ module hypre_ij_interface
   public :: hypre_vector_init, hypre_vector_fill, hypre_vector_assemble, hypre_vector_destroy
 
 contains
-
   !-----------------------------------------------------------------------------
   ! Matrix
   !-----------------------------------------------------------------------------
@@ -216,6 +229,17 @@ contains
      ierr = HYPRE_IJMatrixSetValues(A, nrows, c_loc(ncols), &
          c_loc(rows), c_loc(cols), c_loc(values))
   end subroutine hypre_matrix_fill
+
+  subroutine hypre_matrix_update(A, nrows, ncols, rows, cols, values)
+     type(c_ptr), intent(in) :: A
+     integer, intent(in) :: nrows, ncols(:)
+     integer, intent(in) :: rows(:), cols(:)
+     double precision, intent(in) :: values(:)
+     integer :: ierr
+     ! Fill the matrix with values.
+     ierr = HYPRE_IJMatrixAddToValues(A, nrows, c_loc(ncols), &
+         c_loc(rows), c_loc(cols), c_loc(values))
+  end subroutine hypre_matrix_update
 
   subroutine hypre_matrix_assemble(A, parcsr_A)
      type(c_ptr), intent(in) :: A
