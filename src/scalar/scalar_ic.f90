@@ -274,35 +274,25 @@ contains
     type(field_t), pointer :: ss
     type(field_list_t) :: s_tgt_list
 
-    ! use a pointer since import_fields needs a pointer as input
-    ss => s
-
     if (i .ne. target_idx) then
        write (log_buf, '(A,I0,A,I0)') "Loading scalar #", target_idx, &
                " into scalar #", i
        call neko_log%message(log_buf)
     end if
+    
+    ! use a pointer since import_fields needs a pointer as input
+    ss => s
 
-    ! i == 0 means it's the temperature field
-    if (target_idx .eq. 0) then
-       call import_fields(file_name, mesh_file_name, &
-               t = ss, & ! Load the contents of temperature field in ss
-               interpolate=interpolate, tolerance=tolerance)
+    ! Put ss in a field list of 1 element
+    call s_tgt_list%init(1)
+    call s_tgt_list%assign(1, ss)
 
-    ! If not temperature, we need to enter the scalar list 
-    else
+    call import_fields(file_name, mesh_file_name, &
+            s_target_list=s_tgt_list, &    ! The target field
+            s_index_list=(/target_idx/), & ! Take values from target scalar
+            interpolate=interpolate, tolerance=tolerance)
 
-      ! Put ss in a field list of 1 element
-      call s_tgt_list%init(1)
-      call s_tgt_list%assign(1, ss)
-
-      call import_fields(file_name, mesh_file_name, &
-              s_tgt_list=s_tgt_list, &     ! The target field
-              s_idx_list=(/target_idx/), & ! Take values from target scalar
-              interpolate=interpolate, tolerance=tolerance)
-
-      call s_tgt_list%free()
-    end if
+    call s_tgt_list%free()
 
     nullify(ss)
 
