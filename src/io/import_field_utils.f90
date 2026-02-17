@@ -63,24 +63,26 @@ contains
   !! @param p The field on which to import the pressure field of the fld data.
   !! @param t The field on which to import the temperature field of the fld 
   !! data.
-  !! @param s_target_list Field list containing the fields on which to import the
-  !! scalar fields of the fld data. Unless a list of target indices is 
+  !! @param s_target_list Field list containing the fields on which to import 
+  !! the scalar fields of the fld data. Unless a list of target indices is 
   !! provided in `s_index_list`, assigns field at position `i` in the list 
   !! to scalar `i` in the fld file.
-  !! @param s_index_list The list of target scalars from which to load the 
-  !! fields provided in s_target_list. Must have the same size as `s_target_list`.
-  !! For example, s_index_list = (/2,3/) will load scalar #2 in 
-  !! `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`. Index 0
-  !! corresponds to temperature by default. Therefore using 
+  !! @param s_index_list The list of scalars indices from which to load the 
+  !! fields provided in `s_target_list`. Must have the same size as 
+  !! `s_target_list`. For example, s_index_list = (/2,3/) will load scalar #2 
+  !! in `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`. 
+  !! Index  0 corresponds to temperature by default. Therefore using 
   !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`. 
   !! @param interpolate Wether or not to interpolate the fld data.
-  !! @param If interpolation is enabled, the tolerance to use for the point 
+  !! @param tolerance If interpolation is enabled, the tolerance to use for the
+  !! point 
   !! finding.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
   !! order for the same given mesh. 
   !! @note This subroutine also takes care of data movement from host to 
-  !! to device when necessary.
+  !! to device when necessary, i.e. only the required fields are copied to
+  !! device.
   subroutine import_fields(fname, mesh_fname, u, v, w, p, t, s_target_list, &
                   s_index_list, interpolate, tolerance)
     character(len=*), intent(in) :: fname
@@ -89,14 +91,25 @@ contains
     type(field_list_t), intent(in), optional :: s_target_list
     integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
-    real(kind=rp), intent(in) :: tolerance
+    real(kind=rp), intent(in), optional :: tolerance
 
     character(len=LOG_SIZE) :: log_buf
-    integer :: sample_idx, sample_mesh_idx
+    integer :: sample_idx, sample_mesh_idx, i
     character(len=NEKO_FNAME_LEN) :: fname_, mesh_fname_
 
+    logical :: interpolate_
+    real(kind=rp) :: tolerance_
+    
     type(file_t) :: f
     type(fld_file_data_t) :: fld_data
+    
+    ! ---- Default values 
+    interpolate_ = .false. 
+    if (present(interpolate)) interpolate_ = interpolate
+
+    tolerance_ = 0.000001_rp
+    if (present(tolerance)) tolerance_ = tolerance
+    ! ----
 
     call neko_log%section("Import fields") 
     call neko_log%message("File name     : " // trim(fname))
@@ -121,9 +134,9 @@ contains
     call f%init(trim(fname_))
 
     ! If interpolate, check if we need to read the mesh file
-    if (interpolate) then
+    if (interpolate_) then
 
-       write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
+       write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance_
        call neko_log%message(log_buf)
        
        ! If no mesh file is specified, use the default file name
@@ -158,10 +171,44 @@ contains
     ! Read the field file containing (u,v,w,p)
     call f%set_counter(sample_idx)
     call f%read(fld_data)
+    
+    !
+    ! Copy all vectors to device (GPU) since everything is read on the CPU
+    ! 
+    if (present(u)) call fld_data%u%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(v)) call fld_data%v%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(w)) call fld_data%w%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(p)) call fld_data%p%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(t)) call fld_data%t%copy_from(HOST_TO_DEVICE, .true.)
+    if (present(s_target_list)) then
+
+       if (present(s_index_list)) then
+          if (size(s_index_list) .ne. s_target_list%size()) then
+             call neko_error("Scalar lists must have same size!")
+          end if
+
+          do i = 1, size(s_index_list)
+             call fld_data%s(s_index_list(i))%copy_from(HOST_TO_DEVICE, .true.)
+          end do
+       else
+          do i = 1, s_target_list%size()
+             call fld_data%s(i)%copy_from(HOST_TO_DEVICE, .true.)
+          end do
+       end if ! if present s_index_list
+
+    end if ! present s_tgt
+
+
+    if (interpolate_) then
+       ! Sync coordinates to device for the interpolation
+       call fld_data%x%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%y%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%z%copy_from(HOST_TO_DEVICE, .true.)
+    end if
 
     ! Call the import of fields
-    call fld_data%import_fields(u, v, w, p, t, s_index_list, s_target_list, &
-            interpolate, tolerance)
+    call fld_data%import_fields(u, v, w, p, t, s_target_list, s_index_list, &
+            interpolate_, tolerance_)
 
     call neko_log%end_section() 
 

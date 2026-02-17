@@ -77,23 +77,25 @@ contains
   !! @param p The field on which to import the pressure field of the fld data.
   !! @param t The field on which to import the temperature field of the fld 
   !! data.
-  !! @param s_target_list Field list containing the fields on which to import the
-  !! scalar fields of the fld data. Unless a list of target indices is 
-  !! provided in `s_index_list`, assigns field `i` to scalar `i`.
-  !! @param s_index_list The list of target scalars from which to load the 
-  !! fields provided in s_target_list. Must have the same size as `s_target_list`.
-  !! For example, s_index_list = (/2,3/) will load scalar #2 in 
-  !! `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`. Index 0
-  !! corresponds to temperature by default. Therefore using 
+  !! @param s_target_list Field list containing the fields on which to import 
+  !! the scalar fields of the fld data. Unless a list of target indices is 
+  !! provided in `s_index_list`, assigns field at position `i` in the list 
+  !! to scalar `i` in the fld file.
+  !! @param s_index_list The list of scalars indices from which to load the 
+  !! fields provided in `s_target_list`. Must have the same size as 
+  !! `s_target_list`. For example, s_index_list = (/2,3/) will load scalar #2 
+  !! in `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`. 
+  !! Index  0 corresponds to temperature by default. Therefore using 
   !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`. 
   !! @param interpolate Wether or not to interpolate the fld data.
-  !! @param If interpolation is enabled, the tolerance to use for the point 
-  !! finding.
+  !! @param tolerance If interpolation is enabled, the tolerance to use for the
+  !! point finding.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
   !! order for the same given mesh. 
-  !! @note This subroutine also takes care of data movement from host to 
-  !! to device when necessary.
+  !! @attention No data movement between CPU and GPU is done in this 
+  !! subroutine. The required data must be copied manually beforehand (see
+  !! import_field_utils.f90).
   subroutine fld_file_data_import_fields(this, u, v, w, p, t, &
                   s_target_list, s_index_list, interpolate, tolerance)
     class(fld_file_data_t), intent(inout) :: this
@@ -177,33 +179,6 @@ contains
     end if
 
     !
-    ! Copy all vectors to device (GPU) since everything is read on the CPU
-    !
-    
-    if (present(u)) call this%u%copy_from(HOST_TO_DEVICE, .true.)
-    if (present(v)) call this%v%copy_from(HOST_TO_DEVICE, .true.)
-    if (present(w)) call this%w%copy_from(HOST_TO_DEVICE, .true.)
-    if (present(p)) call this%p%copy_from(HOST_TO_DEVICE, .true.)
-    if (present(t)) call this%t%copy_from(HOST_TO_DEVICE, .true.)
-    if (present(s_target_list)) then
-
-       if (present(s_index_list)) then
-          if (size(s_index_list) .ne. s_target_list%size()) then
-             call neko_error("Scalar lists must have same size!")
-          end if
-
-          do i = 1, size(s_index_list)
-             call this%s(s_index_list(i))%copy_from(HOST_TO_DEVICE, .true.)
-          end do
-       else
-          do i = 1, s_target_list%size()
-             call this%s(i)%copy_from(HOST_TO_DEVICE, .true.)
-          end do
-       end if ! if present s_index_list
-
-    end if ! present s_tgt
-
-    !
     ! Handling of interpolation and I/O
     !
     if (interpolate_) then
@@ -214,11 +189,6 @@ contains
           call neko_error("both dof and msh must be associated")
        end if
        
-       ! Sync coordinates to device for the interpolation
-       call fld_data%x%copy_from(HOST_TO_DEVICE, .false.)
-       call fld_data%y%copy_from(HOST_TO_DEVICE, .false.)
-       call fld_data%z%copy_from(HOST_TO_DEVICE, .true.)
-
        ! Generates an interpolator object and performs the point search
        call this%generate_interpolator(global_interp, dof, msh, &
             tolerance_)
