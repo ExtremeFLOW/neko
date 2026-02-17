@@ -71,7 +71,8 @@ module device_deardorff_nut
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           delta_d, nut_d, temperature_alphat, TKE_alphat, TKE_source, &
-          c_k, T0, g, eps, n) &
+          c_k, T0, g1, g2, g3, &
+          eps, n) &
           bind(c, name = 'cuda_deardorff_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
