@@ -1,7 +1,6 @@
 var namespacesimcomp__executor =
 [
     [ "simcomp_executor_t", "de/d74/structsimcomp__executor_1_1simcomp__executor__t.html", "de/d74/structsimcomp__executor_1_1simcomp__executor__t" ],
-    [ "simcomp_executor_add", "d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd", null ],
     [ "simcomp_executor_compute", "d2/d78/namespacesimcomp__executor.html#a2f6d6acefb8cc9db02882f9a464ddf8c", null ],
     [ "simcomp_executor_finalize", "d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e", null ],
     [ "simcomp_executor_free", "d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359", null ],

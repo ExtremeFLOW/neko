@@ -339,138 +339,136 @@ $(document).ready(function(){initNavTree('db/d30/global__interpolation__comm_8f9
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_send, n_recv</div>
 <div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n_send)</span>, <span class="keywordtype">intent(inout)</span> :: send</div>
 <div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n_recv)</span>, <span class="keywordtype">intent(inout)</span> :: recv</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordtype">type</span>(c_ptr) :: null_ptr = c_null_ptr</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordtype">integer</span> :: i, j, ierr, src, dst, thrdid</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad2266b9a6c07f634dde74277f82a1260">sp</a>(:)</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordtype">integer</span> :: nreqs</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    thrdid = 0</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="comment">!$ thrdid = omp_get_thread_num()</span></div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span> </div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="comment">! Issue non-blocking receives</span></div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>       <span class="comment">! We should not need this extra associate block, ant it works</span></div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       <span class="comment">! great without it for GNU, Intel, NEC and Cray, but throws an</span></div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>       <span class="comment">! ICE with NAG.</span></div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>       <span class="comment">! Issue recv requests, we will later check that these have finished</span></div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>       <span class="comment">! in nbwait</span></div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>       associate(recv_data =&gt; this%recv_buf(i)%data)</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>         <span class="keyword">call </span>mpi_irecv(recv_data, <span class="keyword">size</span>(recv_data), &amp;</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>              <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a>, this%recv_pe(i), thrdid, &amp;</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>              this%comm, this%recv_buf(i)%request, ierr)</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       this%recv_buf(i)%flag = .false.</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="comment">! Issue non-blocking sends</span></div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>       dst = this%send_pe(i)</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       <span class="comment">! Gather data from u into buffers according to indices in send_dof</span></div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>       <span class="comment">! We want to send contigous data to each process in send_pe</span></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>       <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad2266b9a6c07f634dde74277f82a1260">sp</a> =&gt; this%send_dof(dst)%array()</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>       <span class="keywordflow">do</span> concurrent(j = 1:this%send_dof(dst)%size())</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>          this%send_buf(i)%data(j) = send(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad2266b9a6c07f634dde74277f82a1260">sp</a>(j))</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>       <span class="comment">! We should not need this extra associate block, ant it works</span></div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>       <span class="comment">! great without it for GNU, Intel, NEC and Cray, but throws an</span></div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       <span class="comment">! ICE with NAG.</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>       associate(send_data =&gt; this%send_buf(i)%data)</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>         <span class="keyword">call </span>mpi_isend(send_data, this%send_dof(dst)%size(), &amp;</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>              <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a>, this%send_pe(i), thrdid, &amp;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>              this%comm, this%send_buf(i)%request, ierr)</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>       <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>       this%send_buf(i)%flag = .false.</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="comment">! Wait for non-blocking operations</span></div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    nreqs = <span class="keyword">size</span>(this%recv_pe)</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (nreqs .gt. 0)</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>          <span class="keywordflow">if</span> (.not. this%recv_buf(i)%flag) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>             <span class="comment">! Check if we have recieved the data we want</span></div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>             <span class="keyword">call </span>mpi_test(this%recv_buf(i)%request, this%recv_buf(i)%flag, &amp;</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>                  this%recv_buf(i)%status, ierr)</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>             <span class="comment">! If it has been received</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>             <span class="keywordflow">if</span> (this%recv_buf(i)%flag) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>                <span class="comment">! One more request has been succesful</span></div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>                nreqs = nreqs - 1</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>                src = this%recv_pe(i)</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>                sp =&gt; this%recv_dof(src)%array()</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>                <span class="comment">!NEC$ IVDEP</span></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>                <span class="keywordflow">do</span> concurrent(j = 1:this%recv_dof(src)%size())</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>                   recv(sp(j)) = this%recv_buf(i)%data(j)</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordflow">                end do</span></div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keywordflow">             end if</span></div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="comment">! Finally, check that the non-blocking sends this rank have issued have also</span></div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="comment">! completed successfully</span></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    nreqs = <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (nreqs .gt. 0)</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>          <span class="keywordflow">if</span> (.not. this%send_buf(i)%flag) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>             <span class="keyword">call </span>mpi_test(this%send_buf(i)%request, this%send_buf(i)%flag, &amp;</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>                  mpi_status_ignore, ierr)</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>             <span class="keywordflow">if</span> (this%send_buf(i)%flag) nreqs = nreqs - 1</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span> </div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordtype">integer</span> :: i, j, ierr, src, dst, thrdid</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: sp(:)</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keywordtype">integer</span> :: nreqs</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    thrdid = 0</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="comment">!$ thrdid = omp_get_thread_num()</span></div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="comment">! Issue non-blocking receives</span></div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>       <span class="comment">! We should not need this extra associate block, ant it works</span></div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>       <span class="comment">! great without it for GNU, Intel, NEC and Cray, but throws an</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       <span class="comment">! ICE with NAG.</span></div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>       <span class="comment">! Issue recv requests, we will later check that these have finished</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>       <span class="comment">! in nbwait</span></div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>       associate(recv_data =&gt; this%recv_buf(i)%data)</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>         <span class="keyword">call </span>mpi_irecv(recv_data, <span class="keyword">size</span>(recv_data), &amp;</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>              <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a>, this%recv_pe(i), thrdid, &amp;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>              this%comm, this%recv_buf(i)%request, ierr)</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>       <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       this%recv_buf(i)%flag = .false.</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="comment">! Issue non-blocking sends</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       dst = this%send_pe(i)</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>       <span class="comment">! Gather data from u into buffers according to indices in send_dof</span></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       <span class="comment">! We want to send contigous data to each process in send_pe</span></div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>       <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad2266b9a6c07f634dde74277f82a1260">sp</a> =&gt; this%send_dof(dst)%array()</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>       <span class="keywordflow">do</span> concurrent(j = 1:this%send_dof(dst)%size())</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>          this%send_buf(i)%data(j) = send(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad2266b9a6c07f634dde74277f82a1260">sp</a>(j))</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>       <span class="comment">! We should not need this extra associate block, ant it works</span></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>       <span class="comment">! great without it for GNU, Intel, NEC and Cray, but throws an</span></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>       <span class="comment">! ICE with NAG.</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       associate(send_data =&gt; this%send_buf(i)%data)</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>         <span class="keyword">call </span>mpi_isend(send_data, this%send_dof(dst)%size(), &amp;</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>              <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a>, this%send_pe(i), thrdid, &amp;</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>              this%comm, this%send_buf(i)%request, ierr)</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>       <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>       this%send_buf(i)%flag = .false.</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="comment">! Wait for non-blocking operations</span></div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span> </div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    nreqs = <span class="keyword">size</span>(this%recv_pe)</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (nreqs .gt. 0)</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>          <span class="keywordflow">if</span> (.not. this%recv_buf(i)%flag) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>             <span class="comment">! Check if we have recieved the data we want</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>             <span class="keyword">call </span>mpi_test(this%recv_buf(i)%request, this%recv_buf(i)%flag, &amp;</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>                  this%recv_buf(i)%status, ierr)</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>             <span class="comment">! If it has been received</span></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>             <span class="keywordflow">if</span> (this%recv_buf(i)%flag) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>                <span class="comment">! One more request has been succesful</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>                nreqs = nreqs - 1</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>                src = this%recv_pe(i)</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>                sp =&gt; this%recv_dof(src)%array()</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>                <span class="comment">!NEC$ IVDEP</span></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>                <span class="keywordflow">do</span> concurrent(j = 1:this%recv_dof(src)%size())</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>                   recv(sp(j)) = this%recv_buf(i)%data(j)</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span><span class="keywordflow">                end do</span></div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordflow">             end if</span></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <span class="comment">! Finally, check that the non-blocking sends this rank have issued have also</span></div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="comment">! completed successfully</span></div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    nreqs = <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (nreqs .gt. 0)</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>          <span class="keywordflow">if</span> (.not. this%send_buf(i)%flag) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>             <span class="keyword">call </span>mpi_test(this%send_buf(i)%request, this%send_buf(i)%flag, &amp;</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>                  mpi_status_ignore, ierr)</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>             <span class="keywordflow">if</span> (this%send_buf(i)%flag) nreqs = nreqs - 1</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span> </div>
 </div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d4a/namespaceglb__intrp__comm.html#a4fb6a09e86b10edfd8ce3076ce874a9d">glb_intrp_comm_sendrecv</a></div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
-<div class="foldopen" id="foldopen00334" data-start="" data-end="">
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno"><a class="line" href="../../d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">  334</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">glb_intrp_comm_nbwait_no_op</a>(this)</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html">glb_intrp_comm_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordtype">integer</span> :: i, j, src, ierr</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    <span class="keywordtype">integer</span> , <span class="keywordtype">pointer</span> :: sp(:)</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="keywordtype">integer</span> :: nreqs</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d4a/namespaceglb__intrp__comm.html#a4fb6a09e86b10edfd8ce3076ce874a9d">glb_intrp_comm_sendrecv</a></div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
+<div class="foldopen" id="foldopen00333" data-start="" data-end="">
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno"><a class="line" href="../../d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">  333</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">glb_intrp_comm_nbwait_no_op</a>(this)</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html">glb_intrp_comm_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="keywordtype">integer</span> :: i, ierr</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordtype">integer</span> :: nreqs</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span> </div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    nreqs = <span class="keyword">size</span>(this%recv_pe)</div>
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span> </div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    nreqs = <span class="keyword">size</span>(this%recv_pe)</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (nreqs .gt. 0)</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>          <span class="keywordflow">if</span> (.not. this%recv_buf(i)%flag) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>             <span class="comment">! Check if we have recieved the data we want</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>             <span class="keyword">call </span>mpi_test(this%recv_buf(i)%request, this%recv_buf(i)%flag, &amp;</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>                  this%recv_buf(i)%status, ierr)</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>             <span class="comment">! If it has been received</span></div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>             <span class="keywordflow">if</span> (this%recv_buf(i)%flag) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>                <span class="comment">! One more request has been succesful</span></div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>                nreqs = nreqs - 1</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="keywordflow">             end if</span></div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="comment">! Finally, check that the non-blocking sends this rank have issued have also</span></div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="comment">! completed successfully</span></div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span> </div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    nreqs = <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (nreqs .gt. 0)</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>          <span class="keywordflow">if</span> (.not. this%send_buf(i)%flag) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>             <span class="keyword">call </span>mpi_test(this%send_buf(i)%request, this%send_buf(i)%flag, &amp;</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>                  mpi_status_ignore, ierr)</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>             <span class="keywordflow">if</span> (this%send_buf(i)%flag) nreqs = nreqs - 1</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (nreqs .gt. 0)</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>          <span class="keywordflow">if</span> (.not. this%recv_buf(i)%flag) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>             <span class="comment">! Check if we have recieved the data we want</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>             <span class="keyword">call </span>mpi_test(this%recv_buf(i)%request, this%recv_buf(i)%flag, &amp;</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>                  this%recv_buf(i)%status, ierr)</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>             <span class="comment">! If it has been received</span></div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>             <span class="keywordflow">if</span> (this%recv_buf(i)%flag) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>                <span class="comment">! One more request has been succesful</span></div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>                nreqs = nreqs - 1</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span><span class="keywordflow">             end if</span></div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="comment">! Finally, check that the non-blocking sends this rank have issued have also</span></div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <span class="comment">! completed successfully</span></div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    nreqs = <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (nreqs .gt. 0)</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>          <span class="keywordflow">if</span> (.not. this%send_buf(i)%flag) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>             <span class="keyword">call </span>mpi_test(this%send_buf(i)%request, this%send_buf(i)%flag, &amp;</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>                  mpi_status_ignore, ierr)</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>             <span class="keywordflow">if</span> (this%send_buf(i)%flag) nreqs = nreqs - 1</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span> </div>
 </div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">glb_intrp_comm_nbwait_no_op</a></div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span> </div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d7/d4a/namespaceglb__intrp__comm.html">glb_intrp_comm</a></div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">glb_intrp_comm_nbwait_no_op</a></div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d7/d4a/namespaceglb__intrp__comm.html">glb_intrp_comm</a></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a3119ac9b00aa5192f43296a1edb405bc"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">comm::mpi_real_precision</a></div><div class="ttdeci">type(mpi_datatype), public mpi_real_precision</div><div class="ttdoc">MPI type for working precision of REAL types.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00051">comm.F90:51</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a50dc807442d4f821f0befa31b86f735d"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">comm::pe_size</a></div><div class="ttdeci">integer, public pe_size</div><div class="ttdoc">MPI size of communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00059">comm.F90:59</a></div></div>
@@ -479,7 +477,7 @@ $(document).ready(function(){initNavTree('db/d30/global__interpolation__comm_8f9
 <div class="ttc" id="anamespaceglb__intrp__comm_html_a43baeb49df2eaa6cad07eb711ad70a82"><div class="ttname"><a href="../../d7/d4a/namespaceglb__intrp__comm.html#a43baeb49df2eaa6cad07eb711ad70a82">glb_intrp_comm::glb_intrp_comm_init_dofs</a></div><div class="ttdeci">subroutine glb_intrp_comm_init_dofs(this, comm_size)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d30/global__interpolation__comm_8f90_source.html#l00155">global_interpolation_comm.f90:156</a></div></div>
 <div class="ttc" id="anamespaceglb__intrp__comm_html_a44b69c9d77cbad783d5ceb3a68a42056"><div class="ttname"><a href="../../d7/d4a/namespaceglb__intrp__comm.html#a44b69c9d77cbad783d5ceb3a68a42056">glb_intrp_comm::glb_intrp_comm_free</a></div><div class="ttdeci">subroutine glb_intrp_comm_free(this)</div><div class="ttdoc">Deallocate MPI based communication method.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d30/global__interpolation__comm_8f90_source.html#l00127">global_interpolation_comm.f90:128</a></div></div>
 <div class="ttc" id="anamespaceglb__intrp__comm_html_a4fb6a09e86b10edfd8ce3076ce874a9d"><div class="ttname"><a href="../../d7/d4a/namespaceglb__intrp__comm.html#a4fb6a09e86b10edfd8ce3076ce874a9d">glb_intrp_comm::glb_intrp_comm_sendrecv</a></div><div class="ttdeci">subroutine glb_intrp_comm_sendrecv(this, send, recv, n_send, n_recv)</div><div class="ttdoc">Non-blocking sendrecv.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d30/global__interpolation__comm_8f90_source.html#l00238">global_interpolation_comm.f90:239</a></div></div>
-<div class="ttc" id="anamespaceglb__intrp__comm_html_a58aeb2aa029f5afee73c28aba5fe631e"><div class="ttname"><a href="../../d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">glb_intrp_comm::glb_intrp_comm_nbwait_no_op</a></div><div class="ttdeci">subroutine glb_intrp_comm_nbwait_no_op(this)</div><div class="ttdoc">Wait for non-blocking operations.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d30/global__interpolation__comm_8f90_source.html#l00334">global_interpolation_comm.f90:335</a></div></div>
+<div class="ttc" id="anamespaceglb__intrp__comm_html_a58aeb2aa029f5afee73c28aba5fe631e"><div class="ttname"><a href="../../d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">glb_intrp_comm::glb_intrp_comm_nbwait_no_op</a></div><div class="ttdeci">subroutine glb_intrp_comm_nbwait_no_op(this)</div><div class="ttdoc">Wait for non-blocking operations.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d30/global__interpolation__comm_8f90_source.html#l00333">global_interpolation_comm.f90:334</a></div></div>
 <div class="ttc" id="anamespaceglb__intrp__comm_html_a5bc24b96fa436117e5c79d1a10e3a44b"><div class="ttname"><a href="../../d7/d4a/namespaceglb__intrp__comm.html#a5bc24b96fa436117e5c79d1a10e3a44b">glb_intrp_comm::glb_intrp_comm_init</a></div><div class="ttdeci">subroutine glb_intrp_comm_init(this, send_pe, recv_pe, comm)</div><div class="ttdoc">Initialise MPI based communication method.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d30/global__interpolation__comm_8f90_source.html#l00095">global_interpolation_comm.f90:96</a></div></div>
 <div class="ttc" id="anamespaceglb__intrp__comm_html_a60a3b2d3834bc562fb8c694ebf69531f"><div class="ttname"><a href="../../d7/d4a/namespaceglb__intrp__comm.html#a60a3b2d3834bc562fb8c694ebf69531f">glb_intrp_comm::glb_intrp_comm_free_order</a></div><div class="ttdeci">subroutine glb_intrp_comm_free_order(this)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d30/global__interpolation__comm_8f90_source.html#l00224">global_interpolation_comm.f90:225</a></div></div>
 <div class="ttc" id="anamespaceglb__intrp__comm_html_a944116335561c5429cacfaae7b1cdb4c"><div class="ttname"><a href="../../d7/d4a/namespaceglb__intrp__comm.html#a944116335561c5429cacfaae7b1cdb4c">glb_intrp_comm::glb_intrp_comm_free_dofs</a></div><div class="ttdeci">subroutine glb_intrp_comm_free_dofs(this)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d30/global__interpolation__comm_8f90_source.html#l00178">global_interpolation_comm.f90:179</a></div></div>
@@ -497,7 +495,7 @@ $(document).ready(function(){initNavTree('db/d30/global__interpolation__comm_8f9
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_83ce56167ca984e1f9ef008c34f8da6d.html">global_interpolation</a></li><li class="navelem"><a class="el" href="../../db/d30/global__interpolation__comm_8f90.html">global_interpolation_comm.f90</a></li>
-    <li class="footer">Generated on Mon Feb 16 2026 04:19:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Feb 17 2026 04:18:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

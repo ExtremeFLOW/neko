@@ -17,6 +17,10 @@ var simulation__component_8f90 =
     [ "simulation_component_parse_json", "d9/d55/simulation__component_8f90.html#ae36a1c18f230607b04b28352d3c5f068", null ],
     [ "simulation_component_preprocess_wrapper", "d9/d55/simulation__component_8f90.html#ade8539079a6c9703b477359d3a5d06ad", null ],
     [ "simulation_component_restart_wrapper", "d9/d55/simulation__component_8f90.html#a611ee043ca2e2d68faa2ccc75b98f6f3", null ],
+    [ "simulation_component_wrapper_free", "d9/d55/simulation__component_8f90.html#a234e5706646dbb5f3fd6aede8a1f9c45", null ],
+    [ "simulation_component_wrapper_init", "d9/d55/simulation__component_8f90.html#a69e81ab0c3432721c64e59fccead976c", null ],
+    [ "simulation_component_wrapper_is_allocated", "d9/d55/simulation__component_8f90.html#a9a5a82ed79dcbb8b7a29100e65f22727", null ],
+    [ "simulation_component_wrapper_move_from", "d9/d55/simulation__component_8f90.html#a8e912fdf4c25713b94587bd79217aed9", null ],
     [ "simcomp_registry", "d9/d55/simulation__component_8f90.html#a5143779cdbc0e60dbed0cf4e4663366e", null ],
     [ "simcomp_registry_size", "d9/d55/simulation__component_8f90.html#af2e71b24c9510bf57e96caf9df526a94", null ]
 ];

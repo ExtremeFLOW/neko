@@ -165,6 +165,18 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:acba133f09063f0a6c223b8a04e339270" id="r_acba133f09063f0a6c223b8a04e339270"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/def/namespacesimulation__component.html#acba133f09063f0a6c223b8a04e339270">compute_</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, time)</td></tr>
 <tr class="memdesc:acba133f09063f0a6c223b8a04e339270"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy compute function.  <br /></td></tr>
 <tr class="separator:acba133f09063f0a6c223b8a04e339270"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69e81ab0c3432721c64e59fccead976c" id="r_a69e81ab0c3432721c64e59fccead976c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/def/namespacesimulation__component.html#a69e81ab0c3432721c64e59fccead976c">simulation_component_wrapper_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, json, case)</td></tr>
+<tr class="memdesc:a69e81ab0c3432721c64e59fccead976c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initializes the object.  <br /></td></tr>
+<tr class="separator:a69e81ab0c3432721c64e59fccead976c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a234e5706646dbb5f3fd6aede8a1f9c45" id="r_a234e5706646dbb5f3fd6aede8a1f9c45"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/def/namespacesimulation__component.html#a234e5706646dbb5f3fd6aede8a1f9c45">simulation_component_wrapper_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a234e5706646dbb5f3fd6aede8a1f9c45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. Just deallocates the pointer.  <br /></td></tr>
+<tr class="separator:a234e5706646dbb5f3fd6aede8a1f9c45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e912fdf4c25713b94587bd79217aed9" id="r_a8e912fdf4c25713b94587bd79217aed9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/def/namespacesimulation__component.html#a8e912fdf4c25713b94587bd79217aed9">simulation_component_wrapper_move_from</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">other</a>)</td></tr>
+<tr class="memdesc:a8e912fdf4c25713b94587bd79217aed9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment operator for the wrapper, needed for storing simcomps in lists and arrays.  <br /></td></tr>
+<tr class="separator:a8e912fdf4c25713b94587bd79217aed9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a5a82ed79dcbb8b7a29100e65f22727" id="r_a9a5a82ed79dcbb8b7a29100e65f22727"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/def/namespacesimulation__component.html#a9a5a82ed79dcbb8b7a29100e65f22727">simulation_component_wrapper_is_allocated</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a9a5a82ed79dcbb8b7a29100e65f22727"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return allocation status.  <br /></td></tr>
+<tr class="separator:a9a5a82ed79dcbb8b7a29100e65f22727"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -218,7 +230,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00480">480</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00491">491</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -262,7 +274,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00471">471</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00482">482</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -306,7 +318,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00462">462</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00473">473</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -350,7 +362,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00438">438</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00449">449</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -378,7 +390,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00408">408</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00419">419</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -422,7 +434,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00197">197</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00208">208</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -494,7 +506,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00259">259</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00270">270</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -587,7 +599,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00228">228</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00239">239</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -680,7 +692,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00284">284</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00295">295</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -724,7 +736,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00425">425</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00436">436</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -768,7 +780,158 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00450">450</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00461">461</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+
+</div>
+</div>
+<a id="a234e5706646dbb5f3fd6aede8a1f9c45" name="a234e5706646dbb5f3fd6aede8a1f9c45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a234e5706646dbb5f3fd6aede8a1f9c45">&#9670;&#160;</a></span>simulation_component_wrapper_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> simulation_component::simulation_component_wrapper_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00513">513</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+
+</div>
+</div>
+<a id="a69e81ab0c3432721c64e59fccead976c" name="a69e81ab0c3432721c64e59fccead976c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69e81ab0c3432721c64e59fccead976c">&#9670;&#160;</a></span>simulation_component_wrapper_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> simulation_component::simulation_component_wrapper_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>case</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00502">502</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9a5a82ed79dcbb8b7a29100e65f22727" name="a9a5a82ed79dcbb8b7a29100e65f22727"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a5a82ed79dcbb8b7a29100e65f22727">&#9670;&#160;</a></span>simulation_component_wrapper_is_allocated()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a> simulation_component::simulation_component_wrapper_is_allocated </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The wrapper to check. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00538">538</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+
+</div>
+</div>
+<a id="a8e912fdf4c25713b94587bd79217aed9" name="a8e912fdf4c25713b94587bd79217aed9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e912fdf4c25713b94587bd79217aed9">&#9670;&#160;</a></span>simulation_component_wrapper_move_from()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> simulation_component::simulation_component_wrapper_move_from </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>other</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The wrapper to move to. </td></tr>
+    <tr><td class="paramname">other</td><td>The other wrapper to move from. Will be deallocated. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00527">527</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -785,7 +948,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00186">186</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00197">197</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -809,7 +972,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00189">189</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00200">200</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -819,7 +982,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/def/namespacesimulation__component.html">simulation_component</a></li>
-    <li class="footer">Generated on Mon Feb 16 2026 04:19:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Feb 17 2026 04:18:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

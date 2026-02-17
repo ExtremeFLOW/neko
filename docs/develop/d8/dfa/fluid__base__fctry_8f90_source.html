@@ -152,25 +152,24 @@ $(document).ready(function(){initNavTree('d8/dfa/fluid__base__fctry_8f90_source.
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keyword">module</span> subroutine fluid_scheme_base_factory(object, type_name)</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">class</span>(fluid_scheme_base_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">allocatable</span> :: object</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">character(len=*)</span> :: type_name</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: type_string</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(object)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>       <span class="keyword">call </span>object%free()</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       <span class="keyword">deallocate</span>(object)</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">select case</span> (trim(type_name))</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;pnpn&#39;</span>)</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>::object)</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;compressible&#39;</span>)</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../da/d12/structfluid__scheme__compressible__euler_1_1fluid__scheme__compressible__euler__t.html">fluid_scheme_compressible_euler_t</a>::object)</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keywordflow">    case default</span></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a>(<span class="stringliteral">&quot;fluid scheme base&quot;</span>, type_name, fluid_known_types)</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keywordflow">    end select</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  <span class="keyword">end subroutine </span>fluid_scheme_base_factory</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keyword">end </span>submodule fluid_base_fctry</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(object)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>       <span class="keyword">call </span>object%free()</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>       <span class="keyword">deallocate</span>(object)</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordflow">select case</span> (trim(type_name))</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;pnpn&#39;</span>)</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>::object)</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;compressible&#39;</span>)</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../da/d12/structfluid__scheme__compressible__euler_1_1fluid__scheme__compressible__euler__t.html">fluid_scheme_compressible_euler_t</a>::object)</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keywordflow">    case default</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a>(<span class="stringliteral">&quot;fluid scheme base&quot;</span>, type_name, fluid_known_types)</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  <span class="keyword">end subroutine </span>fluid_scheme_base_factory</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keyword">end </span>submodule fluid_base_fctry</div>
 <div class="ttc" id="anamespacefluid__pnpn_html"><div class="ttname"><a href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></div><div class="ttdoc">Modular version of the Classic Nek5000 Pn/Pn formulation for fluids.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/db9/fluid__pnpn_8f90_source.html#l00034">fluid_pnpn.f90:34</a></div></div>
 <div class="ttc" id="anamespacefluid__scheme__base_html"><div class="ttname"><a href="../../df/d6a/namespacefluid__scheme__base.html">fluid_scheme_base</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00033">fluid_scheme_base.f90:33</a></div></div>
 <div class="ttc" id="anamespacefluid__scheme__compressible__euler_html"><div class="ttname"><a href="../../da/d14/namespacefluid__scheme__compressible__euler.html">fluid_scheme_compressible_euler</a></div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00033">fluid_scheme_compressible_euler.f90:33</a></div></div>
@@ -184,7 +183,7 @@ $(document).ready(function(){initNavTree('d8/dfa/fluid__base__fctry_8f90_source.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d8/dfa/fluid__base__fctry_8f90.html">fluid_base_fctry.f90</a></li>
-    <li class="footer">Generated on Mon Feb 16 2026 04:19:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Feb 17 2026 04:18:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
