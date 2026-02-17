@@ -51,15 +51,43 @@ module import_field_utils
 
 contains
 
-  !> Reads an fld file and import fields, with/without interpolation.
-  subroutine import_fields(fname, mesh_fname, &
-                  u, v, w, p, t, s_idx_list, s_tgt_list, interpolate, &
-                  tolerance)
+  !> Imports fields from an fld file, potentially with 
+  !! interpolation.
+  !! @param fname The name of the fld file, e.g. "my_field0.f00019".
+  !! @param mesh_fname The name of the fld file containing the spatial
+  !! coordinates, if interpolation is enabled and fname does not already
+  !! contain them.
+  !! @param u The field on which to import the u component of the fld data.
+  !! @param v The field on which to import the v component of the fld data.
+  !! @param w The field on which to import the w component of the fld data.
+  !! @param p The field on which to import the pressure field of the fld data.
+  !! @param t The field on which to import the temperature field of the fld 
+  !! data.
+  !! @param s_target_list Field list containing the fields on which to import the
+  !! scalar fields of the fld data. Unless a list of target indices is 
+  !! provided in `s_index_list`, assigns field at position `i` in the list 
+  !! to scalar `i` in the fld file.
+  !! @param s_index_list The list of target scalars from which to load the 
+  !! fields provided in s_target_list. Must have the same size as `s_target_list`.
+  !! For example, s_index_list = (/2,3/) will load scalar #2 in 
+  !! `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`. Index 0
+  !! corresponds to temperature by default. Therefore using 
+  !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`. 
+  !! @param interpolate Wether or not to interpolate the fld data.
+  !! @param If interpolation is enabled, the tolerance to use for the point 
+  !! finding.
+  !! @note If interpolation is disabled, space-to-space interpolation is still
+  !! performed within each element to allow for seamless change of polynomial
+  !! order for the same given mesh. 
+  !! @note This subroutine also takes care of data movement from host to 
+  !! to device when necessary.
+  subroutine import_fields(fname, mesh_fname, u, v, w, p, t, s_target_list, &
+                  s_index_list, interpolate, tolerance)
     character(len=*), intent(in) :: fname
     character(len=*), intent(in), optional :: mesh_fname
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
-    type(field_list_t), intent(in), optional :: s_tgt_list
-    integer, intent(in), optional :: s_idx_list(:)
+    type(field_list_t), intent(in), optional :: s_target_list
+    integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
     real(kind=rp), intent(in) :: tolerance
 
@@ -125,11 +153,6 @@ contains
           call f%read(fld_data)
        end if
        
-       ! Sync coordinates to device for the interpolation
-       call fld_data%x%copy_from(HOST_TO_DEVICE, .false.)
-       call fld_data%y%copy_from(HOST_TO_DEVICE, .false.)
-       call fld_data%z%copy_from(HOST_TO_DEVICE, .true.)
-
     end if
 
     ! Read the field file containing (u,v,w,p)
@@ -137,10 +160,11 @@ contains
     call f%read(fld_data)
 
     ! Call the import of fields
-    call fld_data%import_fields(u, v, w, p, t, s_idx_list, s_tgt_list, &
+    call fld_data%import_fields(u, v, w, p, t, s_index_list, s_target_list, &
             interpolate, tolerance)
 
     call neko_log%end_section() 
 
   end subroutine import_fields
+
 end module import_field_utils

@@ -77,27 +77,29 @@ contains
   !! @param p The field on which to import the pressure field of the fld data.
   !! @param t The field on which to import the temperature field of the fld 
   !! data.
-  !! @param s_tgt_list Field list containing the fields on which to import the
+  !! @param s_target_list Field list containing the fields on which to import the
   !! scalar fields of the fld data. Unless a list of target indices is 
-  !! provided in `s_idx_list`, assigns field `i` to scalar `i`.
-  !! @param s_idx_list The list of target scalars from which to load the 
-  !! fields provided in s_tgt_list. Must have the same size as `s_tgt_list`.
-  !! For example, s_idx_list = (/2,3/) will load scalar #2 in 
-  !! `s_tgt_list%items(1)` and scalar #3 in `s_tgt_list%items(2)`. Index 0
+  !! provided in `s_index_list`, assigns field `i` to scalar `i`.
+  !! @param s_index_list The list of target scalars from which to load the 
+  !! fields provided in s_target_list. Must have the same size as `s_target_list`.
+  !! For example, s_index_list = (/2,3/) will load scalar #2 in 
+  !! `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`. Index 0
   !! corresponds to temperature by default. Therefore using 
-  !! `s_idx_list = (/0/)` is equivalent to using the argument `t=...`. 
+  !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`. 
   !! @param interpolate Wether or not to interpolate the fld data.
   !! @param If interpolation is enabled, the tolerance to use for the point 
   !! finding.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
   !! order for the same given mesh. 
-  subroutine fld_file_data_import_fields(this, u, v, w, p, t, s_idx_list, &
-                  s_tgt_list, interpolate, tolerance)
+  !! @note This subroutine also takes care of data movement from host to 
+  !! to device when necessary.
+  subroutine fld_file_data_import_fields(this, u, v, w, p, t, &
+                  s_target_list, s_index_list, interpolate, tolerance)
     class(fld_file_data_t), intent(inout) :: this
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
-    type(field_list_t), intent(in), optional :: s_tgt_list
-    integer, intent(in), optional :: s_idx_list(:)
+    type(field_list_t), intent(in), optional :: s_target_list
+    integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
     real(kind=rp), intent(in), optional :: tolerance
 
@@ -145,13 +147,13 @@ contains
        dof => p%dof; msh => p%msh; Xh => p%Xh
     else if (present(t)) then
        dof => t%dof; msh => t%msh; Xh => t%Xh
-    else if (present(s_tgt_list)) then
-       if (s_tgt_list%size() .eq. 0) then
+    else if (present(s_target_list)) then
+       if (s_target_list%size() .eq. 0) then
           call neko_error("Scalar target list is empty") 
        else
-          dof => s_tgt_list%items(1)%ptr%dof
-          msh => s_tgt_list%items(1)%ptr%msh
-          Xh => s_tgt_list%items(1)%ptr%Xh
+          dof => s_target_list%items(1)%ptr%dof
+          msh => s_target_list%items(1)%ptr%msh
+          Xh => s_target_list%items(1)%ptr%Xh
        end if
     else
        call neko_error("At least one field must be passed")
@@ -177,26 +179,27 @@ contains
     !
     ! Copy all vectors to device (GPU) since everything is read on the CPU
     !
+    
     if (present(u)) call this%u%copy_from(HOST_TO_DEVICE, .true.)
     if (present(v)) call this%v%copy_from(HOST_TO_DEVICE, .true.)
     if (present(w)) call this%w%copy_from(HOST_TO_DEVICE, .true.)
     if (present(p)) call this%p%copy_from(HOST_TO_DEVICE, .true.)
     if (present(t)) call this%t%copy_from(HOST_TO_DEVICE, .true.)
-    if (present(s_tgt_list)) then
+    if (present(s_target_list)) then
 
-       if (present(s_idx_list)) then
-          if (size(s_idx_list) .ne. s_tgt_list%size()) then
+       if (present(s_index_list)) then
+          if (size(s_index_list) .ne. s_target_list%size()) then
              call neko_error("Scalar lists must have same size!")
           end if
 
-          do i = 1, size(s_idx_list)
-             call this%s(s_idx_list(i))%copy_from(HOST_TO_DEVICE, .true.)
+          do i = 1, size(s_index_list)
+             call this%s(s_index_list(i))%copy_from(HOST_TO_DEVICE, .true.)
           end do
        else
-          do i = 1, s_tgt_list%size()
+          do i = 1, s_target_list%size()
              call this%s(i)%copy_from(HOST_TO_DEVICE, .true.)
           end do
-       end if ! if present s_idx_list
+       end if ! if present s_index_list
 
     end if ! present s_tgt
 
@@ -210,6 +213,11 @@ contains
        if (.not. associated(dof) .or. .not. associated(msh)) then
           call neko_error("both dof and msh must be associated")
        end if
+       
+       ! Sync coordinates to device for the interpolation
+       call fld_data%x%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%y%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%z%copy_from(HOST_TO_DEVICE, .true.)
 
        ! Generates an interpolator object and performs the point search
        call this%generate_interpolator(global_interp, dof, msh, &
@@ -226,28 +234,28 @@ contains
                on_host=.false.)
        if (present(t)) call global_interp%evaluate(t%x(:,1,1,1), this%t%x, &
                on_host=.false.) 
-       if (present(s_tgt_list)) then
+       if (present(s_target_list)) then
 
           ! If the index list exists, use it as a "mask"
-          if (present(s_idx_list)) then
-             do i = 1, size(s_idx_list)
+          if (present(s_index_list)) then
+             do i = 1, size(s_index_list)
                 ! Take care that if we set i=0 we want temperature
-                if (s_idx_list(i) .eq. 0) then
-                   call global_interp%evaluate(s_tgt_list%x(i), &
+                if (s_index_list(i) .eq. 0) then
+                   call global_interp%evaluate(s_target_list%x(i), &
                            this%t%x, on_host=.false.)
                 else
-                   call global_interp%evaluate(s_tgt_list%x(i), &
-                           this%s(s_idx_list(i))%x, on_host=.false.)
+                   call global_interp%evaluate(s_target_list%x(i), &
+                           this%s(s_index_list(i))%x, on_host=.false.)
                 end if
              end do
 
           ! otherwise, just copy element-to-element
           else
-             do i = 1, s_tgt_list%size()
-                call global_interp%evaluate(s_tgt_list%x(i), this%s(i)%x, &
+             do i = 1, s_target_list%size()
+                call global_interp%evaluate(s_target_list%x(i), this%s(i)%x, &
                         on_host=.false.)
              end do
-          end if ! present s_idx_list
+          end if ! present s_index_list
        end if ! present s_tgt
 
        call global_interp%free()
@@ -267,29 +275,29 @@ contains
        if (present(w)) call space_interp%map(w%x, this%w%x, this%nelv, Xh)
        if (present(p)) call space_interp%map(p%x, this%p%x, this%nelv, Xh)
        if (present(t)) call space_interp%map(t%x, this%t%x, this%nelv, Xh) 
-       if (present(s_tgt_list)) then
+       if (present(s_target_list)) then
 
           ! If the index list exists, use it as a "mask"
-          if (present(s_idx_list)) then
-             do i = 1, size(s_idx_list)
+          if (present(s_index_list)) then
+             do i = 1, size(s_index_list)
 
                 ! 0 means we want temperature
-                if (s_idx_list(i) .eq. 0) then
-                   call space_interp%map(s_tgt_list%x(i), &
+                if (s_index_list(i) .eq. 0) then
+                   call space_interp%map(s_target_list%x(i), &
                            this%t%x, this%nelv, Xh)
                 else
-                   call space_interp%map(s_tgt_list%x(i), &
-                           this%s(s_idx_list(i))%x, this%nelv, Xh)
+                   call space_interp%map(s_target_list%x(i), &
+                           this%s(s_index_list(i))%x, this%nelv, Xh)
                 end if
              end do
 
           ! otherwise, just copy element-to-element
           else
-             do i = 1, s_tgt_list%size()
-                call space_interp%map(s_tgt_list%x(i), this%s(i)%x, &
+             do i = 1, s_target_list%size()
+                call space_interp%map(s_target_list%x(i), this%s(i)%x, &
                         this%nelv, Xh)
              end do
-          end if ! present s_idx_list
+          end if ! present s_index_list
        end if ! present s_tgt
 
        call space_interp%free

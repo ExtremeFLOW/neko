@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Introduces a global subroutine `import_fields` to read and import fld data,
+  with interpolation capabilities. 
 - Update the simcomp wrappers to better handle allocation and deallocation.
 - Added a factory subroutine for scalar schemes, allowing for more flexible
   creation of scalar scheme objects based on JSON input.
