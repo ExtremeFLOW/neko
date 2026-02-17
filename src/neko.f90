@@ -54,6 +54,7 @@ module neko
   use point, only : point_t
   use mesh_field, only : mesh_fld_t
   use map
+  use import_field_utils, only: import_fields
   use mxm_wrapper, only : mxm
   use global_interpolation
   use file
