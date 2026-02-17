@@ -194,8 +194,9 @@ module hypre_ij_interface
      end function HYPRE_IJVectorGetObject
   end interface
 
-  public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_destroy
+  public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_update, hypre_matrix_destroy
   public :: hypre_vector_init, hypre_vector_fill, hypre_vector_assemble, hypre_vector_destroy
+  public :: hypre_copy_from_vector, copy_to_vector
 
 contains
   !-----------------------------------------------------------------------------
@@ -312,6 +313,16 @@ contains
     ierr = HYPRE_IJVectorAssemble(v)
     ierr = HYPRE_IJVectorGetObject(v, par_v)
   end subroutine copy_to_vector
+
+  subroutine hypre_copy_from_vector(v, nvalues, indices, values)
+    type(c_ptr), intent(in) :: v
+    integer, intent(in) :: nvalues
+    integer, intent(in) :: indices(:)
+    double precision, intent(in) :: values(:)
+    integer :: ierr
+    ! Get vector values
+    ierr = HYPRE_IJVectorGetValues(v, nvalues, c_loc(indices), c_loc(values))
+  end subroutine hypre_copy_from_vector
 
   subroutine hypre_vector_destroy(v)
      type(c_ptr), intent(inout) :: v
