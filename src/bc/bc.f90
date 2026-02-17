@@ -60,6 +60,8 @@ module bc
 
   !> Base type for a boundary condition
   type, public, abstract, extends(amr_restart_component_t) :: bc_t
+     !> Corresponding zone indices in the mesh type
+     integer, allocatable :: zone_indices(:)
      !> The linear index of each node in each boundary facet
      integer, allocatable :: msk(:)
      !> A list of facet ids (1 to 6), one for each element in msk
@@ -270,6 +272,10 @@ contains
     nullify(this%msh)
     nullify(this%dof)
     nullify(this%coef)
+
+    if (allocated(this%zone_indices)) then
+       deallocate(this%zone_indices)
+    end if
 
     if (allocated(this%msk)) then
        deallocate(this%msk)

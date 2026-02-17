@@ -86,6 +86,14 @@ contains
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
     call object%finalize()
+
+    ! keep zone indices for possible mesh restarts
+    call move_alloc(zone_indices, object%zone_indices)
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
   end subroutine density_bc_factory
 
   !> Factory routine for pressure boundary conditions.
@@ -138,6 +146,14 @@ contains
           end do
        end do
     end do
+
+    ! keep zone indices for possible mesh restarts
+    call move_alloc(zone_indices, object%zone_indices)
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
   end subroutine pressure_bc_factory
 
   !> Factory routine for velocity boundary conditions.
@@ -179,6 +195,13 @@ contains
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
     call object%finalize()
+
+    ! keep zone indices for possible mesh restarts
+    call move_alloc(zone_indices, object%zone_indices)
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
 
   end subroutine velocity_bc_factory
 

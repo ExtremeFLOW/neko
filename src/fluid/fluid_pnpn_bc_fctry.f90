@@ -131,13 +131,13 @@ contains
        end do
     end do
 
+    ! keep zone indices for possible mesh restarts
+    call move_alloc(zone_indices, object%zone_indices)
+
     if (allocated(type)) then
        deallocate(type)
     end if
 
-    if (allocated(zone_indices)) then
-       deallocate(zone_indices)
-    end if
   end subroutine pressure_bc_factory
 
   !> Factory routine for velocity boundary conditions.
@@ -212,13 +212,13 @@ contains
        end do
     end if
 
+    ! keep zone indices for possible mesh restarts
+    call move_alloc(zone_indices, object%zone_indices)
+
     if (allocated(type)) then
        deallocate(type)
     end if
 
-    if (allocated(zone_indices)) then
-       deallocate(zone_indices)
-    end if
   end subroutine velocity_bc_factory
 
 end submodule fluid_pnpn_bc_fctry
