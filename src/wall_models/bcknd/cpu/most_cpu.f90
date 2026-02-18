@@ -138,15 +138,15 @@ contains
   end subroutine init_q
 
   !> Sets the stability regime based on the Richardson number value (quite arbitrary).
-  subroutine set_stability_regime(Ri_b)
-    real(kind=rp), intent(in) :: Ri_b
+  subroutine set_stability_regime(Ri_b,Ri_threshold)
+    real(kind=rp), intent(in) :: Ri_b, Ri_threshold
 
-    if (Ri_b > 0.01_rp) then
+    if (Ri_b > Ri_threshold) then
        slaw_m_ptr => slaw_m_stable
        slaw_h_ptr => slaw_h_stable
        corr_m_ptr => corr_m_stable
        corr_h_ptr => corr_h_stable
-    elseif (Ri_b < -0.01_rp) then
+    elseif (Ri_b < -Ri_threshold) then
        slaw_m_ptr => slaw_m_convective
        slaw_h_ptr => slaw_h_convective
        corr_m_ptr => corr_m_convective
@@ -161,7 +161,7 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, bc_type, zone_idx, h_idx, q, tstep)
+       kappa, z0, bc_type, zone_idx, h_idx, q, tstep)   ! maybe put q as a variable that can be either q o ts
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -182,9 +182,11 @@ contains
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
+    real(kind=rp), parameter :: Ri_threshold = 0.01_rp
     character(len=LOG_SIZE) :: log_buf
 
     ! Select the ts offset based on fid
+    !!! this can be pob taken out
     select case (zone_idx)
     case (1)
        ts_idx = [h_idx, 0, 0 ]
@@ -209,29 +211,12 @@ contains
     !      ignore_existing=.true.)
     ! h_field => neko_registry%get_field_by_name("sampling_height")
 
-    ! Select the ts offset based on fid
-    select case (zone_idx)
-    case (1)
-       ts_idx = [h_idx, 0, 0 ]
-    case (2)
-       ts_idx = [-h_idx, 0, 0]
-    case (3)
-       ts_idx = [0, h_idx, 0 ]
-    case (4)
-       ts_idx = [0, -h_idx, 0]
-    case (5)
-       ts_idx = [0, 0, h_idx ]
-    case (6)
-       ts_idx = [0, 0, -h_idx]
-    case default
-       call neko_error("The face index is not correct (most_cpu.f90)")
-    end select
-
     do i=1, n_nodes
        ! Sample the variables
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       !!!!! take this out: you get it from the case file when type_bc = dirichlet
        ts = temp(ind_r(i)-ts_idx(1), ind_s(i)-ts_idx(2), ind_t(i)-ts_idx(3), ind_e(i))
        hi = h(i)
 
@@ -243,14 +228,18 @@ contains
        ! Compute velocity magnitude
        magu = sqrt(ui**2 + vi**2)
 
-       ! utau initialisation
-       if (tstep < 1) then
-          utau = sqrt( sqrt( tau_x(i)**2 + tau_y(i)**2 ) )
-       else
-          utau = magu*kappa / log(hi/z0)
+      !!!! can prob just be removed
+      !  ! utau initialisation
+      !  if (tstep < 1) then
+      !     utau = sqrt( sqrt( tau_x(i)**2 + tau_y(i)**2 ) )
+      !  else
+      !     utau = magu*kappa / log(hi/z0)
+      !  end if
 
-       end if
+       utau = magu*kappa / log(hi/z0)
+
        ! Compute thermal roughness length from Zilitinkevich, 1995
+       !!!!!! woudl be nice to be able to set this or not 
        z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
@@ -260,28 +249,26 @@ contains
        call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
        ! Compute Obukhov length
-       if (tstep > 0) then
+       if (tstep > 0) then   !!!!! this can be taken out maybe
           ! Get q, Ri, f, dfdl based on bc_type
           call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
-
-          if (abs(Ri_b) <= 0.01_rp) then
+          call set_stability_regime(Ri_b,Ri_threshold)
+          if (abs(Ri_b) <= Ri_threshold) then
              ! Neutral (L_ob undefined)
-             L_ob = 1.0e+10_rp
+             L_ob = 0.0_rp
           else
              ! Determine target regime sign
              if (Ri_b > 0.0_rp) then
-                L_ob = hi / max(Ri_b, 0.01_rp) ! Stable guess
+                L_ob = hi / max(Ri_b, Ri_threshold) ! Stable guess
                 L_sign = 1.0_rp
              else
-                L_ob = hi / min(Ri_b, -0.01_rp) ! Convective guess
+                L_ob = hi / min(Ri_b, -Ri_threshold) ! Convective guess
                 L_sign = -1.0_rp
              end if
 
              L_old = 1.0e10_rp
              count = 0
-             ! Set slaw and corr pointers based on stability
-             call set_stability_regime(Ri_b)
-
+             
              ! Find Obukhov length
              do while ((abs(L_old - L_ob)/abs(L_ob) > tol) .and. (count < max_count))
                 ! Switch between stable and convective based on bulk Richardson (Ri_b)
@@ -313,6 +300,7 @@ contains
                 L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
              end do
 
+             !!!! this might lead to more crashes
              if (abs(L_ob) > 5e4_rp .or. abs(L_ob) < 1e-5_rp) then
                 count = max_count
                 call neko_error("Obukhov length did not converge (MOST wall model)")
@@ -320,7 +308,6 @@ contains
           end if
 
           ! Based on stability and bc_type, compute utau/q
-          call set_stability_regime(Ri_b)
           select case (bc_type)
           case ("neumann")
              ! Compute u* with the new Obukhov length
