@@ -36,7 +36,7 @@ module vector_list
      procedure, pass(this) :: x => vector_list_x
      !> Get number of items in the list.
      procedure, pass(this) :: size => vector_list_size
-     !> Get the size of dofmap for an item in the list.
+     !> Get the size of an item in the list.
      procedure, pass(this) :: item_size => vector_list_item_size
      !> Get the name for an item in the list.
      procedure, pass(this) :: name => vector_list_name
