@@ -48,7 +48,7 @@ module vector
   type, public :: vector_t
      !> Vector entries.
      real(kind=rp), allocatable :: x(:)
-     character(len=80) :: name = "" !< Name of the field
+     character(len=80) :: name = "" !< Name of the vector
      !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
      !> Size of vector.
