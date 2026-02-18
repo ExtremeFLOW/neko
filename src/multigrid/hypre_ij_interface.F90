@@ -196,7 +196,7 @@ module hypre_ij_interface
 
   public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_update, hypre_matrix_destroy
   public :: hypre_vector_init, hypre_vector_fill, hypre_vector_assemble, hypre_vector_destroy
-  public :: hypre_copy_from_vector, copy_to_vector
+  public :: hypre_copy_from_vector, hypre_copy_to_vector
 
 contains
   !-----------------------------------------------------------------------------
@@ -298,9 +298,8 @@ contains
     ierr = HYPRE_IJVectorGetObject(v, par_v)
   end subroutine hypre_vector_assemble
 
-  subroutine copy_to_vector(v, par_v, nvalues, indices, values)
+  subroutine hypre_copy_to_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
-    type(c_ptr), intent(inout) :: par_v
     integer, intent(in) :: nvalues
     integer, intent(in) :: indices(:)
     double precision, intent(in) :: values(:)
@@ -309,10 +308,7 @@ contains
     ierr = HYPRE_IJVectorInitialize(v)
     ! Set vector values
     ierr = HYPRE_IJVectorSetValues(v, nvalues, c_loc(indices), c_loc(values))
-    ! Finalize and assemble vector object
-    ierr = HYPRE_IJVectorAssemble(v)
-    ierr = HYPRE_IJVectorGetObject(v, par_v)
-  end subroutine copy_to_vector
+  end subroutine hypre_copy_to_vector
 
   subroutine hypre_copy_from_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
