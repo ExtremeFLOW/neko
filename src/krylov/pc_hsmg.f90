@@ -107,7 +107,10 @@ module hsmg
   end type multigrid_t
 
   type, public, extends(pc_t) :: hsmg_t
+     !> Mesh pointer
      type(mesh_t), pointer :: msh => null()
+     !> External boundary list
+     type(bc_list_t), pointer :: bclst_ext => null()
      integer :: nlvls !< Number of levels in the multigrid
      type(multigrid_t), allocatable :: grids(:) !< array for multigrids
      type(gs_t) :: gs_crs, gs_mg !< gather scatter for lower levels
@@ -282,6 +285,8 @@ contains
 
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
+
+    this%bclst_ext => bclst
 
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
@@ -472,6 +477,9 @@ contains
     call this%Xh_crs%free()
     call this%Xh_mg%free()
 
+    this%msh => null()
+    this%bclst_ext => null()
+
     call this%free_amr_base()
 
   end subroutine hsmg_free
@@ -634,7 +642,8 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
-    integer :: ntot
+    integer :: il, ntot
+    class(bc_t), pointer :: bc_i
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
@@ -676,13 +685,37 @@ contains
     ! ax does not require restarting
 
     ! boundary conditions
-    ! add pointer to the external bx_list to copy process from initialisation
-    ! instead of following
-!    call this%bc_crs%amr_restart(reconstruct, counter, tstep)
-!    call this%bc_mg%amr_restart(reconstruct, counter, tstep)
-!    call this%bc_reg%amr_restart(reconstruct, counter, tstep)
-    ! there is no need to work on bc lists, as they point to the already
-    ! reconstructed objects
+    if (this%bclst_ext%size() .gt. 0) then
+       ! clean local boundary lists
+       call this%bc_crs%amr_restart(reconstruct, counter, tstep)
+       call this%bc_mg%amr_restart(reconstruct, counter, tstep)
+       call this%bc_reg%amr_restart(reconstruct, counter, tstep)
+
+       do il = 1, this%bclst_ext%size()
+          bc_i => this%bclst_ext%get(il)
+          call this%bc_reg%mark_facets(bc_i%marked_facet)
+          bc_i => this%bclst_ext%get(il)
+          call this%bc_crs%mark_facets(bc_i%marked_facet)
+          bc_i => this%bclst_ext%get(il)
+          call this%bc_mg%mark_facets(bc_i%marked_facet)
+       end do
+
+       if (.not. this%bc_reg%iffinalised) then
+          call this%bc_reg%finalize()
+       else
+          call neko_error('HSMG reg bc; already finalised')
+       end if
+       if (.not. this%bc_crs%iffinalised) then
+          call this%bc_crs%finalize()
+       else
+          call neko_error('HSMG crs bc; already finalised')
+       end if
+       if (.not. this%bc_mg%iffinalised) then
+          call this%bc_mg%finalize()
+       else
+          call neko_error('HSMG mg bc; already finalised')
+       end if
+    end if
 
     ! reconstruct Schwarz; schwarz_crs is never initialised
     call this%schwarz%amr_restart(reconstruct, counter, tstep)
