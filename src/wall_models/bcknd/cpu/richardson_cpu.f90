@@ -210,8 +210,9 @@ contains
           ! Compute u*
           utau = sqrt(tau_ptr(magu, ri_b, hi, z0, l, kappa))
           select case (bc_type)
-         !  case ("neumann")
+          case ("neumann")
             ! Todo: Compute ts from q here
+            q = q
           case ("dirichlet")
              ! Compute q
              q = heat_flux_ptr(ti, ts, ri_b, hi, magu, z0h, 1.0_rp, l, utau, kappa)
