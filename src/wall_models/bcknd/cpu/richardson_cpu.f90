@@ -94,13 +94,13 @@ contains
   end subroutine init_q
 
   !> Sets the stability regime based on the Richardson number value (quite arbitrary).
-  subroutine set_stability_regime(Ri_b)
-    real(kind=rp), intent(in) :: Ri_b
+  subroutine set_stability_regime(Ri_b,Ri_threshold)
+    real(kind=rp), intent(in) :: Ri_b, Ri_threshold
 
-    if (Ri_b > 0.01_rp) then
+    if (Ri_b > Ri_threshold) then
        tau_ptr => tau_stable
        heat_flux_ptr => heat_flux_stable
-    elseif (Ri_b < -0.01_rp) then
+    elseif (Ri_b < -Ri_threshold) then
        tau_ptr => tau_convective
        heat_flux_ptr => heat_flux_convective
     else
@@ -113,7 +113,7 @@ contains
   !! @param tstep The current time-step
   subroutine richardson_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, bc_type, zone_idx, h_idx, q, tstep)
+       kappa, z0, bc_type, zone_idx, h_idx, q, tstep)   ! maybe put q as a variable that can be either q o ts
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -130,7 +130,7 @@ contains
     real(kind=rp) :: magu, utau, normu, z0h
     real(kind=rp) :: L_ob, Ri_b, l
     real(kind=rp), parameter :: g = 9.80665_rp
-    real(kind=rp), parameter :: tol = 0.001_rp
+    real(kind=rp), parameter :: Ri_threshold = 0.01_rp
     character(len=LOG_SIZE) :: log_buf
 
     ! Select the ts offset based on fid
@@ -193,15 +193,8 @@ contains
        if (tstep > 0) then
           ! Get q, Ri, f, dfdl based on bc_type
           call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
+          call set_stability_regime(Ri_b,Ri_threshold)
 
-          if (abs(Ri_b) <= 0.01_rp) then
-             ! Neutral (L_ob undefined)
-
-          else
-             ! Set slaw and corr pointers based on stability
-             call set_stability_regime(Ri_b)
-
-          end if
 
           ! Based on stability and bc_type, compute utau/q
           call set_stability_regime(Ri_b)
@@ -227,8 +220,12 @@ contains
        tau_x(i) = -utau**2 * ui / magu
        tau_y(i) = -utau**2 * vi / magu
        tau_z(i) = 0
-
-       L_ob = -(ts*utau**3)/(kappa*g*q)
+       if (abs(Ri_b) <= Ri_threshold) then
+             ! Neutral (L_ob undefined)
+             L_ob = 0.0_rp
+       else
+             L_ob = -(ts*utau**3)/(kappa*g*q)
+       end if
     end do
 
     ! Print some indicative quantities (these are just point quantities: don't trust 100%)
