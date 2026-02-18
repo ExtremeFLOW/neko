@@ -81,10 +81,10 @@ module vector
   type, public :: vector_ptr_t
      type(vector_t), pointer :: ptr => null()
    contains
-      !> Constructor. Just assigns the pointer
-      procedure, pass(this) :: init => vector_ptr_init
-      !> Destructor. Just nullifies the pointer.
-      procedure, pass(this) :: free => vector_ptr_free
+     !> Constructor. Just assigns the pointer
+     procedure, pass(this) :: init => vector_ptr_init
+     !> Destructor. Just nullifies the pointer.
+     procedure, pass(this) :: free => vector_ptr_free
   end type vector_ptr_t
 
 contains
@@ -103,10 +103,10 @@ contains
     end if
 
     if (present(name)) then
-         v%name = name
-    else 
-      v%name = "Vector"
-      end if
+       v%name = name
+    else
+       v%name = "Vector"
+    end if
 
   end subroutine vector_init
 
@@ -215,25 +215,25 @@ contains
     v%name = "Vector"
 
   end subroutine vector_assign_array
-  
+
   ! ========================================================================== !
   ! vector pointer type subroutines
 
   subroutine vector_ptr_init(this, ptr)
-   class(vector_ptr_t), intent(inout) :: this
-   type(vector_t), target, intent(in) :: ptr
+    class(vector_ptr_t), intent(inout) :: this
+    type(vector_t), target, intent(in) :: ptr
 
-   call this%free()
-   this%ptr => ptr
-   end subroutine vector_ptr_init
+    call this%free()
+    this%ptr => ptr
+  end subroutine vector_ptr_init
 
-   subroutine vector_ptr_free(this)
-     class(vector_ptr_t), intent(inout) :: this
+  subroutine vector_ptr_free(this)
+    class(vector_ptr_t), intent(inout) :: this
 
-     if (associated(this%ptr)) then
+    if (associated(this%ptr)) then
        nullify(this%ptr)
-     end if
+    end if
 
-   end subroutine vector_ptr_free
+  end subroutine vector_ptr_free
 
 end module vector
