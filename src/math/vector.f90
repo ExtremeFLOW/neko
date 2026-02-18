@@ -48,6 +48,7 @@ module vector
   type, public :: vector_t
      !> Vector entries.
      real(kind=rp), allocatable :: x(:)
+     character(len=80) :: name = "" !< Name of the field
      !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
      !> Size of vector.
@@ -78,15 +79,21 @@ module vector
   end type vector_t
 
   type, public :: vector_ptr_t
-     type(vector_t), pointer :: ptr
+     type(vector_t), pointer :: ptr => null()
+   contains
+      !> Constructor. Just assigns the pointer
+      procedure, pass(this) :: init => vector_ptr_init
+      !> Destructor. Just nullifies the pointer.
+      procedure, pass(this) :: free => vector_ptr_free
   end type vector_ptr_t
 
 contains
 
   !> Initialise a vector of size @a n.
-  subroutine vector_init(v, n)
+  subroutine vector_init(v, n, name)
     class(vector_t), intent(inout) :: v
     integer, intent(in) :: n
+    character(len=*), intent(in), optional :: name
 
     call v%alloc(n)
     call cfill(v%x, 0.0_rp, n)
@@ -94,6 +101,12 @@ contains
        call device_cfill(v%x_d, 0.0_rp, n)
        call device_sync()
     end if
+
+    if (present(name)) then
+         v%name = name
+    else 
+      v%name = "Vector"
+      end if
 
   end subroutine vector_init
 
@@ -128,6 +141,8 @@ contains
     end if
 
     v%n = 0
+
+    v%name = ""
 
   end subroutine vector_free
 
@@ -166,6 +181,8 @@ contains
        call copy(v%x, w%x, v%n)
     end if
 
+    v%name = w%name
+
   end subroutine vector_assign_vector
 
   !> Assignment \f$ v = s \f$.
@@ -178,6 +195,8 @@ contains
     else
        call cfill(v%x, s, v%n)
     end if
+
+    v%name = "Vector"
 
   end subroutine vector_assign_scalar
 
@@ -193,6 +212,28 @@ contains
        call v%copy_from(HOST_TO_DEVICE, .true.)
     end if
 
+    v%name = "Vector"
+
   end subroutine vector_assign_array
+  
+  ! ========================================================================== !
+  ! vector pointer type subroutines
+
+  subroutine vector_ptr_init(this, ptr)
+   class(vector_ptr_t), intent(inout) :: this
+   type(vector_t), target, intent(in) :: ptr
+
+   call this%free()
+   this%ptr => ptr
+   end subroutine vector_ptr_init
+
+   subroutine vector_ptr_free(this)
+     class(vector_ptr_t), intent(inout) :: this
+
+     if (associated(this%ptr)) then
+       nullify(this%ptr)
+     end if
+
+   end subroutine vector_ptr_free
 
 end module vector
