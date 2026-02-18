@@ -197,6 +197,7 @@ module hypre_ij_interface
   public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_update, hypre_matrix_destroy
   public :: hypre_vector_init, hypre_vector_fill, hypre_vector_assemble, hypre_vector_destroy
   public :: hypre_copy_from_vector, hypre_copy_to_vector
+  public :: hypre_matrix_get_object, hypre_vector_get_object
 
 contains
   !-----------------------------------------------------------------------------
@@ -252,6 +253,14 @@ contains
      ierr = HYPRE_IJMatrixGetObject(A, parcsr_A)
   end subroutine hypre_matrix_assemble
 
+  subroutine hypre_matrix_get_object(A, parcsr_A)
+     type(c_ptr), intent(in) :: A
+     type(c_ptr), intent(inout) :: parcsr_A
+     integer :: ierr
+     ! Get parcsr matrix pointer (for solver use)
+     ierr = HYPRE_IJMatrixGetObject(A, parcsr_A)
+  end subroutine hypre_matrix_get_object
+
   subroutine hypre_matrix_destroy(A)
      type(c_ptr), intent(inout) :: A
      integer :: ierr
@@ -271,7 +280,6 @@ contains
     integer, intent(in) :: mpi_comm, jlower, jupper
     type(c_ptr), intent(inout) :: v
     integer :: ierr
-    !TODO: indexing may need 1->0 shift
     ! Create the vector
     !ierr = HYPRE_IJVectorCreate(mpi_comm, jlower, jupper, v)
     ierr = HYPRE_IJVectorCreate(jlower, jupper, v)
@@ -297,6 +305,13 @@ contains
     ierr = HYPRE_IJVectorAssemble(v)
     ierr = HYPRE_IJVectorGetObject(v, par_v)
   end subroutine hypre_vector_assemble
+
+  subroutine hypre_vector_get_object(v, par_v)
+    type(c_ptr), intent(in) :: v
+    type(c_ptr), intent(inout) :: par_v
+    integer :: ierr
+    ierr = HYPRE_IJVectorGetObject(v, par_v)
+  end subroutine hypre_vector_get_object
 
   subroutine hypre_copy_to_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v

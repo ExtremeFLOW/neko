@@ -39,6 +39,8 @@ module hypre
      procedure, pass(this) :: init => hypre_solver_init
      procedure, pass(this) :: setup => hypre_solver_setup
      procedure, pass(this) :: solve => hypre_solve
+     procedure, pass(this) :: set_matrix
+     procedure, pass(this) :: set_vector
      !procedure, pass(this) :: free
   end type hypre_solver_t
 
@@ -69,12 +71,26 @@ contains
     call boomeramg_init(this%solver)
   end subroutine hypre_solver_init
 
+  subroutine set_matrix(this, A)
+    class(hypre_solver_t), intent(inout) :: this
+    type(c_ptr), intent(in) :: A
+    this%A = A
+  end subroutine set_matrix
+
+  subroutine set_vector(this, x, b)
+    class(hypre_solver_t), intent(inout) :: this
+    type(c_ptr), intent(in) :: x, b
+    this%b = b
+    this%x = x
+  end subroutine set_vector
+
   !> Setup the hypre solver object
   subroutine hypre_solver_setup(this)
     class(hypre_solver_t), intent(inout) :: this
-    !call hypre_matrix_get_object(this%A, this%parcsr_A)
-    !call hypre_vector_get_object(this%b, this%par_b)
-    !call hypre_vector_get_object(this%x, this%par_x)
+    call hypre_matrix_get_object(this%A, this%parcsr_A)
+    call hypre_vector_get_object(this%b, this%par_b)
+    call hypre_vector_get_object(this%x, this%par_x)
+    ! Setup BoomerAMG
     call boomeramg_setup(this%solver, this%parcsr_A, this%par_b, this%par_x)
   end subroutine hypre_solver_setup
 
