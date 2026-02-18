@@ -141,7 +141,6 @@ contains
     end if
 
     v%n = 0
-
     v%name = ""
 
   end subroutine vector_free
