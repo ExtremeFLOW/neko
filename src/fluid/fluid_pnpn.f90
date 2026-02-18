@@ -88,6 +88,10 @@ module fluid_pnpn
   use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
        MPI_INTEGER, MPI_LOGICAL
+  
+!!$  use fld_file, only : fld_file_t
+!!$  use fld_file_output, only : fld_file_output_t
+  
   implicit none
   private
 
@@ -710,7 +714,8 @@ contains
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
-         ! Now, the source terms from the previous time step are added to the RHS.
+         ! Now, the source terms from the previous time step are added to
+         ! the RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), dt, n)
@@ -767,9 +772,45 @@ contains
       call gs_Xh%op(p_res, GS_OP_ADD, event)
       call device_event_sync(event)
 
+            
+!!$      testing : block
+!!$        type(field_t), pointer :: u_tst, v_tst, w_tst, p_tst
+!!$        type(fld_file_output_t), save :: tst_fld
+!!$
+!!$        if (tstep .eq. 9) then
+!!$           write(*,*) 'TESTstep9', dm_Xh%size(), this%glb_n_points
+!!$
+!!$           ! write fields to the disc for debugging
+!!$           call tst_fld%init(rp, "testing", 4)
+!!$           p_tst => p
+!!$           u_tst => u
+!!$           v_tst => v
+!!$           w_tst => w
+!!$           call tst_fld%fields%assign_to_ptr(1, p_tst)
+!!$           call tst_fld%fields%assign_to_ptr(2, u_tst)
+!!$           call tst_fld%fields%assign_to_ptr(3, v_tst)
+!!$           call tst_fld%fields%assign_to_ptr(4, w_tst)
+!!$           select type(file => tst_fld%file_%file_type)
+!!$           type is (fld_file_t)
+!!$             file%write_mesh = .true.
+!!$           end select
+!!$           call tst_fld%sample(t)
+!!$        else if (tstep .eq. 10) then
+!!$           write(*,*) 'TESTstep10', dm_Xh%size(), this%glb_n_points
+!!$
+!!$           ! write fields to the disc for debugging
+!!$           call tst_fld%sample(t)
+!!$        else if (tstep .eq. 11) then
+!!$           write(*,*) 'TESTstep11', dm_Xh%size(), this%glb_n_points
+!!$
+!!$           ! write fields to the disc for debugging
+!!$           call tst_fld%sample(t)
+!!$        end if
+!!$      end block testing
+      
+
       ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
-
 
       call profiler_end_region('Pressure_residual', 18)
 
@@ -1245,6 +1286,8 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
+    class(bc_t), pointer :: bci
+    integer :: il, jl, kl, ml, nbc
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
@@ -1293,24 +1336,179 @@ contains
          tstep)
     call this%material_properties%amr_restart(reconstruct, counter, tstep)
 
-    ! boundary conditions; THIS HAVE TO BE CHECKED
-    call this%bcs_prs%amr_restart(reconstruct, counter, tstep)
+    ! boundary conditions
+    ! start with all the boundary lists
+    ! Notice that not all bc are built based on mesh zones. The ones with
+    ! defined zone indices will be reconstructed. The ones without just
+    ! deallocated. There is no problem with simply calling all lists, as
+    ! AMR restart prevents recursive reconstructions
     call this%bcs_vel%amr_restart(reconstruct, counter, tstep)
-
-    call this%bc_prs_surface%amr_restart(reconstruct, counter, tstep)
-    call this%bc_sym_surface%amr_restart(reconstruct, counter, tstep)
-
-    call this%bc_vel_res%amr_restart(reconstruct, counter, tstep)
-    call this%bc_du%amr_restart(reconstruct, counter, tstep)
-    call this%bc_dv%amr_restart(reconstruct, counter, tstep)
-    call this%bc_dw%amr_restart(reconstruct, counter, tstep)
-    call this%bc_dp%amr_restart(reconstruct, counter, tstep)
+    call this%bcs_prs%amr_restart(reconstruct, counter, tstep)
 
     call this%bclst_vel_res%amr_restart(reconstruct, counter, tstep)
     call this%bclst_du%amr_restart(reconstruct, counter, tstep)
     call this%bclst_dv%amr_restart(reconstruct, counter, tstep)
     call this%bclst_dw%amr_restart(reconstruct, counter, tstep)
     call this%bclst_dp%amr_restart(reconstruct, counter, tstep)
+
+    ! clean facet_normal_t boundaries
+    call this%bc_prs_surface%amr_restart(reconstruct, counter, tstep)
+    call this%bc_sym_surface%amr_restart(reconstruct, counter, tstep)
+
+    ! construct boundary conditions without defined zone indices
+    ! velocity
+    nbc = this%bcs_vel%size()
+    do il = 1, nbc
+       bci => this%bcs_vel%get(il)
+       select type (bci)
+       type is (symmetry_t)
+          ! this bc shows up in bclst_vel_res as well; do not duplicate
+          call this%bc_du%mark_facets(bci%bc_x%marked_facet)
+          call this%bc_dv%mark_facets(bci%bc_y%marked_facet)
+          call this%bc_dw%mark_facets(bci%bc_z%marked_facet)
+
+          call this%bc_sym_surface%mark_facets(bci%marked_facet)
+       type is (non_normal_t)
+          ! this bc shows up in bclst_vel_res only
+          call neko_error('Velocity bc; appended non_normal_t')
+       type is (shear_stress_t)
+          ! appended to all the lists; nothing to do
+       type is (wall_model_bc_t)
+          ! appended to all the lists; nothing to do
+       class default
+          ! present in bcs_vel only
+          if (bci%strong) then
+             call this%bc_vel_res%mark_facets(bci%marked_facet)
+             call this%bc_du%mark_facets(bci%marked_facet)
+             call this%bc_dv%mark_facets(bci%marked_facet)
+             call this%bc_dw%mark_facets(bci%marked_facet)
+
+             call this%bc_prs_surface%mark_facets(bci%marked_facet)
+          end if
+       end select
+
+       ! no non_normal bc in bcs_vel, so check no needed
+       ! mark facets with value 2 in the mesh
+       if (allocated(bci%zone_indices)) then
+          do jl = 1, size(bci%zone_indices)
+             do kl = 1, bci%msh%nelv
+                do ml = 1, 2 * bci%msh%gdim
+                   if (bci%msh%facet_type(ml, kl) .eq. &
+                        - bci%zone_indices(jl)) then
+                      bci%msh%facet_type(ml, kl) = 2
+                   end if
+                end do
+             end do
+          end do
+       else
+          call neko_error('Velocity bc; zones not allocated')
+       end if
+    end do
+
+    ! velocity residual
+    nbc = this%bclst_vel_res%size()
+    ! the last one is bc_vel_res; skip it
+    do il = 1, nbc - 1
+       bci => this%bclst_vel_res%get(il)
+       select type (bci)
+       type is (symmetry_t)
+          ! this bc shows up in bcs_vel as well; already done
+       type is (non_normal_t)
+          ! this bc shows up in bclst_vel_res only
+          call this%bc_du%mark_facets(bci%bc_x%marked_facet)
+          call this%bc_dv%mark_facets(bci%bc_y%marked_facet)
+          call this%bc_dw%mark_facets(bci%bc_z%marked_facet)
+       type is (shear_stress_t)
+          ! appended to all the lists; nothing to do
+       type is (wall_model_bc_t)
+          ! appended to all the lists; nothing to do
+       class default
+          ! present in bcs_vel only
+          call neko_error('Velocity res. bc; appended default')
+       end select
+
+       ! non_normal bc possibly present, so check needed
+       ! mark facets with value 2 in the mesh
+       if (allocated(bci%zone_indices)) then
+          if (trim(bci%type) .ne. "normal_outflow" .and. &
+               trim(bci%type) .ne. "normal_outflow+dong") then
+             do jl = 1, size(bci%zone_indices)
+                do kl = 1, bci%msh%nelv
+                   do ml = 1, 2 * bci%msh%gdim
+                      if (bci%msh%facet_type(ml, kl) .eq. &
+                           - bci%zone_indices(jl)) then
+                         bci%msh%facet_type(ml, kl) = 2
+                      end if
+                   end do
+                end do
+             end do
+          end if
+       else
+          call neko_error('Velocity res. bc; zones not allocated')
+       end if
+    end do
+
+    ! pressure
+    nbc = this%bcs_prs%size()
+    do il = 1, nbc
+       bci => this%bcs_prs%get(il)
+       ! Mark strong bcs in the dummy dp bc to force zero change.
+       if (bci%strong) then
+          call this%bc_dp%mark_facets(bci%marked_facet)
+          ! strong pressure bcs, so mark facets with value 1 in the mesh
+          if (allocated(bci%zone_indices)) then
+             do jl = 1, size(bci%zone_indices)
+                do kl = 1, bci%msh%nelv
+                   do ml = 1, 2 * bci%msh%gdim
+                      if (bci%msh%facet_type(ml, kl) .eq. &
+                           - bci%zone_indices(jl)) then
+                         bci%msh%facet_type(ml, kl) = 1
+                      end if
+                   end do
+                end do
+             end do
+          else
+             call neko_error('Pressure bc; zones not allocated')
+          end if
+       end if
+    end do
+
+    if (.not. this%bc_prs_surface%iffinalised) then
+       call this%bc_prs_surface%finalize()
+    else
+       call neko_error('Pressure surface bc; already finalised')
+    end if
+    if (.not. this%bc_sym_surface%iffinalised) then
+       call this%bc_sym_surface%finalize()
+    else
+       call neko_error('Symmetry surface bc; already finalised')
+    end if
+
+    if (.not. this%bc_vel_res%iffinalised) then
+       call this%bc_vel_res%finalize()
+    else
+       call neko_error('Velocity res. bc; already finalised')
+    end if
+    if (.not. this%bc_du%iffinalised) then
+       call this%bc_du%finalize()
+    else
+       call neko_error('du bc; already finalised')
+    end if
+    if (.not. this%bc_dv%iffinalised) then
+       call this%bc_dv%finalize()
+    else
+       call neko_error('dv bc; already finalised')
+    end if
+    if (.not. this%bc_dw%iffinalised) then
+       call this%bc_dw%finalize()
+    else
+       call neko_error('dw bc; already finalised')
+    end if
+    if (.not. this%bc_dp%iffinalised) then
+       call this%bc_dp%finalize()
+    else
+       call neko_error('dp bc; already finalised')
+    end if
 
     ! fluid source term?????
     ! it is not clear is source term need to be reconstructed, as rhs is already
@@ -1336,23 +1534,23 @@ contains
        call this%proj_prs%amr_restart(reconstruct, counter, tstep)
     end if
 
-    ! Reconstruct extrapolation velocity
-    if (associated(this%u_e)) call this%u_e%amr_restart(reconstruct, counter, &
-         tstep)
-    if (associated(this%v_e)) call this%v_e%amr_restart(reconstruct, counter, &
-         tstep)
-    if (associated(this%w_e)) call this%w_e%amr_restart(reconstruct, counter, &
-         tstep)
+    ! Reallocate extrapolation velocity
+    if (associated(this%u_e)) call this%u_e%amr_reallocate(reconstruct, &
+         counter, tstep)
+    if (associated(this%v_e)) call this%v_e%amr_reallocate(reconstruct, &
+         counter, tstep)
+    if (associated(this%w_e)) call this%w_e%amr_reallocate(reconstruct, &
+         counter, tstep)
 
-    ! Reconstruct total viscosity?????????
+    ! Reallocate total viscosity
     if (associated(this%mu_tot)) &
-         call this%mu_tot%amr_restart(reconstruct, counter, tstep)
+         call this%mu_tot%amr_reallocate(reconstruct, counter, tstep)
 
     ! global number of points
     this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
     this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
 
-    ! Reallocate right hand side?????????????????????
+    ! Reallocate right hand side
     call this%p_res%amr_reallocate(reconstruct, counter, tstep)
     call this%u_res%amr_reallocate(reconstruct, counter, tstep)
     call this%v_res%amr_reallocate(reconstruct, counter, tstep)
