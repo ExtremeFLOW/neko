@@ -98,12 +98,9 @@ contains
     end do
     call object%finalize()
 
-    ! keep zone indices for possible mesh restarts
+    ! keep zone indices and type for possible mesh restarts
     call move_alloc(zone_indices, object%zone_indices)
-
-    if (allocated(type)) then
-       deallocate(type)
-    end if
+    call move_alloc(type, object%type)
 
   end subroutine bc_factory
 

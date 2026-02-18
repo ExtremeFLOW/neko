@@ -62,6 +62,10 @@ module bc
   type, public, abstract, extends(amr_restart_component_t) :: bc_t
      !> Corresponding zone indices in the mesh type
      integer, allocatable :: zone_indices(:)
+     !> Boundary type
+     character(len=:), allocatable :: type
+     !> Finalisation flag
+     logical :: iffinalised
      !> The linear index of each node in each boundary facet
      integer, allocatable :: msk(:)
      !> A list of facet ids (1 to 6), one for each element in msk
@@ -276,6 +280,12 @@ contains
     if (allocated(this%zone_indices)) then
        deallocate(this%zone_indices)
     end if
+
+    if (allocated(this%type)) then
+       deallocate(this%type)
+    end if
+
+    this%iffinalised = .false.
 
     if (allocated(this%msk)) then
        deallocate(this%msk)
@@ -567,6 +577,8 @@ contains
        call device_memcpy(this%msk, this%msk_d, n, &
             HOST_TO_DEVICE, sync = .true.)
     end if
+
+    this%iffinalised = .true.
 
   end subroutine bc_finalize_base
 
