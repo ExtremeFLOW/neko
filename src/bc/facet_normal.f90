@@ -328,20 +328,95 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
+    integer :: il
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
 
-    log_buf = 'Facet normal'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    ! For defined zone indices perform full reconstruction including
+    ! finalisation. If zones are missing just prepare for collecting
+    ! facets. Do not forget to finalise those bc later.
+    if (allocated(this%zone_indices)) then
+       if (allocated(this%type)) then
+          log_buf = 'Reconstruct Facet normal: '//trim(this%type)
+       else
+          log_buf = 'Reconstruct Facet normal'
+       end if
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       
-    write(*,*) 'TESTfacetNORMAL', this%msk(0)
-       
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Facet normal:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       this%iffinalised = .false.
+
+       ! get zones
+       do il = 1, size(this%zone_indices)
+          call this%mark_zone(this%coef%msh%labeled_zones(&
+               this%zone_indices(il)))
+       end do
+       call this%finalize()
+
+    else
+       if (allocated(this%type)) then
+          log_buf = 'Clean Facet normal: '//trim(this%type)
+       else
+          log_buf = 'Clean Facet normal'
+       end if
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Facet normal:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       if (allocated(this%unique_mask)) then
+          deallocate(this%unique_mask)
+       end if
+
+       call this%nx%free()
+       call this%ny%free()
+       call this%nz%free()
+       call this%work%free()
+
+       this%iffinalised = .false.
+
+    end if
 
   end subroutine facet_normal_amr_restart
 
