@@ -104,8 +104,6 @@ contains
 
     if (present(name)) then
        v%name = name
-    else
-       v%name = "Vector"
     end if
 
   end subroutine vector_init
