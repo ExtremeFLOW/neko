@@ -193,8 +193,6 @@ contains
        call cfill(v%x, s, v%n)
     end if
 
-    v%name = "Vector"
-
   end subroutine vector_assign_scalar
 
   !> Assignment \f$ v = array \f$.
@@ -208,8 +206,6 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call v%copy_from(HOST_TO_DEVICE, .true.)
     end if
-
-    v%name = "Vector"
 
   end subroutine vector_assign_array
 
