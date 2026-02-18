@@ -243,14 +243,11 @@ contains
          c_loc(rows), c_loc(cols), c_loc(values))
   end subroutine hypre_matrix_update
 
-  subroutine hypre_matrix_assemble(A, parcsr_A)
+  subroutine hypre_matrix_assemble(A)
      type(c_ptr), intent(in) :: A
-     type(c_ptr), intent(inout) :: parcsr_A
      integer :: ierr
      ! Assemble after setting the coefficients
      ierr = HYPRE_IJMatrixAssemble(A)
-     ! Get parcsr matrix pointer (for solver use)
-     ierr = HYPRE_IJMatrixGetObject(A, parcsr_A)
   end subroutine hypre_matrix_assemble
 
   subroutine hypre_matrix_get_object(A, parcsr_A)
@@ -297,13 +294,11 @@ contains
     ierr = HYPRE_IJVectorSetValues(v, nvalues, c_loc(indices), c_loc(values))
   end subroutine hypre_vector_fill
 
-  subroutine hypre_vector_assemble(v, par_v)
+  subroutine hypre_vector_assemble(v)
     type(c_ptr), intent(in) :: v
-    type(c_ptr), intent(inout) :: par_v
     integer :: ierr
     ! Finalize and assemble vector object
     ierr = HYPRE_IJVectorAssemble(v)
-    ierr = HYPRE_IJVectorGetObject(v, par_v)
   end subroutine hypre_vector_assemble
 
   subroutine hypre_vector_get_object(v, par_v)

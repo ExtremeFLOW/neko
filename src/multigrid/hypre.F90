@@ -2,6 +2,7 @@ module hypre
   use num_types, only : rp, i8
   use hypre_boomeramg
   use hypre_ij_interface
+  use coefs, only : coef_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -44,7 +45,7 @@ module hypre
      !procedure, pass(this) :: free
   end type hypre_solver_t
 
-  public :: hypre_init, hypre_fin
+  public :: hypre_init, hypre_fin, hypre_matrix_assemble_from_neko
 
 contains
 
@@ -111,5 +112,112 @@ contains
     ! Copy from hypre vector
     call hypre_copy_from_vector(this%x, n, dof, x)
   end subroutine hypre_solve
+
+  subroutine hypre_matrix_assemble_from_neko(coef, A, b, x)
+    type(coef_t), intent(in), target :: coef
+    type(c_ptr), intent(inout) :: A, b, x
+    real(kind=rp), allocatable :: A_vals(:)
+    real(kind=rp) :: tmp_vals(1)
+    integer, allocatable :: A_rows(:), A_cols(:)
+    integer :: tmp_rows(1), tmp_cols(1), ncol(1)
+    real(kind=rp) :: tmp2
+    integer :: ilower, iupper, jlower, jupper
+    integer :: e, k, j, i, s, l
+    integer :: nnz, nelv, lx, idof
+    lx = coef%dof%Xh%lx
+    nelv = coef%dof%msh%nelv
+    ! storing the matrix in (i,j,val) format needs one entry per dof contribution
+    ! this means we will need elems
+    nnz = nelv*lx*lx*lx*lx*3
+    allocate(A_vals(nnz))
+    A_vals = 0.0_rp
+    allocate(A_rows(nnz))
+    allocate(A_cols(nnz))
+    A_rows = 0
+    A_cols = 0
+    !note: we cast from i8 to integer when we fill A_rows from coef%dof%dof
+    associate( D => coef%dof%Xh%dx, Dt => coef%dof%Xh%dxt, &
+         G11 => coef%G11, G22 => coef%G22, G33 => coef%G33, &
+         G12 => coef%G12, G13 => coef%G13, G23 => coef%G23)
+      idof = 1 ! fortran indexing
+      ! Loop over mesh elements
+      do e = 1, nelv
+         ! Compute the action of the derivative operator (D u)
+         ! TODO: this assumes the mesh is structured
+         !       so it's missing Gij with i .ne. j
+         do k = 1, lx
+            do j = 1, lx
+               do i = 1, lx
+
+                  do s = 1, lx
+                     tmp2 = 0.0_rp
+                     do l = 1, lx
+                        tmp2 = tmp2 + Dt(i,l) * D(l,s)
+                     end do
+
+                     A_vals(idof) = tmp2 * G11(s,j,k,e)
+                     A_rows(idof) = coef%dof%dof(i,j,k,e)
+                     A_cols(idof) = coef%dof%dof(s,j,k,e)
+                     idof = idof + 1
+                  end do
+
+                  do s = 1, lx
+                     tmp2 = 0.0_rp
+                     do l = 1, lx
+                        tmp2 = tmp2 + Dt(j,l) * D(l,s)
+                     end do
+
+                     A_vals(idof) = tmp2 * G22(i,s,k,e)
+                     A_rows(idof) = coef%dof%dof(i,j,k,e)
+                     A_cols(idof) = coef%dof%dof(i,s,k,e)
+                     idof = idof + 1
+                  end do
+
+                  do s = 1, lx
+                     tmp2 = 0.0_rp
+                     do l = 1, lx
+                        tmp2 = tmp2 + Dt(k,l) * D(l,s)
+                     end do
+
+                     A_vals(idof) = tmp2 * G33(i,j,s,e)
+                     A_rows(idof) = coef%dof%dof(i,j,k,e)
+                     A_cols(idof) = coef%dof%dof(i,j,s,e)
+                     idof = idof + 1
+                  end do
+               end do
+            end do
+         end do
+      end do ! e = 1, n
+    end associate
+    ! Get index range of dofs on current rank
+    ! TODO: For MPI parallelism, duplicated dofs need to be assigned
+    !       to a single "owning" rank, which is currently not supported
+    !       by the current neko dofmap
+    ilower = minval(A_rows)
+    iupper = maxval(A_rows)
+    jlower = minval(A_cols)
+    jupper = maxval(A_cols)
+
+    ! Initialize matrix
+    call hypre_matrix_init(1, ilower, iupper, jlower, jupper, A)
+
+    ! Initialize vectors
+    call hypre_vector_init(1, ilower, iupper, b)
+    call hypre_vector_init(1, jlower, jupper, x)
+
+    ! Fill matrix
+    ! We do this the lazy and expensive way, one dof at a time.
+    ! The interface expects array, so we fill some dummy arrays of size 1
+    ! and pass these to the hypre interface
+    do i = 1, nnz
+      ncol(1) = 1
+      tmp_rows(1) = A_rows(i)
+      tmp_cols(1) = A_cols(i)
+      tmp_vals(1) = A_vals(i)
+      call hypre_matrix_update(A, 1, ncol, tmp_rows, tmp_cols, tmp_vals)
+    end do
+
+    call hypre_matrix_assemble(A)
+  end subroutine hypre_matrix_assemble_from_neko
 
 end module hypre
