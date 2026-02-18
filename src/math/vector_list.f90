@@ -1,3 +1,36 @@
+! Copyright (c) 2018-2025, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+! Defines a vector list
 module vector_list
   use, intrinsic :: iso_fortran_env, only : error_unit
   use vector, only : vector_ptr_t, vector_t
@@ -64,16 +97,16 @@ contains
   !> Get an item pointer by array index
   !! @param i The index of the item.
   function vector_list_get_by_index(this, i) result(f)
-    class(vector_list_t), intent(inout) :: this
+    class(vector_list_t), target, intent(inout) :: this
     type(vector_t), pointer :: f
     integer, intent(in) :: i
     f => this%items(i)%ptr
   end function vector_list_get_by_index
 
   !> Get an item pointer by array index
-  !! @param i The index of the item.
+  !! @param name The name of the item.
   function vector_list_get_by_name(this, name) result(f)
-    class(vector_list_t), intent(inout) :: this
+    class(vector_list_t), target, intent(inout) :: this
     type(vector_t), pointer :: f
     character(len=*), intent(in) :: name
     integer :: i
@@ -153,7 +186,7 @@ contains
     x => this%items(i)%ptr%x
   end function vector_list_x
 
-  !> Get the size of the dofmap for item `i`.
+  !> Get the size of item `i`.
   !! @param i The index of the item.
   function vector_list_item_size(this, i) result(size)
     class(vector_list_t), target, intent(in) :: this
