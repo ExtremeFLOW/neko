@@ -238,6 +238,7 @@ contains
   subroutine boomeramg_setup(solver, parcsr_A, par_b, par_x)
      type(c_ptr), intent(inout) :: solver, parcsr_A, par_b, par_x
      integer :: ierr
+     ! Hypre documentation says par_b and par_x are ignored by this function
      ierr = HYPRE_BoomerAMGSetup(solver, parcsr_A, par_b, par_x)
   end subroutine boomeramg_setup
 

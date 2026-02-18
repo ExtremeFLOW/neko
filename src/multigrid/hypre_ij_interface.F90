@@ -301,8 +301,8 @@ contains
   subroutine hypre_copy_to_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
-    integer, intent(in) :: indices(:)
-    double precision, intent(in) :: values(:)
+    integer, intent(in) :: indices(nvalues)
+    double precision, intent(in) :: values(nvalues)
     integer :: ierr
     ! re-initialize vector
     ierr = HYPRE_IJVectorInitialize(v)
@@ -313,8 +313,8 @@ contains
   subroutine hypre_copy_from_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
-    integer, intent(in) :: indices(:)
-    double precision, intent(in) :: values(:)
+    integer, intent(in) :: indices(nvalues)
+    double precision, intent(inout) :: values(nvalues)
     integer :: ierr
     ! Get vector values
     ierr = HYPRE_IJVectorGetValues(v, nvalues, c_loc(indices), c_loc(values))
