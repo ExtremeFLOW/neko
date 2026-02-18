@@ -64,6 +64,8 @@ module bc
      integer, allocatable :: zone_indices(:)
      !> Boundary type
      character(len=:), allocatable :: type
+     !> Restriction to facets flag
+     logical :: only_facets = .false.
      !> Finalisation flag
      logical :: iffinalised
      !> The linear index of each node in each boundary facet
@@ -285,6 +287,7 @@ contains
        deallocate(this%type)
     end if
 
+    this%only_facets = .false.
     this%iffinalised = .false.
 
     if (allocated(this%msk)) then
@@ -449,8 +452,9 @@ contains
     lz = this%Xh%lz
     if ( present(only_facets)) then
        only_facet = only_facets
+       this%only_facets = only_facets
     else
-       only_facet = .false.
+       only_facet = this%only_facets
     end if
     !>@todo add 2D case
 

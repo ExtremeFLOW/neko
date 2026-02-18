@@ -95,7 +95,7 @@ contains
     if (present(only_facets)) then
        only_facets_ = only_facets
     else
-       only_facets_ = .false.
+       only_facets_ = this%only_facets
     end if
 
     associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
