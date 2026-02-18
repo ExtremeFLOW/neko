@@ -1286,7 +1286,7 @@ contains
     !switched on. If not, then the current rotation logic
     !is not sufficient and must be modified.
     !The logic stops the program when cyclic flag is true
-    !but not required. The remaining cases throw warning only.
+    !but not required. The remaining cases throw warnings only.
     integer :: np, n, lx, pf, pe, i, j, k, nc, ipass, ntot, ncyc
     real(kind=rp) :: un(3)
     real(kind=rp), allocatable :: normx(:,:,:,:)
@@ -1299,7 +1299,7 @@ contains
     ntot = this%dof%size()
     ncyc = np*lx*lx
 
-    if (np .eq. 0) then
+    if (this%cyclic .and. np .eq. 0) then
        call neko_error("There are no periodic boundaries. " // &
                       "Switch cyclic off in the case file.")
     end if
@@ -1367,13 +1367,17 @@ contains
              if (this%cyclic .eqv. .false.) then
                 call neko_warning("Cyclic rotation is required. " // &
                                   "Switch it on in the case file.")
-                !R11 and R12 are not defaults but rotate_cyc will not work
-                !as coef%cyclic is false
+                !Set default values as cyclic=false.
+                call rone(this%R11, ncyc)
+                call rzero(this%R12, ncyc)
                 !else: Rotation is required and cyclic flag is true. Proceed.
              end if
           else
              call neko_warning("Cylic rotation is required, but " // &
                                "rotation logic must be modified.")
+             !Set default values.
+             call rone(this%R11, ncyc)
+             call rzero(this%R12, ncyc)
           end if
        end if
 
