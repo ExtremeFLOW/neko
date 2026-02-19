@@ -195,6 +195,7 @@ module hypre_ij_interface
   end interface
 
   public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_update, hypre_matrix_destroy
+  public :: hypre_device_matrix_update
   public :: hypre_vector_init, hypre_vector_fill, hypre_vector_assemble, hypre_vector_destroy
   public :: hypre_copy_from_vector, hypre_copy_to_vector
   public :: hypre_device_copy_from_vector, hypre_device_copy_to_vector
@@ -222,6 +223,15 @@ contains
      ierr = HYPRE_IJMatrixInitialize(A)
   end subroutine hypre_matrix_init
 
+  !> Fill hypre matrix from neko. Overwrites existing matrix entries.
+  !! nrows may be larger than nuber of rows on rank
+  !! due to duplicated DoFs in values.
+  !! @param A c_ptr for HYPRE_IJMatrix
+  !! @param nrows Number of rows to be set. Counts duplicates.
+  !! @param ncols Number of cols on each row. Fortran array on host.
+  !! @param rows Array of row indices. global DoFs. Fortran array on host.
+  !! @param cols Array of col indices. global DoFs. Fortran array on host.
+  !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_matrix_fill(A, nrows, ncols, rows, cols, values)
      type(c_ptr), intent(in) :: A
      integer, intent(in) :: nrows, ncols(:)
@@ -233,6 +243,15 @@ contains
          c_loc(rows), c_loc(cols), c_loc(values))
   end subroutine hypre_matrix_fill
 
+  !> Add to hypre matrix from neko. Creates new entries or adds to existing.
+  !! nrows may be larger than number of rows on rank
+  !! due to duplicated DoFs in values.
+  !! @param A c_ptr for HYPRE_IJMatrix
+  !! @param nrows Number of rows to be set. Counts duplicates.
+  !! @param ncols Number of cols on each row. Fortran array on host.
+  !! @param rows Array of row indices. global DoFs. Fortran array on host.
+  !! @param cols Array of col indices. global DoFs. Fortran array on host.
+  !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_matrix_update(A, nrows, ncols, rows, cols, values)
      type(c_ptr), intent(in) :: A
      integer, intent(in) :: nrows, ncols(:)
@@ -244,6 +263,28 @@ contains
          c_loc(rows), c_loc(cols), c_loc(values))
   end subroutine hypre_matrix_update
 
+  !> Add to hypre matrix from neko. Creates new entries or adds to existing.
+  !! nrows may be larger than number of rows on rank
+  !! due to duplicated DoFs in values.
+  !! @param A c_ptr for HYPRE_IJMatrix
+  !! @param nrows Number of rows to be set. Counts duplicates.
+  !! @param ncols Number of cols on each row. c_ptr on device
+  !! @param rows Array of row indices. global DoFs. c_ptr on device.
+  !! @param cols Array of col indices. global DoFs. c_ptr on device.
+  !! @param values Array of values to be set. c_ptr on device.
+  subroutine hypre_device_matrix_update(A, nrows, ncols, rows, cols, values)
+     type(c_ptr), intent(in) :: A
+     integer, intent(in) :: nrows
+     type(c_ptr), intent(in) :: ncols, rows, cols
+     type(c_ptr), intent(in) :: values
+     integer :: ierr
+     ! Fill the matrix with values.
+     ierr = HYPRE_IJMatrixAddToValues(A, nrows, ncols, &
+         rows, cols, values)
+  end subroutine hypre_device_matrix_update
+
+  !> Finish and assemble matrix
+  !! @param A c_ptr for HYPRE_IJMatrix
   subroutine hypre_matrix_assemble(A)
      type(c_ptr), intent(in) :: A
      integer :: ierr
@@ -288,7 +329,7 @@ contains
   !> Fill hypre vector from neko.
   !! nvalues may be larger than vector length
   !! due to duplicated DoFs in indices/values.
-  !! @param v c_ptr to HYPRE_IJVector
+  !! @param v c_ptr for HYPRE_IJVector
   !! @param nvalues Length of indicies/values.
   !! @param indices Array of global DoFs on rank. Fortran array on host.
   !! @param values Array of values to be set. Fortran array on host.
@@ -321,7 +362,7 @@ contains
   !> Copy vector from neko to hypre.
   !! nvalues may be larger than vector length
   !! due to duplicated DoFs in indices/values.
-  !! @param v c_ptr to HYPRE_IJVector
+  !! @param v c_ptr for HYPRE_IJVector
   !! @param nvalues Length of indicies/values.
   !! @param indices Array of global DoFs on rank. Fortran array on host.
   !! @param values Array of values to be set. Fortran array on host.
@@ -340,7 +381,7 @@ contains
   !> Copy vector from neko to hypre.
   !! nvalues may be larger than vector length
   !! due to duplicated DoFs in indices/values.
-  !! @param v c_ptr to HYPRE_IJVector
+  !! @param v c_ptr for HYPRE_IJVector
   !! @param nvalues Length of indicies/values.
   !! @param indices Array of global DoFs on rank. c_ptr on device.
   !! @param values Array of values to be set. c_ptr on device.
@@ -359,7 +400,7 @@ contains
   !> Copy vector from hypre to neko.
   !! nvalues may be larger than vector length
   !! due to duplicated DoFs in indices/values.
-  !! @param v c_ptr to HYPRE_IJVector
+  !! @param v c_ptr for HYPRE_IJVector
   !! @param nvalues Length of indicies/values.
   !! @param indices Array of global DoFs on rank. Fortran array on host.
   !! @param values Array of values to be set. Fortran array on host.
@@ -376,7 +417,7 @@ contains
   !> Copy vector from hypre to neko.
   !! nvalues may be larger than vector length
   !! due to duplicated DoFs in indices/values.
-  !! @param v c_ptr to HYPRE_IJVector
+  !! @param v c_ptr for HYPRE_IJVector
   !! @param nvalues Length of indicies/values.
   !! @param indices Array of global DoFs on rank. c_ptr on device.
   !! @param values Array of values to be set. c_ptr on device.
