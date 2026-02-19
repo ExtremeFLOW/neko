@@ -197,6 +197,7 @@ module hypre_ij_interface
   public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_update, hypre_matrix_destroy
   public :: hypre_vector_init, hypre_vector_fill, hypre_vector_assemble, hypre_vector_destroy
   public :: hypre_copy_from_vector, hypre_copy_to_vector
+  public :: hypre_device_copy_from_vector, hypre_device_copy_to_vector
   public :: hypre_matrix_get_object, hypre_vector_get_object
 
 contains
@@ -269,10 +270,10 @@ contains
   !-----------------------------------------------------------------------------
 
   !> Interface to initialize a vector for hypre
-  !! mpi_comm
-  !! jlower
-  !! jupper
-  !! v
+  !! @param mpi_comm Not used.
+  !! @param jlower Smallest global DoF on rank.
+  !! @param jupper Largest global DoF on rank.
+  !! @param v HYPRE_IJVector c_ptr
   subroutine hypre_vector_init(mpi_comm, jlower, jupper, v)
     integer, intent(in) :: mpi_comm, jlower, jupper
     type(c_ptr), intent(inout) :: v
@@ -284,6 +285,13 @@ contains
     ierr = HYPRE_IJVectorInitialize(v)
   end subroutine hypre_vector_init
 
+  !> Fill hypre vector from neko.
+  !! nvalues may be larger than vector length
+  !! due to duplicated DoFs in indices/values.
+  !! @param v c_ptr to HYPRE_IJVector
+  !! @param nvalues Length of indicies/values.
+  !! @param indices Array of global DoFs on rank. Fortran array on host.
+  !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_vector_fill(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
@@ -294,6 +302,8 @@ contains
     ierr = HYPRE_IJVectorSetValues(v, nvalues, c_loc(indices), c_loc(values))
   end subroutine hypre_vector_fill
 
+  !> Finalze and assemble the HYPRE_IJVector object
+  !! @param v c_ptr HYPRE_IJVector
   subroutine hypre_vector_assemble(v)
     type(c_ptr), intent(in) :: v
     integer :: ierr
@@ -308,6 +318,13 @@ contains
     ierr = HYPRE_IJVectorGetObject(v, par_v)
   end subroutine hypre_vector_get_object
 
+  !> Copy vector from neko to hypre.
+  !! nvalues may be larger than vector length
+  !! due to duplicated DoFs in indices/values.
+  !! @param v c_ptr to HYPRE_IJVector
+  !! @param nvalues Length of indicies/values.
+  !! @param indices Array of global DoFs on rank. Fortran array on host.
+  !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_copy_to_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
@@ -320,6 +337,32 @@ contains
     ierr = HYPRE_IJVectorSetValues(v, nvalues, c_loc(indices), c_loc(values))
   end subroutine hypre_copy_to_vector
 
+  !> Copy vector from neko to hypre.
+  !! nvalues may be larger than vector length
+  !! due to duplicated DoFs in indices/values.
+  !! @param v c_ptr to HYPRE_IJVector
+  !! @param nvalues Length of indicies/values.
+  !! @param indices Array of global DoFs on rank. c_ptr on device.
+  !! @param values Array of values to be set. c_ptr on device.
+  subroutine hypre_device_copy_to_vector(v, nvalues, indices, values)
+    type(c_ptr), intent(in) :: v
+    integer, intent(in) :: nvalues
+    type(c_ptr), intent(in) :: indices
+    type(c_ptr), intent(in) :: values
+    integer :: ierr
+    ! re-initialize vector
+    ierr = HYPRE_IJVectorInitialize(v)
+    ! Set vector values
+    ierr = HYPRE_IJVectorSetValues(v, nvalues, indices, values)
+  end subroutine hypre_device_copy_to_vector
+
+  !> Copy vector from hypre to neko.
+  !! nvalues may be larger than vector length
+  !! due to duplicated DoFs in indices/values.
+  !! @param v c_ptr to HYPRE_IJVector
+  !! @param nvalues Length of indicies/values.
+  !! @param indices Array of global DoFs on rank. Fortran array on host.
+  !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_copy_from_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
@@ -330,6 +373,24 @@ contains
     ierr = HYPRE_IJVectorGetValues(v, nvalues, c_loc(indices), c_loc(values))
   end subroutine hypre_copy_from_vector
 
+  !> Copy vector from hypre to neko.
+  !! nvalues may be larger than vector length
+  !! due to duplicated DoFs in indices/values.
+  !! @param v c_ptr to HYPRE_IJVector
+  !! @param nvalues Length of indicies/values.
+  !! @param indices Array of global DoFs on rank. c_ptr on device.
+  !! @param values Array of values to be set. c_ptr on device.
+  subroutine hypre_device_copy_from_vector(v, nvalues, indices, values)
+    type(c_ptr), intent(in) :: v
+    integer, intent(in) :: nvalues
+    type(c_ptr), intent(in) :: indices
+    type(c_ptr), intent(in) :: values
+    integer :: ierr
+    ! Get vector values
+    ierr = HYPRE_IJVectorGetValues(v, nvalues, indices, values)
+  end subroutine hypre_device_copy_from_vector
+
+  !> Free the hypre vector object
   subroutine hypre_vector_destroy(v)
      type(c_ptr), intent(inout) :: v
      integer :: ierr

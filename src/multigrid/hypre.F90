@@ -95,6 +95,11 @@ contains
     call boomeramg_setup(this%solver, this%parcsr_A, this%par_b, this%par_x)
   end subroutine hypre_solver_setup
 
+  !> Solve system for right hand side f
+  !! @param x Approximated solution. Fortran array on host.
+  !! @param f Right hand side. Fortran array on host.
+  !! @param n Size of vectors
+  !! @param dof_i8 Array of global DoFs on rank. Fortran array on host.
   subroutine hypre_solve(this, x, f, n, dof_i8)
     class(hypre_solver_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -112,6 +117,27 @@ contains
     ! Copy from hypre vector
     call hypre_copy_from_vector(this%x, n, dof, x)
   end subroutine hypre_solve
+
+  !> Solve system for right hand side f
+  !! @param x Approximated solution. c_ptr on device.
+  !! @param f Right hand side. c_ptr on device.
+  !! @param n Size of vectors
+  !! @param dof Array of global DoFs on rank. c_ptr on device.
+  subroutine hypre_device_solve(this, x, f, n, dof)
+    class(hypre_solver_t), intent(inout) :: this
+    integer, intent(in) :: n
+    type(c_ptr), intent(in) :: x
+    type(c_ptr), intent(in) :: f
+    type(c_ptr), intent(in) :: dof
+    ! Copy to hypre vector
+    ! (copy to x may be unneeded if zero initial guess is always used)
+    call hypre_device_copy_to_vector(this%x, n, dof, x)
+    call hypre_device_copy_to_vector(this%b, n, dof, f)
+    ! Solve
+    call boomeramg_solve(this%solver, this%parcsr_A, this%par_b, this%par_x)
+    ! Copy from hypre vector
+    call hypre_device_copy_from_vector(this%x, n, dof, x)
+  end subroutine hypre_device_solve
 
   subroutine hypre_matrix_assemble_from_neko(coef, A, b, x)
     type(coef_t), intent(in), target :: coef
