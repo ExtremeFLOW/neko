@@ -244,7 +244,7 @@ contains
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%z0, this%_in, this%bc_type, this%zone_idx, this%h_idx, &
+            this%z0, this%z0h_in, this%bc_type, this%zone_idx, this%h_idx, &
             this%bc_value, tstep)
     end if
 
