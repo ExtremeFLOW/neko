@@ -1,5 +1,7 @@
 module hypre
   use num_types, only : rp, i8
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
   use hypre_boomeramg
   use hypre_ij_interface
   use coefs, only : coef_t
@@ -150,6 +152,7 @@ contains
     integer :: ilower, iupper, jlower, jupper
     integer :: e, k, j, i, s, l
     integer :: nnz, nelv, lx, idof
+    type(c_ptr) :: tmp_rows_d, tmp_cols_d, tmp_vals_d, ncol_d
     lx = coef%dof%Xh%lx
     nelv = coef%dof%msh%nelv
     ! storing the matrix in (i,j,val) format needs one entry per dof contribution
@@ -235,13 +238,31 @@ contains
     ! We do this the lazy and expensive way, one dof at a time.
     ! The interface expects array, so we fill some dummy arrays of size 1
     ! and pass these to the hypre interface
-    do i = 1, nnz
-      ncol(1) = 1
-      tmp_rows(1) = A_rows(i)
-      tmp_cols(1) = A_cols(i)
-      tmp_vals(1) = A_vals(i)
-      call hypre_matrix_update(A, 1, ncol, tmp_rows, tmp_cols, tmp_vals)
-    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(tmp_rows, tmp_rows_d, 1)
+       call device_map(tmp_cols, tmp_cols_d, 1)
+       call device_map(tmp_vals, tmp_vals_d, 1)
+       call device_map(ncol, ncol_d, 1)
+       do i = 1, nnz
+         ncol(1) = 1
+         tmp_rows(1) = A_rows(i)
+         tmp_cols(1) = A_cols(i)
+         tmp_vals(1) = A_vals(i)
+         call device_memcpy( tmp_rows, tmp_rows_d, 1, HOST_TO_DEVICE, .true.)
+         call device_memcpy( tmp_cols, tmp_cols_d, 1, HOST_TO_DEVICE, .true.)
+         call device_memcpy( tmp_vals, tmp_vals_d, 1, HOST_TO_DEVICE, .true.)
+         call device_memcpy( ncol, ncol_d, 1, HOST_TO_DEVICE, .true.)
+         call hypre_device_matrix_update(A, 1, ncol_d, tmp_rows_d, tmp_cols_d, tmp_vals_d)
+       end do
+    else
+       do i = 1, nnz
+         ncol(1) = 1
+         tmp_rows(1) = A_rows(i)
+         tmp_cols(1) = A_cols(i)
+         tmp_vals(1) = A_vals(i)
+         call hypre_matrix_update(A, 1, ncol, tmp_rows, tmp_cols, tmp_vals)
+       end do
+    end if
 
     call hypre_matrix_assemble(A)
   end subroutine hypre_matrix_assemble_from_neko
