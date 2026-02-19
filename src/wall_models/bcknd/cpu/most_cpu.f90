@@ -96,13 +96,19 @@ contains
 
   !> Selects different expressions for the similarity functions in  MOST
   !> based on the type of bottom boundary condition for temperature.
-  subroutine select_bc_operators(bc_type)
-    character(len=*), intent(in) :: bc_type
+  subroutine select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,his)
+    character(len=*), intent(in) :: bc_type,bc_value
+    real(kind=rp), intent(in) :: hi, ti, ts, kappa, utau, z0h
+
+    real(kind=rp), intent(inout) :: q,ts
     select case (bc_type)
     case ("neumann")
+       q = bc_value
        f_ptr => f_neumann
        dfdl_ptr => dfdl_neumann
     case ("dirichlet")
+       ts = bc_value
+       q = kappa*utau*(ts - ti)/log(hi/z0h)
        f_ptr => f_dirichlet
        dfdl_ptr => dfdl_dirichlet
     case default
@@ -125,17 +131,6 @@ contains
        call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
     end select
   end subroutine compute_Ri_b
-
-  !> Initialises q when the temperature surface bc is dirichlet.
-  subroutine init_q(bc_type, hi, ti, ts, kappa, utau, z0h, q)
-    character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(in) :: hi, ti, ts, kappa, utau, z0h
-    real(kind=rp), intent(inout) :: q
-
-    if (bc_type == "dirichlet") then
-       q = kappa*utau*(ts - ti)/log(hi/z0h)
-    end if
-  end subroutine init_q
 
   !> Sets the stability regime based on the Richardson number value (quite arbitrary).
   subroutine set_stability_regime(Ri_b,Ri_threshold)
@@ -161,12 +156,12 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, bc_type, zone_idx, h_idx, q, tstep)   ! maybe put q as a variable that can be either q o ts
+       kappa, z0, bc_type, zone_idx, h_idx, bc_value, tstep)   ! maybe put q as a variable that can be either q o ts
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0
+    real(kind=rp), intent(in) :: kappa, z0, bc_value
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(inout) :: q ! only supports scalar at the moment
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
@@ -190,8 +185,6 @@ contains
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       !!!!! take this out: you get it from the case file when type_bc = dirichlet
-       ts = temp(ind_r(i)-ts_idx(1), ind_s(i)-ts_idx(2), ind_t(i)-ts_idx(3), ind_e(i))
        hi = h(i)
 
        ! Project on horizontal directions
@@ -209,8 +202,7 @@ contains
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
        ! Maybe redundant, but needed to initialise Rib
-       call select_bc_operators(bc_type)
-       call init_q(bc_type, hi, ti, ts, kappa, utau, z0h, q)
+       call select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
        call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
        ! Get q, Ri, f, dfdl based on bc_type

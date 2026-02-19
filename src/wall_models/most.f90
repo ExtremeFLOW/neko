@@ -61,8 +61,8 @@ module most
      character(len=:), allocatable :: bc_type
      !> The face and index of the sampling point
      integer :: zone_idx,h_idx
-     !> the heat flux value set in the case file
-     real(kind=rp) :: q
+     !> the heat flux or temperature value set in the case file
+     real(kind=rp) :: bc_value
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => most_init
@@ -102,13 +102,13 @@ contains
     integer, allocatable :: zone_idx_arr(:)
     integer :: zone_idx
     integer :: h_idx
-    real(kind=rp) :: q
+    real(kind=rp) :: bc_value
 
     call json_get_or_default(json, "kappa", kappa, 0.41_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get_or_default(json, "h_index", h_idx, 1)
-    call json_get_or_default(json, "flux_value", q, 0.05_rp)
+    call json_get(json, "bottom_bc_flux_or_temp", bc_value)
 
     call json_get(json, "zone_indices", zone_idx_arr)
     if (.not. allocated(zone_idx_arr)) then
@@ -120,7 +120,7 @@ contains
     zone_idx = zone_idx_arr(1)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
-         kappa, z0, bc_type, zone_idx, h_idx, q)
+         kappa, z0, bc_type, zone_idx, h_idx, bc_value)
   end subroutine most_init
 
   !> Constructor from JSON.
@@ -137,7 +137,7 @@ contains
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get_or_default(json, "h_index", this%h_idx, 1)
-    call json_get_or_default(json, "flux_value", this%q, 0.05_rp)
+    call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
 
     call json_get(json, "zone_indices", zone_idx_arr)
     if (.not. allocated(zone_idx_arr)) then
@@ -176,7 +176,7 @@ contains
   !! @param h_idx The sampling point index (normal to the zone_idx face).
   !! @param The heat flux at the surface boundary condition.
   subroutine most_init_from_components(this, scheme_name, coef, msk, &
-       facet, h_index, kappa, z0, bc_type, zone_idx, h_idx, q)
+       facet, h_index, kappa, z0, bc_type, zone_idx, h_idx, bc_value)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -187,7 +187,7 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: kappa
-    real(kind=rp), intent(in) :: z0, q
+    real(kind=rp), intent(in) :: z0, bc_value
 
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
@@ -196,7 +196,7 @@ contains
     this%bc_type = bc_type
     this%zone_idx = zone_idx
     this%h_idx = h_idx
-    this%q = q
+    this%bc_value = bc_value
   end subroutine most_init_from_components
 
   !> Destructor for the most_t (base) class.
@@ -239,7 +239,7 @@ contains
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
             this%z0, this%bc_type, this%zone_idx, this%h_idx, &
-            this%q, tstep)
+            this%bc_value, tstep)
     end if
 
   end subroutine most_compute
