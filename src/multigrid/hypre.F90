@@ -38,13 +38,19 @@ module hypre
      ! pointer for HYPRE_IJVector
      type(c_ptr) :: x = C_NULL_PTR
      type(c_ptr) :: par_x = C_NULL_PTR
+     ! things that should not be here but are stuck here for convenience
+     ! or lazyness
+     integer, allocatable :: dofs(:)! dof list here to have i4 instead of i8
+     type(c_ptr) :: dofs_d! dof list on device
    contains
      procedure, pass(this) :: init => hypre_solver_init
      procedure, pass(this) :: setup => hypre_solver_setup
      procedure, pass(this) :: solve => hypre_solve
+     procedure, pass(this) :: device_solve => hypre_device_solve
      procedure, pass(this) :: set_matrix
      procedure, pass(this) :: set_vector
      !procedure, pass(this) :: free
+     procedure, pass(this) :: set_dofs => hypre_dofs_workaround
   end type hypre_solver_t
 
   public :: hypre_init, hypre_fin, hypre_matrix_assemble_from_neko
@@ -109,6 +115,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: f
     integer(kind=i8), dimension(n), intent(in) :: dof_i8
     integer, dimension(n) :: dof
+    ! convert to i4 as hypre takes int*
     dof = dof_i8
     ! Copy to hypre vector
     ! (copy to x may be unneeded if zero initial guess is always used)
@@ -140,6 +147,20 @@ contains
     ! Copy from hypre vector
     call hypre_device_copy_from_vector(this%x, n, dof, x)
   end subroutine hypre_device_solve
+
+  subroutine hypre_dofs_workaround(this, coef)
+    class(hypre_solver_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    integer :: i
+    allocate(this%dofs(size(coef%dof%dof)))
+    do i = 1, size(coef%dof%dof)
+       this%dofs(i) = coef%dof%dof(i,1,1,1)
+    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%dofs, this%dofs_d, size(coef%dof%dof))
+       call device_memcpy(this%dofs, this%dofs_d, size(coef%dof%dof), HOST_TO_DEVICE, .true.)
+    end if
+  end subroutine hypre_dofs_workaround
 
   subroutine hypre_matrix_assemble_from_neko(coef, A, b, x)
     type(coef_t), intent(in), target :: coef
