@@ -111,7 +111,7 @@ contains
     call json_get_or_default(json, "z0h", z0h_in, -10.0_rp)  ! if z0h not specified, assign negative value (tmp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get_or_default(json, "h_index", h_idx, 1)
-    call json_get(json, "bottom_bc_flux_or_temp", bc_value)
+    call json_get(json, "temp_bc_value", bc_value)
 
     call json_get(json, "zone_indices", zone_idx_arr)
     if (.not. allocated(zone_idx_arr)) then
