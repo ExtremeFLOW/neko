@@ -41,7 +41,7 @@ module hypre
      ! things that should not be here but are stuck here for convenience
      ! or lazyness
      integer, allocatable :: dofs(:)! dof list here to have i4 instead of i8
-     type(c_ptr) :: dofs_d! dof list on device
+     type(c_ptr) :: dofs_d = C_NULL_PTR! dof list on device
    contains
      procedure, pass(this) :: init => hypre_solver_init
      procedure, pass(this) :: setup => hypre_solver_setup
@@ -62,9 +62,9 @@ contains
      ! Initialize hypre
      ierr = HYPRE_Initialize()
      ! Set other hypre config parameters
-     !call HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE, ierr)
-     !call HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE, ierr)
-     !call HYPRE_SetSpGemmUseVendor(0, ierr)
+     call HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE, ierr)
+     call HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE, ierr)
+     call HYPRE_SetSpGemmUseVendor(0, ierr)
   end subroutine hypre_init
 
   subroutine hypre_fin()
@@ -156,6 +156,7 @@ contains
     do i = 1, size(coef%dof%dof)
        this%dofs(i) = coef%dof%dof(i,1,1,1)
     end do
+    print *, "DOF workaround mapping"
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%dofs, this%dofs_d, size(coef%dof%dof))
        call device_memcpy(this%dofs, this%dofs_d, size(coef%dof%dof), HOST_TO_DEVICE, .true.)
@@ -174,6 +175,10 @@ contains
     integer :: e, k, j, i, s, l
     integer :: nnz, nelv, lx, idof
     type(c_ptr) :: tmp_rows_d, tmp_cols_d, tmp_vals_d, ncol_d
+    tmp_rows_d = C_NULL_PTR
+    tmp_cols_d = C_NULL_PTR
+    tmp_vals_d = C_NULL_PTR
+    ncol_d = C_NULL_PTR
     lx = coef%dof%Xh%lx
     nelv = coef%dof%msh%nelv
     ! storing the matrix in (i,j,val) format needs one entry per dof contribution
@@ -259,11 +264,13 @@ contains
     ! We do this the lazy and expensive way, one dof at a time.
     ! The interface expects array, so we fill some dummy arrays of size 1
     ! and pass these to the hypre interface
+    print *, "MATRIX MAPPING"
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(tmp_rows, tmp_rows_d, 1)
        call device_map(tmp_cols, tmp_cols_d, 1)
        call device_map(tmp_vals, tmp_vals_d, 1)
        call device_map(ncol, ncol_d, 1)
+       print *, "MAPS DONE"
        do i = 1, nnz
          ncol(1) = 1
          tmp_rows(1) = A_rows(i)
@@ -285,6 +292,7 @@ contains
        end do
     end if
 
+    print *, "MATRIX ASSEMBLE"
     call hypre_matrix_assemble(A)
   end subroutine hypre_matrix_assemble_from_neko
 
