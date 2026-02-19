@@ -62,9 +62,9 @@ contains
      ! Initialize hypre
      ierr = HYPRE_Initialize()
      ! Set other hypre config parameters
-     call HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE, ierr)
-     call HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE, ierr)
-     call HYPRE_SetSpGemmUseVendor(0, ierr)
+     !call HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE, ierr)
+     !call HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE, ierr)
+     !call HYPRE_SetSpGemmUseVendor(0, ierr)
   end subroutine hypre_init
 
   subroutine hypre_fin()
