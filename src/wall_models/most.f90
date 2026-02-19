@@ -57,6 +57,8 @@ module most
      real(kind=rp) :: kappa = 0.41_rp
      !> The roughness height
      real(kind=rp) :: z0 = 0.1_rp
+     !> The thermal roughness height
+     real(kind=rp) :: z0h_in = 0.1_rp
      !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
      !> The face and index of the sampling point
@@ -97,7 +99,7 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: kappa, z0
+    real(kind=rp) :: kappa, z0, z0h_in
     character(len=:), allocatable :: bc_type
     integer, allocatable :: zone_idx_arr(:)
     integer :: zone_idx
@@ -106,6 +108,7 @@ contains
 
     call json_get_or_default(json, "kappa", kappa, 0.41_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
+    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp)  ! if z0h not specified, assign negative value (tmp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get_or_default(json, "h_index", h_idx, 1)
     call json_get(json, "bottom_bc_flux_or_temp", bc_value)
@@ -120,7 +123,7 @@ contains
     zone_idx = zone_idx_arr(1)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
-         kappa, z0, bc_type, zone_idx, h_idx, bc_value)
+         kappa, z0, z0h_in, bc_type, zone_idx, h_idx, bc_value)
   end subroutine most_init
 
   !> Constructor from JSON.
@@ -135,6 +138,7 @@ contains
     call this%partial_init_base(coef, json)
     call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
+    call json_get_or_default(json, "z0h", this%z0h_in, -10.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get_or_default(json, "h_index", this%h_idx, 1)
     call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
@@ -171,12 +175,13 @@ contains
   !! @param h_index The off-wall index of the sampling cell.
   !! @param kappa The von Karman coefficient.
   !! @param z0 The roughness height.
+  !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
   !! @param zone_idx The face id from which the sampling point is taken.
   !! @param h_idx The sampling point index (normal to the zone_idx face).
   !! @param The heat flux at the surface boundary condition.
   subroutine most_init_from_components(this, scheme_name, coef, msk, &
-       facet, h_index, kappa, z0, bc_type, zone_idx, h_idx, bc_value)
+       facet, h_index, kappa, z0, z0h_in, bc_type, zone_idx, h_idx, bc_value)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -187,12 +192,13 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: kappa
-    real(kind=rp), intent(in) :: z0, bc_value
+    real(kind=rp), intent(in) :: z0, z0h_in, bc_value
 
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
     this%z0 = z0
+    this%z0h_in = z0h_in
     this%bc_type = bc_type
     this%zone_idx = zone_idx
     this%h_idx = h_idx
@@ -238,7 +244,7 @@ contains
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%z0, this%bc_type, this%zone_idx, this%h_idx, &
+            this%z0, this%_in, this%bc_type, this%zone_idx, this%h_idx, &
             this%bc_value, tstep)
     end if
 

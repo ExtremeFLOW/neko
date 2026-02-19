@@ -156,21 +156,20 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, bc_type, zone_idx, h_idx, bc_value, tstep)   ! maybe put q as a variable that can be either q o ts
+       kappa, z0, z0h_in, bc_type, zone_idx, h_idx, bc_value, tstep)   
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0, bc_value
+    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(inout) :: q ! only supports scalar at the moment
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     integer, intent(in) :: zone_idx ! only supports wall model on ONE boundary atm!
     integer :: ts_idx(3)
     integer, intent(in) :: h_idx
     integer :: i, count
     integer, parameter :: max_count = 20
-    real(kind=rp) :: ui, vi, ti, ts, hi
+    real(kind=rp) :: ui, vi, ti, ts, q, hi
     real(kind=rp) :: magu, utau, normu, z0h
     real(kind=rp) :: L_ob, L_upper, L_lower, L_old
     real(kind=rp) :: Ri_b, f, dfdl, fd_h, L_new, L_sign
@@ -197,8 +196,11 @@ contains
        utau = magu*kappa / log(hi/z0)
 
        ! Compute thermal roughness length from Zilitinkevich, 1995
-       !!!!!! woudl be nice to be able to set this or not 
-       z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))
+       if (z0h_in < 0) then
+         z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))
+       else 
+         z0h = z0h_in
+       end if 
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
        ! Maybe redundant, but needed to initialise Rib
