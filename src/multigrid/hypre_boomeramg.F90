@@ -228,8 +228,9 @@ contains
      ierr = HYPRE_BoomerAMGCreate(solver)
      ierr = HYPRE_BoomerAMGSetPrintLevel(solver, 3)
      ierr = HYPRE_BoomerAMGSetOldDefault(solver)
+     ierr = HYPRE_BoomerAMGSetCoarsenType(solver, 8);
      ierr = HYPRE_BoomerAMGSetRelaxType(solver, 3)
-     ierr = HYPRE_BoomerAMGSetRelaxOrder(solver, 1)
+     ierr = HYPRE_BoomerAMGSetRelaxOrder(solver, 0)
      ierr = HYPRE_BoomerAMGSetNumSweeps(solver, 1)
      ierr = HYPRE_BoomerAMGSetMaxLevels(solver, 20)
      ierr = HYPRE_BoomerAMGSetTol(solver, 1.0d-7)
