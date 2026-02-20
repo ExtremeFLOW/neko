@@ -302,9 +302,9 @@ contains
           ! This should in principle be merged into some larger kernel
           ! Compute the jacobian
           call tnsr3d_el_cpu(jac(1,1), 1, this%x_hat%x(e), lx, &
-               dr_legendre, s_legendre(1), t_legendre)
+               dr_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(jac(1,2), 1, this%y_hat%x(e), lx, &
-               dr_legendre, s_legendre(1), t_legendre)
+               dr_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(jac(1,3), 1, this%z_hat%x(e), lx, &
                dr_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(jac(2,1), 1, this%x_hat%x(e), lx, &
