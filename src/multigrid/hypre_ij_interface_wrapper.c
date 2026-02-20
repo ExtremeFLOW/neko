@@ -28,3 +28,13 @@ int HYPRE_IJVectorCreate_wrapper(int jlower, int jupper, HYPRE_IJVector *vector)
 
   return rcode;
 }
+
+// TODO: Sticking this here for now. Move to an appropriate place.
+int HYPRE_init_wrapper()
+{
+  int rcode;
+  rcode = HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE);
+  rcode = HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE);
+  HYPRE_SetSpGemmUseVendor(0);
+  return rcode;
+}

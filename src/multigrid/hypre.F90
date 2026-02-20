@@ -23,6 +23,16 @@ module hypre
       end function HYPRE_Finalize
   end interface
 
+  !TODO: this is defined in hypre_ij_interface_wrapper.c
+  !      Eventually it should be moved to a more appropriate place.
+  interface
+      integer (c_int) function HYPRE_init_wrapper() &
+           bind(c, name='HYPRE_init_wrapper')
+        use, intrinsic :: iso_c_binding
+        implicit none
+      end function HYPRE_init_wrapper
+  end interface
+
   type, public :: hypre_solver_t
      ! pointer for HYPRE_Solver
      type(c_ptr) :: solver = C_NULL_PTR
@@ -44,16 +54,16 @@ module hypre
      type(c_ptr) :: dofs_d = C_NULL_PTR! dof list on device
    contains
      procedure, pass(this) :: init => hypre_solver_init
+     procedure, pass(this) :: free => hypre_solver_free
      procedure, pass(this) :: setup => hypre_solver_setup
      procedure, pass(this) :: solve => hypre_solve
      procedure, pass(this) :: device_solve => hypre_device_solve
      procedure, pass(this) :: set_matrix
      procedure, pass(this) :: set_vector
-     !procedure, pass(this) :: free
-     procedure, pass(this) :: set_dofs => hypre_dofs_workaround
   end type hypre_solver_t
 
   public :: hypre_init, hypre_fin, hypre_matrix_assemble_from_neko
+  public :: hypre_dofs_workaround
 
 contains
 
@@ -65,6 +75,9 @@ contains
      !call HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE, ierr)
      !call HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE, ierr)
      !call HYPRE_SetSpGemmUseVendor(0, ierr)
+     if (NEKO_BCKND_DEVICE .eq. 1) then
+       ierr = HYPRE_init_wrapper()
+     end if
   end subroutine hypre_init
 
   subroutine hypre_fin()
@@ -79,6 +92,17 @@ contains
     ! Pass and process parameters here.
     call boomeramg_init(this%solver)
   end subroutine hypre_solver_init
+
+  !> Free the hypre solver object and related things
+  subroutine hypre_solver_free(this)
+    class(hypre_solver_t), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_free(this%dofs_d)
+    end if
+    deallocate(this%dofs)
+    ! destroy the hypre solver object
+    call boomeramg_destroy(this%solver)
+  end subroutine hypre_solver_free
 
   subroutine set_matrix(this, A)
     class(hypre_solver_t), intent(inout) :: this
@@ -107,20 +131,19 @@ contains
   !! @param x Approximated solution. Fortran array on host.
   !! @param f Right hand side. Fortran array on host.
   !! @param n Size of vectors
-  !! @param dof_i8 Array of global DoFs on rank. Fortran array on host.
-  subroutine hypre_solve(this, x, f, n, dof_i8)
+  !! @param dof Array of global DoFs on rank. Fortran array on host.
+  subroutine hypre_solve(this, x, f, n, dof)
     class(hypre_solver_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp), dimension(n), intent(in) :: f
-    integer(kind=i8), dimension(n), intent(in) :: dof_i8
-    integer, dimension(n) :: dof
-    ! convert to i4 as hypre takes int*
-    dof = dof_i8
+    integer, dimension(n), intent(in) :: dof
     ! Copy to hypre vector
     ! (copy to x may be unneeded if zero initial guess is always used)
     call hypre_copy_to_vector(this%x, n, dof, x)
+    call hypre_vector_assemble(this%x)
     call hypre_copy_to_vector(this%b, n, dof, f)
+    call hypre_vector_assemble(this%b)
     ! Solve
     call boomeramg_solve(this%solver, this%parcsr_A, this%par_b, this%par_x)
     ! Copy from hypre vector
@@ -141,25 +164,29 @@ contains
     ! Copy to hypre vector
     ! (copy to x may be unneeded if zero initial guess is always used)
     call hypre_device_copy_to_vector(this%x, n, dof, x)
+    call hypre_vector_assemble(this%x)
     call hypre_device_copy_to_vector(this%b, n, dof, f)
+    call hypre_vector_assemble(this%b)
     ! Solve
     call boomeramg_solve(this%solver, this%parcsr_A, this%par_b, this%par_x)
     ! Copy from hypre vector
     call hypre_device_copy_from_vector(this%x, n, dof, x)
   end subroutine hypre_device_solve
 
-  subroutine hypre_dofs_workaround(this, coef)
-    class(hypre_solver_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
-    integer :: i
-    allocate(this%dofs(size(coef%dof%dof)))
-    do i = 1, size(coef%dof%dof)
-       this%dofs(i) = coef%dof%dof(i,1,1,1)
+  subroutine hypre_dofs_workaround(hs, coeff)
+    !DIR$ INLINENEVER hypre_dofs_workaround
+    type(hypre_solver_t), intent(inout) :: hs
+    type(coef_t), intent(in), target :: coeff
+    integer :: i, n
+    n = coeff%dof%size()
+    allocate(hs%dofs(n))
+    do i = 1, n
+       hs%dofs(i) = coeff%dof%dof(i,1,1,1)
     end do
-    print *, "DOF workaround mapping"
+    print *, "DOF workaround mapping", n
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%dofs, this%dofs_d, size(coef%dof%dof))
-       call device_memcpy(this%dofs, this%dofs_d, size(coef%dof%dof), HOST_TO_DEVICE, .true.)
+       call device_map(hs%dofs, hs%dofs_d, n)
+       call device_memcpy(hs%dofs, hs%dofs_d, n, HOST_TO_DEVICE, .true.)
     end if
   end subroutine hypre_dofs_workaround
 
@@ -179,6 +206,7 @@ contains
     tmp_cols_d = C_NULL_PTR
     tmp_vals_d = C_NULL_PTR
     ncol_d = C_NULL_PTR
+    print *, "mtx_assemble", coef%dof%size()
     lx = coef%dof%Xh%lx
     nelv = coef%dof%msh%nelv
     ! storing the matrix in (i,j,val) format needs one entry per dof contribution
@@ -264,13 +292,11 @@ contains
     ! We do this the lazy and expensive way, one dof at a time.
     ! The interface expects array, so we fill some dummy arrays of size 1
     ! and pass these to the hypre interface
-    print *, "MATRIX MAPPING"
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(tmp_rows, tmp_rows_d, 1)
        call device_map(tmp_cols, tmp_cols_d, 1)
        call device_map(tmp_vals, tmp_vals_d, 1)
        call device_map(ncol, ncol_d, 1)
-       print *, "MAPS DONE"
        do i = 1, nnz
          ncol(1) = 1
          tmp_rows(1) = A_rows(i)
@@ -292,7 +318,6 @@ contains
        end do
     end if
 
-    print *, "MATRIX ASSEMBLE"
     call hypre_matrix_assemble(A)
   end subroutine hypre_matrix_assemble_from_neko
 
