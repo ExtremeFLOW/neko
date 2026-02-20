@@ -2,6 +2,7 @@ module hypre
   use num_types, only : rp, i8
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use profiler, only : profiler_start_region, profiler_end_region
   use hypre_boomeramg
   use hypre_ij_interface
   use coefs, only : coef_t
@@ -163,14 +164,20 @@ contains
     type(c_ptr), intent(in) :: dof
     ! Copy to hypre vector
     ! (copy to x may be unneeded if zero initial guess is always used)
+    call profiler_start_region("neko_to_hypre_X")
     call hypre_device_copy_to_vector(this%x, n, dof, x)
     call hypre_vector_assemble(this%x)
+    call profiler_end_region()
+    call profiler_start_region("neko_to_hypre_B")
     call hypre_device_copy_to_vector(this%b, n, dof, f)
     call hypre_vector_assemble(this%b)
+    call profiler_end_region()
     ! Solve
     call boomeramg_solve(this%solver, this%parcsr_A, this%par_b, this%par_x)
     ! Copy from hypre vector
+    call profiler_start_region("hypre_to_neko_X")
     call hypre_device_copy_from_vector(this%x, n, dof, x)
+    call profiler_end_region()
   end subroutine hypre_device_solve
 
   subroutine hypre_dofs_workaround(hs, coeff)
