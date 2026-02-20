@@ -96,10 +96,9 @@ contains
 
   !> Selects different expressions for the similarity functions in  MOST
   !> based on the type of bottom boundary condition for temperature.
-  subroutine select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,his)
-    character(len=*), intent(in) :: bc_type,bc_value
-    real(kind=rp), intent(in) :: hi, ti, ts, kappa, utau, z0h
-
+  subroutine select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
+    character(len=*), intent(in) :: bc_type
+    real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h, bc_value
     real(kind=rp), intent(inout) :: q,ts
     select case (bc_type)
     case ("neumann")
