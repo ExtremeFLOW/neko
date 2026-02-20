@@ -218,6 +218,16 @@ module hypre_boomeramg
      end function HYPRE_BoomerAMGSetOldDefault
   end interface
 
+  interface
+     integer (c_int) function HYPRE_BoomerAMGSetKeepTranspose(solver, keepTranspose) &
+          bind(c, name='HYPRE_BoomerAMGSetKeepTranspose')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: solver
+       integer(c_int), value :: keepTranspose
+     end function HYPRE_BoomerAMGSetKeepTranspose
+  end interface
+
   public :: boomeramg_init, boomeramg_setup, boomeramg_solve, boomeramg_destroy
 
 contains
@@ -227,12 +237,13 @@ contains
      integer :: ierr
      ierr = HYPRE_BoomerAMGCreate(solver)
      ierr = HYPRE_BoomerAMGSetPrintLevel(solver, 3)
-     ierr = HYPRE_BoomerAMGSetOldDefault(solver)
-     ierr = HYPRE_BoomerAMGSetCoarsenType(solver, 8);
+     !ierr = HYPRE_BoomerAMGSetOldDefault(solver)
+     ierr = HYPRE_BoomerAMGSetCoarsenType(solver, 8)
      ierr = HYPRE_BoomerAMGSetRelaxType(solver, 3)
      ierr = HYPRE_BoomerAMGSetRelaxOrder(solver, 0)
      ierr = HYPRE_BoomerAMGSetNumSweeps(solver, 1)
      ierr = HYPRE_BoomerAMGSetMaxLevels(solver, 20)
+     ierr = HYPRE_BoomerAMGSetKeepTranspose(solver, 1)
      ierr = HYPRE_BoomerAMGSetTol(solver, 1.0d-7)
   end subroutine boomeramg_init
 
@@ -240,7 +251,9 @@ contains
      type(c_ptr), intent(inout) :: solver, parcsr_A, par_b, par_x
      integer :: ierr
      ! Hypre documentation says par_b and par_x are ignored by this function
+     print *, "start boomeramg setup"
      ierr = HYPRE_BoomerAMGSetup(solver, parcsr_A, par_b, par_x)
+     print *, "finish boomeramg setup"
   end subroutine boomeramg_setup
 
   subroutine boomeramg_solve(solver, parcsr_A, par_b, par_x)
