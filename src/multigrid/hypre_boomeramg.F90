@@ -237,14 +237,14 @@ contains
      integer :: ierr
      ierr = HYPRE_BoomerAMGCreate(solver)
      ierr = HYPRE_BoomerAMGSetPrintLevel(solver, 3)
-     !ierr = HYPRE_BoomerAMGSetOldDefault(solver)
      ierr = HYPRE_BoomerAMGSetCoarsenType(solver, 8)
-     ierr = HYPRE_BoomerAMGSetRelaxType(solver, 3)
+     ierr = HYPRE_BoomerAMGSetRelaxType(solver, 7)
      ierr = HYPRE_BoomerAMGSetRelaxOrder(solver, 0)
-     ierr = HYPRE_BoomerAMGSetNumSweeps(solver, 1)
+     ierr = HYPRE_BoomerAMGSetNumSweeps(solver, 2)
      ierr = HYPRE_BoomerAMGSetMaxLevels(solver, 20)
      ierr = HYPRE_BoomerAMGSetKeepTranspose(solver, 1)
-     ierr = HYPRE_BoomerAMGSetTol(solver, 1.0d-7)
+     ierr = HYPRE_BoomerAMGSetMaxIter(solver, 1)
+     ierr = HYPRE_BoomerAMGSetTol(solver, 0.0d0)
   end subroutine boomeramg_init
 
   subroutine boomeramg_setup(solver, parcsr_A, par_b, par_x)
