@@ -372,7 +372,7 @@ var searchData=
   ['projection_5ffree_5fvel_369',['projection_free_vel',['../d1/db9/namespaceprojection__vel.html#ac293b9feca3d12a344b4d2d0c99fff90',1,'projection_vel']]],
   ['projection_5finit_370',['projection_init',['../d3/d06/namespaceprojection.html#ac1b032ca495291ff5533e68fa3d9fe80',1,'projection']]],
   ['projection_5finit_5fvel_371',['projection_init_vel',['../d1/db9/namespaceprojection__vel.html#a1d4c2e1f99ef90be1ed3a7524fd047bc',1,'projection_vel']]],
-  ['projection_5fkernel_2eh_372',['projection_kernel.h',['../d9/d19/hip_2projection__kernel_8h.html',1,'(Global Namespace)'],['../d3/d18/cuda_2projection__kernel_8h.html',1,'(Global Namespace)']]],
+  ['projection_5fkernel_2eh_372',['projection_kernel.h',['../d3/d18/cuda_2projection__kernel_8h.html',1,'(Global Namespace)'],['../d9/d19/hip_2projection__kernel_8h.html',1,'(Global Namespace)']]],
   ['projection_5fpost_5fsolving_373',['projection_post_solving',['../d3/d06/namespaceprojection.html#ae446973879dc283cf4c349896e6f3853',1,'projection']]],
   ['projection_5fpost_5fsolving_5fvel_374',['projection_post_solving_vel',['../d1/db9/namespaceprojection__vel.html#a4c7db21439f5263502b27693f977896f',1,'projection_vel']]],
   ['projection_5fpre_5fsolving_375',['projection_pre_solving',['../d3/d06/namespaceprojection.html#ad372047d3171781038c3bff566a5e8e0',1,'projection']]],
