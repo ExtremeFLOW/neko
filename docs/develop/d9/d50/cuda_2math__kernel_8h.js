@@ -35,6 +35,7 @@ var cuda_2math__kernel_8h =
     [ "invcol3_kernel", "d9/d50/cuda_2math__kernel_8h.html#af66a7a7c20d9fec8df25be6602ebdd77", null ],
     [ "masked_atomic_reduction_kernel", "d9/d50/cuda_2math__kernel_8h.html#a16b6b75c27c0083a4a14a4ff2d9d6594", null ],
     [ "masked_copy_kernel", "d9/d50/cuda_2math__kernel_8h.html#ab59dce4e5bc92b67c2c0ee2293d2517d", null ],
+    [ "masked_gather_copy_aligned_kernel", "d9/d50/cuda_2math__kernel_8h.html#a26beec47a761e704ebea624aee70729f", null ],
     [ "masked_gather_copy_kernel", "d9/d50/cuda_2math__kernel_8h.html#a6159ed4c51ee021f68f312aa2556de10", null ],
     [ "masked_scatter_copy_kernel", "d9/d50/cuda_2math__kernel_8h.html#ad7a2f322aed2f66dac8183bb42f08543", null ],
     [ "pwmax_sca2_kernel", "d9/d50/cuda_2math__kernel_8h.html#a2ba194f0311ed0d9d0da47f47bfee4e9", null ],

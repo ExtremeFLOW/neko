@@ -36,6 +36,7 @@ var namespacehip__math =
     [ "hip_masked_atomic_reduction", "d0/d9a/interfacehip__math_1_1hip__masked__atomic__reduction.html", "d0/d9a/interfacehip__math_1_1hip__masked__atomic__reduction" ],
     [ "hip_masked_copy", "db/d04/interfacehip__math_1_1hip__masked__copy.html", "db/d04/interfacehip__math_1_1hip__masked__copy" ],
     [ "hip_masked_gather_copy", "d7/ded/interfacehip__math_1_1hip__masked__gather__copy.html", "d7/ded/interfacehip__math_1_1hip__masked__gather__copy" ],
+    [ "hip_masked_gather_copy_aligned", "da/db3/interfacehip__math_1_1hip__masked__gather__copy__aligned.html", "da/db3/interfacehip__math_1_1hip__masked__gather__copy__aligned" ],
     [ "hip_masked_scatter_copy", "d7/d57/interfacehip__math_1_1hip__masked__scatter__copy.html", "d7/d57/interfacehip__math_1_1hip__masked__scatter__copy" ],
     [ "hip_pwmax_sca2", "dd/d93/interfacehip__math_1_1hip__pwmax__sca2.html", "dd/d93/interfacehip__math_1_1hip__pwmax__sca2" ],
     [ "hip_pwmax_sca3", "df/d52/interfacehip__math_1_1hip__pwmax__sca3.html", "df/d52/interfacehip__math_1_1hip__pwmax__sca3" ],

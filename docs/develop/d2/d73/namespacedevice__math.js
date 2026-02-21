@@ -41,6 +41,7 @@ var namespacedevice__math =
     [ "device_masked_atomic_reduction_0", "d2/d73/namespacedevice__math.html#a3aa4f9f27147a991e079ead2abe6ea2d", null ],
     [ "device_masked_copy_0", "d2/d73/namespacedevice__math.html#aa2264c515090187c0a0d5455650201e3", null ],
     [ "device_masked_gather_copy_0", "d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1", null ],
+    [ "device_masked_gather_copy_aligned", "d2/d73/namespacedevice__math.html#a94c783d80179255baecfdfdf2fa94828", null ],
     [ "device_masked_scatter_copy_0", "d2/d73/namespacedevice__math.html#a16a8c1e40bf0241331ba0acac620d57e", null ],
     [ "device_pwmax2", "d2/d73/namespacedevice__math.html#af6c2291122daaceb4dd620805f8c5b6e", null ],
     [ "device_pwmax3", "d2/d73/namespacedevice__math.html#a31966d3a26e688fef253ed4ec3317f68", null ],

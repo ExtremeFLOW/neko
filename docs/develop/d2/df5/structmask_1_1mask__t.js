@@ -11,6 +11,8 @@ var structmask_1_1mask__t =
     [ "init_from_array", "d2/df5/structmask_1_1mask__t.html#abc51639fcec0e8adb81eacdd7f9eb0b2", null ],
     [ "init_from_array_device", "d2/df5/structmask_1_1mask__t.html#aa61e569b3473128dfcef3b5c6de3daac", null ],
     [ "init_from_mask", "d2/df5/structmask_1_1mask__t.html#a1d717be785648467c89b131e5e412a31", null ],
+    [ "invert_from", "d2/df5/structmask_1_1mask__t.html#a1e70fa64b57d9eb298294cffa8850b9c", null ],
+    [ "invert_mask", "d2/df5/structmask_1_1mask__t.html#a27e1c7101b41a1f4c6b63c41e73793b3", null ],
     [ "is_set", "d2/df5/structmask_1_1mask__t.html#a695c9b336bd57de833e3ca40be3fec1b", null ],
     [ "mask_get", "d2/df5/structmask_1_1mask__t.html#a5923fb0e4db891dd121866b306ccde50", null ],
     [ "mask_get_i", "d2/df5/structmask_1_1mask__t.html#aab41a59018752bf904c71a67ea142e5b", null ],

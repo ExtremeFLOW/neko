@@ -3,6 +3,7 @@ var hip__math_8f90 =
     [ "hip_math::hip_copy", "dc/d2b/interfacehip__math_1_1hip__copy.html", "dc/d2b/interfacehip__math_1_1hip__copy" ],
     [ "hip_math::hip_masked_copy", "db/d04/interfacehip__math_1_1hip__masked__copy.html", "db/d04/interfacehip__math_1_1hip__masked__copy" ],
     [ "hip_math::hip_masked_gather_copy", "d7/ded/interfacehip__math_1_1hip__masked__gather__copy.html", "d7/ded/interfacehip__math_1_1hip__masked__gather__copy" ],
+    [ "hip_math::hip_masked_gather_copy_aligned", "da/db3/interfacehip__math_1_1hip__masked__gather__copy__aligned.html", "da/db3/interfacehip__math_1_1hip__masked__gather__copy__aligned" ],
     [ "hip_math::hip_masked_scatter_copy", "d7/d57/interfacehip__math_1_1hip__masked__scatter__copy.html", "d7/d57/interfacehip__math_1_1hip__masked__scatter__copy" ],
     [ "hip_math::hip_masked_atomic_reduction", "d0/d9a/interfacehip__math_1_1hip__masked__atomic__reduction.html", "d0/d9a/interfacehip__math_1_1hip__masked__atomic__reduction" ],
     [ "hip_math::hip_cfill_mask", "dc/dbb/interfacehip__math_1_1hip__cfill__mask.html", "dc/dbb/interfacehip__math_1_1hip__cfill__mask" ],

@@ -37,6 +37,7 @@ var math_8hip =
     [ "hip_masked_atomic_reduction", "de/d9b/math_8hip.html#a9585190be418b457aaae5a75fb898949", null ],
     [ "hip_masked_copy", "de/d9b/math_8hip.html#a629036607b72e5b9360c60059b2ea06e", null ],
     [ "hip_masked_gather_copy", "de/d9b/math_8hip.html#a8c21c59030245ca351e66d0446c24384", null ],
+    [ "hip_masked_gather_copy_aligned", "de/d9b/math_8hip.html#a25c5ca6c21edbc2ea4a7862c22844bb9", null ],
     [ "hip_masked_scatter_copy", "de/d9b/math_8hip.html#aebacde6cb8adfd0811606c80997b3895", null ],
     [ "hip_pwmax_sca2", "de/d9b/math_8hip.html#abad08c1dc405e6702d067a281a0c3cc5", null ],
     [ "hip_pwmax_sca3", "de/d9b/math_8hip.html#a1b7edc841b4c85fc0d9447c0e2f35686", null ],

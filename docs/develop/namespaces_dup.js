@@ -860,6 +860,7 @@ var namespaces_dup =
       [ "vector_invcol1", "d3/d0d/namespacevector__math.html#a4ec92521bd6673093c43c36cfd90c814", null ],
       [ "vector_invcol2", "d3/d0d/namespacevector__math.html#aa413a39076c9df8760b67dfa394afec6", null ],
       [ "vector_invcol3", "d3/d0d/namespacevector__math.html#afeb7cf854d4183cb73be0bdbaee00444", null ],
+      [ "vector_masked_gather_copy", "d3/d0d/namespacevector__math.html#a580a0e0a951754438d50c403f0f63217", null ],
       [ "vector_masked_gather_copy_0", "d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de", null ],
       [ "vector_masked_scatter_copy_0", "d3/d0d/namespacevector__math.html#ae6a9b6ccf8813a576d35925f2c451e27", null ],
       [ "vector_rone", "d3/d0d/namespacevector__math.html#ae230a7be11fda2b4e3a193c8f3e172c2", null ],

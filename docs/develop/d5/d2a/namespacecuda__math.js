@@ -36,6 +36,7 @@ var namespacecuda__math =
     [ "cuda_masked_atomic_reduction", "d6/d66/interfacecuda__math_1_1cuda__masked__atomic__reduction.html", "d6/d66/interfacecuda__math_1_1cuda__masked__atomic__reduction" ],
     [ "cuda_masked_copy", "d0/df3/interfacecuda__math_1_1cuda__masked__copy.html", "d0/df3/interfacecuda__math_1_1cuda__masked__copy" ],
     [ "cuda_masked_gather_copy", "d7/df7/interfacecuda__math_1_1cuda__masked__gather__copy.html", "d7/df7/interfacecuda__math_1_1cuda__masked__gather__copy" ],
+    [ "cuda_masked_gather_copy_aligned", "d5/df3/interfacecuda__math_1_1cuda__masked__gather__copy__aligned.html", "d5/df3/interfacecuda__math_1_1cuda__masked__gather__copy__aligned" ],
     [ "cuda_masked_scatter_copy", "d9/dda/interfacecuda__math_1_1cuda__masked__scatter__copy.html", "d9/dda/interfacecuda__math_1_1cuda__masked__scatter__copy" ],
     [ "cuda_pwmax_sca2", "df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html", "df/d32/interfacecuda__math_1_1cuda__pwmax__sca2" ],
     [ "cuda_pwmax_sca3", "d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html", "d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3" ],

@@ -37,6 +37,7 @@ var math_8cu =
     [ "cuda_masked_atomic_reduction", "de/d1e/math_8cu.html#ae8c94d722d6874b4ecf4c9181d3f9785", null ],
     [ "cuda_masked_copy", "de/d1e/math_8cu.html#a513eec3fa4e84d900b67baeadc58f438", null ],
     [ "cuda_masked_gather_copy", "de/d1e/math_8cu.html#a7ecdc6eeceebfcd8375086c3fc5b57b1", null ],
+    [ "cuda_masked_gather_copy_aligned", "de/d1e/math_8cu.html#ade4db5218ce273662ac2279ccb215edb", null ],
     [ "cuda_masked_scatter_copy", "de/d1e/math_8cu.html#a55c13329648324ca40f2022ae21192f9", null ],
     [ "cuda_pwmax_sca2", "de/d1e/math_8cu.html#a50a7238f0fcfc0ad7a1baa6f4b550cf0", null ],
     [ "cuda_pwmax_sca3", "de/d1e/math_8cu.html#a0265e3e42c54e24be10f8a4b82966f0c", null ],

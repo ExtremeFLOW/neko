@@ -3,6 +3,7 @@ var opencl__math_8f90 =
     [ "opencl_math::opencl_copy", "d6/d58/interfaceopencl__math_1_1opencl__copy.html", "d6/d58/interfaceopencl__math_1_1opencl__copy" ],
     [ "opencl_math::opencl_masked_copy", "d1/da7/interfaceopencl__math_1_1opencl__masked__copy.html", "d1/da7/interfaceopencl__math_1_1opencl__masked__copy" ],
     [ "opencl_math::opencl_masked_gather_copy", "d2/df7/interfaceopencl__math_1_1opencl__masked__gather__copy.html", "d2/df7/interfaceopencl__math_1_1opencl__masked__gather__copy" ],
+    [ "opencl_math::opencl_masked_gather_copy_aligned", "dc/d54/interfaceopencl__math_1_1opencl__masked__gather__copy__aligned.html", "dc/d54/interfaceopencl__math_1_1opencl__masked__gather__copy__aligned" ],
     [ "opencl_math::opencl_masked_scatter_copy", "d5/d45/interfaceopencl__math_1_1opencl__masked__scatter__copy.html", "d5/d45/interfaceopencl__math_1_1opencl__masked__scatter__copy" ],
     [ "opencl_math::opencl_cfill_mask", "d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html", "d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask" ],
     [ "opencl_math::opencl_cmult", "d1/d21/interfaceopencl__math_1_1opencl__cmult.html", "d1/d21/interfaceopencl__math_1_1opencl__cmult" ],

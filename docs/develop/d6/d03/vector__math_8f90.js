@@ -23,6 +23,7 @@ var vector__math_8f90 =
     [ "vector_invcol1", "d6/d03/vector__math_8f90.html#a4ec92521bd6673093c43c36cfd90c814", null ],
     [ "vector_invcol2", "d6/d03/vector__math_8f90.html#aa413a39076c9df8760b67dfa394afec6", null ],
     [ "vector_invcol3", "d6/d03/vector__math_8f90.html#afeb7cf854d4183cb73be0bdbaee00444", null ],
+    [ "vector_masked_gather_copy", "d6/d03/vector__math_8f90.html#a580a0e0a951754438d50c403f0f63217", null ],
     [ "vector_masked_gather_copy_0", "d6/d03/vector__math_8f90.html#a102c3fdd6473f46807a9cd38290910de", null ],
     [ "vector_masked_scatter_copy_0", "d6/d03/vector__math_8f90.html#ae6a9b6ccf8813a576d35925f2c451e27", null ],
     [ "vector_rone", "d6/d03/vector__math_8f90.html#ae230a7be11fda2b4e3a193c8f3e172c2", null ],
