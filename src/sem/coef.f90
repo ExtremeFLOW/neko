@@ -41,7 +41,8 @@ module coefs
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
        chsign, rzero, invers2, glsum, absval, NEKO_EPS
   use mesh, only : mesh_t
-  use device_math, only : device_rone, device_invcol1, device_glsum
+  use device_math, only : device_rone, device_invcol1, &
+       device_glsum, device_absval
   use device_coef, only : device_coef_generate_geo, &
        device_coef_generate_dxydrst
   use mxm_wrapper, only : mxm
@@ -1286,27 +1287,39 @@ contains
     !switched on. If not, then the current rotation logic
     !is not sufficient and must be modified.
     !The logic stops the program when cyclic flag is true
-    !but not required. The remaining cases throw warnings only.
+    !but not required.
     integer :: np, n, lx, pf, pe, i, j, k, nc, ipass, ntot, ncyc
     real(kind=rp) :: un(3)
     real(kind=rp), allocatable :: normx(:,:,:,:)
     real(kind=rp), allocatable :: normy(:,:,:,:)
     real(kind=rp), allocatable :: normz(:,:,:,:)
+    type(c_ptr) :: normx_d = C_NULL_PTR
+    type(c_ptr) :: normy_d = C_NULL_PTR
+    type(c_ptr) :: normz_d = C_NULL_PTR
+
     logical :: norm_dss = .false.
 
     np = this%msh%periodic%size
     lx = this%Xh%lx
     ntot = this%dof%size()
     ncyc = np*lx*lx
+    
+    if (.not. this%cyclic) return
 
-    if (this%cyclic .and. np .eq. 0) then
+    if (np .eq. 0) then
        call neko_error("There are no periodic boundaries. " // &
-                      "Switch cyclic off in the case file.")
+                       "Switch cyclic off in the case file.")
     end if
 
     allocate(normx(lx, lx, lx, this%msh%nelv))
     allocate(normy(lx, lx, lx, this%msh%nelv))
     allocate(normz(lx, lx, lx, this%msh%nelv))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_map(normx, normx_d, ntot)
+      call device_map(normy, normy_d, ntot)
+      call device_map(normz, normz_d, ntot)
+    end if
 
     do ipass = 1, 2
        call rzero(normx, ntot)
@@ -1333,54 +1346,53 @@ contains
                                      + un(2) * this%R11(nc)
 
                       normz(i,j,k,pe) = un(3)
+
+                      
                       nc = nc + 1
                    end if
                 end do
              end do
           end do
        end do
+       
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_memcpy(normx, normx_d, ntot, HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(normy, normy_d, ntot, HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(normz, normz_d, ntot, HOST_TO_DEVICE, sync=.false.)
+       end if
 
        call this%gs_h%op(normx, ntot, GS_OP_ADD)
        call this%gs_h%op(normy, ntot, GS_OP_ADD)
        call this%gs_h%op(normz, ntot, GS_OP_ADD)
-       call absval(normx, ntot)
-       call absval(normy, ntot)
-       call absval(normz, ntot)
 
-       norm_dss = glsum(normx, ntot)/ntot .lt. 10*neko_eps .and. &
-                 glsum(normy, ntot)/ntot .lt. 10*neko_eps .and. &
-                 glsum(normz, ntot)/ntot .lt. 10*neko_eps
-
-       if (ipass .eq. 1) then
-          if (norm_dss) then
-             if (this%cyclic) then
-                call neko_error("Cyclic rotation is not required. " // &
-                                "Switch it off in case file.")
-             else
-                exit !no need to go ipass=2. R11, R12 = default values.
-             end if
-             !else : check in ipass=2 if the rotation logic is required & sufficient.
-          end if
-
-       else if (ipass .eq. 2) then
-          if (norm_dss) then
-             if (this%cyclic .eqv. .false.) then
-                call neko_warning("Cyclic rotation is required. " // &
-                                  "Switch it on in the case file.")
-                !Set default values as cyclic=false.
-                call rone(this%R11, ncyc)
-                call rzero(this%R12, ncyc)
-                !else: Rotation is required and cyclic flag is true. Proceed.
-             end if
-          else
-             call neko_warning("Cylic rotation is required, but " // &
-                               "rotation logic must be modified.")
-             !Set default values.
-             call rone(this%R11, ncyc)
-             call rzero(this%R12, ncyc)
-          end if
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_absval(normx_d, ntot)
+         call device_absval(normy_d, ntot)
+         call device_absval(normz_d, ntot)
+         norm_dss = device_glsum(normx_d, ntot)/ntot .lt. 10*neko_eps .and. &
+                    device_glsum(normy_d, ntot)/ntot .lt. 10*neko_eps .and. &
+                    device_glsum(normz_d, ntot)/ntot .lt. 10*neko_eps
+       else
+         call absval(normx, ntot)
+         call absval(normy, ntot)
+         call absval(normz, ntot)
+         norm_dss = glsum(normx, ntot)/ntot .lt. 10*neko_eps .and. &
+                    glsum(normy, ntot)/ntot .lt. 10*neko_eps .and. &
+                    glsum(normz, ntot)/ntot .lt. 10*neko_eps
        end if
+      
 
+       if (ipass .eq. 1 .and. norm_dss) then
+          call neko_error("Cyclic rotation is not required. " // &
+                          "Switch it off in case file.")
+       !else if (ipass .eq. 1 .and. norm_dss .eqv. false)
+       !wait for ipass=2 to check if current rotation logic is sufficient 
+       else if (ipass .eq. 2 .and. norm_dss .eqv. .false.) then
+          call neko_error("Cylic rotation is required, but " // &
+                          "rotation logic must be modified.")
+       !if (ipass .eq. 2 .and. norm_dss .eqv. .true.)
+       !current logic is sufficient, proceed.
+       end if
     end do
     deallocate(normx)
     deallocate(normy)
