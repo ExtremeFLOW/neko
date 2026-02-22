@@ -325,7 +325,7 @@ contains
   recursive subroutine htable_set(this, key, data)
     class(htable_t), target, intent(inout) :: this
     class(*), intent(inout) :: key !< Table key
-    class(*), intent(inout) ::  data !< Data associated with @a key
+    class(*), intent(inout) :: data !< Data associated with @a key
     class(htable_t), allocatable :: tmp
     integer index, i, c
 
@@ -1035,7 +1035,7 @@ contains
   subroutine htable_r8_set(this, key, data)
     class(htable_r8_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Table key
-    class(*), intent(inout) :: data     !< Data associated with @a key
+    class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
 
