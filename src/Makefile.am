@@ -654,8 +654,7 @@ depend:
 endif
 
 if ENABLE_PYTHON
-nobase_python_PYTHON = python/pyneko/__init__.py\
-		       python/pyneko/intf.py
+SUBDIRS = python
 endif
 
 # Note we need to list any headers etc here for the dist. script
