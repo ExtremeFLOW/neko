@@ -423,8 +423,8 @@ contains
        end if
     end do
 
-    nullify(this%head)
-    nullify(this%tail)
+    this%head => tmp%head
+    this%tail => tmp%tail
     this%size = tmp%size
     call move_alloc(tmp%t, this%t)
 
