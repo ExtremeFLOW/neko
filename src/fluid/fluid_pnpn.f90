@@ -88,10 +88,7 @@ module fluid_pnpn
   use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
        MPI_INTEGER, MPI_LOGICAL
-  
-!!$  use fld_file, only : fld_file_t
-!!$  use fld_file_output, only : fld_file_output_t
-  
+
   implicit none
   private
 
@@ -774,43 +771,6 @@ contains
       call gs_Xh%op(p_res, GS_OP_ADD, event)
       call device_event_sync(event)
 
-            
-!!$      testing : block
-!!$        type(field_t), pointer :: u_tst, v_tst, w_tst, p_tst
-!!$        type(fld_file_output_t), save :: tst_fld
-!!$
-!!$        if (tstep .eq. 9) then
-!!$           write(*,*) 'TESTstep9', dm_Xh%size(), this%glb_n_points
-!!$
-!!$           ! write fields to the disc for debugging
-!!$           call tst_fld%init(rp, "testing", 4)
-!!$           p_tst => p
-!!$           u_tst => u
-!!$           v_tst => v
-!!$           w_tst => w
-!!$           call tst_fld%fields%assign_to_ptr(1, p_tst)
-!!$           call tst_fld%fields%assign_to_ptr(2, u_tst)
-!!$           call tst_fld%fields%assign_to_ptr(3, v_tst)
-!!$           call tst_fld%fields%assign_to_ptr(4, w_tst)
-!!$           select type(file => tst_fld%file_%file_type)
-!!$           type is (fld_file_t)
-!!$             file%write_mesh = .true.
-!!$           end select
-!!$           call tst_fld%sample(t)
-!!$        else if (tstep .eq. 10) then
-!!$           write(*,*) 'TESTstep10', dm_Xh%size(), this%glb_n_points
-!!$
-!!$           ! write fields to the disc for debugging
-!!$           call tst_fld%sample(t)
-!!$        else if (tstep .eq. 11) then
-!!$           write(*,*) 'TESTstep11', dm_Xh%size(), this%glb_n_points
-!!$
-!!$           ! write fields to the disc for debugging
-!!$           call tst_fld%sample(t)
-!!$        end if
-!!$      end block testing
-      
-
       ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
 
@@ -1287,7 +1247,7 @@ contains
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
     class(bc_t), pointer :: bci
-    integer :: il, jl, kl, ml, nbc
+    integer :: il, jl, kl, ml, nbc, ntot
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
@@ -1300,6 +1260,31 @@ contains
        log_buf = 'Fluid PnPn'
     end if
     call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+
+    ! THIS IS CRITICAL; THE CURRENT STRUCTURE IS NOT THE BEST AS OLD MASS
+    ! MATRIX WILL NOT ALWAYS BE KEPT FOR ALL THE POSSIBLE SOLVERS
+    ! Before reconstructing spaces remove mass matrix from the fields that
+    ! contain it. It is important to properly interpolate them
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('fluid reconstruction; nothing done for device; 1')
+    else
+       ntot = this%dm_Xh%size()
+       do concurrent (il = 1: ntot)
+          this%abx1%x(il, 1, 1, 1) = this%abx1%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby1%x(il, 1, 1, 1) = this%aby1%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz1%x(il, 1, 1, 1) = this%abz1%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abx2%x(il, 1, 1, 1) = this%abx2%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby2%x(il, 1, 1, 1) = this%aby2%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz2%x(il, 1, 1, 1) = this%abz2%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+       end do
+    end if
 
     ! reconstruct dofmap
     call this%dm_Xh%amr_restart(reconstruct, counter, tstep)
@@ -1542,21 +1527,22 @@ contains
     if (associated(this%w_e)) call this%w_e%amr_reallocate(reconstruct, &
          counter, tstep)
 
-    ! Reallocate total viscosity
+    ! Reconstruct total viscosity; not necessarily updated every step
     if (associated(this%mu_tot)) &
-         call this%mu_tot%amr_reallocate(reconstruct, counter, tstep)
+         call this%mu_tot%amr_restart(reconstruct, counter, tstep)
 
     ! global number of points
     this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
     this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
 
     ! Reallocate right hand side
+!    call this%p_res%amr_restart(reconstruct, counter, tstep)
     call this%p_res%amr_reallocate(reconstruct, counter, tstep)
     call this%u_res%amr_reallocate(reconstruct, counter, tstep)
     call this%v_res%amr_reallocate(reconstruct, counter, tstep)
     call this%w_res%amr_reallocate(reconstruct, counter, tstep)
 
-    ! Reallocate updates?????????????????????????????
+    ! Reallocate updates
     call this%dp%amr_reallocate(reconstruct, counter, tstep)
     call this%du%amr_reallocate(reconstruct, counter, tstep)
     call this%dv%amr_reallocate(reconstruct, counter, tstep)
@@ -1590,6 +1576,29 @@ contains
     ! Reconstruct checkpoint
     ! LEFT FOR FUTURE !!!!!!!
 
+!    call this%write_boundary_conditions()
+
+    ! Add new mass matrix to the fields that require it. Removing it was
+    ! important to properly interpolate them
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('fluid reconstruction; nothing done for device; 2')
+    else
+       ntot = this%dm_Xh%size()
+       do concurrent (il = 1: ntot)
+          this%abx1%x(il, 1, 1, 1) = this%abx1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby1%x(il, 1, 1, 1) = this%aby1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz1%x(il, 1, 1, 1) = this%abz1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abx2%x(il, 1, 1, 1) = this%abx2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby2%x(il, 1, 1, 1) = this%aby2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz2%x(il, 1, 1, 1) = this%abz2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+       end do
+    end if
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
