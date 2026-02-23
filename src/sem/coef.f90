@@ -48,7 +48,7 @@ module coefs
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index, &
-       neko_error
+       neko_error, neko_warning
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -1281,13 +1281,12 @@ contains
     !faces. The results must sum to zero
     !Check happens in two passes -
     !>ipass = 1 : DSS in Cartesian coordinates. If it yields 0,
-    !no cyclic rotation is required and must be switched off
+    !no cyclic rotation is required and must be switched off.
     !>ipass = 2 : DSS in TNB basis (rotation around z-axis)
     !If yields 0, cyclic rotation is required and must be
     !switched on. If not, then the current rotation logic
     !is not sufficient and must be modified.
-    !The logic stops the program when cyclic flag is true
-    !but not required.
+    !"cyclic": true in case file invokes these checks.
     integer :: np, n, lx, pf, pe, i, j, k, nc, ipass, ntot, ncyc
     real(kind=rp) :: un(3)
     real(kind=rp), allocatable :: normx(:,:,:,:)
@@ -1322,6 +1321,7 @@ contains
     end if
 
     do ipass = 1, 2
+       norm_dss = .false.
        call rzero(normx, ntot)
        call rzero(normy, ntot)
        call rzero(normz, ntot)
@@ -1347,7 +1347,6 @@ contains
 
                       normz(i,j,k,pe) = un(3)
 
-
                       nc = nc + 1
                    end if
                 end do
@@ -1369,34 +1368,40 @@ contains
           call device_absval(normx_d, ntot)
           call device_absval(normy_d, ntot)
           call device_absval(normz_d, ntot)
-          norm_dss = device_glsum(normx_d, ntot)/ntot .lt. 10*neko_eps .and. &
-               device_glsum(normy_d, ntot)/ntot .lt. 10*neko_eps .and. &
-               device_glsum(normz_d, ntot)/ntot .lt. 10*neko_eps
+          norm_dss = device_glsum(normx_d, ntot)/ntot .lt. 100.0*NEKO_EPS .and. &
+               device_glsum(normy_d, ntot)/ntot .lt. 100.0*NEKO_EPS .and. &
+               device_glsum(normz_d, ntot)/ntot .lt. 100.0*NEKO_EPS
        else
           call absval(normx, ntot)
           call absval(normy, ntot)
           call absval(normz, ntot)
-          norm_dss = glsum(normx, ntot)/ntot .lt. 10*neko_eps .and. &
-               glsum(normy, ntot)/ntot .lt. 10*neko_eps .and. &
-               glsum(normz, ntot)/ntot .lt. 10*neko_eps
+          norm_dss = glsum(normx, ntot)/ntot .lt. 100*NEKO_EPS .and. &
+               glsum(normy, ntot)/ntot .lt. 100*NEKO_EPS .and. &
+               glsum(normz, ntot)/ntot .lt. 100*NEKO_EPS
        end if
-
 
        if (ipass .eq. 1 .and. norm_dss) then
           call neko_error("Cyclic rotation is not required. " // &
                "Switch it off in case file.")
           !else if (ipass .eq. 1 .and. norm_dss .eqv. false)
           !wait for ipass=2 to check if current rotation logic is sufficient
-       else if (ipass .eq. 2 .and. norm_dss .eqv. .false.) then
+       else if (ipass .eq. 2 .and. .not. norm_dss) then
           call neko_error("Cylic rotation is required, but " // &
                "rotation logic must be modified.")
-          !if (ipass .eq. 2 .and. norm_dss .eqv. .true.)
+          !if (ipass .eq. 2 .and. norm_dss)
           !current logic is sufficient, proceed.
        end if
     end do
     deallocate(normx)
     deallocate(normy)
     deallocate(normz)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_free(normx_d)
+       call device_free(normy_d)
+       call device_free(normz_d)
+    end if
+
   end subroutine coef_check_cyclic
 
 end module coefs
