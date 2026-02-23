@@ -1,0 +1,175 @@
+\documentclass{article}
+
+% Load all packages and commands from setup file
+\input{setup}
+
+\title{Second-Order Conservative Diffuse Interface Method in NEKO}
+\author{Erik Sieburgh, Tuan Anh Dao, Shahab Mirjalili}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\textbf{SEE OVERVIEW.TXT, HERE WE DO WRITING}
+
+\section{Introduction}
+\begin{itemize}
+    \item What is Neko?
+\end{itemize}
+
+From Martin Karp dissertation slides:
+Spectral Element Methods (SEM):
+Low dispersion, high convergence
+    Polynomial order N on reference element 
+Unstructured meshes 
+    Locally structured, high order 
+    Globally unstructured, flexible 
+Highly scalable 
+Unit-depth communication, low L 
+Matrix-free, computation takes the form: 
+    QQTALx= b 
+AL Tensor product, W=O(N) per grid point 
+QQT = gather-scatter
+    Sums contribution from neighboring elements
+    Never explicitly formed
+    
+From Martin Karp dissertation slides:
+Algorithms:
+Core of SEM simulation
+    Solving linear system on the form Ax = b
+    Many thousands of time steps
+
+Focus on Poisson problem for Pressure
+    Stiff
+    Preconditioned Krylov subspace methods
+
+Optimization opportunities
+    Gather-scatter, QQT, Paper III, VI, IX
+    Preconditioner, Hybrid-Schwarz multigrid, Paper VI
+    Krylov solvers, Paper V
+    Evaluation of tensor products, AL, Paper II, III, V
+System of equations we solve for (Karniadakis, Israeli, Orszag, 1991)
+
+Yields two linear systems Ax = b
+    Poisson problem for pressure
+    Helmholtz for velocity
+
+
+\section{Conservative Diffuse Interface Methods}
+Conservative second-order PDE (in conservative form) suitable for two-phase simulations, is given by:
+% P.-H. Chiu and Y.-T. Lin, “A conservative phase field method for solving incompressible two-phase flows,” Journal of Computational Physics, vol. 230, no. 1, pp. 185–204, Jan. 2011, doi: 10.1016/j.jcp.2010.09.021.
+\begin{equation}
+    \frac{\partial \phi}{\partial t} + \nabla \cdot \left(\vecu \phi\right) = \nabla \cdot \left[\gamma\left(\varepsilon \nabla \phi - \phi (1-\phi) \frac{\nabla \phi}{|\nabla \phi | } \right) \right]
+    \label{eq:phase_field_model}
+\end{equation}
+$\epsilon$: parameter governing the interface thickness.
+$\gamma$: free parameter.
+Pure phases (so not in the interface region) are defined with $\phi = 0$ and $ \phi = 1$.
+
+For incompressible flows ($\nabla \cdot \vecu = 0$) we can use the conservative form of the Navier-Stokes equation with the form:
+% Rudman, M., 1997. Volume‐tracking methods for interfacial flow calculations. International journal for numerical methods in fluids, 24(7), pp.671-691.
+% ES: from Mirjalili & Mani 2021 JCP
+\begin{equation}
+    \frac{\partial (\rho \vecu)}{\partial t} + \nabla \cdot \left(\rho \vecu \otimes \vecu \right) = -\nabla P + \nabla \cdot \left[\mu \left(\nabla \vecu + \nabla^T \vecu \right) \right] + \bm{F}_{ST}.
+    \label{eq:MTE_noS}
+\end{equation}
+With 
+"where P is the pressure field, density ($\rho$) and viscosity ($\mu$) fields are linear with respect to $\phi$ and surface tension forces ($\bm{F}_{ST}$) are computed via the standard continuum surface force (CSF) method, $\bm{F}_{ST}$= $\sigma \kappa\nabla \phi$. The curvature field ($\kappa$) is computed using the normal vector, $\kappa = \nabla \cdot \bm{n}$  and the normal vector is given by $\bm{n} = \frac{\nabla \phi}{|\nabla \phi | }$."\\
+\subsection{Continuum surface force (CSF) method}
+standard continuum surface force (CSF) method:
+
+This type of surface tension implementation is known as volumetric formulation, which implements the surface tension force as a body force. Alternatively, the surface tension force can be implemented as a stresses, known as integral formulation.
+Integral formulation has the advantage that it automatically conserves the momentum of the system, but suffer from disadvantage of discretely balancing the surface tension forces and pressure forces at the interface. As a consequence of this, spurious currents arise on the interface.
+On the other hand, volumetric formulations are better at mitigating spurious current, but they do not preserve conservation of momentum. 
+
+\subsection{consistent momentum transport equation}
+For a two-phase flow system we can use the phase field model of equation \eqref{eq:phase_field_model} and the unequal densities can be expressed as
+\begin{equation}
+    \rho = (\rho_l - \rho_g)\phi + \rho_g.
+\end{equation}
+with $\rho_g$ and $\rho_l$ being that densities of the two fluids. The mass conservation equation is then found to be
+\begin{equation}
+    \frac{\partial \rho}{\partial t}+\nabla \cdot(\vec{u} \rho)=\nabla \cdot \bm{S}
+\end{equation}
+where $\bm{S}$ is given by
+\begin{equation}
+    \bm{S}=\gamma\left(\rho_l-\rho_g\right)\left[\epsilon \nabla \phi-\phi(\phi-1) \frac{\nabla \phi}{|\nabla \phi|}\right]=\gamma\left[\varepsilon \nabla \rho-\frac{\left(\rho_l-\rho\right)\left(\rho-\rho_g\right)}{\rho_l-\rho_g} \bm{n}\right] .
+\end{equation}
+We know that we need to modify the momentum transport equation of \eqref{eq:MTE_noS} with this artificial term in the mass flux, thus we get
+\begin{equation}
+    \frac{\partial (\rho \vecu)}{\partial t} + \nabla \cdot \left[(\rho \vecu - \bm{S}) \otimes \vecu \right] =  -\nabla P + \nabla \cdot \left[\mu \left(\nabla \vecu + \nabla^T \vecu \right) \right] + \bm{F}_{ST}.
+    \label{eq:MTE_withS}
+\end{equation}
+
+\section{Implementation of CDI in NEKO}
+
+The conservative diffuse interface equation (Eq.~\ref{eq:phase_field_model}) is solved using operator splitting. Different terms are treated with implicit or explicit time integration based on their mathematical character and stability requirements.
+
+\subsection{Temporal Discretization Strategy}
+
+\textbf{Solved implicitly:}
+\begin{equation}
+    \nabla \cdot [\gamma \varepsilon \nabla \phi] \quad \text{(diffusion term)}
+\end{equation}
+This term is solved implicitly at each timestep, requiring the solution of a linear system.
+
+\noindent\textbf{Explicit (RHS):}
+\begin{equation}
+    -\nabla \cdot [\vec{u} \phi] - \nabla \cdot \left[\gamma \phi(1-\phi) \frac{\nabla \phi}{|\nabla \phi|}\right] \quad \text{(advection + sharpening)}
+\end{equation}
+
+\subsection{Why This Split?}
+
+\textbf{The diffusion term} $\gamma \varepsilon \nabla^2 \phi$ is a parabolic operator containing second-order spatial derivatives. Parabolic operators impose a quadratic stability constraint when treated explicitly:
+\begin{equation}
+    \Delta t \lesssim \frac{\Delta x^2}{\gamma \varepsilon}
+\end{equation}
+Since $\varepsilon$ is small (to maintain thin interfaces), this would severely restrict $\Delta t$. Implicit treatment removes this restriction.
+
+\textbf{The sharpening term} acts to compress the interface and counterbalance diffusion. This nonlinear term has hyperbolic character and imposes a milder linear stability constraint:
+\begin{equation}
+    \Delta t \lesssim \frac{\Delta x}{\gamma}
+\end{equation}
+
+Together, the diffusion and sharpening terms maintain a steady interface thickness governed by $\varepsilon$.
+
+\subsection{Surface Tension Force Implementation}
+
+We implemented surface tension forces using the continuum surface force (CSF) method \cite{brackbillContinuumMethodModeling1992}:
+\begin{equation}
+    \bm{F}_{ST} = \sigma \kappa \nabla \phi,
+\end{equation}
+where $\sigma$ is surface tension, $\kappa = \nabla \cdot \bm{n}$ is curvature, and $\bm{n} = \nabla \phi/|\nabla \phi|$ is the interface normal.
+
+\textbf{Why explicit?} The surface tension force is a body force that depends on the current interface geometry. In NEKO's pressure-correction (pnpn) scheme, body forces are added to the momentum equation RHS, making explicit treatment natural and consistent with the overall solution strategy.
+
+\textbf{Computational pipeline:}
+
+\begin{enumerate}
+    \item \textbf{Compute gradient:} $\nabla \phi$ using spectral element differentiation at GLL points
+    
+    \item \textbf{Ensure continuity:} Apply gather-scatter operation (\texttt{gs\_h\%op(work1, GS\_OP\_ADD)}) to sum contributions from all elements sharing a GLL point, enforcing $C^0$ continuity across element boundaries. Then apply geometry and mass matrix scaling (\texttt{col2(work1\%x, coef\%mult, ...)}) to transform from reference to physical coordinates.
+    
+    \item \textbf{Compute normal:} $\bm{n} = \nabla \phi/|\nabla \phi|$ with regularization to prevent division by zero
+    
+    \item \textbf{Compute curvature:} $\kappa = \nabla \cdot \bm{n}$ using spectral element divergence operator
+    
+    \item \textbf{Assemble force:} $\bm{F}_{ST} = \sigma \kappa \nabla \phi$ added to momentum equation RHS
+\end{enumerate}
+
+The accuracy of curvature computation is critical for minimizing spurious currents, as tested in Section~\ref{sec:spurious_test}.
+
+\input{numerical_experiments}
+
+\section{Conclusion}
+
+\section{Declaration of competing interest}
+
+\section{Acknowledgements}
+This work was financially supported by ... .
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}

@@ -90,3 +90,18 @@ libneko*.so
 
 pixi.lock
 install
+
+.venv/
+.claude/
+
+# Jupyter checkpoints
+**/.ipynb_checkpoints/
+
+# macOS debug symbol directories
+*.dSYM/
+
+# Generated run output (sigma sweep results)
+examples/**/sigma_*/
+examples/**/ekin.csv
+examples/**/*.png
+examples/**/*.log

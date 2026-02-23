@@ -62,8 +62,8 @@ contains
     ! Initialize the file object and create the output.csv file
     ! in the working directory (overwrite any existing file)
     call output_file%init("ekin.csv", overwrite=.true.)
-    call output_file%set_header("# t,Ekin,enst")
-    call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
+    call output_file%set_header("# t,Ekin,enst,u_max")
+    call vec_out%init(3) ! Initialize our vector with 3 elements (Ekin, enst, u_max)
 
     ! initialize work arrays for postprocessing
     u => neko_field_registry%get_field("u")
@@ -137,7 +137,7 @@ contains
 
     ! output all this to file
     call neko_log%message("Writing csv file")
-    vec_out%x = (/ekin, enst/)
+    vec_out%x = (/ekin, enst, u_max/)
     call output_file%write(vec_out, time%t)
 
     ! set the w component to zero to avoid any 3D instability
