@@ -57,7 +57,7 @@ module scalar_ic
   use interpolation, only : interpolator_t
   use space, only : space_t, GLL
   use field_list, only : field_list_t
-  use import_field_utils, only: import_fields
+  use import_field_utils, only : import_fields
   implicit none
   private
 
@@ -125,7 +125,8 @@ contains
        ! the values from, in the fld file. 0 corresponds to temperature.
        call json_get_or_default(params, 'target_index', tgt_scal_idx, i)
 
-       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname, i, tgt_scal_idx)
+       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname, i, &
+            tgt_scal_idx)
 
     else
        call neko_error('Invalid initial condition')
@@ -276,10 +277,10 @@ contains
 
     if (i .ne. target_idx) then
        write (log_buf, '(A,I0,A,I0)') "Loading scalar #", target_idx, &
-               " into scalar #", i
+            " into scalar #", i
        call neko_log%message(log_buf)
     end if
-    
+
     ! use a pointer since import_fields needs a pointer as input
     ss => s
 
@@ -288,9 +289,9 @@ contains
     call s_tgt_list%assign(1, ss)
 
     call import_fields(file_name, mesh_file_name, &
-            s_target_list=s_tgt_list, &    ! The target field
-            s_index_list=(/target_idx/), & ! Take values from target scalar
-            interpolate=interpolate, tolerance=tolerance)
+         s_target_list = s_tgt_list, & ! The target field
+         s_index_list = [target_idx], & ! Take values from target scalar
+         interpolate = interpolate, tolerance = tolerance)
 
     call s_tgt_list%free()
 

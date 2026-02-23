@@ -38,7 +38,7 @@ module flow_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
-  use import_field_utils, only: import_fields
+  use import_field_utils, only : import_fields
   use device, only : device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, &
@@ -419,7 +419,7 @@ contains
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
-   
+
     type(field_t), pointer :: us, vs, ws, ps
 
     us => u
@@ -428,14 +428,14 @@ contains
     ps => p
 
     call import_fields(file_name, mesh_file_name, &
-            u=us, v=vs, w=ws, p=ps, &
-            interpolate=interpolate, tolerance=tolerance)
+         u = us, v = vs, w = ws, p = ps, &
+         interpolate = interpolate, tolerance = tolerance)
 
     nullify(us, vs, ws, ps)
 
     ! If we are on GPU we need to move (u,v,w) back to the host
     ! since set_flow_ic_common copies it again to the device.
-    ! NOTE: p can stay on the device since it is not copied by 
+    ! NOTE: p can stay on the device since it is not copied by
     ! set_flow_ic_common
     call u%copy_from(device_to_host, .false.)
     call v%copy_from(device_to_host, .false.)

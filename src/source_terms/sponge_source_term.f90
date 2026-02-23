@@ -48,7 +48,7 @@ module sponge_source_term
   use source_term, only : source_term_t
   use case, only : case_t
   use simcomp_executor, only : neko_simcomps
-  use import_field_utils, only: import_fields
+  use import_field_utils, only : import_fields
   use field_list, only : field_list_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN
@@ -306,8 +306,8 @@ contains
     ! Import the u,v,w baseflows from fld
     !
     call import_fields(file_name, mesh_file_name, &
-            u=this%u_bf, v=this%v_bf, w=this%w_bf, &
-            interpolate=interpolate, tolerance=tolerance)
+         u = this%u_bf, v = this%v_bf, w = this%w_bf, &
+         interpolate = interpolate, tolerance = tolerance)
 
     this%baseflow_set = .true.
 

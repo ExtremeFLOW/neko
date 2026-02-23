@@ -9,15 +9,15 @@ module fld_file_data
   use num_types, only : rp
   use math, only : cmult, add2
   use vector, only : vector_t, vector_ptr_t
-  use interpolation, only: interpolator_t
+  use interpolation, only : interpolator_t
   use field, only : field_t
-  use field_list, only: field_list_t
-  use logger, only: neko_log, LOG_SIZE
-  use device, only: HOST_TO_DEVICE
+  use field_list, only : field_list_t
+  use logger, only : neko_log, LOG_SIZE
+  use device, only : HOST_TO_DEVICE
   use dofmap, only : dofmap_t
   use space, only : space_t, GLL
   use global_interpolation, only : global_interpolation_t
-  use utils, only : neko_error, NEKO_FNAME_LEN, extract_fld_file_index 
+  use utils, only : neko_error, NEKO_FNAME_LEN, extract_fld_file_index
   use mesh, only : mesh_t
   implicit none
   private
@@ -67,7 +67,7 @@ module fld_file_data
 
 contains
 
-  !> Imports fields from an fld_file_data object, potentially with 
+  !> Imports fields from an fld_file_data object, potentially with
   !! interpolation.
   !! @param this fld_data object. Must already be initialized, no
   !! checks are done.
@@ -75,29 +75,29 @@ contains
   !! @param v The field on which to import the v component of the fld data.
   !! @param w The field on which to import the w component of the fld data.
   !! @param p The field on which to import the pressure field of the fld data.
-  !! @param t The field on which to import the temperature field of the fld 
+  !! @param t The field on which to import the temperature field of the fld
   !! data.
-  !! @param s_target_list Field list containing the fields on which to import 
-  !! the scalar fields of the fld data. Unless a list of target indices is 
-  !! provided in `s_index_list`, assigns field at position `i` in the list 
+  !! @param s_target_list Field list containing the fields on which to import
+  !! the scalar fields of the fld data. Unless a list of target indices is
+  !! provided in `s_index_list`, assigns field at position `i` in the list
   !! to scalar `i` in the fld file.
-  !! @param s_index_list The list of scalars indices from which to load the 
-  !! fields provided in `s_target_list`. Must have the same size as 
-  !! `s_target_list`. For example, s_index_list = (/2,3/) will load scalar #2 
-  !! in `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`. 
-  !! Index  0 corresponds to temperature by default. Therefore using 
-  !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`. 
+  !! @param s_index_list The list of scalars indices from which to load the
+  !! fields provided in `s_target_list`. Must have the same size as
+  !! `s_target_list`. For example, s_index_list = (/2,3/) will load scalar #2
+  !! in `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`.
+  !! Index  0 corresponds to temperature by default. Therefore using
+  !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`.
   !! @param interpolate Wether or not to interpolate the fld data.
   !! @param tolerance If interpolation is enabled, the tolerance to use for the
   !! point finding.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
-  !! order for the same given mesh. 
-  !! @attention No data movement between CPU and GPU is done in this 
+  !! order for the same given mesh.
+  !! @attention No data movement between CPU and GPU is done in this
   !! subroutine. The required data must be copied manually beforehand (see
   !! import_field_utils.f90).
   subroutine fld_file_data_import_fields(this, u, v, w, p, t, &
-                  s_target_list, s_index_list, interpolate, tolerance)
+       s_target_list, s_index_list, interpolate, tolerance)
     class(fld_file_data_t), intent(inout) :: this
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
     type(field_list_t), intent(in), optional :: s_target_list
@@ -113,33 +113,33 @@ contains
     real(kind=rp) :: tolerance_
     type(global_interpolation_t) :: global_interp
     type(dofmap_t), pointer :: dof
-    type(mesh_t)  , pointer :: msh
+    type(mesh_t) , pointer :: msh
     ! -----
-    
+
     ! ---- For space to space interpolation
     type(space_t) :: prev_Xh
     type(space_t) , pointer :: Xh
     type(interpolator_t) :: space_interp
     ! ----
-   
+
     character(len=LOG_SIZE) :: log_buf
-   
-    ! ---- Default values 
-    interpolate_ = .false. 
+
+    ! ---- Default values
+    interpolate_ = .false.
     if (present(interpolate)) interpolate_ = interpolate
 
     tolerance_ = 0.000001_rp
     if (present(tolerance)) tolerance_ = tolerance
     ! ----
-   
-    ! 
+
+    !
     ! Handle the passing of arguments and pointers
     !
     dof => null()
     msh => null()
     Xh => null()
 
-    if (present(u)) then 
+    if (present(u)) then
        dof => u%dof; msh => u%msh; Xh => u%Xh
     else if (present(v)) then
        dof => v%dof; msh => v%msh; Xh => v%Xh
@@ -151,7 +151,7 @@ contains
        dof => t%dof; msh => t%msh; Xh => t%Xh
     else if (present(s_target_list)) then
        if (s_target_list%size() .eq. 0) then
-          call neko_error("Scalar target list is empty") 
+          call neko_error("Scalar target list is empty")
        else
           dof => s_target_list%items(1)%ptr%dof
           msh => s_target_list%items(1)%ptr%msh
@@ -188,22 +188,22 @@ contains
        if (.not. associated(dof) .or. .not. associated(msh)) then
           call neko_error("both dof and msh must be associated")
        end if
-       
+
        ! Generates an interpolator object and performs the point search
        call this%generate_interpolator(global_interp, dof, msh, &
             tolerance_)
 
        ! Evaluate all the fields
        if (present(u)) call global_interp%evaluate(u%x(:,1,1,1), this%u%x, &
-               on_host=.false.)
+            on_host = .false.)
        if (present(v)) call global_interp%evaluate(v%x(:,1,1,1), this%v%x, &
-               on_host=.false.)
+            on_host = .false.)
        if (present(w)) call global_interp%evaluate(w%x(:,1,1,1), this%w%x, &
-               on_host=.false.)
+            on_host = .false.)
        if (present(p)) call global_interp%evaluate(p%x(:,1,1,1), this%p%x, &
-               on_host=.false.)
+            on_host = .false.)
        if (present(t)) call global_interp%evaluate(t%x(:,1,1,1), this%t%x, &
-               on_host=.false.) 
+            on_host = .false.)
        if (present(s_target_list)) then
 
           ! If the index list exists, use it as a "mask"
@@ -212,18 +212,18 @@ contains
                 ! Take care that if we set i=0 we want temperature
                 if (s_index_list(i) .eq. 0) then
                    call global_interp%evaluate(s_target_list%x(i), &
-                           this%t%x, on_host=.false.)
+                        this%t%x, on_host = .false.)
                 else
                    call global_interp%evaluate(s_target_list%x(i), &
-                           this%s(s_index_list(i))%x, on_host=.false.)
+                        this%s(s_index_list(i))%x, on_host = .false.)
                 end if
              end do
 
-          ! otherwise, just copy element-to-element
+             ! otherwise, just copy element-to-element
           else
              do i = 1, s_target_list%size()
                 call global_interp%evaluate(s_target_list%x(i), this%s(i)%x, &
-                        on_host=.false.)
+                     on_host = .false.)
              end do
           end if ! present s_index_list
        end if ! present s_tgt
@@ -234,17 +234,17 @@ contains
 
        ! throw an error is the space is not passed
        if (.not. associated(Xh)) call neko_error("Xh is not associated")
-       
+
        ! Build a space_t object from the data in the fld file
        call prev_Xh%init(GLL, this%lx, this%ly, this%lz)
        call space_interp%init(Xh, prev_Xh)
-       
+
        ! Do the space-to-space interpolation
        if (present(u)) call space_interp%map(u%x, this%u%x, this%nelv, Xh)
        if (present(v)) call space_interp%map(v%x, this%v%x, this%nelv, Xh)
        if (present(w)) call space_interp%map(w%x, this%w%x, this%nelv, Xh)
        if (present(p)) call space_interp%map(p%x, this%p%x, this%nelv, Xh)
-       if (present(t)) call space_interp%map(t%x, this%t%x, this%nelv, Xh) 
+       if (present(t)) call space_interp%map(t%x, this%t%x, this%nelv, Xh)
        if (present(s_target_list)) then
 
           ! If the index list exists, use it as a "mask"
@@ -254,18 +254,18 @@ contains
                 ! 0 means we want temperature
                 if (s_index_list(i) .eq. 0) then
                    call space_interp%map(s_target_list%x(i), &
-                           this%t%x, this%nelv, Xh)
+                        this%t%x, this%nelv, Xh)
                 else
                    call space_interp%map(s_target_list%x(i), &
-                           this%s(s_index_list(i))%x, this%nelv, Xh)
+                        this%s(s_index_list(i))%x, this%nelv, Xh)
                 end if
              end do
 
-          ! otherwise, just copy element-to-element
+             ! otherwise, just copy element-to-element
           else
              do i = 1, s_target_list%size()
                 call space_interp%map(s_target_list%x(i), this%s(i)%x, &
-                        this%nelv, Xh)
+                     this%nelv, Xh)
              end do
           end if ! present s_index_list
        end if ! present s_tgt
