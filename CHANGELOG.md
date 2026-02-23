@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Rework hash table iterators, significantly faster (O(tsize) => O(entries)
 - Remove redundant directory in `site-packages` when installing pyneko
 - Add min/max operations when applying strong boundary conditions for the
   scalar, mimicing the procedure for the fluid. Needed with meshes where an
