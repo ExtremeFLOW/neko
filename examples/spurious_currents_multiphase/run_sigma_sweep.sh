@@ -13,9 +13,14 @@
 #   - spurious_currents.case (template) in this directory
 #   - Local: neko binary (makeneko-compiled) in this directory or on PATH
 #   - Cluster: dardel_job.sh template in this directory; sbatch available
+#
+# Output:
+#   - Local:   sigma_*/  subdirectories in this directory
+#   - Cluster: /cfs/klemming/scratch/e/eriksie/spurious_currents_sigma_sweep/sigma_*/
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRATCH_DIR=/cfs/klemming/scratch/e/eriksie
 
 # Parse arguments
 CLUSTER_MODE=false
@@ -36,7 +41,11 @@ if $CLUSTER_MODE; then
         echo "ERROR: dardel_job.sh not found in $SCRIPT_DIR"
         exit 1
     fi
+    SWEEP_DIR="$SCRATCH_DIR/spurious_currents_sigma_sweep"
+    echo "Each job will compile spurious_currents.f90 via makeneko"
+    echo "Output: $SWEEP_DIR"
 else
+    SWEEP_DIR="$SCRIPT_DIR"
     echo "Mode: local  (neko: $NEKO)"
 fi
 
@@ -46,13 +55,13 @@ for sigma in "${SIGMA_VALUES[@]}"; do
     # Physical end time for t*=250: t = mu*D*250/sigma = 0.1*0.4*250/sigma = 10.0/sigma
     end_time=$(python3 -c "print(10.0 / $sigma)")
 
-    dir="$SCRIPT_DIR/sigma_${sigma}"
-    echo "=== sigma=$sigma  end_time=$end_time ==="
+    dir="$SWEEP_DIR/sigma_${sigma}"
+    echo "=== sigma=$sigma  end_time=$end_time  dir=$dir ==="
 
     mkdir -p "$dir"
 
-    # Symlink the mesh (avoid copying large files)
-    ln -sf "$SCRIPT_DIR/box.nmsh" "$dir/box.nmsh"
+    # Copy the mesh (symlinks may not work across filesystems)
+    cp -f "$SCRIPT_DIR/box.nmsh" "$dir/box.nmsh"
 
     # Patch the case file: update sigma and end_time
     sed \
@@ -61,6 +70,9 @@ for sigma in "${SIGMA_VALUES[@]}"; do
         "$SCRIPT_DIR/spurious_currents.case" > "$dir/spurious_currents.case"
 
     if $CLUSTER_MODE; then
+        # Copy user file so each job compiles its own binary
+        cp "$SCRIPT_DIR/spurious_currents.f90" "$dir/"
+
         # Instantiate the Slurm template and submit
         sed \
             -e "s/SIGMA/$sigma/g" \
@@ -69,6 +81,8 @@ for sigma in "${SIGMA_VALUES[@]}"; do
         job_id=$(cd "$dir" && sbatch --parsable job.sh)
         echo "  Submitted job $job_id"
     else
+        # Symlink the mesh locally (same filesystem)
+        ln -sf "$SCRIPT_DIR/box.nmsh" "$dir/box.nmsh"
         # Run neko directly (local)
         (cd "$dir" && "$NEKO" spurious_currents.case)
         echo "=== Done sigma=$sigma ==="
@@ -76,7 +90,9 @@ for sigma in "${SIGMA_VALUES[@]}"; do
 done
 
 if $CLUSTER_MODE; then
+    echo ""
     echo "All jobs submitted. Monitor with: squeue -u \$USER"
+    echo "Results in: $SWEEP_DIR"
 else
     echo "All runs complete."
 fi

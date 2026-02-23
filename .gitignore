@@ -94,6 +94,9 @@ install
 .venv/
 .claude/
 
+# Slurm output files
+slurm-*.out
+
 # Jupyter checkpoints
 **/.ipynb_checkpoints/
 

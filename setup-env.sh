@@ -27,7 +27,7 @@ elif [ "$1" = "--cluster" ]; then
     # ── Dardel (Cray + ROCm/HIP) ────────────────────────────────────────
     export KTHMECH_PROJECT=/cfs/klemming/projects/supr/kthmech/eriksie
     export SCRATCH_DIR=/cfs/klemming/scratch/e/eriksie
-    export NEKO_SPURIOUS_PREFIX="$KTHMECH_PROJECT/software/neko-spurious"
+    export NEKO_SPURIOUS_PREFIX="$KTHMECH_PROJECT/builds/neko-spurious"
 
     module load PrgEnv-cray
     module use /cfs/klemming/pdc/projects/hpcrd/modules
