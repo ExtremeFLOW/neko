@@ -48,7 +48,7 @@ module coefs
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index, &
-       neko_error, neko_warning
+       neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -347,9 +347,9 @@ contains
        call device_rone(this%h1_d, n)
        call device_rone(this%h2_d, n)
        call device_memcpy(this%h1, this%h1_d, n, &
-                          DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync=.false.)
        call device_memcpy(this%h2, this%h2_d, n, &
-                          DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync=.false.)
     else
        call rone(this%h1,n)
        call rone(this%h2,n)
@@ -371,7 +371,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(this%mult_d, n)
        call device_memcpy(this%mult, this%mult_d, n, &
-                          DEVICE_TO_HOST, sync=.true.)
+            DEVICE_TO_HOST, sync=.true.)
     else
        call invcol1(this%mult, n)
     end if
@@ -770,7 +770,7 @@ contains
          call device_memcpy(dtdz, c%dtdz_d, ntot, DEVICE_TO_HOST, sync=.false.)
          call device_memcpy(jac, c%jac_d, ntot, DEVICE_TO_HOST, sync=.false.)
          call device_memcpy(jacinv, c%jacinv_d, ntot, &
-                            DEVICE_TO_HOST, sync=.true.)
+              DEVICE_TO_HOST, sync=.true.)
 
       else
          do e = 1, c%msh%nelv
@@ -817,57 +817,57 @@ contains
 
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdr(i, 1, 1, 1) &
-                                 * c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
+                    * c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
 
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdt(i, 1, 1, 1) &
-                                 * c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
+                    * c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
 
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxds(i, 1, 1, 1) &
-                                 * c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
+                    * c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
 
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdr(i, 1, 1, 1) &
-                                 * c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
+                    * c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
 
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxds(i, 1, 1, 1) &
-                                 * c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
+                    * c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
 
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdt(i, 1, 1, 1) &
-                                 * c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
+                    * c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
 
             do i = 1, ntot
                c%drdx(i, 1, 1, 1) = c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
-                                  - c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
+                    - c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
 
                c%drdy(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
-                                  - c%dxds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
+                    - c%dxds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
 
                c%drdz(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dydt(i, 1, 1, 1) &
-                                  - c%dxdt(i, 1, 1, 1) * c%dyds(i, 1, 1, 1)
+                    - c%dxdt(i, 1, 1, 1) * c%dyds(i, 1, 1, 1)
             end do
 
             do i = 1, ntot
                c%dsdx(i, 1, 1, 1) = c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
-                                  - c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
+                    - c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
 
                c%dsdy(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
-                                  - c%dxdt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
+                    - c%dxdt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
 
                c%dsdz(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dydr(i, 1, 1, 1) &
-                                  - c%dxdr(i, 1, 1, 1) * c%dydt(i, 1, 1, 1)
+                    - c%dxdr(i, 1, 1, 1) * c%dydt(i, 1, 1, 1)
             end do
 
             do i = 1, ntot
                c%dtdx(i, 1, 1, 1) = c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
-                                  - c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
+                    - c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
 
                c%dtdy(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
-                                  - c%dxdr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
+                    - c%dxdr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
 
                c%dtdz(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dyds(i, 1, 1, 1) &
-                                  - c%dxds(i, 1, 1, 1) * c%dydr(i, 1, 1, 1)
+                    - c%dxds(i, 1, 1, 1) * c%dydr(i, 1, 1, 1)
             end do
 
          end if
@@ -889,12 +889,12 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        call device_coef_generate_geo(c%G11_d, c%G12_d, c%G13_d, &
-                                     c%G22_d, c%G23_d, c%G33_d, &
-                                     c%drdx_d, c%drdy_d, c%drdz_d, &
-                                     c%dsdx_d, c%dsdy_d, c%dsdz_d, &
-                                     c%dtdx_d, c%dtdy_d, c%dtdz_d, &
-                                     c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
-                                     c%Xh%lx, c%msh%gdim)
+            c%G22_d, c%G23_d, c%G33_d, &
+            c%drdx_d, c%drdy_d, c%drdz_d, &
+            c%dsdx_d, c%dsdy_d, c%dsdz_d, &
+            c%dtdx_d, c%dtdy_d, c%dtdz_d, &
+            c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
+            c%Xh%lx, c%msh%gdim)
 
        call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync=.false.)
        call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync=.false.)
@@ -908,13 +908,13 @@ contains
 
           do i = 1, ntot
              c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
-                               + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1)
+                  + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1)
 
              c%G22(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
-                               + c%dsdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1)
+                  + c%dsdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1)
 
              c%G12(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
-                               + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1)
+                  + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1)
           end do
 
           do i = 1, ntot
@@ -938,16 +938,16 @@ contains
 
           do i = 1, ntot
              c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
-                               + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1) &
-                               + c%drdz(i, 1, 1, 1) * c%drdz(i, 1, 1, 1)
+                  + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1) &
+                  + c%drdz(i, 1, 1, 1) * c%drdz(i, 1, 1, 1)
 
              c%G22(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
-                               + c%dsdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
-                               + c%dsdz(i, 1, 1, 1) * c%dsdz(i, 1, 1, 1)
+                  + c%dsdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
+                  + c%dsdz(i, 1, 1, 1) * c%dsdz(i, 1, 1, 1)
 
              c%G33(i, 1, 1, 1) = c%dtdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
-                               + c%dtdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
-                               + c%dtdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
+                  + c%dtdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                  + c%dtdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
           end do
 
           do i = 1, ntot
@@ -958,16 +958,16 @@ contains
 
           do i = 1, ntot
              c%G12(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
-                               + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
-                               + c%drdz(i, 1, 1, 1) * c%dsdz(i, 1, 1, 1)
+                  + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
+                  + c%drdz(i, 1, 1, 1) * c%dsdz(i, 1, 1, 1)
 
              c%G13(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
-                               + c%drdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
-                               + c%drdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
+                  + c%drdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                  + c%drdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
 
              c%G23(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
-                               + c%dsdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
-                               + c%dsdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
+                  + c%dsdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                  + c%dsdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
           end do
 
           do i = 1, ntot
@@ -1040,15 +1040,15 @@ contains
     real(kind=rp) :: normal(3)
 
     select case (facet)
-      case(1,2)
+    case(1,2)
        normal(1) = this%nx(j, k, facet, e)
        normal(2) = this%ny(j, k, facet, e)
        normal(3) = this%nz(j, k, facet, e)
-      case(3,4)
+    case(3,4)
        normal(1) = this%nx(i, k, facet, e)
        normal(2) = this%ny(i, k, facet, e)
        normal(3) = this%nz(i, k, facet, e)
-      case(5,6)
+    case(5,6)
        normal(1) = this%nx(i, j, facet, e)
        normal(2) = this%ny(i, j, facet, e)
        normal(3) = this%nz(i, j, facet, e)
@@ -1061,11 +1061,11 @@ contains
     real(kind=rp) :: area
 
     select case (facet)
-      case(1,2)
+    case(1,2)
        area = this%area(j, k, facet, e)
-      case(3,4)
+    case(3,4)
        area = this%area(i, k, facet, e)
-      case(5,6)
+    case(5,6)
        area = this%area(i, j, facet, e)
     end select
   end function coef_get_area
@@ -1091,19 +1091,19 @@ contains
     ! ds x dt
     do i = 1, n
        a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
-                     - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+            - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
 
        b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
-                     - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
+            - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
        c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
-                     - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+            - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
     end do
 
     do i = 1, n
        dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
     end do
 
     do concurrent (e = 1:coef%msh%nelv)
@@ -1125,19 +1125,19 @@ contains
     ! dr x dt
     do i = 1, n
        a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
-                     - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+            - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
 
        b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
-                     - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
+            - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
        c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
-                     - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+            - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
     end do
 
     do i = 1, n
        dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
     end do
 
     do concurrent (e = 1:coef%msh%nelv)
@@ -1159,19 +1159,19 @@ contains
     ! dr x ds
     do i = 1, n
        a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &
-                     - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
+            - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
 
        b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &
-                     - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)
+            - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)
 
        c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &
-                     - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
+            - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
     end do
 
     do i = 1, n
        dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
     end do
 
     do concurrent (e = 1:coef%msh%nelv)
@@ -1209,13 +1209,13 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = size(coef%area)
        call device_memcpy(coef%area, coef%area_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(coef%nx, coef%nx_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(coef%ny, coef%ny_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(coef%nz, coef%nz_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine coef_generate_area_and_normal
@@ -1243,7 +1243,7 @@ contains
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
                    if (len.gt.NEKO_EPS) then
                       d = coef%dof%y(i, j, k, pe) * un(1) &
-                        - coef%dof%x(i, j, k, pe) * un(2)
+                           - coef%dof%x(i, j, k, pe) * un(2)
 
                       coef%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
                       coef%R11(nc) = un(1) / len * sign(1.0_rp, d)
@@ -1251,8 +1251,8 @@ contains
                       nc = nc + 1
                    else
                       call neko_error("x and y components of surface normals " // &
-                                      "are zero. Cyclic rotations must be " // &
-                                      "around z-axis.")
+                           "are zero. Cyclic rotations must be " // &
+                           "around z-axis.")
                    end if
                 end if
              end do
@@ -1262,7 +1262,7 @@ contains
 
     if (nc - 1 /= ncyc) then
        call neko_error("The number of cyclic GLL points were " // &
-                       "not estimated correctly.")
+            "not estimated correctly.")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -1303,12 +1303,12 @@ contains
     lx = this%Xh%lx
     ntot = this%dof%size()
     ncyc = np*lx*lx
-    
+
     if (.not. this%cyclic) return
 
     if (np .eq. 0) then
        call neko_error("There are no periodic boundaries. " // &
-                       "Switch cyclic off in the case file.")
+            "Switch cyclic off in the case file.")
     end if
 
     allocate(normx(lx, lx, lx, this%msh%nelv))
@@ -1316,9 +1316,9 @@ contains
     allocate(normz(lx, lx, lx, this%msh%nelv))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_map(normx, normx_d, ntot)
-      call device_map(normy, normy_d, ntot)
-      call device_map(normz, normz_d, ntot)
+       call device_map(normx, normx_d, ntot)
+       call device_map(normy, normy_d, ntot)
+       call device_map(normz, normz_d, ntot)
     end if
 
     do ipass = 1, 2
@@ -1340,25 +1340,25 @@ contains
                    if (index_is_on_facet(i, j, k, lx, lx, lx, pf)) then
                       un = this%get_normal(i, j, k, pe, pf)
                       normx(i,j,k,pe) = un(1) * this%R11(nc) &
-                                     + un(2) * this%R12(nc)
+                           + un(2) * this%R12(nc)
 
                       normy(i,j,k,pe) =-un(1) * this%R12(nc) &
-                                     + un(2) * this%R11(nc)
+                           + un(2) * this%R11(nc)
 
                       normz(i,j,k,pe) = un(3)
 
-                      
+
                       nc = nc + 1
                    end if
                 end do
              end do
           end do
        end do
-       
+
        if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_memcpy(normx, normx_d, ntot, HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(normy, normy_d, ntot, HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(normz, normz_d, ntot, HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(normx, normx_d, ntot, HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(normy, normy_d, ntot, HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(normz, normz_d, ntot, HOST_TO_DEVICE, sync=.false.)
        end if
 
        call this%gs_h%op(normx, ntot, GS_OP_ADD)
@@ -1366,32 +1366,32 @@ contains
        call this%gs_h%op(normz, ntot, GS_OP_ADD)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_absval(normx_d, ntot)
-         call device_absval(normy_d, ntot)
-         call device_absval(normz_d, ntot)
-         norm_dss = device_glsum(normx_d, ntot)/ntot .lt. 10*neko_eps .and. &
-                    device_glsum(normy_d, ntot)/ntot .lt. 10*neko_eps .and. &
-                    device_glsum(normz_d, ntot)/ntot .lt. 10*neko_eps
+          call device_absval(normx_d, ntot)
+          call device_absval(normy_d, ntot)
+          call device_absval(normz_d, ntot)
+          norm_dss = device_glsum(normx_d, ntot)/ntot .lt. 10*neko_eps .and. &
+               device_glsum(normy_d, ntot)/ntot .lt. 10*neko_eps .and. &
+               device_glsum(normz_d, ntot)/ntot .lt. 10*neko_eps
        else
-         call absval(normx, ntot)
-         call absval(normy, ntot)
-         call absval(normz, ntot)
-         norm_dss = glsum(normx, ntot)/ntot .lt. 10*neko_eps .and. &
-                    glsum(normy, ntot)/ntot .lt. 10*neko_eps .and. &
-                    glsum(normz, ntot)/ntot .lt. 10*neko_eps
+          call absval(normx, ntot)
+          call absval(normy, ntot)
+          call absval(normz, ntot)
+          norm_dss = glsum(normx, ntot)/ntot .lt. 10*neko_eps .and. &
+               glsum(normy, ntot)/ntot .lt. 10*neko_eps .and. &
+               glsum(normz, ntot)/ntot .lt. 10*neko_eps
        end if
-      
+
 
        if (ipass .eq. 1 .and. norm_dss) then
           call neko_error("Cyclic rotation is not required. " // &
-                          "Switch it off in case file.")
-       !else if (ipass .eq. 1 .and. norm_dss .eqv. false)
-       !wait for ipass=2 to check if current rotation logic is sufficient 
+               "Switch it off in case file.")
+          !else if (ipass .eq. 1 .and. norm_dss .eqv. false)
+          !wait for ipass=2 to check if current rotation logic is sufficient
        else if (ipass .eq. 2 .and. norm_dss .eqv. .false.) then
           call neko_error("Cylic rotation is required, but " // &
-                          "rotation logic must be modified.")
-       !if (ipass .eq. 2 .and. norm_dss .eqv. .true.)
-       !current logic is sufficient, proceed.
+               "rotation logic must be modified.")
+          !if (ipass .eq. 2 .and. norm_dss .eqv. .true.)
+          !current logic is sufficient, proceed.
        end if
     end do
     deallocate(normx)
