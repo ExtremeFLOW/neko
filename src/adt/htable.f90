@@ -244,7 +244,7 @@ contains
     integer, value :: size !< Initial size of the table
     class(*), target, intent(in) :: key !< Type of key
     class(*), target, intent(in), optional :: data !< Type of data
-    class(*), pointer :: dp
+    class(*), pointer :: data_ptr
     integer :: i
 
 
@@ -261,14 +261,14 @@ contains
     this%size = size
     this%entries = 0
 
-    dp => key
+    data_ptr => key
     if (present(data)) then
-       dp => data
+       data_ptr => data
     end if
 
     do i = 0, size
        allocate(this%t(i)%key, source=key)
-       allocate(this%t(i)%data, source=dp)
+       allocate(this%t(i)%data, source=data_ptr)
     end do
   end subroutine htable_init
 
