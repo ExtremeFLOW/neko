@@ -536,7 +536,7 @@ contains
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
-    call json_get_or_default(this%params, 'case.output_checkpoints',&
+    call json_get(this%params, 'case.output_checkpoints',&
          logical_val, .true.)
     if (logical_val) then
        call json_get_or_default(this%params, 'case.checkpoint_filename', &
