@@ -285,6 +285,7 @@ contains
 
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
          .false.)
+    call this%c_Xh%check_cyclic()
 
     if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
