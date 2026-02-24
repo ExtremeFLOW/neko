@@ -201,10 +201,13 @@ contains
     type(coef_t), intent(in), target :: coef
     type(c_ptr), intent(inout) :: A, b, x
     real(kind=rp), allocatable :: A_vals(:)
-    real(kind=rp) :: tmp_vals(1)
     integer, allocatable :: A_rows(:), A_cols(:)
-    integer :: tmp_rows(1), tmp_cols(1), ncol(1)
+    integer :: nrows
+    real(kind=rp), allocatable :: vals(:)
+    integer, allocatable :: ncols(:), rows(:), cols(:)
     real(kind=rp) :: tmp2
+    real(kind=rp) :: tmp_vals(1)
+    integer :: tmp_rows(1), tmp_cols(1), ncol(1)
     integer :: ilower, iupper, jlower, jupper
     integer :: e, k, j, i, s, l
     integer :: nnz, nelv, lx, idof
@@ -295,37 +298,102 @@ contains
     call hypre_vector_init(1, ilower, iupper, b)
     call hypre_vector_init(1, jlower, jupper, x)
 
+    ! Overallocate here.
+    allocate(rows(nnz))
+    allocate(cols(nnz))
+    allocate(vals(nnz))
+    call count_and_fill_rows(A_rows, rows, nrows, nnz)
+    allocate(ncols(nrows))
+    call count_and_fill_cols_vals(A_rows, A_cols, A_vals, rows, cols, &
+         nrows, ncols, vals, nnz)
+
     ! Fill matrix
     ! We do this the lazy and expensive way, one dof at a time.
     ! The interface expects array, so we fill some dummy arrays of size 1
     ! and pass these to the hypre interface
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(tmp_rows, tmp_rows_d, 1)
-       call device_map(tmp_cols, tmp_cols_d, 1)
-       call device_map(tmp_vals, tmp_vals_d, 1)
-       call device_map(ncol, ncol_d, 1)
-       do i = 1, nnz
-         ncol(1) = 1
-         tmp_rows(1) = A_rows(i)
-         tmp_cols(1) = A_cols(i)
-         tmp_vals(1) = A_vals(i)
-         call device_memcpy( tmp_rows, tmp_rows_d, 1, HOST_TO_DEVICE, .true.)
-         call device_memcpy( tmp_cols, tmp_cols_d, 1, HOST_TO_DEVICE, .true.)
-         call device_memcpy( tmp_vals, tmp_vals_d, 1, HOST_TO_DEVICE, .true.)
-         call device_memcpy( ncol, ncol_d, 1, HOST_TO_DEVICE, .true.)
-         call hypre_device_matrix_update(A, 1, ncol_d, tmp_rows_d, tmp_cols_d, tmp_vals_d)
-       end do
+       call device_map(rows, tmp_rows_d, nrows)
+       call device_map(ncols,  ncol_d, nrows)
+       call device_map(cols, tmp_cols_d, idof)
+       call device_map(vals, tmp_vals_d, idof)
+       call device_memcpy( rows, tmp_rows_d, nrows, HOST_TO_DEVICE, .true.)
+       call device_memcpy( cols, tmp_cols_d, idof, HOST_TO_DEVICE, .true.)
+       call device_memcpy( vals, tmp_vals_d, idof, HOST_TO_DEVICE, .true.)
+       call device_memcpy( ncols, ncol_d, nrows, HOST_TO_DEVICE, .true.)
+       call hypre_device_matrix_update(A, nrows, ncol_d, tmp_rows_d, tmp_cols_d, tmp_vals_d)
+!       call device_map(tmp_rows, tmp_rows_d, 1)
+!       call device_map(tmp_cols, tmp_cols_d, 1)
+!       call device_map(tmp_vals, tmp_vals_d, 1)
+!       call device_map(ncol, ncol_d, 1)
+!       do i = 1, nnz
+!         ncol(1) = 1
+!         tmp_rows(1) = A_rows(i)
+!         tmp_cols(1) = A_cols(i)
+!         tmp_vals(1) = A_vals(i)
+!         call device_memcpy( tmp_rows, tmp_rows_d, 1, HOST_TO_DEVICE, .true.)
+!         call device_memcpy( tmp_cols, tmp_cols_d, 1, HOST_TO_DEVICE, .true.)
+!         call device_memcpy( tmp_vals, tmp_vals_d, 1, HOST_TO_DEVICE, .true.)
+!         call device_memcpy( ncol, ncol_d, 1, HOST_TO_DEVICE, .true.)
+!         call hypre_device_matrix_update(A, 1, ncol_d, tmp_rows_d, tmp_cols_d, tmp_vals_d)
+!       end do
     else
        do i = 1, nnz
-         ncol(1) = 1
-         tmp_rows(1) = A_rows(i)
-         tmp_cols(1) = A_cols(i)
-         tmp_vals(1) = A_vals(i)
-         call hypre_matrix_update(A, 1, ncol, tmp_rows, tmp_cols, tmp_vals)
+          ncol(1) = 1
+          tmp_rows(1) = A_rows(i)
+          tmp_cols(1) = A_cols(i)
+          tmp_vals(1) = A_vals(i)
+          call hypre_matrix_update(A, 1, ncol, tmp_rows, tmp_cols, tmp_vals)
        end do
     end if
 
     call hypre_matrix_assemble(A)
   end subroutine hypre_matrix_assemble_from_neko
+
+  subroutine count_and_fill_rows(A_rows, rows, nrows, nnz)
+    integer, intent(in) :: nnz
+    integer, intent(out) :: nrows
+    integer, intent(in) :: A_rows(:)
+    integer, intent(inout) :: rows(:)
+    integer :: e, s, i, idof
+    logical :: in_rows
+    idof = 0
+    nrows = 0
+    rows(:) = 0
+    do e = 1, nnz
+       in_rows = .false.
+       i = A_rows(e)
+       do s = 1, idof
+          if (i .eq. rows(s)) then
+             in_rows = .true.
+          end if
+       end do
+       if (.not. in_rows) then
+          idof = idof + 1
+          nrows = nrows + 1
+          rows(nrows) = i
+       end if
+    end do
+  end subroutine count_and_fill_rows
+
+  subroutine count_and_fill_cols_vals(A_rows, A_cols, A_vals, rows, cols, nrows, ncols, vals, nnz)
+    integer, intent(in) :: nnz, nrows
+    integer, intent(in) :: A_rows(:), A_cols(:), rows(:)
+    real(kind=rp), intent(in) :: A_vals(:)
+    integer, intent(inout) :: cols(:), ncols(:)
+    real(kind=rp), intent(inout) :: vals(:)
+    integer :: k, e, idof
+    idof = 0
+    ncols(:) = 0
+    do k = 1, nrows
+       do e = 1, nnz
+          if (A_rows(e) .eq. rows(k)) then
+             ncols(k) = ncols(k) + 1
+             idof = idof + 1
+             cols(idof) = A_cols(e)
+             vals(idof) = A_vals(e)
+          end if
+       end do
+    end do
+  end subroutine count_and_fill_cols_vals
 
 end module hypre
