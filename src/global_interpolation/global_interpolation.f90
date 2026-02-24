@@ -58,8 +58,10 @@ module global_interpolation
        MPI_ISend, MPI_IRecv
   use glb_intrp_comm, only : glb_intrp_comm_t
   use vector, only: vector_t
+  use vector_math, only: vector_masked_gather_copy
   use matrix, only: matrix_t
   use math, only: copy, NEKO_EPS
+  use mask, only: mask_t
   use structs, only : array_ptr_t
   use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
   implicit none
@@ -141,6 +143,8 @@ module global_interpolation
      type(glb_intrp_comm_t) :: glb_intrp_comm
      !> Working vectors for global interpolation
      type(vector_t) :: temp_local, temp
+     integer :: n_dof = -1
+     type(vector_t) :: masked_field
 
    contains
      !> Initialize the global interpolation object based on a set of spectral elements.
@@ -168,6 +172,7 @@ module global_interpolation
      generic :: find_points => find_points_xyz, find_points_coords, find_points_coords1d
      !> Evaluate the value of the field in each point.
      procedure, pass(this) :: evaluate => global_interpolation_evaluate
+     procedure, pass(this) :: evaluate_masked => global_interpolation_evaluate_masked
 
      !> Generic constructor
      generic :: init => init_dof, init_xyz
@@ -179,13 +184,17 @@ contains
   !> Initialize the global interpolation object on a dofmap.
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
-  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad)
+  !! @param pad Padding of the bounding boxes.
+  !! @mask  Mask that indicates which portions of the domain to include
+  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask)
     class(global_interpolation_t), target, intent(inout) :: this
     type(dofmap_t) :: dof
     type(MPI_COMM), optional, intent(in) :: comm
     real(kind=rp), optional :: tol
     real(kind=rp), optional :: pad
+    type(mask_t), intent(in), optional :: mask
     real(kind=rp) :: padding, tolerance
+    integer :: temp_nelv
 
     if (present(pad)) then
        padding = pad
@@ -198,11 +207,28 @@ contains
     else
        tolerance = NEKO_EPS*1e3_xp ! 1% padding of the bounding boxes
     end if
+
+    ! Store the number of dofs
+    this%n_dof = dof%size()
     ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
     ! dof%x array and not a slice. It is done this way for
     ! to get the right dimension (see global_interpolation_init_xyz).
-    call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-         dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+    if (.not. present(mask)) then
+       call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
+            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+    else
+
+       ! Initialize a helper field with the size of the mask
+       call this%masked_field%init(mask%size())
+       ! Verify that the mask size is compatible with the dofmap
+       temp_nelv = mask%size() / (dof%Xh%lx*dof%Xh%ly*dof%Xh%lz)
+       if (mod(mask%size(), dof%Xh%lx*dof%Xh%ly*dof%Xh%lz) /= 0) then
+          call neko_error("Mask size must be a multiple of the number of elements in the mesh.")
+       end if
+       ! Initialize with the masked coordinates
+       call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), dof%z(mask%get(),1,1,1), &
+            dof%msh%gdim, temp_nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+    end if
 
   end subroutine global_interpolation_init_dof
 
@@ -282,6 +308,10 @@ contains
     call this%z%copy_from(HOST_TO_DEVICE,.false.)
     call this%Xh%init(Xh%t, lx, ly, lz)
 
+    ! Initialize n_dof if it was not started with a dof-based constructor
+    if (this%n_dof == -1) then
+       this%n_dof = n
+    end if
 
     call neko_log%section('Global Interpolation')
 
@@ -1102,6 +1132,25 @@ contains
 
   end subroutine global_interpolation_find_and_redist
 
+  !> Evaluate the interpolated value in a masked field
+  !! @param interp_values Array of values in the given points.
+  !! @param field Array of values used for interpolation.
+  !! @param on_host If interpolation should be carried out on the host
+  !! @param mask Mask for the field. Should coincide to that given at
+  !! initialization of the global_interpolation object.
+  subroutine global_interpolation_evaluate_masked(this, interp_values, &
+       field, mask, on_host)
+    class(global_interpolation_t), target, intent(inout) :: this
+    real(kind=rp), intent(inout), target :: interp_values(this%n_points)
+    real(kind=rp), intent(inout), target :: field(this%n_dof)
+    type(mask_t), intent(in) :: mask
+    logical, intent(in) :: on_host
+
+    call vector_masked_gather_copy(this%masked_field, field, mask, this%n_dof)
+    call this%evaluate(interp_values, this%masked_field%x, on_host)
+
+  end subroutine global_interpolation_evaluate_masked
+
   !> Evalute the interpolated value in the points given a field
   !! @param interp_values Array of values in the given points.
   !! @param field Array of values used for interpolation.
@@ -1114,8 +1163,8 @@ contains
     type(c_ptr) :: interp_d
 
     if (.not. this%all_points_local) then
-       call this%local_interp%evaluate(this%temp_local%x, this%el_owner0_local, &
-            field, this%nelv, on_host)
+       call this%local_interp%evaluate(this%temp_local%x, &
+            this%el_owner0_local, field, this%nelv, on_host)
        if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
           call device_memcpy(this%temp_local%x, this%temp_local%x_d, &
                this%n_points_local, DEVICE_TO_HOST, .true.)
