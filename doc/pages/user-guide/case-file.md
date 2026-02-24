@@ -94,7 +94,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 Some additional practical comments are provided regarding the output triggered
 by `job_timelimit` and `output_at_end` keywords.
 
-If `output_at_end` is set to `true`, an additional write is performed aftger the
+If `output_at_end` is set to `true`, an additional write is performed after the
 execution of the simulation time-loop is finished. This triggers most outputs,
 like the fluid solvers, the checkpoint, etc. Note that if your case settings are
 such that a particular output is written at the last time step regardless of
@@ -107,10 +107,10 @@ statistics-related [simulation components](@ref simcomps). Since the collected
 statistics are reset on write, the data written by `output_at_end` will be just
 zeroes.
 
-The puprose of `job_timelimit` is to gracefully stop the simulation in a typical
+The purpose of `job_timelimit` is to gracefully stop the simulation in a typical
 supercomputer environment, where your runtime is limited. When Neko detects that
 the time of the run exceeds the `job_timelimit`, it exits the time-loop. At this
-point, if one set `output_at_end` to `true`, this will trigger a write as per
+point, if one sets `output_at_end` to `true`, this will trigger a write as per
 usual. However, if `output_at_end` is `false`, Neko will still write a special
 checkpoint file, with the filename called `joblimit#####.chkp`. This is done so
 that the user is at least provided a restart file, and none of the computer time
