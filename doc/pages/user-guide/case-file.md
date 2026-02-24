@@ -385,6 +385,14 @@ periodic pipe simulation, two periodic zones comprise the boundary conditions in
 the streamwise direction. Only one condition, corresponding to zone index 3 (the
 wall) is the specified in the case file.
 
+It is possible to assign specific names to the boundary conditions through the
+`name` keyword. Boundary conditions can then be retireved in the code by using
+the name or the `zone_index` where it is applied.
+
+The default name of the boundary conditions is given by the `<variable>_bc_<zone_index>`
+pattern. i.e., the pressure boundary condition that applies in zone index 5 can be
+retrieved by the `pressure_bc_5` name.
+
 #### Available conditions
 The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
@@ -671,6 +679,8 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
 7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
 8. `sponge`, adds a sponge term based on a reference velocity field, which is
    applied in a user-specified region of the domain.
+9. `field`, uses fields in the `neko_registry` as values of the source term. The
+   fields are selected with the `field_names` keyword.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
