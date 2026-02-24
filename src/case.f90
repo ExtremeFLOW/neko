@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -557,6 +557,8 @@ contains
        else if (trim(string_val) .eq. 'simulationtime') then
           call json_get_or_lookup(this%params, 'case.checkpoint_value', &
                real_val)
+       else if (trim(string_val) .eq. 'never') then
+          real_val = 0.0_rp
        end if
 
        call this%output_controller%add(this%chkp_out, real_val, string_val, &
