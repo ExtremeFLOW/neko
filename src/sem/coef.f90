@@ -1241,7 +1241,7 @@ contains
                 if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
                    un = coef%get_normal(i, j, k, pe, pf)
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
-                   if (len.gt.NEKO_EPS) then
+                   if (len .gt. NEKO_EPS) then
                       d = coef%dof%y(i, j, k, pe) * un(1) &
                            - coef%dof%x(i, j, k, pe) * un(2)
 
@@ -1250,8 +1250,8 @@ contains
                       coef%R12(nc) = un(2) / len * sign(1.0_rp, d)
                       nc = nc + 1
                    else
-                      call neko_error("x and y components of surface normals " // &
-                           "are zero. Cyclic rotations must be " // &
+                      call neko_error("x and y components of surface " // &
+                           "normals are zero. Cyclic rotations must be " // &
                            "around z-axis.")
                    end if
                 end if
