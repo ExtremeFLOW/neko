@@ -88,7 +88,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
-| `job_timelimit`       | The maximum wall clock duration of the simulation. Triggers a write.                                                   | String formatted as HH:MM:SS                    | No limit      |
+| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                   | String formatted as HH:MM:SS                    | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 Some additional practical comments are provided regarding the output triggered
