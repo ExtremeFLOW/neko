@@ -288,6 +288,10 @@ contains
       ! Compute curvature kappa = div(n)
       call div(temp4%x,temp1%x, temp2%x,temp3%x,coef)
 
+      ! Apply gather-scatter and multiplicity for continuity
+      call coef%gs_h%op(temp4, GS_OP_ADD)
+      call col2(temp4%x, coef%mult, temp4%size())
+
       call copy(temp1%x, temp4%x, temp4%size())
 
       ! Now temp1 contains kappa = div(n) (curvature)
