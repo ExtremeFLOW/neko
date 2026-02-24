@@ -35,6 +35,8 @@
 submodule (json_utils) case_file_utils
   use registry, only : neko_const_registry
   use vector, only : vector_t
+  use math, only : abscmp
+  use num_types, only : rp
   implicit none
 
 contains
