@@ -33,7 +33,6 @@
 !> Logging routines
 module logger
   use comm, only : pe_rank
-  use num_types, only : rp
   use utils, only : neko_error
   use, intrinsic :: iso_fortran_env, only : stdout => output_unit, &
        stderr => error_unit
@@ -391,7 +390,6 @@ contains
     class(log_t), intent(inout) :: this
     character(len=*), intent(in), optional :: msg
     integer, optional :: lvl
-    integer :: lvl_
 
     if (present(msg)) then
        call this%message(msg, lvl)
