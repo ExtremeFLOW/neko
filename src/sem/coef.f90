@@ -48,7 +48,7 @@ module coefs
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index, &
-       neko_error, neko_warning
+       neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
