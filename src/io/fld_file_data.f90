@@ -110,7 +110,6 @@ contains
     ! ---- For the mesh to mesh interpolation
     logical :: mesh_mismatch
     logical :: interpolate_
-    real(kind=rp) :: tolerance_
     type(global_interpolation_t) :: global_interp
     type(dofmap_t), pointer :: dof
     type(mesh_t) , pointer :: msh
@@ -127,9 +126,6 @@ contains
     ! ---- Default values
     interpolate_ = .false.
     if (present(interpolate)) interpolate_ = interpolate
-
-    tolerance_ = 0.000001_rp
-    if (present(tolerance)) tolerance_ = tolerance
     ! ----
 
     !
@@ -191,7 +187,7 @@ contains
 
        ! Generates an interpolator object and performs the point search
        call this%generate_interpolator(global_interp, dof, msh, &
-            tolerance_)
+            tolerance = tolerance)
 
        ! Evaluate all the fields
        if (present(u)) call global_interp%evaluate(u%x(:,1,1,1), this%u%x, &
@@ -486,7 +482,7 @@ contains
     type(global_interpolation_t), intent(inout) :: global_interp
     type(dofmap_t), intent(in), target :: to_dof
     type(mesh_t), intent(in), target :: to_msh
-    real(kind=rp), intent(in) :: tolerance
+    real(kind=rp), intent(in), optional :: tolerance
 
     ! --- variables for interpolation
     type(space_t) :: fld_Xh

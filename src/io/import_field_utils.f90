@@ -98,7 +98,6 @@ contains
     character(len=NEKO_FNAME_LEN) :: fname_, mesh_fname_
 
     logical :: interpolate_
-    real(kind=rp) :: tolerance_
 
     type(file_t) :: f
     type(fld_file_data_t) :: fld_data
@@ -106,9 +105,6 @@ contains
     ! ---- Default values
     interpolate_ = .false.
     if (present(interpolate)) interpolate_ = interpolate
-
-    tolerance_ = 0.000001_rp
-    if (present(tolerance)) tolerance_ = tolerance
     ! ----
 
     call neko_log%section("Import fields")
@@ -136,8 +132,10 @@ contains
     ! If interpolate, check if we need to read the mesh file
     if (interpolate_) then
 
-       write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance_
-       call neko_log%message(log_buf)
+       if (present(tolerance)) then
+           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
+           call neko_log%message(log_buf)
+       end if
 
        ! If no mesh file is specified, use the default file name
        if (mesh_fname .eq. "none") then
@@ -150,8 +148,8 @@ contains
           sample_mesh_idx = extract_fld_file_index(mesh_fname_, -1)
 
           if (sample_mesh_idx .eq. -1) then
-             call neko_error("Invalid file name for the initial condition. &
-             &The file format must be e.g. 'mean0.f00001'")
+             call neko_error("Invalid file name for the initial condition."//
+             "The file format must be e.g. 'mean0.f00001'")
           end if
 
           write (log_buf, '(A,A)') "Mesh file     : ", &
@@ -208,7 +206,7 @@ contains
 
     ! Call the import of fields
     call fld_data%import_fields(u, v, w, p, t, s_target_list, s_index_list, &
-         interpolate_, tolerance_)
+         interpolate_, tolerance = tolerance)
 
     call neko_log%end_section()
 
