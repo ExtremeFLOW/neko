@@ -1499,6 +1499,9 @@ var annotated_dup =
       [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
       [ "vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ]
     ] ],
+    [ "vector_list", "d3/ddd/namespacevector__list.html", [
+      [ "vector_list_t", "d3/d45/structvector__list_1_1vector__list__t.html", "d3/d45/structvector__list_1_1vector__list__t" ]
+    ] ],
     [ "vreman", "d4/d6e/namespacevreman.html", [
       [ "vreman_t", "de/d91/structvreman_1_1vreman__t.html", "de/d91/structvreman_1_1vreman__t" ]
     ] ],

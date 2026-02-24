@@ -6,6 +6,6 @@ var structhtable_1_1htable__iter__i4__t =
     [ "key", "dc/d23/structhtable_1_1htable__iter__i4__t.html#a17607d2ce7abc82b62cc60103f61351b", null ],
     [ "next", "dc/d23/structhtable_1_1htable__iter__i4__t.html#a12ff124e1341abc54b0f24c85b4c09d9", null ],
     [ "reset", "dc/d23/structhtable_1_1htable__iter__i4__t.html#adc3c68bf54c5042d35ea83a5e4fb7181", null ],
-    [ "n", "dc/d23/structhtable_1_1htable__iter__i4__t.html#aa2e1b74b8b1463c66f43b8c3d66d2e0e", null ],
+    [ "current", "dc/d23/structhtable_1_1htable__iter__i4__t.html#a82a9fa94238aa57960e99be320edbfaa", null ],
     [ "t", "dc/d23/structhtable_1_1htable__iter__i4__t.html#a3da5020ff054aac393bf9f4e1bb152c3", null ]
 ];

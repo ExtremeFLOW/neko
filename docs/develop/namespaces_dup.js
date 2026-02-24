@@ -836,6 +836,7 @@ var namespaces_dup =
     [ "uset", "df/da5/namespaceuset.html", "df/da5/namespaceuset" ],
     [ "utils", "d6/d84/namespaceutils.html", "d6/d84/namespaceutils" ],
     [ "vector", "d7/d34/namespacevector.html", "d7/d34/namespacevector" ],
+    [ "vector_list", "d3/ddd/namespacevector__list.html", "d3/ddd/namespacevector__list" ],
     [ "vector_math", "d3/d0d/namespacevector__math.html", [
       [ "vector_add2", "d3/d0d/namespacevector__math.html#a2ca83e4227ff57fef1ae01d8c4d3e963", null ],
       [ "vector_add2s1", "d3/d0d/namespacevector__math.html#aca9745f1e0e9feba0443d1baa1a11006", null ],

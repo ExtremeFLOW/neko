@@ -11,6 +11,8 @@ var structhtable_1_1htable__r8__t =
     [ "remove", "da/dee/structhtable_1_1htable__r8__t.html#ab7a381764e300ab227b7864945bdc378", null ],
     [ "set", "da/dee/structhtable_1_1htable__r8__t.html#a59cb6fd61820c62772062f5b94ece17c", null ],
     [ "entries", "da/dee/structhtable_1_1htable__r8__t.html#a97a189e6f7963d9dfbebd956576a2345", null ],
+    [ "head", "da/dee/structhtable_1_1htable__r8__t.html#a7db5a9e163297f49dbfe77fe0fca5211", null ],
     [ "size", "da/dee/structhtable_1_1htable__r8__t.html#a94370069f1191d8a0873af756ff471b7", null ],
-    [ "t", "da/dee/structhtable_1_1htable__r8__t.html#aa2081677dec0796e05d2f79a3f6c9194", null ]
+    [ "t", "da/dee/structhtable_1_1htable__r8__t.html#aa2081677dec0796e05d2f79a3f6c9194", null ],
+    [ "tail", "da/dee/structhtable_1_1htable__r8__t.html#aa288914645e9603c7f9baf9cd7b5f0d8", null ]
 ];

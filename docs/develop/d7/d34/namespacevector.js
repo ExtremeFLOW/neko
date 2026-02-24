@@ -8,6 +8,8 @@ var namespacevector =
     [ "vector_assign_vector", "d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef", null ],
     [ "vector_copy_from", "d7/d34/namespacevector.html#af813c55980a9ce29cc6a2ddf0fc68b23", null ],
     [ "vector_free", "d7/d34/namespacevector.html#a71d35851a8d8d31c51daab97d50273a1", null ],
-    [ "vector_init", "d7/d34/namespacevector.html#a1a0b534cad1c19730864defe358e93f7", null ],
+    [ "vector_init", "d7/d34/namespacevector.html#a00a29a87ffacaccda3a3b75effa7a7e9", null ],
+    [ "vector_ptr_free", "d7/d34/namespacevector.html#ad977fda106b1b62390cf335c145b815a", null ],
+    [ "vector_ptr_init", "d7/d34/namespacevector.html#a85ca02e3b049f3755d84baaaa3556c37", null ],
     [ "vector_size", "d7/d34/namespacevector.html#a7adf9582331a49ba1e079b4c4f2cf297", null ]
 ];

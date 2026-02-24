@@ -944,6 +944,7 @@ var hierarchy =
       [ "uset::uset_r8_t", "d3/d19/structuset_1_1uset__r8__t.html", null ]
     ] ],
     [ "fluid_scheme_base::validate_intrf", "d8/d38/interfacefluid__scheme__base_1_1validate__intrf.html", null ],
+    [ "vector_list::vector_list_t", "d3/d45/structvector__list_1_1vector__list__t.html", null ],
     [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", null ],
     [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", null ],
     [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ],
