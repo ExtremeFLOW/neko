@@ -88,7 +88,7 @@ contains
     character(len=*), intent(in) :: fname
     character(len=*), intent(in), optional :: mesh_fname
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
-    type(field_list_t), intent(in), optional :: s_target_list
+    type(field_list_t), intent(inout), optional :: s_target_list
     integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
     real(kind=rp), intent(in), optional :: tolerance
