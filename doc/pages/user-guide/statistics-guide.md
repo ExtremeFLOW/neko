@@ -311,7 +311,7 @@ Similar to fluid statistics, scalar SGS statistics are enabled in the case file 
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
-| `output_filename`        | User-specified filename to store output in.                       | filename  |  fluid_sgs_statsX*        |
+| `output_filename`        | User-specified filename to store output in.                       | filename  |  scalar_sgs_statsX*        |
 
 \*The name of the written statistics file will by default be `scalar_sgs_statsX0.f0000X,..., scalar_sgs_statsX0.f0000Y` where X is the number of the first outputted statistic of the current run.
 
