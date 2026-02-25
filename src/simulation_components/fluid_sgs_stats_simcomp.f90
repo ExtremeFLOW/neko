@@ -134,6 +134,7 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param nut_field Name of the eddy viscosity field
+  !! @param fname name of the output file
   subroutine fluid_sgs_stats_simcomp_init_from_components(this, u, v, w, coef, &
        start_time, hom_dir, nut_field, fname)
     class(fluid_sgs_stats_simcomp_t), target, intent(inout) :: this

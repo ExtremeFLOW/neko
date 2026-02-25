@@ -144,6 +144,7 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
+  !! @param fname name of the output file
   subroutine scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
        p, coef, start_time, hom_dir, stat_set, fname)
     class(scalar_stats_simcomp_t), target, intent(inout) :: this
