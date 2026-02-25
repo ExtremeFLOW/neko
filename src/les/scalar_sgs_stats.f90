@@ -53,6 +53,7 @@ module scalar_sgs_stats
      !> Pointers to the instantenious quantities.
      type(field_t), pointer :: alphat => null() !< scalar diffusivity
      type(field_t), pointer :: nut => null() !< scalar diffusivity
+     logical :: nut_dependency
      real(kind=rp) :: pr_turb !< turbulent Prandtl number
      type(field_t), pointer :: s => null() !< scalar
 
@@ -105,6 +106,7 @@ contains
 
     this%s => s
     this%alphat => neko_registry%get_field(alphat_field)
+    this%nut_dependency = .false.
 
     ! Initialize work fields
     call this%stats_work%init(this%s%dof, 'stats')
@@ -144,6 +146,7 @@ contains
     this%s => s
     this%nut => neko_registry%get_field(nut_field)
     this%pr_turb = pr_turb
+    this%nut_dependency = .true.
 
     allocate(this%alphat)
     call this%alphat%init(this%nut%dof, 'alphat_temp')
@@ -185,7 +188,9 @@ contains
       call neko_scratch_registry%request_field(this%dsdz_work, &
            temp_indices(3), .false.)
 
-      call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
+      if (this%nut_dependency) then
+         call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
+      end if
       call this%alphat_mean%update(k)
 
       call grad(this%dsdx_work%x, &
