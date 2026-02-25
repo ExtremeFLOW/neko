@@ -202,10 +202,24 @@ contains
   subroutine registry_expand(this)
     class(registry_t), intent(inout) :: this
     type(registry_entry_t), allocatable :: temp(:)
+    integer :: n, i
 
-    allocate(temp(this%n_entries_ + this%expansion_size_))
-    temp(1:this%n_entries_) = this%entries(1:this%n_entries_)
-    call move_alloc(temp, this%entries)
+    n = this%get_size()
+
+    if (n .gt. 0) then
+       call move_alloc(this%entries, temp)
+    end if
+
+    allocate(this%entries(n + this%expansion_size_))
+
+    if (n .gt. 0) then
+       do i = 1, n
+          call this%entries(i)%move_from(temp(i))
+          call temp(i)%free()
+       end do
+    end if
+
+    if (allocated(temp)) deallocate(temp)
   end subroutine registry_expand
 
   ! ========================================================================== !
