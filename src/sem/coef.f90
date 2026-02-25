@@ -1230,6 +1230,8 @@ contains
     integer :: i, j, k, pf, pe, n, nc, ncyc
 
     np = coef%msh%periodic%size
+    if (np .eq. 0) return 
+      
     lx = coef%Xh%lx
     ly = coef%Xh%ly
     lz = coef%Xh%lz
@@ -1377,6 +1379,8 @@ contains
           norm_dss = device_glsum(normx_d, ntot)/ntot .lt. 100.0*NEKO_EPS .and. &
                device_glsum(normy_d, ntot)/ntot .lt. 100.0*NEKO_EPS .and. &
                device_glsum(normz_d, ntot)/ntot .lt. 100.0*NEKO_EPS
+          write(*, *) device_glsum(normx_d, ntot)/ntot, device_glsum(normy_d, ntot)/ntot, & 
+            device_glsum(normz_d, ntot)/ntot
        else
           call absval(normx, ntot)
           call absval(normy, ntot)
@@ -1384,6 +1388,7 @@ contains
           norm_dss = glsum(normx, ntot)/ntot .lt. 100*NEKO_EPS .and. &
                glsum(normy, ntot)/ntot .lt. 100*NEKO_EPS .and. &
                glsum(normz, ntot)/ntot .lt. 100*NEKO_EPS
+          write(*, *) glsum(normx, ntot)/ntot, glsum(normy, ntot)/ntot, glsum(normz, ntot)/ntot
        end if
 
        if (ipass .eq. 1 .and. norm_dss) then
