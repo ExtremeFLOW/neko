@@ -261,7 +261,7 @@ contains
     call this%entries(this%n_entries_)%init_field(dof, name)
 
     call neko_log%message("Field " // trim(name) // " added to the registry", &
-            lvl=NEKO_LOG_DEBUG)
+         lvl=NEKO_LOG_DEBUG)
 
   end subroutine registry_add_field
 
@@ -301,7 +301,7 @@ contains
     call this%entries(this%n_entries_)%init_vector(n, name)
 
     call neko_log%message("Vector " // trim(name) // " added to the registry", &
-            lvl=NEKO_LOG_DEBUG)
+         lvl=NEKO_LOG_DEBUG)
 
   end subroutine registry_add_vector
 
@@ -341,7 +341,7 @@ contains
     call this%entries(this%n_entries_)%init_matrix(nrows, ncols, name)
 
     call neko_log%message("Matrix " // trim(name) // " added to the registry", &
-            lvl=NEKO_LOG_DEBUG)
+         lvl=NEKO_LOG_DEBUG)
 
   end subroutine registry_add_matrix
 
