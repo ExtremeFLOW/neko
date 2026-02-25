@@ -7,10 +7,14 @@
 module user
   use neko
   use amr_reconstruct, only : amr_reconstruct_t
+  use fld_file, only : fld_file_t
+  use fld_file_output, only : fld_file_output_t
   implicit none
 
   ! Global user variables
   type(field_t) :: w1
+  type(fld_file_output_t), save :: tst_fld
+  real(rp) :: t
 
 contains
 
@@ -23,7 +27,7 @@ contains
     user%initialize => user_initialize
     user%finalize => user_finalize
     user%amr_refine_flag => amr_refine_flag
-    user%amr_reconstruct => amr_reconstruct
+    user%amr_reconstruct => amr_reconstructing
   end subroutine user_setup
 
   ! Rescale mesh
@@ -69,6 +73,17 @@ contains
     end do
 
     call field_rzero(p)
+
+    ! initialise file output for debugging AMR refinement
+    call tst_fld%init(rp, "testing_refine", 4)
+    call tst_fld%fields%assign_to_ptr(1, p)
+    call tst_fld%fields%assign_to_ptr(2, u)
+    call tst_fld%fields%assign_to_ptr(3, v)
+    call tst_fld%fields%assign_to_ptr(4, w)
+    select type(file => tst_fld%file_%file_type)
+    type is (fld_file_t)
+       file%write_mesh = .true.
+    end select
   end subroutine initial_conditions
 
   function tgv_ic(x, y, z) result(uvw)
@@ -184,15 +199,40 @@ contains
     integer, dimension(:), intent(out) :: ref_mark
     logical, intent(out) :: ifrefine
 
-    ref_mark(:) = 1
-    ifrefine = .false.
+    if (time%tstep .eq. 4) then
+!       if (pe_rank .eq. 0) then
+!          ref_mark(:) = 1
+!       else
+!          ref_mark(:) = 0
+!       end if
+       ref_mark(:) = 1
+       ifrefine = .true.
+    else if (time%tstep .eq. 5) then
+       ref_mark(:) = -1
+!       ifrefine = .true.
+       ifrefine = .false.
+    else
+       ref_mark(:) = 0
+       ifrefine = .false.
+    end if
+
+    ! for debugging
+    if (ifrefine) then
+       t = time%t
+       call tst_fld%sample(t)
+    end if
 
   end subroutine amr_refine_flag
 
-  subroutine amr_reconstruct(reconstruct, counter)
+  subroutine amr_reconstructing(reconstruct, counter, tstep)
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, tstep
 
-  end subroutine amr_reconstruct
+    call w1%amr_reallocate(reconstruct, counter, tstep)
+
+    ! for debugging
+    call tst_fld%sample(t)
+
+  end subroutine amr_reconstructing
 
 end module user

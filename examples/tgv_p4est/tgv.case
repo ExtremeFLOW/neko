@@ -53,6 +53,7 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
+            "output_mesh_in_all_files": true,
             "output_value": 1.0
         },
         "simulation_components":
