@@ -49,6 +49,9 @@ module coefs
   use device
   use utils, only : index_is_on_facet, linear_index, &
        neko_error
+  use comm, only : NEKO_COMM
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -1287,7 +1290,7 @@ contains
     !switched on. If not, then the current rotation logic
     !is not sufficient and must be modified.
     !"cyclic": true in case file invokes these checks.
-    integer :: np, n, lx, pf, pe, i, j, k, nc, ipass, ntot, ncyc
+    integer :: np, np_glb, n, lx, pf, pe, i, j, k, nc, ipass, ntot, ncyc, ierr
     real(kind=rp) :: un(3)
     real(kind=rp), allocatable :: normx(:,:,:,:)
     real(kind=rp), allocatable :: normy(:,:,:,:)
@@ -1303,9 +1306,12 @@ contains
     ntot = this%dof%size()
     ncyc = np*lx*lx
 
+    call MPI_Allreduce(np, np_glb, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
     if (.not. this%cyclic) return
 
-    if (np .eq. 0) then
+    if (np_glb .eq. 0) then
        call neko_error("There are no periodic boundaries. " // &
             "Switch cyclic off in the case file.")
     end if
