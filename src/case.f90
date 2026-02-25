@@ -538,8 +538,7 @@ contains
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
-    call json_get(this%params, 'case.output_checkpoints',&
-         logical_val)
+    call json_get(this%params, 'case.output_checkpoints', logical_val)
     if (logical_val) then
        call json_get_or_default(this%params, 'case.checkpoint_filename', &
             name, "fluid")

@@ -118,8 +118,6 @@ spent on the simulation is wasted. Generally, however, it is recommended to
 have `output_at_end` set to `true` in tandem with `job_timelimit`, so that what
 exactly gets written is controlled by the case file settings.
 
-
-
 ### Constants
 The `constants` array allows the user to define parameters that are global to
 the case file, and can be referred to when setting the values of other
