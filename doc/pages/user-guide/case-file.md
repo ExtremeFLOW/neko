@@ -1326,8 +1326,10 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
 | `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
 | `lambda`                       | Thermal conductivity.                                             | Positive real                               | -             |
-| `nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
-| `Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
+| `alphat.nut_dependency`                    | Whether the eddy diffusivity depends on the eddy kinematic viscosity.                  | `true` or `false`                                      | -  |
+| `alphat.alphat_field`                    | Name of the turbulent diffusivity field.                  | String                                      | Empty string  |
+| `alphat.nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
+| `alphat.Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
 | `boundary_types`               | Boundary types/conditions labels.                                 | Array of strings                            | -             |
 | `initial_condition.type`       | Initial condition type.                                           | `user`, `uniform`, `point_zone`             | -             |
 | `initial_condition.value`      | Value of the velocity initial condition.                          | Real                                        | -             |
