@@ -452,6 +452,14 @@ keywords:
  }
  ~~~~~~~~~~~~~~~
 
+The statistics fields created by this simcomp are accessible from the 
+neko registry and retrievable under the following naming convention:
+`name_in_registry = name_of_simcomp + "/mean_" + name_of_field`. Unless 
+specified, the name of the simcomp will default to `user_stats`.
+For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then 
+the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added 
+to the registry. 
+
 ### Spectral error indicator {#simcomp_speri}
 
 Computes the spectral error indicator as developed by Mavriplis (1989) (https://doi.org/10.1007/978-3-663-13975-1_34).

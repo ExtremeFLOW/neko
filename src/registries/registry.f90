@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2025, The Neko Authors
+! Copyright (c) 2018-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 !
 !> Defines a registry for storing solution fields
 module registry
-  use, intrinsic :: iso_fortran_env, only: error_unit
   use num_types, only : rp
   use field, only : field_t
   use vector, only : vector_t
@@ -40,12 +39,8 @@ module registry
   use registry_entry, only : registry_entry_t
   use dofmap, only : dofmap_t
   use utils, only : neko_error
-  use htable, only : h_cptr_t
-  use utils, only: neko_error
-  use comm, only : pe_rank
   use json_module, only : json_file
-  use json_utils, only : json_get
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   implicit none
   private
 
@@ -251,6 +246,9 @@ contains
     ! initialize the field at the appropriate index
     call this%entries(this%n_entries_)%init_field(dof, name)
 
+    call neko_log%message("Field " // trim(name) // " added to the registry", &
+            lvl=NEKO_LOG_DEBUG)
+
   end subroutine registry_add_field
 
   !> Add a vector to the registry.
@@ -288,6 +286,9 @@ contains
     ! Initialize the named vector at the appropriate index
     call this%entries(this%n_entries_)%init_vector(n, name)
 
+    call neko_log%message("Vector " // trim(name) // " added to the registry", &
+            lvl=NEKO_LOG_DEBUG)
+
   end subroutine registry_add_vector
 
   !> Add a matrix to the registry.
@@ -324,6 +325,9 @@ contains
 
     ! Initialize the named matrix at the appropriate index
     call this%entries(this%n_entries_)%init_matrix(nrows, ncols, name)
+
+    call neko_log%message("Matrix " // trim(name) // " added to the registry", &
+            lvl=NEKO_LOG_DEBUG)
 
   end subroutine registry_add_matrix
 

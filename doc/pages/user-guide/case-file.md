@@ -385,6 +385,14 @@ periodic pipe simulation, two periodic zones comprise the boundary conditions in
 the streamwise direction. Only one condition, corresponding to zone index 3 (the
 wall) is the specified in the case file.
 
+It is possible to assign specific names to the boundary conditions through the
+`name` keyword. Boundary conditions can then be retireved in the code by using
+the name or the `zone_index` where it is applied.
+
+The default name of the boundary conditions is given by the `<variable>_bc_<zone_index>`
+pattern. i.e., the pressure boundary condition that applies in zone index 5 can be
+retrieved by the `pressure_bc_5` name.
+
 #### Available conditions
 The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
@@ -671,6 +679,8 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
 7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
 8. `sponge`, adds a sponge term based on a reference velocity field, which is
    applied in a user-specified region of the domain.
+9. `field`, uses fields in the `neko_registry` as values of the source term. The
+   fields are selected with the `field_names` keyword.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -1118,18 +1128,18 @@ For `hsmg`, the following keywords are used:
 | `coarse_grid.monitor`        | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)           | `true` or `false`       | `false`       |
 | `coarse_grid.levels`         | Number of AMG levels to construct (only valid for `solver` type `tamg`)                 | An integer              | 3             |
 | `coarse_grid.iterations`     | Number of AMG iterations (only valid for `solver` type `tamg`)                          | An integer              | 1             |
-| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 5             |
+| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 4             |
 
 For `phmg`, the following keywords are used:
 
-| Name                       | Description                                                                                 | Admissible values     | Default value |
-| -------------------------- | ------------------------------------------------------------------------------------------- | --------------------- | ------------- |
-| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers     | `[3, 1]`      |
-| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer            | 10            |
-| `smoother_cheby_acc`       | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set) | `jacobi` or `schwarz` | -             |
-| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer            | 3             |
-| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer            | 1             |
-| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer            | 5             |
+| Name                       | Description                                                                                 | Admissible values             | Default value |
+| -------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------- | ------------- |
+| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers             | `[3, 1]`      |
+| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer                    | 3             |
+| `smoother_cheby_acc`       | Type of Chebyshev acceleration                                                              | `none`, `jacobi` or `schwarz` | `jacobi`      |
+| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer                    | 3             |
+| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer                    | 1             |
+| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer                    | 4             |
 
 
 ### Flow rate forcing
