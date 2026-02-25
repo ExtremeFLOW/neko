@@ -231,6 +231,8 @@ contains
     nullify(this%s)
     nullify(this%alphat)
 
+    call this%stat_fields%free()
+
   end subroutine scalar_sgs_stats_free
 
   !> Resets all the computed means values and sampling times to zero.

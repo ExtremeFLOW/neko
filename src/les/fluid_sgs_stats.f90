@@ -227,6 +227,8 @@ contains
     nullify(this%w)
     nullify(this%nut)
 
+    call this%stat_fields%free()
+
   end subroutine fluid_sgs_stats_free
 
   !> Resets all the computed means values and sampling times to zero.
