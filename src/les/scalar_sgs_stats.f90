@@ -53,7 +53,7 @@ module scalar_sgs_stats
      !> Pointers to the instantenious quantities.
      type(field_t), pointer :: alphat => null() !< scalar diffusivity
      type(field_t), pointer :: nut => null() !< scalar diffusivity
-     logical :: nut_dependency
+     logical :: nut_dependency = .false.
      real(kind=rp) :: pr_turb !< turbulent Prandtl number
      type(field_t), pointer :: s => null() !< scalar
 
@@ -223,13 +223,16 @@ contains
     call this%alphatdsdy%free()
     call this%alphatdsdz%free()
 
-    if (this%nut_dependency) then
+    if (this%nut_dependency .and. associated(this%alphat)) then
        call this%alphat%free()
+       deallocate(this%alphat)
+       nullify(this%alphat)
+    else
+       nullify(this%alphat)
     end if
 
     nullify(this%coef)
     nullify(this%s)
-    nullify(this%alphat)
 
     call this%stat_fields%free()
 
