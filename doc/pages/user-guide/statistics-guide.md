@@ -334,7 +334,7 @@ In addition, one can specify the usual controls for the output, in the same mann
   ]
 ~~~~~~~~~~~~~~~
 
-Otherwise, if one does not use model for the scalar eddy diffusivity but relates it with the eddy viscosity, the following would work is one specify a turbulent Prandtl number to be for instance 0.7 and the output will give the eddy diffusivity field as the edy viscosity field divided by the turbulent Prandtl number:
+Otherwise, if one does not use a model for the scalar eddy diffusivity but relates it to the eddy viscosity, one needs to specify the turbulent Prandtl number, for instance, 0.7. The output will give the eddy diffusivity field as the eddy viscosity field divided by the chosen turbulent Prandtl number:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation_components":
