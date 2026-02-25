@@ -6,7 +6,7 @@
         "output_at_end": true,
         "output_checkpoints": false,
         "time": {
-            "end_time": 10.0,
+            "end_time": 0.30,
             "variable_timestep": true,
             "max_timestep": 1.0e-4,
             "target_cfl": 0.2,
@@ -20,7 +20,7 @@
         "fluid": {
             "scheme": "pnpn",
             "variable_material_properties": true,
-            "ipostproc": 50,
+            "ipostproc": 10,
             "initial_condition": {
                 "type": "uniform",
                 "value": [0, 0, 0]
@@ -48,8 +48,8 @@
                 "absolute_tolerance": 1e-7,
                 "max_iterations": 200
             },
-            "output_control": "nsamples",
-            "output_value": 10,
+            "output_control": "simulationtime",
+            "output_value": 0.005,
             "boundary_conditions": [
                 {
                     "type": "symmetry",

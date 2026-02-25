@@ -6,7 +6,7 @@
         "output_at_end": true,
         "output_checkpoints": false,
         "time": {
-            "end_time": 20.0,
+            "end_time": 100.0,
             "variable_timestep": true,
             "max_timestep": 1.0e-4,
             "target_cfl": 0.2,
@@ -61,7 +61,7 @@
             "name": "phase",
             "epsilon": 0.01,
             "gamma": 0.01,
-            "sigma": 1.0,
+            "sigma": 0.05,
             "initial_condition": {
                 "type": "user"
             },

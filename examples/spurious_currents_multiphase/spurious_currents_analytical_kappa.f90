@@ -1,13 +1,15 @@
-! Spurious currents test case for multiphase flow
+! Spurious currents test case — ANALYTICAL CURVATURE variant
 !
-! A stationary drop with diameter D = 0.4 in a 1x1 box with slip boundary
-! conditions. The drop and surrounding fluid have equal densities (rho = 300)
-! and viscosities (mu = 0.1). Surface tension sigma = 1.0.
-! This gives Laplace number La = sigma*rho*D/mu^2 = 12000.
+! Identical to spurious_currents.f90 except the numerical curvature
+! kappa = div(grad(phi)/|grad(phi)|) in the momentum source term is
+! replaced with the ANALYTICAL value kappa = 1/R = 5.0.
 !
-! Note that the domain is actually 3D with width one element. In order
-! to prevent any instability in the z direction, the w velocity is
-! set to zero at every step.
+! Purpose: isolate whether spurious currents originate from curvature
+! computation errors or from other parts of the CSF formulation
+! (e.g., grad(phi) discretization, pressure-force imbalance).
+!
+! Drop: D = 0.4, R = 0.2, center (0.5, 0.5), rho = 300, mu = 0.1.
+! La = sigma*rho*D/mu^2 = 12000 (for sigma = 1.0).
 !
 module user
   use neko
@@ -355,41 +357,21 @@ contains
       call col2(temp2%x, coef%mult, temp4%size())
       call col2(temp3%x, coef%mult, temp4%size())
 
-      ! Store grad(phi) for later (we need it at the end)
+      ! Store grad(phi) in temp5-7 (we need it for the force)
       call copy(temp5%x, temp1%x, temp4%size())  ! temp5 = dphi/dx
       call copy(temp6%x, temp2%x, temp4%size())  ! temp6 = dphi/dy
       call copy(temp7%x, temp3%x, temp4%size())  ! temp7 = dphi/dz
 
-      ! Compute normalized gradient n = grad(phi)/|grad(phi)|
-      do i = 1, temp4%size()
-        absgrad = sqrt(temp1%x(i,1,1,1)**2 + temp2%x(i,1,1,1)**2 + temp3%x(i,1,1,1)**2)
-        if (absgrad < 1.0e-12_rp) then 
-            ! Avoid division by zero in bulk phases
-            temp1%x(i,1,1,1) = 0.0_rp
-            temp2%x(i,1,1,1) = 0.0_rp
-            temp3%x(i,1,1,1) = 0.0_rp
-        else
-            temp1%x(i,1,1,1) = temp1%x(i,1,1,1) / absgrad  ! nx
-            temp2%x(i,1,1,1) = temp2%x(i,1,1,1) / absgrad  ! ny
-            temp3%x(i,1,1,1) = temp3%x(i,1,1,1) / absgrad  ! nz
-        end if
-      end do
-
-      ! Compute curvature kappa = div(n)
-      call div(temp4%x,temp1%x, temp2%x,temp3%x,coef)
-      
-      ! Apply gather-scatter and multiplicity for continuity
-      call coef%gs_h%op(temp4, GS_OP_ADD)
-      call col2(temp4%x, coef%mult, temp4%size())
-
-      call copy(temp1%x, temp4%x, temp4%size())
-      ! ! Store it temporarily before we accumulate
-
-      ! Now temp1 contains kappa = div(n) (curvature)
+      ! ============================================================
+      ! ANALYTICAL CURVATURE: kappa = 1/R = 1/0.2 = 5.0
+      ! Instead of computing kappa = div(grad(phi)/|grad(phi)|),
+      ! we use the exact curvature for a circle of radius R = 0.2.
+      ! The grad(phi) factor in F_ST naturally localizes the force
+      ! to the interface, so using a constant kappa is correct.
+      ! ============================================================
+      call cfill(temp1%x, 5.0_rp, temp4%size())
 
       ! Compute surface tension force per unit mass: a_ST = (sigma/rho) * kappa * grad(phi)
-      ! Force per volume is F = sigma * kappa * grad(phi)
-      ! Acceleration is a = F/rho
       do i = 1, temp4%size()
         temp5%x(i,1,1,1) = (sigma / 300.0_rp) * temp1%x(i,1,1,1) * temp5%x(i,1,1,1)
         temp6%x(i,1,1,1) = (sigma / 300.0_rp) * temp1%x(i,1,1,1) * temp6%x(i,1,1,1)
