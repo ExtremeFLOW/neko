@@ -258,7 +258,7 @@ contains
        call neko_log%section('Fluid SGS stats')
        write(log_buf, '(A,E15.7)') 'Sampling at time:', t
        call neko_log%message(log_buf)
-       write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', &
+       write(log_buf, '(A33,E15.7)') 'Simulation time since last sample:', &
             delta_t
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') 'Sampling time (s):', sample_time
