@@ -1,6 +1,7 @@
 var coef_8f90 =
 [
     [ "coefs::coef_t", "d0/dea/structcoefs_1_1coef__t.html", "d0/dea/structcoefs_1_1coef__t" ],
+    [ "coef_check_cyclic", "db/d85/coef_8f90.html#ac53c34beb58eddab3f229f5f62dcf2e5", null ],
     [ "coef_free", "db/d85/coef_8f90.html#a20a95815e8ab1a9d5e513b959db5c3e7", null ],
     [ "coef_generate_area_and_normal", "db/d85/coef_8f90.html#aa8326a68db87fc07727e473a8e2dc484", null ],
     [ "coef_generate_cyclic_bc", "db/d85/coef_8f90.html#aedfc2692ba7d456e06fbad958003f02c", null ],

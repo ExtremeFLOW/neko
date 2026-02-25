@@ -1,6 +1,7 @@
 var namespacecoefs =
 [
     [ "coef_t", "d0/dea/structcoefs_1_1coef__t.html", "d0/dea/structcoefs_1_1coef__t" ],
+    [ "coef_check_cyclic", "d6/dbe/namespacecoefs.html#ac53c34beb58eddab3f229f5f62dcf2e5", null ],
     [ "coef_free", "d6/dbe/namespacecoefs.html#a20a95815e8ab1a9d5e513b959db5c3e7", null ],
     [ "coef_generate_area_and_normal", "d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484", null ],
     [ "coef_generate_cyclic_bc", "d6/dbe/namespacecoefs.html#aedfc2692ba7d456e06fbad958003f02c", null ],
