@@ -45,9 +45,9 @@ module registry_entry
 
   type, public :: registry_entry_t
      !> Name of the registry entry
-     character(len=:), private, allocatable :: name
+     character(len=:), private, allocatable :: name = ""
      !> Type of the registry entry; must be supproted.
-     character(len=:), private, allocatable :: type
+     character(len=:), private, allocatable :: type = ""
      !> Whether the entry is allocated
      logical, private :: allocated = .false.
 
@@ -213,8 +213,8 @@ contains
     this%real_scalar = 0.0_rp
     this%integer_scalar = 0
 
-    if (allocated(this%name)) deallocate(this%name)
-    if (allocated(this%type)) deallocate(this%type)
+    this%name = ""
+    this%type = ""
     this%allocated = .false.
 
   end subroutine free_register
