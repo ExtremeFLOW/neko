@@ -223,6 +223,10 @@ contains
     call this%alphatdsdy%free()
     call this%alphatdsdz%free()
 
+    if (this%nut_dependency) then
+       call this%alphat%free()
+    end if
+
     nullify(this%coef)
     nullify(this%s)
     nullify(this%alphat)
