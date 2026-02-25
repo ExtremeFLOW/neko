@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,8 @@ module vreman
   use les_model, only : les_model_t
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get_or_default, json_get, json_get_or_lookup, &
+       json_get_or_lookup_or_default
   use json_module, only : json_file
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error
@@ -89,19 +90,32 @@ contains
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on the Smagorinsky Cs = 0.17.
-    call json_get_or_default(json, "c", c, 0.07_rp)
+    call json_get_or_lookup_or_default(json, "c", c, 0.07_rp)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
-    call json_get_or_default(json, "scalar_field", scalar_name, "temperature")
-    call json_get_or_default(json, "Ri_c", ri_c, 0.25_rp)
-    call json_get_or_default(json, "reference_temperature", ref_temp, 293.0_rp)
+
     if (if_corr) then
-       call json_get(json, "g", g)
+       call json_get(json, "scalar_field", scalar_name)
+       call json_get_or_lookup(json, "Ri_c", ri_c)
+       call json_get_or_lookup(json, "reference_temperature", ref_temp)
+       call json_get_or_lookup(json, "g", g)
        if (.not. size(g) == 3) then
           call neko_error("The gravity vector should have 3 components")
        end if
+
+       if (ri_c .le. 0.0_rp) then
+          call neko_error("The critical Richardson number should be positive.")
+       end if
+
+       if (ref_temp .le. 0.0_rp) then
+          call neko_error("The reference temperature should be positive.")
+       end if
     else
-       g = [0.0, 0.0, 0.0] ! This value is not used
+       ! These values are not used
+       g = [0.0_rp, 0.0_rp, 0.0_rp]
+       ri_c = 0.0_rp
+       ref_temp = 0.0_rp
+       scalar_name = ""
     end if
 
     call neko_log%section('LES model')
@@ -129,7 +143,7 @@ contains
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether to extrapolate the velocity.
   !! @param if_corr Whether to apply buoyancy correction.
-  !! @param scalar_name The name of the scalar field for buoyancy corection.
+  !! @param scalar_name The name of the scalar field for buoyancy correction.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
   !! @param g The gravity vector.

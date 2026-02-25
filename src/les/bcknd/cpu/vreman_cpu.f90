@@ -1,4 +1,4 @@
-! Copyright (c) 2023-2024, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
   !! @param if_corr Whether to apply buoyancy correction.
-  !! @param scalar_name The name of the scalar field for buoyancy corection.
+  !! @param scalar_name The name of the scalar field for buoyancy correction.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
   !! @param g The gravity vector.
