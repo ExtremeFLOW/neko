@@ -45,9 +45,9 @@ module registry_entry
 
   type, public :: registry_entry_t
      !> Name of the registry entry
-     character(len=:), private, allocatable :: name = ""
-     !> Type of the registry entry; must be supproted.
-     character(len=:), private, allocatable :: type = ""
+     character(len=80), private :: name = ""
+     !> Type of the registry entry; must be supported.
+     character(len=80), private :: type = ""
      !> Whether the entry is allocated
      logical, private :: allocated = .false.
 
