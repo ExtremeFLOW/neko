@@ -2061,20 +2061,20 @@ contains
 
     ! Update the curvature
     nelv_c = this%curve%size
-    if (nelv_c > 0) then
+    if (nelv_c .gt. 0) then
        el_c = 1
        el = 1
        ! 2 pointer scan
-       do while (el <= nelv .and. el_c <= nelv_c)
+       do while (el .le. nelv .and. el_c .le. nelv_c)
 
           i_m = 1 + lxyz * (el - 1)
           nidx = nonlinear_index(mask%get(i_m), lx, ly, lz)
           e_m = nidx(4)
 
-          if (e_m < this%curve%curve_el(el_c)%el_idx) then
+          if (e_m .lt. this%curve%curve_el(el_c)%el_idx) then
              el = el + 1
 
-          else if (e_m > this%curve%curve_el(el_c)%el_idx) then
+          else if (e_m .gt. this%curve%curve_el(el_c)%el_idx) then
              el_c = el_c + 1
 
           else
