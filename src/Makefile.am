@@ -119,6 +119,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/vector_list.f90\
 	math/vector_math.f90\
 	registries/registry.f90\
 	registries/registry_entry.f90\
@@ -316,6 +317,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_dong_outflow.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
+	scalar/scalar_scheme_fctry.f90\
 	scalar/scalars.f90\
 	scalar/scalar_pnpn.f90\
 	scalar/scalar_pnpn_bc_fctry.f90\
@@ -667,8 +669,7 @@ depend:
 endif
 
 if ENABLE_PYTHON
-nobase_python_PYTHON = python/pyneko/__init__.py\
-		       python/pyneko/intf.py
+SUBDIRS = python
 endif
 
 # Note we need to list any headers etc here for the dist. script
