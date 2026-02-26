@@ -133,8 +133,8 @@ contains
     if (interpolate_) then
 
        if (present(tolerance)) then
-           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
-           call neko_log%message(log_buf)
+          write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
+          call neko_log%message(log_buf)
        end if
 
        ! If no mesh file is specified, use the default file name
@@ -148,7 +148,7 @@ contains
           sample_mesh_idx = extract_fld_file_index(mesh_fname_, -1)
 
           if (sample_mesh_idx .eq. -1) then
-             call neko_error("Invalid file name for the initial condition."//
+             call neko_error("Invalid file name for the initial condition." // &
              "The file format must be e.g. 'mean0.f00001'")
           end if
 
