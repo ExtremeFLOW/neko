@@ -106,6 +106,7 @@ $(document).ready(function(){initNavTree('d7/dff/vreman__nut_8cu.html','../../')
 <div class="textblock"><code>#include &lt;string.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;math.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d8/dc8/device__config_8h_source.html">device/device_config.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d5/d08/cuda_2check_8h_source.html">device/cuda/check.h</a>&gt;</code><br />
 <code>#include &quot;<a class="el" href="../../d3/d00/cuda_2vreman__nut__kernel_8h_source.html">vreman_nut_kernel.h</a>&quot;</code><br />
@@ -117,6 +118,8 @@ $(document).ready(function(){initNavTree('d7/dff/vreman__nut_8cu.html','../../')
 Functions</h2></td></tr>
 <tr class="memitem:a122418b267f58b58a53de723ad8e1f48" id="r_a122418b267f58b58a53de723ad8e1f48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48">cuda_vreman_nut_compute</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a11</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a12</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a13</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a21</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a22</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a23</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a31</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a32</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a33</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *delta, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *nut, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *mult, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *c, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">eps</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *n)</td></tr>
 <tr class="separator:a122418b267f58b58a53de723ad8e1f48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7c1e3020468ff890690b760e9bbdf62" id="r_ae7c1e3020468ff890690b760e9bbdf62"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dff/vreman__nut_8cu.html#ae7c1e3020468ff890690b760e9bbdf62">cuda_vreman_nut_compute_buoy</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a11</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a12</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a13</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a21</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a22</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a23</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a31</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a32</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a33</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *delta, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *nut, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *mult, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *c, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">eps</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dTdx</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dTdy</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dTdz</a>, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *g, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *ri_c, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *ref_temp)</td></tr>
+<tr class="separator:ae7c1e3020468ff890690b760e9bbdf62"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a122418b267f58b58a53de723ad8e1f48" name="a122418b267f58b58a53de723ad8e1f48"></a>
@@ -223,7 +226,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dff/vreman__nut_8cu_source.html#l00047">47</a> of file <a class="el" href="../../d7/dff/vreman__nut_8cu_source.html">vreman_nut.cu</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dff/vreman__nut_8cu_source.html#l00050">50</a> of file <a class="el" href="../../d7/dff/vreman__nut_8cu_source.html">vreman_nut.cu</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -240,15 +243,186 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d7/dff/vreman__nut_8cu_a122418b267f58b58a53de723ad8e1f48_icgraph.png" border="0" usemap="#ad7/dff/vreman__nut_8cu_a122418b267f58b58a53de723ad8e1f48_icgraph" alt=""/></div>
 <map name="ad7/dff/vreman__nut_8cu_a122418b267f58b58a53de723ad8e1f48_icgraph" id="ad7/dff/vreman__nut_8cu_a122418b267f58b58a53de723ad8e1f48_icgraph">
-<area shape="rect" title=" " alt="" coords="757,56,960,81"/>
-<area shape="rect" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="495,49,709,89"/>
-<area shape="poly" title=" " alt="" coords="744,71,710,71,710,66,744,66"/>
-<area shape="rect" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html#abd53c501171edbcf5ac0e227e30f8427" title=" " alt="" coords="248,5,447,60"/>
-<area shape="poly" title=" " alt="" coords="481,54,447,49,447,44,482,49"/>
-<area shape="rect" href="../../dd/dcb/namespacevreman__device.html#a1034f16a0846c21b9ae661c97bfb892c" title="Compute eddy viscosity on the device." alt="" coords="257,85,437,125"/>
-<area shape="poly" title=" " alt="" coords="481,88,438,95,437,89,481,83"/>
-<area shape="rect" href="../../d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,92,200,117"/>
-<area shape="poly" title=" " alt="" coords="244,107,200,107,200,102,244,102"/>
+<area shape="rect" title=" " alt="" coords="749,67,952,93"/>
+<area shape="rect" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="487,60,701,100"/>
+<area shape="poly" title=" " alt="" coords="736,83,702,83,702,77,736,77"/>
+<area shape="rect" href="../../dc/d46/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute__buoy.html#a16ecb643dd5acdb329f0b243936a793f" title=" " alt="" coords="248,5,439,75"/>
+<area shape="poly" title=" " alt="" coords="473,63,439,58,439,53,473,58"/>
+<area shape="rect" href="../../dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37" title="Compute eddy viscosity on the device." alt="" coords="253,99,433,139"/>
+<area shape="poly" title=" " alt="" coords="474,101,434,107,433,102,473,96"/>
+<area shape="rect" href="../../d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,106,200,131"/>
+<area shape="poly" title=" " alt="" coords="240,121,200,121,200,116,240,116"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ae7c1e3020468ff890690b760e9bbdf62" name="ae7c1e3020468ff890690b760e9bbdf62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7c1e3020468ff890690b760e9bbdf62">&#9670;&#160;</a></span>cuda_vreman_nut_compute_buoy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> cuda_vreman_nut_compute_buoy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a11</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a12</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a13</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a21</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a22</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a23</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a31</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a32</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>a33</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>delta</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>nut</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>mult</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td>
+          <td class="paramname"><em>eps</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>dTdx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>dTdy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>dTdz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td>
+          <td class="paramname"><em>ri_c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td>
+          <td class="paramname"><em>ref_temp</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/dff/vreman__nut_8cu_source.html#l00070">70</a> of file <a class="el" href="../../d7/dff/vreman__nut_8cu_source.html">vreman_nut.cu</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dff/vreman__nut_8cu_ae7c1e3020468ff890690b760e9bbdf62_cgraph.png" border="0" usemap="#ad7/dff/vreman__nut_8cu_ae7c1e3020468ff890690b760e9bbdf62_cgraph" alt=""/></div>
+<map name="ad7/dff/vreman__nut_8cu_ae7c1e3020468ff890690b760e9bbdf62_cgraph" id="ad7/dff/vreman__nut_8cu_ae7c1e3020468ff890690b760e9bbdf62_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,247,62"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="295,29,459,69"/>
+<area shape="poly" title=" " alt="" coords="247,47,281,47,281,52,247,52"/>
+<area shape="poly" title=" " alt="" coords="330,30,327,20,335,10,351,5,377,3,406,6,422,13,419,18,404,11,377,8,352,10,338,15,332,21,335,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dff/vreman__nut_8cu_ae7c1e3020468ff890690b760e9bbdf62_icgraph.png" border="0" usemap="#ad7/dff/vreman__nut_8cu_ae7c1e3020468ff890690b760e9bbdf62_icgraph" alt=""/></div>
+<map name="ad7/dff/vreman__nut_8cu_ae7c1e3020468ff890690b760e9bbdf62_icgraph" id="ad7/dff/vreman__nut_8cu_ae7c1e3020468ff890690b760e9bbdf62_icgraph">
+<area shape="rect" title=" " alt="" coords="788,67,1029,93"/>
+<area shape="rect" href="../../db/d3c/namespacedevice__vreman__nut.html#acb6233012f81d00a8afa12fd5e6d58f9" title=" " alt="" coords="487,60,740,100"/>
+<area shape="poly" title=" " alt="" coords="774,83,740,83,740,77,774,77"/>
+<area shape="rect" href="../../dc/d46/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute__buoy.html#a16ecb643dd5acdb329f0b243936a793f" title=" " alt="" coords="248,5,439,75"/>
+<area shape="poly" title=" " alt="" coords="473,62,439,57,439,51,473,57"/>
+<area shape="rect" href="../../dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37" title="Compute eddy viscosity on the device." alt="" coords="253,99,433,139"/>
+<area shape="poly" title=" " alt="" coords="473,103,434,108,433,103,473,97"/>
+<area shape="rect" href="../../d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,106,200,131"/>
+<area shape="poly" title=" " alt="" coords="240,121,200,121,200,116,240,116"/>
 </map>
 </div>
 
@@ -260,7 +434,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../dir_599240cb2473dd34d041fb3ead8fcd0b.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_a54a76f3f931e6cceee52e3a5311a9de.html">device</a></li><li class="navelem"><a class="el" href="../../dir_5c3a4274eb3ac7d79916687ea846af63.html">cuda</a></li><li class="navelem"><a class="el" href="../../d7/dff/vreman__nut_8cu.html">vreman_nut.cu</a></li>
-    <li class="footer">Generated on Wed Feb 25 2026 04:18:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Feb 26 2026 04:18:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

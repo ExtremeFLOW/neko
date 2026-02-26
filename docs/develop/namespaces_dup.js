@@ -873,10 +873,10 @@ var namespaces_dup =
     ] ],
     [ "vreman", "d4/d6e/namespacevreman.html", "d4/d6e/namespacevreman" ],
     [ "vreman_cpu", "d9/da0/namespacevreman__cpu.html", [
-      [ "vreman_compute_cpu", "d9/da0/namespacevreman__cpu.html#a3c358b1cea7229013aa149a0bc69880f", null ]
+      [ "vreman_compute_cpu", "d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7", null ]
     ] ],
     [ "vreman_device", "dd/dcb/namespacevreman__device.html", [
-      [ "vreman_compute_device", "dd/dcb/namespacevreman__device.html#a1034f16a0846c21b9ae661c97bfb892c", null ]
+      [ "vreman_compute_device", "dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37", null ]
     ] ],
     [ "vtk_file", "da/d92/namespacevtk__file.html", "da/d92/namespacevtk__file" ],
     [ "wale", "d5/d8e/namespacewale.html", "d5/d8e/namespacewale" ],

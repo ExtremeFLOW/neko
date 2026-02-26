@@ -14,12 +14,13 @@ var structregistry__entry_1_1registry__entry__t =
     [ "init_real_scalar", "df/db9/structregistry__entry_1_1registry__entry__t.html#a383f5bae4214f9705462298a9d3dceea", null ],
     [ "init_vector", "df/db9/structregistry__entry_1_1registry__entry__t.html#a2ff9e8e8644ed0334c25f65a6b74e80d", null ],
     [ "is_allocated", "df/db9/structregistry__entry_1_1registry__entry__t.html#a6b41d67b2440d0b391097041044178d0", null ],
+    [ "move_from", "df/db9/structregistry__entry_1_1registry__entry__t.html#a44392f83a26859f1460c43d07219fe81", null ],
     [ "allocated", "df/db9/structregistry__entry_1_1registry__entry__t.html#a443a41a6ce61cd3789dba1a90f4b6496", null ],
     [ "field_ptr", "df/db9/structregistry__entry_1_1registry__entry__t.html#abc2d02f3c77524d53ca489175b97caf7", null ],
     [ "integer_scalar", "df/db9/structregistry__entry_1_1registry__entry__t.html#aebedd5e5c381e6d1cedef17ac3a43df8", null ],
     [ "matrix_ptr", "df/db9/structregistry__entry_1_1registry__entry__t.html#a2742cc7703d845d5e1e1584daddddc14", null ],
-    [ "name", "df/db9/structregistry__entry_1_1registry__entry__t.html#a1dcccdd18ff8273d0d3dc226ce4f4984", null ],
+    [ "name", "df/db9/structregistry__entry_1_1registry__entry__t.html#a103d450f68a8e36c85380d66d9cb7a15", null ],
     [ "real_scalar", "df/db9/structregistry__entry_1_1registry__entry__t.html#a7e8df6c9c1772c2d9ad3bffb7dd36e2f", null ],
-    [ "type", "df/db9/structregistry__entry_1_1registry__entry__t.html#ab58a743bb3b3b742907eb8081101d126", null ],
+    [ "type", "df/db9/structregistry__entry_1_1registry__entry__t.html#a357fc34ae47a208ccf8de9ef64f57122", null ],
     [ "vector_ptr", "df/db9/structregistry__entry_1_1registry__entry__t.html#a8b8ec0feaf1a7e10c7046e26fde17349", null ]
 ];

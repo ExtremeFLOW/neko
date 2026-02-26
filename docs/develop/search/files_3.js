@@ -10,7 +10,7 @@ var searchData=
   ['centrifugal_5fsource_5fterm_2ef90_7',['centrifugal_source_term.f90',['../d7/dec/centrifugal__source__term_8f90.html',1,'']]],
   ['centrifugal_5fsource_5fterm_5fcpu_2ef90_8',['centrifugal_source_term_cpu.f90',['../dd/d54/centrifugal__source__term__cpu_8f90.html',1,'']]],
   ['centrifugal_5fsource_5fterm_5fdevice_2ef90_9',['centrifugal_source_term_device.f90',['../da/d21/centrifugal__source__term__device_8f90.html',1,'']]],
-  ['cfl_5fkernel_2eh_10',['cfl_kernel.h',['../d6/d9b/cuda_2cfl__kernel_8h.html',1,'(Global Namespace)'],['../d0/dc4/hip_2cfl__kernel_8h.html',1,'(Global Namespace)']]],
+  ['cfl_5fkernel_2eh_10',['cfl_kernel.h',['../d0/dc4/hip_2cfl__kernel_8h.html',1,'(Global Namespace)'],['../d6/d9b/cuda_2cfl__kernel_8h.html',1,'(Global Namespace)']]],
   ['cg_2ef90_11',['cg.f90',['../d5/d60/cg_8f90.html',1,'']]],
   ['cg_5fcoupled_2ef90_12',['cg_coupled.f90',['../dd/dbf/cg__coupled_8f90.html',1,'']]],
   ['cg_5fcpld_5fdevice_2ef90_13',['cg_cpld_device.f90',['../d9/d3c/cg__cpld__device_8f90.html',1,'']]],

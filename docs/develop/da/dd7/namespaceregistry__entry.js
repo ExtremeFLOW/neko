@@ -14,5 +14,6 @@ var namespaceregistry__entry =
     [ "init_register_matrix", "da/dd7/namespaceregistry__entry.html#a56316fbde7964f7bbce990d763083da8", null ],
     [ "init_register_real_scalar", "da/dd7/namespaceregistry__entry.html#a535562454a1935004ebd4be50aa7b977", null ],
     [ "init_register_vector", "da/dd7/namespaceregistry__entry.html#a72779a2efe077428637ac684a542afd2", null ],
-    [ "is_allocated", "da/dd7/namespaceregistry__entry.html#acbb55751525cb0c95a0384513b3970ab", null ]
+    [ "is_allocated", "da/dd7/namespaceregistry__entry.html#acbb55751525cb0c95a0384513b3970ab", null ],
+    [ "move_from_registry_entry", "da/dd7/namespaceregistry__entry.html#a91d4609096cff2b1eba90259d01d61a2", null ]
 ];

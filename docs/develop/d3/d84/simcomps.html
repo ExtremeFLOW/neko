@@ -341,8 +341,19 @@ les_model</h2>
 <li><code>test_filter</code>: The test filter for the dynamic Smagorinsky model</li>
 </ul>
 </li>
-<li><code>vreman</code>: The Vreman model. Configured by the following additional keyword:<ul>
+<li><code>vreman</code>: The Vreman model. Configured by the following additional keywords:<ul>
 <li><code>c</code>: The model constant, defaults to 0.07.</li>
+<li><code>buoyancy_correction</code>: Whether or not to apply a correction to the eddy viscosity field based on the local Richardson number as described by Moeng and Sullivan 2015 (<a href="http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2">http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2</a>). Defaults to <code>false</code>.<ul>
+<li><code>true</code>: Add a buoyancy correction according to the following parameters:<ul>
+<li><code>scalar_field</code>: Name of the scalar field based on which the buoyancy effect is computed.</li>
+<li><code>Ri_c</code>: The critical Richardson number.</li>
+<li><code>reference_temperature</code>: The reference temperature for computation of the Richardson number.</li>
+<li><code>g</code>: The gravity vector.</li>
+</ul>
+</li>
+<li><code>false</code>: Compute the standard Vreman eddy viscosity.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><code>sigma</code>: The Sigma model. Configured by the following additional keyword:<ul>
@@ -413,7 +424,7 @@ Spectral error indicator</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Feb 25 2026 04:18:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Feb 26 2026 04:18:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

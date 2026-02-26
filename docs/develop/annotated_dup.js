@@ -394,7 +394,8 @@ var annotated_dup =
       [ "hip_amg_cheby_solve_part2", "d7/dca/interfacedevice__tree__amg__smoother_1_1hip__amg__cheby__solve__part2.html", "d7/dca/interfacedevice__tree__amg__smoother_1_1hip__amg__cheby__solve__part2" ]
     ] ],
     [ "device_vreman_nut", "db/d3c/namespacedevice__vreman__nut.html", [
-      [ "hip_vreman_nut_compute", "d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html", "d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute" ]
+      [ "hip_vreman_nut_compute", "d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html", "d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute" ],
+      [ "hip_vreman_nut_compute_buoy", "dc/d46/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute__buoy.html", "dc/d46/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute__buoy" ]
     ] ],
     [ "device_wale_nut", "d3/d0e/namespacedevice__wale__nut.html", [
       [ "hip_wale_nut_compute", "d4/d43/interfacedevice__wale__nut_1_1hip__wale__nut__compute.html", "d4/d43/interfacedevice__wale__nut_1_1hip__wale__nut__compute" ]

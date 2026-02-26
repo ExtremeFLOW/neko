@@ -1,0 +1,32 @@
+<map id="vreman_cpu::vreman_compute_cpu" name="vreman_cpu::vreman_compute_cpu">
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the CPU." alt="" coords="5,74,165,114"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="823,5,914,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,79,213,73,551,39,810,19,810,25,551,45,214,78,166,84"/>
+<area shape="rect" id="Node000003" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="383,85,521,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,91,335,93,369,93,369,99,335,98,165,97"/>
+<area shape="rect" id="Node000012" href="$dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991" title="Compute the gradient of a scalar field." alt="" coords="213,107,335,132"/>
+<area shape="poly" id="edge15_Node000001_Node000012" title=" " alt="" coords="166,102,200,107,199,112,165,107"/>
+<area shape="rect" id="Node000013" href="$dd/d47/namespacemath.html#a155d47fa505e5ff12ff46fd4a8003875" title="Compute multiplication sum ." alt="" coords="225,156,323,181"/>
+<area shape="poly" id="edge17_Node000001_Node000013" title=" " alt="" coords="138,112,229,148,227,153,136,116"/>
+<area shape="rect" id="Node000004" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="569,146,741,186"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="492,108,583,139,581,144,490,113"/>
+<area shape="rect" id="Node000009" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="571,66,739,106"/>
+<area shape="poly" id="edge11_Node000003_Node000009" title=" " alt="" coords="522,91,557,89,558,94,522,97"/>
+<area shape="rect" id="Node000005" href="$d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="1009,204,1115,229"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="742,181,790,189,898,201,995,210,995,215,898,207,789,194,741,186"/>
+<area shape="rect" id="Node000007" href="$d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="809,153,928,179"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="742,163,796,163,796,169,742,169"/>
+<area shape="rect" id="Node000006" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1176,146,1340,186"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1111,201,1166,187,1168,192,1113,206"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="1221,146,1219,136,1225,127,1238,121,1258,119,1281,122,1293,130,1291,134,1279,127,1258,125,1239,127,1228,131,1224,137,1226,145"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="928,163,1163,163,1163,169,928,169"/>
+<area shape="rect" id="Node000008" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="996,103,1128,128"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="917,151,999,129,1000,134,919,156"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="1113,126,1168,140,1166,145,1111,131"/>
+<area shape="poly" id="edge13_Node000009_Node000002" title=" " alt="" coords="716,63,789,39,812,32,813,37,790,45,718,68"/>
+<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="811,104,926,129"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="740,95,798,104,797,109,740,101"/>
+<area shape="rect" id="Node000011" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="789,55,948,80"/>
+<area shape="poly" id="edge14_Node000009_Node000011" title=" " alt="" coords="740,76,776,73,776,78,740,81"/>
+<area shape="poly" id="edge16_Node000012_Node000003" title=" " alt="" coords="334,109,369,105,369,111,335,115"/>
+</map>

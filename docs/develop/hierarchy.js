@@ -470,6 +470,7 @@ var hierarchy =
     [ "hip_math::hip_vdot3", "d0/dd4/interfacehip__math_1_1hip__vdot3.html", null ],
     [ "hip_math::hip_vlsc3", "dd/d4e/interfacehip__math_1_1hip__vlsc3.html", null ],
     [ "device_vreman_nut::hip_vreman_nut_compute", "d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html", null ],
+    [ "device_vreman_nut::hip_vreman_nut_compute_buoy", "dc/d46/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute__buoy.html", null ],
     [ "device_wale_nut::hip_wale_nut_compute", "d4/d43/interfacedevice__wale__nut_1_1hip__wale__nut__compute.html", null ],
     [ "wall_model_device::hip_wall_model_compute_mag_field", "d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html", null ],
     [ "device_zero_dirichlet::hip_zero_dirichlet_apply_scalar", "d5/d72/interfacedevice__zero__dirichlet_1_1hip__zero__dirichlet__apply__scalar.html", null ],
