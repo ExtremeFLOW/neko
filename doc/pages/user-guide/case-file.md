@@ -75,14 +75,14 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
-| `output_format`       | The file format of field data.                                                                        | `nek5000` or `adios2`                           | `nek5000`     |
+| `output_format`       | The file format of field data.                                                                        | `nek5000`, `adios2`, or `vtkhdf`                | `nek5000`     |
 | `output_precision`    | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
 | `output_partitions`   | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
 | `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
 | `checkpoint_control`  | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
-| `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                       | -             |
+| `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
 | `checkpoint_filename` | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
 | `checkpoint_format`   | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
@@ -268,16 +268,16 @@ integration scheme with artificial viscosity for stability.
 
 The compressible solver requires the following parameters:
 
-| Name    | Description                              | Admissible values | Default value |
-| ------- | ---------------------------------------- | ----------------- | ------------- |
-| `gamma` | Ratio of specific heats for ideal gas    | Positive reals    | `1.4`         |
+| Name    | Description                           | Admissible values | Default value |
+| ------- | ------------------------------------- | ----------------- | ------------- |
+| `gamma` | Ratio of specific heats for ideal gas | Positive reals    | `1.4`         |
 
 Additional numerics parameters specific to compressible flows:
 
-| Name                | Description                                       | Admissible values | Default value |
-| ------------------- | ------------------------------------------------- | ----------------- | ------------- |
-| `c_avisc_low`       | Coefficient for low-order artificial viscosity    | Positive reals    | `0.5`         |
-| `c_avisc_entropy`   | Coefficient for entropy-based artificial viscosity| Positive reals    | `1.0`         |
+| Name              | Description                                        | Admissible values | Default value |
+| ----------------- | -------------------------------------------------- | ----------------- | ------------- |
+| `c_avisc_low`     | Coefficient for low-order artificial viscosity     | Positive reals    | `0.5`         |
+| `c_avisc_entropy` | Coefficient for entropy-based artificial viscosity | Positive reals    | `1.0`         |
 
 The compressible solver uses variable time-stepping controlled by the CFL
 number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
@@ -325,15 +325,15 @@ Example configuration:
 
 The compressible solver supports the following boundary conditions:
 
-| Boundary Condition  | Description                                |
-| ------------------- | ------------------------------------------ |
-| velocity_value      | Dirichlet condition for velocity (inflow)  |
-| density_value       | Dirichlet condition for density            |
-| pressure_value      | Dirichlet condition for pressure           |
-| no_slip             | Zero velocity wall                         |
-| symmetry            | Symmetry plane                             |
-| outflow             | Pressure outlet (zero gradient)            |
-| normal_outflow      | Normal outflow condition                   |
+| Boundary Condition | Description                               |
+| ------------------ | ----------------------------------------- |
+| velocity_value     | Dirichlet condition for velocity (inflow) |
+| density_value      | Dirichlet condition for density           |
+| pressure_value     | Dirichlet condition for pressure          |
+| no_slip            | Zero velocity wall                        |
+| symmetry           | Symmetry plane                            |
+| outflow            | Pressure outlet (zero gradient)           |
+| normal_outflow     | Normal outflow condition                  |
 
 For examples of compressible flow setups, see the `euler_1d_sod`,
 `euler_2d_forward_facing_step`, and `euler_tgv` examples.
@@ -398,22 +398,22 @@ The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
 table below.
 
-| Boundary Condition      | Description                                                                                                                                            |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| symmetry                | A symmetry plain. Must be axis-aligned.                                                                                                                |
-| velocity_value          | A Dirichlet condition for velocity.                                                                                                                    |
-| no_slip                 | A no-slip wall.                                                                                                                                        |
-| outflow                 | A pressure outlet.                                                                                                                                     |
-| normal_outflow          | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
-| outflow+user            | Same as `outflow` but with user-specified pressure.                                                                                                    |
-| normal_outflow+user     | Same as `normal_outflow` but with user-specified pressure.                                                                                             |
-| outflow+dong            | A pressure outlet with the Dong condition applied.                                                                                                     |
-| normal_outflow+dong     | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                            |
-| shear_stress            | Prescribed wall shear stress. Must be axis-aligned.                                                                                                    |
-| wall_model              | Shear stress condition based on a wall model for large-eddy simulation.                                                                                |
-| blasius_profile         | A Blasius velocity profile.                                                                                                                            |
-| user_velocity           | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
-| user_pressure           | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
+| Boundary Condition  | Description                                                                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| symmetry            | A symmetry plain. Must be axis-aligned.                                                                                                                |
+| velocity_value      | A Dirichlet condition for velocity.                                                                                                                    |
+| no_slip             | A no-slip wall.                                                                                                                                        |
+| outflow             | A pressure outlet.                                                                                                                                     |
+| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
+| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                                                    |
+| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                                             |
+| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                                                     |
+| normal_outflow+dong | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                            |
+| shear_stress        | Prescribed wall shear stress. Must be axis-aligned.                                                                                                    |
+| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                                                |
+| blasius_profile     | A Blasius velocity profile.                                                                                                                            |
+| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
+| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -579,7 +579,7 @@ file documentation.
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
    | Name             | Description                                                                                        | Admissible values            | Default value |
-   |------------------|----------------------------------------------------------------------------------------------------|------------------------------|---------------|
+   | ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
    | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
    | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
    | `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
@@ -1050,19 +1050,19 @@ stored as `pressure`. You may change the name of the field file by setting
 
 The parameters for the sponge source term are summarized in the table below:
 
-| Name                     | Description                                                                 | Admissible values                     | Default value       |
-|--------------------------|-----------------------------------------------------------------------------|---------------------------------------|---------------------|
-| `amplitudes`             | Sponge forcing strength in each Cartesian direction                         | Array of 3 reals                      | -                   |
-| `baseflow.method`        | Method to define the reference (baseflow) velocity                          | `"constant"`, `"field"`, `"user"` | -          |
-| `baseflow.value`        | Velocity vector for constant baseflow                                       | Array of 3 reals                      | -                   |
-| `baseflow.file_name`     | File containing baseflow velocity field                                     | String                                | -                   |
-| `baseflow.mesh_file_name`| Mesh file corresponding to the baseflow field                               | String                                | -                   |
-| `baseflow.interpolate`   | Whether to interpolate field values to current mesh                         | Boolean                               | `false`             |
-| `baseflow.tolerance`     | Tolerance for interpolation convergence                                     | Real                                  | -                   |
-| `fringe_registry_name`   | Name of the fringe mask field in `neko_registry`                      | String                                | `"sponge_fringe"`   |
-| `baseflow_registry_prefix`   | Prefix of the base flow fields in `neko_registry`                      | String                                | `"sponge_bf"`   |
-| `dump_fields`            | If `true`, dumps the fringe and baseflow fields for visualization           | Boolean                               | `false`             |
-| `dump_file_name`         | Name of the `fld` file in which to dump the base flow and fringe fields     | String ending with `fld`              | `spng_fields.fld`   |
+| Name                       | Description                                                             | Admissible values                 | Default value     |
+| -------------------------- | ----------------------------------------------------------------------- | --------------------------------- | ----------------- |
+| `amplitudes`               | Sponge forcing strength in each Cartesian direction                     | Array of 3 reals                  | -                 |
+| `baseflow.method`          | Method to define the reference (baseflow) velocity                      | `"constant"`, `"field"`, `"user"` | -                 |
+| `baseflow.value`           | Velocity vector for constant baseflow                                   | Array of 3 reals                  | -                 |
+| `baseflow.file_name`       | File containing baseflow velocity field                                 | String                            | -                 |
+| `baseflow.mesh_file_name`  | Mesh file corresponding to the baseflow field                           | String                            | -                 |
+| `baseflow.interpolate`     | Whether to interpolate field values to current mesh                     | Boolean                           | `false`           |
+| `baseflow.tolerance`       | Tolerance for interpolation convergence                                 | Real                              | -                 |
+| `fringe_registry_name`     | Name of the fringe mask field in `neko_registry`                        | String                            | `"sponge_fringe"` |
+| `baseflow_registry_prefix` | Prefix of the base flow fields in `neko_registry`                       | String                            | `"sponge_bf"`     |
+| `dump_fields`              | If `true`, dumps the fringe and baseflow fields for visualization       | Boolean                           | `false`           |
+| `dump_file_name`           | Name of the `fld` file in which to dump the base flow and fringe fields | String ending with `fld`          | `spng_fields.fld` |
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
@@ -1132,14 +1132,14 @@ For `hsmg`, the following keywords are used:
 
 For `phmg`, the following keywords are used:
 
-| Name                       | Description                                                                                 | Admissible values             | Default value |
-| -------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------- | ------------- |
-| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers             | `[3, 1]`      |
-| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer                    | 3             |
-| `smoother_cheby_acc`       | Type of Chebyshev acceleration                                                              | `none`, `jacobi` or `schwarz` | `jacobi`      |
-| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer                    | 3             |
-| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer                    | 1             |
-| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer                    | 4             |
+| Name                       | Description                                                             | Admissible values             | Default value |
+| -------------------------- | ----------------------------------------------------------------------- | ----------------------------- | ------------- |
+| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)         | Array of integers             | `[3, 1]`      |
+| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                  | An integer                    | 3             |
+| `smoother_cheby_acc`       | Type of Chebyshev acceleration                                          | `none`, `jacobi` or `schwarz` | `jacobi`      |
+| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`) | An integer                    | 3             |
+| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver               | An integer                    | 1             |
+| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                              | An integer                    | 4             |
 
 
 ### Flow rate forcing
@@ -1170,7 +1170,7 @@ concisely directly in the table.
 | `nut_field`                             | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                        | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
-| `output_mesh_in_all_files`              | Indicates if the mesh should be written in every output fld file.                                | `true` or `false`                                           | `false`       |
+| `output_mesh_in_all_files`              | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                       | The output filename.                                                                              | String                                                      | `field`       |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |

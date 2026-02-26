@@ -81,6 +81,8 @@ contains
     if (present(fmt)) then
        if (fmt .eq. 'adios2') then
           suffix = '.bp'
+       else if (fmt .eq. 'vtkhdf') then
+          suffix = '.vtkhdf'
        end if
     end if
 

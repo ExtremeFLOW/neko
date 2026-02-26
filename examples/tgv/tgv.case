@@ -42,7 +42,8 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 1.0
+            "output_value": 1.0,
+            "output_format": "vtkhdf"
         },
         "simulation_components":
         [

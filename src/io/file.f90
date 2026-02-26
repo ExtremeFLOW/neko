@@ -44,6 +44,7 @@ module file
   use fld_file, only : fld_file_t
   use fld_file_data, only : fld_file_data_t
   use vtk_file, only : vtk_file_t
+  use vtkhdf_file, only : vtkhdf_file_t
   use stl_file, only : stl_file_t
   use csv_file, only : csv_file_t
   use hdf5_file, only : hdf5_file_t
@@ -127,6 +128,8 @@ contains
        this%file_type%serial = .true.
     case ("hdf5", "h5")
        allocate(hdf5_file_t::this%file_type)
+    case ("vtkhdf")
+       allocate(vtkhdf_file_t::this%file_type)
     case default
        call neko_error('Unknown file format')
     end select
