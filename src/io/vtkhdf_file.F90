@@ -77,8 +77,8 @@ contains
     integer(hid_t) :: pointdata_grp, celldata_grp, fielddata_grp
     integer(hid_t) :: filespace, memspace
     integer(hid_t) :: H5T_NEKO_REAL
-   integer(hsize_t), dimension(1) :: ddim, dcount, doffset
-   integer(hsize_t), dimension(2) :: dcount2, doffset2
+    integer(hsize_t), dimension(1) :: ddim, dcount, doffset
+    integer(hsize_t), dimension(2) :: dcount2, doffset2
     integer(hsize_t), dimension(:), allocatable :: dims
     integer(hsize_t), dimension(2) :: vdims
     integer :: suffix_pos, lx, ly, lz, nelv, mpts, npts
@@ -170,7 +170,7 @@ contains
 
     ! Write mesh information if present
     if (associated(msh)) then
-      call MPI_Comm_size(NEKO_COMM, num_partitions, ierr)
+       call MPI_Comm_size(NEKO_COMM, num_partitions, ierr)
        local_points = msh%mpts
        local_cells = msh%nelv
        local_conn = msh%npts * msh%nelv
@@ -253,12 +253,12 @@ contains
        call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_REAL, &
             filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
-        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
-        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
-        call h5screate_simple_f(2, dcount2, memspace, ierr)
+       dcount2 = [3_hsize_t, int(local_points, hsize_t)]
+       doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
+       call h5screate_simple_f(2, dcount2, memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-           doffset2, dcount2, ierr)
-        call h5dwrite_f(dset_id, H5T_NEKO_REAL, coords, dcount2, ierr, &
+            doffset2, dcount2, ierr)
+       call h5dwrite_f(dset_id, H5T_NEKO_REAL, coords, dcount2, ierr, &
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
@@ -325,7 +325,7 @@ contains
 
        vdims(1) = int(total_cells, hsize_t)
        call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
-       call h5dcreate_f(vtkhdf_grp, "Types", H5T_NATIVE_INTEGER, &
+       call h5dcreate_f(vtkhdf_grp, "Types", H5T_STD_U8LE, &
             filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount(1) = int(local_cells, hsize_t)
@@ -333,7 +333,7 @@ contains
        call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, cell_types, dcount(1:1), ierr, &
+       call h5dwrite_f(dset_id, H5T_STD_U8LE, cell_types, dcount(1:1), ierr, &
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
