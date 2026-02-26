@@ -89,7 +89,7 @@ module fluid_volflow
 
   !> Defines volume flow
   type, public, extends(amr_restart_component_t) :: fluid_volflow_t
-     integer :: flow_dir !< these two should be moved to params
+     integer :: flow_dir = 0!< these two should be moved to params
      logical :: avflow
      real(kind=rp) :: flow_rate
      real(kind=rp) :: dtlag = 0d0
