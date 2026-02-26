@@ -103,8 +103,18 @@ slurm-*.out
 # macOS debug symbol directories
 *.dSYM/
 
-# Generated run output (sigma sweep results)
+# Generated run output
 examples/**/sigma_*/
 examples/**/ekin.csv
 examples/**/*.png
+examples/**/*.gif
 examples/**/*.log
+examples/**/*.nmsh
+examples/**/*.avi
+examples/**/results/
+
+# macOS metadata
+.DS_Store
+
+# Large generated notebooks
+examples/**/*_executed.ipynb

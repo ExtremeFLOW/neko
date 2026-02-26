@@ -285,18 +285,19 @@ contains
         end if
       end do
 
-      ! Compute curvature kappa = div(n)
+      ! Compute curvature kappa = -div(n) (Brackbill CSF convention)
       call div(temp4%x,temp1%x, temp2%x,temp3%x,coef)
 
       ! Apply gather-scatter and multiplicity for continuity
       call coef%gs_h%op(temp4, GS_OP_ADD)
       call col2(temp4%x, coef%mult, temp4%size())
+      call cmult(temp4%x, -1.0_rp, temp4%size())
 
       call copy(temp1%x, temp4%x, temp4%size())
 
-      ! Now temp1 contains kappa = div(n) (curvature)
+      ! Now temp1 contains kappa = -div(n) (curvature, positive for convex drop)
 
-      ! Compute surface tension force per unit mass: a_ST = (sigma/rho) * kappa * grad(phi)
+      ! Compute surface tension acceleration: a_ST = (sigma/rho) * kappa * grad(phi)
       do i = 1, temp4%size()
         temp5%x(i,1,1,1) = (sigma / 300.0_rp) * temp1%x(i,1,1,1) * temp5%x(i,1,1,1)
         temp6%x(i,1,1,1) = (sigma / 300.0_rp) * temp1%x(i,1,1,1) * temp6%x(i,1,1,1)

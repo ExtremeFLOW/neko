@@ -186,10 +186,11 @@ contains
       end if
     end do
 
-    ! Step 3: kappa = div(n) with GS+mult
+    ! Step 3: kappa = -div(n) with GS+mult (Brackbill CSF convention)
     call div(t4%x, t1%x, t2%x, t3%x, coef)
     call coef%gs_h%op(t4, GS_OP_ADD)
     call col2(t4%x, coef%mult, ntot)
+    call cmult(t4%x, -1.0_rp, ntot)
 
     ! Step 4: compute diagnostic scalars
     ! kappa extremes
@@ -363,7 +364,7 @@ contains
       ! Compute normalized gradient n = grad(phi)/|grad(phi)|
       do i = 1, temp4%size()
         absgrad = sqrt(temp1%x(i,1,1,1)**2 + temp2%x(i,1,1,1)**2 + temp3%x(i,1,1,1)**2)
-        if (absgrad < 1.0e-12_rp) then 
+        if (absgrad < 1.0e-12_rp) then
             ! Avoid division by zero in bulk phases
             temp1%x(i,1,1,1) = 0.0_rp
             temp2%x(i,1,1,1) = 0.0_rp
@@ -375,21 +376,21 @@ contains
         end if
       end do
 
-      ! Compute curvature kappa = div(n)
+      ! Compute curvature kappa = -div(n) (Brackbill CSF convention)
       call div(temp4%x,temp1%x, temp2%x,temp3%x,coef)
-      
+
       ! Apply gather-scatter and multiplicity for continuity
       call coef%gs_h%op(temp4, GS_OP_ADD)
       call col2(temp4%x, coef%mult, temp4%size())
+      call cmult(temp4%x, -1.0_rp, temp4%size())
 
       call copy(temp1%x, temp4%x, temp4%size())
-      ! ! Store it temporarily before we accumulate
 
-      ! Now temp1 contains kappa = div(n) (curvature)
+      ! Now temp1 contains kappa = -div(n) (curvature, positive for convex drop)
 
-      ! Compute surface tension force per unit mass: a_ST = (sigma/rho) * kappa * grad(phi)
-      ! Force per volume is F = sigma * kappa * grad(phi)
-      ! Acceleration is a = F/rho
+      ! Compute surface tension acceleration: a_ST = (sigma/rho) * kappa * grad(phi)
+      ! With phi=1 inside, grad(phi) points inward and kappa > 0,
+      ! so F_ST points inward — balancing the Laplace pressure jump.
       do i = 1, temp4%size()
         temp5%x(i,1,1,1) = (sigma / 300.0_rp) * temp1%x(i,1,1,1) * temp5%x(i,1,1,1)
         temp6%x(i,1,1,1) = (sigma / 300.0_rp) * temp1%x(i,1,1,1) * temp6%x(i,1,1,1)

@@ -188,10 +188,11 @@ contains
       end if
     end do
 
-    ! Step 3: kappa = div(n) with GS+mult
+    ! Step 3: kappa = -div(n) with GS+mult (Brackbill CSF convention)
     call div(t4%x, t1%x, t2%x, t3%x, coef)
     call coef%gs_h%op(t4, GS_OP_ADD)
     call col2(t4%x, coef%mult, ntot)
+    call cmult(t4%x, -1.0_rp, ntot)
 
     ! Step 4: compute diagnostic scalars
     ! kappa extremes
