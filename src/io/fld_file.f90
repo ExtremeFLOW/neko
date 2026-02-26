@@ -85,7 +85,7 @@ contains
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-    
+
     if (this%mask%is_set()) then
        call this%write_masked(data, this%mask, t)
     else
@@ -1722,7 +1722,7 @@ contains
     end if
 
   end subroutine fld_file_set_precision
-  
+
   subroutine fld_file_set_mask(this, mask)
     class(fld_file_t) :: this
     type(mask_t), intent(inout), optional :: mask
