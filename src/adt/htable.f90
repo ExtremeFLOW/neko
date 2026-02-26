@@ -275,7 +275,7 @@ contains
   !> Destroy a hash table
   subroutine htable_free(this)
     class(htable_t), intent(inout) :: this
-    integer i
+    integer :: i
 
     nullify(this%head)
     nullify(this%tail)
