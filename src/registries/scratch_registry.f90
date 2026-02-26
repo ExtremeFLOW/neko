@@ -244,16 +244,28 @@ contains
     class(scratch_registry_t), intent(inout) :: this
     type(registry_entry_t), allocatable :: temp(:)
     logical, allocatable :: temp2(:)
+    integer :: i, n
 
-    allocate(temp(this%get_size() + this%expansion_size))
-    temp(1:this%n_entries) = this%entries(1:this%n_entries)
+    n = this%get_size()
 
-    call move_alloc(temp, this%entries)
+    if (n .gt. 0) then
+       call move_alloc(this%entries, temp)
+       call move_alloc(this%inuse, temp2)
+    end if
 
-    allocate(temp2(this%get_size() + this%expansion_size))
-    temp2(1:this%n_entries) = this%inuse(1:this%n_entries)
-    temp2(this%n_entries+1:) = .false.
-    call move_alloc(temp2, this%inuse)
+    allocate(this%entries(n + this%expansion_size))
+    allocate(this%inuse(n + this%expansion_size), source = .false.)
+
+    if (n .gt. 0) then
+       do i = 1, n
+          call this%entries(i)%move_from(temp(i))
+          this%inuse(i) = temp2(i)
+          call temp(i)%free()
+       end do
+    end if
+
+    if (allocated(temp)) deallocate(temp)
+    if (allocated(temp2)) deallocate(temp2)
 
   end subroutine expand
 
