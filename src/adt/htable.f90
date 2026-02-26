@@ -277,6 +277,9 @@ contains
     class(htable_t), intent(inout) :: this
     integer i
 
+    nullify(this%head)
+    nullify(this%tail)
+
     if (allocated(this%t)) then
        do i = 0, this%size !< @todo check range
           deallocate(this%t(i)%key)
@@ -284,9 +287,6 @@ contains
        end do
        deallocate(this%t)
     end if
-
-    nullify(this%head)
-    nullify(this%tail)
 
     this%size = 0
     this%entries = 0
