@@ -65,17 +65,34 @@ module fld_file
   type, public, extends(generic_file_t) :: fld_file_t
      logical :: dp_precision = .false. !< Precision of output data
      logical :: write_mesh = .false. !< Whether to write the mesh
+     type(mask_t) :: mask !< Mask to use for masked output
    contains
      procedure :: read => fld_file_read
-     procedure :: write => fld_file_write
-     procedure :: write_masked => fld_file_write_masked
+     procedure :: write => fld_file_write_manager
+     procedure, private :: write_all => fld_file_write
+     procedure, private :: write_masked => fld_file_write_masked
      procedure :: set_precision => fld_file_set_precision
+     procedure :: set_mask => fld_file_set_mask
      procedure :: get_fld_fname => fld_file_get_fld_fname
      procedure :: get_meta_fname => fld_file_get_meta_fname
   end type fld_file_t
 
 
 contains
+
+  !> Manage writer to use
+  subroutine fld_file_write_manager(this, data, t)
+    class(fld_file_t), intent(inout) :: this
+    class(*), target, intent(in) :: data
+    real(kind=rp), intent(in), optional :: t
+    
+    if (this%mask%is_set()) then
+       call this%write_masked(data, this%mask, t)
+    else
+       call this%write_all(data, t)
+    end if
+
+  end subroutine fld_file_write_manager
 
   !> Write fields to a NEKTON fld file
   !! @note currently limited to double precision data
@@ -1705,6 +1722,18 @@ contains
     end if
 
   end subroutine fld_file_set_precision
+  
+  subroutine fld_file_set_mask(this, mask)
+    class(fld_file_t) :: this
+    type(mask_t), intent(inout), optional :: mask
+
+    if (present(mask)) then
+       call this%mask%init_from_mask(mask)
+    else
+       call this%mask%free()
+    end if
+
+  end subroutine fld_file_set_mask
 
   function fld_file_get_fld_fname(this) result(fname)
     class(fld_file_t), intent(in) :: this
