@@ -34,6 +34,7 @@
 module mesh_conn
   use num_types, only : i4, i8
   use utils, only : neko_error
+  use comm, only : pe_size
 
   implicit none
   private
@@ -55,6 +56,8 @@ module mesh_conn
      integer(i4) :: nshare
      !> List of shared objects (local number)
      integer(i4), allocatable, dimension(:) :: sharelist
+     !> Global ownership (MPI rank) of shared objects
+     integer(i4), allocatable, dimension(:) :: shareown
      !> Number of MPI ranks sharing objects
      integer(i4) :: nrank
      !> List of ranks sharing objects
@@ -150,6 +153,8 @@ contains
     integer(i4), dimension(:), optional, intent(in) :: sharelist, rank, &
          rankshare, sharemap, rankoff, lmapoff, gmapoff
     integer(i4), dimension(:, :), optional, intent(in) :: lmap, gmap, algn, hang
+    integer :: il, jl, itmp
+    integer(i4), dimension(:), allocatable :: lown
 
     call this%free()
 
@@ -230,7 +235,33 @@ contains
        this%hang(:, :) = hang(:, :)
     end if
 
-    ! Place to generate global in verse mapping (gmap, goff)
+    ! Get global object ownership
+    if (allocated(this%sharelist).and. allocated(this%rankshare) .and. &
+         allocated(this%rankoff)) then
+       allocate(this%shareown(this%nshare))
+       this%shareown(:) = -1
+       ! find the unique global ownership (MPI rank) of the object
+       ! I use the simplest method not requiring communication assigning
+       ! ownership to the node with the smallest MPI rank. This is efficient,
+       ! but does not guarantee the uniform object distribution among nodes.
+       allocate(lown(this%lnum))
+       lown(:) = pe_size
+       do il = 1, this%nrank
+          itmp = this%rank(il)
+          do jl = this%rankoff(il), this%rankoff(il + 1) - 1
+             lown(this%rankshare(jl)) = min(lown(this%rankshare(jl)), itmp)
+          end do
+       end do
+       do il = 1, this%nshare
+          if (lown(this%sharelist(il)) .ne. pe_size) then
+             this%shareown(il) = lown(this%sharelist(il))
+          else
+             call neko_error('Unknown object ownership; conn_obj_t')
+          end if
+       end do
+       deallocate(lown)
+
+    end if
 
   end subroutine mesh_conn_obj_init
 
@@ -250,6 +281,7 @@ contains
     if (allocated(this%gidx)) deallocate(this%gidx)
     if (allocated(this%lshare)) deallocate(this%lshare)
     if (allocated(this%sharelist)) deallocate(this%sharelist)
+    if (allocated(this%shareown)) deallocate(this%shareown)
     if (allocated(this%rank)) deallocate(this%rank)
     if (allocated(this%rankshare)) deallocate(this%rankshare)
     if (allocated(this%sharemap)) deallocate(this%sharemap)
