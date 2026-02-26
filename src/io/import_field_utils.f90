@@ -149,7 +149,7 @@ contains
 
           if (sample_mesh_idx .eq. -1) then
              call neko_error("Invalid file name for the initial condition." // &
-             "The file format must be e.g. 'mean0.f00001'")
+                  "The file format must be e.g. 'mean0.f00001'")
           end if
 
           write (log_buf, '(A,A)') "Mesh file     : ", &
