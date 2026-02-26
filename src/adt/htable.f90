@@ -275,7 +275,10 @@ contains
   !> Destroy a hash table
   subroutine htable_free(this)
     class(htable_t), intent(inout) :: this
-    integer i
+    integer :: i
+
+    nullify(this%head)
+    nullify(this%tail)
 
     if (allocated(this%t)) then
        do i = 0, this%size !< @todo check range
@@ -284,9 +287,6 @@ contains
        end do
        deallocate(this%t)
     end if
-
-    nullify(this%head)
-    nullify(this%tail)
 
     this%size = 0
     this%entries = 0
