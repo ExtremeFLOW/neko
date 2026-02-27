@@ -6,7 +6,7 @@
         "output_at_end": true,
         "output_checkpoints": false,
         "time": {
-            "end_time": 100.0,
+            "end_time": 10.0,
             "variable_timestep": true,
             "max_timestep": 1.0e-4,
             "target_cfl": 0.2,
@@ -47,8 +47,8 @@
                 "absolute_tolerance": 1e-7,
                 "max_iterations": 200
             },
-            "output_control": "nsamples",
-            "output_value": 50,
+            "output_control": "simulationtime",
+            "output_value": 0.1,
             "boundary_conditions": [
                 {
                     "type": "symmetry",
@@ -61,7 +61,7 @@
             "name": "phase",
             "epsilon": 0.01,
             "gamma": 0.01,
-            "sigma": 0.05,
+            "sigma": 1.0,
             "initial_condition": {
                 "type": "user"
             },

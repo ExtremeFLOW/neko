@@ -68,8 +68,9 @@ contains
     ! Initialize the file object and create the output.csv file
     ! in the working directory (overwrite any existing file)
     call output_file%init("ekin.csv", overwrite=.true.)
-    call output_file%set_header("# t,Ekin,enst,u_max")
-    call vec_out%init(3) ! Initialize our vector with 3 elements (Ekin, enst, u_max)
+    call output_file%set_header("# t,Ekin,enst,u_max," // &
+         "kappa_max,kappa_min,kappa_rms,Fst_max,phi_min,phi_max")
+    call vec_out%init(10)
 
     ! initialize work arrays for postprocessing
     u => neko_field_registry%get_field("u")
@@ -138,9 +139,94 @@ contains
     end if
 
 
+    ! ==================== CSF DIAGNOSTICS ====================
+    ! Replicate the CSF curvature/force computation from source_term
+    ! to extract diagnostic quantities.
+
+    s => neko_field_registry%get_field('phase')
+
+    call neko_scratch_registry%request_field(t1, ind_diag(1))
+    call neko_scratch_registry%request_field(t2, ind_diag(2))
+    call neko_scratch_registry%request_field(t3, ind_diag(3))
+    call neko_scratch_registry%request_field(t4, ind_diag(4))
+    call neko_scratch_registry%request_field(t5, ind_diag(5))
+    call neko_scratch_registry%request_field(t6, ind_diag(6))
+    call neko_scratch_registry%request_field(t7, ind_diag(7))
+
+    ! Step 1: grad(phi) with GS+mult for C0 continuity
+    call grad(t1%x, t2%x, t3%x, s%x, coef)
+    call coef%gs_h%op(t1, GS_OP_ADD)
+    call coef%gs_h%op(t2, GS_OP_ADD)
+    call coef%gs_h%op(t3, GS_OP_ADD)
+    call col2(t1%x, coef%mult, ntot)
+    call col2(t2%x, coef%mult, ntot)
+    call col2(t3%x, coef%mult, ntot)
+
+    ! Save grad(phi) for later
+    call copy(t5%x, t1%x, ntot)
+    call copy(t6%x, t2%x, ntot)
+    call copy(t7%x, t3%x, ntot)
+
+    ! Step 2: normalize to n = grad(phi)/|grad(phi)|
+    do i = 1, ntot
+      absgrad = sqrt(t1%x(i,1,1,1)**2 + t2%x(i,1,1,1)**2 + t3%x(i,1,1,1)**2)
+      if (absgrad < 1.0e-12_rp) then
+        t1%x(i,1,1,1) = 0.0_rp
+        t2%x(i,1,1,1) = 0.0_rp
+        t3%x(i,1,1,1) = 0.0_rp
+      else
+        t1%x(i,1,1,1) = t1%x(i,1,1,1) / absgrad
+        t2%x(i,1,1,1) = t2%x(i,1,1,1) / absgrad
+        t3%x(i,1,1,1) = t3%x(i,1,1,1) / absgrad
+      end if
+    end do
+
+    ! Step 3: kappa = -div(n) with GS+mult (Brackbill CSF convention)
+    call div(t4%x, t1%x, t2%x, t3%x, coef)
+    call coef%gs_h%op(t4, GS_OP_ADD)
+    call col2(t4%x, coef%mult, ntot)
+    call cmult(t4%x, -1.0_rp, ntot)
+
+    ! Step 4: compute diagnostic scalars
+    ! kappa extremes
+    kappa_max = glmax(t4%x, ntot)
+    kappa_min = glmin(t4%x, ntot)
+
+    ! kappa RMS weighted by |grad(phi)| (focuses on interface)
+    ! w1 = |grad(phi)|
+    do i = 1, ntot
+      w1%x(i,1,1,1) = sqrt(t5%x(i,1,1,1)**2 + t6%x(i,1,1,1)**2 &
+                          + t7%x(i,1,1,1)**2)
+    end do
+    ! t1 = kappa^2 * |grad(phi)|  (reuse t1, normals no longer needed)
+    do i = 1, ntot
+      t1%x(i,1,1,1) = t4%x(i,1,1,1)**2 * w1%x(i,1,1,1)
+    end do
+    kappa_rms = glsc2(t1%x, coef%B, ntot)
+    kappa_weight_sum = glsc2(w1%x, coef%B, ntot)
+    if (kappa_weight_sum > 0.0_rp) then
+      kappa_rms = sqrt(kappa_rms / kappa_weight_sum)
+    else
+      kappa_rms = 0.0_rp
+    end if
+
+    ! |F_ST| = sigma * |kappa| * |grad(phi)|
+    do i = 1, ntot
+      w1%x(i,1,1,1) = sigma * abs(t4%x(i,1,1,1)) * w1%x(i,1,1,1)
+    end do
+    Fst_max = glmax(w1%x, ntot)
+
+    ! Phase field bounds
+    phi_min = glmin(s%x, ntot)
+    phi_max = glmax(s%x, ntot)
+
+    call neko_scratch_registry%relinquish_field(ind_diag)
+    ! ==================== END CSF DIAGNOSTICS ====================
+
     ! output all this to file
     call neko_log%message("Writing csv file")
-    vec_out%x = (/ekin, enst, u_max/)
+    vec_out%x = (/ekin, enst, u_max, kappa_max, kappa_min, kappa_rms, &
+                  Fst_max, phi_min, phi_max, 0.0_rp/)
     call output_file%write(vec_out, time%t)
 
     ! set the w component to zero to avoid any 3D instability

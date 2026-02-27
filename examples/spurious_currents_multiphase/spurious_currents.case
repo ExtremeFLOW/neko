@@ -49,7 +49,7 @@
                 "max_iterations": 200
             },
             "output_control": "simulationtime",
-            "output_value": 0.005,
+            "output_value": 0.1,
             "boundary_conditions": [
                 {
                     "type": "symmetry",

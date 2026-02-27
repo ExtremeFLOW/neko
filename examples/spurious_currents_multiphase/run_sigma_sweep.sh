@@ -16,7 +16,7 @@
 #
 # Output:
 #   - Local:   sigma_*/  subdirectories in this directory
-#   - Cluster: /cfs/klemming/scratch/e/eriksie/spurious_currents_sigma_sweep/sigma_*/
+#   - Cluster: /cfs/klemming/scratch/e/eriksie/spurious_currents_fixed_sweep/sigma_*/
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -41,7 +41,7 @@ if $CLUSTER_MODE; then
         echo "ERROR: dardel_job.sh not found in $SCRIPT_DIR"
         exit 1
     fi
-    SWEEP_DIR="$SCRATCH_DIR/spurious_currents_sigma_sweep"
+    SWEEP_DIR="$SCRATCH_DIR/spurious_currents_fixed_sweep"
     echo "Each job will compile spurious_currents.f90 via makeneko"
     echo "Output: $SWEEP_DIR"
 else
@@ -49,24 +49,27 @@ else
     echo "Mode: local  (neko: $NEKO)"
 fi
 
-SIGMA_VALUES=(10.0 1.0 0.5 0.1 0.05 0.01)
+SIGMA_VALUES=(1.0 0.5 0.1 0.05)
 
 for sigma in "${SIGMA_VALUES[@]}"; do
     # Physical end time for t*=250: t = mu*D*250/sigma = 0.1*0.4*250/sigma = 10.0/sigma
     end_time=$(python3 -c "print(10.0 / $sigma)")
+    # ~100 field files per run: output_value = end_time / 100
+    output_value=$(python3 -c "print(10.0 / $sigma / 100.0)")
 
     dir="$SWEEP_DIR/sigma_${sigma}"
-    echo "=== sigma=$sigma  end_time=$end_time  dir=$dir ==="
+    echo "=== sigma=$sigma  end_time=$end_time  output_dt=$output_value  dir=$dir ==="
 
     mkdir -p "$dir"
 
     # Copy the mesh (symlinks may not work across filesystems)
     cp -f "$SCRIPT_DIR/box.nmsh" "$dir/box.nmsh"
 
-    # Patch the case file: update sigma and end_time
+    # Patch the case file: update sigma, end_time, and output_value
     sed \
         -e "s/\"sigma\": [0-9.e+-]*/\"sigma\": $sigma/" \
         -e "s/\"end_time\": [0-9.e+-]*/\"end_time\": $end_time/" \
+        -e "s/\"output_value\": [0-9.e+-]*/\"output_value\": $output_value/" \
         "$SCRIPT_DIR/spurious_currents.case" > "$dir/spurious_currents.case"
 
     if $CLUSTER_MODE; then
