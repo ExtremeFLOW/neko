@@ -111,10 +111,6 @@ contains
 
     ! Determine mesh and field data
     select type(data)
-    type is (mesh_t)
-       msh => data
-       fld => null()
-       n_fields = 0
     type is (field_t)
        msh => data%msh
        fld => data
@@ -133,16 +129,18 @@ contains
        do i = 1, n_fields
           fp(i)%ptr => data%items(i)%ptr
        end do
-    type is (dofmap_t)
-       dof => data
-       msh => data%msh
-       fld => null()
-       n_fields = 0
     class default
        call neko_error('Invalid data type for vtkhdf_file_write')
     end select
 
-    ! Syn all the fields
+    ! Assign commonly used values
+    lx = dof%Xh%lx
+    ly = dof%Xh%ly
+    lz = dof%Xh%lz
+    nelv = msh%nelv
+    mpts = msh%mpts
+
+    ! Sync all the fields
     do i = 1, n_fields
        if (associated(fp(i)%ptr)) then
           call fp(i)%ptr%copy_from(DEVICE_TO_HOST, sync = i .eq. n_fields)
@@ -210,13 +208,13 @@ contains
           call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
        end if
 
-       npts_per_cell = dof%Xh%lx * dof%Xh%ly * dof%Xh%lz
+       npts_per_cell = lx * ly * lz
        if (msh%gdim .eq. 3) then
           nodes_per_cell = 8
-          subcells_per_el = (dof%Xh%lx - 1) * (dof%Xh%ly - 1) * (dof%Xh%lz - 1)
+          subcells_per_el = (lx - 1) * (ly - 1) * (lz - 1)
        else
           nodes_per_cell = 4
-          subcells_per_el = (dof%Xh%lx - 1) * (dof%Xh%ly - 1)
+          subcells_per_el = (lx - 1) * (ly - 1)
        end if
 
        local_points = msh%nelv * npts_per_cell
@@ -301,9 +299,9 @@ contains
        ! Write points directly from dofmap in (i,j,k) tensor-product order
        do i = 1, msh%nelv
           local_idx = (i - 1) * npts_per_cell
-          do kk = 1, dof%Xh%lz
-             do jj = 1, dof%Xh%ly
-                do ii = 1, dof%Xh%lx
+          do kk = 1, lz
+             do jj = 1, ly
+                do ii = 1, lx
                    local_idx = local_idx + 1
                    coords(1, local_idx) = dof%x(ii, jj, kk, i)
                    coords(2, local_idx) = dof%y(ii, jj, kk, i)
@@ -341,48 +339,48 @@ contains
        do i = 1, msh%nelv
           base = (i - 1) * npts_per_cell
           if (msh%gdim .eq. 3) then
-             do ii = 1, dof%Xh%lx - 1
-                do jj = 1, dof%Xh%ly - 1
-                   do kk = 1, dof%Xh%lz - 1
+             do ii = 1, lx - 1
+                do jj = 1, ly - 1
+                   do kk = 1, lz - 1
                       connectivity(conn_idx + 1) = point_offset + base + &
-                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + &
-                           (jj - 1) * dof%Xh%lx + ii - 1
+                           (kk - 1) * lx * ly + &
+                           (jj - 1) * lx + ii - 1
                       connectivity(conn_idx + 2) = point_offset + base + &
-                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + &
-                           (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                           (kk - 1) * lx * ly + &
+                           (jj - 1) * lx + (ii + 1) - 1
                       connectivity(conn_idx + 3) = point_offset + base + &
-                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + &
-                           (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                           (kk - 1) * lx * ly + &
+                           (jj + 1 - 1) * lx + (ii + 1) - 1
                       connectivity(conn_idx + 4) = point_offset + base + &
-                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + &
-                           (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                           (kk - 1) * lx * ly + &
+                           (jj + 1 - 1) * lx + ii - 1
                       connectivity(conn_idx + 5) = point_offset + base + &
-                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + &
-                           (jj - 1) * dof%Xh%lx + ii - 1
+                           (kk + 1 - 1) * lx * ly + &
+                           (jj - 1) * lx + ii - 1
                       connectivity(conn_idx + 6) = point_offset + base + &
-                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + &
-                           (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                           (kk + 1 - 1) * lx * ly + &
+                           (jj - 1) * lx + (ii + 1) - 1
                       connectivity(conn_idx + 7) = point_offset + base + &
-                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + &
-                           (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                           (kk + 1 - 1) * lx * ly + &
+                           (jj + 1 - 1) * lx + (ii + 1) - 1
                       connectivity(conn_idx + 8) = point_offset + base + &
-                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + &
-                           (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                           (kk + 1 - 1) * lx * ly + &
+                           (jj + 1 - 1) * lx + ii - 1
                       conn_idx = conn_idx + 8
                    end do
                 end do
              end do
           else
-             do jj = 1, dof%Xh%ly - 1
-                do ii = 1, dof%Xh%lx - 1
+             do jj = 1, ly - 1
+                do ii = 1, lx - 1
                    connectivity(conn_idx + 1) = point_offset + base + &
-                        (jj - 1) * dof%Xh%lx + ii - 1
+                        (jj - 1) * lx + ii - 1
                    connectivity(conn_idx + 2) = point_offset + base + &
-                        (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                        (jj - 1) * lx + (ii + 1) - 1
                    connectivity(conn_idx + 3) = point_offset + base + &
-                        (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                        (jj + 1 - 1) * lx + (ii + 1) - 1
                    connectivity(conn_idx + 4) = point_offset + base + &
-                        (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                        (jj + 1 - 1) * lx + ii - 1
                    conn_idx = conn_idx + 4
                 end do
              end do
@@ -483,11 +481,6 @@ contains
 
        ! Get field dimensions to create common filespace and memspace
        fld => fp(1)%ptr
-       lx = fld%Xh%lx
-       ly = fld%Xh%ly
-       lz = fld%Xh%lz
-       nelv = fld%msh%nelv
-       mpts = fld%msh%mpts
 
        dcount(1) = int(local_points, hsize_t)
        doffset(1) = int(point_offset, hsize_t)
@@ -532,9 +525,9 @@ contains
              local_idx = 0
              do ie = 1, msh%nelv
                 local_idx = (ie - 1) * npts_per_cell
-                do kk = 1, dof%Xh%lz
-                   do jj = 1, dof%Xh%ly
-                      do ii = 1, dof%Xh%lx
+                do kk = 1, lz
+                   do jj = 1, ly
+                      do ii = 1, lx
                          local_idx = local_idx + 1
                          point_data(1, local_idx) = u%x(ii, jj, kk, ie) ! u component
                          point_data(2, local_idx) = v%x(ii, jj, kk, ie) ! v component
