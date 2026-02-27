@@ -107,6 +107,26 @@ call cmult(temp4%x, -1.0_rp, temp4%size())    ! ← fix: negate for Brackbill co
 - `spurious_currents_analytical_kappa.f90` — same sign fix in diagnostic
   `compute` for consistency.
 
+## Verification
+
+The fix was rerun on Dardel (same parameters, t=0.3).  Results confirm the
+sign fix resolves the blowup completely:
+
+| Metric | Buggy (t=0.25) | Fixed (t=0.3) |
+|--------|---------------|--------------|
+| u_max | 2.4e+01 | **4.8e-07** |
+| κ_rms | 7.9e+02 | **5.02** |
+| F_ST max | 1.8e+07 | **125** |
+| φ_min | −11.2 | **~0** |
+| φ_max | 9.6 | **~1.0** |
+| Δp (Laplace) | — | **5.04** (expected: 5.0) |
+
+The fixed simulation is stable throughout, with spurious velocities at the
+machine-precision level (u_max ~ 5e-7).  The Laplace pressure jump matches
+the analytical value σ/R = 5.0 to within 1%.
+
+![Fixed vs buggy comparison](results/fixed_vs_buggy_comparison.png)
+
 ## Remaining notes
 
 - The sign bug also explains why **ε=0.03 was more stable**: the thicker
