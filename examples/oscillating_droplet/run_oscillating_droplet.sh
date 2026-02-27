@@ -6,7 +6,7 @@
 #   ./run_oscillating_droplet.sh --cluster    # Dardel: submit via sbatch
 #
 # Prerequisites:
-#   - box.nmsh in this directory (10x10x1 mesh, same as static droplet)
+#   - box.nmsh in this directory (40x40x1 mesh, same as static droplet)
 #   - oscillating_droplet.case and oscillating_droplet.f90 in this directory
 #   - Cluster: dardel_job.sh template in this directory; sbatch available
 #
