@@ -44,6 +44,7 @@ module vtkhdf_file
   use dofmap, only : dofmap_t
   use logger, only : neko_log
   use comm, only : pe_rank, NEKO_COMM
+  use device, only : DEVICE_TO_HOST
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, MPI_IN_PLACE, &
        MPI_INTEGER, MPI_INTEGER8, MPI_SUM, MPI_Comm_size
 #ifdef HAVE_HDF5
@@ -73,9 +74,10 @@ contains
     real(kind=rp), intent(in), optional :: t
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
-    type(field_t), pointer :: fld
+    type(field_t), pointer :: fld, u, v, w
     type(field_ptr_t), allocatable :: fp(:)
-    integer :: ierr, info, drank, i, j, n_fields
+    logical, allocatable :: field_written(:)
+    integer :: ierr, info, drank, i, j, ie, n_fields
     integer(hid_t) :: plist_id, file_id, dset_id, grp_id, attr_id, vtkhdf_grp
     integer(hid_t) :: dcpl_id
     integer(hid_t) :: pointdata_grp, celldata_grp, fielddata_grp
@@ -103,7 +105,7 @@ contains
     integer(kind=1), allocatable :: cell_types_byte(:)
     integer, dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, 5, 6, 8, 7]
     integer, dimension(8) :: id
-    real(kind=rp), allocatable :: point_data(:)
+    real(kind=rp), allocatable :: point_data(:,:)
     integer :: npts_per_cell, nodes_per_cell, subcells_per_el
     integer :: ii, jj, kk, local_idx, conn_idx
     integer(int64) :: base
@@ -120,6 +122,7 @@ contains
        dof => data%dof
        n_fields = 1
        allocate(fp(1))
+       allocate(field_written(1), source=.false.)
        fp(1)%ptr => data
     type is (field_list_t)
        msh => data%msh(1)
@@ -127,6 +130,7 @@ contains
        fld => null()
        n_fields = data%size()
        allocate(fp(n_fields))
+       allocate(field_written(n_fields), source=.false.)
        do i = 1, n_fields
           fp(i)%ptr => data%items(i)%ptr
        end do
@@ -138,6 +142,13 @@ contains
     class default
        call neko_error('Invalid data type for vtkhdf_file_write')
     end select
+
+    ! Syn all the fields
+    do i = 1, n_fields
+       if (associated(fp(i)%ptr)) then
+          call fp(i)%ptr%copy_from(DEVICE_TO_HOST, sync = i .eq. n_fields)
+       end if
+    end do
 
     if (.not. this%overwrite) call this%increment_counter()
     fname = trim(this%get_fname())
@@ -331,9 +342,9 @@ contains
        do i = 1, msh%nelv
           base = (i - 1) * npts_per_cell
           if (msh%gdim .eq. 3) then
-             do kk = 1, dof%Xh%lz - 1
+             do ii = 1, dof%Xh%lx - 1
                 do jj = 1, dof%Xh%ly - 1
-                   do ii = 1, dof%Xh%lx - 1
+                   do kk = 1, dof%Xh%lz - 1
                       connectivity(conn_idx + 1) = point_offset + base + &
                            (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + ii - 1
                       connectivity(conn_idx + 2) = point_offset + base + &
@@ -392,7 +403,7 @@ contains
        ! Write Offsets dataset (cell offsets into connectivity)
        allocate(offsets(local_cells + 1))
        do i = 1, local_cells
-          offsets(i) = i * nodes_per_cell + conn_offset
+          offsets(i) = (i - 1) * nodes_per_cell + conn_offset
        end do
 
        offsets(local_cells + 1) = local_conn + conn_offset
@@ -474,6 +485,7 @@ contains
 
        ! Loop through all fields and write them
        do i = 1, n_fields
+          if (field_written(i)) cycle
           fld => fp(i)%ptr
 
           ! Remove underscores from field name
@@ -486,27 +498,99 @@ contains
              end if
           end do
 
-          ! Create filespace with unlimited dimension
-          vdims(1) = int(total_points, hsize_t)
-          maxdims(1) = H5S_UNLIMITED_F
-          call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
-          call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-          chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(1)))
-          call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-          call h5dcreate_f(pointdata_grp, trim(field_name_clean), H5T_IEEE_F32LE, &
-               filespace, dset_id, ierr, dcpl_id = dcpl_id)
-          call h5dget_space_f(dset_id, filespace, ierr)
-          call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
-          call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-               doffset(1:1), dcount(1:1), ierr)
-          call h5dwrite_f(dset_id, H5T_NEKO_REAL, &
-               fld%x(1,1,1,1), &
-               dcount(1:1), ierr, file_space_id = filespace, &
-               mem_space_id = memspace, xfer_prp = plist_id)
-          call h5sclose_f(filespace, ierr)
-          call h5sclose_f(memspace, ierr)
-          call h5dclose_f(dset_id, ierr)
-          call h5pclose_f(dcpl_id, ierr)
+          if (field_name_clean .eq. 'p') field_name_clean = 'Pressure'
+
+          if (field_name_clean .eq. 'u' .or. &
+               field_name_clean .eq. 'v' .or. &
+               field_name_clean .eq. 'w') then
+             u => null()
+             v => null()
+             w => null()
+             do j = 1, n_fields
+                select case (fp(j)%ptr%name)
+                case ('u')
+                   u => fp(j)%ptr
+                   field_written(j) = .true.
+                case ('v')
+                   v => fp(j)%ptr
+                   field_written(j) = .true.
+                case ('w')
+                   w => fp(j)%ptr
+                   field_written(j) = .true.
+                end select
+             end do
+             field_name_clean = 'Velocity'
+
+             ! Allocate temporary array to hold velocity components (3, local_points)
+             allocate(point_data(3, local_points))
+
+             ! Pack u, v, w components into point_data array using same indexing as Points
+             local_idx = 0
+             do ie = 1, msh%nelv
+                local_idx = (ie - 1) * npts_per_cell
+                do ii = 1, dof%Xh%lx
+                   do jj = 1, dof%Xh%ly
+                      do kk = 1, dof%Xh%lz
+                         local_idx = local_idx + 1
+                         point_data(1, local_idx) = u%x(ii, jj, kk, ie) ! u component
+                         point_data(2, local_idx) = v%x(ii, jj, kk, ie) ! v component
+                         if (associated(w)) then
+                            point_data(3, local_idx) = w%x(ii, jj, kk, ie) ! w component
+                         else
+                            point_data(3, local_idx) = 0.0_rp ! zero for 2D
+                         end if
+                      end do
+                   end do
+                end do
+             end do
+
+             ! Create filespace with unlimited dimension for 2D array (3, total_points)
+             vdims = [3_hsize_t, int(total_points, hsize_t)]
+             maxdims = [3_hsize_t, H5S_UNLIMITED_F]
+             call h5screate_simple_f(2, vdims, filespace, ierr, maxdims)
+             call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+             chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(2)))
+             call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
+             call h5dcreate_f(pointdata_grp, trim(field_name_clean), H5T_IEEE_F32LE, &
+                  filespace, dset_id, ierr, dcpl_id = dcpl_id)
+             call h5dget_space_f(dset_id, filespace, ierr)
+             dcount2 = [3_hsize_t, int(local_points, hsize_t)]
+             doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
+             call h5screate_simple_f(2, dcount2, memspace, ierr)
+             call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+                  doffset2, dcount2, ierr)
+             call h5dwrite_f(dset_id, H5T_NEKO_REAL, point_data, dcount2, ierr, &
+                  file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
+             call h5sclose_f(filespace, ierr)
+             call h5sclose_f(memspace, ierr)
+             call h5dclose_f(dset_id, ierr)
+             call h5pclose_f(dcpl_id, ierr)
+             deallocate(point_data)
+
+          else
+
+             ! Create filespace with unlimited dimension
+             vdims(1) = int(total_points, hsize_t)
+             maxdims(1) = H5S_UNLIMITED_F
+             call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
+             call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+             chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(1)))
+             call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
+             call h5dcreate_f(pointdata_grp, trim(field_name_clean), H5T_IEEE_F32LE, &
+                  filespace, dset_id, ierr, dcpl_id = dcpl_id)
+             call h5dget_space_f(dset_id, filespace, ierr)
+             call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
+             call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+                  doffset(1:1), dcount(1:1), ierr)
+             call h5dwrite_f(dset_id, H5T_NEKO_REAL, &
+                  fld%x(1,1,1,1), &
+                  dcount(1:1), ierr, file_space_id = filespace, &
+                  mem_space_id = memspace, xfer_prp = plist_id)
+             call h5sclose_f(filespace, ierr)
+             call h5sclose_f(memspace, ierr)
+             call h5dclose_f(dset_id, ierr)
+             call h5pclose_f(dcpl_id, ierr)
+          end if
        end do
 
        call h5gclose_f(pointdata_grp, ierr)
@@ -529,6 +613,7 @@ contains
     call h5close_f(ierr)
 
     if (allocated(fp)) deallocate(fp)
+    if (allocated(field_written)) deallocate(field_written)
 
   end subroutine vtkhdf_file_write
 
