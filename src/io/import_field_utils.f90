@@ -109,7 +109,7 @@ contains
 
     call neko_log%section("Import fields")
     call neko_log%message("File name     : " // trim(fname))
-    write (log_buf, '(A,L1)') "Interpolation : ", interpolate
+    write (log_buf, '(A,L1)') "Interpolation : ", interpolate_
     call neko_log%message(log_buf)
 
     !
