@@ -244,17 +244,31 @@ contains
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
-    call neko_error('Nothing done for AMR reconstruction')
-
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
 
-    log_buf = 'Lambda2'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    log_buf = trim(this%name)
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! These should be already restarted, but AMR restart prevents
+    ! recursive restarting, so it is safe to call it here
+    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, tstep)
+
+    ! These I reallocate here assuming former values do not matter???
+    if (associated(this%lambda2)) &
+         call this%lambda2%amr_reallocate(reconstruct, counter, tstep)
+    ! not really used
+    !call this%temp1%amr_reallocate(reconstruct, counter, tstep)
+    !call this%temp2%amr_reallocate(reconstruct, counter, tstep)
+
+    ! Writer does not seem to be used????
+    ! call this%writer%amr_restart(reconstruct, counter, tstep)
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
   end subroutine lambda2_amr_restart
 

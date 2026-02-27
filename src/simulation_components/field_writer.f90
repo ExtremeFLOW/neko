@@ -266,7 +266,7 @@ contains
 
     this%counter = counter
 
-    log_buf = 'Field_writer'
+    log_buf = 'Field writer'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 !    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 !    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
