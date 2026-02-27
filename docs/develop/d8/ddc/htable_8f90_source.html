@@ -402,18 +402,18 @@ $(document).ready(function(){initNavTree('d8/ddc/htable_8f90_source.html','../..
 <div class="foldopen" id="foldopen00276" data-start="" data-end="">
 <div class="line"><a id="l00276" name="l00276"></a><span class="lineno"><a class="line" href="../../dc/df5/namespacehtable.html#a672b108e3f932f7c838cf39214a320d4">  276</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/df5/namespacehtable.html#a672b108e3f932f7c838cf39214a320d4">htable_free</a>(this)</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d2e/structhtable_1_1htable__t.html">htable_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keywordtype">integer</span> i</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%t)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       <span class="keywordflow">do</span> i = 0, this%size </div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>          <span class="keyword">deallocate</span>(this%t(i)%key)</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>          <span class="keyword">deallocate</span>(this%t(i)%data)</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>       <span class="keyword">deallocate</span>(this%t)</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keyword">nullify</span>(this%head)</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keyword">nullify</span>(this%tail)</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keyword">nullify</span>(this%head)</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <span class="keyword">nullify</span>(this%tail)</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%t)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>       <span class="keywordflow">do</span> i = 0, this%size </div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>          <span class="keyword">deallocate</span>(this%t(i)%key)</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>          <span class="keyword">deallocate</span>(this%t(i)%data)</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>       <span class="keyword">deallocate</span>(this%t)</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    this%size = 0</div>
 <div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    this%entries = 0</div>
@@ -1949,7 +1949,7 @@ $(document).ready(function(){initNavTree('d8/ddc/htable_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_103da82e8aec8a2d91cafff0b044275b.html">adt</a></li><li class="navelem"><a class="el" href="../../d8/ddc/htable_8f90.html">htable.f90</a></li>
-    <li class="footer">Generated on Thu Feb 26 2026 04:18:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Feb 27 2026 04:17:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
