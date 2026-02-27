@@ -95,6 +95,8 @@ contains
     character(len=5) :: id_str
     character(len=1024) :: fname
     character(len=16), dimension(1) :: type_str
+    character(len=128) :: field_name_clean
+    integer :: name_idx, clean_idx
     real(kind=rp), allocatable :: coords(:,:)
     integer(int64), allocatable :: connectivity(:), offsets(:)
     integer, allocatable :: cell_types(:)
@@ -307,7 +309,7 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(2)))
        call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
-       call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_REAL, &
+       call h5dcreate_f(vtkhdf_grp, "Points", H5T_IEEE_F32LE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
@@ -474,6 +476,16 @@ contains
        do i = 1, n_fields
           fld => fp(i)%ptr
 
+          ! Remove underscores from field name
+          field_name_clean = ''
+          clean_idx = 1
+          do name_idx = 1, len_trim(fld%name)
+             if (fld%name(name_idx:name_idx) /= '_') then
+                field_name_clean(clean_idx:clean_idx) = fld%name(name_idx:name_idx)
+                clean_idx = clean_idx + 1
+             end if
+          end do
+
           ! Create filespace with unlimited dimension
           vdims(1) = int(total_points, hsize_t)
           maxdims(1) = H5S_UNLIMITED_F
@@ -481,7 +493,7 @@ contains
           call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
           chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(1)))
           call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-          call h5dcreate_f(pointdata_grp, fld%name, H5T_NEKO_REAL, &
+          call h5dcreate_f(pointdata_grp, trim(field_name_clean), H5T_IEEE_F32LE, &
                filespace, dset_id, ierr, dcpl_id = dcpl_id)
           call h5dget_space_f(dset_id, filespace, ierr)
           call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
@@ -729,6 +741,8 @@ contains
     real(kind=rp) :: t
     character(len=1024) :: fname
     character(len=16), dimension(1) :: type_str
+    character(len=128) :: field_name_clean
+    integer :: name_idx, clean_idx
     integer :: vtkhdf_version(2)
     integer :: num_partitions, npts_per_cell
     integer :: local_points, total_points, point_offset, part_index
@@ -835,7 +849,17 @@ contains
              doffset(1) = int(point_offset, hsize_t)
              ddim(1) = int(total_points, hsize_t)
 
-             call h5dopen_f(pointdata_grp, fld%name, dset_id, ierr)
+             ! Remove underscores from field name
+             field_name_clean = ''
+             clean_idx = 1
+             do name_idx = 1, len_trim(fld%name)
+                if (fld%name(name_idx:name_idx) /= '_') then
+                   field_name_clean(clean_idx:clean_idx) = fld%name(name_idx:name_idx)
+                   clean_idx = clean_idx + 1
+                end if
+             end do
+
+             call h5dopen_f(pointdata_grp, trim(field_name_clean), dset_id, ierr)
              if (ierr .eq. 0) then
                 call h5dget_space_f(dset_id, filespace, ierr)
                 call h5screate_simple_f(drank, dcount, memspace, ierr)
