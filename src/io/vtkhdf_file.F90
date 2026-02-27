@@ -99,7 +99,6 @@ contains
     integer(int64), allocatable :: connectivity(:), offsets(:)
     integer, allocatable :: cell_types(:)
     integer(kind=1), allocatable :: cell_types_byte(:)
-    integer(int64), allocatable :: num_points(:), num_cells(:), num_conn_ids(:)
     integer, dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, 5, 6, 8, 7]
     integer, dimension(8) :: id
     real(kind=rp), allocatable :: point_data(:)
@@ -237,44 +236,52 @@ contains
           offsets_offset = offsets_offset + part_cells(i) + 1_int64
        end do
 
-       ! Write partition metadata arrays (size = number of partitions)
-       allocate(num_points(num_partitions))
-       allocate(num_cells(num_partitions))
-       allocate(num_conn_ids(num_partitions))
-
-       num_points = part_points
-       num_cells = part_cells
-       num_conn_ids = part_conns
-
        ! Write NumberOfPoints dataset
-       vdims = [int(num_partitions, hsize_t), 1_hsize_t]
-       call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
+       vdims(1) = 1_hsize_t
+       maxdims(1) = H5S_UNLIMITED_F
+       call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       chunkdims(1) = 1_hsize_t
+       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(vtkhdf_grp, "NumberOfPoints", H5T_STD_I64LE, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_STD_I64LE, num_points, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_STD_I64LE, total_points, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
+       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
 
        ! Write NumberOfCells dataset
-       call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
+       vdims(1) = 1_hsize_t
+       maxdims(1) = H5S_UNLIMITED_F
+       call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       chunkdims(1) = 1_hsize_t
+       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(vtkhdf_grp, "NumberOfCells", H5T_STD_I64LE, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_STD_I64LE, num_cells, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_STD_I64LE, total_cells, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
+       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
 
        ! Write NumberOfConnectivityIds dataset
-       call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
+       vdims(1) = 1_hsize_t
+       maxdims(1) = H5S_UNLIMITED_F
+       call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       chunkdims(1) = 1_hsize_t
+       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", H5T_STD_I64LE, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_STD_I64LE, num_conn_ids, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_STD_I64LE, total_conn, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
+       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
 
        ! Write Points dataset (global coordinates)
@@ -295,9 +302,13 @@ contains
        end do
 
        vdims = [3_hsize_t, int(total_points, hsize_t)]
-       call h5screate_simple_f(2, vdims, filespace, ierr)
+       maxdims = [3_hsize_t, H5S_UNLIMITED_F]
+       call h5screate_simple_f(2, vdims, filespace, ierr, maxdims)
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(2)))
+       call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
        call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_REAL, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
@@ -308,6 +319,7 @@ contains
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
+       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
        deallocate(coords)
 
@@ -384,9 +396,13 @@ contains
        offsets(local_cells + 1) = local_conn + conn_offset
 
        vdims(1) = int(total_offsets, hsize_t)
-       call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
+       maxdims(1) = H5S_UNLIMITED_F
+       call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       chunkdims(1) = max(1_hsize_t, min(int(local_cells + 1, hsize_t), vdims(1)))
+       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_STD_I64LE, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount(1) = int(local_cells + 1, hsize_t)
        doffset(1) = int(offsets_offset, hsize_t)
@@ -397,6 +413,7 @@ contains
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
+       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
        deallocate(offsets)
 
@@ -412,9 +429,13 @@ contains
        cell_types_byte = int(cell_types, kind=1)
 
        vdims(1) = int(total_cells, hsize_t)
-       call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
+       maxdims(1) = H5S_UNLIMITED_F
+       call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       chunkdims(1) = max(1_hsize_t, min(int(local_cells, hsize_t), vdims(1)))
+       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(vtkhdf_grp, "Types", H5T_STD_U8LE, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount(1) = int(local_cells, hsize_t)
        doffset(1) = int(cell_offset, hsize_t)
@@ -425,8 +446,9 @@ contains
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
+       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
-       deallocate(cell_types, cell_types_byte, num_points, num_cells, num_conn_ids)
+       deallocate(cell_types, cell_types_byte)
        deallocate(part_points, part_cells, part_conns)
     end if
 
@@ -448,27 +470,33 @@ contains
        ddim(1) = int(total_points, hsize_t)
        drank = 1
 
-       call h5screate_simple_f(drank, ddim, filespace, ierr)
-       call h5screate_simple_f(drank, dcount, memspace, ierr)
-
        ! Loop through all fields and write them
        do i = 1, n_fields
           fld => fp(i)%ptr
 
+          ! Create filespace with unlimited dimension
+          vdims(1) = int(total_points, hsize_t)
+          maxdims(1) = H5S_UNLIMITED_F
+          call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
+          call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+          chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(1)))
+          call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
           call h5dcreate_f(pointdata_grp, fld%name, H5T_NEKO_REAL, &
-               filespace, dset_id, ierr)
+               filespace, dset_id, ierr, dcpl_id = dcpl_id)
           call h5dget_space_f(dset_id, filespace, ierr)
+          call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
           call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-               doffset, dcount, ierr)
+               doffset(1:1), dcount(1:1), ierr)
           call h5dwrite_f(dset_id, H5T_NEKO_REAL, &
                fld%x(1,1,1,1), &
-               ddim, ierr, file_space_id = filespace, &
+               dcount(1:1), ierr, file_space_id = filespace, &
                mem_space_id = memspace, xfer_prp = plist_id)
+          call h5sclose_f(filespace, ierr)
+          call h5sclose_f(memspace, ierr)
           call h5dclose_f(dset_id, ierr)
+          call h5pclose_f(dcpl_id, ierr)
        end do
 
-       call h5sclose_f(filespace, ierr)
-       call h5sclose_f(memspace, ierr)
        call h5gclose_f(pointdata_grp, ierr)
     end if
 
