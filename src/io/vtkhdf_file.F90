@@ -32,6 +32,7 @@
 !
 !> HDF5 file format
 module vtkhdf_file
+  use, intrinsic :: iso_fortran_env, only : int64
   use num_types, only : rp, dp, sp
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
@@ -59,7 +60,7 @@ module vtkhdf_file
      procedure :: set_overwrite => vtkhdf_file_set_overwrite
   end type vtkhdf_file_t
 
-  integer, dimension(2), parameter :: vtkhdf_version = [2, 4]
+  integer(int64), dimension(2), parameter :: vtkhdf_version = [2_int64, 4_int64]
 
 contains
 
@@ -87,22 +88,24 @@ contains
     integer(hsize_t), dimension(1) :: chunkdims
     integer :: suffix_pos, lx, ly, lz, nelv, mpts, npts
     integer :: num_partitions
-    integer :: local_points, local_cells, local_conn
-    integer :: total_points, total_cells, total_conn, total_offsets
-    integer :: part_index, point_offset, cell_offset, conn_offset, offsets_offset
-    integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
+    integer(int64) :: local_points, local_cells, local_conn
+    integer(int64) :: total_points, total_cells, total_conn, total_offsets
+    integer(int64) :: point_offset, cell_offset, conn_offset, offsets_offset
+    integer(int64), allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=5) :: id_str
     character(len=1024) :: fname
     character(len=16), dimension(1) :: type_str
     real(kind=rp), allocatable :: coords(:,:)
-    integer, allocatable :: connectivity(:), offsets(:), cell_types(:)
+    integer(int64), allocatable :: connectivity(:), offsets(:)
+    integer, allocatable :: cell_types(:)
     integer(kind=1), allocatable :: cell_types_byte(:)
-    integer, allocatable :: num_points(:), num_cells(:), num_conn_ids(:)
+    integer(int64), allocatable :: num_points(:), num_cells(:), num_conn_ids(:)
     integer, dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, 5, 6, 8, 7]
     integer, dimension(8) :: id
     real(kind=rp), allocatable :: point_data(:)
     integer :: npts_per_cell, nodes_per_cell, subcells_per_el
-    integer :: ii, jj, kk, local_idx, conn_idx, base
+    integer :: ii, jj, kk, local_idx, conn_idx
+    integer(int64) :: base
 
     ! Determine mesh and field data
     select type(data)
@@ -158,9 +161,9 @@ contains
     ! Write Version attribute [2, 5] as an array of 2 64bit integers
     vdims(1) = 2
     call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
-    call h5acreate_f(vtkhdf_grp, "Version", H5T_NATIVE_INTEGER, filespace, attr_id, &
+    call h5acreate_f(vtkhdf_grp, "Version", H5T_STD_I64LE, filespace, attr_id, &
          ierr, h5p_default_f, h5p_default_f)
-    call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, vtkhdf_version, vdims(1:1), ierr)
+    call h5awrite_f(attr_id, H5T_STD_I64LE, vtkhdf_version, vdims(1:1), ierr)
     call h5aclose_f(attr_id, ierr)
     call h5sclose_f(filespace, ierr)
 
@@ -185,9 +188,9 @@ contains
     ! Write mesh information if present
     if (associated(msh)) then
        call MPI_Comm_size(NEKO_COMM, num_partitions, ierr)
-       local_cells = msh%nelv
-       local_points = msh%mpts
-       local_conn = msh%npts * msh%nelv
+       local_cells = int(msh%nelv, int64)
+       local_points = int(msh%mpts, int64)
+       local_conn = int(msh%npts, int64) * int(msh%nelv, int64)
 
        if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
           call neko_error('VTKHDF linear output requires lx, ly >= 2')
@@ -205,33 +208,33 @@ contains
           subcells_per_el = (dof%Xh%lx - 1) * (dof%Xh%ly - 1)
        end if
 
-       local_points = msh%nelv * npts_per_cell
-       local_cells = msh%nelv * subcells_per_el
-       local_conn = local_cells * nodes_per_cell
+       local_points = int(msh%nelv, int64) * int(npts_per_cell, int64)
+       local_cells = int(msh%nelv, int64) * int(subcells_per_el, int64)
+       local_conn = local_cells * int(nodes_per_cell, int64)
 
        allocate(part_points(num_partitions))
        allocate(part_cells(num_partitions))
        allocate(part_conns(num_partitions))
 
-       call MPI_Allgather(local_points, 1, MPI_INTEGER, part_points, 1, MPI_INTEGER, NEKO_COMM, ierr)
-       call MPI_Allgather(local_cells, 1, MPI_INTEGER, part_cells, 1, MPI_INTEGER, NEKO_COMM, ierr)
-       call MPI_Allgather(local_conn, 1, MPI_INTEGER, part_conns, 1, MPI_INTEGER, NEKO_COMM, ierr)
+       call MPI_Allgather(local_points, 1, MPI_INTEGER8, part_points, 1, MPI_INTEGER8, NEKO_COMM, ierr)
+       call MPI_Allgather(local_cells, 1, MPI_INTEGER8, part_cells, 1, MPI_INTEGER8, NEKO_COMM, ierr)
+       call MPI_Allgather(local_conn, 1, MPI_INTEGER8, part_conns, 1, MPI_INTEGER8, NEKO_COMM, ierr)
 
        total_points = sum(part_points)
        total_cells = sum(part_cells)
        total_conn = sum(part_conns)
-       total_offsets = total_cells + num_partitions
+       total_offsets = total_cells + int(num_partitions, int64)
 
-       part_index = pe_rank + 1
-       point_offset = 0
-       cell_offset = 0
-       conn_offset = 0
-       offsets_offset = 0
-       do i = 1, part_index - 1
+       point_offset = 0_int64
+       cell_offset = 0_int64
+       conn_offset = 0_int64
+       offsets_offset = 0_int64
+       do i = 1, num_partitions
+          if (i >= pe_rank + 1) exit
           point_offset = point_offset + part_points(i)
           cell_offset = cell_offset + part_cells(i)
           conn_offset = conn_offset + part_conns(i)
-          offsets_offset = offsets_offset + part_cells(i) + 1
+          offsets_offset = offsets_offset + part_cells(i) + 1_int64
        end do
 
        ! Write partition metadata arrays (size = number of partitions)
@@ -246,30 +249,30 @@ contains
        ! Write NumberOfPoints dataset
        vdims = [int(num_partitions, hsize_t), 1_hsize_t]
        call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
-       call h5dcreate_f(vtkhdf_grp, "NumberOfPoints", H5T_NATIVE_INTEGER, &
+       call h5dcreate_f(vtkhdf_grp, "NumberOfPoints", H5T_STD_I64LE, &
             filespace, dset_id, ierr)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, num_points, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_STD_I64LE, num_points, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
 
        ! Write NumberOfCells dataset
        call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
-       call h5dcreate_f(vtkhdf_grp, "NumberOfCells", H5T_NATIVE_INTEGER, &
+       call h5dcreate_f(vtkhdf_grp, "NumberOfCells", H5T_STD_I64LE, &
             filespace, dset_id, ierr)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, num_cells, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_STD_I64LE, num_cells, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
 
        ! Write NumberOfConnectivityIds dataset
        call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
-       call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", H5T_NATIVE_INTEGER, &
+       call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", H5T_STD_I64LE, &
             filespace, dset_id, ierr)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, num_conn_ids, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_STD_I64LE, num_conn_ids, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
@@ -356,7 +359,7 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = max(1_hsize_t, min(int(local_conn, hsize_t), vdims(1)))
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(vtkhdf_grp, "Connectivity", H5T_NATIVE_INTEGER, &
+       call h5dcreate_f(vtkhdf_grp, "Connectivity", H5T_STD_I64LE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount(1) = int(local_conn, hsize_t)
@@ -364,7 +367,7 @@ contains
        call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), ierr, &
+       call h5dwrite_f(dset_id, H5T_STD_I64LE, connectivity, dcount(1:1), ierr, &
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
@@ -382,7 +385,7 @@ contains
 
        vdims(1) = int(total_offsets, hsize_t)
        call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
-       call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_NATIVE_INTEGER, &
+       call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_STD_I64LE, &
             filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount(1) = int(local_cells + 1, hsize_t)
@@ -390,7 +393,7 @@ contains
        call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, offsets, dcount(1:1), ierr, &
+       call h5dwrite_f(dset_id, H5T_STD_I64LE, offsets, dcount(1:1), ierr, &
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
