@@ -105,6 +105,8 @@ contains
     ! ---- Default values
     interpolate_ = .false.
     if (present(interpolate)) interpolate_ = interpolate
+    mesh_fname_ = "none"
+    if (present(mesh_fname)) mesh_fname_ = trim(mesh_fname)
     ! ----
 
     call neko_log%section("Import fields")
@@ -138,7 +140,7 @@ contains
        end if
 
        ! If no mesh file is specified, use the default file name
-       if (mesh_fname .eq. "none") then
+       if (mesh_fname_ .eq. "none") then
           mesh_fname_ = trim(fname_)
           sample_mesh_idx = sample_idx
        else
@@ -209,6 +211,7 @@ contains
          interpolate_, tolerance = tolerance)
 
     call neko_log%end_section()
+    call fld_data%free()
 
   end subroutine import_fields
 
