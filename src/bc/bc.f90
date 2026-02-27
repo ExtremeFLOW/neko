@@ -315,10 +315,6 @@ contains
        deallocate(this%name)
     end if
 
-    if (allocated(this%zone_indices)) then
-       deallocate(this%zone_indices)
-    end if
-
   end subroutine bc_free_base
 
   !> Apply the boundary condition to a vector field. Dispatches to the CPU
