@@ -188,7 +188,16 @@ contains
           end if
 
           do i = 1, size(s_index_list)
-             call fld_data%s(s_index_list(i))%copy_from(HOST_TO_DEVICE, .true.)
+             ! Take care that if we set i=0 we want temperature
+             if (s_index_list(i) .eq. 0) then
+                call fld_data%t%copy_from(HOST_TO_DEVICE, .true.) 
+             else
+                ! For scalar fields, require indices in 1:this%n_scalars
+                if (s_index_list(i) < 1 .or. s_index_list(i) > this%n_scalars) then
+                   call neko_error("s_index_list entry out of bounds")
+                end if
+                call fld_data%s(s_index_list(i))%copy_from(HOST_TO_DEVICE, .true.)
+             end if
           end do
        else
           do i = 1, s_target_list%size()
