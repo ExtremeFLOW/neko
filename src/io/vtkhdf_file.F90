@@ -76,6 +76,7 @@ contains
     type(field_ptr_t), allocatable :: fp(:)
     integer :: ierr, info, drank, i, j, n_fields
     integer(hid_t) :: plist_id, file_id, dset_id, grp_id, attr_id, vtkhdf_grp
+    integer(hid_t) :: dcpl_id
     integer(hid_t) :: pointdata_grp, celldata_grp, fielddata_grp
     integer(hid_t) :: filespace, memspace
     integer(hid_t) :: H5T_NEKO_REAL
@@ -83,6 +84,7 @@ contains
     integer(hsize_t), dimension(2) :: dcount2, doffset2
     integer(hsize_t), dimension(:), allocatable :: dims
     integer(hsize_t), dimension(2) :: vdims, maxdims
+    integer(hsize_t), dimension(1) :: chunkdims
     integer :: suffix_pos, lx, ly, lz, nelv, mpts, npts
     integer :: num_partitions
     integer :: local_points, local_cells, local_conn
@@ -99,8 +101,8 @@ contains
     integer, dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, 5, 6, 8, 7]
     integer, dimension(8) :: id
     real(kind=rp), allocatable :: point_data(:)
-    integer :: npts_per_cell, ii, jj, kk, local_idx
-    integer, allocatable :: vtk_order(:)
+    integer :: npts_per_cell, nodes_per_cell, subcells_per_el
+    integer :: ii, jj, kk, local_idx, conn_idx, base
 
     ! Determine mesh and field data
     select type(data)
@@ -187,22 +189,25 @@ contains
        local_points = msh%mpts
        local_conn = msh%npts * msh%nelv
 
+       if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
+          call neko_error('VTKHDF linear output requires lx, ly >= 2')
+       end if
+       if (msh%gdim .eq. 3 .and. dof%Xh%lz < 2) then
+          call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
+       end if
+
        npts_per_cell = dof%Xh%lx * dof%Xh%ly * dof%Xh%lz
        if (msh%gdim .eq. 3) then
-          if (dof%Xh%lx .ne. dof%Xh%ly .or. dof%Xh%lx .ne. dof%Xh%lz) then
-             call neko_error('VTKHDF high-order output requires equal lx, ly, lz')
-          end if
-          allocate(vtk_order(npts_per_cell))
-          call build_vtk_lagrange_hex_order_neko(dof%Xh%lx, vtk_order)
+          nodes_per_cell = 8
+          subcells_per_el = (dof%Xh%lx - 1) * (dof%Xh%ly - 1) * (dof%Xh%lz - 1)
        else
-          if (dof%Xh%lx .ne. dof%Xh%ly) then
-             call neko_error('VTKHDF high-order output requires equal lx, ly')
-          end if
-          allocate(vtk_order(npts_per_cell))
-          call build_vtk_lagrange_quad_order(dof%Xh%lx, vtk_order)
+          nodes_per_cell = 4
+          subcells_per_el = (dof%Xh%lx - 1) * (dof%Xh%ly - 1)
        end if
+
        local_points = msh%nelv * npts_per_cell
-       local_conn = local_cells * npts_per_cell
+       local_cells = msh%nelv * subcells_per_el
+       local_conn = local_cells * nodes_per_cell
 
        allocate(part_points(num_partitions))
        allocate(part_cells(num_partitions))
@@ -303,21 +308,56 @@ contains
        call h5sclose_f(filespace, ierr)
        deallocate(coords)
 
-       ! Write Connectivity dataset
-       allocate(connectivity(npts_per_cell * msh%nelv))
+       ! Write Connectivity dataset (linear cells from GLL point subdivision)
+       allocate(connectivity(local_conn))
+       conn_idx = 0
        do i = 1, msh%nelv
-          local_idx = (i - 1) * npts_per_cell
-          do j = 1, npts_per_cell
-             connectivity(local_idx + j) = &
-                  point_offset + local_idx + vtk_order(j) - 1
-          end do
+          base = (i - 1) * npts_per_cell
+          if (msh%gdim .eq. 3) then
+             do kk = 1, dof%Xh%lz - 1
+                do jj = 1, dof%Xh%ly - 1
+                   do ii = 1, dof%Xh%lx - 1
+                      connectivity(conn_idx + 1) = point_offset + base + &
+                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + ii - 1
+                      connectivity(conn_idx + 2) = point_offset + base + &
+                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                      connectivity(conn_idx + 3) = point_offset + base + &
+                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                      connectivity(conn_idx + 4) = point_offset + base + &
+                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                      connectivity(conn_idx + 5) = point_offset + base + &
+                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + ii - 1
+                      connectivity(conn_idx + 6) = point_offset + base + &
+                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                      connectivity(conn_idx + 7) = point_offset + base + &
+                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                      connectivity(conn_idx + 8) = point_offset + base + &
+                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                      conn_idx = conn_idx + 8
+                   end do
+                end do
+             end do
+          else
+             do jj = 1, dof%Xh%ly - 1
+                do ii = 1, dof%Xh%lx - 1
+                   connectivity(conn_idx + 1) = point_offset + base + (jj - 1) * dof%Xh%lx + ii - 1
+                   connectivity(conn_idx + 2) = point_offset + base + (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                   connectivity(conn_idx + 3) = point_offset + base + (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                   connectivity(conn_idx + 4) = point_offset + base + (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                   conn_idx = conn_idx + 4
+                end do
+             end do
+          end if
        end do
 
        vdims(1) = int(total_conn, hsize_t)
        maxdims(1) = H5S_UNLIMITED_F
-       call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
+       call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       chunkdims(1) = max(1_hsize_t, min(int(local_conn, hsize_t), vdims(1)))
+       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(vtkhdf_grp, "Connectivity", H5T_NATIVE_INTEGER, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount(1) = int(local_conn, hsize_t)
        doffset(1) = int(conn_offset, hsize_t)
@@ -328,20 +368,17 @@ contains
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
+       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
        deallocate(connectivity)
 
-       if (allocated(vtk_order)) then
-          deallocate(vtk_order)
-       end if
-
        ! Write Offsets dataset (cell offsets into connectivity)
-       allocate(offsets(msh%nelv + 1))
-       do i = 1, msh%nelv
-          offsets(i) = i * npts_per_cell + conn_offset
+       allocate(offsets(local_cells + 1))
+       do i = 1, local_cells
+          offsets(i) = i * nodes_per_cell + conn_offset
        end do
 
-       offsets(msh%nelv + 1) = local_conn + conn_offset
+       offsets(local_cells + 1) = local_conn + conn_offset
 
        vdims(1) = int(total_offsets, hsize_t)
        call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
@@ -361,9 +398,13 @@ contains
        deallocate(offsets)
 
        ! Write Types dataset (VTK cell types)
-       allocate(cell_types(msh%nelv))
-       allocate(cell_types_byte(msh%nelv))
-       cell_types = 72 ! VTK_LAGRANGE_HEXAHEDRON
+       allocate(cell_types(local_cells))
+       allocate(cell_types_byte(local_cells))
+       if (msh%gdim .eq. 3) then
+          cell_types = 12 ! VTK_HEXAHEDRON
+       else
+          cell_types = 9 ! VTK_QUAD
+       end if
        ! Convert integer array to byte array
        cell_types_byte = int(cell_types, kind=1)
 
