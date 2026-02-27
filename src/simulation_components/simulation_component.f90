@@ -43,11 +43,13 @@ module simulation_component
   use json_utils, only : json_get_or_default, json_get, &
        json_get_or_lookup_or_default, json_get_or_lookup
   use time_state, only : time_state_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
   !> Base abstract class for simulation components.
-  type, abstract, public :: simulation_component_t
+  type, abstract, public, extends(amr_restart_component_t) :: &
+       simulation_component_t
      !> Pointer to the simulation case.
      type(case_t), pointer :: case
      !> Controller for when to run `preprocess`.

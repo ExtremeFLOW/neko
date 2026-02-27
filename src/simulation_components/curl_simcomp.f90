@@ -49,6 +49,8 @@ module curl_simcomp
   use scratch_registry, only : neko_scratch_registry
   use time_based_controller, only : time_based_controller_t
   use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -92,6 +94,8 @@ module curl_simcomp
      procedure, pass(this) :: free => curl_free
      !> Compute the curl field.
      procedure, pass(this) :: compute_ => curl_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => curl_amr_restart
   end type curl_t
 
 contains
@@ -261,6 +265,9 @@ contains
     nullify(this%curl_x)
     nullify(this%curl_y)
     nullify(this%curl_z)
+
+    call this%free_amr_base()
+
   end subroutine curl_free
 
   !> Compute the curl field.
@@ -279,5 +286,29 @@ contains
 
     call neko_scratch_registry%relinquish_field(tmp_idx)
   end subroutine curl_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine curl_amr_restart(this, reconstruct, counter, tstep)
+    class(curl_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Curl'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine curl_amr_restart
 
 end module curl_simcomp

@@ -43,7 +43,7 @@ module spectral_error
   use device_math, only : device_copy
   use neko_config, only : NEKO_BCKND_HIP, NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, &
        NEKO_BCKND_DEVICE
-  use logger, only : neko_log
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
   use comm, only : pe_rank
   use utils, only : NEKO_FNAME_LEN, neko_error
@@ -53,7 +53,7 @@ module spectral_error
   use json_utils, only : json_get, json_get_or_default
   use case, only : case_t
   use registry, only : neko_registry
-
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -106,7 +106,8 @@ module spectral_error
      procedure, pass(this) :: compute_ => spectral_error_compute
      !> Calculate the indicator.
      procedure, pass(this) :: get_indicators => spectral_error_get_indicators
-
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => spectral_error_amr_restart
   end type spectral_error_t
 
 contains
@@ -227,6 +228,8 @@ contains
 
     call this%writer%free()
     call this%free_base()
+
+    call this%free_amr_base()
 
   end subroutine spectral_error_free
 
@@ -708,5 +711,29 @@ contains
     end associate
 
   end subroutine speri_extrap
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine spectral_error_amr_restart(this, reconstruct, counter, tstep)
+    class(spectral_error_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Spectral error'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine spectral_error_amr_restart
 
 end module spectral_error

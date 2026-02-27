@@ -52,7 +52,7 @@ module force_torque
   use dirichlet, only : dirichlet_t
   use drag_torque, only : calc_force_array, device_calc_force_array, &
        setup_normals
-  use logger, only : LOG_SIZE, neko_log
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use neko_config, only : NEKO_BCKND_DEVICE
   use math, only : masked_gather_copy_0, cadd, glsum, vcross
   use device_math, only : device_masked_gather_copy_0, device_cadd, &
@@ -60,6 +60,8 @@ module force_torque
   use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_Allreduce
   use comm, only : NEKO_COMM
   use device, only : device_memcpy, HOST_TO_DEVICE
+  use utils, only : neko_error ! just for now
+  use amr_reconstruct, only : amr_reconstruct_t
 
   implicit none
   private
@@ -113,6 +115,8 @@ module force_torque
      procedure, pass(this) :: free => force_torque_free
      !> Compute the force_torque field.
      procedure, pass(this) :: compute_ => force_torque_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => force_torque_amr_restart
   end type force_torque_t
 
 contains
@@ -385,6 +389,9 @@ contains
     nullify(this%p)
     nullify(this%coef)
     nullify(this%mu)
+
+    call this%free_amr_base()
+
   end subroutine force_torque_free
 
   !> Compute the force_torque field.
@@ -548,5 +555,29 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine force_torque_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine force_torque_amr_restart(this, reconstruct, counter, tstep)
+    class(force_torque_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Force torque'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine force_torque_amr_restart
 
 end module force_torque

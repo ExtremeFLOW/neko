@@ -46,6 +46,9 @@ module weak_gradient_simcomp
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use utils, only : neko_error ! just for now
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -82,6 +85,8 @@ module weak_gradient_simcomp
      procedure, pass(this) :: free => weak_gradient_free
      !> Compute the weak_gradient field.
      procedure, pass(this) :: compute_ => weak_gradient_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => weak_gradient_amr_restart
   end type weak_gradient_t
 
 contains
@@ -239,6 +244,9 @@ contains
     nullify(this%gradient_y)
     nullify(this%gradient_z)
     nullify(this%u)
+
+    call this%free_amr_base()
+
   end subroutine weak_gradient_free
 
   !> Compute the weak_gradient field.
@@ -250,5 +258,29 @@ contains
     call opgrad(this%gradient_x%x, this%gradient_y%x, this%gradient_z%x, &
          this%u%x, this%case%fluid%c_Xh)
   end subroutine weak_gradient_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine weak_gradient_amr_restart(this, reconstruct, counter, tstep)
+    class(weak_gradient_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Weak gradient'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine weak_gradient_amr_restart
 
 end module weak_gradient_simcomp
