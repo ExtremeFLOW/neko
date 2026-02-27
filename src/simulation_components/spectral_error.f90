@@ -722,17 +722,46 @@ contains
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
 
-    call neko_error('Nothing done for AMR reconstruction')
-
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
 
-    log_buf = 'Spectral error'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
-!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    log_buf = trim(this%name)
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! These should be already restarted, but AMR restart prevents
+    ! recursive restarting, so it is safe to call it here
+    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, tstep)
+
+    ! These I reallocate here assuming former values do not matter???
+    if (associated(this%u_hat)) &
+         call this%u_hat%amr_reallocate(reconstruct, counter, tstep)
+    if (associated(this%v_hat)) &
+         call this%v_hat%amr_reallocate(reconstruct, counter, tstep)
+    if (associated(this%w_hat)) &
+         call this%w_hat%amr_reallocate(reconstruct, counter, tstep)
+    call this%wk%amr_reallocate(reconstruct, counter, tstep)
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%eind_u)) deallocate(this%eind_u)
+       if (allocated(this%eind_v)) deallocate(this%eind_v)
+       if (allocated(this%eind_w)) deallocate(this%eind_w)
+       if (allocated(this%sig_u)) deallocate(this%sig_u)
+       if (allocated(this%sig_v)) deallocate(this%sig_v)
+       if (allocated(this%sig_w)) deallocate(this%sig_w)
+       allocate(this%eind_u(reconstruct%nnew), this%eind_v(reconstruct%nnew), &
+            this%eind_w(reconstruct%nnew), this%sig_u(reconstruct%nnew), &
+            this%sig_v(reconstruct%nnew), this%sig_w(reconstruct%nnew))
+    end if
+
+    ! Writer does not seem to be used????
+    ! call this%writer%amr_restart(reconstruct, counter, tstep)
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
   end subroutine spectral_error_amr_restart
 
