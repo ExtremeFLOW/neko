@@ -226,13 +226,11 @@ contains
     if (this%nut_dependency .and. associated(this%alphat)) then
        call this%alphat%free()
        deallocate(this%alphat)
-       nullify(this%alphat)
-    else
-       nullify(this%alphat)
     end if
 
     nullify(this%coef)
     nullify(this%s)
+    nullify(this%alphat)
 
     call this%stat_fields%free()
 
