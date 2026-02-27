@@ -32,7 +32,6 @@
 !
 !> HDF5 file format
 module vtkhdf_file
-  use, intrinsic :: iso_fortran_env, only : int64
   use num_types, only : rp, dp, sp
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
@@ -61,7 +60,7 @@ module vtkhdf_file
      procedure :: set_overwrite => vtkhdf_file_set_overwrite
   end type vtkhdf_file_t
 
-  integer(int64), dimension(2), parameter :: vtkhdf_version = [2_int64, 4_int64]
+  integer, dimension(2), parameter :: vtkhdf_version = [2, 4]
 
 contains
 
@@ -90,17 +89,17 @@ contains
     integer(hsize_t), dimension(1) :: chunkdims
     integer :: suffix_pos, lx, ly, lz, nelv, mpts, npts
     integer :: num_partitions
-    integer(int64) :: local_points, local_cells, local_conn
-    integer(int64) :: total_points, total_cells, total_conn, total_offsets
-    integer(int64) :: point_offset, cell_offset, conn_offset, offsets_offset
-    integer(int64), allocatable :: part_points(:), part_cells(:), part_conns(:)
+    integer :: local_points, local_cells, local_conn
+    integer :: total_points, total_cells, total_conn, total_offsets
+    integer :: point_offset, cell_offset, conn_offset, offsets_offset
+    integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=5) :: id_str
     character(len=1024) :: fname
     character(len=16), dimension(1) :: type_str
     character(len=128) :: field_name
     integer :: name_idx, clean_idx
     real(kind=rp), allocatable :: coords(:,:)
-    integer(int64), allocatable :: connectivity(:), offsets(:)
+    integer, allocatable :: connectivity(:), offsets(:)
     integer, allocatable :: cell_types(:)
     integer(kind=1), allocatable :: cell_types_byte(:)
     integer, dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, 5, 6, 8, 7]
@@ -108,7 +107,7 @@ contains
     real(kind=rp), allocatable :: point_data(:,:)
     integer :: npts_per_cell, nodes_per_cell, subcells_per_el
     integer :: ii, jj, kk, local_idx, conn_idx
-    integer(int64) :: base
+    integer :: base
 
     ! Determine mesh and field data
     select type(data)
@@ -173,9 +172,9 @@ contains
     ! Write Version attribute [2, 5] as an array of 2 64bit integers
     vdims(1) = 2
     call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
-    call h5acreate_f(vtkhdf_grp, "Version", H5T_STD_I64LE, filespace, attr_id, &
+    call h5acreate_f(vtkhdf_grp, "Version", H5T_NATIVE_INTEGER, filespace, attr_id, &
          ierr, h5p_default_f, h5p_default_f)
-    call h5awrite_f(attr_id, H5T_STD_I64LE, vtkhdf_version, vdims(1:1), ierr)
+    call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, vtkhdf_version, vdims(1:1), ierr)
     call h5aclose_f(attr_id, ierr)
     call h5sclose_f(filespace, ierr)
 
@@ -200,9 +199,9 @@ contains
     ! Write mesh information if present
     if (associated(msh)) then
        call MPI_Comm_size(NEKO_COMM, num_partitions, ierr)
-       local_cells = int(msh%nelv, int64)
-       local_points = int(msh%mpts, int64)
-       local_conn = int(msh%npts, int64) * int(msh%nelv, int64)
+       local_cells = msh%nelv
+       local_points = msh%mpts
+       local_conn = msh%npts * msh%nelv
 
        if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
           call neko_error('VTKHDF linear output requires lx, ly >= 2')
@@ -220,9 +219,9 @@ contains
           subcells_per_el = (dof%Xh%lx - 1) * (dof%Xh%ly - 1)
        end if
 
-       local_points = int(msh%nelv, int64) * int(npts_per_cell, int64)
-       local_cells = int(msh%nelv, int64) * int(subcells_per_el, int64)
-       local_conn = local_cells * int(nodes_per_cell, int64)
+       local_points = msh%nelv * npts_per_cell
+       local_cells = msh%nelv * subcells_per_el
+       local_conn = local_cells * nodes_per_cell
 
        allocate(part_points(num_partitions))
        allocate(part_cells(num_partitions))
@@ -235,18 +234,18 @@ contains
        total_points = sum(part_points)
        total_cells = sum(part_cells)
        total_conn = sum(part_conns)
-       total_offsets = total_cells + int(num_partitions, int64)
+       total_offsets = total_cells + num_partitions
 
-       point_offset = 0_int64
-       cell_offset = 0_int64
-       conn_offset = 0_int64
-       offsets_offset = 0_int64
+       point_offset = 0
+       cell_offset = 0
+       conn_offset = 0
+       offsets_offset = 0
        do i = 1, num_partitions
           if (i >= pe_rank + 1) exit
           point_offset = point_offset + part_points(i)
           cell_offset = cell_offset + part_cells(i)
           conn_offset = conn_offset + part_conns(i)
-          offsets_offset = offsets_offset + part_cells(i) + 1_int64
+          offsets_offset = offsets_offset + part_cells(i) + 1
        end do
 
        ! Write NumberOfPoints dataset
@@ -256,10 +255,10 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = 1_hsize_t
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(vtkhdf_grp, "NumberOfPoints", H5T_STD_I64LE, &
+       call h5dcreate_f(vtkhdf_grp, "NumberOfPoints", H5T_NATIVE_INTEGER, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_STD_I64LE, total_points, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, total_points, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
        call h5pclose_f(dcpl_id, ierr)
@@ -272,10 +271,10 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = 1_hsize_t
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(vtkhdf_grp, "NumberOfCells", H5T_STD_I64LE, &
+       call h5dcreate_f(vtkhdf_grp, "NumberOfCells", H5T_NATIVE_INTEGER, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_STD_I64LE, total_cells, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, total_cells, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
        call h5pclose_f(dcpl_id, ierr)
@@ -288,10 +287,10 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = 1_hsize_t
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", H5T_STD_I64LE, &
+       call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", H5T_NATIVE_INTEGER, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        if (pe_rank .eq. 0) then
-          call h5dwrite_f(dset_id, H5T_STD_I64LE, total_conn, vdims(1:1), ierr)
+          call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, total_conn, vdims(1:1), ierr)
        end if
        call h5dclose_f(dset_id, ierr)
        call h5pclose_f(dcpl_id, ierr)
@@ -320,7 +319,7 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(2)))
        call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
-       call h5dcreate_f(vtkhdf_grp, "Points", H5T_IEEE_F32LE, &
+       call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_REAL, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
@@ -346,21 +345,29 @@ contains
                 do jj = 1, dof%Xh%ly - 1
                    do kk = 1, dof%Xh%lz - 1
                       connectivity(conn_idx + 1) = point_offset + base + &
-                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + ii - 1
+                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + &
+                           (jj - 1) * dof%Xh%lx + ii - 1
                       connectivity(conn_idx + 2) = point_offset + base + &
-                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + &
+                           (jj - 1) * dof%Xh%lx + (ii + 1) - 1
                       connectivity(conn_idx + 3) = point_offset + base + &
-                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + &
+                           (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
                       connectivity(conn_idx + 4) = point_offset + base + &
-                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                           (kk - 1) * dof%Xh%lx * dof%Xh%ly + &
+                           (jj + 1 - 1) * dof%Xh%lx + ii - 1
                       connectivity(conn_idx + 5) = point_offset + base + &
-                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + ii - 1
+                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + &
+                           (jj - 1) * dof%Xh%lx + ii - 1
                       connectivity(conn_idx + 6) = point_offset + base + &
-                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + &
+                           (jj - 1) * dof%Xh%lx + (ii + 1) - 1
                       connectivity(conn_idx + 7) = point_offset + base + &
-                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + &
+                           (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
                       connectivity(conn_idx + 8) = point_offset + base + &
-                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                           (kk + 1 - 1) * dof%Xh%lx * dof%Xh%ly + &
+                           (jj + 1 - 1) * dof%Xh%lx + ii - 1
                       conn_idx = conn_idx + 8
                    end do
                 end do
@@ -368,10 +375,14 @@ contains
           else
              do jj = 1, dof%Xh%ly - 1
                 do ii = 1, dof%Xh%lx - 1
-                   connectivity(conn_idx + 1) = point_offset + base + (jj - 1) * dof%Xh%lx + ii - 1
-                   connectivity(conn_idx + 2) = point_offset + base + (jj - 1) * dof%Xh%lx + (ii + 1) - 1
-                   connectivity(conn_idx + 3) = point_offset + base + (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
-                   connectivity(conn_idx + 4) = point_offset + base + (jj + 1 - 1) * dof%Xh%lx + ii - 1
+                   connectivity(conn_idx + 1) = point_offset + base + &
+                        (jj - 1) * dof%Xh%lx + ii - 1
+                   connectivity(conn_idx + 2) = point_offset + base + &
+                        (jj - 1) * dof%Xh%lx + (ii + 1) - 1
+                   connectivity(conn_idx + 3) = point_offset + base + &
+                        (jj + 1 - 1) * dof%Xh%lx + (ii + 1) - 1
+                   connectivity(conn_idx + 4) = point_offset + base + &
+                        (jj + 1 - 1) * dof%Xh%lx + ii - 1
                    conn_idx = conn_idx + 4
                 end do
              end do
@@ -384,7 +395,7 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = max(1_hsize_t, min(int(local_conn, hsize_t), vdims(1)))
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(vtkhdf_grp, "Connectivity", H5T_STD_I64LE, &
+       call h5dcreate_f(vtkhdf_grp, "Connectivity", H5T_NATIVE_INTEGER, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount(1) = int(local_conn, hsize_t)
@@ -392,7 +403,7 @@ contains
        call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_STD_I64LE, connectivity, dcount(1:1), ierr, &
+       call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), ierr, &
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
@@ -414,7 +425,7 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = max(1_hsize_t, min(int(local_cells + 1, hsize_t), vdims(1)))
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_STD_I64LE, &
+       call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_NATIVE_INTEGER, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5dget_space_f(dset_id, filespace, ierr)
        dcount(1) = int(local_cells + 1, hsize_t)
@@ -422,7 +433,7 @@ contains
        call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_STD_I64LE, offsets, dcount(1:1), ierr, &
+       call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, offsets, dcount(1:1), ierr, &
             file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
@@ -544,7 +555,7 @@ contains
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
              chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(2)))
              call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
-             call h5dcreate_f(pointdata_grp, trim(field_name), H5T_IEEE_F32LE, &
+             call h5dcreate_f(pointdata_grp, trim(field_name), H5T_NEKO_REAL, &
                   filespace, dset_id, ierr, dcpl_id = dcpl_id)
              call h5dget_space_f(dset_id, filespace, ierr)
              dcount2 = [3_hsize_t, int(local_points, hsize_t)]
@@ -569,7 +580,7 @@ contains
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
              chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(1)))
              call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-             call h5dcreate_f(pointdata_grp, trim(field_name), H5T_IEEE_F32LE, &
+             call h5dcreate_f(pointdata_grp, trim(field_name), H5T_NEKO_REAL, &
                   filespace, dset_id, ierr, dcpl_id = dcpl_id)
              call h5dget_space_f(dset_id, filespace, ierr)
              call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
@@ -589,16 +600,16 @@ contains
        call h5gclose_f(pointdata_grp, ierr)
     end if
 
-    ! ! Write Time attribute if present
-    ! if (present(t)) then
-    !    ddim(1) = 1
-    !    call h5screate_simple_f(1, ddim(1:1), filespace, ierr)
-    !    call h5acreate_f(vtkhdf_grp, "Time", H5T_NEKO_REAL, filespace, attr_id, &
-    !         ierr, h5p_default_f, h5p_default_f)
-    !    call h5awrite_f(attr_id, H5T_NEKO_REAL, t, ddim(1:1), ierr)
-    !    call h5aclose_f(attr_id, ierr)
-    !    call h5sclose_f(filespace, ierr)
-    ! end if
+    ! Write Time attribute if present
+    if (present(t)) then
+       ddim(1) = 1
+       call h5screate_simple_f(1, ddim(1:1), filespace, ierr)
+       call h5acreate_f(vtkhdf_grp, "Time", H5T_NEKO_REAL, filespace, attr_id, &
+            ierr, h5p_default_f, h5p_default_f)
+       call h5awrite_f(attr_id, H5T_NEKO_REAL, t, ddim(1:1), ierr)
+       call h5aclose_f(attr_id, ierr)
+       call h5sclose_f(filespace, ierr)
+    end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
     call h5pclose_f(plist_id, ierr)
@@ -609,198 +620,6 @@ contains
     if (allocated(field_written)) deallocate(field_written)
 
   end subroutine vtkhdf_file_write
-
-  integer function vtk_local_index(i, j, k, n) result(idx)
-    integer, intent(in) :: i, j, k, n
-    idx = (k - 1) * n * n + (j - 1) * n + i
-  end function vtk_local_index
-
-  ! Mapping from Neko's corner numbering to VTK's corner numbering
-  ! Neko uses [1,2,4,3,5,6,8,7] -> VTK indices [0,1,3,2,4,5,7,6] (0-indexed)
-  ! This function builds the reordering accounting for both Neko corners AND VTK Lagrange ordering
-  subroutine build_vtk_lagrange_hex_order_neko(n, order)
-    integer, intent(in) :: n
-    integer, intent(out) :: order(:)
-    integer :: p, idx, i, j, k, neko_idx, vtk_corner
-    integer, dimension(8), parameter :: neko_to_vtk_corner = [0, 1, 3, 2, 4, 5, 7, 6]
-    integer, dimension(8), parameter :: vtk_to_neko_corner = [1, 2, 4, 3, 5, 6, 8, 7]
-    ! Maps: VTK corner 0 <- Neko corner 1, VTK corner 1 <- Neko corner 2, etc. (0-indexed)
-
-    p = n - 1
-    idx = 0
-
-    ! Write corners in VTK order, but look them up from Neko's corner positions
-    ! VTK corners: [0,1,2,3,4,5,6,7] = [(0,0,0), (1,0,0), (1,1,0), (0,1,0), (0,0,1), (1,0,1), (1,1,1), (0,1,1)]
-    ! But in Neko's (i,j,k) coords: corners are at positions vtk_to_neko_corner
-    idx = idx + 1
-    order(idx) = vtk_local_index(1, 1, 1, n) ! VTK corner 0 from Neko corner 1
-    idx = idx + 1
-    order(idx) = vtk_local_index(n, 1, 1, n) ! VTK corner 1 from Neko corner 2
-    idx = idx + 1
-    order(idx) = vtk_local_index(n, n, 1, n) ! VTK corner 2 from Neko corner 4
-    idx = idx + 1
-    order(idx) = vtk_local_index(1, n, 1, n) ! VTK corner 3 from Neko corner 3
-    idx = idx + 1
-    order(idx) = vtk_local_index(1, 1, n, n) ! VTK corner 4 from Neko corner 5
-    idx = idx + 1
-    order(idx) = vtk_local_index(n, 1, n, n) ! VTK corner 5 from Neko corner 6
-    idx = idx + 1
-    order(idx) = vtk_local_index(n, n, n, n) ! VTK corner 6 from Neko corner 8
-    idx = idx + 1
-    order(idx) = vtk_local_index(1, n, n, n) ! VTK corner 7 from Neko corner 7
-
-    ! Bottom face edges (z=1)
-    do i = 2, n - 1
-       idx = idx + 1
-       order(idx) = vtk_local_index(i, 1, 1, n)
-    end do
-    do j = 2, n - 1
-       idx = idx + 1
-       order(idx) = vtk_local_index(n, j, 1, n)
-    end do
-    do i = n - 1, 2, -1
-       idx = idx + 1
-       order(idx) = vtk_local_index(i, n, 1, n)
-    end do
-    do j = n - 1, 2, -1
-       idx = idx + 1
-       order(idx) = vtk_local_index(1, j, 1, n)
-    end do
-
-    ! Top face edges (z=n)
-    do i = 2, n - 1
-       idx = idx + 1
-       order(idx) = vtk_local_index(i, 1, n, n)
-    end do
-    do j = 2, n - 1
-       idx = idx + 1
-       order(idx) = vtk_local_index(n, j, n, n)
-    end do
-    do i = n - 1, 2, -1
-       idx = idx + 1
-       order(idx) = vtk_local_index(i, n, n, n)
-    end do
-    do j = n - 1, 2, -1
-       idx = idx + 1
-       order(idx) = vtk_local_index(1, j, n, n)
-    end do
-
-    ! Vertical edges
-    do k = 2, n - 1
-       idx = idx + 1
-       order(idx) = vtk_local_index(1, 1, k, n)
-    end do
-    do k = 2, n - 1
-       idx = idx + 1
-       order(idx) = vtk_local_index(n, 1, k, n)
-    end do
-    do k = 2, n - 1
-       idx = idx + 1
-       order(idx) = vtk_local_index(n, n, k, n)
-    end do
-    do k = 2, n - 1
-       idx = idx + 1
-       order(idx) = vtk_local_index(1, n, k, n)
-    end do
-
-    ! Bottom face interior (z=1)
-    do j = 2, n - 1
-       do i = 2, n - 1
-          idx = idx + 1
-          order(idx) = vtk_local_index(i, j, 1, n)
-       end do
-    end do
-
-    ! Top face interior (z=n)
-    do j = 2, n - 1
-       do i = 2, n - 1
-          idx = idx + 1
-          order(idx) = vtk_local_index(i, j, n, n)
-       end do
-    end do
-
-    ! Front face interior (j=1)
-    do k = 2, n - 1
-       do i = 2, n - 1
-          idx = idx + 1
-          order(idx) = vtk_local_index(i, 1, k, n)
-       end do
-    end do
-
-    ! Right face interior (i=n)
-    do k = 2, n - 1
-       do j = 2, n - 1
-          idx = idx + 1
-          order(idx) = vtk_local_index(n, j, k, n)
-       end do
-    end do
-
-    ! Back face interior (j=n)
-    do k = 2, n - 1
-       do i = n - 1, 2, -1
-          idx = idx + 1
-          order(idx) = vtk_local_index(i, n, k, n)
-       end do
-    end do
-
-    ! Left face interior (i=1)
-    do k = 2, n - 1
-       do j = n - 1, 2, -1
-          idx = idx + 1
-          order(idx) = vtk_local_index(1, j, k, n)
-       end do
-    end do
-
-    ! Interior nodes
-    do k = 2, n - 1
-       do j = 2, n - 1
-          do i = 2, n - 1
-             idx = idx + 1
-             order(idx) = vtk_local_index(i, j, k, n)
-          end do
-       end do
-    end do
-  end subroutine build_vtk_lagrange_hex_order_neko
-
-  subroutine build_vtk_lagrange_quad_order(n, order)
-    integer, intent(in) :: n
-    integer, intent(out) :: order(:)
-    integer :: idx, i, j
-
-    idx = 0
-    idx = idx + 1
-    order(idx) = (1 - 1) * n + 1
-    idx = idx + 1
-    order(idx) = (1 - 1) * n + n
-    idx = idx + 1
-    order(idx) = (n - 1) * n + n
-    idx = idx + 1
-    order(idx) = (n - 1) * n + 1
-
-    do i = 2, n - 1
-       idx = idx + 1
-       order(idx) = (1 - 1) * n + i
-    end do
-    do j = 2, n - 1
-       idx = idx + 1
-       order(idx) = (j - 1) * n + n
-    end do
-    do i = n - 1, 2, -1
-       idx = idx + 1
-       order(idx) = (n - 1) * n + i
-    end do
-    do j = n - 1, 2, -1
-       idx = idx + 1
-       order(idx) = (j - 1) * n + 1
-    end do
-
-    do j = 2, n - 1
-       do i = 2, n - 1
-          idx = idx + 1
-          order(idx) = (j - 1) * n + i
-       end do
-    end do
-  end subroutine build_vtk_lagrange_quad_order
 
   !> Read data in HDF5 format following official VTKHDF specification
   subroutine vtkhdf_file_read(this, data)
