@@ -87,7 +87,7 @@ contains
   !! in `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`.
   !! Index  0 corresponds to temperature by default. Therefore using
   !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`.
-  !! @param interpolate Wether or not to interpolate the fld data.
+  !! @param interpolate Whether or not to interpolate the fld data.
   !! @param tolerance If interpolation is enabled, the tolerance to use for the
   !! point finding.
   !! @note If interpolation is disabled, space-to-space interpolation is still
