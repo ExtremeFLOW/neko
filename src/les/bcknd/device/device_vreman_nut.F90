@@ -36,72 +36,115 @@ module device_vreman_nut
   use utils, only: neko_error
   use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
-  
+
   implicit none
   private
 
 #ifdef HAVE_HIP
   interface
      subroutine hip_vreman_nut_compute(a11_d, a12_d, a13_d, &
-                                      a21_d, a22_d, a23_d, &
-                                      a31_d, a32_d, a33_d, &
-                                      delta_d, nut_d, mult_d, c, eps, n) &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'hip_vreman_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
-                             a21_d, a22_d, a23_d, &
-                             a31_d, a32_d, a33_d, &
-                             delta_d, nut_d, mult_d
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            delta_d, nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
      end subroutine hip_vreman_nut_compute
+
+
+     subroutine hip_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          delta_d, nut_d, mult_d, c, eps, n, &
+          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
+          bind(c, name = 'hip_vreman_nut_compute_buoy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
+       real(c_rp) :: g(3)
+       real(c_rp) :: ri_c, ref_temp
+     end subroutine hip_vreman_nut_compute_buoy
+
   end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_vreman_nut_compute(a11_d, a12_d, a13_d, &
-                                      a21_d, a22_d, a23_d, &
-                                      a31_d, a32_d, a33_d, &
-                                      delta_d, nut_d, mult_d, c, eps, n) &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'cuda_vreman_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
-                             a21_d, a22_d, a23_d, &
-                             a31_d, a32_d, a33_d, &
-                             delta_d, nut_d, mult_d
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            delta_d, nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
      end subroutine cuda_vreman_nut_compute
+
+
+     subroutine cuda_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          delta_d, nut_d, mult_d, c, eps, n, &
+          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
+          bind(c, name = 'cuda_vreman_nut_compute_buoy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
+       real(c_rp) :: g(3)
+       real(c_rp) :: ri_c, ref_temp
+     end subroutine cuda_vreman_nut_compute_buoy
+
   end interface
 #elif HAVE_OPENCL
 #endif
 
   public :: device_vreman_nut_compute
+  public :: device_vreman_nut_compute_buoy
 
 contains
 
   !> Compute the eddy viscosity field for the Sigma model indevice
   subroutine device_vreman_nut_compute(a11_d, a12_d, a13_d, &
-                              a21_d, a22_d, a23_d, &
-                              a31_d, a32_d, a33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
+       a21_d, a22_d, a23_d, &
+       a31_d, a32_d, a33_d, &
+       delta_d, nut_d, mult_d, c, eps, n)
     type(c_ptr) :: a11_d, a12_d, a13_d, &
-                   a21_d, a22_d, a23_d, &
-                   a31_d, a32_d, a33_d, &
-                   delta_d, nut_d, mult_d
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d
     integer :: n
     real(kind=rp) :: c, eps
 #if HAVE_HIP
     call hip_vreman_nut_compute(a11_d, a12_d, a13_d, &
-                              a21_d, a22_d, a23_d, &
-                              a31_d, a32_d, a33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_CUDA
     call cuda_vreman_nut_compute(a11_d, a12_d, a13_d, &
-                              a21_d, a22_d, a23_d, &
-                              a31_d, a32_d, a33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_OPENCL
     call neko_error('opencl backend is not supported for device_vreman_nut')
 #else
@@ -109,5 +152,38 @@ contains
 #endif
   end subroutine device_vreman_nut_compute
 
-  
+
+  subroutine device_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+       a21_d, a22_d, a23_d, &
+       a31_d, a32_d, a33_d, &
+       delta_d, nut_d, mult_d, c, eps, n, &
+       dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+    type(c_ptr) :: a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d
+    type(c_ptr) :: dTdx_d, dTdy_d, dTdz_d
+    integer :: n
+    real(kind=rp) :: c, eps
+    real(kind=rp) :: g(3), ri_c, ref_temp
+#if HAVE_HIP
+    call hip_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d, c, eps, n, &
+         dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+#elif HAVE_CUDA
+    call cuda_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         delta_d, nut_d, mult_d, c, eps, n, &
+         dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+#elif HAVE_OPENCL
+    call neko_error('opencl backend is not supported for device_vreman_nut (buoyancy)')
+#else
+    call neko_error('no device backend configured (vreman buoyancy)')
+#endif
+  end subroutine device_vreman_nut_compute_buoy
+
+
 end module device_vreman_nut
