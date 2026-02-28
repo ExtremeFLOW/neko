@@ -137,3 +137,13 @@ you are done, you should run `make check` in the test folder and make sure it
 compiles. If you cannot run this command yourself, you should ask the user to do
 it. Only when this succeds should you start populating the .pf with actual
 tests.
+
+### Integration tests with pytest
+- These tests are located under `tests/integration`.
+- To run and write the tests, pytest is used.
+- Each test typically runs one or several neko case configurations, launched as
+  subprocesses by pytest, and then uses pytest to check the output correctness.
+- Key configuration files are `tests/integration/conftest.py` and
+  `tests/integration/testlib.py`. Looking at these, plus existing tests, will
+  give you a very good idea of how things work.
+
