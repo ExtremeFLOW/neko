@@ -1,11 +1,20 @@
 # Neko guide for AI agents
 
-# What is Neko?
+## What is Neko?
 Neko is computational fluid dynamics (CFD) software based on the Spectral
 Element Method. It primarily targets high-fidelity scale-resolving simulations
 of turbulent flows.
 
-## Helping users setup new Neko simulation cases
+## High-level repository structure
+- `src`, the majority of the source code.
+- `doc`, the Doxygen documentation, with additional pages in markdown format.
+- `examples`, curated collection of simulation cases, and user files, showcasing
+  capabilities.
+- `tests`, unit, integration, and system tests, see "writing tests for Neko"
+  below.
+- `contrib`, misc scripts and utilities for working with Neko.
+
+## Helping users set up new Neko simulation cases
 Neko is simulation software, and a common scenario is that the user will ask
 you to help set up a simulation. Alternatively, they may want tips about specific
 settings or an explanation about a setup they find in an existing case. The
@@ -14,7 +23,7 @@ refer to a concrete simulation as "the case".
 
 ### General guidelines
 Below are the main guidelines you should follow for retrieving information and
-making decisions about how to setup a case.
+making decisions about how to set up a case.
 
 - A simulation case typically lives in its own separate folder, which we will call
   the case folder.
@@ -98,7 +107,7 @@ making decisions about how to setup a case.
     [pFUnit](https://github.com/Goddard-Fortran-Ecosystem/pFUnit). These are run
     by CI for every PR.
   - The folder `tests/integration` contains tests written with pytest. Here,
-    python and pytest are used to setup neko cases, run neko and makeneko as
+    python and pytest are used to set up Neko cases, run `neko` and `makeneko` as
     subprocesses and then post-process the results. These are run by CI for
     every PR.
 - The folder `tests/reframe` contains nightly tests that are run on a
@@ -118,7 +127,7 @@ making decisions about how to setup a case.
 - Make sure you understand how to add the test to the build system, that is
   somewhat tedious. Study `doc/pages/developer-guide/testing.md` carefully to
   that end.
- - File/module naming: pFUnit generates a driver that calls
+- File/module naming: pFUnit generates a driver that calls
    <pf_basename>_suite(), where <pf_basename> is the .pf filename without
    extension. For a smooth link:
    - Keep the module name inside each .pf file identical to the file’s basename
@@ -160,13 +169,6 @@ code. Here is the list of things you need to check.
     similar), the constructor must begin with calling the destructor.
   - All procedures, including type-bound, must have Doxygen documentation,
     including @param for each dummy argument.
-- For *all* files changed in the PR / branch.
-  - Check for typos in the English in the documentation and the docstrings.
-  - Check the copyright statement in the header at the top of the Fortran files,
-    make sure it is the correct year(s).
-  - If the new code adds or modifies JSON parameters in the case file, this must
-    be documented in the User Guide. You can detect that by seeing lines that
-    use subroutines from the `json_utils` module, or directly using the
-    `json_file` type-bound procedures.
-- If CHANGELOG.md is not changed, and the PR at least seems to introduce
-  meaningful changes, issue a reminder.
+- By default, you should also review documentation. The rules for that are
+  found under `doc/AGENTS.md`. If explicitly asked to skip this, follow that
+  directive.
