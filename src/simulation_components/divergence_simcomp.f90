@@ -126,9 +126,9 @@ contains
   !! @param computed_field The base name of the divergence field components.
   subroutine divergence_init_common(this, name, field_names, computed_field)
     class(divergence_t), intent(inout) :: this
-    character(len=*) :: name
-    character(len=*) :: field_names(3)
-    character(len=*) :: computed_field
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: field_names(3)
+    character(len=*), intent(in) :: computed_field
 
     this%name = name
     this%u => neko_registry%get_field_by_name(field_names(1))
@@ -161,8 +161,8 @@ contains
     type(time_based_controller_t), intent(in) :: preprocess_controller
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
-    character(len=*) :: field_names(3)
-    character(len=*) :: computed_field
+    character(len=*), intent(in) :: field_names(3)
+    character(len=*), intent(in) :: computed_field
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
