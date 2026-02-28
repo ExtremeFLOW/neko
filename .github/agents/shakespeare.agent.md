@@ -1,5 +1,5 @@
 ---
-name: shakespear
+name: shakespeare
 description: Reviews pull requests for documentation quality and consistency only.
 target: github-copilot
 ---
