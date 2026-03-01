@@ -127,9 +127,6 @@ program mesh_checker
      f = msh%periodic%facet_el(i)%x(1)
      e = msh%periodic%facet_el(i)%x(2)
      is_periodic(f, e) = .true.
-     f = msh%periodic%p_facet_el(i)%x(1)
-     e = msh%periodic%p_facet_el(i)%x(2)
-     is_periodic(f, e) = .true.
   end do
 
   ! Loop through faces and check
