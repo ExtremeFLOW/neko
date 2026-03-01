@@ -132,7 +132,7 @@ program mesh_checker
      is_periodic(f, e) = .true.
   end do
 
-  ! Loop through face and check
+  ! Loop through faces and check
   ! - Not periodic.
   ! - facet_neigh = 0, so external face.
   ! - face_type = 0, so not a labeled zone.
