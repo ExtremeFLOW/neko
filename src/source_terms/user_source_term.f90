@@ -90,12 +90,13 @@ contains
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: variable_name
 
-    call neko_error("The user source term should be init from components")
+    call neko_error("The user source term should be initialized from " // &
+         "components")
 
   end subroutine user_source_term_init
 
   !> Costructor from components.
-  !! @param fields A list of 3 fields for adding the source values.
+  !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param user_proc The procedure user procedure to compute the source term.
   !! @param scheme_name The name of the scheme that owns this source term.
