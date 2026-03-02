@@ -39,7 +39,7 @@ module coefs
   use dofmap, only : dofmap_t
   use space, only: space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
-       chsign, rzero, invers2, glsum, absval, NEKO_EPS
+       chsign, rzero, invers2, glsum, glmax, absval, NEKO_EPS
   use mesh, only : mesh_t
   use device_math, only : device_rone, device_invcol1, &
        device_glsum, device_absval
@@ -48,7 +48,7 @@ module coefs
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index, &
-       neko_error
+       neko_error, neko_warning
   use comm, only : NEKO_COMM
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
@@ -1318,101 +1318,103 @@ contains
             "Switch cyclic off in the case file.")
     end if
 
-    call coef_generate_cyclic_bc(this)
-   !  allocate(normx(lx, lx, lx, this%msh%nelv))
-   !  allocate(normy(lx, lx, lx, this%msh%nelv))
-   !  allocate(normz(lx, lx, lx, this%msh%nelv))
+    !call coef_generate_cyclic_bc(this)
+    allocate(normx(lx, lx, lx, this%msh%nelv))
+    allocate(normy(lx, lx, lx, this%msh%nelv))
+    allocate(normz(lx, lx, lx, this%msh%nelv))
 
-   !  if (NEKO_BCKND_DEVICE .eq. 1) then
-   !     call device_map(normx, normx_d, ntot)
-   !     call device_map(normy, normy_d, ntot)
-   !     call device_map(normz, normz_d, ntot)
-   !  end if
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(normx, normx_d, ntot)
+       call device_map(normy, normy_d, ntot)
+       call device_map(normz, normz_d, ntot)
+    end if
 
-   !  do ipass = 1, 2
-   !     norm_dss = .false.
-   !     call rzero(normx, ntot)
-   !     call rzero(normy, ntot)
-   !     call rzero(normz, ntot)
+    do ipass = 1, 2
+       norm_dss = .false.
+       call rzero(normx, ntot)
+       call rzero(normy, ntot)
+       call rzero(normz, ntot)
 
-   !     if (ipass .eq. 2) then
-   !        call coef_generate_cyclic_bc(this)
-   !     end if
+       if (ipass .eq. 2) then
+          call coef_generate_cyclic_bc(this)
+       end if
 
-   !     nc = 1
-   !     do n = 1, np
-   !        pf = this%msh%periodic%facet_el(n)%x(1)
-   !        pe = this%msh%periodic%facet_el(n)%x(2)
-   !        do k = 1, lx
-   !           do j = 1, lx
-   !              do i = 1, lx
-   !                 if (index_is_on_facet(i, j, k, lx, lx, lx, pf)) then
-   !                    un = this%get_normal(i, j, k, pe, pf)
-   !                    normx(i,j,k,pe) = un(1) * this%R11(nc) &
-   !                         + un(2) * this%R12(nc)
+       nc = 1
+       do n = 1, np
+          pf = this%msh%periodic%facet_el(n)%x(1)
+          pe = this%msh%periodic%facet_el(n)%x(2)
+          do k = 1, lx
+             do j = 1, lx
+                do i = 1, lx
+                   if (index_is_on_facet(i, j, k, lx, lx, lx, pf)) then
+                      un = this%get_normal(i, j, k, pe, pf)
+                      normx(i,j,k,pe) = un(1) * this%R11(nc) &
+                           + un(2) * this%R12(nc)
 
-   !                    normy(i,j,k,pe) =-un(1) * this%R12(nc) &
-   !                         + un(2) * this%R11(nc)
+                      normy(i,j,k,pe) =-un(1) * this%R12(nc) &
+                           + un(2) * this%R11(nc)
 
-   !                    normz(i,j,k,pe) = un(3)
+                      normz(i,j,k,pe) = un(3)
 
-   !                    nc = nc + 1
-   !                 end if
-   !              end do
-   !           end do
-   !        end do
-   !     end do
+                      nc = nc + 1
+                   end if
+                end do
+             end do
+          end do
+       end do
 
-   !     if (NEKO_BCKND_DEVICE .eq. 1) then
-   !        call device_memcpy(normx, normx_d, ntot, HOST_TO_DEVICE, sync=.false.)
-   !        call device_memcpy(normy, normy_d, ntot, HOST_TO_DEVICE, sync=.false.)
-   !        call device_memcpy(normz, normz_d, ntot, HOST_TO_DEVICE, sync=.false.)
-   !     end if
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(normx, normx_d, ntot, HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(normy, normy_d, ntot, HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(normz, normz_d, ntot, HOST_TO_DEVICE, sync=.false.)
+       end if
 
-   !     call this%gs_h%op(normx, ntot, GS_OP_ADD)
-   !     call this%gs_h%op(normy, ntot, GS_OP_ADD)
-   !     call this%gs_h%op(normz, ntot, GS_OP_ADD)
+       call this%gs_h%op(normx, ntot, GS_OP_ADD)
+       call this%gs_h%op(normy, ntot, GS_OP_ADD)
+       call this%gs_h%op(normz, ntot, GS_OP_ADD)
 
-   !     if (NEKO_BCKND_DEVICE .eq. 1) then
-   !        call device_absval(normx_d, ntot)
-   !        call device_absval(normy_d, ntot)
-   !        call device_absval(normz_d, ntot)
-   !        norm_dss = device_glsum(normx_d, ntot)/ntot .lt. 100.0*NEKO_EPS .and. &
-   !             device_glsum(normy_d, ntot)/ntot .lt. 100.0*NEKO_EPS .and. &
-   !             device_glsum(normz_d, ntot)/ntot .lt. 100.0*NEKO_EPS
-   !        write(*, *) device_glsum(normx_d, ntot)/ntot, device_glsum(normy_d, ntot)/ntot, & 
-   !          device_glsum(normz_d, ntot)/ntot
-   !     else
-   !        call absval(normx, ntot)
-   !        call absval(normy, ntot)
-   !        call absval(normz, ntot)
-   !        norm_dss = glsum(normx, ntot)/ntot .lt. 100*NEKO_EPS .and. &
-   !             glsum(normy, ntot)/ntot .lt. 100*NEKO_EPS .and. &
-   !             glsum(normz, ntot)/ntot .lt. 100*NEKO_EPS
-   !        write(*, *) glsum(normx, ntot)/ntot, glsum(normy, ntot)/ntot, glsum(normz, ntot)/ntot
-   !     end if
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_absval(normx_d, ntot)
+          call device_absval(normy_d, ntot)
+          call device_absval(normz_d, ntot)
+          norm_dss = device_glsum(normx_d, ntot)/np_glb .lt. 100.0*NEKO_EPS .and. &
+               device_glsum(normy_d, ntot)/np_glb .lt. 100.0*NEKO_EPS .and. &
+               device_glsum(normz_d, ntot)/np_glb .lt. 100.0*NEKO_EPS
+          write(*, *) device_glsum(normx_d, ntot)/np_glb, device_glsum(normy_d, ntot)/np_glb, & 
+            device_glsum(normz_d, ntot)/np_glb
+       else
+          call absval(normx, ntot)
+          call absval(normy, ntot)
+          call absval(normz, ntot)
+          norm_dss = glsum(normx, ntot)/np_glb .lt. 100*NEKO_EPS .and. &
+               glsum(normy, ntot)/np_glb .lt. 100*NEKO_EPS .and. &
+               glsum(normz, ntot)/np_glb .lt. 100*NEKO_EPS
+          write(*, *) "GLMAX ", glmax(normx, ntot), glmax(normy, ntot), glmax(normz, ntot)
+          write(*, *) "GLSUM ", glsum(normx, ntot)/np_glb, glsum(normy, ntot)/np_glb, &
+                                glsum(normz, ntot)/np_glb
+       end if
 
-   !     if (ipass .eq. 1 .and. norm_dss) then
-   !        call neko_error("Cyclic rotation is not required. " // &
-   !             "Switch it off in case file.")
-   !        !else if (ipass .eq. 1 .and. norm_dss .eqv. false)
-   !        !wait for ipass=2 to check if current rotation logic is sufficient
-   !     else if (ipass .eq. 2 .and. .not. norm_dss) then
-   !        call neko_error("Cylic rotation is required, but " // &
-   !             "rotation logic must be modified.")
-   !        !if (ipass .eq. 2 .and. norm_dss)
-   !        !current logic is sufficient, proceed.
-   !     end if
-   !  end do
-   !  deallocate(normx)
-   !  deallocate(normy)
-   !  deallocate(normz)
+       if (ipass .eq. 1 .and. norm_dss) then
+          call neko_warning("Cyclic rotation is not required. " // &
+               "Switch it off in case file.")
+          !else if (ipass .eq. 1 .and. norm_dss .eqv. false)
+          !wait for ipass=2 to check if current rotation logic is sufficient
+       else if (ipass .eq. 2 .and. .not. norm_dss) then
+          call neko_warning("Cylic rotation is required, but " // &
+               "rotation logic must be modified.")
+          !if (ipass .eq. 2 .and. norm_dss)
+          !current logic is sufficient, proceed.
+       end if
+    end do
+    deallocate(normx)
+    deallocate(normy)
+    deallocate(normz)
 
-   !  if (NEKO_BCKND_DEVICE .eq. 1) then
-   !     call device_free(normx_d)
-   !     call device_free(normy_d)
-   !     call device_free(normz_d)
-   !  end if
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_free(normx_d)
+       call device_free(normy_d)
+       call device_free(normz_d)
+    end if
 
   end subroutine coef_check_cyclic
 
