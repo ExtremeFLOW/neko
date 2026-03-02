@@ -110,8 +110,8 @@ making decisions about how to set up a case.
     python and pytest are used to set up Neko cases, run `neko` and `makeneko` as
     subprocesses and then post-process the results. These are run by CI for
     every PR.
-- The folder `tests/reframe` contains nightly tests that are run on a
-  supercomputer via a gitlab pipeline. The tests are written using
+  - The folder `tests/reframe` contains nightly tests that are run on a
+    supercomputer via a gitlab pipeline. The tests are written using
     [reframe](https://reframe-hpc.readthedocs.io/en/stable/). These are
     validation tests checking that important cases produce the expected output.
 
@@ -147,6 +147,15 @@ you are done, you should run `make check` in the test folder and make sure it
 compiles. If you cannot run this command yourself, you should ask the user to do
 it. Only when this succeeds should you start populating the .pf with actual
 tests.
+
+### Integration tests with pytest
+- These tests are located under `tests/integration`.
+- To run and write the tests, pytest is used.
+- Each test typically runs one or several neko case configurations, launched as
+  subprocesses by pytest, and then uses pytest to check the output correctness.
+- Key configuration files are `tests/integration/conftest.py` and
+  `tests/integration/testlib.py`. Looking at these, plus existing tests, will
+  give you a very good idea of how things work.
 
 ## Code review
 You may be asked to review new code, in the context of a PR or a local git
