@@ -79,8 +79,9 @@ module fluid_volflow
   use scratch_registry, only : neko_scratch_registry
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -334,7 +335,7 @@ contains
   !!
   !! pff 6/28/98
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
-       c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
+       c_Xh, gs_Xh, ext_bdf, rho, mu, dt, t, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
        Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
        vel_max_iter)
@@ -345,7 +346,7 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
-    real(kind=rp), intent(in) :: rho, dt
+    real(kind=rp), intent(in) :: rho, dt, t
     type(field_t) :: mu
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
@@ -357,6 +358,8 @@ contains
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr, i
+
+    character(len=200) :: log_buf   
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)
@@ -418,6 +421,20 @@ contains
       delta_flow = flow_rate - current_flow
       scale = delta_flow / this%base_flow
 
+      if (pe_rank.eq.0) then
+         if (this%flow_dir .eq. 1) then
+            write(log_buf,'(a,5e18.9)') &
+                 'VOLX', t, scale, flow_rate, current_flow, this%base_flow
+         else if (this%flow_dir .eq. 2) then
+            write(log_buf,'(a,5e18.9)') &
+                 'VOLY', t, scale, flow_rate, current_flow, this%base_flow
+         else if (this%flow_dir .eq. 3) then
+            write(log_buf,'(a,5e18.9)') &
+                 'VOLZ', t, scale, flow_rate, current_flow, this%base_flow
+         end if
+         call neko_log%message(log_buf)
+      end if
+     
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(u%x_d, u_vol%x_d, scale, n)
          call device_add2s2(v%x_d, v_vol%x_d, scale, n)
