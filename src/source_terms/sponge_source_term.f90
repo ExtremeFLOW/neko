@@ -48,7 +48,7 @@ module sponge_source_term
   use source_term, only : source_term_t
   use case, only : case_t
   use simcomp_executor, only : neko_simcomps
-  use flow_ic, only : set_flow_ic_fld, set_flow_ic
+  use import_field_utils, only : import_fields
   use field_list, only : field_list_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN
@@ -303,29 +303,11 @@ contains
     this%w_bf => neko_registry%get_field(trim(bf_registry_pref) // "_w")
 
     !
-    ! Use the initial condition field subroutine to set a field as baseflow
+    ! Import the u,v,w baseflows from fld
     !
-
-    ! TODO
-    ! This is a bit awkward, because the init for the source terms occurs
-    ! before the init of the scratch registry.
-    ! So we can't use the scratch registry here.
-    ! call neko_scratch_registry%request_field(wk, tmp_index)
-    call wk%init(this%u%dof)
-
-    call set_flow_ic_fld(this%u_bf, this%v_bf, this%w_bf, wk, &
-         file_name, interpolate, tolerance, mesh_file_name)
-
-    call wk%free()
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%u_bf%x, this%u_bf%x_d, this%u_bf%size(), &
-            HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%v_bf%x, this%v_bf%x_d, this%v_bf%size(), &
-            HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%w_bf%x, this%w_bf%x_d, this%w_bf%size(), &
-            HOST_TO_DEVICE, .true.)
-    end if
+    call import_fields(file_name, mesh_file_name, &
+         u = this%u_bf, v = this%v_bf, w = this%w_bf, &
+         interpolate = interpolate, tolerance = tolerance)
 
     this%baseflow_set = .true.
 

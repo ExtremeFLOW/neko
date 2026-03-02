@@ -9,41 +9,45 @@ module fld_file_data
   use num_types, only : rp
   use math, only : cmult, add2
   use vector, only : vector_t, vector_ptr_t
+  use interpolation, only : interpolator_t
   use field, only : field_t
+  use field_list, only : field_list_t
+  use logger, only : neko_log, LOG_SIZE
+  use device, only : HOST_TO_DEVICE
   use dofmap, only : dofmap_t
   use space, only : space_t, GLL
   use global_interpolation, only : global_interpolation_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_FNAME_LEN, extract_fld_file_index
   use mesh, only : mesh_t
   implicit none
   private
 
   type, public :: fld_file_data_t
-     type(vector_t) :: x !< x-coords
-     type(vector_t) :: y !< y-coords
-     type(vector_t) :: z !< z-coords
-     type(vector_t) :: u !< x-velocity field
-     type(vector_t) :: v !< y-velocity field
-     type(vector_t) :: w !< z-velocity field
-     type(vector_t) :: p !< pressure field
-     type(vector_t) :: t !< temperature
-     integer, allocatable :: idx(:) !< element idxs
-     type(vector_t), allocatable :: s(:) !< Numbered scalar fields
-     integer :: gdim !< spatial dimensions
-     integer :: n_scalars = 0 !< number of numbered scalar fields
-     real(kind=rp) :: time = 0.0 !< time of sample
-     integer :: glb_nelv = 0 !< global number of elements
-     integer :: nelv = 0 !< n elements on the pe
-     integer :: offset_el = 0 !< element offset for this pe
-     integer :: lx = 0 !< N GLL points in x
-     integer :: ly = 0
-     integer :: lz = 0
-     integer :: t_counter = 0 !< counter of samples
+     type(vector_t) :: x !< x-coordinates.
+     type(vector_t) :: y !< y-coordinates.
+     type(vector_t) :: z !< z-coordinates.
+     type(vector_t) :: u !< x-velocity field.
+     type(vector_t) :: v !< y-velocity field.
+     type(vector_t) :: w !< z-velocity field.
+     type(vector_t) :: p !< Pressure field.
+     type(vector_t) :: t !< Temperature field.
+     integer, allocatable :: idx(:) !< element indices.
+     type(vector_t), allocatable :: s(:) !< Numbered scalar fields.
+     integer :: gdim !< Spatial dimensions.
+     integer :: n_scalars = 0 !< Number of numbered scalar fields.
+     real(kind=rp) :: time = 0.0 !< Time of latest sample/read.
+     integer :: glb_nelv = 0 !< Global number of elements.
+     integer :: nelv = 0 !< Number of elements on this rank.
+     integer :: offset_el = 0 !< Element offset for this rank.
+     integer :: lx = 0 !< Number of GLL points in x.
+     integer :: ly = 0 !< Number of GLL points in y.
+     integer :: lz = 0 !< Number of GLL points in z.
+     integer :: t_counter = 0 !< counter of samples.
      ! meta file information (if any)
-     !> number of samples specified in .nek5000 file
+     !> Number of samples specified in .nek5000 file.
      integer :: meta_nsamples = 0
-     integer :: meta_start_counter = 0 !< number of first field
-     !> name of fld series as specified in .nek5000 (meta) file
+     integer :: meta_start_counter = 0 !< Index of the first field file.
+     !> name of fld series as specified in .nek5000 (meta) file.
      character(len=1024) :: fld_series_fname
    contains
      procedure, pass(this) :: init => fld_file_data_init
@@ -57,11 +61,230 @@ module fld_file_data
      !> Generates a global_interpolation object to interpolate the fld data.
      procedure, pass(this) :: generate_interpolator => &
           fld_file_data_generate_interpolator
+     !> Reads an fld file and import fields, with/without interpolation.
+     procedure, pass(this) :: import_fields => fld_file_data_import_fields
   end type fld_file_data_t
 
 contains
 
-  !> Initialise a fld_file_data object with nelv elements with a offset_nel
+  !> Imports fields from an fld_file_data object, potentially with
+  !! interpolation.
+  !! @param this fld_data object. Must already be initialized, no
+  !! checks are done.
+  !! @param u The field on which to import the u component of the fld data.
+  !! @param v The field on which to import the v component of the fld data.
+  !! @param w The field on which to import the w component of the fld data.
+  !! @param p The field on which to import the pressure field of the fld data.
+  !! @param t The field on which to import the temperature field of the fld
+  !! data.
+  !! @param s_target_list Field list containing the fields on which to import
+  !! the scalar fields of the fld data. Unless a list of target indices is
+  !! provided in `s_index_list`, assigns field at position `i` in the list
+  !! to scalar `i` in the fld file.
+  !! @param s_index_list The list of scalars indices from which to load the
+  !! fields provided in `s_target_list`. Must have the same size as
+  !! `s_target_list`. For example, s_index_list = (/2,3/) will load scalar #2
+  !! in `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`.
+  !! Index  0 corresponds to temperature by default. Therefore using
+  !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`.
+  !! @param interpolate Whether or not to interpolate the fld data.
+  !! @param tolerance If interpolation is enabled, the tolerance to use for the
+  !! point finding.
+  !! @note If interpolation is disabled, space-to-space interpolation is still
+  !! performed within each element to allow for seamless change of polynomial
+  !! order for the same given mesh.
+  !! @attention No data movement between CPU and GPU is done in this
+  !! subroutine. The required data must be copied manually beforehand (see
+  !! import_field_utils.f90).
+  subroutine fld_file_data_import_fields(this, u, v, w, p, t, &
+       s_target_list, s_index_list, interpolate, tolerance)
+    class(fld_file_data_t), intent(inout) :: this
+    type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
+    type(field_list_t), intent(inout), optional :: s_target_list
+    integer, intent(in), optional :: s_index_list(:)
+    logical, intent(in), optional :: interpolate
+    real(kind=rp), intent(in), optional :: tolerance
+
+    integer :: i
+
+    ! ---- For the mesh to mesh interpolation
+    logical :: mesh_mismatch
+    logical :: interpolate_
+    type(global_interpolation_t) :: global_interp
+    type(dofmap_t), pointer :: dof
+    type(mesh_t) , pointer :: msh
+    ! -----
+
+    ! ---- For space to space interpolation
+    type(space_t) :: prev_Xh
+    type(space_t) , pointer :: Xh
+    type(interpolator_t) :: space_interp
+    ! ----
+
+    character(len=LOG_SIZE) :: log_buf
+
+    ! ---- Default values
+    interpolate_ = .false.
+    if (present(interpolate)) interpolate_ = interpolate
+    ! ----
+
+    !
+    ! Handle the passing of arguments and pointers
+    !
+    dof => null()
+    msh => null()
+    Xh => null()
+
+    if (present(u)) then
+       dof => u%dof; msh => u%msh; Xh => u%Xh
+    else if (present(v)) then
+       dof => v%dof; msh => v%msh; Xh => v%Xh
+    else if (present(w)) then
+       dof => w%dof; msh => w%msh; Xh => w%Xh
+    else if (present(p)) then
+       dof => p%dof; msh => p%msh; Xh => p%Xh
+    else if (present(t)) then
+       dof => t%dof; msh => t%msh; Xh => t%Xh
+    else if (present(s_target_list)) then
+       if (s_target_list%size() .eq. 0) then
+          call neko_error("Scalar target list is empty")
+       else
+          dof => s_target_list%items(1)%ptr%dof
+          msh => s_target_list%items(1)%ptr%msh
+          Xh => s_target_list%items(1)%ptr%Xh
+       end if
+    else
+       call neko_error("At least one field must be passed")
+    end if
+
+    !
+    ! Check that the data in the fld file matches the current case.
+    ! Note that this is a safeguard and there are corner cases where
+    ! two different meshes have the same dimension and same # of elements
+    ! but this should be enough to cover obvious cases.
+    !
+    mesh_mismatch = (this%glb_nelv .ne. msh%glb_nelv .or. &
+         this%gdim .ne. msh%gdim)
+
+    if (mesh_mismatch .and. .not. interpolate_) then
+       call neko_error("The fld file must match the current mesh! &
+       &Use 'interpolate': 'true' to enable interpolation.")
+    else if (.not. mesh_mismatch .and. interpolate_) then
+       call neko_log%warning("You have activated interpolation but you might &
+       &still be using the same mesh.")
+    end if
+
+    !
+    ! Handling of interpolation and I/O
+    !
+    if (interpolate_) then
+
+       ! Throw error if dof or msh are not specified
+       ! This should never be thrown, but just in case.
+       if (.not. associated(dof) .or. .not. associated(msh)) then
+          call neko_error("both dof and msh must be associated")
+       end if
+
+       ! Generates an interpolator object and performs the point search
+       call this%generate_interpolator(global_interp, dof, msh, &
+            tolerance = tolerance)
+
+       ! Evaluate all the fields
+       if (present(u)) call global_interp%evaluate(u%x(:,1,1,1), this%u%x, &
+            on_host = .false.)
+       if (present(v)) call global_interp%evaluate(v%x(:,1,1,1), this%v%x, &
+            on_host = .false.)
+       if (present(w)) call global_interp%evaluate(w%x(:,1,1,1), this%w%x, &
+            on_host = .false.)
+       if (present(p)) call global_interp%evaluate(p%x(:,1,1,1), this%p%x, &
+            on_host = .false.)
+       if (present(t)) call global_interp%evaluate(t%x(:,1,1,1), this%t%x, &
+            on_host = .false.)
+       if (present(s_target_list)) then
+
+          ! If the index list exists, use it as a "mask"
+          if (present(s_index_list)) then
+             do i = 1, size(s_index_list)
+                ! Take care that if we set i=0 we want temperature
+                if (s_index_list(i) .eq. 0) then
+                   call global_interp%evaluate(s_target_list%x(i), &
+                        this%t%x, on_host = .false.)
+                else
+                   ! For scalar fields, require indices in 1:this%n_scalars
+                   if (s_index_list(i) < 1 .or. &
+                           s_index_list(i) > this%n_scalars) then
+                      call neko_error("s_index_list entry out of bounds")
+                   end if
+                   call global_interp%evaluate(s_target_list%x(i), &
+                        this%s(s_index_list(i))%x, on_host = .false.)
+                end if
+             end do
+
+             ! otherwise, just copy element-to-element
+          else
+             do i = 1, s_target_list%size()
+                call global_interp%evaluate(s_target_list%x(i), this%s(i)%x, &
+                     on_host = .false.)
+             end do
+          end if ! present s_index_list
+       end if ! present s_tgt
+
+       call global_interp%free()
+
+    else ! No interpolation, but potentially just from different spaces
+
+       ! throw an error is the space is not passed
+       if (.not. associated(Xh)) call neko_error("Xh is not associated")
+
+       ! Build a space_t object from the data in the fld file
+       call prev_Xh%init(GLL, this%lx, this%ly, this%lz)
+       call space_interp%init(Xh, prev_Xh)
+
+       ! Do the space-to-space interpolation
+       if (present(u)) call space_interp%map(u%x, this%u%x, this%nelv, Xh)
+       if (present(v)) call space_interp%map(v%x, this%v%x, this%nelv, Xh)
+       if (present(w)) call space_interp%map(w%x, this%w%x, this%nelv, Xh)
+       if (present(p)) call space_interp%map(p%x, this%p%x, this%nelv, Xh)
+       if (present(t)) call space_interp%map(t%x, this%t%x, this%nelv, Xh)
+       if (present(s_target_list)) then
+
+          ! If the index list exists, use it as a "mask"
+          if (present(s_index_list)) then
+             do i = 1, size(s_index_list)
+
+                ! 0 means we want temperature
+                if (s_index_list(i) .eq. 0) then
+                   call space_interp%map(s_target_list%x(i), &
+                        this%t%x, this%nelv, Xh)
+                else
+                   call space_interp%map(s_target_list%x(i), &
+                        this%s(s_index_list(i))%x, this%nelv, Xh)
+                end if
+             end do
+
+             ! otherwise, just copy element-to-element
+          else
+             do i = 1, s_target_list%size()
+                call space_interp%map(s_target_list%x(i), this%s(i)%x, &
+                     this%nelv, Xh)
+             end do
+          end if ! present s_index_list
+       end if ! present s_tgt
+
+       call space_interp%free
+       call prev_Xh%free
+
+    end if ! if interpolate
+
+    nullify(dof)
+    nullify(Xh)
+    nullify(msh)
+
+  end subroutine fld_file_data_import_fields
+
+  !> Initializes a fld_file_data object.
+  !! @param nelv Number of elements (on this rank).
+  !! @param offset_el Element offset for this rank.
   subroutine fld_file_data_init(this, nelv, offset_el)
     class(fld_file_data_t), intent(inout) :: this
     integer, intent(in), optional :: nelv, offset_el
@@ -71,7 +294,8 @@ contains
     if (present(offset_el)) this%offset_el = offset_el
 
   end subroutine fld_file_data_init
-  !> Get number of fields in this fld file
+
+  !> Get the number of initialized fields in this fld file.
   function fld_file_data_size(this) result(i)
     class(fld_file_data_t) :: this
     integer :: i

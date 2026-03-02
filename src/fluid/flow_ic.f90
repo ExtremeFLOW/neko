@@ -38,6 +38,7 @@ module flow_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
+  use import_field_utils, only : import_fields
   use device, only : device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, &
@@ -410,174 +411,35 @@ contains
   !! file where the mesh coordinates are located.
   subroutine set_flow_ic_fld(u, v, w, p, file_name, &
        interpolate, tolerance, mesh_file_name)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    character(len=*), intent(in) :: file_name
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    type(field_t), target, intent(inout) :: p
+    character(len=*), intent(inout) :: file_name
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
 
-    character(len=LOG_SIZE) :: log_buf
-    integer :: sample_idx, sample_mesh_idx
-    integer :: last_index
-    type(fld_file_data_t) :: fld_data
-    type(file_t) :: f
-    logical :: mesh_mismatch
+    type(field_t), pointer :: us, vs, ws, ps
 
-    ! ---- For the mesh to mesh interpolation
-    type(global_interpolation_t) :: global_interp
-    ! -----
+    us => u
+    vs => v
+    ws => w
+    ps => p
 
-    ! ---- For space to space interpolation
-    type(space_t) :: prev_Xh
-    type(interpolator_t) :: space_interp
-    ! ----
+    call import_fields(file_name, mesh_file_name, &
+         u = us, v = vs, w = ws, p = ps, &
+         interpolate = interpolate, tolerance = tolerance)
 
-    call neko_log%message("Type          : field")
-    call neko_log%message("File name     : " // trim(file_name))
-    write (log_buf, '(A,L1)') "Interpolation : ", interpolate
-    call neko_log%message(log_buf)
-    if (interpolate) then
-    end if
+    nullify(us, vs, ws, ps)
 
-    ! Extract sample index from the file name
-    sample_idx = extract_fld_file_index(file_name, -1)
-
-    if (sample_idx .eq. -1) &
-         call neko_error("Invalid file name for the initial condition. The&
-    & file format must be e.g. 'mean0.f00001'")
-
-    ! Change from "field0.f000*" to "field0.fld" for the fld reader
-    call filename_chsuffix(file_name, file_name, 'fld')
-
-    call fld_data%init
-    call f%init(trim(file_name))
-
-    if (interpolate) then
-
-       ! If no mesh file is specified, use the default file name
-       if (mesh_file_name .eq. "none") then
-          mesh_file_name = trim(file_name)
-          sample_mesh_idx = sample_idx
-       else
-
-          ! Extract sample index from the mesh file name
-          sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
-
-          if (sample_mesh_idx .eq. -1) then
-             call neko_error("Invalid file name for the initial condition. &
-             &The file format must be e.g. 'mean0.f00001'")
-          end if
-
-          write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
-          call neko_log%message(log_buf)
-          write (log_buf, '(A,A)') "Mesh file     : ", &
-               trim(mesh_file_name)
-          call neko_log%message(log_buf)
-
-       end if ! if mesh_file_name .eq. none
-
-       ! Read the mesh coordinates if they are not in our fld file
-       if (sample_mesh_idx .ne. sample_idx) then
-          call f%set_counter(sample_mesh_idx)
-          call f%read(fld_data)
-       end if
-
-    end if
-
-    ! Read the field file containing (u,v,w,p)
-    call f%set_counter(sample_idx)
-    call f%read(fld_data)
-
-    !
-    ! Check that the data in the fld file matches the current case.
-    ! Note that this is a safeguard and there are corner cases where
-    ! two different meshes have the same dimension and same # of elements
-    ! but this should be enough to cover obvious cases.
-    !
-    mesh_mismatch = (fld_data%glb_nelv .ne. u%msh%glb_nelv .or. &
-         fld_data%gdim .ne. u%msh%gdim)
-
-    if (mesh_mismatch .and. .not. interpolate) then
-       call neko_error("The fld file must match the current mesh! &
-       &Use 'interpolate': 'true' to enable interpolation.")
-    else if (.not. mesh_mismatch .and. interpolate) then
-       call neko_log%warning("You have activated interpolation but you might &
-       &still be using the same mesh.")
-    end if
-
-    ! Mesh interpolation if specified
-    if (interpolate) then
-
-       ! Issue a warning if the mesh is in single precision
-       select type (ft => f%file_type)
-       type is (fld_file_t)
-          if (.not. ft%dp_precision) then
-             call neko_warning("The coordinates read from the field file are &
-             &in single precision.")
-             call neko_log%message("It is recommended to use a mesh in double &
-             &precision for better interpolation results.")
-             call neko_log%message("If the interpolation does not work, you&
-             &can try to increase the tolerance.")
-          end if
-       class default
-       end select
-
-       ! Sync coordinates to device for the interpolation
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(fld_data%x%x, fld_data%x%x_d, fld_data%x%size(), &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(fld_data%y%x, fld_data%y%x_d, fld_data%y%size(), &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(fld_data%z%x, fld_data%z%x_d, fld_data%z%size(), &
-               HOST_TO_DEVICE, sync = .true.)
-       end if
-
-       ! Generates an interpolator object and performs the point search
-       call fld_data%generate_interpolator(global_interp, u%dof, u%msh, &
-            tolerance)
-       call fld_data%u%copy_from(host_to_device, .true.)
-       call fld_data%v%copy_from(host_to_device, .true.)
-       call fld_data%w%copy_from(host_to_device, .true.)
-       call fld_data%p%copy_from(host_to_device, .true.)
-       ! Evaluate velocities and pressure
-
-       call global_interp%evaluate(u%x(:,1,1,1), fld_data%u%x, .false.)
-       call global_interp%evaluate(v%x(:,1,1,1), fld_data%v%x, .false.)
-       call global_interp%evaluate(w%x(:,1,1,1), fld_data%w%x, .false.)
-       call global_interp%evaluate(p%x(:,1,1,1), fld_data%p%x, .false.)
-       call u%copy_from(device_to_host, .true.)
-       call v%copy_from(device_to_host, .true.)
-       call w%copy_from(device_to_host, .true.)
-       call p%copy_from(device_to_host, .true.)
-
-       call global_interp%free
-
-    else ! No interpolation, but potentially just from different spaces
-
-       ! Build a space_t object from the data in the fld file
-       call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
-       call space_interp%init(u%Xh, prev_Xh)
-
-       ! Do the space-to-space interpolation
-       call space_interp%map_host(u%x, fld_data%u%x, fld_data%nelv, u%Xh)
-       call space_interp%map_host(v%x, fld_data%v%x, fld_data%nelv, u%Xh)
-       call space_interp%map_host(w%x, fld_data%w%x, fld_data%nelv, u%Xh)
-       call space_interp%map_host(p%x, fld_data%p%x, fld_data%nelv, u%Xh)
-
-       call space_interp%free
-
-    end if
-
-    ! NOTE: we do not copy (u,v,w) to the GPU since `set_flow_ic_common` does
-    ! the copy for us
-    if (NEKO_BCKND_DEVICE .eq. 1) call device_memcpy(p%x, p%x_d, p%dof%size(), &
-         HOST_TO_DEVICE, sync = .false.)
-
-    call fld_data%free
-    call prev_Xh%free()
+    ! If we are on GPU we need to move (u,v,w) back to the host
+    ! since set_flow_ic_common copies it again to the device.
+    ! NOTE: p can stay on the device since it is not copied by
+    ! set_flow_ic_common
+    call u%copy_from(device_to_host, .false.)
+    call v%copy_from(device_to_host, .false.)
+    call w%copy_from(device_to_host, .true.)
 
   end subroutine set_flow_ic_fld
 
