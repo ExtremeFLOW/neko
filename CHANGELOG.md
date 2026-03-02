@@ -1,6 +1,24 @@
 # Changelog
 
 ## Develop
+
+- Added `vector_list_t` and `name` to `vector_t`.
+- Rework hash table iterators, significantly faster (O(tsize) => O(entries)
+- Remove redundant directory in `site-packages` when installing pyneko
+- Added options to used masked parts of the domain when performing interpolation
+- Update the simcomp wrappers to better handle allocation and deallocation.
+- Added a factory subroutine for scalar schemes, allowing for more flexible
+  creation of scalar scheme objects based on JSON input.
+- Fixed a bug in the scalar scheme handler where polymorphic objects were not
+  being handled correctly.
+- Support for user-defined scalar schemes are now added.
+- Added source term for direct forcing from a field defined in the registry.
+- Add description of the `fld` file format to the documentation.
+- Added possibility to assign names to boundary conditions in the case file. The 
+  `bc_list_t` now supports item retrieval by name or zone_index.
+- Runtime statistics fields are now retrievable from the registry, for both 
+  fluid_stats and user_stats. The naming convention of the fields in the 
+  registry is `name_of_simcomp + "/mean_" + name_of_field`.
 - Updated field types with a wrapper and ensure lifetime management of field
   data in field lists and arrays.
 - Updated Developer Patterns documentation with new information on how to manage
