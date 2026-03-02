@@ -145,6 +145,7 @@ neko_fortran_SOURCES = \
 	io/rea_file.f90\
 	io/bp_file.F90\
 	io/fld_file.f90\
+	io/import_field_utils.f90\
 	io/fld_file_data.f90\
 	io/vtk_file.f90\
 	io/stl_file.f90\
