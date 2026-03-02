@@ -48,7 +48,7 @@ module advection
      procedure(compute_adv), pass(this), deferred :: compute
      procedure(compute_scalar_adv), pass(this), deferred :: compute_scalar
      procedure(compute_ale_adv), pass(this), deferred :: compute_ale
-     procedure(advection_update_metrics), pass(this), deferred :: update_metrics
+     procedure(advection_recompute_metrics), pass(this), deferred :: recompute_metrics
      procedure(advection_free), pass(this), deferred :: free
   end type advection_t
 
@@ -178,13 +178,13 @@ module advection
     !> Update any geometry/metric data inside the advection object.
     !> For eg., in ALE, maps the coef_GLL to coef_GL at each iteration
     !> for dealiasing.
-    subroutine advection_update_metrics(this, coef, moving_boundary)
+    subroutine advection_recompute_metrics(this, coef, moving_boundary)
       import :: advection_t
       import :: coef_t
       class(advection_t), intent(inout) :: this
       type(coef_t), intent(in) :: coef
       logical, intent(in) :: moving_boundary
-    end subroutine advection_update_metrics
+    end subroutine advection_recompute_metrics
   end interface
 
   abstract interface

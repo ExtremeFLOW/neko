@@ -1316,7 +1316,7 @@ subroutine ale_manager_init(this, coef, json, user)
 
     call this%set_pivot_restart(time_restart)
     call coef%recompute_metrics()
-    call adv%update_metrics(coef, .true.)
+    call adv%recompute_metrics(coef, .true.)
 
   end subroutine set_coef_restart
 

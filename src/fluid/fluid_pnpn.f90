@@ -780,7 +780,7 @@ contains
          call c_Xh%recompute_metrics()
          ! Update the metrics used by the adv operator for delaiasing (coef_GL)
          ! Maps the updated coef_GLL to coef_GL.
-         call this%adv%update_metrics(c_Xh, .true.)     
+         call this%adv%recompute_metrics(c_Xh, .true.)     
       end if
 
       call ulag%update()

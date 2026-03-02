@@ -58,7 +58,7 @@ module adv_dummy
       !! the RHS.
       procedure, pass(this) :: compute_ale => compute_ale_adv_dummy
      !> Update any metrics needed for the advection computation in ALE.
-     procedure, pass(this) :: update_metrics => update_metrics_dummy_noop
+     procedure, pass(this) :: recompute_metrics => recompute_metrics_dummy_noop
   end type adv_dummy_t
 
 contains
@@ -128,12 +128,12 @@ contains
 
   end subroutine compute_scalar_adv_dummy
 
-  subroutine update_metrics_dummy_noop(this, coef, moving_boundary)
+  subroutine recompute_metrics_dummy_noop(this, coef, moving_boundary)
     class(adv_dummy_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     logical, intent(in) :: moving_boundary
     ! no-op
-  end subroutine update_metrics_dummy_noop
+  end subroutine recompute_metrics_dummy_noop
 
    subroutine compute_ale_adv_dummy(this, vx, vy, vz, wm_x, wm_y, wm_z, &
                                            fx, fy, fz, Xh, coef, n, dt)

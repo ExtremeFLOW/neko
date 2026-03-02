@@ -112,7 +112,7 @@ module adv_oifs
      !> the RHS
        procedure, pass(this) :: compute_ale => adv_oifs_compute_ale
      !> Update any metrics needed for the advection computation in ALE.
-     procedure, pass(this) :: update_metrics => update_metrics_oifs
+     procedure, pass(this) :: recompute_metrics => recompute_metrics_oifs
   end type adv_oifs_t
 
 contains
@@ -628,12 +628,12 @@ contains
     end associate
 
   end subroutine adv_oifs_compute_scalar
-  subroutine update_metrics_oifs(this, coef, moving_boundary)
+  subroutine recompute_metrics_oifs(this, coef, moving_boundary)
     class(adv_oifs_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     logical, intent(in) :: moving_boundary
     ! no-op
-  end subroutine update_metrics_oifs
+  end subroutine recompute_metrics_oifs
 
 
    subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &

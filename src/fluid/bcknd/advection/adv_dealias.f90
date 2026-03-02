@@ -91,7 +91,7 @@ module adv_dealias
      !> Add the advection term in ALE framework.
      procedure, pass(this) :: compute_ale => compute_ale_advection_dealias
      !> Update any metrics needed for the advection computation in ALE.
-     procedure, pass(this) :: update_metrics => update_metrics_dealias
+     procedure, pass(this) :: recompute_metrics => recompute_metrics_dealias
      !> Constructor
      procedure, pass(this) :: init => init_dealias
      !> Destructor
@@ -576,7 +576,7 @@ subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
 
   end subroutine compute_ale_advection_dealias
 
-  subroutine update_metrics_dealias(this, coef, moving_boundary)
+  subroutine recompute_metrics_dealias(this, coef, moving_boundary)
       class(adv_dealias_t), intent(inout) :: this
       type(coef_t), intent(in) :: coef
       logical, intent(in) :: moving_boundary
@@ -597,7 +597,7 @@ subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
       call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
       call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
 
-  end subroutine update_metrics_dealias
+  end subroutine recompute_metrics_dealias
 
 
 end module adv_dealias
