@@ -359,7 +359,7 @@ contains
     real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr, i
 
-    character(len=200) :: log_buf   
+    character(len=200) :: log_buf
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)
@@ -434,7 +434,7 @@ contains
          end if
          call neko_log%message(log_buf)
       end if
-     
+
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(u%x_d, u_vol%x_d, scale, n)
          call device_add2s2(v%x_d, v_vol%x_d, scale, n)
