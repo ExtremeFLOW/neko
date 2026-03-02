@@ -40,7 +40,7 @@
         "max_iterations": 1000
       },
       "ale": {
-        "ale_active": true,
+        "active": true,
         "solver": {
           "type": "cg",
           "preconditioner": { "type": "jacobi" },

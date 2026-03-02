@@ -182,7 +182,6 @@ contains
     class(fluid_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
-    logical :: is_ale = .false.
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        associate(fields => this%fluid%items)

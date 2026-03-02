@@ -199,8 +199,8 @@ subroutine ale_manager_init(this, coef, json, user)
   logical :: has_user_kin, has_user_mesh
   logical :: has_builtin_osc, has_builtin_rot, is_rot_active
 
-  if (json%valid_path('case.fluid.ale.ale_active')) then
-     call json_get(json, 'case.fluid.ale.ale_active', this%active)
+  if (json%valid_path('case.fluid.ale.active')) then
+     call json_get(json, 'case.fluid.ale.active', this%active)
   end if
 
   if (.not. this%active) then

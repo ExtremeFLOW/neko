@@ -947,7 +947,7 @@ contains
     any_moving_wall = .false.
     ale_active_local = .false.
     call json_get_or_default(params, &
-         'case.fluid.ale.ale_active', &
+         'case.fluid.ale.active', &
          ale_active_local, .false.)
 
     ! Lists for the residuals and solution increments
