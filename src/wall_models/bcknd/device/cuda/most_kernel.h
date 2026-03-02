@@ -139,7 +139,7 @@ __device__ T corr_m_convective(T z, T L_ob)
 {
     T zeta = z / L_ob;
     T pi = 4*atan(1.0);
-    T xi = pow(1.0 - 16.0*zeta, 0.25);
+    T xi = sqrt(sqrt((1.0 - 16.0*zeta)));
 
     return 2*log(0.5*(1 + xi)) + log(0.5*(1 + xi*xi)) - 2*atan(xi) + pi/2;
 }
@@ -149,7 +149,7 @@ __device__ T corr_h_convective(T z, T L_ob)
 {
     T zeta = z/L_ob;
     T pi = 4*atan(1.0);
-    T xi = pow(1.0 - 16.0*zeta, 0.25);
+    T xi = sqrt(sqrt((1.0 - 16.0*zeta)));
     return 2*log(0.5*(1 + xi*xi));
 }
 
@@ -232,42 +232,89 @@ __device__ T slaw_h_neutral(T z, T L_ob, T z0h)
     return log(z/z0h);
 }
 
-/**
- * CUDA kernel for the most wall model.
+/*
+ * CUDA kernel for the most wall model.    fix inputs!!!!!!!
  */
 template<typename T, int BC_TYPE>
 __global__ void most_kernel(
-    const T* __restrict__ u,
+    const T* __restrict__ u,     // Full velocity fields
     const T* __restrict__ v,
+    const T* __restrict__ w,
     const T* __restrict__ temp,
-    const T* __restrict__ h,
-    T* __restrict__ tau_x,
+    const T* __restrict__ h,     // Distance to wall
+    const T* __restrict__ n_x,   // Wall normals
+    const T* __restrict__ n_y,
+    const T* __restrict__ n_z,
+    const int* __restrict__ ind_r, // Indirect indices
+    const int* __restrict__ ind_s,
+    const int* __restrict__ ind_t,
+    const int* __restrict__ ind_e,
+    T* __restrict__ tau_x,       // Output stresses
     T* __restrict__ tau_y,
     T* __restrict__ tau_z,
     int n_nodes,
+    int lx,                      // Polynomial order + 1
     T kappa,
     T z0,
-    T z0h,
+    T z0h_in,
     T bc_value
 )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx >= n_nodes) return;
 
-    constexpr T g = 9.80665;
-    constexpr T Ri_threshold = 1e-3;
-    constexpr T tol = 1e-4;
-    constexpr int max_iter = 25;
+    const T g = 9.80665;
+    const T Ri_threshold = 1e-3;
+    const T tol = 1e-4;
+    const int max_iter = 25;
 
-    T ui = u[idx];
-    T vi = v[idx];
-    T ti = temp[idx];
+    // Mapping GLL points from the full field to the boundary thread
+    // Neko provides 1-based indices from Fortran, so subtract 1.
+    int r = ind_r[idx] - 1; 
+    int s = ind_s[idx] - 1;
+    int t = ind_t[idx] - 1;
+    int e = ind_e[idx] - 1;
+
+    // Calculate the global 1D offset in the field arrays
+    // Layout: e is the slowest, r is the fastest
+    long long int field_idx = (long long int)e * (lx * lx * lx) 
+                            + (long long int)t * (lx * lx) 
+                            + (long long int)s * (lx) 
+                            + r;
+
+    T ui_tmp = u[field_idx];
+    T vi_tmp = v[field_idx];
+    T wi_tmp = w[field_idx];
+    T ti = temp[field_idx];
     T hi = h[idx];
 
-    T magu = sqrt(ui*ui + vi*vi);
-    magu = fmax(magu, (T)1e-8);
+    // Extract the local normal vector
+    T nx = n_x[idx];
+    T ny = n_y[idx];
+    T nz = n_z[idx];
+    
+    // Get the tangnential component
+    T u_norm_mag = ui_tmp * nx + vi_tmp * ny + wi_tmp * nz;
+    T ui = ui_tmp - u_norm_mag * nx;
+    T vi = vi_tmp - u_norm_mag * ny;
+    T wi = wi_tmp - u_norm_mag * nz;
 
+    // The magnitude used for MOST is the magnitude of the tangential vector
+    T magu = sqrt(ui*ui + vi*vi + wi*wi);
+    magu = fmax(magu, (T)1e-8); 
+
+    // Initial utau estimate
     T utau = kappa * magu / log(hi/z0);
+
+    // Zilitinkevich 1995 correlation for thermal roughness
+    T z0h;
+    if (z0h_in < 0.0) {
+        const T nu = 1.46e-5; // Kinematic viscosity of air [m^2/s]
+        const T Re_z0 = (utau * z0) / nu;
+        z0h = z0 * exp(-0.1 * sqrt(Re_z0));
+    } else {
+        z0h = z0h_in;
+    }
 
     T ts = 0;
     T q  = 0;
@@ -294,18 +341,31 @@ __global__ void most_kernel(
     */
     if(Ri_b > Ri_threshold)
     {
-        L = hi / Ri_b;
+        // Initial guess
+        L = hi / fmax(Ri_b, Ri_threshold);;
+        const T L_sign = 1.0;
 
         T L_old;
         int it = 0;
 
         do {
-            L_old = L;
+L_old = L;
+            T f_val, dfdlval;
 
-            T f_val   = f_stable<T>(Ri_b, hi, z0, z0h, L);
-            T dfdlval = dfdl_stable<T>(Ri_b, hi, z0, z0h, L);
+            // Dispatch based on BC_TYPE at compile-time
+            if constexpr (BC_TYPE == 0) { // Neumann
+                f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h_local, L);
+                dfdlval = dfdl_neumann_stable<T>(L + 0.01*L, L - 0.01*L, hi, z0, z0h_local, 0.01*L);
+            } 
+            else { // Dirichlet
+                f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h_local, L);
+                dfdlval = dfdl_dirichlet_stable<T>(L + 0.01*L, L - 0.01*L, hi, z0, z0h_local, 0.01*L);
+            }
 
-            L -= f_val/dfdlval;
+            T L_new = L - f_val / fmax(fabs(dfdlval), (T)1e-12);
+
+            if (L_new * L_sign <= 0.0) L_new = 0.5 * L;
+            L = L_sign * fmax(fmin(fabs(L_new), (T)1e6), (T)1e-6);
             it++;
 
         } while(fabs((L-L_old)/L) > tol && it < max_iter);
@@ -321,26 +381,37 @@ __global__ void most_kernel(
     */
     else if(Ri_b < -Ri_threshold)
     {
-        L = hi / Ri_b;
+        // Initial guess
+        L = hi / fmin(Ri_b, -Ri_threshold);;
+        const T L_sign = -1.0;
 
         T L_old;
         int it = 0;
 
         do {
             L_old = L;
+            T f_val, dfdlval;
 
-            T f_val   = f_conv<T>(Ri_b, hi, z0, z0h, L);
-            T dfdlval = dfdl_conv<T>(Ri_b, hi, z0, z0h, L);
+            if constexpr (BC_TYPE == 0) { // Neumann
+                f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h_local, L);
+                dfdlval = dfdl_neumann_convective<T>(L + 0.01*L, L - 0.01*L, hi, z0, z0h_local, 0.01*L);
+            } 
+            else { // Dirichlet
+                f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h_local, L);
+                dfdlval = dfdl_dirichlet_convective<T>(L + 0.01*L, L - 0.01*L, hi, z0, z0h_local, 0.01*L);
+            }
 
-            L -= f_val/dfdlval;
+            T L_new = L - f_val / fmax(fabs(dfdlval), (T)1e-12);
+
+            if (L_new * L_sign <= 0.0) L_new = 0.5 * L;
+            L = L_sign * fmax(fmin(fabs(L_new), (T)1e6), (T)1e-6);
             it++;
-
         } while(fabs((L-L_old)/L) > tol && it < max_iter);
 
-        utau = kappa*magu / slaw_m_conv<T>(hi,L,z0);
+        utau = kappa*magu / slaw_m_convective<T>(hi,L,z0);
 
         if constexpr (BC_TYPE == 1)
-            q = kappa*utau*(ts-ti)/slaw_h_conv<T>(hi,L,z0h);
+            q = kappa*utau*(ts-ti)/slaw_h_convective<T>(hi,L,z0h);
     }
 
     /*
