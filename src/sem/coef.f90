@@ -166,7 +166,7 @@ module coefs
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
      procedure, pass(this) :: check_cyclic => coef_check_cyclic
-     procedure, pass(this) :: update_metrics => coef_update_metrics
+     procedure, pass(this) :: recompute_metrics => coef_recompute_metrics
      procedure, pass(this) :: enable_B_history => coef_enable_lagged_mass
      procedure, pass(this) :: update_B_history => coef_update_lagged_mass
      generic :: init => init_empty, init_all
@@ -1437,8 +1437,10 @@ contains
     end if
 
   end subroutine coef_check_cyclic
+
+
   !> Recompute and update geometric factors (ALE)
-  subroutine coef_update_metrics(this)
+  subroutine coef_recompute_metrics(this)
     class(coef_t), intent(inout) :: this
 
     call coef_generate_dxyzdrst(this)
@@ -1448,7 +1450,8 @@ contains
     if (this%cyclic) then
        call coef_generate_cyclic_bc(this)
     end if
-  end subroutine coef_update_metrics
+  end subroutine coef_recompute_metrics
+
 
   !> Enable separate memory for lagged B matrices if needed.
   !> For eg. when mesh moves.
@@ -1486,6 +1489,7 @@ contains
     end if
 
   end subroutine coef_enable_lagged_mass
+
 
   !> Update history: Blaglag = Blag, Blag = B
   subroutine coef_update_lagged_mass(this)

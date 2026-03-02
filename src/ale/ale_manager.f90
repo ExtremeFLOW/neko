@@ -1315,7 +1315,7 @@ subroutine ale_manager_init(this, coef, json, user)
     if (.not. this%active) return
 
     call this%set_pivot_restart(time_restart)
-    call coef%update_metrics()
+    call coef%recompute_metrics()
     call adv%update_metrics(coef, .true.)
 
   end subroutine set_coef_restart
@@ -1428,7 +1428,7 @@ subroutine ale_manager_init(this, coef, json, user)
        nadv = min(step, nadv_sim)
 
        call this%advance_mesh(coef, t_state, nadv)
-       call coef%update_metrics()
+       call coef%recompute_metrics()
 
        min_jac = glmin(coef%B, n)
 
