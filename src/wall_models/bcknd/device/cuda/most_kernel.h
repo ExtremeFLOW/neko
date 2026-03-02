@@ -237,21 +237,21 @@ __device__ T slaw_h_neutral(T z, T L_ob, T z0h)
  */
 template<typename T, int BC_TYPE>
 __global__ void most_kernel(
-    const T* __restrict__ u,     // Full velocity fields
-    const T* __restrict__ v,
-    const T* __restrict__ w,
-    const T* __restrict__ temp,
-    const T* __restrict__ h,     // Distance to wall
-    const T* __restrict__ n_x,   // Wall normals
-    const T* __restrict__ n_y,
-    const T* __restrict__ n_z,
-    const int* __restrict__ ind_r, // Indirect indices
-    const int* __restrict__ ind_s,
-    const int* __restrict__ ind_t,
-    const int* __restrict__ ind_e,
-    T* __restrict__ tau_x,       // Output stresses
-    T* __restrict__ tau_y,
-    T* __restrict__ tau_z,
+    const T* __restrict__ u_d,     // Full velocity fields
+    const T* __restrict__ v_d,
+    const T* __restrict__ w_d,
+    const T* __restrict__ temp_d,
+    const T* __restrict__ h_d,     // Distance to wall
+    const T* __restrict__ n_x_d,   // Wall normals
+    const T* __restrict__ n_y_d,
+    const T* __restrict__ n_z_d,
+    const int* __restrict__ ind_r_d, // Indirect indices
+    const int* __restrict__ ind_s_d,
+    const int* __restrict__ ind_t_d,
+    const int* __restrict__ ind_e_d,
+    T* __restrict__ tau_x_d,       // Output stresses
+    T* __restrict__ tau_y_d,
+    T* __restrict__ tau_z_d,
     int n_nodes,
     int lx,                      // Polynomial order + 1
     T kappa,
@@ -259,6 +259,7 @@ __global__ void most_kernel(
     T z0h_in,
     T bc_value
 )
+
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx >= n_nodes) return;
@@ -270,10 +271,10 @@ __global__ void most_kernel(
 
     // Mapping GLL points from the full field to the boundary thread
     // Neko provides 1-based indices from Fortran, so subtract 1.
-    int r = ind_r[idx] - 1; 
-    int s = ind_s[idx] - 1;
-    int t = ind_t[idx] - 1;
-    int e = ind_e[idx] - 1;
+    int r = ind_r_d[idx] - 1; 
+    int s = ind_s_d[idx] - 1;
+    int t = ind_t_d[idx] - 1;
+    int e = ind_e_d[idx] - 1;
 
     // Calculate the global 1D offset in the field arrays
     // Layout: e is the slowest, r is the fastest
@@ -282,16 +283,16 @@ __global__ void most_kernel(
                             + (long long int)s * (lx) 
                             + r;
 
-    T ui_tmp = u[field_idx];
-    T vi_tmp = v[field_idx];
-    T wi_tmp = w[field_idx];
-    T ti = temp[field_idx];
-    T hi = h[idx];
+    T ui_tmp = u_d[field_idx];
+    T vi_tmp = v_d[field_idx];
+    T wi_tmp = w_d[field_idx];
+    T ti = temp_d[field_idx];
+    T hi = h_d[idx];
 
     // Extract the local normal vector
-    T nx = n_x[idx];
-    T ny = n_y[idx];
-    T nz = n_z[idx];
+    T nx = n_x_d[idx];
+    T ny = n_y_d[idx];
+    T nz = n_z_d[idx];
     
     // Get the tangnential component
     T u_norm_mag = ui_tmp * nx + vi_tmp * ny + wi_tmp * nz;
@@ -427,7 +428,7 @@ L_old = L;
             q = kappa*utau*(ts-ti)/slaw_h_neutral<T>(hi,z0h);
     }
 
-    tau_x[idx] = -utau*utau*ui/magu;
-    tau_y[idx] = -utau*utau*vi/magu;
-    tau_z[idx] = 0.0;    // z as a vertical direction is assumed!
+    tau_x_d[idx] = -utau*utau*ui/magu;
+    tau_y_d[idx] = -utau*utau*vi/magu;
+    tau_z_d[idx] = 0.0;    // z as a vertical direction is assumed!
 }
