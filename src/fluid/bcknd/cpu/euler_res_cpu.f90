@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -88,6 +88,13 @@ contains
          temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E
     integer :: tmp_indices(25)
     type(field_list_t) :: k_rho, k_m_x, k_m_y, k_m_z, k_E
+    ! These contiguous pointers are necessary to ensure that
+    ! the Fujitsu compiler properly vectorizes the loop nests
+    real(kind=rp), contiguous, pointer :: k_rho_ptr(:,:,:,:)
+    real(kind=rp), contiguous, pointer :: k_m_x_ptr(:,:,:,:)
+    real(kind=rp), contiguous, pointer :: k_m_y_ptr(:,:,:,:)
+    real(kind=rp), contiguous, pointer :: k_m_z_ptr(:,:,:,:)
+    real(kind=rp), contiguous, pointer :: k_E_ptr(:,:,:,:)
 
     n = p%dof%size()
     s = rk_scheme%order
@@ -157,22 +164,22 @@ contains
 
        ! Accumulate previous stage contributions using RK coefficients
        do j = 1, i-1
+          k_rho_ptr => k_rho%items(j)%ptr%x
+          k_m_x_ptr => k_m_x%items(j)%ptr%x
+          k_m_y_ptr => k_m_y%items(j)%ptr%x
+          k_m_z_ptr => k_m_z%items(j)%ptr%x
+          k_E_ptr => k_E%items(j)%ptr%x
           do concurrent (k = 1:n)
              temp_rho%x(k,1,1,1) = temp_rho%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * &
-                  k_rho%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * k_rho_ptr(k,1,1,1)
              temp_m_x%x(k,1,1,1) = temp_m_x%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * &
-                  k_m_x%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * k_m_x_ptr(k,1,1,1)
              temp_m_y%x(k,1,1,1) = temp_m_y%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * &
-                  k_m_y%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * k_m_y_ptr(k,1,1,1)
              temp_m_z%x(k,1,1,1) = temp_m_z%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * &
-                  k_m_z%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * k_m_z_ptr(k,1,1,1)
              temp_E%x(k,1,1,1) = temp_E%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * &
-                  k_E%items(j)%ptr%x(k,1,1,1)
+                  + dt * rk_scheme%coeffs_A(i, j) * k_E_ptr(k,1,1,1)
           end do
        end do
 
@@ -187,17 +194,22 @@ contains
 
     ! Update the solution
     do i = 1, s
+       k_rho_ptr => k_rho%items(i)%ptr%x
+       k_m_x_ptr => k_m_x%items(i)%ptr%x
+       k_m_y_ptr => k_m_y%items(i)%ptr%x
+       k_m_z_ptr => k_m_z%items(i)%ptr%x
+       k_E_ptr => k_E%items(i)%ptr%x
        do concurrent (k = 1:n)
           rho_field%x(k,1,1,1) = rho_field%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_rho%items(i)%ptr%x(k,1,1,1)
+               + dt * rk_scheme%coeffs_b(i) * k_rho_ptr(k,1,1,1)
           m_x%x(k,1,1,1) = m_x%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_x%items(i)%ptr%x(k,1,1,1)
+               + dt * rk_scheme%coeffs_b(i) * k_m_x_ptr(k,1,1,1)
           m_y%x(k,1,1,1) = m_y%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_y%items(i)%ptr%x(k,1,1,1)
+               + dt * rk_scheme%coeffs_b(i) * k_m_y_ptr(k,1,1,1)
           m_z%x(k,1,1,1) = m_z%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_z%items(i)%ptr%x(k,1,1,1)
+               + dt * rk_scheme%coeffs_b(i) * k_m_z_ptr(k,1,1,1)
           E%x(k,1,1,1) = E%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_E%items(i)%ptr%x(k,1,1,1)
+               + dt * rk_scheme%coeffs_b(i) * k_E_ptr(k,1,1,1)
        end do
     end do
 

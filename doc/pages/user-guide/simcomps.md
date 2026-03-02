@@ -356,21 +356,33 @@ keywords:
     - `c_s`: The Smagorinsky constant, defaults to 0.17.
   - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
     - `test_filter`: The test filter for the dynamic Smagorinsky model
-  - `vreman`: The Vreman model. Configured by the following additional keyword:
+  - `vreman`: The Vreman model. Configured by the following additional keywords:
     - `c`: The model constant, defaults to 0.07.
+    - `buoyancy_correction`: Whether or not to apply a correction to the eddy
+      viscosity field based on the local Richardson number as described by Moeng
+      and Sullivan 2015 (http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2).
+      Defaults to `false`.
+      - `true`: Add a buoyancy correction according to the following parameters:
+        - `scalar_field`: Name of the scalar field based on which the buoyancy
+          effect is computed.
+        - `Ri_c`: The critical Richardson number.
+        - `reference_temperature`: The reference temperature for computation of
+          the Richardson number.
+        - `g`: The gravity vector.
+      - `false`: Compute the standard Vreman eddy viscosity.
   - `sigma`: The Sigma model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
     - `c_w`: The WALE constant, defaults to 0.55.
-- `les_delta`: Selects the way to compute the LES filter length scale. Currently three
-  alternatives are provided and the default one is `pointwise` if
-  nothing is specified:
+- `les_delta`: Selects the way to compute the LES filter length scale. Currently
+  three alternatives are provided and the default one is `pointwise` if nothing
+  is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
-  - `elementwise_average`: Computes a single value for the whole element based on the
-    average spacing of the GLL nodes within the element.
-  - `elementwise_max`: Computes a single value for the whole element based on the
-    maximum spacing of the GLL nodes within the element.
-  The `les_delta` field is added to the registry and written to the .fld files.
+  - `elementwise_average`: Computes a single value for the whole element based
+    on the average spacing of the GLL nodes within the element.
+  - `elementwise_max`: Computes a single value for the whole element based on
+    the maximum spacing of the GLL nodes within the element. The `les_delta`
+  field is added to the registry and written to the .fld files.
 - `nut_field`: The name of the SGS eddy viscosity field added to the registry.
   Defaults to `nut`. This allows to have two different SGS models active, saved
   to different fields. For example, one for the scalar and one to the fluid.

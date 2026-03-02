@@ -743,7 +743,8 @@ contains
     real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
-    if (coef%cyclic) then
+
+    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
        else
@@ -756,7 +757,8 @@ contains
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
-    if (coef%cyclic) then
+
+    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
        else

@@ -2,6 +2,12 @@
 
 ## Develop
 
+- Introduced `import_fields`: a subroutine to read and import fld data,
+  with interpolation capabilities. 
+- Added `vector_list_t` and `name` to `vector_t`.
+- Rework hash table iterators, significantly faster (O(tsize) => O(entries)
+- Remove redundant directory in `site-packages` when installing pyneko
+- Added options to used masked parts of the domain when performing interpolation
 - Update the simcomp wrappers to better handle allocation and deallocation.
 - Added a factory subroutine for scalar schemes, allowing for more flexible
   creation of scalar scheme objects based on JSON input.

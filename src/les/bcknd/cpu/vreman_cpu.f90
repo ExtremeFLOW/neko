@@ -1,4 +1,4 @@
-! Copyright (c) 2023-2024, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,13 +34,14 @@
 module vreman_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS, col2
+  use math, only : cadd, NEKO_EPS, col2, vlsc2
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
-  use operators, only : dudxyz
+  use operators, only : dudxyz, grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use utils, only : neko_error
   implicit none
   private
 
@@ -56,17 +57,26 @@ contains
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
-  subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c)
-    logical, intent(in) :: if_ext
+  !! @param if_corr Whether to apply buoyancy correction.
+  !! @param scalar_name The name of the scalar field for buoyancy correction.
+  !! @param ri_c Critical Richardson number.
+  !! @param ref_temp Reference temperature for Richardson number.
+  !! @param g The gravity vector.
+  subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
+       if_corr, scalar_name, ri_c, ref_temp, g)
+    logical, intent(in) :: if_ext, if_corr
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
-    real(kind=rp), intent(in) :: c
+    character(len=*), intent(in) :: scalar_name
+    real(kind=rp), intent(in) :: c, ri_c, ref_temp
+    real(kind=rp), intent(in) :: g(3)
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: temperature, dTdx, dTdy, dTdz
 
     real(kind=rp) :: beta11
     real(kind=rp) :: beta12
@@ -77,9 +87,13 @@ contains
     real(kind=rp) :: b_beta
     real(kind=rp) :: aijaij
     integer :: temp_indices(9)
-    integer :: e, i
+    integer :: temp_indices_buoy(3)
+    integer :: e, i, j
+    real(kind=rp) :: gmag, ri, correction, buoyancy, shear_sq
+    real(kind=rp) :: n(3), du_n(3), sh(3)
+    real(kind=rp) :: du_parallel
 
-    if (if_ext .eqv. .true.) then
+    if (if_ext) then
        u => neko_registry%get_field_by_name("u_e")
        v => neko_registry%get_field_by_name("v_e")
        w => neko_registry%get_field_by_name("w_e")
@@ -152,6 +166,61 @@ contains
                * coef%mult(i,1,1,e)
        end do
     end do
+    if (if_corr) then
+       temperature => neko_registry%get_field_by_name(scalar_name)
+       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
+       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
+       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
+
+       ! Calculate Richardson number
+       gmag = sqrt(vlsc2(g, g, 3))
+       if (gmag > NEKO_EPS) then
+          n = g / gmag
+       else
+          call neko_error("The gravity vector must have at least one nonzero component")
+       endif
+       call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
+       do concurrent (e = 1:coef%msh%nelv)
+          do concurrent (i = 1:coef%Xh%lxyz)
+
+             ! Buoyancy component (numerator in Ri definition)
+             buoyancy = (-g(1) * dTdx%x(i,1,1,e) - &
+                  g(2) * dTdy%x(i,1,1,e) - &
+                  g(3) * dTdz%x(i,1,1,e)) / ref_temp
+
+             ! Shear component (denominator in Ri definition)
+             ! Directional derivative of velocity
+             du_n(1) = a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) +&
+                  a13%x(i,1,1,e)*n(3)
+             du_n(2) = a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
+                  a23%x(i,1,1,e)*n(3)
+             du_n(3) = a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) +&
+                  a33%x(i,1,1,e)*n(3)
+
+             ! Component parallel to n
+             du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
+
+             ! Perpendicular (shear) components
+             do concurrent (j = 1:3)
+                sh(j) = du_n(j) - du_parallel*n(j)
+             end do
+
+             ! Shear magnitude squared
+             shear_sq = sh(1)*sh(1) + sh(2)*sh(2) + sh(3)*sh(3)
+
+             ! Richardson number
+             ri = buoyancy / (shear_sq + NEKO_EPS)
+
+             if (ri .le. ri_c) then
+                correction = sqrt(1 - ri/ri_c)
+                nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
+             else
+                nut%x(i,1,1,e) = NEKO_EPS
+             end if
+          end do
+       end do
+       call neko_scratch_registry%relinquish_field(temp_indices_buoy)
+    end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())
@@ -160,4 +229,3 @@ contains
   end subroutine vreman_compute_cpu
 
 end module vreman_cpu
-
