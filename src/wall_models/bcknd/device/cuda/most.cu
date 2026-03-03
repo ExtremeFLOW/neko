@@ -47,28 +47,31 @@ extern "C" {
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
           int *n_nodes, int *lx, real *kappa, real *z0, real *z0h, 
           real *bc_value, char *bc_type, int *tstep) {
-      const dim3 nthrds(1024, 1, 1);
-      const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
-      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-  if (*n_nodes > 0) {
-      if (strncmp(bc_type, "neumann", 7) == 0) {
-          // Launch Neumann version (BC_TYPE = 0)
-          most_kernel<real, 0><<<nblcks, nthrds, 0, stream>>>(
-              (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
-              (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
-              (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
-              (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
-              *n_nodes, *lx, *kappa, *z0, *z0h, *bc_value);
-      } else if (strncmp(bc_type, "dirichlet", 9) == 0) {
-          // Launch Dirichlet version (BC_TYPE = 1)
-          most_kernel<real, 1><<<nblcks, nthrds, 0, stream>>>(
-              (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
-              (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
-              (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
-              (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
-              *n_nodes, *lx, *kappa, *z0, *z0h, *bc_value);
-      }
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    if (*n_nodes > 0) {
+        if (strncmp(bc_type, "neumann", 7) == 0) {
+            // Launch Neumann version (BC_TYPE = 0)
+            most_compute<real, 0>
+            <<<nblcks, nthrds, 0, stream>>>(
+                (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
+                (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
+                (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
+                (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
+                *n_nodes, *lx, *kappa, *z0, *z0h, *bc_value);
+        } else if (strncmp(bc_type, "dirichlet", 9) == 0) {
+            // Launch Dirichlet version (BC_TYPE = 1)
+            most_compute<real, 1>
+            <<<nblcks, nthrds, 0, stream>>>(
+                (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
+                (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
+                (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
+                (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
+                *n_nodes, *lx, *kappa, *z0, *z0h, *bc_value);
+        }
       CUDA_CHECK(cudaGetLastError());
     }
   }
