@@ -222,13 +222,13 @@ __device__ T dfdl_dirichlet_convective(T l_upper,
 */
 
 template<typename T>
-__device__ T slaw_m_neutral(T z, T L_ob, T z0)
+__device__ T slaw_m_neutral(T z, T z0)
 {
     return log(z/z0);
 }
 
 template<typename T>
-__device__ T slaw_h_neutral(T z, T L_ob, T z0h)
+__device__ T slaw_h_neutral(T z, T z0h)
 {
     return log(z/z0h);
 }
@@ -390,3 +390,5 @@ __global__ void most_compute(
         tau_z_d[i] = 0.0;    // z as a vertical direction is assumed!
     }
 }
+
+#endif // MOST_KERNEL_H
