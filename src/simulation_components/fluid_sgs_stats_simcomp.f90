@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2026, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements the `fluid_stats_simcomp_t` type.
-module fluid_stats_simcomp
+!> Implements the `fluid_sgs_stats_simcomp_t` type.
+module fluid_sgs_stats_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
   use time_state, only : time_state_t
   use field, only : field_t
-  use fluid_stats, only : fluid_stats_t
-  use fluid_stats_output, only : fluid_stats_output_t
+  use fluid_sgs_stats, only : fluid_sgs_stats_t
+  use fluid_sgs_stats_output, only : fluid_sgs_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
@@ -51,21 +51,15 @@ module fluid_stats_simcomp
   implicit none
   private
 
-  !> A simulation component that computes the velocity and pressure statistics
-  !! up to 4th order. Can be used to reconstruct the term budget of transport
-  !! equations for, e.g. the Reynolds stresses and the turbulent kinetic energy.
-  !!
-  !! Similar in functionality to the satistics module in the KTH Framework for
-  !! Nek5000: https://github.com/KTH-Nek5000/KTH_Framework
-  !! See Turbulence Statistics in a Spectral-Element Code: A Toolbox for
-  !! High-Fidelity Simulations or the origin KTH Nek5000 framework for details.
+  !> A simulation component that computes the subgrid-scale contributions
+  !! to the Reynolds stresses in LES.
   !!
   !! For further details see the Neko documentation.
-  type, public, extends(simulation_component_t) :: fluid_stats_simcomp_t
+  type, public, extends(simulation_component_t) :: fluid_sgs_stats_simcomp_t
      !> Backbone object computing the satistics
-     type(fluid_stats_t) :: stats
+     type(fluid_sgs_stats_t) :: stats
      !> Output writer.
-     type(fluid_stats_output_t) :: stats_output
+     type(fluid_sgs_stats_output_t) :: stats_output
      !> Time value at which the sampling of statistics is initiated.
      real(kind=rp) :: start_time
      real(kind=rp) :: time
@@ -73,84 +67,81 @@ module fluid_stats_simcomp
 
    contains
      !> Constructor from json, wrapping the actual constructor.
-     procedure, pass(this) :: init => fluid_stats_simcomp_init_from_json
+     procedure, pass(this) :: init => fluid_sgs_stats_simcomp_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_components => &
-          fluid_stats_simcomp_init_from_components
+          fluid_sgs_stats_simcomp_init_from_components
      !> Destructor.
-     procedure, pass(this) :: free => fluid_stats_simcomp_free
+     procedure, pass(this) :: free => fluid_sgs_stats_simcomp_free
      !> Does sampling for statistics.
-     procedure, pass(this) :: compute_ => fluid_stats_simcomp_compute
+     procedure, pass(this) :: compute_ => fluid_sgs_stats_simcomp_compute
      !> Write the statistics to disk.
-     procedure, pass(this) :: output_ => fluid_stats_simcomp_compute
+     procedure, pass(this) :: output_ => fluid_sgs_stats_simcomp_compute
      !> Restart the simcomp.
-     procedure, pass(this) :: restart_ => fluid_stats_simcomp_restart
-  end type fluid_stats_simcomp_t
+     procedure, pass(this) :: restart_ => fluid_sgs_stats_simcomp_restart
+  end type fluid_sgs_stats_simcomp_t
 
 contains
 
   !> Constructor from json.
   !> @param json JSON object with the parameters.
   !! @param case The case object.
-  subroutine fluid_stats_simcomp_init_from_json(this, json, case)
-    class(fluid_stats_simcomp_t), target, intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_init_from_json(this, json, case)
+    class(fluid_sgs_stats_simcomp_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
     character(len=20), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
-    character(len=:), allocatable :: stat_set
+    character(len=:), allocatable :: nut_field
     character(len=:), allocatable :: name
     real(kind=rp) :: start_time
-    type(field_t), pointer :: u, v, w, p
+    type(field_t), pointer :: u, v, w
     type(coef_t), pointer :: coef
 
-    call json_get_or_default(json, "name", name, "fluid_stats")
+    call json_get_or_default(json, "name", name, "fluid_sgs_stats")
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
     call json_get_or_default(json, 'start_time', &
          start_time, 0.0_rp)
-    call json_get_or_default(json, 'set_of_stats', &
-         stat_set, 'full')
+    call json_get_or_default(json, 'nut_field', &
+         nut_field, 'nut')
 
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
-    p => neko_registry%get_field("p")
     coef => case%fluid%c_Xh
     this%name = name
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
-            coef, start_time, hom_dir, stat_set, filename)
+       call fluid_sgs_stats_simcomp_init_from_components(this, u, v, w, coef, &
+            start_time, hom_dir, nut_field, filename)
     else
-       call fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
-            coef, start_time, hom_dir, stat_set)
+       call fluid_sgs_stats_simcomp_init_from_components(this, u, v, w, coef, &
+            start_time, hom_dir, nut_field)
     end if
 
-  end subroutine fluid_stats_simcomp_init_from_json
+  end subroutine fluid_sgs_stats_simcomp_init_from_json
 
   !> Actual constructor.
-  !! @param name Unique name of the simcomp.
   !! @param u x-velocity
   !! @param v x-velocity
   !! @param w x-velocity
   !! @param coef sem coefs
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
-  !! @param stat_set Set of statistics to compute (basic/full)
+  !! @param nut_field Name of the eddy viscosity field
   !! @param fname name of the output file
-  subroutine fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
-       coef, start_time, hom_dir, stat_set, fname)
-    class(fluid_stats_simcomp_t), target, intent(inout) :: this
-    character(len=*), intent(in) :: name
+  subroutine fluid_sgs_stats_simcomp_init_from_components(this, u, v, w, coef, &
+       start_time, hom_dir, nut_field, fname)
+    class(fluid_sgs_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
-    character(len=*), intent(in) :: stat_set
+    character(len=*), intent(in) :: nut_field
     real(kind=rp), intent(in) :: start_time
-    type(field_t), intent(in), target :: u, v, w, p
+    type(field_t), intent(in), target :: u, v, w
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in), optional :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
@@ -160,21 +151,21 @@ contains
     call neko_log%section('Fluid stats')
     write(log_buf, '(A,E15.7)') 'Start time: ', start_time
     call neko_log%message(log_buf)
-    write(log_buf, '(A,A)') 'Set of statistics: ', trim(stat_set)
+    write(log_buf, '(A,A)') 'Nut field name: ', trim(nut_field)
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
 
-    call this%stats%init(coef, u, v, w, p, stat_set, name)
 
-    this%name = name
+    call this%stats%init(coef, u, v, w, nut_field)
+
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then
        this%default_fname = .false.
        stats_fname = fname
     else
-       stats_fname = "fluid_stats0"
+       stats_fname = "fluid_sgs_stats0"
        this%default_fname = .true.
     end if
 
@@ -188,18 +179,18 @@ contains
 
     call neko_log%end_section()
 
-  end subroutine fluid_stats_simcomp_init_from_components
+  end subroutine fluid_sgs_stats_simcomp_init_from_components
 
   !> Destructor.
-  subroutine fluid_stats_simcomp_free(this)
-    class(fluid_stats_simcomp_t), intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_free(this)
+    class(fluid_sgs_stats_simcomp_t), intent(inout) :: this
     call this%free_base()
     call this%stats%free()
     call this%stats_output%free()
-  end subroutine fluid_stats_simcomp_free
+  end subroutine fluid_sgs_stats_simcomp_free
 
-  subroutine fluid_stats_simcomp_restart(this, time)
-    class(fluid_stats_simcomp_t), intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_restart(this, time)
+    class(fluid_sgs_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
     character(len=5) :: prefix, suffix
@@ -216,19 +207,19 @@ contains
        if (last_slash_pos .ne. 0) then
           fname = &
                trim(fname(1:last_slash_pos))// &
-               "fluid_stats"//trim(adjustl(prefix))//"."//suffix
+               "fluid_sgs_stats"//trim(adjustl(prefix))//"."//suffix
        else
-          fname = "fluid_stats"// &
+          fname = "fluid_sgs_stats"// &
                trim(adjustl(prefix))//"."//suffix
        end if
        call this%stats_output%init_base(fname)
     end if
-  end subroutine fluid_stats_simcomp_restart
+  end subroutine fluid_sgs_stats_simcomp_restart
 
-  !> fluid_stats, called depending on compute_control and compute_value
+  !> fluid_sgs_stats, called depending on compute_control and compute_value
   !! @param time The current time info
-  subroutine fluid_stats_simcomp_compute(this, time)
-    class(fluid_stats_simcomp_t), intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_compute(this, time)
+    class(fluid_sgs_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     real(kind=rp) :: delta_t, t
     real(kind=rp) :: sample_start_time, sample_time
@@ -265,10 +256,10 @@ contains
 
        sample_time = MPI_WTIME() - sample_start_time
 
-       call neko_log%section('Fluid stats')
+       call neko_log%section('Fluid SGS stats')
        write(log_buf, '(A,E15.7)') 'Sampling at time:', t
        call neko_log%message(log_buf)
-       write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', &
+       write(log_buf, '(A33,E15.7)') 'Simulation time since last sample:', &
             delta_t
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') 'Sampling time (s):', sample_time
@@ -276,6 +267,6 @@ contains
        call neko_log%end_section()
     end if
 
-  end subroutine fluid_stats_simcomp_compute
+  end subroutine fluid_sgs_stats_simcomp_compute
 
-end module fluid_stats_simcomp
+end module fluid_sgs_stats_simcomp
