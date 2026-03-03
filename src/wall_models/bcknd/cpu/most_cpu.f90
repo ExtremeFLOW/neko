@@ -155,7 +155,7 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, z0h_in, bc_type, zone_idx, h_idx, bc_value, tstep)   
+       kappa, z0, z0h_in, bc_type, bc_value, tstep)   
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -163,9 +163,7 @@ contains
     real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value
     character(len=*), intent(in) :: bc_type
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
-    integer, intent(in) :: zone_idx ! only supports wall model on ONE boundary atm!
     integer :: ts_idx(3)
-    integer, intent(in) :: h_idx
     integer :: i, count
     integer, parameter :: max_count = 20
     real(kind=rp) :: ui, vi, ti, ts, q, hi
@@ -274,7 +272,7 @@ contains
        magu = max(magu, 1.0e-6_rp)
        tau_x(i) = -utau**2 * ui / magu
        tau_y(i) = -utau**2 * vi / magu
-       tau_z(i) = 0
+       tau_z(i) = 0  ! z as a vertical direction is assumed!
     end do
 
     ! Print some indicative quantities (these are just point quantities: don't trust 100%)

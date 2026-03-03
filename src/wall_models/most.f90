@@ -61,8 +61,6 @@ module most
      real(kind=rp) :: z0h_in = 0.1_rp
      !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
-     !> The face and index of the sampling point
-     integer :: zone_idx,h_idx
      !> the heat flux or temperature value set in the case file
      real(kind=rp) :: bc_value
    contains
@@ -102,28 +100,16 @@ contains
     real(kind=rp) :: kappa, z0, z0h_in
     character(len=:), allocatable :: bc_type
     integer, allocatable :: zone_idx_arr(:)
-    integer :: zone_idx
-    integer :: h_idx
     real(kind=rp) :: bc_value
 
     call json_get_or_default(json, "kappa", kappa, 0.41_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
     call json_get_or_default(json, "z0h", z0h_in, -10.0_rp)  ! if z0h not specified, assign negative value (tmp)
     call json_get(json, "type_of_temp_bc", bc_type)
-    call json_get_or_default(json, "h_index", h_idx, 1)
     call json_get(json, "temp_bc_value", bc_value)
 
-    call json_get(json, "zone_indices", zone_idx_arr)
-    if (.not. allocated(zone_idx_arr)) then
-       call neko_error("zone_indices not provided")
-    end if
-    if (size(zone_idx_arr) /= 1) then
-       call neko_error("MOST wall model supports exactly one boundary")
-    end if
-    zone_idx = zone_idx_arr(1)
-
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
-         kappa, z0, z0h_in, bc_type, zone_idx, h_idx, bc_value)
+         kappa, z0, z0h_in, bc_type, bc_value)
   end subroutine most_init
 
   !> Constructor from JSON.
@@ -140,18 +126,7 @@ contains
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -10.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
-    call json_get_or_default(json, "h_index", this%h_idx, 1)
     call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
-
-    call json_get(json, "zone_indices", zone_idx_arr)
-    if (.not. allocated(zone_idx_arr)) then
-       call neko_error("zone_indices not provided")
-    end if
-    ! At the moment we only support this bc on one boundary at the time
-    if (size(zone_idx_arr) /= 1) then
-       call neko_error("MOST wall model supports exactly one boundary")
-    end if
-    this%zone_idx = zone_idx_arr(1)
 
   end subroutine most_partial_init
 
@@ -185,8 +160,6 @@ contains
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
-    integer, intent(in) :: zone_idx
-    integer, intent(in) :: h_idx
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
@@ -200,8 +173,6 @@ contains
     this%z0 = z0
     this%z0h_in = z0h_in
     this%bc_type = bc_type
-    this%zone_idx = zone_idx
-    this%h_idx = h_idx
     this%bc_value = bc_value
   end subroutine most_init_from_components
 
@@ -244,7 +215,7 @@ contains
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%z0, this%z0h_in, this%bc_type, this%zone_idx, this%h_idx, &
+            this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep)
     end if
 
