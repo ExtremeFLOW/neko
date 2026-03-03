@@ -259,7 +259,7 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
-  !! @param[in] expected_size (Optional) The expected size of the array. 
+  !! @param[in] expected_size (Optional) The expected size of the array.
   !! If provided, throws an error if the actual size does not match.
   subroutine json_get_real_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
@@ -288,7 +288,7 @@ contains
                "' has incorrect size: got " // &
                trim(str_actual) // ", but expected " // trim(str_expected))
        end if
-    end if  
+    end if
 
     call json%get(name, value)
   end subroutine json_get_real_array
@@ -297,7 +297,7 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
-  !! @param[in] expected_size (Optional) The expected size of the array. 
+  !! @param[in] expected_size (Optional) The expected size of the array.
   !! If provided, throws an error if the actual size does not match.
   subroutine json_get_double_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
@@ -326,7 +326,7 @@ contains
                "' has incorrect size: got " // &
                trim(str_actual) // ", but expected " // trim(str_expected))
        end if
-    end if     
+    end if
 
     call json%get(name, value)
   end subroutine json_get_double_array
@@ -335,7 +335,7 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
-  !! @param[in] expected_size (Optional) The expected size of the array. 
+  !! @param[in] expected_size (Optional) The expected size of the array.
   !! If provided, throws an error if the actual size does not match.
   subroutine json_get_integer_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
@@ -362,7 +362,7 @@ contains
                "' has incorrect size: got " // &
                trim(str_actual) // ", but expected " // trim(str_expected))
        end if
-    end if     
+    end if
 
     call json%get(name, value)
   end subroutine json_get_integer_array
@@ -371,7 +371,7 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
-  !! @param[in] expected_size (Optional) The expected size of the array. 
+  !! @param[in] expected_size (Optional) The expected size of the array.
   !! If provided, throws an error if the actual size does not match.
   subroutine json_get_logical_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
@@ -382,9 +382,9 @@ contains
     integer :: var_type
     integer :: actual_size
     character(len=32) :: str_actual, str_expected
-    
+
     call json%info(name, found = found, var_type = var_type, &
-         n_children = actual_size)   
+         n_children = actual_size)
 
     if (.not. found) then
        call neko_error("Parameter " // name // " missing from the case file")
@@ -400,7 +400,7 @@ contains
                "' has incorrect size: got " // &
                trim(str_actual) // ", but expected " // trim(str_expected))
        end if
-    end if   
+    end if
 
     call json%get(name, value)
   end subroutine json_get_logical_array
