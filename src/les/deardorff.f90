@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -94,6 +94,8 @@ contains
     logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
 
+    call this%free()
+
     call json_get_or_default(json, "temperature_field", &
          this%temperature_field_name, "temperature")
     call json_get_or_default(json, "TKE_field", this%TKE_field_name, "TKE")
@@ -152,8 +154,6 @@ contains
     character(len=*), intent(in) :: delta_type
     logical, intent(in) :: if_ext
 
-    call this%free()
-
     call this%init_base(fluid, nut_name, delta_type, if_ext)
 
     call neko_registry%add_field(fluid%dm_Xh, &
@@ -169,9 +169,21 @@ contains
 
   end subroutine deardorff_init_from_components
 
-  !> Destructor for the les_model_t (base) class.
+  !> Destructor for the deardorff_t class.
   subroutine deardorff_free(this)
     class(deardorff_t), intent(inout) :: this
+
+    nullify(this%temperature_alphat)
+    nullify(this%TKE_alphat)
+    nullify(this%TKE_source)
+
+    if (allocated(this%temperature_field_name)) then
+       deallocate(this%temperature_field_name)
+    end if
+
+    if (allocated(this%TKE_field_name)) then
+       deallocate(this%TKE_field_name)
+    end if
 
     call this%free_base()
   end subroutine deardorff_free
