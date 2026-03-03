@@ -99,7 +99,6 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, z0, z0h_in
     character(len=:), allocatable :: bc_type
-    integer, allocatable :: zone_idx_arr(:)
     real(kind=rp) :: bc_value
 
     call json_get_or_default(json, "kappa", kappa, 0.41_rp)
@@ -119,7 +118,6 @@ contains
     class(most_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
-    integer, allocatable :: zone_idx_arr(:)
 
     call this%partial_init_base(coef, json)
     call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
@@ -152,11 +150,9 @@ contains
   !! @param z0 The roughness height.
   !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
-  !! @param zone_idx The face id from which the sampling point is taken.
-  !! @param h_idx The sampling point index (normal to the zone_idx face).
   !! @param The heat flux at the surface boundary condition.
   subroutine most_init_from_components(this, scheme_name, coef, msk, &
-       facet, h_index, kappa, z0, z0h_in, bc_type, zone_idx, h_idx, bc_value)
+       facet, h_index, kappa, z0, z0h_in, bc_type, bc_value)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
