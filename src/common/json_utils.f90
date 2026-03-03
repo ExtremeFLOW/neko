@@ -269,7 +269,6 @@ contains
     logical :: found
     integer :: var_type
     integer :: actual_size
-    character(len=32) :: str_actual, str_expected
 
     call json%info(name, found = found, var_type = var_type, &
          n_children = actual_size)
@@ -280,15 +279,7 @@ contains
        call neko_error("Parameter " // name // " is not an array")
     end if
 
-    if (present(expected_size)) then
-       if (actual_size /= expected_size) then
-          write(str_actual, '(I0)') actual_size
-          write(str_expected, '(I0)') expected_size
-          call neko_error("Parameter '" // trim(name) // &
-               "' has incorrect size: got " // &
-               trim(str_actual) // ", but expected " // trim(str_expected))
-       end if
-    end if
+    call check_expected_size(name, actual_size, expected_size)
 
     call json%get(name, value)
   end subroutine json_get_real_array
@@ -307,7 +298,6 @@ contains
     logical :: found
     integer :: var_type
     integer :: actual_size
-    character(len=32) :: str_actual, str_expected
 
     call json%info(name, found = found, var_type = var_type, &
          n_children = actual_size)
@@ -318,15 +308,7 @@ contains
        call neko_error("Parameter " // name // " is not an array")
     end if
 
-    if (present(expected_size)) then
-       if (actual_size /= expected_size) then
-          write(str_actual, '(I0)') actual_size
-          write(str_expected, '(I0)') expected_size
-          call neko_error("Parameter '" // trim(name) // &
-               "' has incorrect size: got " // &
-               trim(str_actual) // ", but expected " // trim(str_expected))
-       end if
-    end if
+    call check_expected_size(name, actual_size, expected_size)
 
     call json%get(name, value)
   end subroutine json_get_double_array
@@ -345,7 +327,6 @@ contains
     logical :: found
     integer :: var_type
     integer :: actual_size
-    character(len=32) :: str_actual, str_expected
 
     call json%info(name, found = found, var_type = var_type, &
          n_children = actual_size)
@@ -354,15 +335,7 @@ contains
        call neko_error("Parameter " // name // " missing from the case file")
     end if
 
-    if (present(expected_size)) then
-       if (actual_size /= expected_size) then
-          write(str_actual, '(I0)') actual_size
-          write(str_expected, '(I0)') expected_size
-          call neko_error("Parameter '" // trim(name) // &
-               "' has incorrect size: got " // &
-               trim(str_actual) // ", but expected " // trim(str_expected))
-       end if
-    end if
+    call check_expected_size(name, actual_size, expected_size)
 
     call json%get(name, value)
   end subroutine json_get_integer_array
@@ -381,7 +354,6 @@ contains
     logical :: found
     integer :: var_type
     integer :: actual_size
-    character(len=32) :: str_actual, str_expected
 
     call json%info(name, found = found, var_type = var_type, &
          n_children = actual_size)
@@ -392,15 +364,7 @@ contains
        call neko_error("Parameter " // name // " is not a array")
     end if
 
-    if (present(expected_size)) then
-       if (actual_size /= expected_size) then
-          write(str_actual, '(I0)') actual_size
-          write(str_expected, '(I0)') expected_size
-          call neko_error("Parameter '" // trim(name) // &
-               "' has incorrect size: got " // &
-               trim(str_actual) // ", but expected " // trim(str_expected))
-       end if
-    end if
+    call check_expected_size(name, actual_size, expected_size)
 
     call json%get(name, value)
   end subroutine json_get_logical_array
@@ -677,5 +641,26 @@ contains
     call item%load_from_string(buffer)
 
   end subroutine json_extract_item_from_name
+
+  !> Routine to validate array sizes against an expected size
+  !! @param[in] name The name of the parameter for error reporting
+  !! @param[in] actual_size The size found in the JSON
+  !! @param[in] expected_size (Optional) The size it is supposed to be
+  subroutine check_expected_size(name, actual_size, expected_size)
+    character(len=*), intent(in) :: name
+    integer, intent(in) :: actual_size
+    integer, optional, intent(in) :: expected_size
+    character(len=32) :: str_actual, str_expected
+
+    if (present(expected_size)) then
+       if (actual_size /= expected_size) then
+          write(str_actual, '(I0)') actual_size
+          write(str_expected, '(I0)') expected_size
+          call neko_error("Parameter '" // trim(name) // &
+               "' has incorrect size: got " // &
+               trim(str_actual) // ", but expected " // trim(str_expected))
+       end if
+    end if
+  end subroutine check_expected_size
 
 end module json_utils
