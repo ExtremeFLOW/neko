@@ -277,8 +277,8 @@ __global__ void most_kernel(
         const int index = (ind_e_d[i] - 1) * lx * lx * lx +
                           (ind_t_d[i] - 1) * lx * lx +
                           (ind_s_d[i] - 1) * lx +
-                          (ind_r_d[i] - 1);
-
+                          (ind_r_d[i] - 1);  // 'long long' might be needed to avoid
+                                             // overflowing 32-bits of 'int'
         T ui = u_d[index];
         T vi = v_d[index];
         T wi = w_d[index];
@@ -291,10 +291,10 @@ __global__ void most_kernel(
         T nz = n_z_d[i];
         
         // Get the tangnential component
-        T normu = ui_tmp * nx + vi_tmp * ny + wi_tmp * nz;
-        T ui -= normu * nx;
-        T vi -= normu * ny;
-        T wi -= normu * nz;
+        T normu = ui * nx + vi * ny + wi * nz;
+        ui -= normu * nx;
+        vi -= normu * ny;
+        wi -= normu * nz;
 
         // The magnitude used for MOST is the magnitude of the tangential vector
         T magu = sqrt(ui*ui + vi*vi + wi*wi);
@@ -363,7 +363,7 @@ __global__ void most_kernel(
                 } else { // Convective 
                     if constexpr (BC_TYPE == 0) {
                         f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L);
-                        dfdl = dfdl_neumann_convective<T>(L*0.99, L*1.01, hi, z0, z0h, fabs(L*0.01));
+                        dfdl = dfdl_neumann_convective<T>(L*0.99, L*1.01, hi, z0, z0h, fabs(L*0.01));  // fabs necessary for convective regime
                     } else {
                         f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L);
                         dfdl = dfdl_dirichlet_convective<T>(L*0.99, L*1.01, hi, z0, z0h, fabs(L*0.01));
