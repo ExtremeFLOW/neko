@@ -5,6 +5,7 @@ var fld__file__data_8f90 =
     [ "fld_file_data_free", "d3/d8f/fld__file__data_8f90.html#a447a9a3577d78c09e32acc86067d8057", null ],
     [ "fld_file_data_generate_interpolator", "d3/d8f/fld__file__data_8f90.html#a860153a2acf072f287f1483e127b4013", null ],
     [ "fld_file_data_get_list", "d3/d8f/fld__file__data_8f90.html#a18a817dce693cca00c73a675d724f605", null ],
+    [ "fld_file_data_import_fields", "d3/d8f/fld__file__data_8f90.html#afa9dc0121ca3df9d5f993e56d178ab06", null ],
     [ "fld_file_data_init", "d3/d8f/fld__file__data_8f90.html#a62c2b4bd440923afdb18462553a0ffdf", null ],
     [ "fld_file_data_init_n_fields", "d3/d8f/fld__file__data_8f90.html#a7742eceae5347e366fa67df79bd520d5", null ],
     [ "fld_file_data_init_same", "d3/d8f/fld__file__data_8f90.html#a158f0e3a9db85bb281afdfc0892f3ae6", null ],

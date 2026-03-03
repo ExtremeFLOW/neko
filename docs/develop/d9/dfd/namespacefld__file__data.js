@@ -5,6 +5,7 @@ var namespacefld__file__data =
     [ "fld_file_data_free", "d9/dfd/namespacefld__file__data.html#a447a9a3577d78c09e32acc86067d8057", null ],
     [ "fld_file_data_generate_interpolator", "d9/dfd/namespacefld__file__data.html#a860153a2acf072f287f1483e127b4013", null ],
     [ "fld_file_data_get_list", "d9/dfd/namespacefld__file__data.html#a18a817dce693cca00c73a675d724f605", null ],
+    [ "fld_file_data_import_fields", "d9/dfd/namespacefld__file__data.html#afa9dc0121ca3df9d5f993e56d178ab06", null ],
     [ "fld_file_data_init", "d9/dfd/namespacefld__file__data.html#a62c2b4bd440923afdb18462553a0ffdf", null ],
     [ "fld_file_data_init_n_fields", "d9/dfd/namespacefld__file__data.html#a7742eceae5347e366fa67df79bd520d5", null ],
     [ "fld_file_data_init_same", "d9/dfd/namespacefld__file__data.html#a158f0e3a9db85bb281afdfc0892f3ae6", null ],

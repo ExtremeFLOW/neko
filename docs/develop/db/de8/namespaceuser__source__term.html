@@ -170,19 +170,25 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d9c/user__source__term_8f90_source.html#l00145">145</a> of file <a class="el" href="../../db/d9c/user__source__term_8f90_source.html">user_source_term.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d9c/user__source__term_8f90_source.html#l00144">144</a> of file <a class="el" href="../../db/d9c/user__source__term_8f90_source.html">user_source_term.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../db/de8/namespaceuser__source__term_aea466d0e93a77f2b33b01006888015d7_cgraph.png" border="0" usemap="#adb/de8/namespaceuser__source__term_aea466d0e93a77f2b33b01006888015d7_cgraph" alt=""/></div>
 <map name="adb/de8/namespaceuser__source__term_aea466d0e93a77f2b33b01006888015d7_cgraph" id="adb/de8/namespaceuser__source__term_aea466d0e93a77f2b33b01006888015d7_cgraph">
-<area shape="rect" title="Computes the source term and adds the result to fields." alt="" coords="5,23,180,63"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#a8ab404025f5d8cd75e11241fbb8735e3" title="Vector addition ." alt="" coords="228,31,395,56"/>
-<area shape="poly" title=" " alt="" coords="181,41,214,41,214,46,181,46"/>
+<area shape="rect" title="Computes the source term and adds the result to fields." alt="" coords="5,77,180,117"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a8ab404025f5d8cd75e11241fbb8735e3" title="Vector addition ." alt="" coords="228,55,395,80"/>
+<area shape="poly" title=" " alt="" coords="180,82,214,78,215,83,181,88"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="228,112,395,137"/>
+<area shape="poly" title=" " alt="" coords="181,105,215,110,214,115,180,111"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="493,5,589,31"/>
-<area shape="poly" title=" " alt="" coords="395,31,479,22,479,27,395,37"/>
+<area shape="poly" title=" " alt="" coords="370,52,479,28,480,34,372,57"/>
 <area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="443,55,639,80"/>
-<area shape="poly" title=" " alt="" coords="395,49,429,53,429,58,395,55"/>
+<area shape="poly" title=" " alt="" coords="395,65,429,65,429,70,395,70"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="462,105,619,145"/>
+<area shape="poly" title=" " alt="" coords="395,122,448,122,448,127,395,127"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="492,169,589,195"/>
+<area shape="poly" title=" " alt="" coords="364,135,479,164,478,169,362,140"/>
 </map>
 </div>
 
@@ -212,7 +218,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d9c/user__source__term_8f90_source.html#l00130">130</a> of file <a class="el" href="../../db/d9c/user__source__term_8f90_source.html">user_source_term.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d9c/user__source__term_8f90_source.html#l00129">129</a> of file <a class="el" href="../../db/d9c/user__source__term_8f90_source.html">user_source_term.f90</a>.</p>
 
 </div>
 </div>
@@ -261,7 +267,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>This will throw, as the user source term should be initialized directly from components. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d9c/user__source__term_8f90_source.html#l00087">87</a> of file <a class="el" href="../../db/d9c/user__source__term_8f90_source.html">user_source_term.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d9c/user__source__term_8f90_source.html#l00085">85</a> of file <a class="el" href="../../db/d9c/user__source__term_8f90_source.html">user_source_term.f90</a>.</p>
 
 </div>
 </div>
@@ -318,7 +324,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fields</td><td>A list of 3 fields for adding the source values. </td></tr>
+    <tr><td class="paramname">fields</td><td>A list of fields for adding the source values. </td></tr>
     <tr><td class="paramname">coef</td><td>The SEM coeffs. </td></tr>
     <tr><td class="paramname">user_proc</td><td>The procedure user procedure to compute the source term. </td></tr>
     <tr><td class="paramname">scheme_name</td><td>The name of the scheme that owns this source term. </td></tr>
@@ -326,7 +332,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d9c/user__source__term_8f90_source.html#l00104">104</a> of file <a class="el" href="../../db/d9c/user__source__term_8f90_source.html">user_source_term.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d9c/user__source__term_8f90_source.html#l00103">103</a> of file <a class="el" href="../../db/d9c/user__source__term_8f90_source.html">user_source_term.f90</a>.</p>
 
 </div>
 </div>
@@ -336,7 +342,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/de8/namespaceuser__source__term.html">user_source_term</a></li>
-    <li class="footer">Generated on Mon Mar 2 2026 04:17:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Mar 3 2026 04:17:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

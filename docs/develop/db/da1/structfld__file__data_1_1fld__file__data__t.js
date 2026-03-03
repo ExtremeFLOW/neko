@@ -4,6 +4,7 @@ var structfld__file__data_1_1fld__file__data__t =
     [ "free", "db/da1/structfld__file__data_1_1fld__file__data__t.html#aa809b57be4b087b8bd148a6e75ad8503", null ],
     [ "generate_interpolator", "db/da1/structfld__file__data_1_1fld__file__data__t.html#acd45438540a718080e295f122b46e37d", null ],
     [ "get_list", "db/da1/structfld__file__data_1_1fld__file__data__t.html#aaf518942ae3f4cbc80a0558e75f57d58", null ],
+    [ "import_fields", "db/da1/structfld__file__data_1_1fld__file__data__t.html#af8c6cb64023894e6c8ae391f68d59f8b", null ],
     [ "init", "db/da1/structfld__file__data_1_1fld__file__data__t.html#af23a5d4a702ad86507044c75fc8b3c81", null ],
     [ "init_n_fields", "db/da1/structfld__file__data_1_1fld__file__data__t.html#a4dc1dd5e21e5e9296f7b1c99ba472d8a", null ],
     [ "init_same", "db/da1/structfld__file__data_1_1fld__file__data__t.html#a7955798d3a1ad1376b67184ce5ac8635", null ],
