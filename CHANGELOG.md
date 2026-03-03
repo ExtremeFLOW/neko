@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Add runtime statistics for subgrid-scale contribution to the anisotropic part
+  of the residual stresses.
 - Introduced `import_fields`: a subroutine to read and import fld data,
   with interpolation capabilities. 
 - Added `vector_list_t` and `name` to `vector_t`.
