@@ -279,7 +279,9 @@ contains
        call neko_error("Parameter " // name // " is not an array")
     end if
 
-    call check_expected_size(name, actual_size, expected_size)
+    if (present(expected_size)) then
+       call check_expected_size(name, actual_size, expected_size)
+    end if
 
     call json%get(name, value)
   end subroutine json_get_real_array
@@ -308,7 +310,9 @@ contains
        call neko_error("Parameter " // name // " is not an array")
     end if
 
-    call check_expected_size(name, actual_size, expected_size)
+    if (present(expected_size)) then
+       call check_expected_size(name, actual_size, expected_size)
+    end if
 
     call json%get(name, value)
   end subroutine json_get_double_array
@@ -335,7 +339,9 @@ contains
        call neko_error("Parameter " // name // " missing from the case file")
     end if
 
-    call check_expected_size(name, actual_size, expected_size)
+    if (present(expected_size)) then
+       call check_expected_size(name, actual_size, expected_size)
+    end if
 
     call json%get(name, value)
   end subroutine json_get_integer_array
@@ -364,7 +370,9 @@ contains
        call neko_error("Parameter " // name // " is not a array")
     end if
 
-    call check_expected_size(name, actual_size, expected_size)
+    if (present(expected_size)) then
+       call check_expected_size(name, actual_size, expected_size)
+    end if
 
     call json%get(name, value)
   end subroutine json_get_logical_array
@@ -648,18 +656,15 @@ contains
   !! @param[in] expected_size (Optional) The size it is supposed to be
   subroutine check_expected_size(name, actual_size, expected_size)
     character(len=*), intent(in) :: name
-    integer, intent(in) :: actual_size
-    integer, optional, intent(in) :: expected_size
+    integer, intent(in) :: actual_size, expected_size
     character(len=32) :: str_actual, str_expected
 
-    if (present(expected_size)) then
-       if (actual_size /= expected_size) then
-          write(str_actual, '(I0)') actual_size
-          write(str_expected, '(I0)') expected_size
-          call neko_error("Parameter '" // trim(name) // &
-               "' has incorrect size: got " // &
-               trim(str_actual) // ", but expected " // trim(str_expected))
-       end if
+    if (actual_size /= expected_size) then
+       write(str_actual, '(I0)') actual_size
+       write(str_expected, '(I0)') expected_size
+       call neko_error("Parameter '" // trim(name) // &
+            "' has incorrect size: got " // &
+            trim(str_actual) // ", but expected " // trim(str_expected))
     end if
   end subroutine check_expected_size
 
