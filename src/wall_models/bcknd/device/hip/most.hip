@@ -49,7 +49,7 @@ extern "C" {
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
     if (*n_nodes > 0) {
         if (strncmp(bc_type, "neumann", 7) == 0) {
-          hipLaunchKernelGGL(HIP_KERNEL_NAME(most_compute<real>,0),
+          hipLaunchKernelGGL(HIP_KERNEL_NAME(most_compute<real,0>),
                                           nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                                           (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
                                           (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
@@ -57,7 +57,7 @@ extern "C" {
                                           (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
                                           *n_nodes, *lx, *kappa, *z0, *z0h, *bc_value);
         } else if (strncmp(bc_type, "dirichlet", 9) == 0) {
-          hipLaunchKernelGGL(HIP_KERNEL_NAME(most_compute<real>,1),
+          hipLaunchKernelGGL(HIP_KERNEL_NAME(most_compute<real,1>),
                                           nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                                           (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
                                           (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
