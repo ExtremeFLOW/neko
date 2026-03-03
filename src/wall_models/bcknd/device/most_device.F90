@@ -2,7 +2,7 @@
 
 module most_device
   use num_types, only : rp, c_rp
-  use, intrinsic :: iso_c_binding, only : only : c_ptr, c_char, c_null_char
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_char, c_null_char
   use utils, only : neko_error
   implicit none
   private
