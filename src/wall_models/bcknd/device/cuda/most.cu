@@ -46,7 +46,7 @@ extern "C" {
           void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
           int *n_nodes, int *lx, real *kappa, real *z0, real *z0h, 
-          real *bc_value, char *bc_type, int *tstep) {
+          char *bc_type, real *bc_value, int *tstep) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
