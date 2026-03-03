@@ -2,7 +2,7 @@
 
 module most_device
   use num_types, only : rp, c_rp
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding, only : only : c_ptr, c_char, c_null_char
   use utils, only : neko_error
   implicit none
   private
@@ -21,10 +21,10 @@ module most_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       type(c_ptr), value :: bc_type
-       real(c_rp) :: kappa, z0, z0h_in, bc_value
+       type(c_ptr), value :: bc_type   ! pointer to first char of the string
+       real(c_rp), value :: kappa, z0, z0h_in, bc_value
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
-       integer(c_int) :: n_nodes, lx, tstep
+       integer(c_int), value :: n_nodes, lx, tstep
      end subroutine hip_most_compute
   end interface
 #elif HAVE_CUDA
@@ -42,9 +42,9 @@ module most_device
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
        type(c_ptr), value :: bc_type
-       real(c_rp) :: kappa, z0, z0h_in, bc_value
+       real(c_rp), value :: kappa, z0, z0h_in, bc_value
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
-       integer(c_int) :: n_nodes, lx, tstep
+       integer(c_int), value :: n_nodes, lx, tstep
      end subroutine cuda_most_compute
   end interface
 #elif HAVE_OPENCL
@@ -64,22 +64,27 @@ contains
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
-    type(c_ptr), intent(in) :: bc_type
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d
     real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value
+    character(len=*), intent(in) :: bc_type    ! passed as a normal Fortran string 
+
+    ! bc_type must be C-compatible string
+    character(kind=c_char, len=len_trim(bc_type)+1) :: bc_type_c
+    ! add null terminator for C/C++ compatibility
+    bc_type_c = trim(bc_type) // c_null_char
 
 #if HAVE_HIP
     call hip_most_compute(u_d, v_d, w_d,temp_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, 
-         lx, kappa, z0, z0h_in, bc_value, bc_type, tstep)
+         lx, kappa, z0, z0h_in, bc_value, bc_type_c, tstep)
 #elif HAVE_CUDA
     call cuda_most_compute(u_d, v_d, w_d,temp_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, 
-         lx, kappa, z0, z0h_in, bc_value, bc_type,  tstep)
+         lx, kappa, z0, z0h_in, bc_value, bc_type_c, tstep)
 #elif HAVE_OPENCL
     call neko_error("OPENCL is not implemented for the MOST wall model")
 #else
