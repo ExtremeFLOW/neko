@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -142,6 +142,7 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
+  !! @param fname name of the output file
   subroutine fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
        coef, start_time, hom_dir, stat_set, fname)
     class(fluid_stats_simcomp_t), target, intent(inout) :: this

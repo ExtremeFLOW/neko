@@ -299,16 +299,19 @@ In addition, one can specify the usual controls for the output, in the same mann
 In the scalar SGS statistics in Neko, subgrid-scale (SGS) contribution to the scalar fluxes are computed, in a similar fashion to the fluid statistics. In total, 4 statical quantities are computed.
 
 ## Using statistics
-Similar to fluid statistics, scalar SGS statistics are enabled in the case file as a simcomp with two additional argument `field` and `alphat_field` for the name of the eddy diffusivity field:
+Similar to fluid statistics, scalar SGS statistics are enabled in the case file as a simcomp with two additional argument `field` and `alphat`, where the latter is a json sub-dictionary:
 
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
 | `field`        | Name of the scalar field.                       | String  |  `s`        |
-| `alphat_field`        | Name of the eddy diffusivity field.                       | String  |  `nut`        |
+| `alphat.nut_dependency`                    | Whether the eddy diffusivity depends on the eddy kinematic viscosity.                  | `true` or `false`                                      | -  |
+| `alphat.alphat_field`                    | Name of the turbulent diffusivity field.                  | String                                      | Empty string  |
+| `alphat.nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
+| `alphat.Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
-| `output_filename`        | User-specified filename to store output in.                       | filename  |  fluid_sgs_statsX*        |
+| `output_filename`        | User-specified filename to store output in.                       | filename  |  scalar_sgs_statsX*        |
 
 \*The name of the written statistics file will by default be `scalar_sgs_statsX0.f0000X,..., scalar_sgs_statsX0.f0000Y` where X is the number of the first outputted statistic of the current run.
 
@@ -334,7 +337,7 @@ In addition, one can specify the usual controls for the output, in the same mann
   ]
 ~~~~~~~~~~~~~~~
 
-Otherwise, if one does not use model for the scalar eddy diffusivity but relates it with the eddy viscosity, the following would work is one specify a turbulent Prandtl number to be for instance 0.7 and the output will give the eddy diffusivity field as the edy viscosity field divided by the turbulent Prandtl number:
+Otherwise, if one does not use a model for the scalar eddy diffusivity but relates it to the eddy viscosity, one needs to specify the turbulent Prandtl number, for instance, 0.7. The output will give the eddy diffusivity field as the eddy viscosity field divided by the chosen turbulent Prandtl number:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation_components":

@@ -153,13 +153,12 @@ contains
   end subroutine scalar_sgs_stats_simcomp_init_from_json
 
   !> Actual constructor using directly the alphat field.
-  !! @param u x-velocity
-  !! @param v x-velocity
-  !! @param w x-velocity
+  !! @param s scalar
   !! @param coef sem coefs
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param alphat_field name of the eddy diffusivity field
+  !! @param fname name of the outut file
   subroutine scalar_sgs_stats_simcomp_init_from_components_alphat(this, &
        s, coef, start_time, hom_dir, alphat_field, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
@@ -210,14 +209,13 @@ contains
 
   !> Actual constructor using directly the nut field and the turbulent
   !> Prandtl number.
-  !! @param u x-velocity
-  !! @param v x-velocity
-  !! @param w x-velocity
+  !! @param s scalar
   !! @param coef sem coefs
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param nut_field name of the eddy diffusivity field
   !! @param pr_turb turbulent Prandtl number
+  !! @param fname name of the output file
   subroutine scalar_sgs_stats_simcomp_init_from_components_nut(this, &
        s, coef, start_time, hom_dir, nut_field, pr_turb, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
@@ -347,7 +345,7 @@ contains
        call neko_log%section('scalar stats')
        write(log_buf, '(A,E15.7)') 'Sampling at time:', t
        call neko_log%message(log_buf)
-       write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', &
+       write(log_buf, '(A33,E15.7)') 'Simulation time since last sample:', &
             delta_t
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') 'Sampling time (s):', sample_time

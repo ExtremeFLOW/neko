@@ -134,6 +134,7 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param nut_field Name of the eddy viscosity field
+  !! @param fname name of the output file
   subroutine fluid_sgs_stats_simcomp_init_from_components(this, u, v, w, coef, &
        start_time, hom_dir, nut_field, fname)
     class(fluid_sgs_stats_simcomp_t), target, intent(inout) :: this
@@ -258,7 +259,7 @@ contains
        call neko_log%section('Fluid SGS stats')
        write(log_buf, '(A,E15.7)') 'Sampling at time:', t
        call neko_log%message(log_buf)
-       write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', &
+       write(log_buf, '(A33,E15.7)') 'Simulation time since last sample:', &
             delta_t
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') 'Sampling time (s):', sample_time

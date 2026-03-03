@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,7 @@ module scalar_sgs_stats
      !> Pointers to the instantenious quantities.
      type(field_t), pointer :: alphat => null() !< scalar diffusivity
      type(field_t), pointer :: nut => null() !< scalar diffusivity
+     logical :: nut_dependency = .false.
      real(kind=rp) :: pr_turb !< turbulent Prandtl number
      type(field_t), pointer :: s => null() !< scalar
 
@@ -105,6 +106,7 @@ contains
 
     this%s => s
     this%alphat => neko_registry%get_field(alphat_field)
+    this%nut_dependency = .false.
 
     ! Initialize work fields
     call this%stats_work%init(this%s%dof, 'stats')
@@ -144,6 +146,7 @@ contains
     this%s => s
     this%nut => neko_registry%get_field(nut_field)
     this%pr_turb = pr_turb
+    this%nut_dependency = .true.
 
     allocate(this%alphat)
     call this%alphat%init(this%nut%dof, 'alphat_temp')
@@ -185,7 +188,9 @@ contains
       call neko_scratch_registry%request_field(this%dsdz_work, &
            temp_indices(3), .false.)
 
-      call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
+      if (this%nut_dependency) then
+         call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
+      end if
       call this%alphat_mean%update(k)
 
       call grad(this%dsdx_work%x, &
@@ -218,9 +223,16 @@ contains
     call this%alphatdsdy%free()
     call this%alphatdsdz%free()
 
+    if (this%nut_dependency .and. associated(this%alphat)) then
+       call this%alphat%free()
+       deallocate(this%alphat)
+    end if
+
     nullify(this%coef)
     nullify(this%s)
     nullify(this%alphat)
+
+    call this%stat_fields%free()
 
   end subroutine scalar_sgs_stats_free
 
