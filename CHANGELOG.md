@@ -4,6 +4,10 @@
 
 - Fixed checkpoint JSON parameter parsing and their documentation. The
   `output_checkpoints` parameter no longer has a default value.
+- Add runtime statistics for subgrid-scale contribution to the anisotropic part
+  of the residual stresses.
+- Introduced `import_fields`: a subroutine to read and import fld data,
+  with interpolation capabilities. 
 - Added `vector_list_t` and `name` to `vector_t`.
 - Rework hash table iterators, significantly faster (O(tsize) => O(entries)
 - Remove redundant directory in `site-packages` when installing pyneko

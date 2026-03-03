@@ -57,6 +57,7 @@ module scalar_ic
   use interpolation, only : interpolator_t
   use space, only : space_t, GLL
   use field_list, only : field_list_t
+  use import_field_utils, only : import_fields
   implicit none
   private
 
@@ -94,6 +95,7 @@ contains
     character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
     real(kind=rp) :: zone_value, tol
     logical :: interpolate
+    integer :: tgt_scal_idx
 
     if (trim(type) .eq. 'uniform') then
 
@@ -119,7 +121,12 @@ contains
             "none")
        mesh_fname = trim(read_str)
 
-       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname, i)
+       ! Give the user the option to select which scalar they want to import
+       ! the values from, in the fld file. 0 corresponds to temperature.
+       call json_get_or_default(params, 'target_index', tgt_scal_idx, i)
+
+       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname, i, &
+            tgt_scal_idx)
 
     else
        call neko_error('Invalid initial condition')
@@ -251,165 +258,48 @@ contains
   !! points in the mesh.
   !! @param mesh_file_name If interpolation is enabled, name of the field
   !! file series where the mesh coordinates are located.
-  !! @param i Index of the scalar field.
+  !! @param i Index of the scalar field. 0 corresponds to temperature.
+  !! @param target_idx The index of the scalar field to import from the
+  !! fld file. 0 corresponds to temperature.
   subroutine set_scalar_ic_fld(s, file_name, &
-       interpolate, tolerance, mesh_file_name, i)
-    type(field_t), intent(inout) :: s
+       interpolate, tolerance, mesh_file_name, i, target_idx)
+    type(field_t), target, intent(inout) :: s
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
     integer, intent(in) :: i
+    integer, intent(in) :: target_idx
 
     character(len=LOG_SIZE) :: log_buf
-    integer :: sample_idx, sample_mesh_idx
-    integer :: last_index
-    type(fld_file_data_t) :: fld_data
-    type(file_t) :: f
-    logical :: mesh_mismatch
+    type(field_t), pointer :: ss
+    type(field_list_t) :: s_tgt_list
 
-    ! ---- For the mesh to mesh interpolation
-    type(global_interpolation_t) :: global_interp
-    ! -----
-
-    ! ---- For space to space interpolation
-    type(space_t) :: prev_Xh
-    type(interpolator_t) :: space_interp
-    ! ----
-
-    call neko_log%message("Type          : field")
-    call neko_log%message("File name     : " // trim(file_name))
-    write (log_buf, '(A,L1)') "Interpolation : ", interpolate
-    call neko_log%message(log_buf)
-
-    ! Extract sample index from the file name
-    sample_idx = extract_fld_file_index(file_name, -1)
-
-    if (sample_idx .eq. -1) then
-       call neko_error("Invalid file name for the initial condition. The " // &
-            "file format must be e.g. 'mean0.f00001'")
+    if (i .ne. target_idx) then
+       write (log_buf, '(A,I0,A,I0)') "Loading scalar #", target_idx, &
+            " into scalar #", i
+       call neko_log%message(log_buf)
     end if
 
-    ! Change from "field0.f000*" to "field0.fld" for the fld reader
-    call filename_chsuffix(file_name, file_name, 'fld')
+    ! use a pointer since import_fields needs a pointer as input
+    ss => s
 
-    call fld_data%init
-    call f%init(trim(file_name))
+    ! Put ss in a field list of 1 element
+    call s_tgt_list%init(1)
+    call s_tgt_list%assign(1, ss)
 
-    if (interpolate) then
+    call import_fields(file_name, mesh_file_name, &
+         s_target_list = s_tgt_list, & ! The target field
+         s_index_list = [target_idx], & ! Take values from target scalar
+         interpolate = interpolate, tolerance = tolerance)
 
-       ! If no mesh file is specified, use the default file name
-       if (mesh_file_name .eq. "none") then
-          mesh_file_name = trim(file_name)
-          sample_mesh_idx = sample_idx
-       else
+    call s_tgt_list%free()
 
-          ! Extract sample index from the mesh file name
-          sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
+    nullify(ss)
 
-          if (sample_mesh_idx .eq. -1) then
-             call neko_error("Invalid file name for the initial condition." // &
-                  " The file format must be e.g. 'mean0.f00001'")
-          end if
-
-          write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
-          call neko_log%message(log_buf)
-          write (log_buf, '(A,A)') "Mesh file     : ", &
-               trim(mesh_file_name)
-          call neko_log%message(log_buf)
-
-       end if ! if mesh_file_name .eq. none
-
-       ! Read the mesh coordinates if they are not in our fld file
-       if (sample_mesh_idx .ne. sample_idx) then
-          call f%set_counter(sample_mesh_idx)
-          call f%read(fld_data)
-       end if
-
-    end if
-
-    ! Read the field file containing (u,v,w,p)
-    call f%set_counter(sample_idx)
-    call f%read(fld_data)
-
-    !
-    ! Check that the data in the fld file matches the current case.
-    ! Note that this is a safeguard and there are corner cases where
-    ! two different meshes have the same dimension and same # of elements
-    ! but this should be enough to cover obvious cases.
-    !
-    mesh_mismatch = (fld_data%glb_nelv .ne. s%msh%glb_nelv .or. &
-         fld_data%gdim .ne. s%msh%gdim)
-
-    if (mesh_mismatch .and. .not. interpolate) then
-       call neko_error("The fld file must match the current mesh! " // &
-            "Use 'interpolate': 'true' to enable interpolation.")
-    else if (.not. mesh_mismatch .and. interpolate) then
-       call neko_log%warning("You have activated interpolation but you " // &
-            "might still be using the same mesh.")
-    end if
-
-
-    ! Mesh interpolation if specified
-    if (interpolate) then
-       ! Issue a warning if the mesh is in single precision
-       select type (ft => f%file_type)
-       type is (fld_file_t)
-          if (.not. ft%dp_precision) then
-             call neko_warning("The coordinates read from the field file " // &
-                  "are in single precision.")
-             call neko_log%message("It is recommended to use a mesh in " // &
-                  "double precision for better interpolation results.")
-             call neko_log%message("If the interpolation does not work, " // &
-                  "you can try to increase the tolerance.")
-          end if
-       class default
-       end select
-
-       ! Copy all fld data to device since the reader loads everything on the host
-       call fld_data%x%copy_from(HOST_TO_DEVICE, .false.)
-       call fld_data%y%copy_from(HOST_TO_DEVICE, .false.)
-       call fld_data%z%copy_from(HOST_TO_DEVICE, .false.)
-       call fld_data%t%copy_from(HOST_TO_DEVICE, .true.)
-
-       ! Generates an interpolator object and performs the point search
-       call fld_data%generate_interpolator(global_interp, s%dof, s%msh, &
-            tolerance)
-
-       ! Evaluate scalar
-
-       ! i == 0 means it's the temperature field
-       if (i .ne. 0) then
-          call global_interp%evaluate(s%x, fld_data%s(i)%x, .false.)
-       else
-          call global_interp%evaluate(s%x, fld_data%t%x, .false.)
-       end if
-
-       call global_interp%free
-
-       ! Copy back to the host for set_scalar_ic_common
-       call fld_data%t%copy_from(DEVICE_TO_HOST, .true.)
-
-    else ! No interpolation, just potentially from different spaces
-
-       ! Build a space_t object from the data in the fld file
-       call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
-       call space_interp%init(s%Xh, prev_Xh)
-
-       ! Do the space-to-space interpolation
-       ! i == 0 means it's the temperature field
-       if (i .ne. 0) then
-          call space_interp%map_host(s%x, fld_data%s(i)%x, fld_data%nelv, s%Xh)
-       else
-          call space_interp%map_host(s%x, fld_data%t%x, fld_data%nelv, s%Xh)
-       end if
-
-       call space_interp%free
-
-    end if
-
-    call fld_data%free
-    call prev_Xh%free
+    ! If we are on GPU we need to move s back to the host
+    ! since set_scalar_ic_common copies it again to the device.
+    call s%copy_from(device_to_host, .true.)
 
   end subroutine set_scalar_ic_fld
 
