@@ -259,19 +259,34 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
-  subroutine json_get_real_array(json, name, value)
+  subroutine json_get_real_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=sp), allocatable, intent(out) :: value(:)
+    integer, optional, intent(in) :: expected_size
     logical :: found
     integer :: var_type
+    integer :: actual_size
+    character(len=32) :: str_actual, str_expected
 
-    call json%info(name, found = found, var_type = var_type)
+    call json%info(name, found = found, var_type = var_type, &
+         n_children = actual_size)
+
     if (.not. found) then
        call neko_error("Parameter " // name // " missing from the case file")
     else if (var_type .ne. 3) then
        call neko_error("Parameter " // name // " is not an array")
     end if
+
+    if (present(expected_size)) then
+       if (actual_size /= expected_size) then
+          write(str_actual, '(I0)') actual_size
+          write(str_expected, '(I0)') expected_size
+          call neko_error("Parameter '" // trim(name) // &
+               "' has incorrect size: got " // &
+               trim(str_actual) // ", but expected " // trim(str_expected))
+       end if
+    end if  
 
     call json%get(name, value)
   end subroutine json_get_real_array
@@ -280,19 +295,34 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
-  subroutine json_get_double_array(json, name, value)
+  subroutine json_get_double_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=dp), allocatable, intent(out) :: value(:)
+    integer, optional, intent(in) :: expected_size
     logical :: found
     integer :: var_type
+    integer :: actual_size
+    character(len=32) :: str_actual, str_expected
 
-    call json%info(name, found = found, var_type = var_type)
+    call json%info(name, found = found, var_type = var_type, &
+         n_children = actual_size)
+
     if (.not. found) then
        call neko_error("Parameter " // name // " missing from the case file")
     else if (var_type .ne. 3) then
        call neko_error("Parameter " // name // " is not an array")
     end if
+
+    if (present(expected_size)) then
+       if (actual_size /= expected_size) then
+          write(str_actual, '(I0)') actual_size
+          write(str_expected, '(I0)') expected_size
+          call neko_error("Parameter '" // trim(name) // &
+               "' has incorrect size: got " // &
+               trim(str_actual) // ", but expected " // trim(str_expected))
+       end if
+    end if     
 
     call json%get(name, value)
   end subroutine json_get_double_array
@@ -301,14 +331,32 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
-  subroutine json_get_integer_array(json, name, value)
+  subroutine json_get_integer_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     integer, allocatable, intent(out) :: value(:)
+    integer, optional, intent(in) :: expected_size
+    logical :: found
+    integer :: var_type
+    integer :: actual_size
+    character(len=32) :: str_actual, str_expected
 
-    if (.not. json%valid_path(name)) then
+    call json%info(name, found = found, var_type = var_type, &
+         n_children = actual_size)
+
+    if (.not. found) then
        call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    if (present(expected_size)) then
+       if (actual_size /= expected_size) then
+          write(str_actual, '(I0)') actual_size
+          write(str_expected, '(I0)') expected_size
+          call neko_error("Parameter '" // trim(name) // &
+               "' has incorrect size: got " // &
+               trim(str_actual) // ", but expected " // trim(str_expected))
+       end if
+    end if     
 
     call json%get(name, value)
   end subroutine json_get_integer_array
@@ -317,19 +365,34 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
-  subroutine json_get_logical_array(json, name, value)
+  subroutine json_get_logical_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     logical, allocatable, intent(out) :: value(:)
+    integer, optional, intent(in) :: expected_size
     logical :: found
     integer :: var_type
+    integer :: actual_size
+    character(len=32) :: str_actual, str_expected
+    
+    call json%info(name, found = found, var_type = var_type, &
+         n_children = actual_size)   
 
-    call json%info(name, found = found, var_type = var_type)
     if (.not. found) then
        call neko_error("Parameter " // name // " missing from the case file")
     else if (var_type .ne. 3) then
        call neko_error("Parameter " // name // " is not a array")
     end if
+
+    if (present(expected_size)) then
+       if (actual_size /= expected_size) then
+          write(str_actual, '(I0)') actual_size
+          write(str_expected, '(I0)') expected_size
+          call neko_error("Parameter '" // trim(name) // &
+               "' has incorrect size: got " // &
+               trim(str_actual) // ", but expected " // trim(str_expected))
+       end if
+    end if   
 
     call json%get(name, value)
   end subroutine json_get_logical_array
