@@ -67,9 +67,9 @@ contains
           if (z .le. 50) then ! Small perturbation to help get turbulence started
              u%x(i,1,1,1) = u%x(i,1,1,1) + eps*(sin(alpha*x)*sin(beta*y)) &
                   + eps*(sin(gamma*x)*sin(delta*y))
-             v%x(i,1,1,1) = w%x(i,1,1,1) + eps*(sin(alpha*x)*sin(beta*y)) &
+             v%x(i,1,1,1) = v%x(i,1,1,1) + eps*(sin(alpha*x)*sin(beta*y)) &
                   + eps*(sin(gamma*x)*sin(delta*y))
-             w%x(i,1,1,1) = v%x(i,1,1,1) - eps*(alpha * cos(alpha*x)*sin(beta*y)) &
+             w%x(i,1,1,1) = w%x(i,1,1,1) - eps*(alpha * cos(alpha*x)*sin(beta*y)) &
                   - eps*(gamma * cos(gamma*x)*sin(delta*y))
           endif
        end do
