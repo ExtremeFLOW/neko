@@ -14,7 +14,6 @@ contains
     u_geo = 10.0_rp
 
     user%initial_conditions => user_ic
-    user%source_term => TKE_source_term
   end subroutine user_setup
 
   ! User defined initial condition
@@ -99,26 +98,5 @@ contains
        endif
     endif
   end subroutine user_ic
-
-  !> Set source term
-  subroutine TKE_source_term(scheme_name, rhs, time)
-    character(len=*), intent(in) :: scheme_name
-    type(field_list_t), intent(inout) :: rhs
-    type(time_state_t), intent(in) :: time
-
-    real(kind=rp) :: x
-    type(field_t), pointer :: f
-    integer :: i
-    type(field_t), pointer :: TKE_source
-
-    if (.not.(scheme_name .eq. 'TKE')) return
-
-    TKE_source => &
-         neko_registry%get_field('TKE_source')
-
-    f => rhs%items(1)%ptr
-    call field_copy(f, TKE_source)
-
-  end subroutine TKE_source_term
 
 end module user

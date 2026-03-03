@@ -163,7 +163,8 @@
                 },
                 "source_terms": [
                     {
-                        "type": "user"
+                        "type": "field",
+                        "field_names": ["TKE_source"]
                     }
                 ]
             }
