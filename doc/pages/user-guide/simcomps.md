@@ -47,11 +47,7 @@ in Neko. The list will be updated as new simcomps are added.
   [statistics guide](@ref statistics-guide)
 - Fluid SGS statistics simcomp, "fluid_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
-- Fluid SGS statistics simcomp, "fluid_sgs_stats", for more details see the
-  [statistics guide](@ref statistics-guide)
 - Scalar statistics simcomp, "scalar_stats", for more details see the
-  [statistics guide](@ref statistics-guide)
-- Scalar SGS statistics simcomp, "scalar_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
 - Scalar SGS statistics simcomp, "scalar_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
