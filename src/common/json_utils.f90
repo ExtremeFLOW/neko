@@ -259,6 +259,8 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
+  !! @param[in] expected_size (Optional) The expected size of the array. 
+  !! If provided, throws an error if the actual size does not match.
   subroutine json_get_real_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -295,6 +297,8 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
+  !! @param[in] expected_size (Optional) The expected size of the array. 
+  !! If provided, throws an error if the actual size does not match.
   subroutine json_get_double_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -331,6 +335,8 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
+  !! @param[in] expected_size (Optional) The expected size of the array. 
+  !! If provided, throws an error if the actual size does not match.
   subroutine json_get_integer_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -365,6 +371,8 @@ contains
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
+  !! @param[in] expected_size (Optional) The expected size of the array. 
+  !! If provided, throws an error if the actual size does not match.
   subroutine json_get_logical_array(json, name, value, expected_size)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
