@@ -236,32 +236,30 @@ __device__ T slaw_h_neutral(T z, T L_ob, T z0h)
 /*
  * CUDA kernel for the most wall model.   
  */
-template<typename T, int BC_TYPE>   ?
+template<typename T, int BC_TYPE>  
 __global__ void most_kernel(
-    const T* __restrict__ u_d,     // Full velocity fields
+    const T* __restrict__ u_d,     
     const T* __restrict__ v_d,
     const T* __restrict__ w_d,
     const T* __restrict__ temp_d,
-    const T* __restrict__ h_d,     // Distance to wall
-    const T* __restrict__ n_x_d,   // Wall normals
+    const T* __restrict__ h_d,     
+    const T* __restrict__ n_x_d,  
     const T* __restrict__ n_y_d,
     const T* __restrict__ n_z_d,
-    const int* __restrict__ ind_r_d, // Indirect indices
+    const int* __restrict__ ind_r_d,
     const int* __restrict__ ind_s_d,
     const int* __restrict__ ind_t_d,
     const int* __restrict__ ind_e_d,
-    T* __restrict__ tau_x_d,       // Output stresses
+    T* __restrict__ tau_x_d,       
     T* __restrict__ tau_y_d,
     T* __restrict__ tau_z_d,
     int n_nodes,
-    int lx,                      // Polynomial order + 1
+    int lx,                     
     T kappa,
     T z0,
     T z0h_in,
     T bc_value
-)
-
-{
+) {
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
     if(idx >= n_nodes) return;
@@ -333,99 +331,60 @@ __global__ void most_kernel(
         else
             Ri_b =  g*hi/ti*(ti-ts)/(magu*magu);
 
-        T L = 1e6;   // neutral default
+        T L = 1e10;   // neutral default
 
-        /*
-        * Stable case
-        */
-        if(Ri_b > Ri_threshold)
-        {
-            // Initial guess
-            L = hi / fmax(Ri_b, Ri_threshold);;
-            const T L_sign = 1.0;
-
+        const T L_sign = (Ri_b > 0) ? 1.0 : -1.0;
+    
+        // Stability branching localy 
+        if (fabs(Ri_b) <= Ri_threshold) {
+            // NEUTRAL CASE (Fastest path)
+            utau = kappa * magu / slaw_m_neutral<T>(hi, z0);
+            if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_neutral<T>(hi, z0h);
+        } 
+        else {
+            // STABLE or CONVECTIVE (NR)
+            // Initial guess based on stability
+            L = hi / Ri_b; 
+            
             T L_old;
-            int it = 0;
-
-            do {
+            for (int it = 0; it < max_iter; ++it) {
                 L_old = L;
-                T f_val, dfdlval;
+                T f_val, dfdl;
 
-                // Dispatch based on BC_TYPE at compile-time
-                if constexpr (BC_TYPE == 0) { // Neumann
-                    f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h_local, L);
-                    dfdlval = dfdl_neumann_stable<T>(L + 0.01*L, L - 0.01*L, hi, z0, z0h_local, 0.01*L);
-                } 
-                else { // Dirichlet
-                    f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h_local, L);
-                    dfdlval = dfdl_dirichlet_stable<T>(L + 0.01*L, L - 0.01*L, hi, z0, z0h_local, 0.01*L);
+                // Use the appropriate simlarity law based on stability and b.c. type
+                if (Ri_b > 0) { // Stable 
+                    if constexpr (BC_TYPE == 0) {
+                        f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h, L);
+                        dfdl = dfdl_neumann_stable<T>(L*1.01, L*0.99, hi, z0, z0h, L*0.01);
+                    } else {
+                        f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h, L);
+                        dfdl = dfdl_dirichlet_stable<T>(L*1.01, L*0.99, hi, z0, z0h, L*0.01);
+                    }
+                } else { // Convective 
+                    if constexpr (BC_TYPE == 0) {
+                        f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L);
+                        dfdl = dfdl_neumann_convective<T>(L*0.99, L*1.01, hi, z0, z0h, fabs(L*0.01));
+                    } else {
+                        f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L);
+                        dfdl = dfdl_dirichlet_convective<T>(L*0.99, L*1.01, hi, z0, z0h, fabs(L*0.01));
+                    }
                 }
 
-                T L_new = L - f_val / fmax(fabs(dfdlval), (T)1e-12);
+                L -= f_val / fmax(fabs(dfdl), (T)1e-12);
+                if (L * L_sign <= 0) L = 0.5 * L_old;
+                L = L_sign * fmax(fmin(fabs(L), (T)1e6), (T)1e-6);
+                if (fabs((L - L_old) / L) < tol) break;
+            }
 
-                if (L_new * L_sign <= 0.0) L_new = 0.5 * L;
-                L = L_sign * fmax(fmin(fabs(L_new), (T)1e6), (T)1e-6);
-                it++;
-
-            } while(fabs((L-L_old)/L) > tol && it < max_iter);
-
-            utau = kappa*magu / slaw_m_stable<T>(hi,L,z0);
-
-            if constexpr (BC_TYPE == 1)
-                q = kappa*utau*(ts-ti)/slaw_h_stable<T>(hi,L,z0h);
+            // Final local variables update
+            if (Ri_b > 0) {
+                utau = kappa * magu / slaw_m_stable<T>(hi, L, z0);
+                if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_stable<T>(hi, L, z0h);
+            } else {
+                utau = kappa * magu / slaw_m_convective<T>(hi, L, z0);
+                if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_convective<T>(hi, L, z0h);
+            }
         }
-
-        /*
-        * Convective case
-        */
-        else if(Ri_b < -Ri_threshold)
-        {
-            // Initial guess
-            L = hi / fmin(Ri_b, -Ri_threshold);;
-            const T L_sign = -1.0;
-
-            T L_old;
-            int it = 0;
-
-            do {
-                L_old = L;
-                T f_val, dfdlval;
-
-                if constexpr (BC_TYPE == 0) { // Neumann
-                    f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h_local, L);
-                    dfdlval = dfdl_neumann_convective<T>(L + 0.01*L, L - 0.01*L, hi, z0, z0h_local, 0.01*L);
-                } 
-                else { // Dirichlet
-                    f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h_local, L);
-                    dfdlval = dfdl_dirichlet_convective<T>(L + 0.01*L, L - 0.01*L, hi, z0, z0h_local, 0.01*L);
-                }
-
-                T L_new = L - f_val / fmax(fabs(dfdlval), (T)1e-12);
-
-                if (L_new * L_sign <= 0.0) L_new = 0.5 * L;
-                L = L_sign * fmax(fmin(fabs(L_new), (T)1e6), (T)1e-6);
-                it++;
-            } while(fabs((L-L_old)/L) > tol && it < max_iter);
-
-            utau = kappa*magu / slaw_m_convective<T>(hi,L,z0);
-
-            if constexpr (BC_TYPE == 1)
-                q = kappa*utau*(ts-ti)/slaw_h_convective<T>(hi,L,z0h);
-        }
-
-        /*
-        * Neutral case
-        */
-        else
-        {
-            L = 1e12;
-
-            utau = kappa*magu / slaw_m_neutral<T>(hi,z0);
-
-            if constexpr (BC_TYPE == 1)
-                q = kappa*utau*(ts-ti)/slaw_h_neutral<T>(hi,z0h);
-        }
-
         tau_x_d[i] = -utau*utau*ui/magu;
         tau_y_d[i] = -utau*utau*vi/magu;
         tau_z_d[i] = 0.0;    // z as a vertical direction is assumed!
