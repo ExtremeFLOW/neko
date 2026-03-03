@@ -378,8 +378,8 @@ keywords:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
     - `c_w`: The WALE constant, defaults to 0.55.
-  - `deardorff`: The Deardorff model dedicated to Atmospheric Boundar Layer
-    purpose. Please find the usage in examples/shear_convecton_ABL. 
+  - `deardorff`: The Deardorff model dedicated for atmospheric boundary-layer 
+    applications. Please find the usage in examples/shear_convection_ABL. 
     Configured by the following additional keyword:
     - `c_k`: The model constant, defaults to 0.1.
     - `T0`: The reference temperature.
@@ -391,7 +391,7 @@ keywords:
     - `temperature_alphat_field`: The field name of the eddy diffusivity field
       for the temperature equation, defaults to `temperature_alphat`.
     - `TKE_alphat_field`: The field name of the eddy diffusivity field
-      for the TKE equation, defauls to `TKE_alphat`.
+      for the TKE equation, defaults to `TKE_alphat`.
     - `TKE_source_field`: The field name of the source terms in the TKE equation
       including shear production, buoyancy contribution and dissipation, defauls
       to `TKE_source`.
