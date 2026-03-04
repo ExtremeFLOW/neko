@@ -344,7 +344,10 @@ __global__ void most_compute(
         else {
             // STABLE or CONVECTIVE (NR)
             // Initial guess based on stability
-            L_ob = hi / fmax(Ri_b, Ri_threshold); 
+            if (Ri_b > 0)
+                L_ob = hi / fmax(Ri_b, Ri_threshold);
+            else
+                L_ob = hi / fmin(Ri_b, -Ri_threshold);
             
             T L_old;
             for (int it = 0; it < max_iter; ++it) {
@@ -370,7 +373,7 @@ __global__ void most_compute(
                     }
                 }
 
-                L_ob -= f_val / fmax(fabs(dfdl), (T)1e-8);
+                L_ob -= f_val / dfdl;
                 if (L_ob * L_sign <= 0) L_ob = 0.5 * L_old;
                 L_ob = L_sign * fmax(fmin(fabs(L_ob), (T)1e6), (T)1e-6);
                 if (fabs((L_ob - L_old) / L_ob) < tol) break;
