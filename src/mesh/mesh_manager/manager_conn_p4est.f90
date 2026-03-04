@@ -228,7 +228,7 @@ contains
     integer, intent(in) :: nobj, nelt
     integer, dimension(nobj, nelt), intent(in) :: map
     integer :: il, jl, kl, ll, ml, bmax, ierr, nngh, itmp, src, dst, start, &
-         dim, n_recv
+         dim, n_recv, ncomm
     integer(i8), allocatable, dimension(:, :) :: rbuf_gidx, sbuf_gidx, tmp_gidx
     integer, allocatable, dimension(:, :) :: ngh_src, ngh_dst, mapl, rbuf, &
          sbuf, vtmp
@@ -329,6 +329,9 @@ contains
        allocate(this%sharemap(this%nshare))
        this%sharemap(:) = -1
 
+       ! while counting sends/receives one cannot go beyond array size
+       ncomm = this%nrank -1
+
        ! Exchange global and local object numbers with other ranks
        allocate(ind(bmax))
        jl = 1
@@ -389,13 +392,13 @@ contains
                    call neko_error('Inconsistent global id of remote object')
                 end if
              end do
-             jl = jl + 1
+             if (jl .lt. ncomm) jl = jl + 1
           end if
 
           ! send
           if (ifwait_dst) then
              call MPI_Wait(dst_req, MPI_STATUS_IGNORE, ierr)
-             kl = kl + 1
+             if (kl .lt. ncomm) kl = kl + 1
           end if
        end do
        deallocate(ind, tmp_gidx)
@@ -528,15 +531,16 @@ contains
              end if
              vtmp(:, itmp + 1: itmp + dim) = rbuf(:, 1: dim)
              call move_alloc(vtmp, mapl)
-             jl = jl + 1
+             if (jl .lt. ncomm) jl = jl + 1
           end if
 
           ! send
           if (ifwait_dst) then
              call MPI_Wait(dst_req, MPI_STATUS_IGNORE, ierr)
-             kl = kl + 1
+             if (kl .lt. ncomm) kl = kl + 1
           end if
        end do
+
        ! order objects
        if (allocated(mapl)) then
           itmp = size(mapl, 2)

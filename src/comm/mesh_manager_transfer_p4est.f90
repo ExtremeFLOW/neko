@@ -734,7 +734,7 @@ contains
                 sbuf(2, kl) = & ! old element global index
                      cmmgidxls(this%off_rcv(ind_dst(jl)) + kl - 1)
              end do
-             jl = jl + 1
+             if (jl .lt. this%nrank_rcv) jl = jl + 1
           end if
        end if
        ll = ll * 2
@@ -989,13 +989,13 @@ contains
           ! receive
           if (ifwait_rcv) then
              call MPI_Wait(rcv_req, MPI_STATUS_IGNORE, ierr)
-             jl = jl + 1
+             if (jl .lt. this%nrank_rcv) jl = jl + 1
           end if
 
           ! send
           if (ifwait_snd) then
              call MPI_Wait(snd_req, MPI_STATUS_IGNORE, ierr)
-             kl = kl + 1
+             if (kl .lt. this%nrank_snd) kl = kl + 1
           end if
        end do
     end if

@@ -662,12 +662,13 @@ contains
     type(manager_mesh_p4est_t), intent(inout) :: mesh_new
     logical, intent(in) :: ifcomplete
     character(len=LOG_SIZE) :: log_buf
-    character(len=*), parameter :: frmt1="('mesh: element number =', i6,&
+    character(len=*), parameter :: frmt1="('mesh: element number =', i10,&
          &', max ref. lev. = ',i2)"
     character(len=*), parameter :: frmt2="('geometry: dim = ', i1, ';&
-         & independent node number=', i6)"
-    character(len=*), parameter :: frmt3="('connectivity: dim = ', i1, ';&
-         & number of: vrt = ', i6, ', fcs = ', i6, ', edg = ', i6)"
+         & independent node number=', i10)"
+    character(len=*), parameter :: frmt3="('connectivity: dim = ', i1)"
+    character(len=*), parameter :: frmt4="('number of: vrt = ', i10, ', &
+         &fcs = ', i10, ', edg = ', i10)"
     integer(i4) :: nvert, nface, nedge, ierr, gdim, nelt, nelv, ngrp, maxl, &
          maxg, ndep, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh, nrank, &
          nshare, nindp, nfhngp, nehngp
@@ -876,7 +877,9 @@ contains
                itmp8v1, itmp4v1, itmp4v3, itmp4v2, nedge, nelt, emap)
        end select
 
-       write(log_buf, frmt3) gdim, itmp8lv
+       write(log_buf, frmt3) gdim
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+       write(log_buf, frmt4) itmp8lv
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
        call wp4est_lnodes_del()
