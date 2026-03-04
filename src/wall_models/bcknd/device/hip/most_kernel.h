@@ -353,23 +353,26 @@ __global__ void most_compute(
             for (int it = 0; it < max_iter; ++it) {
                 L_old = L_ob;
                 T f_val, dfdl;
+                T fd_h   = NR_step * L_ob;
+                T L_upper = L_ob + fd_h;
+                T L_lower = L_ob - fd_h;
 
                 // Use the appropriate simlarity law based on stability and b.c. type
                 if (Ri_b > 0) { // Stable 
                     if constexpr (BC_TYPE == 0) {
                         f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_neumann_stable<T>(L_ob*(1+NR_step), L_ob*(1-NR_step), hi, z0, z0h, L_ob*NR_step);
+                        dfdl = dfdl_neumann_stable<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
                     } else {
                         f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_dirichlet_stable<T>(L_ob*(1+NR_step), L_ob*(1-NR_step), hi, z0, z0h, L_ob*NR_step);
+                        dfdl = dfdl_dirichlet_stable<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
                     }
                 } else { // Convective 
                     if constexpr (BC_TYPE == 0) {
                         f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_neumann_convective<T>(L_ob*(1-NR_step), L_ob*(1+NR_step), hi, z0, z0h, fabs(L_ob*NR_step));  // fabs necessary for convective regime
+                        dfdl = dfdl_neumann_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h);  
                     } else {
                         f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_dirichlet_convective<T>(L_ob*(1-NR_step), L_ob*(1+NR_step), hi, z0, z0h, fabs(L_ob*NR_step));
+                        dfdl = dfdl_dirichlet_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
                     }
                 }
 
