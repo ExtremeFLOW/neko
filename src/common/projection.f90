@@ -59,7 +59,7 @@
 !
 !> Project x onto X, the space of old solutions and back again
 !! @note In this code we assume that the matrix project for the
-!! pressure Ax does not vary in time.
+!! pressure Ax can vary in time if refresh_basis is used!
 module projection
   use num_types, only : rp, c_rp
   use math, only : rzero, glsc3, add2, add2s2, copy, cmult
