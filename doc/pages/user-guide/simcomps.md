@@ -18,6 +18,13 @@ Each simcomp is defined as a single JSON object at are added to an array
 of objects called `simulation_components`, which resides directly under the
 `case` object.
 
+All simcomps support a `name` keyword in their JSON object. When ommitted, a
+default `name`, which as a rule coincided with its `type`. For completness,
+these default names are provided for each simcomp in the documentation below.
+However, each simcomp's name must be unique, so if two or more simcomps of the
+same type are present in case, a unique `name` for each must be provided
+manually.
+
 ## List of simulation components
 
 The following is a list of simulation components that are currently available
@@ -38,7 +45,11 @@ in Neko. The list will be updated as new simcomps are added.
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the
   [statistics guide](@ref statistics-guide)
+- Fluid SGS statistics simcomp, "fluid_sgs_stats", for more details see the
+  [statistics guide](@ref statistics-guide)
 - Scalar statistics simcomp, "scalar_stats", for more details see the
+  [statistics guide](@ref statistics-guide)
+- Scalar SGS statistics simcomp, "scalar_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
 - User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
@@ -69,6 +80,7 @@ vorticity fields will be added to the main `.fld` file.
 ~~~~~~~~~~~~~~~{.json}
 {
   "type": "curl",
+  "name": "curl",
   "field_names": ["u", "v", "w"],
   "computed_field": "vorticity"
   "compute_control": "tsteps",
@@ -102,6 +114,7 @@ brackets correspond to the choice of the user keywords.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "derivative",
+   "name": "derivative",
    "field": "u",
    "direction": "y"
    "computed_field": "dudy"
@@ -115,6 +128,7 @@ the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "curl"
+   "name": "curl"
    "fields": ["u", "v", "w"],
    "computed_field": "vorticity"
  }
@@ -127,6 +141,7 @@ the divergence.  By default, registers the result in `div`.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "divergence"
+   "name": "divergence"
    "fields": ["u", "v", "w"],
    "computed_field": "continuity"
  }
@@ -142,6 +157,7 @@ value in the brackets corresponds to the choice of the user keyword.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "gradient"
+   "name": "gradient"
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
@@ -158,6 +174,7 @@ value in the brackets corresponds to the choice of the user keyword.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "weak_gradient"
+   "name": "weak_gradient"
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
@@ -170,6 +187,7 @@ and s1 if neko is run with one scalar. To output in a different `fld` series, us
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "lambda2"
+   "name": "lambda2"
  }
  ~~~~~~~~~~~~~~~
 
@@ -253,6 +271,7 @@ executed (same behavior as the statistics).
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "probes",
+   "name": "probes",
    "compute_control": "simulationtime",
    "compute_value"    : 1,
    "fields": ["w","s"],
@@ -296,6 +315,7 @@ irrelevant.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "field_writer",
+   "name": "field_writer",
    "fields": ["my_field1", "my_field2"],
    "output_filename": "myfields",
    "precision": "double",
@@ -315,6 +335,7 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "force_torque",
+   "name": "force_torque",
    "zone_id": 1,
    "center": [0.0, 0.0, 0.0],
    "zone_name": "some chosen name, optional",
@@ -339,21 +360,33 @@ keywords:
     - `c_s`: The Smagorinsky constant, defaults to 0.17.
   - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
     - `test_filter`: The test filter for the dynamic Smagorinsky model
-  - `vreman`: The Vreman model. Configured by the following additional keyword:
+  - `vreman`: The Vreman model. Configured by the following additional keywords:
     - `c`: The model constant, defaults to 0.07.
+    - `buoyancy_correction`: Whether or not to apply a correction to the eddy
+      viscosity field based on the local Richardson number as described by Moeng
+      and Sullivan 2015 (http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2).
+      Defaults to `false`.
+      - `true`: Add a buoyancy correction according to the following parameters:
+        - `scalar_field`: Name of the scalar field based on which the buoyancy
+          effect is computed.
+        - `Ri_c`: The critical Richardson number.
+        - `reference_temperature`: The reference temperature for computation of
+          the Richardson number.
+        - `g`: The gravity vector.
+      - `false`: Compute the standard Vreman eddy viscosity.
   - `sigma`: The Sigma model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
     - `c_w`: The WALE constant, defaults to 0.55.
-- `les_delta`: Selects the way to compute the LES filter length scale. Currently three
-  alternatives are provided and the default one is `pointwise` if
-  nothing is specified:
+- `les_delta`: Selects the way to compute the LES filter length scale. Currently
+  three alternatives are provided and the default one is `pointwise` if nothing
+  is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
-  - `elementwise_average`: Computes a single value for the whole element based on the
-    average spacing of the GLL nodes within the element.
-  - `elementwise_max`: Computes a single value for the whole element based on the
-    maximum spacing of the GLL nodes within the element.
-  The `les_delta` field is added to the registry and written to the .fld files.
+  - `elementwise_average`: Computes a single value for the whole element based
+    on the average spacing of the GLL nodes within the element.
+  - `elementwise_max`: Computes a single value for the whole element based on
+    the maximum spacing of the GLL nodes within the element. The `les_delta`
+  field is added to the registry and written to the .fld files.
 - `nut_field`: The name of the SGS eddy viscosity field added to the registry.
   Defaults to `nut`. This allows to have two different SGS models active, saved
   to different fields. For example, one for the scalar and one to the fluid.
@@ -368,6 +401,7 @@ keywords:
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "les_model"
+   "name": "les_model"
    "model": "smagorinsky",
    "delta_type": "pointwise",
    "output_control" : "never"
@@ -415,11 +449,20 @@ keywords:
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "user_stats",
+   "name": "user_stats",
    "fields": ["s"],
    "avg_direction": "xz",
    "output_file": "s_average"
  }
  ~~~~~~~~~~~~~~~
+
+The statistics fields created by this simcomp are accessible from the 
+neko registry and retrievable under the following naming convention:
+`name_in_registry = name_of_simcomp + "/mean_" + name_of_field`. Unless 
+specified, the name of the simcomp will default to `user_stats`.
+For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then 
+the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added 
+to the registry. 
 
 ### Spectral error indicator {#simcomp_speri}
 
@@ -433,5 +476,6 @@ in 3 additional fields appended to the field files.
 ~~~~~~~~~~~~~~~{.json}
  {
    "type": "spectral_error"
+   "name": "spectral_error"
  }
  ~~~~~~~~~~~~~~~

@@ -119,6 +119,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/vector_list.f90\
 	math/vector_math.f90\
 	registries/registry.f90\
 	registries/registry_entry.f90\
@@ -140,6 +141,7 @@ neko_fortran_SOURCES = \
 	io/rea_file.f90\
 	io/bp_file.F90\
 	io/fld_file.f90\
+	io/import_field_utils.f90\
 	io/fld_file_data.f90\
 	io/vtk_file.f90\
 	io/stl_file.f90\
@@ -153,7 +155,9 @@ neko_fortran_SOURCES = \
 	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/fluid_stats_output.f90\
+	io/fluid_sgs_stats_output.f90\
 	io/scalar_stats_output.f90\
+	io/scalar_sgs_stats_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	global_interpolation/global_interpolation.f90\
@@ -223,7 +227,9 @@ neko_fortran_SOURCES = \
 	simulation_components/probes.F90\
 	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
+	simulation_components/fluid_sgs_stats_simcomp.f90\
 	simulation_components/scalar_stats_simcomp.f90\
+	simulation_components/scalar_sgs_stats_simcomp.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
@@ -316,6 +322,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_dong_outflow.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
+	scalar/scalar_scheme_fctry.f90\
 	scalar/scalars.f90\
 	scalar/scalar_pnpn.f90\
 	scalar/scalar_pnpn_bc_fctry.f90\
@@ -348,6 +355,7 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/centrifugal_source_term_device.f90\
 	source_terms/source_term_handler.f90\
 	source_terms/const_source_term.f90\
+	source_terms/field_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
 	source_terms/boussinesq_source_term.f90\
@@ -370,6 +378,8 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/device_gradient_jump_penalty.F90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
+  les/fluid_sgs_stats.f90\
+  les/scalar_sgs_stats.f90\
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/bcknd/device/vreman_device.f90\
@@ -666,8 +676,7 @@ depend:
 endif
 
 if ENABLE_PYTHON
-nobase_python_PYTHON = python/pyneko/__init__.py\
-		       python/pyneko/intf.py
+SUBDIRS = python
 endif
 
 # Note we need to list any headers etc here for the dist. script

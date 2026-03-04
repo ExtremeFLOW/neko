@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -142,6 +142,7 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
+  !! @param fname name of the output file
   subroutine fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
        coef, start_time, hom_dir, stat_set, fname)
     class(fluid_stats_simcomp_t), target, intent(inout) :: this
@@ -164,7 +165,7 @@ contains
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
 
-    call this%stats%init(coef, u, v, w, p, stat_set)
+    call this%stats%init(coef, u, v, w, p, stat_set, name)
 
     this%name = name
     this%start_time = start_time
@@ -225,8 +226,7 @@ contains
   end subroutine fluid_stats_simcomp_restart
 
   !> fluid_stats, called depending on compute_control and compute_value
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time info
   subroutine fluid_stats_simcomp_compute(this, time)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time

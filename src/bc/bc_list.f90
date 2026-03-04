@@ -63,6 +63,10 @@ module bc_list
      procedure, pass(this) :: append => bc_list_append
      !> Get the item at the given index.
      procedure, pass(this) :: get => bc_list_get
+     !> Get the item with the given name.
+     procedure, pass(this) :: get_by_name => bc_list_get_by_name
+     !> Get the item that applies to the given zone_index.
+     procedure, pass(this) :: get_by_zone_index => bc_list_get_by_zone_index
 
      !> Check whether the list is empty
      procedure, pass(this) :: is_empty => bc_list_is_empty
@@ -164,6 +168,50 @@ contains
     bc => this%items(i)%ptr
 
   end function bc_list_get
+
+  !> Get the item from a given name.
+  !! @param name The name of the item to get.
+  !! @return The item with the given name.
+  function bc_list_get_by_name(this, name) result(bc)
+    class(bc_list_t), intent(in) :: this
+    class(bc_t), pointer :: bc
+    character(len=*), intent(in) :: name
+    integer :: i
+
+    do i = 1, this%size_
+       if (this%items(i)%ptr%name .eq. trim(name)) then
+          bc => this%items(i)%ptr
+          return
+       end if
+    end do
+
+    ! If the function reaches this point, no item was found
+    call neko_error("Name not found in bc_list")
+
+  end function bc_list_get_by_name
+
+  !> Get the item from zone_index.
+  !! @param zone_index where the bc applies.
+  !! @return The item at the given zone_index.
+  function bc_list_get_by_zone_index(this, zone_index) result(bc)
+    class(bc_list_t), intent(in) :: this
+    class(bc_t), pointer :: bc
+    integer, intent(in) :: zone_index
+    integer :: i, j
+
+    do i = 1, this%size_
+       do j = 1, size(this%items(i)%ptr%zone_indices)
+          if (this%items(i)%ptr%zone_indices(j) == zone_index) then
+             bc => this%items(i)%ptr
+             return
+          end if
+       end do
+    end do
+
+    ! If the function reaches this point, no item was found
+    call neko_error("Zone index not found in bc_list")
+
+  end function bc_list_get_by_zone_index
 
   !> Apply a list of boundary conditions to a scalar field
   !! @param x The field to apply the boundary conditions to.

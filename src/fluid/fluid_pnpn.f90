@@ -285,6 +285,7 @@ contains
 
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
          .false.)
+    call this%c_Xh%check_cyclic()
 
     if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
@@ -359,12 +360,14 @@ contains
     call this%dw%init(this%dm_Xh, 'dw')
     call this%dp%init(this%dm_Xh, 'dp')
 
+    call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
 
     ! Check if we need to output boundaries
     call json_get_or_default(params, 'case.output_boundary', found, .false.)
     if (found) call this%write_boundary_conditions()
+    call neko_log%end_section()
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
          this%pr_projection_activ_step)
@@ -562,6 +565,9 @@ contains
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
     call this%bclst_vel_res%free()
+    call this%bclst_du%free()
+    call this%bclst_dv%free()
+    call this%bclst_dw%free()
     call this%bclst_dp%free()
     call this%proj_prs%free()
     call this%proj_vel%free()
@@ -1116,7 +1122,6 @@ contains
     class(bc_t), pointer :: bci
     character(len=LOG_SIZE) :: log_buf
 
-    call neko_log%section("Fluid boundary conditions")
     write(log_buf, '(A)') 'Marking using integer keys in bdry0.f00000'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') 'Condition-value pairs: '
@@ -1141,7 +1146,6 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  blasius_profile                 = 11'
     call neko_log%message(log_buf)
-    call neko_log%end_section()
 
     call neko_scratch_registry%request_field(bdry_field, temp_index, .true.)
 

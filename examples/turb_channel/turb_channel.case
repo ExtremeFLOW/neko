@@ -63,6 +63,7 @@
             },
             {
                 "type": "force_torque",
+                "name": "force_torque_bottom_wall",
                 "compute_control": "tsteps",
                 "compute_value": 10,
                 "zone_id": 3,
@@ -72,6 +73,7 @@
             },
             {
                 "type": "force_torque",
+                "name": "force_torque_top_wall",     
                 "compute_control": "tsteps",
                 "compute_value": 10,
                 "zone_id": 4,

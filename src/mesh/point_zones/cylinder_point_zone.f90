@@ -73,6 +73,7 @@ contains
     real(kind=rp), dimension(:), allocatable :: p0, p1
     real(kind=rp) :: radius
     logical :: invert
+    logical :: full_elements
 
     call json_get(json, "name", name)
     call json_get_or_lookup(json, "start", p0)
@@ -93,8 +94,9 @@ contains
     end if
 
     call json_get_or_default(json, "invert", invert, .false.)
+    call json_get_or_default(json, "full_elements", full_elements, .false.)
 
-    call cylinder_point_zone_init_common(this, size, trim(name), invert, &
+    call cylinder_point_zone_init_common(this, size, trim(name), invert, full_elements, &
          p0, p1, radius)
 
   end subroutine cylinder_point_zone_init_from_json
@@ -102,20 +104,24 @@ contains
   !> Initializes a cylinder point zone from its endpoint coordinates and radius.
   !! @param size Size of the scratch stack.
   !! @param name Name of the cylinder point zone.
+  !! @param full_elements Whether to mark all points in the element containing
+  !! points that satisfy the criterion.
   !! @param p0 Coordinates of the first endpoint.
   !! @param p1 Coordinates of the second endpoint.
   !! @param radius Sphere radius.
-  subroutine cylinder_point_zone_init_common(this, size, name, invert, &
+  subroutine cylinder_point_zone_init_common(this, size, name, invert, full_elements, &
        p0, p1, radius)
     class(cylinder_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
     logical, intent(in) :: invert
+    logical, intent(in) :: full_elements
     real(kind=rp), intent(in), dimension(3) :: p0
     real(kind=rp), intent(in), dimension(3) :: p1
     real(kind=rp), intent(in) :: radius
 
-    call this%init_base(size, name, invert)
+
+    call this%init_base(size, name, invert, full_elements)
 
     this%p0 = p0
     this%p1 = p1

@@ -60,6 +60,7 @@ module device_math
        device_addcol4, device_addcol3s2, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
        device_glsum, device_masked_copy_0, device_cfill_mask, &
+       device_masked_gather_copy_aligned, &
        device_vcross, device_absval, device_masked_atomic_reduction_0, &
        device_masked_gather_copy_0, device_masked_scatter_copy_0, &
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
@@ -145,6 +146,33 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_gather_copy_0
+
+  !> Gather a masked vector \f$ a(i) = b(mask(i)) \f$.
+  ! In this case, the mask comes from a mask_t type
+  subroutine device_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)
+    type(c_ptr) :: a_d, b_d, mask_d
+    integer :: n, n_mask
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1 .or. n_mask .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_CUDA
+    call cuda_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_OPENCL
+    call opencl_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_masked_gather_copy_aligned
 
   !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
   subroutine device_masked_scatter_copy_0(a_d, b_d, mask_d, n, n_mask, strm)

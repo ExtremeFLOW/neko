@@ -48,6 +48,7 @@ module bc
   use gs_ops, only : GS_OP_ADD
   use math, only : relcmp
   use utils, only : neko_error, linear_index, split_string
+  use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   use json_module, only : json_file
   use time_state, only : time_state_t
@@ -85,6 +86,10 @@ module bc
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations
      logical :: updated = .false.
+     !!> Name of the bc
+     character(len=:), allocatable :: name
+     !!> Zone indices where the bc is applied
+     integer, allocatable :: zone_indices(:)
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base
@@ -288,6 +293,14 @@ contains
        this%facet_d = C_NULL_PTR
     end if
 
+    if (allocated(this%name)) then
+       deallocate(this%name)
+    end if
+
+    if (allocated(this%zone_indices)) then
+       deallocate(this%zone_indices)
+    end if
+
   end subroutine bc_free_base
 
   !> Apply the boundary condition to a vector field. Dispatches to the CPU
@@ -427,6 +440,7 @@ contains
     logical :: only_facet = .false.
     integer :: i, j, k, l, msk_c
     integer :: lx, ly, lz, n
+    character(len=LOG_SIZE) :: log_buf
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
@@ -560,6 +574,20 @@ contains
        call device_memcpy(this%msk, this%msk_d, n, &
             HOST_TO_DEVICE, sync = .true.)
     end if
+
+    if (.not. allocated(this%name)) then
+! gives plenty of empty info lines during AMR restart
+!       this%name = ""
+    else
+       write(log_buf, '(A,A)') 'BC assigned name :   ', trim(this%name)
+       call neko_log%message(log_buf)
+    end if
+
+! causes trouble for AMR restart
+!    if (.not. allocated(this%zone_indices)) then
+!       allocate(this%zone_indices(1))
+!       this%zone_indices(1) = -1
+!    end if
 
   end subroutine bc_finalize_base
 

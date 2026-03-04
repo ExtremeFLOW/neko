@@ -142,8 +142,12 @@ contains
     type(json_core) :: core
     integer :: idx, n_point_children
 
+    character(len=:), allocatable :: name
+
     ! Initialize the base class
     call this%free()
+
+    call json_get_or_default(json, "name", name, "probes")
     call this%init_base(json, case)
 
     !> Read from case file
@@ -210,7 +214,7 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_components(case%fluid%dm_Xh, output_file)
+    call this%init_from_components(case%fluid%dm_Xh, output_file, name)
 
   end subroutine probes_init_from_json
 
@@ -460,14 +464,18 @@ contains
   !> Initialize without json things
   !! @param dof Dofmap to probe
   !! @output_file Name of output file, current must be CSV
-  subroutine probes_init_from_components(this, dof, output_file)
+  subroutine probes_init_from_components(this, dof, output_file, name)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
+    character(len=*), intent(in) :: name
+
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
     integer :: i, ierr
     type(matrix_t) :: mat_coords
+
+    this%name = name
 
     !> Init interpolator
     call this%global_interp%init(dof)

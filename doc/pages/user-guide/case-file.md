@@ -80,7 +80,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
 | `output_partitions`   | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
-| `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
+| `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | -       |
 | `checkpoint_control`  | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
 | `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                       | -             |
 | `checkpoint_filename` | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
@@ -88,8 +88,35 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
-| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                   | String formatted as HH:MM:SS                    | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
+
+Some additional practical comments are provided regarding the output triggered
+by `job_timelimit` and `output_at_end` keywords.
+
+If `output_at_end` is set to `true`, an additional write is performed after the
+execution of the simulation time-loop is finished. This triggers most outputs,
+like the fluid solvers, the checkpoint, etc. Note that if your case settings are
+such that a particular output is written at the last time step regardless of
+`output_at_end` (e.g. `end_time: 5`, `checkpoint_value: 5`,
+ `checkpoint_control: simulationtime` ) you will get two outputs with the same
+values: one from your ordinary write and one triggered by `output_at_end`.
+
+@note This has a rather detrimental effect on outputs from various
+statistics-related [simulation components](@ref simcomps). Since the collected
+statistics are reset on write, the data written by `output_at_end` will be just
+zeroes.
+
+The purpose of `job_timelimit` is to gracefully stop the simulation in a typical
+supercomputer environment, where your runtime is limited. When Neko detects that
+the time of the run exceeds the `job_timelimit`, it exits the time-loop. At this
+point, if one sets `output_at_end` to `true`, this will trigger a write as per
+usual. However, if `output_at_end` is `false`, Neko will still write a special
+checkpoint file, with the filename called `joblimit#####.chkp`. This is done so
+that the user is at least provided a restart file, and none of the computer time
+spent on the simulation is wasted. Generally, however, it is recommended to
+have `output_at_end` set to `true` in tandem with `job_timelimit`, so that what
+exactly gets written is controlled by the case file settings.
 
 ### Constants
 The `constants` array allows the user to define parameters that are global to
@@ -385,6 +412,14 @@ periodic pipe simulation, two periodic zones comprise the boundary conditions in
 the streamwise direction. Only one condition, corresponding to zone index 3 (the
 wall) is the specified in the case file.
 
+It is possible to assign specific names to the boundary conditions through the
+`name` keyword. Boundary conditions can then be retireved in the code by using
+the name or the `zone_index` where it is applied.
+
+The default name of the boundary conditions is given by the `<variable>_bc_<zone_index>`
+pattern. i.e., the pressure boundary condition that applies in zone index 5 can be
+retrieved by the `pressure_bc_5` name.
+
 #### Available conditions
 The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
@@ -671,6 +706,8 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
 7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
 8. `sponge`, adds a sponge term based on a reference velocity field, which is
    applied in a user-specified region of the domain.
+9. `field`, uses fields in the `neko_registry` as values of the source term. The
+   fields are selected with the `field_names` keyword.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -1118,18 +1155,18 @@ For `hsmg`, the following keywords are used:
 | `coarse_grid.monitor`        | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)           | `true` or `false`       | `false`       |
 | `coarse_grid.levels`         | Number of AMG levels to construct (only valid for `solver` type `tamg`)                 | An integer              | 3             |
 | `coarse_grid.iterations`     | Number of AMG iterations (only valid for `solver` type `tamg`)                          | An integer              | 1             |
-| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 5             |
+| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 4             |
 
 For `phmg`, the following keywords are used:
 
-| Name                       | Description                                                                                 | Admissible values     | Default value |
-| -------------------------- | ------------------------------------------------------------------------------------------- | --------------------- | ------------- |
-| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers     | `[3, 1]`      |
-| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer            | 10            |
-| `smoother_cheby_acc`       | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set) | `jacobi` or `schwarz` | -             |
-| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer            | 3             |
-| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer            | 1             |
-| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer            | 5             |
+| Name                       | Description                                                                                 | Admissible values             | Default value |
+| -------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------- | ------------- |
+| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers             | `[3, 1]`      |
+| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer                    | 3             |
+| `smoother_cheby_acc`       | Type of Chebyshev acceleration                                                              | `none`, `jacobi` or `schwarz` | `jacobi`      |
+| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer                    | 3             |
+| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer                    | 1             |
+| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer                    | 4             |
 
 
 ### Flow rate forcing
@@ -1160,6 +1197,7 @@ concisely directly in the table.
 | `nut_field`                             | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                        | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_mesh_in_all_files`              | Indicates if the mesh should be written in every output fld file.                                | `true` or `false`                                           | `false`       |
 | `output_filename`                       | The output filename.                                                                              | String                                                      | `field`       |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
@@ -1214,15 +1252,35 @@ specific heat capacity and thermal conductivity. These are provided as `cp` and
 `lambda`. Similarly to the fluid, one can provide the Peclet number, `Pe`, as an
 alternative. In this case, `cp` is set to 1 and `lambda` to the inverse of `Pe`.
 
-As for the fluid, turbulence modelling is enabled by setting the `nut_field` to
-the name matching that set for the simulation component with the LES model.
-Additionally, the turbulent Prandtl number, `Pr_t` should be set. The eddy
-viscosity values will be divided by it to produce eddy diffusivity.
+Different from the setup in the fluid, turbulence modelling is enabled by setting the `alphat` json entry.
 
 ### Turbulence modelling
 
-The configuration is identical to the Fluid, however, one additionally has to
-provide the value of the turbulent Prandl number via the `Pr_t` keyword.
+The user could choose to either relate the eddy diffusivity field to the eddy viscosity
+field in the Fluid, or model the eddy diffusivity field by some particular SGS models,
+by setting up the `nut_dependency` entry.
+If the eddy diffusivity field is associated to the eddy viscosity field by a coefficient
+`Pr_t`, the eddy viscosity values will be divided by it to produce eddy diffusivity.
+And the corresponding setting could be done by the following:
+
+```json
+"alphat":{
+    "nut_dependency": true,
+    "nut_field": "nut",
+    "Pr_t": 0.7
+},
+```
+
+Otherwise one could have some SGS models providing an eddy diffusivity field, and the
+user could set it up by the following manner to include an eddy diffusivity field called
+`temperature_alphat`:
+
+```json
+"alphat":{
+    "nut_dependency": false,
+    "alphat_field": "temperature_alphat"
+},
+```
 
 ### Boundary conditions
 
@@ -1295,8 +1353,10 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
 | `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
 | `lambda`                       | Thermal conductivity.                                             | Positive real                               | -             |
-| `nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
-| `Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
+| `alphat.nut_dependency`                    | Whether the eddy diffusivity depends on the eddy kinematic viscosity.                  | `true` or `false`                                      | -  |
+| `alphat.alphat_field`                    | Name of the turbulent diffusivity field.                  | String                                      | Empty string  |
+| `alphat.nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
+| `alphat.Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
 | `boundary_types`               | Boundary types/conditions labels.                                 | Array of strings                            | -             |
 | `initial_condition.type`       | Initial condition type.                                           | `user`, `uniform`, `point_zone`             | -             |
 | `initial_condition.value`      | Value of the velocity initial condition.                          | Real                                        | -             |
