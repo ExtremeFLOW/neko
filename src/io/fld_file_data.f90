@@ -154,7 +154,7 @@ contains
           Xh => s_target_list%items(1)%ptr%Xh
        end if
     else
-       call neko_error("At least one field must be passed")
+       call neko_warning("No fields passed to import_fields")
     end if
 
     !
