@@ -59,7 +59,7 @@
 !
 !> Project x onto X, the space of old solutions and back again
 !! @note In this code we assume that the matrix project for the
-!! pressure Ax can vary in time if refresh_basis is used!
+!! pressure Ax can vary in time if reortho_basis is used!
 module projection
   use num_types, only : rp, c_rp
   use math, only : rzero, glsc3, add2, add2s2, copy, cmult
@@ -104,7 +104,7 @@ module projection
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
      integer :: activ_step ! steps to activate projection
-     logical :: prj_refresh_basis = .false.
+     logical :: prj_reorthogonalize_basis = .false.
    contains
      procedure, pass(this) :: clear => bcknd_clear
      procedure, pass(this) :: project_on => bcknd_project_on
@@ -114,17 +114,17 @@ module projection
      procedure, pass(this) :: free => projection_free
      procedure, pass(this) :: pre_solving => projection_pre_solving
      procedure, pass(this) :: post_solving => projection_post_solving
-     procedure, pass(this) :: refresh_basis => bcknd_refresh_basis
+     procedure, pass(this) :: reortho_basis => bcknd_reorthogonalize_basis
   end type projection_t
 
 contains
 
-  subroutine projection_init(this, n, L, activ_step, refresh_basis)
+  subroutine projection_init(this, n, L, activ_step, reorthogonalize_basis)
     class(projection_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: L
     integer, optional, intent(in) :: activ_step
-    logical, optional, intent(in) :: refresh_basis
+    logical, optional, intent(in) :: reorthogonalize_basis
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
@@ -140,7 +140,9 @@ contains
        this%activ_step = 5
     end if
 
-    if (present(refresh_basis)) this%prj_refresh_basis = refresh_basis
+    if (present(reorthogonalize_basis)) then
+       this%prj_reorthogonalize_basis = reorthogonalize_basis
+    end if
 
     this%m = 0
 
@@ -346,7 +348,7 @@ contains
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
-  subroutine bcknd_refresh_basis(this, Ax, coef, gs_h, blst, n)
+  subroutine bcknd_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
     class(projection_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
@@ -355,18 +357,18 @@ contains
     integer, intent(in) :: n
 
     ! return if it is not set to true in case file.
-    if (.not. this%prj_refresh_basis) return
+    if (.not. this%prj_reorthogonalize_basis) return
 
-    call profiler_start_region('Refresh basis', 18)
+    call profiler_start_region('Reorthogonalize basis', 18)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       ! call device_refresh_basis(this, Ax, coef, gs_h, blst, n)
+       ! call device_reortho_basis(this, Ax, coef, gs_h, blst, n)
     else
-       call cpu_refresh_basis(this, Ax, coef, gs_h, blst, n)
+       call cpu_reortho_basis(this, Ax, coef, gs_h, blst, n)
     end if
-    call profiler_end_region('Refresh basis', 18)
-  end subroutine bcknd_refresh_basis
+    call profiler_end_region('Reforthogonalizeresh basis', 18)
+  end subroutine bcknd_reorthogonalize_basis
 
-  subroutine cpu_refresh_basis(this, Ax, coef, gs_h, blst, n)
+  subroutine cpu_reortho_basis(this, Ax, coef, gs_h, blst, n)
     class(projection_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
@@ -409,10 +411,10 @@ contains
       end do
       end_time = MPI_WTIME()
       time = end_time - start_time
-      write(msg, '(A, E15.7)') "Projection basis refresh (s):  ", time
+      write(msg, '(A, E15.7)') "Projection basis reorthogonalize (s):  ", time
       call neko_log%message(trim(msg))
     end associate
-  end subroutine cpu_refresh_basis
+  end subroutine cpu_reortho_basis
 
 
   subroutine cpu_project_on(this, b, coef, n)
