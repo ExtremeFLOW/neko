@@ -263,7 +263,7 @@ contains
          ! Compute u* with the new Obukhov length
          utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
          ! and compute q from here
-         q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0h)
+         q = kappa*utau*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
       case default
          call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
       end select
