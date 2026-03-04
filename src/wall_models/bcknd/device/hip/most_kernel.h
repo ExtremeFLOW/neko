@@ -170,7 +170,6 @@ __device__ T slaw_h_convective(T z, T L_ob, T z0h)
            + corr_h_convective<T>(z0h,L_ob);
 }
 
-
 template<typename T>
 __device__ T f_neumann_convective(T Ri_b, T z, T z0, T z0h, T L_ob)
 {
@@ -268,7 +267,7 @@ __global__ void most_compute(
     const T Ri_threshold = 1e-4;
     const T tol = 1e-3;
     const T NR_step = 1e-3;
-    const int max_iter = 25;
+    const int max_iter = 50;
 
     // Calculate the global 1D offset in the field arrays
     // Layout: e is the slowest, r is the fastest
@@ -345,7 +344,7 @@ __global__ void most_compute(
         else {
             // STABLE or CONVECTIVE (NR)
             // Initial guess based on stability
-            L_ob = hi / Ri_b; 
+            L_ob = hi / fmax(Ri_b, Ri_threshold); 
             
             T L_old;
             for (int it = 0; it < max_iter; ++it) {
@@ -356,18 +355,18 @@ __global__ void most_compute(
                 if (Ri_b > 0) { // Stable 
                     if constexpr (BC_TYPE == 0) {
                         f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_neumann_stable<T>(L_ob*(1+NR_step), L_ob*(1-NR_step), hi, z0, z0h, L_ob*tol);
+                        dfdl = dfdl_neumann_stable<T>(L_ob*(1+NR_step), L_ob*(1-NR_step), hi, z0, z0h, L_ob*NR_step);
                     } else {
                         f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_dirichlet_stable<T>(L_ob*(1+NR_step), L_ob*(1-NR_step), hi, z0, z0h, L_ob*tol);
+                        dfdl = dfdl_dirichlet_stable<T>(L_ob*(1+NR_step), L_ob*(1-NR_step), hi, z0, z0h, L_ob*NR_step);
                     }
                 } else { // Convective 
                     if constexpr (BC_TYPE == 0) {
                         f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_neumann_convective<T>(L_ob*(1-NR_step), L_ob*(1+NR_step), hi, z0, z0h, fabs(L_ob*tol));  // fabs necessary for convective regime
+                        dfdl = dfdl_neumann_convective<T>(L_ob*(1-NR_step), L_ob*(1+NR_step), hi, z0, z0h, fabs(L_ob*NR_step));  // fabs necessary for convective regime
                     } else {
                         f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_dirichlet_convective<T>(L_ob*(1-NR_step), L_ob*(1+NR_step), hi, z0, z0h, fabs(L_ob*tol));
+                        dfdl = dfdl_dirichlet_convective<T>(L_ob*(1-NR_step), L_ob*(1+NR_step), hi, z0, z0h, fabs(L_ob*NR_step));
                     }
                 }
 
