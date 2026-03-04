@@ -265,7 +265,7 @@ __global__ void most_compute(
     if(idx >= n_nodes) return;
 
     const T g = 9.80665;
-    const T Ri_threshold = 1e-3;
+    const T Ri_threshold = 1e-4;
     const T tol = 1e-4;
     const int max_iter = 25;
 
