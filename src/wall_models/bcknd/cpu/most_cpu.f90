@@ -166,7 +166,7 @@ contains
     integer :: ts_idx(3)
     integer :: i, count
     integer, parameter :: max_count = 20
-    real(kind=rp) :: ui, vi, ti, ts, q, hi
+    real(kind=rp) :: ui, vi, wi, ti, ts, q, hi
     real(kind=rp) :: magu, utau, normu, z0h
     real(kind=rp) :: L_ob, L_upper, L_lower, L_old
     real(kind=rp) :: Ri_b, f, dfdl, fd_h, L_new, L_sign
@@ -180,13 +180,15 @@ contains
        ! Sample the variables
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        hi = h(i)
 
        ! Project on horizontal directions
-       normu = ui * n_x(i) + vi * n_y(i)
+       normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)
        ui = ui - normu * n_x(i)
        vi = vi - normu * n_y(i)
+       wi = wi - normu * n_z(i)
 
        ! Compute velocity magnitude
        magu = sqrt(ui**2 + vi**2)
@@ -272,7 +274,7 @@ contains
        magu = max(magu, 1.0e-6_rp)
        tau_x(i) = -utau**2 * ui / magu
        tau_y(i) = -utau**2 * vi / magu
-       tau_z(i) = 0  ! z as a vertical direction is assumed!
+       tau_z(i) = -utau**2 * wi / magu
     end do
 
     ! Print some indicative quantities (these are just point quantities: don't trust 100%)
