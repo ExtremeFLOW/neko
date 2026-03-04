@@ -1153,6 +1153,8 @@ The configuration uses the following parameters:
 * `value`, the desired flow rate.
 * `use_averaged_flow`, whether `value` specifies the domain-averaged (bulk)
    velocity or the volume flow rate.
+* `log`, whether to print the flow-rate forcing log message each time the
+  forcing is adjusted. Defaults to `true`.
 
 
 ### Full parameter table
@@ -1205,6 +1207,7 @@ concisely directly in the table.
 | `flow_rate_force.direction`             | Direction of the forced flow.                                                                     | 0, 1, 2                                                     | -             |
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                               | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
+| `flow_rate_force.log`                   | Whether to print the flow-rate forcing log message during the volume-flow adjustment.             | `true` or `false`                                           | `true`        |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                           | `false`       |
 | `strict_convergence`                    | Whether to enforce strict convergence in the linear solvers.                                      | `true` or `false`                                           | `false`       |
 | `allow_stabilization`                   | Whether to allow an initial stabilization phase before enforcing strict convergence.              | `true` or `false`                                           | `false`       |
