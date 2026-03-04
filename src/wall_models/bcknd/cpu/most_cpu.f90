@@ -173,7 +173,7 @@ contains
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
-    real(kind=rp), parameter :: Ri_threshold = 0.01_rp
+    real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
     character(len=LOG_SIZE) :: log_buf
 
     do i=1, n_nodes
