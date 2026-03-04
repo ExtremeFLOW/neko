@@ -21,7 +21,7 @@ module most_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       type(c_ptr) :: bc_type   ! pointer to first char of the string
+       type(c_ptr), value :: bc_type   ! pointer to first char of the string
        real(c_rp) :: kappa, z0, z0h_in, bc_value
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        integer(c_int) :: n_nodes, lx, tstep
