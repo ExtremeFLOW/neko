@@ -21,10 +21,10 @@ module most_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       type(c_ptr), value :: bc_type   ! pointer to first char of the string
-       real(c_rp), value :: kappa, z0, z0h_in, bc_value
+       type(c_ptr) :: bc_type   ! pointer to first char of the string
+       real(c_rp) :: kappa, z0, z0h_in, bc_value
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
-       integer(c_int), value :: n_nodes, lx, tstep
+       integer(c_int) :: n_nodes, lx, tstep
      end subroutine hip_most_compute
   end interface
 #elif HAVE_CUDA
@@ -41,10 +41,10 @@ module most_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       type(c_ptr), value :: bc_type
-       real(c_rp), value :: kappa, z0, z0h_in, bc_value
+       type(c_ptr) :: bc_type
+       real(c_rp) :: kappa, z0, z0h_in, bc_value
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
-       integer(c_int), value :: n_nodes, lx, tstep
+       integer(c_int) :: n_nodes, lx, tstep
      end subroutine cuda_most_compute
   end interface
 #elif HAVE_OPENCL
@@ -63,7 +63,6 @@ contains
     integer, intent(in) :: n_nodes, lx, tstep
     type(c_ptr), intent(in) :: u_d, v_d, w_d, temp_d
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
-    type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d
     real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value
