@@ -73,6 +73,7 @@ contains
   !! in `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`.
   !! Index  0 corresponds to temperature by default. Therefore using
   !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`.
+  !! @param time Returns the time stamp of the fld file.
   !! @param interpolate Whether or not to interpolate the fld data.
   !! @param tolerance If interpolation is enabled, the tolerance to use for the
   !! point
@@ -84,12 +85,13 @@ contains
   !! to device when necessary, i.e. only the required fields are copied to
   !! device.
   subroutine import_fields(fname, mesh_fname, u, v, w, p, t, s_target_list, &
-       s_index_list, interpolate, tolerance)
+       s_index_list, time, interpolate, tolerance)
     character(len=*), intent(in) :: fname
     character(len=*), intent(in), optional :: mesh_fname
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
     type(field_list_t), intent(inout), optional :: s_target_list
     integer, intent(in), optional :: s_index_list(:)
+    real(kind=rp), intent(inout), optional :: time
     logical, intent(in), optional :: interpolate
     real(kind=rp), intent(in), optional :: tolerance
 
@@ -171,6 +173,9 @@ contains
     ! Read the field file containing (u,v,w,p)
     call f%set_counter(sample_idx)
     call f%read(fld_data)
+
+    ! Store the time stamp if it is required
+    if (present(time)) time = fld_data%time
 
     !
     ! Copy all vectors to device (GPU) since everything is read on the CPU
