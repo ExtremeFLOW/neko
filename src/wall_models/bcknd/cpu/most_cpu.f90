@@ -165,7 +165,7 @@ contains
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     integer :: ts_idx(3)
     integer :: i, count
-    integer, parameter :: max_count = 20
+    integer, parameter :: max_count = 25
     real(kind=rp) :: ui, vi, wi, ti, ts, q, hi
     real(kind=rp) :: magu, utau, normu, z0h
     real(kind=rp) :: L_ob, L_upper, L_lower, L_old
@@ -191,7 +191,7 @@ contains
        wi = wi - normu * n_z(i)
 
        ! Compute velocity magnitude
-       magu = sqrt(ui**2 + vi**2)
+       magu = sqrt(ui**2 + vi**2 + wi**2)
        utau = magu*kappa / log(hi/z0)
 
        ! Compute thermal roughness length from Zilitinkevich, 1995
@@ -221,7 +221,8 @@ contains
              L_ob = hi / min(Ri_b, -Ri_threshold) ! Convective guess
              L_sign = -1.0_rp
           end if
-            L_old = 1.0e10_rp
+          
+          L_old = 1.0e10_rp
           count = 0
           
           ! Find Obukhov length
