@@ -2,8 +2,11 @@
 
 ## Develop
 
+- Added optional log output from the flow_rate_force, controlled by the `log`
+  parameter.
+- Increased precision of the time value in the log.
 - Introduced `import_fields`: a subroutine to read and import fld data,
-  with interpolation capabilities. 
+  with interpolation capabilities.
 - Added `vector_list_t` and `name` to `vector_t`.
 - Rework hash table iterators, significantly faster (O(tsize) => O(entries)
 - Remove redundant directory in `site-packages` when installing pyneko
@@ -16,10 +19,10 @@
 - Support for user-defined scalar schemes are now added.
 - Added source term for direct forcing from a field defined in the registry.
 - Add description of the `fld` file format to the documentation.
-- Added possibility to assign names to boundary conditions in the case file. The 
+- Added possibility to assign names to boundary conditions in the case file. The
   `bc_list_t` now supports item retrieval by name or zone_index.
-- Runtime statistics fields are now retrievable from the registry, for both 
-  fluid_stats and user_stats. The naming convention of the fields in the 
+- Runtime statistics fields are now retrievable from the registry, for both
+  fluid_stats and user_stats. The naming convention of the fields in the
   registry is `name_of_simcomp + "/mean_" + name_of_field`.
 - Updated field types with a wrapper and ensure lifetime management of field
   data in field lists and arrays.
