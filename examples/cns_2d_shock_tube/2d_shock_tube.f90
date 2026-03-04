@@ -55,17 +55,21 @@ contains
     type(field_list_t), intent(inout) :: properties
     type(time_state_t), intent(in) :: time
 
-    type(field_t), pointer :: mu
+    type(field_t), pointer :: mu, kappa
     integer :: i
-    real(kind=rp) :: Re
+    real(kind=rp) :: Re, Prandtl_number, gamma
 
     Re = 1000.0_rp
+    Prandtl_number = 0.73_rp
+    gamma = 1.4_rp
 
     if (scheme_name .eq. "fluid") then
        mu => properties%get_by_name("fluid_mu")
+       kappa => properties%get_by_name("fluid_kappa")
 
        do i = 1, mu%dof%size()
           mu%x(i, 1, 1, 1) = 1.0_rp / Re
+          kappa%x(i, 1, 1, 1) = mu%x(i, 1, 1, 1) * gamma / Prandtl_number
        end do
     end if
   end subroutine material_properties

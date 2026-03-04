@@ -56,6 +56,7 @@ module fluid_scheme_compressible_euler
   use ax_product, only : ax_t, ax_helm_factory
   use coefs, only : coef_t
   use euler_residual, only : euler_rhs_t, euler_rhs_factory
+  use viscous_flux, only : VISCOUS_FLUX_MONOLITHIC, VISCOUS_FLUX_NAVIER_STOKES
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use bc_list, only : bc_list_t
@@ -83,6 +84,7 @@ module fluid_scheme_compressible_euler
      real(kind=rp) :: c_avisc_low
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
+     class(ax_t), allocatable :: Ax_navier_stokes
      class(euler_rhs_t), allocatable :: euler_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
@@ -171,13 +173,27 @@ contains
     type(chkp_t), target, intent(inout) :: chkp
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
+    integer :: viscous_flux_type
+    character(len=:), allocatable :: viscous_flux_string
+    type(json_core) :: json_core_inst
+    type(json_value), pointer :: json_val
+    logical :: found
 
     call this%free()
 
     ! Initialize base class
     call this%scheme_init(msh, lx, params, scheme, user)
 
-    call euler_rhs_factory(this%euler_rhs)
+    ! Get viscous flux type from case file (default: monolithic)
+    call json_get_or_default(params, 'case.fluid.viscous_flux', &
+         viscous_flux_string, 'monolithic')
+    if (index(viscous_flux_string, 'navier-stokes') > 0) then
+       viscous_flux_type = VISCOUS_FLUX_NAVIER_STOKES
+    else
+       viscous_flux_type = VISCOUS_FLUX_MONOLITHIC
+    end if
+
+    call euler_rhs_factory(this%euler_rhs, viscous_flux_type, this%gamma)
 
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
@@ -195,7 +211,8 @@ contains
        associate(p => this%p, rho => this%rho, &
             u => this%u, v => this%v, w => this%w, &
             m_x => this%m_x, m_y => this%m_y, m_z => this%m_z, &
-            effective_visc => this%effective_visc)
+            effective_visc => this%effective_visc, &
+            artificial_visc => this%artificial_visc)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(rho%x, rho%x_d, rho%dof%size(), &
@@ -214,11 +231,16 @@ contains
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(effective_visc%x, effective_visc%x_d, &
               effective_visc%dof%size(), HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(artificial_visc%x, artificial_visc%x_d, &
+              artificial_visc%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
 
     ! Initialize the diffusion operator
     call ax_helm_factory(this%Ax, full_formulation = .false.)
+    ! Initialize a separate operator for Navier-Stokes viscous stress
+    ! Uses ax_helm_full to compute weak form of div(h1 * (grad(u) + grad(u)^T))
+    call ax_helm_factory(this%Ax_navier_stokes, full_formulation = .true.)
 
     ! Compute h
     call this%compute_h()
@@ -273,6 +295,7 @@ contains
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
     use entropy_viscosity, only : entropy_viscosity_t
+    use viscous_flux, only : VISCOUS_FLUX_NAVIER_STOKES
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -303,11 +326,12 @@ contains
       ! Compute artificial viscosity
       call this%regularization%compute(time, time%tstep, time%dt)
 
-      ! Execute RHS step with effective viscosity field
-      call euler_rhs%step(rho, m_x, m_y, m_z, E, &
-           p, u, v, w, Ax, &
-           c_Xh, gs_Xh, h, this%effective_visc, &
-           rk_scheme, dt)
+    ! Execute RHS step with artificial viscosity field
+    ! Execute RHS step with artificial viscosity field
+    call euler_rhs%step(rho, m_x, m_y, m_z, E, &
+         p, u, v, w, this%Ax, this%Ax_navier_stokes, &
+         c_Xh, gs_Xh, h, this%artificial_visc, this%mu, this%kappa, &
+         rk_scheme, dt)
 
       !> Apply density boundary conditions
       call this%bcs_density%apply(rho, time)
@@ -348,6 +372,11 @@ contains
          call compressible_ops_cpu_update_e(E%x, p%x, temp%x, this%gamma, n)
       end if
 
+      !> Update temperature T = p / (rho * (gamma - 1))
+      do concurrent (i = 1:n)
+         this%temperature%x(i,1,1,1) = p%x(i,1,1,1) / &
+              (rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
+      end do
 
       !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
       call this%compute_entropy()
@@ -601,7 +630,7 @@ contains
     regularization_type = 'entropy_viscosity'
 
     call regularization_factory(this%regularization, regularization_type, &
-         reg_json, this%c_Xh, this%dm_Xh, this%effective_visc)
+         reg_json, this%c_Xh, this%dm_Xh, this%artificial_visc)
 
     select type (reg => this%regularization)
     type is (entropy_viscosity_t)

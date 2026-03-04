@@ -29,7 +29,7 @@
 ! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
-!
+
 module euler_residual
   use gather_scatter, only : gs_t
   use ax_product, only : Ax_t
@@ -37,19 +37,22 @@ module euler_residual
   use coefs, only : coef_t
   use num_types, only : rp
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+  use viscous_flux, only : VISCOUS_FLUX_MONOLITHIC, VISCOUS_FLUX_NAVIER_STOKES
   implicit none
   private
 
   !> Abstract type to compute rhs
   type, public, abstract :: euler_rhs_t
+     integer :: viscous_flux_type = VISCOUS_FLUX_MONOLITHIC
+     real(kind=rp) :: gamma = 1.4_rp
    contains
      procedure(euler_rhs), nopass, deferred :: step
   end type euler_rhs_t
 
   !> Abstract interface to evaluate rhs
   abstract interface
-     subroutine euler_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-          coef, gs, h, effective_visc, rk_scheme, dt)
+     subroutine euler_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, Ax_navier_stokes, &
+          coef, gs, h, artificial_visc, mu, kappa, rk_scheme, dt)
        import field_t
        import Ax_t
        import gs_t
@@ -57,8 +60,9 @@ module euler_residual
        import rp
        import runge_kutta_time_scheme_t
        type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-       type(field_t), intent(in) :: p, u, v, w, h, effective_visc
+       type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
        class(Ax_t), intent(inout) :: Ax
+       class(Ax_t), intent(inout) :: Ax_navier_stokes
        type(coef_t), intent(inout) :: coef
        type(gs_t), intent(inout) :: gs
        class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
@@ -68,8 +72,10 @@ module euler_residual
 
   !> Abstract interface to choose bcknd for rhs evaluation
   interface
-     module subroutine euler_rhs_factory(object)
+     module subroutine euler_rhs_factory(object, viscous_flux_type, gamma)
        class(euler_rhs_t), allocatable, intent(inout) :: object
+       integer, intent(in) :: viscous_flux_type
+       real(kind=rp), intent(in) :: gamma
      end subroutine euler_rhs_factory
   end interface
 

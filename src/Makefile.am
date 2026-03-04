@@ -254,6 +254,7 @@ neko_fortran_SOURCES = \
 	fluid/pnpn_res_fctry.f90\
 	fluid/euler_res.f90\
 	fluid/euler_res_fctry.f90\
+	fluid/viscous_flux.f90\
 	fluid/fluid_stats.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\

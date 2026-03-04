@@ -298,14 +298,6 @@ contains
             this%c_avisc_low, n)
     end if
 
-    ! effective viscosity = max(physical viscosity, artificial viscosity)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call entropy_viscosity_apply_physical_visc_device( &
-            this%reg_coeff%x_d, this%mu%x_d, n)
-    else
-       call entropy_viscosity_apply_physical_visc_cpu( &
-            this%reg_coeff%x, this%mu%x, n)
-    end if
 
     call this%apply_element_max()
 

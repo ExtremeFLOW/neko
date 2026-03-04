@@ -271,6 +271,7 @@ The compressible solver requires the following parameters:
 | Name    | Description                              | Admissible values | Default value |
 | ------- | ---------------------------------------- | ----------------- | ------------- |
 | `gamma` | Ratio of specific heats for ideal gas    | Positive reals    | `1.4`         |
+| `viscous_flux` | Type of viscous flux for Navier-Stokes | `monolithic`, `navier-stokes` | `monolithic` |
 
 Additional numerics parameters specific to compressible flows:
 
@@ -288,6 +289,13 @@ in the user file. The effective viscosity used for stabilization is computed as
 `max(physical_viscosity, artificial_viscosity)`, where the artificial viscosity
 is the minimum of entropy-based and low-order viscosities. See the user file
 documentation for details on implementing `material_properties`.
+
+The `viscous_flux` parameter controls the type of viscous flux computation:
+- `monolithic`: Uses a single effective viscosity for all equations (default).
+  This combines physical and artificial viscosity for stability.
+- `navier-stokes`: Uses separate physical viscosity (mu) for momentum equations
+  and thermal conductivity (kappa) for the energy equation. This requires
+  setting `fluid_mu` and `fluid_kappa` in the `material_properties` function.
 
 Example configuration:
 ~~~~~~~~~~~~~~~{.json}

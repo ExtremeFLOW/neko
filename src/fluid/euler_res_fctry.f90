@@ -33,8 +33,11 @@
 !> Defines Pressure residual factory for the Pn-Pn formulation
 submodule (euler_residual) euler_res_fctry
   use neko_config, only : NEKO_BCKND_DEVICE
-  use euler_res_cpu, only : euler_res_cpu_t
-  use euler_res_device, only : euler_res_device_t
+  use euler_res_cpu, only : euler_res_cpu_t, euler_res_cpu_viscous_flux_type, &
+       euler_res_cpu_gamma
+  use euler_res_device, only : euler_res_device_t, euler_res_device_viscous_flux_type, &
+       euler_res_device_gamma
+  use viscous_flux, only : VISCOUS_FLUX_MONOLITHIC
   implicit none
 
 contains
@@ -43,8 +46,12 @@ contains
   !! scheme with the constant-viscosity stress formulation.
   !! @details Only selects the compute backend.
   !! @param object The object to be allocated by the factory.
-  module subroutine euler_rhs_factory(object)
+  !! @param viscous_flux_type Type of viscous flux (monolithic or navier-stokes)
+  !! @param gamma Ratio of specific heats
+  module subroutine euler_rhs_factory(object, viscous_flux_type, gamma)
     class(euler_rhs_t), allocatable, intent(inout) :: object
+    integer, intent(in) :: viscous_flux_type
+    real(kind=rp), intent(in) :: gamma
 
     if (allocated(object)) then
        deallocate(object)
@@ -55,6 +62,19 @@ contains
        allocate(euler_res_device_t::object)
     else
        allocate(euler_res_cpu_t::object)
+    end if
+
+    ! Set the viscous flux type and gamma in the object
+    object%viscous_flux_type = viscous_flux_type
+    object%gamma = gamma
+
+    ! Sync module-level variables for CPU/GPU backends
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       euler_res_device_viscous_flux_type = viscous_flux_type
+       euler_res_device_gamma = gamma
+    else
+       euler_res_cpu_viscous_flux_type = viscous_flux_type
+       euler_res_cpu_gamma = gamma
     end if
 
   end subroutine euler_rhs_factory
