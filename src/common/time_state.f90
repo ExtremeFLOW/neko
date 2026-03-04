@@ -136,14 +136,20 @@ contains
   subroutine time_state_status(this)
     class(time_state_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf
-    character(len=38) :: log_fmt
+    character(len=64) :: log_fmt
     real(kind=rp) :: t_prog
+    integer :: time_digits, time_width, pad_width
 
     t_prog = 100.0_rp * (this%t - this%start_time) / &
          (this%end_time - this%start_time)
 
-    write(log_fmt, '(A,I2,A)') &
-         '(A7,1X,I10,1X,A4,E15.7,', LOG_SIZE - 50, 'X,A2,F6.2,A3)'
+    time_digits = precision(this%t)
+    time_width = time_digits + 8
+    pad_width = max(1, LOG_SIZE - (34 + time_width))
+
+    write(log_fmt, '(A,I0,A,I0,A,I0,A,I0,A)') &
+         '(A7,1X,I10,1X,A4,ES', time_width, '.', time_digits, ',', &
+         pad_width, 'X,A2,F6.2,A3)'
     write(log_buf, log_fmt) 'Step = ', this%tstep, 't = ', this%t, &
          '[ ', t_prog, '% ]'
 
