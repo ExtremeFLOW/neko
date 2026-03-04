@@ -111,6 +111,14 @@ $(document).ready(function(){initNavTree('df/d8f/statistics-guide.html','../../'
 <li class="level2"><a href="#autotoc_md186">List of fields in output files</a></li>
 </ul>
 </li>
+<li class="level1"><a href="#autotoc_md187">Fluid Subgrid-Scale (SGS) Statistics</a><ul><li class="level2"><a href="#autotoc_md188">Using statistics</a></li>
+<li class="level2"><a href="#autotoc_md189">List of fields in output files</a></li>
+</ul>
+</li>
+<li class="level1"><a href="#autotoc_md190">Scalar Subgrid-Scale (SGS) Statistics</a><ul><li class="level2"><a href="#autotoc_md191">Using statistics</a></li>
+<li class="level2"><a href="#autotoc_md192">List of fields in output files</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="textblock"><p>Statistics in the context of Neko, is the common name for fields that are averaged in time and possible also space.</p>
@@ -275,7 +283,7 @@ Using statistics</h2>
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>field</code>   </td><td class="markdownTableBodyNone">Name of the scalar field to be averaged   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>s</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>field</code>   </td><td class="markdownTableBodyNone">Name of the scalar field to be averaged.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>s</code>    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>start_time</code>   </td><td class="markdownTableBodyNone">Time at which to start gathering statistics.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">0    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -285,7 +293,7 @@ Using statistics</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">Not set (but recommended with every 50 timesteps or so)    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">fluid_statsX*   </td></tr>
+<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">scalar_statsX*   </td></tr>
 </table>
 <p>*The name of the written statistics file will by default be <code>scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run. Note that if you want to compute statistics for multiple scalars, you will need to specify an independent <code>output_filename</code> for each.</p>
 <p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
@@ -394,7 +402,142 @@ List of fields in output files</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">42   </td><td class="markdownTableBodyNone">\( \langle  e_{ws}   \rangle \)   </td><td class="markdownTableBodyNone">s37   </td></tr>
 </table>
-<p>where \(e_{ss}, e_{us}, e_{vs}, e_{ws}\) are computed as: $$ \begin{aligned} e_{ss} &amp;= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\ e_{us} &amp;= \frac{\partial u}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\ e_{vs} &amp;= \frac{\partial v}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\ e_{ws} &amp;= \frac{\partial w}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\ \end{aligned} $$ </p>
+<p>where \(e_{ss}, e_{us}, e_{vs}, e_{ws}\) are computed as: $$ \begin{aligned} e_{ss} &amp;= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\ e_{us} &amp;= \frac{\partial u}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\ e_{vs} &amp;= \frac{\partial v}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\ e_{ws} &amp;= \frac{\partial w}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\ \end{aligned} $$</p>
+<h1><a class="anchor" id="autotoc_md187"></a>
+Fluid Subgrid-Scale (SGS) Statistics</h1>
+<p>In the fluid SGS statistics in Neko, subgrid-scale (SGS) contribution to the anisotropic part of the Reynolds stresses are computed, in a similar fashion to the fluid statistics. In total, 7 statistical quantities are computed.</p>
+<h2><a class="anchor" id="autotoc_md188"></a>
+Using statistics</h2>
+<p>Similar to fluid statistics, fluid SGS statistics are enabled in the case file as a simcomp with an additional argument <code>nut_field</code> for the name of the eddy viscosity field:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>nut_field</code>   </td><td class="markdownTableBodyNone">Name of the eddy viscosity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>nut</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>start_time</code>   </td><td class="markdownTableBodyNone">Time at which to start gathering statistics.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">0    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>avg_direction</code>   </td><td class="markdownTableBodyNone">Directions to compute spatial average.   </td><td class="markdownTableBodyNone">x,y,z,xy,xz,yz   </td><td class="markdownTableBodyNone">No spatial average    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">Not set (but recommended with every 50 timesteps or so)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">fluid_sgs_statsX*   </td></tr>
+</table>
+<p>*The name of the written statistics file will by default be <code>fluid_sgs_statsX0.f0000X,..., fluid_sgs_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run.</p>
+<p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
+<div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
+<div class="line">  [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;type&quot;: &quot;fluid_sgs_stats&quot;,</div>
+<div class="line">      &quot;nut_field&quot;: &quot;nut&quot;,</div>
+<div class="line">      &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">      &quot;compute_value&quot;: 4,</div>
+<div class="line">      &quot;output_control&quot;: &quot;simulationtime&quot;,</div>
+<div class="line">      &quot;output_value&quot;: 20,</div>
+<div class="line">      &quot;start_time&quot;: 60.0,</div>
+<div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
+<div class="line">    }</div>
+<div class="line">  ]</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md189"></a>
+List of fields in output files</h2>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Number   </th><th class="markdownTableHeadNone">Statistic   </th><th class="markdownTableHeadNone">Stored in variable (for fld files)    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">1   </td><td class="markdownTableBodyNone">\( \langle \nu_t \rangle \)   </td><td class="markdownTableBodyNone">Pressure    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2   </td><td class="markdownTableBodyNone">\( \langle 2 \nu_t S_{11} \rangle \)   </td><td class="markdownTableBodyNone">X-Velocity    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone">\( \langle 2 \nu_t S_{22} \rangle \)   </td><td class="markdownTableBodyNone">Y-Velocity    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle 2 \nu_t S_{33} \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">5   </td><td class="markdownTableBodyNone">\( \langle 2 \nu_t S_{12} \rangle \)   </td><td class="markdownTableBodyNone">Temperature    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">6   </td><td class="markdownTableBodyNone">\( \langle 2 \nu_t S_{13} \rangle \)   </td><td class="markdownTableBodyNone">Scalar 1 (s1)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">7   </td><td class="markdownTableBodyNone">\( \langle 2 \nu_t S_{23} \rangle \)   </td><td class="markdownTableBodyNone">Scalar 2 (s2)   </td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md190"></a>
+Scalar Subgrid-Scale (SGS) Statistics</h1>
+<p>In the scalar SGS statistics in Neko, subgrid-scale (SGS) contribution to the scalar fluxes are computed, in a similar fashion to the fluid statistics. In total, 4 statical quantities are computed.</p>
+<h2><a class="anchor" id="autotoc_md191"></a>
+Using statistics</h2>
+<p>Similar to fluid statistics, scalar SGS statistics are enabled in the case file as a simcomp with two additional argument <code>field</code> and <code>alphat</code>, where the latter is a json sub-dictionary:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>field</code>   </td><td class="markdownTableBodyNone">Name of the scalar field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>s</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>alphat.nut_dependency</code>   </td><td class="markdownTableBodyNone">Whether the eddy diffusivity depends on the eddy kinematic viscosity.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>alphat.alphat_field</code>   </td><td class="markdownTableBodyNone">Name of the turbulent diffusivity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">Empty string    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>alphat.nut_field</code>   </td><td class="markdownTableBodyNone">Name of the turbulent kinematic viscosity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">Empty string    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>alphat.Pr_t</code>   </td><td class="markdownTableBodyNone">Turbulent Prandtl number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>start_time</code>   </td><td class="markdownTableBodyNone">Time at which to start gathering statistics.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">0    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>avg_direction</code>   </td><td class="markdownTableBodyNone">Directions to compute spatial average.   </td><td class="markdownTableBodyNone">x,y,z,xy,xz,yz   </td><td class="markdownTableBodyNone">No spatial average    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">Not set (but recommended with every 50 timesteps or so)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">scalar_sgs_statsX*   </td></tr>
+</table>
+<p>*The name of the written statistics file will by default be <code>scalar_sgs_statsX0.f0000X,..., scalar_sgs_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run.</p>
+<p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work if the eddy diffusivity field is registered:</p>
+<div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
+<div class="line">  [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;type&quot;: &quot;scalar_sgs_stats&quot;,</div>
+<div class="line">      &quot;field&quot;: &quot;temperature&quot;,</div>
+<div class="line">      &quot;alphat&quot;: {</div>
+<div class="line">        &quot;nut_dependency&quot;: false,</div>
+<div class="line">        &quot;alphat_field&quot;: &quot;temperature_alphat&quot;</div>
+<div class="line">      },</div>
+<div class="line">      &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">      &quot;compute_value&quot;: 4,</div>
+<div class="line">      &quot;output_control&quot;: &quot;simulationtime&quot;,</div>
+<div class="line">      &quot;output_value&quot;: 20,</div>
+<div class="line">      &quot;start_time&quot;: 60.0,</div>
+<div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
+<div class="line">    }</div>
+<div class="line">  ]</div>
+</div><!-- fragment --><p>Otherwise, if one does not use a model for the scalar eddy diffusivity but relates it to the eddy viscosity, one needs to specify the turbulent Prandtl number, for instance, 0.7. The output will give the eddy diffusivity field as the eddy viscosity field divided by the chosen turbulent Prandtl number:</p>
+<div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
+<div class="line">  [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;type&quot;: &quot;scalar_sgs_stats&quot;,</div>
+<div class="line">      &quot;field&quot;: &quot;temperature&quot;,</div>
+<div class="line">      &quot;alphat&quot;: {</div>
+<div class="line">        &quot;nut_dependency&quot;: true,</div>
+<div class="line">        &quot;Pr_t&quot;: 0.7,</div>
+<div class="line">        &quot;nut_field&quot;: &quot;nut&quot;</div>
+<div class="line">      },</div>
+<div class="line">      &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">      &quot;compute_value&quot;: 4,</div>
+<div class="line">      &quot;output_control&quot;: &quot;simulationtime&quot;,</div>
+<div class="line">      &quot;output_value&quot;: 20,</div>
+<div class="line">      &quot;start_time&quot;: 60.0,</div>
+<div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
+<div class="line">    }</div>
+<div class="line">  ]</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md192"></a>
+List of fields in output files</h2>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Number   </th><th class="markdownTableHeadNone">Statistic   </th><th class="markdownTableHeadNone">Stored in variable (for fld files)    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">1   </td><td class="markdownTableBodyNone">\( \langle \alpha_t \rangle \)   </td><td class="markdownTableBodyNone">Pressure    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">2   </td><td class="markdownTableBodyNone">\( \langle \nu_t \frac{\partial s}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">X-Velocity    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone">\( \langle \nu_t \frac{\partial s}{\partial y} \rangle \)   </td><td class="markdownTableBodyNone">Y-Velocity    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle \nu_t \frac{\partial s}{\partial z} \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity   </td></tr>
+</table>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
@@ -402,7 +545,7 @@ List of fields in output files</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Mar 3 2026 04:17:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 4 2026 04:15:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -33,12 +33,15 @@ var searchData=
   ['fluid_5fscheme_5fcompressible_30',['fluid_scheme_compressible',['../d3/d66/namespacefluid__scheme__compressible.html',1,'']]],
   ['fluid_5fscheme_5fcompressible_5feuler_31',['fluid_scheme_compressible_euler',['../da/d14/namespacefluid__scheme__compressible__euler.html',1,'']]],
   ['fluid_5fscheme_5fincompressible_32',['fluid_scheme_incompressible',['../d7/dff/namespacefluid__scheme__incompressible.html',1,'']]],
-  ['fluid_5fsource_5fterm_33',['fluid_source_term',['../df/d09/namespacefluid__source__term.html',1,'']]],
-  ['fluid_5fstats_34',['fluid_stats',['../d9/d7d/namespacefluid__stats.html',1,'']]],
-  ['fluid_5fstats_5foutput_35',['fluid_stats_output',['../d8/d92/namespacefluid__stats__output.html',1,'']]],
-  ['fluid_5fstats_5fsimcomp_36',['fluid_stats_simcomp',['../dd/dc6/namespacefluid__stats__simcomp.html',1,'']]],
-  ['fluid_5fvolflow_37',['fluid_volflow',['../d6/d21/namespacefluid__volflow.html',1,'']]],
-  ['force_5ftorque_38',['force_torque',['../d6/daa/namespaceforce__torque.html',1,'']]],
-  ['fusedcg_5fcpld_5fdevice_39',['fusedcg_cpld_device',['../d3/dbc/namespacefusedcg__cpld__device.html',1,'']]],
-  ['fusedcg_5fdevice_40',['fusedcg_device',['../dd/d04/namespacefusedcg__device.html',1,'']]]
+  ['fluid_5fsgs_5fstats_33',['fluid_sgs_stats',['../d8/dc1/namespacefluid__sgs__stats.html',1,'']]],
+  ['fluid_5fsgs_5fstats_5foutput_34',['fluid_sgs_stats_output',['../d3/d4c/namespacefluid__sgs__stats__output.html',1,'']]],
+  ['fluid_5fsgs_5fstats_5fsimcomp_35',['fluid_sgs_stats_simcomp',['../db/dba/namespacefluid__sgs__stats__simcomp.html',1,'']]],
+  ['fluid_5fsource_5fterm_36',['fluid_source_term',['../df/d09/namespacefluid__source__term.html',1,'']]],
+  ['fluid_5fstats_37',['fluid_stats',['../d9/d7d/namespacefluid__stats.html',1,'']]],
+  ['fluid_5fstats_5foutput_38',['fluid_stats_output',['../d8/d92/namespacefluid__stats__output.html',1,'']]],
+  ['fluid_5fstats_5fsimcomp_39',['fluid_stats_simcomp',['../dd/dc6/namespacefluid__stats__simcomp.html',1,'']]],
+  ['fluid_5fvolflow_40',['fluid_volflow',['../d6/d21/namespacefluid__volflow.html',1,'']]],
+  ['force_5ftorque_41',['force_torque',['../d6/daa/namespaceforce__torque.html',1,'']]],
+  ['fusedcg_5fcpld_5fdevice_42',['fusedcg_cpld_device',['../d3/dbc/namespacefusedcg__cpld__device.html',1,'']]],
+  ['fusedcg_5fdevice_43',['fusedcg_device',['../dd/d04/namespacefusedcg__device.html',1,'']]]
 ];

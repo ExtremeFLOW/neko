@@ -1,25 +1,29 @@
 <map id="utils::filename_suffix" name="utils::filename_suffix">
-<area shape="rect" id="Node000001" title="Extract a filename&#39;s suffix." alt="" coords="833,281,992,306"/>
-<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0" title="Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th..." alt="" coords="635,68,761,108"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="897,270,853,198,821,158,784,123,760,110,763,105,787,119,825,155,857,195,901,267"/>
-<area shape="rect" id="Node000009" href="$da/d16/namespacefile.html#ab9074b1dd93018d51b11431e355046c5" title="Constructor." alt="" coords="649,133,747,158"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="891,272,846,222,816,195,784,173,746,158,748,153,787,168,820,191,850,218,895,268"/>
-<area shape="rect" id="Node000010" href="$da/d16/namespacefile.html#a0167c68d0b7fa85eed2bb23f5a1cd6d2" title="Set a file&#39;s header." alt="" coords="623,182,773,207"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="880,275,836,248,784,222,749,210,751,205,786,218,838,244,883,271"/>
-<area shape="rect" id="Node000011" href="$da/d16/namespacefile.html#a20347acf22c138e1cb0adfd16c4242e7" title="Set a file&#39;s output layout." alt="" coords="625,231,771,257"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="843,280,754,259,755,254,844,275"/>
-<area shape="rect" id="Node000012" href="$da/d16/namespacefile.html#a43c32373b7c245beb1260418ecfbb597" title="Set a file&#39;s output precision." alt="" coords="617,281,779,306"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="819,296,779,296,779,291,819,291"/>
-<area shape="rect" id="Node000013" href="$dd/dc6/namespacefluid__stats__simcomp.html#a33393df992beab0f7b3d777c40c13ed6" title=" " alt="" coords="616,330,780,385"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="857,313,781,335,779,330,855,308"/>
-<area shape="rect" id="Node000014" href="$dc/d92/namespacegeneric__file.html#af55ff7e8a18a8a854c5a8f2f81b541e3" title="Set overwrite mode." alt="" coords="621,409,775,449"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="891,318,845,359,787,400,762,412,760,407,784,395,841,354,887,314"/>
-<area shape="rect" id="Node000015" href="$dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="638,474,758,499"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="902,319,858,391,825,430,787,464,759,477,757,472,784,459,822,426,853,388,897,317"/>
-<area shape="rect" id="Node000016" href="$d5/df8/namespacescalar__stats__simcomp.html#a2b3aef6d8abf2a19f442e73c8ef5a7fb" title=" " alt="" coords="611,523,785,578"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="905,320,888,362,863,413,829,466,787,514,772,525,769,521,784,510,825,463,858,410,883,359,900,318"/>
+<area shape="rect" id="Node000001" title="Extract a filename&#39;s suffix." alt="" coords="863,345,1021,370"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0" title="Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th..." alt="" coords="649,68,776,108"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="931,332,916,287,892,231,858,173,837,147,813,123,795,112,775,103,777,98,798,107,816,119,841,143,862,170,897,229,921,285,936,330"/>
+<area shape="rect" id="Node000009" href="$da/d16/namespacefile.html#ab9074b1dd93018d51b11431e355046c5" title="Constructor." alt="" coords="663,133,762,158"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="928,333,911,297,886,253,853,209,813,173,788,160,761,153,763,148,790,155,816,168,857,206,891,250,916,294,933,331"/>
+<area shape="rect" id="Node000010" href="$da/d16/namespacefile.html#a0167c68d0b7fa85eed2bb23f5a1cd6d2" title="Set a file&#39;s header." alt="" coords="638,182,787,207"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="923,335,878,277,848,247,813,222,785,210,788,205,816,218,851,243,882,274,927,331"/>
+<area shape="rect" id="Node000011" href="$da/d16/namespacefile.html#a20347acf22c138e1cb0adfd16c4242e7" title="Set a file&#39;s output layout." alt="" coords="640,231,785,257"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="914,338,869,304,814,272,778,259,780,254,816,267,872,299,917,333"/>
+<area shape="rect" id="Node000012" href="$da/d16/namespacefile.html#a43c32373b7c245beb1260418ecfbb597" title="Set a file&#39;s output precision." alt="" coords="631,281,794,306"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="888,343,814,321,766,309,768,304,815,316,889,338"/>
+<area shape="rect" id="Node000013" href="$db/dba/namespacefluid__sgs__stats__simcomp.html#a8feba69c3c2cb8748a224d918dd76e73" title=" " alt="" coords="616,330,809,385"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="849,360,809,360,809,355,849,355"/>
+<area shape="rect" id="Node000014" href="$dd/dc6/namespacefluid__stats__simcomp.html#a33393df992beab0f7b3d777c40c13ed6" title=" " alt="" coords="631,409,795,463"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="892,377,794,411,792,406,890,372"/>
+<area shape="rect" id="Node000015" href="$dc/d92/namespacegeneric__file.html#af55ff7e8a18a8a854c5a8f2f81b541e3" title="Set overwrite mode." alt="" coords="636,488,789,528"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="924,382,878,430,848,456,816,478,791,490,789,486,813,474,845,452,874,427,920,378"/>
+<area shape="rect" id="Node000016" href="$dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="653,553,773,578"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="933,384,915,420,890,463,857,506,816,542,796,553,774,560,772,555,794,548,813,538,853,502,886,460,911,417,928,382"/>
+<area shape="rect" id="Node000017" href="$d6/da1/namespacescalar__sgs__stats__simcomp.html#afbddb09963b8ff897e191ec2f56308d9" title=" " alt="" coords="611,602,815,657"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="936,384,920,429,896,484,861,542,840,569,816,593,801,604,798,600,813,589,836,565,857,539,891,482,915,427,931,383"/>
+<area shape="rect" id="Node000018" href="$d5/df8/namespacescalar__stats__simcomp.html#a2b3aef6d8abf2a19f442e73c8ef5a7fb" title=" " alt="" coords="625,681,800,735"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="940,384,929,442,906,519,890,559,870,600,846,637,817,671,802,683,798,679,813,667,841,634,865,597,885,557,901,517,923,441,935,383"/>
 <area shape="rect" id="Node000003" href="$d3/d9f/namespaceimport__field__utils.html#a2a795c64e649438253c19367e6bed9d7" title="Imports fields from an fld file, potentially with interpolation." alt="" coords="428,68,563,108"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="621,91,563,91,563,85,621,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="636,91,563,91,563,85,636,85"/>
 <area shape="rect" id="Node000004" href="$d2/d13/namespaceflow__ic.html#a97d32262faca8122e261500212f649c7" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="209,15,380,41"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="414,66,337,43,339,38,415,61"/>
 <area shape="rect" id="Node000006" href="$d8/ddf/namespacescalar__ic.html#aaf1e4ba40f8b77e35882afa11303a648" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="218,68,371,108"/>

@@ -200,7 +200,7 @@ The case object</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>output_partitions</code>   </td><td class="markdownTableBodyNone">Whether to write a <code>partitions.vtk</code> file with domain partitioning.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>output_checkpoints</code>   </td><td class="markdownTableBodyNone">Whether to output checkpoints, i.e. restart files.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>output_checkpoints</code>   </td><td class="markdownTableBodyNone">Whether to output checkpoints, i.e. restart files.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>checkpoint_control</code>   </td><td class="markdownTableBodyNone">Defines the interpretation of <code>checkpoint_value</code> to define the frequency of writing checkpoint files.   </td><td class="markdownTableBodyNone"><code>nsamples</code>, <code>simulationtime</code>, <code>tsteps</code>, <code>never</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
@@ -220,6 +220,10 @@ The case object</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>output_at_end</code>   </td><td class="markdownTableBodyNone">Whether to always write all enabled output at the end of the run.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>   </td></tr>
 </table>
+<p>Some additional practical comments are provided regarding the output triggered by <code>job_timelimit</code> and <code>output_at_end</code> keywords.</p>
+<p>If <code>output_at_end</code> is set to <code>true</code>, an additional write is performed after the execution of the simulation time-loop is finished. This triggers most outputs, like the fluid solvers, the checkpoint, etc. Note that if your case settings are such that a particular output is written at the last time step regardless of <code>output_at_end</code> (e.g. <code>end_time: 5</code>, <code>checkpoint_value: 5</code>, <code>checkpoint_control: simulationtime</code> ) you will get two outputs with the same values: one from your ordinary write and one triggered by <code>output_at_end</code>.</p>
+<dl class="section note"><dt>Note</dt><dd>This has a rather detrimental effect on outputs from various statistics-related <a class="el" href="../../d3/d84/simcomps.html">simulation components</a>. Since the collected statistics are reset on write, the data written by <code>output_at_end</code> will be just zeroes.</dd></dl>
+<p>The purpose of <code>job_timelimit</code> is to gracefully stop the simulation in a typical supercomputer environment, where your runtime is limited. When Neko detects that the time of the run exceeds the <code>job_timelimit</code>, it exits the time-loop. At this point, if one sets <code>output_at_end</code> to <code>true</code>, this will trigger a write as per usual. However, if <code>output_at_end</code> is <code>false</code>, Neko will still write a special checkpoint file, with the filename called <code>joblimit#####.chkp</code>. This is done so that the user is at least provided a restart file, and none of the computer time spent on the simulation is wasted. Generally, however, it is recommended to have <code>output_at_end</code> set to <code>true</code> in tandem with <code>job_timelimit</code>, so that what exactly gets written is controlled by the case file settings.</p>
 <h2><a class="anchor" id="autotoc_md74"></a>
 Constants</h2>
 <p>The <code>constants</code> array allows the user to define parameters that are global to the case file, and can be referred to when setting the values of other parameters. Two types of parameters can be defined: scalars and arrays. Each is represented as a subobject inside the <code>constants</code> object and should containt two entries: <code>name</code> and <code>value</code>. Here is an example:</p>
@@ -1188,9 +1192,13 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>lambda</code>   </td><td class="markdownTableBodyNone">Thermal conductivity.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>nut_field</code>   </td><td class="markdownTableBodyNone">Name of the turbulent kinematic viscosity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">Empty string    </td></tr>
+<td class="markdownTableBodyNone"><code>alphat.nut_dependency</code>   </td><td class="markdownTableBodyNone">Whether the eddy diffusivity depends on the eddy kinematic viscosity.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>Pr_t</code>   </td><td class="markdownTableBodyNone">Turbulent Prandtl number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>alphat.alphat_field</code>   </td><td class="markdownTableBodyNone">Name of the turbulent diffusivity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">Empty string    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>alphat.nut_field</code>   </td><td class="markdownTableBodyNone">Name of the turbulent kinematic viscosity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">Empty string    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>alphat.Pr_t</code>   </td><td class="markdownTableBodyNone">Turbulent Prandtl number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>boundary_types</code>   </td><td class="markdownTableBodyNone">Boundary types/conditions labels.   </td><td class="markdownTableBodyNone">Array of strings   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
@@ -1243,7 +1251,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Mar 3 2026 04:17:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 4 2026 04:15:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

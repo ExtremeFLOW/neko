@@ -629,40 +629,42 @@ $(document).ready(function(){initNavTree('df/df6/bc_8f90_source.html','../../');
 <div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
 <div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">allocated</span>(this%name)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>       this%name = <span class="stringliteral">&quot;&quot;</span></div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&#39;BC assigned name :   &#39;</span>, trim(this%name)</div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span> </div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">allocated</span>(this%zone_indices)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>       <span class="keyword">allocate</span>(this%zone_indices(1))</div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>       this%zone_indices(1) = -1</div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span> </div>
-</div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/dc0/namespacebc.html#aaeeaa7c90eedcd2f206514d689a31a0d">bc_finalize_base</a></div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span><span class="comment">! gives plenty of empty info lines during AMR restart</span></div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span><span class="comment">!       this%name = &quot;&quot;</span></div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&#39;BC assigned name :   &#39;</span>, trim(this%name)</div>
+<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span> </div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span><span class="comment">! causes trouble for AMR restart</span></div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span><span class="comment">!    if (.not. allocated(this%zone_indices)) then</span></div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span><span class="comment">!       allocate(this%zone_indices(1))</span></div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span><span class="comment">!       this%zone_indices(1) = -1</span></div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span><span class="comment">!    end if</span></div>
 <div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span> </div>
-<div class="foldopen" id="foldopen00595" data-start="" data-end="">
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno"><a class="line" href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">  595</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">bc_debug_mask</a>(this, file_name)</div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: file_name</div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>) :: bdry_field</div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>    <span class="keywordtype">integer</span>:: i, m, k</div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/dae/structfile_1_1file__t.html">file_t</a>) :: dump_file</div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span> </div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>    <span class="keyword">call </span>bdry_field%init(this%coef%dof, <span class="stringliteral">&#39;bdry&#39;</span>)</div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    m = this%msk(0)</div>
-<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>    <span class="keywordflow">do</span> i = 1, m</div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>       k = this%msk(i)</div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>       bdry_field%x(k,1,1,1) = 1.0_rp</div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>    <span class="keyword">call </span>dump_file%init(file_name)</div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>    <span class="keyword">call </span>dump_file%write(bdry_field)</div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span> </div>
 </div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">bc_debug_mask</a></div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/dc0/namespacebc.html#aaeeaa7c90eedcd2f206514d689a31a0d">bc_finalize_base</a></div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span> </div>
+<div class="foldopen" id="foldopen00597" data-start="" data-end="">
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno"><a class="line" href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">  597</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">bc_debug_mask</a>(this, file_name)</div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: file_name</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>) :: bdry_field</div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>    <span class="keywordtype">integer</span>:: i, m, k</div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/dae/structfile_1_1file__t.html">file_t</a>) :: dump_file</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span> </div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>    <span class="keyword">call </span>bdry_field%init(this%coef%dof, <span class="stringliteral">&#39;bdry&#39;</span>)</div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>    m = this%msk(0)</div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>    <span class="keywordflow">do</span> i = 1, m</div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>       k = this%msk(i)</div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>       bdry_field%x(k,1,1,1) = 1.0_rp</div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>    <span class="keyword">call </span>dump_file%init(file_name)</div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>    <span class="keyword">call </span>dump_file%write(bdry_field)</div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span> </div>
+</div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">bc_debug_mask</a></div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
 <div class="ttc" id="ainterfacebc_1_1bc__apply__scalar__dev_html"><div class="ttname"><a href="../../dc/d9b/interfacebc_1_1bc__apply__scalar__dev.html">bc::bc_apply_scalar_dev</a></div><div class="ttdoc">Apply the boundary condition to a scalar field on the device.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00215">bc.f90:215</a></div></div>
 <div class="ttc" id="ainterfacebc_1_1bc__apply__scalar_html"><div class="ttname"><a href="../../d9/df2/interfacebc_1_1bc__apply__scalar.html">bc::bc_apply_scalar</a></div><div class="ttdoc">Apply the boundary condition to a scalar field.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00176">bc.f90:176</a></div></div>
 <div class="ttc" id="ainterfacebc_1_1bc__apply__vector__dev_html"><div class="ttname"><a href="../../de/dde/interfacebc_1_1bc__apply__vector__dev.html">bc::bc_apply_vector_dev</a></div><div class="ttdoc">Apply the boundary condition to a vector field on the device.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00235">bc.f90:235</a></div></div>
@@ -681,7 +683,7 @@ $(document).ready(function(){initNavTree('df/df6/bc_8f90_source.html','../../');
 <div class="ttc" id="anamespacebc_html_a9301745781e093149663a05b0dcb61c6"><div class="ttname"><a href="../../d0/dc0/namespacebc.html#a9301745781e093149663a05b0dcb61c6">bc::bc_apply_scalar_generic</a></div><div class="ttdeci">subroutine bc_apply_scalar_generic(this, x, time, strong, strm)</div><div class="ttdoc">Apply the boundary condition to a scalar field. Dispatches to the CPU or the device version.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00358">bc.f90:359</a></div></div>
 <div class="ttc" id="anamespacebc_html_aaeeaa7c90eedcd2f206514d689a31a0d"><div class="ttname"><a href="../../d0/dc0/namespacebc.html#aaeeaa7c90eedcd2f206514d689a31a0d">bc::bc_finalize_base</a></div><div class="ttdeci">subroutine bc_finalize_base(this, only_facets)</div><div class="ttdoc">Finalize the construction of the bc by populting the msk and facet arrays.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00433">bc.f90:434</a></div></div>
 <div class="ttc" id="anamespacebc_html_ac4b5dd747c8962a49bcab7f999af94a1"><div class="ttname"><a href="../../d0/dc0/namespacebc.html#ac4b5dd747c8962a49bcab7f999af94a1">bc::bc_apply_vector_generic</a></div><div class="ttdeci">subroutine bc_apply_vector_generic(this, x, y, z, time, strong, strm)</div><div class="ttdoc">Apply the boundary condition to a vector field. Dispatches to the CPU or the device version.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00314">bc.f90:315</a></div></div>
-<div class="ttc" id="anamespacebc_html_ac725cd64024298da9e4e2122b006c546"><div class="ttname"><a href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">bc::bc_debug_mask</a></div><div class="ttdeci">subroutine bc_debug_mask(this, file_name)</div><div class="ttdoc">Write a field showing the mask of the bc.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00595">bc.f90:596</a></div></div>
+<div class="ttc" id="anamespacebc_html_ac725cd64024298da9e4e2122b006c546"><div class="ttname"><a href="../../d0/dc0/namespacebc.html#ac725cd64024298da9e4e2122b006c546">bc::bc_debug_mask</a></div><div class="ttdeci">subroutine bc_debug_mask(this, file_name)</div><div class="ttdoc">Write a field showing the mask of the bc.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00597">bc.f90:598</a></div></div>
 <div class="ttc" id="anamespacebc_html_acbbeaf2224629c4761155d34f86c8352"><div class="ttname"><a href="../../d0/dc0/namespacebc.html#acbbeaf2224629c4761155d34f86c8352">bc::bc_mark_facet</a></div><div class="ttdeci">subroutine bc_mark_facet(this, facet, el)</div><div class="ttdoc">Mark facet on element el as part of the boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00389">bc.f90:390</a></div></div>
 <div class="ttc" id="anamespacebc_html_ad276b14294570cad93e3ca9348cb2a18"><div class="ttname"><a href="../../d0/dc0/namespacebc.html#ad276b14294570cad93e3ca9348cb2a18">bc::bc_mark_facets</a></div><div class="ttdeci">subroutine bc_mark_facets(this, facet_list)</div><div class="ttdoc">Mark all facets from a (facet, el) tuple list.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00402">bc.f90:403</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
@@ -733,7 +735,7 @@ $(document).ready(function(){initNavTree('df/df6/bc_8f90_source.html','../../');
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../df/df6/bc_8f90.html">bc.f90</a></li>
-    <li class="footer">Generated on Tue Mar 3 2026 04:17:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 4 2026 04:15:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

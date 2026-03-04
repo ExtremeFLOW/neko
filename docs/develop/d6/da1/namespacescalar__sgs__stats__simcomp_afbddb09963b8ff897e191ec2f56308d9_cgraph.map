@@ -1,0 +1,9 @@
+<map id="scalar_sgs_stats_simcomp::scalar_sgs_stats_simcomp_restart" name="scalar_sgs_stats_simcomp::scalar_sgs_stats_simcomp_restart">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,16,209,71"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="273,5,432,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,30,259,25,260,30,210,35"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#ad9815de9718b5cfbff1bc1da8ea997e4" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="257,55,448,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="210,51,244,54,244,59,209,56"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="496,5,684,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="432,15,482,15,482,21,432,21"/>
+</map>

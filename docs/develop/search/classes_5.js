@@ -42,12 +42,15 @@ var searchData=
   ['fluid_5fscheme_5fcompressible_5ft_39',['fluid_scheme_compressible_t',['../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html',1,'fluid_scheme_compressible']]],
   ['fluid_5fscheme_5fincompressible_5ft_40',['fluid_scheme_incompressible_t',['../d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html',1,'fluid_scheme_incompressible']]],
   ['fluid_5fscheme_5fsetup_5fbcs_5fintrf_41',['fluid_scheme_setup_bcs_intrf',['../d7/d18/interfacefluid__scheme__base_1_1fluid__scheme__setup__bcs__intrf.html',1,'fluid_scheme_base']]],
-  ['fluid_5fsource_5fterm_5ft_42',['fluid_source_term_t',['../d1/da8/structfluid__source__term_1_1fluid__source__term__t.html',1,'fluid_source_term']]],
-  ['fluid_5fstats_5foutput_5ft_43',['fluid_stats_output_t',['../d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html',1,'fluid_stats_output']]],
-  ['fluid_5fstats_5fsimcomp_5ft_44',['fluid_stats_simcomp_t',['../d1/d3b/structfluid__stats__simcomp_1_1fluid__stats__simcomp__t.html',1,'fluid_stats_simcomp']]],
-  ['fluid_5fstats_5ft_45',['fluid_stats_t',['../da/d8a/structfluid__stats_1_1fluid__stats__t.html',1,'fluid_stats']]],
-  ['fluid_5fvolflow_5ft_46',['fluid_volflow_t',['../d5/db8/structfluid__volflow_1_1fluid__volflow__t.html',1,'fluid_volflow']]],
-  ['force_5ftorque_5ft_47',['force_torque_t',['../da/d47/structforce__torque_1_1force__torque__t.html',1,'force_torque']]],
-  ['fusedcg_5fcpld_5fdevice_5ft_48',['fusedcg_cpld_device_t',['../d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html',1,'fusedcg_cpld_device']]],
-  ['fusedcg_5fdevice_5ft_49',['fusedcg_device_t',['../dc/d03/structfusedcg__device_1_1fusedcg__device__t.html',1,'fusedcg_device']]]
+  ['fluid_5fsgs_5fstats_5foutput_5ft_42',['fluid_sgs_stats_output_t',['../de/d55/structfluid__sgs__stats__output_1_1fluid__sgs__stats__output__t.html',1,'fluid_sgs_stats_output']]],
+  ['fluid_5fsgs_5fstats_5fsimcomp_5ft_43',['fluid_sgs_stats_simcomp_t',['../d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html',1,'fluid_sgs_stats_simcomp']]],
+  ['fluid_5fsgs_5fstats_5ft_44',['fluid_sgs_stats_t',['../d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html',1,'fluid_sgs_stats']]],
+  ['fluid_5fsource_5fterm_5ft_45',['fluid_source_term_t',['../d1/da8/structfluid__source__term_1_1fluid__source__term__t.html',1,'fluid_source_term']]],
+  ['fluid_5fstats_5foutput_5ft_46',['fluid_stats_output_t',['../d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html',1,'fluid_stats_output']]],
+  ['fluid_5fstats_5fsimcomp_5ft_47',['fluid_stats_simcomp_t',['../d1/d3b/structfluid__stats__simcomp_1_1fluid__stats__simcomp__t.html',1,'fluid_stats_simcomp']]],
+  ['fluid_5fstats_5ft_48',['fluid_stats_t',['../da/d8a/structfluid__stats_1_1fluid__stats__t.html',1,'fluid_stats']]],
+  ['fluid_5fvolflow_5ft_49',['fluid_volflow_t',['../d5/db8/structfluid__volflow_1_1fluid__volflow__t.html',1,'fluid_volflow']]],
+  ['force_5ftorque_5ft_50',['force_torque_t',['../da/d47/structforce__torque_1_1force__torque__t.html',1,'force_torque']]],
+  ['fusedcg_5fcpld_5fdevice_5ft_51',['fusedcg_cpld_device_t',['../d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html',1,'fusedcg_cpld_device']]],
+  ['fusedcg_5fdevice_5ft_52',['fusedcg_device_t',['../dc/d03/structfusedcg__device_1_1fusedcg__device__t.html',1,'fusedcg_device']]]
 ];

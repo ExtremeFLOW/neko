@@ -573,6 +573,15 @@ var annotated_dup =
     [ "fluid_scheme_incompressible", "d7/dff/namespacefluid__scheme__incompressible.html", [
       [ "fluid_scheme_incompressible_t", "d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html", "d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t" ]
     ] ],
+    [ "fluid_sgs_stats", "d8/dc1/namespacefluid__sgs__stats.html", [
+      [ "fluid_sgs_stats_t", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t" ]
+    ] ],
+    [ "fluid_sgs_stats_output", "d3/d4c/namespacefluid__sgs__stats__output.html", [
+      [ "fluid_sgs_stats_output_t", "de/d55/structfluid__sgs__stats__output_1_1fluid__sgs__stats__output__t.html", "de/d55/structfluid__sgs__stats__output_1_1fluid__sgs__stats__output__t" ]
+    ] ],
+    [ "fluid_sgs_stats_simcomp", "db/dba/namespacefluid__sgs__stats__simcomp.html", [
+      [ "fluid_sgs_stats_simcomp_t", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t" ]
+    ] ],
     [ "fluid_source_term", "df/d09/namespacefluid__source__term.html", [
       [ "fluid_source_term_t", "d1/da8/structfluid__source__term_1_1fluid__source__term__t.html", "d1/da8/structfluid__source__term_1_1fluid__source__term__t" ]
     ] ],
@@ -1263,6 +1272,15 @@ var annotated_dup =
       [ "scalar_scheme_step_intrf", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf" ],
       [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ],
       [ "scalar_scheme_wrapper_t", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t" ]
+    ] ],
+    [ "scalar_sgs_stats", "de/db2/namespacescalar__sgs__stats.html", [
+      [ "scalar_sgs_stats_t", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t" ]
+    ] ],
+    [ "scalar_sgs_stats_output", "d0/d56/namespacescalar__sgs__stats__output.html", [
+      [ "scalar_sgs_stats_output_t", "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html", "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t" ]
+    ] ],
+    [ "scalar_sgs_stats_simcomp", "d6/da1/namespacescalar__sgs__stats__simcomp.html", [
+      [ "scalar_sgs_stats_simcomp_t", "d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html", "d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t" ]
     ] ],
     [ "scalar_source_term", "d9/d13/namespacescalar__source__term.html", [
       [ "scalar_source_term_t", "db/d55/structscalar__source__term_1_1scalar__source__term__t.html", "db/d55/structscalar__source__term_1_1scalar__source__term__t" ]

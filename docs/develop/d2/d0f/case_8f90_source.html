@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d2/d0f/case_8f90_source.html','../../'
   <div class="headertitle"><div class="title">case.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d2/d0f/case_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2020-2025, The Neko Authors</span></div>
+<a href="../../d2/d0f/case_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2020-2026, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -623,19 +623,19 @@ $(document).ready(function(){initNavTree('d2/d0f/case_8f90_source.html','../../'
 <div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>            always_write_mesh = logical_val)</div>
 <div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span> </div>
-<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(this%params, <span class="stringliteral">&#39;case.fluid.output_control&#39;</span>,&amp;</div>
-<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>         string_val, <span class="stringliteral">&#39;org&#39;</span>)</div>
-<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span> </div>
-<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>    <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;org&#39;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>       <span class="comment">! yes, it should be real_val below for type compatibility</span></div>
-<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(this%params, <span class="stringliteral">&#39;case.nsamples&#39;</span>, integer_val)</div>
-<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>       real_val = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(integer_val, kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>)</div>
-<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>       <span class="keyword">call </span>this%output_controller%add(this%f_out, real_val, <span class="stringliteral">&#39;nsamples&#39;</span>)</div>
-<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;never&#39;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>       <span class="keyword">call </span>this%output_controller%add(this%f_out, 0.0_rp, <span class="stringliteral">&#39;never&#39;</span>)</div>
-<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;tsteps&#39;</span> .or. &amp;</div>
-<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>         trim(string_val) .eq. <span class="stringliteral">&#39;nsamples&#39;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(this%params, <span class="stringliteral">&#39;case.fluid.output_value&#39;</span>, integer_val)</div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(this%params, <span class="stringliteral">&#39;case.fluid.output_control&#39;</span>, string_val)</div>
+<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span> </div>
+<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>    <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;org&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>       <span class="comment">! yes, it should be real_val below for type compatibility</span></div>
+<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../da/d05/interfacejson__utils_1_1json__get__or__lookup.html">json_get_or_lookup</a>(this%params, <span class="stringliteral">&#39;case.nsamples&#39;</span>, integer_val)</div>
+<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>       real_val = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(integer_val, kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>)</div>
+<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>       <span class="keyword">call </span>this%output_controller%add(this%f_out, real_val, <span class="stringliteral">&#39;nsamples&#39;</span>)</div>
+<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;never&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>       <span class="keyword">call </span>this%output_controller%add(this%f_out, 0.0_rp, <span class="stringliteral">&#39;never&#39;</span>)</div>
+<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;tsteps&#39;</span> .or. &amp;</div>
+<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>         trim(string_val) .eq. <span class="stringliteral">&#39;nsamples&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../da/d05/interfacejson__utils_1_1json__get__or__lookup.html">json_get_or_lookup</a>(this%params, <span class="stringliteral">&#39;case.fluid.output_value&#39;</span>, &amp;</div>
+<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>            integer_val)</div>
 <div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>       real_val = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(integer_val, kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>)</div>
 <div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>       <span class="keyword">call </span>this%output_controller%add(this%f_out, real_val, string_val)</div>
 <div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;simulationtime&#39;</span>) <span class="keywordflow">then</span></div>
@@ -649,68 +649,77 @@ $(document).ready(function(){initNavTree('d2/d0f/case_8f90_source.html','../../'
 <div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>    <span class="comment">!</span></div>
 <div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>    <span class="comment">! Save checkpoints (if nothing specified, default to saving at end of sim)</span></div>
 <div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(this%params, <span class="stringliteral">&#39;case.output_checkpoints&#39;</span>,&amp;</div>
-<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>         logical_val, .true.)</div>
-<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>    <span class="keywordflow">if</span> (logical_val) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(this%params, <span class="stringliteral">&#39;case.checkpoint_filename&#39;</span>, &amp;</div>
-<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>            name, <span class="stringliteral">&quot;fluid&quot;</span>)</div>
-<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(this%params, <span class="stringliteral">&#39;case.checkpoint_format&#39;</span>, &amp;</div>
-<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>            string_val, <span class="stringliteral">&quot;chkp&quot;</span>)</div>
-<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>       <span class="keyword">call </span>this%chkp_out%init(this%chkp, name = name,&amp;</div>
-<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>            path = this%output_directory, fmt = trim(string_val))</div>
-<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(this%params, <span class="stringliteral">&#39;case.checkpoint_control&#39;</span>, &amp;</div>
-<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>            string_val, <span class="stringliteral">&quot;simulationtime&quot;</span>)</div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html">json_get_or_lookup_or_default</a>(this%params, &amp;</div>
-<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>            <span class="stringliteral">&#39;case.checkpoint_value&#39;</span>, real_val, 1e10_rp)</div>
-<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>       <span class="keyword">call </span>this%output_controller%add(this%chkp_out, real_val, string_val, &amp;</div>
-<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>            <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
-<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span> </div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>    <span class="comment">! Setup joblimit</span></div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>    <span class="keywordflow">if</span> (this%params%valid_path(<span class="stringliteral">&#39;case.job_timelimit&#39;</span>)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(this%params, <span class="stringliteral">&#39;case.job_timelimit&#39;</span>, string_val)</div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl_set_time_limit</a>(string_val)</div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span> </div>
-<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
-<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span> </div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>    <span class="keyword">call </span>scalar_params%destroy()</div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>    <span class="keyword">call </span>numerics_params%destroy()</div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>    <span class="keyword">call </span>json_subdict%destroy()</div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span> </div>
+<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(this%params, <span class="stringliteral">&#39;case.output_checkpoints&#39;</span>, logical_val)</div>
+<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>    <span class="keywordflow">if</span> (logical_val) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(this%params, <span class="stringliteral">&#39;case.checkpoint_filename&#39;</span>, &amp;</div>
+<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>            name, <span class="stringliteral">&quot;fluid&quot;</span>)</div>
+<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(this%params, <span class="stringliteral">&#39;case.checkpoint_format&#39;</span>, &amp;</div>
+<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span>            string_val, <span class="stringliteral">&quot;chkp&quot;</span>)</div>
+<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>       <span class="keyword">call </span>this%chkp_out%init(this%chkp, name = name,&amp;</div>
+<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>            path = this%output_directory, fmt = trim(string_val))</div>
+<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(this%params, <span class="stringliteral">&#39;case.checkpoint_control&#39;</span>, &amp;</div>
+<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>            string_val)</div>
+<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>       <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;tsteps&#39;</span> .or. &amp;</div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>            trim(string_val) .eq. <span class="stringliteral">&#39;nsamples&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../da/d05/interfacejson__utils_1_1json__get__or__lookup.html">json_get_or_lookup</a>(this%params, <span class="stringliteral">&#39;case.checkpoint_value&#39;</span>, &amp;</div>
+<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>               integer_val)</div>
+<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>          real_val = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(integer_val, kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>)</div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;simulationtime&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../da/d05/interfacejson__utils_1_1json__get__or__lookup.html">json_get_or_lookup</a>(this%params, <span class="stringliteral">&#39;case.checkpoint_value&#39;</span>, &amp;</div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>               real_val)</div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(string_val) .eq. <span class="stringliteral">&#39;never&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>          real_val = 0.0_rp</div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span> </div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>       <span class="keyword">call </span>this%output_controller%add(this%chkp_out, real_val, string_val, &amp;</div>
+<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>            <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span> </div>
+<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>    <span class="comment">! Setup joblimit</span></div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>    <span class="keywordflow">if</span> (this%params%valid_path(<span class="stringliteral">&#39;case.job_timelimit&#39;</span>)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(this%params, <span class="stringliteral">&#39;case.job_timelimit&#39;</span>, string_val)</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl_set_time_limit</a>(string_val)</div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span> </div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span> </div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>    <span class="keyword">call </span>scalar_params%destroy()</div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    <span class="keyword">call </span>numerics_params%destroy()</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>    <span class="keyword">call </span>json_subdict%destroy()</div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span> </div>
 </div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68">case_init_common</a></div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span> </div>
-<div class="foldopen" id="foldopen00575" data-start="" data-end="">
-<div class="line"><a id="l00575" name="l00575"></a><span class="lineno"><a class="line" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">  575</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case_free</a>(this)</div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%fluid)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>       <span class="keyword">call </span>this%fluid%free()</div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>       <span class="keyword">deallocate</span>(this%fluid)</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68">case_init_common</a></div>
 <div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span> </div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%scalars)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>       <span class="keyword">call </span>this%scalars%free()</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>       <span class="keyword">deallocate</span>(this%scalars)</div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span> </div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>    <span class="keyword">call </span>this%msh%free()</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span> </div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>    <span class="keyword">call </span>this%f_out%free()</div>
+<div class="foldopen" id="foldopen00584" data-start="" data-end="">
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno"><a class="line" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">  584</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case_free</a>(this)</div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span> </div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%fluid)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>       <span class="keyword">call </span>this%fluid%free()</div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>       <span class="keyword">deallocate</span>(this%fluid)</div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span> </div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>    <span class="keyword">call </span>this%output_controller%free()</div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span> </div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%output_directory)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>       <span class="keyword">deallocate</span>(this%output_directory)</div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span> </div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%scalars)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>       <span class="keyword">call </span>this%scalars%free()</div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>       <span class="keyword">deallocate</span>(this%scalars)</div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span> </div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>    <span class="keyword">call </span>this%msh%free()</div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span> </div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>    <span class="keyword">call </span>this%f_out%free()</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span> </div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>    <span class="keyword">call </span>this%output_controller%free()</div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span> </div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%output_directory)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>       <span class="keyword">deallocate</span>(this%output_directory)</div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span> </div>
 </div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case_free</a></div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span> </div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a></div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case_free</a></div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span> </div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfaceflow__ic_1_1set__flow__ic_html"><div class="ttname"><a href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html">flow_ic::set_flow_ic</a></div><div class="ttdef"><b>Definition</b> <a href="../../d9/d91/flow__ic_8f90_source.html#l00066">flow_ic.f90:66</a></div></div>
 <div class="ttc" id="ainterfacejobctrl_1_1jobctrl__set__time__limit_html"><div class="ttname"><a href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl::jobctrl_set_time_limit</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00045">jobctrl.f90:45</a></div></div>
@@ -723,7 +732,7 @@ $(document).ready(function(){initNavTree('d2/d0f/case_8f90_source.html','../../'
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacecase_html"><div class="ttname"><a href="../../dd/da8/namespacecase.html">case</a></div><div class="ttdoc">Defines a simulation case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00034">case.f90:34</a></div></div>
 <div class="ttc" id="anamespacecase_html_a43da3102124b9a70209d9f4cea65676a"><div class="ttname"><a href="../../dd/da8/namespacecase.html#a43da3102124b9a70209d9f4cea65676a">case::case_init_from_file</a></div><div class="ttdeci">subroutine case_init_from_file(this, case_file)</div><div class="ttdoc">Initialize a case from an input file case_file.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00095">case.f90:96</a></div></div>
-<div class="ttc" id="anamespacecase_html_a773475493dad053164ee0e0b110ed853"><div class="ttname"><a href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case::case_free</a></div><div class="ttdeci">subroutine case_free(this)</div><div class="ttdoc">Deallocate a case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00575">case.f90:576</a></div></div>
+<div class="ttc" id="anamespacecase_html_a773475493dad053164ee0e0b110ed853"><div class="ttname"><a href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case::case_free</a></div><div class="ttdeci">subroutine case_free(this)</div><div class="ttdoc">Deallocate a case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00584">case.f90:585</a></div></div>
 <div class="ttc" id="anamespacecase_html_ac5da808aa4acd3a1c5d03c5c7f785e92"><div class="ttname"><a href="../../dd/da8/namespacecase.html#ac5da808aa4acd3a1c5d03c5c7f785e92">case::case_init_from_json</a></div><div class="ttdeci">subroutine case_init_from_json(this, case_json)</div><div class="ttdoc">Initialize a case from a JSON object describing a case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00131">case.f90:132</a></div></div>
 <div class="ttc" id="anamespacecase_html_ac7d52a7009f92ec7c1cf6abf9e33ae68"><div class="ttname"><a href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68">case::case_init_common</a></div><div class="ttdeci">subroutine case_init_common(this)</div><div class="ttdoc">Initialize a case from its (loaded) params object.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00145">case.f90:146</a></div></div>
 <div class="ttc" id="anamespacecheckpoint_html"><div class="ttname"><a href="../../d3/d51/namespacecheckpoint.html">checkpoint</a></div><div class="ttdoc">Defines a checkpoint.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/checkpoint_8f90_source.html#l00034">checkpoint.f90:34</a></div></div>
@@ -799,7 +808,7 @@ $(document).ready(function(){initNavTree('d2/d0f/case_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../d2/d0f/case_8f90.html">case.f90</a></li>
-    <li class="footer">Generated on Tue Mar 3 2026 04:17:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 4 2026 04:15:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

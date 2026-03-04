@@ -1,9 +1,11 @@
 <map id="operators::grad" name="operators::grad">
-<area shape="rect" id="Node000001" title="Compute the gradient of a scalar field." alt="" coords="501,45,623,70"/>
+<area shape="rect" id="Node000001" title="Compute the gradient of a scalar field." alt="" coords="501,77,623,102"/>
 <area shape="rect" id="Node000002" href="$d6/dbf/namespacegradient__simcomp.html#a1a539519b79721407508897df56a6099" title="Compute the gradient field." alt="" coords="248,5,453,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="487,49,453,44,454,38,488,43"/>
-<area shape="rect" id="Node000003" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="271,69,431,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="488,71,431,80,430,75,487,66"/>
-<area shape="rect" id="Node000004" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,77,200,102"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="257,92,200,92,200,87,257,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="505,75,417,48,418,43,507,70"/>
+<area shape="rect" id="Node000003" href="$de/db2/namespacescalar__sgs__stats.html#aaa5dc737689964c97411ef3ac3465ce8" title="Updates all fields with a new sample." alt="" coords="263,69,439,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="487,92,439,92,439,87,487,87"/>
+<area shape="rect" id="Node000004" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="271,133,431,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="507,109,418,136,417,131,505,104"/>
+<area shape="rect" id="Node000005" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,141,200,166"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="257,156,200,156,200,151,257,151"/>
 </map>
