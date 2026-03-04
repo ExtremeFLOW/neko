@@ -62,7 +62,7 @@
 !! pressure Ax does not vary in time.
 module projection
   use num_types, only : rp, c_rp
-  use math, only : rzero, glsc3, add2, copy, cmult
+  use math, only : rzero, glsc3, add2, add2s2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
   use bc_list, only : bc_list_t
@@ -81,7 +81,7 @@ module projection
   use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
   use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wtime
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
        c_sizeof, C_NULL_PTR, c_loc, c_associated
   implicit none
@@ -104,6 +104,7 @@ module projection
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
      integer :: activ_step ! steps to activate projection
+     logical :: prj_refresh_basis = .false.
    contains
      procedure, pass(this) :: clear => bcknd_clear
      procedure, pass(this) :: project_on => bcknd_project_on
@@ -113,15 +114,17 @@ module projection
      procedure, pass(this) :: free => projection_free
      procedure, pass(this) :: pre_solving => projection_pre_solving
      procedure, pass(this) :: post_solving => projection_post_solving
+     procedure, pass(this) :: refresh_basis => bcknd_refresh_basis
   end type projection_t
 
 contains
 
-  subroutine projection_init(this, n, L, activ_step)
+  subroutine projection_init(this, n, L, activ_step, refresh_basis)
     class(projection_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: L
     integer, optional, intent(in) :: activ_step
+    logical, optional, intent(in) :: refresh_basis
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
@@ -136,6 +139,8 @@ contains
     else
        this%activ_step = 5
     end if
+
+    if (present(refresh_basis)) this%prj_refresh_basis = refresh_basis
 
     this%m = 0
 
@@ -341,6 +346,73 @@ contains
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
+  subroutine bcknd_refresh_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    integer, intent(in) :: n
+
+    ! return if it is not set to true in case file.
+    if (.not. this%prj_refresh_basis) return
+
+    call profiler_start_region('Refresh basis', 18)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       ! call device_refresh_basis(this, Ax, coef, gs_h, blst, n)
+    else
+       call cpu_refresh_basis(this, Ax, coef, gs_h, blst, n)
+    end if
+    call profiler_end_region('Refresh basis', 18)
+  end subroutine bcknd_refresh_basis
+
+  subroutine cpu_refresh_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    integer, intent(in) :: n
+    character(len=1000) :: msg
+
+    integer :: i, j
+    real(kind=rp) :: alpha, s, norm_fac
+    real(kind=rp) :: start_time, end_time, time
+
+    if (this%m .le. 0) return
+
+    associate(xx => this%xx, bb => this%bb)
+      start_time = MPI_WTIME()
+
+      ! Recompute B = A_new * X using the new mesh metrics
+      do i = 1, this%m
+         call Ax%compute(bb(1,i), xx(1,i), coef, coef%msh, coef%Xh)
+         call gs_h%gs_op_vector(bb(1,i), n, GS_OP_ADD)
+         call blst%apply_scalar(bb(1,i), n)
+      end do
+
+      ! Modified Gram-Schmidt
+      do i = 1, this%m
+
+         ! Orthogonalize against previous vectors
+         do j = 1, i - 1
+            alpha = glsc3(xx(1,i), bb(1,j), coef%mult, n)
+            call add2s2(xx(1,i), xx(1,j), -alpha, n)
+            call add2s2(bb(1,i), bb(1,j), -alpha, n)
+         end do
+
+         s = glsc3(xx(1,i), bb(1,i), coef%mult, n)
+         norm_fac = 1.0_rp / sqrt(s)
+         call cmult(xx(1,i), norm_fac, n)
+         call cmult(bb(1,i), norm_fac, n)
+
+      end do
+      end_time = MPI_WTIME()
+      time = end_time - start_time
+      write(msg, '(A, E15.7)') "Projection basis refresh (s):  ", time
+      call neko_log%message(trim(msg))
+    end associate
+  end subroutine cpu_refresh_basis
 
 
   subroutine cpu_project_on(this, b, coef, n)
