@@ -229,7 +229,7 @@ contains
              ! Switch between stable and convective based on bulk Richardson (Ri_b)
              L_old = L_ob
              count = count + 1
-               fd_h = NR_step*L_ob
+             fd_h = NR_step*L_ob
              L_upper = L_ob + fd_h
              L_lower = L_ob - fd_h
                ! Compute L_ob based on stability and bc_type
@@ -238,7 +238,7 @@ contains
              end if
                f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
              dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
-             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
+             if (abs(dfdl) < 1.0e-8_rp) call neko_error("Division by zero in dfdl")
              L_new = L_ob - f/dfdl
                ! Avoid regime crossing during Newton iter (otherwise crash)
              if (L_new*L_sign <= 0.0_rp) then
@@ -249,7 +249,7 @@ contains
              L_ob = sign(max(abs(L_new), 1.0e-6_rp), L_sign)
              L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
           end do
-            !!!! this might lead to more crashes
+
           if (abs(L_ob) > 5e4_rp .or. abs(L_ob) < 1e-5_rp) then
              count = max_count
              call neko_warning("Obukhov length did not converge (MOST wall model)")

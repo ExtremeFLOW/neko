@@ -266,7 +266,8 @@ __global__ void most_compute(
 
     const T g = 9.80665;
     const T Ri_threshold = 1e-4;
-    const T tol = 1e-4;
+    const T tol = 1e-3;
+    const T NR_step = 1e-3;
     const int max_iter = 25;
 
     // Calculate the global 1D offset in the field arrays
@@ -298,7 +299,7 @@ __global__ void most_compute(
 
         // The magnitude used for MOST is the magnitude of the tangential vector
         T magu = sqrt(ui*ui + vi*vi + wi*wi);
-        magu = fmax(magu, (T)1e-8); 
+        magu = fmax(magu, (T)1e-6); // Avoid division by zero in extreme cases
 
         // Initial utau estimate
         T utau = kappa * magu / log(hi/z0);
@@ -331,7 +332,7 @@ __global__ void most_compute(
         else
             Ri_b =  g*hi/ti*(ti-ts)/(magu*magu);
 
-        T L = 1e10;   // neutral default
+        T L_ob = 1e10;   // neutral default
 
         const T L_sign = (Ri_b > 0) ? 1.0 : -1.0;
     
@@ -344,45 +345,45 @@ __global__ void most_compute(
         else {
             // STABLE or CONVECTIVE (NR)
             // Initial guess based on stability
-            L = hi / Ri_b; 
+            L_ob = hi / Ri_b; 
             
             T L_old;
             for (int it = 0; it < max_iter; ++it) {
-                L_old = L;
+                L_old = L_ob;
                 T f_val, dfdl;
 
                 // Use the appropriate simlarity law based on stability and b.c. type
                 if (Ri_b > 0) { // Stable 
                     if constexpr (BC_TYPE == 0) {
-                        f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h, L);
-                        dfdl = dfdl_neumann_stable<T>(L*1.01, L*0.99, hi, z0, z0h, L*0.01);
+                        f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h, L_ob);
+                        dfdl = dfdl_neumann_stable<T>(L_ob*(1+NR_step), L_ob*(1-NR_step), hi, z0, z0h, L_ob*tol);
                     } else {
-                        f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h, L);
-                        dfdl = dfdl_dirichlet_stable<T>(L*1.01, L*0.99, hi, z0, z0h, L*0.01);
+                        f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h, L_ob);
+                        dfdl = dfdl_dirichlet_stable<T>(L_ob*(1+NR_step), L_ob*(1-NR_step), hi, z0, z0h, L_ob*tol);
                     }
                 } else { // Convective 
                     if constexpr (BC_TYPE == 0) {
-                        f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L);
-                        dfdl = dfdl_neumann_convective<T>(L*0.99, L*1.01, hi, z0, z0h, fabs(L*0.01));  // fabs necessary for convective regime
+                        f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L_ob);
+                        dfdl = dfdl_neumann_convective<T>(L_ob*(1-NR_step), L_ob*(1+NR_step), hi, z0, z0h, fabs(L_ob*tol));  // fabs necessary for convective regime
                     } else {
-                        f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L);
-                        dfdl = dfdl_dirichlet_convective<T>(L*0.99, L*1.01, hi, z0, z0h, fabs(L*0.01));
+                        f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L_ob);
+                        dfdl = dfdl_dirichlet_convective<T>(L_ob*(1-NR_step), L_ob*(1+NR_step), hi, z0, z0h, fabs(L_ob*tol));
                     }
                 }
 
-                L -= f_val / fmax(fabs(dfdl), (T)1e-12);
-                if (L * L_sign <= 0) L = 0.5 * L_old;
-                L = L_sign * fmax(fmin(fabs(L), (T)1e6), (T)1e-6);
-                if (fabs((L - L_old) / L) < tol) break;
+                L_ob -= f_val / fmax(fabs(dfdl), (T)1e-8);
+                if (L_ob * L_sign <= 0) L_ob = 0.5 * L_old;
+                L_ob = L_sign * fmax(fmin(fabs(L_ob), (T)1e6), (T)1e-6);
+                if (fabs((L_ob - L_old) / L_ob) < tol) break;
             }
 
             // Final local variables update
             if (Ri_b > 0) {
-                utau = kappa * magu / slaw_m_stable<T>(hi, L, z0);
-                if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_stable<T>(hi, L, z0h);
+                utau = kappa * magu / slaw_m_stable<T>(hi, L_ob, z0);
+                if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_stable<T>(hi, L_ob, z0h);
             } else {
-                utau = kappa * magu / slaw_m_convective<T>(hi, L, z0);
-                if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_convective<T>(hi, L, z0h);
+                utau = kappa * magu / slaw_m_convective<T>(hi, L_ob, z0);
+                if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_convective<T>(hi, L_ob, z0h);
             }
         }
         tau_x_d[i] = -utau*utau*ui/magu;
