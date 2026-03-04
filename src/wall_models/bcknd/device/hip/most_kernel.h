@@ -337,7 +337,7 @@ __global__ void most_compute(
     
         // Stability branching localy 
         if (fabs(Ri_b) <= Ri_threshold) {
-            // NEUTRAL CASE (Fastest path)
+            // NEUTRAL CASe
             utau = kappa * magu / slaw_m_neutral<T>(hi, z0);
             if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_neutral<T>(hi, z0h);
         } 
@@ -387,7 +387,7 @@ __global__ void most_compute(
         }
         tau_x_d[i] = -utau*utau*ui/magu;
         tau_y_d[i] = -utau*utau*vi/magu;
-        tau_z_d[i] = 0.0;    // z as a vertical direction is assumed!
+        tau_z_d[i] = -utau*utau*wi/magu;
     }
 }
 
