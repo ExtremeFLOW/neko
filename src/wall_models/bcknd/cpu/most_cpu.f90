@@ -239,8 +239,8 @@ contains
                 call neko_error("Unassociated pointer for f or dfdl")
              end if
                f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
-             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
-             if (abs(dfdl) < 1.0e-8_rp) call neko_error("Division by zero in dfdl")
+               dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
+             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
              L_new = L_ob - f/dfdl
                ! Avoid regime crossing during Newton iter (otherwise crash)
              if (L_new*L_sign <= 0.0_rp) then
