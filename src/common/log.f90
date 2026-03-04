@@ -105,7 +105,7 @@ contains
     if (envvar_len .gt. 0) then
        read(log_tab_size(1:envvar_len), *) this%tab_size_
     else
-       this%tab_size_ = 1
+       this%tab_size_ = 0
     end if
 
     call get_environment_variable("NEKO_LOG_LEVEL", log_level, envvar_len)
