@@ -141,6 +141,7 @@ neko_fortran_SOURCES = \
 	io/rea_file.f90\
 	io/bp_file.F90\
 	io/fld_file.f90\
+	io/import_field_utils.f90\
 	io/fld_file_data.f90\
 	io/vtk_file.f90\
 	io/stl_file.f90\
@@ -154,7 +155,9 @@ neko_fortran_SOURCES = \
 	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/fluid_stats_output.f90\
+	io/fluid_sgs_stats_output.f90\
 	io/scalar_stats_output.f90\
+	io/scalar_sgs_stats_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	global_interpolation/global_interpolation.f90\
@@ -224,7 +227,9 @@ neko_fortran_SOURCES = \
 	simulation_components/probes.F90\
 	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
+	simulation_components/fluid_sgs_stats_simcomp.f90\
 	simulation_components/scalar_stats_simcomp.f90\
+	simulation_components/scalar_sgs_stats_simcomp.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
@@ -373,6 +378,8 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/device_gradient_jump_penalty.F90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
+  les/fluid_sgs_stats.f90\
+  les/scalar_sgs_stats.f90\
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/bcknd/device/vreman_device.f90\
