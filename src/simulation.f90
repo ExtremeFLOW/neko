@@ -75,8 +75,8 @@ contains
     logical :: pseudo_restart
 
     ! "pseudo-restart" the case if needed, from an fld file
-    call json_get_or_default('case.fluid.initial_condition.set_time', &
-         pseudo_restart, .false.)
+    call json_get_or_default(C%params, &
+         'case.fluid.initial_condition.set_time', pseudo_restart, .false.)
     if (pseudo_restart) then
        call simulation_pseudo_restart(C)
     end if
@@ -255,7 +255,7 @@ contains
 
     ! Load the time stamp in the fld file into the current time
     ! we don't need to change any dtlags since it is not a real restart
-    call import_fields(trim(restart_file), time=C%time%t)
+    call import_fields(trim(restart_file), time = C%time%t)
 
     ! Restart the output controller
     call C%output_controller%set_counter(C%time)
