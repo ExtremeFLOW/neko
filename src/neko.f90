@@ -54,6 +54,7 @@ module neko
   use point, only : point_t
   use mesh_field, only : mesh_fld_t
   use map
+  use import_field_utils, only : import_fields
   use mxm_wrapper, only : mxm
   use global_interpolation
   use file
@@ -119,10 +120,10 @@ module neko
   use data_streamer, only : data_streamer_t
   use time_interpolator, only : time_interpolator_t
   use point_interpolator, only : point_interpolator_t
-  use point_zone, only: point_zone_t
-  use box_point_zone, only: box_point_zone_t
-  use sphere_point_zone, only: sphere_point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
+  use point_zone, only : point_zone_t
+  use box_point_zone, only : box_point_zone_t
+  use sphere_point_zone, only : sphere_point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   use runtime_stats, only : neko_rt_stats
