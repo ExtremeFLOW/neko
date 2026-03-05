@@ -361,7 +361,7 @@ contains
 
     call profiler_start_region('Reorthogonalize basis', 18)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       ! call device_reortho_basis(this, Ax, coef, gs_h, blst, n)
+       call device_reortho_basis(this, Ax, coef, gs_h, blst, n)
     else
        call cpu_reortho_basis(this, Ax, coef, gs_h, blst, n)
     end if
@@ -415,6 +415,54 @@ contains
       call neko_log%message(trim(msg))
     end associate
   end subroutine cpu_reortho_basis
+
+  subroutine device_reortho_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    integer, intent(in) :: n
+    character(len=1000) :: msg
+
+    integer :: i, j
+    real(kind=rp) :: alpha, s, norm_fac
+    real(kind=rp) :: start_time, end_time, time
+
+    if (this%m .le. 0) return
+
+    associate(xx_d => this%xx_d, bb_d => this%bb_d)
+      start_time = MPI_WTIME()
+
+      ! Recompute B = A_new * X using the new mesh metrics
+      do i = 1, this%m
+         call Ax%compute(this%bb(1,i), this%xx(1,i), coef, coef%msh, coef%Xh)
+         call gs_h%gs_op_vector(this%bb(1,i), n, GS_OP_ADD)
+         call blst%apply_scalar(this%bb(1,i), n)
+      end do
+
+      ! Modified Gram-Schmidt
+      do i = 1, this%m
+
+         ! Orthogonalize against previous vectors
+         do j = 1, i - 1
+            alpha = device_glsc3(xx_d(i), bb_d(j), coef%mult_d, n)
+            call device_add2s2(xx_d(i), xx_d(j), -alpha, n)
+            call device_add2s2(bb_d(i), bb_d(j), -alpha, n)
+         end do
+
+         s = device_glsc3(xx_d(i), bb_d(i), coef%mult_d, n)
+         norm_fac = 1.0_rp / sqrt(s)
+         call device_cmult(xx_d(i), norm_fac, n)
+         call device_cmult(bb_d(i), norm_fac, n)
+
+      end do
+      end_time = MPI_WTIME()
+      time = end_time - start_time
+      write(msg, '(A, E15.7)') "Projection basis reorthogonalize (s):  ", time
+      call neko_log%message(trim(msg))
+    end associate
+  end subroutine device_reortho_basis
 
 
   subroutine cpu_project_on(this, b, coef, n)
