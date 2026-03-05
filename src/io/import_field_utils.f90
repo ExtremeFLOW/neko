@@ -134,7 +134,7 @@ contains
     call f%init(trim(fname_))
 
     ! Select which fields to read in the fld file based on inputs
-    f%read_mesh = interpolate_ 
+    f%read_mesh = interpolate_
     f%read_velocity = (present(u) .or. present(v) .or. present(w))
     f%read_pressure = present(p)
     f%read_temperature = present(t)
@@ -186,7 +186,7 @@ contains
 
     ! Interrupt here if we haven't provided any field as input
     any_input_present = (present(u) .or. present(v) .or. present(w) &
-            .or. present(p) .or. present(t) .or. present(s_target_list))
+         .or. present(p) .or. present(t) .or. present(s_target_list))
     if (.not. any_input_present) return
 
     !
