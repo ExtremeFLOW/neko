@@ -158,12 +158,12 @@ Similar to fluid statistics, scalar statistics are enabled in the case file as a
 
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
-| `field`        | Name of the scalar field to be averaged                       | String  |  `s`        |
+| `field`        | Name of the scalar field to be averaged.                       | String  |  `s`        |
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `set_of_stats`        | What set of stats to compute.                         | basic, full  |  full         |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
-| `output_filename`        | User-specified filename to store output in.                       | filename  |  fluid_statsX*        |
+| `output_filename`        | User-specified filename to store output in.                       | filename  |  scalar_statsX*        |
 
 
 
@@ -249,3 +249,121 @@ e_{vs} &= \frac{\partial v}{\partial x}  \frac{\partial s}{\partial x} + \frac{\
 e_{ws} &= \frac{\partial w}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\\\
 \end{aligned}
 $$
+
+# Fluid Subgrid-Scale (SGS) Statistics
+In the fluid SGS statistics in Neko, subgrid-scale (SGS) contribution to the anisotropic part of the Reynolds stresses are computed, in a similar fashion to the fluid statistics. In total, 7 statistical quantities are computed.
+
+## Using statistics
+Similar to fluid statistics, fluid SGS statistics are enabled in the case file as a simcomp with an additional argument `nut_field` for the name of the eddy viscosity field:
+
+| Name                | Description                                                          | Admissible values | Default value |
+| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
+| `nut_field`        | Name of the eddy viscosity field.                       | String  |  `nut`        |
+| `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
+| `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
+| `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
+| `output_filename`        | User-specified filename to store output in.                       | filename  |  fluid_sgs_statsX*        |
+
+\*The name of the written statistics file will by default be `fluid_sgs_statsX0.f0000X,..., fluid_sgs_statsX0.f0000Y` where X is the number of the first outputted statistic of the current run.
+
+In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
+
+~~~~~~~~~~~~~~~{.json}
+"simulation_components":
+  [
+    {
+      "type": "fluid_sgs_stats",
+      "nut_field": "nut",
+      "compute_control": "tsteps",
+      "compute_value": 4,
+      "output_control": "simulationtime",
+      "output_value": 20,
+      "start_time": 60.0,
+      "avg_direction":"xz",
+    }
+  ]
+~~~~~~~~~~~~~~~
+
+## List of fields in output files
+| Number | Statistic | Stored in variable (for fld files) |
+| ------ | --------- | ------------------ |
+| 1 | \f$ \langle \nu_t \rangle \f$ | Pressure|
+| 2 | \f$ \langle 2 \nu_t S_{11} \rangle \f$ | X-Velocity|
+| 3 | \f$ \langle 2 \nu_t S_{22} \rangle \f$ | Y-Velocity|
+| 4 | \f$ \langle 2 \nu_t S_{33} \rangle \f$ | Z-Velocity |
+| 5 | \f$ \langle 2 \nu_t S_{12} \rangle \f$ | Temperature|
+| 6 | \f$ \langle 2 \nu_t S_{13} \rangle \f$ | Scalar 1 (s1)|
+| 7 | \f$ \langle 2 \nu_t S_{23} \rangle \f$ | Scalar 2 (s2)|
+
+# Scalar Subgrid-Scale (SGS) Statistics
+In the scalar SGS statistics in Neko, subgrid-scale (SGS) contribution to the scalar fluxes are computed, in a similar fashion to the fluid statistics. In total, 4 statical quantities are computed.
+
+## Using statistics
+Similar to fluid statistics, scalar SGS statistics are enabled in the case file as a simcomp with two additional argument `field` and `alphat`, where the latter is a json sub-dictionary:
+
+| Name                | Description                                                          | Admissible values | Default value |
+| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
+| `field`        | Name of the scalar field.                       | String  |  `s`        |
+| `alphat.nut_dependency`                    | Whether the eddy diffusivity depends on the eddy kinematic viscosity.                  | `true` or `false`                                      | -  |
+| `alphat.alphat_field`                    | Name of the turbulent diffusivity field.                  | String                                      | Empty string  |
+| `alphat.nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
+| `alphat.Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
+| `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
+| `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
+| `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
+| `output_filename`        | User-specified filename to store output in.                       | filename  |  scalar_sgs_statsX*        |
+
+\*The name of the written statistics file will by default be `scalar_sgs_statsX0.f0000X,..., scalar_sgs_statsX0.f0000Y` where X is the number of the first outputted statistic of the current run.
+
+In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work if the eddy diffusivity field is registered:
+
+~~~~~~~~~~~~~~~{.json}
+"simulation_components":
+  [
+    {
+      "type": "scalar_sgs_stats",
+      "field": "temperature",
+      "alphat": {
+        "nut_dependency": false,
+        "alphat_field": "temperature_alphat"
+      },
+      "compute_control": "tsteps",
+      "compute_value": 4,
+      "output_control": "simulationtime",
+      "output_value": 20,
+      "start_time": 60.0,
+      "avg_direction":"xz",
+    }
+  ]
+~~~~~~~~~~~~~~~
+
+Otherwise, if one does not use a model for the scalar eddy diffusivity but relates it to the eddy viscosity, one needs to specify the turbulent Prandtl number, for instance, 0.7. The output will give the eddy diffusivity field as the eddy viscosity field divided by the chosen turbulent Prandtl number:
+
+~~~~~~~~~~~~~~~{.json}
+"simulation_components":
+  [
+    {
+      "type": "scalar_sgs_stats",
+      "field": "temperature",
+      "alphat": {
+        "nut_dependency": true,
+        "Pr_t": 0.7,
+        "nut_field": "nut"
+      },
+      "compute_control": "tsteps",
+      "compute_value": 4,
+      "output_control": "simulationtime",
+      "output_value": 20,
+      "start_time": 60.0,
+      "avg_direction":"xz",
+    }
+  ]
+~~~~~~~~~~~~~~~
+
+## List of fields in output files
+| Number | Statistic | Stored in variable (for fld files) |
+| ------ | --------- | ------------------ |
+| 1 | \f$ \langle \alpha_t \rangle \f$ | Pressure|
+| 2 | \f$ \langle \nu_t \frac{\partial s}{\partial x} \rangle \f$ | X-Velocity|
+| 3 | \f$ \langle \nu_t \frac{\partial s}{\partial y} \rangle \f$ | Y-Velocity|
+| 4 | \f$ \langle \nu_t \frac{\partial s}{\partial z} \rangle \f$ | Z-Velocity |

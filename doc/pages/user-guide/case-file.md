@@ -80,7 +80,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
 | `output_partitions`   | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
-| `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
+| `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | -       |
 | `checkpoint_control`  | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
 | `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                       | -             |
 | `checkpoint_filename` | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
@@ -88,8 +88,35 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
-| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                   | String formatted as HH:MM:SS                    | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
+
+Some additional practical comments are provided regarding the output triggered
+by `job_timelimit` and `output_at_end` keywords.
+
+If `output_at_end` is set to `true`, an additional write is performed after the
+execution of the simulation time-loop is finished. This triggers most outputs,
+like the fluid solvers, the checkpoint, etc. Note that if your case settings are
+such that a particular output is written at the last time step regardless of
+`output_at_end` (e.g. `end_time: 5`, `checkpoint_value: 5`,
+ `checkpoint_control: simulationtime` ) you will get two outputs with the same
+values: one from your ordinary write and one triggered by `output_at_end`.
+
+@note This has a rather detrimental effect on outputs from various
+statistics-related [simulation components](@ref simcomps). Since the collected
+statistics are reset on write, the data written by `output_at_end` will be just
+zeroes.
+
+The purpose of `job_timelimit` is to gracefully stop the simulation in a typical
+supercomputer environment, where your runtime is limited. When Neko detects that
+the time of the run exceeds the `job_timelimit`, it exits the time-loop. At this
+point, if one sets `output_at_end` to `true`, this will trigger a write as per
+usual. However, if `output_at_end` is `false`, Neko will still write a special
+checkpoint file, with the filename called `joblimit#####.chkp`. This is done so
+that the user is at least provided a restart file, and none of the computer time
+spent on the simulation is wasted. Generally, however, it is recommended to
+have `output_at_end` set to `true` in tandem with `job_timelimit`, so that what
+exactly gets written is controlled by the case file settings.
 
 ### Constants
 The `constants` array allows the user to define parameters that are global to
@@ -1329,8 +1356,10 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
 | `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
 | `lambda`                       | Thermal conductivity.                                             | Positive real                               | -             |
-| `nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
-| `Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
+| `alphat.nut_dependency`                    | Whether the eddy diffusivity depends on the eddy kinematic viscosity.                  | `true` or `false`                                      | -  |
+| `alphat.alphat_field`                    | Name of the turbulent diffusivity field.                  | String                                      | Empty string  |
+| `alphat.nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
+| `alphat.Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
 | `boundary_types`               | Boundary types/conditions labels.                                 | Array of strings                            | -             |
 | `initial_condition.type`       | Initial condition type.                                           | `user`, `uniform`, `point_zone`             | -             |
 | `initial_condition.value`      | Value of the velocity initial condition.                          | Real                                        | -             |
