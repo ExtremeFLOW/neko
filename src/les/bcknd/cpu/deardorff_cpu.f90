@@ -51,7 +51,6 @@ module deardorff_cpu
 contains
 
   !> Compute eddy viscosity on the CPU.
-  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
@@ -65,12 +64,11 @@ contains
   !! @param c_k The deardorff model constant
   !! @param T0 The reference temperature.
   !! @param g The gravitational acceleration vector.
-  subroutine deardorff_compute_cpu(if_ext, t, tstep, coef, &
+  subroutine deardorff_compute_cpu(t, tstep, coef, &
        temperature_field_name, TKE_field_name, &
        nut, temperature_alphat, &
        TKE_alphat, TKE_source, &
        delta, c_k, T0, g)
-    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -92,15 +90,10 @@ contains
 
     TKE => neko_registry%get_field_by_name(TKE_field_name)
     temperature => neko_registry%get_field_by_name(temperature_field_name)
-    if (if_ext .eqv. .true.) then
-       u => neko_registry%get_field_by_name("u_e")
-       v => neko_registry%get_field_by_name("v_e")
-       w => neko_registry%get_field_by_name("w_e")
-    else
-       u => neko_registry%get_field_by_name("u")
-       v => neko_registry%get_field_by_name("v")
-       w => neko_registry%get_field_by_name("w")
-    end if
+
+    u => neko_registry%get_field_by_name("u")
+    v => neko_registry%get_field_by_name("v")
+    w => neko_registry%get_field_by_name("w")
 
     call neko_scratch_registry%request_field(dTdx, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(dTdy, temp_indices(2), .false.)
