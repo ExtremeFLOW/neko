@@ -95,6 +95,7 @@ contains
     integer :: local_points, local_cells, local_conn
     integer :: total_points, total_cells, total_conn, total_offsets
     integer :: point_offset, cell_offset, conn_offset, offsets_offset
+    integer :: max_local_points, max_local_cells, max_local_conn
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=5) :: id_str
     character(len=1024) :: fname
@@ -258,6 +259,12 @@ contains
        total_conn = sum(part_conns)
        total_offsets = total_cells + num_partitions
 
+       ! Compute max local values for consistent HDF5 chunk dimensions.
+       ! h5dcreate_f is collective and requires identical parameters on all ranks.
+       max_local_points = maxval(part_points)
+       max_local_cells = maxval(part_cells)
+       max_local_conn = maxval(part_conns)
+
        point_offset = 0
        cell_offset = 0
        conn_offset = 0
@@ -381,7 +388,7 @@ contains
           maxdims = [3_hsize_t, H5S_UNLIMITED_F]
           call h5screate_simple_f(2, vdims, filespace, ierr, maxdims)
           call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-          chunkdims(1) = max(1_hsize_t, min(int(local_points, hsize_t), vdims(2)))
+          chunkdims(1) = max(1_hsize_t, min(int(max_local_points, hsize_t), vdims(2)))
           call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
           call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_REAL, &
                filespace, dset_id, ierr, dcpl_id = dcpl_id)
@@ -460,7 +467,7 @@ contains
           maxdims(1) = H5S_UNLIMITED_F
           call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
           call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-          chunkdims(1) = max(1_hsize_t, min(int(local_conn, hsize_t), vdims(1)))
+          chunkdims(1) = max(1_hsize_t, min(int(max_local_conn, hsize_t), vdims(1)))
           call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
           call h5dcreate_f(vtkhdf_grp, "Connectivity", H5T_NATIVE_INTEGER, &
                filespace, dset_id, ierr, dcpl_id = dcpl_id)
@@ -493,7 +500,7 @@ contains
           maxdims(1) = H5S_UNLIMITED_F
           call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
           call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-          chunkdims(1) = max(1_hsize_t, min(int(local_cells + 1, hsize_t), vdims(1)))
+          chunkdims(1) = max(1_hsize_t, min(int(max_local_cells + 1, hsize_t), vdims(1)))
           call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
           call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_NATIVE_INTEGER, &
                filespace, dset_id, ierr, dcpl_id = dcpl_id)
@@ -529,7 +536,7 @@ contains
           maxdims(1) = H5S_UNLIMITED_F
           call h5screate_simple_f(1, vdims(1:1), filespace, ierr, maxdims(1:1))
           call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-          chunkdims(1) = max(1_hsize_t, min(int(local_cells, hsize_t), vdims(1)))
+          chunkdims(1) = max(1_hsize_t, min(int(max_local_cells, hsize_t), vdims(1)))
           call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
           call h5dcreate_f(vtkhdf_grp, "Types", H5T_STD_U8LE, &
                filespace, dset_id, ierr, dcpl_id = dcpl_id)
@@ -950,7 +957,7 @@ contains
                 pd_maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
                 call h5screate_simple_f(2, pd_dims2, filespace, ierr, pd_maxdims2)
                 call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-                chunkdims(1) = max(1_hsize_t, int(local_points, hsize_t))
+                chunkdims(1) = max(1_hsize_t, int(max_local_points, hsize_t))
                 call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
                 call h5dcreate_f(pointdata_grp, trim(field_name), H5T_NEKO_REAL, &
                      filespace, dset_id, ierr, dcpl_id = dcpl_id)
@@ -1038,7 +1045,7 @@ contains
                 pd_maxdims1(1) = H5S_UNLIMITED_F
                 call h5screate_simple_f(1, pd_dims1, filespace, ierr, pd_maxdims1)
                 call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-                chunkdims(1) = max(1_hsize_t, int(local_points, hsize_t))
+                chunkdims(1) = max(1_hsize_t, int(max_local_points, hsize_t))
                 call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
                 call h5dcreate_f(pointdata_grp, trim(field_name), H5T_NEKO_REAL, &
                      filespace, dset_id, ierr, dcpl_id = dcpl_id)
