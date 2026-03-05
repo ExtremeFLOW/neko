@@ -25,8 +25,8 @@ docstrings and all the manually written pages, see `doc/Doxyfile.in`.
   In markdown, this should be respected whenever possible, but exceptions are
   allowed, for example for large tables.
 - In markdown files, section headers should contain a tag so that they can be
-  referenced, for example, `{#user-file}`. AGENTS.md files are exempt from this
-  rule.
+  referenced, for example, `{#user-file}`. AGENTS.md and README.md files are
+  exempt from this rule.
 - Whenever applicable, one should use a relevant link when referencing a section
   or type. For example, "see the [examples](@ref programming-examples) section".
 - The same applies for types, for example `[space_t](#space::space_t)`.
@@ -42,7 +42,7 @@ do the following.
 - Check for grammatical or syntactical mistakes.
 - Check that each new procedure, type, and module has a docstring.
   - For procedures, each dummy argument should be documented with a @param
-    annotation.
+    annotation. The argument called `this` is an exception.
   - For types, the bare minimum is a docstring above the type declaration.
     Ideally, each procedure declaration inside the type should have a docstring
     matching the first sentence of the procedure's docstring at its
