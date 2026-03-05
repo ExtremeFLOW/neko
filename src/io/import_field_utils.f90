@@ -35,7 +35,7 @@
 !! because of multiple import requirements.
 module import_field_utils
   use fld_file_data, only : fld_file_data_t
-  use file, only : file_t
+  use fld_file, only : fld_file_t
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
@@ -99,9 +99,9 @@ contains
     integer :: sample_idx, sample_mesh_idx, i
     character(len=NEKO_FNAME_LEN) :: fname_, mesh_fname_
 
-    logical :: interpolate_
+    logical :: interpolate_, any_input_present
 
-    type(file_t) :: f
+    type(fld_file_t) :: f
     type(fld_file_data_t) :: fld_data
 
     ! ---- Default values
@@ -132,6 +132,13 @@ contains
 
     ! Initialize file object
     call f%init(trim(fname_))
+
+    ! Select which fields to read in the fld file based on inputs
+    f%read_mesh = interpolate_ 
+    f%read_velocity = (present(u) .or. present(v) .or. present(w))
+    f%read_pressure = present(p)
+    f%read_temperature = present(t)
+    f%read_scalars = present(s_target_list)
 
     ! If interpolate, check if we need to read the mesh file
     if (interpolate_) then
@@ -174,8 +181,13 @@ contains
     call f%set_counter(sample_idx)
     call f%read(fld_data)
 
-    ! Store the time stamp if it is required
+    ! Store the time stamp if it is requested
     if (present(time)) time = fld_data%time
+
+    ! Interrupt here if we haven't provided any field as input
+    any_input_present = (present(u) .or. present(v) .or. present(w) &
+            .or. present(p) .or. present(t) .or. present(s_target_list))
+    if (.not. any_input_present) return
 
     !
     ! Copy all vectors to device (GPU) since everything is read on the CPU

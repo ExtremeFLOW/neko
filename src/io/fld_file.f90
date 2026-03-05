@@ -64,8 +64,19 @@ module fld_file
   type, public, extends(generic_file_t) :: fld_file_t
      logical :: dp_precision = .false. !< Precision of output data
      logical :: write_mesh = .false. !< Whether to write the mesh
+     !> Whether to read the mesh.
+     logical :: read_mesh = .true.
+     !> Whether to read the three velocity fields.
+     logical :: read_velocity = .true.
+     !> Whether to read the pressure.
+     logical :: read_pressure = .true.
+     !> Whether to read the temperature field.
+     logical :: read_temperature = .true.
+     !> Whether to read the scalar fields. 
+     logical :: read_scalars = .true.
    contains
      procedure :: read => fld_file_read
+     procedure :: read_metadata => fld_file_read_metadata
      procedure :: write => fld_file_write
      procedure :: set_precision => fld_file_set_precision
      procedure :: get_fld_fname => fld_file_get_fld_fname
@@ -676,7 +687,54 @@ contains
 
   end subroutine fld_file_write_vector_field
 
-  !> Load a field from a NEKTON fld file
+  !> Read only the metadata of an fld file by setting all reading flags
+  !! to false.
+  !! @param this The fld file object
+  !! @param data The data in which to read the fld file data. Currently only
+  !! fld_file_data_t objects are supported.
+  subroutine fld_file_read_metadata(this, data)
+    class(fld_file_t) :: this
+    class(*), target, intent(inout) :: data
+ 
+    logical :: orig_m, orig_v, orig_p, orig_t, orig_s
+
+
+    select type (data)
+    type is (fld_file_data_t)
+
+      ! save current state of the file
+      orig_m = this%read_mesh
+      orig_v = this%read_velocity
+      orig_p = this%read_pressure
+      orig_t = this%read_temperature
+      orig_s = this%read_scalars
+
+      ! temporarily set all reading flags to false
+      this%read_mesh = .false. 
+      this%read_velocity = .false. 
+      this%read_pressure = .false. 
+      this%read_temperature = .false. 
+      this%read_scalars = .false. 
+      call fld_file_read(this, data)
+      
+      ! return to previous state of the file
+      this%read_mesh = orig_m 
+      this%read_velocity = orig_v 
+      this%read_pressure = orig_p 
+      this%read_temperature = orig_t 
+      this%read_scalars = orig_s 
+    
+    class default
+       call neko_error('Currently we only read into fld_file_data_t, &
+       &please use that data structure instead.')
+    end select
+
+  end subroutine fld_file_read_metadata
+  
+  !> Reads an fld file.
+  !! @param this The fld file object
+  !! @param data The data in which to read the fld file data. Currently only
+  !! fld_file_data_t objects are supported.
   subroutine fld_file_read(this, data)
     class(fld_file_t) :: this
     class(*), target, intent(inout) :: data
@@ -685,8 +743,10 @@ contains
     type(MPI_File) :: fh
     type(MPI_Status) :: status
     character(len= 1024) :: fname, base_fname, meta_fname, string, path
-    logical :: meta_file, read_mesh, read_velocity, read_pressure
-    logical :: read_temp
+    logical :: meta_file
+    logical :: mesh_present, velocity_present, pressure_present, &
+            temp_present, scalars_present
+    logical :: read_fields
     character(len=6) :: suffix
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer :: lx, ly, lz, glb_nelv, counter, lxyz
@@ -797,6 +857,14 @@ contains
        else
           this%dp_precision = .false.
        end if
+
+       ! Check if we want to read the fields, otherwise just exit while
+       ! having only read the metadata
+       read_fields = (this%read_mesh .or. this%read_velocity .or. &
+               this%read_pressure .or. this%read_temperature .or. &
+               this%read_scalars)
+       if (.not. read_fields) return 
+
        if (this%dp_precision) then
           allocate(tmp_dp(data%gdim*n))
        else
@@ -805,32 +873,37 @@ contains
 
 
        i = 1
-       read_mesh = .false.
-       read_velocity = .false.
-       read_pressure = .false.
-       read_temp = .false.
+       mesh_present = .false.
+       velocity_present = .false.
+       pressure_present = .false.
+       temp_present = .false.
+
        if (rdcode(i) .eq. 'X') then
-          read_mesh = .true.
-          call data%x%init(n)
-          call data%y%init(n)
-          call data%z%init(n)
+          mesh_present = .true.
+          if (this%read_mesh) then
+             call data%x%init(n)
+             call data%y%init(n)
+             call data%z%init(n)
+          end if
           i = i + 1
        end if
        if (rdcode(i) .eq. 'U') then
-          read_velocity = .true.
-          call data%u%init(n)
-          call data%v%init(n)
-          call data%w%init(n)
+          velocity_present = .true.
+          if (this%read_velocity) then
+             call data%u%init(n)
+             call data%v%init(n)
+             call data%w%init(n)
+          end if
           i = i + 1
        end if
        if (rdcode(i) .eq. 'P') then
-          read_pressure = .true.
-          call data%p%init(n)
+          pressure_present = .true.
+          if (this%read_pressure) call data%p%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'T') then
-          read_temp = .true.
-          call data%t%init(n)
+          temp_present = .true.
+          if (this%read_temperature) call data%t%init(n)
           i = i + 1
        end if
        n_scalars = 0
@@ -842,26 +915,28 @@ contains
           read(rdcode(i),*) j
           n_scalars = n_scalars+j
           i = i + 1
-          if (allocated(data%s)) then
-             if (data%n_scalars .ne. n_scalars) then
-                do j = 1, data%n_scalars
-                   call data%s(j)%free()
-                end do
-                deallocate(data%s)
+          if (this%read_scalars) then
+             if (allocated(data%s)) then
+                if (data%n_scalars .ne. n_scalars) then
+                   do j = 1, data%n_scalars
+                      call data%s(j)%free()
+                   end do
+                   deallocate(data%s)
+                   data%n_scalars = n_scalars
+                   allocate(data%s(n_scalars))
+                   do j = 1, data%n_scalars
+                      call data%s(j)%init(n)
+                   end do
+                end if
+             else
                 data%n_scalars = n_scalars
-                allocate(data%s(n_scalars))
+                allocate(data%s(data%n_scalars))
                 do j = 1, data%n_scalars
                    call data%s(j)%init(n)
                 end do
              end if
-          else
-             data%n_scalars = n_scalars
-             allocate(data%s(data%n_scalars))
-             do j = 1, data%n_scalars
-                call data%s(j)%init(n)
-             end do
+             i = i + 1
           end if
-          i = i + 1
        end if
 
        mpi_offset = 132 * MPI_CHARACTER_SIZE
@@ -892,57 +967,69 @@ contains
        mpi_offset = mpi_offset + &
             int(data%glb_nelv, i8) * int(MPI_INTEGER_SIZE, i8)
 
-       if (read_mesh) then
+       if (mesh_present) then
           byte_offset = mpi_offset + int(data%offset_el, i8) * &
                (int(data%gdim*lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
-          call fld_file_read_vector_field(this, fh, byte_offset, &
-               data%x, data%y, data%z, data)
+          
+          if(this%read_mesh) call fld_file_read_vector_field(this, fh, &
+                  byte_offset, data%x, data%y, data%z, data)
+
           mpi_offset = mpi_offset + int(data%glb_nelv, i8) * &
                (int(data%gdim *lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
        end if
 
-       if (read_velocity) then
+       if (velocity_present) then
           byte_offset = mpi_offset + int(data%offset_el, i8) * &
                (int(data%gdim*lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
-          call fld_file_read_vector_field(this, fh, byte_offset, &
-               data%u, data%v, data%w, data)
+          
+          if (this%read_velocity) call fld_file_read_vector_field(this, fh, &
+                  byte_offset, data%u, data%v, data%w, data)
+
           mpi_offset = mpi_offset + int(data%glb_nelv, i8) * &
                (int(data%gdim *lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
        end if
 
-       if (read_pressure) then
+       if (pressure_present) then
           byte_offset = mpi_offset + int(data%offset_el, i8) * &
                (int(lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
-          call fld_file_read_field(this, fh, byte_offset, data%p, data)
+          
+          if (this%read_pressure) call fld_file_read_field(this, fh, &
+                  byte_offset, data%p, data)
+
           mpi_offset = mpi_offset + int(data%glb_nelv, i8) * &
                (int(lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
        end if
 
-       if (read_temp) then
+       if (temp_present) then
           byte_offset = mpi_offset + int(data%offset_el, i8) * &
                (int(lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
-          call fld_file_read_field(this, fh, byte_offset, data%t, data)
+          
+          if (this%read_temperature) call fld_file_read_field(this, fh, &
+                  byte_offset, data%t, data)
+          
           mpi_offset = mpi_offset + int(data%glb_nelv, i8) * &
                (int(lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
        end if
 
-       do i = 1, n_scalars
-          byte_offset = mpi_offset + int(data%offset_el, i8) * &
-               (int(lxyz, i8) * &
-               int(FLD_DATA_SIZE, i8))
-          call fld_file_read_field(this, fh, byte_offset, data%s(i), data)
-          mpi_offset = mpi_offset + int(data%glb_nelv, i8) * &
-               (int(lxyz, i8) * &
-               int(FLD_DATA_SIZE, i8))
-       end do
+       if (this%read_scalars) then
+          do i = 1, n_scalars
+             byte_offset = mpi_offset + int(data%offset_el, i8) * &
+                  (int(lxyz, i8) * &
+                  int(FLD_DATA_SIZE, i8))
+             call fld_file_read_field(this, fh, byte_offset, data%s(i), data)
+             mpi_offset = mpi_offset + int(data%glb_nelv, i8) * &
+                  (int(lxyz, i8) * &
+                  int(FLD_DATA_SIZE, i8))
+          end do
+       end if
 
        call this%increment_counter()
 
