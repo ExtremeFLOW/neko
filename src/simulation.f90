@@ -32,9 +32,10 @@
 !
 !> Simulation driver
 module simulation
-  use mpi_f08, only: MPI_Wtime
+  use mpi_f08, only : MPI_Wtime
   use case, only : case_t
   use checkpoint, only : chkp_t
+  use import_field_utils, only : import_fields
   use num_types, only : rp, dp
   use time_scheme_controller, only : time_scheme_controller_t
   use file, only : file_t
@@ -48,6 +49,10 @@ module simulation
   use time_step_controller, only : time_step_controller_t
   implicit none
   private
+
+  interface simulation_pseudo_restart
+     module procedure case_pseudo_restart_from_parameters
+  end interface simulation_pseudo_restart
 
   interface simulation_restart
      module procedure case_restart_from_parameters, &
@@ -66,6 +71,15 @@ contains
     character(len=LOG_SIZE) :: log_buf
     logical :: found
     character(len=:), allocatable :: restart_file
+
+    logical :: pseudo_restart
+
+    ! "pseudo-restart" the case if needed, from an fld file
+    call json_get_or_default('case.fluid.initial_condition.set_time', &
+         pseudo_restart, .false.)
+    if (pseudo_restart) then
+       call simulation_pseudo_restart(C)
+    end if
 
     ! Restart the case if needed
     call C%params%get('case.restart_file', restart_file, found)
@@ -229,6 +243,27 @@ contains
     time%t = time%t + time%dt
 
   end subroutine simulation_settime
+
+  !> Pseudo-restart a case, in other words set the state of the simulation
+  !! to the time stamp of an fld file.
+  subroutine case_pseudo_restart_from_parameters(C)
+    type(case_t), intent(inout) :: C
+    character(len=:), allocatable :: restart_file
+
+    call json_get(C%params, 'case.fluid.initial_condition.file_name', &
+         restart_file)
+
+    ! Load the time stamp in the fld file into the current time
+    ! we don't need to change any dtlags since it is not a real restart
+    call import_fields(trim(restart_file), time=C%time%t)
+
+    ! Restart the output controller
+    call C%output_controller%set_counter(C%time)
+
+    ! Restart the simulation components
+    call neko_simcomps%restart(C%time)
+
+  end subroutine case_pseudo_restart_from_parameters
 
   !> Restart a case @a C from a given checkpoint
   subroutine case_restart_from_parameters(C)

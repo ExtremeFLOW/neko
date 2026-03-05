@@ -88,7 +88,8 @@ contains
     character(len=:), allocatable :: read_str
     character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
     logical :: interpolate
-
+    real(kind=rp) :: new_time
+    logical :: set_time
 
     !
     ! Uniform (Uinf, Vinf, Winf)
@@ -134,8 +135,14 @@ contains
        call json_get_or_default(params, 'mesh_file_name', read_str, "none")
        mesh_fname = trim(read_str)
 
-       call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, mesh_fname)
-
+       call json_get_or_default(params, 'set_time', set_time, .false.)
+       if (set_time) then
+          call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, &
+               mesh_fname, new_time)
+       else
+          call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, &
+               mesh_fname)
+       end if
     else
        call neko_error('Invalid initial condition')
     end if
@@ -410,7 +417,7 @@ contains
   !! @param sample_mesh_idx If interpolation is enabled, index of the field
   !! file where the mesh coordinates are located.
   subroutine set_flow_ic_fld(u, v, w, p, file_name, &
-       interpolate, tolerance, mesh_file_name)
+       interpolate, tolerance, mesh_file_name, new_time)
     type(field_t), target, intent(inout) :: u
     type(field_t), target, intent(inout) :: v
     type(field_t), target, intent(inout) :: w
@@ -419,7 +426,9 @@ contains
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    real(kind=rp), intent(inout), optional :: new_time
 
+    character(len=LOG_SIZE) :: log_buf
     type(field_t), pointer :: us, vs, ws, ps
 
     us => u
@@ -429,7 +438,12 @@ contains
 
     call import_fields(file_name, mesh_file_name, &
          u = us, v = vs, w = ws, p = ps, &
-         interpolate = interpolate, tolerance = tolerance)
+         interpolate = interpolate, tolerance = tolerance, time = new_time)
+
+    if (present(new_time)) then
+       write (log_buf, *) "Setting time to", new_time
+       call neko_log%message(log_buf)
+    end if
 
     nullify(us, vs, ws, ps)
 
