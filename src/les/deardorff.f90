@@ -116,6 +116,11 @@ contains
     end if
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
+    if (if_ext) then
+       call neko_error("Extrapolation is not implemented for the " // &
+            "Deardorff model.")
+    end if
+
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : deardorff'
     call neko_log%message(log_buf)
@@ -221,24 +226,6 @@ contains
     integer, intent(in) :: tstep
 
     type(field_t), pointer :: u, v, w, u_e, v_e, w_e
-
-    if (this%if_ext .eqv. .true.) then
-       ! Extrapolate the velocity fields
-       associate(ulag => this%ulag, vlag => this%vlag, &
-            wlag => this%wlag, ext_bdf => this%ext_bdf)
-
-         u => neko_registry%get_field_by_name("u")
-         v => neko_registry%get_field_by_name("v")
-         w => neko_registry%get_field_by_name("w")
-         u_e => neko_registry%get_field_by_name("u_e")
-         v_e => neko_registry%get_field_by_name("v_e")
-         w_e => neko_registry%get_field_by_name("w_e")
-
-         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
-
-       end associate
-    end if
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
