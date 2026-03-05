@@ -18,6 +18,7 @@ test-suite.log
 !mesh/mesh_test
 !point_interpolation/point_interpolation_test
 !vector/vector_test
+!vtkhdf/vtkhdf_test
 
 # Processed files
 */*.inc
@@ -63,3 +64,5 @@ time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 json_utils/json_utils_test
 point_interpolation/point_interpolation_suite
+vtkhdf/test_write.vtkhdf
+vtkhdf/test_write_time.vtkhdf
