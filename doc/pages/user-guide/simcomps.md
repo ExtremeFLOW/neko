@@ -383,7 +383,7 @@ keywords:
   - `wale`: The WALE model. Configured by the following additional keyword:
     - `c_w`: The WALE constant, defaults to 0.55.
   - `deardorff`: The Deardorff model dedicated for atmospheric boundary-layer
-    applications. Please find the usage in examples/shear_convection_ABL.
+    applications. Please find the usage in `examples/shear_convection_ABL`.
     Configured by the following additional keyword:
     - `c_k`: The model constant, defaults to 0.1.
     - `T0`: The reference temperature.
