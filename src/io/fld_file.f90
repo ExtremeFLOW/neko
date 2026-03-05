@@ -762,7 +762,7 @@ contains
 
     allocate(idx(nelv))
     do i = 1, nelv
-       idx(i) = i ! temporary for now
+       idx(i) = offset_el + i
     end do
     n = nelv*lxyz
 
