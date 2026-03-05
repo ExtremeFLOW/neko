@@ -229,12 +229,12 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call deardorff_compute_device(this%if_ext, t, tstep, this%coef, &
+       call deardorff_compute_device(t, tstep, this%coef, &
             this%temperature_field_name, this%TKE_field_name, &
             this%nut, this%temperature_alphat, this%TKE_alphat, &
             this%TKE_source, this%delta, this%c_k, this%T0, this%g)
     else
-       call deardorff_compute_cpu(this%if_ext, t, tstep, this%coef, &
+       call deardorff_compute_cpu(t, tstep, this%coef, &
             this%temperature_field_name, this%TKE_field_name, &
             this%nut, this%temperature_alphat, this%TKE_alphat, &
             this%TKE_source, this%delta, this%c_k, this%T0, this%g)
