@@ -94,7 +94,30 @@ module device_deardorff_nut
 
 contains
 
-  !> Compute the eddy viscosity field for the Sigma model indevice
+  !> Compute Deardorff SGS quantities on the device backend.
+  !! @param TKE_d Device pointer to the TKE field.
+  !! @param dTdx_d Device pointer to the x-gradient of temperature.
+  !! @param dTdy_d Device pointer to the y-gradient of temperature.
+  !! @param dTdz_d Device pointer to the z-gradient of temperature.
+  !! @param a11_d Device pointer to velocity gradient component a11.
+  !! @param a12_d Device pointer to velocity gradient component a12.
+  !! @param a13_d Device pointer to velocity gradient component a13.
+  !! @param a21_d Device pointer to velocity gradient component a21.
+  !! @param a22_d Device pointer to velocity gradient component a22.
+  !! @param a23_d Device pointer to velocity gradient component a23.
+  !! @param a31_d Device pointer to velocity gradient component a31.
+  !! @param a32_d Device pointer to velocity gradient component a32.
+  !! @param a33_d Device pointer to velocity gradient component a33.
+  !! @param delta_d Device pointer to LES filter width field.
+  !! @param nut_d Device pointer to eddy viscosity output field.
+  !! @param temperature_alphat Device pointer to temperature eddy diffusivity.
+  !! @param TKE_alphat Device pointer to TKE eddy diffusivity.
+  !! @param TKE_source Device pointer to TKE source output field.
+  !! @param c_k Deardorff model constant.
+  !! @param T0 Reference temperature.
+  !! @param g Gravity vector.
+  !! @param eps Lower bound used to clip TKE.
+  !! @param n Number of degrees of freedom.
   subroutine device_deardorff_nut_compute(TKE_d, &
        dTdx_d, dTdy_d, dTdz_d, a11_d, a12_d, a13_d, &
        a21_d, a22_d, a23_d, &
