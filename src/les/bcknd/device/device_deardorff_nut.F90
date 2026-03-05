@@ -30,6 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Device kernel wrapper for computing Deardorff SGS quantities.
+
 module device_deardorff_nut
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
   use num_types, only: rp, c_rp
