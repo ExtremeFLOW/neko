@@ -507,7 +507,7 @@ contains
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
     chunkdims(1) = max(1_hsize_t, min(int(max_local_points, hsize_t), vdims(2)))
     call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
-    call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_REAL, &
+    call h5dcreate_f(vtkhdf_grp, "Points", H5T_NATIVE_DOUBLE, &
          filespace, dset_id, ierr, dcpl_id = dcpl_id)
     call h5sclose_f(filespace, ierr)
     call h5dget_space_f(dset_id, filespace, ierr)
@@ -516,7 +516,7 @@ contains
     call h5screate_simple_f(2, dcount2, memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset2, dcount2, ierr)
-    call h5dwrite_f(dset_id, H5T_NEKO_REAL, coords, dcount2, ierr, &
+    call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, coords, dcount2, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
     call h5sclose_f(memspace, ierr)
     call h5dclose_f(dset_id, ierr)
