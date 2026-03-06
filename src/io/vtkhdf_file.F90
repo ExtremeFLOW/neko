@@ -78,23 +78,19 @@ contains
     type(field_ptr_t), allocatable :: fp(:)
     logical, allocatable :: field_written(:)
     integer :: ierr, info, i, n_fields
-    integer(hid_t) :: plist_id, plist_indep, plist_coll, file_id, attr_id, vtkhdf_grp
+    integer(hid_t) :: plist_id, plist_coll, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, memspace
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(2) :: vdims
     integer :: lx, ly, lz
     integer :: num_partitions
     integer :: local_points, local_cells, local_conn
-    integer :: total_points, total_cells, total_conn, total_offsets
-    integer :: point_offset, cell_offset, conn_offset, offsets_offset
-    integer :: max_local_points, max_local_cells, max_local_conn
+    integer :: total_points, total_cells, total_conn
+    integer :: point_offset
+    integer :: max_local_points
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16), dimension(1) :: type_str
-
-    integer :: npts_per_cell, nodes_per_cell, subcells_per_el
-    integer :: N_Steps
-
     integer(hsize_t) :: pointdata_time_offset
     logical :: link_exists, file_exists
 
@@ -154,10 +150,6 @@ contains
     call h5pcreate_f(H5P_DATASET_XFER_F, plist_coll, ierr)
     call h5pset_dxpl_mpio_f(plist_coll, H5FD_MPIO_COLLECTIVE_F, ierr)
 
-    ! Create independent transfer property list for global metadata
-    call h5pcreate_f(H5P_DATASET_XFER_F, plist_indep, ierr)
-    call h5pset_dxpl_mpio_f(plist_indep, H5FD_MPIO_INDEPENDENT_F, ierr)
-
     ! Create/open VTKHDF root group with vtkhdf_version and type attributes
     call h5lexists_f(file_id, "VTKHDF", link_exists, ierr)
     if (link_exists) then
@@ -196,9 +188,6 @@ contains
     ! Write mesh information if present
     if (associated(msh)) then
        call MPI_Comm_size(NEKO_COMM, num_partitions, ierr)
-       local_cells = msh%nelv
-       local_points = msh%mpts
-       local_conn = msh%npts * msh%nelv
 
        if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
           call neko_error('VTKHDF linear output requires lx, ly >= 2')
@@ -207,18 +196,14 @@ contains
           call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
        end if
 
-       npts_per_cell = lx * ly * lz
+       local_points = msh%nelv * lx * ly * lz
        if (msh%gdim .eq. 3) then
-          nodes_per_cell = 8
-          subcells_per_el = (lx - 1) * (ly - 1) * (lz - 1)
+          local_cells = msh%nelv * (lx - 1) * (ly - 1) * (lz - 1)
+          local_conn = local_cells * 8
        else
-          nodes_per_cell = 4
-          subcells_per_el = (lx - 1) * (ly - 1)
+          local_cells = msh%nelv * (lx - 1) * (ly - 1)
+          local_conn = local_cells * 4
        end if
-
-       local_points = msh%nelv * npts_per_cell
-       local_cells = msh%nelv * subcells_per_el
-       local_conn = local_cells * nodes_per_cell
 
        allocate(part_points(num_partitions))
        allocate(part_cells(num_partitions))
@@ -231,35 +216,18 @@ contains
        total_points = sum(part_points)
        total_cells = sum(part_cells)
        total_conn = sum(part_conns)
-       total_offsets = total_cells + num_partitions
 
-       ! Compute max local values for consistent HDF5 chunk dimensions.
-       ! h5dcreate_f is collective and requires identical parameters on all ranks.
        max_local_points = maxval(part_points)
-       max_local_cells = maxval(part_cells)
-       max_local_conn = maxval(part_conns)
 
-       point_offset = 0
-       cell_offset = 0
-       conn_offset = 0
-       offsets_offset = 0
-       do i = 1, num_partitions
-          if (i >= pe_rank + 1) exit
-          point_offset = point_offset + part_points(i)
-          cell_offset = cell_offset + part_cells(i)
-          conn_offset = conn_offset + part_conns(i)
-          offsets_offset = offsets_offset + part_cells(i) + 1
-       end do
+       point_offset = sum(part_points(1:pe_rank))
 
        ! For static mesh, only write geometry on the first call
        call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
        if (this%amr_enabled .or. .not. link_exists) then
           call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
                H5T_NEKO_REAL, num_partitions, &
-               local_points, local_cells, local_conn, &
-               total_points, total_cells, total_conn, total_offsets, &
-               point_offset, cell_offset, conn_offset, offsets_offset, &
-               max_local_points, max_local_cells, max_local_conn)
+               local_points, total_points, total_cells, total_conn, &
+               point_offset, max_local_points, part_cells, part_conns)
        end if ! write mesh conditional
        deallocate(part_points, part_cells, part_conns)
     end if
@@ -270,20 +238,19 @@ contains
        call vtkhdf_write_steps(vtkhdf_grp, plist_coll, H5T_NEKO_REAL, t, &
             this%amr_enabled, num_partitions, &
             total_points, total_cells, total_conn, &
-            N_Steps, pointdata_time_offset)
+            pointdata_time_offset)
     end if
 
     ! Write field data in PointData group
     if (associated(msh) .and. n_fields > 0) then
        call vtkhdf_write_pointdata(vtkhdf_grp, plist_coll, H5T_NEKO_REAL, &
-            fp, field_written, n_fields, msh%nelv, &
+            fp, field_written, msh%nelv, &
             local_points, point_offset, max_local_points, total_points, &
-            pointdata_time_offset, npts_per_cell, lx, ly, lz, present(t))
+            pointdata_time_offset, lx, ly, lz, present(t))
     end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
     call h5pclose_f(plist_coll, ierr)
-    call h5pclose_f(plist_indep, ierr)
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
     call h5close_f(ierr)
@@ -372,31 +339,28 @@ contains
   !! @param total_points Global total number of points
   !! @param total_cells Global total number of sub-cells
   !! @param total_conn Global total connectivity size
-  !! @param total_offsets Global total offsets size
   !! @param point_offset This rank's offset into the Points dataset
-  !! @param cell_offset This rank's offset into the Types dataset
-  !! @param conn_offset This rank's offset into the Connectivity dataset
-  !! @param offsets_offset This rank's offset into the Offsets dataset
   !! @param max_local_points Maximum local_points across all ranks
-  !! @param max_local_cells Maximum local_cells across all ranks
-  !! @param max_local_conn Maximum local_conn across all ranks
+  !! @param part_cells Per-partition cell counts from MPI_Allgather
+  !! @param part_conns Per-partition connectivity sizes from MPI_Allgather
   subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
        H5T_NEKO_REAL, num_partitions, &
-       local_points, local_cells, local_conn, &
-       total_points, total_cells, total_conn, total_offsets, &
-       point_offset, cell_offset, conn_offset, offsets_offset, &
-       max_local_points, max_local_cells, max_local_conn)
+       local_points, total_points, total_cells, total_conn, &
+       point_offset, max_local_points, part_cells, part_conns)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
     integer(hid_t), intent(in) :: vtkhdf_grp, plist_coll, H5T_NEKO_REAL
     integer, intent(in) :: num_partitions
-    integer, intent(in) :: local_points, local_cells, local_conn
-    integer, intent(in) :: total_points, total_cells, total_conn, total_offsets
-    integer, intent(in) :: point_offset, cell_offset, conn_offset, offsets_offset
-    integer, intent(in) :: max_local_points, max_local_cells, max_local_conn
+    integer, intent(in) :: local_points
+    integer, intent(in) :: total_points, total_cells, total_conn
+    integer, intent(in) :: point_offset, max_local_points
+    integer, intent(in) :: part_cells(:), part_conns(:)
 
     integer :: ierr, i, ii, jj, kk, local_idx
     integer :: lx, ly, lz, npts_per_cell, nodes_per_cell
+    integer :: local_cells, local_conn
+    integer :: total_offsets, cell_offset, conn_offset, offsets_offset
+    integer :: max_local_cells, max_local_conn
     integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
     integer(hsize_t), dimension(1) :: dcount, doffset_1d, chunkdims
     integer(hsize_t), dimension(2) :: vdims, maxdims, dcount2, doffset2
@@ -415,6 +379,15 @@ contains
     else
        nodes_per_cell = 4
     end if
+
+    local_cells = part_cells(pe_rank + 1)
+    local_conn = part_conns(pe_rank + 1)
+    cell_offset = sum(part_cells(1:pe_rank))
+    conn_offset = sum(part_conns(1:pe_rank))
+    offsets_offset = cell_offset + pe_rank
+    max_local_cells = maxval(part_cells)
+    max_local_conn = maxval(part_conns)
+    total_offsets = total_cells + num_partitions
 
     ! --- NumberOfPoints dataset (per-partition) ---
     call h5lexists_f(vtkhdf_grp, "NumberOfPoints", link_exists, ierr)
@@ -646,21 +619,19 @@ contains
   !! @param total_points Global total number of points
   !! @param total_cells Global total number of sub-cells
   !! @param total_conn Global total connectivity size
-  !! @param N_Steps Output: total number of time steps after this write
   !! @param pointdata_time_offset Output: offset for PointData at this timestep
   subroutine vtkhdf_write_steps(vtkhdf_grp, plist_coll, H5T_NEKO_REAL, t, &
        amr_enabled, num_partitions, &
        total_points, total_cells, total_conn, &
-       N_Steps, pointdata_time_offset)
+       pointdata_time_offset)
     integer(hid_t), intent(in) :: vtkhdf_grp, plist_coll, H5T_NEKO_REAL
     real(kind=rp), intent(in) :: t
     logical, intent(in) :: amr_enabled
     integer, intent(in) :: num_partitions
     integer, intent(in) :: total_points, total_cells, total_conn
-    integer, intent(out) :: N_Steps
     integer(hsize_t), intent(out) :: pointdata_time_offset
 
-    integer :: ierr
+    integer :: ierr, N_Steps
     integer(hid_t) :: grp_id, dset_id, dcpl_id, filespace, memspace, attr_id
     integer(hsize_t), dimension(1) :: step_dims, step_maxdims
     integer(hsize_t), dimension(1) :: step_count, step_offset, chunkdims, ddim
@@ -837,26 +808,26 @@ contains
   !! @param max_local_points Maximum local points across all ranks
   !! @param total_points Total points across all ranks
   !! @param pointdata_time_offset Temporal offset for PointData datasets
-  !! @param npts_per_cell Points per cell (lx*ly*lz)
   !! @param lx Polynomial order in x
   !! @param ly Polynomial order in y
   !! @param lz Polynomial order in z
   !! @param has_time Whether temporal data (Steps) are being written
   subroutine vtkhdf_write_pointdata(vtkhdf_grp, plist_coll, H5T_NEKO_REAL, &
-       fp, field_written, n_fields, nelv, &
+       fp, field_written, nelv, &
        local_points, point_offset, max_local_points, total_points, &
-       pointdata_time_offset, npts_per_cell, lx, ly, lz, has_time)
+       pointdata_time_offset, lx, ly, lz, has_time)
     integer(hid_t), intent(in) :: vtkhdf_grp, plist_coll, H5T_NEKO_REAL
     type(field_ptr_t), intent(in) :: fp(:)
     logical, intent(inout) :: field_written(:)
-    integer, intent(in) :: n_fields, nelv
+    integer, intent(in) :: nelv
     integer, intent(in) :: local_points, point_offset
     integer, intent(in) :: max_local_points, total_points
     integer(hsize_t), intent(in) :: pointdata_time_offset
-    integer, intent(in) :: npts_per_cell, lx, ly, lz
+    integer, intent(in) :: lx, ly, lz
     logical, intent(in) :: has_time
 
     integer :: ierr, i, j, ie, ii, jj, kk, local_idx
+    integer :: n_fields, npts_per_cell
     integer(hid_t) :: pointdata_grp, pointdata_offsets_grp, grp_id
     integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
     integer(hsize_t), dimension(1) :: dcount, doffset, chunkdims
@@ -867,6 +838,9 @@ contains
     real(kind=rp), allocatable :: point_data(:,:)
     character(len=128) :: field_name
     logical :: link_exists, is_vector
+
+    n_fields = size(fp)
+    npts_per_cell = lx * ly * lz
 
     ! Create or open PointData group
     call h5lexists_f(vtkhdf_grp, "PointData", link_exists, ierr)
@@ -938,7 +912,6 @@ contains
        if (is_vector) then
           ! Assemble 3-component vector from u, v, w fields
           allocate(point_data(3, local_points))
-          local_idx = 0
           do ie = 1, nelv
              local_idx = (ie - 1) * npts_per_cell
              do kk = 1, lz
