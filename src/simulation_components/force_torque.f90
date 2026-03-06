@@ -100,7 +100,7 @@ module force_torque
      type(pivot_state_t), pointer :: pivot_link => null()
      logical :: moving_center = .false.
      logical :: update_normals = .false.
-     character(len=32) :: linked_body_name = ''
+     character(len=64) :: linked_body_name = 'NOT_LINKED'
      ! Stores the Time=0 offset from the initial pivot
      real(kind=rp) :: local_offset(3) = 0.0_rp 
      ! Current Pivot Position
