@@ -438,13 +438,15 @@ contains
 
     ! --- NumberOfConnectivityIds dataset (per-partition) ---
     call h5lexists_f(vtkhdf_grp, "NumberOfConnectivityIds", link_exists, ierr)
-    if (link_exists) call h5ldelete_f(vtkhdf_grp, "NumberOfConnectivityIds", ierr)
+    if (link_exists) then
+       call h5ldelete_f(vtkhdf_grp, "NumberOfConnectivityIds", ierr)
+    end if
 
     call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
     call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-    call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", H5T_NATIVE_INTEGER, &
-         filespace, dset_id, ierr, dcpl_id = dcpl_id)
+    call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", &
+         H5T_NATIVE_INTEGER, filespace, dset_id, ierr, dcpl_id = dcpl_id)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset_1d, dcount, ierr)
     call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
@@ -516,8 +518,9 @@ contains
     call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset_1d, dcount, ierr)
-    call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), ierr, &
-         file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+    call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), &
+         ierr, file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
     call h5sclose_f(memspace, ierr)
     call h5dclose_f(dset_id, ierr)
     call h5pclose_f(dcpl_id, ierr)
@@ -535,7 +538,8 @@ contains
 
     vdims(1) = int(total_offsets, hsize_t)
     maxdims(1) = H5S_UNLIMITED_F
-    chunkdims(1) = max(1_hsize_t, min(int(max_local_cells + 1, hsize_t), vdims(1)))
+    chunkdims(1) = max(1_hsize_t, min(int(max_local_cells + 1, hsize_t), &
+         vdims(1)))
     dcount(1) = int(local_cells + 1, hsize_t)
     doffset_1d(1) = int(offsets_offset, hsize_t)
 
@@ -1013,8 +1017,6 @@ contains
     call neko_error('VTKHDF file reading is not yet implemented')
 
   end subroutine vtkhdf_file_read
-
-
 
   !> Determine hdf5 real type corresponding to NEKO_REAL
   !! @note This must be called after h5open_f, otherwise
