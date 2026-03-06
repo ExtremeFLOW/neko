@@ -13,12 +13,14 @@ module vtkhdf_parallel
   use dofmap, only : dofmap_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
+#ifdef HAVE_HDF5
   use hdf5, only : h5open_f, h5close_f, h5fopen_f, h5fclose_f, &
        h5gopen_f, h5gclose_f, h5aopen_f, h5aclose_f, h5aread_f, &
        h5dopen_f, h5dclose_f, h5dget_space_f, h5dread_f, &
        h5sget_simple_extent_dims_f, h5sget_simple_extent_ndims_f, &
        h5sclose_f, h5lexists_f, &
        hid_t, hsize_t, H5F_ACC_RDONLY_F, H5T_NATIVE_INTEGER, H5T_NATIVE_DOUBLE
+#endif
   implicit none
 
   @TestCase
@@ -99,7 +101,7 @@ contains
 
   end subroutine test_vtkhdf_gen_msh
 
-! #ifdef HAVE_HDF5
+#ifdef HAVE_HDF5
 
   @test(npes=[2])
   subroutine test_vtkhdf_init(this)
@@ -757,22 +759,22 @@ contains
   end subroutine test_vtkhdf_write_time
 
 
-! #else
-!   subroutine test_vtkhdf_init(this)
-!     class(test_vtkhdf), intent(inout) :: this
-!  message = "HDF5 support is not available, skipping test"
-  !     @assertTrue(.true., message = message)
-!   end subroutine test_vtkhdf_init
-!   subroutine test_vtkhdf_write(this)
-!     class (test_vtkhdf), intent(inout) :: this
-!  message = "HDF5 support is not available, skipping test"
-  !     @assertTrue(.true., message = message)
-!   end subroutine test_vtkhdf_write
-!   subroutine test_vtkhdf_write_time(this)
-!     class (test_vtkhdf), intent(inout) :: this
-!  message = "HDF5 support is not available, skipping test"
-  !     @assertTrue(.true., message = message)
-!   end subroutine test_vtkhdf_write_time
-! #endif
+#else
+  subroutine test_vtkhdf_init(this)
+    class(test_vtkhdf), intent(inout) :: this
+    message = "HDF5 support is not available, skipping test"
+    @assertTrue(.true., message = message)
+  end subroutine test_vtkhdf_init
+  subroutine test_vtkhdf_write(this)
+    class (test_vtkhdf), intent(inout) :: this
+    message = "HDF5 support is not available, skipping test"
+    @assertTrue(.true., message = message)
+  end subroutine test_vtkhdf_write
+  subroutine test_vtkhdf_write_time(this)
+    class (test_vtkhdf), intent(inout) :: this
+    message = "HDF5 support is not available, skipping test"
+    @assertTrue(.true., message = message)
+  end subroutine test_vtkhdf_write_time
+#endif
 
 end module vtkhdf_parallel
