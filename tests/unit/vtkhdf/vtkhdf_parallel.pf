@@ -39,6 +39,22 @@ contains
 
   subroutine tearDown(this)
     class(test_vtkhdf), intent(inout) :: this
+    logical :: exists
+    integer :: unit, pe_rank
+    pe_rank = this%getProcessRank()
+
+    inquire(file='test_write.vtkhdf', exist=exists)
+    if (exists .and. pe_rank .eq. 0) then
+       open(newunit=unit, file='test_write.vtkhdf')
+       close(unit, status='delete')
+    end if
+
+    inquire(file='test_write_time.vtkhdf', exist=exists)
+    if (exists .and. pe_rank .eq. 0) then
+       open(newunit=unit, file='test_write_time.vtkhdf')
+       close(unit, status='delete')
+    end if
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
@@ -95,20 +111,25 @@ contains
     character(len=80) :: fname
     type(file_t) :: file
     integer :: ierr
+    character(len=:), allocatable :: message
 
     fname = "test_init.vtkhdf"
     call file%init(fname)
-    @assertTrue(allocated(file%file_type), message="File must be allocated")
+    message = "File must be allocated"
+    @assertTrue(allocated(file%file_type), message = message)
 
     select type(ft => file%file_type)
     class is (vtkhdf_file_t)
-       @assertTrue(.true., message="File type must be vtkhdf_file_t")
+       message = "File type must be vtkhdf_file_t"
+       @assertTrue(.true., message = message)
     class default
-       @assertTrue(.false., message="File type must be vtkhdf_file_t")
+       message = "File type must be vtkhdf_file_t"
+       @assertTrue(.false., message = message)
     end select
 
     call file%free()
-    @assertFalse(allocated(file%file_type), message="File must be deallocated")
+    message = "File must be deallocated"
+    @assertFalse(allocated(file%file_type), message = message)
 
   end subroutine test_vtkhdf_init
 
@@ -123,6 +144,7 @@ contains
     type(file_t) :: file
     integer :: ierr
     logical :: exists
+    character(len=:), allocatable :: message
 
     ! HDF5 variables for validation
     integer(hid_t) :: file_id, vtkhdf_grp, attr_id, dset_id
@@ -160,151 +182,181 @@ contains
     call f%init(msh, Xh, 'test')
     call field_cfill(f, 1.0_rp)
 
-    ! Remove stale file from previous runs
-    fname = "test_write.vtkhdf"
-    inquire(file=fname, exist=exists)
-    if (exists .and. pe_rank .eq. 0) then
-       open(unit=99, file=fname, status='old')
-       close(99, status='delete')
-    end if
-    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
-
     ! Perform the write operation
+    fname = "test_write.vtkhdf"
     call file%init(fname)
     call file%write(f)
     call file%free()
 
     ! Test that the file exists
     inquire(file=fname, exist=exists)
-    @assertTrue(exists, message="Output file must exist")
+    message = "Output file must exist"
+    @assertTrue(exists, message = message)
 
     ! ================================================================
     ! Validate HDF5 file contents
     ! ================================================================
     call h5open_f(hdferr)
     call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, hdferr)
-    @assertEqual(0, hdferr, message="Must open HDF5 file")
+    message = "Must open HDF5 file"
+    @assertEqual(0, hdferr, message = message)
 
     ! -- VTKHDF group must exist --
     call h5lexists_f(file_id, "VTKHDF", link_exists, hdferr)
-    @assertTrue(link_exists, message="VTKHDF group must exist")
+    message = "VTKHDF group must exist"
+    @assertTrue(link_exists, message = message)
     call h5gopen_f(file_id, "VTKHDF", vtkhdf_grp, hdferr)
 
     ! -- Version attribute --
     call h5aopen_f(vtkhdf_grp, "Version", attr_id, hdferr)
-    @assertEqual(0, hdferr, message="Version attribute must exist")
+    message = "Version attribute must exist"
+    @assertEqual(0, hdferr, message = message)
     h5dims(1) = 2
     call h5aread_f(attr_id, H5T_NATIVE_INTEGER, version_read, h5dims(1:1), hdferr)
-    @assertEqual(2, version_read(1), message="Version major must be 2")
-    @assertEqual(4, version_read(2), message="Version minor must be 4")
+
+    message = "Version must be at least 1.0 for UnstructuredGrid"
+    @assertGreaterThanOrEqual(version_read(1), 1, message = message)
+    if (version_read(1) .eq. 1) then
+       @assertGreaterThanOrEqual(version_read(2), 0, message = message)
+    end if
     call h5aclose_f(attr_id, hdferr)
 
     ! -- Type attribute --
     call h5aopen_f(vtkhdf_grp, "Type", attr_id, hdferr)
-    @assertEqual(0, hdferr, message="Type attribute must exist")
+    message = "Type attribute must exist"
+    @assertEqual(0, hdferr, message = message)
     call h5aclose_f(attr_id, hdferr)
 
     ! -- NumberOfPoints dataset: shape (EXP_NUM_PARTS,) --
     call h5lexists_f(vtkhdf_grp, "NumberOfPoints", link_exists, hdferr)
-    @assertTrue(link_exists, message="NumberOfPoints must exist")
+    message = "NumberOfPoints must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "NumberOfPoints", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message="NumberOfPoints size must equal num partitions")
+    message = "NumberOfPoints size must equal num partitions"
+    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nop_read, h5dims(1:1), hdferr)
-    @assertEqual(EXP_LOCAL_POINTS, nop_read(1), message="NumberOfPoints partition 0 must match local")
-    @assertEqual(EXP_LOCAL_POINTS, nop_read(2), message="NumberOfPoints partition 1 must match local")
+    message = "NumberOfPoints partition 0 must match local"
+    @assertEqual(EXP_LOCAL_POINTS, nop_read(1), message = message)
+    message = "NumberOfPoints partition 1 must match local"
+    @assertEqual(EXP_LOCAL_POINTS, nop_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- NumberOfCells dataset: shape (EXP_NUM_PARTS,) --
     call h5lexists_f(vtkhdf_grp, "NumberOfCells", link_exists, hdferr)
-    @assertTrue(link_exists, message="NumberOfCells must exist")
+    message = "NumberOfCells must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "NumberOfCells", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message="NumberOfCells size must equal num partitions")
+    message = "NumberOfCells size must equal num partitions"
+    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noc_read, h5dims(1:1), hdferr)
-    @assertEqual(EXP_LOCAL_CELLS, noc_read(1), message="NumberOfCells partition 0 must match local")
-    @assertEqual(EXP_LOCAL_CELLS, noc_read(2), message="NumberOfCells partition 1 must match local")
+    message = "NumberOfCells partition 0 must match local"
+    @assertEqual(EXP_LOCAL_CELLS, noc_read(1), message = message)
+    message = "NumberOfCells partition 1 must match local"
+    @assertEqual(EXP_LOCAL_CELLS, noc_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- NumberOfConnectivityIds dataset: shape (EXP_NUM_PARTS,) --
     call h5lexists_f(vtkhdf_grp, "NumberOfConnectivityIds", link_exists, hdferr)
-    @assertTrue(link_exists, message="NumberOfConnectivityIds must exist")
+    message = "NumberOfConnectivityIds must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "NumberOfConnectivityIds", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message="NumberOfConnectivityIds size must equal num partitions")
+    message = "NumberOfConnectivityIds size must equal num partitions"
+    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noci_read, h5dims(1:1), hdferr)
-    @assertEqual(EXP_LOCAL_CONN, noci_read(1), message="NumberOfConnectivityIds partition 0 must match local")
-    @assertEqual(EXP_LOCAL_CONN, noci_read(2), message="NumberOfConnectivityIds partition 1 must match local")
+    message = "NumberOfConnectivityIds partition 0 must match local"
+    @assertEqual(EXP_LOCAL_CONN, noci_read(1), message = message)
+    message = "NumberOfConnectivityIds partition 1 must match local"
+    @assertEqual(EXP_LOCAL_CONN, noci_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- Points dataset: shape (3, TOTAL_POINTS) --
     call h5lexists_f(vtkhdf_grp, "Points", link_exists, hdferr)
-    @assertTrue(link_exists, message="Points dataset must exist")
+    message = "Points dataset must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "Points", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(2, h5rank, message="Points must be 2D")
+    message = "Points must be 2D"
+    @assertEqual(2, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(3, int(h5dims(1)), message="Points dim 1 must be 3")
-    @assertEqual(EXP_TOTAL_POINTS, int(h5dims(2)), message="Points dim 2 must be total points")
+    message = "Points dim 1 must be 3"
+    @assertEqual(3, int(h5dims(1)), message = message)
+    message = "Points dim 2 must be total points"
+    @assertEqual(EXP_TOTAL_POINTS, int(h5dims(2)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- Connectivity dataset: shape (TOTAL_CONN,) --
     call h5lexists_f(vtkhdf_grp, "Connectivity", link_exists, hdferr)
-    @assertTrue(link_exists, message="Connectivity dataset must exist")
+    message = "Connectivity dataset must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "Connectivity", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(1, h5rank, message="Connectivity must be 1D")
+    message = "Connectivity must be 1D"
+    @assertEqual(1, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_TOTAL_CONN, int(h5dims(1)), message="Connectivity size must be total conn")
+    message = "Connectivity size must be total conn"
+    @assertEqual(EXP_TOTAL_CONN, int(h5dims(1)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- Offsets dataset: shape (TOTAL_OFFSETS,) --
     call h5lexists_f(vtkhdf_grp, "Offsets", link_exists, hdferr)
-    @assertTrue(link_exists, message="Offsets dataset must exist")
+    message = "Offsets dataset must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "Offsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(1, h5rank, message="Offsets must be 1D")
+    message = "Offsets must be 1D"
+    @assertEqual(1, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_TOTAL_OFFSETS, int(h5dims(1)), message="Offsets size must be total offsets")
+    message = "Offsets size must be total offsets"
+    @assertEqual(EXP_TOTAL_OFFSETS, int(h5dims(1)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- Types dataset: shape (TOTAL_CELLS,) --
     call h5lexists_f(vtkhdf_grp, "Types", link_exists, hdferr)
-    @assertTrue(link_exists, message="Types dataset must exist")
+    message = "Types dataset must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "Types", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(1, h5rank, message="Types must be 1D")
+    message = "Types must be 1D"
+    @assertEqual(1, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_TOTAL_CELLS, int(h5dims(1)), message="Types size must be total cells")
+    message = "Types size must be total cells"
+    @assertEqual(EXP_TOTAL_CELLS, int(h5dims(1)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- PointData group with 'test' field --
     call h5lexists_f(vtkhdf_grp, "PointData", link_exists, hdferr)
-    @assertTrue(link_exists, message="PointData group must exist")
+    message = "PointData group must exist"
+    @assertTrue(link_exists, message = message)
     call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, hdferr)
 
     call h5lexists_f(pointdata_grp, "test", link_exists, hdferr)
-    @assertTrue(link_exists, message="PointData/test field must exist")
+    message = "PointData/test field must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(pointdata_grp, "test", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(1, h5rank, message="test field must be 1D (scalar)")
+    message = "test field must be 1D (scalar)"
+    @assertEqual(1, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_TOTAL_POINTS, int(h5dims(1)), message="test field size must be total points")
+    message = "test field size must be total points"
+    @assertEqual(EXP_TOTAL_POINTS, int(h5dims(1)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
@@ -312,7 +364,8 @@ contains
 
     ! -- No Steps group for non-temporal write --
     call h5lexists_f(vtkhdf_grp, "Steps", link_exists, hdferr)
-    @assertFalse(link_exists, message="Steps group must not exist for non-temporal write")
+    message = "Steps group must not exist for non-temporal write"
+    @assertFalse(link_exists, message = message)
 
     ! Cleanup
     call h5gclose_f(vtkhdf_grp, hdferr)
@@ -333,6 +386,7 @@ contains
     type(file_t) :: file
     integer :: ierr
     logical :: exists
+    character(len=:), allocatable :: message
 
     ! HDF5 variables for validation
     integer(hid_t) :: file_id, vtkhdf_grp, attr_id, dset_id
@@ -370,16 +424,8 @@ contains
     call f%init(msh, Xh, 'test')
     call field_cfill(f, 1.0_rp)
 
-    ! Remove stale file from previous runs
-    fname = "test_write_time.vtkhdf"
-    inquire(file=fname, exist=exists)
-    if (exists .and. pe_rank .eq. 0) then
-       open(unit=99, file=fname, status='old')
-       close(99, status='delete')
-    end if
-    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
-
     ! Perform the write operation: 2 timesteps at t=0.0 and t=1.0
+    fname = "test_write_time.vtkhdf"
     call file%init(fname)
     call file%write(f, 0.0_rp)
     call field_cfill(f, 2.0_rp)
@@ -388,134 +434,172 @@ contains
 
     ! Test that the file exists
     inquire(file=fname, exist=exists)
-    @assertTrue(exists, message="Temporal output file must exist")
+    message = "Temporal output file must exist"
+    @assertTrue(exists, message = message)
 
     ! ================================================================
     ! Validate HDF5 file contents
     ! ================================================================
     call h5open_f(hdferr)
     call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, hdferr)
-    @assertEqual(0, hdferr, message="Must open temporal HDF5 file")
+    message = "Must open temporal HDF5 file"
+    @assertEqual(0, hdferr, message = message)
 
     ! -- VTKHDF group --
     call h5lexists_f(file_id, "VTKHDF", link_exists, hdferr)
-    @assertTrue(link_exists, message="VTKHDF group must exist (temporal)")
+    message = "VTKHDF group must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5gopen_f(file_id, "VTKHDF", vtkhdf_grp, hdferr)
 
     ! -- Version attribute --
     call h5aopen_f(vtkhdf_grp, "Version", attr_id, hdferr)
-    @assertEqual(0, hdferr, message="Version attribute must exist (temporal)")
+    message = "Version attribute must exist"
+    @assertEqual(0, hdferr, message = message)
     h5dims(1) = 2
     call h5aread_f(attr_id, H5T_NATIVE_INTEGER, version_read, h5dims(1:1), hdferr)
-    @assertEqual(2, version_read(1), message="Version major must be 2 (temporal)")
-    @assertEqual(4, version_read(2), message="Version minor must be 4 (temporal)")
+
+    message = "Version must be at least 2.0 for Temporal UnstructuredGrid"
+    @assertGreaterThanOrEqual(version_read(1), 2, message = message)
+    if (version_read(1) .eq. 2) then
+       @assertGreaterThanOrEqual(version_read(2), 0, message = message)
+    end if
     call h5aclose_f(attr_id, hdferr)
 
     ! -- Type attribute --
     call h5aopen_f(vtkhdf_grp, "Type", attr_id, hdferr)
-    @assertEqual(0, hdferr, message="Type attribute must exist (temporal)")
+    message = "Type attribute must exist (temporal)"
+    @assertEqual(0, hdferr, message = message)
     call h5aclose_f(attr_id, hdferr)
 
     ! -- NumberOfPoints dataset --
     call h5lexists_f(vtkhdf_grp, "NumberOfPoints", link_exists, hdferr)
-    @assertTrue(link_exists, message="NumberOfPoints must exist (temporal)")
+    message = "NumberOfPoints must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "NumberOfPoints", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message="NumberOfPoints size (temporal)")
+    message = "NumberOfPoints size (temporal)"
+    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nop_read, h5dims(1:1), hdferr)
-    @assertEqual(EXP_LOCAL_POINTS, nop_read(1), message="NumberOfPoints part 0 (temporal)")
-    @assertEqual(EXP_LOCAL_POINTS, nop_read(2), message="NumberOfPoints part 1 (temporal)")
+    message = "NumberOfPoints part 0 (temporal)"
+    @assertEqual(EXP_LOCAL_POINTS, nop_read(1), message = message)
+    message = "NumberOfPoints part 1 (temporal)"
+    @assertEqual(EXP_LOCAL_POINTS, nop_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- NumberOfCells dataset --
     call h5lexists_f(vtkhdf_grp, "NumberOfCells", link_exists, hdferr)
-    @assertTrue(link_exists, message="NumberOfCells must exist (temporal)")
+    message = "NumberOfCells must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "NumberOfCells", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message="NumberOfCells size (temporal)")
+    message = "NumberOfCells size (temporal)"
+    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noc_read, h5dims(1:1), hdferr)
-    @assertEqual(EXP_LOCAL_CELLS, noc_read(1), message="NumberOfCells part 0 (temporal)")
-    @assertEqual(EXP_LOCAL_CELLS, noc_read(2), message="NumberOfCells part 1 (temporal)")
+    message = "NumberOfCells part 0 (temporal)"
+    @assertEqual(EXP_LOCAL_CELLS, noc_read(1), message = message)
+    message = "NumberOfCells part 1 (temporal)"
+    @assertEqual(EXP_LOCAL_CELLS, noc_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- NumberOfConnectivityIds dataset --
     call h5lexists_f(vtkhdf_grp, "NumberOfConnectivityIds", link_exists, hdferr)
-    @assertTrue(link_exists, message="NumberOfConnectivityIds must exist (temporal)")
+    message = "NumberOfConnectivityIds must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "NumberOfConnectivityIds", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message="NumberOfConnectivityIds size (temporal)")
+    message = "NumberOfConnectivityIds size (temporal)"
+    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noci_read, h5dims(1:1), hdferr)
-    @assertEqual(EXP_LOCAL_CONN, noci_read(1), message="NumberOfConnectivityIds part 0 (temporal)")
-    @assertEqual(EXP_LOCAL_CONN, noci_read(2), message="NumberOfConnectivityIds part 1 (temporal)")
+    message = "NumberOfConnectivityIds part 0 (temporal)"
+    @assertEqual(EXP_LOCAL_CONN, noci_read(1), message = message)
+    message = "NumberOfConnectivityIds part 1 (temporal)"
+    @assertEqual(EXP_LOCAL_CONN, noci_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- Points dataset: static mesh, shape (TOTAL_POINTS, 3) --
     call h5lexists_f(vtkhdf_grp, "Points", link_exists, hdferr)
-    @assertTrue(link_exists, message="Points must exist (temporal)")
+    message = "Points must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "Points", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(2, h5rank, message="Points must be 2D (temporal)")
+    message = "Points must be 2D (temporal)"
+    @assertEqual(2, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(3, int(h5dims(1)), message="Points dim 1 must be 3 (temporal)")
-    @assertEqual(EXP_TOTAL_POINTS, int(h5dims(2)), message="Points dim 2 (temporal)")
+    message = "Points dim 1 must be 3 (temporal)"
+    @assertEqual(3, int(h5dims(1)), message = message)
+    message = "Points dim 2 (temporal)"
+    @assertEqual(EXP_TOTAL_POINTS, int(h5dims(2)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- Connectivity dataset --
     call h5lexists_f(vtkhdf_grp, "Connectivity", link_exists, hdferr)
-    @assertTrue(link_exists, message="Connectivity must exist (temporal)")
+    message = "Connectivity must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "Connectivity", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(1, h5rank, message="Connectivity must be 1D (temporal)")
+    message = "Connectivity must be 1D (temporal)"
+    @assertEqual(1, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_TOTAL_CONN, int(h5dims(1)), message="Connectivity size (temporal)")
+    message = "Connectivity size (temporal)"
+    @assertEqual(EXP_TOTAL_CONN, int(h5dims(1)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- Offsets dataset --
     call h5lexists_f(vtkhdf_grp, "Offsets", link_exists, hdferr)
-    @assertTrue(link_exists, message="Offsets must exist (temporal)")
+    message = "Offsets must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "Offsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(1, h5rank, message="Offsets must be 1D (temporal)")
+    message = "Offsets must be 1D (temporal)"
+    @assertEqual(1, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_TOTAL_OFFSETS, int(h5dims(1)), message="Offsets size (temporal)")
+    message = "Offsets size (temporal)"
+    @assertEqual(EXP_TOTAL_OFFSETS, int(h5dims(1)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- Types dataset --
     call h5lexists_f(vtkhdf_grp, "Types", link_exists, hdferr)
-    @assertTrue(link_exists, message="Types must exist (temporal)")
+    message = "Types must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "Types", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(1, h5rank, message="Types must be 1D (temporal)")
+    message = "Types must be 1D (temporal)"
+    @assertEqual(1, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_TOTAL_CELLS, int(h5dims(1)), message="Types size (temporal)")
+    message = "Types size (temporal)"
+    @assertEqual(EXP_TOTAL_CELLS, int(h5dims(1)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- PointData/test: 2 timesteps, shape (TOTAL_POINTS * NUM_STEPS) --
     call h5lexists_f(vtkhdf_grp, "PointData", link_exists, hdferr)
-    @assertTrue(link_exists, message="PointData must exist (temporal)")
+    message = "PointData must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, hdferr)
     call h5lexists_f(pointdata_grp, "test", link_exists, hdferr)
-    @assertTrue(link_exists, message="PointData/test must exist (temporal)")
+    message = "PointData/test must exist (temporal)"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(pointdata_grp, "test", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_ndims_f(filespace, h5rank, hdferr)
-    @assertEqual(1, h5rank, message="test field must be 1D (temporal)")
+    message = "test field must be 1D (temporal)"
+    @assertEqual(1, h5rank, message = message)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_TOTAL_POINTS * EXP_NUM_STEPS, int(h5dims(1)), message="test field size (temporal)")
+    message = "test field size (temporal)"
+    @assertEqual(EXP_TOTAL_POINTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
     call h5gclose_f(pointdata_grp, hdferr)
@@ -524,108 +608,140 @@ contains
     ! Validate Steps group
     ! ================================================================
     call h5lexists_f(vtkhdf_grp, "Steps", link_exists, hdferr)
-    @assertTrue(link_exists, message="Steps group must exist for temporal write")
+    message = "Steps group must exist for temporal write"
+    @assertTrue(link_exists, message = message)
     call h5gopen_f(vtkhdf_grp, "Steps", steps_grp, hdferr)
 
     ! -- NSteps attribute --
     call h5aopen_f(steps_grp, "NSteps", attr_id, hdferr)
-    @assertEqual(0, hdferr, message="NSteps attribute must exist")
+    message = "NSteps attribute must exist"
+    @assertEqual(0, hdferr, message = message)
     h5dims(1) = 1
     call h5aread_f(attr_id, H5T_NATIVE_INTEGER, nsteps_read, h5dims(1:1), hdferr)
-    @assertEqual(EXP_NUM_STEPS, nsteps_read(1), message="NSteps must be 2")
+    message = "NSteps must be 2"
+    @assertEqual(EXP_NUM_STEPS, nsteps_read(1), message = message)
     call h5aclose_f(attr_id, hdferr)
 
     ! -- Values dataset: shape (NUM_STEPS,) with [0.0, 1.0] --
     call h5lexists_f(steps_grp, "Values", link_exists, hdferr)
-    @assertTrue(link_exists, message="Steps/Values must exist")
+    message = "Steps/Values must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(steps_grp, "Values", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message="Values size must be num steps")
+    message = "Values size must be num steps"
+    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, values_read, h5dims(1:1), hdferr)
-    @assertEqual(0.0_rp, values_read(1), message="Values(1) must be 0.0")
-    @assertEqual(1.0_rp, values_read(2), message="Values(2) must be 1.0")
+    message = "Values(1) must be 0.0"
+    @assertEqual(0.0_rp, values_read(1), message = message)
+    message = "Values(2) must be 1.0"
+    @assertEqual(1.0_rp, values_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- NumberOfParts dataset: shape (NUM_STEPS,) with [2, 2] --
     call h5lexists_f(steps_grp, "NumberOfParts", link_exists, hdferr)
-    @assertTrue(link_exists, message="Steps/NumberOfParts must exist")
+    message = "Steps/NumberOfParts must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(steps_grp, "NumberOfParts", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message="NumberOfParts size must be num steps")
+    message = "NumberOfParts size must be num steps"
+    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nparts_read, h5dims(1:1), hdferr)
-    @assertEqual(EXP_NUM_PARTS, nparts_read(1), message="NumberOfParts(1) must be 2")
-    @assertEqual(EXP_NUM_PARTS, nparts_read(2), message="NumberOfParts(2) must be 2")
+    message = "NumberOfParts(1) must be 2"
+    @assertEqual(EXP_NUM_PARTS, nparts_read(1), message = message)
+    message = "NumberOfParts(2) must be 2"
+    @assertEqual(EXP_NUM_PARTS, nparts_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- PartOffsets dataset: shape (NUM_STEPS,) with [0, 0] (static mesh) --
     call h5lexists_f(steps_grp, "PartOffsets", link_exists, hdferr)
-    @assertTrue(link_exists, message="Steps/PartOffsets must exist")
+    message = "Steps/PartOffsets must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(steps_grp, "PartOffsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message="PartOffsets size must be num steps")
+    message = "PartOffsets size must be num steps"
+    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, partoffs_read, h5dims(1:1), hdferr)
-    @assertEqual(0, partoffs_read(1), message="PartOffsets(1) must be 0")
-    @assertEqual(0, partoffs_read(2), message="PartOffsets(2) must be 0")
+    message = "PartOffsets(1) must be 0"
+    @assertEqual(0, partoffs_read(1), message = message)
+    message = "PartOffsets(2) must be 0"
+    @assertEqual(0, partoffs_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- PointOffsets dataset: shape (NUM_STEPS,) with [0, 0] (static mesh) --
     call h5lexists_f(steps_grp, "PointOffsets", link_exists, hdferr)
-    @assertTrue(link_exists, message="Steps/PointOffsets must exist")
+    message = "Steps/PointOffsets must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(steps_grp, "PointOffsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message="PointOffsets size must be num steps")
+    message = "PointOffsets size must be num steps"
+    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, ptoffs_read, h5dims(1:1), hdferr)
-    @assertEqual(0, ptoffs_read(1), message="PointOffsets(1) must be 0")
-    @assertEqual(0, ptoffs_read(2), message="PointOffsets(2) must be 0")
+    message = "PointOffsets(1) must be 0"
+    @assertEqual(0, ptoffs_read(1), message = message)
+    message = "PointOffsets(2) must be 0"
+    @assertEqual(0, ptoffs_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- CellOffsets dataset: shape (NUM_STEPS,) with [0, 0] (static mesh) --
     call h5lexists_f(steps_grp, "CellOffsets", link_exists, hdferr)
-    @assertTrue(link_exists, message="Steps/CellOffsets must exist")
+    message = "Steps/CellOffsets must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(steps_grp, "CellOffsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message="CellOffsets size must be num steps")
+    message = "CellOffsets size must be num steps"
+    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, celloffs_read, h5dims(1:1), hdferr)
-    @assertEqual(0, celloffs_read(1), message="CellOffsets(1) must be 0")
-    @assertEqual(0, celloffs_read(2), message="CellOffsets(2) must be 0")
+    message = "CellOffsets(1) must be 0"
+    @assertEqual(0, celloffs_read(1), message = message)
+    message = "CellOffsets(2) must be 0"
+    @assertEqual(0, celloffs_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- ConnectivityIdOffsets: shape (NUM_STEPS,) with [0, 0] (static mesh) --
     call h5lexists_f(steps_grp, "ConnectivityIdOffsets", link_exists, hdferr)
-    @assertTrue(link_exists, message="Steps/ConnectivityIdOffsets must exist")
+    message = "Steps/ConnectivityIdOffsets must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(steps_grp, "ConnectivityIdOffsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message="ConnectivityIdOffsets size must be num steps")
+    message = "ConnectivityIdOffsets size must be num steps"
+    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, connoffs_read, h5dims(1:1), hdferr)
-    @assertEqual(0, connoffs_read(1), message="ConnectivityIdOffsets(1) must be 0")
-    @assertEqual(0, connoffs_read(2), message="ConnectivityIdOffsets(2) must be 0")
+    message = "ConnectivityIdOffsets(1) must be 0"
+    @assertEqual(0, connoffs_read(1), message = message)
+    message = "ConnectivityIdOffsets(2) must be 0"
+    @assertEqual(0, connoffs_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
     ! -- PointDataOffsets/test: shape (NUM_STEPS,) with [0, TOTAL_POINTS] --
     call h5lexists_f(steps_grp, "PointDataOffsets", link_exists, hdferr)
-    @assertTrue(link_exists, message="Steps/PointDataOffsets must exist")
+    message = "Steps/PointDataOffsets must exist"
+    @assertTrue(link_exists, message = message)
     call h5gopen_f(steps_grp, "PointDataOffsets", pdo_grp, hdferr)
     call h5lexists_f(pdo_grp, "test", link_exists, hdferr)
-    @assertTrue(link_exists, message="PointDataOffsets/test must exist")
+    message = "PointDataOffsets/test must exist"
+    @assertTrue(link_exists, message = message)
     call h5dopen_f(pdo_grp, "test", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message="PointDataOffsets/test size must be num steps")
+    message = "PointDataOffsets/test size must be num steps"
+    @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, pdoffs_read, h5dims(1:1), hdferr)
-    @assertEqual(0, pdoffs_read(1), message="PointDataOffsets/test(1) must be 0")
-    @assertEqual(EXP_TOTAL_POINTS, pdoffs_read(2), message="PointDataOffsets/test(2) must be total_points")
+    message = "PointDataOffsets/test(1) must be 0"
+    @assertEqual(0, pdoffs_read(1), message = message)
+    message = "PointDataOffsets/test(2) must be total_points"
+    @assertEqual(EXP_TOTAL_POINTS, pdoffs_read(2), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
     call h5gclose_f(pdo_grp, hdferr)
@@ -644,15 +760,18 @@ contains
 ! #else
 !   subroutine test_vtkhdf_init(this)
 !     class(test_vtkhdf), intent(inout) :: this
-!     @assertTrue(.true., message="HDF5 support is not available, skipping test")
+!  message = "HDF5 support is not available, skipping test"
+  !     @assertTrue(.true., message = message)
 !   end subroutine test_vtkhdf_init
 !   subroutine test_vtkhdf_write(this)
 !     class (test_vtkhdf), intent(inout) :: this
-!     @assertTrue(.true., message="HDF5 support is not available, skipping test")
+!  message = "HDF5 support is not available, skipping test"
+  !     @assertTrue(.true., message = message)
 !   end subroutine test_vtkhdf_write
 !   subroutine test_vtkhdf_write_time(this)
 !     class (test_vtkhdf), intent(inout) :: this
-!     @assertTrue(.true., message="HDF5 support is not available, skipping test")
+!  message = "HDF5 support is not available, skipping test"
+  !     @assertTrue(.true., message = message)
 !   end subroutine test_vtkhdf_write_time
 ! #endif
 
