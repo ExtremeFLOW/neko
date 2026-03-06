@@ -530,7 +530,13 @@ contains
                 vtmp(:, 1: itmp) = mapl(:, 1: itmp)
              end if
              vtmp(:, itmp + 1: itmp + dim) = rbuf(:, 1: dim)
-             call move_alloc(vtmp, mapl)
+             ! Following code due to the problem with Cray Fortran :
+             ! Version 18.0.1 on Dardel
+             !call move_alloc(vtmp, mapl)
+             if (allocated(mapl)) deallocate(mapl)
+             allocate(mapl, source = vtmp)
+             deallocate(vtmp)
+
              if (jl .lt. ncomm) jl = jl + 1
           end if
 
