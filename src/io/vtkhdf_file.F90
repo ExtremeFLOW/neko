@@ -188,14 +188,6 @@ contains
        call h5sclose_f(filespace, ierr)
     end if
 
-    ! Write mesh information if present
-    if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
-       call neko_error('VTKHDF linear output requires lx, ly >= 2')
-    end if
-    if (msh%gdim .eq. 3 .and. dof%Xh%lz < 2) then
-       call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
-    end if
-
     local_points = dof%size()
     total_points = dof%global_size()
     if (msh%gdim .eq. 3) then
@@ -210,12 +202,6 @@ contains
        total_conn = total_cells * 4
     end if
 
-    allocate(part_cells(pe_size))
-    allocate(part_conns(pe_size))
-
-    call MPI_Allgather(local_cells, 1, MPI_INTEGER, part_cells, 1, MPI_INTEGER, NEKO_COMM, ierr)
-    call MPI_Allgather(local_conn, 1, MPI_INTEGER, part_conns, 1, MPI_INTEGER, NEKO_COMM, ierr)
-
     call MPI_Allreduce(local_points, max_local_points, 1, MPI_INTEGER, &
          MPI_MAX, NEKO_COMM, ierr)
 
@@ -229,7 +215,6 @@ contains
        call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
             H5T_NEKO_REAL, local_points, local_cells, local_conn)
     end if ! write mesh conditional
-    deallocate(part_cells, part_conns)
 
     pointdata_time_offset = 0_hsize_t
 
@@ -695,42 +680,6 @@ contains
     N_Steps = int(step_dims(1))
     pointdata_time_offset = int(N_Steps - 1, hsize_t) * int(total_points, hsize_t)
 
-    ! --- NumberOfParts ---
-    i8_value(1) = int(pe_size, kind=8)
-    call vtkhdf_append_step_i8(grp_id, "NumberOfParts", i8_value(1), plist_coll)
-
-    ! --- PartOffsets ---
-    if (amr_enabled) then
-       i8_value(1) = int(N_Steps - 1, kind=8) * int(pe_size, kind=8)
-    else
-       i8_value(1) = 0
-    end if
-    call vtkhdf_append_step_i8(grp_id, "PartOffsets", i8_value(1), plist_coll)
-
-    ! --- PointOffsets ---
-    if (amr_enabled) then
-       i8_value(1) = int(N_Steps - 1, kind=8) * int(total_points, kind=8)
-    else
-       i8_value(1) = 0
-    end if
-    call vtkhdf_append_step_i8(grp_id, "PointOffsets", i8_value(1), plist_coll)
-
-    ! --- CellOffsets ---
-    if (amr_enabled) then
-       i8_value(1) = int(N_Steps - 1, kind=8) * int(total_cells, kind=8)
-    else
-       i8_value(1) = 0
-    end if
-    call vtkhdf_append_step_i8(grp_id, "CellOffsets", i8_value(1), plist_coll)
-
-    ! --- ConnectivityIdOffsets ---
-    if (amr_enabled) then
-       i8_value(1) = int(N_Steps - 1, kind=8) * int(total_conn, kind=8)
-    else
-       i8_value(1) = 0
-    end if
-    call vtkhdf_append_step_i8(grp_id, "ConnectivityIdOffsets", i8_value(1), plist_coll)
-
     ! --- NSteps attribute ---
     ddim(1) = 1_hsize_t
     call h5aexists_f(grp_id, "NSteps", attr_exists, ierr)
@@ -744,6 +693,35 @@ contains
     end if
     call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, N_Steps, ddim(1:1), ierr)
     call h5aclose_f(attr_id, ierr)
+
+    ! --- NumberOfParts ---
+    i8_value(1) = int(pe_size, kind=8)
+    call vtkhdf_append_step_i8(grp_id, "NumberOfParts", i8_value(1), plist_coll)
+
+    ! --- PartOffsets ---
+    i8_value(1) = 0
+    if (amr_enabled) then
+       i8_value(1) = int(N_Steps - 1, kind=8) * int(pe_size, kind=8)
+    end if
+    call vtkhdf_append_step_i8(grp_id, "PartOffsets", i8_value(1), plist_coll)
+
+    ! --- PointOffsets ---
+    if (amr_enabled) then
+       i8_value(1) = int(N_Steps - 1, kind=8) * int(total_points, kind=8)
+    end if
+    call vtkhdf_append_step_i8(grp_id, "PointOffsets", i8_value(1), plist_coll)
+
+    ! --- CellOffsets ---
+    if (amr_enabled) then
+       i8_value(1) = int(N_Steps - 1, kind=8) * int(total_cells, kind=8)
+    end if
+    call vtkhdf_append_step_i8(grp_id, "CellOffsets", i8_value(1), plist_coll)
+
+    ! --- ConnectivityIdOffsets ---
+    if (amr_enabled) then
+       i8_value(1) = int(N_Steps - 1, kind=8) * int(total_conn, kind=8)
+    end if
+    call vtkhdf_append_step_i8(grp_id, "ConnectivityIdOffsets", i8_value(1), plist_coll)
 
     call h5gclose_f(grp_id, ierr)
 
