@@ -1,4 +1,4 @@
-! Copyright (c) 2025-2026, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,41 +31,38 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements the `scalar_stats_simcomp_t` type.
-module scalar_stats_simcomp
+!> Implements the `fluid_sgs_stats_simcomp_t` type.
+module fluid_sgs_stats_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
   use time_state, only : time_state_t
   use field, only : field_t
-  use scalar_stats, only : scalar_stats_t
-  use scalar_stats_output, only : scalar_stats_output_t
+  use fluid_sgs_stats, only : fluid_sgs_stats_t
+  use fluid_sgs_stats_output, only : fluid_sgs_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
        neko_error ! just for now
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
   use comm, only : NEKO_COMM
+  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
   private
 
-  !> A simulation component that computes the scalar statistics for the
-  !! skewness, kurtosis, and the Reynolds-averaged mean scalar transport equation,
-  !! scalar variance budget, and scalar flux budgets.
-  !!
-  !! The statistics are stored assuming that the relevant fluid statistics
-  !! have already been computed using the `fluid_stats` simcomp.
+  !> A simulation component that computes the subgrid-scale contributions
+  !! to the Reynolds stresses in LES.
   !!
   !! For further details see the Neko documentation.
-  type, public, extends(simulation_component_t) :: scalar_stats_simcomp_t
+  type, public, extends(simulation_component_t) :: fluid_sgs_stats_simcomp_t
      !> Backbone object computing the satistics
-     type(scalar_stats_t) :: stats
+     type(fluid_sgs_stats_t) :: stats
      !> Output writer.
-     type(scalar_stats_output_t) :: stats_output
+     type(fluid_sgs_stats_output_t) :: stats_output
      !> Time value at which the sampling of statistics is initiated.
      real(kind=rp) :: start_time
      real(kind=rp) :: time
@@ -73,109 +70,99 @@ module scalar_stats_simcomp
 
    contains
      !> Constructor from json, wrapping the actual constructor.
-     procedure, pass(this) :: init => scalar_stats_simcomp_init_from_json
+     procedure, pass(this) :: init => fluid_sgs_stats_simcomp_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_components => &
-          scalar_stats_simcomp_init_from_components
+          fluid_sgs_stats_simcomp_init_from_components
      !> Destructor.
-     procedure, pass(this) :: free => scalar_stats_simcomp_free
+     procedure, pass(this) :: free => fluid_sgs_stats_simcomp_free
      !> Does sampling for statistics.
-     procedure, pass(this) :: compute_ => scalar_stats_simcomp_compute
+     procedure, pass(this) :: compute_ => fluid_sgs_stats_simcomp_compute
      !> Write the statistics to disk.
-     procedure, pass(this) :: output_ => scalar_stats_simcomp_compute
+     procedure, pass(this) :: output_ => fluid_sgs_stats_simcomp_compute
      !> Restart the simcomp.
-     procedure, pass(this) :: restart_ => scalar_stats_simcomp_restart
+     procedure, pass(this) :: restart_ => fluid_sgs_stats_simcomp_restart
      !> AMR restart
-     procedure, pass(this) :: amr_restart => scalar_stats_simcomp_amr_restart
-  end type scalar_stats_simcomp_t
+     procedure, pass(this) :: amr_restart => fluid_sgs_stats_simcomp_amr_restart
+  end type fluid_sgs_stats_simcomp_t
 
 contains
 
   !> Constructor from json.
   !> @param json JSON object with the parameters.
   !! @param case The case object.
-  subroutine scalar_stats_simcomp_init_from_json(this, json, case)
-    class(scalar_stats_simcomp_t), target, intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_init_from_json(this, json, case)
+    class(fluid_sgs_stats_simcomp_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
     character(len=20), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
-    character(len=:), allocatable :: stat_set
-    character(len=:), allocatable :: sname
+    character(len=:), allocatable :: nut_field
     character(len=:), allocatable :: name
     real(kind=rp) :: start_time
-    type(field_t), pointer :: s, u, v, w, p
+    type(field_t), pointer :: u, v, w
     type(coef_t), pointer :: coef
 
-    call json_get_or_default(json, "name", name, "scalar_stats")
+    call json_get_or_default(json, "name", name, "fluid_sgs_stats")
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
     call json_get_or_default(json, 'start_time', &
          start_time, 0.0_rp)
-    call json_get_or_default(json, 'set_of_stats', &
-         stat_set, 'full')
-    call json_get_or_default(json, 'field', &
-         sname, 's')
+    call json_get_or_default(json, 'nut_field', &
+         nut_field, 'nut')
 
-    s => neko_registry%get_field_by_name(sname)
+
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
-    p => neko_registry%get_field("p")
     coef => case%fluid%c_Xh
     this%name = name
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
-            p, coef, start_time, hom_dir, stat_set, filename)
+       call fluid_sgs_stats_simcomp_init_from_components(this, u, v, w, coef, &
+            start_time, hom_dir, nut_field, filename)
     else
-       call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
-            p, coef, start_time, hom_dir, stat_set)
+       call fluid_sgs_stats_simcomp_init_from_components(this, u, v, w, coef, &
+            start_time, hom_dir, nut_field)
     end if
 
-  end subroutine scalar_stats_simcomp_init_from_json
+  end subroutine fluid_sgs_stats_simcomp_init_from_json
 
   !> Actual constructor.
-  !! @param name The unique name of the simcomp.
-  !! @param s scalar
   !! @param u x-velocity
   !! @param v x-velocity
   !! @param w x-velocity
   !! @param coef sem coefs
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
-  !! @param stat_set Set of statistics to compute (basic/full)
+  !! @param nut_field Name of the eddy viscosity field
   !! @param fname name of the output file
-  subroutine scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
-       p, coef, start_time, hom_dir, stat_set, fname)
-    class(scalar_stats_simcomp_t), target, intent(inout) :: this
-    character(len=*), intent(in) :: name
+  subroutine fluid_sgs_stats_simcomp_init_from_components(this, u, v, w, coef, &
+       start_time, hom_dir, nut_field, fname)
+    class(fluid_sgs_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
-    character(len=*), intent(in) :: stat_set
+    character(len=*), intent(in) :: nut_field
     real(kind=rp), intent(in) :: start_time
-    type(field_t), intent(in), target :: s, u, v, w, p
+    type(field_t), intent(in), target :: u, v, w
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in), optional :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
     character(len=LOG_SIZE) :: log_buf
     character(len=5) :: prefix
 
-    this%name = name
-    call neko_log%section('Scalar stats')
-    write(log_buf, '(A,A)') 'Scalar field: ', trim(s%name)
-    call neko_log%message(log_buf)
+    call neko_log%section('Fluid stats')
     write(log_buf, '(A,E15.7)') 'Start time: ', start_time
     call neko_log%message(log_buf)
-    write(log_buf, '(A,A)') 'Set of statistics: ', trim(stat_set)
+    write(log_buf, '(A,A)') 'Nut field name: ', trim(nut_field)
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
 
 
-    call this%stats%init(coef, s, u, v, w, p, stat_set, name)
+    call this%stats%init(coef, u, v, w, nut_field)
 
     this%start_time = start_time
     this%time = start_time
@@ -183,7 +170,7 @@ contains
        this%default_fname = .false.
        stats_fname = fname
     else
-       stats_fname = "scalar_stats0"
+       stats_fname = "fluid_sgs_stats0"
        this%default_fname = .true.
     end if
 
@@ -197,20 +184,21 @@ contains
 
     call neko_log%end_section()
 
-  end subroutine scalar_stats_simcomp_init_from_components
+  end subroutine fluid_sgs_stats_simcomp_init_from_components
 
   !> Destructor.
-  subroutine scalar_stats_simcomp_free(this)
-    class(scalar_stats_simcomp_t), intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_free(this)
+    class(fluid_sgs_stats_simcomp_t), intent(inout) :: this
     call this%free_base()
     call this%stats%free()
+    call this%stats_output%free()
 
     call this%free_amr_base()
 
-  end subroutine scalar_stats_simcomp_free
+  end subroutine fluid_sgs_stats_simcomp_free
 
-  subroutine scalar_stats_simcomp_restart(this, time)
-    class(scalar_stats_simcomp_t), intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_restart(this, time)
+    class(fluid_sgs_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
     character(len=5) :: prefix, suffix
@@ -227,19 +215,19 @@ contains
        if (last_slash_pos .ne. 0) then
           fname = &
                trim(fname(1:last_slash_pos))// &
-               "scalar_stats"//trim(adjustl(prefix))//"."//suffix
+               "fluid_sgs_stats"//trim(adjustl(prefix))//"."//suffix
        else
-          fname = "scalar_stats"// &
+          fname = "fluid_sgs_stats"// &
                trim(adjustl(prefix))//"."//suffix
        end if
        call this%stats_output%init_base(fname)
     end if
-  end subroutine scalar_stats_simcomp_restart
+  end subroutine fluid_sgs_stats_simcomp_restart
 
-  !> scalar_stats, called depending on compute_control and compute_value
+  !> fluid_sgs_stats, called depending on compute_control and compute_value
   !! @param time The current time info
-  subroutine scalar_stats_simcomp_compute(this, time)
-    class(scalar_stats_simcomp_t), intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_compute(this, time)
+    class(fluid_sgs_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     real(kind=rp) :: delta_t, t
     real(kind=rp) :: sample_start_time, sample_time
@@ -248,11 +236,11 @@ contains
 
     if (time%start_time .gt. this%start_time) then
        write(log_buf, '(A)') 'Simulation start time is later than the ' &
-            // 'scalar stats start time.'
+            // 'fluid stats start time.'
        call neko_log%warning(log_buf)
        write(log_buf, '(A,E15.7)') 'Simulation start time:', time%start_time
        call neko_log%warning(log_buf)
-       write(log_buf, '(A,E15.7)') 'Scalar stats start time:', this%start_time
+       write(log_buf, '(A,E15.7)') 'Fluid stats start time:', this%start_time
        call neko_log%warning(log_buf)
        write(log_buf, '(A)') 'Assigning the statistics start time to ' &
             // 'the simulation start time.'
@@ -276,10 +264,10 @@ contains
 
        sample_time = MPI_WTIME() - sample_start_time
 
-       call neko_log%section('Scalar stats')
+       call neko_log%section('Fluid SGS stats')
        write(log_buf, '(A,E15.7)') 'Sampling at time:', t
        call neko_log%message(log_buf)
-       write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', &
+       write(log_buf, '(A33,E15.7)') 'Simulation time since last sample:', &
             delta_t
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') 'Sampling time (s):', sample_time
@@ -287,14 +275,15 @@ contains
        call neko_log%end_section()
     end if
 
-  end subroutine scalar_stats_simcomp_compute
+  end subroutine fluid_sgs_stats_simcomp_compute
 
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
   !! @param[in]     tstep         time step
-  subroutine scalar_stats_simcomp_amr_restart(this, reconstruct, counter, tstep)
-    class(scalar_stats_simcomp_t), intent(inout) :: this
+  subroutine fluid_sgs_stats_simcomp_amr_restart(this, reconstruct, counter, &
+       tstep)
+    class(fluid_sgs_stats_simcomp_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
@@ -306,11 +295,11 @@ contains
 
     this%counter = counter
 
-    log_buf = 'Scalar stats'
+    log_buf = 'Fluid sgs stats'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 !    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 !    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
-  end subroutine scalar_stats_simcomp_amr_restart
+  end subroutine fluid_sgs_stats_simcomp_amr_restart
 
-end module scalar_stats_simcomp
+end module fluid_sgs_stats_simcomp

@@ -593,14 +593,14 @@ contains
     this%iffinalised = .true.
 
     if (.not. allocated(this%name)) then
-! gives plenty of empty info during restart
+! gives plenty of empty info lines during AMR restart
 !       this%name = ""
     else
        write(log_buf, '(A,A)') 'BC assigned name :   ', trim(this%name)
        call neko_log%message(log_buf)
     end if
 
-! causes trouble for AMR
+! causes trouble for AMR restart
 !    if (.not. allocated(this%zone_indices)) then
 !       allocate(this%zone_indices(1))
 !       this%zone_indices(1) = -1
