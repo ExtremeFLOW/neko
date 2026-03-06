@@ -762,18 +762,15 @@ contains
 #else
   subroutine test_vtkhdf_init(this)
     class(test_vtkhdf), intent(inout) :: this
-    message = "HDF5 support is not available, skipping test"
-    @assertTrue(.true., message = message)
+    @assertTrue(.true.)
   end subroutine test_vtkhdf_init
   subroutine test_vtkhdf_write(this)
     class (test_vtkhdf), intent(inout) :: this
-    message = "HDF5 support is not available, skipping test"
-    @assertTrue(.true., message = message)
+    @assertTrue(.true.)
   end subroutine test_vtkhdf_write
   subroutine test_vtkhdf_write_time(this)
     class (test_vtkhdf), intent(inout) :: this
-    message = "HDF5 support is not available, skipping test"
-    @assertTrue(.true., message = message)
+    @assertTrue(.true.)
   end subroutine test_vtkhdf_write_time
 #endif
 
