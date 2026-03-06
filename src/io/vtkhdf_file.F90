@@ -196,7 +196,8 @@ contains
        call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
     end if
 
-    local_points = msh%nelv * lx * ly * lz
+    local_points = dof%size()
+    total_points = dof%global_size()
     if (msh%gdim .eq. 3) then
        local_cells = msh%nelv * (lx - 1) * (ly - 1) * (lz - 1)
        local_conn = local_cells * 8
@@ -213,7 +214,6 @@ contains
     call MPI_Allgather(local_cells, 1, MPI_INTEGER, part_cells, 1, MPI_INTEGER, NEKO_COMM, ierr)
     call MPI_Allgather(local_conn, 1, MPI_INTEGER, part_conns, 1, MPI_INTEGER, NEKO_COMM, ierr)
 
-    total_points = sum(part_points)
     total_cells = sum(part_cells)
     total_conn = sum(part_conns)
 
