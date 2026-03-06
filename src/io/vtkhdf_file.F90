@@ -76,7 +76,6 @@ contains
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_ptr_t), allocatable :: fp(:)
-    logical, allocatable :: field_written(:)
     integer :: ierr, info, i, n_fields
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, memspace
@@ -101,14 +100,12 @@ contains
        dof => data%dof
        n_fields = 1
        allocate(fp(1))
-       allocate(field_written(1), source=.false.)
        fp(1)%ptr => data
     type is (field_list_t)
        msh => data%msh(1)
        dof => data%dof(1)
        n_fields = data%size()
        allocate(fp(n_fields))
-       allocate(field_written(n_fields), source=.false.)
        do i = 1, n_fields
           fp(i)%ptr => data%items(i)%ptr
        end do
@@ -217,7 +214,6 @@ contains
        call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type)
     end if ! write mesh conditional
 
-
     pointdata_time_offset = 0_hsize_t
     if (present(t)) then
        call vtkhdf_write_steps(vtkhdf_grp, t, &
@@ -229,8 +225,7 @@ contains
     ! Write field data in PointData group
     if (n_fields > 0) then
        call vtkhdf_write_pointdata(vtkhdf_grp, &
-            fp, field_written, &
-            pointdata_time_offset, lx, ly, lz, present(t))
+            fp, pointdata_time_offset, t)
     end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
@@ -239,7 +234,6 @@ contains
     call h5close_f(ierr)
 
     if (allocated(fp)) deallocate(fp)
-    if (allocated(field_written)) deallocate(field_written)
 
   end subroutine vtkhdf_file_write
 
@@ -320,18 +314,8 @@ contains
   !! @param vtkhdf_grp HDF5 group ID for VTKHDF root group
   !! @param dof Dofmap for coordinate data
   !! @param msh Mesh object
-  !! @param local_points Number of points on this rank
-  !! @param local_cells Number of sub-cells on this rank
-  !! @param local_conn Connectivity array size on this rank
-  !! @param total_points Global total number of points
-  !! @param total_cells Global total number of sub-cells
-  !! @param total_conn Global total connectivity size
-  !! @param point_offset This rank's offset into the Points dataset
-  !! @param max_local_points Maximum local_points across all ranks
-  !! @param part_cells Per-partition cell counts from MPI_Allgather
-  !! @param part_conns Per-partition connectivity sizes from MPI_Allgather
-  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, &
-       VTK_cell_type)
+  !! @param VTK_cell_type VTK cell type (e.g. 12 for hexahedra, 9 for quads)
+  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
     integer(hid_t), intent(in) :: vtkhdf_grp
@@ -517,7 +501,6 @@ contains
     if (link_exists) call h5ldelete_f(vtkhdf_grp, "Connectivity", ierr)
     allocate(connectivity(local_conn))
     call vtkhdf_build_connectivity(connectivity, VTK_cell_type, msh, dof)
-
 
     vdims(1) = int(total_conn, hsize_t)
     maxdims(1) = H5S_UNLIMITED_F
@@ -794,24 +777,19 @@ contains
   !! For temporal output, PointDataOffsets are appended under Steps.
   !! @param vtkhdf_grp Root VTKHDF group
   !! @param fp Array of field pointers to write
-  !! @param field_written Tracking array for already-written fields
   !! @param pointdata_time_offset Temporal offset for PointData datasets
-  !! @param lx Polynomial order in x
-  !! @param ly Polynomial order in y
-  !! @param lz Polynomial order in z
-  !! @param has_time Whether temporal data (Steps) are being written
+  !! @param t Current simulation time (optional, for temporal output)
   subroutine vtkhdf_write_pointdata(vtkhdf_grp, &
-       fp, field_written, &
-       pointdata_time_offset, lx, ly, lz, has_time)
+       fp, pointdata_time_offset, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     type(field_ptr_t), intent(in) :: fp(:)
-    logical, intent(inout) :: field_written(:)
     integer(hsize_t), intent(in) :: pointdata_time_offset
-    integer, intent(in) :: lx, ly, lz
-    logical, intent(in) :: has_time
+    real(kind=rp), optional :: t
 
+    logical, allocatable :: field_written(:)
     integer :: nelv
     integer :: local_points, point_offset
+    integer :: lx, ly, lz
     integer :: max_local_points, total_points
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hid_t) :: xf_id
@@ -834,12 +812,14 @@ contains
     call vtkhdf_file_determine_real(H5T_NEKO_REAL)
 
     n_fields = size(fp)
-    npts_per_cell = lx * ly * lz
 
     ! --- Build the number of cells and the connectivity
     local_points = fp(1)%ptr%dof%size()
     total_points = fp(1)%ptr%dof%global_size()
     nelv = fp(1)%ptr%msh%nelv
+    lx = fp(1)%ptr%dof%Xh%lx
+    ly = fp(1)%ptr%dof%Xh%ly
+    lz = fp(1)%ptr%dof%Xh%lz
 
     point_offset = 0
     max_local_points = 0
@@ -847,6 +827,7 @@ contains
          MPI_SUM, NEKO_COMM, ierr)
     call MPI_Allreduce(local_points, max_local_points, 1, MPI_INTEGER, &
          MPI_MAX, NEKO_COMM, ierr)
+    npts_per_cell = lx * ly * lz
 
     ! Sync all the fields
     do i = 1, n_fields
@@ -854,6 +835,8 @@ contains
           call fp(i)%ptr%copy_from(DEVICE_TO_HOST, sync = i .eq. n_fields)
        end if
     end do
+
+    allocate(field_written(n_fields), source=.false.)
 
     ! Create or open PointData group
     call h5lexists_f(vtkhdf_grp, "PointData", link_exists, ierr)
@@ -899,7 +882,7 @@ contains
        end if
 
        ! Write PointDataOffsets under Steps for temporal output
-       if (has_time) then
+       if (present(t)) then
           call h5gopen_f(vtkhdf_grp, "Steps", grp_id, ierr)
           call h5lexists_f(grp_id, "PointDataOffsets", link_exists, ierr)
           if (link_exists) then
