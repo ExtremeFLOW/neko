@@ -385,22 +385,14 @@ subroutine ale_manager_init(this, coef, json, user)
         ! Oscillation
         this%config%bodies(i)%osc_amp = 0.0_rp
         if (body_sub%valid_path('oscillation_amp')) then
-           call json_get(body_sub, 'oscillation_amp', tmp_vec)
-           if (size(tmp_vec) == 3) then
-              this%config%bodies(i)%osc_amp = tmp_vec
-           else
-              call neko_error("ALE: oscillation_amp must be size 3")
-           endif
+           call json_get(body_sub, 'oscillation_amp', tmp_vec, expected_size = 3)
+           this%config%bodies(i)%osc_amp = tmp_vec
         end if
 
         this%config%bodies(i)%osc_freq = 0.0_rp
         if (body_sub%valid_path('oscillation_freq')) then
-           call json_get(body_sub, 'oscillation_freq', tmp_vec)
-           if (size(tmp_vec) == 3) then
-              this%config%bodies(i)%osc_freq = tmp_vec
-           else
-              call neko_error("ALE: oscillation_freq must be size 3")
-           endif
+           call json_get(body_sub, 'oscillation_freq', tmp_vec, expected_size = 3)
+           this%config%bodies(i)%osc_freq = tmp_vec
         end if
 
         ! Rotation
@@ -411,33 +403,20 @@ subroutine ale_manager_init(this, coef, json, user)
 
            select case (trim(tmp_str))
            case ('harmonic')
-              call json_get(body_sub, 'rotation.amplitude_deg', tmp_vec)
-              if (size(tmp_vec) == 3) then
-                 this%config%bodies(i)%rot_amp_degree = tmp_vec
-              else
-                 call neko_error("ALE: rotation.amplitude_deg must be size 3")
-              end if
-              call json_get(body_sub, 'rotation.freq', tmp_vec)
-              if (size(tmp_vec) == 3) then
-                 this%config%bodies(i)%rot_freq = tmp_vec
-              else
-                 call neko_error("ALE: rotation.freq must be size 3")
-              end if
+              call json_get(body_sub, 'rotation.amplitude_deg', tmp_vec, expected_size = 3)
+              this%config%bodies(i)%rot_amp_degree = tmp_vec
+
+              call json_get(body_sub, 'rotation.freq', tmp_vec, expected_size = 3)
+              this%config%bodies(i)%rot_freq = tmp_vec
+
 
            case ('ramp')
-              call json_get(body_sub, 'rotation.ramp_t0', tmp_vec)
-              if (size(tmp_vec) == 3) then
-                 this%config%bodies(i)%ramp_t0 = tmp_vec
-              else
-                 call neko_error("ALE: rotation.ramp_t0 must be size 3")
-              end if
+              call json_get(body_sub, 'rotation.ramp_t0', tmp_vec, expected_size = 3)
+              this%config%bodies(i)%ramp_t0 = tmp_vec
               
-              call json_get(body_sub, 'rotation.ramp_omega0', tmp_vec)
-              if (size(tmp_vec) == 3) then
-                 this%config%bodies(i)%ramp_omega0 = tmp_vec
-              else
-                 call neko_error("ALE: rotation.ramp_omega0 must be size 3")
-              end if
+              call json_get(body_sub, 'rotation.ramp_omega0', tmp_vec, expected_size = 3)
+              this%config%bodies(i)%ramp_omega0 = tmp_vec
+
 
            case ('smooth_step')
               call json_get_or_default(body_sub, 'rotation.axis', &
@@ -449,13 +428,9 @@ subroutine ale_manager_init(this, coef, json, user)
                       "1 -> x, 2 -> y, or 3 -> z")
               end if
               call json_get(body_sub, 'rotation.step_control_times', &
-                   tmp_vec)
-              if (size(tmp_vec) == 4) then
-                 this%config%bodies(i)%step_control_times = tmp_vec
-              else
-                 call neko_error("ALE: rotation.step_control_times " // &
-                      "must be size 4 (t0, t1, t2, t3)")
-              end if
+                   tmp_vec, expected_size = 4)
+              this%config%bodies(i)%step_control_times = tmp_vec
+
               call json_get(body_sub, 'rotation.target_angle_deg', tmp_val)
               this%config%bodies(i)%target_rot_angle_deg = tmp_val
 
@@ -478,12 +453,9 @@ subroutine ale_manager_init(this, coef, json, user)
            call json_get_or_default(body_sub, 'pivot.type', tmp_str, 'relative')
            this%config%bodies(i)%rotation_center_type = tmp_str
 
-           call json_get(body_sub, 'pivot.value', tmp_vec)
-           if (size(tmp_vec) == 3) then
-              this%config%bodies(i)%rot_center = tmp_vec
-           else
-              call neko_error("ALE: pivot.value must be size 3")
-           endif
+           call json_get(body_sub, 'pivot.value', tmp_vec, expected_size = 3)
+           this%config%bodies(i)%rot_center = tmp_vec
+
 
            tmp_str = this%config%bodies(i)%rotation_center_type
            if (trim(tmp_str) /= 'relative' .and. &
@@ -518,13 +490,9 @@ subroutine ale_manager_init(this, coef, json, user)
 
            select case (trim(this%config%bodies(i)%stiff_geom%type))
            case ('cylinder', 'sphere')
-              call json_get(body_sub, 'stiff_geom.center', tmp_vec)
-              if (size(tmp_vec) /= 3) then
-                 call neko_error("ALE: center should be size 3 for " // &
-                      "'cylinder' or 'sphere'.")
-              else
-                 this%config%bodies(i)%stiff_geom%center = tmp_vec
-              end if
+              call json_get(body_sub, 'stiff_geom.center', tmp_vec, expected_size = 3)
+              this%config%bodies(i)%stiff_geom%center = tmp_vec
+
               call json_get(body_sub, 'stiff_geom.radius', &
                    this%config%bodies(i)%stiff_geom%radius)
            case ('cheap_dist')
