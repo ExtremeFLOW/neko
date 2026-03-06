@@ -328,7 +328,6 @@ if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
 else
    AX_HDF5
 fi
-AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 
 # JSON-Fortran
@@ -344,6 +343,7 @@ AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
+AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)

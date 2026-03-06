@@ -147,10 +147,10 @@ EXTRA_DIST = \
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 
- if ENABLE_FLINT
- lint:
- 	$(FLINT) score -d 0 src/ -r flinter_rc.yml
+if ENABLE_FLINT
+lint:
+	$(FLINT) score -d 0 src/ -r flinter_rc.yml
 
- check-local: lint
+check-local: lint
 
- endif
+endif
