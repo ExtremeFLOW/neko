@@ -56,7 +56,7 @@ module dofmap
      real(kind=rp), allocatable :: x(:,:,:,:)       !< Mapping to x-coordinates
      real(kind=rp), allocatable :: y(:,:,:,:)       !< Mapping to y-coordinates
      real(kind=rp), allocatable :: z(:,:,:,:)       !< Mapping to z-coordinates
-     integer, private :: ntot                       !< Total number of dofs
+     integer, private :: ntot                       !< Local number of dofs
 
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
@@ -73,8 +73,10 @@ module dofmap
      procedure, pass(this) :: init => dofmap_init
      !> Destructor.
      procedure, pass(this) :: free => dofmap_free
-     !> Return the total number of degrees of freedom, lx*ly*lz*nelv
+     !> Return the local number of degrees of freedom, lx*ly*lz*nelv
      procedure, pass(this) :: size => dofmap_size
+     !> Return the global number of degrees of freedom, lx*ly*lz*glb_nelv
+     procedure, pass(this) :: global_size => dofmap_global_size
   end type dofmap_t
 
 contains
@@ -193,12 +195,19 @@ contains
 
   end subroutine dofmap_free
 
-  !> Return the total number of dofs in the dofmap, lx*ly*lz*nelv
+  !> Return the local number of dofs in the dofmap, lx*ly*lz*nelv
   pure function dofmap_size(this) result(res)
     class(dofmap_t), intent(in) :: this
     integer :: res
     res = this%ntot
   end function dofmap_size
+
+  !> Return the global number of dofs in the dofmap, lx*ly*lz*glb_nelv
+  pure function dofmap_global_size(this) result(res)
+    class(dofmap_t), intent(in) :: this
+    integer :: res
+    res = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%glb_nelv
+  end function dofmap_global_size
 
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
@@ -267,7 +276,7 @@ contains
                 this%shared_dof(k, 1, 1, i) = shared_dof
              end do
           end if
-          
+
           call ep%edge_id(edge, 3)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -285,7 +294,7 @@ contains
                 this%shared_dof(k, 1, Xh%lz, i) = shared_dof
              end do
           end if
-             
+
           call ep%edge_id(edge, 2)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -303,7 +312,7 @@ contains
                 this%shared_dof(k, Xh%ly, 1, i) = shared_dof
              end do
           end if
-          
+
           call ep%edge_id(edge, 4)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -343,7 +352,7 @@ contains
                 this%shared_dof(1, k, 1, i) = shared_dof
              end do
           end if
-          
+
           call ep%edge_id(edge, 7)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -454,7 +463,7 @@ contains
                 this%shared_dof(1, Xh%ly, k, i) = shared_dof
              end do
           end if
-          
+
           call ep%edge_id(edge, 12)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -522,7 +531,7 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
              do concurrent (j = 2:Xh%ly - 1)
-                k = Xh%ly+1-j 
+                k = Xh%ly+1-j
                 this%dof(1, k, 1, i) = edge_id + (j-2)
                 this%shared_dof(1, k, 1, i) = shared_dof
              end do
@@ -533,7 +542,7 @@ contains
                 this%shared_dof(1, k, 1, i) = shared_dof
              end do
           end if
-          
+
           call ep%facet_id(edge, 2)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -830,7 +839,7 @@ contains
           xyzb(2,1,1,j) = element%pts(2)%p%x(j)
           xyzb(1,2,1,j) = element%pts(3)%p%x(j)
           xyzb(2,2,1,j) = element%pts(4)%p%x(j)
-          
+
           xyzb(1,1,2,j) = element%pts(5)%p%x(j)
           xyzb(2,1,2,j) = element%pts(6)%p%x(j)
           xyzb(1,2,2,j) = element%pts(7)%p%x(j)
@@ -1131,7 +1140,7 @@ contains
     ! Symmetric edge to vertex mapping
     integer, parameter, dimension(2, 12) :: edge_nodes = reshape([1, 2, 3, 4, &
          & 5, 6, 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8], &
-         & [2,12]) 
+         & [2,12])
     ! copy from hex as this has private attribute there
 
     ! this subroutine is a mess of symmetric and cyclic edge/face numberring and
