@@ -163,21 +163,10 @@ contains
             ", 'pivot', or 'body_attached'.")
     end if
 
-    ! Setup ALE linking
-    call this%ale_link(zone_id, center_type, center)
-
-    if (trim(center_type) /= 'fixed' .and. .not. this%moving_center) then
-       effective_center_type = 'fixed (reverted from ' // trim(center_type) // ')'
-    else
-       effective_center_type = center_type
-    end if
-    ! Set fixed center if not linked to a moving body
-    if (.not. this%moving_center .and. allocated(center)) then
-       this%center = center
-    end if
+    if (allocated(center)) this%center = center
 
     call this%init_common(name, fluid_name, zone_id, zone_name, this%center, &
-         scale, case%fluid%c_xh, long_print, effective_center_type)
+         scale, case%fluid%c_xh, long_print, center_type=center_type)
   end subroutine force_torque_init_from_json
 
   !> Constructor from components, passing controllers.
@@ -289,26 +278,33 @@ contains
     type(coef_t), target, intent(in) :: coef
     logical, intent(in) :: long_print
     character(len=*), intent(in), optional :: center_type
+    character(len=:), allocatable :: ctype_str
     integer :: n_pts, glb_n_pts, ierr
     real(kind=rp) :: avg_r(3)    
     character(len=1000) :: log_buf
-    character(len=64) :: ctype_str
     this%name = name
     this%coef => coef
     this%zone_id = zone_id
-
-    ! If moving_center is true, center is already linked/set in
-    ! setup_ale_link. Otherwise use the passed argument.
-    if (.not. this%moving_center) this%center = center
+    this%scale = scale
+    this%zone_name = zone_name
 
     if (present(center_type)) then
        ctype_str = center_type
     else
-       ctype_str = 'fixed (default)'
+       ctype_str = 'fixed' ! Default behavior
     end if
 
-    this%scale = scale
-    this%zone_name = zone_name
+    call this%ale_link(zone_id, ctype_str, center)
+
+    if (ctype_str /= 'fixed' .and. .not. this%moving_center) then
+       ctype_str = 'fixed (reverted from ' // ctype_str // ')'
+    end if
+
+    ! Set fixed center if not linked to an ALE body
+    if (.not. this%moving_center) then
+       this%center = center
+    end if
+
 
     if (long_print) then
        this%print_format = '(I7,E20.10,E20.10,E20.10,E20.10,A)'
