@@ -350,7 +350,7 @@ contains
     integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
     integer(hsize_t), dimension(1) :: dcount, doffset_1d, chunkdims
     integer(hsize_t), dimension(2) :: vdims, maxdims, dcount2, doffset2
-    real(kind=rp), allocatable :: coords(:,:)
+    real(kind=dp), allocatable :: coords(:,:)
     integer, allocatable :: connectivity(:), offsets(:)
     integer(kind=1), allocatable :: cell_types_byte(:)
     logical :: link_exists
