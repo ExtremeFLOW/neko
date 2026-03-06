@@ -328,6 +328,7 @@ if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
 else
    AX_HDF5
 fi
+AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 
 # JSON-Fortran

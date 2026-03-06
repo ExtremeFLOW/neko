@@ -23,7 +23,6 @@ SUBDIRS = tuple\
 	  device_math\
 	  mathops\
 	  device_mathops\
-	  vtkhdf\
 	  octree\
 	  vector\
 	  matrix\
@@ -53,7 +52,6 @@ TESTS = device/device_test\
 	space/space_test\
 	dofmap/dofmap_test\
 	field/field_test\
-	vtkhdf/vtkhdf_test\
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	gather_scatter/gather_scatter_test\
@@ -95,7 +93,6 @@ EXTRA_DIST = \
 	jobctrl/jobctrl_parallel.pf\
 	dofmap/dofmap_parallel.pf\
 	field/field_parallel.pf\
-	vtkhdf/vtkhdf_parallel.pf\
 	global_interpolation/glob_interp_par.pf\
 	mean_field/mean_field_parallel.pf\
 	device/device.pf\
@@ -154,3 +151,9 @@ EXTRA_DIST = \
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test
+
+if ENABLE_HDF5
+SUBDIRS += vtkhdf
+TESTS += vtkhdf/vtkhdf_parallel.pf
+EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf
+endif

@@ -8,19 +8,17 @@ module vtkhdf_parallel
   use mesh, only : mesh_t
   use point, only : point_t
   use space, only : space_t, GLL
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use device, only : device_init, device_finalize
   use dofmap, only : dofmap_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
-#ifdef HAVE_HDF5
   use hdf5, only : h5open_f, h5close_f, h5fopen_f, h5fclose_f, &
        h5gopen_f, h5gclose_f, h5aopen_f, h5aclose_f, h5aread_f, &
        h5dopen_f, h5dclose_f, h5dget_space_f, h5dread_f, &
        h5sget_simple_extent_dims_f, h5sget_simple_extent_ndims_f, &
        h5sclose_f, h5lexists_f, &
        hid_t, hsize_t, H5F_ACC_RDONLY_F, H5T_NATIVE_INTEGER, H5T_NATIVE_DOUBLE
-#endif
   implicit none
 
   @TestCase
@@ -66,29 +64,29 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(point_t) :: p(12)
 
-    call p(1)%init(0.0_rp, 0.0_rp, 0.0_rp)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1.0_rp, 0.0_rp, 0.0_rp)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0.0_rp, 1.0_rp, 0.0_rp)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1.0_rp, 1.0_rp, 0.0_rp)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2.0_rp, 0.0_rp, 0.0_rp)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2.0_rp, 1.0_rp, 0.0_rp)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0.0_rp, 0.0_rp, 1.0_rp)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1.0_rp, 0.0_rp, 1.0_rp)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1.0_rp, 1.0_rp, 1.0_rp)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0.0_rp, 1.0_rp, 1.0_rp)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2.0_rp, 0.0_rp, 1.0_rp)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2.0_rp, 1.0_rp, 1.0_rp)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call msh%init(3, 2)
@@ -100,8 +98,6 @@ contains
     call msh%generate_conn()
 
   end subroutine test_vtkhdf_gen_msh
-
-#ifdef HAVE_HDF5
 
   @test(npes=[2])
   subroutine test_vtkhdf_init(this)
@@ -757,21 +753,5 @@ contains
     call h5close_f(hdferr)
 
   end subroutine test_vtkhdf_write_time
-
-
-#else
-  subroutine test_vtkhdf_init(this)
-    class(test_vtkhdf), intent(inout) :: this
-    @assertTrue(.true.)
-  end subroutine test_vtkhdf_init
-  subroutine test_vtkhdf_write(this)
-    class (test_vtkhdf), intent(inout) :: this
-    @assertTrue(.true.)
-  end subroutine test_vtkhdf_write
-  subroutine test_vtkhdf_write_time(this)
-    class (test_vtkhdf), intent(inout) :: this
-    @assertTrue(.true.)
-  end subroutine test_vtkhdf_write_time
-#endif
 
 end module vtkhdf_parallel
