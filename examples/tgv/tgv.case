@@ -14,7 +14,7 @@
         },
         "numerics": {
             "time_order": 3,
-            "polynomial_order": 2,
+            "polynomial_order": 7,
             "dealias": true
         },
         "fluid": {
@@ -42,8 +42,7 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 1.0,
-            "output_format": "vtkhdf"
+            "output_value": 1.0
         },
         "simulation_components":
         [
