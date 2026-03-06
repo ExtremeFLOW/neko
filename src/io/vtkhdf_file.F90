@@ -45,7 +45,7 @@ module vtkhdf_file
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use device, only : DEVICE_TO_HOST
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, MPI_IN_PLACE, &
-       MPI_INTEGER, MPI_SUM, MPI_Comm_size
+       MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Scan
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -217,7 +217,8 @@ contains
     total_cells = sum(part_cells)
     total_conn = sum(part_conns)
 
-    max_local_points = maxval(part_points)
+    call MPI_Allreduce(local_points, max_local_points, 1, MPI_INTEGER, &
+         MPI_MAX, NEKO_COMM, ierr)
 
     point_offset = sum(part_points(1:pe_rank))
 
