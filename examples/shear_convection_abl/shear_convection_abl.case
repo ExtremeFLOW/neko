@@ -1,0 +1,239 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "512.nmsh",
+        "output_at_end": true,
+        "output_checkpoints": false,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 1000.0,
+        "output_boundary": false,
+        "time": {
+            "end_time": 14000.0,
+            "variable_timestep": true,
+            "max_timestep": 20.0,
+            "target_cfl": 0.5
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 7,
+            "dealias": true
+        },
+        "fluid": {
+            "output_control": "simulationtime",
+            "output_value": 100.0,
+            "scheme": "pnpn",
+            "rho": 1.0,
+            "mu": 1e-10,
+            "initial_condition": {
+                "type": "user"
+            },
+            "full_stress_formulation": true,
+            "nut_field": "nut",
+            "velocity_solver": {
+                "type": "coupled_cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-7,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-5,
+                "max_iterations": 800
+            },
+            "source_terms": [
+                {
+                    "type": "boussinesq",
+                    "scalar_field": "temperature",
+                    "reference_value": 300.0,
+                    "g":"g_vector" 
+                },
+                {
+                    "type": "coriolis",
+                    "rotation_vector": [
+                        0.0,
+                        0.0,
+                        0.5e-4
+                    ],
+                    "geostrophic_wind": "geo_wind"
+                }
+            ],
+            "boundary_conditions": [
+                {
+                    "type": "velocity_value",
+                    "value": "geo_wind",
+                    "zone_indices": [
+                        6
+                    ]
+                },
+                {
+                    "type": "wall_model",
+                    "model": "rough_log_law",
+                    "kappa": 0.4,
+                    "z0": 0.1,
+                    "B": 0.0,
+                    "zone_indices": [
+                        5
+                    ],
+                    "h_index": 1
+                }
+            ]
+        },
+        "scalars": [
+            {
+                "name": "temperature",
+                "enabled": true,
+                "cp": 1.0,
+                "lambda": 1e-10,
+                "initial_condition": {
+                    "type": "user"
+                },
+                "boundary_conditions": [
+                    {
+                        "type": "dirichlet",
+                        "value": 308.35,
+                        "zone_indices": [
+                            6
+                        ]
+                    },
+                    {
+                        "type": "neumann",
+                        "flux": 0.05,
+                        "zone_indices": [
+                            5
+                        ]
+                    }
+                ],
+                "alphat":{
+                    "nut_dependency": false,
+                    "alphat_field": "temperature_alphat"
+                },
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": {
+                        "type": "jacobi"
+                    },
+                    "projection_space_size": 0,
+                    "absolute_tolerance": 1e-7,
+                    "max_iterations": 800
+                }
+            },
+            {
+                "name": "TKE",
+                "enabled": true,
+                "cp": 1.0,
+                "lambda": 1e-10,
+                "initial_condition": {
+                    "type": "user"
+                },
+                "boundary_conditions": [
+                    {
+                        "type": "dirichlet",
+                        "value": 0.0,
+                        "zone_indices": [
+                            6
+                        ]
+                    },
+                    {
+                        "type": "neumann",
+                        "flux": 0.0,
+                        "zone_indices": [
+                            5
+                        ]
+                    }
+                ],
+                "alphat":{
+                    "nut_dependency": false,
+                    "alphat_field": "TKE_alphat"
+                },
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": {
+                        "type": "jacobi"
+                    },
+                    "projection_space_size": 0,
+                    "absolute_tolerance": 1e-7,
+                    "max_iterations": 800
+                },
+                "source_terms": [
+                    {
+                        "type": "field",
+                        "field_names": ["TKE_source"]
+                    }
+                ]
+            }
+        ],
+        "simulation_components": [
+            {
+                "type": "les_model",
+                "model": "deardorff",
+                "c_k": 0.1,
+                "T0": 300.0,
+                "g": "g_vector",
+		        "delta_type": "elementwise_max"
+            },
+            {
+                "type": "fluid_stats",
+                "compute_control": "simulationtime",
+                "compute_value": 10.0,
+                "output_control": "simulationtime",
+                "output_value": 4000.0,
+                "start_time": 10000.0,
+                "avg_direction": "xy",
+                "set_of_stats": "basic"
+            },
+	        {
+                "type": "scalar_stats",
+                "field": "temperature",
+                "compute_control": "simulationtime",
+                "compute_value": 10.0,
+                "output_control": "simulationtime",
+                "output_value": 4000.0,
+                "start_time": 10000.0,
+                "avg_direction": "xy",
+		        "set_of_stats": "full"
+            },
+            {
+                "type": "fluid_sgs_stats",
+                "nut_field": "nut",
+                "compute_control": "simulationtime",
+                "compute_value": 10.0,
+                "output_control": "simulationtime",
+                "output_value": 4000.0,
+                "start_time": 10000.0,
+                "avg_direction": "xy"
+            },
+            {
+                "type": "scalar_sgs_stats",
+                "field": "temperature",
+                "alphat":{
+                    "nut_dependency": false,
+                    "alphat_field": "temperature_alphat"
+                },
+                "compute_control": "simulationtime",
+                "compute_value": 10.0,
+                "output_control": "simulationtime",
+                "output_value": 4000.0,
+                "start_time": 10000.0,
+                "avg_direction": "xy"
+            }
+        ],
+        "constants":
+        [
+            {
+                "name": "geo_wind",
+                "value": [10.0, 0.0, 0.0]
+            },           
+	        {
+                "name": "g_vector",
+                "value": [0.0, 0.0, -9.81]
+            }
+        ]
+    }
+}

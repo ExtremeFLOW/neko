@@ -1,6 +1,8 @@
 # Changelog
 
 ## Develop
+
+- Add Deardorff SGS model.
 - Add the optional `expected_size` argument to `json_get_*_array` 
   to throw an error if the parsed array size is incorrect.
 - Fixed checkpoint JSON parameter parsing and their documentation. The
