@@ -6,7 +6,7 @@
         "output_boundary": true,
         "output_checkpoints": true,
         "checkpoint_control": "tsteps",
-        "checkpoint_value": 5000.0,
+        "checkpoint_value": 5000,
         "time": {
             "end_time": 20.0,
             "variable_timestep": false,
