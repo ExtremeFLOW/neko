@@ -78,7 +78,7 @@ contains
     type(field_ptr_t), allocatable :: fp(:)
     logical, allocatable :: field_written(:)
     integer :: ierr, info, i, n_fields
-    integer(hid_t) :: plist_id, xf_id, file_id, attr_id, vtkhdf_grp
+    integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, memspace
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(2) :: vdims
@@ -127,7 +127,6 @@ contains
        call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
     end if
 
-
     ! Assign commonly used values
     lx = dof%Xh%lx
     ly = dof%Xh%ly
@@ -156,10 +155,6 @@ contains
             file_id, ierr, access_prp = plist_id)
     end if
 
-    ! Create collective transfer property list
-    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
-
     ! Create/open VTKHDF root group with vtkhdf_version and type attributes
     call h5lexists_f(file_id, "VTKHDF", link_exists, ierr)
     if (link_exists) then
@@ -168,7 +163,7 @@ contains
        call h5gcreate_f(file_id, "VTKHDF", vtkhdf_grp, ierr, lcpl_id=h5p_default_f, &
             gcpl_id=h5p_default_f, gapl_id=h5p_default_f)
 
-       ! Write Version attribute [2, 5] as an array of 2 64bit integers
+       ! Write Version attribute as an array of 2 64bit integers
        vdims(1) = 2
        call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
        call h5acreate_f(vtkhdf_grp, "Version", H5T_NATIVE_INTEGER, filespace, attr_id, &
@@ -219,14 +214,13 @@ contains
     ! For static mesh, only write geometry on the first call
     call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
     if (this%amr_enabled .or. .not. link_exists) then
-       call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, xf_id, &
-            VTK_cell_type)
+       call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type)
     end if ! write mesh conditional
 
     pointdata_time_offset = 0_hsize_t
 
     if (present(t)) then
-       call vtkhdf_write_steps(vtkhdf_grp, xf_id, t, &
+       call vtkhdf_write_steps(vtkhdf_grp, t, &
             this%amr_enabled, &
             total_points, total_cells, total_conn, &
             pointdata_time_offset)
@@ -234,14 +228,13 @@ contains
 
     ! Write field data in PointData group
     if (n_fields > 0) then
-       call vtkhdf_write_pointdata(vtkhdf_grp, xf_id, &
+       call vtkhdf_write_pointdata(vtkhdf_grp, &
             fp, field_written, msh%nelv, &
             local_points, point_offset, max_local_points, total_points, &
             pointdata_time_offset, lx, ly, lz, present(t))
     end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
-    call h5pclose_f(xf_id, ierr)
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
     call h5close_f(ierr)
@@ -328,7 +321,6 @@ contains
   !! @param vtkhdf_grp HDF5 group ID for VTKHDF root group
   !! @param dof Dofmap for coordinate data
   !! @param msh Mesh object
-  !! @param xf_id Collective transfer property list
   !! @param local_points Number of points on this rank
   !! @param local_cells Number of sub-cells on this rank
   !! @param local_conn Connectivity array size on this rank
@@ -339,14 +331,15 @@ contains
   !! @param max_local_points Maximum local_points across all ranks
   !! @param part_cells Per-partition cell counts from MPI_Allgather
   !! @param part_conns Per-partition connectivity sizes from MPI_Allgather
-  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, xf_id, &
+  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, &
        VTK_cell_type)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
-    integer(hid_t), intent(in) :: vtkhdf_grp, xf_id
+    integer(hid_t), intent(in) :: vtkhdf_grp
     integer(kind=1), intent(in) :: VTK_cell_type
 
     integer :: ierr, i, ii, jj, kk, el, local_idx
+    integer(hid_t) :: xf_id
     integer :: lx, ly, lz, npts_per_cell, nodes_per_cell, cells_per_element
     integer :: local_points, local_cells, local_conn
     integer :: total_points, total_cells, total_conn
@@ -410,6 +403,10 @@ contains
 
     offsets_offset = cell_offset + pe_rank
     total_offsets = total_cells + pe_size
+
+    ! Create collective transfer property list
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
 
     ! --- NumberOfPoints dataset (per-partition) ---
     call h5lexists_f(vtkhdf_grp, "NumberOfPoints", link_exists, ierr)
@@ -617,29 +614,31 @@ contains
     call h5sclose_f(filespace, ierr)
     deallocate(cell_types_byte)
 
+    call h5pclose_f(xf_id, ierr)
+
   end subroutine vtkhdf_write_mesh
 
   !> Write temporal Steps group metadata to the VTKHDF group.
   !! Writes Values, NumberOfParts, PartOffsets, PointOffsets,
   !! CellOffsets, ConnectivityIdOffsets datasets, and NSteps attribute.
   !! @param vtkhdf_grp HDF5 group ID for VTKHDF root group
-  !! @param xf_id Collective transfer property list
   !! @param t Current simulation time
   !! @param amr_enabled Whether AMR is enabled
   !! @param total_points Global total number of points
   !! @param total_cells Global total number of sub-cells
   !! @param total_conn Global total connectivity size
   !! @param pointdata_time_offset Output: offset for PointData at this timestep
-  subroutine vtkhdf_write_steps(vtkhdf_grp, xf_id, t, &
+  subroutine vtkhdf_write_steps(vtkhdf_grp, t, &
        amr_enabled, &
        total_points, total_cells, total_conn, &
        pointdata_time_offset)
-    integer(hid_t), intent(in) :: vtkhdf_grp, xf_id
+    integer(hid_t), intent(in) :: vtkhdf_grp
     real(kind=rp), intent(in) :: t
     logical, intent(in) :: amr_enabled
     integer, intent(in) :: total_points, total_cells, total_conn
     integer(hsize_t), intent(out) :: pointdata_time_offset
 
+    integer(hid_t) :: xf_id
     integer :: ierr, N_Steps
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hid_t) :: grp_id, dset_id, dcpl_id, filespace, memspace, attr_id
@@ -650,6 +649,10 @@ contains
     logical :: link_exists, attr_exists
 
     call vtkhdf_file_determine_real(H5T_NEKO_REAL)
+
+    ! Create collective transfer property list
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
 
     ! Create or open Steps group
     call h5lexists_f(vtkhdf_grp, "Steps", link_exists, ierr)
@@ -712,32 +715,33 @@ contains
     call h5aclose_f(attr_id, ierr)
 
     ! --- NumberOfParts ---
-    call vtkhdf_append_step_i8(grp_id, "NumberOfParts", int(pe_size, kind=8), xf_id)
+    call vtkhdf_append_step_i8(grp_id, "NumberOfParts", int(pe_size, kind=8))
 
     ! --- PartOffsets ---
     i8_value = 0
     if (amr_enabled) then
        i8_value = int(N_Steps - 1, kind=8) * int(pe_size, kind=8)
-       call vtkhdf_append_step_i8(grp_id, "PartOffsets", i8_value, xf_id)
+       call vtkhdf_append_step_i8(grp_id, "PartOffsets", i8_value)
 
        i8_value = int(N_Steps - 1, kind=8) * int(total_points, kind=8)
-       call vtkhdf_append_step_i8(grp_id, "PointOffsets", i8_value, xf_id)
+       call vtkhdf_append_step_i8(grp_id, "PointOffsets", i8_value)
 
        i8_value = int(N_Steps - 1, kind=8) * int(total_cells, kind=8)
-       call vtkhdf_append_step_i8(grp_id, "CellOffsets", i8_value, xf_id)
+       call vtkhdf_append_step_i8(grp_id, "CellOffsets", i8_value)
 
        i8_value = int(N_Steps - 1, kind=8) * int(total_conn, kind=8)
-       call vtkhdf_append_step_i8(grp_id, "ConnectivityIdOffsets", i8_value, xf_id)
+       call vtkhdf_append_step_i8(grp_id, "ConnectivityIdOffsets", i8_value)
 
     else
        i8_value = int(0, kind=8)
-       call vtkhdf_append_step_i8(grp_id, "PartOffsets", i8_value, xf_id)
-       call vtkhdf_append_step_i8(grp_id, "PointOffsets", i8_value, xf_id)
-       call vtkhdf_append_step_i8(grp_id, "CellOffsets", i8_value, xf_id)
-       call vtkhdf_append_step_i8(grp_id, "ConnectivityIdOffsets", i8_value, xf_id)
+       call vtkhdf_append_step_i8(grp_id, "PartOffsets", i8_value)
+       call vtkhdf_append_step_i8(grp_id, "PointOffsets", i8_value)
+       call vtkhdf_append_step_i8(grp_id, "CellOffsets", i8_value)
+       call vtkhdf_append_step_i8(grp_id, "ConnectivityIdOffsets", i8_value)
     end if
 
     call h5gclose_f(grp_id, ierr)
+    call h5pclose_f(xf_id, ierr)
 
   end subroutine vtkhdf_write_steps
 
@@ -747,9 +751,8 @@ contains
   !! @param grp_id HDF5 group containing the dataset
   !! @param name Dataset name
   !! @param value Value to append
-  !! @param xf_id Collective transfer property list
-  subroutine vtkhdf_append_step_i8(grp_id, name, value, xf_id)
-    integer(hid_t), intent(in) :: grp_id, xf_id
+  subroutine vtkhdf_append_step_i8(grp_id, name, value)
+    integer(hid_t), intent(in) :: grp_id
     character(len=*), intent(in) :: name
     integer(kind=8), intent(in) :: value
 
@@ -757,7 +760,12 @@ contains
     integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
     integer(hsize_t), dimension(1) :: dims, maxdims, cnt, off, chunkdims
     integer(kind=8), dimension(1) :: buf
+    integer(hid_t) :: xf_id
     logical :: link_exists
+
+    ! Create collective transfer property list
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
 
     call h5lexists_f(grp_id, name, link_exists, ierr)
     if (link_exists) then
@@ -791,6 +799,7 @@ contains
     call h5sclose_f(memspace, ierr)
     call h5sclose_f(filespace, ierr)
     call h5dclose_f(dset_id, ierr)
+    call h5pclose_f(xf_id, ierr)
 
   end subroutine vtkhdf_append_step_i8
 
@@ -799,7 +808,6 @@ contains
   !! All other fields are written as scalar datasets.
   !! For temporal output, PointDataOffsets are appended under Steps.
   !! @param vtkhdf_grp Root VTKHDF group
-  !! @param xf_id Collective transfer property list
   !! @param fp Array of field pointers to write
   !! @param field_written Tracking array for already-written fields
   !! @param n_fields Number of fields
@@ -813,11 +821,11 @@ contains
   !! @param ly Polynomial order in y
   !! @param lz Polynomial order in z
   !! @param has_time Whether temporal data (Steps) are being written
-  subroutine vtkhdf_write_pointdata(vtkhdf_grp, xf_id, &
+  subroutine vtkhdf_write_pointdata(vtkhdf_grp, &
        fp, field_written, nelv, &
        local_points, point_offset, max_local_points, total_points, &
        pointdata_time_offset, lx, ly, lz, has_time)
-    integer(hid_t), intent(in) :: vtkhdf_grp, xf_id
+    integer(hid_t), intent(in) :: vtkhdf_grp
     type(field_ptr_t), intent(in) :: fp(:)
     logical, intent(inout) :: field_written(:)
     integer, intent(in) :: nelv
@@ -828,6 +836,7 @@ contains
     logical, intent(in) :: has_time
 
     integer(hid_t) :: H5T_NEKO_REAL
+    integer(hid_t) :: xf_id
     integer :: ierr, i, j, ie, ii, jj, kk, local_idx
     integer :: n_fields, npts_per_cell
     integer(hid_t) :: pointdata_grp, pointdata_offsets_grp, grp_id
@@ -840,6 +849,10 @@ contains
     real(kind=rp), allocatable :: point_data(:,:)
     character(len=128) :: field_name
     logical :: link_exists, is_vector
+
+    ! Create collective transfer property list
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
 
     call vtkhdf_file_determine_real(H5T_NEKO_REAL)
     n_fields = size(fp)
@@ -913,7 +926,7 @@ contains
                   pointdata_offsets_grp, ierr)
           end if
           call vtkhdf_append_step_i8(pointdata_offsets_grp, &
-               trim(field_name), int(pointdata_time_offset, kind=8), xf_id)
+               trim(field_name), int(pointdata_time_offset, kind=8))
           call h5gclose_f(pointdata_offsets_grp, ierr)
           call h5gclose_f(grp_id, ierr)
        end if
