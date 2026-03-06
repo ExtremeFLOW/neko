@@ -42,7 +42,7 @@ module vtkhdf_file
   use field_series, only : field_series_t, field_series_ptr_t
   use dofmap, only : dofmap_t
   use logger, only : neko_log
-  use comm, only : pe_rank, NEKO_COMM
+  use comm, only : pe_rank, pe_size, NEKO_COMM
   use device, only : DEVICE_TO_HOST
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, MPI_IN_PLACE, &
        MPI_INTEGER, MPI_SUM, MPI_Comm_size
@@ -83,7 +83,6 @@ contains
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(2) :: vdims
     integer :: lx, ly, lz
-    integer :: num_partitions
     integer :: local_points, local_cells, local_conn
     integer :: total_points, total_cells, total_conn
     integer :: point_offset
@@ -190,9 +189,6 @@ contains
     end if
 
     ! Write mesh information if present
-
-    call MPI_Comm_size(NEKO_COMM, num_partitions, ierr)
-
     if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
        call neko_error('VTKHDF linear output requires lx, ly >= 2')
     end if
@@ -209,9 +205,9 @@ contains
        local_conn = local_cells * 4
     end if
 
-    allocate(part_points(num_partitions))
-    allocate(part_cells(num_partitions))
-    allocate(part_conns(num_partitions))
+    allocate(part_points(pe_size))
+    allocate(part_cells(pe_size))
+    allocate(part_conns(pe_size))
 
     call MPI_Allgather(local_points, 1, MPI_INTEGER, part_points, 1, MPI_INTEGER, NEKO_COMM, ierr)
     call MPI_Allgather(local_cells, 1, MPI_INTEGER, part_cells, 1, MPI_INTEGER, NEKO_COMM, ierr)
@@ -229,7 +225,7 @@ contains
     call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
     if (this%amr_enabled .or. .not. link_exists) then
        call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
-            H5T_NEKO_REAL, num_partitions, &
+            H5T_NEKO_REAL, &
             local_points, total_points, total_cells, total_conn, &
             point_offset, max_local_points, part_cells, part_conns)
     end if ! write mesh conditional
@@ -239,7 +235,7 @@ contains
 
     if (present(t)) then
        call vtkhdf_write_steps(vtkhdf_grp, plist_coll, H5T_NEKO_REAL, t, &
-            this%amr_enabled, num_partitions, &
+            this%amr_enabled, &
             total_points, total_cells, total_conn, &
             pointdata_time_offset)
     end if
@@ -335,7 +331,6 @@ contains
   !! @param msh Mesh object
   !! @param plist_coll Collective transfer property list
   !! @param H5T_NEKO_REAL HDF5 real type matching NEKO precision
-  !! @param num_partitions Number of MPI partitions
   !! @param local_points Number of points on this rank
   !! @param local_cells Number of sub-cells on this rank
   !! @param local_conn Connectivity array size on this rank
@@ -347,13 +342,12 @@ contains
   !! @param part_cells Per-partition cell counts from MPI_Allgather
   !! @param part_conns Per-partition connectivity sizes from MPI_Allgather
   subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
-       H5T_NEKO_REAL, num_partitions, &
+       H5T_NEKO_REAL, &
        local_points, total_points, total_cells, total_conn, &
        point_offset, max_local_points, part_cells, part_conns)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
     integer(hid_t), intent(in) :: vtkhdf_grp, plist_coll, H5T_NEKO_REAL
-    integer, intent(in) :: num_partitions
     integer, intent(in) :: local_points
     integer, intent(in) :: total_points, total_cells, total_conn
     integer, intent(in) :: point_offset, max_local_points
@@ -390,15 +384,15 @@ contains
     offsets_offset = cell_offset + pe_rank
     max_local_cells = maxval(part_cells)
     max_local_conn = maxval(part_conns)
-    total_offsets = total_cells + num_partitions
+    total_offsets = total_cells + pe_size
 
     ! --- NumberOfPoints dataset (per-partition) ---
     call h5lexists_f(vtkhdf_grp, "NumberOfPoints", link_exists, ierr)
     if (link_exists) call h5ldelete_f(vtkhdf_grp, "NumberOfPoints", ierr)
-    vdims(1) = int(num_partitions, hsize_t)
+    vdims(1) = int(pe_size, hsize_t)
     call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-    chunkdims(1) = int(num_partitions, hsize_t)
+    chunkdims(1) = int(pe_size, hsize_t)
     call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
     call h5dcreate_f(vtkhdf_grp, "NumberOfPoints", H5T_NATIVE_INTEGER, &
          filespace, dset_id, ierr, dcpl_id = dcpl_id)
@@ -420,10 +414,10 @@ contains
     ! --- NumberOfCells dataset (per-partition) ---
     call h5lexists_f(vtkhdf_grp, "NumberOfCells", link_exists, ierr)
     if (link_exists) call h5ldelete_f(vtkhdf_grp, "NumberOfCells", ierr)
-    vdims(1) = int(num_partitions, hsize_t)
+    vdims(1) = int(pe_size, hsize_t)
     call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-    chunkdims(1) = int(num_partitions, hsize_t)
+    chunkdims(1) = int(pe_size, hsize_t)
     call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
     call h5dcreate_f(vtkhdf_grp, "NumberOfCells", H5T_NATIVE_INTEGER, &
          filespace, dset_id, ierr, dcpl_id = dcpl_id)
@@ -445,10 +439,10 @@ contains
     ! --- NumberOfConnectivityIds dataset (per-partition) ---
     call h5lexists_f(vtkhdf_grp, "NumberOfConnectivityIds", link_exists, ierr)
     if (link_exists) call h5ldelete_f(vtkhdf_grp, "NumberOfConnectivityIds", ierr)
-    vdims(1) = int(num_partitions, hsize_t)
+    vdims(1) = int(pe_size, hsize_t)
     call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-    chunkdims(1) = int(num_partitions, hsize_t)
+    chunkdims(1) = int(pe_size, hsize_t)
     call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
     call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", H5T_NATIVE_INTEGER, &
          filespace, dset_id, ierr, dcpl_id = dcpl_id)
@@ -618,19 +612,17 @@ contains
   !! @param H5T_NEKO_REAL HDF5 real type matching NEKO precision
   !! @param t Current simulation time
   !! @param amr_enabled Whether AMR is enabled
-  !! @param num_partitions Number of MPI partitions
   !! @param total_points Global total number of points
   !! @param total_cells Global total number of sub-cells
   !! @param total_conn Global total connectivity size
   !! @param pointdata_time_offset Output: offset for PointData at this timestep
   subroutine vtkhdf_write_steps(vtkhdf_grp, plist_coll, H5T_NEKO_REAL, t, &
-       amr_enabled, num_partitions, &
+       amr_enabled, &
        total_points, total_cells, total_conn, &
        pointdata_time_offset)
     integer(hid_t), intent(in) :: vtkhdf_grp, plist_coll, H5T_NEKO_REAL
     real(kind=rp), intent(in) :: t
     logical, intent(in) :: amr_enabled
-    integer, intent(in) :: num_partitions
     integer, intent(in) :: total_points, total_cells, total_conn
     integer(hsize_t), intent(out) :: pointdata_time_offset
 
@@ -689,12 +681,12 @@ contains
     pointdata_time_offset = int(N_Steps - 1, hsize_t) * int(total_points, hsize_t)
 
     ! --- NumberOfParts ---
-    i8_value(1) = int(num_partitions, kind=8)
+    i8_value(1) = int(pe_size, kind=8)
     call vtkhdf_append_step_i8(grp_id, "NumberOfParts", i8_value(1), plist_coll)
 
     ! --- PartOffsets ---
     if (amr_enabled) then
-       i8_value(1) = int(N_Steps - 1, kind=8) * int(num_partitions, kind=8)
+       i8_value(1) = int(N_Steps - 1, kind=8) * int(pe_size, kind=8)
     else
        i8_value(1) = 0
     end if
