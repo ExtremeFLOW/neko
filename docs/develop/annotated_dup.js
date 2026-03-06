@@ -301,6 +301,9 @@ var annotated_dup =
       [ "dist_t", "d6/d4a/structdatadist_1_1dist__t.html", "d6/d4a/structdatadist_1_1dist__t" ],
       [ "linear_dist_t", "d7/d4f/structdatadist_1_1linear__dist__t.html", "d7/d4f/structdatadist_1_1linear__dist__t" ]
     ] ],
+    [ "deardorff", "d2/dee/namespacedeardorff.html", [
+      [ "deardorff_t", "dd/dcd/structdeardorff_1_1deardorff__t.html", "dd/dcd/structdeardorff_1_1deardorff__t" ]
+    ] ],
     [ "derivative_simcomp", "dc/d1d/namespacederivative__simcomp.html", [
       [ "derivative_t", "d4/d59/structderivative__simcomp_1_1derivative__t.html", "d4/d59/structderivative__simcomp_1_1derivative__t" ]
     ] ],
@@ -316,6 +319,9 @@ var annotated_dup =
     [ "device_coef", "df/d80/namespacedevice__coef.html", [
       [ "hip_coef_generate_dxyzdrst", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst" ],
       [ "hip_coef_generate_geo", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo.html", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo" ]
+    ] ],
+    [ "device_deardorff_nut", "d4/d66/namespacedevice__deardorff__nut.html", [
+      [ "hip_deardorff_nut_compute", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute.html", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute" ]
     ] ],
     [ "device_dirichlet", "d0/d0d/namespacedevice__dirichlet.html", [
       [ "hip_dirichlet_apply_scalar", "de/d8f/interfacedevice__dirichlet_1_1hip__dirichlet__apply__scalar.html", "de/d8f/interfacedevice__dirichlet_1_1hip__dirichlet__apply__scalar" ],

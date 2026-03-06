@@ -292,7 +292,7 @@ var searchData=
   ['post_5fsolving_289',['post_solving',['../d5/dcf/structprojection_1_1projection__t.html#a6ecc08a5a945580c5456dbe9398c868b',1,'projection::projection_t::post_solving()'],['../d8/dfd/structprojection__vel_1_1projection__vel__t.html#aa9fa85a051005738c10716323a9ca83e',1,'projection_vel::projection_vel_t::post_solving()']]],
   ['postprocess_5ffluid_5fstats_290',['postprocess_fluid_stats',['../d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532',1,'postprocess_fluid_stats.f90']]],
   ['postprocess_5ffluid_5fstats_2ef90_291',['postprocess_fluid_stats.f90',['../d1/dd9/postprocess__fluid__stats_8f90.html',1,'']]],
-  ['postprocessing_292',['Postprocessing',['../df/d8f/statistics-guide.html#autotoc_md183',1,'']]],
+  ['postprocessing_292',['Postprocessing',['../df/d8f/statistics-guide.html#autotoc_md182',1,'']]],
   ['power_5fits_293',['power_its',['../db/d28/structcheby_1_1cheby__t.html#ad0f2909fe4f33aedce578505826585d9',1,'cheby::cheby_t::power_its'],['../d7/d81/structcheby__device_1_1cheby__device__t.html#af52184a461321de0b6e04fdb86945f6e',1,'cheby_device::cheby_device_t::power_its'],['../d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#a7c2ee3d0cc5722854f643995660e089d',1,'tree_amg_smoother::amg_cheby_t::power_its']]],
   ['pp_294',['pp',['../da/d8a/structfluid__stats_1_1fluid__stats__t.html#aa9291fef102dc25c89b0eb9f0423b9ab',1,'fluid_stats::fluid_stats_t']]],
   ['ppp_295',['ppp',['../da/d8a/structfluid__stats_1_1fluid__stats__t.html#adcd51dfeaf4798d4b650d1b9c0b5f155',1,'fluid_stats::fluid_stats_t']]],

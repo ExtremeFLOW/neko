@@ -380,6 +380,7 @@ var hierarchy =
     [ "opr_device::hip_conv1", "df/d14/interfaceopr__device_1_1hip__conv1.html", null ],
     [ "opr_device::hip_convect_scalar", "df/da4/interfaceopr__device_1_1hip__convect__scalar.html", null ],
     [ "hip_math::hip_copy", "dc/d2b/interfacehip__math_1_1hip__copy.html", null ],
+    [ "device_deardorff_nut::hip_deardorff_nut_compute", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute.html", null ],
     [ "device_dirichlet::hip_dirichlet_apply_scalar", "de/d8f/interfacedevice__dirichlet_1_1hip__dirichlet__apply__scalar.html", null ],
     [ "device_dirichlet::hip_dirichlet_apply_vector", "d6/df8/interfacedevice__dirichlet_1_1hip__dirichlet__apply__vector.html", null ],
     [ "device_dong_outflow::hip_dong_outflow_apply_scalar", "df/dc2/interfacedevice__dong__outflow_1_1hip__dong__outflow__apply__scalar.html", null ],
@@ -554,6 +555,7 @@ var hierarchy =
     [ "les_model::les_model_free", "d8/daa/interfaceles__model_1_1les__model__free.html", null ],
     [ "les_model::les_model_init", "d3/d58/interfaceles__model_1_1les__model__init.html", null ],
     [ "les_model::les_model_t", "df/d6c/structles__model_1_1les__model__t.html", [
+      [ "deardorff::deardorff_t", "dd/dcd/structdeardorff_1_1deardorff__t.html", null ],
       [ "dynamic_smagorinsky::dynamic_smagorinsky_t", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html", null ],
       [ "sigma::sigma_t", "d2/dae/structsigma_1_1sigma__t.html", null ],
       [ "smagorinsky::smagorinsky_t", "d7/d8f/structsmagorinsky_1_1smagorinsky__t.html", null ],

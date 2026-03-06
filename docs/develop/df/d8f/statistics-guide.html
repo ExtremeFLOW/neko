@@ -102,21 +102,21 @@ $(document).ready(function(){initNavTree('df/d8f/statistics-guide.html','../../'
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md180">Fluid Statistics</a><ul><li class="level2"><a href="#autotoc_md181">Using statistics</a></li>
-<li class="level2"><a href="#autotoc_md182">List of fields in output files</a></li>
+<ul><li class="level1"><a href="#fluid-statistics">Fluid Statistics</a><ul><li class="level2"><a href="#autotoc_md180">Using statistics</a></li>
+<li class="level2"><a href="#autotoc_md181">List of fields in output files</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md183">Postprocessing</a></li>
-<li class="level1"><a href="#autotoc_md184">Scalar Statistics</a><ul><li class="level2"><a href="#autotoc_md185">Using statistics</a></li>
+<li class="level1"><a href="#autotoc_md182">Postprocessing</a></li>
+<li class="level1"><a href="#scalar-statistics">Scalar Statistics</a><ul><li class="level2"><a href="#autotoc_md183">Using statistics</a></li>
+<li class="level2"><a href="#autotoc_md184">List of fields in output files</a></li>
+</ul>
+</li>
+<li class="level1"><a href="#fluid-sgs-statistics">Fluid Subgrid-Scale (SGS) Statistics</a><ul><li class="level2"><a href="#autotoc_md185">Using statistics</a></li>
 <li class="level2"><a href="#autotoc_md186">List of fields in output files</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md187">Fluid Subgrid-Scale (SGS) Statistics</a><ul><li class="level2"><a href="#autotoc_md188">Using statistics</a></li>
-<li class="level2"><a href="#autotoc_md189">List of fields in output files</a></li>
-</ul>
-</li>
-<li class="level1"><a href="#autotoc_md190">Scalar Subgrid-Scale (SGS) Statistics</a><ul><li class="level2"><a href="#autotoc_md191">Using statistics</a></li>
-<li class="level2"><a href="#autotoc_md192">List of fields in output files</a></li>
+<li class="level1"><a href="#scalar-sgs-statistics">Scalar Subgrid-Scale (SGS) Statistics</a><ul><li class="level2"><a href="#autotoc_md187">Using statistics</a></li>
+<li class="level2"><a href="#autotoc_md188">List of fields in output files</a></li>
 </ul>
 </li>
 </ul>
@@ -132,10 +132,10 @@ $(document).ready(function(){initNavTree('df/d8f/statistics-guide.html','../../'
 <p>$$ \langle u \rangle_t = \int_{T_0}^{T_N} u dt $$</p>
 <p>In Neko, this is computed as</p>
 <p>$$ \langle u \rangle_t = \sum_{i=0}^N u_i \Delta t_i $$ where \( u_0 \) is the fields value at \( T_0 \) and \( N \) is the number of time steps needed to reach \( T_N \), \( T_N = T_0 + \sum_{i=0}^N \Delta t_i \).</p>
-<h1><a class="anchor" id="autotoc_md180"></a>
+<h1><a class="anchor" id="fluid-statistics"></a>
 Fluid Statistics</h1>
 <p>In the fluid statistics in Neko, various averages of the different velocity components, derivatives and pressure are computed. In total, 44 "raw statistics" are computed that are required to compute the Reynolds stress budgets, mean fields, and the different terms in the turbulent kinetic energy equation.</p>
-<h2><a class="anchor" id="autotoc_md181"></a>
+<h2><a class="anchor" id="autotoc_md180"></a>
 Using statistics</h2>
 <p>Statistics are enabled in the case file as a simcomp with the added argument <code>avg_direction</code>, <code>set_of_stats</code>, and <code>start_time</code>:</p>
 <table class="markdownTable">
@@ -172,7 +172,7 @@ Using statistics</h2>
 <p>The argument "avg_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean Z-velocity is stored in a last scalar field. All other fields are kept the same. This is due to a limitation of the fld file format.</p>
 <p>For 1D statistics a CSV file is outputted. The first column is the time at which the statistics are collected, the second column the spatial coordinate, and the rest of the data is stored in the order below. In this case all statistics are kept in the same order as in 3D. The name for these files are <code>fluid_statsX.csv,..., fluid_statsX.csv</code> where X is the number of the first outputted statistic of the current run.</p>
 <p>The statistics fields created by this simcomp are accessible from the neko registry and retrievable under the following naming convention: <code>name_in_registry = name_of_simcomp + "/mean_" + name_of_field</code>. Unless specified, the name of the simcomp will default to <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code>. For example, if <code>"fields": ["s", "my_field"]</code> and <code>"name": "my_stats"</code> then the fields <code>"my_stats/mean_s"</code> and <code>"my_stats/mean_my_field"</code> will be added to the registry.</p>
-<h2><a class="anchor" id="autotoc_md182"></a>
+<h2><a class="anchor" id="autotoc_md181"></a>
 List of fields in output files</h2>
 <p>When only the basic set of stats is enabled, only stats 1-11 are computed. When 2D stats are enabled \( \langle w \rangle \) is stored in s7 for basic stats and in s40 for the full set of statistics.</p>
 <table class="markdownTable">
@@ -268,15 +268,15 @@ List of fields in output files</h2>
 <td class="markdownTableBodyNone">44   </td><td class="markdownTableBodyNone">\( \langle  e23   \rangle \)   </td><td class="markdownTableBodyNone">s39   </td></tr>
 </table>
 <p>where \(e11,e22...\) is computed as: $$ \begin{aligned} e11 &amp;= \left(\frac{\partial u}{\partial x}\right)^2 + \left(\frac{\partial u}{\partial y}\right)^2 + \left(\frac{\partial u}{\partial z}\right)^2 \\ e22 &amp;= \left(\frac{\partial v}{\partial x}\right)^2 + \left(\frac{\partial v}{\partial y}\right)^2 + \left(\frac{\partial v}{\partial z}\right)^2 \\ e33 &amp;= \left(\frac{\partial w}{\partial x}\right)^2 + \left(\frac{\partial w}{\partial y}\right)^2 + \left(\frac{\partial w}{\partial z}\right)^2 \\ e12 &amp;= \frac{\partial u}{\partial x} \frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial v}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial v}{\partial z} \\ e13 &amp;= \frac{\partial u}{\partial x} \frac{\partial w}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial w}{\partial z} \\ e23 &amp;= \frac{\partial v}{\partial x} \frac{\partial w}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial w}{\partial z} \\ \end{aligned} $$</p>
-<h1><a class="anchor" id="autotoc_md183"></a>
+<h1><a class="anchor" id="autotoc_md182"></a>
 Postprocessing</h1>
 <p>These statistics are only the "raw statistics" in the sense that in general we are not interested in \( \langle uu\rangle \), but rather say \( \langle u&#39;u&#39;\rangle\). For this we need to postprocess the statistics.</p>
 <p>There is some rudimentary postprocessing to compute the spatial averages of fld files and also to combine the statistics collected from several runs (compute average in time) and also compute both the mean velocity gradient and the Reynolds stresses available in the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, (e.g. by running <code>./average_fields_in_time</code> will give the options).</p>
 <p>To further postprocess the statistics it is suggested to look into PyNekTools which introduces convenient functions for postprocessing, largely based on the PyMech library with the addition of an expanding set of tools for interpolation, computing derivatives and more advanced functionality. PyNekTools is entirely parallelized in MPI and can also handle large data sets for postprocessing.</p>
-<h1><a class="anchor" id="autotoc_md184"></a>
+<h1><a class="anchor" id="scalar-statistics"></a>
 Scalar Statistics</h1>
-<p>In the scalar statistics in Neko, various averages of a given scalar and the different velocity components, derivatives and pressure are computed, in a similar fashion to the fluid statistics. In total, 42 "raw statistics" are computed that are required to compute the mean scalar transport equation, skewness and kurtosis, as well as the scalar variance budget, and turbulent scalar flux budgets. In order to compute the final budgets, some terms are required from the fluid statistics, namely the mean velocities and Reynolds stresses. The user is responsible for collecting these statistics separately using the <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code> simulation component (see <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">Fluid Statistics</a>).</p>
-<h2><a class="anchor" id="autotoc_md185"></a>
+<p>In the scalar statistics in Neko, various averages of a given scalar and the different velocity components, derivatives and pressure are computed, in a similar fashion to the fluid statistics. In total, 42 "raw statistics" are computed that are required to compute the mean scalar transport equation, skewness and kurtosis, as well as the scalar variance budget, and turbulent scalar flux budgets. In order to compute the final budgets, some terms are required from the fluid statistics, namely the mean velocities and Reynolds stresses. The user is responsible for collecting these statistics separately using the <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code> simulation component (see <a class="el" href="../../df/d8f/statistics-guide.html#fluid-statistics">Fluid Statistics</a>).</p>
+<h2><a class="anchor" id="autotoc_md183"></a>
 Using statistics</h2>
 <p>Similar to fluid statistics, scalar statistics are enabled in the case file as a simcomp with an additional argument <code>field</code> for the name of the scalar field to be averaged:</p>
 <table class="markdownTable">
@@ -311,7 +311,7 @@ Using statistics</h2>
 <div class="line">      &quot;set_of_stats&quot;:&quot;basic&quot;</div>
 <div class="line">    }</div>
 <div class="line">  ]</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md186"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md184"></a>
 List of fields in output files</h2>
 <p>When only the basic set of stats is enabled, only stats 1-5 are computed. When averaging across a single spatial direction, <code>&lt;ws&gt;</code> is put into <code>s1</code> for the basic set and <code>s38</code> for the full set.</p>
 <table class="markdownTable">
@@ -403,10 +403,10 @@ List of fields in output files</h2>
 <td class="markdownTableBodyNone">42   </td><td class="markdownTableBodyNone">\( \langle  e_{ws}   \rangle \)   </td><td class="markdownTableBodyNone">s37   </td></tr>
 </table>
 <p>where \(e_{ss}, e_{us}, e_{vs}, e_{ws}\) are computed as: $$ \begin{aligned} e_{ss} &amp;= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\ e_{us} &amp;= \frac{\partial u}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\ e_{vs} &amp;= \frac{\partial v}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\ e_{ws} &amp;= \frac{\partial w}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\ \end{aligned} $$</p>
-<h1><a class="anchor" id="autotoc_md187"></a>
+<h1><a class="anchor" id="fluid-sgs-statistics"></a>
 Fluid Subgrid-Scale (SGS) Statistics</h1>
 <p>In the fluid SGS statistics in Neko, subgrid-scale (SGS) contribution to the anisotropic part of the Reynolds stresses are computed, in a similar fashion to the fluid statistics. In total, 7 statistical quantities are computed.</p>
-<h2><a class="anchor" id="autotoc_md188"></a>
+<h2><a class="anchor" id="autotoc_md185"></a>
 Using statistics</h2>
 <p>Similar to fluid statistics, fluid SGS statistics are enabled in the case file as a simcomp with an additional argument <code>nut_field</code> for the name of the eddy viscosity field:</p>
 <table class="markdownTable">
@@ -438,7 +438,7 @@ Using statistics</h2>
 <div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
 <div class="line">    }</div>
 <div class="line">  ]</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md189"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md186"></a>
 List of fields in output files</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -458,12 +458,12 @@ List of fields in output files</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">7   </td><td class="markdownTableBodyNone">\( \langle 2 \nu_t S_{23} \rangle \)   </td><td class="markdownTableBodyNone">Scalar 2 (s2)   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md190"></a>
+<h1><a class="anchor" id="scalar-sgs-statistics"></a>
 Scalar Subgrid-Scale (SGS) Statistics</h1>
-<p>In the scalar SGS statistics in Neko, subgrid-scale (SGS) contribution to the scalar fluxes are computed, in a similar fashion to the fluid statistics. In total, 4 statical quantities are computed.</p>
-<h2><a class="anchor" id="autotoc_md191"></a>
+<p>In the scalar SGS statistics in Neko, subgrid-scale (SGS) contribution to the scalar fluxes are computed, in a similar fashion to the fluid statistics. In total, 4 statistical quantities are computed.</p>
+<h2><a class="anchor" id="autotoc_md187"></a>
 Using statistics</h2>
-<p>Similar to fluid statistics, scalar SGS statistics are enabled in the case file as a simcomp with two additional argument <code>field</code> and <code>alphat</code>, where the latter is a json sub-dictionary:</p>
+<p>Similar to fluid statistics, scalar SGS statistics are enabled in the case file as a simcomp with two additional arguments <code>field</code> and <code>alphat</code>, where the latter is a JSON sub-dictionary:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
@@ -524,7 +524,7 @@ Using statistics</h2>
 <div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
 <div class="line">    }</div>
 <div class="line">  ]</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md192"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md188"></a>
 List of fields in output files</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -532,11 +532,11 @@ List of fields in output files</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">1   </td><td class="markdownTableBodyNone">\( \langle \alpha_t \rangle \)   </td><td class="markdownTableBodyNone">Pressure    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">2   </td><td class="markdownTableBodyNone">\( \langle \nu_t \frac{\partial s}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">X-Velocity    </td></tr>
+<td class="markdownTableBodyNone">2   </td><td class="markdownTableBodyNone">\( \langle \alpha_t \frac{\partial s}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">X-Velocity    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone">\( \langle \nu_t \frac{\partial s}{\partial y} \rangle \)   </td><td class="markdownTableBodyNone">Y-Velocity    </td></tr>
+<td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone">\( \langle \alpha_t \frac{\partial s}{\partial y} \rangle \)   </td><td class="markdownTableBodyNone">Y-Velocity    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle \nu_t \frac{\partial s}{\partial z} \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity   </td></tr>
+<td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle \alpha_t \frac{\partial s}{\partial z} \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity   </td></tr>
 </table>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
@@ -545,7 +545,7 @@ List of fields in output files</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Mar 5 2026 04:16:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Mar 6 2026 04:16:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

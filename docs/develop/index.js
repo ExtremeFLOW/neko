@@ -79,20 +79,20 @@ var index =
         [ "Runtime statistics", "dd/d33/case-file.html#autotoc_md101", null ]
       ] ],
       [ "User File", "d6/def/user-file.html", [
-        [ "Compiling and running", "d6/def/user-file.html#autotoc_md193", null ],
-        [ "High-level structure", "d6/def/user-file.html#autotoc_md194", null ],
-        [ "Default user functions", "d6/def/user-file.html#autotoc_md195", [
+        [ "Compiling and running", "d6/def/user-file.html#autotoc_md189", null ],
+        [ "High-level structure", "d6/def/user-file.html#autotoc_md190", null ],
+        [ "Default user functions", "d6/def/user-file.html#autotoc_md191", [
           [ "Initializing and finalizing", "d6/def/user-file.html#user-file_init-and-final", null ],
           [ "Computing at every time step", "d6/def/user-file.html#user-file_user-check", null ],
           [ "Setting material properties", "d6/def/user-file.html#user-file_mat-prop", null ],
           [ "Runtime mesh deformation", "d6/def/user-file.html#user-file_user-mesh-setup", null ]
         ] ],
-        [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md196", [
+        [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md192", [
           [ "Fluid and Scalar initial conditions", "d6/def/user-file.html#user-file_user-ic", null ],
           [ "Fluid and scalar source terms", "d6/def/user-file.html#user-file_user-f", null ],
           [ "Dirichlet boundary conditions", "d6/def/user-file.html#user-file_field-dirichlet-update", null ]
         ] ],
-        [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md197", [
+        [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md193", [
           [ "Running on GPUs", "d6/def/user-file.html#user-file_tips_running-on-gpus", [
             [ "Custom GPU kernels", "d6/def/user-file.html#user-file_tips_running-on-gpus-custom-kernels", null ]
           ] ],
@@ -140,22 +140,22 @@ var index =
         [ "Using point zones", "da/dd0/point-zones.html#point-zones_using-point-zones", null ]
       ] ],
       [ "Statistics guide", "df/d8f/statistics-guide.html", [
-        [ "Fluid Statistics", "df/d8f/statistics-guide.html#autotoc_md180", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md181", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md182", null ]
+        [ "Fluid Statistics", "df/d8f/statistics-guide.html#fluid-statistics", [
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md180", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md181", null ]
         ] ],
-        [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md183", null ],
-        [ "Scalar Statistics", "df/d8f/statistics-guide.html#autotoc_md184", [
+        [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md182", null ],
+        [ "Scalar Statistics", "df/d8f/statistics-guide.html#scalar-statistics", [
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md183", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md184", null ]
+        ] ],
+        [ "Fluid Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#fluid-sgs-statistics", [
           [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md185", null ],
           [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md186", null ]
         ] ],
-        [ "Fluid Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#autotoc_md187", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md188", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md189", null ]
-        ] ],
-        [ "Scalar Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#autotoc_md190", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md191", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md192", null ]
+        [ "Scalar Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#scalar-sgs-statistics", [
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md187", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md188", null ]
         ] ]
       ] ],
       [ "Global Interpolation", "dd/d61/global-interpolation.html", [

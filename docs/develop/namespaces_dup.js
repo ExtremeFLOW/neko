@@ -104,9 +104,17 @@ var namespaces_dup =
     [ "cylinder_point_zone", "d4/ddd/namespacecylinder__point__zone.html", "d4/ddd/namespacecylinder__point__zone" ],
     [ "data_streamer", "da/d5b/namespacedata__streamer.html", "da/d5b/namespacedata__streamer" ],
     [ "datadist", "d7/d40/namespacedatadist.html", "d7/d40/namespacedatadist" ],
+    [ "deardorff", "d2/dee/namespacedeardorff.html", "d2/dee/namespacedeardorff" ],
+    [ "deardorff_cpu", "d1/ded/namespacedeardorff__cpu.html", [
+      [ "deardorff_compute_cpu", "d1/ded/namespacedeardorff__cpu.html#a24e8f7bcada04c0d05255579eb079bc6", null ]
+    ] ],
+    [ "deardorff_device", "d4/df3/namespacedeardorff__device.html", [
+      [ "deardorff_compute_device", "d4/df3/namespacedeardorff__device.html#a073d32e5fcaf956d6de48b3cebe87d00", null ]
+    ] ],
     [ "derivative_simcomp", "dc/d1d/namespacederivative__simcomp.html", "dc/d1d/namespacederivative__simcomp" ],
     [ "device", "d0/dbe/namespacedevice.html", "d0/dbe/namespacedevice" ],
     [ "device_coef", "df/d80/namespacedevice__coef.html", "df/d80/namespacedevice__coef" ],
+    [ "device_deardorff_nut", "d4/d66/namespacedevice__deardorff__nut.html", "d4/d66/namespacedevice__deardorff__nut" ],
     [ "device_dirichlet", "d0/d0d/namespacedevice__dirichlet.html", "d0/d0d/namespacedevice__dirichlet" ],
     [ "device_dong_outflow", "d6/d2d/namespacedevice__dong__outflow.html", "d6/d2d/namespacedevice__dong__outflow" ],
     [ "device_dynamic_smagorinsky_nut", "df/d29/namespacedevice__dynamic__smagorinsky__nut.html", "df/d29/namespacedevice__dynamic__smagorinsky__nut" ],

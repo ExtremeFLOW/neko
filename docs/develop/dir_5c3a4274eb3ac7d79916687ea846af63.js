@@ -1,5 +1,7 @@
 var dir_5c3a4274eb3ac7d79916687ea846af63 =
 [
+    [ "deardorff_nut.cu", "d5/d24/deardorff__nut_8cu.html", "d5/d24/deardorff__nut_8cu" ],
+    [ "deardorff_nut_kernel.h", "d8/d1f/cuda_2deardorff__nut__kernel_8h.html", "d8/d1f/cuda_2deardorff__nut__kernel_8h" ],
     [ "dynamic_smagorinsky_nut.cu", "d7/d91/dynamic__smagorinsky__nut_8cu.html", "d7/d91/dynamic__smagorinsky__nut_8cu" ],
     [ "dynamic_smagorinsky_nut_kernel.h", "d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html", "d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h" ],
     [ "sigma_nut.cu", "d9/d43/sigma__nut_8cu.html", "d9/d43/sigma__nut_8cu" ],

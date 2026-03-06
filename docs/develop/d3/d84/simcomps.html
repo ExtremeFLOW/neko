@@ -366,6 +366,17 @@ les_model</h2>
 <li><code>c_w</code>: The WALE constant, defaults to 0.55.</li>
 </ul>
 </li>
+<li><code>deardorff</code>: The Deardorff model dedicated for atmospheric boundary-layer applications. Please find the usage in <code>examples/shear_convection_ABL</code>. Configured by the following additional keyword:<ul>
+<li><code>c_k</code>: The model constant, defaults to 0.1.</li>
+<li><code>T0</code>: The reference temperature.</li>
+<li><code>g</code>: The gravity vector.</li>
+<li><code>temperature_field</code>: The field name of the temperature field, defaults to <code>temperature</code>.</li>
+<li><code>TKE_field</code>: The field name of the turbulent kinetic energy (TKE) field, defaults to <code>TKE</code>.</li>
+<li><code>temperature_alphat_field</code>: The field name of the eddy diffusivity field for the temperature equation, defaults to <code>temperature_alphat</code>.</li>
+<li><code>TKE_alphat_field</code>: The field name of the eddy diffusivity field for the TKE equation, defaults to <code>TKE_alphat</code>.</li>
+<li><code>TKE_source_field</code>: The field name of the source terms in the TKE equation including shear production, buoyancy contribution and dissipation, defaults to <code>TKE_source</code>.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><code>les_delta</code>: Selects the way to compute the LES filter length scale. Currently three alternatives are provided and the default one is <code>pointwise</code> if nothing is specified:<ul>
@@ -426,7 +437,7 @@ Spectral error indicator</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Mar 5 2026 04:16:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Mar 6 2026 04:16:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

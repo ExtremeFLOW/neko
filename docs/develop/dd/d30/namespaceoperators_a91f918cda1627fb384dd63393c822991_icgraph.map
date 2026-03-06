@@ -1,11 +1,18 @@
 <map id="operators::grad" name="operators::grad">
-<area shape="rect" id="Node000001" title="Compute the gradient of a scalar field." alt="" coords="501,77,623,102"/>
-<area shape="rect" id="Node000002" href="$d6/dbf/namespacegradient__simcomp.html#a1a539519b79721407508897df56a6099" title="Compute the gradient field." alt="" coords="248,5,453,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="505,75,417,48,418,43,507,70"/>
-<area shape="rect" id="Node000003" href="$de/db2/namespacescalar__sgs__stats.html#aaa5dc737689964c97411ef3ac3465ce8" title="Updates all fields with a new sample." alt="" coords="263,69,439,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="487,92,439,92,439,87,487,87"/>
-<area shape="rect" id="Node000004" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="271,133,431,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="507,109,418,136,417,131,505,104"/>
-<area shape="rect" id="Node000005" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,141,200,166"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="257,156,200,156,200,151,257,151"/>
+<area shape="rect" id="Node000001" title="Compute the gradient of a scalar field." alt="" coords="501,141,623,166"/>
+<area shape="rect" id="Node000002" href="$d1/ded/namespacedeardorff__cpu.html#a24e8f7bcada04c0d05255579eb079bc6" title="Compute eddy viscosity on the CPU." alt="" coords="261,5,440,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="538,132,500,95,452,60,427,48,429,43,455,55,504,91,542,128"/>
+<area shape="rect" id="Node000004" href="$d4/df3/namespacedeardorff__device.html#a073d32e5fcaf956d6de48b3cebe87d00" title="Compute eddy viscosity on the device." alt="" coords="251,69,450,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="505,139,417,112,418,107,507,134"/>
+<area shape="rect" id="Node000005" href="$d6/dbf/namespacegradient__simcomp.html#a1a539519b79721407508897df56a6099" title="Compute the gradient field." alt="" coords="248,133,453,173"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="487,156,454,156,454,151,487,151"/>
+<area shape="rect" id="Node000006" href="$de/db2/namespacescalar__sgs__stats.html#aaa5dc737689964c97411ef3ac3465ce8" title="Updates all fields with a new sample." alt="" coords="263,197,439,237"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="507,173,418,200,417,195,505,168"/>
+<area shape="rect" id="Node000007" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="271,261,431,301"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="542,179,504,216,455,252,429,264,427,259,452,247,500,212,538,175"/>
+<area shape="rect" id="Node000003" href="$d2/dee/namespacedeardorff.html#a9017a40fe20a5f853ffcfb15310f07d7" title="Compute eddy viscosity." alt="" coords="29,37,177,77"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="248,41,177,50,177,45,247,36"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="237,77,177,69,177,64,238,72"/>
+<area shape="rect" id="Node000008" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,269,200,294"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="257,284,200,284,200,279,257,279"/>
 </map>
