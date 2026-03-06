@@ -116,17 +116,21 @@ contains
        call neko_error('Invalid data type for vtkhdf_file_write')
     end select
 
+    ! Check conditions to ensure the input data is supported.
+    if (.not. associated(msh)) then
+       call neko_error('Mesh must be associated for vtkhdf_file_write')
+    end if
+    if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
+       call neko_error('VTKHDF linear output requires lx, ly >= 2')
+    end if
+    if (msh%gdim .eq. 3 .and. dof%Xh%lz < 2) then
+       call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
+    end if
+
     ! Assign commonly used values
     lx = dof%Xh%lx
     ly = dof%Xh%ly
     lz = dof%Xh%lz
-
-    ! Sync all the fields
-    do i = 1, n_fields
-       if (associated(fp(i)%ptr)) then
-          call fp(i)%ptr%copy_from(DEVICE_TO_HOST, sync = i .eq. n_fields)
-       end if
-    end do
 
     call this%increment_counter()
     fname = trim(this%get_base_fname())
@@ -186,51 +190,50 @@ contains
     end if
 
     ! Write mesh information if present
-    if (associated(msh)) then
-       call MPI_Comm_size(NEKO_COMM, num_partitions, ierr)
 
-       if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
-          call neko_error('VTKHDF linear output requires lx, ly >= 2')
-       end if
-       if (msh%gdim .eq. 3 .and. dof%Xh%lz < 2) then
-          call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
-       end if
+    call MPI_Comm_size(NEKO_COMM, num_partitions, ierr)
 
-       local_points = msh%nelv * lx * ly * lz
-       if (msh%gdim .eq. 3) then
-          local_cells = msh%nelv * (lx - 1) * (ly - 1) * (lz - 1)
-          local_conn = local_cells * 8
-       else
-          local_cells = msh%nelv * (lx - 1) * (ly - 1)
-          local_conn = local_cells * 4
-       end if
-
-       allocate(part_points(num_partitions))
-       allocate(part_cells(num_partitions))
-       allocate(part_conns(num_partitions))
-
-       call MPI_Allgather(local_points, 1, MPI_INTEGER, part_points, 1, MPI_INTEGER, NEKO_COMM, ierr)
-       call MPI_Allgather(local_cells, 1, MPI_INTEGER, part_cells, 1, MPI_INTEGER, NEKO_COMM, ierr)
-       call MPI_Allgather(local_conn, 1, MPI_INTEGER, part_conns, 1, MPI_INTEGER, NEKO_COMM, ierr)
-
-       total_points = sum(part_points)
-       total_cells = sum(part_cells)
-       total_conn = sum(part_conns)
-
-       max_local_points = maxval(part_points)
-
-       point_offset = sum(part_points(1:pe_rank))
-
-       ! For static mesh, only write geometry on the first call
-       call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
-       if (this%amr_enabled .or. .not. link_exists) then
-          call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
-               H5T_NEKO_REAL, num_partitions, &
-               local_points, total_points, total_cells, total_conn, &
-               point_offset, max_local_points, part_cells, part_conns)
-       end if ! write mesh conditional
-       deallocate(part_points, part_cells, part_conns)
+    if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
+       call neko_error('VTKHDF linear output requires lx, ly >= 2')
     end if
+    if (msh%gdim .eq. 3 .and. dof%Xh%lz < 2) then
+       call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
+    end if
+
+    local_points = msh%nelv * lx * ly * lz
+    if (msh%gdim .eq. 3) then
+       local_cells = msh%nelv * (lx - 1) * (ly - 1) * (lz - 1)
+       local_conn = local_cells * 8
+    else
+       local_cells = msh%nelv * (lx - 1) * (ly - 1)
+       local_conn = local_cells * 4
+    end if
+
+    allocate(part_points(num_partitions))
+    allocate(part_cells(num_partitions))
+    allocate(part_conns(num_partitions))
+
+    call MPI_Allgather(local_points, 1, MPI_INTEGER, part_points, 1, MPI_INTEGER, NEKO_COMM, ierr)
+    call MPI_Allgather(local_cells, 1, MPI_INTEGER, part_cells, 1, MPI_INTEGER, NEKO_COMM, ierr)
+    call MPI_Allgather(local_conn, 1, MPI_INTEGER, part_conns, 1, MPI_INTEGER, NEKO_COMM, ierr)
+
+    total_points = sum(part_points)
+    total_cells = sum(part_cells)
+    total_conn = sum(part_conns)
+
+    max_local_points = maxval(part_points)
+
+    point_offset = sum(part_points(1:pe_rank))
+
+    ! For static mesh, only write geometry on the first call
+    call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
+    if (this%amr_enabled .or. .not. link_exists) then
+       call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
+            H5T_NEKO_REAL, num_partitions, &
+            local_points, total_points, total_cells, total_conn, &
+            point_offset, max_local_points, part_cells, part_conns)
+    end if ! write mesh conditional
+    deallocate(part_points, part_cells, part_conns)
 
     pointdata_time_offset = 0_hsize_t
 
@@ -242,7 +245,7 @@ contains
     end if
 
     ! Write field data in PointData group
-    if (associated(msh) .and. n_fields > 0) then
+    if (n_fields > 0) then
        call vtkhdf_write_pointdata(vtkhdf_grp, plist_coll, H5T_NEKO_REAL, &
             fp, field_written, msh%nelv, &
             local_points, point_offset, max_local_points, total_points, &
@@ -841,6 +844,13 @@ contains
 
     n_fields = size(fp)
     npts_per_cell = lx * ly * lz
+
+    ! Sync all the fields
+    do i = 1, n_fields
+       if (associated(fp(i)%ptr)) then
+          call fp(i)%ptr%copy_from(DEVICE_TO_HOST, sync = i .eq. n_fields)
+       end if
+    end do
 
     ! Create or open PointData group
     call h5lexists_f(vtkhdf_grp, "PointData", link_exists, ierr)
