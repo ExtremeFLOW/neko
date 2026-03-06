@@ -45,7 +45,7 @@ module vtkhdf_file
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use device, only : DEVICE_TO_HOST
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, MPI_IN_PLACE, &
-       MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Scan
+       MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, MPI_Barrier
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -200,27 +200,28 @@ contains
     total_points = dof%global_size()
     if (msh%gdim .eq. 3) then
        local_cells = msh%nelv * (lx - 1) * (ly - 1) * (lz - 1)
+       total_cells = msh%glb_nelv * (lx - 1) * (ly - 1) * (lz - 1)
        local_conn = local_cells * 8
+       total_conn = total_cells * 8
     else
        local_cells = msh%nelv * (lx - 1) * (ly - 1)
+       total_cells = msh%glb_nelv * (lx - 1) * (ly - 1)
        local_conn = local_cells * 4
+       total_conn = total_cells * 4
     end if
 
-    allocate(part_points(pe_size))
     allocate(part_cells(pe_size))
     allocate(part_conns(pe_size))
 
-    call MPI_Allgather(local_points, 1, MPI_INTEGER, part_points, 1, MPI_INTEGER, NEKO_COMM, ierr)
     call MPI_Allgather(local_cells, 1, MPI_INTEGER, part_cells, 1, MPI_INTEGER, NEKO_COMM, ierr)
     call MPI_Allgather(local_conn, 1, MPI_INTEGER, part_conns, 1, MPI_INTEGER, NEKO_COMM, ierr)
-
-    total_cells = sum(part_cells)
-    total_conn = sum(part_conns)
 
     call MPI_Allreduce(local_points, max_local_points, 1, MPI_INTEGER, &
          MPI_MAX, NEKO_COMM, ierr)
 
-    point_offset = sum(part_points(1:pe_rank))
+    point_offset = 0
+    call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM, ierr)
 
     ! For static mesh, only write geometry on the first call
     call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
@@ -230,7 +231,7 @@ contains
             local_points, total_points, total_cells, total_conn, &
             point_offset, max_local_points, part_cells, part_conns)
     end if ! write mesh conditional
-    deallocate(part_points, part_cells, part_conns)
+    deallocate(part_cells, part_conns)
 
     pointdata_time_offset = 0_hsize_t
 
