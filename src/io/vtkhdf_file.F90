@@ -227,9 +227,7 @@ contains
     call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
     if (this%amr_enabled .or. .not. link_exists) then
        call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
-            H5T_NEKO_REAL, &
-            local_points, total_points, total_cells, total_conn, &
-            point_offset, max_local_points, part_cells, part_conns)
+            H5T_NEKO_REAL, local_points, local_cells, local_conn)
     end if ! write mesh conditional
     deallocate(part_cells, part_conns)
 
@@ -344,20 +342,16 @@ contains
   !! @param part_cells Per-partition cell counts from MPI_Allgather
   !! @param part_conns Per-partition connectivity sizes from MPI_Allgather
   subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, plist_coll, &
-       H5T_NEKO_REAL, &
-       local_points, total_points, total_cells, total_conn, &
-       point_offset, max_local_points, part_cells, part_conns)
+       H5T_NEKO_REAL, local_points, local_cells, local_conn)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
     integer(hid_t), intent(in) :: vtkhdf_grp, plist_coll, H5T_NEKO_REAL
-    integer, intent(in) :: local_points
-    integer, intent(in) :: total_points, total_cells, total_conn
-    integer, intent(in) :: point_offset, max_local_points
-    integer, intent(in) :: part_cells(:), part_conns(:)
+    integer, intent(in) :: local_points, local_cells, local_conn
 
     integer :: ierr, i, ii, jj, kk, local_idx
     integer :: lx, ly, lz, npts_per_cell, nodes_per_cell
-    integer :: local_cells, local_conn
+    integer :: total_points, total_cells, total_conn
+    integer :: point_offset, max_local_points
     integer :: total_offsets, cell_offset, conn_offset, offsets_offset
     integer :: max_local_cells, max_local_conn
     integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
@@ -368,6 +362,10 @@ contains
     integer, allocatable :: cell_types(:)
     integer(kind=1), allocatable :: cell_types_byte(:)
     logical :: link_exists
+    integer, dimension(3) :: component_sizes
+    integer, dimension(3) :: component_offsets
+    integer, dimension(3) :: component_max_sizes
+    integer, dimension(3) :: component_total_sizes
 
     lx = dof%Xh%lx
     ly = dof%Xh%ly
@@ -379,13 +377,28 @@ contains
        nodes_per_cell = 4
     end if
 
-    local_cells = part_cells(pe_rank + 1)
-    local_conn = part_conns(pe_rank + 1)
-    cell_offset = sum(part_cells(1:pe_rank))
-    conn_offset = sum(part_conns(1:pe_rank))
+    component_sizes = [local_points, local_cells, local_conn]
+    component_offsets = 0
+    component_max_sizes = 0
+    component_total_sizes = 0
+
+    call MPI_Exscan(component_sizes, component_offsets, 3, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(component_sizes, component_max_sizes, 3, MPI_INTEGER, &
+         MPI_MAX, NEKO_COMM, ierr)
+    call MPI_Allreduce(component_sizes, component_total_sizes, 3, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+
+    point_offset = component_offsets(1)
+    cell_offset = component_offsets(2)
+    conn_offset = component_offsets(3)
+    max_local_points = component_max_sizes(1)
+    max_local_cells = component_max_sizes(2)
+    max_local_conn = component_max_sizes(3)
+    total_points = component_total_sizes(1)
+    total_cells = component_total_sizes(2)
+    total_conn = component_total_sizes(3)
     offsets_offset = cell_offset + pe_rank
-    max_local_cells = maxval(part_cells)
-    max_local_conn = maxval(part_conns)
     total_offsets = total_cells + pe_size
 
     ! --- NumberOfPoints dataset (per-partition) ---
