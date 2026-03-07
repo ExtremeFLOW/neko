@@ -3,7 +3,8 @@ test-suite.log
 
 # Makefiles
 */Makefile
-!*/Makefile.in
+!**/Makefile.in
+/Makefile.in
 
 # Test scripts
 !field/field_test
@@ -20,10 +21,10 @@ test-suite.log
 !vector/vector_test
 
 # Processed files
-*/*.inc
-*/*.F90
-*/*.log
-*/*.trs
+**.inc
+**.F90
+**.log
+**.trs
 
 bc/bc_test
 case_file_utils/case_file_utils_test
@@ -63,3 +64,4 @@ time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 json_utils/json_utils_test
 point_interpolation/point_interpolation_suite
+templates/serial/serial_test
