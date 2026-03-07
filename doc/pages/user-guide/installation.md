@@ -237,8 +237,9 @@ pixi run install-neko-cpu
 ```
 
 This will give you a double-precision CPU build charged with optional
-dependencies: hdf5, pFunit, and parmetis. For now, this is the only
-configuration that can be installed automatically with pixi.
+dependencies: hdf5, pFunit, and parmetis. You can, however choose the precision
+of reals, by appending either `sp` or `dp` to the command above. Only CPU builds
+are currently supported with pixi.
 
 To use Neko, you need to drop into a shell, where the pixi environment will be
 activated. For that run
