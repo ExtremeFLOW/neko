@@ -1,3 +1,5 @@
+module test_octree
+contains
 @test
 subroutine test_octree_init
   use pfunit
@@ -79,3 +81,5 @@ subroutine test_octree_find
   end do
 
 end subroutine test_octree_find
+
+end module test_octree

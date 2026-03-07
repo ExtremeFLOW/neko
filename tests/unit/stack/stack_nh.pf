@@ -1,3 +1,5 @@
+module stack_nh
+contains
 @test
 subroutine test_stack_nh_init
   use pfunit
@@ -159,3 +161,5 @@ subroutine test_stack_nh_clear
   @assertEqual(s%top_, 0, message='Corrupt top marker')
 
 end subroutine test_stack_nh_clear
+
+end module stack_nh

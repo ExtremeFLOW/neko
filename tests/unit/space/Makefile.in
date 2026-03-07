@@ -14,6 +14,7 @@ check: space_test
 space_test_TESTS := space_test.pf
 space_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,space_test))
+space_test.inc: Makefile
 
 distclean:
 clean:

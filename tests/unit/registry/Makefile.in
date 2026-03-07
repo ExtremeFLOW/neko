@@ -19,6 +19,7 @@ registry_test_TESTS := test_field_registry.pf \
 
 registry_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,registry_test))
+registry_test.inc: Makefile
 
 distclean:
 clean:

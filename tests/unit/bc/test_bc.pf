@@ -1,3 +1,5 @@
+module test_bc
+contains
 ! @test
 ! subroutine test_bc_init
 !   use pfunit
@@ -15,3 +17,5 @@
 ! end subroutine test_bc_init
 
 
+
+end module test_bc

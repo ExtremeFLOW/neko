@@ -1,3 +1,5 @@
+module test_point
+contains
 @test
 subroutine test_point_init
   use pfunit
@@ -119,3 +121,5 @@ subroutine test_point_ltgt
   @assertTrue(p2 .gt. p1)
 
 end subroutine test_point_ltgt
+
+end module test_point

@@ -1,3 +1,5 @@
+module uset_i4
+contains
 @test
 subroutine test_uset_init_i4
   use pfunit
@@ -169,3 +171,5 @@ subroutine test_uset_iter_i4
   @assertEqual(n_entries, 64)
   
 end subroutine test_uset_iter_i4
+
+end module uset_i4

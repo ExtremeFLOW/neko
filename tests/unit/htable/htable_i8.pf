@@ -1,3 +1,5 @@
+module htable_i8
+contains
 @test
 subroutine test_htable_init_i8
   use pfunit
@@ -391,3 +393,5 @@ subroutine test_htable_iter_i8
   @assertEqual(i, 42)
 
 end subroutine test_htable_iter_i8
+
+end module htable_i8

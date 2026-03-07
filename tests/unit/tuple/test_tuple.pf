@@ -1,3 +1,5 @@
+module test_tuple
+contains
 @test
 subroutine test_tuple_i4
   use pfunit
@@ -181,3 +183,5 @@ subroutine test_tuple_2i4r8
   @assertTrue(t1 .eq. t2)
     
 end subroutine test_tuple_2i4r8
+
+end module test_tuple

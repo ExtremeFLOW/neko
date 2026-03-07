@@ -1,3 +1,5 @@
+module test_device
+contains
 
 @test
 subroutine test_device_init
@@ -296,3 +298,5 @@ subroutine test_device_sync_stream
   end if
 
 end subroutine test_device_sync_stream
+
+end module test_device

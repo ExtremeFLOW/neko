@@ -1,3 +1,5 @@
+module test_tet
+contains
 @test
 subroutine test_tet_init
   use pfunit
@@ -238,3 +240,5 @@ subroutine test_tet_facet_id
 
 
 end subroutine test_tet_facet_id
+
+end module test_tet

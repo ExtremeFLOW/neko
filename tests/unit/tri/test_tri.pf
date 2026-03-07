@@ -1,3 +1,5 @@
+module test_tri
+contains
 @test
 subroutine test_tri_init
   use pfunit
@@ -207,3 +209,5 @@ subroutine test_tri_facet_id
   @assertEqual(t%x(2), p2%id())
 
 end subroutine test_tri_facet_id
+
+end module test_tri

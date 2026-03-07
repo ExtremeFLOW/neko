@@ -1,3 +1,5 @@
+module test_hex
+contains
 @test
 subroutine test_hex_init
   use pfunit
@@ -447,3 +449,5 @@ subroutine test_hex_edge_id
 
 
 end subroutine test_hex_edge_id
+
+end module test_hex
