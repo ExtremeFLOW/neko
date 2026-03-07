@@ -36,6 +36,7 @@ SUBDIRS = tuple\
 	  time_based_controller\
 	  json_utils\
 	  point_interpolation\
+	  templates/parallel\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -76,6 +77,7 @@ TESTS = device/device_test\
 	time_based_controller/time_based_controller_test\
 	json_utils/json_utils_test\
 	point_interpolation/point_interpolation_test\
+	templates/parallel/parallel_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -153,6 +155,8 @@ EXTRA_DIST = \
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test\
+	templates/parallel/test_parallel.pf\
+	templates/parallel/parallel_test\
 	templates/serial/test_serial.pf
 
 UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)
