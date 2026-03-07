@@ -20,6 +20,7 @@ download-deps = { cmd = [
   '''
   mkdir -p $PREFIX/deps && cd $PREFIX/deps
   rm -rf *
+  git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
   git clone https://github.com/Nek5000/gslib.git gslib
   wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz
   '''
@@ -32,6 +33,18 @@ build-gslib = { cmd = [
   cd $PREFIX/deps/gslib 
   make CC=mpicc DESTDIR=$PREFIX 
   make install
+  '''
+  ]}
+
+build-pfunit = { cmd = [
+  "sh",
+  "-c",
+  '''
+  cd $PREFIX/deps/pFUnit
+  mkdir b
+  cd b
+  cmake -DCMAKE_INSTALL_PREFIX=$PREFIX ..
+  make -j install
   '''
   ]}
 
@@ -53,10 +66,10 @@ build-neko-cpu = { cmd = [
   '''
   set -e
   ./regen.sh
-  ./configure FCFLAGS="-O3" --prefix=$PREFIX --with-hdf5=$PREFIX --with-parmetis=$PREFIX --with-gslib=$PREFIX
+  ./configure FCFLAGS="-O3 " --prefix=$PREFIX --with-hdf5=$PREFIX --with-parmetis=$PREFIX --with-pfunit=$PREFIX/PFUNIT-4.4
   grep hdf5 config.log
   grep parmetis config.log
-  grep gslib config.log
+  grep pfunit config.log
   make -j install
   '''
   ]}
@@ -67,7 +80,7 @@ install-neko-cpu = { cmd = [
   '''
   set -e
   pixi run download-deps
-  pixi run build-gslib
+  pixi run build-pfunit
   pixi run build-hdf5
   pixi run build-neko-cpu
 
