@@ -151,3 +151,9 @@ EXTRA_DIST = \
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test
+
+UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)
+
+.PHONY: refresh-unit-test-makefiles-local
+refresh-unit-test-makefiles-local:
+	cd $(top_builddir) && $(SHELL) ./config.status $(addprefix $(subdir)/,$(UNIT_TEST_MAKEFILES))
