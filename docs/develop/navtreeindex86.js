@@ -1,5 +1,7 @@
 var NAVTREEINDEX86 =
 {
+"dd/da1/namespacere2.html#a76ca9c8b3600d50d46e71875a3e51fff":[1,0,273,11],
+"dd/da3/structmatrix_1_1matrix__ptr__t.html":[2,0,190,0],
 "dd/da3/structmatrix_1_1matrix__ptr__t.html":[1,0,219,0],
 "dd/da3/structmatrix_1_1matrix__ptr__t.html#aaa93ca276e2cd56e66ffd76676a0dfb3":[2,0,190,0,0],
 "dd/da3/structmatrix_1_1matrix__ptr__t.html#aaa93ca276e2cd56e66ffd76676a0dfb3":[1,0,219,0,0],
@@ -56,8 +58,8 @@ var NAVTREEINDEX86 =
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a1692692f17aaabf6bdd83b8b0171b115":[2,0,258,0,22],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a1a2d5b374d9e19bd207ae24330a040b5":[2,0,258,0,31],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a1a2d5b374d9e19bd207ae24330a040b5":[1,0,303,0,31],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a1c1eefa95382b1fd0ad222f5bbfa0f9f":[2,0,258,0,55],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a1c1eefa95382b1fd0ad222f5bbfa0f9f":[1,0,303,0,55],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#a1c1eefa95382b1fd0ad222f5bbfa0f9f":[2,0,258,0,55],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a23fb232f797091aa3caacfc4559a351d":[1,0,303,0,68],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a23fb232f797091aa3caacfc4559a351d":[2,0,258,0,68],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a27b1349c5255a6c292c986d6ee87767d":[1,0,303,0,24],
@@ -247,7 +249,5 @@ var NAVTREEINDEX86 =
 "dd/db8/structgather__scatter_1_1gs__t.html#a4ef3bfcb6a51789be78dac527c8896e9":[1,0,168,0,6],
 "dd/db8/structgather__scatter_1_1gs__t.html#a4ef3bfcb6a51789be78dac527c8896e9":[1,0,168,0,5],
 "dd/db8/structgather__scatter_1_1gs__t.html#a4ef3bfcb6a51789be78dac527c8896e9":[2,0,145,0,5],
-"dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a":[1,0,168,0,7],
-"dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a":[2,0,145,0,7],
-"dd/db8/structgather__scatter_1_1gs__t.html#a72909c90cfe9ab7df22af948c0467733":[2,0,145,0,9]
+"dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a":[1,0,168,0,7]
 };

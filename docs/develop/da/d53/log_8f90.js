@@ -27,5 +27,6 @@ var log_8f90 =
     [ "neko_log_deprecation_error", "da/d53/log_8f90.html#ac7b1b4e3a668a4070faadd1f1ab7338f", null ],
     [ "neko_log_info", "da/d53/log_8f90.html#aea23bca657681dfcdf10ce6024e73f02", null ],
     [ "neko_log_quiet", "da/d53/log_8f90.html#a67790b62b71ce7aee410f481d248d754", null ],
-    [ "neko_log_verbose", "da/d53/log_8f90.html#a5399c64f888a732c061c518a5558a1bb", null ]
+    [ "neko_log_verbose", "da/d53/log_8f90.html#a5399c64f888a732c061c518a5558a1bb", null ],
+    [ "sec_head_size", "da/d53/log_8f90.html#ac6839ad1d80fc27c9feadef63b457c98", null ]
 ];
