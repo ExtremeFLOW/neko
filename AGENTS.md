@@ -136,8 +136,6 @@ making decisions about how to set up a case.
     match its basename and be unique.
 - Some tests require a simple `mesh_t` to be constructed programmatically. See
   `subroutine test_field_gen_msh` in `tests/unit/field/field_parallel.pf`.
-- If your test uses `json_module` you have to add `@NEKO_PKG_FCFLAGS@` to the
-  `FFLAGS` in the `Makefile.in`
 - Note that in JSON routines, the path in the file is separated by periods,
   for example `params.value`. NOT `params/value`.
 - If the user asks you to create a new unit test, you should first prepare all
