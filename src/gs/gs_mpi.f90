@@ -38,7 +38,7 @@ module gs_mpi
   use stack, only : stack_i4_t
   use mpi_f08, only : MPI_Test, MPI_STATUS_IGNORE, MPI_Status, &
        MPI_Request, MPI_Isend, MPI_IRecv
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use utils, only : neko_error
   !$ use omp_lib
   use time_state, only : time_state_t
@@ -281,20 +281,13 @@ contains
     ! Just clearing stacks and deallocating arrays, as gs_schedule calls
     ! comm%init
 
-    ! clearing stacks makes code unstable (segmentation faults,
-    ! 'corrupted size vs. prev_size' error), so one has to reallocate the whole
-    ! stuff
-!!$    do il = 1, size(this%send_dof)
-!!$       call this%send_dof(il)%clear()
-!!$!       call this%send_dof(il)%free()
-!!$!       call this%send_dof(il)%init()
-!!$    end do
-!!$    do il = 1, size(this%recv_dof)
-!!$       call this%recv_dof(il)%clear()
-!!$!       call this%recv_dof(il)%free()
-!!$!       call this%recv_dof(il)%init()
-!!$    end do
-    call this%init_dofs()
+    ! clearing stacks
+    do il = 0, pe_size - 1
+       call this%send_dof(il)%clear()
+    end do
+    do il = 0, pe_size - 1
+       call this%recv_dof(il)%clear()
+    end do
 
     call this%free_order()
 
