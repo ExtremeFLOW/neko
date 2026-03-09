@@ -750,26 +750,29 @@ contains
     else
        dims(1) = 0_hsize_t
        maxdims(1) = H5S_UNLIMITED_F
+       chunkdims(1) = 1_hsize_t
+
        call h5screate_simple_f(1, dims, filespace, ierr, maxdims)
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-       chunkdims(1) = 1_hsize_t
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(grp_id, name, H5T_STD_I64LE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
+       call h5pclose_f(dcpl_id, ierr)
     end if
 
     dims(1) = dims(1) + 1_hsize_t
-    call h5dset_extent_f(dset_id, dims, ierr)
-    call h5dget_space_f(dset_id, filespace, ierr)
     cnt(1) = 1_hsize_t
     off(1) = dims(1) - 1_hsize_t
+    buf(1) = value
+
+    call h5dset_extent_f(dset_id, dims, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, off, cnt, ierr)
     call h5screate_simple_f(1, cnt, memspace, ierr)
-    buf(1) = value
     call h5dwrite_f(dset_id, H5T_STD_I64LE, buf, cnt, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+
     call h5sclose_f(memspace, ierr)
     call h5sclose_f(filespace, ierr)
     call h5dclose_f(dset_id, ierr)
