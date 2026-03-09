@@ -764,7 +764,8 @@ contains
     lxyz = lx*ly*lz
     nelv = mask%size() / lxyz
     if (mod(mask%size(), lxyz) /= 0) then
-       call neko_error("Mask size must be a multiple of the number of elements in the mesh.")
+       call neko_error("Mask size must be a multiple of the number of " // &
+               "elements in the mesh.")
     end if
     call MPI_Allreduce(nelv, glb_nelv, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM)
@@ -1086,8 +1087,8 @@ contains
 
   end subroutine fld_file_write_metadata_vector
 
-  subroutine fld_file_write_metadata_vector_masked(this, fh, byte_offset, x, y, z, &
-       gdim, lxyz, nelv, lx, ly, lz, n, mask)
+  subroutine fld_file_write_metadata_vector_masked(this, fh, byte_offset, x, &
+                  y, z, gdim, lxyz, nelv, lx, ly, lz, n, mask)
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: gdim, lxyz, nelv, lx, ly, lz, n
@@ -1149,8 +1150,8 @@ contains
 
   end subroutine fld_file_write_metadata_scalar
 
-  subroutine fld_file_write_metadata_scalar_masked(this, fh, byte_offset, x, lxyz, &
-       nelv, lx, ly, lz, n, mask)
+  subroutine fld_file_write_metadata_scalar_masked(this, fh, byte_offset, x, &
+                  lxyz, nelv, lx, ly, lz, n, mask)
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: lxyz, nelv, lx, ly, lz, n
