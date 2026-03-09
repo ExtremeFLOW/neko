@@ -1,65 +1,67 @@
 <map id="utils::filename_suffix_pos" name="utils::filename_suffix_pos">
-<area shape="rect" id="Node000001" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="1084,516,1272,541"/>
+<area shape="rect" id="Node000001" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="1084,548,1272,573"/>
 <area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692" title="Change a filename&#39;s suffix." alt="" coords="863,132,1036,157"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1162,504,1109,398,1034,263,993,204,959,159,963,156,998,201,1038,261,1114,395,1167,502"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1163,536,1109,424,1034,279,957,159,962,156,1038,277,1114,421,1167,534"/>
 <area shape="rect" id="Node000012" href="$db/d38/structbp__file_1_1bp__file__t.html#a511271c54588a061da9f6e7670a7f27f" title=" " alt="" coords="649,206,777,246"/>
-<area shape="poly" id="edge31_Node000001_Node000012" title=" " alt="" coords="1159,506,1108,436,1073,398,1034,363,970,322,902,288,834,263,776,244,778,239,836,258,904,283,973,317,1038,359,1077,394,1112,433,1163,502"/>
-<area shape="rect" id="Node000013" href="$d6/d84/namespaceutils.html#a202026073c93db9d9d760198c2029980" title="Extract the base name of a file (without path and suffix)" alt="" coords="870,373,1029,399"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="1143,511,969,401,972,397,1146,506"/>
-<area shape="rect" id="Node000017" href="$d6/d84/namespaceutils.html#a839eafc814a4e123e4bacdbd5041c464" title="Extract file name components." alt="" coords="874,516,1025,541"/>
-<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="1070,531,1025,531,1025,526,1070,526"/>
-<area shape="rect" id="Node000018" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="870,651,1029,676"/>
-<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="1145,551,973,653,971,648,1142,546"/>
-<area shape="rect" id="Node000030" href="$dc/d92/namespacegeneric__file.html#a036a69d63d9a6769f447414beb540d06" title="Get a file&#39;s name." alt="" coords="873,701,1026,741"/>
-<area shape="poly" id="edge30_Node000001_Node000030" title=" " alt="" coords="1163,554,1112,621,1077,658,1038,691,1016,703,1014,698,1034,686,1074,654,1108,618,1159,551"/>
-<area shape="rect" id="Node000031" href="$da/d92/namespacevtk__file.html#a0b5d8b39ebf4fecb77391d9e468fb0b2" title="Write data in legacy VTK." alt="" coords="886,765,1013,805"/>
-<area shape="poly" id="edge32_Node000001_Node000031" title=" " alt="" coords="1169,556,1151,598,1122,651,1084,707,1038,755,1014,769,1012,765,1034,751,1080,703,1118,649,1146,596,1165,553"/>
+<area shape="poly" id="edge32_Node000001_Node000012" title=" " alt="" coords="1158,538,1106,470,1072,431,1034,395,978,349,931,317,880,291,814,260,776,246,778,241,816,256,882,286,933,313,981,345,1038,391,1076,427,1110,466,1162,535"/>
+<area shape="rect" id="Node000013" href="$d6/d84/namespaceutils.html#a202026073c93db9d9d760198c2029980" title="Extract the base name of a file (without path and suffix)" alt="" coords="870,405,1029,431"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="1143,543,969,433,972,429,1146,538"/>
+<area shape="rect" id="Node000018" href="$d6/d84/namespaceutils.html#a839eafc814a4e123e4bacdbd5041c464" title="Extract file name components." alt="" coords="874,548,1025,573"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="1070,563,1025,563,1025,558,1070,558"/>
+<area shape="rect" id="Node000019" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="870,715,1029,740"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="1150,584,970,716,967,712,1147,579"/>
+<area shape="rect" id="Node000031" href="$dc/d92/namespacegeneric__file.html#a036a69d63d9a6769f447414beb540d06" title="Get a file&#39;s name." alt="" coords="873,765,1026,805"/>
+<area shape="poly" id="edge31_Node000001_Node000031" title=" " alt="" coords="1167,587,1147,624,1118,668,1081,714,1038,755,1018,767,1015,762,1034,751,1077,711,1113,665,1142,621,1162,584"/>
+<area shape="rect" id="Node000032" href="$da/d92/namespacevtk__file.html#a0b5d8b39ebf4fecb77391d9e468fb0b2" title="Write data in legacy VTK." alt="" coords="886,829,1013,869"/>
+<area shape="poly" id="edge33_Node000001_Node000032" title=" " alt="" coords="1172,587,1155,636,1127,698,1088,762,1064,792,1038,819,1014,834,1011,829,1034,815,1061,789,1084,759,1122,695,1150,634,1167,586"/>
 <area shape="rect" id="Node000003" href="$d9/d41/namespacefld__file.html#a7c5ac1508909a576be516f0a12389977" title="Load a field from a NEKTON fld file." alt="" coords="637,5,789,31"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="921,125,873,89,813,52,763,33,765,28,816,48,876,84,925,121"/>
-<area shape="rect" id="Node000004" href="$d3/d9f/namespaceimport__field__utils.html#a2a795c64e649438253c19367e6bed9d7" title="Imports fields from an fld file, potentially with interpolation." alt="" coords="428,255,563,295"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="911,128,851,102,774,80,732,74,691,74,650,81,612,96,590,111,571,130,539,174,518,219,505,256,500,254,513,217,535,172,567,127,587,107,609,92,649,76,690,69,733,69,775,75,853,97,913,123"/>
+<area shape="rect" id="Node000004" href="$d3/d9f/namespaceimport__field__utils.html#a2a795c64e649438253c19367e6bed9d7" title="Imports fields from an fld file, potentially with interpolation." alt="" coords="428,287,563,327"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="912,128,852,101,774,78,732,72,690,72,650,80,612,96,587,115,567,138,534,191,514,245,503,288,498,286,509,243,530,189,562,134,584,111,609,92,648,75,690,67,732,67,775,73,853,96,914,123"/>
 <area shape="rect" id="Node000010" href="$df/d9e/namespacere2__file.html#a1ad91a0a25277baa07002b8876c517dc" title="Load a binary NEKTON mesh from a re2 file." alt="" coords="631,107,794,132"/>
 <area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="848,137,794,131,795,125,849,131"/>
 <area shape="rect" id="Node000011" href="$d0/df9/namespacerea__file.html#a4c96bc73ea56a4b82eee98d8e9d621a0" title="Load NEKTON session data from an ascii file." alt="" coords="631,156,794,181"/>
 <area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="849,158,795,163,794,158,848,152"/>
 <area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="902,164,816,195,776,209,774,203,814,190,900,159"/>
-<area shape="rect" id="Node000005" href="$d2/d13/namespaceflow__ic.html#a97d32262faca8122e261500212f649c7" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="209,203,380,228"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="414,254,337,231,339,225,415,249"/>
-<area shape="rect" id="Node000007" href="$d8/ddf/namespacescalar__ic.html#aaf1e4ba40f8b77e35882afa11303a648" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="218,255,371,295"/>
-<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="414,278,372,278,372,273,414,273"/>
-<area shape="rect" id="Node000009" href="$de/dfc/namespacesponge__source__term.html#a1e5ce4c70646d106ea5113fc5d50cd23" title="Initialize a sponge with a baseflow imported from a field file." alt="" coords="216,319,373,359"/>
-<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="420,302,359,322,357,317,418,297"/>
-<area shape="rect" id="Node000006" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="10,194,157,234"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="196,217,157,217,157,212,196,212"/>
-<area shape="rect" id="Node000008" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="5,258,161,298"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="205,279,162,280,162,274,204,274"/>
+<area shape="rect" id="Node000005" href="$d2/d13/namespaceflow__ic.html#a97d32262faca8122e261500212f649c7" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="209,235,380,260"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="414,286,337,263,339,257,415,281"/>
+<area shape="rect" id="Node000007" href="$d8/ddf/namespacescalar__ic.html#aaf1e4ba40f8b77e35882afa11303a648" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="218,287,371,327"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="414,310,372,310,372,305,414,305"/>
+<area shape="rect" id="Node000009" href="$de/dfc/namespacesponge__source__term.html#a1e5ce4c70646d106ea5113fc5d50cd23" title="Initialize a sponge with a baseflow imported from a field file." alt="" coords="216,351,373,391"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="420,334,359,354,357,349,418,329"/>
+<area shape="rect" id="Node000006" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="10,226,157,266"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="196,249,157,249,157,244,196,244"/>
+<area shape="rect" id="Node000008" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="5,290,161,330"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="205,311,162,312,162,306,204,306"/>
 <area shape="rect" id="Node000014" href="$d9/d41/namespacefld__file.html#a28514486225e0924eb710b0c650207a2" title=" " alt="" coords="651,270,774,310"/>
-<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="911,369,814,324,773,310,775,305,816,320,913,365"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="922,398,873,361,813,324,773,308,775,303,816,320,876,357,925,394"/>
 <area shape="rect" id="Node000015" href="$d9/d41/namespacefld__file.html#aa1bd6c4e70dd8e0c26e6f112c44f85a0" title=" " alt="" coords="643,334,783,374"/>
-<area shape="poly" id="edge14_Node000013_Node000015" title=" " alt="" coords="856,376,783,366,783,361,856,371"/>
+<area shape="poly" id="edge14_Node000013_Node000015" title=" " alt="" coords="887,404,782,375,784,370,889,399"/>
 <area shape="rect" id="Node000016" href="$d9/d41/namespacefld__file.html#af728bdd7026bc222996b4eef04e0f2a7" title="Write fields to a NEKTON fld file." alt="" coords="655,398,771,438"/>
-<area shape="poly" id="edge15_Node000013_Node000016" title=" " alt="" coords="856,401,771,413,771,408,856,396"/>
-<area shape="rect" id="Node000019" href="$d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0" title="Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th..." alt="" coords="649,462,776,502"/>
-<area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="930,641,882,580,850,546,813,518,775,500,778,495,816,513,853,542,886,576,935,638"/>
-<area shape="rect" id="Node000020" href="$da/d16/namespacefile.html#ab9074b1dd93018d51b11431e355046c5" title="Constructor." alt="" coords="663,527,762,552"/>
-<area shape="poly" id="edge20_Node000018_Node000020" title=" " alt="" coords="923,643,874,604,814,567,762,550,763,545,816,562,877,600,926,639"/>
-<area shape="rect" id="Node000021" href="$da/d16/namespacefile.html#a0167c68d0b7fa85eed2bb23f5a1cd6d2" title="Set a file&#39;s header." alt="" coords="638,576,787,601"/>
-<area shape="poly" id="edge21_Node000018_Node000021" title=" " alt="" coords="903,648,814,617,768,604,770,599,815,611,905,643"/>
-<area shape="rect" id="Node000022" href="$da/d16/namespacefile.html#a20347acf22c138e1cb0adfd16c4242e7" title="Set a file&#39;s output layout." alt="" coords="640,625,785,651"/>
-<area shape="poly" id="edge22_Node000018_Node000022" title=" " alt="" coords="856,656,785,648,786,643,856,651"/>
-<area shape="rect" id="Node000023" href="$da/d16/namespacefile.html#a43c32373b7c245beb1260418ecfbb597" title="Set a file&#39;s output precision." alt="" coords="631,675,794,700"/>
-<area shape="poly" id="edge23_Node000018_Node000023" title=" " alt="" coords="856,675,795,682,794,676,855,670"/>
-<area shape="rect" id="Node000024" href="$db/dba/namespacefluid__sgs__stats__simcomp.html#a8feba69c3c2cb8748a224d918dd76e73" title=" " alt="" coords="616,724,809,779"/>
-<area shape="poly" id="edge24_Node000018_Node000024" title=" " alt="" coords="888,683,864,691,816,715,789,726,787,721,814,710,862,686,886,678"/>
-<area shape="rect" id="Node000025" href="$dd/dc6/namespacefluid__stats__simcomp.html#a33393df992beab0f7b3d777c40c13ed6" title=" " alt="" coords="631,803,795,857"/>
-<area shape="poly" id="edge25_Node000018_Node000025" title=" " alt="" coords="873,685,864,691,853,703,847,715,841,740,835,766,828,780,816,793,796,808,793,803,813,789,824,777,830,765,836,739,842,713,849,700,861,687,869,680"/>
-<area shape="rect" id="Node000026" href="$dc/d92/namespacegeneric__file.html#af55ff7e8a18a8a854c5a8f2f81b541e3" title="Set overwrite mode." alt="" coords="636,882,789,922"/>
-<area shape="poly" id="edge26_Node000018_Node000026" title=" " alt="" coords="870,685,865,690,849,712,841,734,841,779,841,825,833,849,817,872,791,890,788,885,813,868,828,846,836,824,836,779,836,733,844,710,861,687,867,681"/>
-<area shape="rect" id="Node000027" href="$dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="653,947,773,972"/>
-<area shape="poly" id="edge27_Node000018_Node000027" title=" " alt="" coords="870,686,865,690,845,721,837,751,837,781,842,812,846,842,847,874,838,905,817,936,797,950,774,958,772,953,794,945,813,932,833,903,841,873,841,843,837,812,832,781,832,750,840,718,861,687,866,682"/>
-<area shape="rect" id="Node000028" href="$d6/da1/namespacescalar__sgs__stats__simcomp.html#afbddb09963b8ff897e191ec2f56308d9" title=" " alt="" coords="611,996,815,1051"/>
-<area shape="poly" id="edge28_Node000018_Node000028" title=" " alt="" coords="870,686,865,690,841,727,833,763,834,799,840,835,846,872,848,909,840,947,817,986,805,998,801,994,813,983,835,945,843,909,841,872,835,836,828,799,827,762,836,725,861,687,866,682"/>
-<area shape="rect" id="Node000029" href="$d5/df8/namespacescalar__stats__simcomp.html#a2b3aef6d8abf2a19f442e73c8ef5a7fb" title=" " alt="" coords="625,1075,800,1129"/>
-<area shape="poly" id="edge29_Node000018_Node000029" title=" " alt="" coords="869,686,865,690,848,714,836,737,829,760,827,783,830,828,839,874,849,920,853,967,851,991,845,1015,833,1040,817,1065,802,1079,798,1075,813,1062,829,1037,840,1014,846,990,848,967,844,921,834,875,824,829,821,783,824,759,831,735,843,711,861,687,865,682"/>
-<area shape="poly" id="edge19_Node000019_Node000004" title=" " alt="" coords="635,467,609,452,571,415,540,372,517,331,502,297,507,295,522,328,545,370,575,412,612,448,638,462"/>
+<area shape="poly" id="edge15_Node000013_Node000016" title=" " alt="" coords="856,421,771,421,771,415,856,415"/>
+<area shape="rect" id="Node000017" href="$d9/d41/namespacefld__file.html#aa564624d15abe1c717f6cb6d25814f58" title="Write fields to a NEKTON fld file from a masked array." alt="" coords="653,462,773,502"/>
+<area shape="poly" id="edge16_Node000013_Node000017" title=" " alt="" coords="889,437,773,469,772,463,887,432"/>
+<area shape="rect" id="Node000020" href="$d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0" title="Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th..." alt="" coords="649,526,776,566"/>
+<area shape="poly" id="edge19_Node000019_Node000020" title=" " alt="" coords="930,705,882,644,850,610,813,582,775,564,778,559,816,577,853,606,886,640,935,702"/>
+<area shape="rect" id="Node000021" href="$da/d16/namespacefile.html#ab9074b1dd93018d51b11431e355046c5" title="Constructor." alt="" coords="663,591,762,616"/>
+<area shape="poly" id="edge21_Node000019_Node000021" title=" " alt="" coords="923,707,874,668,814,631,762,614,763,609,816,626,877,664,926,703"/>
+<area shape="rect" id="Node000022" href="$da/d16/namespacefile.html#a0167c68d0b7fa85eed2bb23f5a1cd6d2" title="Set a file&#39;s header." alt="" coords="638,640,787,665"/>
+<area shape="poly" id="edge22_Node000019_Node000022" title=" " alt="" coords="903,712,814,681,768,668,770,663,815,675,905,707"/>
+<area shape="rect" id="Node000023" href="$da/d16/namespacefile.html#a20347acf22c138e1cb0adfd16c4242e7" title="Set a file&#39;s output layout." alt="" coords="640,689,785,715"/>
+<area shape="poly" id="edge23_Node000019_Node000023" title=" " alt="" coords="856,720,785,712,786,707,856,715"/>
+<area shape="rect" id="Node000024" href="$da/d16/namespacefile.html#a43c32373b7c245beb1260418ecfbb597" title="Set a file&#39;s output precision." alt="" coords="631,739,794,764"/>
+<area shape="poly" id="edge24_Node000019_Node000024" title=" " alt="" coords="856,739,795,746,794,740,855,734"/>
+<area shape="rect" id="Node000025" href="$db/dba/namespacefluid__sgs__stats__simcomp.html#a8feba69c3c2cb8748a224d918dd76e73" title=" " alt="" coords="616,788,809,843"/>
+<area shape="poly" id="edge25_Node000019_Node000025" title=" " alt="" coords="888,747,864,755,816,779,789,790,787,785,814,774,862,750,886,742"/>
+<area shape="rect" id="Node000026" href="$dd/dc6/namespacefluid__stats__simcomp.html#a33393df992beab0f7b3d777c40c13ed6" title=" " alt="" coords="631,867,795,921"/>
+<area shape="poly" id="edge26_Node000019_Node000026" title=" " alt="" coords="873,749,864,755,853,767,847,779,841,804,835,830,828,844,816,857,796,872,793,867,813,853,824,841,830,829,836,803,842,777,849,764,861,751,869,744"/>
+<area shape="rect" id="Node000027" href="$dc/d92/namespacegeneric__file.html#af55ff7e8a18a8a854c5a8f2f81b541e3" title="Set overwrite mode." alt="" coords="636,946,789,986"/>
+<area shape="poly" id="edge27_Node000019_Node000027" title=" " alt="" coords="870,749,865,754,849,776,841,798,841,843,841,889,833,913,817,936,791,954,788,949,813,932,828,910,836,888,836,843,836,797,844,774,861,751,867,745"/>
+<area shape="rect" id="Node000028" href="$dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="653,1011,773,1036"/>
+<area shape="poly" id="edge28_Node000019_Node000028" title=" " alt="" coords="870,750,865,754,845,785,837,815,837,845,842,876,846,906,847,938,838,969,817,1000,797,1014,774,1022,772,1017,794,1009,813,996,833,967,841,937,841,907,837,876,832,845,832,814,840,782,861,751,866,746"/>
+<area shape="rect" id="Node000029" href="$d6/da1/namespacescalar__sgs__stats__simcomp.html#afbddb09963b8ff897e191ec2f56308d9" title=" " alt="" coords="611,1060,815,1115"/>
+<area shape="poly" id="edge29_Node000019_Node000029" title=" " alt="" coords="870,750,865,754,841,791,833,827,834,863,840,899,846,936,848,973,840,1011,817,1050,805,1062,801,1058,813,1047,835,1009,843,973,841,936,835,900,828,863,827,826,836,789,861,751,866,746"/>
+<area shape="rect" id="Node000030" href="$d5/df8/namespacescalar__stats__simcomp.html#a2b3aef6d8abf2a19f442e73c8ef5a7fb" title=" " alt="" coords="625,1139,800,1193"/>
+<area shape="poly" id="edge30_Node000019_Node000030" title=" " alt="" coords="869,750,865,754,848,778,836,801,829,824,827,847,830,892,839,938,849,984,853,1031,851,1055,845,1079,833,1104,817,1129,802,1143,798,1139,813,1126,829,1101,840,1078,846,1054,848,1031,844,985,834,939,824,893,821,847,824,823,831,799,843,775,861,751,865,746"/>
+<area shape="poly" id="edge20_Node000020_Node000004" title=" " alt="" coords="635,532,609,516,587,495,567,471,536,418,513,368,500,329,505,327,518,366,540,416,571,468,591,491,612,512,638,527"/>
 </map>

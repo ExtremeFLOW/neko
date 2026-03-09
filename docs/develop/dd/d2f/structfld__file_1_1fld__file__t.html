@@ -101,6 +101,7 @@ $(document).ready(function(){initNavTree('dd/d2f/structfld__file_1_1fld__file__t
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="../../d1/dc7/structfld__file_1_1fld__file__t-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fld_file::fld_file_t Type Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
@@ -124,9 +125,13 @@ Collaboration diagram for fld_file::fld_file_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d7/d9c/structfld__file_1_1fld__file__t__coll__graph.png" border="0" usemap="#afld__file_1_1fld__file__t_coll__map" alt="Collaboration graph"/></div>
 <map name="afld__file_1_1fld__file__t_coll__map" id="afld__file_1_1fld__file__t_coll__map">
-<area shape="rect" title="Interface for NEKTON fld files." alt="" coords="18,93,146,119"/>
-<area shape="rect" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="5,5,159,45"/>
-<area shape="poly" title=" " alt="" coords="85,59,85,93,79,93,79,59"/>
+<area shape="rect" title="Interface for NEKTON fld files." alt="" coords="39,196,167,221"/>
+<area shape="rect" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="5,93,159,133"/>
+<area shape="poly" title=" " alt="" coords="92,146,103,195,98,196,87,147"/>
+<area shape="rect" href="../../d2/df5/structmask_1_1mask__t.html" title="Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate..." alt="" coords="183,101,298,126"/>
+<area shape="poly" title=" " alt="" coords="214,136,122,198,119,194,211,131"/>
+<area shape="rect" title=" " alt="" coords="213,5,268,31"/>
+<area shape="poly" title=" " alt="" coords="243,44,243,101,238,101,238,44"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -136,10 +141,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a0de28377de55adf74f475dcff330a2b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a field from a NEKTON fld file.  <br /></td></tr>
 <tr class="separator:a0de28377de55adf74f475dcff330a2b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a6f66900182cac6c3e5e535340ec8e5" id="r_a7a6f66900182cac6c3e5e535340ec8e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a7a6f66900182cac6c3e5e535340ec8e5">write</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data, t)</td></tr>
-<tr class="memdesc:a7a6f66900182cac6c3e5e535340ec8e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write fields to a NEKTON fld file.  <br /></td></tr>
+<tr class="memdesc:a7a6f66900182cac6c3e5e535340ec8e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Manage writer to use.  <br /></td></tr>
 <tr class="separator:a7a6f66900182cac6c3e5e535340ec8e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c6ec1c78deb32b03ffaca16c6935100" id="r_a1c6ec1c78deb32b03ffaca16c6935100"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a1c6ec1c78deb32b03ffaca16c6935100">set_precision</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">precision</a>)</td></tr>
 <tr class="separator:a1c6ec1c78deb32b03ffaca16c6935100"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb62df1248b6d7ce0afffc3e17fa5969" id="r_abb62df1248b6d7ce0afffc3e17fa5969"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#abb62df1248b6d7ce0afffc3e17fa5969">set_mask</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a0799a35bdccc63e6a7ee447d0e63b7c5">mask</a>)</td></tr>
+<tr class="separator:abb62df1248b6d7ce0afffc3e17fa5969"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefa3b85ac938b2c7e35af853f39b732c" id="r_aefa3b85ac938b2c7e35af853f39b732c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#aefa3b85ac938b2c7e35af853f39b732c">get_fld_fname</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="separator:aefa3b85ac938b2c7e35af853f39b732c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f86a9005a43761f75af9cc8fd2b74e4" id="r_a3f86a9005a43761f75af9cc8fd2b74e4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a3f86a9005a43761f75af9cc8fd2b74e4">get_meta_fname</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
@@ -188,11 +195,23 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ad25c132f9c98df77b1479f7642a4491f" id="r_ad25c132f9c98df77b1479f7642a4491f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#ad25c132f9c98df77b1479f7642a4491f">write_mesh</a> = .false.</td></tr>
 <tr class="memdesc:ad25c132f9c98df77b1479f7642a4491f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether to write the mesh.  <br /></td></tr>
 <tr class="separator:ad25c132f9c98df77b1479f7642a4491f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0799a35bdccc63e6a7ee447d0e63b7c5" id="r_a0799a35bdccc63e6a7ee447d0e63b7c5"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a0799a35bdccc63e6a7ee447d0e63b7c5">mask</a></td></tr>
+<tr class="memdesc:a0799a35bdccc63e6a7ee447d0e63b7c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mask to use for masked output.  <br /></td></tr>
+<tr class="separator:a0799a35bdccc63e6a7ee447d0e63b7c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c58822d2a60425c9c0a508f0ce7ac36" id="r_a5c58822d2a60425c9c0a508f0ce7ac36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a5c58822d2a60425c9c0a508f0ce7ac36">serial</a> = .false.</td></tr>
 <tr class="memdesc:a5c58822d2a60425c9c0a508f0ce7ac36"><td class="mdescLeft">&#160;</td><td class="mdescRight">File format is serial.  <br /></td></tr>
 <tr class="separator:a5c58822d2a60425c9c0a508f0ce7ac36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a83d94631b6a99d757b267bb39198d020" id="r_a83d94631b6a99d757b267bb39198d020"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a83d94631b6a99d757b267bb39198d020">overwrite</a> = .false.</td></tr>
 <tr class="separator:a83d94631b6a99d757b267bb39198d020"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:aa4cd3adcc9ea0e2c41666a3dff6b9e1f" id="r_aa4cd3adcc9ea0e2c41666a3dff6b9e1f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#aa4cd3adcc9ea0e2c41666a3dff6b9e1f">write_all</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data, t)</td></tr>
+<tr class="memdesc:aa4cd3adcc9ea0e2c41666a3dff6b9e1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write fields to a NEKTON fld file.  <br /></td></tr>
+<tr class="separator:aa4cd3adcc9ea0e2c41666a3dff6b9e1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1964108c4aad62a74ba11627cbc322d" id="r_af1964108c4aad62a74ba11627cbc322d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#af1964108c4aad62a74ba11627cbc322d">write_masked</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data, <a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a0799a35bdccc63e6a7ee447d0e63b7c5">mask</a>, t)</td></tr>
+<tr class="memdesc:af1964108c4aad62a74ba11627cbc322d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write fields to a NEKTON fld file from a masked array.  <br /></td></tr>
+<tr class="separator:af1964108c4aad62a74ba11627cbc322d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -205,7 +224,7 @@ Private Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a6019f3063f90b496f9ab9d84a4bb472b" name="a6019f3063f90b496f9ab9d84a4bb472b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6019f3063f90b496f9ab9d84a4bb472b">&#9670;&#160;</a></span>check_exists()</h2>
@@ -307,7 +326,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -355,7 +374,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -480,7 +499,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -560,6 +579,36 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="abb62df1248b6d7ce0afffc3e17fa5969" name="abb62df1248b6d7ce0afffc3e17fa5969"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb62df1248b6d7ce0afffc3e17fa5969">&#9670;&#160;</a></span>set_mask()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a> fld_file::fld_file_t::set_mask </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>mask</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+
+</div>
+</div>
 <a id="ac6814900be97ad2a2281e99c2dda2ba5" name="ac6814900be97ad2a2281e99c2dda2ba5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac6814900be97ad2a2281e99c2dda2ba5">&#9670;&#160;</a></span>set_overwrite()</h2>
 
@@ -624,7 +673,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -697,9 +746,8 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section note"><dt>Note</dt><dd>currently limited to double precision data </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -747,6 +795,102 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="aa4cd3adcc9ea0e2c41666a3dff6b9e1f" name="aa4cd3adcc9ea0e2c41666a3dff6b9e1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4cd3adcc9ea0e2c41666a3dff6b9e1f">&#9670;&#160;</a></span>write_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> fld_file::fld_file_t::write_all </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>t</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>currently limited to double precision data </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="af1964108c4aad62a74ba11627cbc322d" name="af1964108c4aad62a74ba11627cbc322d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1964108c4aad62a74ba11627cbc322d">&#9670;&#160;</a></span>write_masked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> fld_file::fld_file_t::write_masked </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>mask</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>t</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>currently limited to double precision data </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Member Data Documentation</h2>
 <a id="a348c38fcfe4de5c515221da1561ce5b3" name="a348c38fcfe4de5c515221da1561ce5b3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a348c38fcfe4de5c515221da1561ce5b3">&#9670;&#160;</a></span>counter</h2>
@@ -784,7 +928,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -809,6 +953,22 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00043">43</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="a0799a35bdccc63e6a7ee447d0e63b7c5" name="a0799a35bdccc63e6a7ee447d0e63b7c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0799a35bdccc63e6a7ee447d0e63b7c5">&#9670;&#160;</a></span>mask</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>) fld_file::fld_file_t::mask</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -896,7 +1056,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -909,7 +1069,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/d41/namespacefld__file.html">fld_file</a></li><li class="navelem"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a></li>
-    <li class="footer">Generated on Sun Mar 8 2026 04:16:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Mar 9 2026 04:18:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
