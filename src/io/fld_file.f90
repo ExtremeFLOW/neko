@@ -765,7 +765,7 @@ contains
     nelv = mask%size() / lxyz
     if (mod(mask%size(), lxyz) /= 0) then
        call neko_error("Mask size must be a multiple of the number of " // &
-               "elements in the mesh.")
+            "elements in the mesh.")
     end if
     call MPI_Allreduce(nelv, glb_nelv, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM)
@@ -898,7 +898,8 @@ contains
     if (write_pressure) then
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int((lxyz), i8) * int(FLD_DATA_SIZE, i8))
-       call fld_file_write_field_masked(this, fh, byte_offset, p%ptr, n, mask%get())
+       call fld_file_write_field_masked(this, fh, byte_offset, p%ptr, n, &
+            mask%get())
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int((lxyz), i8) * int(FLD_DATA_SIZE, i8))
     end if
@@ -907,7 +908,8 @@ contains
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-       call fld_file_write_field_masked(this, fh, byte_offset, tem%ptr, n, mask%get())
+       call fld_file_write_field_masked(this, fh, byte_offset, tem%ptr, n, &
+            mask%get())
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
@@ -925,7 +927,8 @@ contains
        byte_offset = int(mpi_offset, i8) + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-       call fld_file_write_field_masked(this, fh, byte_offset, scalar_fields(i)%ptr, n, mask%get())
+       call fld_file_write_field_masked(this, fh, byte_offset, &
+            scalar_fields(i)%ptr, n, mask%get())
        mpi_offset = int(mpi_offset, i8) + int(glb_nelv, i8) * &
             (int(lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
@@ -1088,7 +1091,7 @@ contains
   end subroutine fld_file_write_metadata_vector
 
   subroutine fld_file_write_metadata_vector_masked(this, fh, byte_offset, x, &
-                  y, z, gdim, lxyz, nelv, lx, ly, lz, n, mask)
+       y, z, gdim, lxyz, nelv, lx, ly, lz, n, mask)
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: gdim, lxyz, nelv, lx, ly, lz, n
@@ -1151,7 +1154,7 @@ contains
   end subroutine fld_file_write_metadata_scalar
 
   subroutine fld_file_write_metadata_scalar_masked(this, fh, byte_offset, x, &
-                  lxyz, nelv, lx, ly, lz, n, mask)
+       lxyz, nelv, lx, ly, lz, n, mask)
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: lxyz, nelv, lx, ly, lz, n
@@ -1292,8 +1295,8 @@ contains
   !! @param this The fld file object
   !! @param data The data in which to read the fld file data. Currently only
   !! fld_file_data_t objects are supported.
-  subroutine fld_file_write_vector_field_masked(this, fh, byte_offset, x, y, z, n, &
-       gdim, lxyz, nelv, lx, ly, lz, mask)
+  subroutine fld_file_write_vector_field_masked(this, fh, byte_offset, x, y, &
+       z, n, gdim, lxyz, nelv, lx, ly, lz, mask)
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: n, gdim, lxyz, lx, ly, lz, nelv
