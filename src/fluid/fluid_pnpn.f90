@@ -773,11 +773,8 @@ contains
 
       call profiler_end_region('Pressure_residual', 18)
 
-      call this%proj_prs%reortho_basis(Ax_prs, c_Xh, &
-           gs_Xh, this%bclst_dp, n)
-
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-           'Pressure')
+           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%bclst_dp, string='Pressure')
 
       call this%pc_prs%update()
 

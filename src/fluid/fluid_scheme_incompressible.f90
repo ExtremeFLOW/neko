@@ -224,7 +224,7 @@ contains
          'case.fluid.pressure_solver.projection_hold_steps', &
          this%pr_projection_activ_step, 5)
     call json_get_or_default(params, &
-         'case.fluid.pressure_solver.projection_reortho_basis', &
+         'case.fluid.pressure_solver.projection_reorthogonalize_basis', &
          this%pr_projection_reorthogonalize_basis, .false.)
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
