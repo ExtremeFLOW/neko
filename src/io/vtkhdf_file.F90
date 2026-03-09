@@ -79,7 +79,6 @@ contains
     integer :: ierr, info, i, n_fields
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, memspace
-    integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(2) :: vdims
     integer :: lx, ly, lz
     integer :: local_points, local_cells, local_conn
@@ -89,7 +88,6 @@ contains
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16), dimension(1) :: type_str
-    integer(hsize_t) :: pointdata_time_offset
     logical :: link_exists, file_exists
     integer(kind=1) :: VTK_cell_type
 
@@ -208,22 +206,19 @@ contains
     call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, MPI_SUM, &
          NEKO_COMM, ierr)
 
-    pointdata_time_offset = 0_hsize_t
     if (present(t)) then
-       call vtkhdf_write_steps(vtkhdf_grp, t, &
-            this%amr_enabled, &
-            total_points, total_cells, total_conn, &
-            pointdata_time_offset)
+       call vtkhdf_write_steps(vtkhdf_grp, t)
     end if
 
     ! For static mesh, only write geometry on the first call
-    call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, &
-         this%amr_enabled, t)
+    if (associated(msh)) then
+       call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, &
+            this%amr_enabled, t)
+    end if
 
     ! Write field data in PointData group
     if (n_fields > 0) then
-       call vtkhdf_write_pointdata(vtkhdf_grp, &
-            fp, pointdata_time_offset, t)
+       call vtkhdf_write_pointdata(vtkhdf_grp, fp, t)
     end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
@@ -330,7 +325,6 @@ contains
     integer :: point_offset, max_local_points
     integer :: total_offsets, cell_offset, conn_offset, offsets_offset
     integer :: max_local_cells, max_local_conn
-    integer(hid_t) :: H5T_NEKO_REAL
     integer(hid_t) :: xf_id, dset_id, dcpl_id, grp_id, attr_id
     integer(hid_t) :: filespace, memspace
     integer(hsize_t), dimension(1) :: dcount, doffset_1d, chunkdims
@@ -345,7 +339,6 @@ contains
     integer, dimension(3) :: component_offsets
     integer, dimension(3) :: component_max_sizes
 
-    call vtkhdf_file_determine_real(H5T_NEKO_REAL)
 
     lx = dof%Xh%lx
     ly = dof%Xh%ly
@@ -623,32 +616,18 @@ contains
   !! CellOffsets, ConnectivityIdOffsets datasets, and NSteps attribute.
   !! @param vtkhdf_grp HDF5 group ID for VTKHDF root group
   !! @param t Current simulation time
-  !! @param amr_enabled Whether AMR is enabled
-  !! @param total_points Global total number of points
-  !! @param total_cells Global total number of sub-cells
-  !! @param total_conn Global total connectivity size
-  !! @param pointdata_time_offset Output: offset for PointData at this timestep
-  subroutine vtkhdf_write_steps(vtkhdf_grp, t, &
-       amr_enabled, &
-       total_points, total_cells, total_conn, &
-       pointdata_time_offset)
+  subroutine vtkhdf_write_steps(vtkhdf_grp, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     real(kind=rp), intent(in) :: t
-    logical, intent(in) :: amr_enabled
-    integer, intent(in) :: total_points, total_cells, total_conn
-    integer(hsize_t), intent(out) :: pointdata_time_offset
 
     integer(hid_t) :: xf_id
     integer :: ierr, N_Steps
-    integer(hid_t) :: H5T_NEKO_REAL
     integer(hid_t) :: grp_id, dset_id, dcpl_id, filespace, memspace, attr_id
     integer(hsize_t), dimension(1) :: step_dims, step_maxdims
     integer(hsize_t), dimension(1) :: step_count, step_offset, chunkdims, ddim
-    real(kind=rp), dimension(1) :: time_value
+    real(kind=dp), dimension(1) :: time_value
     integer(kind=8) :: i8_value
     logical :: link_exists, attr_exists
-
-    call vtkhdf_file_determine_real(H5T_NEKO_REAL)
 
     ! Create collective transfer property list
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
@@ -676,7 +655,7 @@ contains
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        chunkdims(1) = 1_hsize_t
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(grp_id, "Values", H5T_NEKO_REAL, &
+       call h5dcreate_f(grp_id, "Values", H5T_NATIVE_DOUBLE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
@@ -690,15 +669,14 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          step_offset, step_count, ierr)
     call h5screate_simple_f(1, step_count, memspace, ierr)
-    time_value(1) = t
-    call h5dwrite_f(dset_id, H5T_NEKO_REAL, time_value, step_count, ierr, &
+    time_value(1) = real(t, kind=dp)
+    call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, time_value, step_count, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
     call h5sclose_f(memspace, ierr)
     call h5sclose_f(filespace, ierr)
     call h5dclose_f(dset_id, ierr)
 
     N_Steps = int(step_dims(1))
-    pointdata_time_offset = int(N_Steps - 1, hsize_t) * int(total_points, hsize_t)
 
     ! --- NSteps attribute ---
     ddim(1) = 1_hsize_t
@@ -786,16 +764,14 @@ contains
   !! For temporal output, PointDataOffsets are appended under Steps.
   !! @param vtkhdf_grp Root VTKHDF group
   !! @param fp Array of field pointers to write
-  !! @param pointdata_time_offset Temporal offset for PointData datasets
   !! @param t Current simulation time (optional, for temporal output)
-  subroutine vtkhdf_write_pointdata(vtkhdf_grp, &
-       fp, pointdata_time_offset, t)
+  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     type(field_ptr_t), intent(in) :: fp(:)
-    integer(hsize_t), intent(in) :: pointdata_time_offset
-    real(kind=rp), optional :: t
+    real(kind=rp), intent(in), optional :: t
 
     logical, allocatable :: field_written(:)
+    integer(kind=8) :: time_offset
     integer :: nelv
     integer :: local_points, point_offset
     integer :: lx, ly, lz
@@ -804,14 +780,15 @@ contains
     integer(hid_t) :: xf_id
     integer :: ierr, i, j, ie, ii, jj, kk, local_idx
     integer :: n_fields, npts_per_cell
-    integer(hid_t) :: pointdata_grp, pointdata_offsets_grp, grp_id
-    integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
+    integer(hid_t) :: pointdata_grp, grp_id, step_grp_id
+    integer(hid_t) :: dset_id, dcpl_id, attr_id, filespace, memspace
     integer(hsize_t), dimension(1) :: dcount, doffset, chunkdims
     integer(hsize_t), dimension(2) :: dcount2, doffset2
     integer(hsize_t), dimension(1) :: pd_dims1, pd_maxdims1
     integer(hsize_t), dimension(2) :: pd_dims2, pd_maxdims2
+    integer :: N_Steps
     type(field_t), pointer :: fld, u, v, w
-    real(kind=rp), allocatable :: point_data(:,:)
+    real(kind=rp), allocatable :: data_2d(:,:)
     character(len=128) :: field_name
     logical :: link_exists, is_vector
 
@@ -855,8 +832,22 @@ contains
        call h5gcreate_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
     end if
 
+    ! Read how many steps have been written so far
+    if (present(t)) then
+       call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
+
+       ! Read the number of steps from the Steps group attribute
+       call h5aopen_f(step_grp_id, "NSteps", attr_id, ierr)
+       call h5aread_f(attr_id, H5T_NATIVE_INTEGER, N_Steps, [1_8], ierr)
+       call h5aclose_f(attr_id, ierr)
+
+       time_offset = int(N_Steps - 1, kind=8) * int(total_points, kind=8)
+    else
+       time_offset = 0_8
+    end if
+
     dcount(1) = int(local_points, hsize_t)
-    doffset(1) = pointdata_time_offset + int(point_offset, hsize_t)
+    doffset(1) = int(time_offset, hsize_t) + int(point_offset, hsize_t)
 
     do i = 1, n_fields
        if (field_written(i)) cycle
@@ -892,41 +883,31 @@ contains
 
        ! Write PointDataOffsets under Steps for temporal output
        if (present(t)) then
-          call h5gopen_f(vtkhdf_grp, "Steps", grp_id, ierr)
-          call h5lexists_f(grp_id, "PointDataOffsets", link_exists, ierr)
+          call h5lexists_f(step_grp_id, "PointDataOffsets", link_exists, ierr)
           if (link_exists) then
-             call h5gopen_f(grp_id, "PointDataOffsets", &
-                  pointdata_offsets_grp, ierr)
-             if (ierr .ne. 0) then
-                call h5ldelete_f(grp_id, "PointDataOffsets", ierr)
-                call h5gcreate_f(grp_id, "PointDataOffsets", &
-                     pointdata_offsets_grp, ierr)
-             end if
+             call h5gopen_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
           else
-             call h5gcreate_f(grp_id, "PointDataOffsets", &
-                  pointdata_offsets_grp, ierr)
+             call h5gcreate_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
           end if
-          call vtkhdf_append_step_i8(pointdata_offsets_grp, &
-               trim(field_name), int(pointdata_time_offset, kind=8))
-          call h5gclose_f(pointdata_offsets_grp, ierr)
+          call vtkhdf_append_step_i8(grp_id, trim(field_name), time_offset)
           call h5gclose_f(grp_id, ierr)
        end if
 
        if (is_vector) then
           ! Assemble 3-component vector from u, v, w fields
-          allocate(point_data(3, local_points))
+          allocate(data_2d(3, local_points))
           do ie = 1, nelv
              local_idx = (ie - 1) * npts_per_cell
              do kk = 1, lz
                 do jj = 1, ly
                    do ii = 1, lx
                       local_idx = local_idx + 1
-                      point_data(1, local_idx) = u%x(ii, jj, kk, ie)
-                      point_data(2, local_idx) = v%x(ii, jj, kk, ie)
+                      data_2d(1, local_idx) = u%x(ii, jj, kk, ie)
+                      data_2d(2, local_idx) = v%x(ii, jj, kk, ie)
                       if (associated(w)) then
-                         point_data(3, local_idx) = w%x(ii, jj, kk, ie)
+                         data_2d(3, local_idx) = w%x(ii, jj, kk, ie)
                       else
-                         point_data(3, local_idx) = 0.0_rp
+                         data_2d(3, local_idx) = 0.0_rp
                       end if
                    end do
                 end do
@@ -964,13 +945,13 @@ contains
           call h5screate_simple_f(2, dcount2, memspace, ierr)
           call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
                doffset2, dcount2, ierr)
-          call h5dwrite_f(dset_id, H5T_NEKO_REAL, point_data, dcount2, ierr, &
+          call h5dwrite_f(dset_id, H5T_NEKO_REAL, data_2d, dcount2, ierr, &
                file_space_id = filespace, mem_space_id = memspace, &
                xfer_prp = xf_id)
           call h5sclose_f(filespace, ierr)
           call h5sclose_f(memspace, ierr)
           call h5dclose_f(dset_id, ierr)
-          deallocate(point_data)
+          deallocate(data_2d)
 
        else
           ! Write scalar field as 1D dataset
@@ -1010,6 +991,7 @@ contains
        end if
     end do
 
+    if (present(t)) call h5gclose_f(step_grp_id, ierr)
     call h5gclose_f(pointdata_grp, ierr)
 
   end subroutine vtkhdf_write_pointdata
