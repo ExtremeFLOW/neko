@@ -55,29 +55,29 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
@@ -93,11 +93,11 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
 
-    @assertEqual(d%x(1,1,1,1), p(1)%x(1), tolerance=1d-14)
-    @assertEqual(d%x(2,1,1,1), p(2)%x(1), tolerance=1d-14)
+    @assertEqual(d%x(1,1,1,1), p(1)%x(1), tolerance=1.0e-14_rp)
+    @assertEqual(d%x(2,1,1,1), p(2)%x(1), tolerance=1.0e-14_rp)
 
-    @assertEqual(d%x(1,1,1,2), p(4)%x(1), tolerance=1d-14)
-    @assertEqual(d%x(2,1,1,2), p(5)%x(1), tolerance=1d-14)
+    @assertEqual(d%x(1,1,1,2), p(4)%x(1), tolerance=1.0e-14_rp)
+    @assertEqual(d%x(2,1,1,2), p(5)%x(1), tolerance=1.0e-14_rp)
 
   end subroutine test_dofmap_genxyz
 
@@ -121,29 +121,29 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
@@ -165,10 +165,10 @@ contains
                 if( i .ne. i2 .AND. j .ne. j2) then
                    @assertFalse(d%dof(lx,j,i,1) .eq. d%dof(1,j2,i2,2))
                 endif
-             enddo
-          enddo
-       enddo
-    enddo
+             end do
+          end do
+       end do
+    end do
 
   end subroutine test_dofmap_face12
 
@@ -183,6 +183,8 @@ contains
     type(point_t) :: p(12)
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
+    character(len=50) :: msg
+    integer :: k, l, i_s, j_s, l_s, k_s
     lx = 5
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
@@ -193,29 +195,29 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
@@ -229,18 +231,63 @@ contains
 
     call m%generate_conn()
     call d%init(m, Xh)
+
+    write(*,*) " "
+
+    ! Print mesh information
+    write(*,*) "=== Mesh Information ==="
+    write(*,*) "Number of elements:", m%nelv
+    write(*,*) "Geometric dimension:", m%gdim
+    write(*,*) "Offset element:", m%offset_el
+
+    ! Print element information for each element
+    do l = 1, m%nelv
+       write(*,*) " "
+       write(*,*) "Element", l, "global ID:", m%elements(l)%e%id()
+       write(*,*) "  Vertices:"
+       do i = 1, 8
+          write(*,'(A,I2,A,3F10.5,1X,I0)') '    v', i, ': ', &
+               m%elements(l)%e%pts(i)%p%x(1), &
+               m%elements(l)%e%pts(i)%p%x(2), &
+               m%elements(l)%e%pts(i)%p%x(3), &
+               m%elements(l)%e%pts(i)%p%id()
+       end do
+    end do
+
+    i_s = size(d%dof, 1)
+    j_s = size(d%dof, 2)
+    k_s = size(d%dof, 3)
+    l_s = size(d%dof, 4)
+    write(*,*) " "
+
+    ! Debug print of all dofs
+    do l = 1, l_s
+       do i = 1, i_s
+          do j = 1, j_s
+             do k = 1, k_s
+                write(*, '(A,I2,A,I2,A,I2,A,I2,4X,A,I3)') &
+                     'i: ', i, ' j: ', j, ' k: ', k, ' l: ', l, &
+                     'dof: ', d%dof(i,j,k,l)
+             end do
+          end do
+       end do
+    end do
+
     do i = 1,lx
        do j = 1,lx
-          @assertEqual(d%dof(lx+1-i,j,lx,1), d%dof(1,j,i,2))
+          write(msg, '(A,I0,A,I0)') 'i=', i, ' j=', j
+          @assertEqual(d%dof(lx+1-i,j,lx,1), d%dof(1,j,i,2), message=msg)
           do i2 = 1,lx
              do j2 = 1,lx
                 if( i .ne. i2 .AND. j .ne. j2) then
-                   @assertFalse(d%dof(lx+1-i,j,lx,1) .eq. d%dof(1,j2,i2,2))
+                   write(msg, '(A,I0,A,I0,A,I0,A,I0)') 'i=', i, ' j=', j, &
+                        ' i2=', i2, ' j2=', j2
+                   @assertFalse(d%dof(lx+1-i,j,lx,1) .eq. d%dof(1,j2,i2,2), message=msg)
                 endif
-             enddo
-          enddo
-       enddo
-    enddo
+             end do
+          end do
+       end do
+    end do
 
   end subroutine test_dofmap_face15
 
@@ -264,29 +311,29 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
@@ -307,10 +354,10 @@ contains
                 if( i .ne. i2 .AND. j .ne. j2) then
                    @assertFalse(d%dof(1,lx+1-j,lx+1-i,1) .eq. d%dof(1,j2,i2,2))
                 endif
-             enddo
-          enddo
-       enddo
-    enddo
+             end do
+          end do
+       end do
+    end do
 
   end subroutine test_dofmap_face11
 
@@ -334,29 +381,29 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
@@ -378,10 +425,10 @@ contains
                 if( i .ne. i2 .AND. j .ne. j2) then
                    @assertFalse(d%dof(1,j,lx+1-i,1) .eq. d%dof(1,j2,i2,2))
                 endif
-             enddo
-          enddo
-       enddo
-    enddo
+             end do
+          end do
+       end do
+    end do
 
   end subroutine test_dofmap_face11rot
 
@@ -405,29 +452,29 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
@@ -450,10 +497,10 @@ contains
                 if( i .ne. i2 .AND. j .ne. j2) then
                    @assertFalse(d%dof(i,j,1,1) .eq. d%dof(1,j2,i2,2))
                 endif
-             enddo
-          enddo
-       enddo
-    enddo
+             end do
+          end do
+       end do
+    end do
 
   end subroutine test_dofmap_face16
 
@@ -477,29 +524,29 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
@@ -521,10 +568,10 @@ contains
                 if( i .ne. i2 .AND. j .ne. j2) then
                    @assertFalse(d%dof(lx+1-j,lx,i,1) .eq. d%dof(1,j2,i2,2))
                 endif
-             enddo
-          enddo
-       enddo
-    enddo
+             end do
+          end do
+       end do
+    end do
 
   end subroutine test_dofmap_face13
 
@@ -548,29 +595,29 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%init(0.0_dp, 0.0_dp, 0.0_dp)
     call p(1)%set_id(1)
-    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%init(1.0_dp, 0.0_dp, 0.0_dp)
     call p(2)%set_id(2)
-    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%init(0.0_dp, 1.0_dp, 0.0_dp)
     call p(3)%set_id(4)
-    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%init(1.0_dp, 1.0_dp, 0.0_dp)
     call p(4)%set_id(3)
-    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%init(2.0_dp, 0.0_dp, 0.0_dp)
     call p(5)%set_id(5)
-    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%init(2.0_dp, 1.0_dp, 0.0_dp)
     call p(6)%set_id(6)
-    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%init(0.0_dp, 0.0_dp, 1.0_dp)
     call p(7)%set_id(7)
-    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%init(1.0_dp, 0.0_dp, 1.0_dp)
     call p(8)%set_id(8)
-    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%init(1.0_dp, 1.0_dp, 1.0_dp)
     call p(9)%set_id(9)
-    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%init(0.0_dp, 1.0_dp, 1.0_dp)
     call p(10)%set_id(10)
-    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%init(2.0_dp, 0.0_dp, 1.0_dp)
     call p(11)%set_id(11)
-    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%init(2.0_dp, 1.0_dp, 1.0_dp)
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
@@ -592,10 +639,10 @@ contains
                 if( i .ne. i2 .AND. j .ne. j2) then
                    @assertFalse(d%dof(j,1,i,1) .eq. d%dof(1,j2,i2,2))
                 endif
-             enddo
-          enddo
-       enddo
-    enddo
+             end do
+          end do
+       end do
+    end do
 
   end subroutine test_dofmap_face14
 
