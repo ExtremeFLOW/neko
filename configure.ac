@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.0.1])
+AC_INIT([neko],[1.0.2])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -376,6 +376,7 @@ FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
 AC_CONFIG_FILES([Makefile\
         src/Makefile\
+        src/python/Makefile\
         tests/unit/Makefile\
         src/comm/comm.F90\
         src/config/neko_config.f90\

@@ -43,8 +43,9 @@ module scalar_pnpn
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
-  use device, only : HOST_TO_DEVICE, device_memcpy
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &
+       device_event_sync
+  use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
@@ -130,6 +131,8 @@ module scalar_pnpn
      procedure, pass(this) :: free => scalar_pnpn_free
      !> Solve for the current timestep.
      procedure, pass(this) :: step => scalar_pnpn_step
+     !> Apply strong boundary conditions
+     procedure, pass(this) :: apply_strong_bcs => scalar_scheme_apply_strong_bcs
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
      !> Sync lag field data to registry for checkpointing
@@ -406,7 +409,7 @@ contains
       call slag%update()
 
       !> Apply strong boundary conditions.
-      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), time, .true.)
+      call this%apply_strong_bcs(time)
 
       ! Update material properties if necessary
       call this%update_material_properties(time)
@@ -559,6 +562,43 @@ contains
 
     end if
   end subroutine scalar_pnpn_setup_bcs_
+
+  !> Apply strong boundary conditions.
+  !! @param time The current time state.
+  subroutine scalar_scheme_apply_strong_bcs(this, time)
+    class(scalar_pnpn_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    integer :: i
+    class(bc_t), pointer :: bc_i
+    bc_i => null()
+
+    ! First apply call, sets the Dirichlet value, let's call it d.
+    call this%bcs%apply(this%s, time = time, strong = .true.)
+    ! If we now have local nodes sharing the same global node, and with
+    ! some nodes not masked as Dirichlet, the node which *is* masked
+    ! will have the value d, and the the other ones just some value u.
+    ! Take a nodewise minimum between the local nodes.
+    ! Now, all local nodes store m = min(d, u)
+    call this%gs_Xh%op(this%s, GS_OP_MIN, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
+
+    ! Second apply call, so Dirichlet nodes again store d, the rest still store
+    ! m, where m < d by construction.
+    call this%bcs%apply(this%s, time = time, strong = .true.)
+    ! Now apply a max, which guarantees that d wins and gets stored in all the
+    ! local nodes.
+    call this%gs_Xh%op(this%s, GS_OP_MAX, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
+
+    ! Reset updated flags
+    do i = 1, this%bcs%size()
+       bc_i => this%bcs%get(i)
+       bc_i%updated = .false.
+    end do
+    nullify(bc_i)
+
+  end subroutine scalar_scheme_apply_strong_bcs
 
 
 end module scalar_pnpn
