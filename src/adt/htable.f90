@@ -42,6 +42,25 @@ module htable
   use, intrinsic :: iso_c_binding, only : c_ptr, c_associated
   implicit none
   private
+                         
+  ! Hash table types
+  public :: htable_i4_t          ! hash table keyed by 32-bit ints
+  public :: htable_i8_t          ! hash table keyed by 64-bit ints
+  public :: htable_r8_t          ! hash table keyed by 64-bit real values
+  public :: htable_pt_t          ! hash table keyed by points
+  public :: htable_i4t2_t        ! hash table keyed by pairs of 32-bit ints
+  public :: htable_i4t4_t        ! hash table keyed by quadruples of 32-bit ints
+  public :: htable_cptr_t        ! hash table keyed by C pointers
+
+  ! Hash table iterator types
+  public :: htable_iter_i4_t
+  public :: htable_iter_i8_t
+  public :: htable_iter_r8_t
+  public :: htable_iter_pt_t
+  public :: htable_iter_i4t2_t
+  public :: htable_iter_i4t4_t
+  public :: htable_iter_cptr_t
+  public :: h_cptr_t
 
   !> Hash table entry, tuple (key, data)
   type :: h_tuple_t
@@ -83,7 +102,7 @@ module htable
   !
 
   !> Integer based hash table
-  type, public, extends(htable_t) :: htable_i4_t
+  type, extends(htable_t) :: htable_i4_t
    contains
      procedure, pass(this) :: init => htable_i4_init
      procedure, pass(this) :: set => htable_i4_set
@@ -93,7 +112,7 @@ module htable
   end type htable_i4_t
 
   !> Integer*8 based hash table
-  type, public, extends(htable_t) :: htable_i8_t
+  type, extends(htable_t) :: htable_i8_t
    contains
      procedure, pass(this) :: init => htable_i8_init
      procedure, pass(this) :: set => htable_i8_set
@@ -103,7 +122,7 @@ module htable
   end type htable_i8_t
 
   !> Double precision based hash table
-  type, public, extends(htable_t) :: htable_r8_t
+  type, extends(htable_t) :: htable_r8_t
    contains
      procedure, pass(this) :: init => htable_r8_init
      procedure, pass(this) :: set => htable_r8_set
@@ -113,7 +132,7 @@ module htable
   end type htable_r8_t
 
   !> Point based hash table
-  type, public, extends(htable_t) :: htable_pt_t
+  type, extends(htable_t) :: htable_pt_t
    contains
      procedure, pass(this) :: init => htable_pt_init
      procedure, pass(this) :: set => htable_pt_set
@@ -123,7 +142,7 @@ module htable
   end type htable_pt_t
 
   !> Integer 2-tuple based hash table
-  type, public, extends(htable_t) :: htable_i4t2_t
+  type, extends(htable_t) :: htable_i4t2_t
    contains
      procedure, pass(this) :: init => htable_i4t2_init
      procedure, pass(this) :: set => htable_i4t2_set
@@ -133,7 +152,7 @@ module htable
   end type htable_i4t2_t
 
   !> Integer 4-tuple based hash table
-  type, public, extends(htable_t) :: htable_i4t4_t
+  type, extends(htable_t) :: htable_i4t4_t
    contains
      procedure, pass(this) :: init => htable_i4t4_init
      procedure, pass(this) :: set => htable_i4t4_set
@@ -143,7 +162,7 @@ module htable
   end type htable_i4t4_t
 
   !> C pointer based hash table
-  type, public, extends(htable_t) :: htable_cptr_t
+  type, extends(htable_t) :: htable_cptr_t
    contains
      procedure, pass(this) :: init => htable_cptr_init
      procedure, pass(this) :: set => htable_cptr_set
@@ -167,7 +186,7 @@ module htable
   end type htable_iter_t
 
   !> Iterator for an integer based hash table
-  type, public, extends(htable_iter_t) :: htable_iter_i4_t
+  type, extends(htable_iter_t) :: htable_iter_i4_t
    contains
      procedure, pass(this) :: init => htable_iter_i4_init
      procedure, pass(this) :: value => htable_iter_i4_value
@@ -176,7 +195,7 @@ module htable
   end type htable_iter_i4_t
 
   !> Iterator for an integer*8 based hash table
-  type, public, extends(htable_iter_t) :: htable_iter_i8_t
+  type, extends(htable_iter_t) :: htable_iter_i8_t
    contains
      procedure, pass(this) :: init => htable_iter_i8_init
      procedure, pass(this) :: value => htable_iter_i8_value
@@ -185,7 +204,7 @@ module htable
   end type htable_iter_i8_t
 
   !> Iterator for a double precision based hash table
-  type, public, extends(htable_iter_t) :: htable_iter_r8_t
+  type, extends(htable_iter_t) :: htable_iter_r8_t
    contains
      procedure, pass(this) :: init => htable_iter_r8_init
      procedure, pass(this) :: value => htable_iter_r8_value
@@ -194,7 +213,7 @@ module htable
   end type htable_iter_r8_t
 
   !> Iterator for a point based hash table
-  type, public, extends(htable_iter_t) :: htable_iter_pt_t
+  type, extends(htable_iter_t) :: htable_iter_pt_t
    contains
      procedure, pass(this) :: init => htable_iter_pt_init
      procedure, pass(this) :: value => htable_iter_pt_value
@@ -203,7 +222,7 @@ module htable
   end type htable_iter_pt_t
 
   !> Iterator for an integer based 2-tuple hash table
-  type, public, extends(htable_iter_t) :: htable_iter_i4t2_t
+  type, extends(htable_iter_t) :: htable_iter_i4t2_t
    contains
      procedure, pass(this) :: init => htable_iter_i4t2_init
      procedure, pass(this) :: value => htable_iter_i4t2_value
@@ -212,7 +231,7 @@ module htable
   end type htable_iter_i4t2_t
 
   !> Iterator for an integer based 4-tuple hash table
-  type, public, extends(htable_iter_t) :: htable_iter_i4t4_t
+  type, extends(htable_iter_t) :: htable_iter_i4t4_t
    contains
      procedure, pass(this) :: init => htable_iter_i4t4_init
      procedure, pass(this) :: value => htable_iter_i4t4_value
@@ -221,7 +240,7 @@ module htable
   end type htable_iter_i4t4_t
 
   !> Iterator for a C pointer based hash table
-  type, public, extends(htable_iter_t) :: htable_iter_cptr_t
+  type, extends(htable_iter_t) :: htable_iter_cptr_t
    contains
      procedure, pass(this) :: init => htable_iter_cptr_init
      procedure, pass(this) :: value => htable_iter_cptr_value
@@ -232,7 +251,7 @@ module htable
   !
   ! Type wrappers
   !
-  type, public :: h_cptr_t
+  type :: h_cptr_t
      type(c_ptr) :: ptr
   end type h_cptr_t
 

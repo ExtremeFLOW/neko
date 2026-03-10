@@ -36,6 +36,12 @@ module tuple
   use num_types, only : dp
   implicit none
   private
+  public :: tuple_i4_t      ! pair of 32-bit integers
+  public :: tuple3_i4_t     ! triple of 32-bit integers
+  public :: tuple4_i4_t     ! quadruple of 32-bit integers
+  public :: tuple_r8_t      ! pair of 64-bit real values
+  public :: tuple_i4r8_t    ! pair of one 32-bit int and one 64-bit real
+  public :: tuple_2i4r8_t   ! triple of two 32-bit ints and one 64-bit real
 
   !> Base type for an n-tuple
   type, public, abstract :: tuple_t
@@ -48,7 +54,7 @@ module tuple
   end type tuple_t
 
   !> Integer based 2-tuple
-  type, extends(tuple_t), public :: tuple_i4_t
+  type, extends(tuple_t) :: tuple_i4_t
      integer :: x(2) = (/0, 0/)
    contains
      procedure, pass(this) :: assign_tuple => tuple_i4_assign_tuple
@@ -57,7 +63,7 @@ module tuple
   end type tuple_i4_t
 
   !> Integer based 3-tuple
-  type, extends(tuple_t), public :: tuple3_i4_t
+  type, extends(tuple_t) :: tuple3_i4_t
      integer :: x(3) = (/0, 0, 0/)
    contains
      procedure, pass(this) :: assign_tuple => tuple3_i4_assign_tuple
@@ -66,7 +72,7 @@ module tuple
   end type tuple3_i4_t
 
   !> Integer based 4-tuple
-  type, extends(tuple_t), public :: tuple4_i4_t
+  type, extends(tuple_t) :: tuple4_i4_t
      integer :: x(4) = (/0, 0, 0, 0/)
    contains
      procedure, pass(this) :: assign_tuple => tuple4_i4_assign_tuple
@@ -75,7 +81,7 @@ module tuple
   end type tuple4_i4_t
 
   !> Double precision based 2-tuple
-  type, extends(tuple_t), public :: tuple_r8_t
+  type, extends(tuple_t) :: tuple_r8_t
      real(kind=dp) :: x(2) = (/0d0, 0d0/)
    contains
      procedure, pass(this) :: assign_tuple => tuple_r8_assign_tuple
@@ -84,7 +90,7 @@ module tuple
   end type tuple_r8_t
 
   !> Mixed integer (\f$ x \f$) double precision (\f$ y \f$) 2-tuple \f$(x, y)\f$
-  type, extends(tuple_t), public :: tuple_i4r8_t
+  type, extends(tuple_t) :: tuple_i4r8_t
      integer :: x
      real(kind=dp) :: y
    contains
@@ -94,7 +100,7 @@ module tuple
   end type tuple_i4r8_t
 
   !> Mixed integer (\f$ x, y \f$) double precision (\f$ z \f$) 3-tuple
-  type, extends(tuple_t), public :: tuple_2i4r8_t
+  type, extends(tuple_t) :: tuple_2i4r8_t
      integer :: x, y
      real(kind=dp) :: z
    contains

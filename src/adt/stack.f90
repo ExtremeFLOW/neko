@@ -42,6 +42,19 @@ module stack
   use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
   implicit none
   private
+  public :: stack_i4_t        ! 32-bit integers
+  public :: stack_i8_t        ! 64-bit integers
+  public :: stack_r8_t        ! 64-bit real values
+  public :: stack_i4t2_t      ! pairs of 32-bit integers
+  public :: stack_i4t4_t      ! quadruples of 32-bit integers
+  public :: stack_i4r8t2_t    ! pairs of one 32-bit int and one 64-bit real
+  public :: stack_2i4r8t3_t   ! triples of two 32-bit ints and one 64-bit real
+  public :: stack_curve_t     ! curved-element descriptors
+  public :: stack_nq_t        ! Neko quad elements
+  public :: stack_nh_t        ! Neko hex elements
+  public :: stack_nz_t        ! Neko zone descriptors
+  public :: stack_nc_t        ! Neko curved-element metadata
+  public :: stack_pt_t        ! points
 
   integer, parameter :: NEKO_STACK_SIZE_T = 32
 
@@ -60,91 +73,91 @@ module stack
   end type stack_t
 
   !> Integer based stack
-  type, public, extends(stack_t) :: stack_i4_t
+  type, extends(stack_t) :: stack_i4_t
    contains
      procedure, public, pass(this) :: pop => stack_i4_pop
      procedure, public, pass(this) :: array => stack_i4_data
   end type stack_i4_t
 
   !> Integer*8 based stack
-  type, public, extends(stack_t) :: stack_i8_t
+  type, extends(stack_t) :: stack_i8_t
    contains
      procedure, public, pass(this) :: pop => stack_i8_pop
      procedure, public, pass(this) :: array => stack_i8_data
   end type stack_i8_t
 
   !> Double precision based stack
-  type, public, extends(stack_t) :: stack_r8_t
+  type, extends(stack_t) :: stack_r8_t
    contains
      procedure, public, pass(this) :: pop => stack_r8_pop
      procedure, public, pass(this) :: array => stack_r8_data
   end type stack_r8_t
 
   !> Integer 2-tuple based stack
-  type, public, extends(stack_t) :: stack_i4t2_t
+  type, extends(stack_t) :: stack_i4t2_t
    contains
      procedure, public, pass(this) :: pop => stack_i4t2_pop
      procedure, public, pass(this) :: array => stack_i4t2_data
   end type stack_i4t2_t
 
   !> Integer 4-tuple based stack
-  type, public, extends(stack_t) :: stack_i4t4_t
+  type, extends(stack_t) :: stack_i4t4_t
    contains
      procedure, public, pass(this) :: pop => stack_i4t4_pop
      procedure, public, pass(this) :: array => stack_i4t4_data
   end type stack_i4t4_t
 
   !> Mixed integer-double precision 2-tuple based stack
-  type, public, extends(stack_t) :: stack_i4r8t2_t
+  type, extends(stack_t) :: stack_i4r8t2_t
    contains
      procedure, public, pass(this) :: pop => stack_i4r8t2_pop
      procedure, public, pass(this) :: array => stack_i4r8t2_data
   end type stack_i4r8t2_t
 
   !> Mixed integer-double precision 3-tuple based stack
-  type, public, extends(stack_t) :: stack_2i4r8t3_t
+  type, extends(stack_t) :: stack_2i4r8t3_t
    contains
      procedure, public, pass(this) :: pop => stack_2i4r8t3_pop
      procedure, public, pass(this) :: array => stack_2i4r8t3_data
   end type stack_2i4r8t3_t
 
   !> Curved element stack
-  type, public, extends(stack_t) :: stack_curve_t
+  type, extends(stack_t) :: stack_curve_t
    contains
      procedure, public, pass(this) :: pop => stack_curve_element_pop
      procedure, public, pass(this) :: array => stack_curve_element_data
   end type stack_curve_t
 
   !> Neko quad element based stack
-  type, public, extends(stack_t) :: stack_nq_t
+  type, extends(stack_t) :: stack_nq_t
    contains
      procedure, public, pass(this) :: pop => stack_nq_pop
      procedure, public, pass(this) :: array => stack_nq_data
   end type stack_nq_t
 
   !> Neko hex element based stack
-  type, public, extends(stack_t) :: stack_nh_t
+  type, extends(stack_t) :: stack_nh_t
    contains
      procedure, public, pass(this) :: pop => stack_nh_pop
      procedure, public, pass(this) :: array => stack_nh_data
   end type stack_nh_t
 
   !> Neko zone based stack
-  type, public, extends(stack_t) :: stack_nz_t
+  type, extends(stack_t) :: stack_nz_t
    contains
      procedure, public, pass(this) :: pop => stack_nz_pop
      procedure, public, pass(this) :: array => stack_nz_data
   end type stack_nz_t
 
   !> Neko curve info based stack
-  type, public, extends(stack_t) :: stack_nc_t
+  type, extends(stack_t) :: stack_nc_t
    contains
      procedure, public, pass(this) :: pop => stack_nc_pop
      procedure, public, pass(this) :: array => stack_nc_data
   end type stack_nc_t
 
   !> Point based stack
-  type, public, extends(stack_t) :: stack_pt_t
+  type, extends(stack_t) :: stack_pt_t
    contains
      procedure, public, pass(this) :: pop => stack_pt_pop
      procedure, public, pass(this) :: array => stack_pt_data

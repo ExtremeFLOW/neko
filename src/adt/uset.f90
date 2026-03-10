@@ -40,6 +40,9 @@ module uset
        htable_r8_t, htable_iter_r8_t
   implicit none
   private
+  public :: uset_i4_t   ! unordered set of 32-bit integers
+  public :: uset_i8_t   ! unordered set of 64-bit integers
+  public :: uset_r8_t   ! unordered set of 64-bit real values
 
   !> Base type for an unordered set
   type, private, abstract :: uset_t
@@ -54,7 +57,7 @@ module uset
   end type uset_t
 
   !> Integer based unordered set
-  type, extends(uset_t), public :: uset_i4_t
+  type, extends(uset_t) :: uset_i4_t
      type(htable_i4_t) :: t
      type(htable_iter_i4_t) :: it
    contains
@@ -71,7 +74,7 @@ module uset
   end type uset_i4_t
 
   !> Integer*8 based unordered set
-  type, extends(uset_t), public :: uset_i8_t
+  type, extends(uset_t) :: uset_i8_t
      type(htable_i8_t) :: t
      type(htable_iter_i8_t) :: it
    contains
@@ -88,7 +91,7 @@ module uset
   end type uset_i8_t
 
   !> Double precision unordered set
-  type, extends(uset_t), public :: uset_r8_t
+  type, extends(uset_t) :: uset_r8_t
      type(htable_r8_t) :: t
      type(htable_iter_r8_t) :: it
    contains
