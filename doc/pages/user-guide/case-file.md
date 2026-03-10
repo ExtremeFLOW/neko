@@ -377,8 +377,8 @@ the governing equations to feature the full viscous stress tensor, as required
 for a variable viscosity field.
 
 Note that the full viscous stress tensor requires the equations for the 3
-velocity components to be solved in a coupled manner. Therefore, the `cpldcg`
-solver should be used for velocity.
+velocity components to be solved in a coupled manner. Therefore, the `coupled_cg`
+(or `fused_coupled_cg`) solver should be used for velocity.
 
 ### Boundary conditions {#case-file_fluid-boundary-conditions}
 The optional `boundary_conditions` keyword can be used to specify boundary
