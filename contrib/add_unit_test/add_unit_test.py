@@ -9,13 +9,22 @@ import tempfile
 from pathlib import Path
 
 
-USAGE = """Usage: contrib/add_unit_test/add_unit_test.sh <test_name> <is_parallel>
+CREATE_SUITE_USAGE = """Usage: contrib/add_unit_test/add_unit_test.sh <test_name> <is_parallel>
 
 Creates a new serial or parallel pFUnit test from tests/unit/templates and
 wires it into tests/unit/Makefile.am, configure.ac, and tests/unit/.gitignore.
 
 The test name must match: ^[a-z][a-z0-9_]*$
 The parallel flag accepts: true/false, yes/no, 1/0
+"""
+
+ADD_FILE_USAGE = """Usage: contrib/add_unit_test/add_file_to_unit_test.sh <suite_name> <pf_name>
+
+Creates tests/unit/<suite_name>/test_<pf_name>.pf from the appropriate pFUnit
+template and wires it into the existing suite Makefile.in and
+tests/unit/Makefile.am.
+
+Both names must match: ^[a-z][a-z0-9_]*$
 """
 
 
@@ -35,22 +44,46 @@ def parse_bool(value: str) -> bool:
     die("parallel flag must be one of: true, false, yes, no, 1, 0")
 
 
+def validate_name(name: str, what: str) -> None:
+    """Validate user-provided suite and file names against repo conventions."""
+    if not re.fullmatch(r"[a-z][a-z0-9_]*", name):
+        die(f"{what} must match ^[a-z][a-z0-9_]*$")
+
+
 def read_lines(path: Path) -> list[str]:
-    """Read a text file as UTF-8 and preserve line endings."""
+    """Read a UTF-8 text file and preserve line endings."""
     return path.read_text(encoding="utf-8").splitlines(keepends=True)
 
 
-def write_lines(path: Path, lines: list[str]) -> None:
-    """Write lines back to a UTF-8 text file."""
-    path.write_text("".join(lines), encoding="utf-8")
+def write_text_atomic(path: Path, content: str) -> None:
+    """Atomically replace a text file by writing through a sibling temporary file."""
+    fd, tmp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", text=True)
+    tmp_path = Path(tmp_name)
+    try:
+        with open(fd, "w", encoding="utf-8") as handle:
+            handle.write(content)
+        if path.exists():
+            tmp_path.chmod(path.stat().st_mode & 0o777)
+        else:
+            tmp_path.chmod(0o644)
+        tmp_path.replace(path)
+    except Exception:
+        if tmp_path.exists():
+            tmp_path.unlink()
+        raise
+
+
+def write_lines_atomic(path: Path, lines: list[str]) -> None:
+    """Atomically replace a text file from an in-memory list of lines."""
+    write_text_atomic(path, "".join(lines))
 
 
 def insert_before_pattern(lines: list[str], pattern: str, new_line: str) -> list[str]:
-    """Insert a line before the first matching anchor, unless already present there."""
+    """Insert a line before the first matching anchor unless already present."""
+    if new_line in lines:
+        return lines
     for index, line in enumerate(lines):
         if pattern in line:
-            if index > 0 and lines[index - 1] == new_line:
-                return lines
             return lines[:index] + [new_line] + lines[index:]
     raise ValueError(f"could not find anchor: {pattern}")
 
@@ -63,13 +96,14 @@ def insert_before_pattern_in_block(
     new_line: str,
 ) -> list[str]:
     """Insert a line before an anchor that must appear within a specific block."""
+    if new_line in lines:
+        return lines
+
     in_block = False
     for index, line in enumerate(lines):
         if block_start in line:
             in_block = True
         if in_block and pattern in line:
-            if index > 0 and lines[index - 1] == new_line:
-                return lines
             return lines[:index] + [new_line] + lines[index:]
         if in_block and block_end in line:
             in_block = False
@@ -104,27 +138,44 @@ def remove_build_artifacts(test_dir: Path) -> None:
                 path.unlink()
 
 
-def write_text_atomic(path: Path, content: str) -> None:
-    """Atomically replace a text file by writing through a sibling temporary file."""
-    fd, tmp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", text=True)
-    tmp_path = Path(tmp_name)
-    try:
-        with open(fd, "w", encoding="utf-8") as handle:
-            handle.write(content)
-        tmp_path.replace(path)
-    except Exception:
-        if tmp_path.exists():
-            tmp_path.unlink()
-        raise
+def repo_paths() -> tuple[Path, Path]:
+    """Return the repository root and the unit-test directory."""
+    script_dir = Path(__file__).resolve().parent
+    repo_root = script_dir.parent.parent
+    unit_dir = repo_root / "tests" / "unit"
+    return repo_root, unit_dir
 
 
-def write_lines_atomic(path: Path, lines: list[str]) -> None:
-    """Atomically replace a text file from an in-memory list of lines."""
-    write_text_atomic(path, "".join(lines))
+def suite_is_parallel(makefile_lines: list[str]) -> bool:
+    """Infer whether an existing suite is MPI-enabled from its Makefile.in."""
+    return any(line.strip() == "USEMPI=YES" for line in makefile_lines)
+
+
+def pf_template_content(pf_stem: str, is_parallel: bool) -> str:
+    """Render the default .pf scaffold for a new file in a suite.
+
+    The generated file intentionally stays minimal, even for MPI suites. The
+    runner and Makefile decide how the suite executes; the placeholder test only
+    needs a correctly named module and one trivial test routine.
+    """
+    module_name = f"test_{pf_stem}"
+    return f"""module {module_name}
+contains
+!> Verify that the generated test file is wired correctly.
+@test
+subroutine test_template_passes()
+  use pfunit
+  implicit none
+
+  @assertTrue(.true.)
+end subroutine test_template_passes
+
+end module {module_name}
+"""
 
 
 def rename_template_files(test_dir: Path, test_name: str, is_parallel: bool) -> tuple[str, str]:
-    """Rename template files and patch their contents for the requested test name."""
+    """Rename template files and patch their contents for the requested suite name."""
     pf_file = f"test_{test_name}.pf"
     test_program = f"{test_name}_test"
 
@@ -153,15 +204,9 @@ def rename_template_files(test_dir: Path, test_name: str, is_parallel: bool) -> 
                     "type, extends(MPITestCase) :: parallel_template_case",
                     f"type, extends(MPITestCase) :: test_{test_name}_case",
                 ),
-                (
-                    "end type parallel_template_case",
-                    f"end type test_{test_name}_case",
-                ),
+                ("end type parallel_template_case", f"end type test_{test_name}_case"),
                 ("test_parallel_template_passes", "test_template_passes"),
-                (
-                    "class(parallel_template_case)",
-                    f"class(test_{test_name}_case)",
-                ),
+                ("class(parallel_template_case)", f"class(test_{test_name}_case)"),
             ],
         )
         return test_program, suite_program
@@ -185,22 +230,58 @@ def rename_template_files(test_dir: Path, test_name: str, is_parallel: bool) -> 
     return test_program, test_program
 
 
-def main() -> None:
+def add_pf_to_suite_makefile(lines: list[str], pf_file: str) -> list[str]:
+    """Append a new .pf entry to a suite-local _TESTS list.
+
+    The function preserves the existing indentation style of the final .pf entry
+    so that both tab-aligned and space-aligned lists stay readable.
+    """
+    if any(pf_file in line for line in lines):
+        return lines
+
+    tests_line_index = None
+    for index, line in enumerate(lines):
+        if "_TESTS :=" in line:
+            tests_line_index = index
+            break
+    if tests_line_index is None:
+        raise ValueError("could not find a _TESTS := block in suite Makefile.in")
+
+    last_entry_index = tests_line_index
+    for index in range(tests_line_index + 1, len(lines)):
+        line = lines[index]
+        stripped = line.strip()
+        if not stripped:
+            break
+        if "_OTHER_LIBRARIES" in line or "$(eval $(call make_pfunit_test" in line:
+            break
+        if ".pf" in line:
+            last_entry_index = index
+            continue
+        if stripped.endswith("\\"):
+            last_entry_index = index
+            continue
+        break
+
+    previous_line = lines[last_entry_index].rstrip("\n")
+    indent_match = re.match(r"^(\s*)", previous_line)
+    indent = indent_match.group(1) if indent_match else ""
+    if last_entry_index == tests_line_index or not indent:
+        indent = "    "
+
+    if not previous_line.rstrip().endswith("\\"):
+        lines[last_entry_index] = f"{previous_line}\\\n"
+    else:
+        lines[last_entry_index] = f"{previous_line}\n"
+
+    new_line = f"{indent}{pf_file}\n"
+    return lines[: last_entry_index + 1] + [new_line] + lines[last_entry_index + 1 :]
+
+
+def create_suite(test_name: str, is_parallel: bool) -> None:
     """Create a new unit-test directory and register it in the build system."""
-    if len(sys.argv) != 3:
-        print(USAGE, end="", file=sys.stderr)
-        raise SystemExit(1)
-
-    test_name = sys.argv[1]
-    is_parallel = parse_bool(sys.argv[2])
-
-    if not re.fullmatch(r"[a-z][a-z0-9_]*", test_name):
-        print(USAGE, end="", file=sys.stderr)
-        die("test name must match ^[a-z][a-z0-9_]*$")
-
-    script_dir = Path(__file__).resolve().parent
-    repo_root = script_dir.parent.parent
-    unit_dir = repo_root / "tests" / "unit"
+    validate_name(test_name, "test name")
+    repo_root, unit_dir = repo_paths()
     template_name = "parallel" if is_parallel else "serial"
     template_dir = unit_dir / "templates" / template_name
     test_dir = unit_dir / test_name
@@ -216,7 +297,7 @@ def main() -> None:
     modified_files: dict[Path, str] = {}
 
     try:
-        # Build the new test in a temporary directory so failures do not leave a
+        # Build the new suite in a temporary directory so failures do not leave a
         # partially-created test tree behind.
         shutil.copytree(template_dir, temp_test_dir)
         remove_build_artifacts(temp_test_dir)
@@ -296,8 +377,8 @@ def main() -> None:
         write_lines_atomic(gitignore, gitignore_lines)
         temp_test_dir.replace(test_dir)
     except Exception:
-        # Restore the original repository files if any write in the commit phase
-        # fails, then remove the temporary test directory.
+        # Restore tracked files if any write fails, then remove the temporary
+        # directory so the repository stays unchanged on error.
         for path, original in modified_files.items():
             if path.exists():
                 write_text_atomic(path, original)
@@ -306,6 +387,93 @@ def main() -> None:
         raise
 
     print(f"Created tests/unit/{test_name} from templates/{template_name}")
+
+
+def add_file_to_suite(suite_name: str, pf_name: str) -> None:
+    """Create a new .pf file in an existing suite and wire it into the build."""
+    validate_name(suite_name, "suite name")
+    validate_name(pf_name, "pf name")
+
+    _, unit_dir = repo_paths()
+    suite_dir = unit_dir / suite_name
+    makefile_in = suite_dir / "Makefile.in"
+    pf_file = f"test_{pf_name}.pf"
+    pf_path = suite_dir / pf_file
+    makefile_am = unit_dir / "Makefile.am"
+
+    if not suite_dir.is_dir():
+        die(f"missing suite directory: {suite_dir}")
+    if not makefile_in.is_file():
+        die(f"missing suite Makefile.in: {makefile_in}")
+    if pf_path.exists():
+        die(f"target already exists: {pf_path}")
+
+    makefile_lines = read_lines(makefile_in)
+    is_parallel = suite_is_parallel(makefile_lines)
+    makefile_am_original = makefile_am.read_text(encoding="utf-8")
+    makefile_in_original = makefile_in.read_text(encoding="utf-8")
+
+    new_pf_content = pf_template_content(pf_name, is_parallel)
+    makefile_am_lines = makefile_am_original.splitlines(keepends=True)
+    extra_dist_line = f"\t{suite_name}/{pf_file}\\\n"
+
+    modified_files = {
+        makefile_in: makefile_in_original,
+        makefile_am: makefile_am_original,
+    }
+
+    try:
+        # Write the new file first, then update the two tracked build files. If
+        # anything fails, roll all three changes back together.
+        write_text_atomic(pf_path, new_pf_content)
+        updated_makefile_lines = add_pf_to_suite_makefile(makefile_lines, pf_file)
+        updated_makefile_am_lines = insert_before_pattern_in_block(
+            makefile_am_lines,
+            "EXTRA_DIST =",
+            "UNIT_TEST_MAKEFILES =",
+            "templates/parallel/test_parallel.pf",
+            extra_dist_line,
+        )
+
+        write_lines_atomic(makefile_in, updated_makefile_lines)
+        write_lines_atomic(makefile_am, updated_makefile_am_lines)
+    except Exception:
+        # Restore tracked files and remove the new .pf on any failure.
+        for path, original in modified_files.items():
+            if path.exists():
+                write_text_atomic(path, original)
+        if pf_path.exists():
+            pf_path.unlink()
+        raise
+
+    print(f"Created tests/unit/{suite_name}/{pf_file}")
+
+
+def main() -> None:
+    """Dispatch between suite creation and file insertion modes."""
+    if len(sys.argv) < 2:
+        print(CREATE_SUITE_USAGE, end="", file=sys.stderr)
+        print(file=sys.stderr)
+        print(ADD_FILE_USAGE, end="", file=sys.stderr)
+        raise SystemExit(1)
+
+    command = sys.argv[1]
+
+    if command == "create-suite":
+        if len(sys.argv) != 4:
+            print(CREATE_SUITE_USAGE, end="", file=sys.stderr)
+            raise SystemExit(1)
+        create_suite(sys.argv[2], parse_bool(sys.argv[3]))
+        return
+
+    if command == "add-file":
+        if len(sys.argv) != 4:
+            print(ADD_FILE_USAGE, end="", file=sys.stderr)
+            raise SystemExit(1)
+        add_file_to_suite(sys.argv[2], sys.argv[3])
+        return
+
+    die(f"unknown command: {command}")
 
 
 if __name__ == "__main__":

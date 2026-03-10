@@ -3,4 +3,4 @@
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec python3 "$script_dir/add_unit_test.py" create-suite "$@"
+exec python3 "$script_dir/add_unit_test.py" add-file "$@"
