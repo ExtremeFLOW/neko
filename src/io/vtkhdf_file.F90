@@ -111,6 +111,7 @@ contains
     character(len=16) :: type_str
     logical :: link_exists, file_exists
     integer(kind=1) :: VTK_cell_type
+    integer :: counter
 
     ! Determine mesh and field data
     select type(data)
@@ -159,6 +160,7 @@ contains
 
     call this%increment_counter()
     fname = trim(this%get_base_fname())
+    counter = this%get_counter()
 
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
@@ -210,17 +212,17 @@ contains
     end if
 
     if (present(t)) then
-       call vtkhdf_write_steps(vtkhdf_grp, t)
+       call vtkhdf_write_steps(vtkhdf_grp, counter, t)
     end if
 
     if (associated(msh)) then
        call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, &
-            this%amr_enabled, t)
+            this%amr_enabled, counter, t)
     end if
 
     ! Write field data in PointData group
     if (n_fields > 0) then
-       call vtkhdf_write_pointdata(vtkhdf_grp, fp, this%precision, t)
+       call vtkhdf_write_pointdata(vtkhdf_grp, fp, this%precision, counter, t)
     end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
@@ -310,12 +312,14 @@ contains
   !! @param VTK_cell_type VTK cell type (e.g. 12 for hexahedra, 9 for quads)
   !! @param amr AMR flag to determine if mesh should be rewritten at every time step
   !! @param t Optional time value for time-dependent mesh output (e.g. for AMR)
-  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, amr, t)
+  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, amr, &
+       counter, t)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
     integer(hid_t), intent(in) :: vtkhdf_grp
     integer(kind=1), intent(in) :: VTK_cell_type
     logical, intent(in) :: amr
+    integer, intent(in) :: counter
     real(kind=rp), intent(in), optional :: t
 
     integer :: ierr, i, ii, jj, kk, el, local_idx
@@ -330,7 +334,6 @@ contains
     integer(hsize_t), dimension(1) :: dcount, doffset_1d, chunkdims
     integer(hsize_t), dimension(2) :: vdims, maxdims, dcount2, doffset2
     integer(kind=8) :: i8_value
-    integer :: N_Steps
     logical :: link_exists
     integer, dimension(3) :: component_sizes
     integer, dimension(3) :: component_offsets
@@ -590,35 +593,33 @@ contains
        ! Open Steps group
        call h5gopen_f(vtkhdf_grp, "Steps", grp_id, ierr)
 
-       ! Read the number of steps from the Steps group attribute
-       call h5aopen_f(grp_id, "NSteps", attr_id, ierr)
-       call h5aread_f(attr_id, H5T_NATIVE_INTEGER, N_Steps, [1_8], ierr)
-       call h5aclose_f(attr_id, ierr)
-
        ! --- NumberOfParts ---
-       call vtkhdf_append_step_i8(grp_id, "NumberOfParts", int(pe_size, kind=8))
+       call vtkhdf_write_i8_at(grp_id, "NumberOfParts", int(pe_size, kind=8), &
+            counter)
 
        ! --- PartOffsets ---
        i8_value = 0
        if (amr) then
-          i8_value = int(N_Steps - 1, kind=8) * int(pe_size, kind=8)
-          call vtkhdf_append_step_i8(grp_id, "PartOffsets", i8_value)
+          i8_value = int(counter - 1, kind=8) * int(pe_size, kind=8)
+          call vtkhdf_write_i8_at(grp_id, "PartOffsets", i8_value, counter)
 
-          i8_value = int(N_Steps - 1, kind=8) * int(total_points, kind=8)
-          call vtkhdf_append_step_i8(grp_id, "PointOffsets", i8_value)
+          i8_value = int(counter - 1, kind=8) * int(total_points, kind=8)
+          call vtkhdf_write_i8_at(grp_id, "PointOffsets", i8_value, counter)
 
-          i8_value = int(N_Steps - 1, kind=8) * int(total_cells, kind=8)
-          call vtkhdf_append_step_i8(grp_id, "CellOffsets", i8_value)
+          i8_value = int(counter - 1, kind=8) * int(total_cells, kind=8)
+          call vtkhdf_write_i8_at(grp_id, "CellOffsets", i8_value, counter)
 
-          i8_value = int(N_Steps - 1, kind=8) * int(total_conn, kind=8)
-          call vtkhdf_append_step_i8(grp_id, "ConnectivityIdOffsets", i8_value)
+          i8_value = int(counter - 1, kind=8) * int(total_conn, kind=8)
+          call vtkhdf_write_i8_at(grp_id, "ConnectivityIdOffsets", i8_value, &
+               counter)
 
        else
           i8_value = int(0, kind=8)
-          call vtkhdf_append_step_i8(grp_id, "PartOffsets", i8_value)
-          call vtkhdf_append_step_i8(grp_id, "PointOffsets", i8_value)
-          call vtkhdf_append_step_i8(grp_id, "CellOffsets", i8_value)
-          call vtkhdf_append_step_i8(grp_id, "ConnectivityIdOffsets", i8_value)
+          call vtkhdf_write_i8_at(grp_id, "PartOffsets", i8_value, counter)
+          call vtkhdf_write_i8_at(grp_id, "PointOffsets", i8_value, counter)
+          call vtkhdf_write_i8_at(grp_id, "CellOffsets", i8_value, counter)
+          call vtkhdf_write_i8_at(grp_id, "ConnectivityIdOffsets", i8_value, &
+               counter)
        end if
 
        call h5gclose_f(grp_id, ierr)
@@ -633,12 +634,14 @@ contains
   !! CellOffsets, ConnectivityIdOffsets datasets, and NSteps attribute.
   !! @param vtkhdf_grp HDF5 group ID for VTKHDF root group
   !! @param t Current simulation time
-  subroutine vtkhdf_write_steps(vtkhdf_grp, t)
+  !! @param counter Current counter for how many steps have been written.
+  subroutine vtkhdf_write_steps(vtkhdf_grp, counter, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
+    integer, intent(in) :: counter
     real(kind=rp), intent(in) :: t
 
     integer(hid_t) :: xf_id
-    integer :: ierr, N_Steps
+    integer :: ierr
     integer(hid_t) :: grp_id, dset_id, dcpl_id, filespace, memspace, attr_id
     integer(hsize_t), dimension(1) :: step_dims, step_maxdims
     integer(hsize_t), dimension(1) :: step_count, step_offset, chunkdims, ddim
@@ -664,26 +667,30 @@ contains
        call h5dopen_f(grp_id, "Values", dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sget_simple_extent_dims_f(filespace, step_dims, step_maxdims, ierr)
-       call h5sclose_f(filespace, ierr)
+
+       ! We have not written this timestep yet, expand the array, but do not skip
+       if (step_dims(1) .eq. counter) then
+          step_dims(1) = int(counter + 1, hsize_t)
+          call h5dset_extent_f(dset_id, step_dims, ierr)
+       else if (step_dims(1) .lt. counter) then
+          call neko_error("VTKHDF: Time steps written out of order.")
+       end if
     else
-       step_dims(1) = 0_hsize_t
+       step_dims(1) = 1_hsize_t
        step_maxdims(1) = H5S_UNLIMITED_F
+       chunkdims(1) = 1_hsize_t
+
        call h5screate_simple_f(1, step_dims, filespace, ierr, step_maxdims)
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-       chunkdims(1) = 1_hsize_t
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(grp_id, "Values", H5T_NATIVE_DOUBLE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5pclose_f(dcpl_id, ierr)
-       call h5sclose_f(filespace, ierr)
     end if
 
-    step_dims(1) = step_dims(1) + 1_hsize_t
     step_count(1) = 1_hsize_t
-    step_offset(1) = step_dims(1) - 1_hsize_t
+    step_offset(1) = int(counter, hsize_t)
 
-    call h5dset_extent_f(dset_id, step_dims, ierr)
-    call h5dget_space_f(dset_id, filespace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          step_offset, step_count, ierr)
     call h5screate_simple_f(1, step_count, memspace, ierr)
@@ -695,7 +702,6 @@ contains
     call h5sclose_f(memspace, ierr)
     call h5sclose_f(filespace, ierr)
     call h5dclose_f(dset_id, ierr)
-
 
     ! --- NSteps attribute ---
     ddim(1) = 1_hsize_t
@@ -709,8 +715,7 @@ contains
        call h5sclose_f(filespace, ierr)
     end if
 
-    N_Steps = int(step_dims(1))
-    call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, N_Steps, ddim(1:1), ierr)
+    call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, counter, ddim, ierr)
 
     call h5aclose_f(attr_id, ierr)
     call h5gclose_f(grp_id, ierr)
@@ -724,10 +729,12 @@ contains
   !! @param grp_id HDF5 group containing the dataset
   !! @param name Dataset name
   !! @param value Value to append
-  subroutine vtkhdf_append_step_i8(grp_id, name, value)
+  !! @param counter Position to write to
+  subroutine vtkhdf_write_i8_at(grp_id, name, value, counter)
     integer(hid_t), intent(in) :: grp_id
     character(len=*), intent(in) :: name
     integer(kind=8), intent(in) :: value
+    integer, intent(in) :: counter
 
     integer :: ierr
     integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
@@ -745,9 +752,15 @@ contains
        call h5dopen_f(grp_id, name, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sget_simple_extent_dims_f(filespace, dims, maxdims, ierr)
-       call h5sclose_f(filespace, ierr)
+
+       if (counter .eq. dims(1)) then
+          dims(1) = int(counter + 1, hsize_t)
+          call h5dset_extent_f(dset_id, dims, ierr)
+       else if (counter .gt. dims(1)) then
+          call neko_error("VTKHDF: Values written out of order.")
+       end if
     else
-       dims(1) = 0_hsize_t
+       dims(1) = 1_hsize_t
        maxdims(1) = H5S_UNLIMITED_F
        chunkdims(1) = 1_hsize_t
 
@@ -756,17 +769,13 @@ contains
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
        call h5dcreate_f(grp_id, name, H5T_STD_I64LE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5sclose_f(filespace, ierr)
        call h5pclose_f(dcpl_id, ierr)
     end if
 
-    dims(1) = dims(1) + 1_hsize_t
     cnt(1) = 1_hsize_t
-    off(1) = dims(1) - 1_hsize_t
+    off(1) = int(counter, hsize_t)
     buf(1) = value
 
-    call h5dset_extent_f(dset_id, dims, ierr)
-    call h5dget_space_f(dset_id, filespace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, off, cnt, ierr)
     call h5screate_simple_f(1, cnt, memspace, ierr)
     call h5dwrite_f(dset_id, H5T_STD_I64LE, buf, cnt, ierr, &
@@ -777,7 +786,7 @@ contains
     call h5dclose_f(dset_id, ierr)
     call h5pclose_f(xf_id, ierr)
 
-  end subroutine vtkhdf_append_step_i8
+  end subroutine vtkhdf_write_i8_at
 
   !> Write field data into the VTKHDF PointData group.
   !! Groups u, v, w fields into a 3-component Velocity vector dataset.
@@ -787,10 +796,11 @@ contains
   !! @param fp Array of field pointers to write
   !! @param precision Output precision (optional, for VTKHDF files)
   !! @param t Current simulation time (optional, for temporal output)
-  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, t)
+  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, counter, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     type(field_ptr_t), intent(in) :: fp(:)
     integer, intent(in), optional :: precision
+    integer, intent(in) :: counter
     real(kind=rp), intent(in), optional :: t
 
     logical, allocatable :: field_written(:)
@@ -809,7 +819,6 @@ contains
     integer(hsize_t), dimension(2) :: dcount2, doffset2
     integer(hsize_t), dimension(1) :: pd_dims1, pd_maxdims1
     integer(hsize_t), dimension(2) :: pd_dims2, pd_maxdims2
-    integer :: N_Steps
     type(field_t), pointer :: fld, u, v, w
     character(len=128) :: field_name
     logical :: link_exists, is_vector
@@ -857,19 +866,10 @@ contains
     ! Read how many steps have been written so far
     if (present(t)) then
        call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
-
-       ! Read the number of steps from the Steps group attribute
-       call h5aopen_f(step_grp_id, "NSteps", attr_id, ierr)
-       call h5aread_f(attr_id, H5T_NATIVE_INTEGER, N_Steps, [1_8], ierr)
-       call h5aclose_f(attr_id, ierr)
-
-       time_offset = int(N_Steps - 1, kind=8) * int(total_points, kind=8)
+       time_offset = int(counter, kind=8) * int(total_points, kind=8)
     else
        time_offset = 0_8
     end if
-
-    dcount(1) = int(local_points, hsize_t)
-    doffset(1) = int(time_offset, hsize_t) + int(point_offset, hsize_t)
 
     do i = 1, n_fields
        if (field_written(i)) cycle
@@ -911,7 +911,7 @@ contains
           else
              call h5gcreate_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
           end if
-          call vtkhdf_append_step_i8(grp_id, trim(field_name), time_offset)
+          call vtkhdf_write_i8_at(grp_id, trim(field_name), time_offset, counter)
           call h5gclose_f(grp_id, ierr)
        end if
 
@@ -923,11 +923,13 @@ contains
              call h5dget_space_f(dset_id, filespace, ierr)
              call h5sget_simple_extent_dims_f(filespace, pd_dims2, &
                   pd_maxdims2, ierr)
-             call h5sclose_f(filespace, ierr)
 
-             ! Extend to make room for the next batch of points
-             pd_dims2(2) = pd_dims2(2) + int(total_points, hsize_t)
-             call h5dset_extent_f(dset_id, pd_dims2, ierr)
+             if (pd_dims2(2) .eq. counter * total_points) then
+                pd_dims2(2) = int((counter + 1) * total_points, hsize_t)
+                call h5dset_extent_f(dset_id, pd_dims2, ierr)
+             else if (pd_dims2(2) .lt. counter * total_points) then
+                call neko_error("VTKHDF: Data written out of order.")
+             end if
 
           else if (.not. link_exists) then
              pd_dims2 = [3_hsize_t, int(total_points, hsize_t)]
@@ -940,13 +942,10 @@ contains
              call h5dcreate_f(pointdata_grp, trim(field_name), precision_hdf, &
                   filespace, dset_id, ierr, dcpl_id = dcpl_id)
              call h5pclose_f(dcpl_id, ierr)
-             call h5sclose_f(filespace, ierr)
           end if
 
           dcount2 = [3_hsize_t, int(local_points, hsize_t)]
-          doffset2 = [0_hsize_t, doffset(1)]
-
-          call h5dget_space_f(dset_id, filespace, ierr)
+          doffset2 = [0_hsize_t, int(time_offset + point_offset, hsize_t)]
 
           call h5screate_simple_f(2, dcount2, memspace, ierr)
           call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -972,27 +971,32 @@ contains
              call h5dget_space_f(dset_id, filespace, ierr)
              call h5sget_simple_extent_dims_f(filespace, pd_dims1, &
                   pd_maxdims1, ierr)
-             call h5sclose_f(filespace, ierr)
+
+             if (pd_dims1(1) .eq. counter * total_points) then
+                pd_dims1(1) = int((counter + 1) * total_points, hsize_t)
+                call h5dset_extent_f(dset_id, pd_dims1, ierr)
+             else if (pd_dims1(1) .lt. counter * total_points) then
+                call neko_error("VTKHDF: Data written out of order.")
+             end if
           else
-             pd_dims1(1) = 0_hsize_t
+             pd_dims1(1) = int(total_points, hsize_t)
              pd_maxdims1(1) = H5S_UNLIMITED_F
+             chunkdims(1) = max(1_hsize_t, int(max_local_points, hsize_t))
+
              call h5screate_simple_f(1, pd_dims1, filespace, ierr, pd_maxdims1)
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-             chunkdims(1) = max(1_hsize_t, int(max_local_points, hsize_t))
              call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
              call h5dcreate_f(pointdata_grp, trim(field_name), precision_hdf, &
                   filespace, dset_id, ierr, dcpl_id = dcpl_id)
              call h5pclose_f(dcpl_id, ierr)
-             call h5sclose_f(filespace, ierr)
-             pd_dims1(1) = 0_hsize_t
           end if
 
-          pd_dims1(1) = pd_dims1(1) + int(total_points, hsize_t)
-          call h5dset_extent_f(dset_id, pd_dims1, ierr)
-          call h5dget_space_f(dset_id, filespace, ierr)
-          call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
+          dcount(1) = int(local_points, hsize_t)
+          doffset(1) = int(time_offset + point_offset, hsize_t)
+
+          call h5screate_simple_f(1, dcount, memspace, ierr)
           call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-               doffset(1:1), dcount(1:1), ierr)
+               doffset, dcount, ierr)
 
           if (precision .eq. rp) then
              call h5dwrite_f(dset_id, precision_hdf, fld%x, dcount2, ierr, &
