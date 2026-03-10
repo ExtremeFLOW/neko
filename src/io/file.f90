@@ -278,6 +278,8 @@ contains
        call ft%set_precision(precision)
     type is (bp_file_t)
        call ft%set_precision(precision)
+    type is (vtkhdf_file_t)
+       call ft%set_precision(precision)
     class default
        call filename_suffix(this%file_type%get_fname(), suffix)
        call neko_warning("No precision strategy defined for " // trim(suffix) &
