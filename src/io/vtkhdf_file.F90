@@ -30,12 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> HDF5 file format
+!> VTKHDF file format
 module vtkhdf_file
   use num_types, only : rp, sp, dp
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
-  use utils, only : neko_error, neko_warning, filename_suffix_pos, nonlinear_index
+  use utils, only : neko_error, neko_warning, filename_suffix_pos, &
+       nonlinear_index
   use mesh, only : mesh_t
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
@@ -44,8 +45,9 @@ module vtkhdf_file
   use logger, only : neko_log
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use device, only : DEVICE_TO_HOST
-  use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, MPI_IN_PLACE, &
-       MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, MPI_Barrier
+  use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
+       MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
+       MPI_Barrier
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -240,7 +242,8 @@ contains
   !! @param conn Output connectivity array (pre-allocated)
   !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD
   !! @param msh Mesh object containing element information
-  !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral element grid
+  !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral
+  !!            element grid
   subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof)
     integer, intent(out) :: conn(:)
     integer(kind=1), intent(in) :: vtk_type
@@ -297,7 +300,7 @@ contains
           end do
 
        case default
-          call neko_error('Unsupported VTK cell type in vtkhdf_build_connectivity')
+          call neko_error('Unsupported VTK cell type')
        end select
     end do
 
@@ -310,7 +313,8 @@ contains
   !! @param dof Dofmap for coordinate data
   !! @param msh Mesh object
   !! @param VTK_cell_type VTK cell type (e.g. 12 for hexahedra, 9 for quads)
-  !! @param amr AMR flag to determine if mesh should be rewritten at every time step
+  !! @param amr AMR flag to determine if mesh should be rewritten at every time
+  !!            step
   !! @param t Optional time value for time-dependent mesh output (e.g. for AMR)
   subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, amr, &
        counter, t)
@@ -446,7 +450,8 @@ contains
 
        vdims = [3_hsize_t, int(total_points, hsize_t)]
        maxdims = [3_hsize_t, H5S_UNLIMITED_F]
-       chunkdims(1) = max(1_hsize_t, min(int(max_local_points, hsize_t), vdims(2)))
+       chunkdims(1) = max(1_hsize_t, min(int(max_local_points, hsize_t), &
+            vdims(2)))
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
 
@@ -474,7 +479,8 @@ contains
             end block
          end do
          call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, coords, dcount2, ierr, &
-              file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
          deallocate(coords)
        end block
 
@@ -666,9 +672,10 @@ contains
     if (link_exists) then
        call h5dopen_f(grp_id, "Values", dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
-       call h5sget_simple_extent_dims_f(filespace, step_dims, step_maxdims, ierr)
+       call h5sget_simple_extent_dims_f(filespace, step_dims, step_maxdims, &
+            ierr)
 
-       ! We have not written this timestep yet, expand the array, but do not skip
+       ! We have not written this timestep yet, expand the array
        if (step_dims(1) .eq. counter) then
           step_dims(1) = int(counter + 1, hsize_t)
           call h5dset_extent_f(dset_id, step_dims, ierr)
@@ -911,7 +918,8 @@ contains
           else
              call h5gcreate_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
           end if
-          call vtkhdf_write_i8_at(grp_id, trim(field_name), time_offset, counter)
+          call vtkhdf_write_i8_at(grp_id, trim(field_name), time_offset, &
+               counter)
           call h5gclose_f(grp_id, ierr)
        end if
 
@@ -1056,7 +1064,8 @@ contains
   !> Write a 3-component vector field as a 2D dataset with single precision,
   !! converting from double if necessary.
   !! The dataset is organized as (3, total_points) for VTK compatibility.
-  subroutine write_vector_single(dset_id, u, v, w, dcount2, ierr, filespace, memspace, xf_id)
+  subroutine write_vector_single(dset_id, u, v, w, dcount2, ierr, filespace, &
+       memspace, xf_id)
     integer(hid_t), intent(in) :: dset_id
     type(field_t), intent(in), pointer :: u, v, w
     integer(hsize_t), intent(in) :: dcount2(:)
@@ -1103,7 +1112,8 @@ contains
   !> Write a 3-component vector field as a 2D dataset with double precision,
   !! converting from single if necessary.
   !! The dataset is organized as (3, total_points) for VTK compatibility.
-  subroutine write_vector_double(dset_id, u, v, w, dcount2, ierr, filespace, memspace, xf_id)
+  subroutine write_vector_double(dset_id, u, v, w, dcount2, ierr, filespace, &
+       memspace, xf_id)
     integer(hid_t), intent(in) :: dset_id
     type(field_t), intent(in), pointer :: u, v, w
     integer(hsize_t), intent(in) :: dcount2(:)
