@@ -1,6 +1,9 @@
 # Changelog
 
 ## Develop
+- Added simple support for VTKHDF. For now it can be used for fluid outputs.
+  Simple restarts are supported with fixed mesh and mpi configuration. 
+  The VTKHDF output format is still experimental and will change in the future.
 - Add the optional `expected_size` argument to `json_get_*_array` 
   to throw an error if the parsed array size is incorrect.
 - Fixed checkpoint JSON parameter parsing and their documentation. The
