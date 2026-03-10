@@ -32,10 +32,10 @@
 !
 !> HDF5 file format
 module vtkhdf_file
-  use num_types, only : rp, dp, sp
+  use num_types, only : rp, sp, dp
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
-  use utils, only : neko_error, neko_warning, filename_suffix_pos
+  use utils, only : neko_error, neko_warning, filename_suffix_pos, nonlinear_index
   use mesh, only : mesh_t
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
@@ -68,9 +68,28 @@ module vtkhdf_file
 
 contains
 
-#ifdef HAVE_HDF5
+  ! -------------------------------------------------------------------------- !
+  ! Well defined subroutines
 
-  !> Write data in HDF5 format following official VTKHDF UnstructuredGrid specification
+  !> Set the overwrite flag for HDF5 files
+  subroutine vtkhdf_file_set_overwrite(this, overwrite)
+    class(vtkhdf_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    this%overwrite = overwrite
+  end subroutine vtkhdf_file_set_overwrite
+
+  !> Enable support for Adaptive Mesh Refinement
+  subroutine vtkhdf_file_enable_amr(this)
+    class(vtkhdf_file_t), intent(inout) :: this
+    this%amr_enabled = .false.
+  end subroutine vtkhdf_file_enable_amr
+
+#ifdef HAVE_HDF5
+  ! -------------------------------------------------------------------------- !
+  ! HDF5 Required subroutines
+
+  !> Write data in HDF5 format following official VTKHDF UnstructuredGrid
+  !! specification
   subroutine vtkhdf_file_write(this, data, t)
     class(vtkhdf_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
@@ -78,10 +97,10 @@ contains
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_ptr_t), allocatable :: fp(:)
-    integer :: ierr, info, i, n_fields
+    integer :: ierr, mpi_info, mpi_comm, i, n_fields
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, memspace
-    integer(hsize_t), dimension(2) :: vdims
+    integer(hsize_t), dimension(1) :: vdims
     integer :: lx, ly, lz
     integer :: local_points, local_cells, local_conn
     integer :: total_points, total_cells, total_conn
@@ -89,7 +108,7 @@ contains
     integer :: max_local_points
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
-    character(len=16), dimension(1) :: type_str
+    character(len=16) :: type_str
     logical :: link_exists, file_exists
     integer(kind=1) :: VTK_cell_type
 
@@ -132,11 +151,6 @@ contains
        this%precision = rp
     end if
 
-    ! Assign commonly used values
-    lx = dof%Xh%lx
-    ly = dof%Xh%ly
-    lz = dof%Xh%lz
-
     if (msh%gdim .eq. 3) then
        VTK_cell_type = 12 ! VTK_HEXAHEDRON
     else
@@ -146,15 +160,17 @@ contains
     call this%increment_counter()
     fname = trim(this%get_base_fname())
 
-    call h5open_f(ierr)
+    mpi_info = MPI_INFO_NULL%mpi_val
+    mpi_comm = NEKO_COMM%mpi_val
 
+    call h5open_f(ierr)
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
-    info = MPI_INFO_NULL%mpi_val
-    call h5pset_fapl_mpio_f(plist_id, NEKO_COMM%mpi_val, info, ierr)
+    call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
     inquire(file = fname, exist = file_exists)
     if (file_exists) then
-       call h5fopen_f(fname, H5F_ACC_RDWR_F, file_id, ierr, access_prp = plist_id)
+       call h5fopen_f(fname, H5F_ACC_RDWR_F, file_id, ierr, &
+            access_prp = plist_id)
     else
        call h5fcreate_f(fname, H5F_ACC_TRUNC_F, &
             file_id, ierr, access_prp = plist_id)
@@ -168,59 +184,35 @@ contains
        call h5gcreate_f(file_id, "VTKHDF", vtkhdf_grp, ierr)
 
        ! Write Version attribute
-       vdims(1) = 2
-       call h5screate_simple_f(1, vdims(1:1), filespace, ierr)
+       vdims = 2
+       call h5screate_simple_f(1, vdims, filespace, ierr)
        call h5acreate_f(vtkhdf_grp, "Version", H5T_NATIVE_INTEGER, filespace, &
             attr_id, ierr)
-       call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, vtkhdf_version, &
-            vdims(1:1), ierr)
+       call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, vtkhdf_version, vdims, ierr)
        call h5aclose_f(attr_id, ierr)
        call h5sclose_f(filespace, ierr)
 
        ! Write Type attribute "UnstructuredGrid" as a fixed-length string
-       type_str(1) = "UnstructuredGrid"
-       vdims(1) = 1
+       type_str = "UnstructuredGrid"
+       vdims = 1
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
 
        call h5tcopy_f(H5T_FORTRAN_S1, memspace, ierr)
-       call h5tset_size_f(memspace, int(len_trim(type_str(1)), kind=8), ierr)
+       call h5tset_size_f(memspace, int(len_trim(type_str), kind=hsize_t), ierr)
        call h5tset_strpad_f(memspace, H5T_STR_NULLTERM_F, ierr)
 
-       call h5acreate_f(vtkhdf_grp, "Type", memspace, filespace, attr_id, &
-            ierr)
-       call h5awrite_f(attr_id, memspace, type_str, vdims(1:1), ierr)
+       call h5acreate_f(vtkhdf_grp, "Type", memspace, filespace, attr_id, ierr)
+       call h5awrite_f(attr_id, memspace, [type_str], vdims, ierr)
        call h5aclose_f(attr_id, ierr)
 
        call h5tclose_f(memspace, ierr)
        call h5sclose_f(filespace, ierr)
     end if
 
-    local_points = dof%size()
-    total_points = dof%global_size()
-    if (msh%gdim .eq. 3) then
-       local_cells = msh%nelv * (lx - 1) * (ly - 1) * (lz - 1)
-       total_cells = msh%glb_nelv * (lx - 1) * (ly - 1) * (lz - 1)
-       local_conn = local_cells * 8
-       total_conn = total_cells * 8
-    else
-       local_cells = msh%nelv * (lx - 1) * (ly - 1)
-       total_cells = msh%glb_nelv * (lx - 1) * (ly - 1)
-       local_conn = local_cells * 4
-       total_conn = total_cells * 4
-    end if
-
-    call MPI_Allreduce(local_points, max_local_points, 1, MPI_INTEGER, &
-         MPI_MAX, NEKO_COMM, ierr)
-
-    point_offset = 0
-    call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, MPI_SUM, &
-         NEKO_COMM, ierr)
-
     if (present(t)) then
        call vtkhdf_write_steps(vtkhdf_grp, t)
     end if
 
-    ! For static mesh, only write geometry on the first call
     if (associated(msh)) then
        call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, &
             this%amr_enabled, t)
@@ -245,10 +237,8 @@ contains
   !! sub-cells based on the GLL node positions.
   !! @param conn Output connectivity array (pre-allocated)
   !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD
-  !! @param lx Number of GLL points in x-direction
-  !! @param ly Number of GLL points in y-direction
-  !! @param lz Number of GLL points in z-direction
-  !! @param nelv Number of elements
+  !! @param msh Mesh object containing element information
+  !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral element grid
   subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof)
     integer, intent(out) :: conn(:)
     integer(kind=1), intent(in) :: vtk_type
@@ -277,17 +267,17 @@ contains
                    conn(idx + 2) = base + &
                         (kk - 1) * lx * ly + (jj - 1) * lx + (ii + 1) - 1
                    conn(idx + 3) = base + &
-                        (kk - 1) * lx * ly + (jj + 1 - 1) * lx + (ii + 1) - 1
+                        (kk - 1) * lx * ly + jj * lx + (ii + 1) - 1
                    conn(idx + 4) = base + &
-                        (kk - 1) * lx * ly + (jj + 1 - 1) * lx + ii - 1
+                        (kk - 1) * lx * ly + jj * lx + ii - 1
                    conn(idx + 5) = base + &
-                        (kk + 1 - 1) * lx * ly + (jj - 1) * lx + ii - 1
+                        kk * lx * ly + (jj - 1) * lx + ii - 1
                    conn(idx + 6) = base + &
-                        (kk + 1 - 1) * lx * ly + (jj - 1) * lx + (ii + 1) - 1
+                        kk * lx * ly + (jj - 1) * lx + (ii + 1) - 1
                    conn(idx + 7) = base + &
-                        (kk + 1 - 1) * lx * ly + (jj + 1 - 1) * lx + (ii + 1) - 1
+                        kk * lx * ly + jj * lx + (ii + 1) - 1
                    conn(idx + 8) = base + &
-                        (kk + 1 - 1) * lx * ly + (jj + 1 - 1) * lx + ii - 1
+                        kk * lx * ly + jj * lx + ii - 1
                    idx = idx + 8
                 end do
              end do
@@ -298,8 +288,8 @@ contains
              do ii = 1, lx - 1
                 conn(idx + 1) = base + (jj - 1) * lx + ii - 1
                 conn(idx + 2) = base + (jj - 1) * lx + (ii + 1) - 1
-                conn(idx + 3) = base + (jj + 1 - 1) * lx + (ii + 1) - 1
-                conn(idx + 4) = base + (jj + 1 - 1) * lx + ii - 1
+                conn(idx + 3) = base + jj * lx + (ii + 1) - 1
+                conn(idx + 4) = base + jj * lx + ii - 1
                 idx = idx + 4
              end do
           end do
@@ -339,9 +329,6 @@ contains
     integer(hid_t) :: filespace, memspace
     integer(hsize_t), dimension(1) :: dcount, doffset_1d, chunkdims
     integer(hsize_t), dimension(2) :: vdims, maxdims, dcount2, doffset2
-    real(kind=dp), allocatable :: coords(:,:)
-    integer, allocatable :: connectivity(:), offsets(:)
-    integer(kind=1), allocatable :: cell_types_byte(:)
     integer(kind=8) :: i8_value
     integer :: N_Steps
     logical :: link_exists
@@ -453,20 +440,6 @@ contains
     ! --- Points dataset (global coordinates) ---
     call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
     if (.not. link_exists) then
-       allocate(coords(3, local_points))
-       do el = 1, msh%nelv
-          local_idx = (el - 1) * npts_per_cell
-          do kk = 1, lz
-             do jj = 1, ly
-                do ii = 1, lx
-                   local_idx = local_idx + 1
-                   coords(1, local_idx) = dof%x(ii, jj, kk, el)
-                   coords(2, local_idx) = dof%y(ii, jj, kk, el)
-                   coords(3, local_idx) = dof%z(ii, jj, kk, el)
-                end do
-             end do
-          end do
-       end do
 
        vdims = [3_hsize_t, int(total_points, hsize_t)]
        maxdims = [3_hsize_t, H5S_UNLIMITED_F]
@@ -482,20 +455,35 @@ contains
        call h5screate_simple_f(2, dcount2, memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             doffset2, dcount2, ierr)
-       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, coords, dcount2, ierr, &
-            file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+
+       block
+         real(kind=dp), allocatable :: coords(:,:)
+
+         allocate(coords(3, local_points))
+         do concurrent (local_idx = 1:local_points)
+            block
+              integer :: idx(4)
+              idx = nonlinear_index(local_idx, lx, ly, lz)
+
+              coords(1, local_idx) = dof%x(idx(1), idx(2), idx(3), idx(4))
+              coords(2, local_idx) = dof%y(idx(1), idx(2), idx(3), idx(4))
+              coords(3, local_idx) = dof%z(idx(1), idx(2), idx(3), idx(4))
+            end block
+         end do
+         call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, coords, dcount2, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+         deallocate(coords)
+       end block
+
        call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
        call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
-       deallocate(coords)
     end if
 
     ! --- Connectivity dataset ---
     call h5lexists_f(vtkhdf_grp, "Connectivity", link_exists, ierr)
     if (link_exists) call h5ldelete_f(vtkhdf_grp, "Connectivity", ierr)
-    allocate(connectivity(local_conn))
-    call vtkhdf_build_connectivity(connectivity, VTK_cell_type, msh, dof)
 
     vdims(1) = int(total_conn, hsize_t)
     maxdims(1) = H5S_UNLIMITED_F
@@ -511,23 +499,26 @@ contains
     call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset_1d, dcount, ierr)
-    call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), &
-         ierr, file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
+
+    block
+      integer, allocatable :: connectivity(:)
+
+      allocate(connectivity(local_conn))
+      call vtkhdf_build_connectivity(connectivity, VTK_cell_type, msh, dof)
+      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), &
+           ierr, file_space_id = filespace, mem_space_id = memspace, &
+           xfer_prp = xf_id)
+      deallocate(connectivity)
+    end block
+
     call h5sclose_f(memspace, ierr)
     call h5dclose_f(dset_id, ierr)
     call h5pclose_f(dcpl_id, ierr)
     call h5sclose_f(filespace, ierr)
-    deallocate(connectivity)
 
     ! --- Offsets dataset ---
     call h5lexists_f(vtkhdf_grp, "Offsets", link_exists, ierr)
     if (link_exists) call h5ldelete_f(vtkhdf_grp, "Offsets", ierr)
-    allocate(offsets(local_cells + 1))
-    do i = 1, local_cells
-       offsets(i) = (i - 1) * nodes_per_cell
-    end do
-    offsets(local_cells + 1) = local_conn
 
     vdims(1) = int(total_offsets, hsize_t)
     maxdims(1) = H5S_UNLIMITED_F
@@ -544,18 +535,28 @@ contains
     call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset_1d, dcount, ierr)
-    call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, offsets, dcount(1:1), ierr, &
-         file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+
+    block
+      integer, allocatable :: offsets(:)
+
+      allocate(offsets(local_cells + 1))
+      do concurrent (i = 1:local_cells)
+         offsets(i) = (i - 1) * nodes_per_cell
+      end do
+      offsets(local_cells + 1) = local_conn
+      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, offsets, dcount(1:1), ierr, &
+           file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+      deallocate(offsets)
+    end block
+
     call h5sclose_f(memspace, ierr)
     call h5dclose_f(dset_id, ierr)
     call h5pclose_f(dcpl_id, ierr)
     call h5sclose_f(filespace, ierr)
-    deallocate(offsets)
 
     ! --- Types dataset (VTK cell types) ---
     call h5lexists_f(vtkhdf_grp, "Types", link_exists, ierr)
     if (link_exists) call h5ldelete_f(vtkhdf_grp, "Types", ierr)
-    allocate(cell_types_byte(local_cells), source=VTK_cell_type)
 
     vdims(1) = int(total_cells, hsize_t)
     maxdims(1) = H5S_UNLIMITED_F
@@ -571,13 +572,19 @@ contains
     call h5screate_simple_f(1, dcount(1:1), memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset_1d, dcount, ierr)
-    call h5dwrite_f(dset_id, H5T_STD_U8LE, cell_types_byte, dcount(1:1), ierr, &
-         file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+
+    block
+      integer(kind=1), allocatable :: cell_types(:)
+      allocate(cell_types(local_cells), source=VTK_cell_type)
+      call h5dwrite_f(dset_id, H5T_STD_U8LE, cell_types, dcount(1:1), ierr, &
+           file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+      deallocate(cell_types)
+    end block
+
     call h5sclose_f(memspace, ierr)
     call h5dclose_f(dset_id, ierr)
     call h5pclose_f(dcpl_id, ierr)
     call h5sclose_f(filespace, ierr)
-    deallocate(cell_types_byte)
 
     if (present(t)) then
        ! Open Steps group
@@ -672,21 +679,23 @@ contains
     end if
 
     step_dims(1) = step_dims(1) + 1_hsize_t
-    call h5dset_extent_f(dset_id, step_dims, ierr)
-    call h5dget_space_f(dset_id, filespace, ierr)
     step_count(1) = 1_hsize_t
     step_offset(1) = step_dims(1) - 1_hsize_t
+
+    call h5dset_extent_f(dset_id, step_dims, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          step_offset, step_count, ierr)
     call h5screate_simple_f(1, step_count, memspace, ierr)
+
     time_value(1) = real(t, kind=dp)
     call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, time_value, step_count, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+
     call h5sclose_f(memspace, ierr)
     call h5sclose_f(filespace, ierr)
     call h5dclose_f(dset_id, ierr)
 
-    N_Steps = int(step_dims(1))
 
     ! --- NSteps attribute ---
     ddim(1) = 1_hsize_t
@@ -699,9 +708,11 @@ contains
             attr_id, ierr, h5p_default_f, h5p_default_f)
        call h5sclose_f(filespace, ierr)
     end if
-    call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, N_Steps, ddim(1:1), ierr)
-    call h5aclose_f(attr_id, ierr)
 
+    N_Steps = int(step_dims(1))
+    call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, N_Steps, ddim(1:1), ierr)
+
+    call h5aclose_f(attr_id, ierr)
     call h5gclose_f(grp_id, ierr)
     call h5pclose_f(xf_id, ierr)
 
@@ -983,12 +994,45 @@ contains
           call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
                doffset(1:1), dcount(1:1), ierr)
 
-          if (precision .eq. sp) then
-             call write_scalar_single(dset_id, fld, dcount, ierr, &
-                  filespace, memspace, xf_id)
+          if (precision .eq. rp) then
+             call h5dwrite_f(dset_id, precision_hdf, fld%x, dcount2, ierr, &
+                  file_space_id = filespace, mem_space_id = memspace, &
+                  xfer_prp = xf_id)
+
+          else if (precision .eq. sp) then
+             block
+               real(kind=rp), pointer :: x(:)
+               real(kind=sp), allocatable :: data_1d(:)
+
+               x(1:local_points) => fld%x
+               allocate(data_1d(local_points))
+               do concurrent (local_idx = 1:local_points)
+                  data_1d(local_idx) = real(x(local_idx), sp)
+               end do
+
+               call h5dwrite_f(dset_id, precision_hdf, data_1d, dcount(1:1), &
+                    ierr, file_space_id = filespace, mem_space_id = memspace, &
+                    xfer_prp = xf_id)
+               deallocate(data_1d)
+             end block
+
           else if (precision .eq. dp) then
-             call write_scalar_double(dset_id, fld, dcount, ierr, &
-                  filespace, memspace, xf_id)
+             block
+               real(kind=rp), pointer :: x(:)
+               real(kind=dp), allocatable :: data_1d(:)
+
+               x(1:local_points) => fld%x
+               allocate(data_1d(local_points))
+               do concurrent (local_idx = 1:local_points)
+                  data_1d(local_idx) = real(x(local_idx), dp)
+               end do
+
+               call h5dwrite_f(dset_id, precision_hdf, data_1d, dcount(1:1), &
+                    ierr, file_space_id = filespace, mem_space_id = memspace, &
+                    xfer_prp = xf_id)
+               deallocate(data_1d)
+             end block
+
           end if
 
           call h5sclose_f(filespace, ierr)
@@ -1001,6 +1045,9 @@ contains
     call h5gclose_f(pointdata_grp, ierr)
 
   end subroutine vtkhdf_write_pointdata
+
+  ! -------------------------------------------------------------------------- !
+  ! Helper functions and routines
 
   !> Write a 3-component vector field as a 2D dataset with single precision,
   !! converting from double if necessary.
@@ -1096,100 +1143,6 @@ contains
     deallocate(data_2d)
   end subroutine write_vector_double
 
-  !> Write a scalar field as a 1D dataset with single precision, converting from
-  !! double if necessary. The dataset is organized as (total_points) for VTK
-  !! compatibility.
-  subroutine write_scalar_single(dset_id, f, dcount2, ierr, filespace, memspace, xf_id)
-    integer(hid_t), intent(in) :: dset_id
-    type(field_t), intent(in), pointer :: f
-    integer(hsize_t), intent(in) :: dcount2(:)
-    integer, intent(inout) :: ierr
-    integer(hid_t), intent(inout) :: filespace, memspace, xf_id
-    real(kind=sp), allocatable :: data_1d(:)
-    integer :: ie, kk, ii, jj, local_idx
-    integer :: lx, ly, lz, nelv, npts_per_cell, local_points
-
-    if (rp .eq. sp) then
-       call h5dwrite_f(dset_id, H5T_NATIVE_REAL, f%x, dcount2, ierr, &
-            file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
-    else
-       lx = f%dof%Xh%lx
-       ly = f%dof%Xh%ly
-       lz = f%dof%Xh%lz
-       nelv = f%msh%nelv
-       local_points = lx * ly * lz * nelv
-       npts_per_cell = lx * ly * lz
-
-       ! Assemble scalar field from f
-       allocate(data_1d(local_points))
-       do ie = 1, nelv
-          local_idx = (ie - 1) * npts_per_cell
-          do kk = 1, lz
-             do jj = 1, ly
-                do ii = 1, lx
-                   local_idx = local_idx + 1
-                   data_1d(local_idx) = real(f%x(ii, jj, kk, ie), sp)
-                end do
-             end do
-          end do
-       end do
-
-       call h5dwrite_f(dset_id, H5T_NATIVE_REAL, data_1d, dcount2, ierr, &
-            file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
-
-       deallocate(data_1d)
-    end if
-  end subroutine write_scalar_single
-
-  !> Write a scalar field as a 1D dataset with double precision, converting from
-  !! double if necessary. The dataset is organized as (total_points) for VTK
-  !! compatibility.
-  subroutine write_scalar_double(dset_id, f, dcount2, ierr, filespace, memspace, xf_id)
-    integer(hid_t), intent(in) :: dset_id
-    type(field_t), intent(in), pointer :: f
-    integer(hsize_t), intent(in) :: dcount2(:)
-    integer, intent(inout) :: ierr
-    integer(hid_t), intent(inout) :: filespace, memspace, xf_id
-    real(kind=dp), allocatable :: data_1d(:)
-    integer :: ie, kk, ii, jj, local_idx
-    integer :: lx, ly, lz, nelv, npts_per_cell, local_points
-
-    if (rp .eq. dp) then
-       call h5dwrite_f(dset_id, H5T_NATIVE_REAL, f%x, dcount2, ierr, &
-            file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
-    else
-       lx = f%dof%Xh%lx
-       ly = f%dof%Xh%ly
-       lz = f%dof%Xh%lz
-       nelv = f%msh%nelv
-       local_points = lx * ly * lz * nelv
-       npts_per_cell = lx * ly * lz
-
-       ! Assemble scalar field from f
-       allocate(data_1d(local_points))
-       do ie = 1, nelv
-          local_idx = (ie - 1) * npts_per_cell
-          do kk = 1, lz
-             do jj = 1, ly
-                do ii = 1, lx
-                   local_idx = local_idx + 1
-                   data_1d(local_idx) = real(f%x(ii, jj, kk, ie), dp)
-                end do
-             end do
-          end do
-       end do
-
-       call h5dwrite_f(dset_id, H5T_NATIVE_REAL, data_1d, dcount2, ierr, &
-            file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
-
-       deallocate(data_1d)
-    end if
-  end subroutine write_scalar_double
-
   !> Read data in HDF5 format following official VTKHDF specification
   subroutine vtkhdf_file_read(this, data)
     class(vtkhdf_file_t) :: this
@@ -1207,10 +1160,10 @@ contains
     integer(hid_t) :: H5T_NEKO_REAL
 
     select case(precision)
-    case(dp)
-       H5T_NEKO_REAL = H5T_NATIVE_DOUBLE
     case(sp)
        H5T_NEKO_REAL = H5T_NATIVE_REAL
+    case(dp)
+       H5T_NEKO_REAL = H5T_NATIVE_DOUBLE
     case default
        call neko_error("Unsupported real type")
     end select
@@ -1223,7 +1176,10 @@ contains
     this%precision = precision
   end subroutine vtkhdf_file_set_precision
 
+
 #else
+  ! -------------------------------------------------------------------------- !
+  ! Dummy functions and subroutines
 
   !> Write data in HDF5 format (no HDF5 support)
   subroutine vtkhdf_file_write(this, data, t)
@@ -1241,18 +1197,5 @@ contains
   end subroutine vtkhdf_file_read
 
 #endif
-
-  !> Set the overwrite flag for HDF5 files
-  subroutine vtkhdf_file_set_overwrite(this, overwrite)
-    class(vtkhdf_file_t), intent(inout) :: this
-    logical, intent(in) :: overwrite
-    this%overwrite = overwrite
-  end subroutine vtkhdf_file_set_overwrite
-
-  !> Enable support for Adaptive Mesh Refinement
-  subroutine vtkhdf_file_enable_amr(this)
-    class(vtkhdf_file_t), intent(inout) :: this
-    this%amr_enabled = .false.
-  end subroutine vtkhdf_file_enable_amr
 
 end module vtkhdf_file
