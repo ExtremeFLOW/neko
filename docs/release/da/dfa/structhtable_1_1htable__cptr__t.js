@@ -11,6 +11,8 @@ var structhtable_1_1htable__cptr__t =
     [ "remove", "da/dfa/structhtable_1_1htable__cptr__t.html#a0df21bae971e1389d5ce44e6ffb27b67", null ],
     [ "set", "da/dfa/structhtable_1_1htable__cptr__t.html#ace232413ce9e6671f7a5f8d4fb0c8e3d", null ],
     [ "entries", "da/dfa/structhtable_1_1htable__cptr__t.html#a97a189e6f7963d9dfbebd956576a2345", null ],
+    [ "head", "da/dfa/structhtable_1_1htable__cptr__t.html#a7db5a9e163297f49dbfe77fe0fca5211", null ],
     [ "size", "da/dfa/structhtable_1_1htable__cptr__t.html#a94370069f1191d8a0873af756ff471b7", null ],
-    [ "t", "da/dfa/structhtable_1_1htable__cptr__t.html#aa2081677dec0796e05d2f79a3f6c9194", null ]
+    [ "t", "da/dfa/structhtable_1_1htable__cptr__t.html#aa2081677dec0796e05d2f79a3f6c9194", null ],
+    [ "tail", "da/dfa/structhtable_1_1htable__cptr__t.html#aa288914645e9603c7f9baf9cd7b5f0d8", null ]
 ];

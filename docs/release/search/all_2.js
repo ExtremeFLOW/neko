@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['b_0',['b',['../d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html#a190a483be322d460f5891a99ca22b7c3',1,'pyneko.intf.neko_coef_t.B'],['../d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab',1,'coefs::coef_t::b'],['../df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f',1,'rough_log_law::rough_log_law_t::b'],['../df/df1/structspalding_1_1spalding__t.html#a6584a371ff654faa790f13a1384eae0c',1,'spalding::spalding_t::b']]],
+  ['b_0',['b',['../d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab',1,'coefs::coef_t::b'],['../df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f',1,'rough_log_law::rough_log_law_t::b'],['../df/df1/structspalding_1_1spalding__t.html#a6584a371ff654faa790f13a1384eae0c',1,'spalding::spalding_t::b'],['../d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html#a190a483be322d460f5891a99ca22b7c3',1,'pyneko.intf.neko_coef_t.B']]],
   ['b_20scope_1',['B. Scope',['../d0/d47/dev_patterns.html#autotoc_md27',1,'']]],
   ['b_5fd_2',['b_d',['../d0/dea/structcoefs_1_1coef__t.html#ad69b4e6f1ba2b7aed698abc59ad21f49',1,'coefs::coef_t']]],
   ['backend_20details_3',['Gather-scatter communication backend details',['../da/dd6/appendices.html#autotoc_md1',1,'']]],

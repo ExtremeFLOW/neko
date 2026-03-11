@@ -11,6 +11,8 @@ var structhtable_1_1htable__i4t2__t =
     [ "remove", "da/d93/structhtable_1_1htable__i4t2__t.html#aa74d60cfd7898a7a343b779a63974572", null ],
     [ "set", "da/d93/structhtable_1_1htable__i4t2__t.html#a90b0c8601431c8f19b7db01cbd845039", null ],
     [ "entries", "da/d93/structhtable_1_1htable__i4t2__t.html#a97a189e6f7963d9dfbebd956576a2345", null ],
+    [ "head", "da/d93/structhtable_1_1htable__i4t2__t.html#a7db5a9e163297f49dbfe77fe0fca5211", null ],
     [ "size", "da/d93/structhtable_1_1htable__i4t2__t.html#a94370069f1191d8a0873af756ff471b7", null ],
-    [ "t", "da/d93/structhtable_1_1htable__i4t2__t.html#aa2081677dec0796e05d2f79a3f6c9194", null ]
+    [ "t", "da/d93/structhtable_1_1htable__i4t2__t.html#aa2081677dec0796e05d2f79a3f6c9194", null ],
+    [ "tail", "da/d93/structhtable_1_1htable__i4t2__t.html#aa288914645e9603c7f9baf9cd7b5f0d8", null ]
 ];

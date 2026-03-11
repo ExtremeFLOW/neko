@@ -12,7 +12,7 @@ var searchData=
   ['euler_5fres_5fcpu_2ef90_9',['euler_res_cpu.f90',['../d8/d6d/euler__res__cpu_8f90.html',1,'']]],
   ['euler_5fres_5fdevice_2ef90_10',['euler_res_device.F90',['../da/daf/euler__res__device_8F90.html',1,'']]],
   ['euler_5fres_5ffctry_2ef90_11',['euler_res_fctry.f90',['../d3/d15/euler__res__fctry_8f90.html',1,'']]],
-  ['euler_5fres_5fkernel_2eh_12',['euler_res_kernel.h',['../d6/d81/hip_2euler__res__kernel_8h.html',1,'(Global Namespace)'],['../d5/dad/cuda_2euler__res__kernel_8h.html',1,'(Global Namespace)']]],
+  ['euler_5fres_5fkernel_2eh_12',['euler_res_kernel.h',['../d5/dad/cuda_2euler__res__kernel_8h.html',1,'(Global Namespace)'],['../d6/d81/hip_2euler__res__kernel_8h.html',1,'(Global Namespace)']]],
   ['euler_5fres_5fsx_2ef90_13',['euler_res_sx.f90',['../d6/d42/euler__res__sx_8f90.html',1,'']]],
   ['ext_5ftime_5fscheme_2ef90_14',['ext_time_scheme.f90',['../d3/d32/ext__time__scheme_8f90.html',1,'']]],
   ['extension_2emd_15',['extension.md',['../da/d98/extension_8md.html',1,'']]]

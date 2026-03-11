@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.2</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -763,34 +763,36 @@ $(document).ready(function(){initNavTree('dd/dbf/operators_8f90_source.html','..
 <div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: idir</div>
 <div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
 <div class="foldopen" id="foldopen00749" data-start="" data-end="">
-<div class="line"><a id="l00749" name="l00749"></a><span class="lineno"><a class="line" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html#a6a7fac3f73a65eacf29d56d372e66bff">  749</a></span>    <span class="keywordflow">if</span> (coef%cyclic) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>          <span class="keyword">call </span>opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)</div>
-<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>          <span class="keyword">call </span>opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)</div>
-<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a3e6a4ed0ee35e803363e9e4780fb8e61">rotate_cyc_r1</a></div>
-<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span> </div>
-<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a5f7d5a0d63b9a6c5823b91c33e0a2e2c">rotate_cyc_r4</a>(vx, vy, vz, idir, coef)</div>
-<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(:,:,:,:)</span>, <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
+<div class="line"><a id="l00749" name="l00749"></a><span class="lineno"><a class="line" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html#a6a7fac3f73a65eacf29d56d372e66bff">  749</a></span> </div>
+<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>    <span class="keywordflow">if</span> (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>          <span class="keyword">call </span>opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)</div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>          <span class="keyword">call </span>opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)</div>
+<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a3e6a4ed0ee35e803363e9e4780fb8e61">rotate_cyc_r1</a></div>
+<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span> </div>
+<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a5f7d5a0d63b9a6c5823b91c33e0a2e2c">rotate_cyc_r4</a>(vx, vy, vz, idir, coef)</div>
+<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(:,:,:,:)</span>, <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
 </div>
-<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: idir</div>
-<div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="foldopen" id="foldopen00762" data-start="" data-end="">
-<div class="line"><a id="l00762" name="l00762"></a><span class="lineno"><a class="line" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html#aed6df391bc2e712a40617299d765fdac">  762</a></span>    <span class="keywordflow">if</span> (coef%cyclic) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>          <span class="keyword">call </span>opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)</div>
-<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>          <span class="keyword">call </span>opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)</div>
-<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a5f7d5a0d63b9a6c5823b91c33e0a2e2c">rotate_cyc_r4</a></div>
-<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span> </div>
-<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span> </div>
-<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a></div>
-</div>
+<div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: idir</div>
+<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="foldopen" id="foldopen00763" data-start="" data-end="">
+<div class="line"><a id="l00763" name="l00763"></a><span class="lineno"><a class="line" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html#aed6df391bc2e712a40617299d765fdac">  763</a></span> </div>
+<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>    <span class="keywordflow">if</span> (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>          <span class="keyword">call </span>opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)</div>
+<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span>          <span class="keyword">call </span>opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)</div>
+<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a5f7d5a0d63b9a6c5823b91c33e0a2e2c">rotate_cyc_r4</a></div>
+<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span> </div>
 <div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span> </div>
+<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a></div>
+</div>
+<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span> </div>
 </div>
 </div>
 </div>
@@ -855,7 +857,7 @@ $(document).ready(function(){initNavTree('dd/dbf/operators_8f90_source.html','..
 <div class="ttc" id="anamespaceoperators_html_a3bb0b2a911e0cd08e32a255510d65c84"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">operators::opgrad</a></div><div class="ttdeci">subroutine, public opgrad(ux, uy, uz, u, coef, es, ee)</div><div class="ttdoc">Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00184">operators.f90:185</a></div></div>
 <div class="ttc" id="anamespaceoperators_html_a3e6a4ed0ee35e803363e9e4780fb8e61"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a3e6a4ed0ee35e803363e9e4780fb8e61">operators::rotate_cyc_r1</a></div><div class="ttdeci">subroutine rotate_cyc_r1(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00749">operators.f90:750</a></div></div>
 <div class="ttc" id="anamespaceoperators_html_a5585d01757c6ecea4927cd5e1139836d"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a5585d01757c6ecea4927cd5e1139836d">operators::convect_scalar</a></div><div class="ttdeci">subroutine convect_scalar(du, u, cr, cs, ct, xh_gll, xh_gl, coef_gll, coef_gl, gll_to_gl)</div><div class="ttdoc">Apply the convecting velocity c to the to the scalar field u, used in the OIFS scheme.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00347">operators.f90:349</a></div></div>
-<div class="ttc" id="anamespaceoperators_html_a5f7d5a0d63b9a6c5823b91c33e0a2e2c"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a5f7d5a0d63b9a6c5823b91c33e0a2e2c">operators::rotate_cyc_r4</a></div><div class="ttdeci">subroutine rotate_cyc_r4(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00762">operators.f90:763</a></div></div>
+<div class="ttc" id="anamespaceoperators_html_a5f7d5a0d63b9a6c5823b91c33e0a2e2c"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a5f7d5a0d63b9a6c5823b91c33e0a2e2c">operators::rotate_cyc_r4</a></div><div class="ttdeci">subroutine rotate_cyc_r4(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00763">operators.f90:764</a></div></div>
 <div class="ttc" id="anamespaceoperators_html_a6b1d2baa65e8e676f66e5cda841d3681"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681">operators::div</a></div><div class="ttdeci">subroutine, public div(res, ux, uy, uz, coef)</div><div class="ttdoc">Compute the divergence of a vector field.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00114">operators.f90:115</a></div></div>
 <div class="ttc" id="anamespaceoperators_html_a6bb5297cbf4fdd8e3d7c3dde97af76a6"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a6bb5297cbf4fdd8e3d7c3dde97af76a6">operators::cfl_compressible</a></div><div class="ttdeci">real(kind=rp) function, public cfl_compressible(dt, max_wave_speed, xh, coef, nelv, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00457">operators.f90:458</a></div></div>
 <div class="ttc" id="anamespaceoperators_html_a72021f4e313d1dac8010fbab0b3f19d7"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a72021f4e313d1dac8010fbab0b3f19d7">operators::conv1</a></div><div class="ttdeci">subroutine, public conv1(du, u, vx, vy, vz, xh, coef, es, ee)</div><div class="ttdoc">Compute the advection term.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00293">operators.f90:294</a></div></div>
@@ -898,7 +900,7 @@ $(document).ready(function(){initNavTree('dd/dbf/operators_8f90_source.html','..
 <div class="ttc" id="anamespacescratch__registry_html_a7b6f3078b09ebf3bee55b4cdcc701f01"><div class="ttname"><a href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">scratch_registry::neko_scratch_registry</a></div><div class="ttdeci">type(scratch_registry_t), target, public neko_scratch_registry</div><div class="ttdoc">Global scratch registry.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/da7/scratch__registry_8f90_source.html#l00117">scratch_registry.f90:117</a></div></div>
 <div class="ttc" id="anamespacespace_html"><div class="ttname"><a href="../../d5/d0d/namespacespace.html">space</a></div><div class="ttdoc">Defines a function space.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da4/space_8f90_source.html#l00034">space.f90:34</a></div></div>
 <div class="ttc" id="anamespacevector_html"><div class="ttname"><a href="../../d7/d34/namespacevector.html">vector</a></div><div class="ttdoc">Defines a vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/db2/vector_8f90_source.html#l00034">vector.f90:34</a></div></div>
-<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00056">coef.f90:56</a></div></div>
+<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00061">coef.f90:61</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00047">field.f90:47</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00015">field_list.f90:15</a></div></div>
 <div class="ttc" id="astructinterpolation_1_1interpolator__t_html"><div class="ttname"><a href="../../db/d74/structinterpolation_1_1interpolator__t.html">interpolation::interpolator_t</a></div><div class="ttdoc">Interpolation between two space::space_t.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dbb/interpolation_8f90_source.html#l00053">interpolation.f90:53</a></div></div>
@@ -910,7 +912,7 @@ $(document).ready(function(){initNavTree('dd/dbf/operators_8f90_source.html','..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dd/dbf/operators_8f90.html">operators.f90</a></li>
-    <li class="footer">Generated on Tue Jan 6 2026 02:11:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 11 2026 20:51:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

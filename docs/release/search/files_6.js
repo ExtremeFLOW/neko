@@ -13,7 +13,7 @@ var searchData=
   ['fdm_2ehip_10',['fdm.hip',['../de/d7f/fdm_8hip.html',1,'']]],
   ['fdm_5fcpu_2ef90_11',['fdm_cpu.f90',['../d2/df1/fdm__cpu_8f90.html',1,'']]],
   ['fdm_5fdevice_2ef90_12',['fdm_device.F90',['../d9/d7f/fdm__device_8F90.html',1,'']]],
-  ['fdm_5fkernel_2eh_13',['fdm_kernel.h',['../db/d2d/cuda_2fdm__kernel_8h.html',1,'(Global Namespace)'],['../d9/d4b/hip_2fdm__kernel_8h.html',1,'(Global Namespace)']]],
+  ['fdm_5fkernel_2eh_13',['fdm_kernel.h',['../d9/d4b/hip_2fdm__kernel_8h.html',1,'(Global Namespace)'],['../db/d2d/cuda_2fdm__kernel_8h.html',1,'(Global Namespace)']]],
   ['fdm_5fsx_2ef90_14',['fdm_sx.f90',['../d1/d01/fdm__sx_8f90.html',1,'']]],
   ['fdm_5fxsmm_2ef90_15',['fdm_xsmm.f90',['../d2/d13/fdm__xsmm_8f90.html',1,'']]],
   ['field_2ef90_16',['field.f90',['../d3/dc1/field_8f90.html',1,'']]],

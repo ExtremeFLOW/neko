@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.2</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -144,14 +144,14 @@ $(document).ready(function(){initNavTree('d1/d74/cuda_2bc__utils_8h_source.html'
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="preprocessor">#ifndef __BC_UTILS__</span></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="preprocessor">#define __BC_UTILS__</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>__inline__ __device__</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__inline__</a> <a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a></div>
 <div class="foldopen" id="foldopen00044" data-start="{" data-end="}">
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">   44</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> idx, <span class="keyword">const</span> <span class="keywordtype">int</span> lx, <span class="keywordtype">int</span> *index) {</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> idx2 = idx -1;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  index[3] = idx2/(lx * lx * lx) ;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  index[2] = (idx2 - (lx*lx*lx)*index[3])/(lx * lx);</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  index[1] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) / lx;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  index[0] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) - lx*index[1];</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">idx2</a> = idx -1;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  index[3] = <a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">idx2</a>/(lx * lx * lx) ;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  index[2] = (<a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">idx2</a> - (lx*lx*lx)*index[3])/(lx * lx);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  index[1] = (<a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">idx2</a> - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) / lx;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  index[0] = (<a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">idx2</a> - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) - lx*index[1];</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  index[0]++;</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  index[1]++;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  index[2]++;</div>
@@ -161,13 +161,14 @@ $(document).ready(function(){initNavTree('d1/d74/cuda_2bc__utils_8h_source.html'
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="acuda_2bc__utils_8h_html_a97af2a5f58e9e047d747424d0f89132d"><div class="ttname"><a href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a></div><div class="ttdeci">__inline__ __device__ void nonlinear_index(const int idx, const int lx, int *index)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d74/cuda_2bc__utils_8h_source.html#l00044">bc_utils.h:44</a></div></div>
+<div class="ttc" id="acuda_2dirichlet__kernel_8h_html_ac2cb217184f95ca86456f610f72bd533"><div class="ttname"><a href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dirichlet_apply_scalar_kernel</a></div><div class="ttdeci">__global__ void dirichlet_apply_scalar_kernel(const int *__restrict__ msk, T *__restrict__ x, const T g, const int m)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d11/cuda_2dirichlet__kernel_8h_source.html#l00042">dirichlet_kernel.h:42</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../dir_2384b0d0751aa995a1b7d70277eddcb2.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_18707f658d20d5ab4d5f4803cc883ea1.html">device</a></li><li class="navelem"><a class="el" href="../../dir_1567c8fa60ead0edeb2b74277cf6ca34.html">cuda</a></li><li class="navelem"><a class="el" href="../../d1/d74/cuda_2bc__utils_8h.html">bc_utils.h</a></li>
-    <li class="footer">Generated on Tue Jan 6 2026 02:11:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 11 2026 20:51:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

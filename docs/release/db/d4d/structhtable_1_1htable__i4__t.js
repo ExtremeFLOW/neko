@@ -11,6 +11,8 @@ var structhtable_1_1htable__i4__t =
     [ "remove", "db/d4d/structhtable_1_1htable__i4__t.html#aefafabe3ec15d5fb0c4650775ced0830", null ],
     [ "set", "db/d4d/structhtable_1_1htable__i4__t.html#aa63029aa9a38375a8c1e8df795ed7eb4", null ],
     [ "entries", "db/d4d/structhtable_1_1htable__i4__t.html#a97a189e6f7963d9dfbebd956576a2345", null ],
+    [ "head", "db/d4d/structhtable_1_1htable__i4__t.html#a7db5a9e163297f49dbfe77fe0fca5211", null ],
     [ "size", "db/d4d/structhtable_1_1htable__i4__t.html#a94370069f1191d8a0873af756ff471b7", null ],
-    [ "t", "db/d4d/structhtable_1_1htable__i4__t.html#aa2081677dec0796e05d2f79a3f6c9194", null ]
+    [ "t", "db/d4d/structhtable_1_1htable__i4__t.html#aa2081677dec0796e05d2f79a3f6c9194", null ],
+    [ "tail", "db/d4d/structhtable_1_1htable__i4__t.html#aa288914645e9603c7f9baf9cd7b5f0d8", null ]
 ];

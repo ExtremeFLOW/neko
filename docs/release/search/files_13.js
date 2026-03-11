@@ -50,7 +50,7 @@ var searchData=
   ['smagorinsky_5fdevice_2ef90_47',['smagorinsky_device.f90',['../d8/d8a/smagorinsky__device_8f90.html',1,'']]],
   ['smagorinsky_5fnut_2ecu_48',['smagorinsky_nut.cu',['../d3/d28/smagorinsky__nut_8cu.html',1,'']]],
   ['smagorinsky_5fnut_2ehip_49',['smagorinsky_nut.hip',['../d0/d6e/smagorinsky__nut_8hip.html',1,'']]],
-  ['smagorinsky_5fnut_5fkernel_2eh_50',['smagorinsky_nut_kernel.h',['../d8/db3/cuda_2smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)'],['../d1/daa/hip_2smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)']]],
+  ['smagorinsky_5fnut_5fkernel_2eh_50',['smagorinsky_nut_kernel.h',['../d1/daa/hip_2smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)'],['../d8/db3/cuda_2smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)']]],
   ['source_5fterm_2ef90_51',['source_term.f90',['../df/d69/source__term_8f90.html',1,'']]],
   ['source_5fterm_5ffctry_2ef90_52',['source_term_fctry.f90',['../d5/d3e/source__term__fctry_8f90.html',1,'']]],
   ['source_5fterm_5fhandler_2ef90_53',['source_term_handler.f90',['../d2/dc4/source__term__handler_8f90.html',1,'']]],

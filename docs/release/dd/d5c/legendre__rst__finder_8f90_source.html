@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.2</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -297,156 +297,157 @@ $(document).ready(function(){initNavTree('dd/d5c/legendre__rst__finder_8f90_sour
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    converged = .false.</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="comment">!Iterate until found, not heavily optimized</span></div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="keywordflow">do</span> <span class="keywordflow">while</span> (.not. converged)</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d4a/namespacedevice__local__interpolation.html#aa67d59c6c6cc83f90345c633abf9a450">device_find_rst_legendre</a>(rst, pt_x, pt_y, pt_z, &amp;</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>            this%x_hat%x_d, this%y_hat%x_d, this%z_hat%x_d, &amp;</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>            resx, resy, resz, &amp;</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>            this%Xh%lx,el_list, n_pts, this%tol, &amp;</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>            conv_pts%x_d)</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>       <span class="comment">!This can be made more approriate... avoid memcpy at least</span></div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>       conv_sum = <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a95cc8e9b0db9b0662baa3d33529f1767">device_vlsc3</a>(conv_pts%x_d,conv_pts%x_d,conv_pts%x_d,n_pts)</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>       converged = conv_sum .lt. 0.5</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>       print *, conv_sum</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>       <span class="keywordflow">if</span>( iter .ge. this%max_iter) converged = .true.</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keyword">call </span>conv_pts%free()</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>       iter = iter + 1</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d4a/namespacedevice__local__interpolation.html#aa67d59c6c6cc83f90345c633abf9a450">device_find_rst_legendre</a>(rst, pt_x, pt_y, pt_z, &amp;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>            this%x_hat%x_d, this%y_hat%x_d, this%z_hat%x_d, &amp;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>            resx, resy, resz, &amp;</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>            this%Xh%lx,el_list, n_pts, this%tol, &amp;</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>            conv_pts%x_d)</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>       <span class="comment">!This can be made more approriate... avoid memcpy at least</span></div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>       conv_sum = <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a95cc8e9b0db9b0662baa3d33529f1767">device_vlsc3</a>(conv_pts%x_d,conv_pts%x_d,conv_pts%x_d,n_pts)</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>       converged = conv_sum .lt. 0.5</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>       <span class="comment">!print *, conv_sum</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>       <span class="keywordflow">if</span>( iter .ge. this%max_iter) converged = .true.</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keyword">call </span>conv_pts%free()</div>
 </div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d4/d3b/namespacelegendre__rst__finder.html#a16c7228d61ce79023ccf315ee90a5c23">find_rst_legendre_device</a></div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
-<div class="foldopen" id="foldopen00229" data-start="" data-end="">
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno"><a class="line" href="../../d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a">  229</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a">find_rst_legendre_cpu</a>(this, rst, pt_x, pt_y, pt_z, &amp;</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>       el_list, n_pts, resx, resy, resz)</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d41/structlegendre__rst__finder_1_1legendre__rst__finder__t.html">legendre_rst_finder_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_pts</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: rst(3, n_pts)</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: pt_x(n_pts)</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: pt_y(n_pts)</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: pt_z(n_pts)</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: resx(n_pts)</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: resy(n_pts)</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: resz(n_pts)</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: el_list(n_pts)</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: r_legendre(this%Xh%lx)</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: s_legendre(this%Xh%lx)</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: t_legendre(this%Xh%lx)</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dr_legendre(this%Xh%lx)</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: ds_legendre(this%Xh%lx)</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dt_legendre(this%Xh%lx)</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: jac(3,3)</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: tmp(this%Xh%lx), tmp2(this%Xh%lx)</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: rst_d(3), jacinv(3,3)</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordtype">integer</span> :: conv_pts</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">logical</span> :: converged</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordtype">integer</span> :: i, j, e, iter, lx, lx2</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d4/d3b/namespacelegendre__rst__finder.html#a16c7228d61ce79023ccf315ee90a5c23">find_rst_legendre_device</a></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
+<div class="foldopen" id="foldopen00230" data-start="" data-end="">
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno"><a class="line" href="../../d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a">  230</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a">find_rst_legendre_cpu</a>(this, rst, pt_x, pt_y, pt_z, &amp;</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>       el_list, n_pts, resx, resy, resz)</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d41/structlegendre__rst__finder_1_1legendre__rst__finder__t.html">legendre_rst_finder_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_pts</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: rst(3, n_pts)</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: pt_x(n_pts)</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: pt_y(n_pts)</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: pt_z(n_pts)</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: resx(n_pts)</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: resy(n_pts)</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: resz(n_pts)</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: el_list(n_pts)</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: r_legendre(this%Xh%lx)</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: s_legendre(this%Xh%lx)</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: t_legendre(this%Xh%lx)</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dr_legendre(this%Xh%lx)</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: ds_legendre(this%Xh%lx)</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dt_legendre(this%Xh%lx)</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: jac(3,3)</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: tmp(this%Xh%lx), tmp2(this%Xh%lx)</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: rst_d(3), jacinv(3,3)</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">integer</span> :: conv_pts</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordtype">logical</span> :: converged</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keywordtype">integer</span> :: i, j, e, iter, lx, lx2</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    lx = this%Xh%lx</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    <span class="keywordflow">if</span> (n_pts .lt. 1) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    rst = 0.0_rp</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="comment">! If performance critical we should do multiple points at the time</span></div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <span class="comment">! Currently we do one point at the time</span></div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="keywordflow">do</span> i = 1, n_pts</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>       iter = 0</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       converged = .false.</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       <span class="keywordflow">do</span> <span class="keywordflow">while</span> (.not. converged)</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>          iter = iter + 1</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>          <span class="comment">! Compute legendre polynomials in this rst coordinate</span></div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>          r_legendre(1) = 1.0</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>          r_legendre(2) = rst(1,i)</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>          s_legendre(1) = 1.0</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>          s_legendre(2) = rst(2,i)</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>          t_legendre(1) = 1.0</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>          t_legendre(2) = rst(3,i)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>          dr_legendre(1) = 0.0</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>          dr_legendre(2) = 1.0</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>          ds_legendre(1) = 0.0</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>          ds_legendre(2) = 1.0</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>          dt_legendre(1) = 0.0</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          dt_legendre(2) = 1.0</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>          <span class="keywordflow">do</span> j = 2, lx-1</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>             r_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(1,i) &amp;</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                  * r_legendre(j) - (j-1.0_xp) &amp;</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                  * r_legendre(j-1)) / (<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(j,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>))</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>             s_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(2,i) &amp;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>                  * s_legendre(j) - (j-1.0_xp) &amp;</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>                  * s_legendre(j-1))/(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(j,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>))</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>             t_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(3,i) &amp;</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                  * t_legendre(j) - (j-1.0_xp) &amp;</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>                  * t_legendre(j-1))/(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(j,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>))</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>             dr_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(j) &amp;</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>                  + rst(1,i)*dr_legendre(j)</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>             ds_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j) &amp;</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>                  + rst(2,i)*ds_legendre(j)</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>             dt_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j) &amp;</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>                  + rst(3,i)*dt_legendre(j)</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>          e = (el_list(i))*this%Xh%lxyz + 1</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>          <span class="comment">! Compute the current xyz value</span></div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(resx(i), 1, this%x_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>               r_legendre, s_legendre, t_legendre)</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(resy(i), 1, this%y_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>               r_legendre, s_legendre, t_legendre)</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(resz(i), 1, this%z_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>               r_legendre, s_legendre, t_legendre)</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>          <span class="comment">! This should in principle be merged into some larger kernel</span></div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>          <span class="comment">! Compute the jacobian</span></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(1,1), 1, this%x_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>               dr_legendre, s_legendre(1), t_legendre)</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(1,2), 1, this%y_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>               dr_legendre, s_legendre(1), t_legendre)</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(1,3), 1, this%z_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>               dr_legendre, s_legendre, t_legendre)</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(2,1), 1, this%x_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>               r_legendre, ds_legendre, t_legendre)</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(2,2), 1, this%y_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>               r_legendre, ds_legendre, t_legendre)</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(2,3), 1, this%z_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>               r_legendre, ds_legendre, t_legendre)</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(3,1), 1, this%x_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>               r_legendre, s_legendre, dt_legendre)</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(3,2), 1, this%y_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>               r_legendre, s_legendre, dt_legendre)</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(3,3), 1, this%z_hat%x(e), lx, &amp;</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>               r_legendre, s_legendre, dt_legendre)</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>          resx(i) = pt_x(i) - resx(i)</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>          resy(i) = pt_y(i) - resy(i)</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>          resz(i) = pt_z(i) - resz(i)</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>          <span class="comment">! Jacobian inverse</span></div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>          jacinv = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a3febc8c0f61710eb0359fb2afd291bfa">matinv39</a>(jac(1,1), jac(1,2), jac(1,3),&amp;</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>               jac(2,1), jac(2,2), jac(2,3),&amp;</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>               jac(3,1), jac(3,2), jac(3,3))</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>          <span class="comment">! Update direction</span></div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>          rst_d(1) = (resx(i)*jacinv(1,1) &amp;</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>               + jacinv(2,1)*resy(i) &amp;</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>               + jacinv(3,1)*resz(i))</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>          rst_d(2) = (resx(i)*jacinv(1,2) &amp;</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>               + jacinv(2,2)*resy(i) &amp;</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>               + jacinv(3,2)*resz(i))</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>          rst_d(3) = (resx(i)*jacinv(1,3) &amp;</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>               + jacinv(2,3)*resy(i) &amp;</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>               + jacinv(3,3)*resz(i))</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>          conv_pts = 0</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>          <span class="keywordflow">if</span> (norm2(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rst_d,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)) .le. this%tol) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>             conv_pts = 1</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>          <span class="keywordflow">if</span> (norm2(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rst_d,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)) .gt. 4.0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>             conv_pts = 1</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>          <span class="comment">! Update rst coordinates</span></div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>          rst(1,i) = rst(1,i) + rst_d(1)</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>          rst(2,i) = rst(2,i) + rst_d(2)</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>          rst(3,i) = rst(3,i) + rst_d(3)</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>          converged = conv_pts .eq. 1</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>          <span class="keywordflow">if</span> (iter .ge. this%max_iter) converged = .true.</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    lx = this%Xh%lx</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    <span class="keywordflow">if</span> (n_pts .lt. 1) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    rst = 0.0_rp</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <span class="comment">! If performance critical we should do multiple points at the time</span></div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="comment">! Currently we do one point at the time</span></div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordflow">do</span> i = 1, n_pts</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       iter = 0</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       converged = .false.</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>       <span class="keywordflow">do</span> <span class="keywordflow">while</span> (.not. converged)</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>          iter = iter + 1</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>          <span class="comment">! Compute legendre polynomials in this rst coordinate</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>          r_legendre(1) = 1.0</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>          r_legendre(2) = rst(1,i)</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>          s_legendre(1) = 1.0</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>          s_legendre(2) = rst(2,i)</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>          t_legendre(1) = 1.0</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>          t_legendre(2) = rst(3,i)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>          dr_legendre(1) = 0.0</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>          dr_legendre(2) = 1.0</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>          ds_legendre(1) = 0.0</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>          ds_legendre(2) = 1.0</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          dt_legendre(1) = 0.0</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>          dt_legendre(2) = 1.0</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>          <span class="keywordflow">do</span> j = 2, lx-1</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>             r_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(1,i) &amp;</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                  * r_legendre(j) - (j-1.0_xp) &amp;</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>                  * r_legendre(j-1)) / (<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(j,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>))</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>             s_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(2,i) &amp;</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>                  * s_legendre(j) - (j-1.0_xp) &amp;</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                  * s_legendre(j-1))/(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(j,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>))</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>             t_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(3,i) &amp;</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>                  * t_legendre(j) - (j-1.0_xp) &amp;</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>                  * t_legendre(j-1))/(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(j,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>))</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>             dr_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(j) &amp;</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>                  + rst(1,i)*dr_legendre(j)</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>             ds_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j) &amp;</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>                  + rst(2,i)*ds_legendre(j)</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>             dt_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j) &amp;</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>                  + rst(3,i)*dt_legendre(j)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>          e = (el_list(i))*this%Xh%lxyz + 1</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>          <span class="comment">! Compute the current xyz value</span></div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(resx(i), 1, this%x_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>               r_legendre, s_legendre, t_legendre)</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(resy(i), 1, this%y_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>               r_legendre, s_legendre, t_legendre)</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(resz(i), 1, this%z_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>               r_legendre, s_legendre, t_legendre)</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>          <span class="comment">! This should in principle be merged into some larger kernel</span></div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>          <span class="comment">! Compute the jacobian</span></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(1,1), 1, this%x_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>               dr_legendre, s_legendre(1), t_legendre)</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(1,2), 1, this%y_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>               dr_legendre, s_legendre(1), t_legendre)</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(1,3), 1, this%z_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>               dr_legendre, s_legendre, t_legendre)</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(2,1), 1, this%x_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>               r_legendre, ds_legendre, t_legendre)</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(2,2), 1, this%y_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>               r_legendre, ds_legendre, t_legendre)</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(2,3), 1, this%z_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>               r_legendre, ds_legendre, t_legendre)</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(3,1), 1, this%x_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>               r_legendre, s_legendre, dt_legendre)</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(3,2), 1, this%y_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>               r_legendre, s_legendre, dt_legendre)</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a>(jac(3,3), 1, this%z_hat%x(e), lx, &amp;</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>               r_legendre, s_legendre, dt_legendre)</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>          resx(i) = pt_x(i) - resx(i)</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>          resy(i) = pt_y(i) - resy(i)</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>          resz(i) = pt_z(i) - resz(i)</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>          <span class="comment">! Jacobian inverse</span></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>          jacinv = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a3febc8c0f61710eb0359fb2afd291bfa">matinv39</a>(jac(1,1), jac(1,2), jac(1,3),&amp;</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>               jac(2,1), jac(2,2), jac(2,3),&amp;</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>               jac(3,1), jac(3,2), jac(3,3))</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>          <span class="comment">! Update direction</span></div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>          rst_d(1) = (resx(i)*jacinv(1,1) &amp;</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>               + jacinv(2,1)*resy(i) &amp;</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>               + jacinv(3,1)*resz(i))</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>          rst_d(2) = (resx(i)*jacinv(1,2) &amp;</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>               + jacinv(2,2)*resy(i) &amp;</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>               + jacinv(3,2)*resz(i))</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>          rst_d(3) = (resx(i)*jacinv(1,3) &amp;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>               + jacinv(2,3)*resy(i) &amp;</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>               + jacinv(3,3)*resz(i))</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>          conv_pts = 0</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>          <span class="keywordflow">if</span> (norm2(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rst_d,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)) .le. this%tol) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>             conv_pts = 1</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>          <span class="keywordflow">if</span> (norm2(<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rst_d,<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)) .gt. 4.0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>             conv_pts = 1</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>          <span class="comment">! Update rst coordinates</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>          rst(1,i) = rst(1,i) + rst_d(1)</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>          rst(2,i) = rst(2,i) + rst_d(2)</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>          rst(3,i) = rst(3,i) + rst_d(3)</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>          converged = conv_pts .eq. 1</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>          <span class="keywordflow">if</span> (iter .ge. this%max_iter) converged = .true.</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span><span class="keywordflow">    end do</span></div>
 </div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a">find_rst_legendre_cpu</a></div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d4/d3b/namespacelegendre__rst__finder.html">legendre_rst_finder</a></div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a">find_rst_legendre_cpu</a></div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d4/d3b/namespacelegendre__rst__finder.html">legendre_rst_finder</a></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00101">device.F90:101</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
@@ -465,7 +466,7 @@ $(document).ready(function(){initNavTree('dd/d5c/legendre__rst__finder_8f90_sour
 <div class="ttc" id="anamespacelegendre__rst__finder_html_a16c7228d61ce79023ccf315ee90a5c23"><div class="ttname"><a href="../../d4/d3b/namespacelegendre__rst__finder.html#a16c7228d61ce79023ccf315ee90a5c23">legendre_rst_finder::find_rst_legendre_device</a></div><div class="ttdeci">subroutine find_rst_legendre_device(this, rst, pt_x, pt_y, pt_z, el_list, n_pts, resx, resy, resz)</div><div class="ttdoc">Using the Legendre polynomials to find the rst coordinates on GPU.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d5c/legendre__rst__finder_8f90_source.html#l00185">legendre_rst_finder.f90:187</a></div></div>
 <div class="ttc" id="anamespacelegendre__rst__finder_html_a970b08b43a39e23dc45b8aa746a94ded"><div class="ttname"><a href="../../d4/d3b/namespacelegendre__rst__finder.html#a970b08b43a39e23dc45b8aa746a94ded">legendre_rst_finder::legendre_rst_finder_init</a></div><div class="ttdeci">subroutine legendre_rst_finder_init(this, x, y, z, nelv, xh, tol, max_iter)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d5c/legendre__rst__finder_8f90_source.html#l00070">legendre_rst_finder.f90:71</a></div></div>
 <div class="ttc" id="anamespacelegendre__rst__finder_html_ac32ea7dd963da3dcb750ca92c10bec1c"><div class="ttname"><a href="../../d4/d3b/namespacelegendre__rst__finder.html#ac32ea7dd963da3dcb750ca92c10bec1c">legendre_rst_finder::legendre_rst_finder_find</a></div><div class="ttdeci">subroutine legendre_rst_finder_find(this, rst_local_cand, x_t, y_t, z_t, el_cands, n_point_cand, resx, resy, resz)</div><div class="ttdoc">Given a set of element candidates containing the given points and computes the local RST coordinates ...</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d5c/legendre__rst__finder_8f90_source.html#l00148">legendre_rst_finder.f90:150</a></div></div>
-<div class="ttc" id="anamespacelegendre__rst__finder_html_ad5a19c84e42ad8ea774710c506f5aa6a"><div class="ttname"><a href="../../d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a">legendre_rst_finder::find_rst_legendre_cpu</a></div><div class="ttdeci">subroutine find_rst_legendre_cpu(this, rst, pt_x, pt_y, pt_z, el_list, n_pts, resx, resy, resz)</div><div class="ttdoc">Using the Legendre polynomials to find the rst coordinates.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d5c/legendre__rst__finder_8f90_source.html#l00229">legendre_rst_finder.f90:231</a></div></div>
+<div class="ttc" id="anamespacelegendre__rst__finder_html_ad5a19c84e42ad8ea774710c506f5aa6a"><div class="ttname"><a href="../../d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a">legendre_rst_finder::find_rst_legendre_cpu</a></div><div class="ttdeci">subroutine find_rst_legendre_cpu(this, rst, pt_x, pt_y, pt_z, el_list, n_pts, resx, resy, resz)</div><div class="ttdoc">Using the Legendre polynomials to find the rst coordinates.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d5c/legendre__rst__finder_8f90_source.html#l00230">legendre_rst_finder.f90:232</a></div></div>
 <div class="ttc" id="anamespacelegendre__rst__finder_html_af8b90048989c81280cb172992db97e19"><div class="ttname"><a href="../../d4/d3b/namespacelegendre__rst__finder.html#af8b90048989c81280cb172992db97e19">legendre_rst_finder::legendre_rst_finder_free</a></div><div class="ttdeci">subroutine legendre_rst_finder_free(this)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d5c/legendre__rst__finder_8f90_source.html#l00122">legendre_rst_finder.f90:123</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
 <div class="ttc" id="anamespacemath_html_a3febc8c0f61710eb0359fb2afd291bfa"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a3febc8c0f61710eb0359fb2afd291bfa">math::matinv39</a></div><div class="ttdeci">real(rp) function, dimension(3, 3), public matinv39(a11, a12, a13, a21, a22, a23, a31, a32, a33)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l01484">math.f90:1486</a></div></div>
@@ -497,7 +498,7 @@ $(document).ready(function(){initNavTree('dd/d5c/legendre__rst__finder_8f90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_83ce56167ca984e1f9ef008c34f8da6d.html">global_interpolation</a></li><li class="navelem"><a class="el" href="../../dd/d5c/legendre__rst__finder_8f90.html">legendre_rst_finder.f90</a></li>
-    <li class="footer">Generated on Tue Jan 6 2026 02:11:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 11 2026 20:51:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

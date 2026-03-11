@@ -1,5 +1,6 @@
 var structscalar__pnpn_1_1scalar__pnpn__t =
 [
+    [ "apply_strong_bcs", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a5cf35261fda222442cae0a909ccc49ce", null ],
     [ "free", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#adde057ca87ccc161d2df2ec570baa2a1", null ],
     [ "free", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a5ff2f211aa47d8ae13a27f4cc041d36b", null ],
     [ "init", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a53f581df6e2b60d0ac41e1b7f57fc1d1", null ],
