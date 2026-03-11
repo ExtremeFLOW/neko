@@ -633,6 +633,8 @@ contains
     type(array_ptr_t), allocatable :: scalar_fields(:)
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: FLD_DATA_SIZE, n_scalar_fields
+    type(field_list_t) :: dummy_list
+    type(field_t), pointer :: ptr
 
     if (present(t)) then
        time = real(t, dp)
@@ -717,51 +719,19 @@ contains
           idx(i) = data%idx(i)
        end do
     type is (field_t)
-       p%ptr => data%x(:,1,1,1)
-       dof => data%dof
-       write_pressure = .true.
-       write_velocity = .false.
+       call dummy_list%init(1)
+       ptr => data ! For the sake of intel
+       call dummy_list%assign(1, ptr)
+       call fld_file_select_from_field_list(this, dummy_list, p, u, v, w, tem, &
+            scalar_fields, n_scalar_fields, write_pressure, write_velocity, &
+            write_temperature, dof)
+       nullify(dummy_list%items(1)%ptr)
+       nullify(ptr)
+       deallocate(dummy_list%items)
     type is (field_list_t)
-       select case (data%size())
-       case (1)
-          p%ptr => data%items(1)%ptr%x(:,1,1,1)
-          write_pressure = .true.
-          write_velocity = .false.
-       case (2)
-          p%ptr => data%items(1)%ptr%x(:,1,1,1)
-          tem%ptr => data%items(2)%ptr%x(:,1,1,1)
-          write_pressure = .true.
-          write_temperature = .true.
-       case (3)
-          u%ptr => data%items(1)%ptr%x(:,1,1,1)
-          v%ptr => data%items(2)%ptr%x(:,1,1,1)
-          w%ptr => data%items(3)%ptr%x(:,1,1,1)
-          write_velocity = .true.
-       case (4)
-          p%ptr => data%items(1)%ptr%x(:,1,1,1)
-          u%ptr => data%items(2)%ptr%x(:,1,1,1)
-          v%ptr => data%items(3)%ptr%x(:,1,1,1)
-          w%ptr => data%items(4)%ptr%x(:,1,1,1)
-          write_pressure = .true.
-          write_velocity = .true.
-       case (5:99)
-          p%ptr => data%items(1)%ptr%x(:,1,1,1)
-          u%ptr => data%items(2)%ptr%x(:,1,1,1)
-          v%ptr => data%items(3)%ptr%x(:,1,1,1)
-          w%ptr => data%items(4)%ptr%x(:,1,1,1)
-          tem%ptr => data%items(5)%ptr%x(:,1,1,1)
-          n_scalar_fields = data%size() - 5
-          allocate(scalar_fields(n_scalar_fields))
-          do i = 1, n_scalar_fields
-             scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
-          end do
-          write_pressure = .true.
-          write_velocity = .true.
-          write_temperature = .true.
-       case default
-          call neko_error('This many fields not supported yet, fld_file')
-       end select
-       dof => data%dof(1)
+       call fld_file_select_from_field_list(this, data, p, u, v, w, tem, &
+            scalar_fields, n_scalar_fields, write_pressure, write_velocity, &
+            write_temperature, dof)
     class default
        call neko_error('Invalid data')
     end select
