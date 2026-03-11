@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,19 +32,17 @@
 !
 
 module legendre_rst_finder
-  use num_types, only: rp, dp, xp, i8
+  use num_types, only: rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
   use space, only: space_t
   use utils, only: neko_error, neko_warning
   use vector, only: vector_t
   use matrix, only: matrix_t
-  use tensor, only: tnsr3d
   use math, only: NEKO_EPS, matinv39
   use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
   use device_local_interpolation, only: device_find_rst_legendre
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, &
-       c_sizeof, c_loc, c_bool
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
   use device, only: device_alloc, device_free, device_memcpy, &
        device_get_ptr, glb_cmd_queue
   use device_math, only: device_vlsc3
@@ -113,9 +111,9 @@ contains
          Xh%vinvt, Xh%vinvt, nelv)
 
     !> Copy the data to the device (if device exists)
-    call this%x_hat%copy_from(HOST_TO_DEVICE,.false.)
-    call this%y_hat%copy_from(HOST_TO_DEVICE,.false.)
-    call this%z_hat%copy_from(HOST_TO_DEVICE,.false.)
+    call this%x_hat%copy_from(HOST_TO_DEVICE, .false.)
+    call this%y_hat%copy_from(HOST_TO_DEVICE, .false.)
+    call this%z_hat%copy_from(HOST_TO_DEVICE, .false.)
 
   end subroutine legendre_rst_finder_init
 
@@ -191,7 +189,7 @@ contains
     type(c_ptr), intent(inout) :: resx, resy, resz
     integer, intent(in) :: n_pts
     type(vector_t) :: conv_pts
-    integer :: i, iter
+    integer :: iter
     logical :: converged
     real(kind=rp) :: conv_sum
 
@@ -205,6 +203,7 @@ contains
     converged = .false.
     !Iterate until found, not heavily optimized
     do while (.not. converged)
+       iter = iter + 1
        call device_find_rst_legendre(rst, pt_x, pt_y, pt_z, &
             this%x_hat%x_d, this%y_hat%x_d, this%z_hat%x_d, &
             resx, resy, resz, &
@@ -213,7 +212,7 @@ contains
        !This can be made more approriate... avoid memcpy at least
        conv_sum = device_vlsc3(conv_pts%x_d,conv_pts%x_d,conv_pts%x_d,n_pts)
        converged = conv_sum .lt. 0.5
-       print *, conv_sum
+       !print *, conv_sum
        if( iter .ge. this%max_iter) converged = .true.
     end do
 
@@ -238,18 +237,17 @@ contains
     real(kind=rp), intent(inout) :: resy(n_pts)
     real(kind=rp), intent(inout) :: resz(n_pts)
     integer, intent(in) :: el_list(n_pts)
-    real(kind=rp) :: r_legendre(this%Xh%lx)
-    real(kind=rp) :: s_legendre(this%Xh%lx)
-    real(kind=rp) :: t_legendre(this%Xh%lx)
-    real(kind=rp) :: dr_legendre(this%Xh%lx)
-    real(kind=rp) :: ds_legendre(this%Xh%lx)
-    real(kind=rp) :: dt_legendre(this%Xh%lx)
+    real(kind=rp) :: r_legendre(1, this%Xh%lx)
+    real(kind=rp) :: s_legendre(this%Xh%lx, 1)
+    real(kind=rp) :: t_legendre(this%Xh%lx, 1)
+    real(kind=rp) :: dr_legendre(1, this%Xh%lx)
+    real(kind=rp) :: ds_legendre(this%Xh%lx, 1)
+    real(kind=rp) :: dt_legendre(this%Xh%lx, 1)
     real(kind=rp) :: jac(3,3)
-    real(kind=xp) :: tmp(this%Xh%lx), tmp2(this%Xh%lx)
     real(kind=xp) :: rst_d(3), jacinv(3,3)
     integer :: conv_pts
     logical :: converged
-    integer :: i, j, e, iter, lx, lx2
+    integer :: i, j, e, iter, lx
 
 
 
@@ -265,34 +263,34 @@ contains
        do while (.not. converged)
           iter = iter + 1
           ! Compute legendre polynomials in this rst coordinate
-          r_legendre(1) = 1.0
-          r_legendre(2) = rst(1,i)
-          s_legendre(1) = 1.0
-          s_legendre(2) = rst(2,i)
-          t_legendre(1) = 1.0
-          t_legendre(2) = rst(3,i)
-          dr_legendre(1) = 0.0
-          dr_legendre(2) = 1.0
-          ds_legendre(1) = 0.0
-          ds_legendre(2) = 1.0
-          dt_legendre(1) = 0.0
-          dt_legendre(2) = 1.0
+          r_legendre(1, 1) = 1.0
+          r_legendre(1, 2) = rst(1,i)
+          s_legendre(1, 1) = 1.0
+          s_legendre(2, 1) = rst(2,i)
+          t_legendre(1, 1) = 1.0
+          t_legendre(2, 1) = rst(3,i)
+          dr_legendre(1, 1) = 0.0
+          dr_legendre(1, 2) = 1.0
+          ds_legendre(1, 1) = 0.0
+          ds_legendre(2, 1) = 1.0
+          dt_legendre(1, 1) = 0.0
+          dt_legendre(2, 1) = 1.0
           do j = 2, lx-1
-             r_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(1,i) &
-                  * r_legendre(j) - (j-1.0_xp) &
-                  * r_legendre(j-1)) / (real(j,xp))
-             s_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(2,i) &
-                  * s_legendre(j) - (j-1.0_xp) &
-                  * s_legendre(j-1))/(real(j,xp))
-             t_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(3,i) &
-                  * t_legendre(j) - (j-1.0_xp) &
-                  * t_legendre(j-1))/(real(j,xp))
-             dr_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(j) &
-                  + rst(1,i)*dr_legendre(j)
-             ds_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j) &
-                  + rst(2,i)*ds_legendre(j)
-             dt_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j) &
-                  + rst(3,i)*dt_legendre(j)
+             r_legendre(1, j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(1,i) &
+                  * r_legendre(1, j) - (j-1.0_xp) &
+                  * r_legendre(1, j-1)) / (real(j,xp))
+             s_legendre(j+1, 1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(2,i) &
+                  * s_legendre(j, 1) - (j-1.0_xp) &
+                  * s_legendre(j-1, 1))/(real(j,xp))
+             t_legendre(j+1, 1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(3,i) &
+                  * t_legendre(j, 1) - (j-1.0_xp) &
+                  * t_legendre(j-1, 1))/(real(j,xp))
+             dr_legendre(1, j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(1, j) &
+                  + rst(1,i)*dr_legendre(1, j)
+             ds_legendre(j+1, 1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j, 1) &
+                  + rst(2,i)*ds_legendre(j, 1)
+             dt_legendre(j+1, 1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j, 1) &
+                  + rst(3,i)*dt_legendre(j, 1)
           end do
           e = (el_list(i))*this%Xh%lxyz + 1
           ! Compute the current xyz value
@@ -305,9 +303,9 @@ contains
           ! This should in principle be merged into some larger kernel
           ! Compute the jacobian
           call tnsr3d_el_cpu(jac(1,1), 1, this%x_hat%x(e), lx, &
-               dr_legendre, s_legendre(1), t_legendre)
+               dr_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(jac(1,2), 1, this%y_hat%x(e), lx, &
-               dr_legendre, s_legendre(1), t_legendre)
+               dr_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(jac(1,3), 1, this%z_hat%x(e), lx, &
                dr_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(jac(2,1), 1, this%x_hat%x(e), lx, &

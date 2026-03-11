@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2025, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,35 +42,26 @@ module scalar_scheme
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
   use coefs, only : coef_t
-  use dirichlet, only : dirichlet_t
-  use neumann, only : neumann_t
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
-  use bc, only : bc_t
   use bc_list, only : bc_list_t
   use precon, only : pc_t, precon_factory, precon_destroy
-  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use facet_zone, only : facet_zone_t
+  use mesh, only : mesh_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use registry, only : neko_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
-       json_get_or_lookup, json_get_or_lookup_or_default
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+       json_get_or_lookup_or_default
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error, neko_warning
-  use comm, only : NEKO_COMM
-  use mpi_f08, only : MPI_INTEGER, MPI_SUM
+  use utils, only : neko_error
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
-  use math, only : cfill, add2s2
   use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
        field_copy, field_col2
-  use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
@@ -228,6 +219,104 @@ module scalar_scheme
        type(ksp_monitor_t), intent(inout) :: ksp_results
      end subroutine scalar_scheme_step_intrf
   end interface
+
+  ! ========================================================================== !
+  ! Helper functions and types for scalar_scheme_t
+  ! ========================================================================== !
+
+  !> A helper type that is needed to have an array of polymorphic objects
+  type, public :: scalar_scheme_wrapper_t
+     class(scalar_scheme_t), allocatable :: scalar
+   contains
+     !> Constructor. Just allocates the object.
+     procedure, pass(this) :: init => scalar_scheme_wrapper_init
+     !> Destructor. Just deallocates the object.
+     procedure, pass(this) :: free => scalar_scheme_wrapper_free
+     !> Move operator for the wrapper, needed for storing schemes
+     !! in lists and arrays.
+     procedure, pass(this) :: move_from => &
+          scalar_scheme_wrapper_move_from
+     !> Return allocation status.
+     procedure, pass(this) :: is_allocated => &
+          scalar_scheme_wrapper_is_allocated
+  end type scalar_scheme_wrapper_t
+
+
+  interface
+     !> Scalar scheme factory.
+     !! Both constructs and initializes the object.
+     !! @param object The object to be created and initialized.
+     !! @param msh The mesh.
+     !! @param coef The coefficients.
+     !! @param gs The gather-scatter.
+     !! @param params The parameter dictionary in json.
+     !! @param numerics_params The numerical parameter dictionary in json.
+     !! @param user Type with user-defined procedures.
+     !! @param chkp Checkpoint for restarts.
+     !! @param ulag, vlag, wlag The lagged velocity fields.
+     !! @param time_scheme The time scheme controller.
+     !! @param rho The density field.
+     module subroutine scalar_scheme_factory(object, msh, coef, gs, params, &
+          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+       class(scalar_scheme_t), allocatable, intent(inout) :: object
+       type(mesh_t), target, intent(in) :: msh
+       type(coef_t), target, intent(in) :: coef
+       type(gs_t), target, intent(inout) :: gs
+       type(json_file), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: numerics_params
+       type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
+       type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+       type(time_scheme_controller_t), target, intent(in) :: time_scheme
+       type(field_t), target, intent(in) :: rho
+     end subroutine scalar_scheme_factory
+  end interface
+
+  interface
+     !> Scalar scheme allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the scalar scheme type.
+     module subroutine scalar_scheme_allocator(object, type_name)
+       class(scalar_scheme_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in):: type_name
+     end subroutine scalar_scheme_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine scalar_scheme_allocate(obj)
+       import scalar_scheme_t
+       class(scalar_scheme_t), allocatable, intent(inout) :: obj
+     end subroutine scalar_scheme_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_scalar_scheme(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(scalar_scheme_allocate), pointer, intent(in) :: allocator
+     end subroutine register_scalar_scheme
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type scalar_scheme_allocator_entry
+     character(len=20) :: type_name
+     procedure(scalar_scheme_allocate), pointer, nopass :: allocator
+  end type scalar_scheme_allocator_entry
+
+  !> Registry of allocators for user-defined types
+  type(scalar_scheme_allocator_entry), allocatable, private :: &
+       scalar_scheme_registry(:)
+
+  !> The size of the `scalar_scheme_registry`
+  integer, private :: scalar_scheme_registry_size = 0
 
 contains
 
@@ -635,5 +724,61 @@ contains
             DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine scalar_scheme_set_material_properties
+
+  ! ========================================================================== !
+  ! Scalar scheme wrapper type methods
+
+  !> Constructor. Initializes the object.
+  subroutine scalar_scheme_wrapper_init(this, msh, coef, gs, params, &
+       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+    class(scalar_scheme_wrapper_t), intent(inout) :: this
+    type(mesh_t), target, intent(in) :: msh
+    type(coef_t), target, intent(in) :: coef
+    type(gs_t), target, intent(inout) :: gs
+    type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
+    type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
+    type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+    type(time_scheme_controller_t), target, intent(in) :: time_scheme
+    type(field_t), target, intent(in) :: rho
+
+    call this%free()
+    call scalar_scheme_factory(this%scalar, msh, coef, gs, params, &
+         numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+
+  end subroutine scalar_scheme_wrapper_init
+
+  !> Destructor. Just deallocates the pointer.
+  subroutine scalar_scheme_wrapper_free(this)
+    class(scalar_scheme_wrapper_t), intent(inout) :: this
+
+    if (allocated(this%scalar)) then
+       call this%scalar%free()
+       deallocate(this%scalar)
+    end if
+
+  end subroutine scalar_scheme_wrapper_free
+
+  !> Move assignment operator for the wrapper, needed for storing schemes
+  !! in lists and arrays.
+  !! @param this The wrapper to move to.
+  !! @param other The other wrapper to move from. Will be deallocated.
+  subroutine scalar_scheme_wrapper_move_from(this, other)
+    class(scalar_scheme_wrapper_t), intent(inout) :: this
+    class(scalar_scheme_wrapper_t), intent(inout) :: other
+
+    ! Move the pointer
+    call move_alloc(other%scalar, this%scalar)
+
+  end subroutine scalar_scheme_wrapper_move_from
+
+  !> Return allocation status.
+  !! @param this The wrapper to check.
+  function scalar_scheme_wrapper_is_allocated(this) result(is_alloc)
+    class(scalar_scheme_wrapper_t), intent(in) :: this
+    logical :: is_alloc
+    is_alloc = allocated(this%scalar)
+  end function scalar_scheme_wrapper_is_allocated
 
 end module scalar_scheme

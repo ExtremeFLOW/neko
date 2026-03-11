@@ -87,6 +87,7 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   Nvidia:
+    if: ${{ github.event_name != 'pull_request' }}
     name: Nvidia
     needs:
       - prepare
@@ -96,48 +97,7 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   # ========================================================================== #
-  # ReFrame and bencharks
-
-#  ReFrame:
-#    name: ReFrame
-#    needs:
-#      - prepare
-#      - depend
-#      - GNU
-#    uses: ./.github/workflows/check_reframe.yml
-#    with:
-#      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
-
-  # # ========================================================================== #
-  # # Upload the badges
-
-  # upload-badges:
-  #   name: "Upload badges"
-  #   runs-on: ubuntu-20.04
-  #   needs:
-  #     - linting
-
-  #   if: ${{ !cancelled() }} &&
-  #       ${{ needs.linting.result == 'success' }} &&
-
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-
-  #     - name: Download artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         pattern: "*-badge"
-  #         path: doc/media/
-  #         merge-multiple: true
-
-  #     - name: Push badges
-  #       uses: EndBug/add-and-commit@v9
-  #       with:
-  #         add: "doc/media/*-badge.svg"
-  #         message: "Add badges"
-  #         author_name: "GitHub Actions"
-  #         default_author: github_actor
+  # Determine if the PR is ready
 
   check_complete:
     name: Develop PR Ready
@@ -150,16 +110,15 @@ jobs:
       - GNU
       - Intel
       - Nvidia
-#      - ReFrame
+
     runs-on: ubuntu-latest
     env:
       draft_status: ${{ needs.prepare.result }}
       flint_status: ${{ needs.linting.result }}
       format_status: ${{ needs.formatting.result }}
       gnu_status: ${{ needs.GNU.result }}
-      inel_status: ${{ needs.Intel.result }}
-#      nvidia_status: ${{ needs.Nvidia.result }}
-#      reframe_status: ${{ needs.ReFrame.result }}
+      intel_status: ${{ needs.Intel.result }}
+      nvidia_status: ${{ needs.Nvidia.result }}
 
     steps:
       - name: All checks passed
@@ -186,11 +145,12 @@ jobs:
             success=false
           fi
 
-          if [ "$inel_status" != "success" ]; then
-            fail+=("\t- Intel check: $inel_status")
+          if [ "$intel_status" != "success" ]; then
+            fail+=("\t- Intel check: $intel_status")
             success=false
           fi
 
+          # NVidia check is skipped since the compiler is broken.
           # if [ "$nvidia_status" != "success" ]; then
           #   fail+=("\t- NVIDIA check: $nvidia_status")
           #   success=false

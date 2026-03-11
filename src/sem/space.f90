@@ -533,7 +533,7 @@ contains
 
     real(kind=rp) :: L(0:Xh%lx-1)
     real(kind=rp) :: delta(Xh%lx)
-    integer :: i, kj, j, j2, kk
+    integer :: i, kj, j, kk
     type(matrix_t) :: m
     logical :: scaled = .false.
 

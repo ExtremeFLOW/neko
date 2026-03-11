@@ -81,7 +81,30 @@ module field
   !> field_ptr_t, To easily obtain a pointer to a field
   type, public :: field_ptr_t
      type(field_t), pointer :: ptr => null()
+   contains
+     !> Constructor. Just assigns the pointer.
+     procedure, pass(this) :: init => field_ptr_init
+     !> Destructor. Just nullifies the pointer.
+     procedure, pass(this) :: free => field_ptr_free
   end type field_ptr_t
+
+  !> field_wrapper_t, used to wrap an allocated field for use in a field list
+  type, public :: field_wrapper_t
+     type(field_t), pointer :: field => null()
+   contains
+     !> Constructor. Allocates a field and assigns the pointer.
+     generic :: init => init_field, init_internal_dof, init_external_dof
+     !> Initialize a field wrapper with an allocated field
+     procedure, pass(this) :: init_field => field_wrapper_init_field
+     !> Initialize a field wrapper with an internal dofmap
+     procedure, pass(this) :: init_internal_dof => &
+          field_wrapper_init_internal_dof
+     !> Initialize a field wrapper with an external dofmap
+     procedure, pass(this) :: init_external_dof => &
+          field_wrapper_init_external_dof
+     !> Destructor. Frees the field and nullifies the pointer.
+     procedure, pass(this) :: free => field_wrapper_free
+  end type field_wrapper_t
 
 contains
 
@@ -258,7 +281,6 @@ contains
   subroutine field_assign_scalar(this, a)
     class(field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: a
-    integer :: i, j, k, l
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%x_d, a, this%size())
@@ -305,5 +327,73 @@ contains
 
     size = this%dof%size()
   end function field_size
+
+  ! ========================================================================== !
+  ! Field pointer type subroutines
+
+  subroutine field_ptr_init(this, ptr)
+    class(field_ptr_t), intent(inout) :: this
+    type(field_t), target, intent(in) :: ptr
+
+    call this%free()
+
+    this%ptr => ptr
+
+  end subroutine field_ptr_init
+
+  subroutine field_ptr_free(this)
+    class(field_ptr_t), intent(inout) :: this
+
+    if (associated(this%ptr)) then
+       nullify(this%ptr)
+    end if
+
+  end subroutine field_ptr_free
+
+  ! ========================================================================== !
+  ! Field wrapper type subroutines
+
+  subroutine field_wrapper_init_field(this, f)
+    class(field_wrapper_t), intent(inout) :: this
+    type(field_t), intent(in) :: f
+
+    call this%free()
+    allocate(this%field)
+    this%field = f
+
+  end subroutine field_wrapper_init_field
+
+  subroutine field_wrapper_init_internal_dof(this, msh, space, fld_name)
+    class(field_wrapper_t), intent(inout) :: this
+    type(mesh_t), target, intent(in) :: msh
+    type(space_t), target, intent(in) :: space
+    character(len=*), optional :: fld_name
+
+    call this%free()
+    allocate(this%field)
+    call this%field%init(msh, space, fld_name)
+
+  end subroutine field_wrapper_init_internal_dof
+
+  subroutine field_wrapper_init_external_dof(this, dof, fld_name)
+    class(field_wrapper_t), intent(inout) :: this
+    type(dofmap_t), target, intent(in) :: dof
+    character(len=*), optional :: fld_name
+
+    call this%free()
+    allocate(this%field)
+    call this%field%init(dof, fld_name)
+
+  end subroutine field_wrapper_init_external_dof
+
+  subroutine field_wrapper_free(this)
+    class(field_wrapper_t), intent(inout) :: this
+
+    if (associated(this%field)) then
+       call this%field%free()
+       deallocate(this%field)
+    end if
+
+  end subroutine field_wrapper_free
 
 end module field

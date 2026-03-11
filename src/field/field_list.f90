@@ -117,12 +117,18 @@ contains
     type(field_ptr_t), allocatable :: tmp(:)
     integer :: len
 
+    if (.not. allocated(this%items)) then
+       allocate(this%items(1))
+       call this%items(1)%init(f)
+       return
+    end if
+
     len = size(this%items)
 
     allocate(tmp(len+1))
     tmp(1:len) = this%items
     call move_alloc(tmp, this%items)
-    this%items(len+1)%ptr => f
+    call this%items(len+1)%init(f)
 
   end subroutine field_list_append
 
@@ -134,10 +140,7 @@ contains
     if (allocated(this%items)) then
        n_fields = this%size()
        do i = 1, n_fields
-          if (associated(this%items(i)%ptr)) then
-             call this%items(i)%ptr%free()
-          end if
-          nullify(this%items(i)%ptr)
+          call this%items(i)%free()
        end do
        deallocate(this%items)
     end if
@@ -180,7 +183,8 @@ contains
     integer, intent(in) :: i
     type(field_t), pointer, intent(in) :: ptr
 
-    this%items(i)%ptr => ptr
+    call this%items(i)%init(ptr)
+
   end subroutine field_list_assign_to_ptr
 
   !> Point item at a given index.
@@ -191,7 +195,7 @@ contains
     integer, intent(in) :: i
     type(field_ptr_t), target, intent(in) :: ptr
 
-    this%items(i)%ptr => ptr%ptr
+    call this%items(i)%init(ptr%ptr)
   end subroutine field_list_assign_to_field_ptr
 
   !> Point item at a given index.
@@ -202,7 +206,7 @@ contains
     integer, intent(in) :: i
     type(field_t), target, intent(in) :: fld
 
-    this%items(i)%ptr => fld
+    call this%items(i)%init(fld)
   end subroutine field_list_assign_to_field
 
   !> Get the the dofmap for item `i`.

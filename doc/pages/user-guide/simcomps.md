@@ -45,7 +45,11 @@ in Neko. The list will be updated as new simcomps are added.
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the
   [statistics guide](@ref statistics-guide)
+- Fluid SGS statistics simcomp, "fluid_sgs_stats", for more details see the
+  [statistics guide](@ref statistics-guide)
 - Scalar statistics simcomp, "scalar_stats", for more details see the
+  [statistics guide](@ref statistics-guide)
+- Scalar SGS statistics simcomp, "scalar_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
 - User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
@@ -176,9 +180,11 @@ value in the brackets corresponds to the choice of the user keyword.
  ~~~~~~~~~~~~~~~
 
 ### lambda2 {#simcomp_lambda2}
-Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
-This means that \f$ \lambda_2 \f$ can be found in the temperature field in then fld files if running without a scalar
-and s1 if neko is run with one scalar. To output in a different `fld` series, use the `"output_filename"` parameter.
+Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal
+output files as the first unused field. This means that \f$ \lambda_2 \f$ can be
+found in the temperature field in then fld files if running without a scalar and
+s1 if neko is run with one scalar. To output in a different `fld` series, use
+the `"output_filename"` parameter.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -192,7 +198,8 @@ Probes selected solution fields at a list of points. This list of points can be
 generated in a variety of ways, but the most common is to use the `csv` type.
 
 Mandatory fields for this simcomp are:
-- `fields`: a list of fields to probe. Should be a list of field names that exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
+- `fields`: a list of fields to probe. Should be a list of field names that
+  exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
 - `output_file`: Name of the file in which to output the probed fields. Must be
   `.csv`.
 
@@ -322,10 +329,11 @@ irrelevant.
 
 
 ### force_torque {#simcomp_force_torque}
-Computes the force on a specified zone and the corresponding torque
-around a center point. The compute control specifies how often they are
-computed and printed into the log. Scale specifies a scale for the computed
-force/torque. Conventient if one wants to scale with the area or similar. long_print is default false and can be set to true to print all digits in the calculation.
+Computes the force on a specified zone and the corresponding torque around a
+center point. The compute control specifies how often they are computed and
+printed into the log. Scale specifies a scale for the computed force/torque.
+Conventient if one wants to scale with the area or similar. long_print is
+default false and can be set to true to print all digits in the calculation.
 Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
 
  ~~~~~~~~~~~~~~~{.json}
@@ -356,21 +364,50 @@ keywords:
     - `c_s`: The Smagorinsky constant, defaults to 0.17.
   - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
     - `test_filter`: The test filter for the dynamic Smagorinsky model
-  - `vreman`: The Vreman model. Configured by the following additional keyword:
+  - `vreman`: The Vreman model. Configured by the following additional keywords:
     - `c`: The model constant, defaults to 0.07.
+    - `buoyancy_correction`: Whether or not to apply a correction to the eddy
+      viscosity field based on the local Richardson number as described by Moeng
+      and Sullivan 2015 (http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2).
+      Defaults to `false`.
+      - `true`: Add a buoyancy correction according to the following parameters:
+        - `scalar_field`: Name of the scalar field based on which the buoyancy
+          effect is computed.
+        - `Ri_c`: The critical Richardson number.
+        - `reference_temperature`: The reference temperature for computation of
+          the Richardson number.
+        - `g`: The gravity vector.
+      - `false`: Compute the standard Vreman eddy viscosity.
   - `sigma`: The Sigma model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
     - `c_w`: The WALE constant, defaults to 0.55.
-- `les_delta`: Selects the way to compute the LES filter length scale. Currently three
-  alternatives are provided and the default one is `pointwise` if
-  nothing is specified:
+  - `deardorff`: The Deardorff model dedicated for atmospheric boundary-layer
+    applications. Please find the usage in `examples/shear_convection_ABL`.
+    Configured by the following additional keyword:
+    - `c_k`: The model constant, defaults to 0.1.
+    - `T0`: The reference temperature.
+    - `g`: The gravity vector.
+    - `temperature_field`: The field name of the temperature field,
+      defaults to `temperature`.
+    - `TKE_field`: The field name of the turbulent kinetic energy (TKE) field,
+      defaults to `TKE`.
+    - `temperature_alphat_field`: The field name of the eddy diffusivity field
+      for the temperature equation, defaults to `temperature_alphat`.
+    - `TKE_alphat_field`: The field name of the eddy diffusivity field
+      for the TKE equation, defaults to `TKE_alphat`.
+    - `TKE_source_field`: The field name of the source terms in the TKE equation
+      including shear production, buoyancy contribution and dissipation,
+      defaults to `TKE_source`.
+- `les_delta`: Selects the way to compute the LES filter length scale. Currently
+  three alternatives are provided and the default one is `pointwise` if nothing
+  is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
-  - `elementwise_average`: Computes a single value for the whole element based on the
-    average spacing of the GLL nodes within the element.
-  - `elementwise_max`: Computes a single value for the whole element based on the
-    maximum spacing of the GLL nodes within the element.
-  The `les_delta` field is added to the registry and written to the .fld files.
+  - `elementwise_average`: Computes a single value for the whole element based
+    on the average spacing of the GLL nodes within the element.
+  - `elementwise_max`: Computes a single value for the whole element based on
+    the maximum spacing of the GLL nodes within the element. The `les_delta`
+  field is added to the registry and written to the .fld files.
 - `nut_field`: The name of the SGS eddy viscosity field added to the registry.
   Defaults to `nut`. This allows to have two different SGS models active, saved
   to different fields. For example, one for the scalar and one to the fluid.
@@ -392,8 +429,8 @@ keywords:
  }
  ~~~~~~~~~~~~~~~
 
- Please also note that for the dynamic Smagorinsky model, one needs to specify the
- test filter in the following way for the Boyd filter as the test filter
+ Please also note that for the dynamic Smagorinsky model, one needs to specify
+ the test filter in the following way for the Boyd filter as the test filter
  (one could also use "nonBoyd" as the option):
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -440,11 +477,20 @@ keywords:
  }
  ~~~~~~~~~~~~~~~
 
+The statistics fields created by this simcomp are accessible from the
+neko registry and retrievable under the following naming convention:
+`name_in_registry = name_of_simcomp + "/mean_" + name_of_field`. Unless
+specified, the name of the simcomp will default to `user_stats`.
+For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then
+the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added
+to the registry.
+
 ### Spectral error indicator {#simcomp_speri}
 
-Computes the spectral error indicator as developed by Mavriplis (1989) (https://doi.org/10.1007/978-3-663-13975-1_34).
-This is an a posteriori error measure, based on the local properties of
-the spectral solution. This method formally only gives an indication of the error.
+Computes the spectral error indicator as developed by Mavriplis (1989)
+(https://doi.org/10.1007/978-3-663-13975-1_34). This is an a posteriori error
+measure, based on the local properties of the spectral solution. This method
+formally only gives an indication of the error.
 
 The spectral error indicator is computed for the 3 velocity fields, resulting
 in 3 additional fields appended to the field files.

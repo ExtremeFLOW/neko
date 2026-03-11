@@ -219,6 +219,9 @@ contains
     integer :: i
     type(field_t), pointer :: field_to_avg
 
+    character(len=1024) :: unique_name
+    unique_name = name // "/"
+
     this%name = name
     this%start_time = start_time
     this%time = start_time
@@ -227,7 +230,7 @@ contains
     allocate(this%mean_fields(this%n_avg_fields))
     do i = 1, this%n_avg_fields
        field_to_avg => neko_registry%get_field(trim(this%field_names(i)))
-       call this%mean_fields(i)%init(field_to_avg)
+       call this%mean_fields(i)%init(field_to_avg, trim(unique_name) // "mean_" // trim(this%field_names(i)))
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &

@@ -33,12 +33,10 @@
 !> Defines a matrix
 module matrix
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : sub3, chsign, add3, cmult2, cadd2
   use num_types, only : rp, xp
   use device, only : device_map, device_free, device_memcpy, &
        device_deassociate, device_sync
-  use device_math, only : device_copy, device_cfill, device_cmult, &
-       device_sub3, device_cmult2, device_add3, device_cadd2
+  use device_math, only : device_copy, device_cfill
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none

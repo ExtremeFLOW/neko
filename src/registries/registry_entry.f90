@@ -45,9 +45,9 @@ module registry_entry
 
   type, public :: registry_entry_t
      !> Name of the registry entry
-     character(len=:), private, allocatable :: name
-     !> Type of the registry entry; must be supproted.
-     character(len=:), private, allocatable :: type
+     character(len=80), private :: name = ""
+     !> Type of the registry entry; must be supported.
+     character(len=80), private :: type = ""
      !> Whether the entry is allocated
      logical, private :: allocated = .false.
 
@@ -77,6 +77,8 @@ module registry_entry
      procedure, pass(this) :: get_matrix
      procedure, pass(this) :: get_field
      procedure, pass(this) :: is_allocated
+
+     procedure, pass(this) :: move_from => move_from_registry_entry
   end type registry_entry_t
 
 contains
@@ -211,8 +213,8 @@ contains
     this%real_scalar = 0.0_rp
     this%integer_scalar = 0
 
-    if (allocated(this%name)) deallocate(this%name)
-    if (allocated(this%type)) deallocate(this%type)
+    this%name = ""
+    this%type = ""
     this%allocated = .false.
 
   end subroutine free_register
@@ -293,4 +295,39 @@ contains
     scalar_ptr => this%integer_scalar
   end function get_integer_scalar
 
+  !> Move a registry entry from another entry.
+  subroutine move_from_registry_entry(this, source)
+    class(registry_entry_t), intent(inout) :: this
+    class(registry_entry_t), intent(inout) :: source
+
+    if (.not. source%is_allocated()) return
+    call this%free()
+
+    this%name = source%name
+    this%type = source%type
+    this%allocated = source%allocated
+
+    select case (trim(this%type))
+    case ('real_scalar')
+       this%real_scalar = source%real_scalar
+    case ('integer_scalar')
+       this%integer_scalar = source%integer_scalar
+    case ('vector')
+       this%vector_ptr => source%vector_ptr
+       nullify(source%vector_ptr)
+    case ('matrix')
+       this%matrix_ptr => source%matrix_ptr
+       nullify(source%matrix_ptr)
+    case ('field')
+       this%field_ptr => source%field_ptr
+       nullify(source%field_ptr)
+    case default
+       call neko_error("move_from_registry_entry: " // &
+            "Unsupported registry entry type: " // trim(this%type))
+    end select
+
+    ! Free the source entry after moving
+    call source%free()
+
+  end subroutine move_from_registry_entry
 end module registry_entry

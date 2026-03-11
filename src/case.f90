@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -360,22 +360,23 @@ contains
                'case.scalar.initial_condition', json_subdict)
 
           if (trim(string_val) .ne. 'user') then
-             if (trim(this%scalars%scalar_fields(1)%name) .eq. 'temperature') then
-                call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
-                     this%scalars%scalar_fields(1)%c_Xh, &
-                     this%scalars%scalar_fields(1)%gs_Xh, &
+             if (trim(this%scalars%scalar_fields(1)%scalar%name) .eq. &
+                  'temperature') then
+                call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%s, &
+                     this%scalars%scalar_fields(1)%scalar%c_Xh, &
+                     this%scalars%scalar_fields(1)%scalar%gs_Xh, &
                      string_val, json_subdict, 0)
              else
-                call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
-                     this%scalars%scalar_fields(1)%c_Xh, &
-                     this%scalars%scalar_fields(1)%gs_Xh, &
+                call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%s, &
+                     this%scalars%scalar_fields(1)%scalar%c_Xh, &
+                     this%scalars%scalar_fields(1)%scalar%gs_Xh, &
                      string_val, json_subdict, 1)
              end if
           else
-             call set_scalar_ic(this%scalars%scalar_fields(1)%name, &
-                  this%scalars%scalar_fields(1)%s, &
-                  this%scalars%scalar_fields(1)%c_Xh, &
-                  this%scalars%scalar_fields(1)%gs_Xh, &
+             call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%name, &
+                  this%scalars%scalar_fields(1)%scalar%s, &
+                  this%scalars%scalar_fields(1)%scalar%c_Xh, &
+                  this%scalars%scalar_fields(1)%scalar%gs_Xh, &
                   this%user%initial_conditions)
           end if
 
@@ -389,32 +390,33 @@ contains
                   json_subdict)
 
              if (trim(string_val) .ne. 'user') then
-                if (trim(this%scalars%scalar_fields(i)%name) .eq. 'temperature') then
-                   call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                        this%scalars%scalar_fields(i)%c_Xh, &
-                        this%scalars%scalar_fields(i)%gs_Xh, &
+                if (trim(this%scalars%scalar_fields(i)%scalar%name) .eq. &
+                     'temperature') then
+                   call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
+                        this%scalars%scalar_fields(i)%scalar%c_Xh, &
+                        this%scalars%scalar_fields(i)%scalar%gs_Xh, &
                         string_val, json_subdict, 0)
                    temperature_found = .true.
                 else
                    if (temperature_found) then
                       ! if temperature is found, other scalars start from index 1
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                           this%scalars%scalar_fields(i)%c_Xh, &
-                           this%scalars%scalar_fields(i)%gs_Xh, &
+                      call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
+                           this%scalars%scalar_fields(i)%scalar%c_Xh, &
+                           this%scalars%scalar_fields(i)%scalar%gs_Xh, &
                            string_val, json_subdict, i - 1)
                    else
                       ! if temperature is not found, other scalars start from index 0
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                           this%scalars%scalar_fields(i)%c_Xh, &
-                           this%scalars%scalar_fields(i)%gs_Xh, &
+                      call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
+                           this%scalars%scalar_fields(i)%scalar%c_Xh, &
+                           this%scalars%scalar_fields(i)%scalar%gs_Xh, &
                            string_val, json_subdict, i)
                    end if
                 end if
              else
-                call set_scalar_ic(this%scalars%scalar_fields(i)%name,&
-                     this%scalars%scalar_fields(i)%s, &
-                     this%scalars%scalar_fields(i)%c_Xh, &
-                     this%scalars%scalar_fields(i)%gs_Xh, &
+                call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%name,&
+                     this%scalars%scalar_fields(i)%scalar%s, &
+                     this%scalars%scalar_fields(i)%scalar%c_Xh, &
+                     this%scalars%scalar_fields(i)%scalar%gs_Xh, &
                      this%user%initial_conditions)
              end if
           end do
@@ -495,8 +497,8 @@ contains
     call json_get_or_default(this%params, 'case.fluid.output_format', &
          file_format, 'fld')
     call json_get_or_default(this%params, &
-                             'case.fluid.output_mesh_in_all_files', &
-                             logical_val, .false.)
+         'case.fluid.output_mesh_in_all_files', &
+         logical_val, .false.)
     call this%output_controller%init(this%time%end_time)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
@@ -510,19 +512,19 @@ contains
             always_write_mesh = logical_val)
     end if
 
-    call json_get_or_default(this%params, 'case.fluid.output_control',&
-         string_val, 'org')
+    call json_get(this%params, 'case.fluid.output_control', string_val)
 
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
-       call json_get(this%params, 'case.nsamples', integer_val)
+       call json_get_or_lookup(this%params, 'case.nsamples', integer_val)
        real_val = real(integer_val, kind=rp)
        call this%output_controller%add(this%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
        call this%output_controller%add(this%f_out, 0.0_rp, 'never')
     else if (trim(string_val) .eq. 'tsteps' .or. &
          trim(string_val) .eq. 'nsamples') then
-       call json_get(this%params, 'case.fluid.output_value', integer_val)
+       call json_get_or_lookup(this%params, 'case.fluid.output_value', &
+            integer_val)
        real_val = real(integer_val, kind=rp)
        call this%output_controller%add(this%f_out, real_val, string_val)
     else if (trim(string_val) .eq. 'simulationtime') then
@@ -536,8 +538,7 @@ contains
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
-    call json_get_or_default(this%params, 'case.output_checkpoints',&
-         logical_val, .true.)
+    call json_get(this%params, 'case.output_checkpoints', logical_val)
     if (logical_val) then
        call json_get_or_default(this%params, 'case.checkpoint_filename', &
             name, "fluid")
@@ -545,10 +546,20 @@ contains
             string_val, "chkp")
        call this%chkp_out%init(this%chkp, name = name,&
             path = this%output_directory, fmt = trim(string_val))
-       call json_get_or_default(this%params, 'case.checkpoint_control', &
-            string_val, "simulationtime")
-       call json_get_or_lookup_or_default(this%params, &
-            'case.checkpoint_value', real_val, 1e10_rp)
+       call json_get(this%params, 'case.checkpoint_control', &
+            string_val)
+       if (trim(string_val) .eq. 'tsteps' .or. &
+            trim(string_val) .eq. 'nsamples') then
+          call json_get_or_lookup(this%params, 'case.checkpoint_value', &
+               integer_val)
+          real_val = real(integer_val, kind=rp)
+       else if (trim(string_val) .eq. 'simulationtime') then
+          call json_get_or_lookup(this%params, 'case.checkpoint_value', &
+               real_val)
+       else if (trim(string_val) .eq. 'never') then
+          real_val = 0.0_rp
+       end if
+
        call this%output_controller%add(this%chkp_out, real_val, string_val, &
             NEKO_EPS)
     end if

@@ -1,6 +1,47 @@
 # Changelog
 
 ## Develop
+
+- Add Deardorff SGS model.
+- Add the optional `expected_size` argument to `json_get_*_array` 
+  to throw an error if the parsed array size is incorrect.
+- Fixed checkpoint JSON parameter parsing and their documentation. The
+  `output_checkpoints` parameter no longer has a default value.
+- Add runtime statistics for subgrid-scale contribution to the anisotropic part
+  of the residual stresses.
+- Introduced `import_fields`: a subroutine to read and import fld data,
+  with interpolation capabilities. 
+- Added `vector_list_t` and `name` to `vector_t`.
+- Rework hash table iterators, significantly faster (O(tsize) => O(entries)
+- Remove redundant directory in `site-packages` when installing pyneko
+- Added options to used masked parts of the domain when performing interpolation
+- Update the simcomp wrappers to better handle allocation and deallocation.
+- Added a factory subroutine for scalar schemes, allowing for more flexible
+  creation of scalar scheme objects based on JSON input.
+- Fixed a bug in the scalar scheme handler where polymorphic objects were not
+  being handled correctly.
+- Support for user-defined scalar schemes are now added.
+- Added source term for direct forcing from a field defined in the registry.
+- Add description of the `fld` file format to the documentation.
+- Added possibility to assign names to boundary conditions in the case file. The
+  `bc_list_t` now supports item retrieval by name or zone_index.
+- Runtime statistics fields are now retrievable from the registry, for both
+  fluid_stats and user_stats. The naming convention of the fields in the
+  registry is `name_of_simcomp + "/mean_" + name_of_field`.
+- Updated field types with a wrapper and ensure lifetime management of field
+  data in field lists and arrays.
+- Updated Developer Patterns documentation with new information on how to manage
+  pointers and lists of complex objects.
+- Added cache cleanup job for CI workflows upon PR closure.
+- Updated compiler check workflows to run on release branches and master.
+- Removed commented-out workflow sections.
+- Added compiler support section to README.
+- Restrict the `setuptools` version to be less than 81, due to a breaking change
+  in that version for flinter.
+- Added the `full_elements` option to point_zones. Allows including all points
+  in an element in the mask.
+- *BREAKING* The sign of the Boussinesq source term is fixed such that the input
+  gravity vector could be prescribed correctly.
 - Added an option for writing the mesh in every output field file.
 - *BREAKING* All simcomps now have a `name` keyword in the case file. A default
   name is assigned, but all `name`s must be unique. If you have two or more
@@ -30,6 +71,7 @@
   pre-existing names.
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
+- Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use

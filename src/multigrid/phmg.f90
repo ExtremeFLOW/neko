@@ -120,7 +120,7 @@ contains
     integer, allocatable :: pcrs_sched(:)
 
     call json_get_or_default(phmg_params, 'smoother_iterations', &
-         smoother_itrs, 10)
+         smoother_itrs, 3)
 
     call json_get_or_default(phmg_params, 'smoother_cheby_acc', &
          cheby_acc, "jacobi")
@@ -132,7 +132,7 @@ contains
          crs_tamg_itrs, 1)
 
     call json_get_or_default(phmg_params, 'coarse_grid.cheby_degree', &
-         crs_tamg_cheby_degree, 5)
+         crs_tamg_cheby_degree, 4)
 
     if (phmg_params%valid_path('pcoarsening_schedule')) then
        call json_get(phmg_params, 'pcoarsening_schedule', pcrs_sched)

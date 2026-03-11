@@ -134,8 +134,8 @@ contains
     real(kind=rp), intent(in) :: A(1, nu), Bt(nu, 1), Ct(nu, 1)
     real(kind=rp) :: work(nu**2), work2(nu)
     real(kind=rp) :: tmp
-    integer :: i, j, k, l, nunu
-    integer :: ii, jj
+    integer :: i, j, k, nunu
+    integer :: jj
     nunu = nu * nu
 
     do j = 1, nunu
@@ -170,8 +170,7 @@ contains
     real(kind=rp), intent(in) :: u(n*n*n)
     real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -201,8 +200,7 @@ contains
     real(kind=rp), intent(in) :: u(n*n*n)
     real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -238,8 +236,7 @@ contains
     real(kind=rp), intent(in) :: u(n*n*n)
     real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -283,8 +280,7 @@ contains
     real(kind=rp), intent(in) :: u(n*n*n)
     real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -333,8 +329,7 @@ contains
     real(kind=rp), intent(in) :: u(n*n*n)
     real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &

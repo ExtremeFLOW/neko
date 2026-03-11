@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,15 +38,13 @@ module scalar_stats
   use device_math, only : device_col3, device_col2, device_cfill, &
        device_invcol2, device_addcol3
   use num_types, only : rp
-  use math, only : invers2, col2, addcol3, col3, copy, subcol3
+  use math, only : invers2, col2, addcol3, col3
   use operators, only : opgrad
   use coefs, only : coef_t
   use field, only : field_t
   use field_list, only : field_list_t
   use stats_quant, only : stats_quant_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_warning
   implicit none
   private
 
@@ -163,11 +161,15 @@ contains
   !! @param p The pressure.
   !! @param set Specifies the subset of the statistics to be collected.
   !! Optional. Either `basic` or `full`, defaults to `full`.
-  subroutine scalar_stats_init(this, coef, s, u, v, w, p, set)
+  subroutine scalar_stats_init(this, coef, s, u, v, w, p, set, name)
     class(scalar_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(in) :: s, u, v, w, p
     character(*), intent(in), optional :: set
+    character(*), intent(in), optional :: name
+
+    character(len=1024) :: unique_name
+    unique_name = ""
 
     call this%free()
     this%coef => coef
@@ -188,18 +190,24 @@ contains
        this%n_stats = 42
     end if
 
+    ! If a name is specified and is not the default name, add it
+    ! as a prefix to the mean field names, followed by a "/".
+    if (present(name) .and. trim(name) .ne. "fluid_stats") then
+       unique_name = name // "/"
+    end if
+
     ! Initialize work fields
     call this%stats_work%init(this%u%dof, 'stats')
     call this%stats_ss%init(this%u%dof, 'ss temp')
 
     ! Initialize mean fields
-    call this%s_mean%init(this%s)
+    call this%s_mean%init(this%s, trim(unique_name) // "mean_s")
 
-    call this%us%init(this%stats_work, 'us')
-    call this%vs%init(this%stats_work, 'vs')
-    call this%ws%init(this%stats_work, 'ws')
+    call this%us%init(this%stats_work, trim(unique_name) // 'us')
+    call this%vs%init(this%stats_work, trim(unique_name) // 'vs')
+    call this%ws%init(this%stats_work, trim(unique_name) // 'ws')
 
-    call this%ss%init(this%stats_ss, 'ss')
+    call this%ss%init(this%stats_ss, trim(unique_name) // 'ss')
 
     if (this%n_stats .eq. 42) then
        ! Initialize req. work fields
@@ -221,50 +229,48 @@ contains
        call this%dwdz%init(this%u%dof, 'dwdz')
 
        ! Initialize req. mean fields
-       call this%sss%init(this%stats_work, 'sss')
-       call this%ssss%init(this%stats_work, 'ssss')
+       call this%sss%init(this%stats_work, trim(unique_name) // 'sss')
+       call this%ssss%init(this%stats_work, trim(unique_name) // 'ssss')
 
-       call this%uss%init(this%stats_work, 'uss')
-       call this%vss%init(this%stats_work, 'vss')
-       call this%wss%init(this%stats_work, 'wss')
+       call this%uss%init(this%stats_work, trim(unique_name) // 'uss')
+       call this%vss%init(this%stats_work, trim(unique_name) // 'vss')
+       call this%wss%init(this%stats_work, trim(unique_name) // 'wss')
+       call this%uus%init(this%stats_work, trim(unique_name) // 'uus')
+       call this%vvs%init(this%stats_work, trim(unique_name) // 'vvs')
+       call this%wws%init(this%stats_work, trim(unique_name) // 'wws')
+       call this%uvs%init(this%stats_work, trim(unique_name) // 'uvs')
+       call this%uws%init(this%stats_work, trim(unique_name) // 'uws')
+       call this%vws%init(this%stats_work, trim(unique_name) // 'vws')
 
-       call this%uus%init(this%stats_work, 'uus')
-       call this%vvs%init(this%stats_work, 'vvs')
-       call this%wws%init(this%stats_work, 'wws')
-       call this%uvs%init(this%stats_work, 'uvs')
-       call this%uws%init(this%stats_work, 'uws')
-       call this%vws%init(this%stats_work, 'vws')
+       call this%ps%init(this%stats_work, trim(unique_name) // 'ps')
 
-       call this%ps%init(this%stats_work, 'ps')
+       call this%pdsdx%init(this%stats_work, trim(unique_name) // 'pdsdx')
+       call this%pdsdy%init(this%stats_work, trim(unique_name) // 'pdsdy')
+       call this%pdsdz%init(this%stats_work, trim(unique_name) // 'pdsdz')
 
-       call this%pdsdx%init(this%stats_work, 'pdsdx')
-       call this%pdsdy%init(this%stats_work, 'pdsdy')
-       call this%pdsdz%init(this%stats_work, 'pdsdz')
+       call this%udsdx%init(this%stats_work, trim(unique_name) // 'udsdx')
+       call this%udsdy%init(this%stats_work, trim(unique_name) // 'udsdy')
+       call this%udsdz%init(this%stats_work, trim(unique_name) // 'udsdz')
+       call this%vdsdx%init(this%stats_work, trim(unique_name) // 'vdsdx')
+       call this%vdsdy%init(this%stats_work, trim(unique_name) // 'vdsdy')
+       call this%vdsdz%init(this%stats_work, trim(unique_name) // 'vdsdz')
+       call this%wdsdx%init(this%stats_work, trim(unique_name) // 'wdsdx')
+       call this%wdsdy%init(this%stats_work, trim(unique_name) // 'wdsdy')
+       call this%wdsdz%init(this%stats_work, trim(unique_name) // 'wdsdz')
+       call this%sdudx%init(this%stats_work, trim(unique_name) // 'sdudx')
+       call this%sdudy%init(this%stats_work, trim(unique_name) // 'sdudy')
+       call this%sdudz%init(this%stats_work, trim(unique_name) // 'sdudz')
+       call this%sdvdx%init(this%stats_work, trim(unique_name) // 'sdvdx')
+       call this%sdvdy%init(this%stats_work, trim(unique_name) // 'sdvdy')
+       call this%sdvdz%init(this%stats_work, trim(unique_name) // 'sdvdz')
+       call this%sdwdx%init(this%stats_work, trim(unique_name) // 'sdwdx')
+       call this%sdwdy%init(this%stats_work, trim(unique_name) // 'sdwdy')
+       call this%sdwdz%init(this%stats_work, trim(unique_name) // 'sdwdz')
 
-       call this%udsdx%init(this%stats_work, 'udsdx')
-       call this%udsdy%init(this%stats_work, 'udsdy')
-       call this%udsdz%init(this%stats_work, 'udsdz')
-       call this%vdsdx%init(this%stats_work, 'vdsdx')
-       call this%vdsdy%init(this%stats_work, 'vdsdy')
-       call this%vdsdz%init(this%stats_work, 'vdsdz')
-       call this%wdsdx%init(this%stats_work, 'wdsdx')
-       call this%wdsdy%init(this%stats_work, 'wdsdy')
-       call this%wdsdz%init(this%stats_work, 'wdsdz')
-
-       call this%sdudx%init(this%stats_work, 'sdudx')
-       call this%sdudy%init(this%stats_work, 'sdudy')
-       call this%sdudz%init(this%stats_work, 'sdudz')
-       call this%sdvdx%init(this%stats_work, 'sdvdx')
-       call this%sdvdy%init(this%stats_work, 'sdvdy')
-       call this%sdvdz%init(this%stats_work, 'sdvdz')
-       call this%sdwdx%init(this%stats_work, 'sdwdx')
-       call this%sdwdy%init(this%stats_work, 'sdwdy')
-       call this%sdwdz%init(this%stats_work, 'sdwdz')
-
-       call this%ess%init(this%stats_work, 'ess')
-       call this%eus%init(this%stats_work, 'eus')
-       call this%evs%init(this%stats_work, 'evs')
-       call this%ews%init(this%stats_work, 'ews')
+       call this%ess%init(this%stats_work, trim(unique_name) // 'ess')
+       call this%eus%init(this%stats_work, trim(unique_name) // 'eus')
+       call this%evs%init(this%stats_work, trim(unique_name) // 'evs')
+       call this%ews%init(this%stats_work, trim(unique_name) // 'ews')
     end if
 
     allocate(this%stat_fields%items(this%n_stats))
