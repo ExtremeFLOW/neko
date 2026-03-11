@@ -86,6 +86,13 @@ contains
     this%amr_enabled = .false.
   end subroutine vtkhdf_file_enable_amr
 
+  !> Set the precision for VTKHDF output (single or double)
+  subroutine vtkhdf_file_set_precision(this, precision)
+    class(vtkhdf_file_t), intent(inout) :: this
+    integer, intent(in) :: precision
+    this%precision = precision
+  end subroutine vtkhdf_file_set_precision
+
 #ifdef HAVE_HDF5
   ! -------------------------------------------------------------------------- !
   ! HDF5 Required subroutines
@@ -1182,14 +1189,6 @@ contains
        call neko_error("Unsupported real type")
     end select
   end function vtkhdf_file_determine_real
-
-  !> Set the precision for VTKHDF output (single or double)
-  subroutine vtkhdf_file_set_precision(this, precision)
-    class(vtkhdf_file_t), intent(inout) :: this
-    integer, intent(in) :: precision
-    this%precision = precision
-  end subroutine vtkhdf_file_set_precision
-
 
 #else
   ! -------------------------------------------------------------------------- !
