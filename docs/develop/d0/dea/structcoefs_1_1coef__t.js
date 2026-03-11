@@ -1,7 +1,7 @@
 var structcoefs_1_1coef__t =
 [
-    [ "check_cyclic", "d0/dea/structcoefs_1_1coef__t.html#a1e054e5f6b33b028da82297beecfa3c2", null ],
     [ "free", "d0/dea/structcoefs_1_1coef__t.html#a714486d157f8ed0c92ef8bae1d5cbe9a", null ],
+    [ "generate_cyclic_bc", "d0/dea/structcoefs_1_1coef__t.html#a6e5ebf558e06a256b053fed15c5b8183", null ],
     [ "get_area", "d0/dea/structcoefs_1_1coef__t.html#a43eb396266aece863a75a300261eaf0f", null ],
     [ "get_normal", "d0/dea/structcoefs_1_1coef__t.html#a1316b268c1b39fdd516236666dac64d6", null ],
     [ "init", "d0/dea/structcoefs_1_1coef__t.html#a3c012fd8aac98ce623ce90eb957b7e60", null ],

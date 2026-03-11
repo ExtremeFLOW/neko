@@ -140,52 +140,10 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa8326a68db87fc07727e473a8e2dc484" id="r_aa8326a68db87fc07727e473a8e2dc484"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484">coef_generate_area_and_normal</a> (coef)</td></tr>
 <tr class="memdesc:aa8326a68db87fc07727e473a8e2dc484"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate facet area and surface normals.  <br /></td></tr>
 <tr class="separator:aa8326a68db87fc07727e473a8e2dc484"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aedfc2692ba7d456e06fbad958003f02c" id="r_aedfc2692ba7d456e06fbad958003f02c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#aedfc2692ba7d456e06fbad958003f02c">coef_generate_cyclic_bc</a> (coef)</td></tr>
-<tr class="separator:aedfc2692ba7d456e06fbad958003f02c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac53c34beb58eddab3f229f5f62dcf2e5" id="r_ac53c34beb58eddab3f229f5f62dcf2e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#ac53c34beb58eddab3f229f5f62dcf2e5">coef_check_cyclic</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="separator:ac53c34beb58eddab3f229f5f62dcf2e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7ebaa7ea8090c9d2e235ed4fd8e34fa" id="r_ae7ebaa7ea8090c9d2e235ed4fd8e34fa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coef_generate_cyclic_bc</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="separator:ae7ebaa7ea8090c9d2e235ed4fd8e34fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="ac53c34beb58eddab3f229f5f62dcf2e5" name="ac53c34beb58eddab3f229f5f62dcf2e5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac53c34beb58eddab3f229f5f62dcf2e5">&#9670;&#160;</a></span>coef_check_cyclic()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> coefs::coef_check_cyclic </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>ipass = 1 : DSS in Cartesian coordinates. If it yields 0,</p>
-<p>ipass = 2 : DSS in TNB basis (rotation around z-axis)</p>
-
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01277">1277</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d6/dbe/namespacecoefs_ac53c34beb58eddab3f229f5f62dcf2e5_cgraph.png" border="0" usemap="#ad6/dbe/namespacecoefs_ac53c34beb58eddab3f229f5f62dcf2e5_cgraph" alt=""/></div>
-<map name="ad6/dbe/namespacecoefs_ac53c34beb58eddab3f229f5f62dcf2e5_cgraph" id="ad6/dbe/namespacecoefs_ac53c34beb58eddab3f229f5f62dcf2e5_cgraph">
-<area shape="rect" title=" " alt="" coords="5,13,188,38"/>
-<area shape="rect" href="../../d6/dbe/namespacecoefs.html#aedfc2692ba7d456e06fbad958003f02c" title=" " alt="" coords="236,5,395,45"/>
-<area shape="poly" title=" " alt="" coords="188,23,222,23,222,28,188,28"/>
-</map>
-</div>
-
-</div>
-</div>
 <a id="a20a95815e8ab1a9d5e513b959db5c3e7" name="a20a95815e8ab1a9d5e513b959db5c3e7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a20a95815e8ab1a9d5e513b959db5c3e7">&#9670;&#160;</a></span>coef_free()</h2>
 
@@ -210,7 +168,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00404">404</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00407">407</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -249,7 +207,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000055">Todo:</a></b></dt><dd>cleanup once we have device math in place </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01075">1075</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01078">1078</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -263,8 +221,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="aedfc2692ba7d456e06fbad958003f02c" name="aedfc2692ba7d456e06fbad958003f02c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aedfc2692ba7d456e06fbad958003f02c">&#9670;&#160;</a></span>coef_generate_cyclic_bc()</h2>
+<a id="ae7ebaa7ea8090c9d2e235ed4fd8e34fa" name="ae7ebaa7ea8090c9d2e235ed4fd8e34fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">&#9670;&#160;</a></span>coef_generate_cyclic_bc()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -275,8 +233,8 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> coefs::coef_generate_cyclic_bc </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>coef</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -287,17 +245,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01223">1223</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d6/dbe/namespacecoefs_aedfc2692ba7d456e06fbad958003f02c_icgraph.png" border="0" usemap="#ad6/dbe/namespacecoefs_aedfc2692ba7d456e06fbad958003f02c_icgraph" alt=""/></div>
-<map name="ad6/dbe/namespacecoefs_aedfc2692ba7d456e06fbad958003f02c_icgraph" id="ad6/dbe/namespacecoefs_aedfc2692ba7d456e06fbad958003f02c_icgraph">
-<area shape="rect" title=" " alt="" coords="236,5,395,45"/>
-<area shape="rect" href="../../d6/dbe/namespacecoefs.html#ac53c34beb58eddab3f229f5f62dcf2e5" title=" " alt="" coords="5,13,188,38"/>
-<area shape="poly" title=" " alt="" coords="222,28,188,28,188,23,222,23"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01226">1226</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -325,7 +273,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00724">724</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00727">727</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -401,7 +349,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Current implementation assumes regular shaped hex elements </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00882">882</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00885">885</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -442,7 +390,7 @@ Here is the caller graph for this function:</div>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000053">Todo:</a></b></dt><dd>rewrite this nest into a device kernel </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000054">Todo:</a></b></dt><dd>cleanup once we have device math in place </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00998">998</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01001">1001</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -514,7 +462,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01058">1058</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01061">1061</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -576,7 +524,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01037">1037</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l01040">1040</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -616,7 +564,7 @@ Here is the caller graph for this function:</div>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000052">Todo:</a></b></dt><dd>Be clever and try to avoid allocating zeroed geom. factors </dd></dl>
 <p>Default values correspond to no rotation</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00217">217</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00220">220</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -707,7 +655,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00171">171</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d85/coef_8f90_source.html#l00174">174</a> of file <a class="el" href="../../db/d85/coef_8f90_source.html">coef.f90</a>.</p>
 
 </div>
 </div>
@@ -717,7 +665,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/dbe/namespacecoefs.html">coefs</a></li>
-    <li class="footer">Generated on Tue Mar 10 2026 04:16:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 11 2026 04:16:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
