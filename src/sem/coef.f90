@@ -39,16 +39,19 @@ module coefs
   use dofmap, only : dofmap_t
   use space, only: space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
-       chsign, rzero, invers2, glsum, absval, NEKO_EPS
+       chsign, rzero, invers2, glsum, NEKO_EPS
   use mesh, only : mesh_t
   use device_math, only : device_rone, device_invcol1, &
-       device_glsum, device_absval
+       device_glsum
   use device_coef, only : device_coef_generate_geo, &
        device_coef_generate_dxydrst
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index, &
        neko_error
+  use comm, only : NEKO_COMM
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   implicit none
@@ -165,7 +168,7 @@ module coefs
      procedure, pass(this) :: free => coef_free
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
-     procedure, pass(this) :: check_cyclic => coef_check_cyclic
+     procedure, pass(this) :: generate_cyclic_bc => coef_generate_cyclic_bc
      procedure, pass(this) :: recompute_metrics => coef_recompute_metrics
      procedure, pass(this) :: enable_B_history => coef_enable_lagged_mass
      procedure, pass(this) :: update_B_history => coef_update_lagged_mass
@@ -1254,34 +1257,46 @@ contains
 
   end subroutine coef_generate_area_and_normal
 
-  subroutine coef_generate_cyclic_bc(coef)
-    type(coef_t), intent(inout) :: coef
+  subroutine coef_generate_cyclic_bc(this)
+    class(coef_t), intent(inout) :: this
     real(kind=rp) :: un(3), len, d
-    integer :: lx, ly, lz, np
+    integer :: lx, ly, lz, np, np_glb, ierr
     integer :: i, j, k, pf, pe, n, nc, ncyc
 
-    np = coef%msh%periodic%size
-    lx = coef%Xh%lx
-    ly = coef%Xh%ly
-    lz = coef%Xh%lz
-    ncyc = coef%cyc_msk(0) - 1
+    if (.not. this%cyclic) return
+
+    np = this%msh%periodic%size
+    call MPI_Allreduce(np, np_glb, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    if (np_glb .eq. 0) then
+       call neko_error("There are no periodic boundaries. " // &
+            "Switch cyclic off in the case file.")
+    end if
+
+    if (np .eq. 0) return
+
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
+    ncyc = this%cyc_msk(0) - 1
     nc = 1
     do n = 1, np
-       pf = coef%msh%periodic%facet_el(n)%x(1)
-       pe = coef%msh%periodic%facet_el(n)%x(2)
+       pf = this%msh%periodic%facet_el(n)%x(1)
+       pe = this%msh%periodic%facet_el(n)%x(2)
        do k = 1, lz
           do j = 1, ly
              do i = 1, lx
                 if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
-                   un = coef%get_normal(i, j, k, pe, pf)
+                   un = this%get_normal(i, j, k, pe, pf)
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
                    if (len .gt. NEKO_EPS) then
-                      d = coef%dof%y(i, j, k, pe) * un(1) &
-                           - coef%dof%x(i, j, k, pe) * un(2)
+                      d = this%dof%y(i, j, k, pe) * un(1) &
+                           - this%dof%x(i, j, k, pe) * un(2)
 
-                      coef%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
-                      coef%R11(nc) = un(1) / len * sign(1.0_rp, d)
-                      coef%R12(nc) = un(2) / len * sign(1.0_rp, d)
+                      this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
+                      this%R11(nc) = un(1) / len * sign(1.0_rp, d)
+                      this%R12(nc) = un(2) / len * sign(1.0_rp, d)
                       nc = nc + 1
                    else
                       call neko_error("x and y components of surface " // &
@@ -1300,143 +1315,12 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(coef%cyc_msk, coef%cyc_msk_d, ncyc+1, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(coef%R11, coef%R11_d, ncyc, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(coef%R12, coef%R12_d, ncyc, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%R11, this%R11_d, ncyc, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%R12, this%R12_d, ncyc, HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine coef_generate_cyclic_bc
-
-
-  subroutine coef_check_cyclic(this)
-    class(coef_t), intent(inout) :: this
-    !DSS is applied on vector field "norm" with all zeros
-    !except values equal to surface normals at periodic
-    !faces. The results must sum to zero
-    !Check happens in two passes -
-    !>ipass = 1 : DSS in Cartesian coordinates. If it yields 0,
-    !no cyclic rotation is required and must be switched off.
-    !>ipass = 2 : DSS in TNB basis (rotation around z-axis)
-    !If yields 0, cyclic rotation is required and must be
-    !switched on. If not, then the current rotation logic
-    !is not sufficient and must be modified.
-    !"cyclic": true in case file invokes these checks.
-    integer :: np, n, lx, pf, pe, i, j, k, nc, ipass, ntot, ncyc
-    real(kind=rp) :: un(3)
-    real(kind=rp), allocatable :: normx(:,:,:,:)
-    real(kind=rp), allocatable :: normy(:,:,:,:)
-    real(kind=rp), allocatable :: normz(:,:,:,:)
-    type(c_ptr) :: normx_d = C_NULL_PTR
-    type(c_ptr) :: normy_d = C_NULL_PTR
-    type(c_ptr) :: normz_d = C_NULL_PTR
-
-    logical :: norm_dss = .false.
-
-    np = this%msh%periodic%size
-    lx = this%Xh%lx
-    ntot = this%dof%size()
-    ncyc = np*lx*lx
-
-    if (.not. this%cyclic) return
-
-    if (np .eq. 0) then
-       call neko_error("There are no periodic boundaries. " // &
-            "Switch cyclic off in the case file.")
-    end if
-
-    allocate(normx(lx, lx, lx, this%msh%nelv))
-    allocate(normy(lx, lx, lx, this%msh%nelv))
-    allocate(normz(lx, lx, lx, this%msh%nelv))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(normx, normx_d, ntot)
-       call device_map(normy, normy_d, ntot)
-       call device_map(normz, normz_d, ntot)
-    end if
-
-    do ipass = 1, 2
-       norm_dss = .false.
-       call rzero(normx, ntot)
-       call rzero(normy, ntot)
-       call rzero(normz, ntot)
-
-       if (ipass .eq. 2) then
-          call coef_generate_cyclic_bc(this)
-       end if
-
-       nc = 1
-       do n = 1, np
-          pf = this%msh%periodic%facet_el(n)%x(1)
-          pe = this%msh%periodic%facet_el(n)%x(2)
-          do k = 1, lx
-             do j = 1, lx
-                do i = 1, lx
-                   if (index_is_on_facet(i, j, k, lx, lx, lx, pf)) then
-                      un = this%get_normal(i, j, k, pe, pf)
-                      normx(i,j,k,pe) = un(1) * this%R11(nc) &
-                           + un(2) * this%R12(nc)
-
-                      normy(i,j,k,pe) =-un(1) * this%R12(nc) &
-                           + un(2) * this%R11(nc)
-
-                      normz(i,j,k,pe) = un(3)
-
-                      nc = nc + 1
-                   end if
-                end do
-             end do
-          end do
-       end do
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(normx, normx_d, ntot, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(normy, normy_d, ntot, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(normz, normz_d, ntot, HOST_TO_DEVICE, sync=.false.)
-       end if
-
-       call this%gs_h%op(normx, ntot, GS_OP_ADD)
-       call this%gs_h%op(normy, ntot, GS_OP_ADD)
-       call this%gs_h%op(normz, ntot, GS_OP_ADD)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_absval(normx_d, ntot)
-          call device_absval(normy_d, ntot)
-          call device_absval(normz_d, ntot)
-          norm_dss = device_glsum(normx_d, ntot)/ntot .lt. 100.0*NEKO_EPS .and. &
-               device_glsum(normy_d, ntot)/ntot .lt. 100.0*NEKO_EPS .and. &
-               device_glsum(normz_d, ntot)/ntot .lt. 100.0*NEKO_EPS
-       else
-          call absval(normx, ntot)
-          call absval(normy, ntot)
-          call absval(normz, ntot)
-          norm_dss = glsum(normx, ntot)/ntot .lt. 100*NEKO_EPS .and. &
-               glsum(normy, ntot)/ntot .lt. 100*NEKO_EPS .and. &
-               glsum(normz, ntot)/ntot .lt. 100*NEKO_EPS
-       end if
-
-       if (ipass .eq. 1 .and. norm_dss) then
-          call neko_error("Cyclic rotation is not required. " // &
-               "Switch it off in case file.")
-          !else if (ipass .eq. 1 .and. norm_dss .eqv. false)
-          !wait for ipass=2 to check if current rotation logic is sufficient
-       else if (ipass .eq. 2 .and. .not. norm_dss) then
-          call neko_error("Cylic rotation is required, but " // &
-               "rotation logic must be modified.")
-          !if (ipass .eq. 2 .and. norm_dss)
-          !current logic is sufficient, proceed.
-       end if
-    end do
-    deallocate(normx)
-    deallocate(normy)
-    deallocate(normz)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_free(normx_d)
-       call device_free(normy_d)
-       call device_free(normz_d)
-    end if
-
-  end subroutine coef_check_cyclic
 
 
   !> Recompute and update geometric factors (ALE)
