@@ -1211,7 +1211,7 @@ contains
   ! Sets the pivot state at restart.
   subroutine set_pivot_restart(this, time_restart)
     class(ale_manager_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: time_restart
+    real(kind=dp), intent(in) :: time_restart
     type(body_kinematics_t) :: kin_restart
     integer :: i, idx, handle_1, handle_2, offset_base
     real(kind=rp) :: pos_x(3), pos_y(3)
