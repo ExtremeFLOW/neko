@@ -82,6 +82,7 @@ module ale_manager
   public :: add_kinematics_to_mesh_velocity
   public :: update_ale_mesh
   public :: log_rot_angles
+  public :: log_pivot
 
   type, public :: ale_manager_t
      class(ax_t), allocatable :: Ax
@@ -162,6 +163,7 @@ module ale_manager
      procedure, pass(this) :: prep_checkpoint => set_pivot_basis_for_checkpoint
      procedure, pass(this) :: ghost_tracker_coord_step
      procedure, pass(this) :: log_rot_angles
+     procedure, pass(this) :: log_pivot
   end type ale_manager_t
 
   type(ale_manager_t), public, pointer :: neko_ale => null()
@@ -1550,6 +1552,7 @@ contains
 
   end subroutine compute_rotation_matrix
 
+
   !> Logs rotation angles for all or selected bodies.
   !> can be called in user%compute.
   !> eg: call neko_ale%log_rot_angles(time, body_idxs)
@@ -1566,6 +1569,9 @@ contains
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
+    call neko_log%message(" ")
+    call neko_log%message("---------Rotation log---------")
+    call neko_log%message("variable, time step, time, body, x_val, y_val, z_val")
 
     ! If body_idxs is provided, only log those. Otherwise, log all.
     do i = 1, merge(size(body_idxs), this%config%nbodies, present(body_idxs))
@@ -1583,13 +1589,64 @@ contains
        pitch_deg = atan2(-R(3,1), sqrt(R(3,2)**2 + R(3,3)**2)) * rad_to_deg
        roll_deg = atan2(R(3,2), R(3,3)) * rad_to_deg
 
-       write(log_buf, '(A, 1X, ES18.10, 1X, A, A, A, 3(1X, ES18.10))') &
-            "Time", time%t, &
-            "Body_", trim(this%config%bodies(idx)%name), "_Rot_X_Y_Z_deg", &
+       ! Log Rotation Angles (Roll, Pitch, Yaw) -> (X, Y, Z)
+       write(log_buf, '(A, I0, A, ES13.6, A, A, A, 3(ES17.10, :, 2X))') &
+            "Total_Rot_deg    ", time%tstep, "  ", time%t, "  ", &
+            trim(this%config%bodies(idx)%name), "  ", &
             roll_deg, pitch_deg, yaw_deg
        call neko_log%message(trim(log_buf))
+
     end do
+
   end subroutine log_rot_angles
+
+  !> Logs pivot positions for all or selected bodies.
+  !> can be called in user%compute.
+  !> eg: call neko_ale%log_pivot(time, body_idxs)
+  subroutine log_pivot(this, time, body_idxs)
+    class(ale_manager_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    integer, optional, intent(in) :: body_idxs(:)
+
+    integer :: b, i, idx
+    real(kind=rp) :: pivot_pos(3), pivot_vel(3)
+    character(len=256) :: log_buf
+
+    if (.not. this%active) return
+    if (.not. this%has_moving_boundary) return
+    call neko_log%message(" ")
+    call neko_log%message("----------Pivot Log-----------")
+    call neko_log%message("variable, time step, time, body, x_val, y_val, z_val")
+
+    ! If body_idxs is provided, only log those. Otherwise, log all.
+    do i = 1, merge(size(body_idxs), this%config%nbodies, present(body_idxs))
+
+       if (present(body_idxs)) then
+          idx = body_idxs(i)
+       else
+          idx = i
+       end if
+
+       pivot_pos = this%ale_pivot(idx)%pos
+       pivot_vel = this%ale_pivot(idx)%vel
+
+       ! Pivot Position
+       write(log_buf, '(A, I0, A, ES13.6, A, A, A, 3(ES17.10, :, 2X))') &
+            "Total_Pivot_pos  ", time%tstep, "  ", time%t, "  ", &
+            trim(this%config%bodies(idx)%name), "  ", &
+            this%ale_pivot(idx)%pos
+       call neko_log%message(trim(log_buf))
+
+       ! Pivot Velocity
+       write(log_buf, '(A, I0, A, ES13.6, A, A, A, 3(ES17.10, :, 2X))') &
+            "Total_Pivot_vel  ", time%tstep, "  ", time%t, "  ", &
+            trim(this%config%bodies(idx)%name), "  ", &
+            this%ale_pivot(idx)%vel
+       call neko_log%message(trim(log_buf))
+    end do
+
+  end subroutine log_pivot
+
   subroutine set_pivot_basis_for_checkpoint(this, body_idx)
     class(ale_manager_t), intent(inout) :: this
     integer, intent(in) :: body_idx

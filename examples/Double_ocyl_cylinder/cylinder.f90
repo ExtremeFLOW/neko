@@ -37,12 +37,14 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: ids_to_log(1)
 
-    ! Can be used to log the rotation angle of bodies.
+    ! Can be used to log the rotation angle and pivot
+    ! info of bodies.
     ! Here we only log the second registered body.
     ! If the following optional input is not passed, logging will be for all ALE bodies.
     ids_to_log = [2]
     if (associated(neko_ale)) then
        call neko_ale%log_rot_angles(time, ids_to_log)
+       call neko_ale%log_pivot(time, ids_to_log)
     end if
 
   end subroutine user_check
