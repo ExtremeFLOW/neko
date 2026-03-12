@@ -147,7 +147,7 @@ module user_intf
        type(coef_t), intent(in) :: coef
        type(field_t), intent(in) :: x_ref, y_ref, z_ref
        type(field_t), intent(inout) :: wm_x, wm_y, wm_z
-       type(field_t), intent(in)    :: base_shapes(:)
+       type(field_t), intent(in) :: base_shapes(:)
        type(time_state_t), intent(in) :: time
      end subroutine user_ale_mesh_velocity_intf
   end interface

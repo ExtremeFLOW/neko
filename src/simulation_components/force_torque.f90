@@ -59,7 +59,7 @@ module force_torque
        device_glsum, device_vcross
   use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_Allreduce
   use comm, only : NEKO_COMM
-  use device, only  : device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE
   use ale_manager, only : neko_ale
   use ale_rigid_kinematics, only : pivot_state_t
   use utils, only : neko_error
@@ -102,11 +102,11 @@ module force_torque
      logical :: update_normals = .false.
      character(len=64) :: linked_body_name = 'NOT_LINKED'
      ! Stores the Time=0 offset from the initial pivot
-     real(kind=rp) :: local_offset(3) = 0.0_rp 
+     real(kind=rp) :: local_offset(3) = 0.0_rp
      ! Current Pivot Position
-     real(kind=rp), pointer :: body_P(:)   => null() 
+     real(kind=rp), pointer :: body_P(:) => null()
      ! Current Rotation Matrix
-     real(kind=rp), pointer :: body_R(:,:) => null() 
+     real(kind=rp), pointer :: body_R(:,:) => null()
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -280,7 +280,7 @@ contains
     character(len=*), intent(in), optional :: center_type
     character(len=:), allocatable :: ctype_str
     integer :: n_pts, glb_n_pts, ierr
-    real(kind=rp) :: avg_r(3)    
+    real(kind=rp) :: avg_r(3)
     character(len=1000) :: log_buf
     this%name = name
     this%coef => coef
@@ -365,11 +365,11 @@ contains
     call neko_log%section('Force/torque calculation')
     write(log_buf, '(A,I4,A,A)') 'Zone ', zone_id, '  ', trim(zone_name)
     call neko_log%message(log_buf)
-    
+
     write(log_buf, '(A,I6, I6)') 'Global number of GLL points in zone: ', &
          glb_n_pts
     call neko_log%message(log_buf)
-    
+
     write(log_buf, '(A,A)') 'Center Type: ', trim(ctype_str)
     call neko_log%message(log_buf)
 
@@ -465,11 +465,11 @@ contains
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
     character(len=1000) :: log_buf
-    real(kind=rp) :: rot_offset(3) 
+    real(kind=rp) :: rot_offset(3)
     n_pts = this%bc%msk(0)
 
 
-    ! body_attached 
+    ! body_attached
     if (this%moving_center .and. associated(this%body_P)) then
        if (associated(this%body_R)) then
           ! R * Offset
@@ -483,7 +483,7 @@ contains
                           this%body_R(3,2)*this%local_offset(2) + &
                           this%body_R(3,3)*this%local_offset(3)
 
-          this%center = this%body_P + rot_offset      
+          this%center = this%body_P + rot_offset
        end if
     end if
 
@@ -674,7 +674,7 @@ contains
     integer, intent(in) :: zone_id
     character(len=*), intent(in) :: center_type
     real(kind=rp), intent(in) :: center_in(3)
-    
+
     character(len=512) :: log_buf
     integer :: i, j, nbodies, nindices, body_id
     logical :: body_found
@@ -694,7 +694,7 @@ contains
 
           if (trim(center_type) == 'pivot' .or. &
                trim(center_type) == 'body_attached') then
-             
+
              body_found = .false.
              nbodies = neko_ale%config%nbodies
              i = 1
@@ -704,7 +704,7 @@ contains
                    j = 1
                    do while (j <= nindices .and. .not. body_found)
                       if (neko_ale%config%bodies(i)%zone_indices(j) == zone_id) then
-                         
+
                          ! Body found
                          this%moving_center = .true.
                          this%pivot_link => neko_ale%ale_pivot(i)
@@ -728,7 +728,7 @@ contains
                             this%local_offset = center_in - &
                                  neko_ale%config%bodies(i)%rot_center
                             ! Set initial position for init_common
-                            this%center = center_in 
+                            this%center = center_in
                          end if
 
                       end if
@@ -746,7 +746,7 @@ contains
                 call neko_log%message(log_buf)
                 call neko_log%message('Reverting to FIXED center'// &
                      ' using JSON coordinates.')
-                
+
                 this%moving_center = .false.
              end if
 
@@ -763,7 +763,7 @@ contains
        call neko_log%message("pivot and body_attached work only for ALE simulations.")
        call neko_log%message("Reverting to 'fixed' center using JSON coordinates.")
     end if
-    
+
   end subroutine setup_ale_link
 
 end module force_torque

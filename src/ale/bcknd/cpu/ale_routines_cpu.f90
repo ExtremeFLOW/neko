@@ -358,7 +358,7 @@ contains
 
        ipass = ipass + 1
     end do
-    
+
 
     write(log_buf, '(A, I0, A)') "   converged in: ", ipass, " passes"
     call neko_log%message(log_buf)
@@ -455,53 +455,53 @@ contains
     real(kind=rp) :: p_val
     n = phi%dof%size()
     associate (x => coef%dof%x, y => coef%dof%y, z => coef%dof%z)
-       do concurrent (i = 1:n)
-          ! for points on the wall (phi=1) we do this to avoid any
-          ! numeric error due to computation of rotation matrix.
-          ! It ensures, the walls are always where they need to be!
-          if ( abs(phi%x(i, 1, 1, 1) - 1.0_rp) < 1e-6_rp ) then
+      do concurrent (i = 1:n)
+         ! for points on the wall (phi=1) we do this to avoid any
+         ! numeric error due to computation of rotation matrix.
+         ! It ensures, the walls are always where they need to be!
+         if ( abs(phi%x(i, 1, 1, 1) - 1.0_rp) < 1e-6_rp ) then
 
-             rx = x(i, 1, 1, 1) - kinematics%center(1)
-             ry = y(i, 1, 1, 1) - kinematics%center(2)
-             rz = z(i, 1, 1, 1) - kinematics%center(3)
-             v_tan_x = kinematics%vel_ang(2) * rz - kinematics%vel_ang(3) * ry
-             v_tan_y = kinematics%vel_ang(3) * rx - kinematics%vel_ang(1) * rz
-             v_tan_z = kinematics%vel_ang(1) * ry - kinematics%vel_ang(2) * rx
-             wx%x(i, 1, 1, 1) = wx%x(i, 1, 1, 1) + &
+            rx = x(i, 1, 1, 1) - kinematics%center(1)
+            ry = y(i, 1, 1, 1) - kinematics%center(2)
+            rz = z(i, 1, 1, 1) - kinematics%center(3)
+            v_tan_x = kinematics%vel_ang(2) * rz - kinematics%vel_ang(3) * ry
+            v_tan_y = kinematics%vel_ang(3) * rx - kinematics%vel_ang(1) * rz
+            v_tan_z = kinematics%vel_ang(1) * ry - kinematics%vel_ang(2) * rx
+            wx%x(i, 1, 1, 1) = wx%x(i, 1, 1, 1) + &
                   (kinematics%vel_trans(1) + v_tan_x) * phi%x(i, 1, 1, 1)
-             wy%x(i, 1, 1, 1) = wy%x(i, 1, 1, 1) + &
+            wy%x(i, 1, 1, 1) = wy%x(i, 1, 1, 1) + &
                   (kinematics%vel_trans(2) + v_tan_y) * phi%x(i, 1, 1, 1)
-             wz%x(i, 1, 1, 1) = wz%x(i, 1, 1, 1) + &
+            wz%x(i, 1, 1, 1) = wz%x(i, 1, 1, 1) + &
                   (kinematics%vel_trans(3) + v_tan_z) * phi%x(i, 1, 1, 1)
-          else
-             ! For other points we do this to avoid the time-dependnent
-             ! drift in some special cases, which happens due to the nature of
-             ! the ODE that we integrate above!
-             dx_ref = x_ref%x(i, 1, 1, 1) - inital_pivot_loc(1)
-             dy_ref = y_ref%x(i, 1, 1, 1) - inital_pivot_loc(2)
-             dz_ref = z_ref%x(i, 1, 1, 1) - inital_pivot_loc(3)
+         else
+            ! For other points we do this to avoid the time-dependnent
+            ! drift in some special cases, which happens due to the nature of
+            ! the ODE that we integrate above!
+            dx_ref = x_ref%x(i, 1, 1, 1) - inital_pivot_loc(1)
+            dy_ref = y_ref%x(i, 1, 1, 1) - inital_pivot_loc(2)
+            dz_ref = z_ref%x(i, 1, 1, 1) - inital_pivot_loc(3)
 
-             ! Rotate to find the "ghost" target vector
-             ! Apply the rotation matrix R(t) to the reference vector
-             rx_target = rot_mat(1,1)*dx_ref + rot_mat(1,2)*dy_ref + rot_mat(1,3)*dz_ref
-             ry_target = rot_mat(2,1)*dx_ref + rot_mat(2,2)*dy_ref + rot_mat(2,3)*dz_ref
-             rz_target = rot_mat(3,1)*dx_ref + rot_mat(3,2)*dy_ref + rot_mat(3,3)*dz_ref
+            ! Rotate to find the "ghost" target vector
+            ! Apply the rotation matrix R(t) to the reference vector
+            rx_target = rot_mat(1,1)*dx_ref + rot_mat(1,2)*dy_ref + rot_mat(1,3)*dz_ref
+            ry_target = rot_mat(2,1)*dx_ref + rot_mat(2,2)*dy_ref + rot_mat(2,3)*dz_ref
+            rz_target = rot_mat(3,1)*dx_ref + rot_mat(3,2)*dy_ref + rot_mat(3,3)*dz_ref
 
-             ! Calculate tangential velocity at the ghost target
-             ! v_tan = Omega \corss R_target
-             v_tan_x = kinematics%vel_ang(2) * rz_target - kinematics%vel_ang(3) * ry_target
-             v_tan_y = kinematics%vel_ang(3) * rx_target - kinematics%vel_ang(1) * rz_target
-             v_tan_z = kinematics%vel_ang(1) * ry_target - kinematics%vel_ang(2) * rx_target
+            ! Calculate tangential velocity at the ghost target
+            ! v_tan = Omega \corss R_target
+            v_tan_x = kinematics%vel_ang(2) * rz_target - kinematics%vel_ang(3) * ry_target
+            v_tan_y = kinematics%vel_ang(3) * rx_target - kinematics%vel_ang(1) * rz_target
+            v_tan_z = kinematics%vel_ang(1) * ry_target - kinematics%vel_ang(2) * rx_target
 
-             p_val = phi%x(i, 1, 1, 1)
+            p_val = phi%x(i, 1, 1, 1)
 
-             ! Total Mesh Velocity
-             wx%x(i, 1, 1, 1) = wx%x(i, 1, 1, 1) + (kinematics%vel_trans(1) + v_tan_x) * p_val
-             wy%x(i, 1, 1, 1) = wy%x(i, 1, 1, 1) + (kinematics%vel_trans(2) + v_tan_y) * p_val
-             wz%x(i, 1, 1, 1) = wz%x(i, 1, 1, 1) + (kinematics%vel_trans(3) + v_tan_z) * p_val
+            ! Total Mesh Velocity
+            wx%x(i, 1, 1, 1) = wx%x(i, 1, 1, 1) + (kinematics%vel_trans(1) + v_tan_x) * p_val
+            wy%x(i, 1, 1, 1) = wy%x(i, 1, 1, 1) + (kinematics%vel_trans(2) + v_tan_y) * p_val
+            wz%x(i, 1, 1, 1) = wz%x(i, 1, 1, 1) + (kinematics%vel_trans(3) + v_tan_z) * p_val
 
-          end if
-       end do
+         end if
+      end do
     end associate
   end subroutine add_kinematics_to_mesh_velocity_cpu
 

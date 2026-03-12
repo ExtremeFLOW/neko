@@ -141,65 +141,65 @@ contains
 
   !> Initialize pivot state
   subroutine init_pivot_state(pivot, body_conf)
-     type(pivot_state_t), intent(out) :: pivot
-     type(ale_body_t), intent(in) :: body_conf
-     pivot%pos = body_conf%rot_center
-     pivot%vel_lag = 0.0_rp
-     pivot%vel = 0.0_rp
+    type(pivot_state_t), intent(out) :: pivot
+    type(ale_body_t), intent(in) :: body_conf
+    pivot%pos = body_conf%rot_center
+    pivot%vel_lag = 0.0_rp
+    pivot%vel = 0.0_rp
   end subroutine init_pivot_state
 
   !> Advance a single point position (x,y,z) from the point's velocity
   !> using AB time-integration
   subroutine ab_integrate_point_pos(pos, vel_lag, current_vel, time, nadv)
-     real(kind=rp), intent(inout) :: pos(3)
-     real(kind=rp), intent(inout) :: vel_lag(3, 3)
-     real(kind=rp), intent(in) :: current_vel(3)
-     type(time_state_t), intent(in) :: time
-     integer, intent(in) :: nadv
+    real(kind=rp), intent(inout) :: pos(3)
+    real(kind=rp), intent(inout) :: vel_lag(3, 3)
+    real(kind=rp), intent(in) :: current_vel(3)
+    type(time_state_t), intent(in) :: time
+    integer, intent(in) :: nadv
 
-     type(ab_time_scheme_t) :: ab_scheme_obj
-     real(kind=rp) :: ab_coeffs(4), dt_history(10)
-     integer :: j
+    type(ab_time_scheme_t) :: ab_scheme_obj
+    real(kind=rp) :: ab_coeffs(4), dt_history(10)
+    integer :: j
 
-     call rzero(ab_coeffs, 4)
-     dt_history(1) = time%dt
-     dt_history(2) = time%dtlag(1)
-     dt_history(3) = time%dtlag(2)
-     call ab_scheme_obj%compute_coeffs(ab_coeffs, dt_history, nadv)
+    call rzero(ab_coeffs, 4)
+    dt_history(1) = time%dt
+    dt_history(2) = time%dtlag(1)
+    dt_history(3) = time%dtlag(2)
+    call ab_scheme_obj%compute_coeffs(ab_coeffs, dt_history, nadv)
 
-     pos(1) = pos(1) + time%dt * ab_coeffs(1) * current_vel(1)
-     pos(2) = pos(2) + time%dt * ab_coeffs(1) * current_vel(2)
-     pos(3) = pos(3) + time%dt * ab_coeffs(1) * current_vel(3)
+    pos(1) = pos(1) + time%dt * ab_coeffs(1) * current_vel(1)
+    pos(2) = pos(2) + time%dt * ab_coeffs(1) * current_vel(2)
+    pos(3) = pos(3) + time%dt * ab_coeffs(1) * current_vel(3)
 
-     do j = 2, nadv
-        pos(1) = pos(1) + time%dt * ab_coeffs(j) * vel_lag(1, j - 1)
-        pos(2) = pos(2) + time%dt * ab_coeffs(j) * vel_lag(2, j - 1)
-        pos(3) = pos(3) + time%dt * ab_coeffs(j) * vel_lag(3, j - 1)
-     end do
+    do j = 2, nadv
+       pos(1) = pos(1) + time%dt * ab_coeffs(j) * vel_lag(1, j - 1)
+       pos(2) = pos(2) + time%dt * ab_coeffs(j) * vel_lag(2, j - 1)
+       pos(3) = pos(3) + time%dt * ab_coeffs(j) * vel_lag(3, j - 1)
+    end do
 
-     ! Shift history
-     do j = 3, 2, -1
-        vel_lag(1, j) = vel_lag(1, j - 1)
-        vel_lag(2, j) = vel_lag(2, j - 1)
-        vel_lag(3, j) = vel_lag(3, j - 1)
-     end do
+    ! Shift history
+    do j = 3, 2, -1
+       vel_lag(1, j) = vel_lag(1, j - 1)
+       vel_lag(2, j) = vel_lag(2, j - 1)
+       vel_lag(3, j) = vel_lag(3, j - 1)
+    end do
 
-     ! Store current velocity
-     vel_lag(1, 1) = current_vel(1)
-     vel_lag(2, 1) = current_vel(2)
-     vel_lag(3, 1) = current_vel(3)
+    ! Store current velocity
+    vel_lag(1, 1) = current_vel(1)
+    vel_lag(2, 1) = current_vel(2)
+    vel_lag(3, 1) = current_vel(3)
 
   end subroutine ab_integrate_point_pos
 
   !> Updates the point tracker's position and velocity history using
   !> AB time integration based on the current velocity.
   subroutine advance_point_tracker(tracker, current_vel, time, nadv)
-     type(point_tracker_t), intent(inout) :: tracker
-     real(kind=rp), intent(in) :: current_vel(3)
-     type(time_state_t), intent(in) :: time
-     integer, intent(in) :: nadv
+    type(point_tracker_t), intent(inout) :: tracker
+    real(kind=rp), intent(in) :: current_vel(3)
+    type(time_state_t), intent(in) :: time
+    integer, intent(in) :: nadv
 
-     call ab_integrate_point_pos(tracker%pos, tracker%vel_lag, &
+    call ab_integrate_point_pos(tracker%pos, tracker%vel_lag, &
           current_vel, time, nadv)
 
   end subroutine advance_point_tracker
@@ -207,78 +207,78 @@ contains
   !> Compute built-in kinematics for a body. Uses inputs from JSON.
   !> CPU-only.
   subroutine compute_body_kinematics_built_in(kinematics, body_conf, time)
-     type(body_kinematics_t), intent(out) :: kinematics
-     type(ale_body_t), intent(in) :: body_conf
-     type(time_state_t), intent(in) :: time
+    type(body_kinematics_t), intent(out) :: kinematics
+    type(ale_body_t), intent(in) :: body_conf
+    type(time_state_t), intent(in) :: time
 
-     real(kind=rp) :: w_scalar, amp_scalar, ex_term
-     real(kind=rp) :: t_curr, t0, t1, t2, t3, target_rad, tau, current_omega
-     integer :: i
+    real(kind=rp) :: w_scalar, amp_scalar, ex_term
+    real(kind=rp) :: t_curr, t0, t1, t2, t3, target_rad, tau, current_omega
+    integer :: i
 
-     ! Oscillation
-     kinematics%vel_trans = 0.0_rp
-     do i = 1, 3
-        if (abs(body_conf%osc_amp(i)) > 0.0_rp) then
-           w_scalar = body_conf%osc_freq(i) * 2.0_rp * pi
-           kinematics%vel_trans(i) = body_conf%osc_amp(i) * w_scalar * &
+    ! Oscillation
+    kinematics%vel_trans = 0.0_rp
+    do i = 1, 3
+       if (abs(body_conf%osc_amp(i)) > 0.0_rp) then
+          w_scalar = body_conf%osc_freq(i) * 2.0_rp * pi
+          kinematics%vel_trans(i) = body_conf%osc_amp(i) * w_scalar * &
                 cos(w_scalar * time%t)
-        end if
-     end do
+       end if
+    end do
 
-     ! Rotation
-     kinematics%vel_ang = 0.0_rp
-     select case (trim(body_conf%rotation_type))
-     case ('smooth_step')
-        if (abs(body_conf%target_rot_angle_deg) > 0.0_rp) then
-           t_curr = time%t
-           t0 = body_conf%step_control_times(1)
-           t1 = body_conf%step_control_times(2)
-           t2 = body_conf%step_control_times(3)
-           t3 = body_conf%step_control_times(4)
-           target_rad = body_conf%target_rot_angle_deg * (pi / 180.0_rp)
-           current_omega = 0.0_rp
+    ! Rotation
+    kinematics%vel_ang = 0.0_rp
+    select case (trim(body_conf%rotation_type))
+    case ('smooth_step')
+       if (abs(body_conf%target_rot_angle_deg) > 0.0_rp) then
+          t_curr = time%t
+          t0 = body_conf%step_control_times(1)
+          t1 = body_conf%step_control_times(2)
+          t2 = body_conf%step_control_times(3)
+          t3 = body_conf%step_control_times(4)
+          target_rad = body_conf%target_rot_angle_deg * (pi / 180.0_rp)
+          current_omega = 0.0_rp
 
-           if (t_curr < t0) then
-              current_omega = 0.0_rp
-           elseif (t_curr < t1) then ! Rise
-              if (t1 > t0) then
-                 tau = (t_curr - t0) / (t1 - t0)
-                 current_omega = target_rad * math_dstepf(tau) * &
+          if (t_curr < t0) then
+             current_omega = 0.0_rp
+          elseif (t_curr < t1) then ! Rise
+             if (t1 > t0) then
+                tau = (t_curr - t0) / (t1 - t0)
+                current_omega = target_rad * math_dstepf(tau) * &
                       (1.0_rp / (t1 - t0))
-              end if
-           elseif (t_curr < t2) then ! Hold
-              current_omega = 0.0_rp
-           elseif (t_curr < t3) then ! Fall
-              if (t3 > t2) then
-                 tau = (t_curr - t2) / (t3 - t2)
-                 current_omega = -1.0_rp * target_rad * math_dstepf(tau) * &
+             end if
+          elseif (t_curr < t2) then ! Hold
+             current_omega = 0.0_rp
+          elseif (t_curr < t3) then ! Fall
+             if (t3 > t2) then
+                tau = (t_curr - t2) / (t3 - t2)
+                current_omega = -1.0_rp * target_rad * math_dstepf(tau) * &
                       (1.0_rp / (t3 - t2))
-              end if
-           end if
-           kinematics%vel_ang(body_conf%rotation_axis) = current_omega
-        end if
-        
+             end if
+          end if
+          kinematics%vel_ang(body_conf%rotation_axis) = current_omega
+       end if
 
-     case ('ramp')
-        do i = 1, 3
-           if (body_conf%ramp_t0(i) > 0.0_rp .and. &
+
+    case ('ramp')
+       do i = 1, 3
+          if (body_conf%ramp_t0(i) > 0.0_rp .and. &
                 abs(body_conf%ramp_omega0(i)) > 0.0_rp) then
-              ex_term = exp(-4.6_rp * time%t / body_conf%ramp_t0(i))
-              kinematics%vel_ang(i) = body_conf%ramp_omega0(i) * &
+             ex_term = exp(-4.6_rp * time%t / body_conf%ramp_t0(i))
+             kinematics%vel_ang(i) = body_conf%ramp_omega0(i) * &
                    (1.0_rp - ex_term)
-           end if
-        end do
+          end if
+       end do
 
-     case ('harmonic')
-        do i = 1, 3
-           if (abs(body_conf%rot_amp_degree(i)) > 0.0_rp) then
-              amp_scalar = body_conf%rot_amp_degree(i) * (pi / 180.0_rp)
-              w_scalar = body_conf%rot_freq(i) * 2.0_rp * pi
-              kinematics%vel_ang(i) = w_scalar * amp_scalar * &
+    case ('harmonic')
+       do i = 1, 3
+          if (abs(body_conf%rot_amp_degree(i)) > 0.0_rp) then
+             amp_scalar = body_conf%rot_amp_degree(i) * (pi / 180.0_rp)
+             w_scalar = body_conf%rot_freq(i) * 2.0_rp * pi
+             kinematics%vel_ang(i) = w_scalar * amp_scalar * &
                    cos(w_scalar * time%t)
-           end if
-        end do
-     end select
+          end if
+       end do
+    end select
 
   end subroutine compute_body_kinematics_built_in
 
@@ -297,7 +297,7 @@ contains
 
     select case (trim(body_conf%rotation_center_type))
 
-    ! This mode uses vel_trans to move the pivot by integrating the velocity
+       ! This mode uses vel_trans to move the pivot by integrating the velocity
     case ('relative')
 
        !       write(log_buf, '(A, 3ES23.15)') '  PIVOT_LOC_BEFORE : ', pivot%pos

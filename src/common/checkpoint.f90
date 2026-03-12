@@ -110,7 +110,7 @@ module checkpoint
      procedure, pass(this) :: add_fluid => chkp_add_fluid
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
-     procedure, pass(this) :: add_ale => chkp_add_ale  
+     procedure, pass(this) :: add_ale => chkp_add_ale
      procedure, pass(this) :: restart_time => chkp_restart_time
      procedure, pass(this) :: free => chkp_free
   end type chkp_t
@@ -233,10 +233,10 @@ contains
 
             if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) &
                  .and. associated(this%wm_z_lag)) then
-                
+
                call this%wm_x_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
                     sync = .false.)
-               call this%wm_x_lag%lf(2)%copy_from(DEVICE_TO_HOST, & 
+               call this%wm_x_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
                     sync = .false.)
 
                call this%wm_y_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
@@ -249,7 +249,7 @@ contains
                call this%wm_z_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
                     sync = .false.)
             end if
-         end if        
+         end if
 
          ! Multi-scalar lag field synchronization
          do i = 1, this%scalar_lags%size()
@@ -457,7 +457,7 @@ contains
     this%Blaglag => Blaglag
     this%pivot_pos => pivot_pos
     this%pivot_vel_lag => pivot_vel_lag
-    this%basis_pos => basis_pos 
+    this%basis_pos => basis_pos
     this%basis_vel_lag => basis_vel_lag
   end subroutine chkp_add_ale
 

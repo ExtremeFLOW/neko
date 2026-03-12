@@ -101,7 +101,7 @@ module fluid_pnpn
      !! respect to the previous time-step.
      type(field_t) :: dp, du, dv, dw
 
-     !> ALE Manager 
+     !> ALE Manager
      type(ale_manager_t) :: ale
 
      ! ! Implicit operators, i.e. the left-hand-side of the Helmholz problem.
@@ -363,8 +363,8 @@ contains
     call this%dw%init(this%dm_Xh, 'dw')
     call this%dp%init(this%dm_Xh, 'dp')
     ! Initialize ALE
-    call this%ale%init(this%c_Xh, params, user) 
-   
+    call this%ale%init(this%c_Xh, params, user)
+
     call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
@@ -438,12 +438,12 @@ contains
 
     ! Add checkpoint data for ALE.
     if (this%ale%active) then
-      call this%chkp%add_ale(this%c_Xh%dof%x, this%c_Xh%dof%y, this%c_Xh%dof%z, &
+       call this%chkp%add_ale(this%c_Xh%dof%x, this%c_Xh%dof%y, this%c_Xh%dof%z, &
            this%c_Xh%Blag, this%c_Xh%Blaglag, &
            this%ale%wm_x, this%ale%wm_y, this%ale%wm_z, &
            this%ale%wm_x_lag, this%ale%wm_y_lag, &
            this%ale%wm_z_lag, &
-           this%ale%global_pivot_pos, &      
+           this%ale%global_pivot_pos, &
            this%ale%global_pivot_vel_lag, &
            this%ale%global_basis_pos, &
            this%ale%global_basis_vel_lag)
@@ -708,7 +708,7 @@ contains
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
-           
+
       ! Compute the source terms
       call this%source_term%compute(time)
 
@@ -733,7 +733,7 @@ contains
          call this%adv%compute(u, v, w, &
               this%advx, this%advy, this%advz, &
               Xh, this%c_Xh, dm_Xh%size(), dt)
-         
+
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
          ! previous time-step. Now, this value is used in the explicit time
@@ -758,7 +758,7 @@ contains
          ! additional source terms, evaluated using the velocity field from the
          ! previous time-step. Now, this value is used in the explicit time
          ! scheme to advance both terms in time.
-         
+
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
@@ -766,7 +766,7 @@ contains
 
          ! Add the RHS contributions coming from the BDF scheme.
          ! Blag and Blaglag are history of B matrices, mainly used for ALE.
-         ! For a normal simulation (no moving mesh), Blag and Blaglag 
+         ! For a normal simulation (no moving mesh), Blag and Blaglag
          ! are just the initial B matrix, filled at initialization.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
               u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
@@ -783,7 +783,7 @@ contains
          call c_Xh%recompute_metrics()
          ! Update the metrics used by the adv operator for delaiasing (coef_GL)
          ! Maps the updated coef_GLL to coef_GL.
-         call this%adv%recompute_metrics(c_Xh, .true.)     
+         call this%adv%recompute_metrics(c_Xh, .true.)
       end if
 
       call ulag%update()
@@ -916,12 +916,12 @@ contains
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if
-      
+
       ! Update mesh velocities for ALE
       ! We update them here (end of step) for the next step.
       ! Returns if .not. ale.
       call this%ale%update_mesh_velocity(c_Xh, time, ext_bdf%nadv)
-      
+
       call fluid_step_info(time, ksp_results, &
            this%full_stress_formulation, this%strict_convergence, &
            this%allow_stabilization)
@@ -948,7 +948,7 @@ contains
     integer, allocatable :: zone_indices(:)
 
     ! For ALE, we set a flag while reading the BCs
-    character(len=:), allocatable :: bc_type_str 
+    character(len=:), allocatable :: bc_type_str
     this%ale%has_moving_boundary = .false.
     any_moving_wall = .false.
     ale_active_local = .false.
@@ -993,7 +993,7 @@ contains
 
           call json_get_or_lookup(bc_subdict, "zone_indices", zone_indices)
 
-          ! Set the ALE flag to true if there is any moving no_slip wall 
+          ! Set the ALE flag to true if there is any moving no_slip wall
           call json_get(bc_subdict, "type", bc_type_str)
           moving_ = .false.
           if (trim(bc_type_str) .eq. "no_slip") then
@@ -1103,11 +1103,11 @@ contains
           end if
        end do
 
-          if (this%ale%active .and. (.not. this%ale%has_moving_boundary)) then
-             call neko_error("Case file error: ALE is active, &
-                  &but no moving wall was found. " // &
+       if (this%ale%active .and. (.not. this%ale%has_moving_boundary)) then
+          call neko_error("Case file error: ALE is active, &
+          &but no moving wall was found. " // &
                   "Use type='no_slip' with 'moving': true in case file.")
-          end if
+       end if
 
        ! Make sure all labeled zones with non-zero size have been marked
        do i = 1, size(this%msh%labeled_zones)
@@ -1271,11 +1271,11 @@ contains
        select type (bc => bci)
        type is (no_slip_t)
           if (bc%is_moving) then
-             ! moving wall 
-             call bdry_mask%init_from_components(this%c_Xh, 12.0_rp) 
+             ! moving wall
+             call bdry_mask%init_from_components(this%c_Xh, 12.0_rp)
           else
-             ! stationary wall 
-             call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)  
+             ! stationary wall
+             call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)
           end if
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
