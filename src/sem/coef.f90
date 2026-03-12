@@ -284,7 +284,7 @@ contains
     ! We do this so in a static simulation we don't allocate extra memory
     this%Blag => this%B
     this%Blaglag => this%B
-    
+
     allocate(this%h1(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%h2(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
@@ -453,7 +453,7 @@ contains
        deallocate(this%Blag)
     end if
     nullify(this%Blag)
-   
+
     if (associated(this%Blaglag) .and. .not. associated(this%Blaglag, this%B)) then
        deallocate(this%Blaglag)
     end if
@@ -1344,11 +1344,11 @@ contains
     integer :: n
     integer(c_size_t) :: n_bytes
 
-    ! Return if already allocated distinctly 
+    ! Return if already allocated distinctly
     if (.not. associated(this%Blag, this%B)) return
 
     n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
-    
+
     if (rp .eq. REAL32) then
        n_bytes = int(n, c_size_t) * 4_c_size_t
     else
@@ -1392,11 +1392,11 @@ contains
           n_bytes = int(n, c_size_t) * 4_c_size_t
        else
           n_bytes = int(n, c_size_t) * 8_c_size_t
-       end if       
+       end if
 
        call device_memcpy(this%Blaglag_d, this%Blag_d, n_bytes, &
                           DEVICE_TO_DEVICE, sync=.false.)
-                          
+
        call device_memcpy(this%Blag_d, this%B_d, n_bytes, &
                           DEVICE_TO_DEVICE, sync=.true.)
     end if

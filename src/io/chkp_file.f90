@@ -106,7 +106,7 @@ contains
     real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
     real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
     real(kind=rp), pointer :: Blag(:,:,:,:) => null()
-    real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()   
+    real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
     real(kind=rp), pointer :: pivot_pos(:) => null()
     real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
     real(kind=rp), pointer :: basis_pos(:) => null()
@@ -838,26 +838,26 @@ contains
        byte_offset = mpi_offset + &
             dof_offset * int(MPI_REAL_PREC_SIZE, i8)
        call this%read_field(fh, byte_offset, wm_z%x, nel)
-       mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)   
-       
+       mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
+
        do i = 1, wm_x_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
           call this%read_field(fh, byte_offset, wm_x_lag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
-       end do  
+       end do
        do i = 1, wm_y_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
           call this%read_field(fh, byte_offset, wm_y_lag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
-       end do       
+       end do
        do i = 1, wm_z_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
           call this%read_field(fh, byte_offset, wm_z_lag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
-       end do            
+       end do
        byte_offset = mpi_offset + &
             dof_offset * int(MPI_REAL_PREC_SIZE, i8)
        call this%read_field(fh, byte_offset, Blag, nel)

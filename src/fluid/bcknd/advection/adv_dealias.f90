@@ -471,19 +471,19 @@ contains
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
-  
-  !! Here, we compute: - div ( u_i * wm ). 
-  !! Based on Ho, L.W. A Legendre spectral element method for simulation of incompressible 
+
+  !! Here, we compute: - div ( u_i * wm ).
+  !! Based on Ho, L.W. A Legendre spectral element method for simulation of incompressible
   !! unsteady viscous free-surface flows.
   !! Ph.D. thesis, Massachusetts Institute of Technology, 1989.
 
   !! The name of the subroutie contains dealias.
   !! But we do not do dealiasing on this term for ALE.
-  !! This is beacuse we want to be consistent with Nek5000, and also 
+  !! This is beacuse we want to be consistent with Nek5000, and also
   !! because mesh velocity is known here, so we do not have high order polinomials such that
   !! dealiasing is needed. For later, e.g. FSI problems, we may need to revisit this.
-subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+  subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+     fx, fy, fz, Xh, coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z
@@ -492,9 +492,9 @@ subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
     type(coef_t), intent(in) :: coef
 
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: flux_GLL
-    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: grad_x, grad_y, grad_z 
+    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: grad_x, grad_y, grad_z
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: total_div_GLL
-    
+
     integer :: e, idx, lxyz
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
@@ -513,19 +513,19 @@ subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
           ! X-MOMENTUM
           ! =======================================================
           total_div_GLL = 0.0_rp
-          
+
           ! d/dx (u * wm_x)
-          ! Direct multiply on GLL grid: 
+          ! Direct multiply on GLL grid:
           flux_GLL = vx%x(idx:idx+lxyz-1,1,1,1) * wm_x%x(idx:idx+lxyz-1,1,1,1)
           ! Compute Gradient on GLL grid using STANDARD 'coef' (not c_GL)
           call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
           total_div_GLL = total_div_GLL + grad_x
-          
+
           ! d/dy (u * wm_y)
           flux_GLL = vx%x(idx:idx+lxyz-1,1,1,1) * wm_y%x(idx:idx+lxyz-1,1,1,1)
           call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
           total_div_GLL = total_div_GLL + grad_y
-          
+
           ! d/dz (u * wm_z)
           flux_GLL = vx%x(idx:idx+lxyz-1,1,1,1) * wm_z%x(idx:idx+lxyz-1,1,1,1)
           call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
@@ -567,7 +567,7 @@ subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
 
           flux_GLL = vz%x(idx:idx+lxyz-1,1,1,1) * wm_z%x(idx:idx+lxyz-1,1,1,1)
           call opgrad(grad_x, grad_y, grad_z, flux_GLL, coef, e, e)
-          total_div_GLL = total_div_GLL + grad_z   
+          total_div_GLL = total_div_GLL + grad_z
 
           fz%x(idx:idx+lxyz-1,1,1,1) = fz%x(idx:idx+lxyz-1,1,1,1) + total_div_GLL
 
@@ -577,25 +577,25 @@ subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
   end subroutine compute_ale_advection_dealias
 
   subroutine recompute_metrics_dealias(this, coef, moving_boundary)
-      class(adv_dealias_t), intent(inout) :: this
-      type(coef_t), intent(in) :: coef
-      logical, intent(in) :: moving_boundary
-      integer :: nel
+    class(adv_dealias_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    logical, intent(in) :: moving_boundary
+    integer :: nel
 
-      if (.not. moving_boundary) return
+    if (.not. moving_boundary) return
 
-      nel = coef%msh%nelv
-      call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
-      call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
-      call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
+    nel = coef%msh%nelv
+    call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
 
-      call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
-      call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
-      call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
 
-      call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
-      call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
-      call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
 
   end subroutine recompute_metrics_dealias
 

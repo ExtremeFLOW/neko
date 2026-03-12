@@ -195,8 +195,8 @@ contains
     logical, intent(in) :: moving_boundary
     ! no-op
   end subroutine recompute_metrics_no_dealias
-  
-   subroutine compute_ale_advection_no_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+
+  subroutine compute_ale_advection_no_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
                                            fx, fy, fz, Xh, coef, n, dt)
     class(adv_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz

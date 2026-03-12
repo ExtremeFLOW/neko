@@ -110,7 +110,7 @@ module adv_oifs
      procedure, pass(this) :: free => adv_oifs_free
      !> add the advection term for ALE, i.e. \f$(u - w_m) \cdot \nabla s \f$, to
      !> the RHS
-       procedure, pass(this) :: compute_ale => adv_oifs_compute_ale
+     procedure, pass(this) :: compute_ale => adv_oifs_compute_ale
      !> Update any metrics needed for the advection computation in ALE.
      procedure, pass(this) :: recompute_metrics => recompute_metrics_oifs
   end type adv_oifs_t
@@ -636,7 +636,7 @@ contains
   end subroutine recompute_metrics_oifs
 
 
-   subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+  subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
                                            fx, fy, fz, Xh, coef, n, dt)
     class(adv_oifs_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
