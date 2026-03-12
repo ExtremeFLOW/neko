@@ -34,14 +34,16 @@
 module adv_no_dealias
   use advection, only : advection_t
   use num_types, only : rp
-  use math, only : subcol3, rzero
+  use math, only : subcol3, rzero, addcol3
+  use field_math, only : field_col3
   use space, only : space_t
   use field, only : field_t
   use coefs, only : coef_t
-  use device_math, only : device_subcol3, device_rzero
+  use device_math, only : device_subcol3, device_rzero, device_addcol3
   use neko_config, only : NEKO_BCKND_DEVICE
-  use operators, only : conv1
+  use operators, only : conv1, div
   use device, only : device_free, device_map, device_get_ptr
+  use scratch_registry, only : neko_scratch_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -196,16 +198,62 @@ contains
     ! no-op
   end subroutine recompute_metrics_no_dealias
 
-  subroutine compute_ale_advection_no_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+  subroutine compute_ale_advection_no_dealias(this, vx, vy, vz, &
+       wm_x, wm_y, wm_z, fx, fy, fz, Xh, coef, n, dt)
     class(adv_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z
     type(field_t), intent(inout) :: fx, fy, fz
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
+    type(field_t), pointer :: work_x, work_y, work_z
+    integer :: id_x, id_y, id_z
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
-    ! no-op
+
+    call neko_scratch_registry%request_field(work_x, id_x, .false.)
+    call neko_scratch_registry%request_field(work_y, id_y, .false.)
+    call neko_scratch_registry%request_field(work_z, id_z, .false.)
+
+    ! u.wm_*
+    call field_col3(work_x, vx, wm_x)
+    call field_col3(work_y, vx, wm_y)
+    call field_col3(work_z, vx, wm_z)
+    call div(this%temp, work_x%x, work_y%x, work_z%x, coef)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_addcol3(fx%x_d, coef%B_d, this%temp_d, n)
+    else
+       call addcol3(fx%x, coef%B, this%temp, n)
+    end if
+
+    ! v.wm_*
+    call field_col3(work_x, vy, wm_x)
+    call field_col3(work_y, vy, wm_y)
+    call field_col3(work_z, vy, wm_z)
+    call div(this%temp, work_x%x, work_y%x, work_z%x, coef)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_addcol3(fy%x_d, coef%B_d, this%temp_d, n)
+    else
+       call addcol3(fy%x, coef%B, this%temp, n)
+    end if
+
+    ! w.wm_*
+    call field_col3(work_x, vz, wm_x)
+    call field_col3(work_y, vz, wm_y)
+    call field_col3(work_z, vz, wm_z)
+    call div(this%temp, work_x%x, work_y%x, work_z%x, coef)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_addcol3(fz%x_d, coef%B_d, this%temp_d, n)
+    else
+       call addcol3(fz%x, coef%B, this%temp, n)
+    end if
+
+    call neko_scratch_registry%relinquish_field(id_x)
+    call neko_scratch_registry%relinquish_field(id_y)
+    call neko_scratch_registry%relinquish_field(id_z)
+
   end subroutine compute_ale_advection_no_dealias
 end module adv_no_dealias
