@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Volumes/sourcecode/Python/kth/pySEMTools/**)",
+      "Read(//Users/eriksieburgh/src/Python/kth/pySEMTools/**)",
+      "Bash(chmod:*)"
+    ]
+  }
+}

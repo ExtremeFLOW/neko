@@ -92,7 +92,7 @@ pixi.lock
 install
 
 .venv/
-.claude/
+.claude/settings.local.json
 
 # Slurm output files
 slurm-*.out
