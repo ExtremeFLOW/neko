@@ -32,7 +32,7 @@
 !
 !> ALE Manager: Handles Mesh Motion
 module ale_manager
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use field, only : field_t
@@ -1278,7 +1278,7 @@ subroutine ale_manager_init(this, coef, json, user)
     class(ale_manager_t), intent(inout) :: this
     class(advection_t), intent(inout) :: adv
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: time_restart
+    real(kind=dp), intent(in) :: time_restart
 
     if (.not. this%active) return
 
