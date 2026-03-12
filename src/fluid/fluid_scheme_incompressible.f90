@@ -84,6 +84,7 @@ module fluid_scheme_incompressible
      integer :: pr_projection_dim !< Size of the projection space for ksp_pr
      integer :: vel_projection_activ_step !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step !< Steps to activate projection for ksp_pr
+     logical :: pr_projection_reorthogonalize_basis !< To reorthogonalize proj basis
      logical :: strict_convergence !< Strict convergence for the velocity solver
      logical :: allow_stabilization !< Allow stabilization period
      !> Extrapolation velocity fields for LES
@@ -222,7 +223,9 @@ contains
     call json_get_or_lookup_or_default(params, &
          'case.fluid.pressure_solver.projection_hold_steps', &
          this%pr_projection_activ_step, 5)
-
+    call json_get_or_default(params, &
+         'case.fluid.pressure_solver.projection_reorthogonalize_basis', &
+         this%pr_projection_reorthogonalize_basis, .false.)
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
 
