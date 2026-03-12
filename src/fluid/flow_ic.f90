@@ -433,7 +433,7 @@ contains
 
     nullify(us, vs, ws, ps)
 
-    ! If we are on GPU we need to move (u,v,w) back to the host
+    ! If we are on GPU we need to move (u,v,w) and p back to the host
     ! since set_flow_ic_common copies it again to the device.
     call u%copy_from(device_to_host, sync = .false.)
     call v%copy_from(device_to_host, sync = .false.)
