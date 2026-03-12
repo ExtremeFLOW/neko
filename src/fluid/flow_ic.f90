@@ -238,9 +238,9 @@ contains
        call u%copy_from(HOST_TO_DEVICE, sync = .false.)
        call v%copy_from(HOST_TO_DEVICE, sync = .false.)
        call w%copy_from(HOST_TO_DEVICE, sync = .false.)
-       
+
        ! also copy pressure for consistency
-       call p%copy_from(HOST_TO_DEVICE, sync = .true.) 
+       call p%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
 
     ! Ensure continuity across elements for initial conditions
