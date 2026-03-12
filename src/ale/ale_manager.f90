@@ -209,7 +209,6 @@ contains
        neko_ale => this
     end if
 
-    call profiler_start_region('ALE_INIT')
     call neko_log%section("ALE Initialization")
 
     n = coef%dof%size()
@@ -766,7 +765,6 @@ contains
     end do
     if (allocated(moving_zone_ids)) deallocate(moving_zone_ids)
     call this%mesh_preview(coef, json)
-    call profiler_end_region('ALE_INIT')
     call neko_log%end_section()
 
   end subroutine ale_manager_init
@@ -797,8 +795,6 @@ contains
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
     if (this%config%nbodies == 0) return
-
-    call profiler_start_region('ALE_SOLVE', 99)
 
     call neko_log%message(" ")
     call neko_log%message("Starting base mesh motion solve ...")
@@ -977,7 +973,6 @@ contains
     coef%h1 = h1_restore
     coef%h2 = h2_restore
 
-    call profiler_end_region('ALE_SOLVE', 99)
   end subroutine solve_base_mesh_displacement
 
   !> Updates the mesh velocity field based on current time and kinematics
@@ -997,6 +992,7 @@ contains
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
+    call profiler_start_region('ALE add mesh velocity')
 
     call field_rzero(this%wm_x)
     call field_rzero(this%wm_y)
@@ -1044,6 +1040,7 @@ contains
        call this%user_ale_mesh_vel(this%wm_x, this%wm_y, this%wm_z, &
             coef, this%x_ref, this%y_ref, this%z_ref, this%base_shapes, time_s)
     end if
+    call profiler_end_region('ALE add mesh velocity')
 
   end subroutine update_mesh_velocity
 
@@ -1058,6 +1055,7 @@ contains
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
+    call profiler_start_region('ALE update mesh')
     do i = 1, this%config%nbodies
        ! Advance Point Trackers attached to this body.
        ! Can be used for torque calculation (simcomp) at a point distanced from the body
@@ -1084,6 +1082,7 @@ contains
     call this%wm_x_lag%update()
     call this%wm_y_lag%update()
     call this%wm_z_lag%update()
+    call profiler_end_region('ALE update mesh')
   end subroutine advance_mesh
 
   ! Compute mesh stiffness with per-body gain/decay from stiff_geom
