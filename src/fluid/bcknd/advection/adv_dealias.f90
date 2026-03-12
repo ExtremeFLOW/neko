@@ -41,6 +41,7 @@ module adv_dealias
   use device_math, only : device_vdot3, device_sub2
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
        NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
+  use utils, only : neko_error
   use operators, only : opgrad
   use interpolation, only : interpolator_t
   use device, only : device_map, device_get_ptr, device_free
