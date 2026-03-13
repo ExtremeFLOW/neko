@@ -22,7 +22,7 @@ for arg in "$@"; do
 done
 
 if [ -z "$ENV_FLAG" ]; then
-    echo "Usage: ./build-neko-channel.sh --local|--cluster [--clean|--regen]"
+    echo "Usage: ./build-neko-channel.sh --local|--egidius|--cluster [--clean|--regen]"
     exit 1
 fi
 
@@ -54,6 +54,10 @@ fi
 if [ ! -f Makefile ] || [ "$BUILD_FLAG" = "--regen" ] || [ "$BUILD_FLAG" = "--clean" ]; then
     echo "--- Configuring ---"
     if [ "$ENV_FLAG" = "--local" ]; then
+        ./configure --prefix="$INSTALL_PREFIX" \
+            LDFLAGS="-L${JSON_INSTALL}/lib -Wl,-rpath,${JSON_INSTALL}/lib" \
+            FCFLAGS="-O3 -march=native -g"
+    elif [ "$ENV_FLAG" = "--egidius" ]; then
         ./configure --prefix="$INSTALL_PREFIX" \
             LDFLAGS="-L${JSON_INSTALL}/lib -Wl,-rpath,${JSON_INSTALL}/lib" \
             FCFLAGS="-O3 -march=native -g"

@@ -3,6 +3,7 @@
 #
 # Usage:
 #   source setup-env-channel.sh --local     # macOS development
+#   source setup-env-channel.sh --egidius   # KTH Mechanics workstation
 #   source setup-env-channel.sh --cluster   # HPC cluster (Dardel/Cray + ROCm)
 
 if [ "$1" = "--local" ]; then
@@ -22,6 +23,25 @@ if [ "$1" = "--local" ]; then
     export PATH="$NEKO_CHANNEL_PREFIX/bin:$PATH"
 
     echo "neko-channel environment loaded (local/macOS)"
+
+elif [ "$1" = "--egidius" ]; then
+    # ── KTH Mechanics workstation (egidius) ─────────────────────────────
+    # gfortran 14 + OpenMPI 5, json-fortran installed to ~/local
+    export JSON_INSTALL="$HOME/local"
+    export NEKO_CHANNEL_PREFIX="$HOME/local/neko-channel"
+
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${JSON_INSTALL}/lib/"
+    export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}${JSON_INSTALL}/lib/pkgconfig"
+
+    export FC="gfortran"
+    export CC="gcc"
+    export CXX="g++"
+
+    alias make='make -j$(nproc)'
+
+    export PATH="$NEKO_CHANNEL_PREFIX/bin:$PATH"
+
+    echo "neko-channel environment loaded (egidius)"
 
 elif [ "$1" = "--cluster" ]; then
     # ── Dardel (Cray + ROCm/HIP) ────────────────────────────────────────
