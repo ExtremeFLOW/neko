@@ -2,8 +2,7 @@
 
 ## Develop
 
-- Added a script to add new unit tests under `contrib/add_unit_test`. Added
-  templates for serial and parallel unit tests.
+- Added templates for serial and parallel unit tests.
 - Improved pixi installation. Added support to create a Python environment
   inside the pixi shell. Added support to choose real precision.
 - Added the Deardorff SGS model.
