@@ -51,8 +51,9 @@ Then update the case file: `polynomial_order: 7`, `epsilon: 0.10`,
 
 ## Next steps
 
-- [ ] Add `--egidius` option to `setup-env-channel.sh` and `build-neko-channel.sh`
-- [ ] Clone repo and build Neko on egidius
+- [x] Add `--egidius` option to `setup-env-channel.sh` and `build-neko-channel.sh`
+- [x] Clone repo and build Neko on egidius (`/lscratch/sieburgh/local/neko-channel/`)
+- [x] `makeneko` compiles cleanly on egidius
 - [ ] Run short validation (10–100 steps) on egidius
 - [ ] Generate production mesh with `genmeshbox` (24×20×16)
 - [ ] Update case file for production (N=7, eps=0.10, two drops, end_time=200)
