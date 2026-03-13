@@ -2,6 +2,9 @@ module test_parallel
   use mpi
   use pfunit
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init
   implicit none
 
   @TestCase
@@ -14,7 +17,7 @@ module test_parallel
 contains
 
   subroutine setUp(this)
-    class(test_fld_file_write), intent(inout) :: this
+    class(parallel_template_case), intent(inout) :: this
     integer :: ierr
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
@@ -24,7 +27,7 @@ contains
   end subroutine setUp
 
   subroutine tearDown(this)
-    class(test_fld_file_write), intent(inout) :: this
+    class(parallel_template_case), intent(inout) :: this
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
