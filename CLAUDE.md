@@ -52,6 +52,14 @@ make -j$(nproc) install
 # installs to ~/local/jsonfortran-gnu-9.2.1/
 ```
 
+**Known issue:** cmake leaves `libdir` and `includedir` empty in the generated
+`json-fortran.pc`. The `.pc` file must be patched manually after install:
+```
+libdir=/lscratch/sieburgh/local/jsonfortran-gnu-9.2.1/lib
+includedir=/lscratch/sieburgh/local/jsonfortran-gnu-9.2.1/lib
+```
+(already done; verify with `pkg-config --cflags json-fortran` after sourcing the env)
+
 ### Dardel (production HPC)
 
 See the Dardel workflow in the original `spurious-currents` CLAUDE.md.
