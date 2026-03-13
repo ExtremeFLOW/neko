@@ -1,6 +1,6 @@
-module tensor_cpu
-  use num_types, only : rp
-  use mxm_wrapper, only : mxm
+module tensor_cpu_m
+  use num_types_m, only : rp
+  use mxm_wrapper_m, only : mxm
   implicit none
   private
 
@@ -1452,4 +1452,4 @@ contains
 
   end subroutine tnsr1_3d_nu4nv2_cpu
 
-end module tensor_cpu
+end module tensor_cpu_m

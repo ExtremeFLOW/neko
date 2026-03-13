@@ -32,10 +32,10 @@
 !
 !> Implements a point.
 !
-module point
-  use num_types, only : dp, rp
-  use math, only : abscmp
-  use entity, only : entity_t
+module point_m
+  use num_types_m, only : dp, rp
+  use math_m, only : abscmp
+  use entity_m, only : entity_t
   implicit none
   private
 
@@ -249,4 +249,4 @@ contains
 
   end function point_mat_mult
 
-end module point
+end module point_m

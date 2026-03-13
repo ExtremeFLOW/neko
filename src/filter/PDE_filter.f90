@@ -33,35 +33,35 @@
 !
 !> A PDE based filter
 
-module PDE_filter
-  use num_types, only : rp
+module pde_filter_m
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default, json_get
-  use registry, only : neko_registry
-  use field, only : field_t
-  use coefs, only : coef_t
-  use ax_product, only : ax_t, ax_helm_factory
-  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_factory, precon_destroy
-  use bc_list, only : bc_list_t
-  use neumann, only : neumann_t
-  use profiler, only : profiler_start_region, profiler_end_region
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use pnpn_residual, only : pnpn_prs_res_t
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use registry, only : neko_registry
-  use filter, only : filter_t
-  use scratch_registry, only : neko_scratch_registry
-  use field_math, only : field_copy, field_add3
-  use coefs, only : coef_t
-  use logger, only : neko_log, LOG_SIZE
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use dofmap, only : dofmap_t
-  use jacobi, only : jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
-  use utils, only : neko_error
-  use device_math, only : device_cfill, device_subcol3, device_cmult
+  use json_utils_m, only : json_get_or_default, json_get
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use ax_product_m, only : ax_t, ax_helm_factory
+  use krylov_m, only : ksp_t, ksp_monitor_t, krylov_solver_factory
+  use precon_m, only : pc_t, precon_factory, precon_destroy
+  use bc_list_m, only : bc_list_t
+  use neumann_m, only : neumann_t
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use pnpn_residual_m, only : pnpn_prs_res_t
+  use mesh_m, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
+  use registry_m, only : neko_registry
+  use filter_m, only : filter_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use field_math_m, only : field_copy, field_add3
+  use coefs_m, only : coef_t
+  use logger_m, only : neko_log, LOG_SIZE
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use dofmap_m, only : dofmap_t
+  use jacobi_m, only : jacobi_t
+  use device_jacobi_m, only : device_jacobi_t
+  use sx_jacobi_m, only : sx_jacobi_t
+  use utils_m, only : neko_error
+  use device_math_m, only : device_cfill, device_subcol3, device_cmult
   implicit none
   private
 
@@ -321,4 +321,4 @@ contains
 
   end subroutine filter_precon_factory
 
-end module PDE_filter
+end module pde_filter_m

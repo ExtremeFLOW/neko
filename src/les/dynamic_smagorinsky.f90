@@ -31,20 +31,20 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements `dynamic_smagorinsky_t`.
-module dynamic_smagorinsky
-  use num_types, only : rp
-  use field, only : field_t
-  use fluid_scheme_base, only : fluid_scheme_base_t
-  use les_model, only : les_model_t
-  use json_utils, only : json_get, json_get_or_default
+module dynamic_smagorinsky_m
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use fluid_scheme_base_m, only : fluid_scheme_base_t
+  use les_model_m, only : les_model_t
+  use json_utils_m, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use utils, only : neko_error
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use elementwise_filter, only : elementwise_filter_t
-  use dynamic_smagorinsky_cpu, only : dynamic_smagorinsky_compute_cpu
-  use logger, only : LOG_SIZE, neko_log
-  use registry, only : neko_registry
-  use dynamic_smagorinsky_device, only : dynamic_smagorinsky_compute_device
+  use utils_m, only : neko_error
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use elementwise_filter_m, only : elementwise_filter_t
+  use dynamic_smagorinsky_cpu_m, only : dynamic_smagorinsky_compute_cpu
+  use logger_m, only : LOG_SIZE, neko_log
+  use registry_m, only : neko_registry
+  use dynamic_smagorinsky_device_m, only : dynamic_smagorinsky_compute_device
   implicit none
   private
 
@@ -243,4 +243,4 @@ contains
 
   end subroutine set_ds_filt
 
-end module dynamic_smagorinsky
+end module dynamic_smagorinsky_m

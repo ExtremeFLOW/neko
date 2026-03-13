@@ -32,17 +32,17 @@
 !
 !> Computes the subgrid-scale contributions for the scalar fluxes.
 !! We use the Reynolds decomposition for a field u = <u> + u' = U + u'
-module scalar_sgs_stats
-  use mean_field, only : mean_field_t
-  use num_types, only : rp
-  use field_math, only : field_cmult, field_col3, field_cmult2
-  use operators, only : grad
-  use coefs, only : coef_t
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use stats_quant, only : stats_quant_t
-  use registry, only : neko_registry
-  use scratch_registry, only : neko_scratch_registry
+module scalar_sgs_stats_m
+  use mean_field_m, only : mean_field_t
+  use num_types_m, only : rp
+  use field_math_m, only : field_cmult, field_col3, field_cmult2
+  use operators_m, only : grad
+  use coefs_m, only : coef_t
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use stats_quant_m, only : stats_quant_t
+  use registry_m, only : neko_registry
+  use scratch_registry_m, only : neko_scratch_registry
   implicit none
   private
 
@@ -248,4 +248,4 @@ contains
 
   end subroutine scalar_sgs_stats_reset
 
-end module scalar_sgs_stats
+end module scalar_sgs_stats_m

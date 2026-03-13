@@ -1,9 +1,9 @@
 @test
 subroutine test_hex_init
   use pfunit
-  use point
-  use hex
-  use num_types
+  use point_m
+  use hex_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -64,9 +64,9 @@ end subroutine test_hex_init
 @test
 subroutine test_hex_free
   use pfunit
-  use point
-  use hex
-  use num_types
+  use point_m
+  use hex_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -114,9 +114,9 @@ end subroutine test_hex_free
 @test
 subroutine test_hex_centroid
   use pfunit
-  use point
-  use hex
-  use num_types
+  use point_m
+  use hex_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -155,9 +155,9 @@ end subroutine test_hex_centroid
 @test
 subroutine test_hex_diameter
   use pfunit
-  use point
-  use hex
-  use num_types
+  use point_m
+  use hex_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -190,9 +190,9 @@ end subroutine test_hex_diameter
 @test
 subroutine test_hex_equal
   use pfunit
-  use point
-  use hex
-  use num_types
+  use point_m
+  use hex_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   type(point_t) :: pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8
@@ -263,10 +263,10 @@ end subroutine test_hex_equal
 @test
 subroutine test_hex_facet_id
   use pfunit
-  use point
-  use tuple
-  use hex
-  use num_types
+  use point_m
+  use tuple_m
+  use hex_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -351,10 +351,10 @@ end subroutine test_hex_facet_id
 @test
 subroutine test_hex_edge_id
   use pfunit
-  use point
-  use tuple
-  use hex
-  use num_types
+  use point_m
+  use tuple_m
+  use hex_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id

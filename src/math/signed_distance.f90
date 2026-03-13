@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> @brief Module containing Signed Distance Functions.
-module signed_distance
-  use num_types, only : dp, rp
-  use field, only : field_t
-  use tri, only : tri_t
-  use tri_mesh, only : tri_mesh_t
-  use aabb_tree, only : aabb_tree_t
-  use device, only : device_memcpy, HOST_TO_DEVICE
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_error, neko_warning
+module signed_distance_m
+  use num_types_m, only : dp, rp
+  use field_m, only : field_t
+  use tri_m, only : tri_t
+  use tri_mesh_m, only : tri_mesh_t
+  use aabb_tree_m, only : aabb_tree_t
+  use device_m, only : device_memcpy, HOST_TO_DEVICE
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use utils_m, only : neko_error, neko_warning
 
   implicit none
   private
@@ -143,7 +143,7 @@ contains
   !! @param mesh Boundary mesh
   !! @return Signed distance value
   function tri_mesh_brute_force(mesh, p, max_distance) result(distance)
-    use num_types, only : dp
+    use num_types_m, only : dp
 
     implicit none
 
@@ -191,9 +191,9 @@ contains
   !! @return Signed distance value
   function tri_mesh_aabb_tree(tree, object_list, p, max_distance) &
        result(distance)
-    use aabb, only : aabb_t
-    use aabb_tree, only : aabb_node_t, AABB_NULL_NODE
-    use stack, only : stack_i4_t
+    use aabb_m, only : aabb_t
+    use aabb_tree_m, only : aabb_node_t, AABB_NULL_NODE
+    use stack_m, only : stack_i4_t
     implicit none
 
     class(aabb_tree_t), intent(in) :: tree
@@ -435,4 +435,4 @@ contains
 
   end function cross
 
-end module signed_distance
+end module signed_distance_m

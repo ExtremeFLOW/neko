@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Contains the `time_based_controller_t` type.
-module time_based_controller
-  use num_types, only : rp
-  use utils, only : neko_error
-  use time_state, only : time_state_t
+module time_based_controller_m
+  use num_types_m, only : rp
+  use utils_m, only : neko_error
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -230,4 +230,4 @@ contains
   end subroutine time_based_controller_set_counter
 
 
-end module time_based_controller
+end module time_based_controller_m

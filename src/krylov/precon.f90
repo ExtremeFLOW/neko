@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Krylov preconditioner
-module precon
-  use num_types, only : rp
+module precon_m
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -80,4 +80,4 @@ module precon
 
   public :: precon_factory, precon_destroy
   
-end module precon
+end module precon_m

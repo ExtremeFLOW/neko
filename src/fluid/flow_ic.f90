@@ -31,35 +31,35 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Initial flow condition
-module flow_ic
-  use num_types, only : rp
-  use logger, only : neko_log, LOG_SIZE
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
+module flow_ic_m
+  use num_types_m, only : rp
+  use logger_m, only : neko_log, LOG_SIZE
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use flow_profile_m, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
-  use import_field_utils, only : import_fields
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
-  use field, only : field_t
-  use utils, only : neko_error, filename_chsuffix, &
+  use import_field_utils_m, only : import_fields
+  use device_m, only : device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
+  use field_m, only : field_t
+  use utils_m, only : neko_error, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
-  use coefs, only : coef_t
-  use math, only : col2, cfill, cfill_mask, abscmp
-  use device_math, only : device_col2
-  use user_intf, only : user_initial_conditions_intf
+  use coefs_m, only : coef_t
+  use math_m, only : col2, cfill, cfill_mask, abscmp
+  use device_math_m, only : device_col2
+  use user_intf_m, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, &
+  use json_utils_m, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default, json_get_or_lookup
-  use point_zone, only : point_zone_t
-  use point_zone_registry, only : neko_point_zone_registry
-  use fld_file_data, only : fld_file_data_t
-  use fld_file, only : fld_file_t
-  use file, only : file_t
-  use global_interpolation, only : global_interpolation_t
-  use interpolation, only : interpolator_t
-  use space, only : space_t, GLL
-  use field_list, only : field_list_t
-  use operators, only : rotate_cyc
+  use point_zone_m, only : point_zone_t
+  use point_zone_registry_m, only : neko_point_zone_registry
+  use fld_file_data_m, only : fld_file_data_t
+  use fld_file_m, only : fld_file_t
+  use file_m, only : file_t
+  use global_interpolation_m, only : global_interpolation_t
+  use interpolation_m, only : interpolator_t
+  use space_m, only : space_t, GLL
+  use field_list_m, only : field_list_t
+  use operators_m, only : rotate_cyc
   implicit none
   private
 
@@ -442,4 +442,4 @@ contains
 
   end subroutine set_flow_ic_fld
 
-end module flow_ic
+end module flow_ic_m

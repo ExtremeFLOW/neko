@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Generic Gather-scatter backend for CPUs
-module gs_cpu
-  use num_types
-  use gs_bcknd
-  use gs_ops
+module gs_cpu_m
+  use num_types_m
+  use gs_bcknd_m
+  use gs_ops_m
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -293,4 +293,4 @@ contains
 
   end subroutine gs_scatter_kernel
 
-end module gs_cpu
+end module gs_cpu_m

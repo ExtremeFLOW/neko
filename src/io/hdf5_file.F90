@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> HDF5 file format
-module hdf5_file
-  use num_types, only : rp, dp, sp
-  use generic_file, only : generic_file_t
-  use checkpoint, only : chkp_t
-  use utils, only : neko_error, filename_suffix_pos
-  use mesh, only : mesh_t
-  use field, only : field_t, field_ptr_t
-  use field_list, only : field_list_t
-  use field_series, only : field_series_t, field_series_ptr_t
-  use dofmap, only : dofmap_t
-  use logger, only : neko_log
-  use comm, only : pe_rank, NEKO_COMM
+module hdf5_file_m
+  use num_types_m, only : rp, dp, sp
+  use generic_file_m, only : generic_file_t
+  use checkpoint_m, only : chkp_t
+  use utils_m, only : neko_error, filename_suffix_pos
+  use mesh_m, only : mesh_t
+  use field_m, only : field_t, field_ptr_t
+  use field_list_m, only : field_list_t
+  use field_series_m, only : field_series_t, field_series_ptr_t
+  use dofmap_m, only : dofmap_t
+  use logger_m, only : neko_log
+  use comm_m, only : pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_IN_PLACE, &
        MPI_INTEGER8, MPI_SUM
 #ifdef HAVE_HDF5
@@ -620,4 +620,4 @@ contains
 
 #endif
 
-end module hdf5_file
+end module hdf5_file_m

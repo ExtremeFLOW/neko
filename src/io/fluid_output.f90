@@ -31,20 +31,20 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines an output for a fluid
-module fluid_output
-  use num_types, only : rp
-  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
-  use fluid_scheme_compressible, only : fluid_scheme_compressible_t
-  use fluid_scheme_base, only : fluid_scheme_base_t
-  use scalar_scheme, only : scalar_scheme_t
-  use field_list, only : field_list_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device
-  use output, only : output_t
-  use scalars, only : scalars_t
-  use registry, only : neko_registry
-  use field, only : field_t
-  use fld_file, only : fld_file_t
+module fluid_output_m
+  use num_types_m, only : rp
+  use fluid_scheme_incompressible_m, only : fluid_scheme_incompressible_t
+  use fluid_scheme_compressible_m, only : fluid_scheme_compressible_t
+  use fluid_scheme_base_m, only : fluid_scheme_base_t
+  use scalar_scheme_m, only : scalar_scheme_t
+  use field_list_m, only : field_list_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m
+  use output_m, only : output_t
+  use scalars_m, only : scalars_t
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use fld_file_m, only : fld_file_t
   implicit none
   private
 
@@ -206,4 +206,4 @@ contains
 
   end subroutine fluid_output_sample
 
-end module fluid_output
+end module fluid_output_m

@@ -31,29 +31,29 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a boundary condition
-module bc
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use device, only : HOST_TO_DEVICE, device_memcpy, &
+module bc_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use device_m, only : HOST_TO_DEVICE, device_memcpy, &
        device_free, device_map, DEVICE_TO_HOST, glb_cmd_queue
   use iso_c_binding, only : c_associated
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use facet_zone, only : facet_zone_t
-  use stack, only : stack_i4t2_t
-  use tuple, only : tuple_i4_t
-  use field, only : field_t
-  use gs_ops, only : GS_OP_ADD
-  use math, only : relcmp
-  use utils, only : neko_error, linear_index, split_string
-  use logger, only : neko_log, LOG_SIZE
+  use dofmap_m, only : dofmap_t
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
+  use facet_zone_m, only : facet_zone_t
+  use stack_m, only : stack_i4t2_t
+  use tuple_m, only : tuple_i4_t
+  use field_m, only : field_t
+  use gs_ops_m, only : GS_OP_ADD
+  use math_m, only : relcmp
+  use utils_m, only : neko_error, linear_index, split_string
+  use logger_m, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   use json_module, only : json_file
-  use time_state, only : time_state_t
-  use field, only : field_t
-  use file, only : file_t
+  use time_state_m, only : time_state_t
+  use field_m, only : field_t
+  use file_m, only : file_t
 
   implicit none
   private
@@ -611,4 +611,4 @@ contains
     call dump_file%write(bdry_field)
 
   end subroutine bc_debug_mask
-end module bc
+end module bc_m

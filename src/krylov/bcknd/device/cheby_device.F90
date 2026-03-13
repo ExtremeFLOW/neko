@@ -31,22 +31,22 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Chebyshev preconditioner
-module cheby_device
-  use krylov, only : ksp_t, ksp_monitor_t
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use num_types, only : rp, c_rp
-  use field, only : field_t
-  use coefs, only : coef_t
-  use mesh, only : mesh_t
-  use space, only : space_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use schwarz, only : schwarz_t
-  use device_math, only : device_cmult2, device_sub2, &
+module cheby_device_m
+  use krylov_m, only : ksp_t, ksp_monitor_t
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use num_types_m, only : rp, c_rp
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use schwarz_m, only : schwarz_t
+  use device_math_m, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy, &
        device_sub3, device_cmult, device_add2
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, &
        C_NULL_PTR, c_associated
   implicit none
@@ -501,4 +501,4 @@ contains
 
   end function cheby_device_solve_coupled
 
-end module cheby_device
+end module cheby_device_m

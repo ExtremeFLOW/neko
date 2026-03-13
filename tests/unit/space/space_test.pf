@@ -1,8 +1,8 @@
 module space_test
   use pfunit
-  use device
-  use space
-  use neko_config
+  use device_m
+  use space_m
+  use neko_config_m
   implicit none
 
   @TestCase

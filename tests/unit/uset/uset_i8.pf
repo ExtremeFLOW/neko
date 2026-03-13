@@ -1,7 +1,7 @@
 @test
 subroutine test_uset_init_i8
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i8_t) :: s
 
@@ -13,7 +13,7 @@ end subroutine test_uset_init_i8
 @test
 subroutine test_uset_free_i8
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i8_t) :: s
 
@@ -26,8 +26,8 @@ end subroutine test_uset_free_i8
 @test
 subroutine test_uset_size_i8
   use pfunit
-  use uset
-  use num_types, only : i8
+  use uset_m
+  use num_types_m, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i
@@ -51,8 +51,8 @@ end subroutine test_uset_size_i8
 @test
 subroutine test_uset_clear_i8
   use pfunit
-  use uset
-  use num_types, only : i8
+  use uset_m
+  use num_types_m, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i
@@ -77,8 +77,8 @@ end subroutine test_uset_clear_i8
 @test
 subroutine test_uset_element_i8
   use pfunit
-  use uset
-  use num_types, only : i8
+  use uset_m
+  use num_types_m, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i
@@ -111,8 +111,8 @@ end subroutine test_uset_element_i8
 @test
 subroutine test_uset_remove_i8
   use pfunit
-  use uset
-  use num_types, only : i8
+  use uset_m
+  use num_types_m, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i
@@ -155,8 +155,8 @@ end subroutine test_uset_remove_i8
 @test
 subroutine test_uset_iter_i8
   use pfunit
-  use uset
-  use num_types, only : i8
+  use uset_m
+  use num_types_m, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i, n_entries

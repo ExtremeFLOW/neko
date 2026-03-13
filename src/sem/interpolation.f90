@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Routines to interpolate between different spaces
-module interpolation
-  use neko_config
-  use num_types, only : rp
-  use device
-  use fast3d
-  use tensor, only : tnsr3d
-  use tensor_cpu, only : tnsr3d_cpu
-  use space, only : space_t, operator(.eq.), GL, GLL
-  use utils, only : neko_error
+module interpolation_m
+  use neko_config_m
+  use num_types_m, only : rp
+  use device_m
+  use fast3d_m
+  use tensor_m, only : tnsr3d
+  use tensor_cpu_m, only : tnsr3d_cpu
+  use space_m, only : space_t, operator(.eq.), GL, GLL
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -213,4 +213,4 @@ contains
   end subroutine interpolator_map_host
 
 
-end module interpolation
+end module interpolation_m

@@ -1,7 +1,7 @@
 module test_scalar_registry
   use pfunit
-  use registry, only : registry_t
-  use num_types, only : rp
+  use registry_m, only : registry_t
+  use num_types_m, only : rp
   implicit none
 
   @TestCase

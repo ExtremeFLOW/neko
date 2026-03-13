@@ -58,9 +58,9 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Tensor operations libxsmm backend
-module tensor_xsmm
-  use num_types, only : rp
-  use mxm_wrapper, only : mxm
+module tensor_xsmm_m
+  use num_types_m, only : rp
+  use mxm_wrapper_m, only : mxm
   implicit none
   private
 
@@ -151,4 +151,4 @@ contains
     end do
   end subroutine tnsr1_3d_xsmm
 
-end module tensor_xsmm
+end module tensor_xsmm_m

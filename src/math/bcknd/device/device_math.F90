@@ -30,19 +30,19 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_math
+module device_math_m
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only : rp, c_rp
-  use utils, only : neko_error
-  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use num_types_m, only : rp, c_rp
+  use utils_m, only : neko_error
+  use comm_m, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
-  use device, only : glb_cmd_queue
+  use device_m, only : glb_cmd_queue
   ! ========================================================================== !
   ! Device math interfaces
 
-  use hip_math
-  use cuda_math
-  use opencl_math
+  use hip_math_m
+  use cuda_math_m
+  use opencl_math_m
 
   implicit none
   private
@@ -1586,4 +1586,4 @@ contains
   end subroutine device_iadd
 
 
-end module device_math
+end module device_math_m

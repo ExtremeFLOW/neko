@@ -31,25 +31,25 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines various GMRES methods
-module gmres_device
-  use neko_config, only : NEKO_BCKND_OPENCL
-  use krylov, only : ksp_t, ksp_monitor_t
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
-  use field, only : field_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use device_identity, only : device_ident_t
-  use math, only : rone, rzero, abscmp
-  use device_math, only : device_rzero, device_copy, device_glsc3, &
+module gmres_device_m
+  use neko_config_m, only : NEKO_BCKND_OPENCL
+  use krylov_m, only : ksp_t, ksp_monitor_t
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use num_types_m, only: rp, c_rp
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use device_identity_m, only : device_ident_t
+  use math_m, only : rone, rzero, abscmp
+  use device_math_m, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1, device_rone, &
        device_cmult2, device_add2s2_many, device_glsc3_many,&
        device_sub2
-  use device
-  use utils, only : neko_error
-  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use device_m
+  use utils_m, only : neko_error
+  use comm_m, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_SUM, MPI_Allreduce
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
        c_associated, c_int, c_size_t, c_sizeof
@@ -514,4 +514,4 @@ contains
 
   end function gmres_device_solve_coupled
 
-end module gmres_device
+end module gmres_device_m

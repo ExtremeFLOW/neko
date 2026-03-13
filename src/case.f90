@@ -31,41 +31,41 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a simulation case
-module case
-  use num_types, only : rp, sp, dp
-  use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
-  use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
-  use fluid_output, only : fluid_output_t
-  use chkp_output, only : chkp_output_t
-  use mesh_field, only : mesh_fld_t
-  use parmetis, only : parmetis_partmeshkway
-  use redist, only : redist_mesh
-  use output_controller, only : output_controller_t
-  use flow_ic, only : set_flow_ic
-  use scalar_ic, only : set_scalar_ic
-  use file, only : file_t
-  use utils, only : neko_error
-  use mesh, only : mesh_t
-  use math, only : NEKO_EPS
-  use checkpoint, only: chkp_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use logger, only : neko_log, NEKO_LOG_QUIET
-  use jobctrl, only : jobctrl_set_time_limit
-  use user_intf, only : user_t
-  use scalar_pnpn, only : scalar_pnpn_t
-  use scalar_scheme, only : scalar_scheme_t
-  use time_state, only : time_state_t
+module case_m
+  use num_types_m, only : rp, sp, dp
+  use fluid_pnpn_m, only : fluid_pnpn_t
+  use fluid_scheme_incompressible_m, only : fluid_scheme_incompressible_t
+  use fluid_scheme_base_m, only: fluid_scheme_base_t, fluid_scheme_base_factory
+  use fluid_output_m, only : fluid_output_t
+  use chkp_output_m, only : chkp_output_t
+  use mesh_field_m, only : mesh_fld_t
+  use parmetis_m, only : parmetis_partmeshkway
+  use redist_m, only : redist_mesh
+  use output_controller_m, only : output_controller_t
+  use flow_ic_m, only : set_flow_ic
+  use scalar_ic_m, only : set_scalar_ic
+  use file_m, only : file_t
+  use utils_m, only : neko_error
+  use mesh_m, only : mesh_t
+  use math_m, only : NEKO_EPS
+  use checkpoint_m, only: chkp_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use logger_m, only : neko_log, NEKO_LOG_QUIET
+  use jobctrl_m, only : jobctrl_set_time_limit
+  use user_intf_m, only : user_t
+  use scalar_pnpn_m, only : scalar_pnpn_t
+  use scalar_scheme_m, only : scalar_scheme_t
+  use time_state_m, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+  use json_utils_m, only : json_get, json_get_or_default, json_extract_item, &
        json_no_defaults, json_get_or_lookup, json_get_or_lookup_or_default
-  use scratch_registry, only : scratch_registry_t, neko_scratch_registry
-  use point_zone_registry, only: neko_point_zone_registry
-  use scalars, only : scalars_t
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use scratch_registry_m, only : scratch_registry_t, neko_scratch_registry
+  use point_zone_registry_m, only: neko_point_zone_registry
+  use scalars_m, only : scalars_t
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
   use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
-  use registry, only : neko_registry, neko_const_registry
-  use vector, only : vector_t
+  use registry_m, only : neko_registry, neko_const_registry
+  use vector_m, only : vector_t
 
   implicit none
   private
@@ -606,4 +606,4 @@ contains
 
   end subroutine case_free
 
-end module case
+end module case_m

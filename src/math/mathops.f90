@@ -62,8 +62,8 @@
  !! Note that in general the indices \f$i=1 \ldots gdim\f$ and \f$j=1 \ldots n\f$.
  !! \f$gdim\f$ is assumed to be either 2 or 3 only.
 
-module mathops
-  use num_types, only : rp
+module mathops_m
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -183,4 +183,4 @@ contains
 
   end subroutine opadd2col
 
-end module mathops
+end module mathops_m

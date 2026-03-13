@@ -1,9 +1,9 @@
 @test
 subroutine test_tri_init
   use pfunit
-  use point
-  use tri
-  use num_types
+  use point_m
+  use tri_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -39,9 +39,9 @@ end subroutine test_tri_init
 @test
 subroutine test_tri_free
   use pfunit
-  use point
-  use tri
-  use num_types
+  use point_m
+  use tri_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -69,9 +69,9 @@ end subroutine test_tri_free
 @test
 subroutine test_tri_centroid
   use pfunit
-  use point
-  use tri
-  use num_types
+  use point_m
+  use tri_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -99,9 +99,9 @@ end subroutine test_tri_centroid
 @test
 subroutine test_tri_diameter
   use pfunit
-  use point
-  use tri
-  use num_types
+  use point_m
+  use tri_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -124,9 +124,9 @@ end subroutine test_tri_diameter
 @test
 subroutine test_tri_equal
   use pfunit
-  use point
-  use tri
-  use num_types
+  use point_m
+  use tri_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p5, p6, p7
   integer :: point_id
@@ -168,10 +168,10 @@ end subroutine test_tri_equal
 @test
 subroutine test_tri_facet_id
   use pfunit
-  use point
-  use tri
-  use tuple
-  use num_types
+  use point_m
+  use tri_m
+  use tuple_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3
   integer :: point_id

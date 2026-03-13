@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements a mesh intersection detector
-module intersection_detector
-  use num_types, only : dp
-  use aabb_tree, only : aabb_tree_t
-  use mesh, only : mesh_t
-  use hex, only : hex_t
-  use point, only : point_t
-  use utils, only : neko_error
-  use stack, only : stack_i4_t
-  use aabb
+module intersection_detector_m
+  use num_types_m, only : dp
+  use aabb_tree_m, only : aabb_tree_t
+  use mesh_m, only : mesh_t
+  use hex_m, only : hex_t
+  use point_m, only : point_t
+  use utils_m, only : neko_error
+  use stack_m, only : stack_i4_t
+  use aabb_m
   implicit none
   private
 
@@ -114,4 +114,4 @@ contains
 
   end subroutine intersect_detector_overlap
 
-end module intersection_detector
+end module intersection_detector_m

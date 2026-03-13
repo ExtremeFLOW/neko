@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Contains the factory routine for `advection_t` children.
-submodule (advection) advection_fctry
-  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+submodule (advection_m) advection_fctry
+  use json_utils_m, only : json_get, json_get_or_default, json_get_or_lookup, &
        json_get_or_lookup_or_default
 
   ! Advection and derivatives
-  use adv_dealias, only : adv_dealias_t
-  use adv_no_dealias, only : adv_no_dealias_t
-  use adv_oifs, only : adv_oifs_t
-  use adv_dummy, only : adv_dummy_t
+  use adv_dealias_m, only : adv_dealias_t
+  use adv_no_dealias_m, only : adv_no_dealias_t
+  use adv_oifs_m, only : adv_oifs_t
+  use adv_dummy_m, only : adv_dummy_t
 
 
 contains

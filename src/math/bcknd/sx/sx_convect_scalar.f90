@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule (opr_sx) sx_convect_scalar
-  use num_types, only : rp
-  use math, only : col2
+submodule (opr_sx_m) sx_convect_scalar
+  use num_types_m, only : rp
+  use math_m, only : col2
   implicit none
 
 contains

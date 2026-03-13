@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a field
-module field
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_add2, device_cadd, device_cfill, device_copy
-  use num_types, only : rp, c_rp
-  use device, only : device_map, device_free, device_memset, device_memcpy
-  use math, only : add2, copy, cadd, cfill
-  use mesh, only : mesh_t
-  use space, only : space_t, operator(.ne.)
-  use dofmap, only : dofmap_t
+module field_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_math_m, only : device_add2, device_cadd, device_cfill, device_copy
+  use num_types_m, only : rp, c_rp
+  use device_m, only : device_map, device_free, device_memset, device_memcpy
+  use math_m, only : add2, copy, cadd, cfill
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t, operator(.ne.)
+  use dofmap_m, only : dofmap_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -396,4 +396,4 @@ contains
 
   end subroutine field_wrapper_free
 
-end module field
+end module field_m

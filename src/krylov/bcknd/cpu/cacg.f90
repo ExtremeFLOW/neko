@@ -31,21 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a communication avoiding Conjugate Gradient method
-module cacg
-  use num_types, only : rp
-  use neko_config, only : NEKO_BLK_SIZE
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use math, only : glsc3, rzero, copy, x_update, abscmp
-  use utils, only : neko_warning
-  use comm, only : pe_rank, NEKO_COMM, MPI_REAL_PRECISION
+module cacg_m
+  use num_types_m, only : rp
+  use neko_config_m, only : NEKO_BLK_SIZE
+  use krylov_m, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use math_m, only : glsc3, rzero, copy, x_update, abscmp
+  use utils_m, only : neko_warning
+  use comm_m, only : pe_rank, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_SUM
-  use mxm_wrapper
+  use mxm_wrapper_m
   implicit none
   private
 
@@ -373,6 +373,6 @@ contains
 
   end function cacg_solve_coupled
 
-end module cacg
+end module cacg_m
 
 

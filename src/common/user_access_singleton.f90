@@ -36,8 +36,8 @@
 !! hacking, while keeping neko proper clear.
 !! The object is only initialized by makeneko, so trying to use it
 !! outside user code will result in a segfault---intentionally.
-module user_access_singleton
-  use case, only : case_t
+module user_access_singleton_m
+  use case_m, only : case_t
   implicit none
   private
 
@@ -71,4 +71,4 @@ contains
     if (associated(this%case)) this%case => null()
   end subroutine user_access_free
 
-end module user_access_singleton
+end module user_access_singleton_m

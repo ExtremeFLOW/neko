@@ -30,11 +30,11 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_vreman_nut
+module device_vreman_nut_m
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use utils, only: neko_error
-  use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use num_types_m, only: rp, c_rp
+  use utils_m, only: neko_error
+  use comm_m, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
   implicit none
@@ -186,4 +186,4 @@ contains
   end subroutine device_vreman_nut_compute_buoy
 
 
-end module device_vreman_nut
+end module device_vreman_nut_m

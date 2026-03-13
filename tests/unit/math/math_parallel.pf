@@ -1,9 +1,9 @@
 module math_parallel
   use mpi
   use pfunit
-  use math
-  use num_types
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use math_m
+  use num_types_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
 contains

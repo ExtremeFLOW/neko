@@ -2,8 +2,8 @@
 @test
 subroutine test_setup_intp()
   use pfunit
-  use fast3d, only : setup_intp
-  use num_types, only : rp
+  use fast3d_m, only : setup_intp
+  use num_types_m, only : rp
   implicit none
   
   integer, parameter :: lx = 4
@@ -51,8 +51,8 @@ end subroutine test_setup_intp
 @test
 subroutine test_setup_intp_single_n_from()
   use pfunit
-  use fast3d, only : setup_intp
-  use num_types, only : rp
+  use fast3d_m, only : setup_intp
+  use num_types_m, only : rp
   implicit none
   
   integer, parameter :: lx = 4

@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the CPU kernel for the `deardorff_t` type.
-module deardorff_cpu
-  use utils, only : neko_error
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use scratch_registry, only : neko_scratch_registry
-  use registry, only : neko_registry
-  use field, only : field_t
-  use operators, only : strain_rate
-  use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
-  use math, only : col2, NEKO_EPS
-  use operators, only : grad
+module deardorff_cpu_m
+  use utils_m, only : neko_error
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use operators_m, only : strain_rate
+  use coefs_m, only : coef_t
+  use gs_ops_m, only : GS_OP_ADD
+  use math_m, only : col2, NEKO_EPS
+  use operators_m, only : grad
   implicit none
   private
 
@@ -203,4 +203,4 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine deardorff_compute_cpu
 
-end module deardorff_cpu
+end module deardorff_cpu_m

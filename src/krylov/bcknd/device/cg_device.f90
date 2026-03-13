@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines various Conjugate Gradient methods for accelerators
-module cg_device
-  use num_types, only: rp
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use math, only : abscmp
-  use device
-  use device_math, only : device_rzero, device_copy, device_glsc3, &
+module cg_device_m
+  use num_types_m, only: rp
+  use krylov_m, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use math_m, only : abscmp
+  use device_m
+  use device_math_m, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
@@ -264,4 +264,4 @@ contains
 
   end function cg_device_solve_coupled
 
-end module cg_device
+end module cg_device_m

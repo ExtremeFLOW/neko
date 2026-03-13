@@ -33,19 +33,19 @@
 !
 !> Implements the `user_stats_t` type.
 
-module user_stats
-  use num_types, only : rp, dp, sp
+module user_stats_m
+  use num_types_m, only : rp, dp, sp
   use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
-  use registry, only : neko_registry
-  use field, only : field_t
-  use case, only : case_t
-  use mean_field_output, only : mean_field_output_t
-  use json_utils, only : json_get, json_get_or_default
-  use mean_field, only : mean_field_t
-  use coefs, only : coef_t
-  use time_state, only : time_state_t
-  use time_based_controller, only : time_based_controller_t
+  use simulation_component_m, only : simulation_component_t
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use case_m, only : case_t
+  use mean_field_output_m, only : mean_field_output_t
+  use json_utils_m, only : json_get, json_get_or_default
+  use mean_field_m, only : mean_field_t
+  use coefs_m, only : coef_t
+  use time_state_m, only : time_state_t
+  use time_based_controller_m, only : time_based_controller_t
   implicit none
   private
 
@@ -277,4 +277,4 @@ contains
 
   end subroutine user_stats_compute
 
-end module user_stats
+end module user_stats_m

@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Krylov preconditioner (identity)
-module identity
-  use math, only : copy
-  use precon, only : pc_t
-  use num_types, only : rp
+module identity_m
+  use math_m, only : copy
+  use precon_m, only : pc_t
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -61,4 +61,4 @@ contains
     class(ident_t), intent(inout) :: this
   end subroutine ident_update
 
-end module identity
+end module identity_m

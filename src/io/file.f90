@@ -31,22 +31,22 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Module for file I/O operations.
-module file
-  use utils, only : neko_error, neko_warning, filename_suffix
-  use num_types, only : rp
-  use generic_file, only : generic_file_t
-  use nmsh_file, only : nmsh_file_t
-  use chkp_file, only : chkp_file_t
-  use map_file, only : map_file_t
-  use rea_file, only : rea_file_t
-  use re2_file, only : re2_file_t
-  use bp_file, only : bp_file_t
-  use fld_file, only : fld_file_t
-  use fld_file_data, only : fld_file_data_t
-  use vtk_file, only : vtk_file_t
-  use stl_file, only : stl_file_t
-  use csv_file, only : csv_file_t
-  use hdf5_file, only : hdf5_file_t
+module file_m
+  use utils_m, only : neko_error, neko_warning, filename_suffix
+  use num_types_m, only : rp
+  use generic_file_m, only : generic_file_t
+  use nmsh_file_m, only : nmsh_file_t
+  use chkp_file_m, only : chkp_file_t
+  use map_file_m, only : map_file_t
+  use rea_file_m, only : rea_file_t
+  use re2_file_m, only : re2_file_t
+  use bp_file_m, only : bp_file_t
+  use fld_file_m, only : fld_file_t
+  use fld_file_data_m, only : fld_file_data_t
+  use vtk_file_m, only : vtk_file_t
+  use stl_file_m, only : stl_file_t
+  use csv_file_m, only : csv_file_t
+  use hdf5_file_m, only : hdf5_file_t
   implicit none
 
   !> A wrapper around a polymorphic `generic_file_t` that handles its init.
@@ -312,4 +312,4 @@ contains
     end select
   end subroutine file_set_overwrite
 
-end module file
+end module file_m

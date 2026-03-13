@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_dong_outflow
-  use num_types
-  use utils
+module device_dong_outflow_m
+  use num_types_m
+  use utils_m
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -104,4 +104,4 @@ contains
 
   end subroutine device_dong_outflow_apply_scalar
 
-end module device_dong_outflow
+end module device_dong_outflow_m

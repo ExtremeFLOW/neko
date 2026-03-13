@@ -32,14 +32,14 @@
 !
 !> Defines a registry entry for storing and requesting temporary objects
 !! This is used in the registries to store a scalar, vector, matrix or field.
-module registry_entry
-  use num_types, only : rp
-  use field, only : field_t
-  use vector, only : vector_t
-  use matrix, only : matrix_t
+module registry_entry_m
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use vector_m, only : vector_t
+  use matrix_m, only : matrix_t
 
-  use dofmap, only : dofmap_t
-  use utils, only : neko_error
+  use dofmap_m, only : dofmap_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -330,4 +330,4 @@ contains
     call source%free()
 
   end subroutine move_from_registry_entry
-end module registry_entry
+end module registry_entry_m

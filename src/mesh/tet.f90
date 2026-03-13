@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a tetrahedral element
-module tet
-  use num_types, only : dp
-  use element, only : element_t
-  use tuple
-  use point, only : point_t
+module tet_m
+  use num_types_m, only : dp
+  use element_m, only : element_t
+  use tuple_m
+  use point_m, only : point_t
   implicit none
   private
 
@@ -287,4 +287,4 @@ contains
 
   end function tet_equal
 
-end module tet
+end module tet_m

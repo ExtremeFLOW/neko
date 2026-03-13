@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Contains the `simcomp_executor_t` type.
-module simcomp_executor
-  use num_types, only : rp
-  use simulation_component, only : simulation_component_t, &
+module simcomp_executor_m
+  use num_types_m, only : rp
+  use simulation_component_m, only : simulation_component_t, &
        simulation_component_wrapper_t, simulation_component_factory
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
-  use case, only : case_t
-  use time_state, only : time_state_t
-  use utils, only : neko_error
-  use logger, only : neko_log
+  use json_utils_m, only : json_get, json_get_or_default, json_extract_item
+  use case_m, only : case_t
+  use time_state_m, only : time_state_t
+  use utils_m, only : neko_error
+  use logger_m, only : neko_log
   implicit none
   private
 
@@ -341,4 +341,4 @@ contains
     n = this%n_simcomps
   end function simcomp_executor_get_n
 
-end module simcomp_executor
+end module simcomp_executor_m

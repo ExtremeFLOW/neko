@@ -32,24 +32,24 @@
 !
 !> Implements aabb_pe_finder given a dofmap.
 !!
-module aabb_pe_finder
-  use num_types, only : rp, dp, xp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use space, only : space_t
-  use pe_finder, only : pe_finder_t
-  use stack, only : stack_i4_t, stack_i4t2_t
-  use utils, only : neko_error, neko_warning
-  use tuple, only : tuple_i4_t
-  use htable, only : htable_i4_t
-  use point, only : point_t
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
+module aabb_pe_finder_m
+  use num_types_m, only : rp, dp, xp
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use space_m, only : space_t
+  use pe_finder_m, only : pe_finder_t
+  use stack_m, only : stack_i4_t, stack_i4t2_t
+  use utils_m, only : neko_error, neko_warning
+  use tuple_m, only : tuple_i4_t
+  use htable_m, only : htable_i4_t
+  use point_m, only : point_t
+  use comm_m, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use mpi_f08, only : MPI_SUM, MPI_Reduce, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_IN_PLACE, &
        MPI_MIN, MPI_Allgather, MPI_Barrier, MPI_DOUBLE_PRECISION, &
        MPI_Allreduce
-  use aabb, only : aabb_t
-  use aabb_tree, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
-  use math, only : NEKO_M_LN2, NEKO_EPS
+  use aabb_m, only : aabb_t
+  use aabb_tree_m, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
+  use math_m, only : NEKO_M_LN2, NEKO_EPS
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated, &
        c_sizeof, c_bool, c_loc
   implicit none
@@ -304,4 +304,4 @@ contains
 
   end subroutine aabb_pe_finder_find_candidates_batch
 
-end module aabb_pe_finder
+end module aabb_pe_finder_m

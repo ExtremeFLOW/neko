@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fortran CUDA interface
-module cuda_intf
-  use utils, only : neko_error
+module cuda_intf_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   !$ use omp_lib
   implicit none
@@ -378,4 +378,4 @@ contains
 
 #endif
 
-end module cuda_intf
+end module cuda_intf_m

@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the CPU kernel for the `rough_log_law_t` type.
-module rough_log_law_cpu
-  use num_types, only : rp
+module rough_log_law_cpu_m
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -83,4 +83,4 @@ contains
 
   end subroutine rough_log_law_compute_cpu
 
-end module rough_log_law_cpu
+end module rough_log_law_cpu_m

@@ -2,10 +2,10 @@
 @test
 subroutine test_mathops_opchsign
   use pfunit
-  use device
-  use device_mathops
-  use num_types
-  use neko_config
+  use device_m
+  use device_mathops_m
+  use num_types_m
+  use neko_config_m
   use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
@@ -57,10 +57,10 @@ end subroutine test_mathops_opchsign
 @test
 subroutine test_mathops_opcolv
   use pfunit
-  use device
-  use device_mathops
-  use num_types
-  use neko_config
+  use device_m
+  use device_mathops_m
+  use num_types_m
+  use neko_config_m
   use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
@@ -114,10 +114,10 @@ end subroutine test_mathops_opcolv
 @test
 subroutine test_mathops_opcolv3c
   use pfunit
-  use device
-  use device_mathops
-  use num_types
-  use neko_config
+  use device_m
+  use device_mathops_m
+  use num_types_m
+  use neko_config_m
   use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
@@ -185,10 +185,10 @@ end subroutine test_mathops_opcolv3c
 @test
 subroutine test_mathops_opadd2cm
   use pfunit
-  use device
-  use device_mathops
-  use num_types
-  use neko_config
+  use device_m
+  use device_mathops_m
+  use num_types_m
+  use neko_config_m
   use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
@@ -251,10 +251,10 @@ end subroutine test_mathops_opadd2cm
 @test
 subroutine test_mathops_opadd2col
   use pfunit
-  use device
-  use device_mathops
-  use num_types
-  use neko_config
+  use device_m
+  use device_mathops_m
+  use num_types_m
+  use neko_config_m
   use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17

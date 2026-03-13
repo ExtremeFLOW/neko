@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Jacobi preconditioner accelerator backend
-module device_jacobi
-  use precon, only : pc_t
-  use coefs, only : coef_t
-  use dofmap, only : dofmap_t
-  use num_types, only : rp
-  use device_math, only : device_col2, device_addcol3, device_invcol1,&
+module device_jacobi_m
+  use precon_m, only : pc_t
+  use coefs_m, only : coef_t
+  use dofmap_m, only : dofmap_t
+  use num_types_m, only : rp
+  use device_math_m, only : device_col2, device_addcol3, device_invcol1,&
        device_col3
-  use device, only : device_map, device_event_create, device_free, &
+  use device_m, only : device_map, device_event_create, device_free, &
        device_event_sync, device_get_ptr, device_event_destroy
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -194,4 +194,4 @@ contains
     end associate
   end subroutine device_jacobi_update
 
-end module device_jacobi
+end module device_jacobi_m

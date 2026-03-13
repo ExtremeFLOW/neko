@@ -1,9 +1,9 @@
 @test
 subroutine test_stack_r8_init
   use pfunit
-  use stack
-  use math, only : NEKO_M_LN2
-  use num_types, only : rp
+  use stack_m
+  use math_m, only : NEKO_M_LN2
+  use num_types_m, only : rp
   implicit none
   type(stack_r8_t) :: s1, s2, s3
   integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
@@ -37,7 +37,7 @@ end subroutine test_stack_r8_init
 @test
 subroutine test_stack_r8_free
   use pfunit
-  use stack
+  use stack_m
   implicit none
   type(stack_r8_t) :: s
 
@@ -53,8 +53,8 @@ end subroutine test_stack_r8_free
 @test
 subroutine test_stack_r8_push
   use pfunit
-  use stack
-  use num_types
+  use stack_m
+  use num_types_m
   implicit none
   type(stack_r8_t) :: s
   integer :: i
@@ -86,8 +86,8 @@ end subroutine test_stack_r8_push
 @test
 subroutine test_stack_r8_pop
   use pfunit
-  use stack
-  use num_types
+  use stack_m
+  use num_types_m
   implicit none
   type(stack_r8_t) :: s
   integer :: i
@@ -111,8 +111,8 @@ end subroutine test_stack_r8_pop
 @test 
 subroutine test_stack_r8_clear
   use pfunit
-  use stack
-  use num_types
+  use stack_m
+  use num_types_m
   implicit none
   type(stack_r8_t) :: s
   integer :: i

@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 ! Implements a geometry subset that combines different zones.
-module combine_point_zone
-  use point_zone, only : point_zone_t, point_zone_pointer_t, &
+module combine_point_zone_m
+  use point_zone_m, only : point_zone_t, point_zone_pointer_t, &
        point_zone_wrapper_t, point_zone_factory
-  use box_point_zone, only : box_point_zone_t
-  use sphere_point_zone, only : sphere_point_zone_t
-  use cylinder_point_zone, only : cylinder_point_zone_t
-  use num_types, only : rp
-  use json_utils, only : json_get, json_get_or_default
+  use box_point_zone_m, only : box_point_zone_t
+  use sphere_point_zone_m, only : sphere_point_zone_t
+  use cylinder_point_zone_m, only : cylinder_point_zone_t
+  use num_types_m, only : rp
+  use json_utils_m, only : json_get, json_get_or_default
   use json_module, only : json_file, json_core, json_value
-  use utils, only : neko_error, concat_string_array
-  use logger, only : neko_log
+  use utils_m, only : neko_error, concat_string_array
+  use logger_m, only : neko_log
   implicit none
   private
 
@@ -256,4 +256,4 @@ contains
 
   end function combine_point_zone_criterion
 
-end module combine_point_zone
+end module combine_point_zone_m

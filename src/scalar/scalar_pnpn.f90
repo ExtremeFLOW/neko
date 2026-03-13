@@ -32,42 +32,42 @@
 !
 !> Contains the `scalar_pnpn_t` type.
 
-module scalar_pnpn
-  use num_types, only : rp
+module scalar_pnpn_m
+  use num_types_m, only : rp
   use, intrinsic :: iso_fortran_env, only : error_unit
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
+  use rhs_maker_m, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
-  use scalar_scheme, only : scalar_scheme_t
-  use checkpoint, only : chkp_t
-  use field, only : field_t
-  use bc_list, only : bc_list_t
-  use mesh, only : mesh_t
-  use coefs, only : coef_t
-  use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &
+  use scalar_scheme_m, only : scalar_scheme_t
+  use checkpoint_m, only : chkp_t
+  use field_m, only : field_t
+  use bc_list_m, only : bc_list_t
+  use mesh_m, only : mesh_t
+  use coefs_m, only : coef_t
+  use device_m, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &
        device_event_sync
-  use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
-  use scalar_residual, only : scalar_residual_t, scalar_residual_factory
-  use ax_product, only : ax_t, ax_helm_factory
-  use field_series, only : field_series_t
-  use registry, only : neko_registry
-  use facet_normal, only : facet_normal_t
-  use krylov, only : ksp_monitor_t
-  use device_math, only : device_add2s2, device_col2
-  use time_scheme_controller, only : time_scheme_controller_t
-  use projection, only : projection_t
-  use math, only : glsc2, col2, add2s2
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use advection, only : advection_t, advection_factory
-  use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use gather_scatter_m, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
+  use scalar_residual_m, only : scalar_residual_t, scalar_residual_factory
+  use ax_product_m, only : ax_t, ax_helm_factory
+  use field_series_m, only : field_series_t
+  use registry_m, only : neko_registry
+  use facet_normal_m, only : facet_normal_t
+  use krylov_m, only : ksp_monitor_t
+  use device_math_m, only : device_add2s2, device_col2
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use projection_m, only : projection_t
+  use math_m, only : glsc2, col2, add2s2
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use advection_m, only : advection_t, advection_factory
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use json_utils_m, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file, json_core, json_value
-  use user_intf, only : user_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use zero_dirichlet, only : zero_dirichlet_t
-  use time_step_controller, only : time_step_controller_t
-  use time_state, only : time_state_t
-  use bc, only : bc_t
-  use comm, only : NEKO_COMM
+  use user_intf_m, only : user_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use zero_dirichlet_m, only : zero_dirichlet_t
+  use time_step_controller_m, only : time_step_controller_t
+  use time_state_m, only : time_state_t
+  use bc_m, only : bc_t
+  use comm_m, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
   private
@@ -603,4 +603,4 @@ contains
   end subroutine scalar_scheme_apply_strong_bcs
 
 
-end module scalar_pnpn
+end module scalar_pnpn_m

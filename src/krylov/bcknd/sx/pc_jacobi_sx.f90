@@ -31,13 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Jacobi preconditioner SX-Aurora backend
-module sx_jacobi
-  use math, only : col2, col3, addcol3, invcol1
-  use precon, only : pc_t
-  use coefs, only : coef_t
-  use dofmap, only : dofmap_t
-  use num_types, only : rp
-  use gather_scatter, only : gs_t, GS_OP_ADD
+module sx_jacobi_m
+  use math_m, only : col2, col3, addcol3, invcol1
+  use precon_m, only : pc_t
+  use coefs_m, only : coef_t
+  use dofmap_m, only : dofmap_t
+  use num_types_m, only : rp
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
   implicit none
   private
 
@@ -1257,5 +1257,5 @@ contains
 
   end subroutine sx_update_lx2
 
-end module sx_jacobi
+end module sx_jacobi_m
 

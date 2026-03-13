@@ -30,26 +30,26 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module fluid_scheme_base
-  use coefs, only : coef_t
-  use dirichlet, only : dirichlet_t
-  use dofmap, only : dofmap_t
-  use field, only : field_t
-  use field_series, only : field_series_t
-  use gather_scatter, only : gs_t
+module fluid_scheme_base_m
+  use coefs_m, only : coef_t
+  use dirichlet_m, only : dirichlet_t
+  use dofmap_m, only : dofmap_t
+  use field_m, only : field_t
+  use field_series_m, only : field_series_t
+  use gather_scatter_m, only : gs_t
   use json_module, only : json_file
-  use logger, only : LOG_SIZE
-  use num_types, only : rp
-  use checkpoint, only : chkp_t
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
-  use space, only : space_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use time_step_controller, only : time_step_controller_t
-  use user_intf, only : user_t, user_material_properties_intf
-  use utils, only : neko_error
-  use bc_list, only : bc_list_t
-  use field_list, only : field_list_t
-  use time_state, only : time_state_t
+  use logger_m, only : LOG_SIZE
+  use num_types_m, only : rp
+  use checkpoint_m, only : chkp_t
+  use mesh_m, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
+  use space_m, only : space_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use time_step_controller_m, only : time_step_controller_t
+  use user_intf_m, only : user_t, user_material_properties_intf
+  use utils_m, only : neko_error
+  use bc_list_m, only : bc_list_t
+  use field_list_m, only : field_list_t
+  use time_state_m, only : time_state_t
   implicit none
   private
   public :: fluid_scheme_base_t, fluid_scheme_base_factory
@@ -290,4 +290,4 @@ module fluid_scheme_base
        character(len=*) :: type_name
      end subroutine fluid_scheme_base_factory
   end interface
-end module fluid_scheme_base
+end module fluid_scheme_base_m

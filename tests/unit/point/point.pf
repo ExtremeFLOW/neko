@@ -1,8 +1,8 @@
 @test
 subroutine test_point_init
   use pfunit
-  use point
-  use num_types
+  use point_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -38,8 +38,8 @@ end subroutine test_point_init
 @test
 subroutine test_point_assign
   use pfunit
-  use point
-  use num_types
+  use point_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2
   integer :: point_id
@@ -79,8 +79,8 @@ end subroutine test_point_assign
 @test
 subroutine test_point_eqne
   use pfunit
-  use point
-  use num_types
+  use point_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2
   real(kind=dp), parameter :: c1(3) = (/1d0, 2d0, 3d0/)
@@ -97,8 +97,8 @@ end subroutine test_point_eqne
 @test
 subroutine test_point_ltgt
   use pfunit
-  use point
-  use num_types
+  use point_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2
   real(kind=dp), parameter :: c1(3) = (/1d0, 0d0, 0d0/)

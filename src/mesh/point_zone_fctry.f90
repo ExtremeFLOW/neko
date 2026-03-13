@@ -32,12 +32,12 @@
 !
 !
 !> Defines a factory subroutine for point zones.
-submodule (point_zone) point_zone_fctry
-  use box_point_zone, only: box_point_zone_t
-  use sphere_point_zone, only: sphere_point_zone_t
-  use cylinder_point_zone, only: cylinder_point_zone_t
-  use json_utils, only: json_get
-  use utils, only : neko_type_registration_error
+submodule (point_zone_m) point_zone_fctry
+  use box_point_zone_m, only: box_point_zone_t
+  use sphere_point_zone_m, only: sphere_point_zone_t
+  use cylinder_point_zone_m, only: cylinder_point_zone_t
+  use json_utils_m, only: json_get
+  use utils_m, only : neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine

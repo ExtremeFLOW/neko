@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a flow profile
-module flow_profile
-  use num_types, only : rp
+module flow_profile_m
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -152,4 +152,4 @@ contains
 
   end function blasius_tanh
 
-end module flow_profile
+end module flow_profile_m

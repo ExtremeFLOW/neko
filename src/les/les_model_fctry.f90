@@ -30,15 +30,15 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule (les_model) les_model_fctry
-  use vreman, only : vreman_t
-  use smagorinsky, only : smagorinsky_t
-  use dynamic_smagorinsky, only : dynamic_smagorinsky_t
-  use sigma, only : sigma_t
-  use fluid_scheme_base, only : fluid_scheme_base_t
-  use wale, only : wale_t
-  use deardorff, only : deardorff_t
-  use utils, only : neko_type_registration_error
+submodule (les_model_m) les_model_fctry
+  use vreman_m, only : vreman_t
+  use smagorinsky_m, only : smagorinsky_t
+  use dynamic_smagorinsky_m, only : dynamic_smagorinsky_t
+  use sigma_m, only : sigma_t
+  use fluid_scheme_base_m, only : fluid_scheme_base_t
+  use wale_m, only : wale_t
+  use deardorff_m, only : deardorff_t
+  use utils_m, only : neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine

@@ -30,33 +30,33 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module fluid_scheme_compressible
-  use field, only : field_t
-  use field_math, only : field_cfill, field_col2, field_col3, &
+module fluid_scheme_compressible_m
+  use field_m, only : field_t
+  use field_math_m, only : field_cfill, field_col2, field_col3, &
        field_cmult2, field_cmult, field_addcol3, field_add2
 
-  use registry, only : neko_registry
-  use fluid_scheme_base, only : fluid_scheme_base_t
+  use registry_m, only : neko_registry
+  use fluid_scheme_base_m, only : fluid_scheme_base_t
   use json_module, only : json_file
-  use num_types, only : rp
-  use mesh, only : mesh_t
-  use scratch_registry, only : neko_scratch_registry
-  use space, only : GLL
-  use user_intf, only : user_t
-  use json_utils, only : json_get_or_default
+  use num_types_m, only : rp
+  use mesh_m, only : mesh_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use space_m, only : GLL
+  use user_intf_m, only : user_t
+  use json_utils_m, only : json_get_or_default
   use mpi_f08
-  use operators, only : cfl_compressible
-  use compressible_ops_cpu, only : &
+  use operators_m, only : cfl_compressible
+  use compressible_ops_cpu_m, only : &
        compressible_ops_cpu_compute_max_wave_speed, &
        compressible_ops_cpu_compute_entropy
-  use compressible_ops_device, only : &
+  use compressible_ops_device_m, only : &
        compressible_ops_device_compute_max_wave_speed, &
        compressible_ops_device_compute_entropy
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use time_state, only : time_state_t
-  use logger, only : neko_log, LOG_SIZE
-  use math, only : glsum
-  use num_types, only : i8
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use time_state_m, only : time_state_t
+  use logger_m, only : neko_log, LOG_SIZE
+  use math_m, only : glsum
+  use num_types_m, only : i8
   implicit none
   private
 
@@ -447,4 +447,4 @@ contains
 
   end subroutine fluid_scheme_compressible_log_solver_info
 
-end module fluid_scheme_compressible
+end module fluid_scheme_compressible_m

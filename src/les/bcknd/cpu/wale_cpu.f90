@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the CPU kernel for the `wale_t` type.
-module wale_cpu
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use scratch_registry, only : neko_scratch_registry
-  use registry, only : neko_registry
-  use field, only : field_t
-  use operators, only : dudxyz, strain_rate
-  use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
-  use math, only : col2, NEKO_EPS
+module wale_cpu_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use operators_m, only : dudxyz, strain_rate
+  use coefs_m, only : coef_t
+  use gs_ops_m, only : GS_OP_ADD
+  use math_m, only : col2, NEKO_EPS
   implicit none
   private
 
@@ -200,5 +200,5 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine wale_compute_cpu
 
-end module wale_cpu
+end module wale_cpu_m
 

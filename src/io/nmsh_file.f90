@@ -31,25 +31,25 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Neko binary mesh data
-module nmsh_file
-  use generic_file, only : generic_file_t
-  use comm, only : NEKO_COMM, pe_rank, pe_size
-  use num_types, only : rp, dp, i4, i8
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
-  use utils, only : neko_error
-  use point, only : point_t
-  use tuple, only : tuple4_i4_t
-  use nmsh, only : nmsh_hex_t, nmsh_quad_t, nmsh_zone_t, nmsh_curve_el_t
-  use element, only : element_t
-  use datadist, only : linear_dist_t
-  use neko_mpi_types, only : MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
+module nmsh_file_m
+  use generic_file_m, only : generic_file_t
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
+  use num_types_m, only : rp, dp, i4, i8
+  use mesh_m, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use utils_m, only : neko_error
+  use point_m, only : point_t
+  use tuple_m, only : tuple4_i4_t
+  use nmsh_m, only : nmsh_hex_t, nmsh_quad_t, nmsh_zone_t, nmsh_curve_el_t
+  use element_m, only : element_t
+  use datadist_m, only : linear_dist_t
+  use neko_mpi_types_m, only : MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
        MPI_NMSH_CURVE, MPI_INTEGER_SIZE
   use mpi_f08, only : MPI_Wtime, MPI_Status, MPI_File, MPI_OFFSET_KIND, &
        MPI_MODE_WRONLY, MPI_MODE_CREATE, MPI_MODE_RDONLY, MPI_INFO_NULL, &
        MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
        MPI_File_write_at_all, MPI_File_read_at_all, MPI_INTEGER, MPI_SUM, &
        MPI_Exscan, MPI_Barrier, MPI_Type_size, MPI_Allreduce, MPI_File_sync
-  use logger, only : neko_log, LOG_SIZE
+  use logger_m, only : neko_log, LOG_SIZE
   implicit none
 
   private
@@ -640,4 +640,4 @@ contains
 
   end subroutine nmsh_file_write
 
-end module nmsh_file
+end module nmsh_file_m

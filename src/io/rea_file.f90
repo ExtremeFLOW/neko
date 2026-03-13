@@ -32,20 +32,20 @@
 !
 !> NEKTON session data reader
 !! @details This module is used to read NEKTON session data in ascii
-module rea_file
-  use generic_file, only : generic_file_t
-  use num_types, only : rp, dp
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
-  use point, only : point_t
-  use map, only : map_t
-  use rea, only : rea_t, rea_free
-  use re2_file, only : re2_file_t
-  use map_file, only : map_file_t
-  use comm
-  use datadist, only : linear_dist_t
-  use htable, only : htable_pt_t
-  use logger, only : LOG_SIZE, neko_log, NEKO_LOG_DEBUG
-  use utils, only : neko_error, filename_chsuffix
+module rea_file_m
+  use generic_file_m, only : generic_file_t
+  use num_types_m, only : rp, dp
+  use mesh_m, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use point_m, only : point_t
+  use map_m, only : map_t
+  use rea_m, only : rea_t, rea_free
+  use re2_file_m, only : re2_file_t
+  use map_file_m, only : map_file_t
+  use comm_m
+  use datadist_m, only : linear_dist_t
+  use htable_m, only : htable_pt_t
+  use logger_m, only : LOG_SIZE, neko_log, NEKO_LOG_DEBUG
+  use utils_m, only : neko_error, filename_chsuffix
   implicit none
   private
 
@@ -516,4 +516,4 @@ contains
 
   end subroutine rea_file_mark_labeled_bc
 
-end module rea_file
+end module rea_file_m

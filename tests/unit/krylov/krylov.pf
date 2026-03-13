@@ -1,7 +1,7 @@
 @test
 subroutine test_krylov_init
   use pfunit
-  use krylov
+  use krylov_m
   implicit none
 
   integer :: i
@@ -13,7 +13,7 @@ end subroutine test_krylov_init
 @test
 subroutine test_krylov_free
   use pfunit
-  use krylov
+  use krylov_m
   implicit none
   integer :: i
 

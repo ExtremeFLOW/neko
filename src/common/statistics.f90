@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a container for all statistics
-module stats
-  use num_types, only : rp, dp
-  use stats_quant, only : stats_quant_t
-  use logger, only : LOG_SIZE, neko_log
+module stats_m
+  use num_types_m, only : rp, dp
+  use stats_quant_m, only : stats_quant_t
+  use logger_m, only : LOG_SIZE, neko_log
   use mpi_f08, only : MPI_Barrier, MPI_WTIME
-  use comm, only : NEKO_COMM
+  use comm_m, only : NEKO_COMM
   implicit none
   private
 
@@ -170,4 +170,4 @@ contains
     end if
   end subroutine stats_eval
 
-end module stats
+end module stats_m

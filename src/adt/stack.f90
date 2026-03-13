@@ -32,14 +32,14 @@
 !
 !> Implements a dynamic stack ADT
 !! @details a stack storing values @a data of an arbitrary type
-module stack
-  use num_types
-  use nmsh
-  use utils, only : neko_error, neko_warning
-  use point, only : point_t
-  use structs, only : struct_curve_t
-  use math, only : NEKO_M_LN2
-  use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
+module stack_m
+  use num_types_m
+  use nmsh_m
+  use utils_m, only : neko_error, neko_warning
+  use point_m, only : point_t
+  use structs_m, only : struct_curve_t
+  use math_m, only : NEKO_M_LN2
+  use tuple_m, only : tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
   implicit none
   private
 
@@ -782,4 +782,4 @@ contains
     end select
   end function stack_pt_data
 
-end module stack
+end module stack_m

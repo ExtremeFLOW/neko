@@ -35,14 +35,14 @@
 !! fit to a particular compute pattern.
 !! @note
 !! The canonical way to abbreviate simulation_component is simcomp.
-module simulation_component
-  use num_types, only : rp
+module simulation_component_m
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use case, only : case_t
-  use time_based_controller, only : time_based_controller_t
-  use json_utils, only : json_get_or_default, json_get, &
+  use case_m, only : case_t
+  use time_based_controller_m, only : time_based_controller_t
+  use json_utils_m, only : json_get_or_default, json_get, &
        json_get_or_lookup_or_default, json_get_or_lookup
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -541,4 +541,4 @@ contains
     is_alloc = allocated(this%simcomp)
   end function simulation_component_wrapper_is_allocated
 
-end module simulation_component
+end module simulation_component_m

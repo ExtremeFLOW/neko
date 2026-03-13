@@ -1,18 +1,18 @@
 module mean_field_parallel
   use mpi
   use pfunit
-  use mean_field
-  use field
-  use mesh
-  use space
-  use num_types
-  use point
-  use mesh
-  use field
-  use space
-  use device
-  use comm, only : NEKO_COMM, pe_rank, pe_size
-  use neko_config
+  use mean_field_m
+  use field_m
+  use mesh_m
+  use space_m
+  use num_types_m
+  use point_m
+  use mesh_m
+  use field_m
+  use space_m
+  use device_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config_m
   implicit none
 
   @TestCase

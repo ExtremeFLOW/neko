@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Operators CPU backend
-module opr_cpu
-  use num_types, only : rp, dp, xp
-  use space, only : space_t
-  use coefs, only : coef_t
-  use math, only : sub3, copy, rzero, PI
-  use field, only : field_t
-  use gather_scatter, only : GS_OP_ADD
-  use interpolation, only : interpolator_t
-  use mathops, only : opcolv
+module opr_cpu_m
+  use num_types_m, only : rp, dp, xp
+  use space_m, only : space_t
+  use coefs_m, only : coef_t
+  use math_m, only : sub3, copy, rzero, PI
+  use field_m, only : field_t
+  use gather_scatter_m, only : GS_OP_ADD
+  use interpolation_m, only : interpolator_t
+  use mathops_m, only : opcolv
   implicit none
   private
 
@@ -363,4 +363,4 @@ contains
 
   end subroutine opr_cpu_rotate_cyc_r4
 
-end module opr_cpu
+end module opr_cpu_m

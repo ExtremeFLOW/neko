@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Device backend for entropy viscosity regularization
-module entropy_viscosity_device
+module entropy_viscosity_device_m
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use utils, only: neko_error
+  use num_types_m, only: rp, c_rp
+  use utils_m, only: neko_error
   implicit none
   private
 
@@ -325,5 +325,5 @@ contains
 #endif
   end subroutine entropy_viscosity_smooth_divide_device
 
-end module entropy_viscosity_device
+end module entropy_viscosity_device_m
 

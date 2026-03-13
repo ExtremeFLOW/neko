@@ -1,7 +1,7 @@
 !> Fast Diagonalization
-module fdm_cpu
-  use num_types, only : rp
-  use tensor_cpu, only : tnsr2d_el_cpu, tnsr3d_el_cpu
+module fdm_cpu_m
+  use num_types_m, only : rp
+  use tensor_cpu_m, only : tnsr2d_el_cpu, tnsr3d_el_cpu
   implicit none
   private
 
@@ -41,4 +41,4 @@ contains
     end if
   end subroutine fdm_do_fast_cpu
 
-end module fdm_cpu
+end module fdm_cpu_m

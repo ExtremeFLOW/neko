@@ -33,16 +33,16 @@
 !
 !> Implements the `les_simcomp_t` type.
 
-module les_simcomp
-  use num_types, only : rp
+module les_simcomp_m
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
-  use case, only : case_t
-  use time_state, only : time_state_t
-  use les_model, only : les_model_t, les_model_factory
-  use json_utils, only : json_get, json_get_or_default
-  use field_writer, only : field_writer_t
-  use utils, only : neko_error
+  use simulation_component_m, only : simulation_component_t
+  use case_m, only : case_t
+  use time_state_m, only : time_state_t
+  use les_model_m, only : les_model_t, les_model_factory
+  use json_utils_m, only : json_get, json_get_or_default
+  use field_writer_m, only : field_writer_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -126,4 +126,4 @@ contains
     call this%les_model%compute(time%t, 0)
   end subroutine les_simcomp_restart
 
-end module les_simcomp
+end module les_simcomp_m

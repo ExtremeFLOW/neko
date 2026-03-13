@@ -1,18 +1,18 @@
 module field_parallel
   use mpi
   use pfunit
-  use field
-  use mesh
-  use point
-  use space
-  use dofmap
-  use num_types
-  use device
-  use space
-  use mesh
-  use dofmap
-  use comm, only : NEKO_COMM, pe_rank, pe_size
-  use neko_config
+  use field_m
+  use mesh_m
+  use point_m
+  use space_m
+  use dofmap_m
+  use num_types_m
+  use device_m
+  use space_m
+  use mesh_m
+  use dofmap_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config_m
   implicit none
 
   @TestCase

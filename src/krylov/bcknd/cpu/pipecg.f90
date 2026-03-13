@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a pipelined Conjugate Gradient methods
-module pipecg
-  use neko_config, only : NEKO_BLK_SIZE
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use num_types, only: rp
-  use field, only : field_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use math, only : glsc3, rzero, copy, abscmp
-  use comm, only : MPI_REAL_PRECISION, NEKO_COMM
+module pipecg_m
+  use neko_config_m, only : NEKO_BLK_SIZE
+  use krylov_m, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use num_types_m, only: rp
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use math_m, only : glsc3, rzero, copy, abscmp
+  use comm_m, only : MPI_REAL_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Iallreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wait, &
        MPI_Request, MPI_Status
   implicit none
@@ -401,6 +401,6 @@ contains
 
   end function pipecg_solve_coupled
 
-end module pipecg
+end module pipecg_m
 
 

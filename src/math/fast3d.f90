@@ -58,10 +58,10 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Fast diagonalization methods from NEKTON
-module fast3d
-  use num_types, only : rp, xp
-  use speclib, only : zwgll, zwgl
-  use math, only : rzero
+module fast3d_m
+  use num_types_m, only : rp, xp
+  use speclib_m, only : zwgll, zwgl
+  use math_m, only : rzero
   implicit none
   private
 
@@ -259,4 +259,4 @@ contains
        end do
     end do
   end subroutine setup_intp
-end module fast3d
+end module fast3d_m

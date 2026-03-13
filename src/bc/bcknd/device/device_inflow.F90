@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_inflow
-  use num_types
-  use utils
+module device_inflow_m
+  use num_types_m
+  use utils_m
   use, intrinsic :: iso_c_binding, only : c_ptr
   private
 
@@ -94,5 +94,5 @@ contains
 
   end subroutine device_inflow_apply_vector
 
-end module device_inflow
+end module device_inflow_m
 

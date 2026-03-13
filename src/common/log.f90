@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Logging routines
-module logger
-  use comm, only : pe_rank
-  use utils, only : neko_error
+module logger_m
+  use comm_m, only : pe_rank
+  use utils_m, only : neko_error
   use, intrinsic :: iso_fortran_env, only : stdout => output_unit, &
        stderr => error_unit
   implicit none
@@ -509,4 +509,4 @@ contains
 
   end subroutine log_end_section_c
 
-end module logger
+end module logger_m

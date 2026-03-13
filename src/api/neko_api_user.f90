@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Neko API user callbacks
-module neko_api_user
+module neko_api_user_m
   use neko
   use, intrinsic :: iso_c_binding
   implicit none
@@ -338,4 +338,4 @@ contains
 
   end function neko_api_user_cb_get_field_by_index
 
-end module neko_api_user
+end module neko_api_user_m

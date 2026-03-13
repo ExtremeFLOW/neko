@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_facet_normal
-  use utils, only : neko_error
+module device_facet_normal_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_int, c_ptr
   implicit none
   private
@@ -95,4 +95,4 @@ contains
 
   end subroutine device_facet_normal_apply_surfvec
 
-end module device_facet_normal
+end module device_facet_normal_m

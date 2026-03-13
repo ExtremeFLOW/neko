@@ -30,11 +30,11 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module element
-  use num_types
-  use entity, only : entity_t
-  use tuple, only : tuple_t
-  use point, only : point_ptr, point_t
+module element_m
+  use num_types_m
+  use entity_m, only : entity_t
+  use tuple_m, only : tuple_t
+  use point_m, only : point_ptr, point_t
   implicit none
   private
 
@@ -158,4 +158,4 @@ contains
     pt => this%pts(i)%p
   end function element_point
 
-end module element
+end module element_m

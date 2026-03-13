@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Compression
-module cpr
-  use num_types, only : rp
-  use field, only : field_t
-  use space, only : space_t
-  use math, only : copy, sub3, flipv, swap, reord, sort
-  use tensor, only : trsp1
-  use mesh, only : mesh_t
-  use coefs, only : coef_t
-  use logger, only : neko_log, LOG_SIZE
-  use dofmap, only : dofmap_t
-  use mxm_wrapper, only : mxm
+module cpr_m
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use space_m, only : space_t
+  use math_m, only : copy, sub3, flipv, swap, reord, sort
+  use tensor_m, only : trsp1
+  use mesh_m, only : mesh_t
+  use coefs_m, only : coef_t
+  use logger_m, only : neko_log, LOG_SIZE
+  use dofmap_m, only : dofmap_t
+  use mxm_wrapper_m, only : mxm
   implicit none
   private
 
@@ -496,4 +496,4 @@ contains
   end function get_elem_l2norm
 
 
-end module cpr
+end module cpr_m

@@ -1,9 +1,9 @@
 @test
 subroutine test_quad_init
   use pfunit
-  use point
-  use quad
-  use num_types
+  use point_m
+  use quad_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -43,9 +43,9 @@ end subroutine test_quad_init
 @test
 subroutine test_quad_free
   use pfunit
-  use point
-  use quad
-  use num_types
+  use point_m
+  use quad_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -77,9 +77,9 @@ end subroutine test_quad_free
 @test
 subroutine test_quad_centroid
   use pfunit
-  use point
-  use quad
-  use num_types
+  use point_m
+  use quad_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -109,9 +109,9 @@ end subroutine test_quad_centroid
 @test
 subroutine test_quad_diameter
   use pfunit
-  use point
-  use quad
-  use num_types
+  use point_m
+  use quad_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -138,9 +138,9 @@ end subroutine test_quad_diameter
 @test
 subroutine test_quad_equal
   use pfunit
-  use point
-  use quad
-  use num_types
+  use point_m
+  use quad_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -187,10 +187,10 @@ end subroutine test_quad_equal
 @test
 subroutine test_quad_facet_id
   use pfunit
-  use point
-  use quad
-  use tuple
-  use num_types
+  use point_m
+  use quad_m
+  use tuple_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id

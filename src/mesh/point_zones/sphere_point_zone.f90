@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 ! Implements a sphere geometry subset.
-module sphere_point_zone
-  use point_zone, only: point_zone_t
-  use num_types, only: rp
-  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
+module sphere_point_zone_m
+  use point_zone_m, only: point_zone_t
+  use num_types_m, only: rp
+  use json_utils_m, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
-  use math, only: abscmp
+  use math_m, only: abscmp
   implicit none
   private
 
@@ -174,4 +174,4 @@ contains
 
   end function sphere_point_zone_criterion
 
-end module sphere_point_zone
+end module sphere_point_zone_m

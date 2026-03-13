@@ -58,25 +58,25 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Type for the Fast Diagonalization connected with the schwarz overlapping solves.
-module fdm
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
-  use num_types, only : rp, sp, dp, qp
-  use mesh, only : mesh_t
-  use space, only : space_t
-  use dofmap, only : dofmap_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use fdm_cpu, only : fdm_do_fast_cpu
-  use fdm_device, only : fdm_do_fast_device
-  use fdm_sx, only : fdm_do_fast_sx
-  use fdm_xsmm, only : fdm_do_fast_xsmm
-  use utils, only : neko_error, neko_warning
-  use comm, only : pe_rank
-  use math, only : vlmax
-  use device, only : glb_cmd_queue, DEVICE_TO_HOST, HOST_TO_DEVICE, &
+module fdm_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
+  use num_types_m, only : rp, sp, dp, qp
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t
+  use dofmap_m, only : dofmap_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use fdm_cpu_m, only : fdm_do_fast_cpu
+  use fdm_device_m, only : fdm_do_fast_device
+  use fdm_sx_m, only : fdm_do_fast_sx
+  use fdm_xsmm_m, only : fdm_do_fast_xsmm
+  use utils_m, only : neko_error, neko_warning
+  use comm_m, only : pe_rank
+  use math_m, only : vlmax
+  use device_m, only : glb_cmd_queue, DEVICE_TO_HOST, HOST_TO_DEVICE, &
        device_memcpy, device_map, device_free
-  use fast3d, only : semhat
-  use tensor, only : trsp
-  use math, only : rzero, row_zero
+  use fast3d_m, only : semhat
+  use tensor_m, only : trsp
+  use math_m, only : rzero, row_zero
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -663,4 +663,4 @@ contains
   end subroutine fdm_compute
 
 
-end module fdm
+end module fdm_m

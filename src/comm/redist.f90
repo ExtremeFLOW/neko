@@ -31,22 +31,22 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Redistribution routines
-module redist
-  use mesh_field, only : mesh_fld_t
-  use neko_mpi_types, only : MPI_NMSH_ZONE, MPI_NMSH_HEX, &
+module redist_m
+  use mesh_field_m, only : mesh_fld_t
+  use neko_mpi_types_m, only : MPI_NMSH_ZONE, MPI_NMSH_HEX, &
        MPI_NMSH_CURVE
   use mpi_f08, only : MPI_Status, MPI_Allreduce, MPI_Sendrecv, &
        MPI_Get_count, MPI_INTEGER, MPI_MAX, MPI_IN_PLACE
-  use htable, only : htable_i4_t
-  use point, only : point_t
-  use stack, only : stack_i4_t, stack_nh_t, stack_nc_t, stack_nz_t
-  use curve, only : curve_t
-  use comm, only : pe_size, pe_rank, NEKO_COMM
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
-  use nmsh, only : nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
-  use facet_zone, only : facet_zone_t, facet_zone_periodic_t
-  use element, only : element_t
-  use utils, only : neko_error
+  use htable_m, only : htable_i4_t
+  use point_m, only : point_t
+  use stack_m, only : stack_i4_t, stack_nh_t, stack_nc_t, stack_nz_t
+  use curve_m, only : curve_t
+  use comm_m, only : pe_size, pe_rank, NEKO_COMM
+  use mesh_m, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use nmsh_m, only : nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
+  use facet_zone_m, only : facet_zone_t, facet_zone_periodic_t
+  use element_m, only : element_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -425,4 +425,4 @@ contains
 
   end subroutine redist_curve
 
-end module redist
+end module redist_m

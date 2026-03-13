@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines GPU aware MPI gather-scatter communication
-module gs_device_mpi
-  use num_types, only : rp, c_rp
-  use gs_comm, only : gs_comm_t
-  use stack, only : stack_i4_t
-  use comm, only : pe_size, pe_rank
-  use htable, only : htable_i4_t
-  use device, only : device_memcpy, device_alloc, device_event_create, &
+module gs_device_mpi_m
+  use num_types_m, only : rp, c_rp
+  use gs_comm_m, only : gs_comm_t
+  use stack_m, only : stack_i4_t
+  use comm_m, only : pe_size, pe_rank
+  use htable_m, only : htable_i4_t
+  use device_m, only : device_memcpy, device_alloc, device_event_create, &
        device_event_destroy, device_stream_create_with_priority, device_sync, &
        device_stream_wait_event, device_get_ptr, device_event_record, &
        device_stream_destroy, device_free, device_memset, &
        STRM_HIGH_PRIO, HOST_TO_DEVICE
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
@@ -490,4 +490,4 @@ contains
 
   end subroutine gs_device_mpi_nbwait
 
-end module gs_device_mpi
+end module gs_device_mpi_m

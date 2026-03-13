@@ -5,8 +5,8 @@
 !> Shiyu Du 16/01-24 note: the program is currently tested on CPUs, GPU is not tested yet.
 program map_to_equidistant_1d
   use neko
-  use fast3d
-  use tensor
+  use fast3d_m
+  use tensor_m
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: inputchar, field_fname, hom_dir, output_fname

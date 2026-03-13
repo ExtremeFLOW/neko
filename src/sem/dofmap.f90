@@ -32,20 +32,20 @@
 !
 !> Defines a mapping of the degrees of freedom
 !! @details A mapping defined based on a function space and a mesh
-module dofmap
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use mesh, only : mesh_t
-  use space, only : space_t, GLL
-  use tuple, only : tuple_i4_t, tuple4_i4_t
-  use num_types, only : i4, i8, rp, xp
-  use utils, only : neko_error, neko_warning
-  use fast3d, only : fd_weights_full
-  use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
-  use device
-  use math, only : add3, copy, rone, rzero
-  use element, only : element_t
-  use quad, only : quad_t
-  use hex, only : hex_t
+module dofmap_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t, GLL
+  use tuple_m, only : tuple_i4_t, tuple4_i4_t
+  use num_types_m, only : i4, i8, rp, xp
+  use utils_m, only : neko_error, neko_warning
+  use fast3d_m, only : fd_weights_full
+  use tensor_m, only : tensr3, tnsr2d_el, trsp, addtnsr
+  use device_m
+  use math_m, only : add3, copy, rone, rzero
+  use element_m, only : element_t
+  use quad_m, only : quad_t
+  use hex_m, only : hex_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -1228,4 +1228,4 @@ contains
 
   end subroutine compute_h
 
-end module dofmap
+end module dofmap_m

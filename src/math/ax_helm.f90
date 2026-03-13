@@ -30,13 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm
-  use ax_product, only : ax_t
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use math, only : addcol4
+module ax_helm_m
+  use ax_product_m, only : ax_t
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use math_m, only : addcol4
   implicit none
   private
 
@@ -76,4 +76,4 @@ contains
     call this%compute(aw, w, coef, msh, Xh)
   end subroutine ax_helm_compute_vector
 
-end module ax_helm
+end module ax_helm_m

@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the device kernel for the `deardorff_t` type.
-module deardorff_device
-  use num_types, only : rp
-  use utils, only : neko_error
-  use math, only : NEKO_EPS
-  use scratch_registry, only : neko_scratch_registry
-  use registry, only : neko_registry
-  use field, only : field_t
-  use operators, only : grad
-  use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
-  use device_math, only : device_col2
-  use device_deardorff_nut, only : device_deardorff_nut_compute
+module deardorff_device_m
+  use num_types_m, only : rp
+  use utils_m, only : neko_error
+  use math_m, only : NEKO_EPS
+  use scratch_registry_m, only : neko_scratch_registry
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use operators_m, only : grad
+  use coefs_m, only : coef_t
+  use gs_ops_m, only : GS_OP_ADD
+  use device_math_m, only : device_col2
+  use device_deardorff_nut_m, only : device_deardorff_nut_compute
   implicit none
   private
 
@@ -153,5 +153,5 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine deardorff_compute_device
 
-end module deardorff_device
+end module deardorff_device_m
 

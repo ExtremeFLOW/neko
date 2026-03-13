@@ -1,18 +1,18 @@
 module point_interpolation_parallel
   use mpi
   use pfunit
-  use point_interpolator, only : point_interpolator_t
-  use num_types, only : rp
-  use mesh
-  use coefs
-  use dofmap
-  use gather_scatter
-  use space
-  use point
-  use datadist
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
-  use device
-  use neko_config
+  use point_interpolator_m, only : point_interpolator_t
+  use num_types_m, only : rp
+  use mesh_m
+  use coefs_m
+  use dofmap_m
+  use gather_scatter_m
+  use space_m
+  use point_m
+  use datadist_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use device_m
+  use neko_config_m
   implicit none
 
   @TestCase

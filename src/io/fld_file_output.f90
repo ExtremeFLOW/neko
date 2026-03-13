@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements `fld_file_output_t`.
-module fld_file_output
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, DEVICE_TO_HOST
-  use output, only : output_t
+module fld_file_output_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : device_memcpy, DEVICE_TO_HOST
+  use output_m, only : output_t
   implicit none
   private
 
@@ -111,4 +111,4 @@ contains
 
   end subroutine fld_file_output_sample
 
-end module fld_file_output
+end module fld_file_output_m

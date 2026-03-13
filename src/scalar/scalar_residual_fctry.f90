@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
-submodule (scalar_residual) scalar_residual_fctry
-  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE
-  use scalar_residual_device, only : scalar_residual_device_t
-  use scalar_residual_cpu, only : scalar_residual_cpu_t
-  use scalar_residual_sx, only : scalar_residual_sx_t
+submodule (scalar_residual_m) scalar_residual_fctry
+  use neko_config_m, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE
+  use scalar_residual_device_m, only : scalar_residual_device_t
+  use scalar_residual_cpu_m, only : scalar_residual_cpu_t
+  use scalar_residual_sx_m, only : scalar_residual_sx_t
   implicit none
 
 contains

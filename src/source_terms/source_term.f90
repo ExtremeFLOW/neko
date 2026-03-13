@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `source_term_t` type and a wrapper `source_term_wrapper_t`.
-module source_term
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use field_list, only : field_list_t
+module source_term_m
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use field_list_m, only : field_list_t
   use json_module, only : json_file
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -237,4 +237,4 @@ contains
     end if
 
   end subroutine source_term_compute_wrapper
-end module source_term
+end module source_term_m

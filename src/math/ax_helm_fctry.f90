@@ -30,17 +30,17 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule (ax_product) ax_helm_fctry
-  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
+submodule (ax_product_m) ax_helm_fctry
+  use neko_config_m, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
        NEKO_BCKND_DEVICE
-  use ax_helm_device, only : ax_helm_device_t
-  use ax_helm_xsmm, only : ax_helm_xsmm_t
-  use ax_helm_sx, only : ax_helm_sx_t
-  use ax_helm, only : ax_helm_t
-  use ax_helm_cpu, only : ax_helm_cpu_t
-  use ax_helm_full_cpu, only : ax_helm_full_cpu_t
-  use ax_helm_full_device, only : ax_helm_full_device_t
-  use utils, only : neko_error
+  use ax_helm_device_m, only : ax_helm_device_t
+  use ax_helm_xsmm_m, only : ax_helm_xsmm_t
+  use ax_helm_sx_m, only : ax_helm_sx_t
+  use ax_helm_m, only : ax_helm_t
+  use ax_helm_cpu_m, only : ax_helm_cpu_t
+  use ax_helm_full_cpu_m, only : ax_helm_full_cpu_t
+  use ax_helm_full_device_m, only : ax_helm_full_device_t
+  use utils_m, only : neko_error
   implicit none
 
 contains

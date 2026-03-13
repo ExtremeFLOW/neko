@@ -32,14 +32,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `scalar_source_term_t` type.
-module scalar_source_term
-  use user_source_term, only : user_source_term_t
-  use source_term, only : source_term_t
-  use source_term_handler, only : source_term_handler_t
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use coefs, only : coef_t
-  use user_intf, only : user_t
+module scalar_source_term_m
+  use user_source_term_m, only : user_source_term_t
+  use source_term_m, only : source_term_t
+  use source_term_handler_m, only : source_term_handler_t
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use coefs_m, only : coef_t
+  use user_intf_m, only : user_t
   implicit none
   private
 
@@ -99,4 +99,4 @@ contains
     end select
   end subroutine scalar_init_user_source
 
-end module scalar_source_term
+end module scalar_source_term_m

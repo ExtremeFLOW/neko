@@ -1,7 +1,7 @@
 !> Wrapper for all matrix-matrix product implementations
-module mxm_wrapper
-  use num_types, only : rp, sp, dp, qp
-  use utils, only : neko_error
+module mxm_wrapper_m
+  use num_types_m, only : rp, sp, dp, qp
+  use utils_m, only : neko_error
 #ifdef HAVE_LIBXSMM
   use libxsmm, only : libxsmm_available, libxsmm_dispatch, &
        libxsmm_dmmcall_abc, libxsmm_dmmfunction, libxsmm_smmcall_abc, &
@@ -115,4 +115,4 @@ contains
 
   end subroutine mxm_libxsmm_qp
 
-end module mxm_wrapper
+end module mxm_wrapper_m

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Gradient kernels
-submodule (opr_cpu) cpu_set_convect_rst
+submodule (opr_cpu_m) cpu_set_convect_rst
   implicit none
 
 contains

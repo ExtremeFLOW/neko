@@ -30,14 +30,14 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_full_cpu
-  use ax_helm_full, only : ax_helm_full_t
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use math, only : addcol4
-  use utils, only : neko_error
+module ax_helm_full_cpu_m
+  use ax_helm_full_m, only : ax_helm_full_t
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use math_m, only : addcol4
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -4171,4 +4171,4 @@ contains
 
   end subroutine ax_helm_stress_lx2
 
-end module ax_helm_full_cpu
+end module ax_helm_full_cpu_m

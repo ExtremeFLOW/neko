@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Neko C API
-module neko_api
+module neko_api_m
   use neko
-  use neko_api_user, only : neko_api_user_cb_register, &
+  use neko_api_user_m, only : neko_api_user_cb_register, &
        neko_api_user_cb_get_field
   use, intrinsic :: iso_c_binding
   implicit none
@@ -275,7 +275,7 @@ contains
   !! @param case_iptr Opaque pointer for the Neko case
   subroutine neko_api_step(case_iptr) &
        bind(c, name="neko_step")
-    use time_step_controller, only : time_step_controller_t
+    use time_step_controller_m, only : time_step_controller_t
     integer(c_intptr_t), intent(inout) :: case_iptr
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
@@ -744,4 +744,4 @@ contains
   end function neko_api_user_cb_field_name_at_index
 
 
-end module neko_api
+end module neko_api_m

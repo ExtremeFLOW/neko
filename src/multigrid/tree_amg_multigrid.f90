@@ -41,28 +41,28 @@
 !>
 !>  call amg_solver%solve(x%x, f, n)
 !>
-module tree_amg_multigrid
-  use num_types, only: rp
-  use utils, only : neko_error, neko_warning
-  use math, only : add2, rzero, glsc2, sub3, col2
-  use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
+module tree_amg_multigrid_m
+  use num_types_m, only: rp
+  use utils_m, only : neko_error, neko_warning
+  use math_m, only : add2, rzero, glsc2, sub3, col2
+  use device_math_m, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2
-  use comm
+  use comm_m
   use mpi_f08, only: MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
-  use coefs, only : coef_t
-  use mesh, only : mesh_t
-  use space, only : space_t
-  use ax_product, only: ax_t
-  use bc_list, only : bc_list_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
-  use tree_amg_aggregate, only : aggregate_finest_level, aggregate_greedy, &
+  use coefs_m, only : coef_t
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t
+  use ax_product_m, only: ax_t
+  use bc_list_m, only : bc_list_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use tree_amg_m, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
+  use tree_amg_aggregate_m, only : aggregate_finest_level, aggregate_greedy, &
        aggregate_end, aggregate_pairs
-  use tree_amg_smoother, only : amg_cheby_t
-  use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
+  use tree_amg_smoother_m, only : amg_cheby_t
+  use logger_m, only : neko_log, LOG_SIZE
+  use device_m, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
        device_get_ptr
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config_m, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -501,4 +501,4 @@ contains
        end do
     end if
   end subroutine fill_lvl_map
-end module tree_amg_multigrid
+end module tree_amg_multigrid_m

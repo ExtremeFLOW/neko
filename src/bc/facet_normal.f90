@@ -31,22 +31,22 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Dirichlet condition applied in the facet normal direction
-module facet_normal
-  use num_types, only : rp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : cfill_mask
-  use device_math, only : device_col2, device_masked_gather_copy_0, &
+module facet_normal_m
+  use num_types_m, only : rp
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use math_m, only : cfill_mask
+  use device_math_m, only : device_col2, device_masked_gather_copy_0, &
        device_masked_scatter_copy_0
-  use vector, only : vector_t
-  use coefs, only : coef_t
-  use bc, only : bc_t
-  use utils, only : neko_error, nonlinear_index
+  use vector_m, only : vector_t
+  use coefs_m, only : coef_t
+  use bc_m, only : bc_t
+  use utils_m, only : neko_error, nonlinear_index
   use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
-  use htable, only : htable_i4_t
-  use device, only : device_map, device_memcpy, device_free, &
+  use htable_m, only : htable_i4_t
+  use device_m, only : device_map, device_memcpy, device_free, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -313,4 +313,4 @@ contains
 
   end subroutine facet_normal_finalize
 
-end module facet_normal
+end module facet_normal_m

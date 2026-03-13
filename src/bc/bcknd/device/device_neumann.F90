@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_neumann
-  use utils, only : neko_error
+module device_neumann_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_int, c_ptr
   implicit none
   private
@@ -143,4 +143,4 @@ contains
 
   end subroutine device_neumann_apply_vector
 
-end module device_neumann
+end module device_neumann_m

@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a vector
-module vector
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use device, only : device_map, device_free, device_deassociate, &
+module vector_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use device_m, only : device_map, device_free, device_deassociate, &
        device_memcpy, device_sync, HOST_TO_DEVICE
-  use math, only : cfill, copy
-  use device_math, only : device_copy, device_cfill, device_cmult, &
+  use math_m, only : cfill, copy
+  use device_math_m, only : device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
        device_col2, device_invcol3, device_cdiv2
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -229,4 +229,4 @@ contains
 
   end subroutine vector_ptr_free
 
-end module vector
+end module vector_m

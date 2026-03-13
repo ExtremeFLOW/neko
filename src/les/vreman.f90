@@ -32,20 +32,20 @@
 !
 !
 !> Implements `vreman_t`.
-module vreman
-  use num_types, only : rp
-  use les_model, only : les_model_t
-  use field, only : field_t
-  use fluid_scheme_base, only : fluid_scheme_base_t
-  use json_utils, only : json_get_or_default, json_get, json_get_or_lookup, &
+module vreman_m
+  use num_types_m, only : rp
+  use les_model_m, only : les_model_t
+  use field_m, only : field_t
+  use fluid_scheme_base_m, only : fluid_scheme_base_t
+  use json_utils_m, only : json_get_or_default, json_get, json_get_or_lookup, &
        json_get_or_lookup_or_default
   use json_module, only : json_file
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_error
-  use vreman_cpu, only : vreman_compute_cpu
-  use vreman_device, only : vreman_compute_device
-  use registry, only : neko_registry
-  use logger, only : LOG_SIZE, neko_log
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use utils_m, only : neko_error
+  use vreman_cpu_m, only : vreman_compute_cpu
+  use vreman_device_m, only : vreman_compute_device
+  use registry_m, only : neko_registry
+  use logger_m, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -218,4 +218,4 @@ contains
 
   end subroutine vreman_compute
 
-end module vreman
+end module vreman_m

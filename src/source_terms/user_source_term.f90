@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `user_source_term_t` type.
-module user_source_term
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use utils, only : neko_error
-  use source_term, only : source_term_t
+module user_source_term_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use utils_m, only : neko_error
+  use source_term_m, only : source_term_t
   use json_module, only : json_file
-  use field_list, only : field_list_t
-  use coefs, only : coef_t
-  use field_math, only : field_add2, field_rzero
-  use dofmap, only : dofmap_t
-  use user_intf, only : user_source_term_intf
-  use time_state, only : time_state_t
+  use field_list_m, only : field_list_t
+  use coefs_m, only : coef_t
+  use field_math_m, only : field_add2, field_rzero
+  use dofmap_m, only : dofmap_t
+  use user_intf_m, only : user_source_term_intf
+  use time_state_m, only : time_state_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -160,4 +160,4 @@ contains
     end if
   end subroutine user_source_term_compute
 
-end module user_source_term
+end module user_source_term_m

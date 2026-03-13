@@ -31,23 +31,23 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a fused Conjugate Gradient method for accelerators
-module fusedcg_cpld_device
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
-  use field, only : field_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use math, only : glsc3, rzero, copy, abscmp
-  use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
-  use device
-  use utils, only : neko_error
-  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+module fusedcg_cpld_device_m
+  use krylov_m, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use num_types_m, only: rp, c_rp
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use math_m, only : glsc3, rzero, copy, abscmp
+  use device_math_m, only : device_rzero, device_copy, device_glsc3, device_glsc2
+  use device_m
+  use utils_m, only : neko_error
+  use comm_m, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_Allreduce, &
        MPI_SUM
-  use operators, only : rotate_cyc
+  use operators_m, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
@@ -688,4 +688,4 @@ contains
 
   end function fusedcg_cpld_device_solve
 
-end module fusedcg_cpld_device
+end module fusedcg_cpld_device_m

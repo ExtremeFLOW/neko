@@ -1,8 +1,8 @@
 subroutine cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
-  use num_types
-  use gather_scatter
-  use field
-  use comm  
+  use num_types_m
+  use gather_scatter_m
+  use field_m
+  use comm_m  
   implicit none
 
   type(field_t), intent(inout) :: x
@@ -69,8 +69,8 @@ subroutine cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
 end subroutine cg
 
 subroutine solveM(z, r, n)
-  use num_types
-  use math
+  use num_types_m
+  use math_m
   implicit none
   real(kind=dp), intent(inout), dimension(n) :: z
   real(kind=dp), intent(inout), dimension(n) :: r
@@ -81,9 +81,9 @@ subroutine solveM(z, r, n)
 end subroutine solveM
 
 subroutine ax(w, u, gxyz, ur, us, ut, wk, n, msk, gs_h)
-  use num_types
-  use gather_scatter
-  use field
+  use num_types_m
+  use gather_scatter_m
+  use field_m
   implicit none
 
   type(field_t), intent(inout) :: w
@@ -110,7 +110,7 @@ subroutine ax(w, u, gxyz, ur, us, ut, wk, n, msk, gs_h)
 end subroutine ax
 
 subroutine ax_e(w, u, g, ur, us, ut, wk, lx, D, Dt)
-  use num_types
+  use num_types_m
   implicit none
   
   real(kind=dp), intent(inout) :: w(lx**3)
@@ -143,8 +143,8 @@ subroutine ax_e(w, u, g, ur, us, ut, wk, lx, D, Dt)
 end subroutine ax_e
 
 subroutine local_grad3(ur, us, ut, u, n, D, Dt)
-  use num_types
-  use mxm_wrapper
+  use num_types_m
+  use mxm_wrapper_m
   implicit none
   
   real(kind=dp), intent(inout) :: ur(0:n, 0:n, 0:n)
@@ -168,9 +168,9 @@ subroutine local_grad3(ur, us, ut, u, n, D, Dt)
 end subroutine local_grad3
 
 subroutine local_grad3_t(u,ur,us,ut,N,D,Dt,w)
-  use num_types
-  use mxm_wrapper
-  use math
+  use num_types_m
+  use mxm_wrapper_m
+  use math_m
   implicit none
 
   real(kind=dp), intent(inout) :: ur(0:n, 0:n, 0:n)
@@ -200,7 +200,7 @@ subroutine local_grad3_t(u,ur,us,ut,N,D,Dt,w)
 end subroutine local_grad3_t
 
 subroutine maskit(w, msk, n)
-  use num_types
+  use num_types_m
   implicit none
 
   real(kind=dp), intent(inout) :: w(n)

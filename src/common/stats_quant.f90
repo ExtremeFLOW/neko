@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a statistical quantity
-module stats_quant
-  use num_types, only : rp
+module stats_quant_m
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -52,4 +52,4 @@ module stats_quant
      end subroutine stats_quant_update
   end interface
 
-end module stats_quant
+end module stats_quant_m

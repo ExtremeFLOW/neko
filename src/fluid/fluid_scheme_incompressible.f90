@@ -31,44 +31,44 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fluid formulations
-module fluid_scheme_incompressible
-  use fluid_scheme_base, only : fluid_scheme_base_t
-  use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use checkpoint, only : chkp_t
-  use num_types, only : rp, i8
-  use fluid_source_term, only : fluid_source_term_t
-  use field, only : field_t
-  use space, only : GLL
-  use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
-  use coefs, only : coef_t
-  use dirichlet, only : dirichlet_t
-  use jacobi, only : jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use hsmg, only : hsmg_t
-  use phmg, only : phmg_t
-  use precon, only : pc_t, precon_factory, precon_destroy
-  use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t
-  use bc_list, only : bc_list_t
-  use mesh, only : mesh_t
-  use math, only : glsum
-  use operators, only : cfl, rotate_cyc
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use registry, only : neko_registry
-  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+module fluid_scheme_incompressible_m
+  use fluid_scheme_base_m, only : fluid_scheme_base_t
+  use gather_scatter_m, only : gs_t, GS_OP_MIN, GS_OP_MAX
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use checkpoint_m, only : chkp_t
+  use num_types_m, only : rp, i8
+  use fluid_source_term_m, only : fluid_source_term_t
+  use field_m, only : field_t
+  use space_m, only : GLL
+  use dofmap_m, only : dofmap_t
+  use krylov_m, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use coefs_m, only : coef_t
+  use dirichlet_m, only : dirichlet_t
+  use jacobi_m, only : jacobi_t
+  use sx_jacobi_m, only : sx_jacobi_t
+  use device_jacobi_m, only : device_jacobi_t
+  use hsmg_m, only : hsmg_t
+  use phmg_m, only : phmg_t
+  use precon_m, only : pc_t, precon_factory, precon_destroy
+  use fluid_stats_m, only : fluid_stats_t
+  use bc_m, only : bc_t
+  use bc_list_m, only : bc_list_t
+  use mesh_m, only : mesh_t
+  use math_m, only : glsum
+  use operators_m, only : cfl, rotate_cyc
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use registry_m, only : neko_registry
+  use json_utils_m, only : json_get, json_get_or_default, json_get_or_lookup, &
        json_get_or_lookup_or_default
   use json_module, only : json_file
-  use scratch_registry, only : neko_scratch_registry
-  use user_intf, only : user_t, dummy_user_material_properties, &
+  use scratch_registry_m, only : neko_scratch_registry
+  use user_intf_m, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error
-  use field_math, only : field_cfill, field_addcol3, field_copy
-  use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
+  use utils_m, only : neko_error
+  use field_math_m, only : field_cfill, field_addcol3, field_copy
+  use device_m, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
        device_memcpy
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -724,4 +724,4 @@ contains
     end if
   end subroutine fluid_scheme_set_material_properties
 
-end module fluid_scheme_incompressible
+end module fluid_scheme_incompressible_m

@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_mathops
-  use num_types, only : rp, c_rp
-  use utils, only : neko_error
+module device_mathops_m
+  use num_types_m, only : rp, c_rp
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_int, c_ptr
   implicit none
   private
@@ -278,4 +278,4 @@ contains
 #endif
   end subroutine device_opadd2col
 
-end module device_mathops
+end module device_mathops_m

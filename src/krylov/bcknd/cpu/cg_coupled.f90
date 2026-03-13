@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a coupled Conjugate Gradient methods
-module cg_cpld
-  use num_types, only: rp
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use math, only : glsc3, glsc2, abscmp
-  use utils, only : neko_error
-  use operators, only : rotate_cyc
+module cg_cpld_m
+  use num_types_m, only: rp
+  use krylov_m, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use math_m, only : glsc3, glsc2, abscmp
+  use utils_m, only : neko_error
+  use operators_m, only : rotate_cyc
   implicit none
   private
 
@@ -334,4 +334,4 @@ contains
     ksp_results%converged = this%is_converged(iter, rnorm)
   end function cg_cpld_solve
 
-end module cg_cpld
+end module cg_cpld_m

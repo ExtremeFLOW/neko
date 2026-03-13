@@ -1,7 +1,7 @@
 !> OpenCL JIT program library
-module opencl_prgm_lib
-  use opencl_intf
-  use utils, only : neko_error
+module opencl_prgm_lib_m
+  use opencl_intf_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
@@ -378,4 +378,4 @@ contains
 
 #endif
 
-end module opencl_prgm_lib
+end module opencl_prgm_lib_m

@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Derivative kernels for SX-Aurora
-submodule (opr_sx) sx_dudxyz
-  use math, only : addcol3, col2
+submodule (opr_sx_m) sx_dudxyz
+  use math_m, only : addcol3, col2
   implicit none
 
 contains

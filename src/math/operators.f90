@@ -31,42 +31,42 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Operators
-module operators
-  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE, NEKO_BCKND_XSMM, &
+module operators_m
+  use neko_config_m, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE, NEKO_BCKND_XSMM, &
        NEKO_DEVICE_MPI
-  use num_types, only : rp, i8
-  use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
+  use num_types_m, only : rp, i8
+  use opr_cpu_m, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
        opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
        opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst, &
        opr_cpu_rotate_cyc_r1, opr_cpu_rotate_cyc_r4
-  use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_opgrad, &
+  use opr_sx_m, only : opr_sx_cfl, opr_sx_curl, opr_sx_opgrad, &
        opr_sx_conv1, opr_sx_convect_scalar, opr_sx_cdtp, &
        opr_sx_dudxyz, opr_sx_lambda2, opr_sx_set_convect_rst
-  use opr_xsmm, only : opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl, &
+  use opr_xsmm_m, only : opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl, &
        opr_xsmm_dudxyz, opr_xsmm_opgrad, &
        opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
-  use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
+  use opr_device_m, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_dudxyz, &
        opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst, &
        opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4
-  use space, only : space_t
-  use coefs, only : coef_t
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use field_math, only : field_rzero
-  use interpolation, only : interpolator_t
-  use math, only : glsum, cmult, add2, add3s2, cadd, copy, col2, invcol2, &
+  use space_m, only : space_t
+  use coefs_m, only : coef_t
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use field_math_m, only : field_rzero
+  use interpolation_m, only : interpolator_t
+  use math_m, only : glsum, cmult, add2, add3s2, cadd, copy, col2, invcol2, &
        invcol3, rzero, add5s4
-  use device, only : device_get_ptr, device_map, device_free
-  use device_math, only : device_add2, device_cmult, device_copy, device_cadd, &
+  use device_m, only : device_get_ptr, device_map, device_free
+  use device_math_m, only : device_add2, device_cmult, device_copy, device_cadd, &
        device_glsum, device_add3s2, device_invcol2, device_invcol3, &
        device_col2, device_add5s4
-  use scratch_registry, only : neko_scratch_registry
-  use vector, only : vector_t
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use scratch_registry_m, only : neko_scratch_registry
+  use vector_m, only : vector_t
+  use comm_m, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use logger, only : neko_log
+  use logger_m, only : neko_log
   implicit none
   private
 
@@ -768,4 +768,4 @@ contains
   end subroutine rotate_cyc_r4
 
 
-end module operators
+end module operators_m

@@ -41,10 +41,10 @@
 ! json_integer = 5
 ! json_real = 6
 ! json_string = 7
-module json_utils
-  use num_types, only : dp, sp
+module json_utils_m
+  use num_types_m, only : dp, sp
   use json_module, only : json_file, json_value, json_core
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -668,4 +668,4 @@ contains
     end if
   end subroutine check_expected_size
 
-end module json_utils
+end module json_utils_m

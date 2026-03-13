@@ -30,10 +30,10 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule (filter) filter_fctry
-  use elementwise_filter, only : elementwise_filter_t
-  use PDE_filter, only : PDE_filter_t
-  use utils, only : concat_string_array, neko_type_error
+submodule (filter_m) filter_fctry
+  use elementwise_filter_m, only : elementwise_filter_t
+  use pde_filter_m, only : PDE_filter_t
+  use utils_m, only : concat_string_array, neko_type_error
   implicit none
 
   ! List of all possible types created by the factory routine

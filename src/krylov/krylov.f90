@@ -31,20 +31,20 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the base abstract type for Krylov solvers plus helper types.
-module krylov
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
-  use precon, only : pc_t
-  use coefs, only : coef_t
-  use mesh, only : mesh_t
-  use field, only : field_t
-  use utils, only : neko_error, neko_warning
-  use bc_list, only : bc_list_t
-  use identity, only : ident_t
-  use device_identity, only : device_ident_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use logger, only : neko_log, LOG_SIZE
+module krylov_m
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use ax_product_m, only : ax_t
+  use num_types_m, only: rp, c_rp
+  use precon_m, only : pc_t
+  use coefs_m, only : coef_t
+  use mesh_m, only : mesh_t
+  use field_m, only : field_t
+  use utils_m, only : neko_error, neko_warning
+  use bc_list_m, only : bc_list_t
+  use identity_m, only : ident_t
+  use device_identity_m, only : device_ident_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use logger_m, only : neko_log, LOG_SIZE
   implicit none
   private
 
@@ -409,4 +409,4 @@ contains
 
   end subroutine krylov_monitor_print_result
 
-end module krylov
+end module krylov_m

@@ -58,8 +58,8 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Base class for time integration schemes
-module time_scheme
-  use num_types, only : rp
+module time_scheme_m
+  use num_types_m, only : rp
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -84,4 +84,4 @@ module time_scheme
      end subroutine compute_coeffs
   end interface
 
-end module time_scheme
+end module time_scheme_m

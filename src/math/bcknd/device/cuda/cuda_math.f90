@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module cuda_math
-  use num_types, only : rp, c_rp
+module cuda_math_m
+  use num_types_m, only : rp, c_rp
   implicit none
   public
 
@@ -486,4 +486,4 @@ module cuda_math
      end subroutine cuda_iadd
 
   end interface
-end module cuda_math
+end module cuda_math_m

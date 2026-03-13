@@ -34,19 +34,19 @@
 !> A simulation component that computes lambda2
 !! The values are stored in the field registry under the name 'lambda2'
 
-module lambda2
-  use num_types, only : rp
+module lambda2_m
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default
-  use simulation_component, only : simulation_component_t
-  use registry, only : neko_registry
-  use field, only : field_t
-  use time_state, only : time_state_t
-  use operators, only : lambda2op
-  use case, only : case_t
-  use field_writer, only : field_writer_t
-  use time_based_controller, only : time_based_controller_t
-  use device
+  use json_utils_m, only : json_get_or_default
+  use simulation_component_m, only : simulation_component_t
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use time_state_m, only : time_state_t
+  use operators_m, only : lambda2op
+  use case_m, only : case_t
+  use field_writer_m, only : field_writer_t
+  use time_based_controller_m, only : time_based_controller_t
+  use device_m
   implicit none
   private
 
@@ -226,4 +226,4 @@ contains
 
   end subroutine lambda2_compute
 
-end module lambda2
+end module lambda2_m

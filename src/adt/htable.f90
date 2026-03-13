@@ -33,12 +33,12 @@
 !> Implements a hash table ADT
 !! @details A hash table storing tuples @a (key, data), with fixed
 !! data-type @a key but with arbitrary typed @a data
-module htable
-  use num_types, only: dp, i4, i8
-  use utils, only: neko_error
-  use point, only : point_t
-  use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_t
-  use math, only : NEKO_M_LN2
+module htable_m
+  use num_types_m, only: dp, i4, i8
+  use utils_m, only: neko_error
+  use point_m, only : point_t
+  use tuple_m, only : tuple_i4_t, tuple4_i4_t, tuple_t
+  use math_m, only : NEKO_M_LN2
   use, intrinsic :: iso_c_binding, only : c_ptr, c_associated
   implicit none
   private
@@ -1631,4 +1631,4 @@ contains
 
   end function htable_iter_cptr_key
 
-end module htable
+end module htable_m

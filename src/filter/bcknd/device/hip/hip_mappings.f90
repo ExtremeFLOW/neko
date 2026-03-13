@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 
 !> Hip interface binding for mappings
-module hip_mappings
-  use num_types, only : rp, c_rp
+module hip_mappings_m
+  use num_types_m, only : rp, c_rp
   implicit none
   private
 
@@ -68,4 +68,4 @@ module hip_mappings
      end subroutine hip_permeability
   end interface
 
-end module hip_mappings
+end module hip_mappings_m

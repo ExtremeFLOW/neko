@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines GPU aware MPI gather-scatter communication
-module gs_device_shmem
-  use num_types, only : rp, c_rp
-  use gs_comm, only : gs_comm_t
-  use stack, only : stack_i4_t
-  use htable, only : htable_i4_t
-  use device
-  use comm, only : pe_size, pe_rank, NEKO_COMM
+module gs_device_shmem_m
+  use num_types_m, only : rp, c_rp
+  use gs_comm_m, only : gs_comm_t
+  use stack_m, only : stack_i4_t
+  use htable_m, only : htable_i4_t
+  use device_m
+  use comm_m, only : pe_size, pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, &
        MPI_MAX, MPI_Sendrecv, MPI_STATUS_IGNORE
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
@@ -381,4 +381,4 @@ contains
 #endif
   end subroutine gs_device_shmem_nbwait
 
-end module gs_device_shmem
+end module gs_device_shmem_m

@@ -31,21 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a Blasius profile dirichlet condition
-module blasius
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use utils, only : nonlinear_index
-  use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_alloc
-  use device_inhom_dirichlet, only : device_inhom_dirichlet_apply_vector
-  use flow_profile, only : blasius_profile, blasius_linear, blasius_quadratic, &
+module blasius_m
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use utils_m, only : nonlinear_index
+  use device_m, only : HOST_TO_DEVICE, device_memcpy, device_free, device_alloc
+  use device_inhom_dirichlet_m, only : device_inhom_dirichlet_apply_vector
+  use flow_profile_m, only : blasius_profile, blasius_linear, blasius_quadratic, &
        blasius_cubic, blasius_quartic, blasius_sin, blasius_tanh
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
-  use bc, only : bc_t
+  use bc_m, only : bc_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_lookup
-  use time_state, only : time_state_t
+  use json_utils_m, only : json_get, json_get_or_lookup
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -350,4 +350,4 @@ contains
 
     call this%finalize_base(only_facets_)
   end subroutine blasius_finalize
-end module blasius
+end module blasius_m

@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the CPU kernel for the `dynamic_smagorinsky_t` type.
-module dynamic_smagorinsky_cpu
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS, col2, sub2, col3, cmult
-  use scratch_registry, only : neko_scratch_registry
-  use registry, only : neko_registry
-  use field, only : field_t
-  use operators, only : strain_rate
-  use coefs, only : coef_t
-  use elementwise_filter, only : elementwise_filter_t
-  use gs_ops, only : GS_OP_ADD
+module dynamic_smagorinsky_cpu_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use math_m, only : cadd, NEKO_EPS, col2, sub2, col3, cmult
+  use scratch_registry_m, only : neko_scratch_registry
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use operators_m, only : strain_rate
+  use coefs_m, only : coef_t
+  use elementwise_filter_m, only : elementwise_filter_t
+  use gs_ops_m, only : GS_OP_ADD
   implicit none
   private
 
@@ -369,5 +369,5 @@ contains
 
   end subroutine compute_num_den_cpu
 
-end module dynamic_smagorinsky_cpu
+end module dynamic_smagorinsky_cpu_m
 

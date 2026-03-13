@@ -32,37 +32,37 @@
 !
 !> Implements global_interpolation given a dofmap.
 !!
-module global_interpolation
-  use num_types, only: rp, dp, xp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use space, only: space_t
-  use stack, only: stack_i4_t
-  use dofmap, only: dofmap_t
-  use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error
-  use local_interpolation, only : local_interpolator_t
-  use device, only: device_free, device_map, device_memcpy, &
+module global_interpolation_m
+  use num_types_m, only: rp, dp, xp
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use space_m, only: space_t
+  use stack_m, only: stack_i4_t
+  use dofmap_m, only: dofmap_t
+  use logger_m, only: neko_log, LOG_SIZE
+  use utils_m, only: neko_error
+  use local_interpolation_m, only : local_interpolator_t
+  use device_m, only: device_free, device_map, device_memcpy, &
        device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr
-  use aabb_pe_finder, only: aabb_pe_finder_t
-  use aabb_el_finder, only: aabb_el_finder_t
-  use cartesian_el_finder, only: cartesian_el_finder_t
-  use cartesian_pe_finder, only: cartesian_pe_finder_t
-  use legendre_rst_finder, only: legendre_rst_finder_t
-  use el_finder, only: el_finder_t
-  use pe_finder, only: pe_finder_t
-  use comm, only: NEKO_COMM
+  use aabb_pe_finder_m, only: aabb_pe_finder_t
+  use aabb_el_finder_m, only: aabb_el_finder_t
+  use cartesian_el_finder_m, only: cartesian_el_finder_t
+  use cartesian_pe_finder_m, only: cartesian_pe_finder_t
+  use legendre_rst_finder_m, only: legendre_rst_finder_t
+  use el_finder_m, only: el_finder_t
+  use pe_finder_m, only: pe_finder_t
+  use comm_m, only: NEKO_COMM
   use mpi_f08, only: MPI_SUM, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_MIN, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
        MPI_ISend, MPI_IRecv
-  use glb_intrp_comm, only : glb_intrp_comm_t
-  use vector, only: vector_t
-  use vector_math, only: vector_masked_gather_copy
-  use matrix, only: matrix_t
-  use math, only: copy, NEKO_EPS
-  use mask, only: mask_t
-  use structs, only : array_ptr_t
+  use glb_intrp_comm_m, only : glb_intrp_comm_t
+  use vector_m, only: vector_t
+  use vector_math_m, only: vector_masked_gather_copy
+  use matrix_m, only: matrix_t
+  use math_m, only: copy, NEKO_EPS
+  use mask_m, only: mask_t
+  use structs_m, only : array_ptr_t
   use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -1221,4 +1221,4 @@ contains
     end if
   end function rst_cmp
 
-end module global_interpolation
+end module global_interpolation_m

@@ -30,11 +30,11 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_dynamic_smagorinsky_nut
+module device_dynamic_smagorinsky_nut_m
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use utils, only: neko_error
-  use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use num_types_m, only: rp, c_rp
+  use utils_m, only: neko_error
+  use comm_m, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
   implicit none
@@ -404,4 +404,4 @@ contains
   end subroutine device_mij_nut_compute_part2
 
 
-end module device_dynamic_smagorinsky_nut
+end module device_dynamic_smagorinsky_nut_m

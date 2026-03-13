@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_zero_dirichlet
-  use utils, only : neko_error
+module device_zero_dirichlet_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   private
 
@@ -134,4 +134,4 @@ contains
 
   end subroutine device_zero_dirichlet_apply_vector
 
-end module device_zero_dirichlet
+end module device_zero_dirichlet_m

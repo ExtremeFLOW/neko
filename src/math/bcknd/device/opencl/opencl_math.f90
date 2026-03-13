@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module opencl_math
-  use num_types, only : rp, c_rp
+module opencl_math_m
+  use num_types_m, only : rp, c_rp
   implicit none
   public
 
@@ -493,4 +493,4 @@ module opencl_math
 
   end interface
 
-end module opencl_math
+end module opencl_math_m

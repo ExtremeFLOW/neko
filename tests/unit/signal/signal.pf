@@ -1,6 +1,6 @@
 @test
 subroutine test_signal_trap_cpulimit()
-  use signal
+  use signal_m
   implicit none
 
   call signal_trap_cpulimit()
@@ -9,7 +9,7 @@ end subroutine test_signal_trap_cpulimit
 
 @test
 subroutine test_signal_timeout()
-  use signal
+  use signal_m
   use funit
   use, intrinsic :: iso_c_binding
   implicit none
@@ -20,7 +20,7 @@ end subroutine test_signal_timeout
 
 @test
 subroutine test_signal_set_timeout()
-  use signal
+  use signal_m
   use funit
   use, intrinsic :: iso_c_binding
 

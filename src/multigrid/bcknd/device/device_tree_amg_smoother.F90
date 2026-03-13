@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements device kernels for use with TreeAMG smoothers
-module device_tree_amg_smoother
-  use num_types, only : rp, c_rp
+module device_tree_amg_smoother_m
+  use num_types_m, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_bool
-  use device, only : glb_cmd_queue
-  use utils, only : neko_error
+  use device_m, only : glb_cmd_queue
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -128,4 +128,4 @@ contains
 #endif
   end subroutine amg_device_cheby_solve_part2
 
-end module device_tree_amg_smoother
+end module device_tree_amg_smoother_m

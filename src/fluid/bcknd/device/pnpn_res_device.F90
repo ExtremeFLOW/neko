@@ -30,22 +30,22 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module pnpn_res_device
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use operators
-  use field, only : field_t
-  use ax_product, only : ax_t
-  use coefs, only : coef_t
-  use facet_normal, only : facet_normal_t
-  use mesh, only : mesh_t
-  use num_types, only : rp, c_rp
-  use space, only : space_t
-  use device_math
-  use device_mathops
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use device, only : device_event_sync
+module pnpn_res_device_m
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use operators_m
+  use field_m, only : field_t
+  use ax_product_m, only : ax_t
+  use coefs_m, only : coef_t
+  use facet_normal_m, only : facet_normal_t
+  use mesh_m, only : mesh_t
+  use num_types_m, only : rp, c_rp
+  use space_m, only : space_t
+  use device_math_m
+  use device_mathops_m
+  use pnpn_residual_m, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use device_m, only : device_event_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-  use scratch_registry, only : neko_scratch_registry
+  use scratch_registry_m, only : neko_scratch_registry
   implicit none
   private
 
@@ -396,4 +396,4 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine pnpn_vel_res_device_compute
 
-end module pnpn_res_device
+end module pnpn_res_device_m

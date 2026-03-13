@@ -31,21 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Simulation driver
-module simulation
+module simulation_m
   use mpi_f08, only: MPI_Wtime
-  use case, only : case_t
-  use checkpoint, only : chkp_t
-  use num_types, only : rp, dp
-  use time_scheme_controller, only : time_scheme_controller_t
-  use file, only : file_t
-  use logger, only : LOG_SIZE, neko_log
-  use jobctrl, only : jobctrl_time_limit
-  use profiler, only : profiler_start, profiler_stop, &
+  use case_m, only : case_t
+  use checkpoint_m, only : chkp_t
+  use num_types_m, only : rp, dp
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use file_m, only : file_t
+  use logger_m, only : LOG_SIZE, neko_log
+  use jobctrl_m, only : jobctrl_time_limit
+  use profiler_m, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
-  use simcomp_executor, only : neko_simcomps
-  use json_utils, only : json_get, json_get_or_default
-  use time_state, only : time_state_t
-  use time_step_controller, only : time_step_controller_t
+  use simcomp_executor_m, only : neko_simcomps
+  use json_utils_m, only : json_get, json_get_or_default
+  use time_state_m, only : time_state_t
+  use time_step_controller_m, only : time_step_controller_t
   implicit none
   private
 
@@ -321,4 +321,4 @@ contains
 
   end subroutine simulation_joblimit_chkp
 
-end module simulation
+end module simulation_m

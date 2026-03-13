@@ -32,25 +32,25 @@
 !
 !
 !> Implements `wall_model_t`.
-module wall_model
-  use num_types, only : rp
-  use field, only : field_t
+module wall_model_m
+  use num_types_m, only : rp
+  use field_m, only : field_t
   use json_module, only : json_file
-  use registry, only : neko_registry
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, HOST_TO_DEVICE
-  use vector, only : vector_t
-  use utils, only : neko_error, nonlinear_index
-  use math, only : glmin, glmax
-  use comm, only : pe_rank
-  use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
-  use file, only : file_t
+  use registry_m, only : neko_registry
+  use dofmap_m, only : dofmap_t
+  use coefs_m, only : coef_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : device_memcpy, HOST_TO_DEVICE
+  use vector_m, only : vector_t
+  use utils_m, only : neko_error, nonlinear_index
+  use math_m, only : glmin, glmax
+  use comm_m, only : pe_rank
+  use logger_m, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
+  use file_m, only : file_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use device, only : device_map, device_free, device_get_ptr
-  use wall_model_device, only : wall_model_compute_mag_field_device
-  use json_utils, only : json_get, json_get_or_lookup
+  use device_m, only : device_map, device_free, device_get_ptr
+  use wall_model_device_m, only : wall_model_compute_mag_field_device
+  use json_utils_m, only : json_get, json_get_or_lookup
   implicit none
   private
 
@@ -575,4 +575,4 @@ contains
 
   end subroutine wall_model_compute_mag_field
 
-end module wall_model
+end module wall_model_m

@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> DT*X kernels for SX-Aurora
-submodule (opr_sx) sx_cdtp
-  use math, only : col3, invcol2
+submodule (opr_sx_m) sx_cdtp
+  use math_m, only : col3, invcol2
   implicit none
 
 contains

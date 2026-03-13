@@ -31,22 +31,22 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a coupled  Conjugate Gradient methods for accelerators
-module cg_cpld_device
-  use num_types, only: rp
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use math, only : abscmp
-  use device
-  use device_math, only : device_rzero, device_copy, device_glsc3, &
+module cg_cpld_device_m
+  use num_types_m, only: rp
+  use krylov_m, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use math_m, only : abscmp
+  use device_m
+  use device_math_m, only : device_rzero, device_copy, device_glsc3, &
        device_add2s1, device_vdot3, device_glsc2
-  use device_mathops, only : device_opadd2cm
-  use utils, only : neko_error
-  use operators, only : rotate_cyc
+  use device_mathops_m, only : device_opadd2cm
+  use utils_m, only : neko_error
+  use operators_m, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
 
@@ -429,4 +429,4 @@ contains
 
   end function cg_cpld_device_solve
 
-end module cg_cpld_device
+end module cg_cpld_device_m

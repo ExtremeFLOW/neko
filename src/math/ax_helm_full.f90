@@ -30,14 +30,14 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_full
-  use ax_product, only : ax_t
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use math, only : addcol4
-  use utils, only : neko_error
+module ax_helm_full_m
+  use ax_product_m, only : ax_t
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use math_m, only : addcol4
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -71,4 +71,4 @@ contains
          "the solver type to e.g. coupledcg.")
   end subroutine ax_helm_full_compute
 
-end module ax_helm_full
+end module ax_helm_full_m

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Interface to system information routines
-module system
+module system_m
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -69,4 +69,4 @@ contains
     end if
   end subroutine system_cpu_name
 
-end module system
+end module system_m

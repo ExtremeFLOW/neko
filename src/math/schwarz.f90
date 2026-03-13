@@ -58,24 +58,24 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Overlapping schwarz solves
-module schwarz
-  use num_types, only : rp, i8
-  use math, only : rzero, rone
-  use mesh, only : mesh_t
-  use space, only : space_t, GLL
-  use dofmap, only : dofmap_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use device_schwarz, only : device_schwarz_extrude, device_schwarz_toext3d, &
+module schwarz_m
+  use num_types_m, only : rp, i8
+  use math_m, only : rzero, rone
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t, GLL
+  use dofmap_m, only : dofmap_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use device_schwarz_m, only : device_schwarz_extrude, device_schwarz_toext3d, &
        device_schwarz_toreg3d
-  use device_math, only : device_rzero, device_col2
-  use fdm, only : fdm_t
-  use device, only : device_map, device_alloc, device_memcpy, &
+  use device_math_m, only : device_rzero, device_col2
+  use fdm_m, only : fdm_t
+  use device_m, only : device_map, device_alloc, device_memcpy, &
        device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr, glb_cmd_queue, aux_cmd_queue, &
        device_event_record, device_event_sync, device_stream_wait_event, &
        device_event_destroy, device_free
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use bc_list, only : bc_list_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use bc_list_m, only : bc_list_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, &
        c_associated
   !$ use omp_lib
@@ -555,4 +555,4 @@ contains
        end do
     end do
   end subroutine schwarz_wt3d
-end module schwarz
+end module schwarz_m

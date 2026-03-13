@@ -95,9 +95,9 @@ program poisson
 end program poisson
 
 subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n, ksp_mon)
-  use comm
-  use krylov
-  use num_types
+  use comm_m
+  use krylov_m
+  use num_types_m
   use mpi_f08
   implicit none
 

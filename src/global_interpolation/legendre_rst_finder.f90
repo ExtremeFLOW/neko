@@ -31,21 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 
-module legendre_rst_finder
-  use num_types, only: rp, dp, xp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
-  use space, only: space_t
-  use utils, only: neko_error, neko_warning
-  use vector, only: vector_t
-  use matrix, only: matrix_t
-  use math, only: NEKO_EPS, matinv39
-  use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
-  use device_local_interpolation, only: device_find_rst_legendre
+module legendre_rst_finder_m
+  use num_types_m, only: rp, dp, xp
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : HOST_TO_DEVICE, DEVICE_TO_HOST
+  use space_m, only: space_t
+  use utils_m, only: neko_error, neko_warning
+  use vector_m, only: vector_t
+  use matrix_m, only: matrix_t
+  use math_m, only: NEKO_EPS, matinv39
+  use tensor_cpu_m, only: tnsr3d_cpu, tnsr3d_el_cpu
+  use device_local_interpolation_m, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
-  use device, only: device_alloc, device_free, device_memcpy, &
+  use device_m, only: device_alloc, device_free, device_memcpy, &
        device_get_ptr, glb_cmd_queue
-  use device_math, only: device_vlsc3
+  use device_math_m, only: device_vlsc3
   implicit none
   private
 
@@ -355,4 +355,4 @@ contains
        end do
     end do
   end subroutine find_rst_legendre_cpu
-end module legendre_rst_finder
+end module legendre_rst_finder_m

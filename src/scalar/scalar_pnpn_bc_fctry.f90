@@ -32,12 +32,12 @@
 !
 !
 !> Defines a factory subroutine for `scalar_pnpn_t`.
-submodule(scalar_pnpn) scalar_pnpn_bc_fctry
-  use dirichlet, only : dirichlet_t
-  use neumann, only : neumann_t
-  use user_intf, only : user_t
-  use utils, only : neko_type_error
-  use field_dirichlet, only : field_dirichlet_t
+submodule(scalar_pnpn_m) scalar_pnpn_bc_fctry
+  use dirichlet_m, only : dirichlet_t
+  use neumann_m, only : neumann_t
+  use user_intf_m, only : user_t
+  use utils_m, only : neko_type_error
+  use field_dirichlet_m, only : field_dirichlet_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories

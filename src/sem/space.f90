@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a function space
-module space
-  use neko_config
-  use num_types, only : rp
-  use speclib, only : zwgll, zwgl, dgll, legendre_poly
-  use device
-  use matrix, only : matrix_t
-  use utils, only : neko_error
-  use fast3d, only : setup_intp
-  use tensor, only : trsp1
-  use mxm_wrapper, only: mxm
-  use math, only : copy
+module space_m
+  use neko_config_m
+  use num_types_m, only : rp
+  use speclib_m, only : zwgll, zwgl, dgll, legendre_poly
+  use device_m
+  use matrix_m, only : matrix_t
+  use utils_m, only : neko_error
+  use fast3d_m, only : setup_intp
+  use tensor_m, only : trsp1
+  use mxm_wrapper_m, only: mxm
+  use math_m, only : copy
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -611,4 +611,4 @@ contains
 
   end subroutine space_generate_transformation_matrices
 
-end module space
+end module space_m

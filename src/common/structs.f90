@@ -1,6 +1,6 @@
 !> Defines structs that are used... Dont know if we should keep it though.
-module structs
-  use num_types, only : rp, dp
+module structs_m
+  use num_types_m, only : rp, dp
   implicit none
   private
 
@@ -14,5 +14,5 @@ module structs
   type, public :: array_ptr_t
      real(kind=rp), pointer, contiguous :: ptr(:)
   end type array_ptr_t
-end module structs
+end module structs_m
 

@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_dirichlet
-  use num_types
-  use utils
+module device_dirichlet_m
+  use num_types_m
+  use utils_m
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -149,4 +149,4 @@ contains
 
   end subroutine device_dirichlet_apply_vector
 
-end module device_dirichlet
+end module device_dirichlet_m

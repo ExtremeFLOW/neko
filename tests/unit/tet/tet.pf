@@ -1,9 +1,9 @@
 @test
 subroutine test_tet_init
   use pfunit
-  use point
-  use tet
-  use num_types
+  use point_m
+  use tet_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -44,9 +44,9 @@ end subroutine test_tet_init
 @test
 subroutine test_tet_free
   use pfunit
-  use point
-  use tet
-  use num_types
+  use point_m
+  use tet_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -78,9 +78,9 @@ end subroutine test_tet_free
 @test
 subroutine test_tet_centroid
   use pfunit
-  use point
-  use tet
-  use num_types
+  use point_m
+  use tet_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -110,9 +110,9 @@ end subroutine test_tet_centroid
 @test
 subroutine test_tet_diameter
   use pfunit
-  use point
-  use tet
-  use num_types
+  use point_m
+  use tet_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -137,9 +137,9 @@ end subroutine test_tet_diameter
 @test
 subroutine test_tet_equal
   use pfunit
-  use point
-  use tet
-  use num_types
+  use point_m
+  use tet_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -186,10 +186,10 @@ end subroutine test_tet_equal
 @test
 subroutine test_tet_facet_id
   use pfunit
-  use point
-  use tet
-  use tuple
-  use num_types
+  use point_m
+  use tet_m
+  use tuple_m
+  use num_types_m
   implicit none
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id

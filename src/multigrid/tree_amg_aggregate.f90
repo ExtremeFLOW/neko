@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements an aggregation for TreeAMG hierarchy structure.
-module tree_amg_aggregate
-  use tree_amg, only : tamg_lvl_init, tamg_node_init, tamg_hierarchy_t
-  use utils, only : neko_error, linear_index
-  use num_types, only : rp, dp, i8
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
+module tree_amg_aggregate_m
+  use tree_amg_m, only : tamg_lvl_init, tamg_node_init, tamg_hierarchy_t
+  use utils_m, only : neko_error, linear_index
+  use num_types_m, only : rp, dp, i8
+  use comm_m, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_INTEGER8, &
        MPI_MIN, MPI_MAX, MPI_SUM
-  use mesh, only : mesh_t
-  use logger, only : neko_log, LOG_SIZE
+  use mesh_m, only : mesh_t
+  use logger_m, only : neko_log, LOG_SIZE
   implicit none
 
   type, public :: tamg_agg_monitor_t
@@ -707,4 +707,4 @@ contains
     deallocate( aggregate_size )
   end subroutine aggregate_pairs
 
-end module tree_amg_aggregate
+end module tree_amg_aggregate_m

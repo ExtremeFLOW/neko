@@ -32,18 +32,18 @@
 !
 !> Defines a shear stress boundary condition for a vector field.
 !! Maintainer: Timofey Mukha.
-module shear_stress
-  use num_types, only : rp
-  use bc, only : bc_t
+module shear_stress_m
+  use num_types_m, only : rp
+  use bc_m, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
-  use coefs, only : coef_t
-  use symmetry, only : symmetry_t
-  use neumann, only : neumann_t
+  use utils_m, only : neko_error
+  use coefs_m, only : coef_t
+  use symmetry_m, only : symmetry_t
+  use neumann_m, only : neumann_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_lookup
-  use vector, only : vector_t
-  use time_state, only : time_state_t
+  use json_utils_m, only : json_get_or_lookup
+  use vector_m, only : vector_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -283,4 +283,4 @@ contains
     call this%neumann_z%free
 
   end subroutine shear_stress_free
-end module shear_stress
+end module shear_stress_m

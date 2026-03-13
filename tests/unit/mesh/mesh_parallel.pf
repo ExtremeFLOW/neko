@@ -1,14 +1,14 @@
 module mesh_parallel
   use mpi
   use pfunit
-  use datadist
-  use mesh
-  use num_types
-  use hex
-  use quad
-  use point
-  use tuple
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use datadist_m
+  use mesh_m
+  use num_types_m
+  use hex_m
+  use quad_m
+  use point_m
+  use tuple_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
 contains

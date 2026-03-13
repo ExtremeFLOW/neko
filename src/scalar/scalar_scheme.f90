@@ -32,41 +32,41 @@
 !
 !> Contains the scalar_scheme_t type.
 
-module scalar_scheme
-  use gather_scatter, only : gs_t
-  use checkpoint, only : chkp_t
-  use num_types, only : rp
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use space, only : space_t
-  use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
-  use coefs, only : coef_t
-  use jacobi, only : jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
-  use hsmg, only : hsmg_t
-  use bc_list, only : bc_list_t
-  use precon, only : pc_t, precon_factory, precon_destroy
-  use mesh, only : mesh_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use registry, only : neko_registry
-  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+module scalar_scheme_m
+  use gather_scatter_m, only : gs_t
+  use checkpoint_m, only : chkp_t
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use space_m, only : space_t
+  use dofmap_m, only : dofmap_t
+  use krylov_m, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
+  use coefs_m, only : coef_t
+  use jacobi_m, only : jacobi_t
+  use device_jacobi_m, only : device_jacobi_t
+  use sx_jacobi_m, only : sx_jacobi_t
+  use hsmg_m, only : hsmg_t
+  use bc_list_m, only : bc_list_t
+  use precon_m, only : pc_t, precon_factory, precon_destroy
+  use mesh_m, only : mesh_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use registry_m, only : neko_registry
+  use json_utils_m, only : json_get, json_get_or_default, json_get_or_lookup, &
        json_get_or_lookup_or_default
   use json_module, only : json_file
-  use user_intf, only : user_t, dummy_user_material_properties, &
+  use user_intf_m, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error
-  use scalar_source_term, only : scalar_source_term_t
-  use field_series, only : field_series_t
-  use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
+  use utils_m, only : neko_error
+  use scalar_source_term_m, only : scalar_source_term_t
+  use field_series_m, only : field_series_t
+  use field_math_m, only : field_cmult2, field_col3, field_cfill, field_add3, &
        field_copy, field_col2
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use time_step_controller, only : time_step_controller_t
-  use scratch_registry, only : neko_scratch_registry
-  use time_state, only : time_state_t
-  use device, only : device_memcpy, DEVICE_TO_HOST
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use time_step_controller_m, only : time_step_controller_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use time_state_m, only : time_state_t
+  use device_m, only : device_memcpy, DEVICE_TO_HOST
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -781,4 +781,4 @@ contains
     is_alloc = allocated(this%scalar)
   end function scalar_scheme_wrapper_is_allocated
 
-end module scalar_scheme
+end module scalar_scheme_m

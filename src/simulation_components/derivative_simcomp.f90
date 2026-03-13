@@ -33,19 +33,19 @@
 !
 !> Implements the `derivative_t` type.
 
-module derivative_simcomp
-  use num_types, only : rp, dp, sp
+module derivative_simcomp_m
+  use num_types_m, only : rp, dp, sp
   use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
-  use time_state, only : time_state_t
-  use registry, only : neko_registry
-  use field, only : field_t
-  use operators, only : dudxyz
-  use case, only : case_t
-  use json_utils, only : json_get, json_get_or_default
-  use field_writer, only : field_writer_t
-  use utils, only : neko_error
-  use time_based_controller, only : time_based_controller_t
+  use simulation_component_m, only : simulation_component_t
+  use time_state_m, only : time_state_t
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use operators_m, only : dudxyz
+  use case_m, only : case_t
+  use json_utils_m, only : json_get, json_get_or_default
+  use field_writer_m, only : field_writer_t
+  use utils_m, only : neko_error
+  use time_based_controller_m, only : time_based_controller_t
   implicit none
   private
 
@@ -270,4 +270,4 @@ contains
          this%case%fluid%c_Xh)
   end subroutine derivative_compute
 
-end module derivative_simcomp
+end module derivative_simcomp_m

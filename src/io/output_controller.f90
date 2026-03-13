@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements `output_controller_t`
-module output_controller
-  use output, only : output_t, output_ptr_t
-  use fld_file, only : fld_file_t
-  use comm
-  use time_state, only : time_state_t
-  use logger, only : neko_log, LOG_SIZE
-  use utils, only : neko_error
-  use profiler, only : profiler_start_region, profiler_end_region
-  use num_types, only : rp, dp
-  use time_based_controller, only : time_based_controller_t
+module output_controller_m
+  use output_m, only : output_t, output_ptr_t
+  use fld_file_m, only : fld_file_t
+  use comm_m
+  use time_state_m, only : time_state_t
+  use logger_m, only : neko_log, LOG_SIZE
+  use utils_m, only : neko_error
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use num_types_m, only : rp, dp
+  use time_based_controller_m, only : time_based_controller_t
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
   private
@@ -337,4 +337,4 @@ contains
   end subroutine output_controller_set_write_count
 
 
-end module output_controller
+end module output_controller_m

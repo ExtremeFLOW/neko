@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !>
-submodule (opr_cpu) cpu_convect_scalar
-  use math, only : col2
+submodule (opr_cpu_m) cpu_convect_scalar
+  use math_m, only : col2
   implicit none
 
 contains

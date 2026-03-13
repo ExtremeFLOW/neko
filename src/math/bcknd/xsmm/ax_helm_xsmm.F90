@@ -57,13 +57,13 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
-module ax_helm_xsmm
-  use ax_helm, only : ax_helm_t
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use mxm_wrapper, only : mxm
+module ax_helm_xsmm_m
+  use ax_helm_m, only : ax_helm_t
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use mxm_wrapper_m, only : mxm
 #ifdef HAVE_LIBXSMM
   use libxsmm, only : libxsmm_mmcall => libxsmm_dmmcall_abc, &
        libxsmm_dispatch, libxsmm_dmmfunction, LIBXSMM_PREFETCH_AUTO
@@ -171,4 +171,4 @@ contains
 
   end subroutine ax_helm_xsmm_compute
 
-end module ax_helm_xsmm
+end module ax_helm_xsmm_m

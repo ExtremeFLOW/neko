@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a triangular element
-module tri
-  use num_types, only : dp
-  use element, only : element_t
-  use tuple, only : tuple_t, tuple_i4_t
-  use point, only : point_t
+module tri_m
+  use num_types_m, only : dp
+  use element_m, only : element_t
+  use tuple_m, only : tuple_t, tuple_i4_t
+  use point_m, only : point_t
   implicit none
   private
 
@@ -209,4 +209,4 @@ contains
 
   end function tri_equal
 
-end module tri
+end module tri_m

@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines various GMRES methods
-module gmres
-  use krylov, only : ksp_t, ksp_monitor_t
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use num_types, only: rp, xp
-  use field, only : field_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use math, only : glsc3, rzero, copy, sub2, cmult2, abscmp
-  use neko_config, only : NEKO_BLK_SIZE
-  use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
+module gmres_m
+  use krylov_m, only : ksp_t, ksp_monitor_t
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use num_types_m, only: rp, xp
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use math_m, only : glsc3, rzero, copy, sub2, cmult2, abscmp
+  use neko_config_m, only : NEKO_BLK_SIZE
+  use comm_m, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
@@ -388,6 +388,6 @@ contains
 
   end function gmres_solve_coupled
 
-end module gmres
+end module gmres_m
 
 

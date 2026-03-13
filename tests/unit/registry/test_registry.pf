@@ -1,21 +1,21 @@
 module test_registry
   use pfunit
-  use field, only : field_t
-  use vector, only : vector_t
-  use matrix, only : matrix_t
-  use point, only : point_t
-  use space, only : space_t, GLL
-  use mesh, only : mesh_t
-  use dofmap, only : dofmap_t
-  use registry, only : registry_t
-  use comm, only : pe_rank, pe_size
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : DEVICE_TO_HOST, device_init, device_finalize
-  use field_math, only : field_cfill
-  use vector_math, only : vector_cfill
-  use matrix_math, only : matrix_cfill
-  use num_types, only : rp
-  use device, only :
+  use field_m, only : field_t
+  use vector_m, only : vector_t
+  use matrix_m, only : matrix_t
+  use point_m, only : point_t
+  use space_m, only : space_t, GLL
+  use mesh_m, only : mesh_t
+  use dofmap_m, only : dofmap_t
+  use registry_m, only : registry_t
+  use comm_m, only : pe_rank, pe_size
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : DEVICE_TO_HOST, device_init, device_finalize
+  use field_math_m, only : field_cfill
+  use vector_math_m, only : vector_cfill
+  use matrix_math_m, only : matrix_cfill
+  use num_types_m, only : rp
+  use device_m, only :
   implicit none
 
   @TestCase

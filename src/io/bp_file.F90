@@ -33,27 +33,27 @@
 !> ADIOS2 bp file format
 !! @details this module defines the interface to write ADIOS2 files
 !! to use compression
-module bp_file
-  use num_types, only : dp, sp, i8, rp
-  use generic_file, only : generic_file_t
-  use field_list, only : field_list_t
-  use dofmap, only : dofmap_t
-  use vector, only : vector_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use structs, only : array_ptr_t
-  use fld_file_data, only : fld_file_data_t
-  use utils, only : neko_error
-  use datadist, only : linear_dist_t
-  use comm, only : pe_size, pe_rank, NEKO_COMM
+module bp_file_m
+  use num_types_m, only : dp, sp, i8, rp
+  use generic_file_m, only : generic_file_t
+  use field_list_m, only : field_list_t
+  use dofmap_m, only : dofmap_t
+  use vector_m, only : vector_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use structs_m, only : array_ptr_t
+  use fld_file_data_m, only : fld_file_data_t
+  use utils_m, only : neko_error
+  use datadist_m, only : linear_dist_t
+  use comm_m, only : pe_size, pe_rank, NEKO_COMM
 #ifdef HAVE_ADIOS2_FORTRAN
   use adios2
   use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
 #endif
-  use buffer_1d, only : buffer_1d_t
-  use buffer_4d, only : buffer_4d_t
-  use buffer_4d_npar, only : buffer_4d_npar_t
-  use buffer, only : buffer_t
+  use buffer_1d_m, only : buffer_1d_t
+  use buffer_4d_m, only : buffer_4d_t
+  use buffer_4d_npar_m, only : buffer_4d_npar_t
+  use buffer_m, only : buffer_t
   implicit none
   private
 
@@ -800,4 +800,4 @@ contains
 
   end subroutine bp_file_set_layout
 
-end module bp_file
+end module bp_file_m

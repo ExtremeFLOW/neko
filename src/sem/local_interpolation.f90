@@ -32,22 +32,22 @@
 !
 !> Routines to obtain interpolated values on a set of points with known
 !! rst coordinates in elements local to this process.
-module local_interpolation
-  use tensor, only: triple_tensor_product, tnsr3d_el_list, tnsr3d
-  use space, only: space_t, GL, GLL
-  use num_types, only: rp, xp
-  use point, only: point_t
-  use math, only: abscmp, NEKO_EPS
-  use speclib
-  use fast3d, only: fd_weights_full, setup_intp
-  use utils, only: neko_error
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use device
-  use math, only : matinv3, matinv39
-  use tensor_cpu
-  use device_math, only: device_rzero
-  use neko_config, only: NEKO_BCKND_DEVICE
+module local_interpolation_m
+  use tensor_m, only: triple_tensor_product, tnsr3d_el_list, tnsr3d
+  use space_m, only: space_t, GL, GLL
+  use num_types_m, only: rp, xp
+  use point_m, only: point_t
+  use math_m, only: abscmp, NEKO_EPS
+  use speclib_m
+  use fast3d_m, only: fd_weights_full, setup_intp
+  use utils_m, only: neko_error
+  use field_m, only: field_t
+  use field_list_m, only: field_list_t
+  use device_m
+  use math_m, only : matinv3, matinv39
+  use tensor_cpu_m
+  use device_math_m, only: device_rzero
+  use neko_config_m, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -304,4 +304,4 @@ contains
 
   end subroutine jacobian_inverse
 
-end module local_interpolation
+end module local_interpolation_m

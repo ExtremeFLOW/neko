@@ -32,13 +32,13 @@
 !
 !> Implements mean_field_t.
 !
-module mean_field
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use stats_quant, only : stats_quant_t
-  use num_types, only : rp
-  use registry, only: neko_registry
-  use field, only : field_t
-  use field_math, only : field_cmult, field_add2s2
+module mean_field_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use stats_quant_m, only : stats_quant_t
+  use num_types_m, only : rp
+  use registry_m, only: neko_registry
+  use field_m, only : field_t
+  use field_math_m, only : field_cmult, field_add2s2
   implicit none
   private
 
@@ -125,5 +125,5 @@ contains
 
   end subroutine mean_field_update
 
-end module mean_field
+end module mean_field_m
 

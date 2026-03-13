@@ -32,17 +32,17 @@
 !
 !> Routines to interpolate fields on a given element
 !! on a point in that element with given r,s,t coordinates
-module point_interpolator
-  use tensor, only: triple_tensor_product
-  use space, only: space_t, GL, GLL
-  use num_types, only: rp
-  use point, only: point_t
-  use math, only: abscmp
-  use fast3d, only: fd_weights_full
-  use utils, only: neko_error
-  use device
-  use device_math, only: device_rzero
-  use neko_config, only: NEKO_BCKND_DEVICE
+module point_interpolator_m
+  use tensor_m, only: triple_tensor_product
+  use space_m, only: space_t, GL, GLL
+  use num_types_m, only: rp
+  use point_m, only: point_t
+  use math_m, only: abscmp
+  use fast3d_m, only: fd_weights_full
+  use utils_m, only: neko_error
+  use device_m
+  use device_math_m, only: device_rzero
+  use neko_config_m, only: NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -360,4 +360,4 @@ contains
 
   end function point_interpolator_interpolate_jacobian
 
-end module point_interpolator
+end module point_interpolator_m

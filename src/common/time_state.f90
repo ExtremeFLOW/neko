@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 
 !> Module with things related to the simulation time
-module time_state
-  use num_types, only : rp
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
-  use checkpoint, only : chkp_t
+module time_state_m
+  use num_types_m, only : rp
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
+  use checkpoint_m, only : chkp_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_lookup, json_get_or_default, &
+  use json_utils_m, only : json_get_or_lookup, json_get_or_default, &
        json_get_or_lookup_or_default
   implicit none
   private
@@ -163,4 +163,4 @@ contains
 
   end function time_state_is_done
 
-end module time_state
+end module time_state_m

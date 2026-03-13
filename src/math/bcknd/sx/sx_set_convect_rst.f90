@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule (opr_sx) sx_set_convect_rst
-  use num_types, only : rp
+submodule (opr_sx_m) sx_set_convect_rst
+  use num_types_m, only : rp
   implicit none
 
 contains

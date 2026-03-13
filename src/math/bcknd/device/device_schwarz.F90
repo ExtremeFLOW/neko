@@ -30,10 +30,10 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_schwarz
-  use num_types, only : c_rp, rp
-  use utils, only : neko_error
-  use device, only : glb_cmd_queue
+module device_schwarz_m
+  use num_types_m, only : c_rp, rp
+  use utils_m, only : neko_error
+  use device_m, only : glb_cmd_queue
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -191,4 +191,4 @@ contains
 #endif
 
   end subroutine device_schwarz_toreg3d
-end module device_schwarz
+end module device_schwarz_m

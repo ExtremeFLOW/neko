@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 
 !> Auxiliary routines for fluid solvers
-module fluid_aux
+module fluid_aux_m
   use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
-  use krylov, only : ksp_monitor_t
-  use logger, only : neko_log, LOG_SIZE
-  use utils, only : neko_error, neko_warning
-  use time_state, only : time_state_t
+  use krylov_m, only : ksp_monitor_t
+  use logger_m, only : neko_log, LOG_SIZE
+  use utils_m, only : neko_error, neko_warning
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -114,4 +114,4 @@ contains
     stabilized = .false.
   end subroutine fluid_step_info_reset_stabilized
 
-end module fluid_aux
+end module fluid_aux_m

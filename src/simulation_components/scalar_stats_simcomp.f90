@@ -32,21 +32,21 @@
 !
 !
 !> Implements the `scalar_stats_simcomp_t` type.
-module scalar_stats_simcomp
-  use num_types, only : rp, dp, sp
+module scalar_stats_simcomp_m
+  use num_types_m, only : rp, dp, sp
   use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
-  use registry, only : neko_registry
-  use time_state, only : time_state_t
-  use field, only : field_t
-  use scalar_stats, only : scalar_stats_t
-  use scalar_stats_output, only : scalar_stats_output_t
-  use case, only : case_t
-  use coefs, only : coef_t
-  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
-  use logger, only : LOG_SIZE, neko_log
-  use json_utils, only : json_get, json_get_or_default
-  use comm, only : NEKO_COMM
+  use simulation_component_m, only : simulation_component_t
+  use registry_m, only : neko_registry
+  use time_state_m, only : time_state_t
+  use field_m, only : field_t
+  use scalar_stats_m, only : scalar_stats_t
+  use scalar_stats_output_m, only : scalar_stats_output_t
+  use case_m, only : case_t
+  use coefs_m, only : coef_t
+  use utils_m, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
+  use logger_m, only : LOG_SIZE, neko_log
+  use json_utils_m, only : json_get, json_get_or_default
+  use comm_m, only : NEKO_COMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
   private
@@ -282,4 +282,4 @@ contains
 
   end subroutine scalar_stats_simcomp_compute
 
-end module scalar_stats_simcomp
+end module scalar_stats_simcomp_m

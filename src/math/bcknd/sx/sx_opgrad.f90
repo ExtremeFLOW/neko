@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Gradient kernels for SX-Aurora
-submodule (opr_sx) sx_opgrad
+submodule (opr_sx_m) sx_opgrad
   implicit none
 
 contains

@@ -30,13 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module euler_residual
-  use gather_scatter, only : gs_t
-  use ax_product, only : Ax_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use num_types, only : rp
-  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+module euler_residual_m
+  use gather_scatter_m, only : gs_t
+  use ax_product_m, only : Ax_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use num_types_m, only : rp
+  use runge_kutta_time_scheme_m, only : runge_kutta_time_scheme_t
   implicit none
   private
 
@@ -75,4 +75,4 @@ module euler_residual
 
   public :: euler_rhs_factory
 
-end module euler_residual
+end module euler_residual_m

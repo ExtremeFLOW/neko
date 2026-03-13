@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Job control
-module jobctrl
-  use num_types, only : rp, dp
-  use signal, only : signal_timeout, signal_usr, signal_trap_usr, &
+module jobctrl_m
+  use num_types_m, only : rp, dp
+  use signal_m, only : signal_timeout, signal_usr, signal_trap_usr, &
        signal_set_timeout, signal_trap_cpulimit
-  use utils, onlY : neko_error
+  use utils_m, onlY : neko_error
   use mpi_f08, only : MPI_Bcast, MPI_LOGICAL, MPI_WTIME
-  use comm, only : NEKO_COMM
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
+  use comm_m, only : NEKO_COMM
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
   implicit none
   private
 
@@ -136,4 +136,4 @@ contains
     jobtime = MPI_WTIME() - stime
   end function jobctrl_jobtime
 
-end module jobctrl
+end module jobctrl_m

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Interface to CrayPat F77 API
-module craypat
+module craypat_m
   implicit none
   private
   
@@ -82,4 +82,4 @@ contains
 
 #endif
 
-end module craypat
+end module craypat_m

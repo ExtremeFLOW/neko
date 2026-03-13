@@ -1,10 +1,10 @@
 @test
 subroutine test_htable_init_i8
   use pfunit
-  use htable
-  use num_types
-  use point
-  use tuple
+  use htable_m
+  use num_types_m
+  use point_m
+  use tuple_m
   implicit none
   type(htable_i8_t) :: h
   integer :: data_i4
@@ -37,10 +37,10 @@ end subroutine test_htable_init_i8
 @test
 subroutine test_htable_add_i8
   use pfunit
-  use htable
-  use num_types
-  use point
-  use tuple
+  use htable_m
+  use num_types_m
+  use point_m
+  use tuple_m
   implicit none
   type(htable_i8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -111,8 +111,8 @@ end subroutine test_htable_add_i8
 @test
 subroutine test_htable_clear_i8
   use pfunit
-  use htable
-  use num_types, only : i8
+  use htable_m
+  use num_types_m, only : i8
   implicit none
   type(htable_i8_t) :: h
   integer :: i
@@ -134,8 +134,8 @@ end subroutine test_htable_clear_i8
 @test
 subroutine test_htable_free_i8
   use pfunit
-  use htable
-  use num_types, only : i8
+  use htable_m
+  use num_types_m, only : i8
   implicit none
   type(htable_i8_t) :: h
   integer :: i
@@ -158,10 +158,10 @@ end subroutine test_htable_free_i8
 @test
 subroutine test_htable_get_i8
   use pfunit
-  use htable
-  use num_types
-  use point
-  use tuple
+  use htable_m
+  use num_types_m
+  use point_m
+  use tuple_m
   implicit none
   type(htable_i8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -265,10 +265,10 @@ end subroutine test_htable_get_i8
 @test
 subroutine test_htable_remove_i8
   use pfunit
-  use htable
-  use num_types
-  use point
-  use tuple
+  use htable_m
+  use num_types_m
+  use point_m
+  use tuple_m
   implicit none
   type(htable_i8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -356,8 +356,8 @@ end subroutine test_htable_remove_i8
 @test
 subroutine test_htable_iter_i8
   use pfunit
-  use htable
-  use num_types
+  use htable_m
+  use num_types_m
   implicit none
   type(htable_i8_t) :: h
   type(htable_iter_i8_t) :: it

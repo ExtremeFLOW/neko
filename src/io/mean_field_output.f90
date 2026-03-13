@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines an output for a list of mean fields
-module mean_field_output
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use fld_file_data, only : fld_file_data_t
-  use map_2d, only : map_2d_t
-  use map_1d, only : map_1d_t
-  use coefs, only : coef_t
-  use device, only : DEVICE_TO_HOST, device_memcpy
-  use mean_field, only : mean_field_t
-  use output, only : output_t
-  use matrix, only : matrix_t
+module mean_field_output_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use fld_file_data_m, only : fld_file_data_t
+  use map_2d_m, only : map_2d_t
+  use map_1d_m, only : map_1d_t
+  use coefs_m, only : coef_t
+  use device_m, only : DEVICE_TO_HOST, device_memcpy
+  use mean_field_m, only : mean_field_t
+  use output_m, only : output_t
+  use matrix_m, only : matrix_t
   implicit none
   private
 
@@ -193,4 +193,4 @@ contains
 
   end subroutine mean_field_output_sample
 
-end module mean_field_output
+end module mean_field_output_m

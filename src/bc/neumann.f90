@@ -31,22 +31,22 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a Neumann boundary condition.
-module neumann
-  use num_types, only : rp
-  use bc, only : bc_t
+module neumann_m
+  use num_types_m, only : rp
+  use bc_m, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
-  use utils, only : neko_error, nonlinear_index
-  use coefs, only : coef_t
+  use utils_m, only : neko_error, nonlinear_index
+  use coefs_m, only : coef_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_lookup
-  use math, only : cfill, copy, abscmp
-  use vector, only : vector_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_cfill, device_copy
-  use device, only : device_memcpy, DEVICE_TO_HOST
-  use device_neumann, only : device_neumann_apply_scalar, &
+  use json_utils_m, only : json_get_or_lookup
+  use math_m, only : cfill, copy, abscmp
+  use vector_m, only : vector_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_math_m, only : device_cfill, device_copy
+  use device_m, only : device_memcpy, DEVICE_TO_HOST
+  use device_neumann_m, only : device_neumann_apply_scalar, &
        device_neumann_apply_vector
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -398,4 +398,4 @@ contains
     this%uniform_0 = .false.
 
   end subroutine neumann_set_flux_array
-end module neumann
+end module neumann_m

@@ -1,7 +1,7 @@
 module test_json_utils
   use pfunit
-  use num_types, only : rp, dp
-  use json_utils, only : json_get_or_default, json_get, json_no_defaults
+  use num_types_m, only : rp, dp
+  use json_utils_m, only : json_get_or_default, json_get, json_no_defaults
   use json_module, only : json_file
   implicit none
 

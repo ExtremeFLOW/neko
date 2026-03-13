@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the device kernel for the `smagorinsky_t` type.
-module smagorinsky_device
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use scratch_registry, only : neko_scratch_registry
-  use registry, only : neko_registry
-  use field, only : field_t
-  use operators, only : strain_rate
-  use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
-  use device_math, only : device_col2
-  use device_smagorinsky_nut, only : device_smagorinsky_nut_compute
+module smagorinsky_device_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use operators_m, only : strain_rate
+  use coefs_m, only : coef_t
+  use gs_ops_m, only : GS_OP_ADD
+  use device_math_m, only : device_col2
+  use device_smagorinsky_nut_m, only : device_smagorinsky_nut_compute
   implicit none
   private
 
@@ -109,5 +109,5 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine smagorinsky_compute_device
 
-end module smagorinsky_device
+end module smagorinsky_device_m
 

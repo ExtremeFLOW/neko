@@ -1,4 +1,4 @@
-module num_types
+module num_types_m
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   private
@@ -13,6 +13,6 @@ module num_types
   integer, public, parameter :: c_rp = @NEKO_C_REAL_TYPE@
   integer, public, parameter :: xp = @NEKO_XREAL_TYPE@
   integer, public, parameter :: c_xp = @NEKO_C_XREAL_TYPE@
-end module num_types
+end module num_types_m
 
 

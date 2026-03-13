@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines NCCL based gather-scatter communication
-module gs_device_nccl
-  use num_types, only : rp, c_rp
-  use gs_comm, only : gs_comm_t
-  use stack, only : stack_i4_t
-  use comm, only : pe_size, pe_rank
-  use htable, only : htable_i4_t
-  use device
-  use utils, only : neko_error
+module gs_device_nccl_m
+  use num_types_m, only : rp, c_rp
+  use gs_comm_m, only : gs_comm_t
+  use stack_m, only : stack_i4_t
+  use comm_m, only : pe_size, pe_rank
+  use htable_m, only : htable_i4_t
+  use device_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated, c_int
   implicit none
@@ -360,4 +360,4 @@ contains
 
   end subroutine gs_device_nccl_nbwait
 
-end module gs_device_nccl
+end module gs_device_nccl_m

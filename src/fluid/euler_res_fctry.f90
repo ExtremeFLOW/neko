@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
-submodule (euler_residual) euler_res_fctry
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use euler_res_cpu, only : euler_res_cpu_t
-  use euler_res_device, only : euler_res_device_t
+submodule (euler_residual_m) euler_res_fctry
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use euler_res_cpu_m, only : euler_res_cpu_t
+  use euler_res_device_m, only : euler_res_device_t
   implicit none
 
 contains

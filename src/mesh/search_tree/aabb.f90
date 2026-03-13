@@ -68,18 +68,18 @@
 !! defined by two points, the lower left front corner and the upper right back
 !! corner. This is the base data structure for the aabb_Tree, which is used to
 !! accelerate a Signed Distance Function.
-module aabb
-  use num_types, only: dp
-  use element, only: element_t
-  use point, only: point_t
-  use tri, only: tri_t
-  use quad, only: quad_t
-  use tet, only: tet_t
-  use hex, only: hex_t
-  use mesh, only: mesh_t
-  use tri_mesh, only: tri_mesh_t
-  use tet_mesh, only: tet_mesh_t
-  use utils, only: neko_error
+module aabb_m
+  use num_types_m, only: dp
+  use element_m, only: element_t
+  use point_m, only: point_t
+  use tri_m, only: tri_t
+  use quad_m, only: quad_t
+  use tet_m, only: tet_t
+  use hex_m, only: hex_t
+  use mesh_m, only: mesh_t
+  use tri_mesh_m, only: tri_mesh_t
+  use tet_mesh_m, only: tet_mesh_t
+  use utils_m, only: neko_error
 
   implicit none
   private
@@ -178,7 +178,7 @@ contains
   !! @param[in] padding The padding of the aabb.
   !! @return The aabb of the object.
   function get_aabb(object, padding) result(box)
-    use utils, only: neko_error
+    use utils_m, only: neko_error
     implicit none
 
     class(*), intent(in) :: object
@@ -623,4 +623,4 @@ contains
 
   end function aabb_greater
 
-end module aabb
+end module aabb_m

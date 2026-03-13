@@ -30,15 +30,15 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module scalar_residual_device
-  use scalar_residual, only : scalar_residual_t
-  use device_math, only : device_copy, device_cfill
-  use ax_product, only : ax_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use num_types, only : rp    
+module scalar_residual_device_m
+  use scalar_residual_m, only : scalar_residual_t
+  use device_math_m, only : device_copy, device_cfill
+  use ax_product_m, only : ax_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use num_types_m, only : rp    
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -120,4 +120,4 @@ contains
 
   end subroutine scalar_residual_device_compute
 
-end module scalar_residual_device
+end module scalar_residual_device_m

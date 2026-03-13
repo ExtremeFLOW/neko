@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements utilities for the TreeAMG hierarchy structure.
-module tree_amg_utils
-  use num_types, only : rp
-  use tree_amg, only : tamg_hierarchy_t
-  use gather_scatter, only : GS_OP_ADD
+module tree_amg_utils_m
+  use num_types_m, only : rp
+  use tree_amg_m, only : tamg_hierarchy_t
+  use gather_scatter_m, only : GS_OP_ADD
   implicit none
   private
 
@@ -177,4 +177,4 @@ contains
   end subroutine tamg_print_prolongation_matrix
 
 
-end module tree_amg_utils
+end module tree_amg_utils_m

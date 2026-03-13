@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 
 !> Cuda interface binding for mappings
-module cuda_mappings
-  use num_types, only : c_rp
+module cuda_mappings_m
+  use num_types_m, only : c_rp
   implicit none
   private
 
@@ -68,4 +68,4 @@ module cuda_mappings
      end subroutine cuda_permeability
   end interface
 
-end module cuda_mappings
+end module cuda_mappings_m

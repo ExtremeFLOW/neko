@@ -34,30 +34,30 @@
 !! @note This modules uses functions from `gslib`, namely `findpts_setup`,
 !! `findpts`, and `findpts_eval`. A full description of these subroutines can
 !! be found at https://github.com/Nek5000/gslib/blob/master/src/findpts.c
-module probes
-  use num_types, only: rp
-  use matrix, only: matrix_t
-  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use utils, only: neko_error, nonlinear_index
-  use field_list, only: field_list_t
-  use time_state, only : time_state_t
-  use simulation_component, only : simulation_component_t
-  use registry, only : neko_registry
-  use dofmap, only: dofmap_t
+module probes_m
+  use num_types_m, only: rp
+  use matrix_m, only: matrix_t
+  use logger_m, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use utils_m, only: neko_error, nonlinear_index
+  use field_list_m, only: field_list_t
+  use time_state_m, only : time_state_t
+  use simulation_component_m, only : simulation_component_t
+  use registry_m, only : neko_registry
+  use dofmap_m, only: dofmap_t
   use json_module, only : json_file, json_value, json_core
-  use json_utils, only : json_get, json_extract_item, json_get_or_default, &
+  use json_utils_m, only : json_get, json_extract_item, json_get_or_default, &
        json_get_or_lookup, json_get_or_lookup_or_default
-  use global_interpolation, only: global_interpolation_t
-  use tensor, only: trsp
-  use point_zone, only: point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
-  use file, only : file_t, file_free
-  use csv_file, only : csv_file_t
-  use case, only : case_t
+  use global_interpolation_m, only: global_interpolation_t
+  use tensor_m, only: trsp
+  use point_zone_m, only: point_zone_t
+  use point_zone_registry_m, only: neko_point_zone_registry
+  use file_m, only : file_t, file_free
+  use csv_file_m, only : csv_file_t
+  use case_m, only : case_t
   use, intrinsic :: iso_c_binding
-  use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, DEVICE_TO_HOST, device_map, device_free
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : device_memcpy, DEVICE_TO_HOST, device_map, device_free
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, &
        MPI_DOUBLE_PRECISION, MPI_Gatherv, MPI_Gather, MPI_Exscan
   implicit none
@@ -771,4 +771,4 @@ contains
     end if
 
   end subroutine read_xyz_from_csv
-end module probes
+end module probes_m

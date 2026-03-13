@@ -31,19 +31,19 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 
-module cartesian_el_finder
-  use num_types, only : rp, xp, dp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use el_finder, only : el_finder_t
-  use space, only : space_t
-  use stack, only : stack_i4_t
-  use tuple, only : tuple_i4_t
-  use point, only : point_t
-  use htable, only : htable_i4_t
-  use utils, only : linear_index, neko_error
+module cartesian_el_finder_m
+  use num_types_m, only : rp, xp, dp
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use el_finder_m, only : el_finder_t
+  use space_m, only : space_t
+  use stack_m, only : stack_i4_t
+  use tuple_m, only : tuple_i4_t
+  use point_m, only : point_t
+  use htable_m, only : htable_i4_t
+  use utils_m, only : linear_index, neko_error
   use mpi_f08, only : MPI_Wtime
-  use tensor_cpu, only : tnsr3d_cpu
-  use fast3d, only : setup_intp
+  use tensor_cpu_m, only : tnsr3d_cpu
+  use fast3d_m, only : setup_intp
   implicit none
   private
 
@@ -347,4 +347,4 @@ contains
 
   end subroutine cartesian_el_finder_find_candidates_batch
 
-end module cartesian_el_finder
+end module cartesian_el_finder_m

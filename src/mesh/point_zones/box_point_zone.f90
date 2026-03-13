@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 ! Implements a box geometry subset.
-module box_point_zone
-  use point_zone, only: point_zone_t
-  use num_types, only: rp
-  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
+module box_point_zone_m
+  use point_zone_m, only: point_zone_t
+  use num_types_m, only: rp
+  use json_utils_m, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
-  use math, only: abscmp
+  use math_m, only: abscmp
   implicit none
   private
 
@@ -190,4 +190,4 @@ contains
     is_inside = in_x .and. in_y .and. in_z
   end function box_point_zone_criterion
 
-end module box_point_zone
+end module box_point_zone_m

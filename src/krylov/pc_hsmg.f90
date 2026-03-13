@@ -58,37 +58,37 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Krylov preconditioner
-module hsmg
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use math, only : copy, col2, add2
-  use utils, only : neko_error
-  use precon, only : pc_t, precon_factory, precon_destroy
-  use ax_product, only : ax_t, ax_helm_factory
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use interpolation, only : interpolator_t
-  use bc, only: bc_t
-  use bc_list, only : bc_list_t
-  use dirichlet, only : dirichlet_t
-  use schwarz, only : schwarz_t
-  use jacobi, only : jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use device
-  use device_math, only : device_copy, device_col2, device_add2
-  use profiler, only : profiler_start_region, profiler_end_region
-  use space, only : space_t, GLL
-  use dofmap, only : dofmap_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use mesh, only : mesh_t
+module hsmg_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use math_m, only : copy, col2, add2
+  use utils_m, only : neko_error
+  use precon_m, only : pc_t, precon_factory, precon_destroy
+  use ax_product_m, only : ax_t, ax_helm_factory
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use interpolation_m, only : interpolator_t
+  use bc_m, only: bc_t
+  use bc_list_m, only : bc_list_t
+  use dirichlet_m, only : dirichlet_t
+  use schwarz_m, only : schwarz_t
+  use jacobi_m, only : jacobi_t
+  use sx_jacobi_m, only : sx_jacobi_t
+  use device_jacobi_m, only : device_jacobi_t
+  use device_m
+  use device_math_m, only : device_copy, device_col2, device_add2
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use space_m, only : space_t, GLL
+  use dofmap_m, only : dofmap_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use mesh_m, only : mesh_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
+  use json_utils_m, only : json_get_or_default
+  use krylov_m, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
-  use tree_amg_multigrid, only : tamg_solver_t
-  use zero_dirichlet, only : zero_dirichlet_t
-  use logger, only : neko_log, LOG_SIZE
+  use tree_amg_multigrid_m, only : tamg_solver_t
+  use zero_dirichlet_m, only : zero_dirichlet_t
+  use logger_m, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
   implicit none
@@ -619,4 +619,4 @@ contains
     end if
     call profiler_end_region('HSMG_solve', 8)
   end subroutine hsmg_solve
-end module hsmg
+end module hsmg_m

@@ -1,7 +1,7 @@
 ! Setup fake data
 subroutine set_data(u, v, n)
-  use gather_scatter
-  use num_types
+  use gather_scatter_m
+  use num_types_m
   implicit none
   
   real(kind=dp), intent(inout), dimension(n) :: u
@@ -21,7 +21,7 @@ end subroutine set_data
 
 ! Setup geom terms
 subroutine setup_g(g, w, lx, ly, lz, n)
-  use num_types
+  use num_types_m
   implicit none
   
   real(kind=dp), intent(inout), dimension(6, lx, ly, lz, n) :: g

@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the cpu kernel for the  `boussinesq_source_term_t` type.
-module boussinesq_source_term_cpu
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use field, only : field_t
-  use math, only : add2s2, cadd
+module boussinesq_source_term_cpu_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use field_m, only : field_t
+  use math_m, only : add2s2, cadd
   implicit none
   private
 
@@ -66,4 +66,4 @@ contains
     end do
   end subroutine boussinesq_source_term_compute_cpu
 
-end module boussinesq_source_term_cpu
+end module boussinesq_source_term_cpu_m

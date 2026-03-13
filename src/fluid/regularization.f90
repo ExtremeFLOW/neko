@@ -30,13 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module regularization
-  use num_types, only : rp
+module regularization_m
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use field, only : field_t
-  use coefs, only : coef_t
-  use dofmap, only : dofmap_t
-  use time_state, only : time_state_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use dofmap_m, only : dofmap_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -118,4 +118,4 @@ contains
 
   end subroutine regularization_free_base
 
-end module regularization
+end module regularization_m

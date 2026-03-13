@@ -33,12 +33,12 @@
 !> Implements the cpu kernel for the `centrifugal_source_term_t` type.
 !! Maintainer: Adam Peplinski.
 
-module centrifugal_source_term_cpu
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use math, only : vcross
-  use field, only : field_t
-  use dofmap, only : dofmap_t
+module centrifugal_source_term_cpu_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use math_m, only : vcross
+  use field_m, only : field_t
+  use dofmap_m, only : dofmap_t
   implicit none
   private
 
@@ -85,4 +85,4 @@ contains
 
   end subroutine centrifugal_source_term_compute_cpu
 
-end module centrifugal_source_term_cpu
+end module centrifugal_source_term_cpu_m

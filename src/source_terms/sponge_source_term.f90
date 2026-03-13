@@ -32,30 +32,30 @@
 !
 !
 !> Implements the `sponge_t` type.
-module sponge_source_term
-  use num_types, only : rp, dp, sp
+module sponge_source_term_m
+  use num_types_m, only : rp, dp, sp
   use json_module, only : json_file
-  use registry, only : neko_registry
-  use field, only : field_t
-  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
-  use utils, only : neko_error
-  use device, only : device_memcpy, HOST_TO_DEVICE
-  use device_math, only : device_sub3, device_col2, device_add2s2
-  use time_state, only : time_state_t
-  use math, only : sub3, col2, add2s2
-  use logger, only : neko_log, NEKO_LOG_DEBUG
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use source_term, only : source_term_t
-  use case, only : case_t
-  use simcomp_executor, only : neko_simcomps
-  use import_field_utils, only : import_fields
-  use field_list, only : field_list_t
-  use coefs, only : coef_t
-  use utils, only : NEKO_FNAME_LEN
-  use file, only : file_t
-  use scratch_registry, only : neko_scratch_registry
-  use comm, only : pe_rank
-  use fld_file_output, only : fld_file_output_t
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use json_utils_m, only : json_get, json_get_or_default, json_get_or_lookup
+  use utils_m, only : neko_error
+  use device_m, only : device_memcpy, HOST_TO_DEVICE
+  use device_math_m, only : device_sub3, device_col2, device_add2s2
+  use time_state_m, only : time_state_t
+  use math_m, only : sub3, col2, add2s2
+  use logger_m, only : neko_log, NEKO_LOG_DEBUG
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use source_term_m, only : source_term_t
+  use case_m, only : case_t
+  use simcomp_executor_m, only : neko_simcomps
+  use import_field_utils_m, only : import_fields
+  use field_list_m, only : field_list_t
+  use coefs_m, only : coef_t
+  use utils_m, only : NEKO_FNAME_LEN
+  use file_m, only : file_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use comm_m, only : pe_rank
+  use fld_file_output_m, only : fld_file_output_t
   implicit none
   private
 
@@ -520,4 +520,4 @@ contains
 
   end subroutine sponge_compute
 
-end module sponge_source_term
+end module sponge_source_term_m

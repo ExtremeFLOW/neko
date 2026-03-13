@@ -33,16 +33,16 @@
 !
 !> Implements the `field_writer_t` type.
 
-module field_writer
-  use num_types, only : rp, dp, sp
+module field_writer_m
+  use num_types_m, only : rp, dp, sp
   use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
-  use time_state, only : time_state_t
-  use registry, only : neko_registry
-  use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
-  use json_utils, only : json_get, json_get_or_default
-  use time_based_controller, only : time_based_controller_t
+  use simulation_component_m, only : simulation_component_t
+  use time_state_m, only : time_state_t
+  use registry_m, only : neko_registry
+  use case_m, only : case_t
+  use fld_file_output_m, only : fld_file_output_t
+  use json_utils_m, only : json_get, json_get_or_default
+  use time_based_controller_m, only : time_based_controller_t
   implicit none
   private
 
@@ -241,4 +241,4 @@ contains
 
   end subroutine field_writer_compute
 
-end module field_writer
+end module field_writer_m

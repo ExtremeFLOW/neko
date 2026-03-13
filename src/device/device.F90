@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Device abstraction, common interface for various accelerators
-module device
-  use num_types, only : i8
-  use opencl_intf
-  use cuda_intf
-  use hip_intf
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use htable, only : htable_cptr_t, h_cptr_t
-  use utils, only : neko_error
-  use opencl_prgm_lib
+module device_m
+  use num_types_m, only : i8
+  use opencl_intf_m
+  use cuda_intf_m
+  use hip_intf_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use htable_m, only : htable_cptr_t, h_cptr_t
+  use utils_m, only : neko_error
+  use opencl_prgm_lib_m
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -1329,4 +1329,4 @@ contains
 #endif
   end subroutine device_event_sync
 
-end module device
+end module device_m

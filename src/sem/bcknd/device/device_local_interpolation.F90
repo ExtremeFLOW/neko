@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_local_interpolation
-  use num_types, only : rp, c_rp
-  use utils, only : neko_error
+module device_local_interpolation_m
+  use num_types_m, only : rp, c_rp
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -47,7 +47,7 @@ module device_local_interpolation
           lx, el_ids, n_pt, tol, conv_pts) &
           bind(c, name='hip_find_rst_legendre')
        use, intrinsic :: iso_c_binding
-       use num_types
+       use num_types_m
        implicit none
        type(c_ptr), value :: rst
        type(c_ptr), value :: pt_x, pt_y, pt_z
@@ -67,7 +67,7 @@ module device_local_interpolation
           lx, el_ids, n_pt, tol, conv_pts) &
           bind(c, name='cuda_find_rst_legendre')
        use, intrinsic :: iso_c_binding
-       use num_types
+       use num_types_m
        implicit none
        type(c_ptr), value :: rst
        type(c_ptr), value :: pt_x, pt_y, pt_z
@@ -86,7 +86,7 @@ module device_local_interpolation
           lx, el_ids, n_pt, tol, conv_pts) &
           bind(c, name='opencl_find_rst_legendre')
        use, intrinsic :: iso_c_binding
-       use num_types
+       use num_types_m
        implicit none
        type(c_ptr), value :: rst
        type(c_ptr), value :: pt_x, pt_y, pt_z
@@ -133,4 +133,4 @@ contains
 
   end subroutine device_find_rst_legendre
 
-end module device_local_interpolation
+end module device_local_interpolation_m

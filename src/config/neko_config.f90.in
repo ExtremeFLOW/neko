@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Build configurations
-module neko_config
+module neko_config_m
 
   character(len=10), parameter :: NEKO_VERSION = '@PACKAGE_VERSION@'
   character(len=80), parameter :: NEKO_BUILD_INFO = '@NEKO_BUILD_INFO@'
@@ -47,4 +47,4 @@ module neko_config
 
   integer, parameter :: NEKO_BLK_SIZE = @blk_size@
 
-end module neko_config
+end module neko_config_m

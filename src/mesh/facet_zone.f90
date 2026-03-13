@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a zone as a subset of facets in a mesh
-module facet_zone
-  use tuple, only : tuple_i4_t, tuple4_i4_t
-  use stack, only : stack_i4t2_t, stack_i4t4_t
-  use utils, only : neko_error
+module facet_zone_m
+  use tuple_m, only : tuple_i4_t, tuple4_i4_t
+  use stack_m, only : stack_i4t2_t, stack_i4t4_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -251,4 +251,4 @@ contains
 
   end subroutine facet_zone_periodic_add_facet
 
-end module facet_zone
+end module facet_zone_m

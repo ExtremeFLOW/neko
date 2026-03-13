@@ -31,21 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the base type for TreeAMG hierarchy structure.
-module tree_amg
-  use num_types, only : rp
-  use utils, only : neko_error
-  use math, only : rzero, col2
-  use device_math , only : device_rzero, device_col2, device_masked_atomic_reduction_0, &
+module tree_amg_m
+  use num_types_m, only : rp
+  use utils_m, only : neko_error
+  use math_m, only : rzero, col2
+  use device_math_m , only : device_rzero, device_col2, device_masked_atomic_reduction_0, &
        device_masked_gather_copy_0, device_cfill
-  use coefs, only : coef_t
-  use mesh, only : mesh_t
-  use space, only : space_t
-  use ax_product, only: ax_t
-  use bc_list, only: bc_list_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use device, only: device_map, device_free, device_deassociate, &
+  use coefs_m, only : coef_t
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t
+  use ax_product_m, only: ax_t
+  use bc_list_m, only: bc_list_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use device_m, only: device_map, device_free, device_deassociate, &
        device_stream_wait_event, glb_cmd_queue, glb_cmd_event
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config_m, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -538,4 +538,4 @@ contains
     end if
   end subroutine tamg_device_prolongation_operator
 
-end module tree_amg
+end module tree_amg_m

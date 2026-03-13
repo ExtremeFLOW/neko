@@ -32,10 +32,10 @@
 !
 !> Implements an unordered set ADT
 !! @details A unordered set storing a fixed data-type @a data
-module uset
-  use utils, only : neko_error
-  use num_types, only : i8, dp
-  use htable, only : htable_i4_t, htable_iter_i4_t, &
+module uset_m
+  use utils_m, only : neko_error
+  use num_types_m, only : i8, dp
+  use htable_m, only : htable_i4_t, htable_iter_i4_t, &
        htable_i8_t, htable_iter_i8_t, &
        htable_r8_t, htable_iter_r8_t
   implicit none
@@ -478,4 +478,4 @@ contains
   end function uset_r8_iter_value
 
 
-end module uset
+end module uset_m

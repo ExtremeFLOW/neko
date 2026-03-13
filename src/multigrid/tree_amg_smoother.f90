@@ -31,24 +31,24 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements smoothers for use with TreeAMG matrix vector product
-module tree_amg_smoother
-  use tree_amg, only : tamg_hierarchy_t
-  use tree_amg_utils, only : tamg_sample_matrix_val
-  use num_types, only : rp
-  use math, only : col2, add2, add2s2, glsc2, glsc3, sub2, cmult, &
+module tree_amg_smoother_m
+  use tree_amg_m, only : tamg_hierarchy_t
+  use tree_amg_utils_m, only : tamg_sample_matrix_val
+  use num_types_m, only : rp
+  use math_m, only : col2, add2, add2s2, glsc2, glsc3, sub2, cmult, &
        cmult2, copy, add3s2
-  use device_math, only : device_glsc2, device_glsc3, device_rzero, &
+  use device_math_m, only : device_glsc2, device_glsc3, device_rzero, &
        device_cmult2, device_sub2, device_add2, device_add3s2, &
        device_copy
-  use krylov, only : ksp_monitor_t
-  use bc_list, only: bc_list_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
+  use krylov_m, only : ksp_monitor_t
+  use bc_list_m, only: bc_list_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use logger_m, only : neko_log, LOG_SIZE
+  use device_m, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
        device_deassociate
-  use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
+  use device_tree_amg_smoother_m, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config_m, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -502,4 +502,4 @@ contains
     call neko_log%message(log_buf)
   end subroutine amg_cheby_monitor
 
-end module tree_amg_smoother
+end module tree_amg_smoother_m

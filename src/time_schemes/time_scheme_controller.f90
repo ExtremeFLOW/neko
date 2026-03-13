@@ -32,13 +32,13 @@
 !
 !> Compound scheme for the advection and diffusion operators in a transport
 !! equation.
-module time_scheme_controller
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use bdf_time_scheme, only : bdf_time_scheme_t
-  use ext_time_scheme, only : ext_time_scheme_t
-  use ab_time_scheme, only : ab_time_scheme_t
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+module time_scheme_controller_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use bdf_time_scheme_m, only : bdf_time_scheme_t
+  use ext_time_scheme_m, only : ext_time_scheme_t
+  use ab_time_scheme_m, only : ab_time_scheme_t
+  use device_m, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -208,4 +208,4 @@ contains
     end associate
 
   end subroutine time_scheme_controller_set_coeffs
-end module time_scheme_controller
+end module time_scheme_controller_m

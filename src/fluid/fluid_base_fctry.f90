@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Factory for all fluid schemes
-submodule (fluid_scheme_base) fluid_base_fctry
-  use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme_compressible_euler, only : fluid_scheme_compressible_euler_t
-  use utils, only : neko_type_error
+submodule (fluid_scheme_base_m) fluid_base_fctry
+  use fluid_pnpn_m, only : fluid_pnpn_t
+  use fluid_scheme_compressible_euler_m, only : fluid_scheme_compressible_euler_t
+  use utils_m, only : neko_type_error
 
   ! List of all possible types created by the factory routine
   character(len=20) :: FLUID_KNOWN_TYPES(2) = [character(len=20) :: &

@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_coef
-  use num_types, only : rp
-  use utils, only : neko_error
+module device_coef_m
+  use num_types_m, only : rp
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -210,4 +210,4 @@ contains
 #endif
   end subroutine device_coef_generate_dxydrst
 
-end module device_coef
+end module device_coef_m

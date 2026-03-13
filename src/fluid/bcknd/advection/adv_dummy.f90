@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements `adv_dummy_t`
-module adv_dummy
-  use advection, only : advection_t
-  use num_types, only : rp
-  use space, only : space_t
-  use field, only : field_t
-  use coefs, only : coef_t
+module adv_dummy_m
+  use advection_m, only : advection_t
+  use num_types_m, only : rp
+  use space_m, only : space_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
   implicit none
   private
 
@@ -123,4 +123,4 @@ contains
 
   end subroutine compute_scalar_adv_dummy
 
-end module adv_dummy
+end module adv_dummy_m

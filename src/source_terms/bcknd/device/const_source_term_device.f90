@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the device kernel for the `const_source_term_t` type.
-module const_source_term_device
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use device_math, only : device_cadd
+module const_source_term_device_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use device_math_m, only : device_cadd
   implicit none
   private
 
@@ -58,4 +58,4 @@ contains
     end do
   end subroutine const_source_term_compute_device
 
-end module const_source_term_device
+end module const_source_term_device_m

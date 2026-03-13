@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Interface to signal handler
-module signal
-  use utils, only : neko_error
+module signal_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -147,4 +147,4 @@ contains
 
   end subroutine signal_trap_usr
 
-end module signal
+end module signal_m

@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a checkpoint
-module checkpoint
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp, dp
-  use field_series, only : field_series_t
-  use field_series_list, only : field_series_list_t
-  use space, only : space_t, operator(.ne.)
-  use device, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
+module checkpoint_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp, dp
+  use field_series_m, only : field_series_t
+  use field_series_list_m, only : field_series_list_t
+  use space_m, only : space_t, operator(.ne.)
+  use device_m, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
        device_sync, glb_cmd_queue
-  use field, only : field_t, field_ptr_t
-  use utils, only : neko_error
-  use mesh, only : mesh_t
-  use math, only : NEKO_EPS
+  use field_m, only : field_t, field_ptr_t
+  use utils_m, only : neko_error
+  use mesh_m, only : mesh_t
+  use math_m, only : NEKO_EPS
   implicit none
   private
 
@@ -362,4 +362,4 @@ contains
     rtime = this%t
   end function chkp_restart_time
 
-end module checkpoint
+end module checkpoint_m
