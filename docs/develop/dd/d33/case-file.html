@@ -964,6 +964,7 @@ Linear solver configuration</h1>
 <li><code>max_iterations</code>, maximum number of iterations before giving up.</li>
 <li><code>projection_space_size</code>, size of the vector space used for accelerating the solution procedure. If 0, then the projection space is not used. More important for the pressure equation.</li>
 <li><code>projection_hold_steps</code>, steps for which the simulation does not use projection after starting or time step changes. E.g. if 5, then the projection space will start to update at the 6th time step and the space will be utilized at the 7th time step.</li>
+<li><code>projection_reorthogonalize_basis</code>, logical flag to update and re-orthogonalize the projection basis at each time. This option works only for pressure projection.</li>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
 <p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated. This can in some situations cause issues if the initial condition is far from a valid solution. Therefore a user can allow an initial stabilization phase by setting the <code>case.fluid.allow_stabilization</code> keyword to <code>true</code>. In this case, the strict convergence will be ignored untill all components of the velocity field converge within the specified tolerance. After this initial stabilization phase, strict convergence will be enforced for the rest of the simulation.</p>
@@ -1099,22 +1100,24 @@ Full parameter table</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>pressure_solver.projection_reorthogonalize_basis</code>   </td><td class="markdownTableBodyNone">Whether to enable pressure projection basis reorthogonalization.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>flow_rate_force.direction</code>   </td><td class="markdownTableBodyNone">Direction of the forced flow.   </td><td class="markdownTableBodyNone">0, 1, 2   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>flow_rate_force.value</code>   </td><td class="markdownTableBodyNone">Bulk velocity or volumetric flow rate.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>flow_rate_force.use_averaged_flow</code>   </td><td class="markdownTableBodyNone">Whether bulk velocity or volumetric flow rate is given by the <code>value</code> parameter.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>freeze</code>   </td><td class="markdownTableBodyNone">Whether to fix the velocity field at initial conditions.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>strict_convergence</code>   </td><td class="markdownTableBodyNone">Whether to enforce strict convergence in the linear solvers.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>full_stress_formulation</code>   </td><td class="markdownTableBodyNone">Whether to use the full form of the visous stress tensor term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
 </table>
 <h1><a class="anchor" id="case-file_scalar"></a>
@@ -1251,7 +1254,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Mar 12 2026 04:18:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Mar 13 2026 04:17:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
