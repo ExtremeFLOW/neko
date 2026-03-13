@@ -36,12 +36,12 @@ module tuple
   use num_types, only : dp
   implicit none
   private
-  public :: tuple_i4_t      ! pair of 32-bit integers
-  public :: tuple3_i4_t     ! triple of 32-bit integers
-  public :: tuple4_i4_t     ! quadruple of 32-bit integers
-  public :: tuple_r8_t      ! pair of 64-bit real values
-  public :: tuple_i4r8_t    ! pair of one 32-bit int and one 64-bit real
-  public :: tuple_2i4r8_t   ! triple of two 32-bit ints and one 64-bit real
+  public :: tuple_i4_t ! pair of 32-bit integers
+  public :: tuple3_i4_t ! triple of 32-bit integers
+  public :: tuple4_i4_t ! quadruple of 32-bit integers
+  public :: tuple_r8_t ! pair of 64-bit real values
+  public :: tuple_i4r8_t ! pair of one 32-bit int and one 64-bit real
+  public :: tuple_2i4r8_t ! triple of two 32-bit ints and one 64-bit real
 
   !> Base type for an n-tuple
   type, public, abstract :: tuple_t

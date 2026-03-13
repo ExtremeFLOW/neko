@@ -40,9 +40,9 @@ module uset
        htable_r8_t, htable_iter_r8_t
   implicit none
   private
-  public :: uset_i4_t   ! unordered set of 32-bit integers
-  public :: uset_i8_t   ! unordered set of 64-bit integers
-  public :: uset_r8_t   ! unordered set of 64-bit real values
+  public :: uset_i4_t ! unordered set of 32-bit integers
+  public :: uset_i8_t ! unordered set of 64-bit integers
+  public :: uset_r8_t ! unordered set of 64-bit real values
 
   !> Base type for an unordered set
   type, private, abstract :: uset_t

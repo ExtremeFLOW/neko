@@ -42,15 +42,15 @@ module htable
   use, intrinsic :: iso_c_binding, only : c_ptr, c_associated
   implicit none
   private
-                         
+
   ! Hash table types
-  public :: htable_i4_t          ! hash table keyed by 32-bit ints
-  public :: htable_i8_t          ! hash table keyed by 64-bit ints
-  public :: htable_r8_t          ! hash table keyed by 64-bit real values
-  public :: htable_pt_t          ! hash table keyed by points
-  public :: htable_i4t2_t        ! hash table keyed by pairs of 32-bit ints
-  public :: htable_i4t4_t        ! hash table keyed by quadruples of 32-bit ints
-  public :: htable_cptr_t        ! hash table keyed by C pointers
+  public :: htable_i4_t ! hash table keyed by 32-bit ints
+  public :: htable_i8_t ! hash table keyed by 64-bit ints
+  public :: htable_r8_t ! hash table keyed by 64-bit real values
+  public :: htable_pt_t ! hash table keyed by points
+  public :: htable_i4t2_t ! hash table keyed by pairs of 32-bit ints
+  public :: htable_i4t4_t ! hash table keyed by quadruples of 32-bit ints
+  public :: htable_cptr_t ! hash table keyed by C pointers
 
   ! Hash table iterator types
   public :: htable_iter_i4_t

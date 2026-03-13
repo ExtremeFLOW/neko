@@ -42,19 +42,19 @@ module stack
   use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
   implicit none
   private
-  public :: stack_i4_t        ! 32-bit integers
-  public :: stack_i8_t        ! 64-bit integers
-  public :: stack_r8_t        ! 64-bit real values
-  public :: stack_i4t2_t      ! pairs of 32-bit integers
-  public :: stack_i4t4_t      ! quadruples of 32-bit integers
-  public :: stack_i4r8t2_t    ! pairs of one 32-bit int and one 64-bit real
-  public :: stack_2i4r8t3_t   ! triples of two 32-bit ints and one 64-bit real
-  public :: stack_curve_t     ! curved-element descriptors
-  public :: stack_nq_t        ! Neko quad elements
-  public :: stack_nh_t        ! Neko hex elements
-  public :: stack_nz_t        ! Neko zone descriptors
-  public :: stack_nc_t        ! Neko curved-element metadata
-  public :: stack_pt_t        ! points
+  public :: stack_i4_t ! 32-bit integers
+  public :: stack_i8_t ! 64-bit integers
+  public :: stack_r8_t ! 64-bit real values
+  public :: stack_i4t2_t ! pairs of 32-bit integers
+  public :: stack_i4t4_t ! quadruples of 32-bit integers
+  public :: stack_i4r8t2_t ! pairs of one 32-bit int and one 64-bit real
+  public :: stack_2i4r8t3_t ! triples of two 32-bit ints and one 64-bit real
+  public :: stack_curve_t ! curved-element descriptors
+  public :: stack_nq_t ! Neko quad elements
+  public :: stack_nh_t ! Neko hex elements
+  public :: stack_nz_t ! Neko zone descriptors
+  public :: stack_nc_t ! Neko curved-element metadata
+  public :: stack_pt_t ! points
 
   integer, parameter :: NEKO_STACK_SIZE_T = 32
 
