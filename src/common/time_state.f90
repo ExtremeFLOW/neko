@@ -145,7 +145,7 @@ contains
 
     time_digits = precision(this%t)
     time_width = time_digits + 8
-    pad_width = max(1, LOG_SIZE - 1 - (34 + time_width))
+    pad_width = max(1, LOG_SIZE - (34 + time_width))
 
     write(log_fmt, '(A,I0,A,I0,A,I0,A,I0,A)') &
          '(A7,1X,I10,1X,A4,ES', time_width, '.', time_digits, ',', &
@@ -153,9 +153,9 @@ contains
     write(log_buf, log_fmt) 'Step = ', this%tstep, 't = ', this%t, &
          '[ ', t_prog, '% ]'
 
-    call neko_log%message(repeat('-', LOG_SIZE - 1))
+    call neko_log%message(repeat('-', LOG_SIZE))
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
-    call neko_log%message(repeat('-', LOG_SIZE - 1))
+    call neko_log%message(repeat('-', LOG_SIZE))
 
   end subroutine time_state_status
 

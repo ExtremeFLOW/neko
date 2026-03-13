@@ -39,7 +39,7 @@ module logger
   implicit none
   private
 
-  ! > Size of the log message buffer
+  ! > Size of the visible log message buffer
   integer, public, parameter :: LOG_SIZE = 80
 
   !> Length of the section header
@@ -106,7 +106,7 @@ contains
     if (envvar_len .gt. 0) then
        read(log_tab_size(1:envvar_len), *) this%tab_size_
     else
-       this%tab_size_ = 0
+       this%tab_size_ = 1
     end if
 
     call get_environment_variable("NEKO_LOG_LEVEL", log_level, envvar_len)
@@ -244,13 +244,13 @@ contains
 
     if (pe_rank .eq. 0) then
        write(this%unit_, '(A)') ''
-       write(this%unit_, '(1X,A)') '   _  __  ____  __ __  ____  '
-       write(this%unit_, '(1X,A)') '  / |/ / / __/ / //_/ / __ \ '
-       write(this%unit_, '(1X,A)') ' /    / / _/  / ,<   / /_/ / '
-       write(this%unit_, '(1X,A)') '/_/|_/ /___/ /_/|_|  \____/  '
+       write(this%unit_, '(A)') '   _  __  ____  __ __  ____  '
+       write(this%unit_, '(A)') '  / |/ / / __/ / //_/ / __ \ '
+       write(this%unit_, '(A)') ' /    / / _/  / ,<   / /_/ / '
+       write(this%unit_, '(A)') '/_/|_/ /___/ /_/|_|  \____/  '
        write(this%unit_, '(A)') ''
-       write(this%unit_, '(1X,A,A,A)') '(version: ', trim(version), ')'
-       write(this%unit_, '(1X,A)') trim(build_info)
+       write(this%unit_, '(A,A,A)') '(version: ', trim(version), ')'
+       write(this%unit_, '(A)') trim(build_info)
        write(this%unit_, '(A)') ''
     end if
 
@@ -373,7 +373,7 @@ contains
   subroutine log_print_section_header(this, lvl)
     class(log_t), intent(inout) :: this
     integer, optional :: lvl
-    integer :: lvl_
+    integer :: lvl_, header_indent
 
     if (present(lvl)) then
        lvl_ = lvl
@@ -387,7 +387,8 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%newline(lvl)
-       call this%indent()
+       header_indent = max(0, this%indent_ - this%tab_size_)
+       write(this%unit_, '(A)', advance = 'no') repeat(' ', header_indent)
        write(this%unit_, '(A)') trim(this%section_header)
        this%section_header = ""
     end if
