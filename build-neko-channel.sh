@@ -16,7 +16,7 @@ BUILD_FLAG=""
 
 for arg in "$@"; do
     case "$arg" in
-        --local|--cluster) ENV_FLAG="$arg" ;;
+        --local|--egidius|--cluster) ENV_FLAG="$arg" ;;
         --clean|--regen)   BUILD_FLAG="$arg" ;;
     esac
 done
