@@ -5,6 +5,8 @@
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
   Simple restarts are supported with fixed mesh and mpi configuration. 
   The VTKHDF output format is still experimental and will change in the future.
+- Improved pixi installation. Added support to create a Python environment
+  inside the pixi shell. Added support to choose real precision.
 - Add Deardorff SGS model.
 - Add the optional `expected_size` argument to `json_get_*_array` 
   to throw an error if the parsed array size is incorrect.
