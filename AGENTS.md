@@ -156,26 +156,5 @@ tests.
   give you a very good idea of how things work.
 
 ## Code review
-You may be asked to review new code, in the context of a PR or a local git
-branch with changes with respect to develop. Your review will be kept to
-assessing the criteria outlined below, and not be a general review based on your
-opinion about good code. Essentially, you will be an intelligent static code
-analyzer, to compensate for the lack of those for Fortran. For the moment, you
-will only check Fortran code, and documentation, not CUDA and other accelerator
-code. Here is the list of things you need to check.
-
-- For all new files in the PR / branch.
-  - Any subroutine that creates a local `allocatable`, must also manually
-    `deallocate` it.
-  - Any type that has `pointer` or `allocatable` components must have a
-    routine, in which the pointers are nullified and the allocatable are
-    deallocated. In concrete types, this routine must be called `free`, in types
-    with `deferred` procedures, it may be called `free_base` or similar, always
-    with a `free_` prefix.
-  - If a type has a destructor (`free` or similar) and a constructor (`init` or
-    similar), the constructor must begin with calling the destructor.
-  - All procedures, including type-bound, must have Doxygen documentation,
-    including @param for each dummy argument.
-- By default, you should also review documentation. The rules for that are
-  found under `doc/AGENTS.md`. If explicitly asked to skip this, follow that
-  directive.
+If asked to review code, follow instructions under 
+`.github/copilot-instructions.md`.

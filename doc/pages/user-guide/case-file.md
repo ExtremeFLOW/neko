@@ -377,8 +377,8 @@ the governing equations to feature the full viscous stress tensor, as required
 for a variable viscosity field.
 
 Note that the full viscous stress tensor requires the equations for the 3
-velocity components to be solved in a coupled manner. Therefore, the `cpldcg`
-solver should be used for velocity.
+velocity components to be solved in a coupled manner. Therefore, the `coupled_cg`
+(or `fused_coupled_cg`) solver should be used for velocity.
 
 ### Boundary conditions {#case-file_fluid-boundary-conditions}
 The optional `boundary_conditions` keyword can be used to specify boundary
@@ -1124,6 +1124,8 @@ The following keywords are used, with the corresponding options.
    projection after starting or time step changes. E.g. if 5, then the
    projection space will start to update at the 6th time step and the space will
    be utilized at the 7th time step.
+* `projection_reorthogonalize_basis`, logical flag to update and re-orthogonalize
+   the projection basis at each time. This option works only for pressure projection.
 * `monitor`, monitoring of residuals. If set to true, the residuals will be
   printed for each iteration.
 
@@ -1228,6 +1230,7 @@ concisely directly in the table.
 | `pressure_solver.maxiter`               | Linear solver max iteration count for the pressure equation.                                      | Positive real                                               | 800           |
 | `pressure_solver.projection_space_size` | Projection space size for the pressure equation.                                                  | Positive integer                                            | 0             |
 | `pressure_solver.projection_hold_steps` | Holding steps of the projection for the pressure equation.                                        | Positive integer                                            | 5             |
+| `pressure_solver.projection_reorthogonalize_basis` | Whether to enable pressure projection basis reorthogonalization.                       | `true` or `false`                                           | `false`       |
 | `pressure_solver.monitor`               | Monitor residuals in the linear solver for the pressure equation.                                 | `true` or `false`                                           | `false`       |
 | `flow_rate_force.direction`             | Direction of the forced flow.                                                                     | 0, 1, 2                                                     | -             |
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                               | -             |
