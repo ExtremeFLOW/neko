@@ -235,12 +235,12 @@ contains
     n = u%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(u%x, u%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(v%x, v%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(w%x, w%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+       call u%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call v%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call w%copy_from(HOST_TO_DEVICE, sync = .false.)
+
+       ! also copy pressure for consistency
+       call p%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -433,13 +433,12 @@ contains
 
     nullify(us, vs, ws, ps)
 
-    ! If we are on GPU we need to move (u,v,w) back to the host
+    ! If we are on GPU we need to move (u,v,w) and p back to the host
     ! since set_flow_ic_common copies it again to the device.
-    ! NOTE: p can stay on the device since it is not copied by
-    ! set_flow_ic_common
-    call u%copy_from(device_to_host, .false.)
-    call v%copy_from(device_to_host, .false.)
-    call w%copy_from(device_to_host, .true.)
+    call u%copy_from(device_to_host, sync = .false.)
+    call v%copy_from(device_to_host, sync = .false.)
+    call w%copy_from(device_to_host, sync = .false.)
+    call p%copy_from(device_to_host, sync = .true.)
 
   end subroutine set_flow_ic_fld
 
