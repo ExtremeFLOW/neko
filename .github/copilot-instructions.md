@@ -30,7 +30,7 @@ This file provides LLM instructions for reviewing pull requests.
 Your review is limited to the criteria listed below. Do not give general
 opinions about code style or design unless they violate the rules stated here.
 You are more or less acting as an intelligent static analyser. A **very 
-important** focus area of you analysis is memory management.
+important** focus area of your analysis is memory management.
 
 The list of criteria to check are:
 
