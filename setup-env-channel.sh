@@ -26,8 +26,8 @@ if [ "$1" = "--local" ]; then
 
 elif [ "$1" = "--egidius" ]; then
     # ── KTH Mechanics workstation (egidius) ─────────────────────────────
-    # gfortran 14 + OpenMPI 5, json-fortran installed to ~/local
-    export JSON_INSTALL="$HOME/local"
+    # gfortran 14 + OpenMPI 5, json-fortran installed via cmake to ~/local/jsonfortran-gnu-9.2.1
+    export JSON_INSTALL="$HOME/local/jsonfortran-gnu-9.2.1"
     export NEKO_CHANNEL_PREFIX="$HOME/local/neko-channel"
 
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${JSON_INSTALL}/lib/"
