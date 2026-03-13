@@ -32,6 +32,10 @@
 !
 !> Implements an unordered set ADT
 !! @details A unordered set storing a fixed data-type @a data
+!! Public types:
+!!   uset_i4_t  | unordered set of 32-bit integers
+!!   uset_i8_t  | unordered set of 64-bit integers
+!!   uset_r8_t  | unordered set of 64-bit real values
 module uset
   use utils, only : neko_error
   use num_types, only : i8, dp
@@ -40,9 +44,7 @@ module uset
        htable_r8_t, htable_iter_r8_t
   implicit none
   private
-  public :: uset_i4_t ! unordered set of 32-bit integers
-  public :: uset_i8_t ! unordered set of 64-bit integers
-  public :: uset_r8_t ! unordered set of 64-bit real values
+  public :: uset_i4_t, uset_i8_t, uset_r8_t
 
   !> Base type for an unordered set
   type, private, abstract :: uset_t
@@ -57,7 +59,7 @@ module uset
   end type uset_t
 
   !> Integer based unordered set
-  type, extends(uset_t) :: uset_i4_t
+  type, public, extends(uset_t) :: uset_i4_t
      type(htable_i4_t) :: t
      type(htable_iter_i4_t) :: it
    contains
@@ -74,7 +76,7 @@ module uset
   end type uset_i4_t
 
   !> Integer*8 based unordered set
-  type, extends(uset_t) :: uset_i8_t
+  type, public, extends(uset_t) :: uset_i8_t
      type(htable_i8_t) :: t
      type(htable_iter_i8_t) :: it
    contains
@@ -91,7 +93,7 @@ module uset
   end type uset_i8_t
 
   !> Double precision unordered set
-  type, extends(uset_t) :: uset_r8_t
+  type, public, extends(uset_t) :: uset_r8_t
      type(htable_r8_t) :: t
      type(htable_iter_r8_t) :: it
    contains
