@@ -31,24 +31,24 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines user dirichlet condition for a scalar field.
-module field_dirichlet
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use dirichlet, only : dirichlet_t
-  use bc, only : bc_t
-  use bc_list, only : bc_list_t
-  use utils, only : split_string
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use math, only : masked_copy_0
-  use device_math, only : device_masked_copy_0
-  use dofmap, only : dofmap_t
-  use utils, only : neko_error
+module field_dirichlet_m
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use dirichlet_m, only : dirichlet_t
+  use bc_m, only : bc_t
+  use bc_list_m, only : bc_list_t
+  use utils_m, only : split_string
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use math_m, only : masked_copy_0
+  use device_math_m, only : device_masked_copy_0
+  use dofmap_m, only : dofmap_t
+  use utils_m, only : neko_error
   use json_module, only : json_file
-  use field_list, only : field_list_t
-  use json_utils, only : json_get
+  use field_list_m, only : field_list_t
+  use json_utils_m, only : json_get
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -273,4 +273,4 @@ contains
 
     call this%finalize_base(only_facets_)
   end subroutine field_dirichlet_finalize
-end module field_dirichlet
+end module field_dirichlet_m

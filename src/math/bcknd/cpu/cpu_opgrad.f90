@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Gradient kernels
-submodule (opr_cpu) cpu_opgrad
+submodule (opr_cpu_m) cpu_opgrad
   implicit none
 
 contains

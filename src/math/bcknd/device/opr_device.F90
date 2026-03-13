@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Operators accelerator backends
-module opr_device
-  use gather_scatter, only : GS_OP_ADD
-  use num_types, only : rp, c_rp, i8
-  use device, only : device_get_ptr, device_event_sync, device_map, device_free
-  use space, only : space_t
-  use coefs, only : coef_t
-  use field, only : field_t
-  use utils, only : neko_error
-  use interpolation, only : interpolator_t
-  use device_math, only : device_sub3, device_rzero, device_copy, device_col2, &
+module opr_device_m
+  use gather_scatter_m, only : GS_OP_ADD
+  use num_types_m, only : rp, c_rp, i8
+  use device_m, only : device_get_ptr, device_event_sync, device_map, device_free
+  use space_m, only : space_t
+  use coefs_m, only : coef_t
+  use field_m, only : field_t
+  use utils_m, only : neko_error
+  use interpolation_m, only : interpolator_t
+  use device_math_m, only : device_sub3, device_rzero, device_copy, device_col2, &
        device_glsum, device_cadd
-  use device_mathops, only : device_opcolv
+  use device_mathops_m, only : device_opcolv
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -983,4 +983,4 @@ contains
 
   end subroutine opr_device_set_convect_rst
 
-end module opr_device
+end module opr_device_m

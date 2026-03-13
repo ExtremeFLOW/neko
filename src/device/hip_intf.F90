@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fortran HIP interface
-module hip_intf
-  use utils, only : neko_error
+module hip_intf_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -297,4 +297,4 @@ contains
 
 #endif
 
-end module hip_intf
+end module hip_intf_m

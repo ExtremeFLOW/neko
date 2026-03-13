@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Device implementation of compressible flow operations
-module compressible_ops_device
+module compressible_ops_device_m
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use field, only: field_t
-  use utils, only: neko_error
+  use num_types_m, only: rp, c_rp
+  use field_m, only: field_t
+  use utils_m, only: neko_error
   implicit none
   private
 
@@ -325,4 +325,4 @@ contains
 
   end subroutine compressible_ops_device_update_e
 
-end module compressible_ops_device
+end module compressible_ops_device_m

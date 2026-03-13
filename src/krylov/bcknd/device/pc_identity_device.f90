@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Identity Krylov preconditioner for accelerators
-module device_identity
-  use device
-  use device_math
-  use precon, only : pc_t
-  use num_types, only : rp
+module device_identity_m
+  use device_m
+  use device_math_m
+  use precon_m, only : pc_t
+  use num_types_m, only : rp
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -69,4 +69,4 @@ contains
     class(device_ident_t), intent(inout) :: this
   end subroutine device_ident_update
 
-end module device_identity
+end module device_identity_m

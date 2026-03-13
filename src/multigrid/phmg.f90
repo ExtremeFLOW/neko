@@ -31,39 +31,39 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Hybrid ph-multigrid preconditioner
-module phmg
-  use num_types, only : rp
-  use precon, only : pc_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use space, only : space_t, GLL
-  use dofmap, only : dofmap_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use mesh, only : mesh_t
-  use bc, only : bc_t
-  use bc_list, only : bc_list_t
-  use dirichlet, only : dirichlet_t
-  use utils, only : neko_error
-  use cheby, only : cheby_t
-  use cheby_device, only : cheby_device_t
-  use jacobi, only : jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use schwarz, only : schwarz_t
-  use ax_product, only : ax_t, ax_helm_factory
-  use tree_amg_multigrid, only : tamg_solver_t
-  use interpolation, only : interpolator_t
+module phmg_m
+  use num_types_m, only : rp
+  use precon_m, only : pc_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use space_m, only : space_t, GLL
+  use dofmap_m, only : dofmap_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use mesh_m, only : mesh_t
+  use bc_m, only : bc_t
+  use bc_list_m, only : bc_list_t
+  use dirichlet_m, only : dirichlet_t
+  use utils_m, only : neko_error
+  use cheby_m, only : cheby_t
+  use cheby_device_m, only : cheby_device_t
+  use jacobi_m, only : jacobi_t
+  use device_jacobi_m, only : device_jacobi_t
+  use schwarz_m, only : schwarz_t
+  use ax_product_m, only : ax_t, ax_helm_factory
+  use tree_amg_multigrid_m, only : tamg_solver_t
+  use interpolation_m, only : interpolator_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default, json_get
-  use math, only : copy, col2, add2, sub3, add2s2
-  use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
+  use json_utils_m, only : json_get_or_default, json_get
+  use math_m, only : copy, col2, add2, sub3, add2s2
+  use device_m, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
        glb_cmd_event
-  use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
+  use device_math_m, only : device_rzero, device_copy, device_add2, device_sub3,&
        device_add2s2, device_invcol2, device_glsc2, device_col2
-  use profiler, only : profiler_start_region, profiler_end_region
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use neko_config_m, only: NEKO_BCKND_DEVICE
+  use krylov_m, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
-  use logger, only : neko_log, LOG_SIZE
+  use logger_m, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -615,4 +615,4 @@ contains
 
   end subroutine print_phmg_info
 
-end module phmg
+end module phmg_m

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> conv1 SX-Aurora kernels
-submodule (opr_sx) sx_conv1
+submodule (opr_sx_m) sx_conv1
   implicit none
 
 contains

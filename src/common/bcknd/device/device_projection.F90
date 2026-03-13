@@ -32,9 +32,9 @@
 !
 !> Interface for device projection
 !! @note Requires device MPI
-module device_projection
-  use num_types, only : rp, c_rp
-  use utils, only : neko_error
+module device_projection_m
+  use num_types_m, only : rp, c_rp
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -124,4 +124,4 @@ contains
 #endif
   end subroutine device_project_ortho
 
-end module device_projection
+end module device_projection_m

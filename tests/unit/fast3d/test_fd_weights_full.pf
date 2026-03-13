@@ -1,8 +1,8 @@
  @test
  subroutine test_linear_midpoint()
    use pfunit
-   use fast3d
-   use num_types
+   use fast3d_m
+   use num_types_m
    implicit none
    
    integer, parameter :: n=1, m=0
@@ -21,8 +21,8 @@ end subroutine test_linear_midpoint
  @test
  subroutine test_central_difference()
    use pfunit
-   use fast3d
-   use num_types
+   use fast3d_m
+   use num_types_m
    implicit none
    
    integer, parameter :: n=2, m=1

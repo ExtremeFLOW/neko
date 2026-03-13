@@ -31,28 +31,28 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements type spectral_error_t.
-module spectral_error
-  use num_types, only : rp
-  use field, only : field_t
-  use coefs, only : coef_t
-  use field_list, only : field_list_t
-  use math, only : rzero, copy
-  use file, only : file_t, file_free
-  use time_state, only : time_state_t
-  use tensor, only : tnsr3d
-  use device_math, only : device_copy
-  use neko_config, only : NEKO_BCKND_HIP, NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, &
+module spectral_error_m
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use field_list_m, only : field_list_t
+  use math_m, only : rzero, copy
+  use file_m, only : file_t, file_free
+  use time_state_m, only : time_state_t
+  use tensor_m, only : tnsr3d
+  use device_math_m, only : device_copy
+  use neko_config_m, only : NEKO_BCKND_HIP, NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, &
        NEKO_BCKND_DEVICE
-  use logger, only : neko_log
-  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
-  use comm, only : pe_rank
-  use utils, only : NEKO_FNAME_LEN, neko_error
-  use field_writer, only : field_writer_t
-  use simulation_component, only : simulation_component_t
+  use logger_m, only : neko_log
+  use device_m, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
+  use comm_m, only : pe_rank
+  use utils_m, only : NEKO_FNAME_LEN, neko_error
+  use field_writer_m, only : field_writer_t
+  use simulation_component_m, only : simulation_component_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
-  use case, only : case_t
-  use registry, only : neko_registry
+  use json_utils_m, only : json_get, json_get_or_default
+  use case_m, only : case_t
+  use registry_m, only : neko_registry
 
   use, intrinsic :: iso_c_binding
   implicit none
@@ -709,4 +709,4 @@ contains
 
   end subroutine speri_extrap
 
-end module spectral_error
+end module spectral_error_m

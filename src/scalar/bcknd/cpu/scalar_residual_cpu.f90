@@ -1,18 +1,18 @@
 !> Residuals in the scalar equation (CPU version).
-module scalar_residual_cpu
-  use scalar_residual, only : scalar_residual_t
-  use ax_product, only : ax_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use num_types, only : rp    
-  use math, only : copy, cfill
-  use field, only : field_t
-  use mesh, only : mesh_t
-  use ax_product, only : ax_t
-  use space, only : space_t
-  use coefs, only : coef_t
+module scalar_residual_cpu_m
+  use scalar_residual_m, only : scalar_residual_t
+  use ax_product_m, only : ax_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use num_types_m, only : rp    
+  use math_m, only : copy, cfill
+  use field_m, only : field_t
+  use mesh_m, only : mesh_t
+  use ax_product_m, only : ax_t
+  use space_m, only : space_t
+  use coefs_m, only : coef_t
   implicit none
   private
 
@@ -67,4 +67,4 @@ contains
 
   end subroutine scalar_residual_cpu_compute
 
-end module scalar_residual_cpu
+end module scalar_residual_cpu_m

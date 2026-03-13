@@ -32,8 +32,8 @@
 !
 !> Defines a mesh field
 !! @details A mesh field is a scalar integer cell based field (\f$ dQ_0 \f$)
-module mesh_field
-  use mesh, only : mesh_t
+module mesh_field_m
+  use mesh_m, only : mesh_t
   implicit none
   private
 
@@ -80,4 +80,4 @@ contains
     nullify(fld%msh)
   end subroutine mesh_field_free
 
-end module mesh_field
+end module mesh_field_m

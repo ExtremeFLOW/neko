@@ -1,20 +1,20 @@
 !> Residuals in the Pn-Pn formulation (device version)
-module pnpn_res_stress_device
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use utils, only : neko_error
-  use operators, only : dudxyz, cdtp, curl, opgrad, strain_rate, rotate_cyc
-  use field, only : field_t
-  use ax_product, only : ax_t
-  use coefs, only : coef_t
-  use facet_normal, only : facet_normal_t
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use scratch_registry, only: neko_scratch_registry
-  use mesh, only : mesh_t
-  use num_types, only : rp, c_rp
-  use space, only : space_t
+module pnpn_res_stress_device_m
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use utils_m, only : neko_error
+  use operators_m, only : dudxyz, cdtp, curl, opgrad, strain_rate, rotate_cyc
+  use field_m, only : field_t
+  use ax_product_m, only : ax_t
+  use coefs_m, only : coef_t
+  use facet_normal_m, only : facet_normal_t
+  use pnpn_residual_m, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use scratch_registry_m, only: neko_scratch_registry
+  use mesh_m, only : mesh_t
+  use num_types_m, only : rp, c_rp
+  use space_m, only : space_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-  use device_mathops, only : device_opcolv
-  use device_math, only : device_rzero, device_cmult, &
+  use device_mathops_m, only : device_opcolv
+  use device_math_m, only : device_rzero, device_cmult, &
        device_col2, device_copy, device_invcol1
   implicit none
   private
@@ -407,4 +407,4 @@ contains
 
   end subroutine pnpn_vel_res_stress_device_compute
 
-end module pnpn_res_stress_device
+end module pnpn_res_stress_device_m

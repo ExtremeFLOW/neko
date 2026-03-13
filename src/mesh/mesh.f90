@@ -31,30 +31,30 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a mesh
-module mesh
-  use num_types, only : rp, dp, i8
-  use point, only : point_t
-  use element, only : element_t
-  use hex, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_NFCS, &
+module mesh_m
+  use num_types_m, only : rp, dp, i8
+  use point_m, only : point_t
+  use element_m, only : element_t
+  use hex_m, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_NFCS, &
        NEKO_HEX_NPTS
-  use quad, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_NPTS
-  use utils, only : neko_error, neko_warning
-  use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
-  use tuple, only : tuple_i4_t, tuple4_i4_t
-  use htable, only : htable_t, htable_i8_t, htable_i4_t, htable_i4t4_t,&
+  use quad_m, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_NPTS
+  use utils_m, only : neko_error, neko_warning
+  use stack_m, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
+  use tuple_m, only : tuple_i4_t, tuple4_i4_t
+  use htable_m, only : htable_t, htable_i8_t, htable_i4_t, htable_i4t4_t,&
        htable_i4t2_t, htable_iter_i4t2_t, htable_iter_i4t4_t
-  use datadist, only : linear_dist_t
-  use distdata, only : distdata_t
-  use comm, only : pe_size, pe_rank, NEKO_COMM
-  use facet_zone, only : facet_zone_t, facet_zone_periodic_t
-  use math, only : abscmp
+  use datadist_m, only : linear_dist_t
+  use distdata_m, only : distdata_t
+  use comm_m, only : pe_size, pe_rank, NEKO_COMM
+  use facet_zone_m, only : facet_zone_t, facet_zone_periodic_t
+  use math_m, only : abscmp
   use mpi_f08, only : MPI_INTEGER, MPI_MAX, MPI_SUM, MPI_IN_PLACE, &
        MPI_Allreduce, MPI_Exscan, MPI_Request, MPI_Status, MPI_Wait, &
        MPI_Isend, MPI_Irecv, MPI_STATUS_IGNORE, MPI_Integer8, &
        MPI_Get_count, MPI_Sendrecv
-  use uset, only : uset_i8_t
-  use curve, only : curve_t
-  use logger, only : LOG_SIZE
+  use uset_m, only : uset_i8_t
+  use curve_m, only : curve_t
+  use logger_m, only : LOG_SIZE
   use, intrinsic :: iso_fortran_env, only: error_unit
   implicit none
   private
@@ -2000,4 +2000,4 @@ contains
 
   end function parallelepiped_signed_volume
 
-end module mesh
+end module mesh_m

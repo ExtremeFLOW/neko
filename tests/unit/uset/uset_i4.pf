@@ -1,7 +1,7 @@
 @test
 subroutine test_uset_init_i4
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i4_t) :: s
 
@@ -13,7 +13,7 @@ end subroutine test_uset_init_i4
 @test
 subroutine test_uset_free_i4
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i4_t) :: s
 
@@ -26,7 +26,7 @@ end subroutine test_uset_free_i4
 @test
 subroutine test_uset_size_i4
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i4_t) :: s
   integer :: i, data
@@ -49,7 +49,7 @@ end subroutine test_uset_size_i4
 @test
 subroutine test_uset_clear_i4
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i4_t) :: s
   integer :: i, data
@@ -73,7 +73,7 @@ end subroutine test_uset_clear_i4
 @test
 subroutine test_uset_element_i4
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i4_t) :: s
   integer :: i, data
@@ -105,7 +105,7 @@ end subroutine test_uset_element_i4
 @test
 subroutine test_uset_remove_i4
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i4_t) :: s
   integer :: i, data
@@ -148,7 +148,7 @@ end subroutine test_uset_remove_i4
 @test
 subroutine test_uset_iter_i4
   use pfunit
-  use uset
+  use uset_m
   implicit none
   type(uset_i4_t) :: s
   integer :: i, data, n_entries

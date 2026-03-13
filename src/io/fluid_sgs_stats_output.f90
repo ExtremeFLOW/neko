@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements `fluid_sgs_stats_ouput_t`.
-module fluid_sgs_stats_output
-  use fluid_sgs_stats, only : fluid_sgs_stats_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use map_1d, only : map_1d_t
-  use map_2d, only : map_2d_t
-  use fld_file_data, only : fld_file_data_t
-  use device, only : device_memcpy, DEVICE_TO_HOST
-  use output, only : output_t
-  use matrix, only : matrix_t
+module fluid_sgs_stats_output_m
+  use fluid_sgs_stats_m, only : fluid_sgs_stats_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use map_1d_m, only : map_1d_t
+  use map_2d_m, only : map_2d_t
+  use fld_file_data_m, only : fld_file_data_t
+  use device_m, only : device_memcpy, DEVICE_TO_HOST
+  use output_m, only : output_t
+  use matrix_m, only : matrix_t
   implicit none
   private
 
@@ -177,4 +177,4 @@ contains
     end associate
   end subroutine fluid_sgs_stats_output_sample
 
-end module fluid_sgs_stats_output
+end module fluid_sgs_stats_output_m

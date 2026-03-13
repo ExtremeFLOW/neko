@@ -1,6 +1,6 @@
 !> Neko binary mesh format
-module nmsh
-  use num_types, only : dp
+module nmsh_m
+  use num_types_m, only : dp
   implicit none
   private
 
@@ -43,5 +43,5 @@ module nmsh
   end type nmsh_curve_el_t
 
 
-end module nmsh
+end module nmsh_m
 

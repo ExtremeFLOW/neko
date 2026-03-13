@@ -31,13 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module ax_poisson
-  use ax_product
-  use utils, only : neko_error
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use math, only : addcol4
+  use ax_product_m
+  use utils_m, only : neko_error
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use math_m, only : addcol4
   implicit none
   private
 

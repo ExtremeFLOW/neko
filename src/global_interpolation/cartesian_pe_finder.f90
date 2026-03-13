@@ -33,16 +33,16 @@
 
 !> Implements cartesian_pe_finder given a dofmap.
 !!
-module cartesian_pe_finder
-  use num_types, only: rp, dp, xp, i8
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use space, only: space_t
-  use pe_finder, only: pe_finder_t
-  use stack, only: stack_i4_t, stack_i8_t
-  use utils, only: neko_error, neko_warning, linear_index
-  use htable, only: htable_i8_t
-  use point, only: point_t
-  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
+module cartesian_pe_finder_m
+  use num_types_m, only: rp, dp, xp, i8
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use space_m, only: space_t
+  use pe_finder_m, only: pe_finder_t
+  use stack_m, only: stack_i4_t, stack_i8_t
+  use utils_m, only: neko_error, neko_warning, linear_index
+  use htable_m, only: htable_i8_t
+  use point_m, only: point_t
+  use comm_m, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use mpi_f08, only: MPI_MAX, MPI_Allreduce, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_INTEGER8, &
        MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, &
@@ -672,4 +672,4 @@ contains
 
 
   end subroutine send_recv_data
-end module cartesian_pe_finder
+end module cartesian_pe_finder_m

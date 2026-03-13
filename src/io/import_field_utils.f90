@@ -33,16 +33,16 @@
 !> Importation of fields from fld files.
 !! @details Import field from fld files. This tool is in a separate file
 !! because of multiple import requirements.
-module import_field_utils
-  use fld_file_data, only : fld_file_data_t
-  use file, only : file_t
-  use num_types, only : rp
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use utils, only : neko_error, extract_fld_file_index, &
+module import_field_utils_m
+  use fld_file_data_m, only : fld_file_data_t
+  use file_m, only : file_t
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use utils_m, only : neko_error, extract_fld_file_index, &
        filename_chsuffix, NEKO_FNAME_LEN
-  use logger, only : LOG_SIZE, neko_log
-  use device, only : HOST_TO_DEVICE
+  use logger_m, only : LOG_SIZE, neko_log
+  use device_m, only : HOST_TO_DEVICE
   implicit none
   private
 
@@ -226,4 +226,4 @@ contains
 
   end subroutine import_fields
 
-end module import_field_utils
+end module import_field_utils_m

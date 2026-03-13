@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> CPU implementations of the mapping functions.
-module mappings_cpu
-  use num_types, only : rp
+module mappings_cpu_m
+  use num_types_m, only : rp
   implicit none
   private
   public :: smooth_step_cpu, step_function_cpu, permeability_cpu
@@ -114,4 +114,4 @@ contains
   end function permeability_kernel
 
 
-end module mappings_cpu
+end module mappings_cpu_m

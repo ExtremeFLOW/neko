@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module hip_math
-  use num_types, only : rp, c_rp
+module hip_math_m
+  use num_types_m, only : rp, c_rp
   implicit none
   public
 
@@ -488,4 +488,4 @@ module hip_math
      end subroutine hip_iadd
 
   end interface
-end module hip_math
+end module hip_math_m

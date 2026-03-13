@@ -59,21 +59,21 @@
 ! not be used for advertising or product endorsement purposes.
 !
 
-module drag_torque
-  use field, only : field_t
-  use coefs, only : coef_t
-  use facet_zone, only : facet_zone_t
-  use math, only : rzero, col3, vdot3, col2
-  use space, only : space_t
-  use num_types, only : rp
-  use utils, only : nonlinear_index
+module drag_torque_m
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use facet_zone_m, only : facet_zone_t
+  use math_m, only : rzero, col3, vdot3, col2
+  use space_m, only : space_t
+  use num_types_m, only : rp
+  use utils_m, only : nonlinear_index
   use iso_c_binding, only : c_ptr
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_cmult, device_col2, &
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_math_m, only : device_cmult, device_col2, &
        device_col3, device_vdot3, device_rzero
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use comm_m, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_ALLREDUCE, MPI_IN_PLACE, MPI_SUM
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   implicit none
   private
   !> Some functions to calculate the lift/drag and torque
@@ -483,4 +483,4 @@ contains
     end do
   end subroutine setup_normals
 
-end module drag_torque
+end module drag_torque_m

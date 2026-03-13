@@ -32,7 +32,7 @@
 !
 !> Utilities
 !! @details Various utility functions
-module utils
+module utils_m
   use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
   implicit none
   private
@@ -370,4 +370,4 @@ contains
 
   end function concat_string_array
 
-end module utils
+end module utils_m

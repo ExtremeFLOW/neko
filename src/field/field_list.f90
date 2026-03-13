@@ -1,13 +1,13 @@
-module field_list
+module field_list_m
   use, intrinsic :: iso_fortran_env, only : error_unit
-  use field, only : field_ptr_t, field_t
+  use field_m, only : field_ptr_t, field_t
   use iso_c_binding, only : c_ptr
-  use num_types, only : rp
-  use space, only : space_t
-  use dofmap, only : dofmap_t
-  use mesh, only : mesh_t
-  use utils, only : neko_error
-  use comm, only : pe_rank
+  use num_types_m, only : rp
+  use space_m, only : space_t
+  use dofmap_m, only : dofmap_t
+  use mesh_m, only : mesh_t
+  use utils_m, only : neko_error
+  use comm_m, only : pe_rank
   implicit none
   private
 
@@ -260,4 +260,4 @@ contains
   end function field_list_name
 
 
-end module field_list
+end module field_list_m

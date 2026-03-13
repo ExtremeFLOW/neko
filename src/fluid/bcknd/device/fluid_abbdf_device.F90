@@ -30,10 +30,10 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module rhs_maker_device
-  use rhs_maker
-  use device
-  use utils
+module rhs_maker_device_m
+  use rhs_maker_m
+  use device_m
+  use utils_m
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -286,4 +286,4 @@ contains
 
   end subroutine rhs_maker_bdf_device
 
-end module rhs_maker_device
+end module rhs_maker_device_m

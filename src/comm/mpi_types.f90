@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> MPI derived types
-module neko_mpi_types
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+module neko_mpi_types_m
+  use comm_m, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Type_size, MPI_Type_create_struct, MPI_Type_commit, &
        MPI_Get_address, MPI_REAL, MPI_DOUBLE_PRECISION, MPI_CHARACTER, &
        MPI_INTEGER, MPI_LOGICAL, MPI_INTEGER2, MPI_ADDRESS_KIND, &
        MPI_Datatype, MPI_Aint_diff
-  use re2, only : re2v1_xyz_t, re2v1_xy_t, re2v1_curve_t, re2v1_bc_t, &
+  use re2_m, only : re2v1_xyz_t, re2v1_xy_t, re2v1_curve_t, re2v1_bc_t, &
        re2v2_xyz_t, re2v2_xy_t, re2v2_curve_t, re2v2_bc_t
-  use nmsh, only : nmsh_quad_t, nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
-  use stl, only : stl_hdr_t, stl_triangle_t
+  use nmsh_m, only : nmsh_quad_t, nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
+  use stl_m, only : stl_hdr_t, stl_triangle_t
   implicit none
   private
 
@@ -599,4 +599,4 @@ contains
     integer ierr
     call MPI_Type_free(MPI_STL_TRIANGLE, ierr)
   end subroutine mpi_type_stl_triangle_free
-end module neko_mpi_types
+end module neko_mpi_types_m

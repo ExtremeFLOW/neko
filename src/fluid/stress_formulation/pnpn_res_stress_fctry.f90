@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
-submodule (pnpn_residual) pnpn_res_stress_fctry
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use pnpn_res_stress_cpu, only : pnpn_prs_res_stress_cpu_t, &
+submodule (pnpn_residual_m) pnpn_res_stress_fctry
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use pnpn_res_stress_cpu_m, only : pnpn_prs_res_stress_cpu_t, &
                                   pnpn_vel_res_stress_cpu_t
-  use pnpn_res_stress_device, only : pnpn_prs_res_stress_device_t, &
+  use pnpn_res_stress_device_m, only : pnpn_prs_res_stress_device_t, &
                                      pnpn_vel_res_stress_device_t
   implicit none
 

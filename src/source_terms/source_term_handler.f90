@@ -32,21 +32,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `source_term_handler_t` type.
-module source_term_handler
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use num_types, only: rp
-  use source_term, only: source_term_wrapper_t, source_term_t, &
+module source_term_handler_m
+  use neko_config_m, only: NEKO_BCKND_DEVICE
+  use num_types_m, only: rp
+  use source_term_m, only: source_term_wrapper_t, source_term_t, &
        source_term_factory
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use json_utils, only: json_get, json_extract_item, json_get_or_default
+  use field_m, only: field_t
+  use field_list_m, only: field_list_t
+  use json_utils_m, only: json_get, json_extract_item, json_get_or_default
   use json_module, only: json_file
-  use coefs, only: coef_t
-  use user_intf, only: user_t
-  use field_math, only: field_rzero
-  use math, only : col2
-  use device_math, only : device_col2
-  use time_state, only : time_state_t
+  use coefs_m, only: coef_t
+  use user_intf_m, only: user_t
+  use field_math_m, only: field_rzero
+  use math_m, only : col2
+  use device_math_m, only : device_col2
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -268,4 +268,4 @@ contains
     this%source_terms(n_sources + 1)%source_term = source_term
 
   end subroutine source_term_handler_add_source_term
-end module source_term_handler
+end module source_term_handler_m

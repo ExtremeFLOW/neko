@@ -45,17 +45,17 @@
 !!        ],
 !! NOTE: the module name must be the same as the file name sans the extension.
 module custom_types
-  use num_types, only : rp
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
-  use field_list, only : field_list_t
-  use time_state, only : time_state_t
+  use json_utils_m, only: json_get, json_get_or_default
+  use field_list_m, only : field_list_t
+  use time_state_m, only : time_state_t
 
   ! These imports are needed for registering our new type with Neko
-  use source_term, only : source_term_t, register_source_term, &
+  use source_term_m, only : source_term_t, register_source_term, &
        source_term_allocate
 
-  use coefs, only : coef_t
+  use coefs_m, only : coef_t
   implicit none
   private
 

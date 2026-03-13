@@ -1,10 +1,10 @@
-module rhs_maker_sx
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, &
+module rhs_maker_sx_m
+  use rhs_maker_m, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, &
        rhs_maker_oifs_t
-  use field_series, only : field_series_t
-  use field, only : field_t
-  use num_types, only : rp
-  use scratch_registry, only : neko_scratch_registry
+  use field_series_m, only : field_series_t
+  use field_m, only : field_t
+  use num_types_m, only : rp
+  use scratch_registry_m, only : neko_scratch_registry
   implicit none
   private
 
@@ -248,5 +248,5 @@ contains
 
   end subroutine scalar_rhs_maker_oifs_sx
 
-end module rhs_maker_sx
+end module rhs_maker_sx_m
 

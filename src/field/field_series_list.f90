@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Contains the `field_series_list_t` type for managing multiple field series.
-module field_series_list
-  use field_series, only : field_series_t, field_series_ptr_t
-  use utils, only : neko_error
+module field_series_list_m
+  use field_series_m, only : field_series_t, field_series_ptr_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -136,4 +136,4 @@ contains
 
   end function field_series_list_size
 
-end module field_series_list
+end module field_series_list_m

@@ -30,13 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module rhs_maker_device
-  use rhs_maker
-  use device
-  use utils
-  use field_series, only : field_series_t
-  use field, only : field_t
-  use num_types, only : rp, c_rp
+module rhs_maker_device_m
+  use rhs_maker_m
+  use device_m
+  use utils_m
+  use field_series_m, only : field_series_t
+  use field_m, only : field_t
+  use num_types_m, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -542,4 +542,4 @@ contains
 
   end subroutine scalar_rhs_maker_oifs_device
 
-end module rhs_maker_device
+end module rhs_maker_device_m

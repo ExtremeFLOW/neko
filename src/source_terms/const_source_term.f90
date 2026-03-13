@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `const_source_term_t` type.
-module const_source_term
-  use num_types, only : rp
-  use field_list, only : field_list_t
+module const_source_term_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
   use json_module, only : json_file
-  use json_utils, only: json_get_or_default, json_get_or_lookup
-  use source_term, only : source_term_t
-  use coefs, only : coef_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_error
-  use const_source_term_cpu, only : const_source_term_compute_cpu
-  use const_source_term_device, only : const_source_term_compute_device
-  use time_state, only : time_state_t
+  use json_utils_m, only: json_get_or_default, json_get_or_lookup
+  use source_term_m, only : source_term_t
+  use coefs_m, only : coef_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use utils_m, only : neko_error
+  use const_source_term_cpu_m, only : const_source_term_compute_cpu
+  use const_source_term_device_m, only : const_source_term_compute_device
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -144,4 +144,4 @@ contains
     end if
   end subroutine const_source_term_compute
 
-end module const_source_term
+end module const_source_term_m

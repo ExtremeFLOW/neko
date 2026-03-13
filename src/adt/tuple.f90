@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements a n-tuple
-module tuple
-  use math, only : abscmp
-  use num_types, only : dp
+module tuple_m
+  use math_m, only : abscmp
+  use num_types_m, only : dp
   implicit none
   private
 
@@ -368,4 +368,4 @@ contains
     end select
   end function tuple_2i4r8_equal
 
-end module tuple
+end module tuple_m

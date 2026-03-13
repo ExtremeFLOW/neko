@@ -33,18 +33,18 @@
 !> Computes various statistics for the scalar fields.
 !! We use the Reynolds decomposition for a field u = <u> + u' = U + u'
 !! Spatial derivatives i.e. du/dx we denote dudx
-module scalar_stats
-  use mean_field, only : mean_field_t
-  use device_math, only : device_col3, device_col2, device_cfill, &
+module scalar_stats_m
+  use mean_field_m, only : mean_field_t
+  use device_math_m, only : device_col3, device_col2, device_cfill, &
        device_invcol2, device_addcol3
-  use num_types, only : rp
-  use math, only : invers2, col2, addcol3, col3
-  use operators, only : opgrad
-  use coefs, only : coef_t
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use stats_quant, only : stats_quant_t
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use math_m, only : invers2, col2, addcol3, col3
+  use operators_m, only : opgrad
+  use coefs_m, only : coef_t
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use stats_quant_m, only : stats_quant_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -851,4 +851,4 @@ contains
 
   end subroutine scalar_stats_make_strong_grad
 
-end module scalar_stats
+end module scalar_stats_m

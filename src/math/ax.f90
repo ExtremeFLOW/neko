@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a Matrix-vector product
-module ax_product
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
+module ax_product_m
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
   implicit none
   private
 
@@ -115,4 +115,4 @@ module ax_product
      end subroutine ax_compute_vector
   end interface
 
-end module ax_product
+end module ax_product_m

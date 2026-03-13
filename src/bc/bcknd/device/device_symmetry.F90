@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_symmetry
-  use num_types
-  use utils
+module device_symmetry_m
+  use num_types_m
+  use utils_m
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -90,4 +90,4 @@ contains
 
   end subroutine device_symmetry_apply_vector
 
-end module device_symmetry
+end module device_symmetry_m

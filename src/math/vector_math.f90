@@ -57,19 +57,19 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
-module vector_math
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use vector, only : vector_t
-  use mask, only : mask_t
-  use device
-  use utils, only : neko_error
-  use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
+module vector_math_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use vector_m, only : vector_t
+  use mask_m, only : mask_t
+  use device_m
+  use utils_m, only : neko_error
+  use math_m, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
        add2, add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, &
        invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, &
        glsc3, masked_gather_copy_0, masked_gather_copy, &
        masked_scatter_copy_0, glsubnorm, invcol3
-  use device_math, only : device_rzero, device_rone, device_copy, &
+  use device_math_m, only : device_rzero, device_rone, device_copy, &
        device_cmult, device_cadd, device_cfill, device_invcol1, device_vdot3, &
        device_add2, device_add3, device_add4, device_sub2, device_sub3, &
        device_add2s1, device_add2s2, device_addsqr2s2, device_cmult2, &
@@ -793,4 +793,4 @@ contains
 
 
 
-end module vector_math
+end module vector_math_m

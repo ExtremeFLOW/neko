@@ -1,7 +1,7 @@
 !> Tensor operations SX-Aurora backend
-module tensor_sx
-  use num_types
-  use mxm_wrapper
+module tensor_sx_m
+  use num_types_m
+  use mxm_wrapper_m
   implicit none
   private
 
@@ -398,4 +398,4 @@ contains
 
   end subroutine tnsr1_3d_nu4nv2_sx
 
-end module tensor_sx
+end module tensor_sx_m

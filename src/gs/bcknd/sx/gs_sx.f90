@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Generic Gather-scatter backend for NEC Vector Engines
-module gs_sx
-  use num_types
-  use gs_bcknd
-  use gs_ops
+module gs_sx_m
+  use num_types_m
+  use gs_bcknd_m
+  use gs_ops_m
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -332,4 +332,4 @@ contains
 
   end subroutine gs_scatter_kernel
 
-end module gs_sx
+end module gs_sx_m

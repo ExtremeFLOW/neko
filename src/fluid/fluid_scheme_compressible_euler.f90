@@ -30,48 +30,48 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module fluid_scheme_compressible_euler
-  use comm, only : NEKO_COMM
-  use advection, only : advection_t
-  use device, only : device_memcpy, HOST_TO_DEVICE
-  use operators, only : div, rotate_cyc
-  use field_series, only : field_series_t
-  use bdf_time_scheme, only : bdf_time_scheme_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : col2
-  use device_math, only : device_col2
-  use field, only : field_t
-  use fluid_scheme_compressible, only : fluid_scheme_compressible_t
-  use scratch_registry, only : neko_scratch_registry
-  use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
-  use gather_scatter, only : gs_t
-  use num_types, only : rp
-  use mesh, only : mesh_t
-  use checkpoint, only : chkp_t
+module fluid_scheme_compressible_euler_m
+  use comm_m, only : NEKO_COMM
+  use advection_m, only : advection_t
+  use device_m, only : device_memcpy, HOST_TO_DEVICE
+  use operators_m, only : div, rotate_cyc
+  use field_series_m, only : field_series_t
+  use bdf_time_scheme_m, only : bdf_time_scheme_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use math_m, only : col2
+  use device_math_m, only : device_col2
+  use field_m, only : field_t
+  use fluid_scheme_compressible_m, only : fluid_scheme_compressible_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use gs_ops_m, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
+  use gather_scatter_m, only : gs_t
+  use num_types_m, only : rp
+  use mesh_m, only : mesh_t
+  use checkpoint_m, only : chkp_t
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
-  use profiler, only : profiler_start_region, profiler_end_region
-  use user_intf, only : user_t
-  use time_step_controller, only : time_step_controller_t
-  use ax_product, only : ax_t, ax_helm_factory
-  use coefs, only : coef_t
-  use euler_residual, only : euler_rhs_t, euler_rhs_factory
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
-  use bc_list, only : bc_list_t
-  use bc, only : bc_t
-  use utils, only : neko_error, neko_type_error
-  use logger, only : LOG_SIZE
-  use time_state, only : time_state_t
-  use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
+  use json_utils_m, only : json_get, json_get_or_default, json_extract_item
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use user_intf_m, only : user_t
+  use time_step_controller_m, only : time_step_controller_t
+  use ax_product_m, only : ax_t, ax_helm_factory
+  use coefs_m, only : coef_t
+  use euler_residual_m, only : euler_rhs_t, euler_rhs_factory
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use runge_kutta_time_scheme_m, only : runge_kutta_time_scheme_t
+  use bc_list_m, only : bc_list_t
+  use bc_m, only : bc_t
+  use utils_m, only : neko_error, neko_type_error
+  use logger_m, only : LOG_SIZE
+  use time_state_m, only : time_state_t
+  use compressible_ops_cpu_m, only : compressible_ops_cpu_update_uvw, &
        compressible_ops_cpu_update_mxyz_p_ruvw, &
        compressible_ops_cpu_update_e
-  use compressible_ops_device, only : compressible_ops_device_update_uvw, &
+  use compressible_ops_device_m, only : compressible_ops_device_update_uvw, &
        compressible_ops_device_update_mxyz_p_ruvw, &
        compressible_ops_device_update_e
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_config_m, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
-  use regularization, only : regularization_t, regularization_factory
+  use regularization_m, only : regularization_t, regularization_factory
   implicit none
   private
 
@@ -272,7 +272,7 @@ contains
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
-    use entropy_viscosity, only : entropy_viscosity_t
+    use entropy_viscosity_m, only : entropy_viscosity_t
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -572,7 +572,7 @@ contains
   end subroutine fluid_scheme_compressible_euler_restart
 
   subroutine setup_regularization(this, params)
-    use entropy_viscosity, only : entropy_viscosity_t, &
+    use entropy_viscosity_m, only : entropy_viscosity_t, &
          entropy_viscosity_set_fields
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
@@ -613,4 +613,4 @@ contains
 
   end subroutine setup_regularization
 
-end module fluid_scheme_compressible_euler
+end module fluid_scheme_compressible_euler_m

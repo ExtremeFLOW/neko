@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements a cylinder geometry subset.
-module cylinder_point_zone
-  use point_zone, only: point_zone_t
-  use num_types, only: rp
-  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
+module cylinder_point_zone_m
+  use point_zone_m, only: point_zone_t
+  use num_types_m, only: rp
+  use json_utils_m, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
-  use utils, only: neko_error
+  use utils_m, only: neko_error
   implicit none
   private
 
@@ -196,4 +196,4 @@ contains
 
   end function cylinder_point_zone_criterion
 
-end module cylinder_point_zone
+end module cylinder_point_zone_m

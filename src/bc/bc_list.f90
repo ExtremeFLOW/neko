@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a list of `bc_t`.
-module bc_list
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use field, only : field_t
-  use device, only : device_get_ptr, glb_cmd_queue
-  use utils, only : neko_error
+module bc_list_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use device_m, only : device_get_ptr, glb_cmd_queue
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use bc, only : bc_t, bc_ptr_t
-  use time_state, only : time_state_t
+  use bc_m, only : bc_t, bc_ptr_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -426,4 +426,4 @@ contains
     size = this%size_
   end function bc_list_size
 
-end module bc_list
+end module bc_list_m

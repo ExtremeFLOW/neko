@@ -32,18 +32,18 @@
 !
 !
 !> Implements `sigma_t`.
-module sigma
-  use num_types, only : rp
-  use field, only : field_t
-  use fluid_scheme_base, only : fluid_scheme_base_t
-  use les_model, only : les_model_t
-  use json_utils, only : json_get_or_default
+module sigma_m
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use fluid_scheme_base_m, only : fluid_scheme_base_t
+  use les_model_m, only : les_model_t
+  use json_utils_m, only : json_get_or_default
   use json_module, only : json_file
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use sigma_cpu, only : sigma_compute_cpu
-  use sigma_device, only : sigma_compute_device
-  use registry, only : neko_registry
-  use logger, only : LOG_SIZE, neko_log
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use sigma_cpu_m, only : sigma_compute_cpu
+  use sigma_device_m, only : sigma_compute_device
+  use registry_m, only : neko_registry
+  use logger_m, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -168,4 +168,4 @@ contains
 
   end subroutine sigma_compute
 
-end module sigma
+end module sigma_m

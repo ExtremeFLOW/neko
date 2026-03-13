@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 ! Implements a point zone registry for storing point zones.
-module point_zone_registry
-  use point_zone, only : point_zone_t, point_zone_wrapper_t, &
+module point_zone_registry_m
+  use point_zone_m, only : point_zone_t, point_zone_wrapper_t, &
        point_zone_factory
-  use combine_point_zone, only : combine_point_zone_t
-  use dofmap, only : dofmap_t
-  use mesh, only : mesh_t
-  use space, only : space_t, GLL
-  use utils, only : neko_error
-  use json_utils, only : json_get, json_get_or_lookup
+  use combine_point_zone_m, only : combine_point_zone_t
+  use dofmap_m, only : dofmap_t
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t, GLL
+  use utils_m, only : neko_error
+  use json_utils_m, only : json_get, json_get_or_lookup
   use json_module, only : json_file, json_core, json_value
   implicit none
   private
@@ -389,4 +389,4 @@ contains
     end do
   end function point_zone_exists
 
-end module point_zone_registry
+end module point_zone_registry_m

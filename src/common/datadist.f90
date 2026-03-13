@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines practical data distributions
-module datadist
+module datadist_m
   use mpi_f08, only : MPI_Comm
   implicit none
   private
@@ -104,4 +104,4 @@ contains
     integer :: end
     end = linear_dist_start(this) + (this%Ip - 1)
   end function linear_dist_end
-end module datadist
+end module datadist_m

@@ -5,20 +5,20 @@
 !! The fld_file_data_t should dynamically update each time one reads a new fld
 !! file.
 !! Martin Karp 1/2-2023
-module fld_file_data
-  use num_types, only : rp
-  use math, only : cmult, add2
-  use vector, only : vector_t, vector_ptr_t
-  use interpolation, only : interpolator_t
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use logger, only : neko_log, LOG_SIZE
-  use device, only : HOST_TO_DEVICE
-  use dofmap, only : dofmap_t
-  use space, only : space_t, GLL
-  use global_interpolation, only : global_interpolation_t
-  use utils, only : neko_error, NEKO_FNAME_LEN, extract_fld_file_index
-  use mesh, only : mesh_t
+module fld_file_data_m
+  use num_types_m, only : rp
+  use math_m, only : cmult, add2
+  use vector_m, only : vector_t, vector_ptr_t
+  use interpolation_m, only : interpolator_t
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use logger_m, only : neko_log, LOG_SIZE
+  use device_m, only : HOST_TO_DEVICE
+  use dofmap_m, only : dofmap_t
+  use space_m, only : space_t, GLL
+  use global_interpolation_m, only : global_interpolation_t
+  use utils_m, only : neko_error, NEKO_FNAME_LEN, extract_fld_file_index
+  use mesh_m, only : mesh_t
   implicit none
   private
 
@@ -555,4 +555,4 @@ contains
 
   end subroutine fld_file_data_generate_interpolator
 
-end module fld_file_data
+end module fld_file_data_m

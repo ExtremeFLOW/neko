@@ -72,8 +72,8 @@ program nekobone
 end program nekobone
 
 subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
-  use comm
-  use num_types
+  use comm_m
+  use num_types_m
   implicit none
 
   integer :: iset

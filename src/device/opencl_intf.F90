@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fortran OpenCL interface
-module opencl_intf
-  use num_types, only : i8
-  use utils, only : neko_error
+module opencl_intf_m
+  use num_types_m, only : i8
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -539,4 +539,4 @@ contains
   end function opencl_device_count
 #endif
 
-end module opencl_intf
+end module opencl_intf_m

@@ -58,28 +58,28 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
-module fluid_volflow
-  use operators, only : opgrad, cdtp, rotate_cyc
-  use num_types, only : rp
-  use mathops, only : opchsign
-  use krylov, only : ksp_t, ksp_monitor_t
-  use precon, only : pc_t
-  use dofmap, only : dofmap_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2, abscmp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_cfill, device_rzero, device_copy, &
+module fluid_volflow_m
+  use operators_m, only : opgrad, cdtp, rotate_cyc
+  use num_types_m, only : rp
+  use mathops_m, only : opchsign
+  use krylov_m, only : ksp_t, ksp_monitor_t
+  use precon_m, only : pc_t
+  use dofmap_m, only : dofmap_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use math_m, only : copy, glsc2, glmin, glmax, add2, abscmp
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_math_m, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2
-  use device_mathops, only : device_opchsign
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use device_mathops_m, only : device_opchsign
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_lookup
-  use scratch_registry, only : neko_scratch_registry
-  use bc_list, only : bc_list_t
-  use ax_product, only : ax_t
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use json_utils_m, only: json_get, json_get_or_lookup
+  use scratch_registry_m, only : neko_scratch_registry
+  use bc_list_m, only : bc_list_t
+  use ax_product_m, only : ax_t
+  use comm_m, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
@@ -436,4 +436,4 @@ contains
   end subroutine fluid_vol_flow
 
 
-end module fluid_volflow
+end module fluid_volflow_m

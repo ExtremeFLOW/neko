@@ -30,15 +30,15 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_device
-  use ax_helm, only : ax_helm_t
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use device_math, only : device_addcol4
-  use device, only : device_get_ptr
-  use num_types, only : rp
+module ax_helm_device_m
+  use ax_helm_m, only : ax_helm_t
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use device_math_m, only : device_addcol4
+  use device_m, only : device_get_ptr
+  use num_types_m, only : rp
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -269,4 +269,4 @@ contains
 
   end subroutine ax_helm_device_compute_vector
 
-end module ax_helm_device
+end module ax_helm_device_m

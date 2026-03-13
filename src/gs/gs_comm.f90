@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a gather-scatter communication method
-module gs_comm
-  use num_types, only : rp
-  use comm, only : pe_size
-  use stack, only : stack_i4_t
+module gs_comm_m
+  use num_types_m, only : rp
+  use comm_m, only : pe_size
+  use stack_m, only : stack_i4_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -218,4 +218,4 @@ contains
 
   end subroutine free_order
 
-end module gs_comm
+end module gs_comm_m

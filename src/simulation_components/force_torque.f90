@@ -33,33 +33,33 @@
 !
 !> Implements the `force_torque_t` type.
 
-module force_torque
-  use num_types, only : rp, dp, sp
-  use time_based_controller, only : time_based_controller_t
+module force_torque_m
+  use num_types_m, only : rp, dp, sp
+  use time_based_controller_m, only : time_based_controller_t
   use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
-  use registry, only : neko_registry
-  use scratch_registry, only : neko_scratch_registry
-  use time_state, only : time_state_t
-  use field, only : field_t
-  use operators, only : curl
-  use case, only : case_t
-  use json_utils, only : json_get, json_get_or_default, &
+  use simulation_component_m, only : simulation_component_t
+  use registry_m, only : neko_registry
+  use scratch_registry_m, only : neko_scratch_registry
+  use time_state_m, only : time_state_t
+  use field_m, only : field_t
+  use operators_m, only : curl
+  use case_m, only : case_t
+  use json_utils_m, only : json_get, json_get_or_default, &
        json_get_or_lookup, json_get_or_lookup_or_default
-  use coefs, only : coef_t
-  use operators, only : strain_rate
-  use vector, only : vector_t
-  use dirichlet, only : dirichlet_t
-  use drag_torque, only : calc_force_array, device_calc_force_array, &
+  use coefs_m, only : coef_t
+  use operators_m, only : strain_rate
+  use vector_m, only : vector_t
+  use dirichlet_m, only : dirichlet_t
+  use drag_torque_m, only : calc_force_array, device_calc_force_array, &
        setup_normals
-  use logger, only : LOG_SIZE, neko_log
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : masked_gather_copy_0, cadd, glsum, vcross
-  use device_math, only : device_masked_gather_copy_0, device_cadd, &
+  use logger_m, only : LOG_SIZE, neko_log
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use math_m, only : masked_gather_copy_0, cadd, glsum, vcross
+  use device_math_m, only : device_masked_gather_copy_0, device_cadd, &
        device_glsum, device_vcross
   use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_Allreduce
-  use comm, only : NEKO_COMM
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use comm_m, only : NEKO_COMM
+  use device_m, only : device_memcpy, HOST_TO_DEVICE
 
   implicit none
   private
@@ -549,4 +549,4 @@ contains
 
   end subroutine force_torque_compute
 
-end module force_torque
+end module force_torque_m

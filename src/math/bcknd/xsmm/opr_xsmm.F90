@@ -58,17 +58,17 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Operators libxsmm backend
-module opr_xsmm
-  use num_types, only : rp
-  use mxm_wrapper, only : mxm
-  use space, only : space_t
-  use coefs, only : coef_t
-  use math, only : rzero, col2, col3, sub3, add2, addcol3, invcol2, copy
-  use mesh, only : mesh_t
-  use field, only : field_t
-  use interpolation, only : interpolator_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use mathops, only : opcolv
+module opr_xsmm_m
+  use num_types_m, only : rp
+  use mxm_wrapper_m, only : mxm
+  use space_m, only : space_t
+  use coefs_m, only : coef_t
+  use math_m, only : rzero, col2, col3, sub3, add2, addcol3, invcol2, copy
+  use mesh_m, only : mesh_t
+  use field_m, only : field_t
+  use interpolation_m, only : interpolator_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use mathops_m, only : opcolv
 #ifdef HAVE_LIBXSMM
   use libxsmm, only: libxsmm_mmcall => libxsmm_dmmcall_abc, &
                      libxsmm_dmmfunction, libxsmm_dispatch, &
@@ -496,4 +496,4 @@ contains
 
   end subroutine opr_xsmm_set_convect_rst
 
-end module opr_xsmm
+end module opr_xsmm_m

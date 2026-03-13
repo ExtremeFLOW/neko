@@ -35,12 +35,12 @@
 
 ! (sorry about the naming convention of filter vs filters, I want the
 ! name "filters" for this eventually)
-module filter
-  use num_types, only : rp
+module filter_m
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use coefs, only : coef_t
-  use json_utils, only : json_get_or_default, json_get
-  use field, only : field_t
+  use coefs_m, only : coef_t
+  use json_utils_m, only : json_get_or_default, json_get
+  use field_m, only : field_t
   implicit none
   private
 
@@ -133,4 +133,4 @@ contains
 
 
 
-end module filter
+end module filter_m

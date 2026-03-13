@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-submodule(fluid_scheme_compressible_euler) euler_bc_fctry
-  use dirichlet, only : dirichlet_t
-  use inflow, only : inflow_t
-  use zero_dirichlet, only : zero_dirichlet_t
-  use symmetry, only : symmetry_t
-  use json_utils, only : json_get_or_lookup
+submodule(fluid_scheme_compressible_euler_m) euler_bc_fctry
+  use dirichlet_m, only : dirichlet_t
+  use inflow_m, only : inflow_t
+  use zero_dirichlet_m, only : zero_dirichlet_t
+  use symmetry_m, only : symmetry_t
+  use json_utils_m, only : json_get_or_lookup
   implicit none
 
   ! List of all possible types created by the boundary condition factories

@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
-module advection
-  use num_types, only : rp
-  use space, only : space_t
-  use field, only : field_t
-  use coefs, only : coef_t
+module advection_m
+  use num_types_m, only : rp
+  use space_m, only : space_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
   use json_module, only : json_file
-  use field_series, only : field_series_t
-  use time_scheme_controller, only : time_scheme_controller_t
+  use field_series_m, only : field_series_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
   implicit none
   private
 
@@ -146,4 +146,4 @@ module advection
      end subroutine advection_free
   end interface
 
-end module advection
+end module advection_m

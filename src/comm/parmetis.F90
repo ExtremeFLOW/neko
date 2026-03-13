@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Interface to ParMETIS
-module parmetis
-  use comm, only : pe_size, pe_rank, NEKO_COMM
+module parmetis_m
+  use comm_m, only : pe_size, pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_Allgather, MPI_INTEGER
-  use point, only : point_t
-  use utils, only : neko_error
-  use num_types, only : rp, dp, sp, i8, i4
-  use mesh_field, only : mesh_fld_t
-  use mesh, only : mesh_t
+  use point_m, only : point_t
+  use utils_m, only : neko_error
+  use num_types_m, only : rp, dp, sp, i8, i4
+  use mesh_field_m, only : mesh_fld_t
+  use mesh_m, only : mesh_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -303,4 +303,4 @@ contains
 
 #endif
 
-end module parmetis
+end module parmetis_m

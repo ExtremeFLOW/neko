@@ -1,13 +1,13 @@
 module test_case_file_utils
   use pfunit
   use json_module, only : json_file
-  use json_utils, only : json_get_or_lookup, json_no_defaults, &
+  use json_utils_m, only : json_get_or_lookup, json_no_defaults, &
        json_get_or_lookup_or_default
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp, sp, dp
-  use registry, only : neko_const_registry
-  use vector, only : vector_t
-  use device, only : device_init, device_finalize, HOST_TO_DEVICE
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp, sp, dp
+  use registry_m, only : neko_const_registry
+  use vector_m, only : vector_t
+  use device_m, only : device_init, device_finalize, HOST_TO_DEVICE
   implicit none
 
   @TestCase

@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !>  Stereolithography (STL) file
-module stl_file
-  use num_types, only : rp
-  use generic_file, only : generic_file_t
-  use tri_mesh, only : tri_mesh_t
-  use logger, only : neko_log
-  use point, only : point_t
-  use neko_mpi_types, only : MPI_STL_HEADER, MPI_STL_TRIANGLE
+module stl_file_m
+  use num_types_m, only : rp
+  use generic_file_m, only : generic_file_t
+  use tri_mesh_m, only : tri_mesh_t
+  use logger_m, only : neko_log
+  use point_m, only : point_t
+  use neko_mpi_types_m, only : MPI_STL_HEADER, MPI_STL_TRIANGLE
   use mpi_f08, only : MPI_MODE_RDONLY, MPI_INFO_NULL, &
        MPI_File_open, MPI_File_read_all, MPI_File, MPI_Status, &
        MPI_File_close
-  use comm, only : NEKO_COMM
-  use stl, only : stl_hdr_t, stl_triangle_t
+  use comm_m, only : NEKO_COMM
+  use stl_m, only : stl_hdr_t, stl_triangle_t
   implicit none
   private
 
@@ -113,4 +113,4 @@ contains
 
   end subroutine stl_file_read
 
-end module stl_file
+end module stl_file_m

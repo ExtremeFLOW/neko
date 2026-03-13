@@ -31,22 +31,22 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
-module adv_oifs
-  use advection, only : advection_t
-  use num_types, only : rp
-  use space, only : space_t, GL
-  use field, only : field_t
-  use coefs, only : coef_t
-  use math, only : copy, rzero
-  use operators, only : runge_kutta, set_convect_rst
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
-  use interpolation, only : interpolator_t
-  use time_interpolator, only : time_interpolator_t
-  use field_series, only : field_series_t
-  use field_list, only : field_list_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use device, only : device_map, device_free
-  use device_math, only : device_addcol3s2, device_rzero
+module adv_oifs_m
+  use advection_m, only : advection_t
+  use num_types_m, only : rp
+  use space_m, only : space_t, GL
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use math_m, only : copy, rzero
+  use operators_m, only : runge_kutta, set_convect_rst
+  use neko_config_m, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
+  use interpolation_m, only : interpolator_t
+  use time_interpolator_m, only : time_interpolator_t
+  use field_series_m, only : field_series_t
+  use field_list_m, only : field_list_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use device_m, only : device_map, device_free
+  use device_math_m, only : device_addcol3s2, device_rzero
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -624,4 +624,4 @@ contains
 
   end subroutine adv_oifs_compute_scalar
 
-end module adv_oifs
+end module adv_oifs_m

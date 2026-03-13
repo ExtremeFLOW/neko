@@ -32,11 +32,11 @@
 !
 !> Utilities for handling the case file, which are not pure JSON. Therefore,
 !! split from the JSON utilities parent module.
-submodule (json_utils) case_file_utils
-  use registry, only : neko_const_registry
-  use vector, only : vector_t
-  use math, only : abscmp
-  use num_types, only : rp
+submodule (json_utils_m) case_file_utils
+  use registry_m, only : neko_const_registry
+  use vector_m, only : vector_t
+  use math_m, only : abscmp
+  use num_types_m, only : rp
   implicit none
 
 contains

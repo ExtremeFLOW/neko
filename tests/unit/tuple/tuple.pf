@@ -1,7 +1,7 @@
 @test
 subroutine test_tuple_i4
   use pfunit
-  use tuple    
+  use tuple_m    
   implicit none
   type(tuple_i4_t) :: t1, t2
   integer :: i
@@ -31,7 +31,7 @@ end subroutine test_tuple_i4
 @test
 subroutine test_tuple3_i4
   use pfunit
-  use tuple    
+  use tuple_m    
   implicit none
   type(tuple3_i4_t) :: t1, t2
   integer :: i
@@ -61,7 +61,7 @@ end subroutine test_tuple3_i4
 @test
 subroutine test_tuple4_i4
   use pfunit
-  use tuple    
+  use tuple_m    
   implicit none
   type(tuple4_i4_t) :: t1, t2
   integer :: i
@@ -91,8 +91,8 @@ end subroutine test_tuple4_i4
 @test
 subroutine test_tuple_r8
   use pfunit
-  use tuple
-  use num_types
+  use tuple_m
+  use num_types_m
   implicit none
   type(tuple_r8_t) :: t1, t2
   integer :: i
@@ -122,8 +122,8 @@ end subroutine test_tuple_r8
 @test
 subroutine test_tuple_i4r8
   use pfunit
-  use tuple
-  use num_types
+  use tuple_m
+  use num_types_m
   implicit none
   type(tuple_i4r8_t) :: t1, t2
   integer :: i
@@ -153,8 +153,8 @@ end subroutine test_tuple_i4r8
 @test
 subroutine test_tuple_2i4r8
   use pfunit
-  use tuple
-  use num_types
+  use tuple_m
+  use num_types_m
   implicit none
   type(tuple_2i4r8_t) :: t1, t2
   integer :: i

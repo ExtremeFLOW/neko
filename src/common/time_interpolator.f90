@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements type time_interpolator_t.
-module time_interpolator
-  use num_types, only : rp
-  use field, only : field_t
-  use field_series, only : field_series_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_add3s2, device_add4s3
-  use math, only : add3s2, add4s3
-  use utils, only : neko_error
+module time_interpolator_m
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use field_series_m, only : field_series_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_math_m, only : device_add3s2, device_add4s3
+  use math_m, only : add3s2, add4s3
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
-  use fast3d, only : fd_weights_full
+  use fast3d_m, only : fd_weights_full
   implicit none
   private
 
@@ -150,4 +150,4 @@ contains
 
   end subroutine time_interpolator_scalar
 
-end module time_interpolator
+end module time_interpolator_m

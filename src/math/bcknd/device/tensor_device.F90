@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module tensor_device
-  use utils, only : neko_error
+module tensor_device_m
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -128,4 +128,4 @@ contains
   end subroutine tnsr3d_el_list_device
 
 
-end module tensor_device
+end module tensor_device_m

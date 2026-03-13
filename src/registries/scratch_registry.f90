@@ -34,18 +34,18 @@
 !! This can be used when you have a function that will be called
 !! often and you don't want to create temporary objects (work arrays) inside
 !! it on each call.
-module scratch_registry
-  use registry_entry, only : registry_entry_t
-  use field, only : field_t
-  use vector, only : vector_t
-  use matrix, only : matrix_t
+module scratch_registry_m
+  use registry_entry_m, only : registry_entry_t
+  use field_m, only : field_t
+  use vector_m, only : vector_t
+  use matrix_m, only : matrix_t
 
-  use field_math, only : field_rzero
-  use vector_math, only : vector_rzero
-  use matrix_math, only : matrix_rzero
+  use field_math_m, only : field_rzero
+  use vector_math_m, only : vector_rzero
+  use matrix_math_m, only : matrix_rzero
 
-  use dofmap, only : dofmap_t
-  use utils, only : neko_error
+  use dofmap_m, only : dofmap_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -541,4 +541,4 @@ contains
     this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_multiple
 
-end module scratch_registry
+end module scratch_registry_m

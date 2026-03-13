@@ -32,27 +32,27 @@
 !
 !> NEKTON fld file format
 !! @details this module defines interface to write NEKTON's fld fields
-module fld_file
-  use num_types, only : rp, dp, sp, i8
-  use generic_file, only : generic_file_t
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use dofmap, only : dofmap_t
-  use space, only : space_t
-  use structs, only : array_ptr_t
-  use vector, only : vector_t
-  use fld_file_data, only : fld_file_data_t
-  use vector, only : vector_t
-  use space, only : space_t
-  use logger, only : neko_log, LOG_SIZE
-  use mesh, only : mesh_t
-  use mask, only : mask_t
-  use utils, only : filename_suffix_pos, filename_chsuffix, filename_name, &
+module fld_file_m
+  use num_types_m, only : rp, dp, sp, i8
+  use generic_file_m, only : generic_file_t
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use dofmap_m, only : dofmap_t
+  use space_m, only : space_t
+  use structs_m, only : array_ptr_t
+  use vector_m, only : vector_t
+  use fld_file_data_m, only : fld_file_data_t
+  use vector_m, only : vector_t
+  use space_m, only : space_t
+  use logger_m, only : neko_log, LOG_SIZE
+  use mesh_m, only : mesh_t
+  use mask_m, only : mask_t
+  use utils_m, only : filename_suffix_pos, filename_chsuffix, filename_name, &
        filename_path, neko_error, nonlinear_index
-  use comm
-  use datadist, only : linear_dist_t
-  use math, only : vlmin, vlmax, sabscmp
-  use neko_mpi_types, only : MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
+  use comm_m
+  use datadist_m, only : linear_dist_t
+  use math_m, only : vlmin, vlmax, sabscmp
+  use neko_mpi_types_m, only : MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
   use mpi_f08
   implicit none
@@ -1762,4 +1762,4 @@ contains
 
   end function fld_file_get_meta_fname
 
-end module fld_file
+end module fld_file_m

@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> CPU implementation of compressible flow operations
-module compressible_ops_cpu
-  use num_types, only : rp
+module compressible_ops_cpu_m
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -138,4 +138,4 @@ contains
     end do
   end subroutine compressible_ops_cpu_update_e
 
-end module compressible_ops_cpu
+end module compressible_ops_cpu_m

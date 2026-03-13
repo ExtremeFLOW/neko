@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a zero-valued Dirichlet boundary condition.
-module zero_dirichlet
-  use device_zero_dirichlet, only : device_zero_dirichlet_apply_scalar, &
+module zero_dirichlet_m
+  use device_zero_dirichlet_m, only : device_zero_dirichlet_apply_scalar, &
        device_zero_dirichlet_apply_vector
-  use num_types, only : rp
-  use bc, only : bc_t
+  use num_types_m, only : rp
+  use bc_m, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use coefs, only : coef_t
+  use coefs_m, only : coef_t
   use json_module, only : json_file
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -215,4 +215,4 @@ contains
     call this%finalize_base(only_facets_)
   end subroutine zero_dirichlet_finalize
 
-end module zero_dirichlet
+end module zero_dirichlet_m

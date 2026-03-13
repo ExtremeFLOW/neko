@@ -1,16 +1,16 @@
 module dofmap_parallel
   use mpi
   use pfunit
-  use dofmap
-  use space
-  use mesh
-  use num_types
-  use hex
-  use point
-  use datadist
-  use device
-  use neko_config
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use dofmap_m
+  use space_m
+  use mesh_m
+  use num_types_m
+  use hex_m
+  use point_m
+  use datadist_m
+  use device_m
+  use neko_config_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
   @TestCase

@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the CPU kernel for the `spalding_t` type.
-module spalding_cpu
-  use num_types, only : rp
-  use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
+module spalding_cpu_m
+  use num_types_m, only : rp
+  use logger_m, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
   implicit none
   private
 
@@ -139,4 +139,4 @@ contains
        call neko_log%message(log_msg, NEKO_LOG_DEBUG)
     end if
   end function solve_cpu
-end module spalding_cpu
+end module spalding_cpu_m

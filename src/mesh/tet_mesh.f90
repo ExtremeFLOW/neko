@@ -32,11 +32,11 @@
 !
 !> Defines a tetrahedral mesh
 !! @details Mesh dervied from an existing hexahedral mesh via bisection
-module tet_mesh
-  use mesh, only : mesh_t
-  use tet, only : tet_t
-  use point, only : point_t
-  use utils, only : neko_error
+module tet_mesh_m
+  use mesh_m, only : mesh_t
+  use tet_m, only : tet_t
+  use point_m, only : point_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -275,4 +275,4 @@ contains
 
   end subroutine tet_mesh_bisect_svtc
 
-end module tet_mesh
+end module tet_mesh_m

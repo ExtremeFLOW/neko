@@ -1,12 +1,12 @@
 module device_math_parallel
   use mpi
-  use math
+  use math_m
   use pfunit
-  use device
-  use device_math
-  use neko_config
-  use num_types
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use device_m
+  use device_math_m
+  use neko_config_m
+  use num_types_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size, comm_init
   use, intrinsic :: iso_c_binding
   implicit none
 

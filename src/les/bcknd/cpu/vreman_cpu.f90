@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the CPU kernel for the `vreman_t` type.
-module vreman_cpu
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS, col2, vlsc2
-  use scratch_registry, only : neko_scratch_registry
-  use registry, only : neko_registry
-  use field, only : field_t
-  use operators, only : dudxyz, grad
-  use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
-  use utils, only : neko_error
+module vreman_cpu_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use math_m, only : cadd, NEKO_EPS, col2, vlsc2
+  use scratch_registry_m, only : neko_scratch_registry
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use operators_m, only : dudxyz, grad
+  use coefs_m, only : coef_t
+  use gs_ops_m, only : GS_OP_ADD
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -228,4 +228,4 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine vreman_compute_cpu
 
-end module vreman_cpu
+end module vreman_cpu_m

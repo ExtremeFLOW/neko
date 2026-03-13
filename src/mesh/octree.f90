@@ -32,10 +32,10 @@
 !
 !> Implements an Octree
 !! @details Fast search/lookup of points
-module octree
-  use num_types
-  use point
-  use utils
+module octree_m
+  use num_types_m
+  use point_m
+  use utils_m
   implicit none
   private
 
@@ -245,4 +245,4 @@ contains
     end if
   end function octree_oct_inside
 
-end module octree
+end module octree_m

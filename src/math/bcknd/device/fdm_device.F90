@@ -30,10 +30,10 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module fdm_device
-  use num_types
-  use utils
-  use device, only : device_get_ptr, glb_cmd_queue
+module fdm_device_m
+  use num_types_m
+  use utils_m
+  use device_m, only : device_get_ptr, glb_cmd_queue
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -98,4 +98,4 @@ contains
 #endif
   end subroutine fdm_do_fast_device
 
-end module fdm_device
+end module fdm_device_m

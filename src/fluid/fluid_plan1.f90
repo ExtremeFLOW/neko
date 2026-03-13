@@ -1,7 +1,7 @@
 !> Classic NEKTON formulation
 !! Compute pressure and velocity using consistent approximation spaces.
-module fluid_plan1
-  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t, &
+module fluid_plan1_m
+  use fluid_scheme_incompressible_m, only : fluid_scheme_incompressible_t, &
        fluid_scheme_solver_factory, fluid_scheme_precon_factory, &
        space_t, dofmap_t, gs_t, coef_t, gs_init, gs_free, space_free, &
        mesh_t, rp, time_step_controller_t, time_scheme_controller_t
@@ -84,4 +84,4 @@ contains
 
   end subroutine fluid_plan1_step
 
-end module fluid_plan1
+end module fluid_plan1_m

@@ -31,19 +31,19 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
-module adv_dealias
-  use advection, only : advection_t
-  use num_types, only : rp
-  use math, only : vdot3, sub2
-  use space, only : space_t, GL
-  use field, only : field_t
-  use coefs, only : coef_t
-  use device_math, only : device_vdot3, device_sub2
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
+module adv_dealias_m
+  use advection_m, only : advection_t
+  use num_types_m, only : rp
+  use math_m, only : vdot3, sub2
+  use space_m, only : space_t, GL
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use device_math_m, only : device_vdot3, device_sub2
+  use neko_config_m, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
        NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
-  use operators, only : opgrad
-  use interpolation, only : interpolator_t
-  use device, only : device_map, device_get_ptr, device_free
+  use operators_m, only : opgrad
+  use interpolation_m, only : interpolator_t
+  use device_m, only : device_map, device_get_ptr, device_free
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -451,4 +451,4 @@ contains
 
   end subroutine compute_scalar_advection_dealias
 
-end module adv_dealias
+end module adv_dealias_m

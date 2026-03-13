@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the cpu kernel for the  `const_source_term_t` type.
-module const_source_term_cpu
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use math, only : cadd
+module const_source_term_cpu_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use math_m, only : cadd
   implicit none
   private
 
@@ -58,4 +58,4 @@ contains
     end do
   end subroutine const_source_term_compute_cpu
 
-end module const_source_term_cpu
+end module const_source_term_cpu_m

@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Device implementations of the mapping functions.
-module mappings_device
-  use num_types, only : rp, c_rp
+module mappings_device_m
+  use num_types_m, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
+  use utils_m, only : neko_error
 
-  use cuda_mappings, only : &
+  use cuda_mappings_m, only : &
        cuda_smooth_step, cuda_step_function, cuda_permeability
-  use hip_mappings, only : &
+  use hip_mappings_m, only : &
        hip_smooth_step, hip_step_function, hip_permeability
-  use opencl_mappings, only : &
+  use opencl_mappings_m, only : &
        opencl_smooth_step, opencl_step_function, opencl_permeability
 
   implicit none
@@ -109,4 +109,4 @@ contains
   end subroutine permeability_device
 
 
-end module mappings_device
+end module mappings_device_m

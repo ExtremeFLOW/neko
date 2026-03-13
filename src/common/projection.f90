@@ -60,27 +60,27 @@
 !> Project x onto X, the space of old solutions and back again
 !! @note In this code we assume that the matrix project for the
 !! pressure Ax can vary in time if reortho_basis is used.
-module projection
-  use num_types, only : rp, c_rp
-  use math, only : rzero, glsc3, add2, add2s2, copy, cmult
-  use coefs, only : coef_t
-  use ax_product, only : ax_t
-  use bc_list, only : bc_list_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE, &
+module projection_m
+  use num_types_m, only : rp, c_rp
+  use math_m, only : rzero, glsc3, add2, add2s2, copy, cmult
+  use coefs_m, only : coef_t
+  use ax_product_m, only : ax_t
+  use bc_list_m, only : bc_list_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use neko_config_m, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE, &
        NEKO_DEVICE_MPI, NEKO_BCKND_OPENCL
-  use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
+  use device_m, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
        device_get_ptr, device_free, device_map
-  use device_math, only : device_glsc3, device_add2s2, device_cmult, &
+  use device_math_m, only : device_glsc3, device_add2s2, device_cmult, &
        device_rzero, device_copy, device_add2, device_add2s2_many, &
        device_glsc3_many
-  use device_projection, only : device_proj_on, device_project_ortho
-  use profiler, only : profiler_start_region, profiler_end_region
-  use logger, only : LOG_SIZE, neko_log
-  use utils, only : neko_warning
-  use bc_list, only : bc_list_t
-  use time_step_controller, only : time_step_controller_t
-  use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use device_projection_m, only : device_proj_on, device_project_ortho
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use logger_m, only : LOG_SIZE, neko_log
+  use utils_m, only : neko_warning
+  use bc_list_m, only : bc_list_t
+  use time_step_controller_m, only : time_step_controller_t
+  use comm_m, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wtime
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
        c_sizeof, C_NULL_PTR, c_loc, c_associated
@@ -856,4 +856,4 @@ contains
 
   end subroutine bcknd_clear
 
-end module projection
+end module projection_m

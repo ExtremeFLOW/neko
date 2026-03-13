@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines an output
-module output
-  use num_types, only : rp
-  use file, only : file_t
+module output_m
+  use num_types_m, only : rp
+  use file_m, only : file_t
   implicit none
   private
 
@@ -106,4 +106,4 @@ contains
     call this%file_%free()
   end subroutine output_free_base
 
-end module output
+end module output_m

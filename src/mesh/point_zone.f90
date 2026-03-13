@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 ! Implements a zone as a subset of GLL points in the mesh
-module point_zone
-  use stack, only: stack_i4_t
-  use num_types, only: rp
-  use utils, only: neko_error, nonlinear_index, linear_index
-  use dofmap, only: dofmap_t
+module point_zone_m
+  use stack_m, only: stack_i4_t
+  use num_types_m, only: rp
+  use utils_m, only: neko_error, nonlinear_index, linear_index
+  use dofmap_m, only: dofmap_t
   use json_module, only: json_file
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use mask, only: mask_t
-  use device, only: device_map, device_memcpy, device_free
+  use neko_config_m, only: NEKO_BCKND_DEVICE
+  use mask_m, only: mask_t
+  use device_m, only: device_map, device_memcpy, device_free
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
   implicit none
   private
@@ -336,4 +336,4 @@ contains
 
   end subroutine point_zone_map
 
-end module point_zone
+end module point_zone_m

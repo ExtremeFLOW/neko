@@ -31,13 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Profiling interface
-module profiler
-  use neko_config, only : NEKO_BCKND_CUDA
-  use device, only : device_profiler_start, device_profiler_stop
-  use nvtx
-  use roctx
-  use craypat
-  use runtime_stats, only : neko_rt_stats
+module profiler_m
+  use neko_config_m, only : NEKO_BCKND_CUDA
+  use device_m, only : device_profiler_start, device_profiler_stop
+  use nvtx_m
+  use roctx_m
+  use craypat_m
+  use runtime_stats_m, only : neko_rt_stats
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -127,4 +127,4 @@ contains
 
   end subroutine profiler_end_region
 
-end module profiler
+end module profiler_m

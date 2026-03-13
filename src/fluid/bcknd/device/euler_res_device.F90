@@ -30,21 +30,21 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module euler_res_device
-  use euler_residual, only : euler_rhs_t
-  use field, only : field_t
-  use ax_product, only : ax_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use num_types, only : rp, c_rp
-  use scratch_registry, only: neko_scratch_registry
-  use utils, only : neko_error
+module euler_res_device_m
+  use euler_residual_m, only : euler_rhs_t
+  use field_m, only : field_t
+  use ax_product_m, only : ax_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use num_types_m, only : rp, c_rp
+  use scratch_registry_m, only: neko_scratch_registry
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-  use operators, only : div, rotate_cyc
-  use field_math, only : field_cmult
-  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
-  use field_list, only : field_list_t
-  use device_math, only : device_copy, device_rone, &
+  use operators_m, only : div, rotate_cyc
+  use field_math_m, only : field_cmult
+  use runge_kutta_time_scheme_m, only : runge_kutta_time_scheme_t
+  use field_list_m, only : field_list_t
+  use device_math_m, only : device_copy, device_rone, &
        device_col2, device_cmult, device_sub2
 
   type, public, extends(euler_rhs_t) :: euler_res_device_t
@@ -613,4 +613,4 @@ contains
 
   end subroutine evaluate_rhs_device
 
-end module euler_res_device
+end module euler_res_device_m

@@ -32,25 +32,25 @@
 !
 !
 !> Defines a factory subroutine for simulation components.
-submodule (simulation_component) simulation_component_fctry
-  use force_torque, only : force_torque_t
-  use fluid_stats_simcomp, only : fluid_stats_simcomp_t
-  use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
-  use scalar_stats_simcomp, only : scalar_stats_simcomp_t
-  use scalar_sgs_stats_simcomp, only : scalar_sgs_stats_simcomp_t
-  use user_stats, only : user_stats_t
-  use lambda2, only : lambda2_t
-  use probes, only : probes_t
-  use les_simcomp, only : les_simcomp_t
-  use utils, only : concat_string_array, neko_error
-  use field_writer, only : field_writer_t
-  use curl_simcomp, only : curl_t
-  use weak_gradient_simcomp, only : weak_gradient_t
-  use gradient_simcomp, only : gradient_t
-  use divergence_simcomp, only : divergence_t
-  use derivative_simcomp, only : derivative_t
-  use spectral_error, only : spectral_error_t
-  use utils, only : neko_type_error, neko_type_registration_error
+submodule (simulation_component_m) simulation_component_fctry
+  use force_torque_m, only : force_torque_t
+  use fluid_stats_simcomp_m, only : fluid_stats_simcomp_t
+  use fluid_sgs_stats_simcomp_m, only : fluid_sgs_stats_simcomp_t
+  use scalar_stats_simcomp_m, only : scalar_stats_simcomp_t
+  use scalar_sgs_stats_simcomp_m, only : scalar_sgs_stats_simcomp_t
+  use user_stats_m, only : user_stats_t
+  use lambda2_m, only : lambda2_t
+  use probes_m, only : probes_t
+  use les_simcomp_m, only : les_simcomp_t
+  use utils_m, only : concat_string_array, neko_error
+  use field_writer_m, only : field_writer_t
+  use curl_simcomp_m, only : curl_t
+  use weak_gradient_simcomp_m, only : weak_gradient_t
+  use gradient_simcomp_m, only : gradient_t
+  use divergence_simcomp_m, only : divergence_t
+  use derivative_simcomp_m, only : derivative_t
+  use spectral_error_m, only : spectral_error_t
+  use utils_m, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine

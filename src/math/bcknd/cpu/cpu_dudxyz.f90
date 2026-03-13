@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Derivative kernels
-submodule (opr_cpu) cpu_dudxyz
+submodule (opr_cpu_m) cpu_dudxyz
   implicit none
 
 contains

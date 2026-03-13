@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Generic buffer that is extended with buffers of varying rank
-module buffer
-  use num_types, only : rp
-  use vector, only : vector_t
+module buffer_m
+  use num_types_m, only : rp
+  use vector_m, only : vector_t
 #ifdef HAVE_ADIOS2_FORTRAN
   use adios2
 #endif
@@ -117,4 +117,4 @@ contains
 
   end subroutine buffer_set_precision
 
-end module buffer
+end module buffer_m

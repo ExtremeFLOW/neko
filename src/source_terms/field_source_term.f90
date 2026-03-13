@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `field_source_term_t` type.
-module field_source_term
-  use num_types, only : rp
-  use field_list, only : field_list_t
+module field_source_term_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default, json_get_or_lookup, json_get
-  use source_term, only : source_term_t
-  use coefs, only : coef_t
-  use utils, only : neko_error
-  use time_state, only : time_state_t
-  use registry, only : neko_registry
-  use field_math, only : field_add2
+  use json_utils_m, only : json_get_or_default, json_get_or_lookup, json_get
+  use source_term_m, only : source_term_t
+  use coefs_m, only : coef_t
+  use utils_m, only : neko_error
+  use time_state_m, only : time_state_t
+  use registry_m, only : neko_registry
+  use field_math_m, only : field_add2
   implicit none
   private
 
@@ -151,4 +151,4 @@ contains
     end do
   end subroutine field_source_term_compute
 
-end module field_source_term
+end module field_source_term_m

@@ -31,13 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Jacobi preconditioner
-module jacobi
-  use math, only : col2, col3, invcol1, addcol3
-  use precon, only : pc_t
-  use coefs, only : coef_t
-  use num_types, only : rp
-  use dofmap, only : dofmap_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+module jacobi_m
+  use math_m, only : col2, col3, invcol1, addcol3
+  use precon_m, only : pc_t
+  use coefs_m, only : coef_t
+  use num_types_m, only : rp
+  use dofmap_m, only : dofmap_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
   implicit none
   private
 
@@ -1381,4 +1381,4 @@ contains
     end do
   end subroutine jacobi_update_lx2
 
-end module jacobi
+end module jacobi_m

@@ -32,22 +32,22 @@
 !
 !
 !> Implements `spalding_t`.
-module spalding
-  use field, only: field_t
-  use num_types, only : rp
+module spalding_m
+  use field_m, only: field_t
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use coefs, only : coef_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use wall_model, only : wall_model_t
-  use registry, only : neko_registry
-  use json_utils, only : json_get_or_default, json_get_or_lookup
-  use spalding_cpu, only : spalding_compute_cpu
-  use spalding_device, only : spalding_compute_device
-  use field_math, only: field_invcol3
-  use vector, only : vector_t
-  use math, only: masked_gather_copy_0
-  use device_math, only: device_masked_gather_copy_0
-  use scratch_registry, only : neko_scratch_registry
+  use coefs_m, only : coef_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use wall_model_m, only : wall_model_t
+  use registry_m, only : neko_registry
+  use json_utils_m, only : json_get_or_default, json_get_or_lookup
+  use spalding_cpu_m, only : spalding_compute_cpu
+  use spalding_device_m, only : spalding_compute_device
+  use field_math_m, only: field_invcol3
+  use vector_m, only : vector_t
+  use math_m, only: masked_gather_copy_0
+  use device_math_m, only: device_masked_gather_copy_0
+  use scratch_registry_m, only : neko_scratch_registry
 
   implicit none
   private
@@ -225,4 +225,4 @@ contains
     end if
 
   end subroutine spalding_compute
-end module spalding
+end module spalding_m

@@ -31,35 +31,35 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Gather-scatter
-module gather_scatter
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_HIP, &
+module gather_scatter_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_HIP, &
        NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, NEKO_DEVICE_MPI
-  use gs_bcknd, only : gs_bcknd_t, GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
-  use gs_device, only : gs_device_t
-  use gs_sx, only : gs_sx_t
-  use gs_cpu, only : gs_cpu_t
-  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
-  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
+  use gs_bcknd_m, only : gs_bcknd_t, GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
+  use gs_device_m, only : gs_device_t
+  use gs_sx_m, only : gs_sx_t
+  use gs_cpu_m, only : gs_cpu_t
+  use gs_ops_m, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
+  use gs_comm_m, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
        GS_COMM_NVSHMEM
-  use gs_mpi, only : gs_mpi_t
-  use gs_device_mpi, only : gs_device_mpi_t
-  use gs_device_nccl, only : gs_device_nccl_t
-  use gs_device_shmem, only : gs_device_shmem_t
-  use mesh, only : mesh_t
-  use comm, only : pe_rank, pe_size, NEKO_COMM
+  use gs_mpi_m, only : gs_mpi_t
+  use gs_device_mpi_m, only : gs_device_mpi_t
+  use gs_device_nccl_m, only : gs_device_nccl_t
+  use gs_device_shmem_m, only : gs_device_shmem_t
+  use mesh_m, only : mesh_t
+  use comm_m, only : pe_rank, pe_size, NEKO_COMM
   use mpi_f08, only : MPI_Reduce, MPI_Allreduce, MPI_Barrier, MPI_IN_PLACE, &
        MPI_Wait, MPI_Irecv, MPI_Isend, MPI_Wtime, MPI_SUM, MPI_MAX, &
        MPI_INTEGER, MPI_INTEGER2, MPI_INTEGER8, MPI_Request, MPI_Status, &
        MPI_STATUS_IGNORE, MPI_Get_Count
-  use dofmap, only : dofmap_t
-  use field, only : field_t
-  use num_types, only : rp, dp, i2, i8
-  use htable, only : htable_i8_t, htable_iter_i8_t
-  use stack, only : stack_i4_t
-  use utils, only : neko_error, linear_index
-  use logger, only : neko_log, LOG_SIZE
-  use profiler, only : profiler_start_region, profiler_end_region
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_free, &
+  use dofmap_m, only : dofmap_t
+  use field_m, only : field_t
+  use num_types_m, only : rp, dp, i2, i8
+  use htable_m, only : htable_i8_t, htable_iter_i8_t
+  use stack_m, only : stack_i4_t
+  use utils_m, only : neko_error, linear_index
+  use logger_m, only : neko_log, LOG_SIZE
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use device_m, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_free, &
        device_map, device_deassociate
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
@@ -1476,4 +1476,4 @@ contains
 
   end subroutine gs_op_vector
 
-end module gather_scatter
+end module gather_scatter_m

@@ -30,16 +30,16 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule (precon) precon_fctry
-  use identity, only : ident_t
-  use device_identity, only : device_ident_t
-  use jacobi, only : jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use hsmg, only : hsmg_t
-  use phmg, only : phmg_t
-  use utils, only : neko_type_error
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
+submodule (precon_m) precon_fctry
+  use identity_m, only : ident_t
+  use device_identity_m, only : device_ident_t
+  use jacobi_m, only : jacobi_t
+  use sx_jacobi_m, only : sx_jacobi_t
+  use device_jacobi_m, only : device_jacobi_t
+  use hsmg_m, only : hsmg_t
+  use phmg_m, only : phmg_t
+  use utils_m, only : neko_type_error
+  use neko_config_m, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
   implicit none
 
   ! List of all possible types created by the factory routine

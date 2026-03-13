@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fluid right-hand-side factory for the Pn-Pn formulation
-submodule (rhs_maker) rhs_maker_fctry
-  use rhs_maker_cpu, only : rhs_maker_bdf_cpu_t, rhs_maker_ext_cpu_t, &
+submodule (rhs_maker_m) rhs_maker_fctry
+  use rhs_maker_cpu_m, only : rhs_maker_bdf_cpu_t, rhs_maker_ext_cpu_t, &
                             rhs_maker_sumab_cpu_t, rhs_maker_oifs_cpu_t
-  use rhs_maker_sx, only : rhs_maker_bdf_sx_t, rhs_maker_ext_sx_t, &
+  use rhs_maker_sx_m, only : rhs_maker_bdf_sx_t, rhs_maker_ext_sx_t, &
                            rhs_maker_sumab_sx_t, rhs_maker_oifs_sx_t
-  use rhs_maker_device, only : rhs_maker_bdf_device_t, &
+  use rhs_maker_device_m, only : rhs_maker_bdf_device_t, &
        rhs_maker_ext_device_t, rhs_maker_sumab_device_t, &
        rhs_maker_oifs_device_t
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
+  use neko_config_m, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
 
 contains
 

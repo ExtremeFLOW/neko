@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> DT*X kernels
-submodule (opr_cpu) cpu_cdtp
+submodule (opr_cpu_m) cpu_cdtp
   implicit none
 
 contains

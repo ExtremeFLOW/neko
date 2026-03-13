@@ -32,25 +32,25 @@
 !
 !
 !> Implements `les_model_t`.
-module les_model
-  use num_types, only : rp
-  use fluid_scheme_base, only : fluid_scheme_base_t
-  use fluid_pnpn, only : fluid_pnpn_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_sumab_fctry
-  use field, only : field_t
-  use field_series, only : field_series_t
+module les_model_m
+  use num_types_m, only : rp
+  use fluid_scheme_base_m, only : fluid_scheme_base_t
+  use fluid_pnpn_m, only : fluid_pnpn_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use rhs_maker_m, only : rhs_maker_sumab_t, rhs_maker_sumab_fctry
+  use field_m, only : field_t
+  use field_series_m, only : field_series_t
   use json_module, only : json_file
-  use registry, only : neko_registry
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, HOST_TO_DEVICE
-  use math, only : col2
-  use device_math, only : device_col2
-  use utils, only : neko_type_error, neko_error, neko_warning
-  use comm, only : pe_rank
+  use registry_m, only : neko_registry
+  use dofmap_m, only : dofmap_t
+  use coefs_m, only : coef_t
+  use gs_ops_m, only : GS_OP_ADD
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : device_memcpy, HOST_TO_DEVICE
+  use math_m, only : col2
+  use device_math_m, only : device_col2
+  use utils_m, only : neko_type_error, neko_error, neko_warning
+  use comm_m, only : pe_rank
   implicit none
   private
 
@@ -389,4 +389,4 @@ contains
 
   end subroutine les_model_compute_delta
 
-end module les_model
+end module les_model_m

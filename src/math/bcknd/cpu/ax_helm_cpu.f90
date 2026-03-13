@@ -30,13 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_cpu
-  use ax_helm, only : ax_helm_t
-  use num_types, only : rp
-  use coefs, only : coef_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use math, only : addcol4
+module ax_helm_cpu_m
+  use ax_helm_m, only : ax_helm_t
+  use num_types_m, only : rp
+  use coefs_m, only : coef_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use math_m, only : addcol4
   implicit none
   private
 
@@ -1942,4 +1942,4 @@ contains
     end do
   end subroutine ax_helm_lx2
 
-end module ax_helm_cpu
+end module ax_helm_cpu_m

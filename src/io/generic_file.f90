@@ -30,11 +30,11 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module generic_file
-  use num_types, only : rp
-  use utils, only : neko_warning, neko_error, &
+module generic_file_m
+  use num_types_m, only : rp
+  use utils_m, only : neko_warning, neko_error, &
        filename_suffix_pos, filename_suffix
-  use comm, only : pe_rank, NEKO_COMM
+  use comm_m, only : pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_Bcast, MPI_LOGICAL
   implicit none
 
@@ -205,4 +205,4 @@ contains
     call filename_suffix(this%get_fname(), suffix)
     call neko_warning("No set_overwrite defined for " // trim(suffix) // " yet")
   end subroutine generic_file_set_overwrite
-end module generic_file
+end module generic_file_m

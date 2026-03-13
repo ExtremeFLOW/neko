@@ -1,8 +1,8 @@
 !> Implements the device kernel for the `rough_log_law_t` type.
-module rough_log_law_device
-  use num_types, only : rp, c_rp
+module rough_log_law_device_m
+  use num_types_m, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -15,7 +15,7 @@ module rough_log_law_device
           kappa, B, z0, tstep) &
           bind(c, name = 'hip_rough_log_law_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       use num_types, only : c_rp
+       use num_types_m, only : c_rp
        implicit none
        type(c_ptr), value :: u_d, v_d, w_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
@@ -34,7 +34,7 @@ module rough_log_law_device
           kappa, B, z0, tstep) &
           bind(c, name = 'cuda_rough_log_law_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       use num_types, only : c_rp
+       use num_types_m, only : c_rp
        implicit none
        type(c_ptr), value :: u_d, v_d, w_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
@@ -80,4 +80,4 @@ contains
 #endif
 
   end subroutine rough_log_law_compute_device
-end module rough_log_law_device
+end module rough_log_law_device_m

@@ -33,18 +33,18 @@
 !> This module implements CPU-based residual calculations for the Euler equations.
 !? It handles the time advancement of primitive variables using Runge-Kutta methods
 !? and evaluates the right-hand side terms of the Euler equations including artificial viscosity.
-module euler_res_cpu
-  use euler_residual, only : euler_rhs_t
-  use field, only : field_t
-  use ax_product, only : ax_t
-  use coefs, only : coef_t
-  use gather_scatter, only : gs_t
-  use num_types, only : rp
-  use operators, only : div, rotate_cyc
-  use gs_ops, only : GS_OP_ADD
-  use scratch_registry, only : neko_scratch_registry
-  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
-  use field_list, only : field_list_t
+module euler_res_cpu_m
+  use euler_residual_m, only : euler_rhs_t
+  use field_m, only : field_t
+  use ax_product_m, only : ax_t
+  use coefs_m, only : coef_t
+  use gather_scatter_m, only : gs_t
+  use num_types_m, only : rp
+  use operators_m, only : div, rotate_cyc
+  use gs_ops_m, only : GS_OP_ADD
+  use scratch_registry_m, only : neko_scratch_registry
+  use runge_kutta_time_scheme_m, only : runge_kutta_time_scheme_t
+  use field_list_m, only : field_list_t
   implicit none
   private
 
@@ -370,4 +370,4 @@ contains
     call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine evaluate_rhs_cpu
 
-end module euler_res_cpu
+end module euler_res_cpu_m

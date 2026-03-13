@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Object for handling masks in Neko.
-module mask
+module mask_m
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated, &
        c_size_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_map, device_free, device_memcpy, &
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : device_map, device_free, device_memcpy, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, DEVICE_TO_DEVICE
-  use device_math, only : device_cadd
-  use utils, only : neko_error
+  use device_math_m, only : device_cadd
+  use utils_m, only : neko_error
 
   implicit none
   private
@@ -307,4 +307,4 @@ contains
   end subroutine mask_set_d
 
 
-end module mask
+end module mask_m

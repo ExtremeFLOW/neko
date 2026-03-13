@@ -1,9 +1,9 @@
 module test_runge_kutta_scheme
   use pfunit
-  use device
-  use neko_config
-  use num_types, only : rp
-  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+  use device_m
+  use neko_config_m
+  use num_types_m, only : rp
+  use runge_kutta_time_scheme_m, only : runge_kutta_time_scheme_t
   use, intrinsic :: iso_c_binding
   implicit none
 

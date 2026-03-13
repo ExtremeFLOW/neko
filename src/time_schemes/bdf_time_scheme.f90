@@ -58,11 +58,11 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Backward-differencing scheme for time integration.
-module bdf_time_scheme
-  use num_types, only : rp
-  use time_scheme, only : time_scheme_t
-  use math, only : rzero
-  use utils, only : neko_error
+module bdf_time_scheme_m
+  use num_types_m, only : rp
+  use time_scheme_m, only : time_scheme_t
+  use math_m, only : rzero
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -142,4 +142,4 @@ contains
 
   end subroutine bdf_time_scheme_compute_coeffs
 
-end module bdf_time_scheme
+end module bdf_time_scheme_m

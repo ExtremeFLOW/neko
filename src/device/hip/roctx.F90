@@ -1,5 +1,5 @@
 !> Interfxace to ROCTX
-module roctx
+module roctx_m
   use, intrinsic :: iso_c_binding, only : c_char, C_NULL_CHAR
   implicit none
   private
@@ -39,4 +39,4 @@ contains
   end subroutine roctxStartRange
 
 #endif
-end module roctx
+end module roctx_m

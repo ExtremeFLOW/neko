@@ -1,6 +1,6 @@
 !> Stereolithography format
-module stl
-  use num_types, only : sp, i2
+module stl_m
+  use num_types_m, only : sp, i2
   implicit none
   private
 
@@ -19,4 +19,4 @@ module stl
      integer(kind=i2) :: attrib
   end type stl_triangle_t
 
-end module stl
+end module stl_m

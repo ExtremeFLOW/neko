@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements type time_step_controller.
-module time_step_controller
-  use num_types, only : rp
-  use logger, only : neko_log, LOG_SIZE
+module time_step_controller_m
+  use num_types_m, only : rp
+  use logger_m, only : neko_log, LOG_SIZE
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
-  use time_state, only : time_state_t
+  use json_utils_m, only : json_get_or_default, json_get_or_lookup_or_default
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -167,4 +167,4 @@ contains
 
 
 
-end module time_step_controller
+end module time_step_controller_m

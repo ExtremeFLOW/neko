@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Dirichlet condition on axis aligned plane in the non normal direction
-module non_normal
+module non_normal_m
   use json_module, only : json_file
-  use symmetry, only : symmetry_t
-  use num_types, only : rp
-  use tuple, only : tuple_i4_t
-  use coefs, only : coef_t
+  use symmetry_m, only : symmetry_t
+  use num_types_m, only : rp
+  use tuple_m, only : tuple_i4_t
+  use coefs_m, only : coef_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -136,4 +136,4 @@ contains
 
     call this%symmetry_t%free()
   end subroutine non_normal_free
-end module non_normal
+end module non_normal_m

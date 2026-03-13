@@ -31,19 +31,19 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Chebyshev preconditioner
-module cheby
-  use krylov, only : ksp_t, ksp_monitor_t
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use num_types, only: rp
-  use field, only : field_t
-  use coefs, only : coef_t
-  use mesh, only : mesh_t
-  use space, only : space_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
-  use schwarz, only : schwarz_t
-  use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2, &
+module cheby_m
+  use krylov_m, only : ksp_t, ksp_monitor_t
+  use precon_m, only : pc_t
+  use ax_product_m, only : ax_t
+  use num_types_m, only: rp
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use bc_list_m, only : bc_list_t
+  use schwarz_m, only : schwarz_t
+  use math_m, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2, &
        add2s1, add2s2, sub3, cmult, add2
   implicit none
   private
@@ -375,4 +375,4 @@ contains
 
   end function cheby_solve_coupled
 
-end module cheby
+end module cheby_m

@@ -32,16 +32,16 @@
 !
 !> Defines the `wall_model_bc_t` type.
 !! Maintainer: Timofey Mukha.
-module wall_model_bc
-  use num_types, only : rp
+module wall_model_bc_m
+  use num_types_m, only : rp
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
-  use json_utils, only : json_get
-  use coefs, only : coef_t
-  use wall_model, only : wall_model_t, wall_model_allocator
-  use shear_stress, only : shear_stress_t
+  use utils_m, only : neko_error
+  use json_utils_m, only : json_get
+  use coefs_m, only : coef_t
+  use wall_model_m, only : wall_model_t, wall_model_allocator
+  use shear_stress_m, only : shear_stress_t
   use json_module, only : json_file
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -229,4 +229,4 @@ contains
     call this%wall_model%finalize(this%msk, this%facet)
   end subroutine wall_model_bc_finalize
 
-end module wall_model_bc
+end module wall_model_bc_m

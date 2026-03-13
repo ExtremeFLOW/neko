@@ -31,13 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a matrix
-module matrix
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp, xp
-  use device, only : device_map, device_free, device_memcpy, &
+module matrix_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp, xp
+  use device_m, only : device_map, device_free, device_memcpy, &
        device_deassociate, device_sync
-  use device_math, only : device_copy, device_cfill
-  use utils, only : neko_error
+  use device_math_m, only : device_copy, device_cfill
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -332,4 +332,4 @@ contains
     return
   end subroutine cpu_matrix_inverse
 
-end module matrix
+end module matrix_m

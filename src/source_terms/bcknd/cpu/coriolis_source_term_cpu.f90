@@ -33,11 +33,11 @@
 !> Implements the cpu kernel for the `coriolis_source_term_t` type.
 !! Maintainer: Timofey Mukha.
 
-module coriolis_source_term_cpu
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use math, only : vcross
-  use field, only : field_t
+module coriolis_source_term_cpu_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use math_m, only : vcross
+  use field_m, only : field_t
   implicit none
   private
 
@@ -79,4 +79,4 @@ contains
 
   end subroutine coriolis_source_term_compute_cpu
 
-end module coriolis_source_term_cpu
+end module coriolis_source_term_cpu_m

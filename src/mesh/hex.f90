@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a hexahedron element
-module hex
-  use num_types, only : dp
-  use element, only : element_t
-  use tuple, only : tuple_t, tuple_i4_t, tuple4_i4_t
-  use point, only : point_t
+module hex_m
+  use num_types_m, only : dp
+  use element_m, only : element_t
+  use tuple_m, only : tuple_t, tuple_i4_t, tuple4_i4_t
+  use point_m, only : point_t
   implicit none
   private
 
@@ -302,4 +302,4 @@ contains
 
   end function hex_equal
 
-end module hex
+end module hex_m

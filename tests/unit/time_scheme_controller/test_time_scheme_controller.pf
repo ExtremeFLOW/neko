@@ -3,13 +3,13 @@
 !! Currently not used!!
 module test_time_scheme_controller
   use pfunit
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device
-  use bdf_time_scheme, only : bdf_time_scheme_t
-  use ext_time_scheme, only : ext_time_scheme_t
-  use ab_time_scheme, only : ab_time_scheme_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use num_types, only : rp
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m
+  use bdf_time_scheme_m, only : bdf_time_scheme_t
+  use ext_time_scheme_m, only : ext_time_scheme_t
+  use ab_time_scheme_m, only : ab_time_scheme_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use num_types_m, only : rp
   implicit none
 
   @TestCase

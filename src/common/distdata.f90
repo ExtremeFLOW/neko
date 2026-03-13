@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Distributed mesh data
-module distdata
-  use stack, only : stack_i4t2_t
-  use tuple, only : tuple_i4_t
-  use uset, only : uset_i4_t
+module distdata_m
+  use stack_m, only : stack_i4t2_t
+  use tuple_m, only : tuple_i4_t
+  use uset_m, only : uset_i4_t
   implicit none
   private
 
@@ -163,4 +163,4 @@ contains
 
   end subroutine distdata_set_local_to_global_edge
 
-end module distdata
+end module distdata_m

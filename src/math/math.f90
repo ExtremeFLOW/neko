@@ -57,9 +57,9 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
-module math
-  use num_types, only : rp, dp, sp, qp, i4, xp
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
+module math_m
+  use num_types_m, only : rp, dp, sp, qp, i4, xp
+  use comm_m, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_Allreduce
   implicit none
@@ -1526,4 +1526,4 @@ contains
     B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
   end function matinv3
 
-end module math
+end module math_m

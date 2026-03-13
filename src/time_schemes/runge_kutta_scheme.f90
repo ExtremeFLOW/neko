@@ -30,13 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module runge_kutta_time_scheme
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use time_scheme, only : time_scheme_t
-  use math, only : rzero
-  use utils, only : neko_error
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+module runge_kutta_time_scheme_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use time_scheme_m, only : time_scheme_t
+  use math_m, only : rzero
+  use utils_m, only : neko_error
+  use device_m, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
   implicit none
   private
@@ -185,4 +185,4 @@ contains
     end if
   end subroutine runge_kutta_scheme_coeffs_free
 
-end module runge_kutta_time_scheme
+end module runge_kutta_time_scheme_m

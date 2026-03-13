@@ -1,17 +1,17 @@
 module test_field_scratch_registry
   use pfunit
-  use point, only : point_t
-  use space, only : space_t, GLL
-  use mesh, only : mesh_t
-  use dofmap, only : dofmap_t
-  use field, only : field_t
-  use field_math, only : field_cfill
-  use scratch_registry, only : scratch_registry_t
-  use num_types, only : rp
-  use device, only : DEVICE_TO_HOST, device_init, &
+  use point_m, only : point_t
+  use space_m, only : space_t, GLL
+  use mesh_m, only : mesh_t
+  use dofmap_m, only : dofmap_t
+  use field_m, only : field_t
+  use field_math_m, only : field_cfill
+  use scratch_registry_m, only : scratch_registry_t
+  use num_types_m, only : rp
+  use device_m, only : DEVICE_TO_HOST, device_init, &
        device_finalize
-  use comm, only : pe_rank, pe_size
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use comm_m, only : pe_rank, pe_size
+  use neko_config_m, only : NEKO_BCKND_DEVICE
   implicit none
 
   @TestCase

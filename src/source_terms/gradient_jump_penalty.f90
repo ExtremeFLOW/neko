@@ -32,33 +32,33 @@
 !
 !
 !> Implements `gradient_jump_penalty_t`.
-module gradient_jump_penalty
-  use num_types, only : rp
-  use utils, only : neko_error
-  use json_utils, only : json_get_or_default
+module gradient_jump_penalty_m
+  use num_types_m, only : rp
+  use utils_m, only : neko_error
+  use json_utils_m, only : json_get_or_default
   use json_module, only : json_file
-  use math, only: add2, col2, col3, invcol2, add3, copy, absval
-  use point, only : point_t
-  use field, only : field_t
-  use dofmap , only : dofmap_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use coefs, only : coef_t
-  use element, only : element_t
-  use hex, only : hex_t
-  use quad, only : quad_t
-  use gs_ops, only : GS_OP_ADD
-  use space, only : space_t, GLL
-  use gather_scatter, only : gs_t
-  use device, only : device_map, HOST_TO_DEVICE, device_memcpy, device_free
-  use device_math, only : device_col2, device_add2, device_add2s2, &
+  use math_m, only: add2, col2, col3, invcol2, add3, copy, absval
+  use point_m, only : point_t
+  use field_m, only : field_t
+  use dofmap_m , only : dofmap_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use coefs_m, only : coef_t
+  use element_m, only : element_t
+  use hex_m, only : hex_t
+  use quad_m, only : quad_t
+  use gs_ops_m, only : GS_OP_ADD
+  use space_m, only : space_t, GLL
+  use gather_scatter_m, only : gs_t
+  use device_m, only : device_map, HOST_TO_DEVICE, device_memcpy, device_free
+  use device_math_m, only : device_col2, device_add2, device_add2s2, &
        device_col3, device_add3s2, device_invcol2, device_absval
-  use device_gradient_jump_penalty, only : device_pick_facet_value_hex, &
+  use device_gradient_jump_penalty_m, only : device_pick_facet_value_hex, &
        device_gradient_jump_penalty_finalize
-  use source_term, only : source_term_t
-  use field_list, only : field_list_t
-  use registry, only : neko_registry
-  use time_state, only : time_state_t
-  use operators, only : dudxyz
+  use source_term_m, only : source_term_t
+  use field_list_m, only : field_list_t
+  use registry_m, only : neko_registry
+  use time_state_m, only : time_state_t
+  use operators_m, only : dudxyz
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
 
   implicit none
@@ -1016,4 +1016,4 @@ contains
 
   end subroutine pick_facet_value_hex
 
-end module gradient_jump_penalty
+end module gradient_jump_penalty_m

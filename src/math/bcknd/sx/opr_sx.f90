@@ -1,13 +1,13 @@
 !> Operators SX-Aurora backend
-module opr_sx
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use interpolation, only : interpolator_t
-  use num_types, only : rp
-  use space, only : space_t
-  use coefs, only : coef_t
-  use math, only : sub3, copy, rzero
-  use field, only : field_t
-  use mathops, only : opcolv
+module opr_sx_m
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use interpolation_m, only : interpolator_t
+  use num_types_m, only : rp
+  use space_m, only : space_t
+  use coefs_m, only : coef_t
+  use math_m, only : sub3, copy, rzero
+  use field_m, only : field_t
+  use mathops_m, only : opcolv
   implicit none
   private
 
@@ -149,4 +149,4 @@ contains
 
 
 
-end module opr_sx
+end module opr_sx_m

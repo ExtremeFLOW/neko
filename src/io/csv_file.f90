@@ -32,14 +32,14 @@
 !
 !> File format for .csv files, used for any read/write operations involving
 !! floating point data.
-module csv_file
-  use vector, only : vector_t
-  use matrix, only : matrix_t
-  use generic_file, only : generic_file_t
-  use utils, only : neko_error
-  use num_types, only : rp
-  use logger, only : neko_log, log_size
-  use comm
+module csv_file_m
+  use vector_m, only : vector_t
+  use matrix_m, only : matrix_t
+  use generic_file_m, only : generic_file_t
+  use utils_m, only : neko_error
+  use num_types_m, only : rp
+  use logger_m, only : neko_log, log_size
+  use comm_m
   implicit none
 
   type, public, extends(generic_file_t) :: csv_file_t
@@ -367,4 +367,4 @@ contains
 
   end subroutine csv_file_set_overwrite
 
-end module csv_file
+end module csv_file_m

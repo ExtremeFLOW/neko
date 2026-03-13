@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Generic Gather-scatter backend for accelerators
-module gs_device
-  use num_types, only : rp, c_rp
-  use gs_bcknd, only : gs_bcknd_t
-  use device, only : device_map, device_memcpy, device_memset, &
+module gs_device_m
+  use num_types_m, only : rp, c_rp
+  use gs_bcknd_m, only : gs_bcknd_t
+  use device_m, only : device_map, device_memcpy, device_memset, &
        device_free, device_event_destroy, device_event_create, &
        device_event_record, device_get_ptr, glb_cmd_queue, &
        device_sync, HOST_TO_DEVICE, DEVICE_TO_HOST
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, &
        c_associated, c_sizeof, c_size_t
   implicit none
@@ -434,4 +434,4 @@ contains
 
   end subroutine gs_scatter_device
 
-end module gs_device
+end module gs_device_m

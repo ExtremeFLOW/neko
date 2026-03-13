@@ -31,24 +31,24 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a dong outflow condition
-module dong_outflow
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use dirichlet, only : dirichlet_t
-  use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE, device_free
-  use num_types, only : rp, c_rp
-  use bc, only : bc_t
-  use field, only : field_t
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
-  use utils, only : nonlinear_index
-  use device_dong_outflow, only : device_dong_outflow_apply_scalar
-  use registry, only : neko_registry
+module dong_outflow_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use dirichlet_m, only : dirichlet_t
+  use device_m, only : device_memcpy, device_alloc, HOST_TO_DEVICE, device_free
+  use num_types_m, only : rp, c_rp
+  use bc_m, only : bc_t
+  use field_m, only : field_t
+  use dofmap_m, only : dofmap_t
+  use coefs_m, only : coef_t
+  use utils_m, only : nonlinear_index
+  use device_dong_outflow_m, only : device_dong_outflow_apply_scalar
+  use registry_m, only : neko_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof, c_null_ptr, &
        c_associated
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
-  use utils, only : neko_error
-  use time_state, only : time_state_t
+  use json_utils_m, only : json_get, json_get_or_default
+  use utils_m, only : neko_error
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -265,4 +265,4 @@ contains
     end if
   end subroutine dong_outflow_finalize
 
-end module dong_outflow
+end module dong_outflow_m

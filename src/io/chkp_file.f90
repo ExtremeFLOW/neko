@@ -32,23 +32,23 @@
 !
 !> Neko checkpoint file format
 !! @details this module defines interface to read/write Neko's checkpoint files
-module chkp_file
-  use generic_file, only : generic_file_t
-  use field_series, only : field_series_t
-  use checkpoint, only : chkp_t
-  use num_types, only : rp, dp, i8
-  use field, only : field_t
-  use dofmap, only : dofmap_t
-  use utils, only : neko_error, filename_suffix_pos
-  use space, only : space_t, GLL
-  use mesh, only : mesh_t
-  use math, only : rzero
-  use interpolation, only : interpolator_t
-  use neko_mpi_types, only : MPI_REAL_PREC_SIZE, MPI_INTEGER_SIZE, &
+module chkp_file_m
+  use generic_file_m, only : generic_file_t
+  use field_series_m, only : field_series_t
+  use checkpoint_m, only : chkp_t
+  use num_types_m, only : rp, dp, i8
+  use field_m, only : field_t
+  use dofmap_m, only : dofmap_t
+  use utils_m, only : neko_error, filename_suffix_pos
+  use space_m, only : space_t, GLL
+  use mesh_m, only : mesh_t
+  use math_m, only : rzero
+  use interpolation_m, only : interpolator_t
+  use neko_mpi_types_m, only : MPI_REAL_PREC_SIZE, MPI_INTEGER_SIZE, &
        MPI_DOUBLE_PRECISION_SIZE, MPI_REAL_PREC_SIZE
-  use global_interpolation, only : global_interpolation_t
-  use logger, only : neko_log, NEKO_LOG_VERBOSE
-  use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use global_interpolation_m, only : global_interpolation_t
+  use logger_m, only : neko_log, NEKO_LOG_VERBOSE
+  use comm_m, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_File, MPI_Status, MPI_OFFSET_KIND, MPI_MODE_CREATE, &
        MPI_MODE_RDONLY, MPI_MODE_WRONLY, MPI_INFO_NULL, MPI_INTEGER, &
        MPI_DOUBLE_PRECISION, MPI_LOGICAL, MPI_SUCCESS, &
@@ -671,4 +671,4 @@ contains
     logical, intent(in) :: overwrite
     this%overwrite = overwrite
   end subroutine chkp_file_set_overwrite
-end module chkp_file
+end module chkp_file_m

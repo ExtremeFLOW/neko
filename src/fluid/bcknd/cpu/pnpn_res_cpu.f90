@@ -1,17 +1,17 @@
 !> Residuals in the Pn-Pn formulation (CPU version)
-module pnpn_res_cpu
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use operators, only : opgrad, curl, cdtp, rotate_cyc
-  use field, only : field_t
-  use ax_product, only : ax_t
-  use coefs, only : coef_t
-  use facet_normal, only : facet_normal_t
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use scratch_registry, only : neko_scratch_registry
-  use mesh, only : mesh_t
-  use num_types, only : rp
-  use space, only : space_t
-  use math, only : copy, cmult2, invers2, rzero
+module pnpn_res_cpu_m
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use operators_m, only : opgrad, curl, cdtp, rotate_cyc
+  use field_m, only : field_t
+  use ax_product_m, only : ax_t
+  use coefs_m, only : coef_t
+  use facet_normal_m, only : facet_normal_t
+  use pnpn_residual_m, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use mesh_m, only : mesh_t
+  use num_types_m, only : rp
+  use space_m, only : space_t
+  use math_m, only : copy, cmult2, invers2, rzero
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -186,4 +186,4 @@ contains
 
   end subroutine pnpn_vel_res_cpu_compute
 
-end module pnpn_res_cpu
+end module pnpn_res_cpu_m

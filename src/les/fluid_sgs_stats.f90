@@ -32,17 +32,17 @@
 !
 !> Computes the subgrid-scale contributions for Reynolds stresses.
 !! We use the Reynolds decomposition for a field u = <u> + u' = U + u'
-module fluid_sgs_stats
-  use mean_field, only : mean_field_t
-  use num_types, only : rp
-  use field_math, only : field_cmult, field_col3
-  use operators, only : strain_rate
-  use coefs, only : coef_t
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use stats_quant, only : stats_quant_t
-  use registry, only : neko_registry
-  use scratch_registry, only : neko_scratch_registry
+module fluid_sgs_stats_m
+  use mean_field_m, only : mean_field_t
+  use num_types_m, only : rp
+  use field_math_m, only : field_cmult, field_col3
+  use operators_m, only : strain_rate
+  use coefs_m, only : coef_t
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use stats_quant_m, only : stats_quant_t
+  use registry_m, only : neko_registry
+  use scratch_registry_m, only : neko_scratch_registry
   implicit none
   private
 
@@ -246,4 +246,4 @@ contains
 
   end subroutine fluid_sgs_stats_reset
 
-end module fluid_sgs_stats
+end module fluid_sgs_stats_m

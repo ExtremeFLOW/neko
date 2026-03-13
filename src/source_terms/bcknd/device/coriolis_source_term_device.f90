@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the device kernel for the `coriolis_source_term_t` type.
-module coriolis_source_term_device
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use field, only : field_t
-  use device_math, only : device_copy, device_add3s2, device_add2, device_cadd
-  use scratch_registry, only : neko_scratch_registry
+module coriolis_source_term_device_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use field_m, only : field_t
+  use device_math_m, only : device_copy, device_add3s2, device_add2, device_cadd
+  use scratch_registry_m, only : neko_scratch_registry
   implicit none
   private
 
@@ -104,4 +104,4 @@ contains
 
   end subroutine coriolis_source_term_compute_device
 
-end module coriolis_source_term_device
+end module coriolis_source_term_device_m

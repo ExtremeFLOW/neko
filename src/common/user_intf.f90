@@ -31,21 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Interfaces for user interaction with NEKO
-module user_intf
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use coefs, only : coef_t
-  use bc_list, only : bc_list_t
-  use mesh, only : mesh_t
-  use field_dirichlet, only : field_dirichlet_update
-  use num_types, only : rp
+module user_intf_m
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use coefs_m, only : coef_t
+  use bc_list_m, only : bc_list_t
+  use mesh_m, only : mesh_t
+  use field_dirichlet_m, only : field_dirichlet_update
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use json_utils, only : json_extract_item, json_get, json_get_or_default
-  use utils, only : neko_error, neko_warning
-  use logger, only : neko_log
-  use bc, only : bc_t
-  use field_dirichlet, only : field_dirichlet_t
-  use time_state, only : time_state_t
+  use json_utils_m, only : json_extract_item, json_get, json_get_or_default
+  use utils_m, only : neko_error, neko_warning
+  use logger_m, only : neko_log
+  use bc_m, only : bc_t
+  use field_dirichlet_m, only : field_dirichlet_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -350,4 +350,4 @@ contains
   end subroutine dummy_user_material_properties
 
 
-end module user_intf
+end module user_intf_m

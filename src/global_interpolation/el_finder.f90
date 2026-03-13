@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 
-module el_finder
-  use num_types, only : rp
-  use stack, only: stack_i4_t
-  use point, only: point_t
+module el_finder_m
+  use num_types_m, only : rp
+  use stack_m, only: stack_i4_t
+  use point_m, only: point_t
   implicit none
   private
 
@@ -81,4 +81,4 @@ module el_finder
        integer, intent(inout) :: n_el_cands(n_points)
      end subroutine el_finder_find_batch
   end interface
-end module el_finder
+end module el_finder_m

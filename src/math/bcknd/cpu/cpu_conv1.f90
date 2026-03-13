@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> conv1 kernels
-submodule (opr_cpu) cpu_conv1
+submodule (opr_cpu_m) cpu_conv1
   implicit none
 
 contains

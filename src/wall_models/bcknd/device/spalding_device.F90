@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the device kernel for the `spalding_t` type.
-module spalding_device
-  use num_types, only : rp, c_rp
+module spalding_device_m
+  use num_types_m, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -47,7 +47,7 @@ module spalding_device
           kappa, B, tstep) &
           bind(c, name = 'hip_spalding_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       use num_types, only : c_rp
+       use num_types_m, only : c_rp
        implicit none
        type(c_ptr), value :: u_d, v_d, w_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
@@ -66,7 +66,7 @@ module spalding_device
           kappa, B, tstep) &
           bind(c, name = 'cuda_spalding_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       use num_types, only : c_rp
+       use num_types_m, only : c_rp
        implicit none
        type(c_ptr), value :: u_d, v_d, w_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
@@ -112,4 +112,4 @@ contains
 #endif
 
   end subroutine spalding_compute_device
-end module spalding_device
+end module spalding_device_m

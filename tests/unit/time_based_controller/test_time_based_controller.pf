@@ -2,9 +2,9 @@
 @test
 subroutine test_init()
   use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use time_state, only : time_state_t
-  use num_types, only : rp
+  use time_based_controller_m, only : time_based_controller_t
+  use time_state_m, only : time_state_t
+  use num_types_m, only : rp
   implicit none
 
   type(time_based_controller_t) ctrl
@@ -35,8 +35,8 @@ end subroutine test_init
 @test
 subroutine test_assign()
   use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
+  use time_based_controller_m, only : time_based_controller_t
+  use num_types_m, only : rp
   implicit none
 
   type(time_based_controller_t) ctrl1
@@ -58,9 +58,9 @@ end subroutine test_assign
 @test
 subroutine test_check_simulationtime()
   use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
-  use time_state, only : time_state_t
+  use time_based_controller_m, only : time_based_controller_t
+  use num_types_m, only : rp
+  use time_state_m, only : time_state_t
   implicit none
 
   type(time_based_controller_t) ctrl
@@ -100,9 +100,9 @@ end subroutine test_check_simulationtime
 @test
 subroutine test_check_nsamples()
   use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
-  use time_state, only : time_state_t
+  use time_based_controller_m, only : time_based_controller_t
+  use num_types_m, only : rp
+  use time_state_m, only : time_state_t
   implicit none
 
   type(time_based_controller_t) ctrl
@@ -128,9 +128,9 @@ end subroutine test_check_nsamples
 @test
 subroutine test_check_tsteps()
   use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
-  use time_state, only : time_state_t
+  use time_based_controller_m, only : time_based_controller_t
+  use num_types_m, only : rp
+  use time_state_m, only : time_state_t
   implicit none
 
   type(time_based_controller_t) ctrl
@@ -156,8 +156,8 @@ end subroutine test_check_tsteps
 @test
 subroutine test_register()
   use pfunit
-  use time_based_controller, only : time_based_controller_t
-  use num_types, only : rp
+  use time_based_controller_m, only : time_based_controller_t
+  use num_types_m, only : rp
   implicit none
 
   type(time_based_controller_t) ctrl

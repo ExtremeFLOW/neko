@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> CPU backend for entropy viscosity regularization
-module entropy_viscosity_cpu
-  use num_types, only : rp
+module entropy_viscosity_cpu_m
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -164,4 +164,4 @@ contains
 
   end subroutine entropy_viscosity_smooth_divide_cpu
 
-end module entropy_viscosity_cpu
+end module entropy_viscosity_cpu_m

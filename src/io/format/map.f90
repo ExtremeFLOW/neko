@@ -1,7 +1,7 @@
 !> NEKTON map
 !! @todo Figure out a better name for this module
-module map
-  use mesh, only : mesh_t
+module map_m
+  use mesh_m, only : mesh_t
   implicit none
 
   !> NEKTON vertex mapping
@@ -70,4 +70,4 @@ contains
     end if
   end subroutine map_free
 
-end module map
+end module map_m

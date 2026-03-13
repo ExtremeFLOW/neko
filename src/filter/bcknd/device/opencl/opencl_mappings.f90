@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 
 !> OpenCL interface binding for mappings
-module opencl_mappings
-  use num_types, only : rp, c_rp
+module opencl_mappings_m
+  use num_types_m, only : rp, c_rp
   implicit none
   private
 
@@ -68,4 +68,4 @@ module opencl_mappings
      end subroutine opencl_permeability
   end interface
 
-end module opencl_mappings
+end module opencl_mappings_m

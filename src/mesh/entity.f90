@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module entity
+module entity_m
   implicit none
   private
 
@@ -58,4 +58,4 @@ contains
     this%id_ = id
   end subroutine entity_set_id
 
-end module entity
+end module entity_m

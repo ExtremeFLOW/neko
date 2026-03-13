@@ -1,6 +1,6 @@
 !> Interface to NVTX
 !! Based on https://github.com/maxcuda/NVTX_example
-module nvtx
+module nvtx_m
   use, intrinsic :: iso_c_binding, only : c_int16_t, c_int32_t, c_int64_t, &
        c_int, c_ptr, c_char, c_loc, C_NULL_CHAR
   implicit none
@@ -84,4 +84,4 @@ contains
   end subroutine nvtxStartRange
 
 #endif
-end module nvtx
+end module nvtx_m

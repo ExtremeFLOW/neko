@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule(regularization) regularization_fctry
-  use entropy_viscosity, only : entropy_viscosity_t
-  use utils, only : neko_error
+submodule(regularization_m) regularization_fctry
+  use entropy_viscosity_m, only : entropy_viscosity_t
+  use utils_m, only : neko_error
   implicit none
 
 contains

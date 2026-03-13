@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the device kernel for the `wall_model_t` type.
-module wall_model_device
-  use num_types, only : rp, c_rp
+module wall_model_device_m
+  use num_types_m, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -89,4 +89,4 @@ contains
 #endif
 
   end subroutine wall_model_compute_mag_field_device
-end module wall_model_device
+end module wall_model_device_m

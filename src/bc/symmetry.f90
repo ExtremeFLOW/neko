@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Mixed Dirichlet-Neumann axis aligned symmetry plane
-module symmetry
-  use device_symmetry, only : device_symmetry_apply_vector
-  use dirichlet, only : dirichlet_t
-  use num_types, only : rp
-  use bc, only : bc_t
-  use tuple, only : tuple_i4_t
-  use coefs, only : coef_t
+module symmetry_m
+  use device_symmetry_m, only : device_symmetry_apply_vector
+  use dirichlet_m, only : dirichlet_t
+  use num_types_m, only : rp
+  use bc_m, only : bc_t
+  use tuple_m, only : tuple_i4_t
+  use coefs_m, only : coef_t
   use json_module, only : json_file
-  use zero_dirichlet, only : zero_dirichlet_t
+  use zero_dirichlet_m, only : zero_dirichlet_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -294,4 +294,4 @@ contains
     call this%bc_z%free()
 
   end subroutine symmetry_free
-end module symmetry
+end module symmetry_m

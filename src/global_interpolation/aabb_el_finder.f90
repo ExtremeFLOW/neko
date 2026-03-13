@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 
-module aabb_el_finder
-  use num_types, only : rp, dp, xp
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use el_finder, only : el_finder_t
-  use space, only : space_t
-  use stack, only : stack_i4_t
-  use tuple, only : tuple_i4_t
-  use point, only : point_t
-  use aabb, only : aabb_t
-  use aabb_tree, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
+module aabb_el_finder_m
+  use num_types_m, only : rp, dp, xp
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use el_finder_m, only : el_finder_t
+  use space_m, only : space_t
+  use stack_m, only : stack_i4_t
+  use tuple_m, only : tuple_i4_t
+  use point_m, only : point_t
+  use aabb_m, only : aabb_t
+  use aabb_tree_m, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
   implicit none
   private
 
@@ -148,4 +148,4 @@ contains
   end subroutine aabb_el_finder_find_candidates_batch
 
 
-end module aabb_el_finder
+end module aabb_el_finder_m

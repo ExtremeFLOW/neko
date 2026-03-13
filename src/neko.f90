@@ -32,60 +32,60 @@
 !
 !> Master module
 module neko
-  use num_types, only : rp, sp, dp, qp, c_rp
-  use comm
-  use utils
-  use logger
-  use math, only : abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, &
+  use num_types_m, only : rp, sp, dp, qp, c_rp
+  use comm_m
+  use utils_m
+  use logger_m
+  use math_m, only : abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, &
        cfill, glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, &
        invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
        sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy_0, cfill_mask, relcmp, glimax, glimin, &
        swap, reord, flipv, cadd2, pi, absval
-  use speclib
-  use dofmap, only : dofmap_t
-  use space, only : space_t, GL, GLL, GJ
-  use htable
-  use uset
-  use stack
-  use tuple
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
-  use point, only : point_t
-  use mesh_field, only : mesh_fld_t
-  use map
-  use import_field_utils, only : import_fields
-  use mxm_wrapper, only : mxm
-  use global_interpolation
-  use file
-  use field, only : field_t, field_ptr_t
-  use field_math
-  use neko_mpi_types
-  use gather_scatter
-  use krylov
-  use coefs, only : coef_t
-  use bc, only : bc_t
-  use zero_dirichlet, only : zero_dirichlet_t
-  use bc_list, only : bc_list_t
-  use dirichlet, only : dirichlet_t
-  use ax_product, only : ax_t, ax_helm_factory
-  use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
-  use neko_config
-  use case, only : case_t
-  use output_controller, only : output_controller_t
-  use output, only : output_t
-  use simulation, only : simulation_step, simulation_init, simulation_finalize
-  use operators, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
+  use speclib_m
+  use dofmap_m, only : dofmap_t
+  use space_m, only : space_t, GL, GLL, GJ
+  use htable_m
+  use uset_m
+  use stack_m
+  use tuple_m
+  use mesh_m, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use point_m, only : point_t
+  use mesh_field_m, only : mesh_fld_t
+  use map_m
+  use import_field_utils_m, only : import_fields
+  use mxm_wrapper_m, only : mxm
+  use global_interpolation_m
+  use file_m
+  use field_m, only : field_t, field_ptr_t
+  use field_math_m
+  use neko_mpi_types_m
+  use gather_scatter_m
+  use krylov_m
+  use coefs_m, only : coef_t
+  use bc_m, only : bc_t
+  use zero_dirichlet_m, only : zero_dirichlet_t
+  use bc_list_m, only : bc_list_t
+  use dirichlet_m, only : dirichlet_t
+  use ax_product_m, only : ax_t, ax_helm_factory
+  use parmetis_m, only : parmetis_partgeom, parmetis_partmeshkway
+  use neko_config_m
+  use case_m, only : case_t
+  use output_controller_m, only : output_controller_t
+  use output_m, only : output_t
+  use simulation_m, only : simulation_step, simulation_init, simulation_finalize
+  use operators_m, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
        lambda2op, strain_rate, div, grad
-  use mathops, only : opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
-  use projection
-  use user_intf
-  use signal
-  use time_state
-  use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
+  use mathops_m, only : opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
+  use projection_m
+  use user_intf_m
+  use signal_m
+  use time_state_m
+  use jobctrl_m, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
-  use device
-  use device_math, only : device_copy, device_rzero, device_rone, &
+  use device_m
+  use device_math_m, only : device_copy, device_rzero, device_rone, &
        device_cmult, device_cmult2, device_cadd, device_cfill, device_add2, &
        device_add2s1, device_add2s2, device_addsqr2s2, device_add3s2, &
        device_invcol1, device_invcol2, device_col2, device_col3, &
@@ -94,57 +94,57 @@ module neko
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
        device_masked_copy_0, device_cfill_mask, device_add3, device_cadd2, &
        device_absval
-  use map_1d, only : map_1d_t
-  use map_2d, only : map_2d_t
-  use cpr, only : cpr_t, cpr_init, cpr_free
-  use fluid_stats, only : fluid_stats_t
-  use field_list, only : field_list_t
-  use user_source_term, only : user_source_term_t
-  use vector, only : vector_t, vector_ptr_t
-  use vector_list, only : vector_list_t
-  use matrix, only : matrix_t
-  use tensor
-  use simulation_component, only : simulation_component_t, &
+  use map_1d_m, only : map_1d_t
+  use map_2d_m, only : map_2d_t
+  use cpr_m, only : cpr_t, cpr_init, cpr_free
+  use fluid_stats_m, only : fluid_stats_t
+  use field_list_m, only : field_list_t
+  use user_source_term_m, only : user_source_term_t
+  use vector_m, only : vector_t, vector_ptr_t
+  use vector_list_m, only : vector_list_t
+  use matrix_m, only : matrix_t
+  use tensor_m
+  use simulation_component_m, only : simulation_component_t, &
        simulation_component_wrapper_t, simulation_component_factory, &
        simulation_component_allocator, simulation_component_allocate, &
        register_simulation_component
-  use probes, only : probes_t
-  use spectral_error, only : spectral_error_t
-  use profiler, only : profiler_start, profiler_stop, &
+  use probes_m, only : probes_t
+  use spectral_error_m, only : spectral_error_t
+  use profiler_m, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
-  use system, only : system_cpu_name, system_cpuid
-  use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
-  use registry, only : neko_registry, neko_const_registry, registry_t
-  use scratch_registry, only : neko_scratch_registry, scratch_registry_t
-  use simcomp_executor, only : neko_simcomps
-  use data_streamer, only : data_streamer_t
-  use time_interpolator, only : time_interpolator_t
-  use point_interpolator, only : point_interpolator_t
-  use point_zone, only : point_zone_t
-  use box_point_zone, only : box_point_zone_t
-  use sphere_point_zone, only : sphere_point_zone_t
-  use point_zone_registry, only : neko_point_zone_registry
-  use field_dirichlet, only : field_dirichlet_t
-  use field_dirichlet_vector, only : field_dirichlet_vector_t
-  use runtime_stats, only : neko_rt_stats
+  use system_m, only : system_cpu_name, system_cpuid
+  use drag_torque_m, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
+  use registry_m, only : neko_registry, neko_const_registry, registry_t
+  use scratch_registry_m, only : neko_scratch_registry, scratch_registry_t
+  use simcomp_executor_m, only : neko_simcomps
+  use data_streamer_m, only : data_streamer_t
+  use time_interpolator_m, only : time_interpolator_t
+  use point_interpolator_m, only : point_interpolator_t
+  use point_zone_m, only : point_zone_t
+  use box_point_zone_m, only : box_point_zone_t
+  use sphere_point_zone_m, only : sphere_point_zone_t
+  use point_zone_registry_m, only : neko_point_zone_registry
+  use field_dirichlet_m, only : field_dirichlet_t
+  use field_dirichlet_vector_m, only : field_dirichlet_vector_t
+  use runtime_stats_m, only : neko_rt_stats
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
-  use bc_list, only : bc_list_t
-  use les_model, only : les_model_t, les_model_allocate, register_les_model, &
+  use json_utils_m, only : json_get, json_get_or_default, json_extract_item
+  use bc_list_m, only : bc_list_t
+  use les_model_m, only : les_model_t, les_model_allocate, register_les_model, &
        les_model_factory, les_model_allocator
-  use field_writer, only : field_writer_t
-  use derivative_simcomp, only : derivative_t
-  use divergence_simcomp, only : divergence_t
-  use curl_simcomp, only : curl_t
-  use gradient_simcomp, only : gradient_t
-  use weak_gradient_simcomp, only : weak_gradient_t
-  use force_torque, only : force_torque_t
-  use lambda2, only : lambda2_t
-  use time_based_controller, only : time_based_controller_t
-  use time_step_controller, only : time_step_controller_t
-  use source_term, only : source_term_t, source_term_allocate, &
+  use field_writer_m, only : field_writer_t
+  use derivative_simcomp_m, only : derivative_t
+  use divergence_simcomp_m, only : divergence_t
+  use curl_simcomp_m, only : curl_t
+  use gradient_simcomp_m, only : gradient_t
+  use weak_gradient_simcomp_m, only : weak_gradient_t
+  use force_torque_m, only : force_torque_t
+  use lambda2_m, only : lambda2_t
+  use time_based_controller_m, only : time_based_controller_t
+  use time_step_controller_m, only : time_step_controller_t
+  use source_term_m, only : source_term_t, source_term_allocate, &
        register_source_term, source_term_factory, source_term_allocator
-  use user_access_singleton, only : neko_user_access
+  use user_access_singleton_m, only : neko_user_access
   use, intrinsic :: iso_fortran_env
   use mpi_f08
   !$ use omp_lib

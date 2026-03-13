@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a factory subroutine for scalar schemes.
-submodule (scalar_scheme) scalar_scheme_fctry
-  use scalar_pnpn, only : scalar_pnpn_t
-  use utils, only : neko_type_error, neko_type_registration_error
+submodule (scalar_scheme_m) scalar_scheme_fctry
+  use scalar_pnpn_m, only : scalar_pnpn_t
+  use utils_m, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine

@@ -31,42 +31,42 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `brinkman_source_term_t` type.
-module brinkman_source_term
-  use aabb, only : aabb_t, get_aabb
-  use coefs, only : coef_t
-  use device, only : device_memcpy, HOST_TO_DEVICE
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use math, only : cfill_mask, pwmax2
-  use device_math, only : device_cfill_mask, device_pwmax2
-  use field_math, only : field_pwmax2, field_subcol3, field_copy
-  use registry, only : neko_registry
-  use mappings, only : smooth_step_field, step_function_field, &
+module brinkman_source_term_m
+  use aabb_m, only : aabb_t, get_aabb
+  use coefs_m, only : coef_t
+  use device_m, only : device_memcpy, HOST_TO_DEVICE
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use math_m, only : cfill_mask, pwmax2
+  use device_math_m, only : device_cfill_mask, device_pwmax2
+  use field_math_m, only : field_pwmax2, field_subcol3, field_copy
+  use registry_m, only : neko_registry
+  use mappings_m, only : smooth_step_field, step_function_field, &
        permeability_field
-  use file, only : file_t
+  use file_m, only : file_t
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+  use json_utils_m, only : json_get, json_get_or_default, json_extract_item, &
        json_get_or_lookup, json_get_or_lookup_or_default
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use tri_mesh, only : tri_mesh_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp, dp
-  use point_zone, only : point_zone_t
-  use point_zone_registry, only : neko_point_zone_registry
-  use profiler, only : profiler_start_region, profiler_end_region
-  use signed_distance, only : signed_distance_field
-  use source_term, only : source_term_t
-  use utils, only : neko_error
-  use filter, only : filter_t
-  use PDE_filter, only : PDE_filter_t
-  use fld_file_output, only : fld_file_output_t
-  use fld_file_data, only : fld_file_data_t
-  use num_types, only : sp, dp
-  use time_state, only : time_state_t
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use tri_mesh_m, only : tri_mesh_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp, dp
+  use point_zone_m, only : point_zone_t
+  use point_zone_registry_m, only : neko_point_zone_registry
+  use profiler_m, only : profiler_start_region, profiler_end_region
+  use signed_distance_m, only : signed_distance_field
+  use source_term_m, only : source_term_t
+  use utils_m, only : neko_error
+  use filter_m, only : filter_t
+  use pde_filter_m, only : PDE_filter_t
+  use fld_file_output_m, only : fld_file_output_t
+  use fld_file_data_m, only : fld_file_data_t
+  use num_types_m, only : sp, dp
+  use time_state_m, only : time_state_t
 
-  use global_interpolation, only: global_interpolation_t
-  use interpolation, only: interpolator_t
-  use space, only: space_t, GLL
+  use global_interpolation_m, only: global_interpolation_t
+  use interpolation_m, only: interpolator_t
+  use space_m, only: space_t, GLL
   implicit none
   private
 
@@ -520,4 +520,4 @@ contains
 
   end subroutine init_point_zone
 
-end module brinkman_source_term
+end module brinkman_source_term_m

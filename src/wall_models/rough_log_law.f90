@@ -32,18 +32,18 @@
 !
 !
 !> Implements `rough_log_law_t`.
-module rough_log_law
-  use field, only: field_t
-  use num_types, only : rp
+module rough_log_law_m
+  use field_m, only: field_t
+  use num_types_m, only : rp
   use json_module, only : json_file
-  use coefs, only : coef_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use wall_model, only : wall_model_t
-  use registry, only : neko_registry
-  use json_utils, only : json_get_or_lookup
-  use rough_log_law_device, only : rough_log_law_compute_device
-  use rough_log_law_cpu, only : rough_log_law_compute_cpu
-  use scratch_registry, only : neko_scratch_registry
+  use coefs_m, only : coef_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use wall_model_m, only : wall_model_t
+  use registry_m, only : neko_registry
+  use json_utils_m, only : json_get_or_lookup
+  use rough_log_law_device_m, only : rough_log_law_compute_device
+  use rough_log_law_cpu_m, only : rough_log_law_compute_cpu
+  use scratch_registry_m, only : neko_scratch_registry
   implicit none
   private
 
@@ -202,4 +202,4 @@ contains
   end subroutine rough_log_law_compute
 
 
-end module rough_log_law
+end module rough_log_law_m

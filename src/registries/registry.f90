@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a registry for storing solution fields
-module registry
-  use num_types, only : rp
-  use field, only : field_t
-  use vector, only : vector_t
-  use matrix, only : matrix_t
-  use registry_entry, only : registry_entry_t
-  use dofmap, only : dofmap_t
-  use utils, only : neko_error
+module registry_m
+  use num_types_m, only : rp
+  use field_m, only : field_t
+  use vector_m, only : vector_t
+  use matrix_m, only : matrix_t
+  use registry_entry_m, only : registry_entry_t
+  use dofmap_m, only : dofmap_t
+  use utils_m, only : neko_error
   use json_module, only : json_file
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   implicit none
   private
 
@@ -891,4 +891,4 @@ contains
     end if
   end subroutine registry_print_section
 
-end module registry
+end module registry_m

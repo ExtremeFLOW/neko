@@ -32,20 +32,20 @@
 !
 !> Project x onto X , the space of old solutions and back again
 !> Couple projections for velocity
-module projection_vel
-  use num_types, only : rp, c_rp
-  use math, only : add2, copy
-  use coefs, only : coef_t
-  use ax_product, only : ax_t
-  use bc_list, only : bc_list_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_get_ptr
-  use device_math, only : device_copy, device_add2
-  use profiler, only : profiler_start_region, profiler_end_region
+module projection_vel_m
+  use num_types_m, only : rp, c_rp
+  use math_m, only : add2, copy
+  use coefs_m, only : coef_t
+  use ax_product_m, only : ax_t
+  use bc_list_m, only : bc_list_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : device_get_ptr
+  use device_math_m, only : device_copy, device_add2
+  use profiler_m, only : profiler_start_region, profiler_end_region
   use, intrinsic :: iso_c_binding
-  use time_step_controller, only : time_step_controller_t
-  use projection, only : projection_t, proj_ortho
+  use time_step_controller_m, only : time_step_controller_t
+  use projection_m, only : projection_t, proj_ortho
 
   implicit none
   private
@@ -237,4 +237,4 @@ contains
     call proj_ortho(this%proj_w, coef, n)
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back_vel
-end module projection_vel
+end module projection_vel_m

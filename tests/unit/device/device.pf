@@ -2,7 +2,7 @@
 @test
 subroutine test_device_init
   use pfunit
-  use device
+  use device_m
   implicit none
   call device_init()
 end subroutine test_device_init
@@ -10,7 +10,7 @@ end subroutine test_device_init
 @test
 subroutine test_device_sync
   use pfunit
-  use device
+  use device_m
   implicit none
 
   call device_init()
@@ -20,9 +20,9 @@ end subroutine test_device_sync
 
 @test
 subroutine test_device_alloc
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d
@@ -42,9 +42,9 @@ end subroutine test_device_alloc
 
 @test
 subroutine test_device_free
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d
@@ -69,9 +69,9 @@ end subroutine test_device_free
 
 @test
 subroutine test_device_associate
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d
@@ -94,9 +94,9 @@ end subroutine test_device_associate
 
 @test
 subroutine test_device_associated
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d
@@ -119,9 +119,9 @@ end subroutine test_device_associated
 
 @test
 subroutine test_device_get_ptr
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d, dev
@@ -149,9 +149,9 @@ end subroutine test_device_get_ptr
 
 @test
 subroutine test_device_map
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d, dev
@@ -177,9 +177,9 @@ end subroutine test_device_map
 
 @test
 subroutine test_device_memcpy
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d, y_d, dev
@@ -229,9 +229,9 @@ end subroutine test_device_memcpy
 
 @test
 subroutine test_device_stream_create
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: stream
@@ -248,9 +248,9 @@ end subroutine test_device_stream_create
 
 @test
 subroutine test_device_stream_destroy
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: stream
@@ -269,9 +269,9 @@ end subroutine test_device_stream_destroy
 
 @test
 subroutine test_device_sync_stream
-  use neko_config
+  use neko_config_m
   use pfunit
-  use device
+  use device_m
   use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: stream1, stream2

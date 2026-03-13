@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines Pressure and velocity residuals in the Pn-Pn formulation
-module pnpn_residual
-  use gather_scatter, only : gs_t
-  use ax_product, only : ax_t
-  use field, only : field_t
-  use coefs, only : coef_t
-  use facet_normal, only : facet_normal_t
-  use space, only : space_t
-  use mesh, only : mesh_t
-  use num_types, only : rp
+module pnpn_residual_m
+  use gather_scatter_m, only : gs_t
+  use ax_product_m, only : ax_t
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use facet_normal_m, only : facet_normal_t
+  use space_m, only : space_t
+  use mesh_m, only : mesh_t
+  use num_types_m, only : rp
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -150,4 +150,4 @@ module pnpn_residual
   public :: pnpn_prs_res_factory, pnpn_vel_res_factory, &
        pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
 
-end module pnpn_residual
+end module pnpn_residual_m

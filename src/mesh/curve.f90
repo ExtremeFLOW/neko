@@ -1,9 +1,9 @@
 !> Defines a domain as a subset of facets in a mesh
-module curve
-  use num_types, only : dp
-  use structs, only :struct_curve_t
-  use stack, only : stack_curve_t
-  use utils
+module curve_m
+  use num_types_m, only : dp
+  use structs_m, only :struct_curve_t
+  use stack_m, only : stack_curve_t
+  use utils_m
 
   implicit none
   private
@@ -262,4 +262,4 @@ contains
 !  end
 
 
-end module curve
+end module curve_m

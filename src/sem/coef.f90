@@ -31,26 +31,26 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Coefficients
-module coefs
-  use gather_scatter, only : gs_t
-  use gs_ops, only : GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use dofmap, only : dofmap_t
-  use space, only: space_t
-  use math, only : rone, invcol1, addcol3, subcol3, copy, &
+module coefs_m
+  use gather_scatter_m, only : gs_t
+  use gs_ops_m, only : GS_OP_ADD
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use dofmap_m, only : dofmap_t
+  use space_m, only: space_t
+  use math_m, only : rone, invcol1, addcol3, subcol3, copy, &
        chsign, rzero, invers2, glsum, NEKO_EPS
-  use mesh, only : mesh_t
-  use device_math, only : device_rone, device_invcol1, &
+  use mesh_m, only : mesh_t
+  use device_math_m, only : device_rone, device_invcol1, &
        device_glsum
-  use device_coef, only : device_coef_generate_geo, &
+  use device_coef_m, only : device_coef_generate_geo, &
        device_coef_generate_dxydrst
-  use mxm_wrapper, only : mxm
-  use device
-  use utils, only : index_is_on_facet, linear_index, &
+  use mxm_wrapper_m, only : mxm
+  use device_m
+  use utils_m, only : index_is_on_facet, linear_index, &
        neko_error
-  use comm, only : NEKO_COMM
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use comm_m, only : NEKO_COMM
+  use neko_config_m, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_c_binding
   implicit none
@@ -1288,4 +1288,4 @@ contains
 
   end subroutine coef_generate_cyclic_bc
 
-end module coefs
+end module coefs_m

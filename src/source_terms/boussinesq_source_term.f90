@@ -31,22 +31,22 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `boussinesq_source_term_t` type.
-module boussinesq_source_term
-  use num_types, only : rp
-  use field_list, only : field_list_t
-  use field, only : field_t
+module boussinesq_source_term_m
+  use num_types_m, only : rp
+  use field_list_m, only : field_list_t
+  use field_m, only : field_t
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default, &
+  use json_utils_m, only: json_get, json_get_or_default, &
        json_get_or_lookup
-  use source_term, only : source_term_t
-  use coefs, only : coef_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_error
-  use boussinesq_source_term_cpu, only : boussinesq_source_term_compute_cpu
-  use boussinesq_source_term_device, only : &
+  use source_term_m, only : source_term_t
+  use coefs_m, only : coef_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use utils_m, only : neko_error
+  use boussinesq_source_term_cpu_m, only : boussinesq_source_term_compute_cpu
+  use boussinesq_source_term_device_m, only : &
        boussinesq_source_term_compute_device
-  use registry, only : neko_registry
-  use time_state, only : time_state_t
+  use registry_m, only : neko_registry
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -183,4 +183,4 @@ contains
     end if
   end subroutine boussinesq_source_term_compute
 
-end module boussinesq_source_term
+end module boussinesq_source_term_m

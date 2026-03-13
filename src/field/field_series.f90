@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Contains the `field_serties_t` type.
-module field_series
-  use field, only : field_t
+module field_series_m
+  use field_m, only : field_t
   implicit none
   private
 
@@ -137,4 +137,4 @@ contains
 
   end subroutine field_series_set
 
-end module field_series
+end module field_series_m

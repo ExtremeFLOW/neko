@@ -31,13 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 ! Defines a vector list
-module vector_list
+module vector_list_m
   use, intrinsic :: iso_fortran_env, only : error_unit
-  use vector, only : vector_ptr_t, vector_t
+  use vector_m, only : vector_ptr_t, vector_t
   use iso_c_binding, only : c_ptr
-  use num_types, only : rp
-  use utils, only : neko_error
-  use comm, only : pe_rank
+  use num_types_m, only : rp
+  use utils_m, only : neko_error
+  use comm_m, only : pe_rank
   implicit none
   private
 
@@ -242,4 +242,4 @@ contains
   end function vector_list_name
 
 
-end module vector_list
+end module vector_list_m

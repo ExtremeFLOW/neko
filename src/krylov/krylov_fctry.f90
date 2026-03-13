@@ -30,28 +30,28 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule (krylov) krylov_fctry
-  use cg, only : cg_t
-  use cg_sx, only : sx_cg_t
-  use cg_cpld, only : cg_cpld_t
-  use cg_device, only : cg_device_t
-  use cg_cpld_device, only : cg_cpld_device_t
-  use cacg, only : cacg_t
-  use pipecg, only : pipecg_t
-  use pipecg_sx, only : sx_pipecg_t
-  use pipecg_device, only : pipecg_device_t
-  use fusedcg_device, only : fusedcg_device_t
-  use fusedcg_cpld_device, only : fusedcg_cpld_device_t
-  use bicgstab, only : bicgstab_t
-  use gmres, only : gmres_t
-  use cheby, only : cheby_t
-  use cheby_device, only : cheby_device_t
-  use gmres_sx, only : sx_gmres_t
-  use gmres_device, only : gmres_device_t
-  use num_Types, only : rp
-  use precon, only : pc_t
-  use utils, only : neko_type_error
-  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL
+submodule (krylov_m) krylov_fctry
+  use cg_m, only : cg_t
+  use cg_sx_m, only : sx_cg_t
+  use cg_cpld_m, only : cg_cpld_t
+  use cg_device_m, only : cg_device_t
+  use cg_cpld_device_m, only : cg_cpld_device_t
+  use cacg_m, only : cacg_t
+  use pipecg_m, only : pipecg_t
+  use pipecg_sx_m, only : sx_pipecg_t
+  use pipecg_device_m, only : pipecg_device_t
+  use fusedcg_device_m, only : fusedcg_device_t
+  use fusedcg_cpld_device_m, only : fusedcg_cpld_device_t
+  use bicgstab_m, only : bicgstab_t
+  use gmres_m, only : gmres_t
+  use cheby_m, only : cheby_t
+  use cheby_device_m, only : cheby_device_t
+  use gmres_sx_m, only : sx_gmres_t
+  use gmres_device_m, only : gmres_device_t
+  use num_types_m, only : rp
+  use precon_m, only : pc_t
+  use utils_m, only : neko_type_error
+  use neko_config_m, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL
   implicit none
 
   ! List of all possible types created by the factory routine

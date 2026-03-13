@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Lambda2 kernels for SX-Aurora
-submodule (opr_sx) sx_lambda2
-  use math, only : pi
+submodule (opr_sx_m) sx_lambda2
+  use math_m, only : pi
   implicit none
 
 contains

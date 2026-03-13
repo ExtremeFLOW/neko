@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_inhom_dirichlet
-  use num_types, only : rp, c_rp
-  use utils, only : neko_error
+module device_inhom_dirichlet_m
+  use num_types_m, only : rp, c_rp
+  use utils_m, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -150,4 +150,4 @@ contains
 
   end subroutine device_inhom_dirichlet_apply_scalar
 
-end module device_inhom_dirichlet
+end module device_inhom_dirichlet_m

@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements type data_streamer_t.
-module data_streamer
-  use num_types, only: rp, c_rp
-  use field, only: field_t
-  use coefs, only: coef_t
-  use utils, only: neko_warning
-  use comm, only : NEKO_COMM
+module data_streamer_m
+  use num_types_m, only: rp, c_rp
+  use field_m, only: field_t
+  use coefs_m, only: coef_t
+  use utils_m, only: neko_warning
+  use comm_m, only : NEKO_COMM
   use mpi_f08, only : MPI_COMM
   use, intrinsic :: iso_c_binding
   implicit none
@@ -250,4 +250,4 @@ contains
 
 #endif
 
-end module data_streamer
+end module data_streamer_m

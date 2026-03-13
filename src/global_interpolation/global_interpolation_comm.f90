@@ -32,10 +32,10 @@
 !
 !> Defines global interpolation communication
 !! Based on the MPI based gather-scatter kernel
-module glb_intrp_comm
-  use num_types, only : rp
-  use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
-  use stack, only : stack_i4_t
+module glb_intrp_comm_m
+  use num_types_m, only : rp
+  use comm_m, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
+  use stack_m, only : stack_i4_t
   use, intrinsic :: iso_c_binding
   use mpi_f08, only : MPI_Test, MPI_STATUS_IGNORE, MPI_Status, &
        MPI_Request, MPI_Isend, MPI_IRecv, MPI_Comm
@@ -368,4 +368,4 @@ contains
   end subroutine glb_intrp_comm_nbwait_no_op
 
 
-end module glb_intrp_comm
+end module glb_intrp_comm_m

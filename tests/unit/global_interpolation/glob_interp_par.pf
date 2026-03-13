@@ -1,21 +1,21 @@
  module glob_interp_par
   use pfunit
-  use field
-  use mesh
-  use space
-  use dofmap
-  use num_types
-  use device
-  use space
-  use mesh
-  use dofmap
-  use file
-  use vector
-  use math
-  use global_interpolation
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
-  use neko_config
-  use neko_mpi_types
+  use field_m
+  use mesh_m
+  use space_m
+  use dofmap_m
+  use num_types_m
+  use device_m
+  use space_m
+  use mesh_m
+  use dofmap_m
+  use file_m
+  use vector_m
+  use math_m
+  use global_interpolation_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use neko_config_m
+  use neko_mpi_types_m
   implicit none
 
   @TestCase

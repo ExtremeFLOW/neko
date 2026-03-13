@@ -32,12 +32,12 @@
 !
 !> NEKTON map file
 !! @details This module is used to read/write NEKTON vertex mapping data
-module map_file
-  use num_types, only : rp
-  use generic_file, only : generic_file_t
-  use utils, only : neko_error
-  use comm
-  use map, only : map_t
+module map_file_m
+  use num_types_m, only : rp
+  use generic_file_m, only : generic_file_t
+  use utils_m, only : neko_error
+  use comm_m
+  use map_m, only : map_t
   implicit none
   private
 
@@ -93,4 +93,4 @@ contains
     call neko_error("Not implemented yet!")
   end subroutine map_file_write
 
-end module map_file
+end module map_file_m

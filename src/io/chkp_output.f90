@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines an output for a checkpoint
-module chkp_output
-  use checkpoint, only : chkp_t
-  use output, only : output_t
-  use num_types, only : rp
+module chkp_output_m
+  use checkpoint_m, only : chkp_t
+  use output_m, only : output_t
+  use num_types_m, only : rp
   implicit none
   private
 
@@ -92,4 +92,4 @@ contains
 
   end subroutine chkp_output_sample
 
-end module chkp_output
+end module chkp_output_m

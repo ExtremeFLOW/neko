@@ -1,7 +1,7 @@
 !> Fast Diagonalization libxsmm backend
-module fdm_xsmm
-  use num_types, only : rp
-  use tensor_xsmm, only : tnsr2d_el_xsmm, tnsr3d_el_xsmm
+module fdm_xsmm_m
+  use num_types_m, only : rp
+  use tensor_xsmm_m, only : tnsr2d_el_xsmm, tnsr3d_el_xsmm
   implicit none
 
 contains
@@ -38,4 +38,4 @@ contains
     end if
   end subroutine fdm_do_fast_xsmm
 
-end module fdm_xsmm
+end module fdm_xsmm_m

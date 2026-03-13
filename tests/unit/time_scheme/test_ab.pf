@@ -1,8 +1,8 @@
  @test
  subroutine test_ab_constant_dt()
    use pfunit
-   use ab_time_scheme, only: ab_time_scheme_t
-   use num_types, only : rp
+   use ab_time_scheme_m, only: ab_time_scheme_t
+   use num_types_m, only : rp
    implicit none
    
    type(ab_time_scheme_t) ab
@@ -31,8 +31,8 @@ end subroutine test_ab_constant_dt
  @test
  subroutine test_ab_variable_dt()
    use pfunit
-   use ab_time_scheme, only: ab_time_scheme_t
-   use num_types, only : rp
+   use ab_time_scheme_m, only: ab_time_scheme_t
+   use num_types_m, only : rp
    implicit none
    
    type(ab_time_scheme_t) ab

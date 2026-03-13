@@ -31,17 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Runtime statistics
-module runtime_stats
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
-  use stack, only : stack_r8_t, stack_i4r8t2_t
-  use tuple, only : tuple_i4r8_t
-  use num_types, only : dp
-  use json_utils, only : json_get_or_default
+module runtime_stats_m
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
+  use stack_m, only : stack_r8_t, stack_i4r8t2_t
+  use tuple_m, only : tuple_i4r8_t
+  use num_types_m, only : dp
+  use json_utils_m, only : json_get_or_default
   use json_module, only : json_file
-  use file, only : file_t
-  use matrix, only : matrix_t
-  use utils, only : neko_error
-  use comm, only : pe_rank, pe_size, NEKO_COMM
+  use file_m, only : file_t
+  use matrix_m, only : matrix_t
+  use utils_m, only : neko_error
+  use comm_m, only : pe_rank, pe_size, NEKO_COMM
   use mpi_f08, only : MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, &
        MPI_DOUBLE_PRECISION, MPI_SUM
   implicit none
@@ -327,4 +327,4 @@ contains
 
   end subroutine runtime_stats_find_region_id
 
-end module runtime_stats
+end module runtime_stats_m

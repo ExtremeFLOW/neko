@@ -1,6 +1,6 @@
 !> NEKTON re2 format
-module re2
-  use num_types, only : sp, dp
+module re2_m
+  use num_types_m, only : sp, dp
   implicit none
 
   !> NEKTON re2 header size
@@ -77,4 +77,4 @@ module re2
      character(len=8) :: type
   end type re2v2_bc_t
 
-end module re2
+end module re2_m

@@ -35,10 +35,10 @@
 !! the contributions coming from the explicitly extrapolated convective term
 !! and the BDF scheme applied to the time derivative.
 !! Inheritance is used to define implementation for different backends.
-module rhs_maker
-  use num_types, only : rp
-  use field_series, only : field_series_t
-  use field, only : field_t
+module rhs_maker_m
+  use num_types_m, only : rp
+  use field_series_m, only : field_series_t
+  use field_m, only : field_t
   implicit none
   private
 
@@ -198,4 +198,4 @@ module rhs_maker
   public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry, &
             rhs_maker_oifs_fctry
 
-end module rhs_maker
+end module rhs_maker_m

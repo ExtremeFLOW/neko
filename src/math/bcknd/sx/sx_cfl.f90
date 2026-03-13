@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> CFL SX-Aurora kernels
-submodule (opr_sx) sx_cfl
+submodule (opr_sx_m) sx_cfl
   implicit none
 
 contains

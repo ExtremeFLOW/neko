@@ -1,7 +1,7 @@
 ! Set mask for Dirichlet conditions
 subroutine set_mask(msk, msh, lx, ly, lz, n)
-  use utils
-  use mesh
+  use utils_m
+  use mesh_m
   implicit none
   
   integer, intent(inout) :: msk(0:n)
@@ -73,8 +73,8 @@ end subroutine set_mask
 
 ! Inverse of counting matrix
 subroutine set_multiplicity(c, n, gs_h)
-  use gather_scatter
-  use num_types
+  use gather_scatter_m
+  use num_types_m
   implicit none
   
   real(kind=dp), intent(inout), dimension(n) :: c
@@ -93,8 +93,8 @@ end subroutine set_multiplicity
 
 ! Setup rhs
 subroutine set_f(f, c, n, gs_h)
-  use gather_scatter
-  use num_types
+  use gather_scatter_m
+  use num_types_m
   implicit none
   
   real(kind=dp), intent(inout), dimension(n) :: f
@@ -116,7 +116,7 @@ subroutine set_f(f, c, n, gs_h)
 end subroutine set_f
 
 subroutine setup_g(g, w, lx, ly, lz, n)
-  use num_types
+  use num_types_m
   implicit none
   
   real(kind=dp), intent(inout), dimension(6, lx, ly, lz, n) :: g

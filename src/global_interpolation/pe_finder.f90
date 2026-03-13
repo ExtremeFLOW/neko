@@ -32,11 +32,11 @@
 !
 !> Implements pe_finder given a dofmap.
 !!
-module pe_finder
-  use num_types, only: rp
-  use stack, only: stack_i4_t
+module pe_finder_m
+  use num_types_m, only: rp
+  use stack_m, only: stack_i4_t
   use mpi_f08, only: MPI_COMM
-  use point, only: point_t
+  use point_m, only: point_t
   implicit none
   private
 
@@ -88,5 +88,5 @@ module pe_finder
      end subroutine pe_finder_find_batch
   end interface
 
-end module pe_finder
+end module pe_finder_m
 

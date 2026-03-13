@@ -1,12 +1,12 @@
 module test_matrix_registry
   use pfunit
-  use matrix, only : matrix_t
-  use registry, only : registry_t
-  use comm, only : pe_rank, pe_size
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : DEVICE_TO_HOST, device_init, device_finalize
-  use matrix_math, only : matrix_cfill
-  use num_types, only : rp
+  use matrix_m, only : matrix_t
+  use registry_m, only : registry_t
+  use comm_m, only : pe_rank, pe_size
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use device_m, only : DEVICE_TO_HOST, device_init, device_finalize
+  use matrix_math_m, only : matrix_cfill
+  use num_types_m, only : rp
   implicit none
 
   @TestCase

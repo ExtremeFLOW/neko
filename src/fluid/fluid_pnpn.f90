@@ -31,59 +31,59 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
-module fluid_pnpn
+module fluid_pnpn_m
   use, intrinsic :: iso_fortran_env, only : error_unit
-  use coefs, only : coef_t
-  use symmetry, only : symmetry_t
-  use registry, only : neko_registry
-  use logger, only : neko_log, LOG_SIZE
-  use num_types, only : rp
-  use krylov, only : ksp_monitor_t
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
+  use coefs_m, only : coef_t
+  use symmetry_m, only : symmetry_t
+  use registry_m, only : neko_registry
+  use logger_m, only : neko_log, LOG_SIZE
+  use num_types_m, only : rp
+  use krylov_m, only : ksp_monitor_t
+  use pnpn_residual_m, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
        pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
-  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t, &
+  use rhs_maker_m, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t, &
        rhs_maker_oifs_t, rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
        rhs_maker_ext_fctry, rhs_maker_oifs_fctry
-  use fluid_volflow, only : fluid_volflow_t
-  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
-  use scratch_registry, only : neko_scratch_registry
-  use device_mathops, only : device_opcolv, device_opadd2cm
-  use fluid_aux, only : fluid_step_info
-  use projection, only : projection_t
-  use projection_vel, only : projection_vel_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
+  use fluid_volflow_m, only : fluid_volflow_t
+  use fluid_scheme_incompressible_m, only : fluid_scheme_incompressible_t
+  use scratch_registry_m, only : neko_scratch_registry
+  use device_mathops_m, only : device_opcolv, device_opadd2cm
+  use fluid_aux_m, only : fluid_step_info
+  use projection_m, only : projection_t
+  use projection_vel_m, only : projection_vel_t
+  use device_m, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
        glb_cmd_event
-  use advection, only : advection_t, advection_factory
-  use profiler, only : profiler_start_region, profiler_end_region
+  use advection_m, only : advection_t, advection_factory
+  use profiler_m, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+  use json_utils_m, only : json_get, json_get_or_default, json_extract_item, &
        json_get_or_lookup, json_get_or_lookup_or_default
   use json_module, only : json_file
-  use ax_product, only : ax_t, ax_helm_factory
-  use field, only : field_t
-  use dirichlet, only : dirichlet_t
-  use shear_stress, only : shear_stress_t
-  use wall_model_bc, only : wall_model_bc_t
-  use facet_normal, only : facet_normal_t
-  use non_normal, only : non_normal_t
-  use checkpoint, only : chkp_t
-  use mesh, only : mesh_t
-  use user_intf, only : user_t
-  use time_step_controller, only : time_step_controller_t
-  use gs_ops, only : GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use mathops, only : opadd2cm, opcolv
-  use bc_list, only : bc_list_t
-  use zero_dirichlet, only : zero_dirichlet_t
-  use utils, only : neko_error, neko_type_error
-  use field_math, only : field_add2, field_copy
-  use bc, only : bc_t
-  use file, only : file_t
-  use operators, only : ortho, rotate_cyc
-  use opr_device, only : device_ortho
-  use time_state, only : time_state_t
-  use comm, only : NEKO_COMM
+  use ax_product_m, only : ax_t, ax_helm_factory
+  use field_m, only : field_t
+  use dirichlet_m, only : dirichlet_t
+  use shear_stress_m, only : shear_stress_t
+  use wall_model_bc_m, only : wall_model_bc_t
+  use facet_normal_m, only : facet_normal_t
+  use non_normal_m, only : non_normal_t
+  use checkpoint_m, only : chkp_t
+  use mesh_m, only : mesh_t
+  use user_intf_m, only : user_t
+  use time_step_controller_m, only : time_step_controller_t
+  use gs_ops_m, only : GS_OP_ADD
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use mathops_m, only : opadd2cm, opcolv
+  use bc_list_m, only : bc_list_t
+  use zero_dirichlet_m, only : zero_dirichlet_t
+  use utils_m, only : neko_error, neko_type_error
+  use field_math_m, only : field_add2, field_copy
+  use bc_m, only : bc_t
+  use file_m, only : file_t
+  use operators_m, only : ortho, rotate_cyc
+  use opr_device_m, only : device_ortho
+  use time_state_m, only : time_state_t
+  use comm_m, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
        MPI_INTEGER, MPI_LOGICAL
   implicit none
@@ -1108,11 +1108,11 @@ contains
 
   !> Write a field with boundary condition specifications
   subroutine fluid_pnpn_write_boundary_conditions(this)
-    use inflow, only : inflow_t
-    use field_dirichlet, only : field_dirichlet_t
-    use blasius, only : blasius_t
-    use field_dirichlet_vector, only : field_dirichlet_vector_t
-    use dong_outflow, only : dong_outflow_t
+    use inflow_m, only : inflow_t
+    use field_dirichlet_m, only : field_dirichlet_t
+    use blasius_m, only : blasius_t
+    use field_dirichlet_vector_m, only : field_dirichlet_vector_t
+    use dong_outflow_m, only : dong_outflow_t
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(dirichlet_t) :: bdry_mask
     type(field_t), pointer :: bdry_field
@@ -1235,4 +1235,4 @@ contains
     call neko_scratch_registry%relinquish_field(temp_index)
   end subroutine fluid_pnpn_write_boundary_conditions
 
-end module fluid_pnpn
+end module fluid_pnpn_m

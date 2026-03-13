@@ -32,28 +32,28 @@
 !
 !> Contains the scalars_t type that manages multiple scalar fields.
 
-module scalars
-  use num_types, only : rp
-  use scalar_pnpn, only : scalar_pnpn_t
-  use scalar_scheme, only : scalar_scheme_wrapper_t
-  use scalar_aux, only : scalar_step_info
-  use mesh, only : mesh_t
-  use space, only : space_t
-  use gather_scatter, only : gs_t
-  use time_scheme_controller, only : time_scheme_controller_t
-  use time_step_controller, only : time_step_controller_t
+module scalars_m
+  use num_types_m, only : rp
+  use scalar_pnpn_m, only : scalar_pnpn_t
+  use scalar_scheme_m, only : scalar_scheme_wrapper_t
+  use scalar_aux_m, only : scalar_step_info
+  use mesh_m, only : mesh_t
+  use space_m, only : space_t
+  use gather_scatter_m, only : gs_t
+  use time_scheme_controller_m, only : time_scheme_controller_t
+  use time_step_controller_m, only : time_step_controller_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use field_series, only : field_series_t
-  use checkpoint, only : chkp_t
-  use krylov, only : ksp_t, ksp_monitor_t
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use user_intf, only : user_t
-  use utils, only : neko_error
-  use coefs, only : coef_t
-  use time_state, only : time_state_t
+  use json_utils_m, only : json_get, json_get_or_default, json_extract_item
+  use field_m, only : field_t
+  use field_list_m, only : field_list_t
+  use field_series_m, only : field_series_t
+  use checkpoint_m, only : chkp_t
+  use krylov_m, only : ksp_t, ksp_monitor_t
+  use logger_m, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use user_intf_m, only : user_t
+  use utils_m, only : neko_error
+  use coefs_m, only : coef_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -308,4 +308,4 @@ contains
     chkp%scalar_abx2(index)%ptr => scalar_field%abx2
   end subroutine associate_scalar_abx_fields
 
-end module scalars
+end module scalars_m

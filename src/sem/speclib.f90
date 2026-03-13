@@ -145,10 +145,10 @@
 !
 !
 !==============================================================================
-module speclib
-  use num_types, only : rp, xp
-  use math, only: abscmp
-  use utils, only : neko_error
+module speclib_m
+  use num_types_m, only : rp, xp
+  use math_m, only: abscmp
+  use utils_m, only : neko_error
   use, intrinsic :: iso_fortran_env, only : stderr => error_unit
   implicit none
 
@@ -1295,4 +1295,4 @@ contains
        end do
     end do
   end subroutine IGLJM
-end module speclib
+end module speclib_m

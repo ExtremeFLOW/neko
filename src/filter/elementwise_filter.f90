@@ -32,22 +32,22 @@
 !
 !
 !> Implements `elementwise_filter_t`.
-module elementwise_filter
-  use num_types, only : rp
-  use filter, only : filter_t
-  use math, only : rzero, rone, copy
-  use field, only : field_t
-  use coefs, only : coef_t
-  use utils, only : neko_error
-  use neko_config, only : NEKO_BCKND_DEVICE
+module elementwise_filter_m
+  use num_types_m, only : rp
+  use filter_m, only : filter_t
+  use math_m, only : rzero, rone, copy
+  use field_m, only : field_t
+  use coefs_m, only : coef_t
+  use utils_m, only : neko_error
+  use neko_config_m, only : NEKO_BCKND_DEVICE
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default, json_get
-  use speclib, only : zwgll, legendre_poly
-  use matrix, only : matrix_t
-  use mxm_wrapper, only : mxm
-  use tensor, only : tnsr3d, trsp
-  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
-  use device_math, only : device_cfill
+  use json_utils_m, only : json_get_or_default, json_get
+  use speclib_m, only : zwgll, legendre_poly
+  use matrix_m, only : matrix_t
+  use mxm_wrapper_m, only : mxm
+  use tensor_m, only : tnsr3d, trsp
+  use device_m, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device_math_m, only : device_cfill
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -257,4 +257,4 @@ contains
 
   end subroutine build_1d_cpu
 
-end module elementwise_filter
+end module elementwise_filter_m

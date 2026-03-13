@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fast Diagonalization SX-Aurora backend
-module fdm_sx
-  use num_types, only : rp
-  use tensor_sx, only : tnsr2d_el_sx
+module fdm_sx_m
+  use num_types_m, only : rp
+  use tensor_sx_m, only : tnsr2d_el_sx
   implicit none
   private
 
@@ -1952,4 +1952,4 @@ contains
 
   end subroutine fdm_do_fast_sx_nl2
 
-end module fdm_sx
+end module fdm_sx_m

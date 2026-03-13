@@ -33,15 +33,15 @@
 !> A module containing mapping functions and subroutines. These functions
 !! are used to modify fields in a way that is useful for various
 !! simulations.
-module mappings
-  use field, only : field_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use utils, only : neko_error
+module mappings_m
+  use field_m, only : field_t
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use utils_m, only : neko_error
 
-  use mappings_cpu, only : smooth_step_cpu, permeability_cpu, &
+  use mappings_cpu_m, only : smooth_step_cpu, permeability_cpu, &
        step_function_cpu
-  use mappings_device, only : smooth_step_device, permeability_device, &
+  use mappings_device_m, only : smooth_step_device, permeability_device, &
        step_function_device
 
   implicit none
@@ -118,4 +118,4 @@ contains
     end if
   end subroutine step_function_field
 
-end module mappings
+end module mappings_m

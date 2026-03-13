@@ -67,12 +67,12 @@
 !! data structure.
 !! The purpose of this is to accelerate a Signed Distance Function and other
 !! spatial computations.
-module aabb_tree
-  use aabb, only : aabb_t, get_aabb, merge
-  use tri, only : tri_t
-  use num_types, only : rp, dp
-  use stack, only : stack_i4_t
-  use utils, only : neko_error
+module aabb_tree_m
+  use aabb_m, only : aabb_t, get_aabb, merge
+  use tri_m, only : tri_t
+  use num_types_m, only : rp, dp
+  use stack_m, only : stack_i4_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -1069,4 +1069,4 @@ contains
 
   end subroutine aabb_tree_resize_node_pool
 
-end module aabb_tree
+end module aabb_tree_m

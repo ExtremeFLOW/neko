@@ -1,10 +1,10 @@
 module jobctrl_parallel
   use mpi
   use pfunit
-  use mesh
-  use jobctrl
-  use signal
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use mesh_m
+  use jobctrl_m
+  use signal_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
 contains

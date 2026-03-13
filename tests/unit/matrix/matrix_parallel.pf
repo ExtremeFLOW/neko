@@ -1,12 +1,12 @@
 module matrix_parallel
   use mpi
   use pfunit
-  use neko_config
-  use matrix
-  use num_types
-  use device
-  use math
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config_m
+  use matrix_m
+  use num_types_m
+  use device_m
+  use math_m
+  use comm_m, only : NEKO_COMM, pe_rank, pe_size
   use, intrinsic :: iso_c_binding
   implicit none
 

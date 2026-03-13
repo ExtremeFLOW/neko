@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a dirichlet boundary condition
-module dirichlet
-  use device_dirichlet, only : device_dirichlet_apply_scalar, &
+module dirichlet_m
+  use device_dirichlet_m, only : device_dirichlet_apply_scalar, &
        device_dirichlet_apply_vector
-  use num_types, only : rp
-  use bc, only : bc_t
-  use coefs, only : coef_t
+  use num_types_m, only : rp
+  use bc_m, only : bc_t
+  use coefs_m, only : coef_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_lookup
+  use json_utils_m, only : json_get_or_lookup
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use time_state, only : time_state_t
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -232,4 +232,4 @@ contains
     call this%finalize_base(only_facets_)
   end subroutine dirichlet_finalize
 
-end module dirichlet
+end module dirichlet_m

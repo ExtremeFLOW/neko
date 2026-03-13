@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines inflow dirichlet conditions
-module inflow
-  use device_inflow, only : device_inflow_apply_vector
-  use num_types, only : rp
-  use bc, only : bc_t
+module inflow_m
+  use device_inflow_m, only : device_inflow_apply_vector
+  use num_types_m, only : rp
+  use bc_m, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
-  use coefs, only : coef_t
+  use coefs_m, only : coef_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_lookup
-  use time_state, only : time_state_t
+  use json_utils_m, only : json_get_or_lookup
+  use time_state_m, only : time_state_t
   implicit none
   private
 
@@ -173,4 +173,4 @@ contains
   end subroutine inflow_finalize
 
 
-end module inflow
+end module inflow_m

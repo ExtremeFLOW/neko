@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a gather-scatter backend
-module gs_bcknd
-  use num_types, only : rp
+module gs_bcknd_m
+  use num_types_m, only : rp
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -117,4 +117,4 @@ module gs_bcknd
   end interface
 
 
-end module gs_bcknd
+end module gs_bcknd_m

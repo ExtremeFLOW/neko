@@ -1,21 +1,21 @@
 
 !> Creates a 1d GLL point map along a specified direction based on the connectivity in the mesh.
-module map_1d
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
-  use space, only : space_t
-  use dofmap, only : dofmap_t
-  use gather_scatter, only : GS_OP_ADD
-  use mesh, only : mesh_t
-  use device, only : device_memcpy, device_map, device_free, &
+module map_1d_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only : rp
+  use space_m, only : space_t
+  use dofmap_m, only : dofmap_t
+  use gather_scatter_m, only : GS_OP_ADD
+  use mesh_m, only : mesh_t
+  use device_m, only : device_memcpy, device_map, device_free, &
        HOST_TO_DEVICE, DEVICE_TO_HOST
-  use comm, only : pe_size, pe_rank, NEKO_COMM, MPI_REAL_PRECISION
-  use coefs, only : coef_t
-  use field_list, only : field_list_t
-  use matrix, only : matrix_t
-  use vector, only : vector_ptr_t
-  use utils, only : neko_error, neko_warning
-  use math, only : glmax, glmin, glimax, relcmp, cmult, add2s1, col2
+  use comm_m, only : pe_size, pe_rank, NEKO_COMM, MPI_REAL_PRECISION
+  use coefs_m, only : coef_t
+  use field_list_m, only : field_list_t
+  use matrix_m, only : matrix_t
+  use vector_m, only : vector_ptr_t
+  use utils_m, only : neko_error, neko_warning
+  use math_m, only : glmax, glmin, glimax, relcmp, cmult, add2s1, col2
   use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_Barrier, MPI_IN_PLACE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -379,4 +379,4 @@ contains
 
   end subroutine map_1d_average_vector_ptr
 
-end module map_1d
+end module map_1d_m

@@ -6,7 +6,7 @@
 !! Martin Karp 17/01-24
 program calc_lift_from_field
   use neko
-  use matrix
+  use matrix_m
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, field_fname, hom_dir, output_fname

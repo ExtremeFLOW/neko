@@ -1,24 +1,24 @@
 !> Maps a 3D dofmap to a 2D spectral element grid.
 
-module map_2d
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only: rp
-  use dofmap, only: dofmap_t
-  use map_1d, only : map_1d_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use mesh, only: mesh_t
-  use field_list, only : field_list_t
-  use coefs, only: coef_t
-  use vector, only: vector_ptr_t
-  use utils, only: neko_error, linear_index
-  use math, only: cmult, col2, copy, rzero
-  use field, only : field_t
+module map_2d_m
+  use neko_config_m, only : NEKO_BCKND_DEVICE
+  use num_types_m, only: rp
+  use dofmap_m, only: dofmap_t
+  use map_1d_m, only : map_1d_t
+  use gather_scatter_m, only : gs_t, GS_OP_ADD
+  use mesh_m, only: mesh_t
+  use field_list_m, only : field_list_t
+  use coefs_m, only: coef_t
+  use vector_m, only: vector_ptr_t
+  use utils_m, only: neko_error, linear_index
+  use math_m, only: cmult, col2, copy, rzero
+  use field_m, only : field_t
   use, intrinsic :: iso_c_binding
-  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
-  use comm, only : NEKO_COMM
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use device_m, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use comm_m, only : NEKO_COMM
+  use neko_config_m, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, MPI_Exscan
-  use fld_file_data, only : fld_file_data_t
+  use fld_file_data_m, only : fld_file_data_t
   implicit none
   private
 
@@ -437,4 +437,4 @@ contains
     end do
   end subroutine perform_local_summation
 
-end module map_2d
+end module map_2d_m

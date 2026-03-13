@@ -1,10 +1,10 @@
 @test
 subroutine test_htable_init_pt
   use pfunit
-  use htable
-  use num_types
-  use point
-  use tuple
+  use htable_m
+  use num_types_m
+  use point_m
+  use tuple_m
   implicit none
   type(htable_pt_t) :: h
   integer :: data_i4
@@ -37,10 +37,10 @@ end subroutine test_htable_init_pt
 @test
 subroutine test_htable_add_pt
   use pfunit
-  use htable
-  use num_types
-  use point
-  use tuple
+  use htable_m
+  use num_types_m
+  use point_m
+  use tuple_m
   implicit none
   type(htable_pt_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -111,8 +111,8 @@ end subroutine test_htable_add_pt
 @test
 subroutine test_htable_clear_pt
   use pfunit
-  use htable
-  use point
+  use htable_m
+  use point_m
   implicit none
   type(htable_pt_t) :: h
   integer :: i
@@ -134,8 +134,8 @@ end subroutine test_htable_clear_pt
 @test
 subroutine test_htable_free_pt
   use pfunit
-  use htable
-  use point
+  use htable_m
+  use point_m
   implicit none
   type(htable_pt_t) :: h
   integer :: i
@@ -158,10 +158,10 @@ end subroutine test_htable_free_pt
 @test
 subroutine test_htable_get_pt
   use pfunit
-  use htable
-  use num_types
-  use point
-  use tuple
+  use htable_m
+  use num_types_m
+  use point_m
+  use tuple_m
   implicit none
   type(htable_pt_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -265,10 +265,10 @@ end subroutine test_htable_get_pt
 @test
 subroutine test_htable_remove_pt
   use pfunit
-  use htable
-  use num_types
-  use point
-  use tuple
+  use htable_m
+  use num_types_m
+  use point_m
+  use tuple_m
   implicit none
   type(htable_pt_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -356,8 +356,8 @@ end subroutine test_htable_remove_pt
 @test
 subroutine test_htable_iter_pt
   use pfunit
-  use htable
-  use point
+  use htable_m
+  use point_m
   implicit none
   type(htable_pt_t) :: h
   type(htable_iter_pt_t) :: it

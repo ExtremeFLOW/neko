@@ -33,19 +33,19 @@
 !
 !> Implements the `divergence_t` type.
 
-module divergence_simcomp
-  use num_types, only : rp, dp, sp
+module divergence_simcomp_m
+  use num_types_m, only : rp, dp, sp
   use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
-  use registry, only : neko_registry
-  use field, only : field_t
-  use time_state, only : time_state_t
-  use operators, only : div
-  use case, only : case_t
-  use json_utils, only : json_get, json_get_or_default
-  use field_writer, only : field_writer_t
-  use time_based_controller, only : time_based_controller_t
-  use utils, only : neko_error
+  use simulation_component_m, only : simulation_component_t
+  use registry_m, only : neko_registry
+  use field_m, only : field_t
+  use time_state_m, only : time_state_t
+  use operators_m, only : div
+  use case_m, only : case_t
+  use json_utils_m, only : json_get, json_get_or_default
+  use field_writer_m, only : field_writer_t
+  use time_based_controller_m, only : time_based_controller_t
+  use utils_m, only : neko_error
   implicit none
   private
 
@@ -251,4 +251,4 @@ contains
 
   end subroutine divergence_compute
 
-end module divergence_simcomp
+end module divergence_simcomp_m
