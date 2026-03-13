@@ -3,6 +3,8 @@
 ## Develop
 
 - Added code review instructions for LLMs in a copilot-friendly location.
+- Improved pixi installation. Added support to create a Python environment
+  inside the pixi shell. Added support to choose real precision.
 - Add Deardorff SGS model.
 - Add the optional `expected_size` argument to `json_get_*_array` 
   to throw an error if the parsed array size is incorrect.

@@ -154,3 +154,7 @@ lint:
 check-local: lint
 
 endif
+
+.PHONY: refresh-unit-test-makefiles
+refresh-unit-test-makefiles:
+	$(MAKE) -C tests/unit refresh-unit-test-makefiles-local
