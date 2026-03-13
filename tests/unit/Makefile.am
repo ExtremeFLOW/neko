@@ -78,47 +78,47 @@ TESTS = device/device_test\
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
-	mesh/mesh_parallel.pf\
-	quad/quad.pf\
-	gather_scatter/gather_scatter_parallel.pf\
-	krylov/krylov.pf\
-	hex/hex.pf\
-	tet/tet.pf\
-	tri/tri.pf\
-	bc/bc.pf\
-	tuple/tuple.pf\
-	point/point.pf\
-	signal/signal.pf\
-	space/space_test.pf\
-	jobctrl/jobctrl_parallel.pf\
-	dofmap/dofmap_parallel.pf\
-	field/field_parallel.pf\
-	global_interpolation/glob_interp_par.pf\
-	mean_field/mean_field_parallel.pf\
-	device/device.pf\
-	uset/uset_i4.pf\
-	uset/uset_r8.pf\
-	uset/uset_i8.pf\
-	math/math_parallel.pf\
-	stack/stack_r8.pf\
-	stack/stack_i4t4.pf\
-	stack/stack_i4.pf\
-	stack/stack_i4t2.pf\
-	stack/stack_i4r8t2.pf\
-	stack/stack_2i4r8t3.pf\
-	stack/stack_i8.pf\
-	stack/stack_nq.pf\
-	stack/stack_nh.pf\
-	stack/stack_pt.pf\
-	htable/htable_i4t2.pf\
-	htable/htable_i8.pf\
-	htable/htable_pt.pf\
-	htable/htable_r8.pf\
-	htable/htable_i4.pf\
-	htable/htable_i4t4.pf\
-	mathops/mathops.pf\
-	device_mathops/device_mathops.pf\
-	device_math/device_math_parallel.pf\
+	mesh/test_mesh_parallel.pf\
+	quad/test_quad.pf\
+	gather_scatter/test_gather_scatter_parallel.pf\
+	krylov/test_krylov.pf\
+	hex/test_hex.pf\
+	tet/test_tet.pf\
+	tri/test_tri.pf\
+	bc/test_bc.pf\
+	tuple/test_tuple.pf\
+	point/test_point.pf\
+	signal/test_signal.pf\
+	space/test_space_test.pf\
+	jobctrl/test_jobctrl_parallel.pf\
+	dofmap/test_dofmap_parallel.pf\
+	field/test_field_parallel.pf\
+	global_interpolation/test_glob_interp_par.pf\
+	mean_field/test_mean_field_parallel.pf\
+	device/test_device.pf\
+	uset/test_uset_i4.pf\
+	uset/test_uset_r8.pf\
+	uset/test_uset_i8.pf\
+	math/test_math_parallel.pf\
+	stack/test_stack_r8.pf\
+	stack/test_stack_i4t4.pf\
+	stack/test_stack_i4.pf\
+	stack/test_stack_i4t2.pf\
+	stack/test_stack_i4r8t2.pf\
+	stack/test_stack_2i4r8t3.pf\
+	stack/test_stack_i8.pf\
+	stack/test_stack_nq.pf\
+	stack/test_stack_nh.pf\
+	stack/test_stack_pt.pf\
+	htable/test_htable_i4t2.pf\
+	htable/test_htable_i8.pf\
+	htable/test_htable_pt.pf\
+	htable/test_htable_r8.pf\
+	htable/test_htable_i4.pf\
+	htable/test_htable_i4t4.pf\
+	mathops/test_mathops.pf\
+	device_mathops/test_device_mathops.pf\
+	device_math/test_device_math_parallel.pf\
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
@@ -128,9 +128,9 @@ EXTRA_DIST = \
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	device_math/device_math_test\
-	octree/octree.pf\
-	vector/vector_parallel.pf\
-	matrix/matrix_parallel.pf\
+	octree/test_octree.pf\
+	vector/test_vector_parallel.pf\
+	matrix/test_matrix_parallel.pf\
 	case_file_utils/test_case_file_utils.pf\
 	registry/test_registry.pf\
 	registry/test_field_registry.pf\
@@ -149,5 +149,11 @@ EXTRA_DIST = \
 	runge_kutta_scheme/test_runge_kutta_scheme.pf\
 	json_utils/test_json_utils.pf\
 	time_based_controller/test_time_based_controller.pf\
-	point_interpolation/point_interpolation_parallel.pf\
+	point_interpolation/test_point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test
+
+UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)
+
+.PHONY: refresh-unit-test-makefiles-local
+refresh-unit-test-makefiles-local:
+	cd $(top_builddir) && $(SHELL) ./config.status $(addprefix $(subdir)/,$(UNIT_TEST_MAKEFILES))
