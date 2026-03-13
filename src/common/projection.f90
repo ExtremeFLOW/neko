@@ -59,10 +59,10 @@
 !
 !> Project x onto X, the space of old solutions and back again
 !! @note In this code we assume that the matrix project for the
-!! pressure Ax does not vary in time.
+!! pressure Ax can vary in time if reortho_basis is used.
 module projection
   use num_types, only : rp, c_rp
-  use math, only : rzero, glsc3, add2, copy, cmult
+  use math, only : rzero, glsc3, add2, add2s2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
   use bc_list, only : bc_list_t
@@ -81,7 +81,7 @@ module projection
   use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
   use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wtime
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
        c_sizeof, C_NULL_PTR, c_loc, c_associated
   implicit none
@@ -104,6 +104,7 @@ module projection
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
      integer :: activ_step ! steps to activate projection
+     logical :: prj_reorthogonalize_basis = .false.
    contains
      procedure, pass(this) :: clear => bcknd_clear
      procedure, pass(this) :: project_on => bcknd_project_on
@@ -113,15 +114,17 @@ module projection
      procedure, pass(this) :: free => projection_free
      procedure, pass(this) :: pre_solving => projection_pre_solving
      procedure, pass(this) :: post_solving => projection_post_solving
+     procedure, pass(this) :: reortho_basis => bcknd_reorthogonalize_basis
   end type projection_t
 
 contains
 
-  subroutine projection_init(this, n, L, activ_step)
+  subroutine projection_init(this, n, L, activ_step, reorthogonalize_basis)
     class(projection_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: L
     integer, optional, intent(in) :: activ_step
+    logical, optional, intent(in) :: reorthogonalize_basis
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
@@ -135,6 +138,10 @@ contains
        this%activ_step = activ_step
     else
        this%activ_step = 5
+    end if
+
+    if (present(reorthogonalize_basis)) then
+       this%prj_reorthogonalize_basis = reorthogonalize_basis
     end if
 
     this%m = 0
@@ -231,13 +238,16 @@ contains
   end subroutine projection_free
 
   subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, &
-       string)
+       string, Ax, gs_h, bclst)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: b
     integer, intent(in) :: tstep
     class(coef_t), intent(inout) :: coef
     type(time_step_controller_t), intent(in) :: dt_controller
+    class(bc_list_t), optional, intent(inout) :: bclst
+    type(gs_t), optional, intent(inout) :: gs_h
+    class(Ax_t), optional, intent(in) :: Ax
     character(len=*), optional :: string
 
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
@@ -246,6 +256,8 @@ contains
           if (dt_controller%dt_last_change .eq. 0) then
              call this%clear(n)
           else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
+             ! Re-orthogonalize basis if requested
+             call this%reortho_basis(Ax, coef, gs_h, bclst, n)
              ! activate projection some steps after dt is changed
              ! note that dt_last_change start from 0
              call this%project_on(b, coef, n)
@@ -254,6 +266,8 @@ contains
              end if
           end if
        else
+          ! Re-orthogonalize basis if requested
+          call this%reortho_basis(Ax, coef, gs_h, bclst, n)
           call this%project_on(b, coef, n)
           if (present(string)) then
              call this%log_info(string, tstep)
@@ -341,6 +355,121 @@ contains
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
+  subroutine bcknd_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    integer, intent(in) :: n
+
+    ! return if it is not set to true in case file.
+    if (.not. this%prj_reorthogonalize_basis) return
+
+    call profiler_start_region('Project reortho basis')
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    else
+       call cpu_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    end if
+    call profiler_end_region('Project reortho basis')
+  end subroutine bcknd_reorthogonalize_basis
+
+  subroutine cpu_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    integer, intent(in) :: n
+    character(len=1000) :: msg
+
+    integer :: i, j
+    real(kind=rp) :: alpha, s, norm_fac
+    real(kind=rp) :: start_time, end_time, time
+
+    if (this%m .le. 0) return
+
+    associate(xx => this%xx, bb => this%bb)
+      start_time = MPI_WTIME()
+
+      ! Recompute B = A_new * X using the new mesh metrics
+      do i = 1, this%m
+         call Ax%compute(bb(1,i), xx(1,i), coef, coef%msh, coef%Xh)
+         call gs_h%gs_op_vector(bb(1,i), n, GS_OP_ADD)
+         call blst%apply_scalar(bb(1,i), n)
+      end do
+
+      ! Modified Gram-Schmidt
+      do i = 1, this%m
+
+         ! Orthogonalize against previous vectors
+         do j = 1, i - 1
+            alpha = glsc3(xx(1,i), bb(1,j), coef%mult, n)
+            call add2s2(xx(1,i), xx(1,j), -alpha, n)
+            call add2s2(bb(1,i), bb(1,j), -alpha, n)
+         end do
+
+         s = glsc3(xx(1,i), bb(1,i), coef%mult, n)
+         norm_fac = 1.0_rp / sqrt(s)
+         call cmult(xx(1,i), norm_fac, n)
+         call cmult(bb(1,i), norm_fac, n)
+
+      end do
+      end_time = MPI_WTIME()
+      time = end_time - start_time
+      write(msg, '(A, E15.7)') "Projection basis reorthogonalization (s):  ", time
+      call neko_log%message(trim(msg))
+    end associate
+  end subroutine cpu_reorthogonalize_basis
+
+  subroutine device_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
+    class(projection_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    class(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    integer, intent(in) :: n
+    character(len=1000) :: msg
+
+    integer :: i, j
+    real(kind=rp) :: alpha, s, norm_fac
+    real(kind=rp) :: start_time, end_time, time
+
+    if (this%m .le. 0) return
+
+    associate(xx_d => this%xx_d, bb_d => this%bb_d)
+      start_time = MPI_WTIME()
+
+      ! Recompute B = A_new * X using the new mesh metrics
+      do i = 1, this%m
+         call Ax%compute(this%bb(1,i), this%xx(1,i), coef, coef%msh, coef%Xh)
+         call gs_h%gs_op_vector(this%bb(1,i), n, GS_OP_ADD)
+         call blst%apply_scalar(this%bb(1,i), n)
+      end do
+
+      ! Modified Gram-Schmidt
+      do i = 1, this%m
+
+         ! Orthogonalize against previous vectors
+         do j = 1, i - 1
+            alpha = device_glsc3(xx_d(i), bb_d(j), coef%mult_d, n)
+            call device_add2s2(xx_d(i), xx_d(j), -alpha, n)
+            call device_add2s2(bb_d(i), bb_d(j), -alpha, n)
+         end do
+
+         s = device_glsc3(xx_d(i), bb_d(i), coef%mult_d, n)
+         norm_fac = 1.0_rp / sqrt(s)
+         call device_cmult(xx_d(i), norm_fac, n)
+         call device_cmult(bb_d(i), norm_fac, n)
+
+      end do
+      end_time = MPI_WTIME()
+      time = end_time - start_time
+      write(msg, '(A, E15.7)') "Projection basis reorthogonalization (s):  ", time
+      call neko_log%message(trim(msg))
+    end associate
+  end subroutine device_reorthogonalize_basis
 
 
   subroutine cpu_project_on(this, b, coef, n)
