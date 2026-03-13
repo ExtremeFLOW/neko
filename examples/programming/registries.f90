@@ -1,10 +1,11 @@
 ! This tutorial demonstrates how to use registries in Neko to manage fields and
 ! temporary data. It covers the following key points:
 !
-! - Registering user-defined routines using the `user_setup` subroutine.
 ! - Accessing and managing fields using the `neko_registry`:
 !   - Retrieving existing fields registered by solvers (e.g., velocity fields).
 !   - Registering new fields for use across modules or for output purposes.
+! - Registering and accessing other types of data (e.g., scalars) in the
+!   registry.
 ! - Using the `neko_scratch_registry` to manage temporary fields:
 !   - Requesting temporary fields for intermediate calculations.
 !   - Reliquishing temporary fields to free resources.
@@ -56,6 +57,11 @@ contains
     ! simulation. The field_writer looks for fields in the registry, given their
     ! names.
     call neko_registry%add_field(my_field_ptr%dof, "my_field")
+
+    ! The registry supports working with more types than fields. You can also
+    ! register `vector_t`, `matrix_t`, as well as real and integer scalars.
+    ! For example:
+    call neko_registry%add_integer_scalar(42, "meaning_of_life")
 
   end subroutine initialize
 

@@ -24,7 +24,7 @@ $$
 $$
 where \f$ u_0 \f$ is the fields value at \f$ T_0 \f$ and \f$ N \f$ is the number of time steps needed to reach \f$ T_N \f$, \f$ T_N = T_0 + \sum_{i=0}^N \Delta t_i \f$.
 
-# Fluid Statistics
+# Fluid Statistics {#fluid-statistics}
 
 In the fluid statistics in Neko, various averages of the different velocity components, derivatives and pressure are computed. In total, 44 "raw statistics" are computed that are required to compute the Reynolds stress budgets, mean fields, and the different terms in the turbulent kinetic energy equation.
 
@@ -149,7 +149,7 @@ To further postprocess the statistics it is suggested to look into PyNekTools wh
 
 
 
-# Scalar Statistics
+# Scalar Statistics {#scalar-statistics}
 
 In the scalar statistics in Neko, various averages of a given scalar and the different velocity components, derivatives and pressure are computed, in a similar fashion to the fluid statistics. In total, 42 "raw statistics" are computed that are required to compute the mean scalar transport equation, skewness and kurtosis, as well as the scalar variance budget, and turbulent scalar flux budgets. In order to compute the final budgets, some terms are required from the fluid statistics, namely the mean velocities and Reynolds stresses. The user is responsible for collecting these statistics separately using the `fluid_stats` simulation component (see [Fluid Statistics](#fluid-statistics)).
 
@@ -250,7 +250,7 @@ e_{ws} &= \frac{\partial w}{\partial x}  \frac{\partial s}{\partial x} + \frac{\
 \end{aligned}
 $$
 
-# Fluid Subgrid-Scale (SGS) Statistics
+# Fluid Subgrid-Scale (SGS) Statistics {#fluid-sgs-statistics}
 In the fluid SGS statistics in Neko, subgrid-scale (SGS) contribution to the anisotropic part of the Reynolds stresses are computed, in a similar fashion to the fluid statistics. In total, 7 statistical quantities are computed.
 
 ## Using statistics
@@ -295,11 +295,11 @@ In addition, one can specify the usual controls for the output, in the same mann
 | 6 | \f$ \langle 2 \nu_t S_{13} \rangle \f$ | Scalar 1 (s1)|
 | 7 | \f$ \langle 2 \nu_t S_{23} \rangle \f$ | Scalar 2 (s2)|
 
-# Scalar Subgrid-Scale (SGS) Statistics
-In the scalar SGS statistics in Neko, subgrid-scale (SGS) contribution to the scalar fluxes are computed, in a similar fashion to the fluid statistics. In total, 4 statical quantities are computed.
+# Scalar Subgrid-Scale (SGS) Statistics {#scalar-sgs-statistics}
+In the scalar SGS statistics in Neko, subgrid-scale (SGS) contribution to the scalar fluxes are computed, in a similar fashion to the fluid statistics. In total, 4 statistical quantities are computed.
 
 ## Using statistics
-Similar to fluid statistics, scalar SGS statistics are enabled in the case file as a simcomp with two additional argument `field` and `alphat`, where the latter is a json sub-dictionary:
+Similar to fluid statistics, scalar SGS statistics are enabled in the case file as a simcomp with two additional arguments `field` and `alphat`, where the latter is a JSON sub-dictionary:
 
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
@@ -364,6 +364,6 @@ Otherwise, if one does not use a model for the scalar eddy diffusivity but relat
 | Number | Statistic | Stored in variable (for fld files) |
 | ------ | --------- | ------------------ |
 | 1 | \f$ \langle \alpha_t \rangle \f$ | Pressure|
-| 2 | \f$ \langle \nu_t \frac{\partial s}{\partial x} \rangle \f$ | X-Velocity|
-| 3 | \f$ \langle \nu_t \frac{\partial s}{\partial y} \rangle \f$ | Y-Velocity|
-| 4 | \f$ \langle \nu_t \frac{\partial s}{\partial z} \rangle \f$ | Z-Velocity |
+| 2 | \f$ \langle \alpha_t \frac{\partial s}{\partial x} \rangle \f$ | X-Velocity|
+| 3 | \f$ \langle \alpha_t \frac{\partial s}{\partial y} \rangle \f$ | Y-Velocity|
+| 4 | \f$ \langle \alpha_t \frac{\partial s}{\partial z} \rangle \f$ | Z-Velocity |
