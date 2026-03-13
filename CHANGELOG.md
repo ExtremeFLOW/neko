@@ -5,8 +5,10 @@
 - Added optional log output from the flow_rate_force, controlled by the `log`
   parameter.
 - Increased precision of the time value in the log.
+- Improved pixi installation. Added support to create a Python environment
+  inside the pixi shell. Added support to choose real precision.
 - Add Deardorff SGS model.
-- Add the optional `expected_size` argument to `json_get_*_array` 
+- Add the optional `expected_size` argument to `json_get_*_array`
   to throw an error if the parsed array size is incorrect.
 - Fixed checkpoint JSON parameter parsing and their documentation. The
   `output_checkpoints` parameter no longer has a default value.

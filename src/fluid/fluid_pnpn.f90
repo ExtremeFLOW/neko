@@ -285,7 +285,7 @@ contains
 
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
          .false.)
-    call this%c_Xh%check_cyclic()
+    call this%c_Xh%generate_cyclic_bc()
 
     if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
@@ -370,7 +370,7 @@ contains
     call neko_log%end_section()
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
-         this%pr_projection_activ_step)
+         this%pr_projection_activ_step, this%pr_projection_reorthogonalize_basis)
 
     call this%proj_vel%init(this%dm_Xh%size(), this%vel_projection_dim, &
          this%vel_projection_activ_step)
@@ -773,9 +773,8 @@ contains
 
       call profiler_end_region('Pressure_residual', 18)
 
-
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-           'Pressure')
+           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%bclst_dp, string='Pressure')
 
       call this%pc_prs%update()
 
