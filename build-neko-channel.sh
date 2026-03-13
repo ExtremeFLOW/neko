@@ -58,8 +58,10 @@ if [ ! -f Makefile ] || [ "$BUILD_FLAG" = "--regen" ] || [ "$BUILD_FLAG" = "--cl
             LDFLAGS="-L${JSON_INSTALL}/lib -Wl,-rpath,${JSON_INSTALL}/lib" \
             FCFLAGS="-O3 -march=native -g"
     elif [ "$ENV_FLAG" = "--egidius" ]; then
+        # --disable-shared avoids libtool/PIE conflict with gfortran 14 on Debian
         ./configure --prefix="$INSTALL_PREFIX" \
-            LDFLAGS="-L${JSON_INSTALL}/lib -Wl,-rpath,${JSON_INSTALL}/lib" \
+            --disable-shared \
+            LDFLAGS="-L${JSON_INSTALL}/lib" \
             FCFLAGS="-O3 -march=native -g"
     elif [ "$ENV_FLAG" = "--cluster" ]; then
         ./configure --prefix="$INSTALL_PREFIX" \
