@@ -73,7 +73,7 @@ For more information, please refer to the documentation at https://neko.cfd
 
 ## AI policy
 
-The utility of responsible use of AI tools is recognized, but is subject to the
+The responsible use of AI tools is recognised, but it is subject to the
 following policy on acceptable and unacceptable usage.
 
 ### Acceptable usage
