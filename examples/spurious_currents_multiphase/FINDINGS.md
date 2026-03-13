@@ -1,5 +1,27 @@
 # Spurious Currents: Curvature Sign Bug and Fix
 
+## Status: Complete
+
+The curvature sign bug is fixed and verified. The CSF implementation is stable and produces
+correct Laplace pressure jumps to within 1%. This subproject is closed.
+
+**Sigma sweep results (fixed code, Dardel):**
+
+| sigma | Result | Notes |
+|-------|--------|-------|
+| 0.05 | TIMEOUT (~70k lines) | Did not reach end_time; flow stable |
+| 0.1 | TIMEOUT (~70k lines) | Did not reach end_time; flow stable |
+| 0.5 | COMPLETED | Stable, correct Δp |
+| 1.0 | COMPLETED | Stable, correct Δp; primary verification run |
+
+**Not run with fixed code:** sigma=0.01 and sigma=10.0.
+
+**Next subproject:** 3D turbulent two-phase channel flow (`eriksie/multiphase/two-phase-channel`),
+built on the validated CSF implementation from this branch.
+
+---
+
+
 ## Problem
 
 A stationary circular drop (R=0.2) simulated with the phase-field / CSF surface
@@ -46,3 +68,34 @@ Rerun on Dardel with fixed code (same parameters, t=0.3):
 
 The fixed simulation is stable with spurious velocities at machine-precision
 level.  The Laplace pressure jump matches sigma/R = 5.0 to within 1%.
+
+## Diagnostic figures
+
+Generated during the investigation; all PNGs are committed to the repo.
+
+| Figure | What it shows |
+|--------|---------------|
+| `sign_convention_diagram.png` | Sign convention: why `grad(phi)` points inward and the needed negation |
+| `results/fixed_vs_buggy_comparison.png` | Side-by-side time series of key diagnostics (buggy vs fixed) |
+| `results/fixed_vs_buggy_velocity.png` | Velocity field at final time for both runs |
+| `results/fixed_vs_buggy_phi.png` | Phase field at final time for both runs |
+| `results/fixed_vs_buggy_pressure.png` | Pressure field at final time for both runs |
+| `diagnostic_time_series.png` | κ_max, κ_min, κ_rms, \|F_ST\|_max, E_kin, φ bounds vs time (fixed code, σ=1) |
+| `pressure_laplace.png` | Pressure profile across drop at final time; Δp measured vs σ/R |
+| `phase_field_quality.png` | φ_min and φ_max vs time (no overshooting in fixed run) |
+| `curvature_boundary_vs_interior.png` | κ distribution: element boundary nodes vs interior (identifies discontinuity source) |
+| `analytical_kappa_phi_comparison.png` | Phase field with analytical κ=5.0 vs numerical κ (confirms CSF force is correct, only κ was wrong) |
+| `analytical_kappa_pressure.png` | Pressure jump with analytical κ (should match Laplace exactly) |
+| `spurious_currents_flow_field.png` | Velocity magnitude and direction relative to drop interface |
+| `Ca_star_vs_time.png` | Ca\* = μ·u_max/σ vs time (single run) |
+| `sigma_scaling_analysis.png` | Ca\*_∞ vs σ (pre-fix data; shows growth with La) |
+
+## Three-run diagnostic comparison (key evidence)
+
+Three short runs isolated the cause:
+
+1. **Numerical κ** (`spurious_diag_sigma1.0`): blows up at t≈0.25 — baseline
+2. **Analytical κ=5.0** (`spurious_diag_analytical_kappa`): stable at u_max~10⁻⁹ — proves CSF *formulation* is correct
+3. **Thicker interface ε=0.03** (`spurious_diag_thick_eps0.03`): still blows up — rules out interface resolution
+
+The analytical κ run being perfectly stable is the smoking gun: the *only* error was the curvature computation, not the force expression or the advection scheme.

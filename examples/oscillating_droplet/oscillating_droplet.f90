@@ -92,8 +92,12 @@ contains
     type(time_state_t), intent(in) :: time
 
     integer :: ntot, i
+    integer :: ind_diag(7)
     real(kind=rp) :: ekin, enst
-    type(field_t), pointer :: u, v, w
+    real(kind=rp) :: absgrad, kappa_max, kappa_min, kappa_rms, kappa_weight_sum
+    real(kind=rp) :: Fst_max, phi_min, phi_max
+    type(field_t), pointer :: u, v, w, s
+    type(field_t), pointer :: t1, t2, t3, t4, t5, t6, t7
     type(coef_t), pointer :: coef
 
 
