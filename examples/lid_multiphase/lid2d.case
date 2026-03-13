@@ -33,7 +33,9 @@
             },
             "source_terms": [
                 {
-                    "type": "user"
+                    "type": "surface_tension",
+                    "phase_field": "phase",
+                    "sigma": 0.00001
                 }
             ],
             "velocity_solver": {
@@ -86,7 +88,10 @@
             },
             "source_terms": [
                 {
-                    "type": "user"
+                    "type": "phase_field_sharpening",
+                    "scalar_field": "phase",
+                    "gamma": 0.001,
+                    "u_max": 1.0
                 }
             ],
             "boundary_conditions": [
