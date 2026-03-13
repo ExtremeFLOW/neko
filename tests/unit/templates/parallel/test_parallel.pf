@@ -6,9 +6,29 @@ module test_parallel
 
   @TestCase
   type, extends(MPITestCase) :: parallel_template_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
   end type parallel_template_case
 
 contains
+
+  subroutine setUp(this)
+    class(test_fld_file_write), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_fld_file_write), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
 
   !> Verify that the parallel test template is wired correctly.
   @test(npes=[1])
@@ -16,7 +36,6 @@ contains
     class(parallel_template_case), intent(inout) :: this
     integer :: ierr, comm_size
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
     call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
