@@ -56,7 +56,13 @@ def read_lines(path: Path) -> list[str]:
 
 
 def write_text_atomic(path: Path, content: str) -> None:
-    """Atomically replace a text file by writing through a sibling temporary file."""
+    """Atomically replace a text file by writing through a sibling temporary file.
+
+    In other words, it writes to a temporary first, so if that fails, the
+    original files are never corrupted, and the temporary just gets cleaned up.
+
+    This is probably a bit overkill-safe, but why not.
+    """
     fd, tmp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", text=True)
     tmp_path = Path(tmp_name)
     try:
@@ -80,8 +86,12 @@ def write_lines_atomic(path: Path, lines: list[str]) -> None:
 
 def insert_before_pattern(lines: list[str], pattern: str, new_line: str) -> list[str]:
     """Insert a line before the first matching anchor unless already present."""
+
+    # If the new line is already present, assume the change was made and do not insert
     if new_line in lines:
         return lines
+
+    # Otherwise, find the first line containing the pattern and insert before it.
     for index, line in enumerate(lines):
         if pattern in line:
             return lines[:index] + [new_line] + lines[index:]
@@ -96,9 +106,13 @@ def insert_before_pattern_in_block(
     new_line: str,
 ) -> list[str]:
     """Insert a line before an anchor that must appear within a specific block."""
+
+    # If the new line is already present, assume the change was made and do not insert
     if new_line in lines:
         return lines
 
+    # Go through lines, first search for the block_start, and then a line with
+    # the patter before the block_end.
     in_block = False
     for index, line in enumerate(lines):
         if block_start in line:
