@@ -1,12 +1,39 @@
 module test_serial
-contains
-!> Verify that the serial test template is wired correctly.
-@test
-subroutine test_serial_template_passes()
-  use pfunit
-  implicit none
+use pfunit
+use device, only : device_init, device_finalize
+use neko_config, only : NEKO_BCKND_DEVICE
+implicit none
 
-  @assertTrue(.true.)
-end subroutine test_serial_template_passes
+  @TestCase
+  type, extends(TestCase) :: serial_template_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type serial_template_case
+
+contains
+
+  subroutine setUp(this)
+    class(serial_template_case), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(serial_template_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Verify that the serial test template is wired correctly.
+  @test
+  subroutine test_serial_template_passes(this)
+    class(serial_template_case), intent(inout) :: this
+
+    @assertTrue(.true.)
+  end subroutine test_serial_template_passes
 
 end module test_serial

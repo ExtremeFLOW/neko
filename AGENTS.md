@@ -116,8 +116,35 @@ making decisions about how to set up a case.
     validation tests checking that important cases produce the expected output.
 
 ### Unit tests with pFUnit.
-- For pFUnit work in `tests/unit`, read `tests/unit/AGENTS.md`.
-- Also read `doc/pages/developer-guide/testing.md`.
+- A guideline for writing these tests is given in
+  `doc/pages/developer-guide/testing.md`. Make sure to read it.
+- There are fundamentally two types of tests here: those using MPI to run in
+  parallel and those that do not. They differ a bit in file naming and other
+  aspects mentioned in the `testing.md` referred to above.
+  - A prototype for a test that needs MPI is `tests/unit/field`
+  - A prototype for a test that doesn't need MPI is
+    `tests/unit/time_based_controller`.
+- Make sure you understand how to add the test to the build system, that is
+  somewhat tedious. Study `doc/pages/developer-guide/testing.md` carefully to
+  that end.
+- File/module naming: pFUnit generates a driver that calls
+   <pf_basename>_suite(), where <pf_basename> is the .pf filename without
+   extension. For a smooth link:
+   - Keep the module name inside each .pf file identical to the file’s basename
+     (e.g., test_case_file_utils.pf must declare module test_case_file_utils).
+  - If you use multiple .pf files in one suite, each file’s module name should
+    match its basename and be unique.
+- Some tests require a simple `mesh_t` to be constructed programmatically. See
+  `subroutine test_field_gen_msh` in `tests/unit/field/test_field_parallel.pf`.
+- Note that in JSON routines, the path in the file is separated by periods,
+  for example `params.value`. NOT `params/value`.
+- If the user asks you to create a new unit test, you should first prepare all
+the necessary files and add them the build system. The .pf can just be a dummy
+at this point, but make sure to make all the file and module names correct. When
+you are done, you should run `make check` in the test folder and make sure it
+compiles. If you cannot run this command yourself, you should ask the user to do
+it. Only when this succeeds should you start populating the .pf with actual
+tests.
 
 ### Integration tests with pytest
 - These tests are located under `tests/integration`.
@@ -129,5 +156,5 @@ making decisions about how to set up a case.
   give you a very good idea of how things work.
 
 ## Code review
-If asked to review code, follow instructions under 
+If asked to review code, follow instructions under
 `.github/copilot-instructions.md`.
