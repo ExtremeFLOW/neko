@@ -1,5 +1,6 @@
 var NAVTREEINDEX75 =
 {
+"db/de5/compressible__ops__compute__entropy_8cu_source.html":[3,0,3,9,0,2,0,0],
 "db/de6/interfacedevice__projection_1_1hip__project__ortho.html":[2,0,82,1],
 "db/de6/interfacedevice__projection_1_1hip__project__ortho.html":[1,0,95,1],
 "db/de6/interfacedevice__projection_1_1hip__project__ortho.html#adba275343f8e18cc2cedf5de7539de69":[1,0,95,1,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX75 =
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a4f01bfbf0a5979a60a0612e504c64489":[1,0,254,2,7],
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a54a960fa3b80c1b299dab27eb84ccfd0":[2,0,214,2,31],
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a54a960fa3b80c1b299dab27eb84ccfd0":[1,0,254,2,31],
-"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a5ae28f6ad849ef34a5b5478de34dbccb":[2,0,214,2,36],
-"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a5ae28f6ad849ef34a5b5478de34dbccb":[1,0,254,2,36]
+"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a5ae28f6ad849ef34a5b5478de34dbccb":[2,0,214,2,36]
 };

@@ -1,5 +1,6 @@
 var NAVTREEINDEX60 =
 {
+"da/d03/neko_8h.html#a52ec4c2b143fc649b038f46a996249bc":[3,0,3,1,0,22],
 "da/d03/neko_8h.html#a58c6ae08997a6052b8581bb79b993780":[3,0,3,1,0,4],
 "da/d03/neko_8h.html#a5cddd423e29a052cebe7b69360a40aff":[3,0,3,1,0,1],
 "da/d03/neko_8h.html#a6723abe8de86a489274925547af9e556":[3,0,3,1,0,19],
@@ -248,6 +249,5 @@ var NAVTREEINDEX60 =
 "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html":[2,0,143,1],
 "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html":[1,0,166,1],
 "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html#a3eeca7df5ea8cba9c56c57c4adc59e2b":[1,0,166,1,0],
-"da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html#a3eeca7df5ea8cba9c56c57c4adc59e2b":[2,0,143,1,0],
-"da/d18/structnon__normal_1_1non__normal__t.html":[1,0,234,0]
+"da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html#a3eeca7df5ea8cba9c56c57c4adc59e2b":[2,0,143,1,0]
 };

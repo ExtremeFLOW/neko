@@ -1,5 +1,6 @@
 var NAVTREEINDEX82 =
 {
+"dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a42fb975e3cffa9e29731f523d3f4abd9":[2,0,158,8,4],
 "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a454cf259ff31b824bd4508df2f8bcd5a":[2,0,158,8,17],
 "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a454cf259ff31b824bd4508df2f8bcd5a":[1,0,181,8,17],
 "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a63697bef3b3be40b71d7a244e8e99e3c":[1,0,181,8,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX82 =
 "dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681":[1,0,242,7],
 "dd/d30/namespaceoperators.html#a6bb5297cbf4fdd8e3d7c3dde97af76a6":[1,0,242,3],
 "dd/d30/namespaceoperators.html#a72021f4e313d1dac8010fbab0b3f19d7":[1,0,242,4],
-"dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991":[1,0,242,9],
-"dd/d30/namespaceoperators.html#aa6e3c203c0b2b6ff45fa2d79ce7c3045":[1,0,242,6]
+"dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991":[1,0,242,9]
 };

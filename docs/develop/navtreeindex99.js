@@ -1,5 +1,6 @@
 var NAVTREEINDEX99 =
 {
+"df/da3/structhtable_1_1htable__i8__t.html#a1cd4d4991907c91ceb848ebc9724296a":[1,0,193,7,0],
 "df/da3/structhtable_1_1htable__i8__t.html#a26d691f47f5e4d1f3d22eaaab30745c4":[2,0,169,7,3],
 "df/da3/structhtable_1_1htable__i8__t.html#a26d691f47f5e4d1f3d22eaaab30745c4":[1,0,193,7,3],
 "df/da3/structhtable_1_1htable__i8__t.html#a28e4d3a30ddf74198d3e2425e053511d":[2,0,169,7,5],
@@ -248,6 +249,5 @@ var NAVTREEINDEX99 =
 "df/db9/structregistry__entry_1_1registry__entry__t.html#a90dec98a5cbb9d9116c406164868a533":[2,0,237,0,7],
 "df/db9/structregistry__entry_1_1registry__entry__t.html#a9dabc2be541d9b4a14940aea2a64560f":[1,0,279,0,3],
 "df/db9/structregistry__entry_1_1registry__entry__t.html#a9dabc2be541d9b4a14940aea2a64560f":[2,0,237,0,3],
-"df/db9/structregistry__entry_1_1registry__entry__t.html#aa03138315e228eafce6e2a641cd3093e":[1,0,279,0,10],
-"df/db9/structregistry__entry_1_1registry__entry__t.html#aa03138315e228eafce6e2a641cd3093e":[2,0,237,0,10]
+"df/db9/structregistry__entry_1_1registry__entry__t.html#aa03138315e228eafce6e2a641cd3093e":[1,0,279,0,10]
 };

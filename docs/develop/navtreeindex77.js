@@ -1,5 +1,6 @@
 var NAVTREEINDEX77 =
 {
+"dc/d18/interfaceopencl__math_1_1opencl__add4s3.html#a27515a4eb403186503ee045f541a0c5a":[2,0,204,8,0],
 "dc/d18/interfaceopencl__math_1_1opencl__add4s3.html#a27515a4eb403186503ee045f541a0c5a":[1,0,240,8,0],
 "dc/d18/interfacepnpn__residual_1_1prs__res.html":[1,0,261,2],
 "dc/d18/interfacepnpn__residual_1_1prs__res.html":[2,0,221,2],
@@ -183,12 +184,12 @@ var NAVTREEINDEX77 =
 "dc/d39/fld__file__output_8f90.html#abe1642b00a58f02906e4da14df09cabf":[3,0,3,12,10,3],
 "dc/d39/fld__file__output_8f90_source.html":[3,0,3,12,10],
 "dc/d3c/performance.html":[0,1,13],
-"dc/d3c/performance.html#autotoc_md157":[0,1,13,0],
-"dc/d3c/performance.html#autotoc_md158":[0,1,13,0,0],
-"dc/d3c/performance.html#autotoc_md159":[0,1,13,1],
-"dc/d3c/performance.html#autotoc_md160":[0,1,13,1,0],
-"dc/d3c/performance.html#autotoc_md161":[0,1,13,1,1],
-"dc/d3c/performance.html#autotoc_md162":[0,1,13,2],
+"dc/d3c/performance.html#autotoc_md156":[0,1,13,0],
+"dc/d3c/performance.html#autotoc_md157":[0,1,13,0,0],
+"dc/d3c/performance.html#autotoc_md158":[0,1,13,1],
+"dc/d3c/performance.html#autotoc_md159":[0,1,13,1,0],
+"dc/d3c/performance.html#autotoc_md160":[0,1,13,1,1],
+"dc/d3c/performance.html#autotoc_md161":[0,1,13,2],
 "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip.html":[1,0,283,8],
 "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip.html":[2,0,241,8],
 "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip.html#a53f7d1a36dcfb4db3ce721c23e99e020":[1,0,283,8,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX77 =
 "dc/d4a/structmean__field_1_1mean__field__t.html#afa872da735673c0ee119653af74e8f0d":[1,0,221,0,7],
 "dc/d4c/deardorff_8f90.html":[3,0,3,14,1],
 "dc/d4c/deardorff_8f90.html#a60fe3bd6eeea737e18367f6d71120ce7":[3,0,3,14,1,3],
-"dc/d4c/deardorff_8f90.html#a6fb0569481e3609b17a7a9b6b0546e7d":[3,0,3,14,1,2],
-"dc/d4c/deardorff_8f90.html#a9017a40fe20a5f853ffcfb15310f07d7":[3,0,3,14,1,1]
+"dc/d4c/deardorff_8f90.html#a6fb0569481e3609b17a7a9b6b0546e7d":[3,0,3,14,1,2]
 };

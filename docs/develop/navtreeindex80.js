@@ -1,5 +1,6 @@
 var NAVTREEINDEX80 =
 {
+"dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html#ab8aa2e57ea1382416aec77d0e8cc8804":[1,0,67,44,0],
 "dc/dac/interfacemxm__wrapper_1_1mxm__blas.html":[2,0,195,0],
 "dc/dac/interfacemxm__wrapper_1_1mxm__blas.html":[1,0,225,0],
 "dc/dac/interfacemxm__wrapper_1_1mxm__blas.html#a19813660b3b07cda6b1ca89b1fa44826":[1,0,225,0,2],
@@ -248,6 +249,5 @@ var NAVTREEINDEX80 =
 "dc/de2/shear__stress_8f90.html#ae970fc218c56fa6f6c7c3d89ea77e5b6":[3,0,3,2,12,3],
 "dc/de2/shear__stress_8f90_source.html":[3,0,3,2,12],
 "dc/de5/spalding_8f90.html":[3,0,3,26,2],
-"dc/de5/spalding_8f90.html#a1ff781fffdcc88023ed9f4e7d0e0610d":[3,0,3,26,2,6],
-"dc/de5/spalding_8f90.html#a5daf5a4f1baf177fe72e68ef120a5dfd":[3,0,3,26,2,7]
+"dc/de5/spalding_8f90.html#a1ff781fffdcc88023ed9f4e7d0e0610d":[3,0,3,26,2,6]
 };

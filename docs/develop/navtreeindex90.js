@@ -1,5 +1,6 @@
 var NAVTREEINDEX90 =
 {
+"de/d19/structstack_1_1stack__nh__t.html#aae3b950607c1b2181f673fb081fa2fc0":[2,0,279,8,7],
 "de/d19/structstack_1_1stack__nh__t.html#aae3b950607c1b2181f673fb081fa2fc0":[1,0,331,8,7],
 "de/d19/structstack_1_1stack__nh__t.html#abf74235ce083ed9ac7ac65e8aa1d9bfa":[2,0,279,8,0],
 "de/d19/structstack_1_1stack__nh__t.html#abf74235ce083ed9ac7ac65e8aa1d9bfa":[1,0,331,8,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX90 =
 "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html":[2,0,300,0],
 "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a294cb6cd8c3d034ca7d79cfd4d7d4dad":[2,0,300,0,7],
 "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a294cb6cd8c3d034ca7d79cfd4d7d4dad":[1,0,355,0,7],
-"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a3132e8e62d28912ea3914519cc985670":[2,0,300,0,3],
-"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a3132e8e62d28912ea3914519cc985670":[1,0,355,0,3]
+"de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a3132e8e62d28912ea3914519cc985670":[2,0,300,0,3]
 };

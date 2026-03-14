@@ -1,5 +1,6 @@
 var NAVTREEINDEX98 =
 {
+"df/d69/namespacetri.html#ae5a2eca84151b7a0314098c53d6f336f":[1,0,358,7],
 "df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24":[1,0,358,3],
 "df/d69/source__term_8f90.html":[3,0,3,24,8],
 "df/d69/source__term_8f90.html#a0f32448da7ef4b5dfda1f30b5e515a69":[3,0,3,24,8,10],
@@ -155,15 +156,15 @@ var NAVTREEINDEX98 =
 "df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97":[2,0,247,0,0],
 "df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97":[1,0,292,0,0],
 "df/d8f/statistics-guide.html":[0,1,6],
-"df/d8f/statistics-guide.html#autotoc_md180":[0,1,6,0,0],
-"df/d8f/statistics-guide.html#autotoc_md181":[0,1,6,0,1],
-"df/d8f/statistics-guide.html#autotoc_md182":[0,1,6,1],
-"df/d8f/statistics-guide.html#autotoc_md183":[0,1,6,2,0],
-"df/d8f/statistics-guide.html#autotoc_md184":[0,1,6,2,1],
-"df/d8f/statistics-guide.html#autotoc_md185":[0,1,6,3,0],
-"df/d8f/statistics-guide.html#autotoc_md186":[0,1,6,3,1],
-"df/d8f/statistics-guide.html#autotoc_md187":[0,1,6,4,0],
-"df/d8f/statistics-guide.html#autotoc_md188":[0,1,6,4,1],
+"df/d8f/statistics-guide.html#autotoc_md179":[0,1,6,0,0],
+"df/d8f/statistics-guide.html#autotoc_md180":[0,1,6,0,1],
+"df/d8f/statistics-guide.html#autotoc_md181":[0,1,6,1],
+"df/d8f/statistics-guide.html#autotoc_md182":[0,1,6,2,0],
+"df/d8f/statistics-guide.html#autotoc_md183":[0,1,6,2,1],
+"df/d8f/statistics-guide.html#autotoc_md184":[0,1,6,3,0],
+"df/d8f/statistics-guide.html#autotoc_md185":[0,1,6,3,1],
+"df/d8f/statistics-guide.html#autotoc_md186":[0,1,6,4,0],
+"df/d8f/statistics-guide.html#autotoc_md187":[0,1,6,4,1],
 "df/d8f/statistics-guide.html#fluid-sgs-statistics":[0,1,6,3],
 "df/d8f/statistics-guide.html#fluid-statistics":[0,1,6,0],
 "df/d8f/statistics-guide.html#scalar-sgs-statistics":[0,1,6,4],
@@ -248,6 +249,5 @@ var NAVTREEINDEX98 =
 "df/da3/structhtable_1_1htable__i8__t.html":[1,0,193,7],
 "df/da3/structhtable_1_1htable__i8__t.html#a0f68fc2a7265ad9dd6beca9a4a4e8e5f":[1,0,193,7,4],
 "df/da3/structhtable_1_1htable__i8__t.html#a0f68fc2a7265ad9dd6beca9a4a4e8e5f":[2,0,169,7,4],
-"df/da3/structhtable_1_1htable__i8__t.html#a1cd4d4991907c91ceb848ebc9724296a":[2,0,169,7,0],
-"df/da3/structhtable_1_1htable__i8__t.html#a1cd4d4991907c91ceb848ebc9724296a":[1,0,193,7,0]
+"df/da3/structhtable_1_1htable__i8__t.html#a1cd4d4991907c91ceb848ebc9724296a":[2,0,169,7,0]
 };

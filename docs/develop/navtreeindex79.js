@@ -1,5 +1,6 @@
 var NAVTREEINDEX79 =
 {
+"dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a6eb90e8d12003f02f33e0ea2627a6952":[1,0,151,0,32],
 "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a7909ea480ed3b983d9af5b97d1143a53":[1,0,151,0,67],
 "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a7909ea480ed3b983d9af5b97d1143a53":[2,0,128,0,67],
 "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a7d061d4cf4ad80f49e3649d3566d0b76":[2,0,128,0,51],
@@ -248,6 +249,5 @@ var NAVTREEINDEX79 =
 "dc/daa/hip_2conv1__kernel_8h_source.html":[3,0,3,15,0,1,1,6],
 "dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html":[1,0,67,44],
 "dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html":[2,0,57,44],
-"dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html#ab8aa2e57ea1382416aec77d0e8cc8804":[2,0,57,44,0],
-"dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html#ab8aa2e57ea1382416aec77d0e8cc8804":[1,0,67,44,0]
+"dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html#ab8aa2e57ea1382416aec77d0e8cc8804":[2,0,57,44,0]
 };

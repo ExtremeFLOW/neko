@@ -1,5 +1,6 @@
 var NAVTREEINDEX84 =
 {
+"dd/d59/interfacecuda__intf_1_1cudaeventrecord.html#a637899c9af041827969e0c813392aa4a":[1,0,65,5,0],
 "dd/d59/interfaceuset_1_1uset__add.html":[1,0,366,0],
 "dd/d59/interfaceuset_1_1uset__add.html":[2,0,309,0],
 "dd/d59/interfaceuset_1_1uset__add.html#af6f1a482a0fab17bd6c1847f5e209f0f":[1,0,366,0,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX84 =
 "dd/d81/structhsmg_1_1hsmg__t.html#ad5753b567830cdbaaf739b40746ee10f":[1,0,192,0,0],
 "dd/d81/structhsmg_1_1hsmg__t.html#ada943bfd8a74b8dd70eefbb31d139be5":[2,0,168,0,7],
 "dd/d81/structhsmg_1_1hsmg__t.html#ada943bfd8a74b8dd70eefbb31d139be5":[1,0,192,0,7],
-"dd/d81/structhsmg_1_1hsmg__t.html#adbd3764771b65a161c5db71113a07b7f":[1,0,192,0,14],
-"dd/d81/structhsmg_1_1hsmg__t.html#adbd3764771b65a161c5db71113a07b7f":[2,0,168,0,14]
+"dd/d81/structhsmg_1_1hsmg__t.html#adbd3764771b65a161c5db71113a07b7f":[1,0,192,0,14]
 };

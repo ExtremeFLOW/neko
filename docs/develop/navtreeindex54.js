@@ -1,5 +1,6 @@
 var NAVTREEINDEX54 =
 {
+"d9/d05/cuda_2fusedcg__kernel_8h.html#a11b8204f669769d54d9a84cc326896d7":[3,0,3,13,0,1,0,4,0],
 "d9/d05/cuda_2fusedcg__kernel_8h.html#adf021f8c375f6f77ef105f81e78a0616":[3,0,3,13,0,1,0,4,2],
 "d9/d05/cuda_2fusedcg__kernel_8h_source.html":[3,0,3,13,0,1,0,4],
 "d9/d08/interfacepnpn__res__device_1_1pnpn__prs__res__part1__hip.html":[1,0,257,1],
@@ -248,6 +249,5 @@ var NAVTREEINDEX54 =
 "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#a90f949a1ec148b9d9860ce56f059e339":[2,0,134,0,24],
 "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#aa3f8befab8cb3ceda114073949cc1ddd":[2,0,134,0,8],
 "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#aa3f8befab8cb3ceda114073949cc1ddd":[1,0,157,0,8],
-"d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#aa8dcf85e8434b7527a1ceb0286d55dfc":[2,0,134,0,14],
-"d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#aa8dcf85e8434b7527a1ceb0286d55dfc":[1,0,157,0,14]
+"d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#aa8dcf85e8434b7527a1ceb0286d55dfc":[2,0,134,0,14]
 };

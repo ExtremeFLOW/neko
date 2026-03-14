@@ -1,5 +1,6 @@
 var NAVTREEINDEX100 =
 {
+"df/db9/structregistry__entry_1_1registry__entry__t.html#aa03138315e228eafce6e2a641cd3093e":[2,0,237,0,10],
 "df/db9/structregistry__entry_1_1registry__entry__t.html#abc138cefef4c5701d49f60a0b3f9443d":[2,0,237,0,0],
 "df/db9/structregistry__entry_1_1registry__entry__t.html#abc138cefef4c5701d49f60a0b3f9443d":[1,0,279,0,0],
 "df/db9/structregistry__entry_1_1registry__entry__t.html#abc2d02f3c77524d53ca489175b97caf7":[1,0,279,0,16],
@@ -248,6 +249,5 @@ var NAVTREEINDEX100 =
 "df/dec/namespacetuple.html#a701afcf155ab96cecdb6d98a05c79aec":[1,0,360,25],
 "df/dec/namespacetuple.html#a78eeeb9e9593cd5405b31618b8615bfe":[1,0,360,24],
 "df/dec/namespacetuple.html#a7dc79e544c8b17daf837a0a87ba971a0":[1,0,360,26],
-"df/dec/namespacetuple.html#a8457b98dd189ee086551daf3c6ba3660":[1,0,360,20],
-"df/dec/namespacetuple.html#a99e25051bf65920f6081468a855afee7":[1,0,360,22]
+"df/dec/namespacetuple.html#a8457b98dd189ee086551daf3c6ba3660":[1,0,360,20]
 };

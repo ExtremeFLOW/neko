@@ -1,5 +1,6 @@
 var NAVTREEINDEX55 =
 {
+"d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#aa8dcf85e8434b7527a1ceb0286d55dfc":[1,0,157,0,14],
 "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#ab1205fc30f31e08a11762932836ff83b":[1,0,157,0,1],
 "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#ab1205fc30f31e08a11762932836ff83b":[2,0,134,0,1],
 "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#ab93c3ffb73c426561acc4fff65204540":[1,0,157,0,13],
@@ -248,6 +249,5 @@ var NAVTREEINDEX55 =
 "d9/d6a/interfacecuda__math_1_1cuda__sub3.html":[2,0,57,49],
 "d9/d6a/interfacecuda__math_1_1cuda__sub3.html":[1,0,67,49],
 "d9/d6a/interfacecuda__math_1_1cuda__sub3.html#af6c285260d69601943d564b285a46ea4":[2,0,57,49,0],
-"d9/d6a/interfacecuda__math_1_1cuda__sub3.html#af6c285260d69601943d564b285a46ea4":[1,0,67,49,0],
-"d9/d73/interfacehip__math_1_1hip__rzero.html":[1,0,191,47]
+"d9/d6a/interfacecuda__math_1_1cuda__sub3.html#af6c285260d69601943d564b285a46ea4":[1,0,67,49,0]
 };

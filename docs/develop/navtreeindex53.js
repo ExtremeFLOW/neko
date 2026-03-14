@@ -1,5 +1,6 @@
 var NAVTREEINDEX53 =
 {
+"d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#ab5adb59b85c80011eb8d52315cdea540":[1,0,90,1,9],
 "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#ae6ea581c8cca65e3c14b941e1ac9a17b":[2,0,77,1,2],
 "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#ae6ea581c8cca65e3c14b941e1ac9a17b":[1,0,90,1,2],
 "d8/dcc/interfacepnpn__res__stress__device_1_1pnpn__prs__stress__res__part3__hip.html":[2,0,219,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX53 =
 "d9/d00/namespacetree__amg__utils.html#aa0f1729496ec65a6cec511e1891b73a3":[1,0,357,1],
 "d9/d00/namespacetree__amg__utils.html#ab3554a3d792b5f55a119959c685e3d61":[1,0,357,3],
 "d9/d05/cuda_2fusedcg__kernel_8h.html":[3,0,3,13,0,1,0,4],
-"d9/d05/cuda_2fusedcg__kernel_8h.html#a11412f070fecd1f34ae9f908e2bbd02d":[3,0,3,13,0,1,0,4,1],
-"d9/d05/cuda_2fusedcg__kernel_8h.html#a11b8204f669769d54d9a84cc326896d7":[3,0,3,13,0,1,0,4,0]
+"d9/d05/cuda_2fusedcg__kernel_8h.html#a11412f070fecd1f34ae9f908e2bbd02d":[3,0,3,13,0,1,0,4,1]
 };

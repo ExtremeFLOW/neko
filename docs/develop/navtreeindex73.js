@@ -1,5 +1,6 @@
 var NAVTREEINDEX73 =
 {
+"db/da5/gradient__jump__penalty_8f90.html#a7823cfe996241912364520378aceafbf":[3,0,3,24,7,5],
 "db/da5/gradient__jump__penalty_8f90.html#aac2ae978ff3697d7d659b265b67e421a":[3,0,3,24,7,2],
 "db/da5/gradient__jump__penalty_8f90.html#ac7f5cc4d7cf69c8b34827bdb838e0858":[3,0,3,24,7,13],
 "db/da5/gradient__jump__penalty_8f90.html#acc186b4da8a34f4b181779fcba34395a":[3,0,3,24,7,11],
@@ -248,6 +249,5 @@ var NAVTREEINDEX73 =
 "db/dd5/structtet_1_1tet__t.html#aa6f2c9363028bfb6d63ef1286dd6f755":[1,0,345,0,5],
 "db/dd5/structtet_1_1tet__t.html#abd6e74e6fc4a7b5916071b019ae3ec06":[1,0,345,0,13],
 "db/dd5/structtet_1_1tet__t.html#abd6e74e6fc4a7b5916071b019ae3ec06":[2,0,290,0,13],
-"db/dd5/structtet_1_1tet__t.html#abfa5b44220ec563e5eff1a844b6edbe8":[1,0,345,0,25],
-"db/dd5/structtet_1_1tet__t.html#abfa5b44220ec563e5eff1a844b6edbe8":[2,0,290,0,25]
+"db/dd5/structtet_1_1tet__t.html#abfa5b44220ec563e5eff1a844b6edbe8":[1,0,345,0,25]
 };
