@@ -133,7 +133,12 @@ def replace_all(path: Path, replacements: list[tuple[str, str]]) -> None:
 
 
 def remove_build_artifacts(test_dir: Path) -> None:
-    """Drop copied build products so a new test starts from a clean template."""
+    """Drop copied build products so a new test starts from a clean template.
+
+    This is run after copying the template directory to create the new test,
+    so that the new directory is free of build products in the case when
+    the template test was compiled before.
+    """
     patterns = (
         "Makefile",
         "*.o",
@@ -165,27 +170,34 @@ def suite_is_parallel(makefile_lines: list[str]) -> bool:
     return any(line.strip() == "USEMPI=YES" for line in makefile_lines)
 
 
-def pf_template_content(pf_stem: str, is_parallel: bool) -> str:
-    """Render the default .pf scaffold for a new file in a suite.
+def patch_template_pf(path: Path, test_name: str, is_parallel: bool) -> None:
+    """Patch a copied template .pf file to match the requested test name."""
+    if is_parallel:
+        replace_all(
+            path,
+            [
+                ("module test_parallel", f"module test_{test_name}"),
+                ("end module test_parallel", f"end module test_{test_name}"),
+                (
+                    "type, extends(MPITestCase) :: parallel_template_case",
+                    f"type, extends(MPITestCase) :: test_{test_name}_case",
+                ),
+                ("end type parallel_template_case", f"end type test_{test_name}_case"),
+                ("test_parallel_template_passes", "test_template_passes"),
+                ("class(parallel_template_case)", f"class(test_{test_name}_case)"),
+            ],
+        )
+        return
 
-    The generated file intentionally stays minimal, even for MPI suites. The
-    runner and Makefile decide how the suite executes; the placeholder test only
-    needs a correctly named module and one trivial test routine.
-    """
-    module_name = f"test_{pf_stem}"
-    return f"""module {module_name}
-contains
-!> Verify that the generated test file is wired correctly.
-@test
-subroutine test_template_passes()
-  use pfunit
-  implicit none
-
-  @assertTrue(.true.)
-end subroutine test_template_passes
-
-end module {module_name}
-"""
+    replace_all(
+        path,
+        [
+            ("module test_serial", f"module test_{test_name}"),
+            ("end module test_serial", f"end module test_{test_name}"),
+            ("test_serial_template_passes", "test_template_passes"),
+            ("serial_template_case", f"test_{test_name}_case"),
+        ],
+    )
 
 
 def rename_template_files(test_dir: Path, test_name: str, is_parallel: bool) -> tuple[str, str]:
@@ -209,20 +221,7 @@ def rename_template_files(test_dir: Path, test_name: str, is_parallel: bool) -> 
             test_dir / test_program,
             [("./templates/parallel/parallel_suite", f"./{test_name}/{suite_program}")],
         )
-        replace_all(
-            test_dir / pf_file,
-            [
-                ("module test_parallel", f"module test_{test_name}"),
-                ("end module test_parallel", f"end module test_{test_name}"),
-                (
-                    "type, extends(MPITestCase) :: parallel_template_case",
-                    f"type, extends(MPITestCase) :: test_{test_name}_case",
-                ),
-                ("end type parallel_template_case", f"end type test_{test_name}_case"),
-                ("test_parallel_template_passes", "test_template_passes"),
-                ("class(parallel_template_case)", f"class(test_{test_name}_case)"),
-            ],
-        )
+        patch_template_pf(test_dir / pf_file, test_name, is_parallel=True)
         return test_program, suite_program
 
     (test_dir / "test_serial.pf").rename(test_dir / pf_file)
@@ -233,14 +232,7 @@ def rename_template_files(test_dir: Path, test_name: str, is_parallel: bool) -> 
             ("test_serial.pf", pf_file),
         ],
     )
-    replace_all(
-        test_dir / pf_file,
-        [
-            ("module test_serial", f"module test_{test_name}"),
-            ("end module test_serial", f"end module test_{test_name}"),
-            ("test_serial_template_passes", "test_template_passes"),
-        ],
-    )
+    patch_template_pf(test_dir / pf_file, test_name, is_parallel=False)
     return test_program, test_program
 
 
@@ -311,17 +303,28 @@ def create_suite(test_name: str, is_parallel: bool) -> None:
     modified_files: dict[Path, str] = {}
 
     try:
-        # Build the new suite in a temporary directory so failures do not leave a
-        # partially-created test tree behind.
+
+        # Copy template to a temporary directory
         shutil.copytree(template_dir, temp_test_dir)
+
+        # Remove all build artifacts potentially  present
         remove_build_artifacts(temp_test_dir)
+
+        # Rename the template files and patch their contents
         test_program, suite_or_binary = rename_template_files(
             temp_test_dir, test_name, is_parallel
         )
 
+
+        #
+        # Start patching files, everything is done in memory first
+        #
+
+        # Patch the Makefile.am under tests/unit
         makefile_am = unit_dir / "Makefile.am"
         makefile_am_original = makefile_am.read_text(encoding="utf-8")
         makefile_am_lines = makefile_am_original.splitlines(keepends=True)
+
         makefile_am_lines = insert_before_pattern_in_block(
             makefile_am_lines,
             "SUBDIRS =",
@@ -329,6 +332,9 @@ def create_suite(test_name: str, is_parallel: bool) -> None:
             "templates/serial",
             f"\t  {test_name}\\\n",
         )
+
+        # A little shaky because relies on a comment in the Makefile,
+        # maybe change this later.
         makefile_am_lines = insert_before_pattern_in_block(
             makefile_am_lines,
             "TESTS =",
@@ -358,6 +364,7 @@ def create_suite(test_name: str, is_parallel: bool) -> None:
                 f"\t{test_name}/{test_program}\\\n",
             )
 
+        # Patch configure.ac
         configure_ac = repo_root / "configure.ac"
         configure_original = configure_ac.read_text(encoding="utf-8")
         configure_lines = configure_original.splitlines(keepends=True)
@@ -367,6 +374,7 @@ def create_suite(test_name: str, is_parallel: bool) -> None:
             f"        tests/unit/{test_name}/Makefile\\\n",
         )
 
+        # Patch gitignore
         gitignore = unit_dir / ".gitignore"
         gitignore_original = gitignore.read_text(encoding="utf-8")
         gitignore_lines = gitignore_original.splitlines(keepends=True)
@@ -384,8 +392,8 @@ def create_suite(test_name: str, is_parallel: bool) -> None:
             gitignore: gitignore_original,
         }
 
-        # Commit tracked-file updates atomically before moving the generated test
-        # directory into place.
+        # Write the files that are just lines in memory to their final location
+        # via a temporary
         write_lines_atomic(makefile_am, makefile_am_lines)
         write_lines_atomic(configure_ac, configure_lines)
         write_lines_atomic(gitignore, gitignore_lines)
@@ -426,10 +434,12 @@ def add_file_to_suite(suite_name: str, pf_name: str) -> None:
     is_parallel = suite_is_parallel(makefile_lines)
     makefile_am_original = makefile_am.read_text(encoding="utf-8")
     makefile_in_original = makefile_in.read_text(encoding="utf-8")
-
-    new_pf_content = pf_template_content(pf_name, is_parallel)
     makefile_am_lines = makefile_am_original.splitlines(keepends=True)
     extra_dist_line = f"\t{suite_name}/{pf_file}\\\n"
+    template_dir = unit_dir / "templates" / ("parallel" if is_parallel else "serial")
+    template_pf = template_dir / ("test_parallel.pf" if is_parallel else "test_serial.pf")
+    if not template_pf.is_file():
+        die(f"missing template file: {template_pf}")
 
     modified_files = {
         makefile_in: makefile_in_original,
@@ -439,7 +449,8 @@ def add_file_to_suite(suite_name: str, pf_name: str) -> None:
     try:
         # Write the new file first, then update the two tracked build files. If
         # anything fails, roll all three changes back together.
-        write_text_atomic(pf_path, new_pf_content)
+        shutil.copy2(template_pf, pf_path)
+        patch_template_pf(pf_path, pf_name, is_parallel)
         updated_makefile_lines = add_pf_to_suite_makefile(makefile_lines, pf_file)
         updated_makefile_am_lines = insert_before_pattern_in_block(
             makefile_am_lines,
