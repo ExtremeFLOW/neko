@@ -2029,7 +2029,7 @@ contains
     nelv = mask%size()/lxyz
     call other%init(this%gdim, nelv)
 
-    ! Assing the elements
+    ! Assign the elements
     if (other%gdim .eq. 2) then
        call neko_error("Subset mesh not implemented for 2d")
     else if (other%gdim .eq. 3) then
