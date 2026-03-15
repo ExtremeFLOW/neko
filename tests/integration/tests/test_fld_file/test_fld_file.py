@@ -35,17 +35,26 @@ def expected_rdcode_list(n_items, skip_pressure, skip_temperature, skip_velocity
     codes = ["X"]
     idx = 1
 
-    if not skip_pressure and idx <= n_items:
-        codes.append("P")
+    write_pressure = not skip_pressure and idx <= n_items
+    if write_pressure:
         idx += 1
 
-    if not skip_velocity and idx + 2 <= n_items:
-        codes.append("U")
+    write_velocity = not skip_velocity and idx + 2 <= n_items
+    if write_velocity:
         idx += 3
 
-    if not skip_temperature and idx <= n_items:
-        codes.append("T")
+    write_temperature = not skip_temperature and idx <= n_items
+    if write_temperature:
         idx += 1
+
+    if write_velocity:
+        codes.append("U")
+
+    if write_pressure:
+        codes.append("P")
+
+    if write_temperature:
+        codes.append("T")
 
     if idx <= n_items:
         n_scalars = n_items - idx + 1
