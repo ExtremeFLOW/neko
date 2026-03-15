@@ -1,7 +1,7 @@
 # Changelog
 
 ## Develop
-- Add possibility to create mesh and dofmap objects from masked entries.d
+- Add possibility to create mesh and dofmap objects from masked entries.
 - Added code review instructions for LLMs in a copilot-friendly location.
 - Improved pixi installation. Added support to create a Python environment
   inside the pixi shell. Added support to choose real precision.
