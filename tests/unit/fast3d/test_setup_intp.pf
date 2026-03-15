@@ -1,6 +1,8 @@
+module test_setup_intp
+contains
 !> Normal interpolation from space with 2 points to 4
 @test
-subroutine test_setup_intp()
+subroutine test_setup_intp_basic()
   use pfunit
   use fast3d, only : setup_intp
   use num_types, only : rp
@@ -45,7 +47,7 @@ subroutine test_setup_intp()
   @assertEqual(Xh_to_Yh(3, 2), Xh_to_YhT(2, 3))
   @assertEqual(Xh_to_Yh(4, 1), Xh_to_YhT(1, 4))
   @assertEqual(Xh_to_Yh(4, 2), Xh_to_YhT(2, 4))
-end subroutine test_setup_intp
+end subroutine test_setup_intp_basic
 
 !> Use a single point in the "from" space, expecting weight 1
 @test
@@ -93,3 +95,4 @@ subroutine test_setup_intp_single_n_from()
   @assertEqual(Xh_to_Yh(3, 1), 0.0_rp)
   @assertEqual(Xh_to_Yh(4, 1), 0.0_rp)
 end subroutine test_setup_intp_single_n_from
+end module test_setup_intp

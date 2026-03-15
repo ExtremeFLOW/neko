@@ -13,6 +13,7 @@ check: case_file_utils_test
 case_file_utils_test_TESTS := test_case_file_utils.pf
 case_file_utils_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,case_file_utils_test))
+case_file_utils_test.inc: Makefile
 
 distclean:
 clean:
