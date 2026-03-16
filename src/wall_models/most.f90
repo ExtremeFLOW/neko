@@ -103,7 +103,7 @@ contains
 
     call json_get_or_default(json, "kappa", kappa, 0.41_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
-    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp)  ! if z0h not specified, assign negative value (tmp)
+    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp) ! if z0h not specified, assign negative value (tmp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "temp_bc_value", bc_value)
 
@@ -200,7 +200,7 @@ contains
     temp => neko_registry%get_field("temperature")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
+       call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
             this%ind_s_d, this%ind_t_d, this%ind_e_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
@@ -208,7 +208,7 @@ contains
             this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep)
     else
-        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
+       call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
