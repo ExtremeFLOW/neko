@@ -1,3 +1,5 @@
+module test_fd_weights_full
+contains
  @test
  subroutine test_linear_midpoint()
    use pfunit
@@ -45,3 +47,5 @@ end subroutine test_linear_midpoint
    @assertEqual(c(1, 1), 0.0_rp)
    @assertEqual(c(2, 1), 1.0_rp)
 end subroutine test_central_difference
+
+end module test_fd_weights_full
