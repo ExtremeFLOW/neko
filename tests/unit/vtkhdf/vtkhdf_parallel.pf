@@ -32,6 +32,11 @@ contains
 
   subroutine setUp(this)
     class(test_vtkhdf), intent(inout) :: this
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
@@ -40,8 +45,7 @@ contains
   subroutine tearDown(this)
     class(test_vtkhdf), intent(inout) :: this
     logical :: exists
-    integer :: unit, pe_rank
-    pe_rank = this%getProcessRank()
+    integer :: unit
 
     inquire(file='test_write.vtkhdf', exist=exists)
     if (exists .and. pe_rank .eq. 0) then
@@ -410,11 +414,6 @@ contains
     integer, parameter :: EXP_TOTAL_OFFSETS = 110
     integer, parameter :: EXP_NUM_PARTS = 2
     integer, parameter :: EXP_NUM_STEPS = 2
-
-    ! Prepare the environment for the test
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     ! Create the test mesh and field
     call test_vtkhdf_gen_msh(msh)

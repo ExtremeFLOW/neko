@@ -154,7 +154,7 @@ EXTRA_DIST = \
 
 if ENABLE_HDF5
 SUBDIRS += vtkhdf
-TESTS += vtkhdf/vtkhdf_parallel.pf
+TESTS += vtkhdf/vtkhdf_test
 EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf
 endif
 

@@ -3,7 +3,7 @@
 ## Develop
 
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
-  Simple restarts are supported with fixed mesh and mpi configuration. 
+  Simple restarts are supported with fixed mesh and MPI configuration. 
   The VTKHDF output format is still experimental and will change in the future.
 - Added code review instructions for LLMs in a copilot-friendly location.
 - Improved pixi installation. Added support to create a Python environment
