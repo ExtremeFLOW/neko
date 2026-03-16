@@ -367,3 +367,20 @@ Otherwise, if one does not use a model for the scalar eddy diffusivity but relat
 | 2 | \f$ \langle \alpha_t \frac{\partial s}{\partial x} \rangle \f$ | X-Velocity|
 | 3 | \f$ \langle \alpha_t \frac{\partial s}{\partial y} \rangle \f$ | Y-Velocity|
 | 4 | \f$ \langle \alpha_t \frac{\partial s}{\partial z} \rangle \f$ | Z-Velocity |
+
+
+# Known issues {#known-issues}
+There are at least two known issues that is worth keeping in mind when working with the statistics component in Neko: 
+1. if one computes statistics from time 0 (`"start_time": 0.0`), the first entry in the `stats0` file will be zero-filled (both for scalar and fluid statistics). \
+This means that one should discard the first $N$ rows of the `.csv` file, where $N$ is the number of elements in the non-averaged direction. \
+This also means that the initial conditions _do not_ appear in the `stats0` file. \
+This issue has been discussed more in detail in [#2378](https://github.com/ExtremeFLOW/neko/issues/2378). A possible workaround is to simply ignore the first $N$ rows of the file when checking the results, or to use a `"start_time"` slightly higher than `0.0`.
+
+2. when `"end_time"` is an exact multiple of `"output_value"` (e.g. `"end_time": 1000.0`, `"output_value": 100.0`), the resulting `.csv` file has the last timestep repeated twice, with the second one having zeros everywhere (both for fluid and scalar statistics). \
+This means the last $N$ rows of the file should be discarded. The issue only appears when `"output_at_end"` is turned on. \
+This issue has been discussed more in detail in [#2278](https://github.com/ExtremeFLOW/neko/issues/2278). The obvious workaround is to turn off `"output_at_end"`; alternatively, one can set `"end_time"` as a non-multiple of `"output_value"` (e.g. `"end_time": 1001.0`, `"output_value": 100.0`).
+
+Both these issues are relatively easy to avoid or work around, but can silently mess up the postprocessing of a simulation for the unaware user.
+
+
+
