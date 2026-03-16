@@ -5,18 +5,19 @@
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
   Simple restarts are supported with fixed mesh and MPI configuration. 
   The VTKHDF output format is still experimental and will change in the future.
+- Added templates for serial and parallel unit tests.
 - Added code review instructions for LLMs in a copilot-friendly location.
 - Improved pixi installation. Added support to create a Python environment
   inside the pixi shell. Added support to choose real precision.
-- Add Deardorff SGS model.
-- Add the optional `expected_size` argument to `json_get_*_array` 
+- Added the Deardorff SGS model.
+- Added the optional `expected_size` argument to `json_get_*_array`
   to throw an error if the parsed array size is incorrect.
 - Fixed checkpoint JSON parameter parsing and their documentation. The
   `output_checkpoints` parameter no longer has a default value.
-- Add runtime statistics for subgrid-scale contribution to the anisotropic part
+- Added runtime statistics for subgrid-scale contribution to the anisotropic part
   of the residual stresses.
 - Introduced `import_fields`: a subroutine to read and import fld data,
-  with interpolation capabilities. 
+  with interpolation capabilities.
 - Added `vector_list_t` and `name` to `vector_t`.
 - Rework hash table iterators, significantly faster (O(tsize) => O(entries)
 - Remove redundant directory in `site-packages` when installing pyneko
