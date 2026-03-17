@@ -80,8 +80,8 @@ module file
      procedure :: set_layout => file_set_layout
      !> Sets the file's overwrite flag.
      procedure, pass (this) :: set_overwrite => file_set_overwrite
-     !> Enable or disable Lagrange element output.
-     procedure :: set_lagrange => file_set_lagrange
+     !> Enable or disable subdivision of spectral elements.
+     procedure :: set_subdivide => file_set_subdivide
      !> File operation destructor.
      procedure, pass(this) :: free => file_free
   end type file_t
@@ -319,22 +319,22 @@ contains
     end select
   end subroutine file_set_overwrite
 
-  !> Enable or disable Lagrange element output.
+  !> Enable or disable subdivision of spectral elements into linear sub-cells.
   !! Only has effect for VTKHDF files; warns for other formats.
-  !! @param lagrange Whether to enable Lagrange output.
-  subroutine file_set_lagrange(this, lagrange)
+  !! @param subdivide Whether to subdivide into linear sub-cells.
+  subroutine file_set_subdivide(this, subdivide)
     class(file_t), intent(inout) :: this
-    logical, intent(in) :: lagrange
+    logical, intent(in) :: subdivide
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
     type is (vtkhdf_file_t)
-       call ft%set_lagrange(lagrange)
+       call ft%set_subdivide(subdivide)
     class default
        call filename_suffix(this%file_type%get_fname(), suffix)
-       call neko_warning("Lagrange output not supported for " // &
+       call neko_warning("Subdivide output not supported for " // &
             trim(suffix) // " files")
     end select
-  end subroutine file_set_lagrange
+  end subroutine file_set_subdivide
 
 end module file

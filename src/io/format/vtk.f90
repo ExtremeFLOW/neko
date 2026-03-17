@@ -29,8 +29,13 @@
 ! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
-!
+
 !> VTK Module containing utilities for VTK file handling
+!!
+!! References:
+!! - https://vtk.org/doc/nightly/html/vtkCellType_8h_source.html
+!! - https://scicomp.stackexchange.com/questions/42092/vtk-arbitrary-order-lagrange-elements-node-positions-ordering-on-reference-tri
+!! - https://www.kitware.com/modeling-arbitrary-order-lagrange-finite-elements-in-the-visualization-toolkit/#:%7E:text=The%20new%20cells%20in%20VTK,may%20vary%20in%20Lagrange%20cells.
 module vtk
   use utils, only: linear_index, neko_error
   implicit none

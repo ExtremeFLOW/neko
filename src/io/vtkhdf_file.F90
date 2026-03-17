@@ -58,7 +58,7 @@ module vtkhdf_file
   !> Interface for HDF5 files
   type, public, extends(generic_file_t) :: vtkhdf_file_t
      logical :: amr_enabled = .false.
-     logical :: lagrange = .false.
+     logical :: subdivide = .false.
      integer :: precision = 0
    contains
      procedure :: get_vtkhdf_fname => vtkhdf_file_get_fname
@@ -67,7 +67,7 @@ module vtkhdf_file
      procedure :: set_overwrite => vtkhdf_file_set_overwrite
      procedure :: enable_amr => vtkhdf_file_enable_amr
      procedure :: set_precision => vtkhdf_file_set_precision
-     procedure :: set_lagrange => vtkhdf_file_set_lagrange
+     procedure :: set_subdivide => vtkhdf_file_set_subdivide
   end type vtkhdf_file_t
 
   integer, dimension(2), parameter :: vtkhdf_version = [2, 6]
@@ -112,16 +112,16 @@ contains
 
   end function vtkhdf_file_get_fname
 
-  !> Enable or disable high-order Lagrange element output.
-  !! When enabled, each spectral element is written as a single
-  !! VTK_LAGRANGE_HEXAHEDRON (type 72) or VTK_LAGRANGE_QUADRILATERAL
-  !! (type 70) cell instead of being subdivided into linear sub-cells.
-  !! @param lagrange Whether to enable Lagrange element output.
-  subroutine vtkhdf_file_set_lagrange(this, lagrange)
+  !> Enable or disable subdivision of spectral elements into linear sub-cells.
+  !! When subdivision is enabled, each spectral element is written as multiple
+  !! linear VTK cells (VTK_HEXAHEDRON in 3D, VTK_QUAD in 2D) with connectivity
+  !! corresponding to the tensor-product grid of the spectral element.
+  !! @param subdivide Whether to subdivide into linear sub-cells.
+  subroutine vtkhdf_file_set_subdivide(this, subdivide)
     class(vtkhdf_file_t), intent(inout) :: this
-    logical, intent(in) :: lagrange
-    this%lagrange = lagrange
-  end subroutine vtkhdf_file_set_lagrange
+    logical, intent(in) :: subdivide
+    this%subdivide = subdivide
+  end subroutine vtkhdf_file_set_subdivide
 
 #ifdef HAVE_HDF5
   ! -------------------------------------------------------------------------- !
@@ -148,7 +148,7 @@ contains
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16) :: type_str
-    logical :: link_exists, file_exists, subdivide
+    logical :: link_exists, file_exists
     integer(kind=1) :: VTK_cell_type
     integer :: counter
 
@@ -190,8 +190,6 @@ contains
     else if (this%precision .eq. 0) then
        this%precision = rp
     end if
-
-    subdivide = .not. this%lagrange
 
     call this%increment_counter()
     fname = trim(this%get_vtkhdf_fname())
@@ -252,7 +250,7 @@ contains
 
     if (associated(msh)) then
        call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, &
-            this%amr_enabled, counter, subdivide, t)
+            this%amr_enabled, counter, this%subdivide, t)
     end if
 
     ! Write field data in PointData group
