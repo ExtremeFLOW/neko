@@ -59,7 +59,6 @@ module phmg
        glb_cmd_event
   use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
        device_add2s2, device_invcol2, device_glsc2, device_col2
-  use profiler, only : profiler_start_region, profiler_end_region
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
@@ -105,6 +104,7 @@ module phmg
      procedure, pass(this) :: free => phmg_free
      procedure, pass(this) :: solve => phmg_solve
      procedure, pass(this) :: update => phmg_update
+     procedure, private, pass(this) :: mg_cycle => phmg_mg_cycle
   end type phmg_t
 
 contains
@@ -310,18 +310,17 @@ contains
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: ksp_results
 
-
     associate( mglvl => this%phmg_hrchy%lvl)
       if (NEKO_BCKND_DEVICE .eq. 1) then
          z_d = device_get_ptr(z)
          r_d = device_get_ptr(r)
          !We should not work with the input
          call device_copy(mglvl(0)%r%x_d, r_d, n)
+
          call device_rzero(mglvl(0)%z%x_d, n)
          call device_rzero(mglvl(0)%w%x_d, n)
-         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, &
-              this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
-              this%amg_solver)
+
+         call this%mg_cycle()
 
          call device_copy(z_d, mglvl(0)%z%x_d, n)
       else
@@ -331,9 +330,7 @@ contains
          mglvl(0)%z%x = 0.0_rp
          mglvl(0)%w%x = 0.0_rp
 
-         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, &
-              this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
-              this%amg_solver)
+         call this%mg_cycle()
 
          call copy(z, mglvl(0)%z%x, n)
       end if
@@ -346,148 +343,123 @@ contains
   end subroutine phmg_update
 
 
-  recursive subroutine phmg_mg_cycle(z, r, w, lvl, clvl, &
-       mg, intrp, msh, Ax, amg_solver)
+  subroutine phmg_mg_cycle(this)
+    class(phmg_t), intent(inout) :: this
     type(ksp_monitor_t) :: ksp_results
-    integer :: lvl, clvl
-    type(phmg_lvl_t) :: mg(0:clvl)
-    type(interpolator_t) :: intrp(1:clvl)
-    type(tamg_solver_t), intent(inout) :: amg_solver
-    class(ax_t), intent(inout) :: Ax
-    type(mesh_t), intent(inout) :: msh
-    type(field_t) :: z, r, w
-    integer :: i
-    logical :: use_jacobi
-    real(kind=rp) :: val
+    integer :: lvl
 
-    use_jacobi = .false.
-    call profiler_start_region('PHMG_cycle', 8)
-    !>----------<!
-    !> SMOOTH   <!
-    !>----------<!
-    call profiler_start_region('PHMG_PreSmooth', 9)
-    if (use_jacobi) then
-       call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, &
-            mg(lvl)%dm_Xh%size(), lvl)
-    else
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          mg(lvl)%cheby_device%zero_initial_guess = .true.
-          ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
-               r%x, mg(lvl)%dm_Xh%size(), &
-               mg(lvl)%coef, mg(lvl)%bclst, &
-               mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
-       else
-          mg(lvl)%cheby%zero_initial_guess = .true.
-          ksp_results = mg(lvl)%cheby%solve(Ax, z, &
-               r%x, mg(lvl)%dm_Xh%size(), &
-               mg(lvl)%coef, mg(lvl)%bclst, &
-               mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
-       end if
-    end if
-    call profiler_end_region('PHMG_PreSmooth', 9)
+    associate(mg => this%phmg_hrchy%lvl, intrp => this%intrp, &
+        msh => this%msh, Ax => this%Ax)
+       do lvl = 0, this%nlvls-2
+          associate(z => mg(lvl)%z, r => mg(lvl)%r, w => mg(lvl)%w)
+             !------------!
+             !   SMOOTH   !
+             !------------!
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                mg(lvl)%cheby_device%zero_initial_guess = .true.
+                ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
+                     r%x, mg(lvl)%dm_Xh%size(), &
+                     mg(lvl)%coef, mg(lvl)%bclst, &
+                     mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
+             else
+                mg(lvl)%cheby%zero_initial_guess = .true.
+                ksp_results = mg(lvl)%cheby%solve(Ax, z, &
+                     r%x, mg(lvl)%dm_Xh%size(), &
+                     mg(lvl)%coef, mg(lvl)%bclst, &
+                     mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
+             end if
 
-    !>----------<!
-    !> Residual <!
-    !>----------<!
-    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
-    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
+             !------------!
+             !  Residual  !
+             !------------!
+             call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
+             call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+             call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+             call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-    else
-       w%x = r%x - w%x
-    end if
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+             else
+                w%x = r%x - w%x
+             end if
 
-    !>----------<!
-    !> Restrict <!
-    !>----------<!
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
-    else
-       call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
-    end if
+             !------------!
+             !  Restrict  !
+             !------------!
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
+             else
+                call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
+             end if
 
-    call profiler_start_region('PHMG_map_to_coarse', 9)
-    call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
-    call profiler_end_region('PHMG_map_to_coarse', 9)
+             call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
 
-    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
-         GS_OP_ADD, glb_cmd_event)
-    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+             call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
+                  GS_OP_ADD, glb_cmd_event)
+             call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
-    call mg(lvl+1)%bclst%apply_scalar( &
-         mg(lvl+1)%r%x, &
-         mg(lvl+1)%dm_Xh%size())
-    !>----------<!
-    !> SOLVE    <!
-    !>----------<!
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
-    else
-       mg(lvl+1)%z%x = 0.0_rp
-    end if
-    if (lvl+1 .eq. clvl) then
-       call profiler_start_region('PHMG_tAMG_coarse_grid', 9)
-       call amg_solver%solve(mg(lvl+1)%z%x, &
-            mg(lvl+1)%r%x, &
-            mg(lvl+1)%dm_Xh%size())
-       call profiler_end_region('PHMG_tAMG_coarse_grid', 9)
+             call mg(lvl+1)%bclst%apply_scalar( &
+                  mg(lvl+1)%r%x, &
+                  mg(lvl+1)%dm_Xh%size())
 
-    else
-       call phmg_mg_cycle(mg(lvl+1)%z, mg(lvl+1)%r, mg(lvl+1)%w, lvl+1, &
-            clvl, mg, intrp, msh, Ax, amg_solver)
-    end if
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
+             else
+                mg(lvl+1)%z%x = 0.0_rp
+             end if
+          end associate
+       end do
 
-    !>----------<!
-    !> Project  <!
-    !>----------<!
-    call profiler_start_region('PHMG_map_to_fine', 9)
-    call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
-    call profiler_end_region('PHMG_map_to_fine', 9)
+       !------------!
+       !   SOLVE    !
+       !------------!
+       call this%amg_solver%solve(mg(this%nlvls-1)%z%x, &
+            mg(this%nlvls-1)%r%x, &
+            mg(this%nlvls-1)%dm_Xh%size())
 
-    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
-    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+       do lvl = (this%nlvls-2), 0, -1
+          associate(z => mg(lvl)%z, r => mg(lvl)%r, w => mg(lvl)%w)
+             !------------!
+             !  Project   !
+             !------------!
+             call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
-    else
-       call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
-    end if
+             call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+             call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
-    !>----------<!
-    !> Correct  <!
-    !>----------<!
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add2(z%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-    else
-       z%x = z%x + w%x
-    end if
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
+             else
+                call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
+             end if
 
-    !>----------<!
-    !> SMOOTH   <!
-    !>----------<!
-    call profiler_start_region('PHMG_PostSmooth', 9)
-    if (use_jacobi) then
-       call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, &
-            mg(lvl)%dm_Xh%size(), lvl)
-    else
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
-               r%x, mg(lvl)%dm_Xh%size(), &
-               mg(lvl)%coef, mg(lvl)%bclst, &
-               mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
-       else
-          ksp_results = mg(lvl)%cheby%solve(Ax, z, &
-               r%x, mg(lvl)%dm_Xh%size(), &
-               mg(lvl)%coef, mg(lvl)%bclst, &
-               mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
-       end if
-    end if
-    call profiler_end_region('PHMG_PostSmooth', 9)
+             !------------!
+             !  Correct   !
+             !------------!
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                call device_add2(z%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+             else
+                z%x = z%x + w%x
+             end if
 
-    call profiler_end_region('PHMG_cycle', 8)
+             !------------!
+             !   SMOOTH   !
+             !------------!
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
+                     r%x, mg(lvl)%dm_Xh%size(), &
+                     mg(lvl)%coef, mg(lvl)%bclst, &
+                     mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
+             else
+                ksp_results = mg(lvl)%cheby%solve(Ax, z, &
+                     r%x, mg(lvl)%dm_Xh%size(), &
+                     mg(lvl)%coef, mg(lvl)%bclst, &
+                     mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
+             end if
+          end associate
+       end do
+    end associate
+
   end subroutine phmg_mg_cycle
 
   !> Wraps jacobi solve as a residual update relaxation method

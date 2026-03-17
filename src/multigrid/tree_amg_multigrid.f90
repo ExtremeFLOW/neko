@@ -44,9 +44,9 @@
 module tree_amg_multigrid
   use num_types, only: rp
   use utils, only : neko_error, neko_warning
-  use math, only : add2, rzero, glsc2, sub3, col2
+  use math, only : add2, rzero, glsc2, sub3, col2, copy
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
-       device_glsc2
+       device_glsc2, device_copy
   use comm
   use mpi_f08, only: MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
   use coefs, only : coef_t
@@ -68,12 +68,13 @@ module tree_amg_multigrid
   private
 
   type :: tamg_wrk_t
+     integer :: n = -1
      real(kind=rp), allocatable :: r(:)
-     real(kind=rp), allocatable :: rc(:)
-     real(kind=rp), allocatable :: tmp(:)
+     real(kind=rp), allocatable :: b(:)
+     real(kind=rp), allocatable :: x(:)
      type(c_ptr) :: r_d = C_NULL_PTR
-     type(c_ptr) :: rc_d = C_NULL_PTR
-     type(c_ptr) :: tmp_d = C_NULL_PTR
+     type(c_ptr) :: b_d = C_NULL_PTR
+     type(c_ptr) :: x_d = C_NULL_PTR
   end type tamg_wrk_t
 
   !> Type for the TreeAMG solver
@@ -87,7 +88,9 @@ module tree_amg_multigrid
    contains
      procedure, pass(this) :: init => tamg_mg_init
      procedure, pass(this) :: solve => tamg_mg_solve
-     procedure, pass(this) :: free =>tamg_mg_free
+     procedure, pass(this) :: free => tamg_mg_free
+     procedure, private, pass(this) :: mg_cycle => tamg_mg_cycle
+     procedure, private, pass(this) :: mg_cycle_d => tamg_mg_cycle_d
   end type tamg_solver_t
 
 contains
@@ -186,16 +189,17 @@ contains
     end do
 
     ! Allocate work space on each level
-    allocate(this%wrk(this%amg%nlvls))
-    do lvl = 1, this%amg%nlvls
-       n = this%amg%lvl(lvl)%fine_lvl_dofs
+    allocate(this%wrk(0:(this%amg%nlvls)))
+    do lvl = 0, this%amg%nlvls-1
+       n = this%amg%lvl(lvl+1)%fine_lvl_dofs
+       this%wrk(lvl)%n = n
        allocate( this%wrk(lvl)%r(n) )
-       allocate( this%wrk(lvl)%rc(n) )
-       allocate( this%wrk(lvl)%tmp(n) )
+       allocate( this%wrk(lvl)%b(n) )
+       allocate( this%wrk(lvl)%x(n) )
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map( this%wrk(lvl)%r, this%wrk(lvl)%r_d, n)
-          call device_map( this%wrk(lvl)%rc, this%wrk(lvl)%rc_d, n)
-          call device_map( this%wrk(lvl)%tmp, this%wrk(lvl)%tmp_d, n)
+          call device_map( this%wrk(lvl)%b, this%wrk(lvl)%b_d, n)
+          call device_map( this%wrk(lvl)%x, this%wrk(lvl)%x_d, n)
        end if
     end do
 
@@ -221,21 +225,21 @@ contains
        deallocate(this%amg)
     end if
     if (allocated(this%smoo)) then
-       do i = 1, size(this%smoo)
+       do i = 0, (size(this%smoo)-1)
           call this%smoo(i)%free()
        end do
        deallocate(this%smoo)
     end if
     if (allocated(this%wrk)) then
-       do i = 1, size(this%wrk)
+       do i = 0, (size(this%wrk)-1)
           if (NEKO_BCKND_DEVICE .eq. 1) then
              call device_free(this%wrk(i)%r_d)
-             call device_free(this%wrk(i)%rc_d)
-             call device_free(this%wrk(i)%tmp_d)
+             call device_free(this%wrk(i)%b_d)
+             call device_free(this%wrk(i)%x_d)
           end if
           if (allocated(this%wrk(i)%r)) deallocate(this%wrk(i)%r)
-          if (allocated(this%wrk(i)%rc)) deallocate(this%wrk(i)%rc)
-          if (allocated(this%wrk(i)%tmp)) deallocate(this%wrk(i)%tmp)
+          if (allocated(this%wrk(i)%b)) deallocate(this%wrk(i)%b)
+          if (allocated(this%wrk(i)%x)) deallocate(this%wrk(i)%x)
        end do
     end if
   end subroutine tamg_mg_free
@@ -261,148 +265,153 @@ contains
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
        ! Zero out the initial guess becuase we do not handle null spaces very well...
-       call device_rzero(z_d, n)
+       call device_rzero(this%wrk(0)%x_d, n)
+       call device_copy(this%wrk(0)%b_d, r_d, n)
        zero_initial_guess = .true.
        ! Call the amg cycle
        do iter = 1, max_iter
-          call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this, &
-               zero_initial_guess)
+          call this%mg_cycle_d(zero_initial_guess)
           zero_initial_guess = .false.
        end do
+       call device_copy(z_d, this%wrk(0)%x_d, n)
     else
        ! Zero out the initial guess becuase we do not handle null spaces very well...
-       call rzero(z, n)
+       call rzero(this%wrk(0)%x, n)
+       call copy(this%wrk(0)%b, r, n)
        zero_initial_guess = .true.
        ! Call the amg cycle
        do iter = 1, max_iter
-          call tamg_mg_cycle(z, r, n, 0, this%amg, this, &
-               zero_initial_guess)
+          call this%mg_cycle(zero_initial_guess)
           zero_initial_guess = .false.
        end do
+       call copy(z, this%wrk(0)%x, n)
     end if
   end subroutine tamg_mg_solve
 
 
-  !> Recrsive multigrid cycle for the TreeAMG solver object
-  !! @param x The solution to be returned
-  !! @param b The right-hand side
-  !! @param n Number of dofs
-  !! @param lvl Current level of the cycle
-  !! @param amg The TreeAMG object
-  !! @param mgstuff The Solver object. TODO: rename this
-  recursive subroutine tamg_mg_cycle(x, b, n, lvl, amg, mgstuff, &
-       zero_initial_guess)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: x(n)
-    real(kind=rp), intent(inout) :: b(n)
-    type(tamg_hierarchy_t), intent(inout) :: amg
-    type(tamg_solver_t), intent(inout) :: mgstuff
-    logical, intent(in) :: zero_initial_guess
-    integer, intent(in) :: lvl
-    real(kind=rp) :: r(n)
-    real(kind=rp) :: rc(n)
-    real(kind=rp) :: tmp(n)
-    integer :: iter, num_iter
-    integer :: max_lvl
-    integer :: i, cyt
-    max_lvl = mgstuff%nlvls-1
-    !!----------!!
-    !! SMOOTH   !!
-    !!----------!!
-    call mgstuff%smoo(lvl)%solve(x, b, n, amg, &
-         zero_initial_guess)
-    if (lvl .eq. max_lvl) then !> Is coarsest grid.
-       return
-    end if
-    !!----------!!
-    !! Residual !!
-    !!----------!!
-    call calc_resid(r, x, b, amg, lvl, n)
-    !!----------!!
-    !! Restrict !!
-    !!----------!!
-    call amg%interp_f2c(rc, r, lvl+1)
+  !> multigrid cycle for the TreeAMG solver object
+  !! @param this The Solver object.
+  !! @param zero_initial_guess Flag for when the initial guess is zero
+  subroutine tamg_mg_cycle(this, zero_initial_guess)
+    class(tamg_solver_t), intent(inout), target :: this
+    logical, intent(inout) :: zero_initial_guess
+    integer :: max_lvl, lvl
+
+    max_lvl = this%nlvls-1
+    ! Loop down hierarchy. Fine to coarse
+    do lvl = 0, max_lvl-1
+       associate(x => this%wrk(lvl)%x, b => this%wrk(lvl)%b, &
+            r => this%wrk(lvl)%r, n => this%wrk(lvl)%n)
+         !!----------!!
+         !! SMOOTH   !!
+         !!----------!!
+         call this%smoo(lvl)%solve(x, b, n, this%amg, &
+              zero_initial_guess)
+         !!----------!!
+         !! Residual !!
+         !!----------!!
+         call calc_resid(r, x, b, this%amg, lvl, n)
+         !!----------!!
+         !! Restrict !!
+         !!----------!!
+         call this%amg%interp_f2c(this%wrk(lvl+1)%b, r, lvl+1)
+
+         call rzero(this%wrk(lvl+1)%x, this%wrk(lvl+1)%n)
+         zero_initial_guess = .true.
+       end associate
+    end do
     !!-------------------!!
     !! Call Coarse solve !!
     !!-------------------!!
-    call rzero(tmp, n)
-    call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff, &
-         .true.)
-    !!----------!!
-    !! Project  !!
-    !!----------!!
-    call amg%interp_c2f(r, tmp, lvl+1)
-    !!----------!!
-    !! Correct  !!
-    !!----------!!
-    call add2(x, r, n)
-    !!----------!!
-    !! SMOOTH   !!
-    !!----------!!
-    call mgstuff%smoo(lvl)%solve(x,b, n, amg)
+    call this%smoo(max_lvl)%solve(this%wrk(max_lvl)%x, &
+         this%wrk(max_lvl)%b, this%amg%lvl(max_lvl)%nnodes, this%amg, &
+         zero_initial_guess)
+
+    zero_initial_guess = .false.
+    ! Loop up hierarchy. Coarse to fine
+    do lvl = max_lvl-1, 0, -1
+       associate(x => this%wrk(lvl)%x, b => this%wrk(lvl)%b, &
+            r => this%wrk(lvl)%r, n => this%wrk(lvl)%n)
+         !!----------!!
+         !! Project  !!
+         !!----------!!
+         call this%amg%interp_c2f(r, this%wrk(lvl+1)%x, lvl+1)
+         !!----------!!
+         !! Correct  !!
+         !!----------!!
+         call add2(x, r, n)
+         !!----------!!
+         !! SMOOTH   !!
+         !!----------!!
+         call this%smoo(lvl)%solve(x, b, n, this%amg)
+       end associate
+    end do
   end subroutine tamg_mg_cycle
 
-  !> Recrsive multigrid cycle for the TreeAMG solver object on device
-  !! @param x The solution to be returned
-  !! @param b The right-hand side
-  !! @param n Number of dofs
-  !! @param lvl Current level of the cycle
-  !! @param amg The TreeAMG object
-  !! @param mgstuff The Solver object. TODO: rename this
-  recursive subroutine tamg_mg_cycle_d(x, b, x_d, b_d, n, lvl, amg, mgstuff, &
-       zero_initial_guess)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: x(n)
-    real(kind=rp), intent(inout) :: b(n)
-    type(c_ptr) :: x_d
-    type(c_ptr) :: b_d
-    type(tamg_hierarchy_t), intent(inout) :: amg
-    type(tamg_solver_t), intent(inout) :: mgstuff
-    logical, intent(in) :: zero_initial_guess
-    integer, intent(in) :: lvl
-    integer :: iter, num_iter
-    integer :: max_lvl
-    integer :: i, cyt
-    max_lvl = mgstuff%nlvls-1
-    !!----------!!
-    !! SMOOTH   !!
-    !!----------!!
-    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg, &
+  !> multigrid cycle for the TreeAMG solver object on device
+  !! @param this The Solver object.
+  !! @param zero_initial_guess Flag for when the initial guess is zero
+  subroutine tamg_mg_cycle_d(this, zero_initial_guess)
+    class(tamg_solver_t), intent(inout), target :: this
+    logical, intent(inout) :: zero_initial_guess
+    integer :: max_lvl, lvl
+
+    max_lvl = this%nlvls-1
+    ! Loop down hierarchy. Fine to coarse
+    do lvl = 0, max_lvl-1
+       associate(x => this%wrk(lvl)%x, x_d => this%wrk(lvl)%x_d, &
+            b => this%wrk(lvl)%b, b_d => this%wrk(lvl)%b_d, &
+            r => this%wrk(lvl)%r, r_d => this%wrk(lvl)%r_d, &
+            n => this%wrk(lvl)%n)
+         !!----------!!
+         !! SMOOTH   !!
+         !!----------!!
+         call this%smoo(lvl)%device_solve(x, b, x_d, b_d, n, this%amg, &
+              zero_initial_guess)
+         !!----------!!
+         !! Residual !!
+         !!----------!!
+         call this%amg%device_matvec(r, x, r_d, x_d, lvl)
+         call device_sub3(r_d, b_d, r_d, n)
+         !!----------!!
+         !! Restrict !!
+         !!----------!!
+         call this%amg%interp_f2c_d(this%wrk(lvl+1)%b_d, r_d, lvl+1)
+
+         call device_rzero(this%wrk(lvl+1)%x_d, this%wrk(lvl+1)%n)
+         zero_initial_guess = .true.
+       end associate
+    end do
+    !!-------------------!!
+    !! Call Coarse solve !!
+    !!-------------------!!
+    call this%smoo(max_lvl)%device_solve( &
+         this%wrk(max_lvl)%x, this%wrk(max_lvl)%b, &
+         this%wrk(max_lvl)%x_d, this%wrk(max_lvl)%b_d, &
+         this%amg%lvl(max_lvl)%nnodes, this%amg, &
          zero_initial_guess)
-    if (lvl .eq. max_lvl) then !> Is coarsest grid.
-       return
-    end if
-    associate( r => mgstuff%wrk(lvl+1)%r, r_d => mgstuff%wrk(lvl+1)%r_d, &
-         rc => mgstuff%wrk(lvl+1)%rc, rc_d => mgstuff%wrk(lvl+1)%rc_d, &
-         tmp => mgstuff%wrk(lvl+1)%tmp, tmp_d => mgstuff%wrk(lvl+1)%tmp_d )
-      !!----------!!
-      !! Residual !!
-      !!----------!!
-      call amg%device_matvec(r, x, r_d, x_d, lvl)
-      call device_sub3(r_d, b_d, r_d, n)
-      !!----------!!
-      !! Restrict !!
-      !!----------!!
-      call amg%interp_f2c_d(rc_d, r_d, lvl+1)
-      !!-------------------!!
-      !! Call Coarse solve !!
-      !!-------------------!!
-      call device_rzero(tmp_d, n)
-      call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, &
-           amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff, .true.)
-      !!----------!!
-      !! Project  !!
-      !!----------!!
-      call amg%interp_c2f_d(r_d, tmp_d, lvl+1, r)
-      !!----------!!
-      !! Correct  !!
-      !!----------!!
-      call device_add2(x_d, r_d, n)
-      !!----------!!
-      !! SMOOTH   !!
-      !!----------!!
-      call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
-    end associate
+
+    zero_initial_guess = .false.
+    ! Loop up hierarchy. Coarse to fine
+    do lvl = max_lvl-1, 0, -1
+       associate(x => this%wrk(lvl)%x, x_d => this%wrk(lvl)%x_d, &
+            b => this%wrk(lvl)%b, b_d => this%wrk(lvl)%b_d, &
+            r => this%wrk(lvl)%r, r_d => this%wrk(lvl)%r_d, &
+            n => this%wrk(lvl)%n)
+         !!----------!!
+         !! Project  !!
+         !!----------!!
+         call this%amg%interp_c2f_d(r_d, this%wrk(lvl+1)%x_d, lvl+1, r)
+         !!----------!!
+         !! Correct  !!
+         !!----------!!
+         call device_add2(x_d, r_d, n)
+         !!----------!!
+         !! SMOOTH   !!
+         !!----------!!
+         call this%smoo(lvl)%device_solve(x, b, x_d, b_d, n, this%amg)
+       end associate
+    end do
   end subroutine tamg_mg_cycle_d
 
 
