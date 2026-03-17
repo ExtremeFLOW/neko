@@ -104,3 +104,63 @@ to provide initial conditions). Instead, separate checkpoint files can be output
 for the purpose of restarts. These contain additional information allowing a
 clean restart, with, e.g., the correct time integration order. A separate file
 format, `.chkp` is adopted for the checkpoint files.
+
+## VTKHDF output {#vtkhdf-output}
+
+Neko supports output in the
+[VTKHDF](https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#vtkhdf-file-format)
+file format, which stores field data in HDF5 files following the VTKHDF
+UnstructuredGrid specification (version 2.6). The resulting `.vtkhdf` files can
+be opened directly in ParaView (version 5.12 or later) without any additional
+metadata files.
+
+@attention The VTKHDF output format is still experimental and may change in
+future releases.
+
+### Prerequisites {#vtkhdf-prerequisites}
+
+VTKHDF output requires that Neko is built with HDF5 support. If HDF5 is not
+available, attempting to use the VTKHDF format will result in an error. The
+HDF5 library must be compiled with MPI (parallel) support, since all I/O is
+performed collectively.
+
+### Enabling VTKHDF output {#vtkhdf-enabling}
+
+To use VTKHDF as the output format, set `output_format` to `vtkhdf` in the
+`case` object of the case file:
+
+```json
+{
+  "case": {
+    "output_format": "vtkhdf",
+    "output_precision": "single"
+  }
+}
+```
+
+The `output_precision` setting controls whether field data is written in
+single or double precision, defaulting to current working precision.
+
+### File structure {#vtkhdf-file-structure}
+
+All time steps are written into a single `.vtkhdf` file. The file contains a
+top-level `VTKHDF` group with the following structure:
+
+- **Mesh datasets**: `NumberOfPoints`, `NumberOfCells`,
+  `NumberOfConnectivityIds`, `Points`, `Connectivity`, `Offsets`, and `Types`.
+  For static meshes, these are written once on the first output call.
+- **PointData group**: Contains field datasets. The velocity components `u`,
+  `v`, `w` are automatically grouped into a three-component `Velocity` vector
+  dataset. The pressure field `p` is stored as `Pressure`. All other fields are
+  written as scalar datasets under their original names.
+- **Steps group**: Stores temporal metadata including time values, the number
+  of steps written, and offset arrays that allow ParaView to locate each time
+  step's data within the concatenated datasets.
+
+### Limitations {#vtkhdf-limitations}
+
+- The VTKHDF writer performs a linear sub-division of spectral elements, writing
+  one degree of freedom per sub-cell vertex. The high-order polynomial
+  representation is not preserved in the output.
+- Reading `.vtkhdf` files back into Neko is not currently supported.
+- Adaptive mesh refinement (AMR) output is not yet implemented.

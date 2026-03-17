@@ -257,7 +257,10 @@ contains
              call this%clear(n)
           else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
              ! Re-orthogonalize basis if requested
-             call this%reortho_basis(Ax, coef, gs_h, bclst, n)
+             if (this%prj_reorthogonalize_basis .and. present(gs_h) &
+                  .and. present(Ax) .and.present(bclst)) then
+                call this%reortho_basis(Ax, coef, gs_h, bclst, n)
+             end if
              ! activate projection some steps after dt is changed
              ! note that dt_last_change start from 0
              call this%project_on(b, coef, n)
@@ -267,7 +270,10 @@ contains
           end if
        else
           ! Re-orthogonalize basis if requested
-          call this%reortho_basis(Ax, coef, gs_h, bclst, n)
+          if (this%prj_reorthogonalize_basis .and. present(gs_h) &
+               .and. present(Ax) .and.present(bclst)) then
+             call this%reortho_basis(Ax, coef, gs_h, bclst, n)
+          end if
           call this%project_on(b, coef, n)
           if (present(string)) then
              call this%log_info(string, tstep)
@@ -362,9 +368,6 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(bc_list_t), intent(inout) :: blst
     integer, intent(in) :: n
-
-    ! return if it is not set to true in case file.
-    if (.not. this%prj_reorthogonalize_basis) return
 
     call profiler_start_region('Project reortho basis')
     if (NEKO_BCKND_DEVICE .eq. 1) then
