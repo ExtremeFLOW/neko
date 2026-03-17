@@ -350,114 +350,114 @@ contains
 
     associate(mg => this%phmg_hrchy%lvl, intrp => this%intrp, &
         msh => this%msh, Ax => this%Ax)
-       do lvl = 0, this%nlvls-2
-          associate(z => mg(lvl)%z, r => mg(lvl)%r, w => mg(lvl)%w)
-             !------------!
-             !   SMOOTH   !
-             !------------!
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                mg(lvl)%cheby_device%zero_initial_guess = .true.
-                ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
-                     r%x, mg(lvl)%dm_Xh%size(), &
-                     mg(lvl)%coef, mg(lvl)%bclst, &
-                     mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
-             else
-                mg(lvl)%cheby%zero_initial_guess = .true.
-                ksp_results = mg(lvl)%cheby%solve(Ax, z, &
-                     r%x, mg(lvl)%dm_Xh%size(), &
-                     mg(lvl)%coef, mg(lvl)%bclst, &
-                     mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
-             end if
+      do lvl = 0, this%nlvls-2
+         associate(z => mg(lvl)%z, r => mg(lvl)%r, w => mg(lvl)%w)
+           !------------!
+           !   SMOOTH   !
+           !------------!
+           if (NEKO_BCKND_DEVICE .eq. 1) then
+              mg(lvl)%cheby_device%zero_initial_guess = .true.
+              ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
+                   r%x, mg(lvl)%dm_Xh%size(), &
+                   mg(lvl)%coef, mg(lvl)%bclst, &
+                   mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
+           else
+              mg(lvl)%cheby%zero_initial_guess = .true.
+              ksp_results = mg(lvl)%cheby%solve(Ax, z, &
+                   r%x, mg(lvl)%dm_Xh%size(), &
+                   mg(lvl)%coef, mg(lvl)%bclst, &
+                   mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
+           end if
 
-             !------------!
-             !  Residual  !
-             !------------!
-             call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-             call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
-             call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-             call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
+           !------------!
+           !  Residual  !
+           !------------!
+           call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+           call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-             else
-                w%x = r%x - w%x
-             end if
+           if (NEKO_BCKND_DEVICE .eq. 1) then
+              call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+           else
+              w%x = r%x - w%x
+           end if
 
-             !------------!
-             !  Restrict  !
-             !------------!
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
-             else
-                call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
-             end if
+           !------------!
+           !  Restrict  !
+           !------------!
+           if (NEKO_BCKND_DEVICE .eq. 1) then
+              call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
+           else
+              call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
+           end if
 
-             call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
+           call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
 
-             call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
-                  GS_OP_ADD, glb_cmd_event)
-             call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+           call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
+                GS_OP_ADD, glb_cmd_event)
+           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
-             call mg(lvl+1)%bclst%apply_scalar( &
-                  mg(lvl+1)%r%x, &
-                  mg(lvl+1)%dm_Xh%size())
+           call mg(lvl+1)%bclst%apply_scalar( &
+                mg(lvl+1)%r%x, &
+                mg(lvl+1)%dm_Xh%size())
 
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
-             else
-                mg(lvl+1)%z%x = 0.0_rp
-             end if
-          end associate
-       end do
+           if (NEKO_BCKND_DEVICE .eq. 1) then
+              call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
+           else
+              mg(lvl+1)%z%x = 0.0_rp
+           end if
+         end associate
+      end do
 
-       !------------!
-       !   SOLVE    !
-       !------------!
-       call this%amg_solver%solve(mg(this%nlvls-1)%z%x, &
-            mg(this%nlvls-1)%r%x, &
-            mg(this%nlvls-1)%dm_Xh%size())
+      !------------!
+      !   SOLVE    !
+      !------------!
+      call this%amg_solver%solve(mg(this%nlvls-1)%z%x, &
+           mg(this%nlvls-1)%r%x, &
+           mg(this%nlvls-1)%dm_Xh%size())
 
-       do lvl = (this%nlvls-2), 0, -1
-          associate(z => mg(lvl)%z, r => mg(lvl)%r, w => mg(lvl)%w)
-             !------------!
-             !  Project   !
-             !------------!
-             call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
+      do lvl = (this%nlvls-2), 0, -1
+         associate(z => mg(lvl)%z, r => mg(lvl)%r, w => mg(lvl)%w)
+           !------------!
+           !  Project   !
+           !------------!
+           call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
-             call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
-             call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
-             else
-                call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
-             end if
+           if (NEKO_BCKND_DEVICE .eq. 1) then
+              call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
+           else
+              call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
+           end if
 
-             !------------!
-             !  Correct   !
-             !------------!
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                call device_add2(z%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-             else
-                z%x = z%x + w%x
-             end if
+           !------------!
+           !  Correct   !
+           !------------!
+           if (NEKO_BCKND_DEVICE .eq. 1) then
+              call device_add2(z%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+           else
+              z%x = z%x + w%x
+           end if
 
-             !------------!
-             !   SMOOTH   !
-             !------------!
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
-                     r%x, mg(lvl)%dm_Xh%size(), &
-                     mg(lvl)%coef, mg(lvl)%bclst, &
-                     mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
-             else
-                ksp_results = mg(lvl)%cheby%solve(Ax, z, &
-                     r%x, mg(lvl)%dm_Xh%size(), &
-                     mg(lvl)%coef, mg(lvl)%bclst, &
-                     mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
-             end if
-          end associate
-       end do
+           !------------!
+           !   SMOOTH   !
+           !------------!
+           if (NEKO_BCKND_DEVICE .eq. 1) then
+              ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
+                   r%x, mg(lvl)%dm_Xh%size(), &
+                   mg(lvl)%coef, mg(lvl)%bclst, &
+                   mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
+           else
+              ksp_results = mg(lvl)%cheby%solve(Ax, z, &
+                   r%x, mg(lvl)%dm_Xh%size(), &
+                   mg(lvl)%coef, mg(lvl)%bclst, &
+                   mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
+           end if
+         end associate
+      end do
     end associate
 
   end subroutine phmg_mg_cycle
