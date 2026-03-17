@@ -119,6 +119,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/vector_list.f90\
 	math/vector_math.f90\
 	registries/registry.f90\
 	registries/registry_entry.f90\
@@ -140,6 +141,7 @@ neko_fortran_SOURCES = \
 	io/rea_file.f90\
 	io/bp_file.F90\
 	io/fld_file.f90\
+	io/import_field_utils.f90\
 	io/fld_file_data.f90\
 	io/vtk_file.f90\
 	io/stl_file.f90\
@@ -147,13 +149,16 @@ neko_fortran_SOURCES = \
 	io/chkp_file.f90\
 	io/csv_file.f90\
 	io/hdf5_file.F90\
+	io/vtkhdf_file.F90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
 	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/fluid_stats_output.f90\
+	io/fluid_sgs_stats_output.f90\
 	io/scalar_stats_output.f90\
+	io/scalar_sgs_stats_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	global_interpolation/global_interpolation.f90\
@@ -223,7 +228,9 @@ neko_fortran_SOURCES = \
 	simulation_components/probes.F90\
 	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
+	simulation_components/fluid_sgs_stats_simcomp.f90\
 	simulation_components/scalar_stats_simcomp.f90\
+	simulation_components/scalar_sgs_stats_simcomp.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
@@ -372,6 +379,8 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/device_gradient_jump_penalty.F90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
+  les/fluid_sgs_stats.f90\
+  les/scalar_sgs_stats.f90\
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/bcknd/device/vreman_device.f90\
@@ -392,6 +401,10 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/wale_cpu.f90\
 	les/bcknd/device/wale_device.f90\
 	les/bcknd/device/device_wale_nut.F90\
+  les/deardorff.f90\
+	les/bcknd/cpu/deardorff_cpu.f90\
+	les/bcknd/device/deardorff_device.f90\
+	les/bcknd/device/device_deardorff_nut.F90\
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/spalding.f90\
@@ -478,6 +491,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/hip/smagorinsky_nut.hip\
 	les/bcknd/device/hip/dynamic_smagorinsky_nut.hip\
 	les/bcknd/device/hip/wale_nut.hip\
+	les/bcknd/device/hip/deardorff_nut.hip\
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
@@ -539,6 +553,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/cuda/smagorinsky_nut.cu\
 	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu\
 	les/bcknd/device/cuda/wale_nut.cu\
+	les/bcknd/device/cuda/deardorff_nut.cu\
 	comm/bcknd/device/cuda/comm_nvshmem.cu\
 	wall_models/bcknd/device/cuda/wall_model.cu\
 	wall_models/bcknd/device/cuda/spalding.cu\
@@ -675,8 +690,7 @@ depend:
 endif
 
 if ENABLE_PYTHON
-nobase_python_PYTHON = python/pyneko/__init__.py\
-		       python/pyneko/intf.py
+SUBDIRS = python
 endif
 
 # Note we need to list any headers etc here for the dist. script
@@ -726,6 +740,7 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
 	les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h\
 	les/bcknd/device/cuda/wale_nut_kernel.h\
+	les/bcknd/device/cuda/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/cuda/wall_model_kernel.h\
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
@@ -782,6 +797,7 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/smagorinsky_nut_kernel.h\
 	les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h\
 	les/bcknd/device/hip/wale_nut_kernel.h\
+	les/bcknd/device/hip/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/hip/wall_model_kernel.h\
 	wall_models/bcknd/device/hip/spalding_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
