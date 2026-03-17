@@ -155,6 +155,12 @@ check-local: lint
 
 endif
 
+if ENABLE_PFUNIT
 .PHONY: refresh-unit-test-makefiles
 refresh-unit-test-makefiles:
 	$(MAKE) -C tests/unit refresh-unit-test-makefiles-local
+else
+.PHONY: refresh-unit-test-makefiles
+refresh-unit-test-makefiles:
+	@echo "pFUnit support is disabled: no unit-test Makefiles to refresh."
+endif
