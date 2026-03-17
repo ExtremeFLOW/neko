@@ -48,15 +48,15 @@ contains
     logical :: exists
     integer :: unit
 
-    inquire(file='test_write.vtkhdf', exist=exists)
+    inquire(file='test_write.0.vtkhdf', exist=exists)
     if (exists .and. pe_rank .eq. 0) then
-       open(newunit=unit, file='test_write.vtkhdf')
+       open(newunit=unit, file='test_write.0.vtkhdf')
        close(unit, status='delete')
     end if
 
-    inquire(file='test_write_time.vtkhdf', exist=exists)
+    inquire(file='test_write_time.0.vtkhdf', exist=exists)
     if (exists .and. pe_rank .eq. 0) then
-       open(newunit=unit, file='test_write_time.vtkhdf')
+       open(newunit=unit, file='test_write_time.0.vtkhdf')
        close(unit, status='delete')
     end if
 
@@ -116,7 +116,7 @@ contains
     integer :: ierr
     character(len=:), allocatable :: message
 
-    fname = "test_init.vtkhdf"
+    fname = "test_init.0.vtkhdf"
     call file%init(fname)
     message = "File must be allocated"
     @assertTrue(allocated(file%file_type), message = message)
@@ -192,7 +192,7 @@ contains
     call file%free()
 
     ! Test that the file exists
-    inquire(file=fname, exist=exists)
+    inquire(file="test_write.0.vtkhdf", exist=exists)
     message = "Output file must exist"
     @assertTrue(exists, message = message)
 
@@ -200,7 +200,7 @@ contains
     ! Validate HDF5 file contents
     ! ================================================================
     call h5open_f(hdferr)
-    call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, hdferr)
+    call h5fopen_f("test_write.0.vtkhdf", H5F_ACC_RDONLY_F, file_id, hdferr)
     message = "Must open HDF5 file"
     @assertEqual(0, hdferr, message = message)
 
@@ -436,7 +436,7 @@ contains
     call file%free()
 
     ! Test that the file exists
-    inquire(file=fname, exist=exists)
+    inquire(file="test_write_time.0.vtkhdf", exist=exists)
     message = "Temporal output file must exist"
     @assertTrue(exists, message = message)
 
@@ -444,7 +444,7 @@ contains
     ! Validate HDF5 file contents
     ! ================================================================
     call h5open_f(hdferr)
-    call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, hdferr)
+    call h5fopen_f("test_write_time.0.vtkhdf", H5F_ACC_RDONLY_F, file_id, hdferr)
     message = "Must open temporal HDF5 file"
     @assertEqual(0, hdferr, message = message)
 
