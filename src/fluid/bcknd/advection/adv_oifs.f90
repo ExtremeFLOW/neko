@@ -45,9 +45,9 @@ module adv_oifs
   use field_series, only : field_series_t
   use field_list, only : field_list_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use device, only : device_map, device_free
+  use device, only : device_map, device_unmap
   use device_math, only : device_addcol3s2, device_rzero
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -344,22 +344,22 @@ contains
     nullify(this%ct_k4)
 
     if (allocated(this%cx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cx, this%cx_d)
+       end if
        deallocate(this%cx)
     end if
     if (allocated(this%cy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cy, this%cy_d)
+       end if
        deallocate(this%cy)
     end if
     if (allocated(this%cz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cz, this%cz_d)
+       end if
        deallocate(this%cz)
-    end if
-    if (c_associated(this%cx_d)) then
-       call device_free(this%cx_d)
-    end if
-    if (c_associated(this%cy_d)) then
-       call device_free(this%cy_d)
-    end if
-    if (c_associated(this%cz_d)) then
-       call device_free(this%cz_d)
     end if
 
   end subroutine adv_oifs_free
