@@ -9,6 +9,7 @@ neko_fortran_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
+	io/format/vtk.f90\
 	io/buffer/buffer.F90\
 	io/buffer/buffer_1d.F90\
 	io/buffer/buffer_4d.F90\
