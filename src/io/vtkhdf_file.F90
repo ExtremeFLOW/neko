@@ -104,7 +104,7 @@ contains
     fname = trim(this%get_base_fname())
     call filename_split(fname, path, name, suffix)
 
-    write(base_fname, '(A,A,".",I0,A)') &
+    write(base_fname, '(A,A,"_",I0,A)') &
          trim(path), trim(name), this%get_start_counter(), trim(suffix)
 
   end function vtkhdf_file_get_fname

@@ -66,7 +66,7 @@ time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 json_utils/json_utils_test
 point_interpolation/point_interpolation_suite
-**/test_write.*.vtkhdf
-**/test_write_time.*.vtkhdf
+**/test_write_*.vtkhdf
+**/test_write_time_*.vtkhdf
 templates/parallel/parallel_suite
 templates/serial/serial_test
