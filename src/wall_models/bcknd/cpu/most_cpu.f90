@@ -182,7 +182,7 @@ contains
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
-    real(kind=rp), parameter :: Ri_threshold = 0.01_rp
+    real(kind=rp), parameter :: Ri_threshold = 0.00001_rp
     character(len=LOG_SIZE) :: log_buf
 
     ! Select the ts offset based on fid
@@ -239,7 +239,7 @@ contains
        utau = magu*kappa / log(hi/z0)
 
        ! Compute thermal roughness length from Zilitinkevich, 1995
-       !!!!!! woudl be nice to be able to set this or not 
+       !!!!!! woudl be nice to be able to set this or not
        z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
@@ -268,7 +268,7 @@ contains
 
              L_old = 1.0e10_rp
              count = 0
-             
+
              ! Find Obukhov length
              do while ((abs(L_old - L_ob)/abs(L_ob) > tol) .and. (count < max_count))
                 ! Switch between stable and convective based on bulk Richardson (Ri_b)

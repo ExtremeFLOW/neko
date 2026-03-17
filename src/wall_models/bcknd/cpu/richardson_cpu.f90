@@ -130,7 +130,7 @@ contains
     real(kind=rp) :: magu, utau, normu, z0h
     real(kind=rp) :: L_ob, Ri_b, l
     real(kind=rp), parameter :: g = 9.80665_rp
-    real(kind=rp), parameter :: Ri_threshold = 0.01_rp
+    real(kind=rp), parameter :: Ri_threshold = 0.00001_rp
     character(len=LOG_SIZE) :: log_buf
 
     ! Select the ts offset based on fid
@@ -195,9 +195,6 @@ contains
           call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
           call set_stability_regime(Ri_b,Ri_threshold)
 
-
-          ! Based on stability and bc_type, compute utau/q
-          call set_stability_regime(Ri_b)
           ! Set length scale
           l = kappa * hi
           ! Compute u*
