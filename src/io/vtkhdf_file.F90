@@ -148,7 +148,7 @@ contains
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16) :: type_str
-    logical :: link_exists, file_exists
+    logical :: link_exists, file_exists, subdivide
     integer(kind=1) :: VTK_cell_type
     integer :: counter
 
@@ -191,19 +191,7 @@ contains
        this%precision = rp
     end if
 
-    if (this%lagrange) then
-       if (msh%gdim .eq. 3) then
-          VTK_cell_type = 72 ! VTK_LAGRANGE_HEXAHEDRON
-       else
-          VTK_cell_type = 70 ! VTK_LAGRANGE_QUADRILATERAL
-       end if
-    else
-       if (msh%gdim .eq. 3) then
-          VTK_cell_type = 12 ! VTK_HEXAHEDRON
-       else
-          VTK_cell_type = 9 ! VTK_QUAD
-       end if
-    end if
+    subdivide = .not. this%lagrange
 
     call this%increment_counter()
     fname = trim(this%get_vtkhdf_fname())
@@ -263,8 +251,8 @@ contains
     end if
 
     if (associated(msh)) then
-       call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, &
-            this%amr_enabled, counter, t)
+       call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, &
+            this%amr_enabled, counter, subdivide, t)
     end if
 
     ! Write field data in PointData group
@@ -291,35 +279,39 @@ contains
   !! @param msh Mesh object containing element information
   !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral
   !!            element grid
-  subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof)
+  !! @param subdivide Logical flag indicating whether to subdivide to linear
+  !!        elements
+  subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof, subdivide)
     integer, intent(out) :: conn(:)
     integer(kind=1), intent(in) :: vtk_type
-    type(mesh_t) :: msh
-    type(dofmap_t) :: dof
+    type(mesh_t), intent(in) :: msh
+    type(dofmap_t), intent(in) :: dof
+    logical, intent(in) :: subdivide
     integer :: lx, ly, lz, nelv
-    integer :: ie, ii, base, idx, npts_per_cell, n_conn_per_elem
+    integer :: ie, ii, base, idx, n_pts_per_cell, n_conn_per_elem
     integer, allocatable :: node_order(:)
 
     nelv = msh%nelv
     lx = dof%Xh%lx
     ly = dof%Xh%ly
     lz = dof%Xh%lz
-    npts_per_cell = lx * ly * lz
+    n_pts_per_cell = lx * ly * lz
     idx = 0
 
-    select case (vtk_type)
-    case (12) ! VTK_HEXAHEDRON
-       node_order = vtkhdf_hex_node_order(lx, ly, lz)
-    case (9) ! VTK_QUAD
-       node_order = vtkhdf_quad_node_order(lx, ly)
-    case default ! Standard VTK node types (Lagrange etc.)
+    if (subdivide) then
+       if (msh%gdim .eq. 3) then
+          node_order = vtkhdf_hex_node_order(lx, ly, lz)
+       else
+          node_order = vtkhdf_quad_node_order(lx, ly)
+       end if
+    else
        node_order = vtk_ordering(vtk_type, lx, ly, lz)
-    end select
+    end if
 
     n_conn_per_elem = size(node_order)
 
     do ie = 1, nelv
-       base = (ie - 1) * npts_per_cell
+       base = (ie - 1) * n_pts_per_cell
        do ii = 1, n_conn_per_elem
           conn(idx + ii) = base + node_order(ii)
        end do
@@ -330,87 +322,26 @@ contains
 
   end subroutine vtkhdf_build_connectivity
 
-  !> Build linear hexahedron sub-cell node ordering for a spectral element.
-  !! Returns an array of 0-based tensor-product indices that subdivides
-  !! the lx*ly*lz grid into (lx-1)*(ly-1)*(lz-1) linear hexahedra
-  !! (VTK_HEXAHEDRON, type 12), with 8 nodes per sub-cell.
-  !! @param lx Number of points in x-direction
-  !! @param ly Number of points in y-direction
-  !! @param lz Number of points in z-direction
-  !! @return Array of size 8*(lx-1)*(ly-1)*(lz-1) with 0-based indices
-  pure function vtkhdf_hex_node_order(lx, ly, lz) result(node_order)
-    integer, intent(in) :: lx, ly, lz
-    integer, allocatable :: node_order(:)
-    integer :: ii, jj, kk, idx
-
-    allocate(node_order(8 * (lx - 1) * (ly - 1) * (lz - 1)))
-    idx = 0
-
-    do ii = 1, lx - 1
-       do jj = 1, ly - 1
-          do kk = 1, lz - 1
-             node_order(idx + 1) = (kk - 1) * lx * ly + (jj - 1) * lx + ii - 1
-             node_order(idx + 2) = (kk - 1) * lx * ly + (jj - 1) * lx + ii
-             node_order(idx + 3) = (kk - 1) * lx * ly + jj * lx + ii
-             node_order(idx + 4) = (kk - 1) * lx * ly + jj * lx + ii - 1
-             node_order(idx + 5) = kk * lx * ly + (jj - 1) * lx + ii - 1
-             node_order(idx + 6) = kk * lx * ly + (jj - 1) * lx + ii
-             node_order(idx + 7) = kk * lx * ly + jj * lx + ii
-             node_order(idx + 8) = kk * lx * ly + jj * lx + ii - 1
-             idx = idx + 8
-          end do
-       end do
-    end do
-
-  end function vtkhdf_hex_node_order
-
-  !> Build linear quadrilateral sub-cell node ordering for a spectral element.
-  !! Returns an array of 0-based tensor-product indices that subdivides
-  !! the lx*ly grid into (lx-1)*(ly-1) linear quadrilaterals
-  !! (VTK_QUAD, type 9), with 4 nodes per sub-cell.
-  !! @param lx Number of points in x-direction
-  !! @param ly Number of points in y-direction
-  !! @return Array of size 4*(lx-1)*(ly-1) with 0-based indices
-  pure function vtkhdf_quad_node_order(lx, ly) result(node_order)
-    integer, intent(in) :: lx, ly
-    integer, allocatable :: node_order(:)
-    integer :: ii, jj, idx
-
-    allocate(node_order(4 * (lx - 1) * (ly - 1)))
-    idx = 0
-
-    do jj = 1, ly - 1
-       do ii = 1, lx - 1
-          node_order(idx + 1) = (jj - 1) * lx + ii - 1
-          node_order(idx + 2) = (jj - 1) * lx + ii
-          node_order(idx + 3) = jj * lx + ii
-          node_order(idx + 4) = jj * lx + ii - 1
-          idx = idx + 4
-       end do
-    end do
-
-  end function vtkhdf_quad_node_order
-
   !> Write mesh geometry datasets to the VTKHDF group.
   !! Writes NumberOfPoints, NumberOfCells, NumberOfConnectivityIds,
   !! Points, Connectivity, Offsets, and Types datasets.
   !! @param vtkhdf_grp HDF5 group ID for VTKHDF root group
   !! @param dof Dofmap for coordinate data
   !! @param msh Mesh object
-  !! @param VTK_cell_type VTK cell type (e.g. 12 for hexahedra, 9 for quads)
   !! @param amr AMR flag to determine if mesh should be rewritten at every time
   !!            step
   !! @param t Optional time value for time-dependent mesh output (e.g. for AMR)
-  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, amr, &
-       counter, t)
+  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, amr, &
+       counter, subdivide, t)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
     integer(hid_t), intent(in) :: vtkhdf_grp
-    integer(kind=1), intent(in) :: VTK_cell_type
     logical, intent(in) :: amr
     integer, intent(in) :: counter
+    logical, intent(in) :: subdivide
     real(kind=rp), intent(in), optional :: t
 
+    integer(kind=1) :: VTK_cell_type
     integer :: ierr, i, ii, jj, kk, el, local_idx
     integer :: lx, ly, lz, npts_per_cell, nodes_per_cell, cells_per_element
     integer :: local_points, local_cells, local_conn
@@ -433,22 +364,24 @@ contains
     lz = dof%Xh%lz
     npts_per_cell = lx * ly * lz
 
-    select case(VTK_cell_type)
-    case(12)
+    if (subdivide .and. msh%gdim .eq. 3) then
+       VTK_cell_type = 12 ! VTK_HEXAHEDRON
        cells_per_element = (lx - 1) * (ly - 1) * (lz - 1)
        nodes_per_cell = 8
-    case(9)
+    else if (subdivide .and. msh%gdim .eq. 2) then
+       VTK_cell_type = 9 ! VTK_QUAD
        cells_per_element = (lx - 1) * (ly - 1)
        nodes_per_cell = 4
-    case(72) ! VTK_LAGRANGE_HEXAHEDRON
+    else if (msh%gdim .eq. 3) then
+       VTK_cell_type = 72 ! VTK_LAGRANGE_HEXAHEDRON
        cells_per_element = 1
        nodes_per_cell = lx * ly * lz
-    case(70) ! VTK_LAGRANGE_QUADRILATERAL
+    else if (msh%gdim .eq. 2) then
+       VTK_cell_type = 70 ! VTK_LAGRANGE_QUADRILATERAL
        cells_per_element = 1
        nodes_per_cell = lx * ly
-    case default
-       call neko_error('Unsupported VTK cell type')
-    end select
+    end if
+
 
     ! --- Build the number of cells and the connectivity
     local_points = dof%size()
@@ -583,8 +516,9 @@ contains
       integer, allocatable :: connectivity(:)
 
       allocate(connectivity(local_conn))
-      call vtkhdf_build_connectivity(connectivity, VTK_cell_type, msh, dof)
-      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount, &
+      call vtkhdf_build_connectivity(connectivity, VTK_cell_type, msh, dof, &
+           subdivide)
+      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), &
            ierr, file_space_id = filespace, mem_space_id = memspace, &
            xfer_prp = xf_id)
       deallocate(connectivity)
@@ -1336,5 +1270,67 @@ contains
   end subroutine vtkhdf_file_read
 
 #endif
+
+  ! -------------------------------------------------------------------------- !
+  ! Sub-cell node ordering functions for VTK compatibility
+
+  !> Build linear hexahedron sub-cell node ordering for a spectral element.
+  !! Returns an array of 0-based tensor-product indices that subdivides
+  !! the lx*ly*lz grid into (lx-1)*(ly-1)*(lz-1) linear hexahedra
+  !! (VTK_HEXAHEDRON, type 12), with 8 nodes per sub-cell.
+  !! @param lx Number of points in x-direction
+  !! @param ly Number of points in y-direction
+  !! @param lz Number of points in z-direction
+  !! @return Array of size 8*(lx-1)*(ly-1)*(lz-1) with 0-based indices
+  pure function vtkhdf_hex_node_order(lx, ly, lz) result(node_order)
+    integer, intent(in) :: lx, ly, lz
+    integer :: node_order(8 * (lx - 1) * (ly - 1) * (lz - 1))
+    integer :: ii, jj, kk, idx
+
+    idx = 0
+
+    do ii = 1, lx - 1
+       do jj = 1, ly - 1
+          do kk = 1, lz - 1
+             node_order(idx + 1) = (kk - 1) * lx * ly + (jj - 1) * lx + ii - 1
+             node_order(idx + 2) = (kk - 1) * lx * ly + (jj - 1) * lx + ii
+             node_order(idx + 3) = (kk - 1) * lx * ly + jj * lx + ii
+             node_order(idx + 4) = (kk - 1) * lx * ly + jj * lx + ii - 1
+             node_order(idx + 5) = kk * lx * ly + (jj - 1) * lx + ii - 1
+             node_order(idx + 6) = kk * lx * ly + (jj - 1) * lx + ii
+             node_order(idx + 7) = kk * lx * ly + jj * lx + ii
+             node_order(idx + 8) = kk * lx * ly + jj * lx + ii - 1
+             idx = idx + 8
+          end do
+       end do
+    end do
+
+  end function vtkhdf_hex_node_order
+
+  !> Build linear quadrilateral sub-cell node ordering for a spectral element.
+  !! Returns an array of 0-based tensor-product indices that subdivides
+  !! the lx*ly grid into (lx-1)*(ly-1) linear quadrilaterals
+  !! (VTK_QUAD, type 9), with 4 nodes per sub-cell.
+  !! @param lx Number of points in x-direction
+  !! @param ly Number of points in y-direction
+  !! @return Array of size 4*(lx-1)*(ly-1) with 0-based indices
+  pure function vtkhdf_quad_node_order(lx, ly) result(node_order)
+    integer, intent(in) :: lx, ly
+    integer :: node_order(4 * (lx - 1) * (ly - 1))
+    integer :: ii, jj, idx
+
+    idx = 0
+
+    do jj = 1, ly - 1
+       do ii = 1, lx - 1
+          node_order(idx + 1) = (jj - 1) * lx + ii - 1
+          node_order(idx + 2) = (jj - 1) * lx + ii
+          node_order(idx + 3) = jj * lx + ii
+          node_order(idx + 4) = jj * lx + ii - 1
+          idx = idx + 4
+       end do
+    end do
+
+  end function vtkhdf_quad_node_order
 
 end module vtkhdf_file
