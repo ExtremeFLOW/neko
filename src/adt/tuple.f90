@@ -43,8 +43,6 @@ module tuple
   use num_types, only : dp
   implicit none
   private
-  public :: tuple_i4_t, tuple3_i4_t, tuple4_i4_t
-  public :: tuple_r8_t, tuple_i4r8_t, tuple_2i4r8_t
 
   !> Base type for an n-tuple
   type, public, abstract :: tuple_t

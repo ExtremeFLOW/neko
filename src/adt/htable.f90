@@ -59,12 +59,6 @@ module htable
   implicit none
   private
 
-  public :: htable_i4_t, htable_i8_t, htable_r8_t, htable_pt_t
-  public :: htable_i4t2_t, htable_i4t4_t, htable_cptr_t
-  public :: htable_iter_i4_t, htable_iter_i8_t, htable_iter_r8_t
-  public :: htable_iter_pt_t, htable_iter_i4t2_t, htable_iter_i4t4_t
-  public :: htable_iter_cptr_t, h_cptr_t
-
   !> Hash table entry, tuple (key, data)
   type :: h_tuple_t
      logical :: valid = .false.

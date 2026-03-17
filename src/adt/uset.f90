@@ -44,7 +44,6 @@ module uset
        htable_r8_t, htable_iter_r8_t
   implicit none
   private
-  public :: uset_i4_t, uset_i8_t, uset_r8_t
 
   !> Base type for an unordered set
   type, private, abstract :: uset_t
