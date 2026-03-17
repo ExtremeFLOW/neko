@@ -159,6 +159,12 @@ EXTRA_DIST = \
 	templates/parallel/parallel_test\
 	templates/serial/test_serial.pf
 
+if ENABLE_HDF5
+SUBDIRS += vtkhdf
+TESTS += vtkhdf/vtkhdf_test
+EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf
+endif
+
 UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)
 
 .PHONY: refresh-unit-test-makefiles-local

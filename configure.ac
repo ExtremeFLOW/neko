@@ -343,6 +343,7 @@ AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
+AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
@@ -410,6 +411,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/bc/Makefile\
         tests/unit/signal/Makefile\
         tests/unit/jobctrl/Makefile\
+        tests/unit/vtkhdf/Makefile\
         tests/unit/device/Makefile\
         tests/unit/device_math/Makefile\
         tests/unit/mathops/Makefile\

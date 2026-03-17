@@ -4,6 +4,10 @@
 
 - Added a script to add new unit tests under `contrib/add_unit_test`. The same
   script can add a .pf file to an existing suite.
+- Added an AI policy to the contribution guidelines.
+- Added simple support for VTKHDF. For now it can be used for fluid outputs.
+  Simple restarts are supported with fixed mesh and MPI configuration. 
+  The VTKHDF output format is still experimental and will change in the future.
 - Added templates for serial and parallel unit tests.
 - Added code review instructions for LLMs in a copilot-friendly location.
 - Improved pixi installation. Added support to create a Python environment

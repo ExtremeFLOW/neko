@@ -20,6 +20,7 @@ test-suite.log
 !point_interpolation/point_interpolation_test
 !templates/parallel/parallel_test
 !vector/vector_test
+!vtkhdf/vtkhdf_test
 
 # Processed files
 **.inc
@@ -65,5 +66,7 @@ time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 json_utils/json_utils_test
 point_interpolation/point_interpolation_suite
+**/test_write.vtkhdf
+**/test_write_time.vtkhdf
 templates/parallel/parallel_suite
 templates/serial/serial_test
