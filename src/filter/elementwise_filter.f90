@@ -46,9 +46,9 @@ module elementwise_filter
   use matrix, only : matrix_t
   use mxm_wrapper, only : mxm
   use tensor, only : tnsr3d, trsp
-  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_cfill
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -146,23 +146,21 @@ contains
     end if
 
     if (allocated(this%fh)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%fh, this%fh_d)
+       end if
        deallocate(this%fh)
     end if
 
     if (allocated(this%fht)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%fht, this%fht_d)
+       end if
        deallocate(this%fht)
     end if
 
     if (allocated(this%transfer)) then
        deallocate(this%transfer)
-    end if
-
-    if (c_associated(this%fh_d)) then
-       call device_free(this%fh_d)
-    end if
-
-    if (c_associated(this%fht_d)) then
-       call device_free(this%fht_d)
     end if
 
     this%filter_type = ""
