@@ -36,7 +36,7 @@ module vtkhdf_file
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
   use utils, only : neko_error, neko_warning, filename_split, &
-       nonlinear_index
+       nonlinear_index, linear_index
   use mesh, only : mesh_t
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
@@ -1352,41 +1352,41 @@ contains
 
     n_corners = 8
     n_edges = 4 * ((lx - 2) + (ly - 2) + (lz - 2))
-    n_faces = 2 * ((lx - 2)*(ly - 2) + (lx - 2)*(lz - 2) + (ly - 2)*(lz - 2))
+    n_faces = 2 * ((lx - 2) * (ly - 2) + (lx - 2) * (lz - 2) + (ly - 2) * (lz - 2))
     n_interior = (lx - 2) * (ly - 2) * (lz - 2)
     n_total = n_corners + n_edges + n_faces + n_interior
     allocate(ordering(lx * ly * lz))
 
-    do concurrent (i = 0:(lx - 1), j = 0:(ly - 1), k = 0:(lz - 1))
-       ibdy = merge(1, 0, i .eq. 0 .or. i .eq. lx - 1)
-       jbdy = merge(1, 0, j .eq. 0 .or. j .eq. ly - 1)
-       kbdy = merge(1, 0, k .eq. 0 .or. k .eq. lz - 1)
+    do concurrent (i = 1:lx, j = 1:ly, k = 1:lz)
+       ibdy = merge(1, 0, i .eq. 1 .or. i .eq. lx)
+       jbdy = merge(1, 0, j .eq. 1 .or. j .eq. ly)
+       kbdy = merge(1, 0, k .eq. 1 .or. k .eq. lz)
        nbdy = ibdy + jbdy + kbdy
 
        if (nbdy .eq. 3) then
           ! Corner node
           vtk_idx = merge( &
-               merge(2, 1, j .ne. 0), &
-               merge(3, 0, j .ne. 0), i .ne. 0) &
-               + merge(4, 0, k .ne. 0)
+               merge(2, 1, j .ne. 1), &
+               merge(3, 0, j .ne. 1), i .ne. 1) &
+               + merge(4, 0, k .ne. 1)
 
        else if (nbdy .eq. 2) then
           ! Edge interior node
           offset = n_corners
           if (ibdy .eq. 0) then
-             vtk_idx = (i - 1) &
-                  + merge((lx - 2) + (ly - 2), 0, j .ne. 0) &
-                  + merge(2 * ((lx - 2) + (ly - 2)), 0, k .ne. 0) &
+             vtk_idx = (i - 2) &
+                  + merge((lx - 2) + (ly - 2), 0, j .ne. 1) &
+                  + merge(2 * ((lx - 2) + (ly - 2)), 0, k .ne. 1) &
                   + offset
           else if (jbdy .eq. 0) then
-             vtk_idx = (j - 1) &
-                  + merge(lx - 2, 2 * (lx - 2) + (ly - 2), i .ne. 0) &
-                  + merge(2 * ((lx - 2) + (ly - 2)), 0, k .ne. 0) &
+             vtk_idx = (j - 2) &
+                  + merge(lx - 2, 2 * (lx - 2) + (ly - 2), i .ne. 1) &
+                  + merge(2 * ((lx - 2) + (ly - 2)), 0, k .ne. 1) &
                   + offset
           else
-             vtk_idx = (k - 1) + (lz - 2) &
-                  * merge(merge(2, 1, j .ne. 0), &
-                  merge(3, 0, j .ne. 0), i .ne. 0) &
+             vtk_idx = (k - 2) + (lz - 2) &
+                  * merge(merge(2, 1, j .ne. 1), &
+                  merge(3, 0, j .ne. 1), i .ne. 1) &
                   + offset + 4 * ((lx - 2) + (ly - 2))
           end if
 
@@ -1394,29 +1394,30 @@ contains
           ! Face interior node
           offset = n_corners + n_edges
           if (ibdy .eq. 1) then
-             vtk_idx = (j - 1) + (ly - 2) * (k - 1) &
-                  + merge((ly - 2) * (lz - 2), 0, i .ne. 0) &
+             vtk_idx = (j - 2) + (ly - 2) * (k - 2) &
+                  + merge((ly - 2) * (lz - 2), 0, i .ne. 1) &
                   + offset
           else if (jbdy .eq. 1) then
-             vtk_idx = (i - 1) + (lx - 2) * (k - 1) &
-                  + merge((lx - 2) * (lz - 2), 0, j .ne. 0) &
-                  + offset + 2 * (ly - 2) * (lz - 2)
+             offset = offset + 2 * (ly - 2) * (lz - 2)
+             vtk_idx = (i - 2) + (lx - 2) * (k - 2) &
+                  + merge((lx - 2) * (lz - 2), 0, j .ne. 1) &
+                  + offset
           else if (kbdy .eq. 1) then
-             vtk_idx = (i - 1) + (lx - 2) * (j - 1) &
-                  + merge((lx - 2) * (ly - 2), 0, k .ne. 0) &
-                  + offset + 2 * (ly - 2) * (lz - 2) &
-                  + 2 * (lx - 2) * (lz - 2)
+             offset = offset + 2 * (ly - 2) * (lz - 2) + 2 * (lx - 2) * (lz - 2)
+             vtk_idx = (i - 2) + (lx - 2) * (j - 2) &
+                  + merge((lx - 2) * (ly - 2), 0, k .ne. 1) &
+                  + offset
           end if
 
        else
           ! Body interior node
           offset = n_corners + n_edges + n_faces
           vtk_idx = offset &
-               + (i - 1) + (lx - 2) * ((j - 1) + (ly - 2) * (k - 1))
+               + (i - 2) + (lx - 2) * ((j - 2) + (ly - 2) * (k - 2))
        end if
 
        ! ordering(vtk_position + 1) = tensor-product index
-       ordering(vtk_idx + 1) = k * lx * ly + j * lx + i
+       ordering(vtk_idx + 1) = linear_index(i, j, k, 1, lx, ly, lz) - 1
     end do
 
   end function vtk_lagrange_hex_ordering
@@ -1435,42 +1436,45 @@ contains
     integer, allocatable :: ordering(:)
     integer :: i, j, vtk_idx
     integer :: ibdy, jbdy, nbdy, offset
+    integer :: n_corners, n_edges, n_faces, n_total
 
+    n_corners = 4
+    n_edges = 2 * ((lx - 2) + (ly - 2))
+    n_faces = (lx - 2) * (ly - 2)
+    n_total = n_corners + n_edges + n_faces
     allocate(ordering(lx * ly))
 
-    do j = 0, ly - 1
-       do i = 0, lx - 1
-          ibdy = merge(1, 0, i .eq. 0 .or. i .eq. lx - 1)
-          jbdy = merge(1, 0, j .eq. 0 .or. j .eq. ly - 1)
-          nbdy = ibdy + jbdy
+    do concurrent (i = 1:lx, j = 1:ly)
+       ibdy = merge(1, 0, i .eq. 1 .or. i .eq. lx)
+       jbdy = merge(1, 0, j .eq. 1 .or. j .eq. ly)
+       nbdy = ibdy + jbdy
 
+       if (nbdy .eq. 2) then
           ! Corner node
-          if (nbdy .eq. 2) then
-             vtk_idx = merge( &
-                  merge(2, 1, j .ne. 0), &
-                  merge(3, 0, j .ne. 0), i .ne. 0)
+          vtk_idx = merge( &
+               merge(2, 1, j .ne. 1), &
+               merge(3, 0, j .ne. 1), i .ne. 1)
 
-             ! Edge interior node
-          else if (nbdy .eq. 1) then
-             offset = 4
-             if (ibdy .eq. 0) then
-                vtk_idx = (i - 1) &
-                     + merge((lx - 2) + (ly - 2), 0, j .ne. 0) &
-                     + offset
-             else
-                vtk_idx = (j - 1) &
-                     + merge(lx - 2, 2 * (lx - 2) + (ly - 2), i .ne. 0) &
-                     + offset
-             end if
-
-             ! Face interior node
+       else if (nbdy .eq. 1) then
+          ! Edge interior node
+          offset = n_corners
+          if (ibdy .eq. 0) then
+             vtk_idx = (i - 2) &
+                  + merge((lx - 2) + (ly - 2), 0, j .ne. 1) &
+                  + offset
           else
-             vtk_idx = (i - 1) + (lx - 2) * (j - 1) &
-                  + 4 + 2 * ((lx - 2) + (ly - 2))
+             vtk_idx = (j - 2) &
+                  + merge(lx - 2, 2 * (lx - 2) + (ly - 2), i .ne. 1) &
+                  + offset
           end if
 
-          ordering(vtk_idx + 1) = j * lx + i
-       end do
+       else
+          ! Face interior node
+          offset = n_corners + n_edges
+          vtk_idx = offset + (i - 2) + (lx - 2) * (j - 2)
+       end if
+
+       ordering(vtk_idx + 1) = linear_index(i, j, 1, 1, lx, ly, 1) - 1
     end do
 
   end function vtk_lagrange_quad_ordering
