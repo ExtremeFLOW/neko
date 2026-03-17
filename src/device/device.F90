@@ -79,6 +79,12 @@ module device
           device_map_r3, device_map_r4
   end interface device_map
 
+  !> Unmap a Fortran array from a device (deassociate and free)
+  interface device_unmap
+     module procedure device_unmap_r1, device_unmap_r2, &
+          device_unmap_r3, device_unmap_r4
+  end interface device_unmap
+
   !> Associate a Fortran array to a (allocated) device pointer
   interface device_associate
      module procedure device_associate_r1, device_associate_r2, &
@@ -111,14 +117,14 @@ module device
   !> Table of host to device address mappings
   type(htable_cptr_t), private :: device_addrtbl
 
-  public :: device_memcpy, device_map, device_associate, device_associated, &
-       device_deassociate, device_get_ptr, device_sync, device_free, &
-       device_sync_stream, device_stream_create, device_stream_destroy, &
-       device_profiler_start, device_profiler_stop, device_alloc, &
-       device_init, device_name, device_event_create, device_event_destroy, &
-       device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event, device_count, device_memset, &
-       device_stream_create_with_priority
+  public :: device_memcpy, device_map, device_unmap, device_associate, &
+       device_associated, device_deassociate, device_get_ptr, device_sync, &
+       device_free, device_sync_stream, device_stream_create, &
+       device_stream_destroy, device_profiler_start, device_profiler_stop, &
+       device_alloc, device_init, device_name, device_event_create, &
+       device_event_destroy, device_event_record, device_event_sync, &
+       device_finalize, device_stream_wait_event, device_count, &
+       device_memset, device_stream_create_with_priority
 
   private :: device_memcpy_common
 
@@ -879,6 +885,134 @@ contains
     call device_associate(x, x_d)
 
   end subroutine device_map_r4
+
+  !> Unmap a Fortran rank 1 array from a device (deassociate and free)
+  subroutine device_unmap_r1(x, x_d)
+    class(*), intent(inout), target :: x(:)
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: dev
+    logical :: mapped
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    dev = device_get_ptr(x)
+    ! Whether dev has a non-null address, meaning that x is mapped.
+    mapped = c_associated(dev)
+
+    ! Repeated calls to this routine do nothing
+    if ((.not. mapped) .and. (.not. c_associated(x_d))) then
+       return
+    end if
+
+    ! Error if:
+    ! 1) x is not mapped to a device pointer, but x_d is not null.
+    ! 2) x_d is not a valid pointer, but x is mapped to some pointer.
+    ! 3) x is mapped to a device pointer that is not x_d.
+    if ((.not. mapped) .or. (.not. c_associated(x_d)) .or. &
+         (.not. c_associated(dev, x_d))) then
+       call neko_error('Inconsistent host/device mapping state in ' // &
+            'device_unmap')
+    end if
+
+    call device_deassociate(x)
+    call device_free(x_d)
+
+  end subroutine device_unmap_r1
+
+  !> Unmap a Fortran rank 2 array from a device (deassociate and free)
+  subroutine device_unmap_r2(x, x_d)
+    class(*), intent(inout), target :: x(:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: dev
+    logical :: mapped
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    dev = device_get_ptr(x)
+    ! Whether dev has a non-null address, meaning that x is mapped.
+    mapped = c_associated(dev)
+
+    ! Repeated calls to this routine do nothing
+    if ((.not. mapped) .and. (.not. c_associated(x_d))) then
+       return
+    end if
+
+    ! Error if:
+    ! 1) x is not mapped to a device pointer, but x_d is not null.
+    ! 2) x_d is not a valid pointer, but x is mapped to some pointer.
+    ! 3) x is mapped to a device pointer that is not x_d.
+    if ((.not. mapped) .or. (.not. c_associated(x_d)) .or. &
+         (.not. c_associated(dev, x_d))) then
+       call neko_error('Inconsistent host/device mapping state in ' // &
+            'device_unmap')
+    end if
+
+    call device_deassociate(x)
+    call device_free(x_d)
+
+  end subroutine device_unmap_r2
+
+  !> Unmap a Fortran rank 3 array from a device (deassociate and free)
+  subroutine device_unmap_r3(x, x_d)
+    class(*), intent(inout), target :: x(:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: dev
+    logical :: mapped
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    dev = device_get_ptr(x)
+    ! Whether dev has a non-null address, meaning that x is mapped.
+    mapped = c_associated(dev)
+
+    ! Repeated calls to this routine do nothing
+    if ((.not. mapped) .and. (.not. c_associated(x_d))) then
+       return
+    end if
+
+    ! Error if:
+    ! 1) x is not mapped to a device pointer, but x_d is not null.
+    ! 2) x_d is not a valid pointer, but x is mapped to some pointer.
+    ! 3) x is mapped to a device pointer that is not x_d.
+    if ((.not. mapped) .or. (.not. c_associated(x_d)) .or. &
+         (.not. c_associated(dev, x_d))) then
+       call neko_error('Inconsistent host/device mapping state in ' // &
+            'device_unmap')
+    end if
+
+    call device_deassociate(x)
+    call device_free(x_d)
+
+  end subroutine device_unmap_r3
+
+  !> Unmap a Fortran rank 4 array from a device (deassociate and free)
+  subroutine device_unmap_r4(x, x_d)
+    class(*), intent(inout), target :: x(:,:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: dev
+    logical :: mapped
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    dev = device_get_ptr(x)
+    ! Whether dev has a non-null address, meaning that x is mapped.
+    mapped = c_associated(dev)
+
+    ! Repeated calls to this routine do nothing
+    if ((.not. mapped) .and. (.not. c_associated(x_d))) then
+       return
+    end if
+
+    ! Error if:
+    ! 1) x is not mapped to a device pointer, but x_d is not null.
+    ! 2) x_d is not a valid pointer, but x is mapped to some pointer.
+    ! 3) x is mapped to a device pointer that is not x_d.
+    if ((.not. mapped) .or. (.not. c_associated(x_d)) .or. &
+         (.not. c_associated(dev, x_d))) then
+       call neko_error('Inconsistent host/device mapping state in ' // &
+            'device_unmap')
+    end if
+
+    call device_deassociate(x)
+    call device_free(x_d)
+
+  end subroutine device_unmap_r4
 
   !> Check if a Fortran rank 1 array is assoicated with a device pointer
   function device_associated_r1(x) result(assoc)
