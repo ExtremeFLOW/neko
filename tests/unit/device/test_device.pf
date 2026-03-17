@@ -178,6 +178,36 @@ subroutine test_device_map
 end subroutine test_device_map
 
 @test
+subroutine test_device_unmap
+  use neko_config
+  use pfunit
+  use device
+  use, intrinsic :: iso_c_binding
+  implicit none
+  type(c_ptr) :: x_d
+  integer, dimension(42) :: x
+
+  if (NEKO_BCKND_DEVICE .eq. 1) then
+
+     x_d = C_NULL_PTR
+
+     call device_map(x, x_d, size(x))
+     call device_unmap(x, x_d)
+
+     @assertFalse(device_associated(x))
+     @assertFalse(c_associated(x_d))
+
+     ! Check do-nothing
+     call device_unmap(x, x_d)
+
+     @assertFalse(device_associated(x))
+     @assertFalse(c_associated(x_d))
+
+  end if
+
+end subroutine test_device_unmap
+
+@test
 subroutine test_device_memcpy
   use neko_config
   use pfunit
