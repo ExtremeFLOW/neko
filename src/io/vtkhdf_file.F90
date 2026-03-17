@@ -297,6 +297,7 @@ contains
     type(dofmap_t) :: dof
     integer :: lx, ly, lz, nelv
     integer :: ie, ii, jj, kk, base, idx, npts_per_cell, p
+    integer, allocatable :: node_order(:)
 
     nelv = msh%nelv
     lx = dof%Xh%lx
@@ -304,6 +305,19 @@ contains
     lz = dof%Xh%lz
     npts_per_cell = lx * ly * lz
     idx = 0
+
+    select case (vtk_type)
+    case (12) ! VTK_HEXAHEDRON
+       ! No special ordering needed for linear hexes
+    case (9) ! VTK_QUAD
+       ! No special ordering needed for linear quads
+    case (72) ! VTK_LAGRANGE_HEXAHEDRON
+       node_order = vtk_lagrange_hex_ordering(lx, ly, lz)
+    case (70) ! VTK_LAGRANGE_QUADRILATERAL
+       node_order = vtk_lagrange_quad_ordering(lx, ly)
+    case default
+       call neko_error('Unsupported VTK cell type')
+    end select
 
     do ie = 1, nelv
        base = (ie - 1) * npts_per_cell
@@ -346,31 +360,25 @@ contains
           end do
 
        case (72) ! VTK_LAGRANGE_HEXAHEDRON
-          block
-            integer, allocatable :: node_order(:)
-            node_order = vtk_lagrange_hex_ordering(lx)
-            do ii = 1, lx * ly * lz
-               conn(idx + ii) = base + node_order(ii)
-            end do
-            deallocate(node_order)
-          end block
+
+          do ii = 1, lx * ly * lz
+             conn(idx + ii) = base + node_order(ii)
+          end do
           idx = idx + lx * ly * lz
 
        case (70) ! VTK_LAGRANGE_QUADRILATERAL
-          block
-            integer, allocatable :: node_order(:)
-            node_order = vtk_lagrange_quad_ordering(lx)
-            do ii = 1, lx * ly
-               conn(idx + ii) = base + node_order(ii)
-            end do
-            deallocate(node_order)
-          end block
+
+          do ii = 1, lx * ly
+             conn(idx + ii) = base + node_order(ii)
+          end do
           idx = idx + lx * ly
 
        case default
           call neko_error('Unsupported VTK cell type')
        end select
     end do
+
+    if (allocated(node_order)) deallocate(node_order)
 
   end subroutine vtkhdf_build_connectivity
 
@@ -1325,133 +1333,140 @@ contains
   ! These are HDF5-independent and placed outside the preprocessor block.
 
   !> Build the VTK Lagrange hexahedron node ordering for a given lx.
-  !! Returns an array of size lx^3 mapping VTK node position to the
+  !! Returns an array of size lx*ly*lz mapping VTK node position to the
   !! 0-based tensor-product index (i + lx*j + lx*ly*k).
   !! Implements VTK's PointIndexFromIJK for Lagrange hexahedra.
-  !! Node ordering: 8 corners, 12*(p-1) edge interiors,
-  !! 6*(p-1)^2 face interiors, (p-1)^3 body interior.
-  !! @param lx Number of points per edge (polynomial order + 1)
+  !! Node ordering: 8 corners, 4 * (lx - 2 + ly - 2 + lz - 2) edge interiors,
+  !! 6*(lx - 2)*(ly - 2) face interiors, (lx - 2)*(ly - 2)*(lz - 2) body
+  !! interior.
+  !! @param lx Number of points per edge in x-direction (polynomial order + 1)
+  !! @param ly Number of points per edge in y-direction (polynomial order + 1)
+  !! @param lz Number of points per edge in z-direction (polynomial order + 1)
   !! @return Array of 0-based tensor-product indices in VTK order
-  pure function vtk_lagrange_hex_ordering(lx) result(ordering)
-    integer, intent(in) :: lx
+  pure function vtk_lagrange_hex_ordering(lx, ly, lz) result(ordering)
+    integer, intent(in) :: lx, ly, lz
     integer, allocatable :: ordering(:)
-    integer :: i, j, k, p, vtk_idx
+    integer :: i, j, k, vtk_idx
     integer :: ibdy, jbdy, kbdy, nbdy, offset
+    integer :: n_corners, n_edges, n_faces, n_interior, n_total
 
-    p = lx - 1
-    allocate(ordering(lx * lx * lx))
+    n_corners = 8
+    n_edges = 4 * ((lx - 2) + (ly - 2) + (lz - 2))
+    n_faces = 2 * ((lx - 2)*(ly - 2) + (lx - 2)*(lz - 2) + (ly - 2)*(lz - 2))
+    n_interior = (lx - 2) * (ly - 2) * (lz - 2)
+    n_total = n_corners + n_edges + n_faces + n_interior
+    allocate(ordering(lx * ly * lz))
 
-    do k = 0, p
-       do j = 0, p
-          do i = 0, p
-             ibdy = merge(1, 0, i == 0 .or. i == p)
-             jbdy = merge(1, 0, j == 0 .or. j == p)
-             kbdy = merge(1, 0, k == 0 .or. k == p)
-             nbdy = ibdy + jbdy + kbdy
+    do concurrent (i = 0:(lx - 1), j = 0:(ly - 1), k = 0:(lz - 1))
+       ibdy = merge(1, 0, i .eq. 0 .or. i .eq. lx - 1)
+       jbdy = merge(1, 0, j .eq. 0 .or. j .eq. ly - 1)
+       kbdy = merge(1, 0, k .eq. 0 .or. k .eq. lz - 1)
+       nbdy = ibdy + jbdy + kbdy
 
-             ! Corner node
-             if (nbdy == 3) then
-                vtk_idx = merge( &
-                     merge(2, 1, j /= 0), &
-                     merge(3, 0, j /= 0), i /= 0) &
-                     + merge(4, 0, k /= 0)
+       if (nbdy .eq. 3) then
+          ! Corner node
+          vtk_idx = merge( &
+               merge(2, 1, j .ne. 0), &
+               merge(3, 0, j .ne. 0), i .ne. 0) &
+               + merge(4, 0, k .ne. 0)
 
-                ! Edge interior node
-             else if (nbdy == 2) then
-                offset = 8
-                if (ibdy == 0) then
-                   vtk_idx = (i - 1) &
-                        + merge(2 * (p - 1), 0, j /= 0) &
-                        + merge(4 * (p - 1), 0, k /= 0) &
-                        + offset
-                else if (jbdy == 0) then
-                   vtk_idx = (j - 1) &
-                        + merge(p - 1, 3 * (p - 1), i /= 0) &
-                        + merge(4 * (p - 1), 0, k /= 0) &
-                        + offset
-                else
-                   vtk_idx = (k - 1) + (p - 1) &
-                        * merge(merge(2, 1, j /= 0), &
-                        merge(3, 0, j /= 0), i /= 0) &
-                        + offset + 8 * (p - 1)
-                end if
+       else if (nbdy .eq. 2) then
+          ! Edge interior node
+          offset = n_corners
+          if (ibdy .eq. 0) then
+             vtk_idx = (i - 1) &
+                  + merge((lx - 2) + (ly - 2), 0, j .ne. 0) &
+                  + merge(2 * ((lx - 2) + (ly - 2)), 0, k .ne. 0) &
+                  + offset
+          else if (jbdy .eq. 0) then
+             vtk_idx = (j - 1) &
+                  + merge(lx - 2, 2 * (lx - 2) + (ly - 2), i .ne. 0) &
+                  + merge(2 * ((lx - 2) + (ly - 2)), 0, k .ne. 0) &
+                  + offset
+          else
+             vtk_idx = (k - 1) + (lz - 2) &
+                  * merge(merge(2, 1, j .ne. 0), &
+                  merge(3, 0, j .ne. 0), i .ne. 0) &
+                  + offset + 4 * ((lx - 2) + (ly - 2))
+          end if
 
-                ! Face interior node
-             else if (nbdy == 1) then
-                offset = 8 + 12 * (p - 1)
-                if (ibdy == 1) then
-                   vtk_idx = (j - 1) + (p - 1) * (k - 1) &
-                        + merge((p - 1) * (p - 1), 0, i /= 0) &
-                        + offset
-                else if (jbdy == 1) then
-                   vtk_idx = (i - 1) + (p - 1) * (k - 1) &
-                        + merge((p - 1) * (p - 1), 0, j /= 0) &
-                        + offset + 2 * (p - 1) * (p - 1)
-                else
-                   vtk_idx = (i - 1) + (p - 1) * (j - 1) &
-                        + merge((p - 1) * (p - 1), 0, k /= 0) &
-                        + offset + 4 * (p - 1) * (p - 1)
-                end if
+       else if (nbdy .eq. 1) then
+          ! Face interior node
+          offset = n_corners + n_edges
+          if (ibdy .eq. 1) then
+             vtk_idx = (j - 1) + (ly - 2) * (k - 1) &
+                  + merge((ly - 2) * (lz - 2), 0, i .ne. 0) &
+                  + offset
+          else if (jbdy .eq. 1) then
+             vtk_idx = (i - 1) + (lx - 2) * (k - 1) &
+                  + merge((lx - 2) * (lz - 2), 0, j .ne. 0) &
+                  + offset + 2 * (ly - 2) * (lz - 2)
+          else if (kbdy .eq. 1) then
+             vtk_idx = (i - 1) + (lx - 2) * (j - 1) &
+                  + merge((lx - 2) * (ly - 2), 0, k .ne. 0) &
+                  + offset + 2 * (ly - 2) * (lz - 2) &
+                  + 2 * (lx - 2) * (lz - 2)
+          end if
 
-                ! Body interior node
-             else
-                vtk_idx = 8 + 12 * (p - 1) + 6 * (p - 1) * (p - 1) &
-                     + (i - 1) + (p - 1) * ((j - 1) + (p - 1) * (k - 1))
-             end if
+       else
+          ! Body interior node
+          offset = n_corners + n_edges + n_faces
+          vtk_idx = offset &
+               + (i - 1) + (lx - 2) * ((j - 1) + (ly - 2) * (k - 1))
+       end if
 
-             ! ordering(vtk_position + 1) = tensor-product index
-             ordering(vtk_idx + 1) = k * lx * lx + j * lx + i
-          end do
-       end do
+       ! ordering(vtk_position + 1) = tensor-product index
+       ordering(vtk_idx + 1) = k * lx * ly + j * lx + i
     end do
 
   end function vtk_lagrange_hex_ordering
 
-  !> Build the VTK Lagrange quadrilateral node ordering for a given lx.
-  !! Returns an array of size lx^2 mapping VTK node position to the
+  !> Build the VTK Lagrange quadrilateral node ordering for a given lx, ly.
+  !! Returns an array of size lx*ly mapping VTK node position to the
   !! 0-based tensor-product index (i + lx*j).
   !! Implements VTK's PointIndexFromIJK for Lagrange quadrilaterals.
-  !! Node ordering: 4 corners, 4*(p-1) edge interiors,
-  !! (p-1)^2 face interior.
-  !! @param lx Number of points per edge (polynomial order + 1)
+  !! Node ordering: 4 corners, 2*(lx-2) + 2*(ly-2) edge interiors,
+  !! (lx-2)*(ly-2) face interior.
+  !! @param lx Number of points per edge in x-direction (polynomial order + 1)
+  !! @param ly Number of points per edge in y-direction (polynomial order + 1)
   !! @return Array of 0-based tensor-product indices in VTK order
-  pure function vtk_lagrange_quad_ordering(lx) result(ordering)
-    integer, intent(in) :: lx
+  pure function vtk_lagrange_quad_ordering(lx, ly) result(ordering)
+    integer, intent(in) :: lx, ly
     integer, allocatable :: ordering(:)
-    integer :: i, j, p, vtk_idx
+    integer :: i, j, vtk_idx
     integer :: ibdy, jbdy, nbdy, offset
 
-    p = lx - 1
-    allocate(ordering(lx * lx))
+    allocate(ordering(lx * ly))
 
-    do j = 0, p
-       do i = 0, p
-          ibdy = merge(1, 0, i == 0 .or. i == p)
-          jbdy = merge(1, 0, j == 0 .or. j == p)
+    do j = 0, ly - 1
+       do i = 0, lx - 1
+          ibdy = merge(1, 0, i .eq. 0 .or. i .eq. lx - 1)
+          jbdy = merge(1, 0, j .eq. 0 .or. j .eq. ly - 1)
           nbdy = ibdy + jbdy
 
           ! Corner node
-          if (nbdy == 2) then
+          if (nbdy .eq. 2) then
              vtk_idx = merge( &
-                  merge(2, 1, j /= 0), &
-                  merge(3, 0, j /= 0), i /= 0)
+                  merge(2, 1, j .ne. 0), &
+                  merge(3, 0, j .ne. 0), i .ne. 0)
 
              ! Edge interior node
-          else if (nbdy == 1) then
+          else if (nbdy .eq. 1) then
              offset = 4
-             if (ibdy == 0) then
+             if (ibdy .eq. 0) then
                 vtk_idx = (i - 1) &
-                     + merge(2 * (p - 1), 0, j /= 0) &
+                     + merge((lx - 2) + (ly - 2), 0, j .ne. 0) &
                      + offset
              else
                 vtk_idx = (j - 1) &
-                     + merge(p - 1, 3 * (p - 1), i /= 0) &
+                     + merge(lx - 2, 2 * (lx - 2) + (ly - 2), i .ne. 0) &
                      + offset
              end if
 
              ! Face interior node
           else
-             vtk_idx = (i - 1) + (p - 1) * (j - 1) + 4 + 4 * (p - 1)
+             vtk_idx = (i - 1) + (lx - 2) * (j - 1) &
+                  + 4 + 2 * ((lx - 2) + (ly - 2))
           end if
 
           ordering(vtk_idx + 1) = j * lx + i
