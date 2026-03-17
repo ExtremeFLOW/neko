@@ -276,12 +276,16 @@ contains
     nullify(this%coef)
 
     if (allocated(this%msk)) then
-       call device_unmap(this%msk, this%msk_d)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%msk, this%msk_d)
+       end if
        deallocate(this%msk)
     end if
 
     if (allocated(this%facet)) then
-       call device_unmap(this%facet, this%facet_d)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%facet, this%facet_d)
+       end if
        deallocate(this%facet)
     end if
 

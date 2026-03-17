@@ -209,7 +209,9 @@ contains
 
     call this%free_base()
     if (allocated(this%unique_mask)) then
-       call device_unmap(this%unique_mask, this%unique_mask_d)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%unique_mask, this%unique_mask_d)
+       end if
        deallocate(this%unique_mask)
     end if
 
@@ -247,7 +249,9 @@ contains
     ! we also ensure that we only visit each point once
     ! and create a new mask with only unique points (this%unique_mask).
     if (allocated(this%unique_mask)) then
-       call device_unmap(this%unique_mask, this%unique_mask_d)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%unique_mask, this%unique_mask_d)
+       end if
        deallocate(this%unique_mask)
     end if
 
