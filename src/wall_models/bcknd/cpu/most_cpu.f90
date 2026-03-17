@@ -101,16 +101,16 @@ contains
     real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h, bc_value
     real(kind=rp), intent(inout) :: q,ts
     select case (bc_type)
-    case ("neumann")
+      case ("neumann")
        q = bc_value
        f_ptr => f_neumann
        dfdl_ptr => dfdl_neumann
-    case ("dirichlet")
+      case ("dirichlet")
        ts = bc_value
        q = kappa*utau*(ts - ti)/log(hi/z0h)
        f_ptr => f_dirichlet
        dfdl_ptr => dfdl_dirichlet
-    case default
+      case default
        call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
     end select
   end subroutine select_bc_operators
@@ -122,11 +122,11 @@ contains
     real(kind=rp), intent(inout) :: q, Ri_b
 
     select case (bc_type)
-    case ("neumann")
+      case ("neumann")
        Ri_b = - g*hi / ti*q / (magu**3*kappa**2)
-    case ("dirichlet")
+      case ("dirichlet")
        Ri_b = g*hi/ti*(ti - ts)/magu**2
-    case default
+      case default
        call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
     end select
   end subroutine compute_Ri_b
@@ -155,7 +155,7 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, z0h_in, bc_type, bc_value, tstep)   
+       kappa, z0, z0h_in, bc_type, bc_value, tstep)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -197,10 +197,10 @@ contains
 
        ! Compute thermal roughness length from Zilitinkevich, 1995
        if (z0h_in < 0) then
-         z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))
-       else 
-         z0h = z0h_in
-       end if 
+          z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))
+       else
+          z0h = z0h_in
+       end if
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
        ! Maybe redundant, but needed to initialise Rib
@@ -225,7 +225,7 @@ contains
 
           L_old = 1.0e10_rp
           count = 0
-          
+
           ! Find Obukhov length
           do while ((abs(L_old - L_ob)/abs(L_ob) > tol) .and. (count < max_count))
              ! Switch between stable and convective based on bulk Richardson (Ri_b)
@@ -234,20 +234,20 @@ contains
              fd_h = NR_step*L_ob
              L_upper = L_ob + fd_h
              L_lower = L_ob - fd_h
-               ! Compute L_ob based on stability and bc_type
+             ! Compute L_ob based on stability and bc_type
              if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
                 call neko_error("Unassociated pointer for f or dfdl")
              end if
-               f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
-               dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
+             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
+             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
              if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
              L_new = L_ob - f/dfdl
-               ! Avoid regime crossing during Newton iter (otherwise crash)
+             ! Avoid regime crossing during Newton iter (otherwise crash)
              if (L_new*L_sign <= 0.0_rp) then
                 ! "damp update" (stay on same side)
                 L_new = 0.5_rp * L_ob
              end if
-               ! Bound L_ob
+             ! Bound L_ob
              L_ob = sign(max(abs(L_new), 1.0e-6_rp), L_sign)
              L_ob = sign(min(abs(L_ob), 1.0e6_rp), L_sign)
           end do
@@ -258,19 +258,19 @@ contains
           end if
        end if
 
-      ! Based on stability and bc_type, compute utau/q
-      select case (bc_type)
-      case ("neumann")
-         ! Compute u* with the new Obukhov length
-         utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
-      case ("dirichlet")
-         ! Compute u* with the new Obukhov length
-         utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
-         ! and compute q from here
-         q = kappa*utau*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
-      case default
-         call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
-      end select
+       ! Based on stability and bc_type, compute utau/q
+       select case (bc_type)
+         case ("neumann")
+          ! Compute u* with the new Obukhov length
+          utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
+         case ("dirichlet")
+          ! Compute u* with the new Obukhov length
+          utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
+          ! and compute q from here
+          q = kappa*utau*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
+         case default
+          call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+       end select
 
        ! Distribute according to the velocity vector and bound magu to avoid 0 division
        magu = max(magu, 1.0e-6_rp)

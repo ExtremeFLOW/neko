@@ -61,7 +61,7 @@ extern "C" {
                 (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
                 (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
                 (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
-                *n_nodes, *lx, *kappa, *z0, *z0h, *bc_value);
+                *n_nodes, *lx, *kappa, *z0, *z0h_in, *bc_value);
         } else if (strncmp(bc_type, "dirichlet", 9) == 0) {
             // Launch Dirichlet version (BC_TYPE = 1)
             most_compute<real, 1>
@@ -70,7 +70,7 @@ extern "C" {
                 (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
                 (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
                 (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
-                *n_nodes, *lx, *kappa, *z0, *z0h, *bc_value);
+                *n_nodes, *lx, *kappa, *z0, *z0h_in, *bc_value);
         }
       CUDA_CHECK(cudaGetLastError());
     }

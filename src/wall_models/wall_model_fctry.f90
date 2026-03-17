@@ -93,13 +93,13 @@ contains
     end if
 
     select case (trim(type_name) )
-    case ("spalding")
+      case ("spalding")
        allocate(spalding_t::object)
-    case ("rough_log_law")
+      case ("rough_log_law")
        allocate(rough_log_law_t::object)
-    case ("most")
+      case ("most")
        allocate(most_t::object)
-    case default
+      case default
        do i = 1, wall_model_registry_size
           if (trim(type_name) .eq. trim(wall_model_registry(i)%type_name)) then
              call wall_model_registry(i)%allocator(object)
