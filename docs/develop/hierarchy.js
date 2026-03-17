@@ -306,7 +306,8 @@ var hierarchy =
       [ "re2_file::re2_file_t", "d2/dfe/structre2__file_1_1re2__file__t.html", null ],
       [ "rea_file::rea_file_t", "d9/dfe/structrea__file_1_1rea__file__t.html", null ],
       [ "stl_file::stl_file_t", "d0/dab/structstl__file_1_1stl__file__t.html", null ],
-      [ "vtk_file::vtk_file_t", "d8/d43/structvtk__file_1_1vtk__file__t.html", null ]
+      [ "vtk_file::vtk_file_t", "d8/d43/structvtk__file_1_1vtk__file__t.html", null ],
+      [ "vtkhdf_file::vtkhdf_file_t", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html", null ]
     ] ],
     [ "generic_file::generic_file_write", "dd/d86/interfacegeneric__file_1_1generic__file__write.html", null ],
     [ "glb_intrp_comm::glb_intrp_comm_mpi_t", "dc/d33/structglb__intrp__comm_1_1glb__intrp__comm__mpi__t.html", null ],

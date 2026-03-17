@@ -202,7 +202,13 @@ var index =
         [ "Three-dimensional field output", "d7/d7f/io.html#autotoc_md152", [
           [ "Compression of field output", "d7/d7f/io.html#autotoc_md153", null ]
         ] ],
-        [ "Checkpoint files", "d7/d7f/io.html#autotoc_md154", null ]
+        [ "Checkpoint files", "d7/d7f/io.html#autotoc_md154", null ],
+        [ "VTKHDF output", "d7/d7f/io.html#vtkhdf-output", [
+          [ "Prerequisites", "d7/d7f/io.html#vtkhdf-prerequisites", null ],
+          [ "Enabling VTKHDF output", "d7/d7f/io.html#vtkhdf-enabling", null ],
+          [ "File structure", "d7/d7f/io.html#vtkhdf-file-structure", null ],
+          [ "Limitations", "d7/d7f/io.html#vtkhdf-limitations", null ]
+        ] ]
       ] ],
       [ "Examples: Programming the user file", "d5/db5/programming-examples.html", null ],
       [ "Extending neko", "d4/d1b/extending.html", null ],

@@ -122,8 +122,11 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a9f777e0d88d98b54f9b982f68089ed8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a9f777e0d88d98b54f9b982f68089ed8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad46cb05c1d6d66575710bcc14f96a00c" id="r_ad46cb05c1d6d66575710bcc14f96a00c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/namespacedofmap.html#ad46cb05c1d6d66575710bcc14f96a00c">dofmap_size</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:ad46cb05c1d6d66575710bcc14f96a00c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the total number of dofs in the dofmap, lx*ly*lz*nelv.  <br /></td></tr>
+<tr class="memdesc:ad46cb05c1d6d66575710bcc14f96a00c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the local number of dofs in the dofmap, lx*ly*lz*nelv.  <br /></td></tr>
 <tr class="separator:ad46cb05c1d6d66575710bcc14f96a00c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a025bdd9fec163069b021396a9835a15d" id="r_a025bdd9fec163069b021396a9835a15d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/namespacedofmap.html#a025bdd9fec163069b021396a9835a15d">dofmap_global_size</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a025bdd9fec163069b021396a9835a15d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the global number of dofs in the dofmap, lx*ly*lz*glb_nelv.  <br /></td></tr>
+<tr class="separator:a025bdd9fec163069b021396a9835a15d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac44b210b1453c5a79aaafeca1b41bb39" id="r_ac44b210b1453c5a79aaafeca1b41bb39"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/namespacedofmap.html#ac44b210b1453c5a79aaafeca1b41bb39">dofmap_number_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:ac44b210b1453c5a79aaafeca1b41bb39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign numbers to each dofs on points.  <br /></td></tr>
 <tr class="separator:ac44b210b1453c5a79aaafeca1b41bb39"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,7 +231,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l01115">1115</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l01124">1124</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -304,7 +307,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l01203">1203</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l01212">1212</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -396,7 +399,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00666">666</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00675">675</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -436,7 +439,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00153">153</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00155">155</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -475,7 +478,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Assumes \( X_{h_x} = X_{h_y} = X_{h_z} \) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00723">723</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00732">732</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -547,6 +550,34 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="a025bdd9fec163069b021396a9835a15d" name="a025bdd9fec163069b021396a9835a15d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a025bdd9fec163069b021396a9835a15d">&#9670;&#160;</a></span>dofmap_global_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a> dofmap::dofmap_global_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00206">206</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+
+</div>
+</div>
 <a id="ab00433635f8523e38ff52650bdbe62c0" name="ab00433635f8523e38ff52650bdbe62c0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab00433635f8523e38ff52650bdbe62c0">&#9670;&#160;</a></span>dofmap_init()</h2>
 
@@ -588,7 +619,7 @@ Here is the caller graph for this function:</div>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000056">Todo:</a></b></dt><dd>implement for 2d elements </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>should be intialised differently in axissymmetric case</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -684,7 +715,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00225">225</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00234">234</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -723,7 +754,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000057">Todo:</a></b></dt><dd>don't assume lx = ly = lz </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00560">560</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00569">569</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -771,7 +802,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00204">204</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00213">213</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -809,7 +840,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00197">197</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00199">199</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 
 </div>
 </div>
@@ -882,7 +913,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00787">787</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00796">796</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1000,7 +1031,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00862">862</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00871">871</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1121,7 +1152,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l01054">1054</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l01063">1063</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1211,7 +1242,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00942">942</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00951">951</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1235,7 +1266,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/dd2/namespacedofmap.html">dofmap</a></li>
-    <li class="footer">Generated on Mon Mar 16 2026 04:26:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Mar 17 2026 04:18:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1533,6 +1533,9 @@ var annotated_dup =
     [ "vtk_file", "da/d92/namespacevtk__file.html", [
       [ "vtk_file_t", "d8/d43/structvtk__file_1_1vtk__file__t.html", "d8/d43/structvtk__file_1_1vtk__file__t" ]
     ] ],
+    [ "vtkhdf_file", "db/d11/namespacevtkhdf__file.html", [
+      [ "vtkhdf_file_t", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t" ]
+    ] ],
     [ "wale", "d5/d8e/namespacewale.html", [
       [ "wale_t", "db/d6d/structwale_1_1wale__t.html", "db/d6d/structwale_1_1wale__t" ]
     ] ],

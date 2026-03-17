@@ -896,6 +896,7 @@ var namespaces_dup =
       [ "vreman_compute_device", "dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37", null ]
     ] ],
     [ "vtk_file", "da/d92/namespacevtk__file.html", "da/d92/namespacevtk__file" ],
+    [ "vtkhdf_file", "db/d11/namespacevtkhdf__file.html", "db/d11/namespacevtkhdf__file" ],
     [ "wale", "d5/d8e/namespacewale.html", "d5/d8e/namespacewale" ],
     [ "wale_cpu", "d7/da8/namespacewale__cpu.html", [
       [ "wale_compute_cpu", "d7/da8/namespacewale__cpu.html#ae8860c8d1c538c880c01de3ad5137a6c", null ]

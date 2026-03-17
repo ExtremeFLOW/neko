@@ -194,8 +194,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a1a5983b81cc37e027ee3ad7a13018ea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a1a5983b81cc37e027ee3ad7a13018ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70dd87c61f74d058287318f9b294f891" id="r_a70dd87c61f74d058287318f9b294f891"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html#a70dd87c61f74d058287318f9b294f891">size</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a70dd87c61f74d058287318f9b294f891"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the total number of degrees of freedom, lx*ly*lz*nelv.  <br /></td></tr>
+<tr class="memdesc:a70dd87c61f74d058287318f9b294f891"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the local number of degrees of freedom, lx*ly*lz*nelv.  <br /></td></tr>
 <tr class="separator:a70dd87c61f74d058287318f9b294f891"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d8c672b0cf6471d7a36e6d88ea9661f" id="r_a6d8c672b0cf6471d7a36e6d88ea9661f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html#a6d8c672b0cf6471d7a36e6d88ea9661f">global_size</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a6d8c672b0cf6471d7a36e6d88ea9661f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the global number of degrees of freedom, lx*ly*lz*glb_nelv.  <br /></td></tr>
+<tr class="separator:a6d8c672b0cf6471d7a36e6d88ea9661f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -228,7 +231,7 @@ Public Attributes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a51ceee7bc9c41e5e0a0bbb11731c9847" id="r_a51ceee7bc9c41e5e0a0bbb11731c9847"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html#a51ceee7bc9c41e5e0a0bbb11731c9847">ntot</a></td></tr>
-<tr class="memdesc:a51ceee7bc9c41e5e0a0bbb11731c9847"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total number of dofs.  <br /></td></tr>
+<tr class="memdesc:a51ceee7bc9c41e5e0a0bbb11731c9847"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local number of dofs.  <br /></td></tr>
 <tr class="separator:a51ceee7bc9c41e5e0a0bbb11731c9847"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -252,6 +255,26 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
+
+</div>
+</div>
+<a id="a6d8c672b0cf6471d7a36e6d88ea9661f" name="a6d8c672b0cf6471d7a36e6d88ea9661f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d8c672b0cf6471d7a36e6d88ea9661f">&#9670;&#160;</a></span>global_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) dofmap::dofmap_t::global_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d71/dofmap_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d3/d71/dofmap_8f90_source.html">dofmap.f90</a>.</p>
 
 </div>
 </div>
@@ -512,7 +535,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/dd2/namespacedofmap.html">dofmap</a></li><li class="navelem"><a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a></li>
-    <li class="footer">Generated on Mon Mar 16 2026 04:26:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Mar 17 2026 04:18:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

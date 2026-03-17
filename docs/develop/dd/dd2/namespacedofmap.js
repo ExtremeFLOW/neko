@@ -6,6 +6,7 @@ var namespacedofmap =
     [ "dofmap_facetidx", "dd/dd2/namespacedofmap.html#aef4f92bde297686a0415243142af0999", null ],
     [ "dofmap_free", "dd/dd2/namespacedofmap.html#a9f777e0d88d98b54f9b982f68089ed8e", null ],
     [ "dofmap_generate_xyz", "dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8", null ],
+    [ "dofmap_global_size", "dd/dd2/namespacedofmap.html#a025bdd9fec163069b021396a9835a15d", null ],
     [ "dofmap_init", "dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0", null ],
     [ "dofmap_number_edges", "dd/dd2/namespacedofmap.html#aad22655a920bedfab6d52e45f1efe325", null ],
     [ "dofmap_number_faces", "dd/dd2/namespacedofmap.html#ae20a989ae35a240199117fd84e0b1615", null ],

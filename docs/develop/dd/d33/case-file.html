@@ -190,7 +190,7 @@ The case object</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_directory</code>   </td><td class="markdownTableBodyNone">Folder for redirecting solver output. Note that the folder has to exist!   </td><td class="markdownTableBodyNone">Path to an existing directory   </td><td class="markdownTableBodyNone"><code>.</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>output_format</code>   </td><td class="markdownTableBodyNone">The file format of field data.   </td><td class="markdownTableBodyNone"><code>nek5000</code> or <code>adios2</code>   </td><td class="markdownTableBodyNone"><code>nek5000</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>output_format</code>   </td><td class="markdownTableBodyNone">The file format of field data.   </td><td class="markdownTableBodyNone"><code>nek5000</code>, <code>adios2</code>, or <code>vtkhdf</code>   </td><td class="markdownTableBodyNone"><code>nek5000</code>    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_precision</code>   </td><td class="markdownTableBodyNone">Whether to output snapshots in single or double precision   </td><td class="markdownTableBodyNone"><code>single</code> or <code>double</code>   </td><td class="markdownTableBodyNone"><code>single</code>    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -452,7 +452,7 @@ Available conditions</h3>
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Boundary Condition   </th><th class="markdownTableHeadNone">Description    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">A symmetry plain. Must be axis-aligned.    </td></tr>
+<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">A symmetry plane. Must be axis-aligned.    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">velocity_value   </td><td class="markdownTableBodyNone">A Dirichlet condition for velocity.    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -482,7 +482,7 @@ Available conditions</h3>
 </table>
 <p>A more detailed description of each boundary condition is provided below.</p>
 <ul>
-<li><code>symmetry</code>. A symmetry plain that must be axis-aligned. Sets the surface-normal velocity to 0 and applies a homogenous Neumann condition to the surface-parallel components. Requires no additional keywords. <div class="fragment"><div class="line">{</div>
+<li><code>symmetry</code>. A symmetry plane that must be axis-aligned. Sets the surface-normal velocity to 0 and applies a homogenous Neumann condition to the surface-parallel components. Requires no additional keywords. <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;symmetry&quot;,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
@@ -1254,7 +1254,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Mar 16 2026 04:26:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Mar 17 2026 04:18:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

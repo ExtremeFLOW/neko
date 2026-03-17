@@ -64,7 +64,7 @@ var searchData=
   ['neko_5fbcknd_5fxsmm_61',['neko_bcknd_xsmm',['../d9/d77/namespaceneko__config.html#add791e211e40d85e93174767b4679294',1,'neko_config']]],
   ['neko_5fblk_5fsize_62',['neko_blk_size',['../d9/d77/namespaceneko__config.html#a21e46b319abce9385450e6fe6557aadb',1,'neko_config']]],
   ['neko_5fbuild_5finfo_63',['neko_build_info',['../d9/d77/namespaceneko__config.html#a7d7ac750af5e8bc24a03e7dff9100e36',1,'neko_config']]],
-  ['neko_5fcomm_64',['neko_comm',['../d8/db4/comm_8h.html#a5f6af647bf5078d75f1b6b0889de43cd',1,'NEKO_COMM:&#160;comm_wrapper.c'],['../d4/de4/comm__wrapper_8c.html#a5f6af647bf5078d75f1b6b0889de43cd',1,'NEKO_COMM:&#160;comm_wrapper.c'],['../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d',1,'comm::neko_comm']]],
+  ['neko_5fcomm_64',['neko_comm',['../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d',1,'comm::neko_comm'],['../d8/db4/comm_8h.html#a5f6af647bf5078d75f1b6b0889de43cd',1,'NEKO_COMM:&#160;comm_wrapper.c'],['../d4/de4/comm__wrapper_8c.html#a5f6af647bf5078d75f1b6b0889de43cd',1,'NEKO_COMM:&#160;comm_wrapper.c']]],
   ['neko_5fconst_5fregistry_65',['neko_const_registry',['../de/d1f/namespaceregistry.html#a65a255cf2ec81e57163dc991438d8be9',1,'registry']]],
   ['neko_5fdevice_5fmpi_66',['neko_device_mpi',['../d9/d77/namespaceneko__config.html#ad530a81c2aeae77882a78a1fd396a16e',1,'neko_config']]],
   ['neko_5feps_67',['neko_eps',['../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0',1,'math']]],

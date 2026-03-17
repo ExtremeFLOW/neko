@@ -1,6 +1,7 @@
 var structdofmap_1_1dofmap__t =
 [
     [ "free", "d0/df0/structdofmap_1_1dofmap__t.html#a1a5983b81cc37e027ee3ad7a13018ea8", null ],
+    [ "global_size", "d0/df0/structdofmap_1_1dofmap__t.html#a6d8c672b0cf6471d7a36e6d88ea9661f", null ],
     [ "init", "d0/df0/structdofmap_1_1dofmap__t.html#a10486e2061b0f8ff737fd2cfcfa1d565", null ],
     [ "size", "d0/df0/structdofmap_1_1dofmap__t.html#a70dd87c61f74d058287318f9b294f891", null ],
     [ "dof", "d0/df0/structdofmap_1_1dofmap__t.html#aab9632c80bb5d01a7ed210589ba6812f", null ],

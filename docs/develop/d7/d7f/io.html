@@ -107,6 +107,12 @@ $(document).ready(function(){initNavTree('d7/d7f/io.html','../../'); initResizab
 </ul>
 </li>
 <li class="level1"><a href="#autotoc_md154">Checkpoint files</a></li>
+<li class="level1"><a href="#vtkhdf-output">VTKHDF output</a><ul><li class="level2"><a href="#vtkhdf-prerequisites">Prerequisites</a></li>
+<li class="level2"><a href="#vtkhdf-enabling">Enabling VTKHDF output</a></li>
+<li class="level2"><a href="#vtkhdf-file-structure">File structure</a></li>
+<li class="level2"><a href="#vtkhdf-limitations">Limitations</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="textblock"><h1><a class="anchor" id="autotoc_md151"></a>
@@ -128,7 +134,39 @@ Compression of field output</h2>
 </div><!-- fragment --><p> (The bool parameter specifies whether output should be double precision.) Test data sets can be generated during preprocessing and in an initial case setup workflow to compare and find an optimal compression rate with an acceptable accuracy loss. The value of the PSNR decreases with increasing accuracy loss. Tune the compression by increasing the compression ratio until a desired lower limiting value for the PSNR is reached. As a rule of thumb, target values of 60 or 40 can be used as lower limit for accurate postprocessing or visualization, respectively. Separately, it is recommended to check for compression errors from lossy compressors in the specific quantities of interest in postprocessing and visualization.</p>
 <h1><a class="anchor" id="autotoc_md154"></a>
 Checkpoint files</h1>
-<p>Simulations cannot be restarted from <code>.fld</code> files (although you can use an <code>fld</code> to provide initial conditions). Instead, separate checkpoint files can be output for the purpose of restarts. These contain additional information allowing a clean restart, with, e.g., the correct time integration order. A separate file format, <code>.chkp</code> is adopted for the checkpoint files. </p>
+<p>Simulations cannot be restarted from <code>.fld</code> files (although you can use an <code>fld</code> to provide initial conditions). Instead, separate checkpoint files can be output for the purpose of restarts. These contain additional information allowing a clean restart, with, e.g., the correct time integration order. A separate file format, <code>.chkp</code> is adopted for the checkpoint files.</p>
+<h1><a class="anchor" id="vtkhdf-output"></a>
+VTKHDF output</h1>
+<p>Neko supports output in the <a href="https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#vtkhdf-file-format">VTKHDF</a> file format, which stores field data in HDF5 files following the VTKHDF UnstructuredGrid specification (version 2.6). The resulting <code>.vtkhdf</code> files can be opened directly in ParaView (version 5.12 or later) without any additional metadata files.</p>
+<dl class="section attention"><dt>Attention</dt><dd>The VTKHDF output format is still experimental and may change in future releases.</dd></dl>
+<h2><a class="anchor" id="vtkhdf-prerequisites"></a>
+Prerequisites</h2>
+<p>VTKHDF output requires that Neko is built with HDF5 support. If HDF5 is not available, attempting to use the VTKHDF format will result in an error. The HDF5 library must be compiled with MPI (parallel) support, since all I/O is performed collectively.</p>
+<h2><a class="anchor" id="vtkhdf-enabling"></a>
+Enabling VTKHDF output</h2>
+<p>To use VTKHDF as the output format, set <code>output_format</code> to <code>vtkhdf</code> in the <code>case</code> object of the case file:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;case&quot;: {</div>
+<div class="line">    &quot;output_format&quot;: &quot;vtkhdf&quot;,</div>
+<div class="line">    &quot;output_precision&quot;: &quot;single&quot;</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>The <code>output_precision</code> setting controls whether field data is written in single or double precision, defaulting to current working precision.</p>
+<h2><a class="anchor" id="vtkhdf-file-structure"></a>
+File structure</h2>
+<p>All time steps are written into a single <code>.vtkhdf</code> file. The file contains a top-level <code>VTKHDF</code> group with the following structure:</p>
+<ul>
+<li><b>Mesh datasets</b>: <code>NumberOfPoints</code>, <code>NumberOfCells</code>, <code>NumberOfConnectivityIds</code>, <code>Points</code>, <code>Connectivity</code>, <code>Offsets</code>, and <code>Types</code>. For static meshes, these are written once on the first output call.</li>
+<li><b>PointData group</b>: Contains field datasets. The velocity components <code>u</code>, <code>v</code>, <code>w</code> are automatically grouped into a three-component <code>Velocity</code> vector dataset. The pressure field <code>p</code> is stored as <code>Pressure</code>. All other fields are written as scalar datasets under their original names.</li>
+<li><b>Steps group</b>: Stores temporal metadata including time values, the number of steps written, and offset arrays that allow ParaView to locate each time step's data within the concatenated datasets.</li>
+</ul>
+<h2><a class="anchor" id="vtkhdf-limitations"></a>
+Limitations</h2>
+<ul>
+<li>The VTKHDF writer performs a linear sub-division of spectral elements, writing one degree of freedom per sub-cell vertex. The high-order polynomial representation is not preserved in the output.</li>
+<li>Reading <code>.vtkhdf</code> files back into Neko is not currently supported.</li>
+<li>Adaptive mesh refinement (AMR) output is not yet implemented. </li>
+</ul>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
@@ -136,7 +174,7 @@ Checkpoint files</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Mar 16 2026 04:26:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Mar 17 2026 04:18:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
