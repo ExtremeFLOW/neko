@@ -286,7 +286,7 @@ contains
     type(dofmap_t), intent(in) :: dof
     logical, intent(in) :: subdivide
     integer :: lx, ly, lz, nelv
-    integer :: ie, ii, base, idx, n_pts_per_cell, n_conn_per_elem
+    integer :: ie, ii, n_pts_per_cell, n_conn_per_elem
     integer, allocatable :: node_order(:)
 
     nelv = msh%nelv
@@ -294,26 +294,24 @@ contains
     ly = dof%Xh%ly
     lz = dof%Xh%lz
     n_pts_per_cell = lx * ly * lz
-    idx = 0
 
-    if (subdivide) then
-       if (msh%gdim .eq. 3) then
-          node_order = vtkhdf_hex_node_order(lx, ly, lz)
-       else
-          node_order = vtkhdf_quad_node_order(lx, ly)
-       end if
+    if (subdivide .and. vtk_type .eq. 12) then
+       node_order = subdivide_to_hex_ordering(lx, ly, lz)
+    else if (subdivide .and. vtk_type .eq. 9) then
+       node_order = subdivide_to_quad_ordering(lx, ly)
     else
        node_order = vtk_ordering(vtk_type, lx, ly, lz)
     end if
 
     n_conn_per_elem = size(node_order)
 
-    do ie = 1, nelv
-       base = (ie - 1) * n_pts_per_cell
-       do ii = 1, n_conn_per_elem
-          conn(idx + ii) = base + node_order(ii)
-       end do
-       idx = idx + n_conn_per_elem
+    do concurrent (ie = 1:nelv, ii = 1:n_conn_per_elem)
+       block
+         integer :: idx, base
+         idx = (ie - 1) * n_conn_per_elem
+         base = (ie - 1) * n_pts_per_cell
+         conn(idx + ii) = base + node_order(ii)
+       end block
     end do
 
     deallocate(node_order)
@@ -1280,7 +1278,7 @@ contains
   !! @param ly Number of points in y-direction
   !! @param lz Number of points in z-direction
   !! @return Array of size 8*(lx-1)*(ly-1)*(lz-1) with 0-based indices
-  pure function vtkhdf_hex_node_order(lx, ly, lz) result(node_order)
+  pure function subdivide_to_hex_ordering(lx, ly, lz) result(node_order)
     integer, intent(in) :: lx, ly, lz
     integer :: node_order(8 * (lx - 1) * (ly - 1) * (lz - 1))
     integer :: ii, jj, kk, idx
@@ -1303,7 +1301,7 @@ contains
        end do
     end do
 
-  end function vtkhdf_hex_node_order
+  end function subdivide_to_hex_ordering
 
   !> Build linear quadrilateral sub-cell node ordering for a spectral element.
   !! Returns an array of 0-based tensor-product indices that subdivides
@@ -1312,7 +1310,7 @@ contains
   !! @param lx Number of points in x-direction
   !! @param ly Number of points in y-direction
   !! @return Array of size 4*(lx-1)*(ly-1) with 0-based indices
-  pure function vtkhdf_quad_node_order(lx, ly) result(node_order)
+  pure function subdivide_to_quad_ordering(lx, ly) result(node_order)
     integer, intent(in) :: lx, ly
     integer :: node_order(4 * (lx - 1) * (ly - 1))
     integer :: ii, jj, idx
@@ -1329,6 +1327,6 @@ contains
        end do
     end do
 
-  end function vtkhdf_quad_node_order
+  end function subdivide_to_quad_ordering
 
 end module vtkhdf_file
