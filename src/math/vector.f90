@@ -34,7 +34,7 @@
 module vector
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use device, only : device_map, device_free, device_deassociate, &
+  use device, only : device_map, device_unmap, &
        device_memcpy, device_sync, HOST_TO_DEVICE
   use math, only : cfill, copy
   use device_math, only : device_copy, device_cfill, device_cmult, &
@@ -130,12 +130,10 @@ contains
     class(vector_t), intent(inout) :: v
 
     if (allocated(v%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(v%x, v%x_d)
+       end if
        deallocate(v%x)
-    end if
-
-    if (c_associated(v%x_d)) then
-       call device_deassociate(v%x)
-       call device_free(v%x_d)
     end if
 
     v%n = 0

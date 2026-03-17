@@ -41,8 +41,8 @@ module global_interpolation
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error
   use local_interpolation, only : local_interpolator_t
-  use device, only: device_free, device_map, device_memcpy, &
-       device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
+  use device, only: device_map, device_memcpy, &
+       device_unmap, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr
   use aabb_pe_finder, only: aabb_pe_finder_t
   use aabb_el_finder, only: aabb_el_finder_t
@@ -63,7 +63,7 @@ module global_interpolation
   use math, only: copy, NEKO_EPS
   use mask, only: mask_t
   use structs, only : array_ptr_t
-  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -446,10 +446,11 @@ contains
     if (allocated(this%xyz)) deallocate(this%xyz)
     if (allocated(this%rst)) deallocate(this%rst)
     if (allocated(this%pe_owner)) deallocate(this%pe_owner)
-    if (allocated(this%el_owner0)) deallocate(this%el_owner0)
-
-    if (c_associated(this%el_owner0_d)) then
-       call device_free(this%el_owner0_d)
+    if (allocated(this%el_owner0)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_owner0, this%el_owner0_d)
+       end if
+       deallocate(this%el_owner0)
     end if
 
     call this%glb_intrp_comm%free()
@@ -466,10 +467,11 @@ contains
 
     if (allocated(this%xyz_local)) deallocate(this%xyz_local)
     if (allocated(this%rst_local)) deallocate(this%rst_local)
-    if (allocated(this%el_owner0_local)) deallocate(this%el_owner0_local)
-
-    if (c_associated(this%el_owner0_local_d)) then
-       call device_free(this%el_owner0_local_d)
+    if (allocated(this%el_owner0_local)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_owner0_local, this%el_owner0_local_d)
+       end if
+       deallocate(this%el_owner0_local)
     end if
 
   end subroutine global_interpolation_free_points_local
@@ -660,8 +662,7 @@ contains
        call resx%copy_from(DEVICE_TO_HOST,.false.)
        call resy%copy_from(DEVICE_TO_HOST,.false.)
        call resz%copy_from(DEVICE_TO_HOST,.true.)
-       call device_deassociate(el_cands)
-       call device_free(el_cands_d)
+       call device_unmap(el_cands, el_cands_d)
     end if
     call MPI_Barrier(this%comm)
 

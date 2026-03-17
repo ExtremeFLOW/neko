@@ -73,7 +73,7 @@ module fdm
   use comm, only : pe_rank
   use math, only : vlmax
   use device, only : glb_cmd_queue, DEVICE_TO_HOST, HOST_TO_DEVICE, &
-       device_memcpy, device_map, device_free
+       device_memcpy, device_map, device_unmap
   use fast3d, only : semhat
   use tensor, only : trsp
   use math, only : rzero, row_zero
@@ -569,10 +569,16 @@ contains
     class(fdm_t), intent(inout) :: this
 
     if (allocated(this%s)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%s, this%s_d)
+       end if
        deallocate(this%s)
     end if
 
     if (allocated(this%d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%d, this%d_d)
+       end if
        deallocate(this%d)
     end if
 
@@ -613,6 +619,9 @@ contains
     end if
 
     if (allocated(this%swplen)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%swplen, this%swplen_d)
+       end if
        deallocate(this%swplen)
     end if
 
@@ -620,16 +629,6 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%msh)
-
-    if (c_associated(this%s_d)) then
-       call device_free(this%s_d)
-    end if
-    if (c_associated(this%d_d)) then
-       call device_free(this%d_d)
-    end if
-    if (c_associated(this%swplen_d)) then
-       call device_free(this%swplen_d)
-    end if
 
   end subroutine fdm_free
 

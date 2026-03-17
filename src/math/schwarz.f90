@@ -73,7 +73,7 @@ module schwarz
        device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr, glb_cmd_queue, aux_cmd_queue, &
        device_event_record, device_event_sync, device_stream_wait_event, &
-       device_event_destroy, device_free
+       device_event_destroy, device_free, device_unmap
   use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, &
@@ -173,17 +173,19 @@ contains
   subroutine schwarz_free(this)
     class(schwarz_t), intent(inout) :: this
 
-    if (allocated(this%work1)) deallocate(this%work1)
-    if (allocated(this%work2)) deallocate(this%work2)
+    if (allocated(this%work1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%work1, this%work1_d)
+       end if
+       deallocate(this%work1)
+    end if
+    if (allocated(this%work2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%work2, this%work2_d)
+       end if
+       deallocate(this%work2)
+    end if
     if (allocated(this%wt)) deallocate(this%wt)
-
-    if (c_associated(this%work1_d)) then
-       call device_free(this%work1_d)
-    end if
-
-    if (c_associated(this%work2_d)) then
-       call device_free(this%work2_d)
-    end if
 
     if (c_associated(this%wt_d)) then
        call device_free(this%wt_d)
