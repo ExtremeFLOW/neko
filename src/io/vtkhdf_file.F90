@@ -35,7 +35,7 @@ module vtkhdf_file
   use num_types, only : rp, sp, dp
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
-  use utils, only : neko_error, neko_warning, filename_suffix_pos, &
+  use utils, only : neko_error, neko_warning, filename_split, &
        nonlinear_index
   use mesh, only : mesh_t
   use field, only : field_t, field_ptr_t
@@ -59,6 +59,7 @@ module vtkhdf_file
      logical :: amr_enabled = .false.
      integer :: precision = 0
    contains
+     procedure :: get_vtkhdf_fname => vtkhdf_file_get_fname
      procedure :: read => vtkhdf_file_read
      procedure :: write => vtkhdf_file_write
      procedure :: set_overwrite => vtkhdf_file_set_overwrite
@@ -92,6 +93,21 @@ contains
     integer, intent(in) :: precision
     this%precision = precision
   end subroutine vtkhdf_file_set_precision
+
+  !> Return the file name with the start counter.
+  function vtkhdf_file_get_fname(this) result(base_fname)
+    class(vtkhdf_file_t), intent(in) :: this
+    character(len=1024) :: base_fname
+    character(len=1024) :: fname
+    character(len=1024) :: path, name, suffix
+
+    fname = trim(this%get_base_fname())
+    call filename_split(fname, path, name, suffix)
+
+    write(base_fname, '(A,A,".",I0,A)') &
+         trim(path), trim(name), this%get_start_counter(), trim(suffix)
+
+  end function vtkhdf_file_get_fname
 
 #ifdef HAVE_HDF5
   ! -------------------------------------------------------------------------- !
@@ -168,8 +184,8 @@ contains
     end if
 
     call this%increment_counter()
-    fname = trim(this%get_base_fname())
-    counter = this%get_counter()
+    fname = trim(this%get_vtkhdf_fname())
+    counter = this%get_counter() - this%get_start_counter()
 
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
