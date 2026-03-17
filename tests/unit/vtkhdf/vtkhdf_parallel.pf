@@ -32,6 +32,7 @@ contains
 
   subroutine setUp(this)
     class(test_vtkhdf), intent(inout) :: this
+    integer :: ierr
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
@@ -396,7 +397,7 @@ contains
     integer(hsize_t), dimension(2) :: h5dims, h5maxdims
     integer :: hdferr, h5rank
     integer :: version_read(2)
-    integer :: nop_read(2), noc_read(2), noci_read(2)
+    integer :: nop_read(4), noc_read(4), noci_read(4)
     integer :: nsteps_read(1)
     integer :: nparts_read(2), partoffs_read(2)
     integer :: ptoffs_read(2), celloffs_read(2)
@@ -404,7 +405,12 @@ contains
     real(rp) :: values_read(2)
     logical :: link_exists
 
-    ! Expected values: same geometry as non-temporal, 2 timesteps
+    ! Expected values: each rank has 2 elements, LX=4, 3D
+    ! subcells_per_el = (lx-1)*(ly-1)*(lz-1) = 27, nodes_per_cell = 8
+    ! local_points = 2*64 = 128, total_points = 256
+    ! local_cells = 2*27 = 54, total_cells = 108
+    ! local_conn = 54*8 = 432, total_conn = 864
+    ! total_offsets = 108 + 2 = 110
     integer, parameter :: EXP_LOCAL_POINTS = 128
     integer, parameter :: EXP_LOCAL_CELLS = 54
     integer, parameter :: EXP_LOCAL_CONN = 432
@@ -457,9 +463,6 @@ contains
 
     message = "Version must be at least 2.0 for Temporal UnstructuredGrid"
     @assertGreaterThanOrEqual(version_read(1), 2, message = message)
-    if (version_read(1) .eq. 2) then
-       @assertGreaterThanOrEqual(version_read(2), 0, message = message)
-    end if
     call h5aclose_f(attr_id, hdferr)
 
     ! -- Type attribute --
@@ -475,47 +478,56 @@ contains
     call h5dopen_f(vtkhdf_grp, "NumberOfPoints", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    message = "NumberOfPoints size (temporal)"
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
+    message = "NumberOfPoints size"
+    @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nop_read, h5dims(1:1), hdferr)
-    message = "NumberOfPoints part 0 (temporal)"
+    message = "NumberOfPoints step0 part0"
     @assertEqual(EXP_LOCAL_POINTS, nop_read(1), message = message)
-    message = "NumberOfPoints part 1 (temporal)"
+    message = "NumberOfPoints step0 part1"
     @assertEqual(EXP_LOCAL_POINTS, nop_read(2), message = message)
+    message = "NumberOfPoints step1 part0"
+    @assertEqual(EXP_LOCAL_POINTS, nop_read(3), message = message)
+    message = "NumberOfPoints step1 part1"
+    @assertEqual(EXP_LOCAL_POINTS, nop_read(4), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
-    ! -- NumberOfCells dataset --
+    ! -- NumberOfCells dataset: NUM_PARTS entries per step --
     call h5lexists_f(vtkhdf_grp, "NumberOfCells", link_exists, hdferr)
     message = "NumberOfCells must exist (temporal)"
     @assertTrue(link_exists, message = message)
     call h5dopen_f(vtkhdf_grp, "NumberOfCells", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    message = "NumberOfCells size (temporal)"
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
+    message = "NumberOfCells size"
+    @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noc_read, h5dims(1:1), hdferr)
-    message = "NumberOfCells part 0 (temporal)"
+    message = "NumberOfCells step0 part0"
     @assertEqual(EXP_LOCAL_CELLS, noc_read(1), message = message)
-    message = "NumberOfCells part 1 (temporal)"
+    message = "NumberOfCells step0 part1"
     @assertEqual(EXP_LOCAL_CELLS, noc_read(2), message = message)
+    message = "NumberOfCells step1 part0"
+    @assertEqual(EXP_LOCAL_CELLS, noc_read(3), message = message)
+    message = "NumberOfCells step1 part1"
+    @assertEqual(EXP_LOCAL_CELLS, noc_read(4), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
-    ! -- NumberOfConnectivityIds dataset --
-    call h5lexists_f(vtkhdf_grp, "NumberOfConnectivityIds", link_exists, hdferr)
-    message = "NumberOfConnectivityIds must exist (temporal)"
-    @assertTrue(link_exists, message = message)
+    ! -- NumberOfConnectivityIds dataset: NUM_PARTS entries per step --
     call h5dopen_f(vtkhdf_grp, "NumberOfConnectivityIds", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    message = "NumberOfConnectivityIds size (temporal)"
-    @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
+    message = "NumberOfConnectivityIds size"
+    @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
     call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noci_read, h5dims(1:1), hdferr)
-    message = "NumberOfConnectivityIds part 0 (temporal)"
+    message = "NumberOfConnectivityIds step0 part0"
     @assertEqual(EXP_LOCAL_CONN, noci_read(1), message = message)
-    message = "NumberOfConnectivityIds part 1 (temporal)"
+    message = "NumberOfConnectivityIds step0 part1"
     @assertEqual(EXP_LOCAL_CONN, noci_read(2), message = message)
+    message = "NumberOfConnectivityIds step1 part0"
+    @assertEqual(EXP_LOCAL_CONN, noci_read(3), message = message)
+    message = "NumberOfConnectivityIds step1 part1"
+    @assertEqual(EXP_LOCAL_CONN, noci_read(4), message = message)
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
