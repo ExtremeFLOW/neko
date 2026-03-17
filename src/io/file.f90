@@ -80,6 +80,8 @@ module file
      procedure :: set_layout => file_set_layout
      !> Sets the file's overwrite flag.
      procedure, pass (this) :: set_overwrite => file_set_overwrite
+     !> Enable or disable Lagrange element output.
+     procedure :: set_lagrange => file_set_lagrange
      !> File operation destructor.
      procedure, pass(this) :: free => file_free
   end type file_t
@@ -316,5 +318,23 @@ contains
        call ft%set_overwrite(overwrite)
     end select
   end subroutine file_set_overwrite
+
+  !> Enable or disable Lagrange element output.
+  !! Only has effect for VTKHDF files; warns for other formats.
+  !! @param lagrange Whether to enable Lagrange output.
+  subroutine file_set_lagrange(this, lagrange)
+    class(file_t), intent(inout) :: this
+    logical, intent(in) :: lagrange
+    character(len=80) :: suffix
+
+    select type (ft => this%file_type)
+    type is (vtkhdf_file_t)
+       call ft%set_lagrange(lagrange)
+    class default
+       call filename_suffix(this%file_type%get_fname(), suffix)
+       call neko_warning("Lagrange output not supported for " // &
+            trim(suffix) // " files")
+    end select
+  end subroutine file_set_lagrange
 
 end module file

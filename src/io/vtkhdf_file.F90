@@ -57,6 +57,7 @@ module vtkhdf_file
   !> Interface for HDF5 files
   type, public, extends(generic_file_t) :: vtkhdf_file_t
      logical :: amr_enabled = .false.
+     logical :: lagrange = .false.
      integer :: precision = 0
    contains
      procedure :: get_vtkhdf_fname => vtkhdf_file_get_fname
@@ -65,6 +66,7 @@ module vtkhdf_file
      procedure :: set_overwrite => vtkhdf_file_set_overwrite
      procedure :: enable_amr => vtkhdf_file_enable_amr
      procedure :: set_precision => vtkhdf_file_set_precision
+     procedure :: set_lagrange => vtkhdf_file_set_lagrange
   end type vtkhdf_file_t
 
   integer, dimension(2), parameter :: vtkhdf_version = [2, 6]
@@ -108,6 +110,17 @@ contains
          trim(path), trim(name), this%get_start_counter(), trim(suffix)
 
   end function vtkhdf_file_get_fname
+
+  !> Enable or disable high-order Lagrange element output.
+  !! When enabled, each spectral element is written as a single
+  !! VTK_LAGRANGE_HEXAHEDRON (type 72) or VTK_LAGRANGE_QUADRILATERAL
+  !! (type 70) cell instead of being subdivided into linear sub-cells.
+  !! @param lagrange Whether to enable Lagrange element output.
+  subroutine vtkhdf_file_set_lagrange(this, lagrange)
+    class(vtkhdf_file_t), intent(inout) :: this
+    logical, intent(in) :: lagrange
+    this%lagrange = lagrange
+  end subroutine vtkhdf_file_set_lagrange
 
 #ifdef HAVE_HDF5
   ! -------------------------------------------------------------------------- !
@@ -177,10 +190,18 @@ contains
        this%precision = rp
     end if
 
-    if (msh%gdim .eq. 3) then
-       VTK_cell_type = 12 ! VTK_HEXAHEDRON
+    if (this%lagrange) then
+       if (msh%gdim .eq. 3) then
+          VTK_cell_type = 72 ! VTK_LAGRANGE_HEXAHEDRON
+       else
+          VTK_cell_type = 70 ! VTK_LAGRANGE_QUADRILATERAL
+       end if
     else
-       VTK_cell_type = 9 ! VTK_QUAD
+       if (msh%gdim .eq. 3) then
+          VTK_cell_type = 12 ! VTK_HEXAHEDRON
+       else
+          VTK_cell_type = 9 ! VTK_QUAD
+       end if
     end if
 
     call this%increment_counter()
@@ -259,11 +280,13 @@ contains
 
   end subroutine vtkhdf_file_write
 
-  !> Build local connectivity for VTK sub-cells from a spectral element
-  !! tensor-product grid. Subdivides each spectral element into linear
-  !! sub-cells based on the GLL node positions.
+  !> Build local connectivity for VTK cells from a spectral element
+  !! tensor-product grid. For linear types (12, 9) subdivides each spectral
+  !! element into linear sub-cells. For Lagrange types (72, 70) writes one
+  !! high-order cell per element with VTK node ordering.
   !! @param conn Output connectivity array (pre-allocated)
-  !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD
+  !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD,
+  !!        72 = VTK_LAGRANGE_HEXAHEDRON, 70 = VTK_LAGRANGE_QUADRILATERAL
   !! @param msh Mesh object containing element information
   !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral
   !!            element grid
@@ -273,7 +296,7 @@ contains
     type(mesh_t) :: msh
     type(dofmap_t) :: dof
     integer :: lx, ly, lz, nelv
-    integer :: ie, ii, jj, kk, base, idx, npts_per_cell
+    integer :: ie, ii, jj, kk, base, idx, npts_per_cell, p
 
     nelv = msh%nelv
     lx = dof%Xh%lx
@@ -321,6 +344,28 @@ contains
                 idx = idx + 4
              end do
           end do
+
+       case (72) ! VTK_LAGRANGE_HEXAHEDRON
+          block
+            integer, allocatable :: node_order(:)
+            node_order = vtk_lagrange_hex_ordering(lx)
+            do ii = 1, lx * ly * lz
+               conn(idx + ii) = base + node_order(ii)
+            end do
+            deallocate(node_order)
+          end block
+          idx = idx + lx * ly * lz
+
+       case (70) ! VTK_LAGRANGE_QUADRILATERAL
+          block
+            integer, allocatable :: node_order(:)
+            node_order = vtk_lagrange_quad_ordering(lx)
+            do ii = 1, lx * ly
+               conn(idx + ii) = base + node_order(ii)
+            end do
+            deallocate(node_order)
+          end block
+          idx = idx + lx * ly
 
        case default
           call neko_error('Unsupported VTK cell type')
@@ -378,6 +423,12 @@ contains
     case(9)
        cells_per_element = (lx - 1) * (ly - 1)
        nodes_per_cell = 4
+    case(72) ! VTK_LAGRANGE_HEXAHEDRON
+       cells_per_element = 1
+       nodes_per_cell = lx * ly * lz
+    case(70) ! VTK_LAGRANGE_QUADRILATERAL
+       cells_per_element = 1
+       nodes_per_cell = lx * ly
     case default
        call neko_error('Unsupported VTK cell type')
     end select
@@ -1268,5 +1319,145 @@ contains
   end subroutine vtkhdf_file_read
 
 #endif
+
+  ! -------------------------------------------------------------------------- !
+  ! Pure functions for VTK Lagrange node ordering
+  ! These are HDF5-independent and placed outside the preprocessor block.
+
+  !> Build the VTK Lagrange hexahedron node ordering for a given lx.
+  !! Returns an array of size lx^3 mapping VTK node position to the
+  !! 0-based tensor-product index (i + lx*j + lx*ly*k).
+  !! Implements VTK's PointIndexFromIJK for Lagrange hexahedra.
+  !! Node ordering: 8 corners, 12*(p-1) edge interiors,
+  !! 6*(p-1)^2 face interiors, (p-1)^3 body interior.
+  !! @param lx Number of points per edge (polynomial order + 1)
+  !! @return Array of 0-based tensor-product indices in VTK order
+  pure function vtk_lagrange_hex_ordering(lx) result(ordering)
+    integer, intent(in) :: lx
+    integer, allocatable :: ordering(:)
+    integer :: i, j, k, p, vtk_idx
+    integer :: ibdy, jbdy, kbdy, nbdy, offset
+
+    p = lx - 1
+    allocate(ordering(lx * lx * lx))
+
+    do k = 0, p
+       do j = 0, p
+          do i = 0, p
+             ibdy = merge(1, 0, i == 0 .or. i == p)
+             jbdy = merge(1, 0, j == 0 .or. j == p)
+             kbdy = merge(1, 0, k == 0 .or. k == p)
+             nbdy = ibdy + jbdy + kbdy
+
+             ! Corner node
+             if (nbdy == 3) then
+                vtk_idx = merge( &
+                     merge(2, 1, j /= 0), &
+                     merge(3, 0, j /= 0), i /= 0) &
+                     + merge(4, 0, k /= 0)
+
+                ! Edge interior node
+             else if (nbdy == 2) then
+                offset = 8
+                if (ibdy == 0) then
+                   vtk_idx = (i - 1) &
+                        + merge(2 * (p - 1), 0, j /= 0) &
+                        + merge(4 * (p - 1), 0, k /= 0) &
+                        + offset
+                else if (jbdy == 0) then
+                   vtk_idx = (j - 1) &
+                        + merge(p - 1, 3 * (p - 1), i /= 0) &
+                        + merge(4 * (p - 1), 0, k /= 0) &
+                        + offset
+                else
+                   vtk_idx = (k - 1) + (p - 1) &
+                        * merge(merge(2, 1, j /= 0), &
+                        merge(3, 0, j /= 0), i /= 0) &
+                        + offset + 8 * (p - 1)
+                end if
+
+                ! Face interior node
+             else if (nbdy == 1) then
+                offset = 8 + 12 * (p - 1)
+                if (ibdy == 1) then
+                   vtk_idx = (j - 1) + (p - 1) * (k - 1) &
+                        + merge((p - 1) * (p - 1), 0, i /= 0) &
+                        + offset
+                else if (jbdy == 1) then
+                   vtk_idx = (i - 1) + (p - 1) * (k - 1) &
+                        + merge((p - 1) * (p - 1), 0, j /= 0) &
+                        + offset + 2 * (p - 1) * (p - 1)
+                else
+                   vtk_idx = (i - 1) + (p - 1) * (j - 1) &
+                        + merge((p - 1) * (p - 1), 0, k /= 0) &
+                        + offset + 4 * (p - 1) * (p - 1)
+                end if
+
+                ! Body interior node
+             else
+                vtk_idx = 8 + 12 * (p - 1) + 6 * (p - 1) * (p - 1) &
+                     + (i - 1) + (p - 1) * ((j - 1) + (p - 1) * (k - 1))
+             end if
+
+             ! ordering(vtk_position + 1) = tensor-product index
+             ordering(vtk_idx + 1) = k * lx * lx + j * lx + i
+          end do
+       end do
+    end do
+
+  end function vtk_lagrange_hex_ordering
+
+  !> Build the VTK Lagrange quadrilateral node ordering for a given lx.
+  !! Returns an array of size lx^2 mapping VTK node position to the
+  !! 0-based tensor-product index (i + lx*j).
+  !! Implements VTK's PointIndexFromIJK for Lagrange quadrilaterals.
+  !! Node ordering: 4 corners, 4*(p-1) edge interiors,
+  !! (p-1)^2 face interior.
+  !! @param lx Number of points per edge (polynomial order + 1)
+  !! @return Array of 0-based tensor-product indices in VTK order
+  pure function vtk_lagrange_quad_ordering(lx) result(ordering)
+    integer, intent(in) :: lx
+    integer, allocatable :: ordering(:)
+    integer :: i, j, p, vtk_idx
+    integer :: ibdy, jbdy, nbdy, offset
+
+    p = lx - 1
+    allocate(ordering(lx * lx))
+
+    do j = 0, p
+       do i = 0, p
+          ibdy = merge(1, 0, i == 0 .or. i == p)
+          jbdy = merge(1, 0, j == 0 .or. j == p)
+          nbdy = ibdy + jbdy
+
+          ! Corner node
+          if (nbdy == 2) then
+             vtk_idx = merge( &
+                  merge(2, 1, j /= 0), &
+                  merge(3, 0, j /= 0), i /= 0)
+
+             ! Edge interior node
+          else if (nbdy == 1) then
+             offset = 4
+             if (ibdy == 0) then
+                vtk_idx = (i - 1) &
+                     + merge(2 * (p - 1), 0, j /= 0) &
+                     + offset
+             else
+                vtk_idx = (j - 1) &
+                     + merge(p - 1, 3 * (p - 1), i /= 0) &
+                     + offset
+             end if
+
+             ! Face interior node
+          else
+             vtk_idx = (i - 1) + (p - 1) * (j - 1) + 4 + 4 * (p - 1)
+          end if
+
+          ordering(vtk_idx + 1) = j * lx + i
+       end do
+    end do
+
+  end function vtk_lagrange_quad_ordering
 
 end module vtkhdf_file

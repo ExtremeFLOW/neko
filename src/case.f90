@@ -512,6 +512,10 @@ contains
             always_write_mesh = logical_val)
     end if
 
+    call json_get_or_default(this%params, &
+         'case.fluid.output_lagrange', logical_val, .false.)
+    if (logical_val) call this%f_out%file_%set_lagrange(.true.)
+
     call json_get(this%params, 'case.fluid.output_control', string_val)
 
     if (trim(string_val) .eq. 'org') then
