@@ -314,7 +314,8 @@ var annotated_dup =
       [ "device_get_ptr", "dd/d49/interfacedevice_1_1device__get__ptr.html", "dd/d49/interfacedevice_1_1device__get__ptr" ],
       [ "device_map", "da/db0/interfacedevice_1_1device__map.html", "da/db0/interfacedevice_1_1device__map" ],
       [ "device_memcpy", "d6/dac/interfacedevice_1_1device__memcpy.html", "d6/dac/interfacedevice_1_1device__memcpy" ],
-      [ "device_sync", "d0/dbb/interfacedevice_1_1device__sync.html", "d0/dbb/interfacedevice_1_1device__sync" ]
+      [ "device_sync", "d0/dbb/interfacedevice_1_1device__sync.html", "d0/dbb/interfacedevice_1_1device__sync" ],
+      [ "device_unmap", "db/d56/interfacedevice_1_1device__unmap.html", "db/d56/interfacedevice_1_1device__unmap" ]
     ] ],
     [ "device_coef", "df/d80/namespacedevice__coef.html", [
       [ "hip_coef_generate_dxyzdrst", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst" ],

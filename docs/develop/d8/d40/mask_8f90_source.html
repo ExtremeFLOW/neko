@@ -139,10 +139,10 @@ $(document).ready(function(){initNavTree('d8/d40/mask_8f90_source.html','../../'
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html">   34</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated, &amp;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only : c_ptr, c_null_ptr, &amp;</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>       c_size_t</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d77/namespaceneko__config.html">neko_config</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/dbe/namespacedevice.html">device</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device_free</a>, <a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>, &amp;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/dbe/namespacedevice.html">device</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>, <a class="code hl_interface" href="../../db/d56/interfacedevice_1_1device__unmap.html">device_unmap</a>, <a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>, &amp;</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>       <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a21d7f4c3a3dce36e0729cfaa419357a0">device_to_device</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/d73/namespacedevice__math.html">device_math</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d1/d1f/interfacedevice__math_1_1device__cadd.html">device_cadd</a></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
@@ -216,239 +216,238 @@ $(document).ready(function(){initNavTree('d8/d40/mask_8f90_source.html','../../'
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%mask)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       <span class="keyword">deallocate</span>(this%mask)</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">if</span> (c_associated(this%mask_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device_free</a>(this%mask_d)</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    this%n_elements = 0</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    this%mask_d = c_null_ptr</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    this%is_set_ = .false.</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../db/d56/interfacedevice_1_1device__unmap.html">device_unmap</a>(this%mask, this%mask_d)</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>       <span class="keyword">deallocate</span>(this%mask)</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    this%n_elements = 0</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    this%mask_d = c_null_ptr</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    this%is_set_ = .false.</div>
 </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#adc0a76a50c65de49d3480c79e9f9ffce">mask_free</a></div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
-<div class="foldopen" id="foldopen00127" data-start="" data-end="">
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a5bcbcdcb0fd409cfe8220f805949f26e">  127</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5bcbcdcb0fd409cfe8220f805949f26e">init_from_array</a>(this, mask_array, n_elements)</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_elements</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: mask_array(n_elements)</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <span class="keyword">call </span>this%allocate(n_elements)</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    this%mask = mask_array</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, this%mask_d, this%n_elements, &amp;</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>            <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, sync = .true.)</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d1/d1f/interfacedevice__math_1_1device__cadd.html">device_cadd</a>(this%mask_d, -1, this%n_elements)</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    this%is_set_ = .true.</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#adc0a76a50c65de49d3480c79e9f9ffce">mask_free</a></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="foldopen" id="foldopen00126" data-start="" data-end="">
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a5bcbcdcb0fd409cfe8220f805949f26e">  126</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5bcbcdcb0fd409cfe8220f805949f26e">init_from_array</a>(this, mask_array, n_elements)</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_elements</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: mask_array(n_elements)</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keyword">call </span>this%allocate(n_elements)</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    this%mask = mask_array</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, this%mask_d, this%n_elements, &amp;</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>            <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, sync = .true.)</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d1/d1f/interfacedevice__math_1_1device__cadd.html">device_cadd</a>(this%mask_d, -1, this%n_elements)</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    this%is_set_ = .true.</div>
 </div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5bcbcdcb0fd409cfe8220f805949f26e">init_from_array</a></div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
-<div class="foldopen" id="foldopen00145" data-start="" data-end="">
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#afbf2bb9a70312fb4e4384eb419a28954">  145</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#afbf2bb9a70312fb4e4384eb419a28954">init_from_array_device</a>(this, mask_array_d, n_elements)</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_elements</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span>:: mask_array_d</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keywordtype">integer(kind=c_size_t)</span> :: size_c</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    size_c = n_elements * int(4, c_size_t)</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span> </div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="keyword">call </span>this%allocate(n_elements)</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask_d, mask_array_d, size_c, &amp;</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>         <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a21d7f4c3a3dce36e0729cfaa419357a0">device_to_device</a>, sync = .false.)</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, mask_array_d, n_elements, &amp;</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>         <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, sync = .true.)</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    this%mask = this%mask - 1 <span class="comment">! Adjust for 0-based indexing</span></div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span> </div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    this%is_set_ = .true.</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5bcbcdcb0fd409cfe8220f805949f26e">init_from_array</a></div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="foldopen" id="foldopen00144" data-start="" data-end="">
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#afbf2bb9a70312fb4e4384eb419a28954">  144</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#afbf2bb9a70312fb4e4384eb419a28954">init_from_array_device</a>(this, mask_array_d, n_elements)</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_elements</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span>:: mask_array_d</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordtype">integer(kind=c_size_t)</span> :: size_c</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    size_c = n_elements * int(4, c_size_t)</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    <span class="keyword">call </span>this%allocate(n_elements)</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask_d, mask_array_d, size_c, &amp;</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>         <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a21d7f4c3a3dce36e0729cfaa419357a0">device_to_device</a>, sync = .false.)</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, mask_array_d, n_elements, &amp;</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>         <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, sync = .true.)</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    this%mask = this%mask - 1 <span class="comment">! Adjust for 0-based indexing</span></div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    this%is_set_ = .true.</div>
 </div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#afbf2bb9a70312fb4e4384eb419a28954">init_from_array_device</a></div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
-<div class="foldopen" id="foldopen00164" data-start="" data-end="">
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a5f6fec856767ccec6c651057948d23c5">  164</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5f6fec856767ccec6c651057948d23c5">init_from_mask</a>(this, other)</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: other</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keywordtype">integer(kind=c_size_t)</span> :: size_c</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keyword">call </span>this%allocate(other%n_elements)</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    size_c = other%n_elements * int(4, c_size_t)</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    this%mask = other%mask</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask_d, other%mask_d, size_c, &amp;</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>            <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a21d7f4c3a3dce36e0729cfaa419357a0">device_to_device</a>, sync = .true.)</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    this%n_elements = other%n_elements</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    this%is_set_ = other%is_set_</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#afbf2bb9a70312fb4e4384eb419a28954">init_from_array_device</a></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
+<div class="foldopen" id="foldopen00163" data-start="" data-end="">
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a5f6fec856767ccec6c651057948d23c5">  163</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5f6fec856767ccec6c651057948d23c5">init_from_mask</a>(this, other)</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: other</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordtype">integer(kind=c_size_t)</span> :: size_c</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keyword">call </span>this%allocate(other%n_elements)</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span> </div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    size_c = other%n_elements * int(4, c_size_t)</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    this%mask = other%mask</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask_d, other%mask_d, size_c, &amp;</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>            <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a21d7f4c3a3dce36e0729cfaa419357a0">device_to_device</a>, sync = .true.)</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    this%n_elements = other%n_elements</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    this%is_set_ = other%is_set_</div>
 </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5f6fec856767ccec6c651057948d23c5">init_from_mask</a></div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
-<div class="foldopen" id="foldopen00184" data-start="" data-end="">
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a2627130cf96d7082cbfe3eb2d7323b03">  184</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a2627130cf96d7082cbfe3eb2d7323b03">invert_mask</a>(this, other, total_elements)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: other</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: total_elements</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">allocatable</span> :: found(:)</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: new_mask(:)</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordtype">integer</span> :: i, j, k, v, new_size</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keyword">allocate</span>(found(total_elements))</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    found = .false.</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="comment">! mark present</span></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordflow">do</span> i = 1, other%size()</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>       v = other%mask(i)</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>       <span class="keywordflow">if</span> (v &gt;= 1 .and. v &lt;= total_elements) found(v) = .true.</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="comment">! count complement</span></div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    new_size = 0</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keywordflow">do</span> j = 1, total_elements</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>       <span class="keywordflow">if</span> (.not. found(j)) new_size = new_size + 1</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keyword">allocate</span>(new_mask(new_size))</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span> </div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="comment">! fill complement</span></div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    k = 1</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordflow">do</span> j = 1, total_elements</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>       <span class="keywordflow">if</span> (.not. found(j)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>          new_mask(k) = j</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>          k = k + 1</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="keyword">call </span>this%init_from_array(new_mask, new_size)</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5f6fec856767ccec6c651057948d23c5">init_from_mask</a></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="foldopen" id="foldopen00183" data-start="" data-end="">
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a2627130cf96d7082cbfe3eb2d7323b03">  183</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a2627130cf96d7082cbfe3eb2d7323b03">invert_mask</a>(this, other, total_elements)</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: other</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: total_elements</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">allocatable</span> :: found(:)</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: new_mask(:)</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordtype">integer</span> :: i, j, k, v, new_size</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keyword">allocate</span>(found(total_elements))</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    found = .false.</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="comment">! mark present</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keywordflow">do</span> i = 1, other%size()</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       v = other%mask(i)</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>       <span class="keywordflow">if</span> (v &gt;= 1 .and. v &lt;= total_elements) found(v) = .true.</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="comment">! count complement</span></div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    new_size = 0</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keywordflow">do</span> j = 1, total_elements</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>       <span class="keywordflow">if</span> (.not. found(j)) new_size = new_size + 1</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="keyword">allocate</span>(new_mask(new_size))</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="comment">! fill complement</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    k = 1</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordflow">do</span> j = 1, total_elements</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>       <span class="keywordflow">if</span> (.not. found(j)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>          new_mask(k) = j</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>          k = k + 1</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    <span class="keyword">call </span>this%init_from_array(new_mask, new_size)</div>
 </div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a2627130cf96d7082cbfe3eb2d7323b03">invert_mask</a></div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
-<div class="foldopen" id="foldopen00223" data-start="" data-end="">
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a61dc9bb93285477488eb0091556967f4">  223</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a61dc9bb93285477488eb0091556967f4">mask_size</a>(this) <span class="keyword">result</span>(n_elements)</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="keywordtype">integer</span> :: n_elements</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    n_elements = this%n_elements</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a2627130cf96d7082cbfe3eb2d7323b03">invert_mask</a></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
+<div class="foldopen" id="foldopen00222" data-start="" data-end="">
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a61dc9bb93285477488eb0091556967f4">  222</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a61dc9bb93285477488eb0091556967f4">mask_size</a>(this) <span class="keyword">result</span>(n_elements)</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordtype">integer</span> :: n_elements</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    n_elements = this%n_elements</div>
 </div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a61dc9bb93285477488eb0091556967f4">mask_size</a></div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
-<div class="foldopen" id="foldopen00231" data-start="" data-end="">
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a44ec2e5ba1e64700fc392c1be1745f18">  231</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a44ec2e5ba1e64700fc392c1be1745f18">mask_is_set</a>(this) <span class="keyword">result</span>(is_set)</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordtype">logical</span> :: is_set</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    is_set = this%is_set_</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a61dc9bb93285477488eb0091556967f4">mask_size</a></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
+<div class="foldopen" id="foldopen00230" data-start="" data-end="">
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a44ec2e5ba1e64700fc392c1be1745f18">  230</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a44ec2e5ba1e64700fc392c1be1745f18">mask_is_set</a>(this) <span class="keyword">result</span>(is_set)</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordtype">logical</span> :: is_set</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span> </div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    is_set = this%is_set_</div>
 </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a44ec2e5ba1e64700fc392c1be1745f18">mask_is_set</a></div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
-<div class="foldopen" id="foldopen00239" data-start="" data-end="">
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a5491ea05cd44f83c613e598fdf2a41d9">  239</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5491ea05cd44f83c613e598fdf2a41d9">mask_get</a>(this) <span class="keyword">result</span>(mask_array)</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: mask_array(:)</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span> </div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordflow">if</span> (.not. this%is_set()) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Mask is not set.&quot;</span>)</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    mask_array =&gt; this%mask</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a44ec2e5ba1e64700fc392c1be1745f18">mask_is_set</a></div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
+<div class="foldopen" id="foldopen00238" data-start="" data-end="">
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a5491ea05cd44f83c613e598fdf2a41d9">  238</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5491ea05cd44f83c613e598fdf2a41d9">mask_get</a>(this) <span class="keyword">result</span>(mask_array)</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: mask_array(:)</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    <span class="keywordflow">if</span> (.not. this%is_set()) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Mask is not set.&quot;</span>)</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    mask_array =&gt; this%mask</div>
 </div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5491ea05cd44f83c613e598fdf2a41d9">mask_get</a></div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
-<div class="foldopen" id="foldopen00249" data-start="" data-end="">
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a836cc2a7f0609df97669109a449b0e58">  249</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a836cc2a7f0609df97669109a449b0e58">mask_get_i</a>(this, index) <span class="keyword">result</span>(mask_value)</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: index</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordtype">integer</span> :: mask_value</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordflow">if</span> (.not. this%is_set()) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Mask is not set.&quot;</span>)</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordflow">if</span> (index &lt; 1 .or. index &gt; this%n_elements) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Index out of bounds in mask_get_i&quot;</span>)</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    mask_value = this%mask(index)</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a5491ea05cd44f83c613e598fdf2a41d9">mask_get</a></div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
+<div class="foldopen" id="foldopen00248" data-start="" data-end="">
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#a836cc2a7f0609df97669109a449b0e58">  248</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a836cc2a7f0609df97669109a449b0e58">mask_get_i</a>(this, index) <span class="keyword">result</span>(mask_value)</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: index</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">integer</span> :: mask_value</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keywordflow">if</span> (.not. this%is_set()) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Mask is not set.&quot;</span>)</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordflow">if</span> (index &lt; 1 .or. index &gt; this%n_elements) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Index out of bounds in mask_get_i&quot;</span>)</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span> </div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    mask_value = this%mask(index)</div>
 </div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a836cc2a7f0609df97669109a449b0e58">mask_get_i</a></div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
-<div class="foldopen" id="foldopen00263" data-start="" data-end="">
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#afa475b5a4bde347bedf138cdc115a3ff">  263</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#afa475b5a4bde347bedf138cdc115a3ff">mask_get_d</a>(this) <span class="keyword">result</span>(mask_array_d)</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keywordtype">type</span>(c_ptr) :: mask_array_d</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordflow">if</span> (.not. this%is_set()) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Mask is not set.&quot;</span>)</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    mask_array_d = this%mask_d</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#a836cc2a7f0609df97669109a449b0e58">mask_get_i</a></div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
+<div class="foldopen" id="foldopen00262" data-start="" data-end="">
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#afa475b5a4bde347bedf138cdc115a3ff">  262</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#afa475b5a4bde347bedf138cdc115a3ff">mask_get_d</a>(this) <span class="keyword">result</span>(mask_array_d)</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">type</span>(c_ptr) :: mask_array_d</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordflow">if</span> (.not. this%is_set()) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Mask is not set.&quot;</span>)</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    mask_array_d = this%mask_d</div>
 </div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#afa475b5a4bde347bedf138cdc115a3ff">mask_get_d</a></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
-<div class="foldopen" id="foldopen00273" data-start="" data-end="">
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e">  273</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e">mask_set</a>(this, mask_array, n_elements)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_elements</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: mask_array(n_elements)</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keyword">call </span>this%allocate(n_elements)</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    this%mask = mask_array</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, this%mask_d, n_elements, &amp;</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>            <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, sync = .true.)</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d1/d1f/interfacedevice__math_1_1device__cadd.html">device_cadd</a>(this%mask_d, -1, n_elements)</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    this%is_set_ = .true.</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#afa475b5a4bde347bedf138cdc115a3ff">mask_get_d</a></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
+<div class="foldopen" id="foldopen00272" data-start="" data-end="">
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e">  272</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e">mask_set</a>(this, mask_array, n_elements)</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_elements</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: mask_array(n_elements)</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <span class="keyword">call </span>this%allocate(n_elements)</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    this%mask = mask_array</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, this%mask_d, n_elements, &amp;</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>            <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, sync = .true.)</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d1/d1f/interfacedevice__math_1_1device__cadd.html">device_cadd</a>(this%mask_d, -1, n_elements)</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    this%is_set_ = .true.</div>
 </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e">mask_set</a></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="foldopen" id="foldopen00291" data-start="" data-end="">
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a">  291</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a">mask_set_d</a>(this, mask_array_d, n_elements)</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_elements</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: mask_array_d</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    <span class="keywordtype">integer(kind=c_size_t)</span> :: size_c</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keyword">call </span>this%allocate(n_elements)</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    size_c = n_elements * int(4, c_size_t)</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask_d, mask_array_d, size_c, &amp;</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>         <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a21d7f4c3a3dce36e0729cfaa419357a0">device_to_device</a>, sync = .false.)</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, mask_array_d, n_elements, &amp;</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>         <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, sync = .true.)</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    this%mask = this%mask - 1 <span class="comment">! Adjust for 0-based indexing</span></div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    this%is_set_ = .true.</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e">mask_set</a></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
+<div class="foldopen" id="foldopen00290" data-start="" data-end="">
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno"><a class="line" href="../../d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a">  290</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a">mask_set_d</a>(this, mask_array_d, n_elements)</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_elements</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: mask_array_d</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordtype">integer(kind=c_size_t)</span> :: size_c</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keyword">call </span>this%allocate(n_elements)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    size_c = n_elements * int(4, c_size_t)</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask_d, mask_array_d, size_c, &amp;</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>         <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a21d7f4c3a3dce36e0729cfaa419357a0">device_to_device</a>, sync = .false.)</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, mask_array_d, n_elements, &amp;</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>         <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, sync = .true.)</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    this%mask = this%mask - 1 <span class="comment">! Adjust for 0-based indexing</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    this%is_set_ = .true.</div>
 </div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a">mask_set_d</a></div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a">mask_set_d</a></div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
 <div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span> </div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00077">device.F90:77</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
+<div class="ttc" id="ainterfacedevice_1_1device__unmap_html"><div class="ttname"><a href="../../db/d56/interfacedevice_1_1device__unmap.html">device::device_unmap</a></div><div class="ttdoc">Unmap a Fortran array from a device (deassociate and free)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00083">device.F90:83</a></div></div>
 <div class="ttc" id="ainterfacedevice__math_1_1device__cadd_html"><div class="ttname"><a href="../../d1/d1f/interfacedevice__math_1_1device__cadd.html">device_math::device_cadd</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00050">device_math.F90:50</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html">device_math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00033">device_math.F90:33</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a21d7f4c3a3dce36e0729cfaa419357a0"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a21d7f4c3a3dce36e0729cfaa419357a0">device::device_to_device</a></div><div class="ttdeci">integer, parameter, public device_to_device</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a3f51b2c9ef4bd878a310bd1e1d0d3c80"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">device::host_to_device</a></div><div class="ttdeci">integer, parameter, public host_to_device</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
-<div class="ttc" id="anamespacedevice_html_a79e3ce634472f542b8d135571f7a36e0"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device::device_free</a></div><div class="ttdeci">subroutine, public device_free(x_d)</div><div class="ttdoc">Deallocate memory on the device.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00218">device.F90:219</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a7c3556984ffad14469de7accab5bc84b"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device::device_to_host</a></div><div class="ttdeci">integer, parameter, public device_to_host</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
 <div class="ttc" id="anamespacemask_html"><div class="ttname"><a href="../../d3/d17/namespacemask.html">mask</a></div><div class="ttdoc">Object for handling masks in Neko.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00034">mask.f90:34</a></div></div>
-<div class="ttc" id="anamespacemask_html_a2627130cf96d7082cbfe3eb2d7323b03"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a2627130cf96d7082cbfe3eb2d7323b03">mask::invert_mask</a></div><div class="ttdeci">subroutine invert_mask(this, other, total_elements)</div><div class="ttdoc">Invert the contents of another mask object.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00184">mask.f90:185</a></div></div>
-<div class="ttc" id="anamespacemask_html_a44ec2e5ba1e64700fc392c1be1745f18"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a44ec2e5ba1e64700fc392c1be1745f18">mask::mask_is_set</a></div><div class="ttdeci">pure logical function mask_is_set(this)</div><div class="ttdoc">Check if the mask is set.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00231">mask.f90:232</a></div></div>
-<div class="ttc" id="anamespacemask_html_a5491ea05cd44f83c613e598fdf2a41d9"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a5491ea05cd44f83c613e598fdf2a41d9">mask::mask_get</a></div><div class="ttdeci">integer function, dimension(:), pointer mask_get(this)</div><div class="ttdoc">Get the mask array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00239">mask.f90:240</a></div></div>
-<div class="ttc" id="anamespacemask_html_a5bcbcdcb0fd409cfe8220f805949f26e"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a5bcbcdcb0fd409cfe8220f805949f26e">mask::init_from_array</a></div><div class="ttdeci">subroutine init_from_array(this, mask_array, n_elements)</div><div class="ttdoc">Initialize the mask from a 1-indexed host array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00127">mask.f90:128</a></div></div>
-<div class="ttc" id="anamespacemask_html_a5f6fec856767ccec6c651057948d23c5"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a5f6fec856767ccec6c651057948d23c5">mask::init_from_mask</a></div><div class="ttdeci">subroutine init_from_mask(this, other)</div><div class="ttdoc">Initialize the mask from another mask object.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00164">mask.f90:165</a></div></div>
-<div class="ttc" id="anamespacemask_html_a61dc9bb93285477488eb0091556967f4"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a61dc9bb93285477488eb0091556967f4">mask::mask_size</a></div><div class="ttdeci">pure integer function mask_size(this)</div><div class="ttdoc">Get the size of the mask.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00223">mask.f90:224</a></div></div>
+<div class="ttc" id="anamespacemask_html_a2627130cf96d7082cbfe3eb2d7323b03"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a2627130cf96d7082cbfe3eb2d7323b03">mask::invert_mask</a></div><div class="ttdeci">subroutine invert_mask(this, other, total_elements)</div><div class="ttdoc">Invert the contents of another mask object.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00183">mask.f90:184</a></div></div>
+<div class="ttc" id="anamespacemask_html_a44ec2e5ba1e64700fc392c1be1745f18"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a44ec2e5ba1e64700fc392c1be1745f18">mask::mask_is_set</a></div><div class="ttdeci">pure logical function mask_is_set(this)</div><div class="ttdoc">Check if the mask is set.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00230">mask.f90:231</a></div></div>
+<div class="ttc" id="anamespacemask_html_a5491ea05cd44f83c613e598fdf2a41d9"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a5491ea05cd44f83c613e598fdf2a41d9">mask::mask_get</a></div><div class="ttdeci">integer function, dimension(:), pointer mask_get(this)</div><div class="ttdoc">Get the mask array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00238">mask.f90:239</a></div></div>
+<div class="ttc" id="anamespacemask_html_a5bcbcdcb0fd409cfe8220f805949f26e"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a5bcbcdcb0fd409cfe8220f805949f26e">mask::init_from_array</a></div><div class="ttdeci">subroutine init_from_array(this, mask_array, n_elements)</div><div class="ttdoc">Initialize the mask from a 1-indexed host array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00126">mask.f90:127</a></div></div>
+<div class="ttc" id="anamespacemask_html_a5f6fec856767ccec6c651057948d23c5"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a5f6fec856767ccec6c651057948d23c5">mask::init_from_mask</a></div><div class="ttdeci">subroutine init_from_mask(this, other)</div><div class="ttdoc">Initialize the mask from another mask object.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00163">mask.f90:164</a></div></div>
+<div class="ttc" id="anamespacemask_html_a61dc9bb93285477488eb0091556967f4"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a61dc9bb93285477488eb0091556967f4">mask::mask_size</a></div><div class="ttdeci">pure integer function mask_size(this)</div><div class="ttdoc">Get the size of the mask.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00222">mask.f90:223</a></div></div>
 <div class="ttc" id="anamespacemask_html_a7d70dbc0314ea546361087022eb1f47e"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a7d70dbc0314ea546361087022eb1f47e">mask::mask_allocate</a></div><div class="ttdeci">subroutine mask_allocate(this, n_elements)</div><div class="ttdoc">Allocate the mask object.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00092">mask.f90:93</a></div></div>
-<div class="ttc" id="anamespacemask_html_a836cc2a7f0609df97669109a449b0e58"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a836cc2a7f0609df97669109a449b0e58">mask::mask_get_i</a></div><div class="ttdeci">integer function mask_get_i(this, index)</div><div class="ttdoc">Get the mask array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00249">mask.f90:250</a></div></div>
-<div class="ttc" id="anamespacemask_html_aca72cc15804d4432fb08472d1c1e102a"><div class="ttname"><a href="../../d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a">mask::mask_set_d</a></div><div class="ttdeci">subroutine mask_set_d(this, mask_array_d, n_elements)</div><div class="ttdoc">Set the mask from a 0-indexed device array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00291">mask.f90:292</a></div></div>
+<div class="ttc" id="anamespacemask_html_a836cc2a7f0609df97669109a449b0e58"><div class="ttname"><a href="../../d3/d17/namespacemask.html#a836cc2a7f0609df97669109a449b0e58">mask::mask_get_i</a></div><div class="ttdeci">integer function mask_get_i(this, index)</div><div class="ttdoc">Get the mask array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00248">mask.f90:249</a></div></div>
+<div class="ttc" id="anamespacemask_html_aca72cc15804d4432fb08472d1c1e102a"><div class="ttname"><a href="../../d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a">mask::mask_set_d</a></div><div class="ttdeci">subroutine mask_set_d(this, mask_array_d, n_elements)</div><div class="ttdoc">Set the mask from a 0-indexed device array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00290">mask.f90:291</a></div></div>
 <div class="ttc" id="anamespacemask_html_adc0a76a50c65de49d3480c79e9f9ffce"><div class="ttname"><a href="../../d3/d17/namespacemask.html#adc0a76a50c65de49d3480c79e9f9ffce">mask::mask_free</a></div><div class="ttdeci">subroutine mask_free(this)</div><div class="ttdoc">Free the mask object.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00110">mask.f90:111</a></div></div>
-<div class="ttc" id="anamespacemask_html_aec6ecadb7ec929f36dc92e84704d6e1e"><div class="ttname"><a href="../../d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e">mask::mask_set</a></div><div class="ttdeci">subroutine mask_set(this, mask_array, n_elements)</div><div class="ttdoc">Set the mask from a 1-indexed host array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00273">mask.f90:274</a></div></div>
-<div class="ttc" id="anamespacemask_html_afa475b5a4bde347bedf138cdc115a3ff"><div class="ttname"><a href="../../d3/d17/namespacemask.html#afa475b5a4bde347bedf138cdc115a3ff">mask::mask_get_d</a></div><div class="ttdeci">type(c_ptr) function mask_get_d(this)</div><div class="ttdoc">Get the device pointer to the mask array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00263">mask.f90:264</a></div></div>
-<div class="ttc" id="anamespacemask_html_afbf2bb9a70312fb4e4384eb419a28954"><div class="ttname"><a href="../../d3/d17/namespacemask.html#afbf2bb9a70312fb4e4384eb419a28954">mask::init_from_array_device</a></div><div class="ttdeci">subroutine init_from_array_device(this, mask_array_d, n_elements)</div><div class="ttdoc">Initialize the mask from a 0-indexed device array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00145">mask.f90:146</a></div></div>
+<div class="ttc" id="anamespacemask_html_aec6ecadb7ec929f36dc92e84704d6e1e"><div class="ttname"><a href="../../d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e">mask::mask_set</a></div><div class="ttdeci">subroutine mask_set(this, mask_array, n_elements)</div><div class="ttdoc">Set the mask from a 1-indexed host array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00272">mask.f90:273</a></div></div>
+<div class="ttc" id="anamespacemask_html_afa475b5a4bde347bedf138cdc115a3ff"><div class="ttname"><a href="../../d3/d17/namespacemask.html#afa475b5a4bde347bedf138cdc115a3ff">mask::mask_get_d</a></div><div class="ttdeci">type(c_ptr) function mask_get_d(this)</div><div class="ttdoc">Get the device pointer to the mask array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00262">mask.f90:263</a></div></div>
+<div class="ttc" id="anamespacemask_html_afbf2bb9a70312fb4e4384eb419a28954"><div class="ttname"><a href="../../d3/d17/namespacemask.html#afbf2bb9a70312fb4e4384eb419a28954">mask::init_from_array_device</a></div><div class="ttdeci">subroutine init_from_array_device(this, mask_array_d, n_elements)</div><div class="ttdoc">Initialize the mask from a 0-indexed device array.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00144">mask.f90:145</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html_ac196ccb4b3efd94171f0cfbfedaa7b9d"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_config::neko_bcknd_device</a></div><div class="ttdeci">integer, parameter neko_bcknd_device</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00044">neko_config.f90:44</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
@@ -459,7 +458,7 @@ $(document).ready(function(){initNavTree('d8/d40/mask_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d8/d40/mask_8f90.html">mask.f90</a></li>
-    <li class="footer">Generated on Tue Mar 17 2026 04:18:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 18 2026 04:19:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -2,6 +2,7 @@ var device_8F90 =
 [
     [ "device::device_memcpy", "d6/dac/interfacedevice_1_1device__memcpy.html", "d6/dac/interfacedevice_1_1device__memcpy" ],
     [ "device::device_map", "da/db0/interfacedevice_1_1device__map.html", "da/db0/interfacedevice_1_1device__map" ],
+    [ "device::device_unmap", "db/d56/interfacedevice_1_1device__unmap.html", "db/d56/interfacedevice_1_1device__unmap" ],
     [ "device::device_associate", "d6/d17/interfacedevice_1_1device__associate.html", "d6/d17/interfacedevice_1_1device__associate" ],
     [ "device::device_associated", "d0/d30/interfacedevice_1_1device__associated.html", "d0/d30/interfacedevice_1_1device__associated" ],
     [ "device::device_deassociate", "da/d73/interfacedevice_1_1device__deassociate.html", "da/d73/interfacedevice_1_1device__deassociate" ],
@@ -52,6 +53,10 @@ var device_8F90 =
     [ "device_stream_wait_event", "d4/d2a/device_8F90.html#a9babfe5a64741741d01b3f08b6e5a405", null ],
     [ "device_sync_device", "d4/d2a/device_8F90.html#a957acacca8bd78ec76bf01b972cd7848", null ],
     [ "device_sync_stream", "d4/d2a/device_8F90.html#a64443968b2f6b9f8c1c410f0c6d213a2", null ],
+    [ "device_unmap_r1", "d4/d2a/device_8F90.html#a9df1addb0128e8cd22c8d3bfc8b1b4f9", null ],
+    [ "device_unmap_r2", "d4/d2a/device_8F90.html#a6cd85fdf5cd633340c5abbbb49b34e4c", null ],
+    [ "device_unmap_r3", "d4/d2a/device_8F90.html#adf268c187914ac67be787ce9e13091ba", null ],
+    [ "device_unmap_r4", "d4/d2a/device_8F90.html#a5f4e1f3a701b42d4fdf0e4fee2e0a4e1", null ],
     [ "aux_cmd_queue", "d4/d2a/device_8F90.html#acabcf9f5f596cf930af83acf10897857", null ],
     [ "device_addrtbl", "d4/d2a/device_8F90.html#a6069899e2df7b89a7e764f792b306c41", null ],
     [ "device_to_device", "d4/d2a/device_8F90.html#a21d7f4c3a3dce36e0729cfaa419357a0", null ],

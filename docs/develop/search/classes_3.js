@@ -21,11 +21,12 @@ var searchData=
   ['device_5fmpi_5fwaitany_18',['device_mpi_waitany',['../db/d46/interfacegs__device__mpi_1_1device__mpi__waitany.html',1,'gs_device_mpi']]],
   ['device_5fnccl_5fsendrecv_19',['device_nccl_sendrecv',['../d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv.html',1,'gs_device_nccl']]],
   ['device_5fsync_20',['device_sync',['../d0/dbb/interfacedevice_1_1device__sync.html',1,'device']]],
-  ['dirichlet_5ft_21',['dirichlet_t',['../df/dd9/structdirichlet_1_1dirichlet__t.html',1,'dirichlet']]],
-  ['dist_5ft_22',['dist_t',['../d6/d4a/structdatadist_1_1dist__t.html',1,'datadist']]],
-  ['distdata_5ft_23',['distdata_t',['../d4/ddd/structdistdata_1_1distdata__t.html',1,'distdata']]],
-  ['divergence_5ft_24',['divergence_t',['../db/dc5/structdivergence__simcomp_1_1divergence__t.html',1,'divergence_simcomp']]],
-  ['dofmap_5ft_25',['dofmap_t',['../d0/df0/structdofmap_1_1dofmap__t.html',1,'dofmap']]],
-  ['dong_5foutflow_5ft_26',['dong_outflow_t',['../d0/d88/structdong__outflow_1_1dong__outflow__t.html',1,'dong_outflow']]],
-  ['dynamic_5fsmagorinsky_5ft_27',['dynamic_smagorinsky_t',['../d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html',1,'dynamic_smagorinsky']]]
+  ['device_5funmap_21',['device_unmap',['../db/d56/interfacedevice_1_1device__unmap.html',1,'device']]],
+  ['dirichlet_5ft_22',['dirichlet_t',['../df/dd9/structdirichlet_1_1dirichlet__t.html',1,'dirichlet']]],
+  ['dist_5ft_23',['dist_t',['../d6/d4a/structdatadist_1_1dist__t.html',1,'datadist']]],
+  ['distdata_5ft_24',['distdata_t',['../d4/ddd/structdistdata_1_1distdata__t.html',1,'distdata']]],
+  ['divergence_5ft_25',['divergence_t',['../db/dc5/structdivergence__simcomp_1_1divergence__t.html',1,'divergence_simcomp']]],
+  ['dofmap_5ft_26',['dofmap_t',['../d0/df0/structdofmap_1_1dofmap__t.html',1,'dofmap']]],
+  ['dong_5foutflow_5ft_27',['dong_outflow_t',['../d0/d88/structdong__outflow_1_1dong__outflow__t.html',1,'dong_outflow']]],
+  ['dynamic_5fsmagorinsky_5ft_28',['dynamic_smagorinsky_t',['../d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html',1,'dynamic_smagorinsky']]]
 ];

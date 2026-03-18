@@ -214,6 +214,7 @@ var hierarchy =
     [ "gs_device_mpi::device_mpi_waitany", "db/d46/interfacegs__device__mpi_1_1device__mpi__waitany.html", null ],
     [ "gs_device_nccl::device_nccl_sendrecv", "d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv.html", null ],
     [ "device::device_sync", "d0/dbb/interfacedevice_1_1device__sync.html", null ],
+    [ "device::device_unmap", "db/d56/interfacedevice_1_1device__unmap.html", null ],
     [ "datadist::dist_t", "d6/d4a/structdatadist_1_1dist__t.html", [
       [ "datadist::linear_dist_t", "d7/d4f/structdatadist_1_1linear__dist__t.html", null ]
     ] ],

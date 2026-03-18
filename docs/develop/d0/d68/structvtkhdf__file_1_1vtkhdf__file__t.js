@@ -6,6 +6,7 @@ var structvtkhdf__file_1_1vtkhdf__file__t =
     [ "get_counter", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#af858a91828f91d9bd77848b330cfd127", null ],
     [ "get_fname", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#ad63a6157051ac39af2d6f1be99fd9a0b", null ],
     [ "get_start_counter", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a98d12938b076977dc3623911305ed748", null ],
+    [ "get_vtkhdf_fname", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#adcf757f42898c3081707e18378cd993a", null ],
     [ "increment_counter", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#ad69c655c9860851f14c00e3524deaa12", null ],
     [ "init", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a97b49155861328f0d439579245505ff3", null ],
     [ "read", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#aa72e85d7d49e3ef38b822ddc04d364f0", null ],
