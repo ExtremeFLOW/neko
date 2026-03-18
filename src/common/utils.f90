@@ -45,7 +45,7 @@ module utils
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_path, filename_name, filename_suffix, &
-       filename_suffix_pos, filename_tslash_pos, &
+       filename_suffix_pos, filename_tslash_pos, filename_split, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
        neko_type_registration_error
