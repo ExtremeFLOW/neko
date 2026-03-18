@@ -38,7 +38,7 @@ in Neko. The list will be updated as new simcomps are added.
   - Computation of the divergence of a vector field \ref simcomp_divergence
 - Computation of \f$ \lambda_2 \f$ \ref simcomp_lambda2
 - Probing of fields at selected points \ref simcomp_probes
-- Output of registered fields to an `.fld` file \ref simcomp_field_writer
+- Output of registered fields to a file \ref simcomp_field_writer
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
@@ -309,19 +309,32 @@ time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
 ~~~~~~~~~~~~~~~
 
 ### field_writer {#simcomp_field_writer}
-Outputs registered 3D fields to an `.fld` file. Requires a list of field names
+Outputs registered 3D fields to a file. Requires a list of field names
 in the `fields` keyword. Primarily to be used for outputting new fields defined
-in the user file. The fields are added to then `neko_registry` object and
+in the user file. The fields are added to the `neko_registry` object and
 are expected to be updated in the user file, or, perhaps, by other simcomps.
-Since this simcomp does not compute anything `compute_` configuration is
+Since this simcomp does not compute anything, `compute_` configuration is
 irrelevant.
+
+The output format is controlled by the `output_format` keyword, which can be
+set to `nek5000` (default), `vtkhdf`, or `adios2`. The `output_precision`
+keyword controls the precision of the written data and can be set to `single`
+(default) or `double`.
+
+When using the `vtkhdf` format, the `output_subdivide` keyword can be set to
+`true` to subdivide spectral elements into linear sub-cells instead of
+writing high-order Lagrange cells. See the [cell representation](@ref
+vtkhdf-cell-representation) section for more details.
+
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "field_writer",
    "name": "field_writer",
    "fields": ["my_field1", "my_field2"],
    "output_filename": "myfields",
-   "precision": "double",
+   "output_precision": "double",
+   "output_format": "nek5000",
+   "output_subdivide": false,
    "output_control" : "simulation_time",
    "output_value" : 1.0
  }
