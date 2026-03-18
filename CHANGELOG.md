@@ -7,6 +7,10 @@
   `output_subdivide`. The default output will now be in the VTKHDF format with
   `Arbitrary Lagrange Cell`s, which correctly represent our higher-order
   elements. 
+- Bugfix: Fixed a bug in the `unmap` subroutine, where the device pointer was
+  used to check if the field was mapped, which lead to a crash when trying to
+  unmap an array that was not associated with a device. Correctly does nothing
+  now.
 - Added an AI policy to the contribution guidelines.
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
   Simple restarts are supported with fixed mesh and MPI configuration. 
