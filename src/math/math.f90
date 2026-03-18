@@ -79,7 +79,7 @@ module math
   end interface abscmp
 
   interface sort
-     module procedure sortrp, sorti4
+     module procedure sortrp, sorti4, sorti8
   end interface sort
 
   interface swap
@@ -1250,6 +1250,63 @@ contains
        ind(i) = ii
     end do
   end subroutine sorti4
+
+  !> Heap Sort for double integer arrays
+  !! @details Following p 231 Num. Rec., 1st Ed.
+  !! @param[inout]   a     vector to be sorted
+  !! @param[out]     ind   permutation array
+  !! @param[in]      n     array size
+  subroutine sorti8(a, ind, n)
+    integer, intent(in) :: n
+    integer(i8), intent(inout) :: a(n)
+    integer, intent(out) :: ind(n)
+    integer(i8) :: aa
+    integer :: j, ir, i, ii, l
+
+    do j = 1, n
+       ind(j) = j
+    end do
+
+    if (n .le. 1) return
+
+    l = n/2+1
+    ir = n
+    do while (.true.)
+       if (l .gt. 1) then
+          l = l - 1
+          aa = a (l)
+          ii = ind(l)
+       else
+          aa = a(ir)
+          ii = ind(ir)
+          a(ir) = a( 1)
+          ind(ir) = ind( 1)
+          ir = ir - 1
+          if (ir .eq. 1) then
+             a(1) = aa
+             ind(1) = ii
+             return
+          end if
+       end if
+       i = l
+       j = l + l
+       do while (j .le. ir)
+          if (j .lt. ir) then
+             if ( a(j) .lt. a(j + 1) ) j = j + 1
+          end if
+          if (aa .lt. a(j)) then
+             a(i) = a(j)
+             ind(i) = ind(j)
+             i = j
+             j = j + j
+          else
+             j = ir + 1
+          end if
+       end do
+       a(i) = aa
+       ind(i) = ii
+    end do
+  end subroutine sorti8
 
   !> sort double precision array acording to ind vector
   !! @param[inout]   b     vector to be reordered
