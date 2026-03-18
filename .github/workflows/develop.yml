@@ -12,7 +12,6 @@ on:
   workflow_dispatch:
 
 #merge queue trigger
-on:
   merge_group:
     types:
       - checks_requested
