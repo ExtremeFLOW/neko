@@ -103,9 +103,8 @@ contains
 
     call json_get_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
-    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp) ! if z0h not specified, assign negative value (tmp)
-    call json_get(json, "type_of_temp_bc", bc_type)
-    call json_get(json, "temp_bc_value", bc_value)
+    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp) ! if z0h not specified, assign negative 
+    call json_get(json, "temp_bc_value", bc_value)          ! and compute automatically with Zilitinkevich
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, z0, z0h_in, bc_type, bc_value)
