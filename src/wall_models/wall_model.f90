@@ -47,7 +47,7 @@ module wall_model
   use comm, only : pe_rank
   use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
   use file, only : file_t
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   use device, only : device_map, device_unmap, device_get_ptr
   use wall_model_device, only : wall_model_compute_mag_field_device
   use json_utils, only : json_get, json_get_or_lookup

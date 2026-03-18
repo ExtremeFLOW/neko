@@ -578,8 +578,8 @@ contains
           do i = 1, this%n_fields
              call device_unmap(this%out_values(:,i), this%out_values_d(i))
           end do
-          deallocate(this%out_values_d)
        end if
+       if (allocated(this%out_values_d)) deallocate(this%out_values_d)
        deallocate(this%out_values)
     end if
 
