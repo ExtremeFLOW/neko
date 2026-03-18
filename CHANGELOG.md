@@ -2,11 +2,10 @@
 
 ## Develop
 
-- Added `Arbitrary Lagrange Cell` support for the VTKHDF output. This moves the
-  existing subdivision-based output to an optional setting under
-  `output_subdivide`. The default output will now be in the VTKHDF format with
-  `Arbitrary Lagrange Cells`, which correctly represent our higher-order
-  elements. 
+- Added `Arbitrary Lagrange Cell` support for VTK HDF output. This makes the
+  existing subdivision-based output optional under `output_subdivide`. By
+  default, output is now written in VTKHDF using `Arbitrary Lagrange Cells`,
+  which correctly represent higher-order elements.
 - Bugfix: Fixed a bug in the `unmap` subroutine, where the device pointer was
   used to check if the field was mapped, which lead to a crash when trying to
   unmap an array that was not associated with a device. Correctly does nothing
