@@ -95,6 +95,8 @@ module mesh_conn
      !> Object alignment
      integer(i4), allocatable, dimension(:,:) :: algn
      !> Are hanging object directly specified
+     logical :: ifhang_set
+     !> Is there any hanging object
      logical :: ifhang
      !> Hanging object; position of hanging object, otherwise -1
      integer(i4), allocatable, dimension(:,:) :: hang
@@ -112,6 +114,8 @@ module mesh_conn
      !> Connectivity information for vertices, edges and faces
      type(mesh_conn_obj_t) :: vrt, fcs, edg
      !> Are elements with hanging object directly specified
+     logical :: ifhang_set
+     !> Is there any element with hanging objects
      logical :: ifhang
      !> Elements with hanging object
      logical, allocatable, dimension(:) :: hang
@@ -230,9 +234,10 @@ contains
        ! sanity check
        if (nel .ne. size(hang, 2) .or. nobj .ne. size(hang, 1)) &
             call neko_error('Inconsistent array sizes; conn_obj%hang')
-       this%ifhang = .true.
+       this%ifhang_set = .true.
        allocate(this%hang(nobj, nel))
        this%hang(:, :) = hang(:, :)
+       this%ifhang = maxval(hang) .ne. -1
     end if
 
     ! Get global object ownership
@@ -276,6 +281,7 @@ contains
     this%nel = 0
     this%nobj = 0
     this%ifalgn = .false.
+    this%ifhang_set = .false.
     this%ifhang = .false.
 
     if (allocated(this%gidx)) deallocate(this%gidx)
@@ -314,9 +320,10 @@ contains
        ! sanity check
        if (nel .ne. size(hang)) &
             call neko_error('Inconsistent array sizes; conn%hang')
-       this%ifhang = .true.
+       this%ifhang_set = .true.
        allocate(this%hang(nel))
        this%hang(:) = hang(:)
+       this%ifhang = any(hang)
     end if
 
   end subroutine mesh_conn_init
@@ -331,6 +338,7 @@ contains
 
     this%tdim = 0
     this%nel = 0
+    this%ifhang_set = .false.
     this%ifhang = .false.
 
     if (allocated(this%hang)) deallocate(this%hang)
