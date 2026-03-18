@@ -429,7 +429,7 @@ contains
       delta_flow = flow_rate - current_flow
       scale = delta_flow / this%base_flow
 
-      if (this%log .and. pe_rank.eq.0) then
+      if (this%log .and. pe_rank .eq. 0) then
          if (this%flow_dir .eq. 1) then
             flow_dir_label = '    x'
          else if (this%flow_dir .eq. 2) then
