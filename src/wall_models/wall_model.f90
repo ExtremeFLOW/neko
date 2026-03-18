@@ -48,7 +48,7 @@ module wall_model
   use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
   use file, only : file_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use device, only : device_map, device_free, device_get_ptr
+  use device, only : device_map, device_unmap, device_get_ptr
   use wall_model_device, only : wall_model_compute_mag_field_device
   use json_utils, only : json_get, json_get_or_lookup
   implicit none
@@ -382,39 +382,38 @@ contains
     nullify(this%tau_field)
     nullify(this%mu)
     nullify(this%rho)
+    this%msk_d = C_NULL_PTR
 
     call this%tau_x%free()
     call this%tau_y%free()
     call this%tau_z%free()
 
+
     if (allocated(this%ind_r)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%ind_r, this%ind_r_d)
+       end if
        deallocate(this%ind_r)
     end if
     if (allocated(this%ind_s)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%ind_s, this%ind_s_d)
+       end if
        deallocate(this%ind_s)
     end if
     if (allocated(this%ind_t)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%ind_t, this%ind_t_d)
+       end if
        deallocate(this%ind_t)
     end if
     if (allocated(this%ind_e)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%ind_e, this%ind_e_d)
+       end if
        deallocate(this%ind_e)
     end if
 
-    if (c_associated(this%msk_d)) then
-       call device_free(this%msk_d)
-    end if
-    if (c_associated(this%ind_r_d)) then
-       call device_free(this%ind_r_d)
-    end if
-    if (c_associated(this%ind_s_d)) then
-       call device_free(this%ind_s_d)
-    end if
-    if (c_associated(this%ind_t_d)) then
-       call device_free(this%ind_t_d)
-    end if
-    if (c_associated(this%ind_e_d)) then
-       call device_free(this%ind_e_d)
-    end if
 
     if (allocated(this%scheme_name)) then
        deallocate(this%scheme_name)

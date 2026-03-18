@@ -46,7 +46,7 @@ module dofmap
   use element, only : element_t
   use quad, only : quad_t
   use hex, only : hex_t
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -164,34 +164,28 @@ contains
     end if
 
     if (allocated(this%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%x, this%x_d)
+       end if
        deallocate(this%x)
     end if
 
     if (allocated(this%y)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%y, this%y_d)
+       end if
        deallocate(this%y)
     end if
 
     if (allocated(this%z)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%z, this%z_d)
+       end if
        deallocate(this%z)
     end if
 
     nullify(this%msh)
     nullify(this%Xh)
-
-    !
-    ! Cleanup the device (if present)
-    !
-    if (c_associated(this%x_d)) then
-       call device_free(this%x_d)
-    end if
-
-    if (c_associated(this%y_d)) then
-       call device_free(this%y_d)
-    end if
-
-    if (c_associated(this%z_d)) then
-       call device_free(this%z_d)
-    end if
 
   end subroutine dofmap_free
 

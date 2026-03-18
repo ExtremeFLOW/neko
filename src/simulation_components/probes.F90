@@ -57,7 +57,7 @@ module probes
   use, intrinsic :: iso_c_binding
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, DEVICE_TO_HOST, device_map, device_free
+  use device, only : device_memcpy, DEVICE_TO_HOST, device_map, device_unmap
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, &
        MPI_DOUBLE_PRECISION, MPI_Gatherv, MPI_Gather, MPI_Exscan
   implicit none
@@ -551,10 +551,6 @@ contains
        deallocate(this%xyz)
     end if
 
-    if (allocated(this%out_values)) then
-       deallocate(this%out_values)
-    end if
-
     if (allocated(this%out_vals_trsp)) then
        deallocate(this%out_vals_trsp)
     end if
@@ -577,13 +573,14 @@ contains
        deallocate(this%which_fields)
     end if
 
-    if (allocated(this%out_values_d)) then
-       do i = 1, size(this%out_values_d)
-          if (c_associated(this%out_values_d(i))) then
-             call device_free(this%out_values_d(i))
-          end if
-       end do
-       deallocate(this%out_values_d)
+    if (allocated(this%out_values)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          do i = 1, this%n_fields
+             call device_unmap(this%out_values(:,i), this%out_values_d(i))
+          end do
+          deallocate(this%out_values_d)
+       end if
+       deallocate(this%out_values)
     end if
 
     call this%global_interp%free()

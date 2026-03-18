@@ -38,7 +38,7 @@ module time_scheme_controller
   use bdf_time_scheme, only : bdf_time_scheme_t
   use ext_time_scheme, only : ext_time_scheme_t
   use ab_time_scheme, only : ab_time_scheme_t
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_unmap, device_map, device_memcpy, HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -130,11 +130,9 @@ contains
     implicit none
     class(time_scheme_controller_t) :: this
 
-    if (c_associated(this%advection_coeffs_d)) then
-       call device_free(this%advection_coeffs_d)
-    end if
-    if (c_associated(this%diffusion_coeffs_d)) then
-       call device_free(this%diffusion_coeffs_d)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_unmap(this%advection_coeffs, this%advection_coeffs_d)
+       call device_unmap(this%diffusion_coeffs, this%diffusion_coeffs_d)
     end if
   end subroutine time_scheme_controller_free
 

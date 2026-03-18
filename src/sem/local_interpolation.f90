@@ -157,17 +157,23 @@ contains
 
     if (associated(this%Xh)) this%Xh => null()
 
-    if(allocated(this%weights_r)) deallocate(this%weights_r)
-    if(allocated(this%weights_s)) deallocate(this%weights_s)
-    if(allocated(this%weights_t)) deallocate(this%weights_t)
-    if (c_associated(this%weights_r_d)) then
-       call device_free(this%weights_r_d)
+    if(allocated(this%weights_r)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%weights_r, this%weights_r_d)
+       end if
+       deallocate(this%weights_r)
     end if
-    if (c_associated(this%weights_s_d)) then
-       call device_free(this%weights_s_d)
+    if(allocated(this%weights_s)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%weights_s, this%weights_s_d)
+       end if
+       deallocate(this%weights_s)
     end if
-    if (c_associated(this%weights_t_d)) then
-       call device_free(this%weights_t_d)
+    if(allocated(this%weights_t)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%weights_t, this%weights_t_d)
+       end if
+       deallocate(this%weights_t)
     end if
   end subroutine local_interpolator_free
 
