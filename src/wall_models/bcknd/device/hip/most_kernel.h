@@ -233,7 +233,7 @@ __device__ T slaw_h_neutral(T z, T z0h)
 }
 
 /*
- * CUDA kernel for the most wall model.   
+ * HIP kernel for the most wall model.   
  */
 template<typename T, int BC_TYPE>  
 __global__ void most_compute(
