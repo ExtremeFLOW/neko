@@ -33,7 +33,6 @@
 
 ! new comments put by Lorenzo on Nov 26 2025
 submodule (wall_model) wall_model_fctry
-  use vreman, only : vreman_t ! add new models
   use spalding, only : spalding_t
   use rough_log_law, only : rough_log_law_t ! add new models
   use most, only : most_t
