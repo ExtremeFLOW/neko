@@ -153,9 +153,9 @@ contains
     write(log_buf, log_fmt) 'Step = ', this%tstep, 't = ', this%t, &
          '[ ', t_prog, '% ]'
 
-    call neko_log%message(repeat('-', LOG_SIZE))
+    call neko_log%message(repeat('-', LOG_SIZE - 1))
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
-    call neko_log%message(repeat('-', LOG_SIZE))
+    call neko_log%message(repeat('-', LOG_SIZE - 1))
 
   end subroutine time_state_status
 

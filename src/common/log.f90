@@ -39,8 +39,10 @@ module logger
   implicit none
   private
 
-  ! > Size of the visible log message buffer
-  integer, public, parameter :: LOG_SIZE = 80
+  ! > Size of the log message buffer
+  !! @note This adjust for the leading space applied by `write`. 80 character
+  !! output log leaves 79 characters for the message.
+  integer, public, parameter :: LOG_SIZE = 79
 
   !> Length of the section header
   integer, public, parameter :: SEC_HEAD_SIZE = 30
@@ -244,13 +246,13 @@ contains
 
     if (pe_rank .eq. 0) then
        write(this%unit_, '(A)') ''
-       write(this%unit_, '(A)') '   _  __  ____  __ __  ____  '
-       write(this%unit_, '(A)') '  / |/ / / __/ / //_/ / __ \ '
-       write(this%unit_, '(A)') ' /    / / _/  / ,<   / /_/ / '
-       write(this%unit_, '(A)') '/_/|_/ /___/ /_/|_|  \____/  '
+       write(this%unit_, '(1X,A)') '   _  __  ____  __ __  ____  '
+       write(this%unit_, '(1X,A)') '  / |/ / / __/ / //_/ / __ \ '
+       write(this%unit_, '(1X,A)') ' /    / / _/  / ,<   / /_/ / '
+       write(this%unit_, '(1X,A)') '/_/|_/ /___/ /_/|_|  \____/  '
        write(this%unit_, '(A)') ''
-       write(this%unit_, '(A,A,A)') '(version: ', trim(version), ')'
-       write(this%unit_, '(A)') trim(build_info)
+       write(this%unit_, '(1X,A,A,A)') '(version: ', trim(version), ')'
+       write(this%unit_, '(1X,A)') trim(build_info)
        write(this%unit_, '(A)') ''
     end if
 
@@ -373,7 +375,7 @@ contains
   subroutine log_print_section_header(this, lvl)
     class(log_t), intent(inout) :: this
     integer, optional :: lvl
-    integer :: lvl_, header_indent
+    integer :: lvl_
 
     if (present(lvl)) then
        lvl_ = lvl
@@ -387,8 +389,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%newline(lvl)
-       header_indent = max(0, this%indent_ - this%tab_size_)
-       write(this%unit_, '(A)', advance = 'no') repeat(' ', header_indent)
+       call this%indent()
        write(this%unit_, '(A)') trim(this%section_header)
        this%section_header = ""
     end if
