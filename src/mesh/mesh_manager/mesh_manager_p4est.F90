@@ -2078,6 +2078,7 @@ contains
        ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
        call p4est_conn_mapping_convert(vrt, lshare, rank, rankshare, sharemap, &
             rankoff)
+
        if (vrt%nrank .gt. 0) then
           call conn%vrt%init(vrt%lnum, vrt%gnum, connmm%nel, connmm%nvrt, &
                vrt%gidx, lshare, connmm%vmap, sharelist = vrt%glist, &
@@ -2097,10 +2098,12 @@ contains
        ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
        call p4est_conn_mapping_convert(edg, lshare, rank, rankshare, sharemap, &
             rankoff)
+
        if (edg%nrank .gt. 0) then
           call conn%edg%init(edg%lnum, edg%gnum, connmm%nel, connmm%nedg, &
                edg%gidx, lshare, connmm%emap, sharelist = edg%glist, &
-               lmap = edg%lmap, lmapoff = edg%lmapoff, &
+               rank = rank, rankshare = rankshare, sharemap = sharemap, &
+               rankoff = rankoff, lmap = edg%lmap, lmapoff = edg%lmapoff, &
                gmap = edg%gmap, gmapoff = edg%gmapoff, &
                algn = connmm%ealgn, hang = connmm%hnged)
           deallocate(rank, rankshare, sharemap, rankoff)
@@ -2117,10 +2120,12 @@ contains
        ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
        call p4est_conn_mapping_convert(fcs, lshare, rank, rankshare, sharemap, &
             rankoff)
+
        if (fcs%nrank .gt. 0) then
           call conn%fcs%init(fcs%lnum, fcs%gnum, connmm%nel, connmm%nfcs, &
                fcs%gidx, lshare, connmm%fmap, sharelist = fcs%glist, &
-               lmap = fcs%lmap, lmapoff = fcs%lmapoff, &
+               rank = rank, rankshare = rankshare, sharemap = sharemap, &
+               rankoff = rankoff, lmap = fcs%lmap, lmapoff = fcs%lmapoff, &
                gmap = fcs%gmap, gmapoff = fcs%gmapoff, &
                algn = connmm%falgn, hang = connmm%hngfc)
           deallocate(rank, rankshare, sharemap, rankoff)
