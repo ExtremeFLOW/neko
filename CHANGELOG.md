@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Added optional log output from the flow_rate_force, controlled by the `log`
+  parameter.
+- Increased precision of the time value in the log.
 - Added a script to add new unit tests under `contrib/add_unit_test`. The same
   script can add a .pf file to an existing suite.
 - Bugfix: Fixed a bug in the `unmap` subroutine, where the device pointer was
