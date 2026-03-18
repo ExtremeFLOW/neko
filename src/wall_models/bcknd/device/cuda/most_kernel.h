@@ -290,7 +290,7 @@ __global__ void most_compute(
         T ny = n_y_d[i];
         T nz = n_z_d[i];
         
-        // Get the tangnential component
+        // Get the tangential component
         T normu = ui * nx + vi * ny + wi * nz;
         ui -= normu * nx;
         vi -= normu * ny;
