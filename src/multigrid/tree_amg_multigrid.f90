@@ -59,6 +59,7 @@ module tree_amg_multigrid
   use tree_amg_aggregate, only : aggregate_finest_level, aggregate_greedy, &
        aggregate_end, aggregate_pairs
   use tree_amg_smoother, only : amg_cheby_t
+  use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
   use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
        device_get_ptr
@@ -295,11 +296,14 @@ contains
   subroutine tamg_mg_cycle(this, zero_initial_guess)
     class(tamg_solver_t), intent(inout), target :: this
     logical, intent(inout) :: zero_initial_guess
+    character(len=2) :: lvl_name
     integer :: max_lvl, lvl
 
     max_lvl = this%nlvls-1
     ! Loop down hierarchy. Fine to coarse
     do lvl = 0, max_lvl-1
+       write(lvl_name, '(I0)') lvl
+       call profiler_start_region( "AMG_level_" // trim(lvl_name))
        associate(x => this%wrk(lvl)%x, b => this%wrk(lvl)%b, &
             r => this%wrk(lvl)%r, n => this%wrk(lvl)%n)
          !!----------!!
@@ -319,17 +323,23 @@ contains
          call rzero(this%wrk(lvl+1)%x, this%wrk(lvl+1)%n)
          zero_initial_guess = .true.
        end associate
+       call profiler_end_region( "AMG_level_" // trim(lvl_name))
     end do
+    write(lvl_name, '(I0)') max_lvl
+    call profiler_start_region( "AMG_level_" // trim(lvl_name))
     !!-------------------!!
     !! Call Coarse solve !!
     !!-------------------!!
     call this%smoo(max_lvl)%solve(this%wrk(max_lvl)%x, &
          this%wrk(max_lvl)%b, this%amg%lvl(max_lvl)%nnodes, this%amg, &
          zero_initial_guess)
+    call profiler_end_region( "AMG_level_" // trim(lvl_name))
 
     zero_initial_guess = .false.
     ! Loop up hierarchy. Coarse to fine
     do lvl = max_lvl-1, 0, -1
+       write(lvl_name, '(I0)') lvl
+       call profiler_start_region( "AMG_level_" // trim(lvl_name))
        associate(x => this%wrk(lvl)%x, b => this%wrk(lvl)%b, &
             r => this%wrk(lvl)%r, n => this%wrk(lvl)%n)
          !!----------!!
@@ -345,6 +355,7 @@ contains
          !!----------!!
          call this%smoo(lvl)%solve(x, b, n, this%amg)
        end associate
+       call profiler_end_region( "AMG_level_" // trim(lvl_name))
     end do
   end subroutine tamg_mg_cycle
 
@@ -354,11 +365,14 @@ contains
   subroutine tamg_mg_cycle_d(this, zero_initial_guess)
     class(tamg_solver_t), intent(inout), target :: this
     logical, intent(inout) :: zero_initial_guess
+    character(len=2) :: lvl_name
     integer :: max_lvl, lvl
 
     max_lvl = this%nlvls-1
     ! Loop down hierarchy. Fine to coarse
     do lvl = 0, max_lvl-1
+       write(lvl_name, '(I0)') lvl
+       call profiler_start_region( "AMG_level_" // trim(lvl_name))
        associate(x => this%wrk(lvl)%x, x_d => this%wrk(lvl)%x_d, &
             b => this%wrk(lvl)%b, b_d => this%wrk(lvl)%b_d, &
             r => this%wrk(lvl)%r, r_d => this%wrk(lvl)%r_d, &
@@ -381,7 +395,10 @@ contains
          call device_rzero(this%wrk(lvl+1)%x_d, this%wrk(lvl+1)%n)
          zero_initial_guess = .true.
        end associate
+       call profiler_end_region( "AMG_level_" // trim(lvl_name))
     end do
+    write(lvl_name, '(I0)') max_lvl
+    call profiler_start_region( "AMG_level_" // trim(lvl_name))
     !!-------------------!!
     !! Call Coarse solve !!
     !!-------------------!!
@@ -390,10 +407,13 @@ contains
          this%wrk(max_lvl)%x_d, this%wrk(max_lvl)%b_d, &
          this%amg%lvl(max_lvl)%nnodes, this%amg, &
          zero_initial_guess)
+    call profiler_end_region( "AMG_level_" // trim(lvl_name))
 
     zero_initial_guess = .false.
     ! Loop up hierarchy. Coarse to fine
     do lvl = max_lvl-1, 0, -1
+       write(lvl_name, '(I0)') lvl
+       call profiler_start_region( "AMG_level_" // trim(lvl_name))
        associate(x => this%wrk(lvl)%x, x_d => this%wrk(lvl)%x_d, &
             b => this%wrk(lvl)%b, b_d => this%wrk(lvl)%b_d, &
             r => this%wrk(lvl)%r, r_d => this%wrk(lvl)%r_d, &
@@ -411,6 +431,7 @@ contains
          !!----------!!
          call this%smoo(lvl)%device_solve(x, b, x_d, b_d, n, this%amg)
        end associate
+       call profiler_end_region( "AMG_level_" // trim(lvl_name))
     end do
   end subroutine tamg_mg_cycle_d
 

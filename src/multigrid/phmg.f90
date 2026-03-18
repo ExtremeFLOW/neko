@@ -62,6 +62,7 @@ module phmg
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
+  use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -310,6 +311,7 @@ contains
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: ksp_results
 
+    call profiler_start_region('PHMG_solve', 8)
     associate( mglvl => this%phmg_hrchy%lvl)
       if (NEKO_BCKND_DEVICE .eq. 1) then
          z_d = device_get_ptr(z)
@@ -335,6 +337,7 @@ contains
          call copy(z, mglvl(0)%z%x, n)
       end if
     end associate
+    call profiler_end_region('PHMG_solve', 8)
 
   end subroutine phmg_solve
 
@@ -346,11 +349,14 @@ contains
   subroutine phmg_mg_cycle(this)
     class(phmg_t), intent(inout) :: this
     type(ksp_monitor_t) :: ksp_results
+    character(len=2) :: lvl_name
     integer :: lvl
 
     associate(mg => this%phmg_hrchy%lvl, intrp => this%intrp, &
         msh => this%msh, Ax => this%Ax)
       do lvl = 0, this%nlvls-2
+         write(lvl_name, '(I0)') lvl
+         call profiler_start_region( "PHMG_level_" // trim(lvl_name))
          associate(z => mg(lvl)%z, r => mg(lvl)%r, w => mg(lvl)%w)
            !------------!
            !   SMOOTH   !
@@ -408,16 +414,21 @@ contains
               mg(lvl+1)%z%x = 0.0_rp
            end if
          end associate
+         call profiler_end_region( "PHMG_level_" // trim(lvl_name))
       end do
 
+      call profiler_start_region( 'PHMG_coarse-solve' )
       !------------!
       !   SOLVE    !
       !------------!
       call this%amg_solver%solve(mg(this%nlvls-1)%z%x, &
            mg(this%nlvls-1)%r%x, &
            mg(this%nlvls-1)%dm_Xh%size())
+      call profiler_end_region( 'PHMG_coarse-solve' )
 
       do lvl = (this%nlvls-2), 0, -1
+         write(lvl_name, '(I0)') lvl
+         call profiler_start_region( "PHMG_level_" // trim(lvl_name))
          associate(z => mg(lvl)%z, r => mg(lvl)%r, w => mg(lvl)%w)
            !------------!
            !  Project   !
@@ -457,6 +468,7 @@ contains
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            end if
          end associate
+         call profiler_end_region( "PHMG_level_" // trim(lvl_name))
       end do
     end associate
 
