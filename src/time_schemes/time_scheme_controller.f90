@@ -113,6 +113,8 @@ contains
     class(time_scheme_controller_t) :: this
     integer :: torder
 
+    call this%free()
+
     this%diffusion_time_order = torder
 
     ! Force 1st order advection when diffusion is 1st order

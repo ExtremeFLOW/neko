@@ -215,7 +215,7 @@ time_schemes/time_scheme.lo : time_schemes/time_scheme.f90 config/num_types.lo
 time_schemes/bdf_time_scheme.lo : time_schemes/bdf_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo 
 time_schemes/ext_time_scheme.lo : time_schemes/ext_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo 
 time_schemes/ab_time_scheme.lo : time_schemes/ab_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo 
-time_schemes/time_scheme_controller.lo : time_schemes/time_scheme_controller.f90 device/device.lo time_schemes/ab_time_scheme.lo time_schemes/ext_time_scheme.lo time_schemes/bdf_time_scheme.lo config/num_types.lo config/neko_config.lo 
+time_schemes/time_scheme_controller.lo : time_schemes/time_scheme_controller.f90 math/vector.lo device/device.lo time_schemes/ab_time_scheme.lo time_schemes/ext_time_scheme.lo time_schemes/bdf_time_scheme.lo config/num_types.lo config/neko_config.lo 
 time_schemes/runge_kutta_scheme.lo : time_schemes/runge_kutta_scheme.f90 device/device.lo common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo config/neko_config.lo 
 common/time_based_controller.lo : common/time_based_controller.f90 common/time_state.lo common/utils.lo config/num_types.lo 
 common/stats_quant.lo : common/stats_quant.f90 config/num_types.lo 
