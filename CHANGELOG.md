@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Extended Field Writer simulation component to support writing fields to VTKHDF
+  files, in addition to the existing .fld format. The output format is now
+  determined by the `output_format` parameter in the case file, allowing for
+  flexible output options.
 - Added `Arbitrary Lagrange Cell` support for VTK HDF output. This makes the
   existing subdivision-based output optional under `output_subdivide`. By
   default, output is now written in VTKHDF using `Arbitrary Lagrange Cells`,
