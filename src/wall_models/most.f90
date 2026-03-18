@@ -49,7 +49,7 @@ module most
   private
 
   !> Wall model based on the Monin-Obukhov Similarity Theory for atmospheric
-  !! boundary layer flows. Automatically switches between stable, unstable and n
+  !! boundary layer flows. Automatically switches between stable, unstable and 
   !! neutral layer formulations based on the Richardson number.
   !!
   type, public, extends(wall_model_t) :: most_t
