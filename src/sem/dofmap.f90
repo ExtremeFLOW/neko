@@ -291,7 +291,7 @@ contains
     integer(i8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
     integer(i8) :: edge_id, edge_offset
     logical :: shared_dof
-    integer :: nx, ny, nz, nxyz, loc_id, il, jl, kl
+    integer :: nx, ny, nz, nxyz, loc_id, il, jl, kl, algn
     integer, dimension(3) :: stride
     integer, dimension(12) :: start
     integer(i8), pointer, dimension(:), contiguous :: elm_gidx
@@ -347,7 +347,8 @@ contains
             shared_dof = edg%lshare(loc_id)
             loc_id = (jl - 1)/4 + 1
             ! edge alignment
-            select case (edg%algn(jl, il))
+            algn = edg%algn(jl, il)
+            select case (algn)
             case (0) ! identity
                ! just nx
                do concurrent (kl = start(jl) + stride(loc_id) : &
@@ -379,7 +380,7 @@ contains
     integer(i8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)
     integer(i8) :: facet_offset, facet_id
     logical :: shared_dof
-    integer :: nx, ny, nz, nxyz, loc_id, il, jl, kl, ll
+    integer :: nx, ny, nz, nxyz, loc_id, il, jl, kl, ll, algn
     integer, dimension(6) :: stride, strider, start
     integer(i8), pointer, dimension(:), contiguous :: elm_gidx
     logical, pointer, dimension(:), contiguous :: elm_shr
@@ -441,7 +442,8 @@ contains
             shared_dof = fcs%lshare(loc_id)
             loc_id = (jl - 1)/2 + 1
             ! face alignment
-            select case (fcs%algn(jl, il))
+            algn = fcs%algn(jl, il)
+            select case (algn)
             case (0) ! identity
                ! just nx and num_dofs_edges(1)
                do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
@@ -472,8 +474,10 @@ contains
                   elm_shr(ll + kl) = shared_dof
                end do
             case (3) ! permutation in X; transpose; inverse of 4
-               ! in reality this coded part is P_Y T as the operation is done
-               ! from reference element perspective
+               ! Be careful, as depending on perspective (element realisation
+               ! or a reference one) this can turn into P_Y T. Moreover,
+               ! the order of applied operations counts, as P_X T = T P_Y.
+               ! What follows is actually T P_Y
                ! just nx and num_dofs_edges(1)
                do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
                     kl = start(jl) + stride(jl) : &
@@ -484,8 +488,10 @@ contains
                   elm_shr(ll + kl) = shared_dof
                end do
             case (4) ! permutation in Y; transpose; inverse of 3
-               ! in reality this coded part is P_X T as the operation is done
-               ! from reference element perspective
+               ! Be careful, as depending on perspective (element realisation
+               ! or a reference one) this can turn into P_X T. Moreover,
+               ! the order of applied operations counts, as P_Y T = T P_X.
+               ! What follows is actually T P_X
                ! just nx and num_dofs_edges(1)
                do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
                     kl = start(jl) + stride(jl) : &
