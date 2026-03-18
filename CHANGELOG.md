@@ -2,6 +2,11 @@
 
 ## Develop
 
+- Added `Arbitrary Lagrange Cell` support for the VTKHDF output. This moves the
+  existing subdivision-based output to an optional setting under
+  `output_subdivide`. The default output will now be in the VTKHDF format with
+  `Arbitrary Lagrange Cell`s, which correctly represent our higher-order
+  elements. 
 - Added an AI policy to the contribution guidelines.
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
   Simple restarts are supported with fixed mesh and MPI configuration. 
