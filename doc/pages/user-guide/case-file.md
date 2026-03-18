@@ -78,7 +78,6 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_format`       | The file format of field data.                                                                        | `nek5000`, `adios2`, or `vtkhdf`                | `nek5000`     |
 | `output_precision`    | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
-| `output_subdivide`    | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                       | `true` or `false`                               | `false`       |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
 | `output_partitions`   | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
 | `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | -             |
@@ -1202,6 +1201,7 @@ concisely directly in the table.
 | `output_value`                                     | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
 | `output_mesh_in_all_files`                         | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                                  | The output filename.                                                                              | String                                                      | `field`       |
+| `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
 | `inflow_condition.type`                            | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                           | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
 | `initial_condition.type`                           | Initial condition type.                                                                           | `user`, `uniform`, `blasius`, `field`                       | -             |
