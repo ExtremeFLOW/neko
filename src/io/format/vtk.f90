@@ -34,8 +34,10 @@
 !!
 !! References:
 !! - https://vtk.org/doc/nightly/html/vtkCellType_8h_source.html
-!! - https://scicomp.stackexchange.com/questions/42092/vtk-arbitrary-order-lagrange-elements-node-positions-ordering-on-reference-tri
-!! - https://www.kitware.com/modeling-arbitrary-order-lagrange-finite-elements-in-the-visualization-toolkit/#:%7E:text=The%20new%20cells%20in%20VTK,may%20vary%20in%20Lagrange%20cells.
+!! - https://scicomp.stackexchange.com/questions/42092/vtk-arbitrary-order-
+!!           lagrange-elements-node-positions-ordering-on-reference-tri
+!! - https://www.kitware.com/modeling-arbitrary-order-lagrange-finite-elements-
+!!           in-the-visualization-toolkit/#:%7E:text=The%20new%20cells%20in%20VTK,may%20vary%20in%20Lagrange%20cells.
 module vtk
   use utils, only: linear_index, neko_error
   implicit none
@@ -62,9 +64,19 @@ contains
 
     select case (cell_type)
     case (70) ! VTK_LAGRANGE_QUADRILATERAL
-       ordering = vtk_lagrange_quad_ordering(lx, ly)
+       if (present(lx) .and. present(ly)) then
+          ordering = vtk_lagrange_quad_ordering(lx, ly)
+       else
+          call neko_error('lx and ly must be provided for arbitrary lagrange ' &
+               // 'quadrilateral cells')
+       end if
     case (72) ! VTK_LAGRANGE_HEXAHEDRON
-       ordering = vtk_lagrange_hex_ordering(lx, ly, lz)
+       if (present(lx) .and. present(ly) .and. present(lz)) then
+          ordering = vtk_lagrange_hex_ordering(lx, ly, lz)
+       else
+          call neko_error('lx, ly, and lz must be provided for arbitrary ' &
+               // 'lagrange hexahedron cells')
+       end if
     case default
        call neko_error('Unsupported VTK cell type in vtk_ordering')
     end select
