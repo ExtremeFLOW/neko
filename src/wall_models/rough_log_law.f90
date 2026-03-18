@@ -177,8 +177,6 @@ contains
     type(field_t), pointer :: u
     type(field_t), pointer :: v
     type(field_t), pointer :: w
-    integer :: i
-    real(kind=rp) :: ui, vi, wi, magu, utau, normu
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
