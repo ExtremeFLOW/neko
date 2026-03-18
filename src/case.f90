@@ -512,8 +512,8 @@ contains
             always_write_mesh = logical_val)
     end if
 
-    call json_get_or_default(this%params, &
-         'case.fluid.output_subdivide', logical_val, .false.)
+    call json_get_or_default(this%params, 'case.output_subdivide', &
+         logical_val, .false.)
     call this%f_out%file_%set_subdivide(logical_val)
 
     call json_get(this%params, 'case.fluid.output_control', string_val)
