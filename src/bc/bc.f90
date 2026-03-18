@@ -35,7 +35,7 @@ module bc
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device, only : HOST_TO_DEVICE, device_memcpy, &
-       device_free, device_map, DEVICE_TO_HOST, glb_cmd_queue
+       device_unmap, device_map, DEVICE_TO_HOST, glb_cmd_queue
   use iso_c_binding, only : c_associated
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -276,21 +276,17 @@ contains
     nullify(this%coef)
 
     if (allocated(this%msk)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%msk, this%msk_d)
+       end if
        deallocate(this%msk)
     end if
 
     if (allocated(this%facet)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%facet, this%facet_d)
+       end if
        deallocate(this%facet)
-    end if
-
-    if (c_associated(this%msk_d)) then
-       call device_free(this%msk_d)
-       this%msk_d = C_NULL_PTR
-    end if
-
-    if (c_associated(this%facet_d)) then
-       call device_free(this%facet_d)
-       this%facet_d = C_NULL_PTR
     end if
 
     if (allocated(this%name)) then
