@@ -40,16 +40,24 @@ module field_writer
   use time_state, only : time_state_t
   use registry, only : neko_registry
   use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
+  use field_output, only : field_output_t
   use json_utils, only : json_get, json_get_or_default
   use time_based_controller, only : time_based_controller_t
+  use utils, only : neko_error
+  use logger, only : neko_log
   implicit none
   private
 
   !> A simulation component that writes a 3d field to a file.
   type, public, extends(simulation_component_t) :: field_writer_t
      !> Output writer.
-     type(fld_file_output_t), private :: output
+     type(field_output_t), private :: output
+
+     ! Default values for optional parameters in the constructor.
+     character(len=20), private :: default_name = "field_writer"
+     character(len=20), private :: default_precision = "single"
+     character(len=20), private :: default_filename = ""
+     character(len=20), private :: default_format = "nek5000"
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -84,27 +92,29 @@ contains
     character(len=:), allocatable :: filename
     character(len=:), allocatable :: name
     character(len=:), allocatable :: precision
+    character(len=:), allocatable :: format
     character(len=20), allocatable :: fields(:)
+    integer :: precision_value
 
     call this%init_base(json, case)
     call json_get(json, "fields", fields)
-    call json_get_or_default(json, "name", name, "field_writer")
+    call json_get_or_default(json, "name", name, this%default_name)
+    call json_get_or_default(json, "output_filename", filename, &
+         this%default_filename)
+    call json_get_or_default(json, "output_precision", precision, &
+         this%default_precision)
+    call json_get_or_default(json, "output_format", format, this%default_format)
 
-    if (json%valid_path("output_filename")) then
-       call json_get(json, "output_filename", filename)
-       if (json%valid_path("output_precision")) then
-          call json_get(json, "output_precision", precision)
-          if (precision == "double") then
-             call this%init_common(name, fields, filename, dp)
-          else
-             call this%init_common(name, fields, filename, sp)
-          end if
-       else
-          call this%init_common(name, fields, filename)
-       end if
+    if (precision .eq. "single") then
+       precision_value = sp
+    else if (precision .eq. "double") then
+       precision_value = dp
     else
-       call this%init_common(name, fields)
+       call neko_error("Invalid precision specified for field_writer: " &
+            // trim(precision))
     end if
+
+    call this%init_common(name, fields, filename, precision_value, format)
   end subroutine field_writer_init_from_json
 
   !> Constructor from components, passing controllers.
@@ -119,9 +129,11 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
+  !! @param format The output format of the data. Optional, defaults to
+  !! "nek5000".
   subroutine field_writer_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       fields, filename, precision)
+       fields, filename, precision, format)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -132,10 +144,11 @@ contains
     character(len=20), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
+    character(len=20), intent(in), optional :: format
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%init_common(name, fields, filename, precision)
+    call this%init_common(name, fields, filename, precision, format)
 
   end subroutine field_writer_init_from_controllers
 
@@ -155,9 +168,12 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
+  !! @param format The output format of the data. Optional, defaults to
+  !! "nek5000".
   subroutine field_writer_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
-       compute_value, output_control, output_value, fields, filename, precision)
+       compute_value, output_control, output_value, fields, filename, &
+       precision, format)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -171,11 +187,12 @@ contains
     character(len=20), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
+    character(len=*), intent(in), optional :: format
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%init_common(name, fields, filename, precision)
+    call this%init_common(name, fields, filename, precision, format)
 
   end subroutine field_writer_init_from_controllers_properties
 
@@ -186,39 +203,71 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_common(this, name, fields, filename, precision)
+  !! @param format The output format of the data. Optional, defaults to
+  !! "nek5000".
+  subroutine field_writer_init_common(this, name, fields, filename, precision, &
+       format)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=20), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
+    character(len=*), intent(in), optional :: format
     character(len=20) :: fieldi
+    logical :: filename_provided
+    character(len=120) :: message
     integer :: i
 
+    call neko_log%section("Field Writer Parameters")
+
+    if (present(filename)) then
+       write(message, "(A,X,A)") "Output filename:", trim(filename)
+       call neko_log%message(message)
+
+       if (present(precision)) then
+          write(message, "(A,X,I0)") "Output precision:", precision
+          call neko_log%message(message)
+       end if
+
+       if (present(format)) then
+          write(message, "(A,X,A)") "Output format:", trim(format)
+          call neko_log%message(message)
+       end if
+    else
+       call neko_log%message("Appending fields to main output file")
+    end if
+
+    call neko_log%end_section()
+
     this%name = name
-    ! Regsiter fields if they don't exist.
+    ! Register fields if they don't exist.
     do i = 1, size(fields)
        fieldi = trim(fields(i))
-       call neko_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
+       call neko_registry%add_field(this%case%fluid%dm_Xh, fieldi, &
             ignore_existing = .true.)
     end do
 
+    filename_provided = .false.
     if (present(filename)) then
-       if (present(precision)) then
-          call this%output%init(precision, filename, size(fields))
-       else
-          call this%output%init(sp, filename, size(fields))
-       end if
-       do i = 1, size(fields)
-          fieldi = trim(fields(i))
-          call this%output%fields%assign(i, &
-               neko_registry%get_field(fieldi))
-       end do
+       if (len_trim(filename) .ne. 0) then
+          filename_provided = .true.
+          call this%output%init(trim(filename), size(fields), &
+               precision = precision, format = trim(format))
 
-       call this%case%output_controller%add(this%output, &
-            this%output_controller%control_value, &
-            this%output_controller%control_mode)
-    else
+          do i = 1, size(fields)
+             fieldi = trim(fields(i))
+             call this%output%fields%assign(i, &
+                  neko_registry%get_field(fieldi))
+          end do
+
+          call this%case%output_controller%add(this%output, &
+               this%output_controller%control_value, &
+               this%output_controller%control_mode)
+
+       end if
+    end if
+
+    if (.not. filename_provided) then
        do i = 1, size(fields)
           fieldi = trim(fields(i))
           call this%case%f_out%fluid%append( &
