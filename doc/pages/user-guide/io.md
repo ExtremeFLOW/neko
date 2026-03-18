@@ -176,8 +176,10 @@ object of the case file:
 ```json
 {
   "case": {
-    "output_format": "vtkhdf",
-    "output_subdivide": true
+    "fluid": {
+      "output_format": "vtkhdf",
+      "output_subdivide": true
+    }
   }
 }
 ```
