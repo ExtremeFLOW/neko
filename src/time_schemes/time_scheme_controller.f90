@@ -188,11 +188,11 @@ contains
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (maxval(abs(adv_coeffs%x - adv_coeffs_old)) .gt. 1e-10_rp) then
-            call adv_coeffs%copy_from(HOST_TO_DEVICE, .true.)
+            call adv_coeffs%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
 
          if (maxval(abs(diff_coeffs%x - diff_coeffs_old)) .gt. 1e-10_rp) then
-            call diff_coeffs%copy_from(HOST_TO_DEVICE, .true.)
+            call diff_coeffs%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
       end if
     end associate
