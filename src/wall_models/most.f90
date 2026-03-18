@@ -101,7 +101,7 @@ contains
     character(len=:), allocatable :: bc_type
     real(kind=rp) :: bc_value
 
-    call json_get_or_default(json, "kappa", kappa, 0.41_rp)
+    call json_get_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
     call json_get_or_default(json, "z0h", z0h_in, -10.0_rp) ! if z0h not specified, assign negative value (tmp)
     call json_get(json, "type_of_temp_bc", bc_type)
