@@ -149,7 +149,7 @@ contains
   !! @param z0 The roughness height.
   !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
-  !! @param The heat flux at the surface boundary condition.
+  !! @param bc_value The heat flux at the surface boundary condition.
   subroutine most_init_from_components(this, scheme_name, coef, msk, &
        facet, h_index, kappa, z0, z0h_in, bc_type, bc_value)
     class(most_t), intent(inout) :: this
