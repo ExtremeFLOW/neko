@@ -45,7 +45,7 @@ extern "C" {
           void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
           void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
-          int *n_nodes, int *lx, real *kappa, real *z0, real *z0h, 
+          int *n_nodes, int *lx, real *kappa, real *z0, real *z0h_in, 
           char *bc_type, real *bc_value, int *tstep) {
 
     const dim3 nthrds(1024, 1, 1);
