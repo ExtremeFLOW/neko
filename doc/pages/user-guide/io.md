@@ -157,10 +157,35 @@ top-level `VTKHDF` group with the following structure:
   of steps written, and offset arrays that allow ParaView to locate each time
   step's data within the concatenated datasets.
 
+### Cell representation {#vtkhdf-cell-representation}
+
+By default, each spectral element is written as a single high-order VTK
+Lagrange cell (`VTK_LAGRANGE_HEXAHEDRON` in 3D, `VTK_LAGRANGE_QUADRILATERAL`
+in 2D). This preserves the polynomial basis of the spectral element and
+produces compact output files.
+
+Alternatively, spectral elements can be subdivided into linear sub-cells
+(`VTK_HEXAHEDRON` in 3D, `VTK_QUAD` in 2D), writing one degree of freedom per
+sub-cell vertex. This results in larger files but may offer broader
+compatibility with visualisation tools that have limited support for high-order
+Lagrange cells. This subdivision mimics more closely how tools like ParaView
+read the Nek5000 fld files, and may be necessary for visualizing the output.
+Subdivision is enabled by setting `output_subdivide` to `true` in the `case`
+object of the case file:
+
+```json
+{
+  "case": {
+    "output_format": "vtkhdf",
+    "output_subdivide": true
+  }
+}
+```
+
 ### Limitations {#vtkhdf-limitations}
 
-- The VTKHDF writer performs a linear sub-division of spectral elements, writing
-  one degree of freedom per sub-cell vertex. The high-order polynomial
-  representation is not preserved in the output.
+- High order Lagrange cells are not supported by all visualization tools. If you
+  encounter issues visualizing the output, try enabling subdivision into linear
+  sub-cells as described above.
 - Reading `.vtkhdf` files back into Neko is not currently supported.
 - Adaptive mesh refinement (AMR) output is not yet implemented.
