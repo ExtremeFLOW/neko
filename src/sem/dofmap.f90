@@ -951,7 +951,7 @@ contains
     call Xh3%free()
   end subroutine dofmap_xyzquad
 
- 
+
   !OCL SERIAL
   !> Extend faces into interior via gordon hall
   !! gh_type:  1 - vertex only
