@@ -383,10 +383,6 @@ contains
     write(log_buf, '(A10,2x,A3,(A5,13x),1x,A6,3x,A15,3x,A15)') &
          'KSP solver', ' | ', 'Field:', 'Iters:', &
          'Start residual:', 'Final residual:'
-
-
-
-
     call neko_log%message(log_buf)
 
   end subroutine krylov_monitor_print_header
