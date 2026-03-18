@@ -10,6 +10,8 @@
   existing subdivision-based output optional under `output_subdivide`. By
   default, output is now written in VTKHDF using `Arbitrary Lagrange Cells`,
   which correctly represent higher-order elements.
+- Added a script to add new unit tests under `contrib/add_unit_test`. The same
+  script can add a .pf file to an existing suite.
 - Bugfix: Fixed a bug in the `unmap` subroutine, where the device pointer was
   used to check if the field was mapped, which lead to a crash when trying to
   unmap an array that was not associated with a device. Correctly does nothing
