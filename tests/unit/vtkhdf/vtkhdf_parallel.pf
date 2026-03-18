@@ -45,8 +45,6 @@ contains
 
   subroutine tearDown(this)
     class(test_vtkhdf), intent(inout) :: this
-    logical :: exists
-    integer :: unit
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
@@ -654,7 +652,7 @@ contains
     call h5sclose_f(filespace, hdferr)
     call h5dclose_f(dset_id, hdferr)
 
-    ! -- PartOffsets dataset: shape (NUM_STEPS,) with [0, NUM_PARTS] --
+    ! -- PartOffsets dataset: shape (NUM_STEPS,) with [0, 0] --
     call h5lexists_f(steps_grp, "PartOffsets", link_exists, hdferr)
     message = "Steps/PartOffsets must exist"
     @assertTrue(link_exists, message = message)

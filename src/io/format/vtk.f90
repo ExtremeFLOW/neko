@@ -35,9 +35,10 @@
 !! References:
 !! - https://vtk.org/doc/nightly/html/vtkCellType_8h_source.html
 !! - https://scicomp.stackexchange.com/questions/42092/vtk-arbitrary-order-
-!!           lagrange-elements-node-positions-ordering-on-reference-tri
+!!   lagrange-elements-node-positions-ordering-on-reference-tri
 !! - https://www.kitware.com/modeling-arbitrary-order-lagrange-finite-elements-
-!!           in-the-visualization-toolkit/#:%7E:text=The%20new%20cells%20in%20VTK,may%20vary%20in%20Lagrange%20cells.
+!!   in-the-visualization-toolkit/#:%7E:text=The%20new%20cells%20in%20VTK,
+!!   may%20vary%20in%20Lagrange%20cells.
 module vtk
   use utils, only: linear_index, neko_error
   implicit none
@@ -59,8 +60,6 @@ contains
     integer(kind=1), intent(in) :: cell_type
     integer, intent(in), optional :: lx, ly, lz
     integer, allocatable :: ordering(:)
-
-    if (allocated(ordering)) deallocate(ordering)
 
     select case (cell_type)
     case (70) ! VTK_LAGRANGE_QUADRILATERAL

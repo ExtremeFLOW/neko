@@ -331,9 +331,11 @@ contains
     type is (vtkhdf_file_t)
        call ft%set_subdivide(subdivide)
     class default
-       call filename_suffix(this%file_type%get_fname(), suffix)
-       call neko_warning("Subdivide output not supported for " // &
-            trim(suffix) // " files")
+       if (subdivide) then
+          call filename_suffix(this%file_type%get_fname(), suffix)
+          call neko_warning("Subdivide output not supported for " // &
+               trim(suffix) // " files")
+       end if
     end select
   end subroutine file_set_subdivide
 

@@ -149,7 +149,6 @@ contains
     character(len=1024) :: fname
     character(len=16) :: type_str
     logical :: link_exists, file_exists
-    integer(kind=1) :: VTK_cell_type
     integer :: counter
 
     ! Determine mesh and field data
@@ -181,6 +180,9 @@ contains
     end if
     if (msh%gdim .eq. 3 .and. dof%Xh%lz < 2) then
        call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
+    end if
+    if (msh%gdim .lt. 2 .or. msh%gdim .gt. 3) then
+       call neko_error('VTKHDF output only supports 2D and 3D meshes')
     end if
 
     ! Ensure precision is set and are valid.

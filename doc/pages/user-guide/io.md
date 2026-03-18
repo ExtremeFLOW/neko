@@ -70,7 +70,7 @@ Please refer to the documentation of ADIOS2 (and the specific compression
 library) to configure the data "operators" of the parallel I/O library.
 
 The tool `adios2_to_nek5000` can be used to decompress the field data for
-postprocessing and visualization with the conventional nek5000 format.
+postprocessing and visualisation with the conventional nek5000 format.
 Additionally, the data can be compressed using this tool as a postprocessing
 step using the `adios2.xml` configuration and a given uncompressed data set as
 input.
@@ -93,10 +93,10 @@ workflow to compare and find an optimal compression rate with an acceptable
 accuracy loss. The value of the PSNR decreases with increasing accuracy loss.
 Tune the compression by increasing the compression ratio until a desired lower
 limiting value for the PSNR is reached. As a rule of thumb, target values of 60
-or 40 can be used as lower limit for accurate postprocessing or visualization,
+or 40 can be used as lower limit for accurate postprocessing or visualisation,
 respectively.  Separately, it is recommended to check for compression errors
 from lossy compressors in the specific quantities of interest in postprocessing
-and visualization.
+and visualisation.
 
 ## Checkpoint files
 Simulations cannot be restarted from `.fld` files (although you can use an `fld`
@@ -169,7 +169,7 @@ Alternatively, spectral elements can be subdivided into linear sub-cells
 sub-cell vertex. This results in larger files but may offer broader
 compatibility with visualisation tools that have limited support for high-order
 Lagrange cells. This subdivision mimics more closely how tools like ParaView
-read the Nek5000 fld files, and may be necessary for visualizing the output.
+read the Nek5000 fld files, and may be necessary for visualising the output.
 Subdivision is enabled by setting `output_subdivide` to `true` in the `case`
 object of the case file:
 
@@ -184,8 +184,8 @@ object of the case file:
 
 ### Limitations {#vtkhdf-limitations}
 
-- High order Lagrange cells are not supported by all visualization tools. If you
-  encounter issues visualizing the output, try enabling subdivision into linear
+- High order Lagrange cells are not supported by all visualisation tools. If you
+  encounter issues visualising the output, try enabling subdivision into linear
   sub-cells as described above.
 - Reading `.vtkhdf` files back into Neko is not currently supported.
 - Adaptive mesh refinement (AMR) output is not yet implemented.
