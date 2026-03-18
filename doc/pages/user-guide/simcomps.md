@@ -335,7 +335,7 @@ vtkhdf-cell-representation) section for more details.
    "output_precision": "double",
    "output_format": "nek5000",
    "output_subdivide": false,
-   "output_control" : "simulation_time",
+   "output_control" : "simulationtime",
    "output_value" : 1.0
  }
  ~~~~~~~~~~~~~~~
