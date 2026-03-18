@@ -154,6 +154,7 @@ neko_fortran_SOURCES = \
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
+	io/field_output.f90\
 	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/fluid_stats_output.f90\
@@ -380,8 +381,8 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/device_gradient_jump_penalty.F90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
-  les/fluid_sgs_stats.f90\
-  les/scalar_sgs_stats.f90\
+	les/fluid_sgs_stats.f90\
+	les/scalar_sgs_stats.f90\
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/bcknd/device/vreman_device.f90\
@@ -402,7 +403,7 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/wale_cpu.f90\
 	les/bcknd/device/wale_device.f90\
 	les/bcknd/device/device_wale_nut.F90\
-  les/deardorff.f90\
+	les/deardorff.f90\
 	les/bcknd/cpu/deardorff_cpu.f90\
 	les/bcknd/device/deardorff_device.f90\
 	les/bcknd/device/device_deardorff_nut.F90\
