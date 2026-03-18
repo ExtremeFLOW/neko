@@ -145,7 +145,7 @@ contains
 
     time_digits = precision(this%t)
     time_width = time_digits + 8
-    pad_width = max(1, LOG_SIZE - (34 + time_width))
+    pad_width = max(1, LOG_SIZE - (34 + time_width) - 1)
 
     write(log_fmt, '(A,I0,A,I0,A,I0,A,I0,A)') &
          '(A7,1X,I10,1X,A4,ES', time_width, '.', time_digits, ',', &
