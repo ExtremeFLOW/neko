@@ -58,6 +58,7 @@ module field_writer
      character(len=20), private :: default_precision = "single"
      character(len=20), private :: default_filename = ""
      character(len=20), private :: default_format = "nek5000"
+     logical, private :: default_subdivide = .false.
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -95,6 +96,7 @@ contains
     character(len=:), allocatable :: format
     character(len=20), allocatable :: fields(:)
     integer :: precision_value
+    logical :: subdivide
 
     call this%init_base(json, case)
     call json_get(json, "fields", fields)
@@ -114,7 +116,11 @@ contains
             // trim(precision))
     end if
 
-    call this%init_common(name, fields, filename, precision_value, format)
+    call json_get_or_default(json, "output_subdivide", subdivide, &
+         this%default_subdivide)
+
+    call this%init_common(name, fields, filename, precision_value, format, &
+         subdivide)
   end subroutine field_writer_init_from_json
 
   !> Constructor from components, passing controllers.
@@ -131,9 +137,11 @@ contains
   !! to single precision.
   !! @param format The output format of the data. Optional, defaults to
   !! "nek5000".
+  !! @param subdivide Whether to subdivide spectral elements into linear
+  !! sub-cells. Optional, defaults to `.false.`.
   subroutine field_writer_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       fields, filename, precision, format)
+       fields, filename, precision, format, subdivide)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -145,10 +153,11 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=20), intent(in), optional :: format
+    logical, intent(in), optional :: subdivide
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%init_common(name, fields, filename, precision, format)
+    call this%init_common(name, fields, filename, precision, format, subdivide)
 
   end subroutine field_writer_init_from_controllers
 
@@ -170,10 +179,12 @@ contains
   !! to single precision.
   !! @param format The output format of the data. Optional, defaults to
   !! "nek5000".
+  !! @param subdivide Whether to subdivide spectral elements into linear
+  !! sub-cells. Optional, defaults to `.false.`.
   subroutine field_writer_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, fields, filename, &
-       precision, format)
+       precision, format, subdivide)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -188,11 +199,12 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=*), intent(in), optional :: format
+    logical, intent(in), optional :: subdivide
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%init_common(name, fields, filename, precision, format)
+    call this%init_common(name, fields, filename, precision, format, subdivide)
 
   end subroutine field_writer_init_from_controllers_properties
 
@@ -205,14 +217,17 @@ contains
   !! to single precision.
   !! @param format The output format of the data. Optional, defaults to
   !! "nek5000".
+  !! @param subdivide Whether to subdivide spectral elements into linear
+  !! sub-cells. Optional, defaults to `.false.`.
   subroutine field_writer_init_common(this, name, fields, filename, precision, &
-       format)
+       format, subdivide)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=20), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=*), intent(in), optional :: format
+    logical, intent(in), optional :: subdivide
     character(len=20) :: fieldi
     logical :: filename_provided
     character(len=120) :: message
@@ -232,6 +247,12 @@ contains
        if (present(format)) then
           write(message, "(A,X,A)") "Output format:", trim(format)
           call neko_log%message(message)
+       end if
+
+       if (present(subdivide)) then
+          if (subdivide) then
+             call neko_log%message("Output subdivide: enabled")
+          end if
        end if
     else
        call neko_log%message("Appending fields to main output file")
@@ -253,6 +274,10 @@ contains
           filename_provided = .true.
           call this%output%init(trim(filename), size(fields), &
                precision = precision, format = trim(format))
+
+          if (present(subdivide)) then
+             call this%output%file_%set_subdivide(subdivide)
+          end if
 
           do i = 1, size(fields)
              fieldi = trim(fields(i))
