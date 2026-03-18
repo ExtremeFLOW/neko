@@ -70,28 +70,78 @@ Use `--cluster` flag. Neko installs to:
 
 ```bash
 cd examples/two_phase_channel
-cp ../turb_channel/box.nmsh .      # mesh is gitignored
+# Generate mesh (once)
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 81 18 27 .true. .false. .true.
+mv box.nmsh box_phys_81x18x27.nmsh
 source ../../setup-env-channel.sh --egidius   # or --local
 makeneko turb_channel_two_phase.f90
-mpirun -np 4 ./neko turb_channel_two_phase.case
+mpirun -np 4 ./neko turb_channel_two_phase_v4.case
 ```
 
 For production runs on egidius, run from a simulations directory:
 ```bash
-mkdir -p /lscratch/sieburgh/simulations/channel_test
-cd /lscratch/sieburgh/simulations/channel_test
+mkdir -p /lscratch/sieburgh/simulations/channel_test_v4
+cd /lscratch/sieburgh/simulations/channel_test_v4
 cp ~/code/neko-multiphase-channel/examples/two_phase_channel/*.case .
 cp ~/code/neko-multiphase-channel/examples/two_phase_channel/neko .
-cp ~/code/neko-multiphase-channel/examples/turb_channel/box.nmsh .
-mpirun -np 32 ./neko turb_channel_two_phase.case
+cp ~/code/neko-multiphase-channel/examples/two_phase_channel/box_phys_81x18x27.nmsh .
+mpirun -np 32 ./neko turb_channel_two_phase_v4.case
 ```
+
+### Turbulent restart (two-step)
+
+```bash
+# Step 1: single-phase spin-up — generates fluid00004.chkp at t=20
+makeneko turb_channel_single_phase.f90
+mpirun -np 16 ./neko turb_channel_single_phase.case
+# Verify: u_max in ekin.csv fluctuating ~1.35–1.45 with no trend at t=20
+# (mean profile matches Reichardt Re_tau=180 — confirmed via postprocess_single_phase.py)
+
+# Step 2: two-phase restart — reads fluid00004.chkp, injects drop analytically
+mkdir /lscratch/sieburgh/simulations/channel_test_restart
+cd /lscratch/sieburgh/simulations/channel_test_restart
+cp ~/code/neko-multiphase-channel/examples/two_phase_channel/{turb_channel_two_phase_restart.case,neko,box_phys_81x18x27.nmsh} .
+cp /lscratch/sieburgh/simulations/channel_single_phase/fluid00004.chkp .
+mpirun -np 16 ./neko turb_channel_two_phase_restart.case
+
+# Off-centre variant (R=0.4, y_c=0.3):
+mkdir /lscratch/sieburgh/simulations/channel_test_restart_off
+cd /lscratch/sieburgh/simulations/channel_test_restart_off
+cp ~/code/neko-multiphase-channel/examples/two_phase_channel/{turb_channel_two_phase_restart_off.case,neko,box_phys_81x18x27.nmsh} .
+cp /lscratch/sieburgh/simulations/channel_single_phase/fluid00004.chkp .
+mpirun -np 16 ./neko turb_channel_two_phase_restart_off.case
+```
+
+**Restart mechanics:** Neko restores t=20 from the checkpoint. `end_time: 25.0` is
+absolute — the simulation runs from t=20 to t=25. The fluid IC is skipped (velocity
+from checkpoint); the scalar IC places the drop analytically. Verify in neko.log:
+`Restarting from checkpoint ... Time: 20.0` and `T : [20.0, 25.0]`.
+
+**MPI rank count for restart must match spin-up.** The single-phase run used 16 ranks;
+fluid00004.chkp is partitioned for 16 ranks. Restart with `mpirun -np 16`.
+
+**Checkpoint compatibility fix (in this fork):** `src/io/chkp_file.f90` and
+`src/case.f90` were patched to allow restarting from a fluid-only checkpoint into a
+scalar case. If `have_scalar=0` in the checkpoint, the scalar IC is applied from user
+code instead of erroring. The `chkp_t` struct carries a `scalar_was_read` flag.
+
+**drop_center_y parameter:** `case.scalar.drop_center_y` (default 0.0) sets the
+wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 
 ## Key source files
 
 | Path | Purpose |
 |------|---------|
-| `examples/two_phase_channel/turb_channel_two_phase.f90` | User module (main file) |
-| `examples/two_phase_channel/turb_channel_two_phase.case` | Local test case (N=5, end_time=5) |
+| `examples/two_phase_channel/turb_channel_two_phase.f90` | User module: IC, CDI, CSF, diagnostics |
+| `examples/two_phase_channel/turb_channel_two_phase_laminar.case` | Laminar + We=1 (σ=0.3): CDI/CSF ground-truth baseline |
+| `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Turbulent + We=1 (σ=0.3): primary validation |
+| `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Turbulent + We=10 (σ=0.03): moderate deformation |
+| `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1 restart from `fluid00004.chkp` (t=20→25), R=0.3, y_c=0 |
+| `examples/two_phase_channel/turb_channel_two_phase_restart_off.case` | We=1.33 restart, R=0.4, y_c=0.3 (off-centre, log-law region) |
+| `examples/two_phase_channel/turb_channel_two_phase_v4.case` | v4: We=730 high-We reference (completed) |
+| `examples/two_phase_channel/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up |
+| `examples/two_phase_channel/turb_channel_single_phase.case` | Single-phase spin-up to t=25, checkpoints every 5 TU |
+| `examples/two_phase_channel/postprocess_single_phase.py` | Single-phase postprocessing: ekin plot + mean velocity profile |
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
 | `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
 | `setup-env-channel.sh` | Environment setup (local/egidius/cluster) |

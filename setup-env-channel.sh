@@ -44,6 +44,13 @@ elif [ "$1" = "--egidius" ]; then
 
     export PATH="$NEKO_CHANNEL_PREFIX/bin:$PATH"
 
+    # Python postprocessing venv (pysemtools, numpy, matplotlib, pandas, mpi4py)
+    # Source: /lscratch/sieburgh/local/src/pysemtools  (editable install)
+    export NEKO_PYTHON_VENV="/lscratch/sieburgh/local/venv-neko"
+    if [ -f "$NEKO_PYTHON_VENV/bin/activate" ]; then
+        source "$NEKO_PYTHON_VENV/bin/activate"
+    fi
+
     echo "neko-channel environment loaded (egidius)"
 
 elif [ "$1" = "--cluster" ]; then

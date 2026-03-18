@@ -5,10 +5,10 @@
         "output_at_end": true,
         "output_checkpoints": false,
         "time": {
-            "end_time": 5.0,
+            "end_time": 10.0,
             "variable_timestep": true,
             "target_cfl": 0.2,
-            "max_timestep": 0.05
+            "max_timestep": 5e-2
         },
         "numerics": {
             "time_order": 3,
@@ -19,6 +19,7 @@
             "scheme": "pnpn",
             "Re": 2800,
             "ipostproc": 50,
+            "turbulent_ic": false,
             "initial_condition": {
                 "type": "user"
             },
@@ -33,7 +34,7 @@
                     "type": "jacobi"
                 },
                 "projection_space_size": 0,
-                "absolute_tolerance": 0.0001,
+                "absolute_tolerance": 1e-4,
                 "max_iterations": 800
             },
             "pressure_solver": {
@@ -42,7 +43,7 @@
                     "type": "hsmg"
                 },
                 "projection_space_size": 5,
-                "absolute_tolerance": 0.001,
+                "absolute_tolerance": 1e-3,
                 "max_iterations": 800
             },
             "flow_rate_force": {
@@ -53,10 +54,7 @@
             "boundary_conditions": [
                 {
                     "type": "no_slip",
-                    "zone_indices": [
-                        3,
-                        4
-                    ]
+                    "zone_indices": [3, 4]
                 }
             ],
             "output_control": "simulationtime",
@@ -77,7 +75,7 @@
                 "preconditioner": {
                     "type": "jacobi"
                 },
-                "absolute_tolerance": 1e-06,
+                "absolute_tolerance": 1e-6,
                 "max_iterations": 200
             },
             "source_terms": [
@@ -89,10 +87,7 @@
                 {
                     "type": "neumann",
                     "flux": 0.0,
-                    "zone_indices": [
-                        3,
-                        4
-                    ]
+                    "zone_indices": [3, 4]
                 }
             ],
             "output_control": "simulationtime",

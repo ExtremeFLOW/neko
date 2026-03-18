@@ -308,9 +308,10 @@ contains
     if (scalar) then
        call neko_log%section("Scalar initial condition ")
 
-       if (this%params%valid_path('case.restart_file')) then
-          call neko_log%message("Restart file specified, " // &
-                "initial conditions ignored")
+       if (this%params%valid_path('case.restart_file') &
+            .and. this%chkp%scalar_was_read) then
+          call neko_log%message("Restart file specified and scalar present; " // &
+                "scalar initial conditions ignored")
        else if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility with single scalar
           call json_get(this%params, 'case.scalar.initial_condition.type', &

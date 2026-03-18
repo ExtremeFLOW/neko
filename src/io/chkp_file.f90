@@ -475,9 +475,17 @@ contains
 
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
-         ( (have_lag .eq. 0) .and. (read_lag) ) .or. &
-         ( (have_scalar .eq. 0) .and. (read_scalar) ) ) then
+         ( (have_lag .eq. 0) .and. (read_lag) ) ) then
        call neko_error('Checkpoint does not match case')
+    end if
+    ! If the checkpoint has no scalar but the case does, fall back to user IC.
+    if ( (have_scalar .eq. 0) .and. (read_scalar) ) then
+       call neko_log%warning('Checkpoint has no scalar field; scalar IC &
+            &will be applied by user code')
+       read_scalar = .false.
+       chkp%scalar_was_read = .false.
+    else if (read_scalar) then
+       chkp%scalar_was_read = .true.
     end if
     nel = msh%nelv
     this%sim_Xh => u%Xh

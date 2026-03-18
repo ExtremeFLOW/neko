@@ -1,7 +1,6 @@
 ! 3D turbulent two-phase channel flow with CSF surface tension
 !
-! Background turbulent channel at Re_tau=180, Re_b=2800 with a single drop
-! (local test) or two drops symmetric about the centerline (production).
+! Background turbulent channel at Re_tau=180, Re_b=2800 with a single drop.
 ! Drop is initialized with a tanh profile; CDI source term keeps the
 ! interface sharp; CSF surface tension acts on the fluid.
 !
@@ -13,8 +12,9 @@
 !   case.scalar.epsilon     -- interface thickness
 !   case.scalar.gamma       -- CDI mobility coefficient
 !   case.scalar.sigma       -- surface tension coefficient
-!   case.scalar.drop_radius -- drop radius
-!   case.fluid.ipostproc    -- diagnostic output frequency (tsteps)
+!   case.scalar.drop_radius   -- drop radius
+!   case.scalar.drop_center_y -- wall-normal drop centre offset from centreline (default 0)
+!   case.fluid.ipostproc      -- diagnostic output frequency (tsteps)
 !
 module user
   use neko
@@ -29,16 +29,19 @@ module user
   type(vector_t) :: vec_out
   integer :: ipostproc
 
+  logical :: turbulent_ic
+
   real(kind=rp) :: eps
   real(kind=rp) :: gamma, u_max, sigma
   real(kind=rp) :: drop_radius
+  real(kind=rp) :: drop_center_y
+  real(kind=rp) :: Re_b
 
 contains
 
   ! Register user-defined functions
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%mesh_setup => user_mesh_scale
     user%startup => startup
     user%initialize => initialize
     user%compute => compute
@@ -47,46 +50,6 @@ contains
     user%material_properties => material_properties
     user%initial_conditions => initial_conditions
   end subroutine user_setup
-
-  ! Rescale mesh for wall refinement.
-  ! Input mesh: uniform 0..4, -1..1, 0..1.5
-  ! Output mesh: 4pi x 2 x 4/3pi with clustering near y=+/-1 walls.
-  subroutine user_mesh_scale(msh, time)
-    type(mesh_t), intent(inout) :: msh
-    type(time_state_t), intent(in) :: time
-    integer :: i, nvert
-
-    real(kind=rp) :: d, y, viscous_layer, visc_el_h, el_h
-    real(kind=rp) :: center_el_h, dist_from_wall
-    integer :: el_in_visc_lay, el_in_y
-    real(kind=rp) :: llx, llz
-
-    llx = 4._rp * pi
-    llz = 4._rp / 3._rp * pi
-
-    el_in_y = 18
-    el_in_visc_lay = 2
-    viscous_layer = 0.0888889_rp
-    el_h = 2.0_rp / el_in_y
-    visc_el_h = viscous_layer / el_in_visc_lay
-    center_el_h = (1.0_rp - viscous_layer) / (el_in_y / 2 - el_in_visc_lay)
-
-    nvert = size(msh%points)
-    do i = 1, nvert
-      msh%points(i)%x(1) = llx / 4._rp * msh%points(i)%x(1)
-      y = msh%points(i)%x(2)
-      if ((1 - abs(y)) .le. (el_in_visc_lay * el_h)) then
-        dist_from_wall = (1 - abs(y)) / el_h * visc_el_h
-      else
-        dist_from_wall = viscous_layer + (1 - abs(y) - &
-             el_in_visc_lay * el_h) / el_h * center_el_h
-      end if
-      if (y .gt. 0) msh%points(i)%x(2) = 1.0_rp - dist_from_wall
-      if (y .lt. 0) msh%points(i)%x(2) = -1.0_rp + dist_from_wall
-      msh%points(i)%x(3) = 2._rp / 3._rp * llz * msh%points(i)%x(3)
-    end do
-
-  end subroutine user_mesh_scale
 
   ! Read simulation parameters from case file
   subroutine startup(params)
@@ -97,10 +60,14 @@ contains
     write(mess, *) "postprocessing steps : ", ipostproc
     call neko_log%message(mess)
 
+    call json_get_or_default(params, "case.fluid.turbulent_ic", turbulent_ic, .true.)
+
+    call json_get(params, "case.fluid.Re", Re_b)
     call json_get(params, "case.scalar.epsilon", eps)
     call json_get(params, "case.scalar.gamma", gamma)
     call json_get(params, "case.scalar.sigma", sigma)
     call json_get(params, "case.scalar.drop_radius", drop_radius)
+    call json_get_or_default(params, "case.scalar.drop_center_y", drop_center_y, 0.0_rp)
     u_max = 1.0_rp
   end subroutine startup
 
@@ -410,7 +377,10 @@ contains
     type(time_state_t), intent(in) :: time
     real(kind=rp) :: delta
 
-    if (scheme_name .eq. "phase") then
+    if (scheme_name .eq. "fluid") then
+      call field_cfill(properties%get_by_index(1), 1.0_rp)           ! rho
+      call field_cfill(properties%get_by_index(2), 1.0_rp / Re_b)    ! mu
+    else if (scheme_name .eq. "phase") then
       delta = u_max * gamma
       call field_cfill(properties%get('phase_cp'), 1.0_rp)
       call field_cfill(properties%get('phase_lambda'), eps * delta)
@@ -455,9 +425,10 @@ contains
     else if (scheme_name .eq. 'phase') then
       phase => fields%items(1)%ptr
 
-      ! Single drop at channel center (local test)
+      ! Drop centre: streamwise and spanwise at domain mid-point,
+      ! wall-normal offset by drop_center_y (0 = centreline, default).
       x_c = llx / 2._rp
-      y_c = 0.0_rp
+      y_c = drop_center_y
       z_c = llz / 2._rp
 
       do e = 1, phase%msh%nelv
@@ -509,31 +480,35 @@ contains
     uvw(2) = 0._rp
     uvw(3) = 0._rp
 
-    ! Large-scale perturbation
-    eps_ic = 0.05_rp
-    kx = 3._rp
-    kz = 4._rp
-    alpha = kx * 2._rp * pi / llx
-    beta = kz * 2._rp * pi / llz
-    uvw(1) = uvw(1) + eps_ic * beta * sin(alpha * x) * cos(beta * z)
-    uvw(2) = uvw(2) + eps_ic * sin(alpha * x) * sin(beta * z)
-    uvw(3) = uvw(3) - eps_ic * alpha * cos(alpha * x) * sin(beta * z)
+    if (turbulent_ic) then
 
-    ! Small-scale perturbation
-    eps_ic = 0.005_rp
-    kx = 17._rp
-    kz = 13._rp
-    alpha = kx * 2._rp * pi / llx
-    beta = kz * 2._rp * pi / llz
-    uvw(1) = uvw(1) + eps_ic * beta * sin(alpha * x) * cos(beta * z)
-    uvw(2) = uvw(2) + eps_ic * sin(alpha * x) * sin(beta * z)
-    uvw(3) = uvw(3) - eps_ic * alpha * cos(alpha * x) * sin(beta * z)
+      ! Large-scale perturbation
+      eps_ic = 0.05_rp
+      kx = 3._rp
+      kz = 4._rp
+      alpha = kx * 2._rp * pi / llx
+      beta = kz * 2._rp * pi / llz
+      uvw(1) = uvw(1) + eps_ic * beta * sin(alpha * x) * cos(beta * z)
+      uvw(2) = uvw(2) + eps_ic * sin(alpha * x) * sin(beta * z)
+      uvw(3) = uvw(3) - eps_ic * alpha * cos(alpha * x) * sin(beta * z)
 
-    ! Random perturbation in y
-    eps1 = 0.001_rp
-    ran = sin(-20._rp * x * z + y**3 * tan(x * z**2) + &
-              100._rp * z * y - 20._rp * sin(x * y * z)**5)
-    uvw(2) = uvw(2) + eps1 * ran
+      ! Small-scale perturbation
+      eps_ic = 0.005_rp
+      kx = 17._rp
+      kz = 13._rp
+      alpha = kx * 2._rp * pi / llx
+      beta = kz * 2._rp * pi / llz
+      uvw(1) = uvw(1) + eps_ic * beta * sin(alpha * x) * cos(beta * z)
+      uvw(2) = uvw(2) + eps_ic * sin(alpha * x) * sin(beta * z)
+      uvw(3) = uvw(3) - eps_ic * alpha * cos(alpha * x) * sin(beta * z)
+
+      ! Random perturbation in y
+      eps1 = 0.001_rp
+      ran = sin(-20._rp * x * z + y**3 * tan(x * z**2) + &
+                100._rp * z * y - 20._rp * sin(x * y * z)**5)
+      uvw(2) = uvw(2) + eps1 * ran
+
+    end if
 
   end function channel_ic
 

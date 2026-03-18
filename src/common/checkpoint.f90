@@ -82,6 +82,9 @@ module checkpoint
      type(field_ptr_t), allocatable :: scalar_abx2(:) !< ABX2 fields for each scalar
 
      real(kind=dp) :: t !< Restart time (valid after load)
+     !> Set to .true. by chkp_file_read when scalar was present in checkpoint.
+     !! .false. means the checkpoint had no scalar; user IC should still apply.
+     logical :: scalar_was_read = .false.
      type(mesh_t) :: previous_mesh
      type(space_t) :: previous_Xh
      real(kind=rp) :: mesh2mesh_tol = 1d-6
