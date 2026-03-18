@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ module field_output
 
   !> A simple output saving a list of fields to a file.
   type, public, extends(output_t) :: field_output_t
-     ! The list of fields to save.
+     !> The list of fields to save.
      type(field_list_t) :: fields
    contains
      !> Constructor.
@@ -70,6 +70,8 @@ contains
     character(len=*), intent(in), optional :: path
     character(len=*), intent(in), optional :: format
     character(len=1024) :: fname, suffix
+
+    call this%free()
 
     suffix = '.fld'
     if (present(format)) then

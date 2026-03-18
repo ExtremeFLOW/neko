@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -306,6 +306,7 @@ contains
   subroutine field_writer_free(this)
     class(field_writer_t), intent(inout) :: this
     call this%free_base()
+    call this%output%free()
   end subroutine field_writer_free
 
   !> Here to comply with the interface, does nothing.
