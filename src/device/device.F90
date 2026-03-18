@@ -893,14 +893,19 @@ contains
     type(c_ptr) :: dev
     logical :: mapped
 
-    ! Device pointer associated with x, should be same as x_d if mapped
-    dev = device_get_ptr(x)
     ! Whether dev has a non-null address, meaning that x is mapped.
-    mapped = c_associated(dev)
+    mapped = device_associated(x)
 
     ! Repeated calls to this routine do nothing
     if ((.not. mapped) .and. (.not. c_associated(x_d))) then
        return
+    end if
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    if (mapped) then
+       dev = device_get_ptr(x)
+    else
+       dev = c_null_ptr
     end if
 
     ! Error if:
@@ -925,14 +930,19 @@ contains
     type(c_ptr) :: dev
     logical :: mapped
 
-    ! Device pointer associated with x, should be same as x_d if mapped
-    dev = device_get_ptr(x)
     ! Whether dev has a non-null address, meaning that x is mapped.
-    mapped = c_associated(dev)
+    mapped = device_associated(x)
 
     ! Repeated calls to this routine do nothing
     if ((.not. mapped) .and. (.not. c_associated(x_d))) then
        return
+    end if
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    if (mapped) then
+       dev = device_get_ptr(x)
+    else
+       dev = c_null_ptr
     end if
 
     ! Error if:
@@ -957,14 +967,19 @@ contains
     type(c_ptr) :: dev
     logical :: mapped
 
-    ! Device pointer associated with x, should be same as x_d if mapped
-    dev = device_get_ptr(x)
     ! Whether dev has a non-null address, meaning that x is mapped.
-    mapped = c_associated(dev)
+    mapped = device_associated(x)
 
     ! Repeated calls to this routine do nothing
     if ((.not. mapped) .and. (.not. c_associated(x_d))) then
        return
+    end if
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    if (mapped) then
+       dev = device_get_ptr(x)
+    else
+       dev = c_null_ptr
     end if
 
     ! Error if:
@@ -989,14 +1004,19 @@ contains
     type(c_ptr) :: dev
     logical :: mapped
 
-    ! Device pointer associated with x, should be same as x_d if mapped
-    dev = device_get_ptr(x)
     ! Whether dev has a non-null address, meaning that x is mapped.
-    mapped = c_associated(dev)
+    mapped = device_associated(x)
 
     ! Repeated calls to this routine do nothing
     if ((.not. mapped) .and. (.not. c_associated(x_d))) then
        return
+    end if
+
+    ! Device pointer associated with x, should be same as x_d if mapped
+    if (mapped) then
+       dev = device_get_ptr(x)
+    else
+       dev = c_null_ptr
     end if
 
     ! Error if:
