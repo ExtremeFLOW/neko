@@ -233,33 +233,6 @@ contains
     character(len=120) :: message
     integer :: i
 
-    call neko_log%section("Field Writer Parameters")
-
-    if (present(filename)) then
-       write(message, "(A,X,A)") "Output filename:", trim(filename)
-       call neko_log%message(message)
-
-       if (present(precision)) then
-          write(message, "(A,X,I0)") "Output precision:", precision
-          call neko_log%message(message)
-       end if
-
-       if (present(format)) then
-          write(message, "(A,X,A)") "Output format:", trim(format)
-          call neko_log%message(message)
-       end if
-
-       if (present(subdivide)) then
-          if (subdivide) then
-             call neko_log%message("Output subdivide: enabled")
-          end if
-       end if
-    else
-       call neko_log%message("Appending fields to main output file")
-    end if
-
-    call neko_log%end_section()
-
     this%name = name
     ! Register fields if they don't exist.
     do i = 1, size(fields)
