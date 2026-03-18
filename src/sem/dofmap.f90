@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -251,6 +251,7 @@ contains
     num_dofs_edges(3) = int(Xh%lz - 2, i8)
     edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
+    !$omp parallel do private(i,j,k,global_id,edge,edge_id,shared_dof)
     do i = 1, msh%nelv
 
        select type (ep => msh%elements(i)%e)
@@ -563,6 +564,7 @@ contains
        end select
 
     end do
+    !$omp end parallel do
   end subroutine dofmap_number_edges
 
   !> Assign numbers to dofs on faces
@@ -589,6 +591,7 @@ contains
     num_dofs_faces(2) = int((Xh%lx - 2) * (Xh%lz - 2), i8)
     num_dofs_faces(3) = int((Xh%lx - 2) * (Xh%ly - 2), i8)
 
+    !$omp parallel do private(i,j,k,global_id,face,face_order,facet_id, shared_dof)
     do i = 1, msh%nelv
 
        !
@@ -668,6 +671,7 @@ contains
           this%shared_dof(j, k, Xh%lz, i) = shared_dof
        end do
     end do
+    !$omp end parallel do
 
   end subroutine dofmap_number_faces
 
@@ -747,10 +751,13 @@ contains
        n_edge = 4
     end if
 
+    !$omp parallel do
     do i = 1, msh%nelv
        call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x(1,1,1,i), &
             this%y(1,1,1,i), this%z(1,1,1,i))
     end do
+    !$omp end parallel do
+
     do i = 1, msh%curve%size
        midpoint = .false.
        el_idx = msh%curve%curve_el(i)%el_idx
@@ -868,6 +875,7 @@ contains
     end if
   end subroutine dofmap_xyzlin
 
+  !OCL SERIAL
   subroutine dofmap_xyzquad(Xh, msh, element, x, y, z, curve_type, curve_data)
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
@@ -943,6 +951,8 @@ contains
     call Xh3%free()
   end subroutine dofmap_xyzquad
 
+ 
+  !OCL SERIAL
   !> Extend faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and edges
@@ -1057,6 +1067,7 @@ contains
 
   end subroutine gh_face_extend_3d
 
+  !OCL SERIAL
   !> Extend 2D faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and faces
@@ -1209,6 +1220,7 @@ contains
     end if
   end subroutine arc_surface
 
+  !OCL SERIAL
   subroutine compute_h(h, zgml, gdim, lx)
     integer, intent(in) :: lx, gdim
     real(kind=rp), intent(inout) :: h(lx, 3, 2)
