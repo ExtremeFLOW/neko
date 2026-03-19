@@ -120,13 +120,13 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa98b3664b63c5f327790b496a51c20f5" id="r_aa98b3664b63c5f327790b496a51c20f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5">fluid_vol_flow_compute</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, u_res, v_res, w_res, p_res, ext_bdf, gs_xh, c_xh, rho, mu, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bd</a>, dt, bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">prs_max_iter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">vel_max_iter</a>)</td></tr>
 <tr class="memdesc:aa98b3664b63c5f327790b496a51c20f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute flow adjustment.  <br /></td></tr>
 <tr class="separator:aa98b3664b63c5f327790b496a51c20f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1bbdf1ec4715d1dd7c033adb45fa8f5f" id="r_a1bbdf1ec4715d1dd7c033adb45fa8f5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">fluid_vol_flow</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, u, v, w, p, u_res, v_res, w_res, p_res, c_xh, gs_xh, ext_bdf, rho, mu, dt, bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">prs_max_iter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">vel_max_iter</a>)</td></tr>
-<tr class="memdesc:a1bbdf1ec4715d1dd7c033adb45fa8f5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adjust flow volume.  <br /></td></tr>
-<tr class="separator:a1bbdf1ec4715d1dd7c033adb45fa8f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0825fdec1f97dc1096880b38d6edcd2e" id="r_a0825fdec1f97dc1096880b38d6edcd2e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d21/namespacefluid__volflow.html#a0825fdec1f97dc1096880b38d6edcd2e">fluid_vol_flow</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, u, v, w, p, u_res, v_res, w_res, p_res, c_xh, gs_xh, ext_bdf, rho, mu, dt, time, bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">prs_max_iter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">vel_max_iter</a>)</td></tr>
+<tr class="memdesc:a0825fdec1f97dc1096880b38d6edcd2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adjust flow volume.  <br /></td></tr>
+<tr class="separator:a0825fdec1f97dc1096880b38d6edcd2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a1bbdf1ec4715d1dd7c033adb45fa8f5f" name="a1bbdf1ec4715d1dd7c033adb45fa8f5f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1bbdf1ec4715d1dd7c033adb45fa8f5f">&#9670;&#160;</a></span>fluid_vol_flow()</h2>
+<a id="a0825fdec1f97dc1096880b38d6edcd2e" name="a0825fdec1f97dc1096880b38d6edcd2e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0825fdec1f97dc1096880b38d6edcd2e">&#9670;&#160;</a></span>fluid_vol_flow()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -227,6 +227,12 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">type(<a class="el" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>bclst_dp</em>, </td>
         </tr>
@@ -317,7 +323,7 @@ Functions/Subroutines</h2></td></tr>
 <p>Adjust flow volume at end of time step to keep flow rate fixed by adding an appropriate multiple of the linear solution to the Stokes problem arising from a unit forcing in the X-direction. This assumes that the flow rate in the X-direction is to be fixed (as opposed to Y- or Z-) <em>and</em> that the periodic boundary conditions in the X-direction occur at the extreme left and right ends of the mesh.</p>
 <p>pff 6/28/98 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html#l00336">336</a> of file <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html">fluid_volflow.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html#l00342">342</a> of file <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html">fluid_volflow.f90</a>.</p>
 
 </div>
 </div>
@@ -494,7 +500,7 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <p>Compute pressure and velocity using fractional step method. (Tombo splitting scheme). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html#l00148">148</a> of file <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html">fluid_volflow.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html#l00154">154</a> of file <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html">fluid_volflow.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -605,7 +611,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html#l00135">135</a> of file <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html">fluid_volflow.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html#l00141">141</a> of file <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html">fluid_volflow.f90</a>.</p>
 
 </div>
 </div>
@@ -641,7 +647,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html#l00105">105</a> of file <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html">fluid_volflow.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html#l00108">108</a> of file <a class="el" href="../../dd/d8d/fluid__volflow_8f90_source.html">fluid_volflow.f90</a>.</p>
 
 </div>
 </div>
@@ -651,7 +657,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d21/namespacefluid__volflow.html">fluid_volflow</a></li>
-    <li class="footer">Generated on Wed Mar 18 2026 04:19:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Mar 19 2026 04:19:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

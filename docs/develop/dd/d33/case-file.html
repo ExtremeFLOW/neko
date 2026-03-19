@@ -1014,6 +1014,7 @@ Flow rate forcing</h2>
 <li><code>direction</code>, the direction of the flow, defined as 0, 1, or 2, corresponding to x, y or z, respectively.</li>
 <li><code>value</code>, the desired flow rate.</li>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
+<li><code>log</code>, whether to print the flow-rate forcing log message each time the forcing is adjusted. Defaults to <code>true</code>.</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md91"></a>
 Full parameter table</h2>
@@ -1042,73 +1043,77 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">The output filename.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>field</code>    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>output_subdivide</code>   </td><td class="markdownTableBodyNone">Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>inflow_condition.type</code>   </td><td class="markdownTableBodyNone">Velocity inflow condition type.   </td><td class="markdownTableBodyNone"><code>user</code>, <code>uniform</code>, <code>blasius</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>inflow_condition.value</code>   </td><td class="markdownTableBodyNone">Value of the inflow velocity.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.type</code>   </td><td class="markdownTableBodyNone">Initial condition type.   </td><td class="markdownTableBodyNone"><code>user</code>, <code>uniform</code>, <code>blasius</code>, <code>field</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.value</code>   </td><td class="markdownTableBodyNone">Value of the velocity initial condition.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.file_name</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, the path to the field file to read from.   </td><td class="markdownTableBodyNone">String ending with <code>.fld</code>, <code>.chkp</code>, <code>.nek5000</code> or <code>f*****</code>.   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.sample_index</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>fld</code> or <code>nek5000</code>, the index of the file to sampled.   </td><td class="markdownTableBodyNone">Positive integer.   </td><td class="markdownTableBodyNone">-1    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.previous_mesh</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>chkp</code>, the previous mesh from which to interpolate.   </td><td class="markdownTableBodyNone">String ending with <code>.nmsh</code>.   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.tolerance</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>chkp</code>, tolerance to use for mesh interpolation.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone">1e-6    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>blasius.delta</code>   </td><td class="markdownTableBodyNone">Boundary layer thickness in the Blasius profile.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>blasius.freestream_velocity</code>   </td><td class="markdownTableBodyNone">Free-stream velocity in the Blasius profile.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>blasius.approximation</code>   </td><td class="markdownTableBodyNone">Numerical approximation of the Blasius profile.   </td><td class="markdownTableBodyNone"><code>linear</code>, <code>quadratic</code>, <code>cubic</code>, <code>quartic</code>, <code>sin</code>, <code>tanh</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>shear_stress.value</code>   </td><td class="markdownTableBodyNone">The shear stress vector value for <code>sh</code> boundaries   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone"><code>[0, 0, 0]</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>wall_modelling.type</code>   </td><td class="markdownTableBodyNone">The wall model type for <code>wm</code> boundaries. See documentation for additional config parameters.   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code>, <code>spalding</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>source_terms</code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional source terms.   </td><td class="markdownTableBodyNone">See list of source terms above   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional gradient jump penalty.   </td><td class="markdownTableBodyNone">See list of gradient jump penalty above   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>boundary_types</code>   </td><td class="markdownTableBodyNone">Boundary types/conditions labels.   </td><td class="markdownTableBodyNone">Array of strings   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.preconditioner.type</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the momentum equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.preconditioner.type</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the pressure equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_reorthogonalize_basis</code>   </td><td class="markdownTableBodyNone">Whether to enable pressure projection basis reorthogonalization.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>flow_rate_force.direction</code>   </td><td class="markdownTableBodyNone">Direction of the forced flow.   </td><td class="markdownTableBodyNone">0, 1, 2   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>flow_rate_force.value</code>   </td><td class="markdownTableBodyNone">Bulk velocity or volumetric flow rate.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>flow_rate_force.direction</code>   </td><td class="markdownTableBodyNone">Direction of the forced flow.   </td><td class="markdownTableBodyNone">0, 1, 2   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>flow_rate_force.value</code>   </td><td class="markdownTableBodyNone">Bulk velocity or volumetric flow rate.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>flow_rate_force.use_averaged_flow</code>   </td><td class="markdownTableBodyNone">Whether bulk velocity or volumetric flow rate is given by the <code>value</code> parameter.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>flow_rate_force.log</code>   </td><td class="markdownTableBodyNone">Whether to print the flow-rate forcing log message during the volume-flow adjustment.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>freeze</code>   </td><td class="markdownTableBodyNone">Whether to fix the velocity field at initial conditions.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
@@ -1254,7 +1259,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Mar 18 2026 04:19:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Mar 19 2026 04:19:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

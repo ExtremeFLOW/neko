@@ -148,7 +148,7 @@ List of simulation components</h1>
 </li>
 <li>Computation of \( \lambda_2 \) <a class="el" href="../../d3/d84/simcomps.html#simcomp_lambda2">lambda2</a></li>
 <li>Probing of fields at selected points <a class="el" href="../../d3/d84/simcomps.html#simcomp_probes">probes</a></li>
-<li>Output of registered fields to an <code>.fld</code> file <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a></li>
+<li>Output of registered fields to a file <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a></li>
 <li>Computation of forces and torque on a surface <a class="el" href="../../d3/d84/simcomps.html#simcomp_force_torque">force_torque</a></li>
 <li>Computation of subgrid-scale (SGS) eddy viscosity via a SGS model <a class="el" href="../../d3/d84/simcomps.html#simcomp_les_model">les_model</a></li>
 <li>User defined components <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">user-file_simcomps</a></li>
@@ -307,13 +307,18 @@ Example usage</h3>
 <div class="line">time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_field_writer"></a>
 field_writer</h2>
-<p>Outputs registered 3D fields to an <code>.fld</code> file. Requires a list of field names in the <code>fields</code> keyword. Primarily to be used for outputting new fields defined in the user file. The fields are added to then <code>neko_registry</code> object and are expected to be updated in the user file, or, perhaps, by other simcomps. Since this simcomp does not compute anything <code>compute_</code> configuration is irrelevant. </p><div class="fragment"><div class="line">{</div>
+<p>Outputs registered 3D fields to a file. Requires a list of field names in the <code>fields</code> keyword. Primarily to be used for outputting new fields defined in the user file. The fields are added to the <code>neko_registry</code> object and are expected to be updated in the user file, or, perhaps, by other simcomps. Since this simcomp does not compute anything, <code>compute_</code> configuration is irrelevant.</p>
+<p>The output format is controlled by the <code>output_format</code> keyword, which can be set to <code>nek5000</code> (default), <code>vtkhdf</code>, or <code>adios2</code>. The <code>output_precision</code> keyword controls the precision of the written data and can be set to <code>single</code> (default) or <code>double</code>.</p>
+<p>When using the <code>vtkhdf</code> format, the <code>output_subdivide</code> keyword can be set to <code>true</code> to subdivide spectral elements into linear sub-cells instead of writing high-order Lagrange cells. See the [cell representation](<a class="el" href="../../d7/d7f/io.html#vtkhdf-cell-representation">Cell representation</a>) section for more details.</p>
+<div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;field_writer&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;field_writer&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;my_field1&quot;, &quot;my_field2&quot;],</div>
 <div class="line">  &quot;output_filename&quot;: &quot;myfields&quot;,</div>
-<div class="line">  &quot;precision&quot;: &quot;double&quot;,</div>
-<div class="line">  &quot;output_control&quot; : &quot;simulation_time&quot;,</div>
+<div class="line">  &quot;output_precision&quot;: &quot;double&quot;,</div>
+<div class="line">  &quot;output_format&quot;: &quot;nek5000&quot;,</div>
+<div class="line">  &quot;output_subdivide&quot;: false,</div>
+<div class="line">  &quot;output_control&quot; : &quot;simulationtime&quot;,</div>
 <div class="line">  &quot;output_value&quot; : 1.0</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_force_torque"></a>
@@ -437,7 +442,7 @@ Spectral error indicator</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Mar 18 2026 04:19:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Mar 19 2026 04:19:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

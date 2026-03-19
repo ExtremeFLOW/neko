@@ -16,6 +16,7 @@ var structvtkhdf__file_1_1vtkhdf__file__t =
     [ "set_overwrite", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a12dc12b3c4e712c83d1c613bae1c03a4", null ],
     [ "set_precision", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a464cc0cfca9eeaf9b8493125755bea6e", null ],
     [ "set_start_counter", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a8ab94d40ed0f05554e32f932e454d7f7", null ],
+    [ "set_subdivide", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a6091cf9254a58dc6a1140c32abff73df", null ],
     [ "write", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a95cb39f5312b217bdb810a9c00988139", null ],
     [ "write", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a54e880c8bad3ccf2602ed723d6233639", null ],
     [ "amr_enabled", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a1a5f2251edd26ea5d4beb4ab7d9a3942", null ],
@@ -24,5 +25,6 @@ var structvtkhdf__file_1_1vtkhdf__file__t =
     [ "overwrite", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a83d94631b6a99d757b267bb39198d020", null ],
     [ "precision", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a9f266012bbb0f645c9ba6b0c27f43939", null ],
     [ "serial", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a5c58822d2a60425c9c0a508f0ce7ac36", null ],
-    [ "start_counter", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#ab6715e33fc0466279e687f333c6e8794", null ]
+    [ "start_counter", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#ab6715e33fc0466279e687f333c6e8794", null ],
+    [ "subdivide", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#ae4239e622847561a04cd13b9913b0d1b", null ]
 ];

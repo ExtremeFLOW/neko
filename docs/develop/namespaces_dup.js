@@ -257,6 +257,7 @@ var namespaces_dup =
       [ "field_subcol3", "d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605", null ],
       [ "field_vdot3", "d5/de6/namespacefield__math.html#aec3d5a9d2e66f8b6d1200f02d5169c35", null ]
     ] ],
+    [ "field_output", "d4/d0e/namespacefield__output.html", "d4/d0e/namespacefield__output" ],
     [ "field_series", "d6/d32/namespacefield__series.html", "d6/d32/namespacefield__series" ],
     [ "field_series_list", "d5/d67/namespacefield__series__list.html", "d5/d67/namespacefield__series__list" ],
     [ "field_source_term", "d4/d48/namespacefield__source__term.html", "d4/d48/namespacefield__source__term" ],
@@ -894,6 +895,11 @@ var namespaces_dup =
     ] ],
     [ "vreman_device", "dd/dcb/namespacevreman__device.html", [
       [ "vreman_compute_device", "dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37", null ]
+    ] ],
+    [ "vtk", "d7/d37/namespacevtk.html", [
+      [ "vtk_lagrange_hex_ordering", "d7/d37/namespacevtk.html#a6aeb6b9cc6bfc315d02d79146c7fc600", null ],
+      [ "vtk_lagrange_quad_ordering", "d7/d37/namespacevtk.html#a90f8c0cdcc0abc4161039100136e8a78", null ],
+      [ "vtk_ordering", "d7/d37/namespacevtk.html#a43ebc51559d1b6dfa7e049a761e156ff", null ]
     ] ],
     [ "vtk_file", "da/d92/namespacevtk__file.html", "da/d92/namespacevtk__file" ],
     [ "vtkhdf_file", "db/d11/namespacevtkhdf__file.html", "db/d11/namespacevtkhdf__file" ],

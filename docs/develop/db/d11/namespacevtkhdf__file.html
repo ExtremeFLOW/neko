@@ -129,12 +129,21 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:afb2879798169ca1979ce2a08b4dfbe18" id="r_afb2879798169ca1979ce2a08b4dfbe18"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=1024) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d11/namespacevtkhdf__file.html#afb2879798169ca1979ce2a08b4dfbe18">vtkhdf_file_get_fname</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:afb2879798169ca1979ce2a08b4dfbe18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the file name with the start counter.  <br /></td></tr>
 <tr class="separator:afb2879798169ca1979ce2a08b4dfbe18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad79fe046d4f3a76aceb410ad77d7e091" id="r_ad79fe046d4f3a76aceb410ad77d7e091"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091">vtkhdf_file_set_subdivide</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, subdivide)</td></tr>
+<tr class="memdesc:ad79fe046d4f3a76aceb410ad77d7e091"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable or disable subdivision of spectral elements into linear sub-cells. When subdivision is enabled, each spectral element is written as multiple linear VTK cells (VTK_HEXAHEDRON in 3D, VTK_QUAD in 2D) with connectivity corresponding to the tensor-product grid of the spectral element.  <br /></td></tr>
+<tr class="separator:ad79fe046d4f3a76aceb410ad77d7e091"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accaaf001eb2a229b36f7a45dac67d898" id="r_accaaf001eb2a229b36f7a45dac67d898"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d11/namespacevtkhdf__file.html#accaaf001eb2a229b36f7a45dac67d898">vtkhdf_file_write</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data, t)</td></tr>
 <tr class="memdesc:accaaf001eb2a229b36f7a45dac67d898"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write data in HDF5 format (no HDF5 support)  <br /></td></tr>
 <tr class="separator:accaaf001eb2a229b36f7a45dac67d898"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeabc3ac8b3e4420a206eb4acbbcf6e47" id="r_aeabc3ac8b3e4420a206eb4acbbcf6e47"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d11/namespacevtkhdf__file.html#aeabc3ac8b3e4420a206eb4acbbcf6e47">vtkhdf_file_read</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data)</td></tr>
 <tr class="memdesc:aeabc3ac8b3e4420a206eb4acbbcf6e47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read data in HDF5 format (no HDF5 support)  <br /></td></tr>
 <tr class="separator:aeabc3ac8b3e4420a206eb4acbbcf6e47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd9f76ab7236049ec43247198cb155e3" id="r_acd9f76ab7236049ec43247198cb155e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(8 *(lx - 1) *(ly - 1) *(lz - 1))&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d11/namespacevtkhdf__file.html#acd9f76ab7236049ec43247198cb155e3">subdivide_to_hex_ordering</a> (lx, ly, lz)</td></tr>
+<tr class="memdesc:acd9f76ab7236049ec43247198cb155e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build linear hexahedron sub-cell node ordering for a spectral element. Returns an array of 0-based tensor-product indices that subdivides the lx*ly*lz grid into (lx-1)*(ly-1)*(lz-1) linear hexahedra (VTK_HEXAHEDRON, type 12), with 8 nodes per sub-cell.  <br /></td></tr>
+<tr class="separator:acd9f76ab7236049ec43247198cb155e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affcc6249557f8cdd08b7265616fd7f7b" id="r_affcc6249557f8cdd08b7265616fd7f7b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(4 *(lx - 1) *(ly - 1))&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d11/namespacevtkhdf__file.html#affcc6249557f8cdd08b7265616fd7f7b">subdivide_to_quad_ordering</a> (lx, ly)</td></tr>
+<tr class="memdesc:affcc6249557f8cdd08b7265616fd7f7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build linear quadrilateral sub-cell node ordering for a spectral element. Returns an array of 0-based tensor-product indices that subdivides the lx*ly grid into (lx-1)*(ly-1) linear quadrilaterals (VTK_QUAD, type 9), with 4 nodes per sub-cell.  <br /></td></tr>
+<tr class="separator:affcc6249557f8cdd08b7265616fd7f7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -142,6 +151,125 @@ Variables</h2></td></tr>
 <tr class="separator:ad24727450d0ca4b63b4efd5dcd561a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="acd9f76ab7236049ec43247198cb155e3" name="acd9f76ab7236049ec43247198cb155e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd9f76ab7236049ec43247198cb155e3">&#9670;&#160;</a></span>subdivide_to_hex_ordering()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(8 * (lx - 1) * (ly - 1) * (lz - 1)) vtkhdf_file::subdivide_to_hex_ordering </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>ly</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lz</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lx</td><td>Number of points in x-direction </td></tr>
+    <tr><td class="paramname">ly</td><td>Number of points in y-direction </td></tr>
+    <tr><td class="paramname">lz</td><td>Number of points in z-direction </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Array of size 8*(lx-1)*(ly-1)*(lz-1) with 0-based indices </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l01283">1283</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d11/namespacevtkhdf__file_acd9f76ab7236049ec43247198cb155e3_icgraph.png" border="0" usemap="#adb/d11/namespacevtkhdf__file_acd9f76ab7236049ec43247198cb155e3_icgraph" alt=""/></div>
+<map name="adb/d11/namespacevtkhdf__file_acd9f76ab7236049ec43247198cb155e3_icgraph" id="adb/d11/namespacevtkhdf__file_acd9f76ab7236049ec43247198cb155e3_icgraph">
+<area shape="rect" title="Build linear hexahedron sub&#45;cell node ordering for a spectral element. Returns an array of 0&#45;based te..." alt="" coords="200,5,363,45"/>
+<area shape="rect" href="../../db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,5,152,45"/>
+<area shape="poly" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="affcc6249557f8cdd08b7265616fd7f7b" name="affcc6249557f8cdd08b7265616fd7f7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#affcc6249557f8cdd08b7265616fd7f7b">&#9670;&#160;</a></span>subdivide_to_quad_ordering()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(4 * (lx - 1) * (ly - 1)) vtkhdf_file::subdivide_to_quad_ordering </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>ly</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lx</td><td>Number of points in x-direction </td></tr>
+    <tr><td class="paramname">ly</td><td>Number of points in y-direction </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Array of size 4*(lx-1)*(ly-1) with 0-based indices </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l01315">1315</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d11/namespacevtkhdf__file_affcc6249557f8cdd08b7265616fd7f7b_icgraph.png" border="0" usemap="#adb/d11/namespacevtkhdf__file_affcc6249557f8cdd08b7265616fd7f7b_icgraph" alt=""/></div>
+<map name="adb/d11/namespacevtkhdf__file_affcc6249557f8cdd08b7265616fd7f7b_icgraph" id="adb/d11/namespacevtkhdf__file_affcc6249557f8cdd08b7265616fd7f7b_icgraph">
+<area shape="rect" title="Build linear quadrilateral sub&#45;cell node ordering for a spectral element. Returns an array of 0&#45;based..." alt="" coords="200,5,363,45"/>
+<area shape="rect" href="../../db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,5,152,45"/>
+<area shape="poly" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a2308ab56180108b3dbe768436e2579d7" name="a2308ab56180108b3dbe768436e2579d7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2308ab56180108b3dbe768436e2579d7">&#9670;&#160;</a></span>vtkhdf_file_enable_amr()</h2>
 
@@ -166,7 +294,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00085">85</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00088">88</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
 
 </div>
 </div>
@@ -194,27 +322,19 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00098">98</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00101">101</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../db/d11/namespacevtkhdf__file_afb2879798169ca1979ce2a08b4dfbe18_cgraph.png" border="0" usemap="#adb/d11/namespacevtkhdf__file_afb2879798169ca1979ce2a08b4dfbe18_cgraph" alt=""/></div>
 <map name="adb/d11/namespacevtkhdf__file_afb2879798169ca1979ce2a08b4dfbe18_cgraph" id="adb/d11/namespacevtkhdf__file_afb2879798169ca1979ce2a08b4dfbe18_cgraph">
-<area shape="rect" title="Return the file name with the start counter." alt="" coords="5,75,147,115"/>
-<area shape="rect" href="../../d6/d84/namespaceutils.html#a85683446e8c3ce364595da95f5bf70e9" title="Extract file name components." alt="" coords="195,33,345,59"/>
-<area shape="poly" title=" " alt="" coords="146,75,205,60,207,65,148,80"/>
-<area shape="rect" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="196,83,344,108"/>
-<area shape="poly" title=" " alt="" coords="147,93,182,93,182,98,147,98"/>
-<area shape="rect" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="207,156,333,181"/>
-<area shape="poly" title=" " alt="" coords="131,113,223,148,222,153,129,118"/>
+<area shape="rect" title="Return the file name with the start counter." alt="" coords="5,23,147,63"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a85683446e8c3ce364595da95f5bf70e9" title="Extract file name components." alt="" coords="195,31,345,56"/>
+<area shape="poly" title=" " alt="" coords="147,41,181,41,181,46,147,46"/>
 <area shape="rect" href="../../d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="395,5,583,31"/>
-<area shape="poly" title=" " alt="" coords="345,34,381,29,381,34,346,39"/>
+<area shape="poly" title=" " alt="" coords="345,32,381,28,381,33,346,37"/>
 <area shape="rect" href="../../d6/d84/namespaceutils.html#ad9815de9718b5cfbff1bc1da8ea997e4" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="393,55,584,80"/>
-<area shape="poly" title=" " alt="" coords="346,51,380,54,379,59,345,56"/>
-<area shape="poly" title=" " alt="" coords="238,157,232,148,235,138,248,132,270,129,296,133,307,142,304,146,294,138,270,135,250,137,239,141,237,147,243,154"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="407,149,571,189"/>
-<area shape="poly" title=" " alt="" coords="334,166,393,166,393,171,334,171"/>
-<area shape="poly" title=" " alt="" coords="448,149,445,139,452,130,466,124,489,122,514,125,528,132,526,137,513,130,489,127,468,129,455,134,450,140,453,148"/>
+<area shape="poly" title=" " alt="" coords="346,49,380,53,379,58,345,54"/>
 </map>
 </div>
 
@@ -292,7 +412,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00078">78</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00081">81</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
 
 </div>
 </div>
@@ -330,7 +450,80 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00091">91</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00094">94</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+
+</div>
+</div>
+<a id="ad79fe046d4f3a76aceb410ad77d7e091" name="ad79fe046d4f3a76aceb410ad77d7e091"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad79fe046d4f3a76aceb410ad77d7e091">&#9670;&#160;</a></span>vtkhdf_file_set_subdivide()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> vtkhdf_file::vtkhdf_file_set_subdivide </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html">vtkhdf_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>subdivide</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subdivide</td><td>Whether to subdivide into linear sub-cells. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00120">120</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d11/namespacevtkhdf__file_ad79fe046d4f3a76aceb410ad77d7e091_cgraph.png" border="0" usemap="#adb/d11/namespacevtkhdf__file_ad79fe046d4f3a76aceb410ad77d7e091_cgraph" alt=""/></div>
+<map name="adb/d11/namespacevtkhdf__file_ad79fe046d4f3a76aceb410ad77d7e091_cgraph" id="adb/d11/namespacevtkhdf__file_ad79fe046d4f3a76aceb410ad77d7e091_cgraph">
+<area shape="rect" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,129,152,169"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="207,5,355,31"/>
+<area shape="poly" title=" " alt="" coords="96,127,140,83,168,60,199,40,212,33,214,38,201,44,171,64,143,87,99,130"/>
+<area shape="rect" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="218,79,345,104"/>
+<area shape="poly" title=" " alt="" coords="149,126,222,105,223,110,151,131"/>
+<area shape="rect" href="../../db/d11/namespacevtkhdf__file.html#acd9f76ab7236049ec43247198cb155e3" title="Build linear hexahedron sub&#45;cell node ordering for a spectral element. Returns an array of 0&#45;based te..." alt="" coords="200,129,363,169"/>
+<area shape="poly" title=" " alt="" coords="152,146,186,146,186,151,152,151"/>
+<area shape="rect" href="../../db/d11/namespacevtkhdf__file.html#affcc6249557f8cdd08b7265616fd7f7b" title="Build linear quadrilateral sub&#45;cell node ordering for a spectral element. Returns an array of 0&#45;based..." alt="" coords="200,193,363,233"/>
+<area shape="poly" title=" " alt="" coords="144,166,205,186,204,191,142,171"/>
+<area shape="rect" href="../../d7/d37/namespacevtk.html#a43ebc51559d1b6dfa7e049a761e156ff" title="Get the VTK node ordering for a given cell type. For Lagrange cells, returns an array mapping VTK nod..." alt="" coords="215,257,348,283"/>
+<area shape="poly" title=" " alt="" coords="102,167,146,205,201,242,218,250,216,255,199,247,143,209,99,171"/>
+<area shape="poly" title=" " alt="" coords="248,80,241,70,245,60,258,54,281,52,310,56,321,65,317,69,307,61,281,57,260,59,248,64,246,70,252,77"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="416,71,580,111"/>
+<area shape="poly" title=" " alt="" coords="345,89,402,89,402,94,345,94"/>
+<area shape="poly" title=" " alt="" coords="460,72,458,62,464,53,477,47,498,45,522,48,535,55,532,60,520,53,498,50,479,52,467,57,463,63,465,70"/>
+<area shape="rect" href="../../d7/d37/namespacevtk.html#a6aeb6b9cc6bfc315d02d79146c7fc600" title="Build the VTK Lagrange hexahedron node ordering for a given lx. Returns an array of size lx*ly*lz map..." alt="" coords="415,218,581,258"/>
+<area shape="poly" title=" " alt="" coords="348,258,400,250,401,255,348,263"/>
+<area shape="rect" href="../../d7/d37/namespacevtk.html#a90f8c0cdcc0abc4161039100136e8a78" title="Build the VTK Lagrange quadrilateral node ordering for a given lx, ly. Returns an array of size lx*ly..." alt="" coords="411,282,585,322"/>
+<area shape="poly" title=" " alt="" coords="348,277,398,284,397,290,348,282"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="633,257,772,283"/>
+<area shape="poly" title=" " alt="" coords="582,248,620,254,619,260,581,254"/>
+<area shape="poly" title=" " alt="" coords="585,286,619,280,620,286,586,291"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -391,7 +584,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00070">70</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html#l00073">73</a> of file <a class="el" href="../../d7/ded/vtkhdf__file_8F90_source.html">vtkhdf_file.F90</a>.</p>
 
 </div>
 </div>
@@ -401,7 +594,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d11/namespacevtkhdf__file.html">vtkhdf_file</a></li>
-    <li class="footer">Generated on Wed Mar 18 2026 04:19:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Mar 19 2026 04:19:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

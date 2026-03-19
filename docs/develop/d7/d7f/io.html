@@ -110,6 +110,7 @@ $(document).ready(function(){initNavTree('d7/d7f/io.html','../../'); initResizab
 <li class="level1"><a href="#vtkhdf-output">VTKHDF output</a><ul><li class="level2"><a href="#vtkhdf-prerequisites">Prerequisites</a></li>
 <li class="level2"><a href="#vtkhdf-enabling">Enabling VTKHDF output</a></li>
 <li class="level2"><a href="#vtkhdf-file-structure">File structure</a></li>
+<li class="level2"><a href="#vtkhdf-cell-representation">Cell representation</a></li>
 <li class="level2"><a href="#vtkhdf-limitations">Limitations</a></li>
 </ul>
 </li>
@@ -128,10 +129,10 @@ Three-dimensional field output</h1>
 Compression of field output</h2>
 <p>Neko supports compression of the 3D field data when writing through the ADIOS2. If the ADIOS2 dependency was compiled with compression library support like BigWhoop, SZ, or ZFP the field output can be compressed using one of these lossy compressors (and other lossless compression techniques.) Using algorithms based on image compression, such as BigWhoop and ZFP, the local structure from higher order elements needs to be regarded. Setting <code>output\_layout=2</code> uses the implicit neighbourhood relations of DoFs in x,y,z in a 4D layout. The first three dimensions represent the DoFs and the fourth dimension refers to the number of elements in numeric order. This layout can be used for BigWhoop and ZFP. Additionally, benefits in compression efficiency can be observed for BigWhoop when packing and compressing field parameters together, effectively adding a fifth dimension for the number of field parameters. This layout is enabled when <code>output\_format=3</code>. (The default <code>output_layout=1</code> creates a contiguous 1D array access pattern equivalent to the data layout in the nek5000 files.)</p>
 <p>The compression algorithms are controlled by an additional file <code>adios2.xml</code>. Please refer to the documentation of ADIOS2 (and the specific compression library) to configure the data "operators" of the parallel I/O library.</p>
-<p>The tool <code>adios2_to_nek5000</code> can be used to decompress the field data for postprocessing and visualization with the conventional nek5000 format. Additionally, the data can be compressed using this tool as a postprocessing step using the <code>adios2.xml</code> configuration and a given uncompressed data set as input. </p><div class="fragment"><div class="line">adios2_to_nek5000 input.bp/fld output.fld/bp .false. 1</div>
+<p>The tool <code>adios2_to_nek5000</code> can be used to decompress the field data for postprocessing and visualisation with the conventional nek5000 format. Additionally, the data can be compressed using this tool as a postprocessing step using the <code>adios2.xml</code> configuration and a given uncompressed data set as input. </p><div class="fragment"><div class="line">adios2_to_nek5000 input.bp/fld output.fld/bp .false. 1</div>
 </div><!-- fragment --><p> The bool parameter specifies whether output is written using double precision. The parsed integer specifies the data layout in the case of an ADIOS2 <code>.bp</code> output file.</p>
 <p>The tool <code>psnr</code> can be used to analyze the Peak-Signal-to-Noise Ratio (PSNR), quantifying the compression efficiency, namely, the relation between compression ratio and the lost accuracy due to lossy data compression. </p><div class="fragment"><div class="line">psnr compressed_fields.bp uncompressed_fields.fld/bp .false.</div>
-</div><!-- fragment --><p> (The bool parameter specifies whether output should be double precision.) Test data sets can be generated during preprocessing and in an initial case setup workflow to compare and find an optimal compression rate with an acceptable accuracy loss. The value of the PSNR decreases with increasing accuracy loss. Tune the compression by increasing the compression ratio until a desired lower limiting value for the PSNR is reached. As a rule of thumb, target values of 60 or 40 can be used as lower limit for accurate postprocessing or visualization, respectively. Separately, it is recommended to check for compression errors from lossy compressors in the specific quantities of interest in postprocessing and visualization.</p>
+</div><!-- fragment --><p> (The bool parameter specifies whether output should be double precision.) Test data sets can be generated during preprocessing and in an initial case setup workflow to compare and find an optimal compression rate with an acceptable accuracy loss. The value of the PSNR decreases with increasing accuracy loss. Tune the compression by increasing the compression ratio until a desired lower limiting value for the PSNR is reached. As a rule of thumb, target values of 60 or 40 can be used as lower limit for accurate postprocessing or visualisation, respectively. Separately, it is recommended to check for compression errors from lossy compressors in the specific quantities of interest in postprocessing and visualisation.</p>
 <h1><a class="anchor" id="autotoc_md154"></a>
 Checkpoint files</h1>
 <p>Simulations cannot be restarted from <code>.fld</code> files (although you can use an <code>fld</code> to provide initial conditions). Instead, separate checkpoint files can be output for the purpose of restarts. These contain additional information allowing a clean restart, with, e.g., the correct time integration order. A separate file format, <code>.chkp</code> is adopted for the checkpoint files.</p>
@@ -160,10 +161,22 @@ File structure</h2>
 <li><b>PointData group</b>: Contains field datasets. The velocity components <code>u</code>, <code>v</code>, <code>w</code> are automatically grouped into a three-component <code>Velocity</code> vector dataset. The pressure field <code>p</code> is stored as <code>Pressure</code>. All other fields are written as scalar datasets under their original names.</li>
 <li><b>Steps group</b>: Stores temporal metadata including time values, the number of steps written, and offset arrays that allow ParaView to locate each time step's data within the concatenated datasets.</li>
 </ul>
-<h2><a class="anchor" id="vtkhdf-limitations"></a>
+<h2><a class="anchor" id="vtkhdf-cell-representation"></a>
+Cell representation</h2>
+<p>By default, each spectral element is written as a single high-order VTK Lagrange cell (<code>VTK_LAGRANGE_HEXAHEDRON</code> in 3D, <code>VTK_LAGRANGE_QUADRILATERAL</code> in 2D). This preserves the polynomial basis of the spectral element and produces compact output files.</p>
+<p>Alternatively, spectral elements can be subdivided into linear sub-cells (<code>VTK_HEXAHEDRON</code> in 3D, <code>VTK_QUAD</code> in 2D), writing one degree of freedom per sub-cell vertex. This results in larger files but may offer broader compatibility with visualisation tools that have limited support for high-order Lagrange cells. This subdivision mimics more closely how tools like ParaView read the Nek5000 fld files, and may be necessary for visualising the output. Subdivision is enabled by setting <code>output_subdivide</code> to <code>true</code> in the <code>case</code> object of the case file:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;case&quot;: {</div>
+<div class="line">    &quot;fluid&quot;: {</div>
+<div class="line">      &quot;output_format&quot;: &quot;vtkhdf&quot;,</div>
+<div class="line">      &quot;output_subdivide&quot;: true</div>
+<div class="line">    }</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="vtkhdf-limitations"></a>
 Limitations</h2>
 <ul>
-<li>The VTKHDF writer performs a linear sub-division of spectral elements, writing one degree of freedom per sub-cell vertex. The high-order polynomial representation is not preserved in the output.</li>
+<li>High order Lagrange cells are not supported by all visualisation tools. If you encounter issues visualising the output, try enabling subdivision into linear sub-cells as described above.</li>
 <li>Reading <code>.vtkhdf</code> files back into Neko is not currently supported.</li>
 <li>Adaptive mesh refinement (AMR) output is not yet implemented. </li>
 </ul>
@@ -174,7 +187,7 @@ Limitations</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Mar 18 2026 04:19:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Mar 19 2026 04:19:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

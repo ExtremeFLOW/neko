@@ -12,6 +12,7 @@ var structfile_1_1file__t =
     [ "set_overwrite", "d6/dae/structfile_1_1file__t.html#a293840e9fa5a0d1d0c6af808d0715347", null ],
     [ "set_precision", "d6/dae/structfile_1_1file__t.html#a265cae138e57adff91e0ae18eea1936b", null ],
     [ "set_start_counter", "d6/dae/structfile_1_1file__t.html#acb81e8e05bc86554e8b97b8f5f1f3bf7", null ],
+    [ "set_subdivide", "d6/dae/structfile_1_1file__t.html#a59c53707e884ed19b8980597d39a10b3", null ],
     [ "write", "d6/dae/structfile_1_1file__t.html#a5fa9421749c05014438eed7eb729a3b3", null ],
     [ "file_type", "d6/dae/structfile_1_1file__t.html#a29bf65f1408802f1fd968f0b449f1607", null ]
 ];

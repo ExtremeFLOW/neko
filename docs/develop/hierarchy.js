@@ -661,6 +661,7 @@ var hierarchy =
     [ "output::output_sample", "dd/df1/interfaceoutput_1_1output__sample.html", null ],
     [ "output::output_t", "dd/d5f/structoutput_1_1output__t.html", [
       [ "chkp_output::chkp_output_t", "da/d51/structchkp__output_1_1chkp__output__t.html", null ],
+      [ "field_output::field_output_t", "d5/d41/structfield__output_1_1field__output__t.html", null ],
       [ "fld_file_output::fld_file_output_t", "d4/d72/structfld__file__output_1_1fld__file__output__t.html", null ],
       [ "fluid_output::fluid_output_t", "de/d0d/structfluid__output_1_1fluid__output__t.html", null ],
       [ "fluid_sgs_stats_output::fluid_sgs_stats_output_t", "de/d55/structfluid__sgs__stats__output_1_1fluid__sgs__stats__output__t.html", null ],

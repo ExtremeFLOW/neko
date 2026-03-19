@@ -1,0 +1,7 @@
+<map id="vtk::vtk_lagrange_hex_ordering" name="vtk::vtk_lagrange_hex_ordering">
+<area shape="rect" id="Node000001" title="Build the VTK Lagrange hexahedron node ordering for a given lx. Returns an array of size lx*ly*lz map..." alt="" coords="381,5,548,45"/>
+<area shape="rect" id="Node000002" href="$d7/d37/namespacevtk.html#a43ebc51559d1b6dfa7e049a761e156ff" title="Get the VTK node ordering for a given cell type. For Lagrange cells, returns an array mapping VTK nod..." alt="" coords="200,13,333,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="368,28,334,28,334,23,368,23"/>
+<area shape="rect" id="Node000003" href="$db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,5,152,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
+</map>

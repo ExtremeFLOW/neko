@@ -207,6 +207,7 @@ var index =
           [ "Prerequisites", "d7/d7f/io.html#vtkhdf-prerequisites", null ],
           [ "Enabling VTKHDF output", "d7/d7f/io.html#vtkhdf-enabling", null ],
           [ "File structure", "d7/d7f/io.html#vtkhdf-file-structure", null ],
+          [ "Cell representation", "d7/d7f/io.html#vtkhdf-cell-representation", null ],
           [ "Limitations", "d7/d7f/io.html#vtkhdf-limitations", null ]
         ] ]
       ] ],

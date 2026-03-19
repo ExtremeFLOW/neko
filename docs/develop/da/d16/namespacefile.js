@@ -13,5 +13,6 @@ var namespacefile =
     [ "file_set_overwrite", "da/d16/namespacefile.html#a034b817bdac99ff12013e130ef6daaab", null ],
     [ "file_set_precision", "da/d16/namespacefile.html#a43c32373b7c245beb1260418ecfbb597", null ],
     [ "file_set_start_counter", "da/d16/namespacefile.html#a0ee5c68f42bda25f76ac1b72b637a603", null ],
+    [ "file_set_subdivide", "da/d16/namespacefile.html#a633d44808dbcaa3a4950376df4871b25", null ],
     [ "file_write", "da/d16/namespacefile.html#af71bff91b95441ad6000bba2dd2abc01", null ]
 ];
