@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ module dofmap
      real(kind=rp), allocatable :: x(:,:,:,:) !< Mapping to x-coordinates
      real(kind=rp), allocatable :: y(:,:,:,:) !< Mapping to y-coordinates
      real(kind=rp), allocatable :: z(:,:,:,:) !< Mapping to z-coordinates
-     integer, private :: ntot !< Total number of dofs
+     integer, private :: ntot !< Local number of dofs
 
      type(mesh_t), pointer :: msh
      type(mesh_t), allocatable :: msh_subset
@@ -76,10 +76,12 @@ module dofmap
      procedure, pass(this) :: init => dofmap_init
      !> Destructor.
      procedure, pass(this) :: free => dofmap_free
-     !> Return the total number of degrees of freedom, lx*ly*lz*nelv
+     !> Return the local number of degrees of freedom, lx*ly*lz*nelv
      procedure, pass(this) :: size => dofmap_size
      !> Initialize a new dofmap based on a mask
      procedure, pass(this) :: subset_by_mask => dofmap_subset_by_mask
+     !> Return the global number of degrees of freedom, lx*ly*lz*glb_nelv
+     procedure, pass(this) :: global_size => dofmap_global_size
   end type dofmap_t
 
 contains
@@ -203,12 +205,19 @@ contains
 
   end subroutine dofmap_free
 
-  !> Return the total number of dofs in the dofmap, lx*ly*lz*nelv
+  !> Return the local number of dofs in the dofmap, lx*ly*lz*nelv
   pure function dofmap_size(this) result(res)
     class(dofmap_t), intent(in) :: this
     integer :: res
     res = this%ntot
   end function dofmap_size
+
+  !> Return the global number of dofs in the dofmap, lx*ly*lz*glb_nelv
+  pure function dofmap_global_size(this) result(res)
+    class(dofmap_t), intent(in) :: this
+    integer :: res
+    res = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%glb_nelv
+  end function dofmap_global_size
 
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
@@ -252,6 +261,7 @@ contains
     num_dofs_edges(3) = int(Xh%lz - 2, i8)
     edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
+    !$omp parallel do private(i,j,k,global_id,edge,edge_id,shared_dof)
     do i = 1, msh%nelv
 
        select type (ep => msh%elements(i)%e)
@@ -564,6 +574,7 @@ contains
        end select
 
     end do
+    !$omp end parallel do
   end subroutine dofmap_number_edges
 
   !> Assign numbers to dofs on faces
@@ -590,6 +601,7 @@ contains
     num_dofs_faces(2) = int((Xh%lx - 2) * (Xh%lz - 2), i8)
     num_dofs_faces(3) = int((Xh%lx - 2) * (Xh%ly - 2), i8)
 
+    !$omp parallel do private(i,j,k,global_id,face,face_order,facet_id, shared_dof)
     do i = 1, msh%nelv
 
        !
@@ -669,6 +681,7 @@ contains
           this%shared_dof(j, k, Xh%lz, i) = shared_dof
        end do
     end do
+    !$omp end parallel do
 
   end subroutine dofmap_number_faces
 
@@ -748,10 +761,13 @@ contains
        n_edge = 4
     end if
 
+    !$omp parallel do
     do i = 1, msh%nelv
        call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x(1,1,1,i), &
             this%y(1,1,1,i), this%z(1,1,1,i))
     end do
+    !$omp end parallel do
+
     do i = 1, msh%curve%size
        midpoint = .false.
        el_idx = msh%curve%curve_el(i)%el_idx
@@ -869,6 +885,7 @@ contains
     end if
   end subroutine dofmap_xyzlin
 
+  !OCL SERIAL
   subroutine dofmap_xyzquad(Xh, msh, element, x, y, z, curve_type, curve_data)
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
@@ -944,6 +961,8 @@ contains
     call Xh3%free()
   end subroutine dofmap_xyzquad
 
+
+  !OCL SERIAL
   !> Extend faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and edges
@@ -1058,6 +1077,7 @@ contains
 
   end subroutine gh_face_extend_3d
 
+  !OCL SERIAL
   !> Extend 2D faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and faces
@@ -1136,12 +1156,12 @@ contains
     ! Cyclic to symmetric face mapping
     integer(i4), dimension(6), parameter :: fcyc_to_sym = [3, 2, 4, 1, 5, 6]
     ! Cyclic to symmetric edge mapping
-    integer(i4), dimension(12), parameter :: ecyc_to_sym = [1, 6, 2, 5, 3, 8,&
-    & 4, 7, 9, 10, 12, 11]
+    integer(i4), dimension(12), parameter :: ecyc_to_sym = [1, 6, 2, 5, 3, 8, &
+         4, 7, 9, 10, 12, 11]
     ! Symmetric edge to vertex mapping
     integer, parameter, dimension(2, 12) :: edge_nodes = reshape([1, 2, 3, 4, &
-    & 5, 6, 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8], &
-    & [2,12])
+         5, 6, 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8], &
+         [2,12])
     ! copy from hex as this has private attribute there
 
     ! this subroutine is a mess of symmetric and cyclic edge/face numberring and
@@ -1177,7 +1197,7 @@ contains
     xcenn = pt12x - xs/xys * radius*cos(dtheta)
     ycenn = pt12y - ys/xys * radius*cos(dtheta)
     theta0 = atan2((pt12y-ycenn), (pt12x-xcenn))
-!   compute perturbation of geometry
+    !   compute perturbation of geometry
     isid1 = mod(isid+4-1, 4)+1
     call compute_h(h, Xh%zg, gdim, Xh%lx)
     if (radius < 0.0) dtheta = -dtheta
@@ -1190,9 +1210,9 @@ contains
        ycrved(ixt) = ycenn + abs(radius) * sin(theta0 + r*dtheta) &
             - ( h(ix,1,1)*pt1y + h(ix,1,2)*pt2y )
     end do
-!   points all set, add perturbation to current mesh.
-!   LEGACY WARNING
-!   I dont want to dive in this again, Martin Karp 2/3 - 2021
+    !   points all set, add perturbation to current mesh.
+    !   LEGACY WARNING
+    !   I dont want to dive in this again, Martin Karp 2/3 - 2021
     isid1 = fcyc_to_sym(isid1)
     izt = (isid-1)/4+1
     iyt = isid1-2
@@ -1210,6 +1230,7 @@ contains
     end if
   end subroutine arc_surface
 
+  !OCL SERIAL
   subroutine compute_h(h, zgml, gdim, lx)
     integer, intent(in) :: lx, gdim
     real(kind=rp), intent(inout) :: h(lx, 3, 2)

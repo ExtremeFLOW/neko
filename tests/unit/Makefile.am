@@ -35,7 +35,9 @@ SUBDIRS = tuple\
 	  runge_kutta_scheme\
 	  time_based_controller\
 	  json_utils\
-	  point_interpolation
+	  point_interpolation\
+	  templates/parallel\
+	  templates/serial
 
 TESTS = device/device_test\
 	tuple/tuple_test\
@@ -74,7 +76,9 @@ TESTS = device/device_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
 	time_based_controller/time_based_controller_test\
 	json_utils/json_utils_test\
-	point_interpolation/point_interpolation_test
+	point_interpolation/point_interpolation_test\
+	templates/parallel/parallel_test\
+	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
@@ -150,7 +154,16 @@ EXTRA_DIST = \
 	json_utils/test_json_utils.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
-	point_interpolation/point_interpolation_test
+	point_interpolation/point_interpolation_test\
+	templates/parallel/test_parallel.pf\
+	templates/parallel/parallel_test\
+	templates/serial/test_serial.pf
+
+if ENABLE_HDF5
+SUBDIRS += vtkhdf
+TESTS += vtkhdf/vtkhdf_test
+EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf
+endif
 
 UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)
 

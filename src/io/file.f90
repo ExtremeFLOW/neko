@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2024, The Neko Authors
+! Copyright (c) 2019-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@ module file
   use fld_file, only : fld_file_t
   use fld_file_data, only : fld_file_data_t
   use vtk_file, only : vtk_file_t
+  use vtkhdf_file, only : vtkhdf_file_t
   use stl_file, only : stl_file_t
   use csv_file, only : csv_file_t
   use hdf5_file, only : hdf5_file_t
@@ -79,6 +80,8 @@ module file
      procedure :: set_layout => file_set_layout
      !> Sets the file's overwrite flag.
      procedure, pass (this) :: set_overwrite => file_set_overwrite
+     !> Enable or disable subdivision of spectral elements.
+     procedure :: set_subdivide => file_set_subdivide
      !> File operation destructor.
      procedure, pass(this) :: free => file_free
   end type file_t
@@ -127,6 +130,8 @@ contains
        this%file_type%serial = .true.
     case ("hdf5", "h5")
        allocate(hdf5_file_t::this%file_type)
+    case ("vtkhdf")
+       allocate(vtkhdf_file_t::this%file_type)
     case default
        call neko_error('Unknown file format')
     end select
@@ -275,6 +280,8 @@ contains
        call ft%set_precision(precision)
     type is (bp_file_t)
        call ft%set_precision(precision)
+    type is (vtkhdf_file_t)
+       call ft%set_precision(precision)
     class default
        call filename_suffix(this%file_type%get_fname(), suffix)
        call neko_warning("No precision strategy defined for " // trim(suffix) &
@@ -311,5 +318,25 @@ contains
        call ft%set_overwrite(overwrite)
     end select
   end subroutine file_set_overwrite
+
+  !> Enable or disable subdivision of spectral elements into linear sub-cells.
+  !! Only has effect for VTKHDF files; warns for other formats.
+  !! @param subdivide Whether to subdivide into linear sub-cells.
+  subroutine file_set_subdivide(this, subdivide)
+    class(file_t), intent(inout) :: this
+    logical, intent(in) :: subdivide
+    character(len=80) :: suffix
+
+    select type (ft => this%file_type)
+    type is (vtkhdf_file_t)
+       call ft%set_subdivide(subdivide)
+    class default
+       if (subdivide) then
+          call filename_suffix(this%file_type%get_fname(), suffix)
+          call neko_warning("Subdivide output not supported for " // &
+               trim(suffix) // " files")
+       end if
+    end select
+  end subroutine file_set_subdivide
 
 end module file

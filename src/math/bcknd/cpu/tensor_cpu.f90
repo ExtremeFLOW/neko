@@ -76,6 +76,7 @@ contains
 
   end subroutine tnsr3d_el_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_nvnu_cpu(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
@@ -127,6 +128,7 @@ contains
 
   end subroutine tnsr3d_el_nvnu_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_1_nu_cpu(v, u, nu, A, Bt, Ct)
     integer, intent(in) :: nu
     real(kind=rp), intent(inout) :: v(1)
@@ -163,6 +165,7 @@ contains
 
   end subroutine tnsr3d_el_1_nu_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_1_4_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 4
     integer, parameter :: nn = n**2
@@ -193,6 +196,7 @@ contains
 
   end subroutine tnsr3d_el_1_4_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_1_6_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 6
     integer, parameter :: nn = n**2
@@ -229,6 +233,7 @@ contains
 
   end subroutine tnsr3d_el_1_6_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_1_8_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 8
     integer, parameter :: nn = n**2
@@ -272,7 +277,7 @@ contains
 
   end subroutine tnsr3d_el_1_8_cpu
 
-
+  !OCL SERIAL
   subroutine tnsr3d_el_1_10_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 10
     integer, parameter :: nn = n**2
@@ -321,7 +326,7 @@ contains
 
   end subroutine tnsr3d_el_1_10_cpu
 
-
+  !OCL SERIAL
   subroutine tnsr3d_el_1_12_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 12
     integer, parameter :: nn = n**2
@@ -376,8 +381,7 @@ contains
 
   end subroutine tnsr3d_el_1_12_cpu
 
-
-
+  !OCL SERIAL
   subroutine tnsr3d_el_n_cpu(v, u, A, Bt, Ct, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
@@ -425,6 +429,7 @@ contains
 
   end subroutine tnsr3d_el_n_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n14_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 14
     integer, parameter :: nn = n**2
@@ -498,6 +503,7 @@ contains
 
   end subroutine tnsr3d_el_n14_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n13_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 13
     integer, parameter :: nn = n**2
@@ -568,6 +574,7 @@ contains
 
   end subroutine tnsr3d_el_n13_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n12_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 12
     integer, parameter :: nn = n**2
@@ -635,6 +642,7 @@ contains
 
   end subroutine tnsr3d_el_n12_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n11_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 11
     integer, parameter :: nn = n**2
@@ -699,6 +707,7 @@ contains
 
   end subroutine tnsr3d_el_n11_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n10_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 10
     integer, parameter :: nn = n**2
@@ -760,6 +769,7 @@ contains
 
   end subroutine tnsr3d_el_n10_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n9_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 9
     integer, parameter :: nn = n**2
@@ -818,6 +828,7 @@ contains
 
   end subroutine tnsr3d_el_n9_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n8_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 8
     integer, parameter :: nn = n**2
@@ -873,6 +884,7 @@ contains
 
   end subroutine tnsr3d_el_n8_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n7_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 7
     integer, parameter :: nn = n**2
@@ -925,6 +937,7 @@ contains
 
   end subroutine tnsr3d_el_n7_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n6_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 6
     integer, parameter :: nn = n**2
@@ -974,6 +987,7 @@ contains
 
   end subroutine tnsr3d_el_n6_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n5_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 5
     integer, parameter :: nn = n**2
@@ -1020,6 +1034,7 @@ contains
 
   end subroutine tnsr3d_el_n5_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n4_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 4
     integer, parameter :: nn = n**2
@@ -1063,6 +1078,7 @@ contains
 
   end subroutine tnsr3d_el_n4_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n3_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 3
     integer, parameter :: nn = n**2
@@ -1103,6 +1119,7 @@ contains
 
   end subroutine tnsr3d_el_n3_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n2_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 2
     integer, parameter :: nn = n**2
@@ -1169,6 +1186,7 @@ contains
     nunu = nu * nu
     nvnv = nv * nv
 
+    !$omp parallel do private(ie, i, j, k, l, ii, jj, tmp, work, work2)
     do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
@@ -1207,6 +1225,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine tnsr3d_nvnu_cpu
 
@@ -1223,6 +1242,7 @@ contains
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
 
+    !$omp parallel do private(ie, i, j, k, l, ii, jj, tmp, work, work2)
     do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
@@ -1254,6 +1274,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine tnsr3d_nu2nv4_cpu
 
@@ -1271,6 +1292,7 @@ contains
     nvnu = nv * nu
     nvnv = nv * nv
 
+    !$omp parallel do private(ie, i, j, k, l, ii, tmp, work, work2)
     do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
@@ -1306,6 +1328,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine tnsr3d_nu4_cpu
 
@@ -1349,6 +1372,7 @@ contains
     nu3 = nu**3
     nv3 = nv**3
 
+    !$omp parallel do private(e,iu,iv,i,j,k,l,ii,jj,kk,work,work2,tmp)
     do e = e0, ee, es
        iu = (e-1)*nu3
        iv = (e-1)*nv3
@@ -1391,7 +1415,7 @@ contains
           end do
        end do
     end do
-
+    !$omp end parallel do
   end subroutine tnsr1_3d_nvnu_cpu
 
   subroutine tnsr1_3d_nu4nv2_cpu(v, A, Bt, Ct, nelv)
@@ -1410,6 +1434,7 @@ contains
     integer :: i, j, k, l, ii, jj
     real(kind=rp) :: tmp
 
+    !$omp parallel do private(e,iu,iv,i,j,k,l,ii,jj, work, work2, tmp)
     do e = 1, nelv
        iu = (e-1)*nununu
        iv = (e-1)*nvnvnv
@@ -1449,7 +1474,7 @@ contains
           end do
        end do
     end do
-
+    !$omp end parallel do
   end subroutine tnsr1_3d_nu4nv2_cpu
 
 end module tensor_cpu
