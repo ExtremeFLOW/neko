@@ -96,13 +96,13 @@ contains
     call json_get(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i = 1, size(zone_indices)
-       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_labeled_zone(coef%msh%labeled_zones(zone_indices(i)), &
+            zone_indices(i))
     end do
 
     write(buf,'("scalar_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
-    object%zone_indices = zone_indices
     call object%finalize()
 
   end subroutine bc_factory
