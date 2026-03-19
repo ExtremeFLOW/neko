@@ -115,9 +115,9 @@ contains
 
     !Im actually not sure what to do if one has two dong that share a corner.
     if (strong_) then
-       m = this%msk(0)
+       m = this%facet_msk(0)
        do i = 1, m
-          k = this%msk(i)
+          k = this%facet_msk(i)
           facet = this%facet(i)
           ux = this%u%x(k,1,1,1)
           uy = this%v%x(k,1,1,1)
@@ -237,16 +237,16 @@ contains
     this%u => neko_registry%get_field("u")
     this%v => neko_registry%get_field("v")
     this%w => neko_registry%get_field("w")
-    if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
-       call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%msk(0))
-       call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%msk(0))
-       call device_alloc(this%normal_z_d, c_sizeof(dummy)*this%msk(0))
-       m = this%msk(0)
+    if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%facet_msk(0) .gt. 0)) then
+       call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%facet_msk(0))
+       call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%facet_msk(0))
+       call device_alloc(this%normal_z_d, c_sizeof(dummy)*this%facet_msk(0))
+       m = this%facet_msk(0)
        allocate(temp_x(m))
        allocate(temp_y(m))
        allocate(temp_z(m))
        do i = 1, m
-          k = this%msk(i)
+          k = this%facet_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%Xh%lx, this%Xh%lx, this%Xh%lx)
           normal_xyz = &

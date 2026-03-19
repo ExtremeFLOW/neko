@@ -199,10 +199,10 @@ contains
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
          zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
          nz => this%coef%nz, lx => this%coef%Xh%lx)
-      m = this%msk(0)
+      m = this%facet_msk(0)
       if (strong_) then
          do i = 1, m
-            k = this%msk(i)
+            k = this%facet_msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case (facet)
@@ -253,7 +253,7 @@ contains
          blax_d => this%blax_d, blay_d => this%blay_d, &
          blaz_d => this%blaz_d)
 
-      m = this%msk(0)
+      m = this%facet_msk(0)
 
 
       ! Pretabulate values during first call to apply
@@ -271,7 +271,7 @@ contains
          call device_alloc(blaz_d, s)
 
          do i = 1, m
-            k = this%msk(i)
+            k = this%facet_msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case (facet)

@@ -255,13 +255,13 @@ contains
        deallocate(this%unique_mask)
     end if
 
-    call unique_point_idx%init(this%msk(0), htable_data)
+    call unique_point_idx%init(this%facet_msk(0), htable_data)
     j = 0
-    do i = 1, this%msk(0)
-       if (unique_point_idx%get(this%msk(i), htable_data) .ne. 0) then
+    do i = 1, this%facet_msk(0)
+       if (unique_point_idx%get(this%facet_msk(i), htable_data) .ne. 0) then
           j = j + 1
           htable_data = j
-          call unique_point_idx%set(this%msk(i), j)
+          call unique_point_idx%set(this%facet_msk(i), j)
        end if
     end do
 
@@ -280,13 +280,13 @@ contains
     end do
 
 
-    do i = 1, this%msk(0)
-       rcode = unique_point_idx%get(this%msk(i), htable_data)
+    do i = 1, this%facet_msk(0)
+       rcode = unique_point_idx%get(this%facet_msk(i), htable_data)
        if (rcode .ne. 0) call neko_error("Facet normal: htable get failed.")
-       this%unique_mask(htable_data) = this%msk(i)
+       this%unique_mask(htable_data) = this%facet_msk(i)
        facet = this%facet(i)
 
-       idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       idx = nonlinear_index(this%facet_msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
        area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
        normal = normal * area !Scale normal by area

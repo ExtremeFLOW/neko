@@ -226,7 +226,7 @@ contains
     end if
 
     call this%shear_stress_t%finalize(.true.)
-    call this%wall_model%finalize(this%msk, this%facet)
+    call this%wall_model%finalize(this%facet_msk, this%facet)
   end subroutine wall_model_bc_finalize
 
 end module wall_model_bc
