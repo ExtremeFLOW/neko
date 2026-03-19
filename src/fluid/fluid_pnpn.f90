@@ -1013,12 +1013,12 @@ contains
                 ! conditions.
                 ! Additionally we mark the special PnPn pressure  bc.
                 if (bc_i%strong) then
-                   call this%bc_vel_res%mark_facets(bc_i%marked_facet)
-                   call this%bc_du%mark_facets(bc_i%marked_facet)
-                   call this%bc_dv%mark_facets(bc_i%marked_facet)
-                   call this%bc_dw%mark_facets(bc_i%marked_facet)
-
-                   call this%bc_prs_surface%mark_facets(bc_i%marked_facet)
+                   call this%bc_vel_res%mark_labeled_zones(bc_i%zone_indices)
+                   call this%bc_du%mark_labeled_zones(bc_i%zone_indices)
+                   call this%bc_dv%mark_labeled_zones(bc_i%zone_indices)
+                   call this%bc_dw%mark_labeled_zones(bc_i%zone_indices)
+                   call this%bc_prs_surface%mark_labeled_zones( &
+                        bc_i%zone_indices)
                 end if
 
                 call this%bcs_vel%append(bc_i)
@@ -1054,7 +1054,7 @@ contains
 
              ! Mark strong bcs in the dummy dp bc to force zero change.
              if (bc_i%strong) then
-                call this%bc_dp%mark_facets(bc_i%marked_facet)
+                call this%bc_dp%mark_labeled_zones(bc_i%zone_indices)
              end if
 
           end if

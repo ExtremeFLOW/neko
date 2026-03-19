@@ -103,6 +103,8 @@ module bc
      procedure, pass(this) :: mark_zone => bc_mark_zone
      !> Mark all facets from a labeled zone
      procedure, pass(this) :: mark_labeled_zone => bc_mark_labeled_zone
+     !> Mark all facets from a list of labeled zones
+     procedure, pass(this) :: mark_labeled_zones => bc_mark_labeled_zones
      !> Finalize the construction of the bc by populating the msk and facet
      !! arrays
      procedure, pass(this) :: finalize_base => bc_finalize_base
@@ -423,11 +425,9 @@ contains
   end subroutine bc_mark_zone
 
   !> Mark all facets from a labeled zone.
-  !! @param bc_zone Boundary zone to be marked.
   !! @param zone_index The index of the labeled zone to be marked.
-  subroutine bc_mark_labeled_zone(this, bc_zone, zone_index)
+  subroutine bc_mark_labeled_zone(this, zone_index)
     class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(in) :: bc_zone
     integer, intent(in) :: zone_index
     integer, allocatable :: tmp(:)
     integer :: i
@@ -452,8 +452,20 @@ contains
        this%zone_indices(1) = zone_index
     end if
 
-    call this%mark_zone(bc_zone)
+    call this%mark_zone(this%msh%labeled_zones(zone_index))
   end subroutine bc_mark_labeled_zone
+
+  !> Mark all facets from labeled zones.
+  !! @param zone_indices The indices of the labeled zones to be marked.
+  subroutine bc_mark_labeled_zones(this, zone_indices)
+    class(bc_t), intent(inout) :: this
+    integer, intent(in) :: zone_indices(:)
+    integer :: i
+
+    do i = 1, size(zone_indices)
+       call this%mark_labeled_zone(zone_indices(i))
+    end do
+  end subroutine bc_mark_labeled_zones
 
   !> Finalize the construction of the bc by populting the `msk` and `facet`
   !! arrays.

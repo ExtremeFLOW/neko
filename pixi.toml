@@ -118,6 +118,7 @@ lapack = "*"
 python = "3.14.*"
 pytest = "*"
 findent = "*"
+json5 = "*"
 
 [feature.python.pypi-dependencies]
 flinter = "==0.4.0"

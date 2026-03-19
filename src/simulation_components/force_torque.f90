@@ -273,8 +273,7 @@ contains
 
 
     call this%bc%init_base(this%coef)
-    call this%bc%mark_labeled_zone(this%case%msh%labeled_zones(this%zone_id), &
-         this%zone_id)
+    call this%bc%mark_labeled_zone(this%zone_id)
     call this%bc%finalize()
     n_pts = this%bc%msk(0)
     if (n_pts .gt. 0) then

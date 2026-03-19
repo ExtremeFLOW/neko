@@ -234,11 +234,10 @@ contains
     do i = 1, this%bcs%size()
        if (this%bcs%strong(i)) then
           bc_i => this%bcs%get(i)
-          call this%bc_res%mark_facets(bc_i%marked_facet)
+          call this%bc_res%mark_labeled_zones(bc_i%zone_indices)
        end if
     end do
 
-!    call this%bc_res%mark_zones_from_list('d_s', this%bc_labels)
     call this%bc_res%finalize()
 
     call this%bclst_ds%init()

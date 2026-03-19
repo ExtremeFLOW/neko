@@ -159,7 +159,7 @@ contains
   end subroutine test_bc_mark_zone
 
   @test
-  subroutine test_bc_mark_labeled_zone_tracks_unique_zone_index(this)
+  subroutine test_bc_mark_labeled_zone_unique(this)
     class(bc_test_case), intent(inout) :: this
     type(dirichlet_t) :: bc
 
@@ -168,14 +168,39 @@ contains
 
     call bc%init_from_components(this%coef, 1.0_rp)
 
-    call bc%mark_labeled_zone(this%msh%labeled_zones(3), 3)
-    call bc%mark_labeled_zone(this%msh%labeled_zones(3), 3)
+    call bc%mark_labeled_zone(3)
+    call bc%mark_labeled_zone(3)
 
     @assertTrue(allocated(bc%zone_indices))
     @assertEqual(1, size(bc%zone_indices))
     @assertEqual(3, bc%zone_indices(1))
     @assertEqual(this%msh%labeled_zones(3)%size, bc%marked_facet%size())
-  end subroutine test_bc_mark_labeled_zone_tracks_unique_zone_index
+  end subroutine test_bc_mark_labeled_zone_unique
+
+  @test
+  subroutine test_bc_mark_labeled_zones_unique(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+    integer :: expected_size
+    integer :: zone_indices(3)
+
+    call this%msh%mark_labeled_facet(3, 1, 3)
+    call this%msh%mark_labeled_facet(5, 2, 4)
+    call this%msh%labeled_zones(3)%finalize()
+    call this%msh%labeled_zones(4)%finalize()
+
+    call bc%init_from_components(this%coef, 1.0_rp)
+
+    zone_indices = [3, 4, 3]
+    call bc%mark_labeled_zones(zone_indices)
+
+    @assertTrue(allocated(bc%zone_indices))
+    @assertEqual(2, size(bc%zone_indices))
+    @assertEqual(3, bc%zone_indices(1))
+    @assertEqual(4, bc%zone_indices(2))
+    expected_size = this%msh%labeled_zones(3)%size + this%msh%labeled_zones(4)%size
+    @assertEqual(expected_size, bc%marked_facet%size())
+  end subroutine test_bc_mark_labeled_zones_unique
 
   @test
   subroutine test_bc_finalize_only_facets(this)
