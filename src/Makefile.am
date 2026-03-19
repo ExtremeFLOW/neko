@@ -175,6 +175,7 @@ neko_fortran_SOURCES = \
 	io/mean_field_output.f90\
 	common/profiler.F90\
 	common/craypat.F90\
+	bc_resolver.f90\
 	bc/bc.f90\
 	bc/bc_list.f90\
 	bc/dirichlet.f90\
