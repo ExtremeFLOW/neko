@@ -56,10 +56,6 @@ module stack
   use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
   implicit none
   private
-  public :: stack_i4_t, stack_i8_t, stack_r8_t
-  public :: stack_i4t2_t, stack_i4t4_t, stack_i4r8t2_t, stack_2i4r8t3_t
-  public :: stack_curve_t, stack_nq_t, stack_nh_t, stack_nz_t, stack_nc_t
-  public :: stack_pt_t
 
   integer, parameter :: NEKO_STACK_SIZE_T = 32
 
