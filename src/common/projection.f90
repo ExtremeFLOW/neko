@@ -70,7 +70,7 @@ module projection
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE, &
        NEKO_DEVICE_MPI, NEKO_BCKND_OPENCL
   use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
-       device_get_ptr, device_free, device_map
+       device_get_ptr, device_free, device_map, device_unmap
   use device_math, only : device_glsc3, device_add2s2, device_cmult, &
        device_rzero, device_copy, device_add2, device_add2s2_many, &
        device_glsc3_many
@@ -197,42 +197,38 @@ contains
   subroutine projection_free(this)
     class(projection_t), intent(inout) :: this
     integer :: i
-    if (allocated(this%xx)) then
-       deallocate(this%xx)
-    end if
-    if (allocated(this%bb)) then
-       deallocate(this%bb)
-    end if
-    if (allocated(this%xbar)) then
-       deallocate(this%xbar)
-    end if
-    if (allocated(this%xx_d)) then
-       do i = 1, this%L
-          if (c_associated(this%xx_d(i))) then
-             call device_free(this%xx_d(i))
-          end if
-       end do
-       deallocate(this%xx_d)
-    end if
     if (c_associated(this%xx_d_d)) then
        call device_free(this%xx_d_d)
     end if
-    if (c_associated(this%xbar_d)) then
-       call device_free(this%xbar_d)
+    if (c_associated(this%bb_d_d)) then
+       call device_free(this%bb_d_d)
     end if
     if (c_associated(this%alpha_d)) then
        call device_free(this%alpha_d)
     end if
-    if (allocated(this%bb_d)) then
-       do i = 1, this%L
-          if (c_associated(this%bb_d(i))) then
-             call device_free(this%bb_d(i))
-          end if
-       end do
-       deallocate(this%bb_d)
+    if (allocated(this%xx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          do i = 1, this%L
+             call device_unmap(this%xx(:, i), this%xx_d(i))
+          end do
+          deallocate(this%xx_d)
+       end if
+       deallocate(this%xx)
     end if
-    if (c_associated(this%bb_d_d)) then
-       call device_free(this%bb_d_d)
+    if (allocated(this%xbar)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%xbar, this%xbar_d)
+       end if
+       deallocate(this%xbar)
+    end if
+    if (allocated(this%bb)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          do i = 1, this%L
+             call device_unmap(this%bb(:, i), this%bb_d(i))
+          end do
+          deallocate(this%bb_d)
+       end if
+       deallocate(this%bb)
     end if
 
   end subroutine projection_free
@@ -848,7 +844,7 @@ contains
     do i = 1, this%L
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_rzero(this%xx_d(i), n)
-          call device_rzero(this%xx_d(i), n)
+          call device_rzero(this%bb_d(i), n)
        else
           do j = 1, n
              this%xx(j,i) = 0.0_rp

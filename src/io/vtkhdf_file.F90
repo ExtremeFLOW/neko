@@ -35,8 +35,8 @@ module vtkhdf_file
   use num_types, only : rp, sp, dp
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
-  use utils, only : neko_error, neko_warning, filename_suffix_pos, &
-       nonlinear_index
+  use utils, only : neko_error, neko_warning, filename_split, &
+       nonlinear_index, linear_index
   use mesh, only : mesh_t
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
@@ -48,6 +48,7 @@ module vtkhdf_file
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
        MPI_Barrier
+  use vtk, only: vtk_ordering
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -57,13 +58,16 @@ module vtkhdf_file
   !> Interface for HDF5 files
   type, public, extends(generic_file_t) :: vtkhdf_file_t
      logical :: amr_enabled = .false.
+     logical :: subdivide = .false.
      integer :: precision = 0
    contains
+     procedure :: get_vtkhdf_fname => vtkhdf_file_get_fname
      procedure :: read => vtkhdf_file_read
      procedure :: write => vtkhdf_file_write
      procedure :: set_overwrite => vtkhdf_file_set_overwrite
      procedure :: enable_amr => vtkhdf_file_enable_amr
      procedure :: set_precision => vtkhdf_file_set_precision
+     procedure :: set_subdivide => vtkhdf_file_set_subdivide
   end type vtkhdf_file_t
 
   integer, dimension(2), parameter :: vtkhdf_version = [2, 6]
@@ -93,6 +97,32 @@ contains
     this%precision = precision
   end subroutine vtkhdf_file_set_precision
 
+  !> Return the file name with the start counter.
+  function vtkhdf_file_get_fname(this) result(base_fname)
+    class(vtkhdf_file_t), intent(in) :: this
+    character(len=1024) :: base_fname
+    character(len=1024) :: fname
+    character(len=1024) :: path, name, suffix
+
+    fname = trim(this%get_base_fname())
+    call filename_split(fname, path, name, suffix)
+
+    write(base_fname, '(A,A,"_",I0,A)') &
+         trim(path), trim(name), this%get_start_counter(), trim(suffix)
+
+  end function vtkhdf_file_get_fname
+
+  !> Enable or disable subdivision of spectral elements into linear sub-cells.
+  !! When subdivision is enabled, each spectral element is written as multiple
+  !! linear VTK cells (VTK_HEXAHEDRON in 3D, VTK_QUAD in 2D) with connectivity
+  !! corresponding to the tensor-product grid of the spectral element.
+  !! @param subdivide Whether to subdivide into linear sub-cells.
+  subroutine vtkhdf_file_set_subdivide(this, subdivide)
+    class(vtkhdf_file_t), intent(inout) :: this
+    logical, intent(in) :: subdivide
+    this%subdivide = subdivide
+  end subroutine vtkhdf_file_set_subdivide
+
 #ifdef HAVE_HDF5
   ! -------------------------------------------------------------------------- !
   ! HDF5 Required subroutines
@@ -119,7 +149,6 @@ contains
     character(len=1024) :: fname
     character(len=16) :: type_str
     logical :: link_exists, file_exists
-    integer(kind=1) :: VTK_cell_type
     integer :: counter
 
     ! Determine mesh and field data
@@ -152,6 +181,9 @@ contains
     if (msh%gdim .eq. 3 .and. dof%Xh%lz < 2) then
        call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
     end if
+    if (msh%gdim .lt. 2 .or. msh%gdim .gt. 3) then
+       call neko_error('VTKHDF output only supports 2D and 3D meshes')
+    end if
 
     ! Ensure precision is set and are valid.
     if (this%precision .gt. rp) then
@@ -161,15 +193,9 @@ contains
        this%precision = rp
     end if
 
-    if (msh%gdim .eq. 3) then
-       VTK_cell_type = 12 ! VTK_HEXAHEDRON
-    else
-       VTK_cell_type = 9 ! VTK_QUAD
-    end if
-
     call this%increment_counter()
-    fname = trim(this%get_base_fname())
-    counter = this%get_counter()
+    fname = trim(this%get_vtkhdf_fname())
+    counter = this%get_counter() - this%get_start_counter()
 
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
@@ -225,8 +251,8 @@ contains
     end if
 
     if (associated(msh)) then
-       call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, &
-            this%amr_enabled, counter, t)
+       call vtkhdf_write_mesh(vtkhdf_grp, dof, msh, &
+            this%amr_enabled, counter, this%subdivide, t)
     end if
 
     ! Write field data in PointData group
@@ -243,73 +269,54 @@ contains
 
   end subroutine vtkhdf_file_write
 
-  !> Build local connectivity for VTK sub-cells from a spectral element
-  !! tensor-product grid. Subdivides each spectral element into linear
-  !! sub-cells based on the GLL node positions.
+  !> Build local connectivity for VTK cells from a spectral element
+  !! tensor-product grid. For linear types (12, 9) subdivides each spectral
+  !! element into linear sub-cells. For Lagrange types (72, 70) writes one
+  !! high-order cell per element with VTK node ordering.
   !! @param conn Output connectivity array (pre-allocated)
-  !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD
+  !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD,
+  !!        72 = VTK_LAGRANGE_HEXAHEDRON, 70 = VTK_LAGRANGE_QUADRILATERAL
   !! @param msh Mesh object containing element information
   !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral
   !!            element grid
-  subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof)
+  !! @param subdivide Logical flag indicating whether to subdivide to linear
+  !!        elements
+  subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof, subdivide)
     integer, intent(out) :: conn(:)
     integer(kind=1), intent(in) :: vtk_type
-    type(mesh_t) :: msh
-    type(dofmap_t) :: dof
+    type(mesh_t), intent(in) :: msh
+    type(dofmap_t), intent(in) :: dof
+    logical, intent(in) :: subdivide
     integer :: lx, ly, lz, nelv
-    integer :: ie, ii, jj, kk, base, idx, npts_per_cell
+    integer :: ie, ii, n_pts_per_cell, n_conn_per_elem
+    integer, allocatable :: node_order(:)
 
     nelv = msh%nelv
     lx = dof%Xh%lx
     ly = dof%Xh%ly
     lz = dof%Xh%lz
-    npts_per_cell = lx * ly * lz
-    idx = 0
+    n_pts_per_cell = lx * ly * lz
 
-    do ie = 1, nelv
-       base = (ie - 1) * npts_per_cell
+    if (subdivide .and. vtk_type .eq. 12) then
+       node_order = subdivide_to_hex_ordering(lx, ly, lz)
+    else if (subdivide .and. vtk_type .eq. 9) then
+       node_order = subdivide_to_quad_ordering(lx, ly)
+    else
+       node_order = vtk_ordering(vtk_type, lx, ly, lz)
+    end if
 
-       select case (vtk_type)
-       case (12) ! VTK_HEXAHEDRON
-          do ii = 1, lx - 1
-             do jj = 1, ly - 1
-                do kk = 1, lz - 1
-                   conn(idx + 1) = base + &
-                        (kk - 1) * lx * ly + (jj - 1) * lx + ii - 1
-                   conn(idx + 2) = base + &
-                        (kk - 1) * lx * ly + (jj - 1) * lx + (ii + 1) - 1
-                   conn(idx + 3) = base + &
-                        (kk - 1) * lx * ly + jj * lx + (ii + 1) - 1
-                   conn(idx + 4) = base + &
-                        (kk - 1) * lx * ly + jj * lx + ii - 1
-                   conn(idx + 5) = base + &
-                        kk * lx * ly + (jj - 1) * lx + ii - 1
-                   conn(idx + 6) = base + &
-                        kk * lx * ly + (jj - 1) * lx + (ii + 1) - 1
-                   conn(idx + 7) = base + &
-                        kk * lx * ly + jj * lx + (ii + 1) - 1
-                   conn(idx + 8) = base + &
-                        kk * lx * ly + jj * lx + ii - 1
-                   idx = idx + 8
-                end do
-             end do
-          end do
+    n_conn_per_elem = size(node_order)
 
-       case (9) ! VTK_QUAD
-          do jj = 1, ly - 1
-             do ii = 1, lx - 1
-                conn(idx + 1) = base + (jj - 1) * lx + ii - 1
-                conn(idx + 2) = base + (jj - 1) * lx + (ii + 1) - 1
-                conn(idx + 3) = base + jj * lx + (ii + 1) - 1
-                conn(idx + 4) = base + jj * lx + ii - 1
-                idx = idx + 4
-             end do
-          end do
-
-       case default
-          call neko_error('Unsupported VTK cell type')
-       end select
+    do concurrent (ie = 1:nelv, ii = 1:n_conn_per_elem)
+       block
+         integer :: idx, base
+         idx = (ie - 1) * n_conn_per_elem
+         base = (ie - 1) * n_pts_per_cell
+         conn(idx + ii) = base + node_order(ii)
+       end block
     end do
+
+    deallocate(node_order)
 
   end subroutine vtkhdf_build_connectivity
 
@@ -319,20 +326,20 @@ contains
   !! @param vtkhdf_grp HDF5 group ID for VTKHDF root group
   !! @param dof Dofmap for coordinate data
   !! @param msh Mesh object
-  !! @param VTK_cell_type VTK cell type (e.g. 12 for hexahedra, 9 for quads)
   !! @param amr AMR flag to determine if mesh should be rewritten at every time
   !!            step
   !! @param t Optional time value for time-dependent mesh output (e.g. for AMR)
-  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, VTK_cell_type, amr, &
-       counter, t)
+  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, amr, &
+       counter, subdivide, t)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
     integer(hid_t), intent(in) :: vtkhdf_grp
-    integer(kind=1), intent(in) :: VTK_cell_type
     logical, intent(in) :: amr
     integer, intent(in) :: counter
+    logical, intent(in) :: subdivide
     real(kind=rp), intent(in), optional :: t
 
+    integer(kind=1) :: VTK_cell_type
     integer :: ierr, i, ii, jj, kk, el, local_idx
     integer :: lx, ly, lz, npts_per_cell, nodes_per_cell, cells_per_element
     integer :: local_points, local_cells, local_conn
@@ -355,16 +362,24 @@ contains
     lz = dof%Xh%lz
     npts_per_cell = lx * ly * lz
 
-    select case(VTK_cell_type)
-    case(12)
+    if (subdivide .and. msh%gdim .eq. 3) then
+       VTK_cell_type = 12 ! VTK_HEXAHEDRON
        cells_per_element = (lx - 1) * (ly - 1) * (lz - 1)
        nodes_per_cell = 8
-    case(9)
+    else if (subdivide .and. msh%gdim .eq. 2) then
+       VTK_cell_type = 9 ! VTK_QUAD
        cells_per_element = (lx - 1) * (ly - 1)
        nodes_per_cell = 4
-    case default
-       call neko_error('Unsupported VTK cell type')
-    end select
+    else if (msh%gdim .eq. 3) then
+       VTK_cell_type = 72 ! VTK_LAGRANGE_HEXAHEDRON
+       cells_per_element = 1
+       nodes_per_cell = lx * ly * lz
+    else if (msh%gdim .eq. 2) then
+       VTK_cell_type = 70 ! VTK_LAGRANGE_QUADRILATERAL
+       cells_per_element = 1
+       nodes_per_cell = lx * ly
+    end if
+
 
     ! --- Build the number of cells and the connectivity
     local_points = dof%size()
@@ -398,57 +413,38 @@ contains
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
     call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
 
-    ! --- Shared sizes for 1D datasets ---
-    dcount = 1_hsize_t
-    vdims = int(pe_size, hsize_t)
-    chunkdims = int(pe_size, hsize_t)
-    doffset = int(pe_rank, hsize_t)
+    ! --- NumberOfPoints, NumberOfCells, NumberOfConnectivityIds ---
+    ! These datasets must accumulate nPieces entries per timestep,
+    ! giving a total size of nSteps * nPieces. VTK's reader computes
+    ! numberOfPieces = dims[0] / nSteps, so missing entries cause
+    ! garbage reads.
+    block
+      integer(hsize_t), dimension(1) :: nof_dims, nof_maxdims
+      integer(hsize_t), dimension(1) :: nof_count, nof_offset, nof_chunk
+      integer(hid_t) :: nof_filespace, nof_memspace, nof_dcpl
+      integer :: nof_values(3)
 
-    ! --- Create filespaces and memspaces for 1D datasets ---
-    call h5screate_simple_f(1, vdims, filespace, ierr)
-    call h5screate_simple_f(1, dcount, memspace, ierr)
-    call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-         doffset, dcount, ierr)
-    call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
+      nof_count(1) = 1_hsize_t
+      nof_offset(1) = int(counter, hsize_t) * int(pe_size, hsize_t) &
+           + int(pe_rank, hsize_t)
+      nof_chunk(1) = max(1_hsize_t, int(pe_size, hsize_t))
+      nof_values = [local_points, local_cells, local_conn]
 
-    ! --- NumberOfPoints dataset (per-partition) ---
-    call h5lexists_f(vtkhdf_grp, "NumberOfPoints", link_exists, ierr)
-    if (.not. link_exists) then
-       call h5dcreate_f(vtkhdf_grp, "NumberOfPoints", H5T_NATIVE_INTEGER, &
-            filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, local_points, &
-            dcount, ierr, file_space_id = filespace, &
-            mem_space_id = memspace, xfer_prp = xf_id)
-       call h5dclose_f(dset_id, ierr)
-    end if
+      call h5pcreate_f(H5P_DATASET_CREATE_F, nof_dcpl, ierr)
+      call h5pset_chunk_f(nof_dcpl, 1, nof_chunk, ierr)
 
-    ! --- NumberOfCells dataset (per-partition) ---
-    call h5lexists_f(vtkhdf_grp, "NumberOfCells", link_exists, ierr)
-    if (.not. link_exists) then
-       call h5dcreate_f(vtkhdf_grp, "NumberOfCells", H5T_NATIVE_INTEGER, &
-            filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, local_cells, &
-            dcount, ierr, file_space_id = filespace, &
-            mem_space_id = memspace, xfer_prp = xf_id)
-       call h5dclose_f(dset_id, ierr)
-    end if
+      call vtkhdf_write_numberof(vtkhdf_grp, "NumberOfPoints", &
+           nof_values(1), nof_offset, nof_count, nof_dcpl, &
+           counter, xf_id, ierr)
+      call vtkhdf_write_numberof(vtkhdf_grp, "NumberOfCells", &
+           nof_values(2), nof_offset, nof_count, nof_dcpl, &
+           counter, xf_id, ierr)
+      call vtkhdf_write_numberof(vtkhdf_grp, "NumberOfConnectivityIds", &
+           nof_values(3), nof_offset, nof_count, nof_dcpl, &
+           counter, xf_id, ierr)
 
-    ! --- NumberOfConnectivityIds dataset (per-partition) ---
-    call h5lexists_f(vtkhdf_grp, "NumberOfConnectivityIds", link_exists, ierr)
-    if (.not. link_exists) then
-       call h5dcreate_f(vtkhdf_grp, "NumberOfConnectivityIds", &
-            H5T_NATIVE_INTEGER, filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, local_conn, &
-            dcount, ierr, file_space_id = filespace, &
-            mem_space_id = memspace, xfer_prp = xf_id)
-       call h5dclose_f(dset_id, ierr)
-    end if
-
-    ! --- Close the mempory and file spaces ---
-    call h5sclose_f(memspace, ierr)
-    call h5sclose_f(filespace, ierr)
-    call h5pclose_f(dcpl_id, ierr)
+      call h5pclose_f(nof_dcpl, ierr)
+    end block
 
     ! --- Points dataset (global coordinates) ---
     call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
@@ -518,8 +514,9 @@ contains
       integer, allocatable :: connectivity(:)
 
       allocate(connectivity(local_conn))
-      call vtkhdf_build_connectivity(connectivity, VTK_cell_type, msh, dof)
-      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount, &
+      call vtkhdf_build_connectivity(connectivity, VTK_cell_type, msh, dof, &
+           subdivide)
+      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), &
            ierr, file_space_id = filespace, mem_space_id = memspace, &
            xfer_prp = xf_id)
       deallocate(connectivity)
@@ -638,6 +635,55 @@ contains
     call h5pclose_f(xf_id, ierr)
 
   end subroutine vtkhdf_write_mesh
+
+  !> Create-or-extend a 1D NumberOf* dataset, then write one entry.
+  !! On step 0 the dataset is created with unlimited max extent.
+  !! On subsequent steps it is extended to (counter+1)*nPieces.
+  !! @param grp        Parent HDF5 group (VTKHDF root)
+  !! @param dset_name  Dataset name, e.g. "NumberOfPoints"
+  !! @param value      The integer value to write for this rank
+  !! @param offset     1-element array: counter*pe_size + pe_rank
+  !! @param cnt        1-element array, always [1]
+  !! @param dcpl       Dataset creation property list (chunked)
+  !! @param counter    Current timestep counter (0-based)
+  !! @param xf_id      Collective transfer property list
+  !! @param ierr       HDF5 error code (output)
+  subroutine vtkhdf_write_numberof(grp, dset_name, value, offset, cnt, &
+       dcpl, counter, xf_id, ierr)
+    integer(hid_t), intent(in) :: grp, dcpl, xf_id
+    character(len=*), intent(in) :: dset_name
+    integer, intent(in) :: value, counter
+    integer(hsize_t), dimension(1), intent(in) :: offset, cnt
+    integer, intent(out) :: ierr
+
+    integer(hid_t) :: dset_id, fspace, mspace
+    integer(hsize_t), dimension(1) :: dims, maxdims
+    logical :: link_exists
+
+    call h5lexists_f(grp, dset_name, link_exists, ierr)
+    if (link_exists) then
+       call h5dopen_f(grp, dset_name, dset_id, ierr)
+       dims(1) = (int(counter, hsize_t) + 1_hsize_t) &
+            * int(pe_size, hsize_t)
+       call h5dset_extent_f(dset_id, dims, ierr)
+    else
+       dims(1) = int(pe_size, hsize_t)
+       maxdims(1) = H5S_UNLIMITED_F
+       call h5screate_simple_f(1, dims, fspace, ierr, maxdims)
+       call h5dcreate_f(grp, dset_name, H5T_STD_I64LE, &
+            fspace, dset_id, ierr, dcpl_id = dcpl)
+       call h5sclose_f(fspace, ierr)
+    end if
+
+    call h5dget_space_f(dset_id, fspace, ierr)
+    call h5sselect_hyperslab_f(fspace, H5S_SELECT_SET_F, offset, cnt, ierr)
+    call h5screate_simple_f(1, cnt, mspace, ierr)
+    call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, value, cnt, ierr, &
+         file_space_id = fspace, mem_space_id = mspace, xfer_prp = xf_id)
+    call h5sclose_f(mspace, ierr)
+    call h5sclose_f(fspace, ierr)
+    call h5dclose_f(dset_id, ierr)
+  end subroutine vtkhdf_write_numberof
 
   !> Write temporal Steps group metadata to the VTKHDF group.
   !! Writes Values, NumberOfParts, PartOffsets, PointOffsets,
@@ -1222,5 +1268,67 @@ contains
   end subroutine vtkhdf_file_read
 
 #endif
+
+  ! -------------------------------------------------------------------------- !
+  ! Sub-cell node ordering functions for VTK compatibility
+
+  !> Build linear hexahedron sub-cell node ordering for a spectral element.
+  !! Returns an array of 0-based tensor-product indices that subdivides
+  !! the lx*ly*lz grid into (lx-1)*(ly-1)*(lz-1) linear hexahedra
+  !! (VTK_HEXAHEDRON, type 12), with 8 nodes per sub-cell.
+  !! @param lx Number of points in x-direction
+  !! @param ly Number of points in y-direction
+  !! @param lz Number of points in z-direction
+  !! @return Array of size 8*(lx-1)*(ly-1)*(lz-1) with 0-based indices
+  pure function subdivide_to_hex_ordering(lx, ly, lz) result(node_order)
+    integer, intent(in) :: lx, ly, lz
+    integer :: node_order(8 * (lx - 1) * (ly - 1) * (lz - 1))
+    integer :: ii, jj, kk, idx
+
+    idx = 0
+
+    do ii = 1, lx - 1
+       do jj = 1, ly - 1
+          do kk = 1, lz - 1
+             node_order(idx + 1) = (kk - 1) * lx * ly + (jj - 1) * lx + ii - 1
+             node_order(idx + 2) = (kk - 1) * lx * ly + (jj - 1) * lx + ii
+             node_order(idx + 3) = (kk - 1) * lx * ly + jj * lx + ii
+             node_order(idx + 4) = (kk - 1) * lx * ly + jj * lx + ii - 1
+             node_order(idx + 5) = kk * lx * ly + (jj - 1) * lx + ii - 1
+             node_order(idx + 6) = kk * lx * ly + (jj - 1) * lx + ii
+             node_order(idx + 7) = kk * lx * ly + jj * lx + ii
+             node_order(idx + 8) = kk * lx * ly + jj * lx + ii - 1
+             idx = idx + 8
+          end do
+       end do
+    end do
+
+  end function subdivide_to_hex_ordering
+
+  !> Build linear quadrilateral sub-cell node ordering for a spectral element.
+  !! Returns an array of 0-based tensor-product indices that subdivides
+  !! the lx*ly grid into (lx-1)*(ly-1) linear quadrilaterals
+  !! (VTK_QUAD, type 9), with 4 nodes per sub-cell.
+  !! @param lx Number of points in x-direction
+  !! @param ly Number of points in y-direction
+  !! @return Array of size 4*(lx-1)*(ly-1) with 0-based indices
+  pure function subdivide_to_quad_ordering(lx, ly) result(node_order)
+    integer, intent(in) :: lx, ly
+    integer :: node_order(4 * (lx - 1) * (ly - 1))
+    integer :: ii, jj, idx
+
+    idx = 0
+
+    do jj = 1, ly - 1
+       do ii = 1, lx - 1
+          node_order(idx + 1) = (jj - 1) * lx + ii - 1
+          node_order(idx + 2) = (jj - 1) * lx + ii
+          node_order(idx + 3) = jj * lx + ii
+          node_order(idx + 4) = jj * lx + ii - 1
+          idx = idx + 4
+       end do
+    end do
+
+  end function subdivide_to_quad_ordering
 
 end module vtkhdf_file
