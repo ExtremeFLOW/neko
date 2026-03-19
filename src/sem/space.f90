@@ -320,159 +320,98 @@ contains
     class(space_t), intent(inout) :: s
 
     if (allocated(s%zg)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%zg, s%zg_d)
        deallocate(s%zg)
     end if
 
     if (allocated(s%wx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%wx, s%wx_d)
        deallocate(s%wx)
     end if
 
     if (allocated(s%wy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%wy, s%wy_d)
        deallocate(s%wy)
     end if
 
     if (allocated(s%wz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%wz, s%wz_d)
        deallocate(s%wz)
     end if
 
     if (allocated(s%w3)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%w3, s%w3_d)
        deallocate(s%w3)
     end if
 
     if (allocated(s%dx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%dx, s%dx_d)
        deallocate(s%dx)
     end if
 
     if (allocated(s%dy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%dy, s%dy_d)
        deallocate(s%dy)
     end if
 
     if (allocated(s%dz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%dz, s%dz_d)
        deallocate(s%dz)
     end if
 
     if (allocated(s%dxt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%dxt, s%dxt_d)
        deallocate(s%dxt)
     end if
 
     if (allocated(s%dyt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%dyt, s%dyt_d)
        deallocate(s%dyt)
     end if
 
     if (allocated(s%dzt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%dzt, s%dzt_d)
        deallocate(s%dzt)
     end if
 
     if (allocated(s%dr_inv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%dr_inv, s%dr_inv_d)
        deallocate(s%dr_inv)
     end if
 
     if (allocated(s%ds_inv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%ds_inv, s%ds_inv_d)
        deallocate(s%ds_inv)
     end if
 
     if (allocated(s%dt_inv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%dt_inv, s%dt_inv_d)
        deallocate(s%dt_inv)
     end if
 
     if(allocated(s%v)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%v, s%v_d)
        deallocate(s%v)
     end if
 
     if(allocated(s%vt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vt, s%vt_d)
        deallocate(s%vt)
     end if
 
     if(allocated(s%vinv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vinv, s%vinv_d)
        deallocate(s%vinv)
     end if
 
     if(allocated(s%vinvt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vinvt, s%vinvt_d)
        deallocate(s%vinvt)
     end if
 
     if(allocated(s%w)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%w, s%w_d)
        deallocate(s%w)
-    end if
-
-    !
-    ! Cleanup the device (if present)
-    !
-
-    if (c_associated(s%dr_inv_d)) then
-       call device_free(s%dr_inv_d)
-    end if
-
-    if (c_associated(s%ds_inv_d)) then
-       call device_free(s%ds_inv_d)
-    end if
-
-    if (c_associated(s%dt_inv_d)) then
-       call device_free(s%dt_inv_d)
-    end if
-
-    if (c_associated(s%dxt_d)) then
-       call device_free(s%dxt_d)
-    end if
-
-    if (c_associated(s%dyt_d)) then
-       call device_free(s%dyt_d)
-    end if
-
-    if (c_associated(s%dzt_d)) then
-       call device_free(s%dzt_d)
-    end if
-
-    if (c_associated(s%dx_d)) then
-       call device_free(s%dx_d)
-    end if
-
-    if (c_associated(s%dy_d)) then
-       call device_free(s%dy_d)
-    end if
-
-    if (c_associated(s%dz_d)) then
-       call device_free(s%dz_d)
-    end if
-
-    if (c_associated(s%wx_d)) then
-       call device_free(s%wx_d)
-    end if
-
-    if (c_associated(s%wy_d)) then
-       call device_free(s%wy_d)
-    end if
-
-    if (c_associated(s%wz_d)) then
-       call device_free(s%wz_d)
-    end if
-
-    if (c_associated(s%w3_d)) then
-       call device_free(s%w3_d)
-    end if
-
-    if (c_associated(s%zg_d)) then
-       call device_free(s%zg_d)
-    end if
-
-    if (c_associated(s%v_d)) then
-       call device_free(s%v_d)
-    end if
-
-    if (c_associated(s%vt_d)) then
-       call device_free(s%vt_d)
-    end if
-
-    if (c_associated(s%vinv_d)) then
-       call device_free(s%vinv_d)
-    end if
-
-    if (c_associated(s%vinvt_d)) then
-       call device_free(s%vinvt_d)
-    end if
-
-    if (c_associated(s%w_d)) then
-       call device_free(s%w_d)
     end if
 
   end subroutine space_free

@@ -43,8 +43,8 @@ module adv_dealias
        NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use operators, only : opgrad
   use interpolation, only : interpolator_t
-  use device, only : device_map, device_get_ptr, device_free
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use device, only : device_map, device_get_ptr, device_unmap
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -155,61 +155,53 @@ contains
     class(adv_dealias_t), intent(inout) :: this
 
     if (allocated(this%temp)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%temp, this%temp_d)
+       end if
        deallocate(this%temp)
     end if
 
     if (allocated(this%tbf)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%tbf, this%tbf_d)
+       end if
        deallocate(this%tbf)
     end if
     if (allocated(this%tx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%tx, this%tx_d)
+       end if
        deallocate(this%tx)
     end if
     if (allocated(this%ty)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%ty, this%ty_d)
+       end if
        deallocate(this%ty)
     end if
     if (allocated(this%tz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%tz, this%tz_d)
+       end if
        deallocate(this%tz)
     end if
     if (allocated(this%vr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%vr, this%vr_d)
+       end if
        deallocate(this%vr)
     end if
     if (allocated(this%vs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%vs, this%vs_d)
+       end if
        deallocate(this%vs)
     end if
     if (allocated(this%vt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%vt, this%vt_d)
+       end if
        deallocate(this%vt)
-    end if
-
-    if (c_associated(this%temp_d)) then
-       call device_free(this%temp_d)
-    end if
-
-    if (c_associated(this%tbf_d)) then
-       call device_free(this%tbf_d)
-    end if
-
-    if (c_associated(this%tx_d)) then
-       call device_free(this%tx_d)
-    end if
-
-    if (c_associated(this%ty_d)) then
-       call device_free(this%ty_d)
-    end if
-
-    if (c_associated(this%tz_d)) then
-       call device_free(this%tz_d)
-    end if
-
-    if (c_associated(this%vr_d)) then
-       call device_free(this%vr_d)
-    end if
-
-    if (c_associated(this%vs_d)) then
-       call device_free(this%vs_d)
-    end if
-
-    if (c_associated(this%vt_d)) then
-       call device_free(this%vt_d)
     end if
 
     call this%coef_GL%free()

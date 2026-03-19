@@ -34,8 +34,8 @@
 module matrix
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, xp
-  use device, only : device_map, device_free, device_memcpy, &
-       device_deassociate, device_sync
+  use device, only : device_map, device_unmap, device_memcpy, &
+       device_sync
   use device_math, only : device_copy, device_cfill
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
@@ -126,12 +126,10 @@ contains
     class(matrix_t), intent(inout) :: m
 
     if (allocated(m%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(m%x, m%x_d)
+       end if
        deallocate(m%x)
-    end if
-
-    if (c_associated(m%x_d)) then
-       call device_deassociate(m%x)
-       call device_free(m%x_d)
     end if
 
     m%nrows = 0

@@ -41,8 +41,8 @@ module adv_no_dealias
   use device_math, only : device_subcol3, device_rzero
   use neko_config, only : NEKO_BCKND_DEVICE
   use operators, only : conv1
-  use device, only : device_free, device_map, device_get_ptr
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use device, only : device_unmap, device_map, device_get_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -85,10 +85,10 @@ contains
     class(adv_no_dealias_t), intent(inout) :: this
 
     if (allocated(this%temp)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%temp, this%temp_d)
+       end if
        deallocate(this%temp)
-    end if
-    if (c_associated(this%temp_d)) then
-       call device_free(this%temp_d)
     end if
   end subroutine free_no_dealias
 

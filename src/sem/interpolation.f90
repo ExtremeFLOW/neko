@@ -133,28 +133,28 @@ contains
     class(interpolator_t), intent(inout) :: this
 
     if (allocated(this%Xh_to_Yh)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%Xh_to_Yh, this%Xh_Yh_d)
+       end if
        deallocate(this%Xh_to_Yh)
     end if
     if (allocated(this%Xh_to_YhT)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%Xh_to_YhT, this%Xh_YhT_d)
+       end if
        deallocate(this%Xh_to_YhT)
     end if
     if (allocated(this%Yh_to_Xh)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%Yh_to_Xh, this%Yh_Xh_d)
+       end if
        deallocate(this%Yh_to_Xh)
     end if
     if (allocated(this%Yh_to_XhT)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%Yh_to_XhT, this%Yh_XhT_d)
+       end if
        deallocate(this%Yh_to_XhT)
-    end if
-    if (c_associated(this%Yh_Xh_d)) then
-       call device_free(this%Yh_Xh_d)
-    end if
-    if (c_associated(this%Yh_XhT_d)) then
-       call device_free(this%Yh_XhT_d)
-    end if
-    if (c_associated(this%Xh_Yh_d)) then
-       call device_free(this%Xh_Yh_d)
-    end if
-    if (c_associated(this%Xh_YhT_d)) then
-       call device_free(this%Xh_YhT_d)
     end if
 
     nullify(this%Xh)
