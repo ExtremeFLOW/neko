@@ -48,6 +48,7 @@ module file
   use stl_file, only : stl_file_t
   use csv_file, only : csv_file_t
   use hdf5_file, only : hdf5_file_t
+  use hdf5_file_2, only : hdf5_file_2_t
   implicit none
 
   !> A wrapper around a polymorphic `generic_file_t` that handles its init.
@@ -130,6 +131,8 @@ contains
        this%file_type%serial = .true.
     case ("hdf5", "h5")
        allocate(hdf5_file_t::this%file_type)
+    case ("hdf")
+       allocate(hdf5_file_2_t::this%file_type)
     case ("vtkhdf")
        allocate(vtkhdf_file_t::this%file_type)
     case default
