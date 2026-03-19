@@ -218,18 +218,9 @@ contains
   end subroutine dirichlet_free
 
   !> Finalize
-  subroutine dirichlet_finalize(this, only_facets)
+  subroutine dirichlet_finalize(this)
     class(dirichlet_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
   end subroutine dirichlet_finalize
 
 end module dirichlet

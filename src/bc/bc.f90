@@ -168,10 +168,9 @@ module bc
 
   abstract interface
      !> Finalize by building the mask and facet arrays.
-     subroutine bc_finalize(this, only_facets)
+     subroutine bc_finalize(this)
        import :: bc_t
        class(bc_t), intent(inout), target :: this
-       logical, optional, intent(in) :: only_facets
      end subroutine bc_finalize
   end interface
 
@@ -480,30 +479,20 @@ contains
 
   !> Finalize the construction of the bc by populting the `msk` and `facet`
   !! arrays.
-  !! @param only_facets, if the bc is only to be applied on facets.
-  !! Relevant for bcs where the normal direction is important
-  !! and where and shared dofs should not be included.
   !! @details This will linearize the marked facet's indicies in the msk array.
   !!
-  subroutine bc_finalize_base(this, only_facets)
+  subroutine bc_finalize_base(this)
     class(bc_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
     type(tuple_i4_t), pointer :: bfp(:)
     type(tuple_i4_t) :: bc_facet
     type(field_t) :: test_field
     integer :: facet_size, facet, el
-    logical :: only_facet = .false.
     integer :: i, j, k, l, msk_c
     integer :: lx, ly, lz, n
     character(len=LOG_SIZE) :: log_buf
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
-    if ( present(only_facets)) then
-       only_facet = only_facets
-    else
-       only_facet = .false.
-    end if
     !>@todo add 2D case
 
     ! Note we assume that lx = ly = lz
@@ -586,47 +575,42 @@ contains
             HOST_TO_DEVICE, sync = .true.)
     end if
 
-    if (only_facet) then
-       allocate(this%msk(0:this%facet_msk(0)))
-       this%msk = this%facet_msk
-    else
-       !Makes check for points not on facet that should have bc applied
-       call test_field%init(this%dof)
+    !Makes check for points not on facet that should have bc applied
+    call test_field%init(this%dof)
 
-       n = test_field%size()
-       test_field%x = 0.0_rp
-       !Apply this bc once
-       do i = 1, this%facet_msk(0)
-          test_field%x(this%facet_msk(i),1,1,1) = 1.0
-       end do
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(test_field%x, test_field%x_d, n, &
-               HOST_TO_DEVICE, sync = .true.)
-       end if
-       !Check if some point that was not zeroed was zeroed on another element
-       call this%coef%gs_h%op(test_field, GS_OP_ADD)
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(test_field%x, test_field%x_d, n, &
-               DEVICE_TO_HOST, sync = .true.)
-       end if
-       msk_c = 0
-       do i = 1, this%dof%size()
-          if (test_field%x(i,1,1,1) .gt. 0.5) then
-             msk_c = msk_c + 1
-          end if
-       end do
-       !Allocate new mask
-       allocate(this%msk(0:msk_c))
-       j = 1
-       do i = 1, this%dof%size()
-          if (test_field%x(i,1,1,1) .gt. 0.5) then
-             this%msk(j) = i
-             j = j + 1
-          end if
-       end do
-
-       call test_field%free()
+    n = test_field%size()
+    test_field%x = 0.0_rp
+    !Apply this bc once
+    do i = 1, this%facet_msk(0)
+       test_field%x(this%facet_msk(i),1,1,1) = 1.0
+    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(test_field%x, test_field%x_d, n, &
+            HOST_TO_DEVICE, sync = .true.)
     end if
+    !Check if some point that was not zeroed was zeroed on another element
+    call this%coef%gs_h%op(test_field, GS_OP_ADD)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(test_field%x, test_field%x_d, n, &
+            DEVICE_TO_HOST, sync = .true.)
+    end if
+    msk_c = 0
+    do i = 1, this%dof%size()
+       if (test_field%x(i,1,1,1) .gt. 0.5) then
+          msk_c = msk_c + 1
+       end if
+    end do
+    !Allocate new mask
+    allocate(this%msk(0:msk_c))
+    j = 1
+    do i = 1, this%dof%size()
+       if (test_field%x(i,1,1,1) .gt. 0.5) then
+          this%msk(j) = i
+          j = j + 1
+       end if
+    end do
+
+    call test_field%free()
 
     this%msk(0) = msk_c
 

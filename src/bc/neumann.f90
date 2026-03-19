@@ -332,18 +332,11 @@ contains
   end subroutine neumann_free
 
   !> Finalize by setting the flux.
-  subroutine neumann_finalize(this, only_facets)
+  subroutine neumann_finalize(this)
     class(neumann_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    integer :: i, j
+    integer :: i
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For neumann_t, only_facets has to be true.")
-       end if
-    end if
-
-    call this%finalize_base(.true.)
+    call this%finalize_base()
 
     ! Allocate flux vectors and assign to initial constant values
     do i = 1, size(this%init_flux_)

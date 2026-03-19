@@ -260,17 +260,8 @@ contains
   end subroutine field_dirichlet_apply_vector_dev
 
   !> Finalize
-  subroutine field_dirichlet_finalize(this, only_facets)
+  subroutine field_dirichlet_finalize(this)
     class(field_dirichlet_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
   end subroutine field_dirichlet_finalize
 end module field_dirichlet

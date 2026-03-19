@@ -223,21 +223,13 @@ contains
   end subroutine facet_normal_free
 
   !> Finalize
-  subroutine facet_normal_finalize(this, only_facets)
+  subroutine facet_normal_finalize(this)
     class(facet_normal_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
     type(htable_i4_t) :: unique_point_idx
     integer :: htable_data, rcode, i, j, idx(4), facet
     real(kind=rp) :: area, normal(3)
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For facet_normal_t, only_facets has to be true.")
-       end if
-    end if
-
-    call this%finalize_base(.true.)
+    call this%finalize_base()
     ! This part is purely needed to ensure that contributions
     ! for all faces a point is on is properly summed up.
     ! If one simply uses the original mask, if a point is on a corner

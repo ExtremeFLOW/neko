@@ -203,30 +203,6 @@ contains
   end subroutine test_bc_mark_labeled_zones_unique
 
   @test
-  subroutine test_bc_finalize_only_facets(this)
-    class(bc_test_case), intent(inout) :: this
-    type(dirichlet_t) :: bc
-    integer :: j, k, idx, expected_idx
-
-    call bc%init_from_components(this%coef, 1.0_rp)
-    call bc%mark_facet(2, 1)
-    call bc%finalize(.true.)
-
-    @assertEqual(lx_test**2, bc%msk(0))
-    @assertEqual(lx_test**2, bc%facet(0))
-
-    idx = 0
-    do k = 1, lx_test
-       do j = 1, lx_test
-          idx = idx + 1
-          expected_idx = linear_index(lx_test, j, k, 1, lx_test, lx_test, lx_test)
-          @assertEqual(expected_idx, bc%msk(idx))
-          @assertEqual(2, bc%facet(idx))
-       end do
-    end do
-  end subroutine test_bc_finalize_only_facets
-
-  @test
   subroutine test_bc_finalize_shared_dofs(this)
     class(bc_test_case), intent(inout) :: this
     type(dirichlet_t) :: bc

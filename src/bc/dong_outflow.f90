@@ -216,9 +216,8 @@ contains
   end subroutine dong_outflow_free
 
   !> Finalize
-  subroutine dong_outflow_finalize(this, only_facets)
+  subroutine dong_outflow_finalize(this)
     class(dong_outflow_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
     real(kind=rp), allocatable :: temp_x(:)
     real(kind=rp), allocatable :: temp_y(:)
     real(kind=rp), allocatable :: temp_z(:)
@@ -226,13 +225,7 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For dong_outflow_t, only_facets has to be true.")
-       end if
-    end if
-
-    call this%finalize_base(.true.)
+    call this%finalize_base()
 
     this%u => neko_registry%get_field("u")
     this%v => neko_registry%get_field("v")
