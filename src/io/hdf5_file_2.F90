@@ -38,6 +38,7 @@ module hdf5_file_2
   use logger, only : neko_log
   use vector, only : vector_t
   use matrix, only : matrix_t
+  use field, only : field_t
   use device, only : DEVICE_TO_HOST
   use comm, only : pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
@@ -74,7 +75,8 @@ module hdf5_file_2
      procedure :: set_precision => hdf5_file_2_set_precision
      procedure, pass(this) :: write_vector => hdf5_file_2_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_2_write_matrix
-     generic :: write_dataset => write_vector, write_matrix
+     procedure, pass(this) :: write_field => hdf5_file_2_write_field
+     generic :: write_dataset => write_vector, write_matrix, write_field
   end type hdf5_file_2_t
 
 contains
@@ -327,6 +329,82 @@ subroutine hdf5_file_2_write_matrix(this, mat)
   call h5dclose_f(dset_id, ierr)
 
 end subroutine hdf5_file_2_write_matrix
+
+subroutine hdf5_file_2_write_field(this, field)
+  class(hdf5_file_2_t), intent(inout) :: this
+  type(field_t), intent(inout) :: field
+  integer :: ierr, counts, offset, total_count, dset_rank
+  integer :: stride_ax_1, stride_ax_2, stride_ax_3
+  integer(hid_t) :: precision_hdf
+  integer(hid_t) :: xf_id, filespace, dset_id, memspace
+  integer(hsize_t), dimension(4) :: dcount, doffset
+  integer(hsize_t), dimension(4) :: ddims
+  logical :: dset_exists
+ 
+  ! ==============
+  ! Get Field info
+  ! ==============
+  stride_ax_1 = field%Xh%lx
+  stride_ax_2 = field%Xh%ly
+  stride_ax_3 = field%Xh%lz
+  counts = field%msh%nelv
+  total_count = field%msh%glb_nelv
+  offset = field%msh%offset_el
+
+  ! Sync the data
+  call field%copy_from(DEVICE_TO_HOST, .true.)
+  
+  ! ===============
+  ! Configure MPIIO
+  ! ===============
+  call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+  call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+  precision_hdf = hdf5_file_2_determine_real(this%precision)
+
+  ! =================== 
+  ! Create the data set
+  ! ===================
+  call h5lexists_f(this%active_group_id, trim(field%name), dset_exists, ierr)
+  if (dset_exists) then
+     !! retireve the dset id for the existing data set
+     !call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
+     call neko_error("dataset already exist in the file")
+  else
+    dset_rank = 4 ! rank 4 array, i.e. a 4D tensor
+    ddims = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(total_count, hsize_t)] ! global size of the tensor
+    ! create file space of this shape
+    call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
+    ! create the data set with the given shape  
+    call h5dcreate_f(this%active_group_id, trim(field%name), precision_hdf, &
+          filespace, dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+  end if
+
+  ! =======================
+  ! Write the data set
+  ! =======================
+  dcount = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(counts, hsize_t)] ! local size of the tensor
+  doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, int(offset, hsize_t)] ! offset for this rank in the global tensor
+  ! Get the total file space (shape) of the data set
+  call h5dget_space_f(dset_id, filespace, ierr)
+  ! Get only the slice where my rank writes
+  call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+  ! Create the corresponding memory space (buffer) for my local data
+  call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
+  ! Write the data
+  call h5dwrite_f(dset_id, precision_hdf, field%x, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
+
+  ! =======================
+  ! Clean up
+  ! =======================
+  call h5pclose_f(xf_id, ierr)
+  call h5sclose_f(memspace, ierr)
+  call h5sclose_f(filespace, ierr)
+  call h5dclose_f(dset_id, ierr)
+
+end subroutine hdf5_file_2_write_field
 
 
 !> Write data in HDF5 format
