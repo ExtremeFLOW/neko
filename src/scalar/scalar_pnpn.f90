@@ -380,6 +380,7 @@ contains
 
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
+
       ! Compute the source terms
       call this%source_term%compute(time)
 
@@ -429,7 +430,7 @@ contains
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
-      ! Apply a 0-valued Dirichlet boundary conditions on the ds.
+      ! Zero-out residual at Dirichlet nodes before solving.
       call this%bc_resolver%apply(s_res%x, dm_Xh%size())
 
       call profiler_end_region(trim(this%name) // '_residual', 20)
