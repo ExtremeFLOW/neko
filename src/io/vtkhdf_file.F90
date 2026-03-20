@@ -902,7 +902,7 @@ contains
     logical :: link_exists, is_vector
 
     ! External file variables
-    character(len=1024) :: ext_fname, ext_basename
+    character(len=1024) :: ext_fname, ext_basename, ext_path
     character(len=1024) :: main_path, main_name, main_suffix
     integer(hid_t) :: ext_file_id, ext_plist_id
     integer :: mpi_info, mpi_comm
@@ -1007,12 +1007,21 @@ contains
           call h5gclose_f(grp_id, ierr)
        end if
 
-       ! Build external file path: path/mainname_FieldName.h5
+       ! Build external file path: path/mainname.data/FieldName.h5
+       write(ext_path, '(A,A,A)') trim(main_path), trim(main_name), ".data/"
        write(ext_fname, '(A,A,".data/",A,".h5")') &
             trim(main_path), trim(main_name), trim(field_name)
        ! Basename only (for the external link, so files stay portable)
        write(ext_basename, '(A,".data/",A,".h5")') &
             trim(main_name), trim(field_name)
+
+       ! Check that data path exists, if not create it (only on rank 0)
+       if (pe_rank == 0) then
+          inquire(file=trim(ext_path), exist=ext_file_exists)
+          if (.not. ext_file_exists) then
+             call execute_command_line("mkdir -p " // trim(ext_path))
+          end if
+       end if
 
        ! Open or create the external HDF5 file with MPI-IO
        call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
