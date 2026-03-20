@@ -45,6 +45,8 @@ module gather_scatter
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
   use gs_device_shmem, only : gs_device_shmem_t
+  use math, only : swap, sort
+  use mesh_conn, only : mesh_conn_obj_t
   use mesh, only : mesh_t
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use mpi_f08, only : MPI_Reduce, MPI_Allreduce, MPI_Barrier, MPI_IN_PLACE, &
@@ -79,7 +81,6 @@ module gather_scatter
      integer, allocatable :: shared_blk_len(:) !< Shared non-facet blocks
      integer, allocatable :: shared_blk_off(:) !< Shared non-facet blocks offset
      type(dofmap_t), pointer ::dofmap !< Dofmap for gs-ops
-     type(htable_i8_t) :: shared_dofs !< Htable of shared dofs
      integer :: nlocal !< Local gs-ops
      integer :: nshared !< Shared gs-ops
      integer :: nlocal_blks !< Number of local blks
@@ -88,6 +89,8 @@ module gather_scatter
      integer :: shared_facet_offset !< offset for shr. facets
      class(gs_bcknd_t), allocatable :: bcknd !< Gather-scatter backend
      class(gs_comm_t), allocatable :: comm !< Comm. method
+     ! no longer needed for AMR version
+     type(htable_i8_t) :: shared_dofs !< Htable of shared dofs
    contains
      procedure, private, pass(gs) :: gs_op_fld
      procedure, private, pass(gs) :: gs_op_r4
@@ -197,13 +200,11 @@ contains
     ! Initialize a stack for each rank containing which dofs to send/recv at
     ! that rank
     call gs%comm%init_dofs()
-    ! Initialize mapping between local ids and gather-scatter ids
-    ! based on the global numbering in dofmap
-    call gs_init_mapping(gs)
-    ! Setup buffers and which ranks to send/recv data from based on mapping
-    ! and initializes gs%comm (sets up gs%comm%send_dof and gs%comm%recv_dof and
-    ! recv_pe/send_pe)
-    call gs_schedule(gs)
+
+    ! Initialise mapping/scheduling and interpolation using connectivity
+    ! information; needed by nonconforming solver
+    call gs_init_mapping_schedule(gs)
+
     ! Global number of points not needing to be sent over mpi for gs operations
     ! "Internal points"
     glb_nlocal = int(gs%nlocal, i8)
@@ -412,978 +413,672 @@ contains
 
   end subroutine gs_free
 
-  !> Setup mapping of dofs to gather-scatter operations
-  subroutine gs_init_mapping(gs)
+  !> Initialise mapping/scheduling and interpolation using connectivity
+  subroutine gs_init_mapping_schedule(gs)
     type(gs_t), target, intent(inout) :: gs
-    type(mesh_t), pointer :: msh
-    type(dofmap_t), pointer :: dofmap
-    type(stack_i4_t), target :: local_dof, dof_local, shared_dof, dof_shared
-    type(stack_i4_t), target :: local_face_dof, face_dof_local
-    type(stack_i4_t), target :: shared_face_dof, face_dof_shared
-    integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid, dm_size
-    type(htable_i8_t) :: dm !>
-    type(htable_i8_t), pointer :: sdm
-
-    dofmap => gs%dofmap
-    msh => dofmap%msh
-    sdm => gs%shared_dofs
-
-    lx = dofmap%Xh%lx
-    ly = dofmap%Xh%ly
-    lz = dofmap%Xh%lz
-    dm_size = dofmap%size()/lx
-
-    call dm%init(dm_size, i)
-    !>@note this might be a bit overkill,
-    !!but having many collisions makes the init take too long.
-    !!This is really critical to performance of the init
-    call sdm%init(dofmap%size(), i)
-
-    call local_dof%init()
-    call dof_local%init()
-
-    call local_face_dof%init()
-    call face_dof_local%init()
-
-    call shared_dof%init()
-    call dof_shared%init()
-
-    call shared_face_dof%init()
-    call face_dof_shared%init()
-
-    !
-    ! Setup mapping for dofs points
-    !
-
-    max_id = 0
-    max_sid = 0
-    do i = 1, msh%nelv
-       ! Local id of vertices
-       lid = linear_index(1, 1, 1, i, lx, ly, lz)
-       ! Check if this dof is shared among ranks or not
-       if (dofmap%shared_dof(1, 1, 1, i)) then
-          id = gs_mapping_add_dof(sdm, dofmap%dof(1, 1, 1, i), max_sid)
-          !If add unique gather-scatter id to shared_dof stack
-          call shared_dof%push(id)
-          !If add local id to dof_shared stack
-          call dof_shared%push(lid)
-          !Now we have the mapping of local id <-> gather scatter id!
-       else
-          ! Same here, only here we know the point is local
-          ! It will as such not need to be sent to other ranks later
-          id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, 1, i), max_id)
-          call local_dof%push(id)
-          call dof_local%push(lid)
-       end if
-       ! This procedure is then repeated for all vertices and edges
-       ! Facets can be treated a little bit differently since they only have one
-       ! neighbor
-
-       lid = linear_index(lx, 1, 1, i, lx, ly, lz)
-       if (dofmap%shared_dof(lx, 1, 1, i)) then
-          id = gs_mapping_add_dof(sdm, dofmap%dof(lx, 1, 1, i), max_sid)
-          call shared_dof%push(id)
-          call dof_shared%push(lid)
-       else
-          id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, 1, i), max_id)
-          call local_dof%push(id)
-          call dof_local%push(lid)
-       end if
-
-       lid = linear_index(1, ly, 1, i, lx, ly, lz)
-       if (dofmap%shared_dof(1, ly, 1, i)) then
-          id = gs_mapping_add_dof(sdm, dofmap%dof(1, ly, 1, i), max_sid)
-          call shared_dof%push(id)
-          call dof_shared%push(lid)
-       else
-          id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, 1, i), max_id)
-          call local_dof%push(id)
-          call dof_local%push(lid)
-       end if
-
-       lid = linear_index(lx, ly, 1, i, lx, ly, lz)
-       if (dofmap%shared_dof(lx, ly, 1, i)) then
-          id = gs_mapping_add_dof(sdm, dofmap%dof(lx, ly, 1, i), max_sid)
-          call shared_dof%push(id)
-          call dof_shared%push(lid)
-       else
-          id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, 1, i), max_id)
-          call local_dof%push(id)
-          call dof_local%push(lid)
-       end if
-       if (lz .gt. 1) then
-          lid = linear_index(1, 1, lz, i, lx, ly, lz)
-          if (dofmap%shared_dof(1, 1, lz, i)) then
-             id = gs_mapping_add_dof(sdm, dofmap%dof(1, 1, lz, i), max_sid)
-             call shared_dof%push(id)
-             call dof_shared%push(lid)
-          else
-             id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, lz, i), max_id)
-             call local_dof%push(id)
-             call dof_local%push(lid)
-          end if
-
-          lid = linear_index(lx, 1, lz, i, lx, ly, lz)
-          if (dofmap%shared_dof(lx, 1, lz, i)) then
-             id = gs_mapping_add_dof(sdm, dofmap%dof(lx, 1, lz, i), max_sid)
-             call shared_dof%push(id)
-             call dof_shared%push(lid)
-          else
-             id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, lz, i), max_id)
-             call local_dof%push(id)
-             call dof_local%push(lid)
-          end if
-
-          lid = linear_index(1, ly, lz, i, lx, ly, lz)
-          if (dofmap%shared_dof(1, ly, lz, i)) then
-             id = gs_mapping_add_dof(sdm, dofmap%dof(1, ly, lz, i), max_sid)
-             call shared_dof%push(id)
-             call dof_shared%push(lid)
-          else
-             id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, lz, i), max_id)
-             call local_dof%push(id)
-             call dof_local%push(lid)
-          end if
-
-          lid = linear_index(lx, ly, lz, i, lx, ly, lz)
-          if (dofmap%shared_dof(lx, ly, lz, i)) then
-             id = gs_mapping_add_dof(sdm, dofmap%dof(lx, ly, lz, i), max_sid)
-             call shared_dof%push(id)
-             call dof_shared%push(lid)
-          else
-             id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, lz, i), max_id)
-             call local_dof%push(id)
-             call dof_local%push(lid)
-          end if
-       end if
-    end do
-
-    ! Clear local dofmap table
-    call dm%clear()
-    ! Get gather scatter ids and local ids of edges
-    if (lz .gt. 1) then
-       !
-       ! Setup mapping for dofs on edges
-       !
-       do i = 1, msh%nelv
-
-          !
-          ! dofs on edges in x-direction
-          !
-          if (dofmap%shared_dof(2, 1, 1, i)) then
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, 1, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(j, 1, 1, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, 1, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(j, 1, 1, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-          if (dofmap%shared_dof(2, 1, lz, i)) then
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, lz, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(j, 1, lz, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, lz, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(j, 1, lz, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-
-          if (dofmap%shared_dof(2, ly, 1, i)) then
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, 1, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(j, ly, 1, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-
-          else
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, 1, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(j, ly, 1, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-          if (dofmap%shared_dof(2, ly, lz, i)) then
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, lz, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(j, ly, lz, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, lz, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(j, ly, lz, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-
-          !
-          ! dofs on edges in y-direction
-          !
-          if (dofmap%shared_dof(1, 2, 1, i)) then
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, 1, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(1, k, 1, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(1, k, 1, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(1, k, 1, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-          if (dofmap%shared_dof(1, 2, lz, i)) then
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, lz, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(1, k, lz, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(1, k, lz, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(1, k, lz, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-
-          if (dofmap%shared_dof(lx, 2, 1, i)) then
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, 1, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(lx, k, 1, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, 1, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(lx, k, 1, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-          if (dofmap%shared_dof(lx, 2, lz, i)) then
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, lz, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(lx, k, lz, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, lz, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(lx, k, lz, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-          !
-          ! dofs on edges in z-direction
-          !
-          if (dofmap%shared_dof(1, 1, 2, i)) then
-             do l = 2, lz - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(1, 1, l, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(1, 1, l, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do l = 2, lz - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, l, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(1, 1, l, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-
-          if (dofmap%shared_dof(lx, 1, 2, i)) then
-             do l = 2, lz - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(lx, 1, l, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(lx, 1, l, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do l = 2, lz - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, l, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(lx, 1, l, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-
-          if (dofmap%shared_dof(1, ly, 2, i)) then
-             do l = 2, lz - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(1, ly, l, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(1, ly, l, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do l = 2, lz - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, l, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(1, ly, l, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-
-          if (dofmap%shared_dof(lx, ly, 2, i)) then
-             do l = 2, lz - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(lx, ly, l, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(lx, ly, l, i, lx, ly, lz)
-                call dof_shared%push(id)
-             end do
-          else
-             do l = 2, lz - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, l, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(lx, ly, l, i, lx, ly, lz)
-                call dof_local%push(id)
-             end do
-          end if
-       end do
-    end if
-
-    ! Clear local dofmap table
-    call dm%clear()
-
-    !
-    ! Setup mapping for dofs on facets
-    !
-    ! This is for 2d
-    if (lz .eq. 1) then
-       do i = 1, msh%nelv
-
-          !
-          ! dofs on edges in x-direction
-          !
-          if (msh%facet_neigh(3, i) .ne. 0) then
-             if (dofmap%shared_dof(2, 1, 1, i)) then
-                do j = 2, lx - 1
-                   id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, 1, i), max_sid)
-                   call shared_face_dof%push(id)
-                   id = linear_index(j, 1, 1, i, lx, ly, lz)
-                   call face_dof_shared%push(id)
-                end do
-             else
-                do j = 2, lx - 1
-                   id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, 1, i), max_id)
-                   call local_face_dof%push(id)
-                   id = linear_index(j, 1, 1, i, lx, ly, lz)
-                   call face_dof_local%push(id)
-                end do
-             end if
-          end if
-
-          if (msh%facet_neigh(4, i) .ne. 0) then
-             if (dofmap%shared_dof(2, ly, 1, i)) then
-                do j = 2, lx - 1
-                   id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, 1, i), &
-                        max_sid)
-                   call shared_face_dof%push(id)
-                   id = linear_index(j, ly, 1, i, lx, ly, lz)
-                   call face_dof_shared%push(id)
-                end do
-
-             else
-                do j = 2, lx - 1
-                   id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, 1, i), &
-                        max_id)
-                   call local_face_dof%push(id)
-                   id = linear_index(j, ly, 1, i, lx, ly, lz)
-                   call face_dof_local%push(id)
-                end do
-             end if
-          end if
-
-          !
-          ! dofs on edges in y-direction
-          !
-          if (msh%facet_neigh(1, i) .ne. 0) then
-             if (dofmap%shared_dof(1, 2, 1, i)) then
-                do k = 2, ly - 1
-                   id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, 1, i), max_sid)
-                   call shared_face_dof%push(id)
-                   id = linear_index(1, k, 1, i, lx, ly, lz)
-                   call face_dof_shared%push(id)
-                end do
-             else
-                do k = 2, ly - 1
-                   id = gs_mapping_add_dof(dm, dofmap%dof(1, k, 1, i), max_id)
-                   call local_face_dof%push(id)
-                   id = linear_index(1, k, 1, i, lx, ly, lz)
-                   call face_dof_local%push(id)
-                end do
-             end if
-          end if
-
-          if (msh%facet_neigh(2, i) .ne. 0) then
-             if (dofmap%shared_dof(lx, 2, 1, i)) then
-                do k = 2, ly - 1
-                   id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, 1, i), &
-                        max_sid)
-                   call shared_face_dof%push(id)
-                   id = linear_index(lx, k, 1, i, lx, ly, lz)
-                   call face_dof_shared%push(id)
-                end do
-             else
-                do k = 2, ly - 1
-                   id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, 1, i), &
-                        max_id)
-                   call local_face_dof%push(id)
-                   id = linear_index(lx, k, 1, i, lx, ly, lz)
-                   call face_dof_local%push(id)
-                end do
-             end if
-          end if
-       end do
-    else
-       do i = 1, msh%nelv
-
-          ! Facets in x-direction (s, t)-plane
-          if (msh%facet_neigh(1, i) .ne. 0) then
-             if (dofmap%shared_dof(1, 2, 2, i)) then
-                do l = 2, lz - 1
-                   do k = 2, ly - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, l, i), &
-                           max_sid)
-                      call shared_face_dof%push(id)
-                      id = linear_index(1, k, l, i, lx, ly, lz)
-                      call face_dof_shared%push(id)
-                   end do
-                end do
-             else
-                do l = 2, lz - 1
-                   do k = 2, ly - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(1, k, l, i), &
-                           max_id)
-                      call local_face_dof%push(id)
-                      id = linear_index(1, k, l, i, lx, ly, lz)
-                      call face_dof_local%push(id)
-                   end do
-                end do
-             end if
-          end if
-
-          if (msh%facet_neigh(2, i) .ne. 0) then
-             if (dofmap%shared_dof(lx, 2, 2, i)) then
-                do l = 2, lz - 1
-                   do k = 2, ly - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, l, i), &
-                           max_sid)
-                      call shared_face_dof%push(id)
-                      id = linear_index(lx, k, l, i, lx, ly, lz)
-                      call face_dof_shared%push(id)
-                   end do
-                end do
-             else
-                do l = 2, lz - 1
-                   do k = 2, ly - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, l, i), &
-                           max_id)
-                      call local_face_dof%push(id)
-                      id = linear_index(lx, k, l, i, lx, ly, lz)
-                      call face_dof_local%push(id)
-                   end do
-                end do
-             end if
-          end if
-
-          ! Facets in y-direction (r, t)-plane
-          if (msh%facet_neigh(3, i) .ne. 0) then
-             if (dofmap%shared_dof(2, 1, 2, i)) then
-                do l = 2, lz - 1
-                   do j = 2, lx - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, l, i), &
-                           max_sid)
-                      call shared_face_dof%push(id)
-                      id = linear_index(j, 1, l, i, lx, ly, lz)
-                      call face_dof_shared%push(id)
-                   end do
-                end do
-             else
-                do l = 2, lz - 1
-                   do j = 2, lx - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, l, i), &
-                           max_id)
-                      call local_face_dof%push(id)
-                      id = linear_index(j, 1, l, i, lx, ly, lz)
-                      call face_dof_local%push(id)
-                   end do
-                end do
-             end if
-          end if
-
-          if (msh%facet_neigh(4, i) .ne. 0) then
-             if (dofmap%shared_dof(2, ly, 2, i)) then
-                do l = 2, lz - 1
-                   do j = 2, lx - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, l, i), &
-                           max_sid)
-                      call shared_face_dof%push(id)
-                      id = linear_index(j, ly, l, i, lx, ly, lz)
-                      call face_dof_shared%push(id)
-                   end do
-                end do
-             else
-                do l = 2, lz - 1
-                   do j = 2, lx - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, l, i), &
-                           max_id)
-                      call local_face_dof%push(id)
-                      id = linear_index(j, ly, l, i, lx, ly, lz)
-                      call face_dof_local%push(id)
-                   end do
-                end do
-             end if
-          end if
-
-          ! Facets in z-direction (r, s)-plane
-          if (msh%facet_neigh(5, i) .ne. 0) then
-             if (dofmap%shared_dof(2, 2, 1, i)) then
-                do k = 2, ly - 1
-                   do j = 2, lx - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, 1, i), &
-                           max_sid)
-                      call shared_face_dof%push(id)
-                      id = linear_index(j, k, 1, i, lx, ly, lz)
-                      call face_dof_shared%push(id)
-                   end do
-                end do
-             else
-                do k = 2, ly - 1
-                   do j = 2, lx - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(j, k, 1, i), &
-                           max_id)
-                      call local_face_dof%push(id)
-                      id = linear_index(j, k, 1, i, lx, ly, lz)
-                      call face_dof_local%push(id)
-                   end do
-                end do
-             end if
-          end if
-
-          if (msh%facet_neigh(6, i) .ne. 0) then
-             if (dofmap%shared_dof(2, 2, lz, i)) then
-                do k = 2, ly - 1
-                   do j = 2, lx - 1
-                      id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, lz, i), &
-                           max_sid)
-                      call shared_face_dof%push(id)
-                      id = linear_index(j, k, lz, i, lx, ly, lz)
-                      call face_dof_shared%push(id)
-                   end do
-                end do
-             else
-                do k = 2, ly - 1
-                   do j = 2, lx - 1
-                      id = gs_mapping_add_dof(dm, dofmap%dof(j, k, lz, i), &
-                           max_id)
-                      call local_face_dof%push(id)
-                      id = linear_index(j, k, lz, i, lx, ly, lz)
-                      call face_dof_local%push(id)
-                   end do
-                end do
-             end if
-          end if
-       end do
-    end if
-
-
-    call dm%free()
-
-    gs%nlocal = local_dof%size() + local_face_dof%size()
-    gs%local_facet_offset = local_dof%size() + 1
-
-    ! Finalize local dof to gather-scatter index
-    allocate(gs%local_dof_gs(gs%nlocal))
-
-    ! Add dofs on points and edges
-
-    ! We should use the %array() procedure, which works great for
-    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-    ! certain data types
-    select type (dof_array => local_dof%data)
-    type is (integer)
-       j = local_dof%size()
-       do i = 1, j
-          gs%local_dof_gs(i) = dof_array(i)
-       end do
-    end select
-    call local_dof%free()
-
-    ! Add dofs on faces
-
-    ! We should use the %array() procedure, which works great for
-    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-    ! certain data types
-    select type (dof_array => local_face_dof%data)
-    type is (integer)
-       do i = 1, local_face_dof%size()
-          gs%local_dof_gs(i + j) = dof_array(i)
-       end do
-    end select
-    call local_face_dof%free()
-
-    ! Finalize local gather-scatter index to dof
-    allocate(gs%local_gs_dof(gs%nlocal))
-
-    ! Add gather-scatter index on points and edges
-
-    ! We should use the %array() procedure, which works great for
-    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-    ! certain data types
-    select type (dof_array => dof_local%data)
-    type is (integer)
-       j = dof_local%size()
-       do i = 1, j
-          gs%local_gs_dof(i) = dof_array(i)
-       end do
-    end select
-    call dof_local%free()
-
-    ! We should use the %array() procedure, which works great for
-    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-    ! certain data types
-    select type (dof_array => face_dof_local%data)
-    type is (integer)
-       do i = 1, face_dof_local%size()
-          gs%local_gs_dof(i+j) = dof_array(i)
-       end do
-    end select
-    call face_dof_local%free()
-
-    call gs_qsort_dofmap(gs%local_dof_gs, gs%local_gs_dof, &
-         gs%nlocal, 1, gs%nlocal)
-
-    call gs_find_blks(gs%local_dof_gs, gs%local_blk_len, &
-         gs%local_blk_off, gs%nlocal_blks, gs%nlocal, gs%local_facet_offset)
-
-    ! Allocate buffer for local gs-ops
-    allocate(gs%local_gs(gs%nlocal))
-
-    gs%nshared = shared_dof%size() + shared_face_dof%size()
-    gs%shared_facet_offset = shared_dof%size() + 1
-
-    ! Finalize shared dof to gather-scatter index
-    allocate(gs%shared_dof_gs(gs%nshared))
-
-    ! Add shared dofs on points and edges
-
-    ! We should use the %array() procedure, which works great for
-    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-    ! certain data types
-    select type (dof_array => shared_dof%data)
-    type is (integer)
-       j = shared_dof%size()
-       do i = 1, j
-          gs%shared_dof_gs(i) = dof_array(i)
-       end do
-    end select
-    call shared_dof%free()
-
-    ! Add shared dofs on faces
-
-    ! We should use the %array() procedure, which works great for
-    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-    ! certain data types
-    select type (dof_array => shared_face_dof%data)
-    type is (integer)
-       do i = 1, shared_face_dof%size()
-          gs%shared_dof_gs(i + j) = dof_array(i)
-       end do
-    end select
-    call shared_face_dof%free()
-
-    ! Finalize shared gather-scatter index to dof
-    allocate(gs%shared_gs_dof(gs%nshared))
-
-    ! Add dofs on points and edges
-
-    ! We should use the %array() procedure, which works great for
-    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-    ! certain data types
-    select type (dof_array => dof_shared%data)
-    type is (integer)
-       j = dof_shared%size()
-       do i = 1, j
-          gs%shared_gs_dof(i) = dof_array(i)
-       end do
-    end select
-    call dof_shared%free()
-
-    ! We should use the %array() procedure, which works great for
-    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-    ! certain data types
-    select type (dof_array => face_dof_shared%data)
-    type is (integer)
-       do i = 1, face_dof_shared%size()
-          gs%shared_gs_dof(i + j) = dof_array(i)
-       end do
-    end select
-    call face_dof_shared%free()
-
-    ! Allocate buffer for shared gs-ops
-    allocate(gs%shared_gs(gs%nshared))
-
-    if (gs%nshared .gt. 0) then
-       call gs_qsort_dofmap(gs%shared_dof_gs, gs%shared_gs_dof, &
-            gs%nshared, 1, gs%nshared)
-
-       call gs_find_blks(gs%shared_dof_gs, gs%shared_blk_len, &
-            gs%shared_blk_off, gs%nshared_blks, gs%nshared, &
-            gs%shared_facet_offset)
-    end if
-
-  contains
-
-    !> Register a unique dof
-    !! Takes the unique id dof and checks if it is in the htable map_
-    !! If it is we return the gather-scatter id this global dof has been
-    !! assigned to. This is done as the global id can be very large
-    !! max(integer8), but the number of local points is at most max(integer4)
-    !! @param map_, htable of global unique id to local unique id
-    !! @param dof, global unique id of dof
-    !! @param max_id, current number of entries in map_
-    function gs_mapping_add_dof(map_, dof, max_id) result(id)
-      type(htable_i8_t), intent(inout) :: map_
-      integer(kind=i8), intent(inout) :: dof
-      integer, intent(inout) :: max_id
-      integer :: id
-
-      if (map_%get(dof, id) .gt. 0) then
-         max_id = max_id + 1
-         call map_%set(dof, max_id)
-         id = max_id
+    integer :: lx
+    integer :: nvrt_loc, nfcs_loc, nedg_loc, nlvrt_dof, nlfcs_dof, nledg_dof, &
+         nsvrt_dof, nsfcs_dof, nsedg_dof, nlfcs_ncon, nsfcs_ncon, &
+         nlfcs_ncon_dof, nsfcs_ncon_dof
+    integer, dimension(:), allocatable :: vrt_mult, fcs_mult, edg_mult, &
+         fcs_mult_glb, vrt_shr, fcs_shr, edg_shr, vrt_loc, fcs_loc, edg_loc, ind
+    integer :: il ,jl, kl, ll, ml, id, src, dst
+    type(stack_i4_t) :: send_pe, recv_pe
+
+    ! Number of degrees of freedom; assumption lx=ly=lz
+    if (gs%dofmap%Xh%lx .ne. gs%dofmap%Xh%ly .or. &
+         gs%dofmap%Xh%lx .ne. gs%dofmap%Xh%lz) &
+         call neko_error('gs_init_nonconf: inconsistent polynomial order')
+    lx = gs%dofmap%Xh%lx
+
+    associate (vrt => gs%dofmap%msh%conn%vrt, fcs => gs%dofmap%msh%conn%fcs, &
+         edg => gs%dofmap%msh%conn%edg, conn => gs%dofmap%msh%conn)
+
+      ! local multiplicity, shared/local object lists and object count including
+      ! multiplicity
+      ! shared objects lists exists already but is not sorted with respect to
+      ! their global index
+      ! vertices
+      call gs_size_list_get(vrt, vrt_mult, vrt_shr, vrt_loc, nvrt_loc, &
+           nlvrt_dof, nsvrt_dof)
+      ! edges
+      call gs_size_list_get(edg, edg_mult, edg_shr, edg_loc, nedg_loc, &
+           nledg_dof, nsedg_dof)
+      ! faces; added global multiplicity
+      call gs_size_list_get(fcs, fcs_mult, fcs_shr, fcs_loc, nfcs_loc, &
+           nlfcs_dof, nsfcs_dof, fcs_mult_glb)
+
+      ! count of all degrees of freedom including multiplicity
+      gs%nlocal = nlvrt_dof + nledg_dof * (lx - 2) + nlfcs_dof * (lx - 2) * &
+           (lx - 2)
+      gs%nshared = nsvrt_dof + nsedg_dof * (lx - 2) + nsfcs_dof * (lx - 2) * &
+           (lx - 2)
+
+      ! Multiplicity of vertices and edges is neglected, but for faces it has
+      ! to be taken into account to set up properly facet offset, that is used
+      ! to flag array section that can be used for vectorisation. In conforming
+      ! case all faces have multiplicity 2 so are automatically marked for
+      ! vectorisation. In AMR case some faces may have multiplicity higher than
+      ! 2. Flag those objects using the global multiplicity information and
+      ! reorder shared/local lists. It is necessary to use global information
+      ! not to destroy unique communication order. This influences block lists.
+      ! conforming case; vertices and edges only
+      gs%local_facet_offset = nlvrt_dof + nledg_dof * (lx - 2) + 1
+      gs%shared_facet_offset = nsvrt_dof + nsedg_dof * (lx - 2) + 1
+      ! numbers of blocks per degree of freedom
+      gs%nlocal_blks = nvrt_loc + nedg_loc * (lx - 2)
+      gs%nshared_blks = vrt%nshare + edg%nshare * (lx - 2)
+      ! number of nonconforming faces
+      nlfcs_ncon = 0
+      nsfcs_ncon = 0
+      ! number of nonconforming faces including multiplicity
+      nlfcs_ncon_dof = 0
+      nsfcs_ncon_dof = 0
+      ! AMR case; find nonconforming faces
+      if (maxval(fcs_mult_glb) .gt. 2) then
+
+         ! local
+         call neko_error('gs_size_list_get: not done yet')
+         
+
+         gs%local_facet_offset = gs%local_facet_offset + nlfcs_ncon_dof * &
+              (lx - 2) * (lx - 2)
+         gs%nlocal_blks = gs%nlocal_blks + nlfcs_ncon * (lx - 2) * (lx - 2)
+
+         ! shared
+         call neko_error('gs_size_list_get: not done yet')
+         
+
+         gs%shared_facet_offset = gs%shared_facet_offset + nsfcs_ncon_dof * &
+              (lx - 2) * (lx - 2)
+         gs%nshared_blks = gs%nshared_blks + nsfcs_ncon * (lx - 2) * (lx - 2)
       end if
 
-    end function gs_mapping_add_dof
+      ! allocate arrays
+      allocate(gs%local_dof_gs(gs%nlocal), gs%local_gs_dof(gs%nlocal), &
+           gs%local_gs(gs%nlocal), gs%local_blk_len(gs%nlocal_blks), &
+           gs%local_blk_off(gs%nlocal_blks), &
+           gs%shared_dof_gs(gs%nshared), gs%shared_gs_dof(gs%nshared), &
+           gs%shared_gs(gs%nshared), gs%shared_blk_len(gs%nshared_blks), &
+           gs%shared_blk_off(gs%nshared_blks))
 
-    !> Sort the dof lists based on the dof to gather-scatter list
-    recursive subroutine gs_qsort_dofmap(dg, gd, n, lo, hi)
-      integer, intent(inout) :: n
-      integer, dimension(n), intent(inout) :: dg
-      integer, dimension(n), intent(inout) :: gd
-      integer :: lo, hi
-      integer :: tmp, i, j, pivot
+      ! fill arrays
+      ! local
+      call gs_fill_arrays(lx, nvrt_loc, nedg_loc, nfcs_loc, nlfcs_ncon, &
+           vrt_mult, edg_mult, fcs_mult, vrt_loc, edg_loc, fcs_loc, vrt%lmap, &
+           vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, fcs%lmap, &
+           fcs%lmapoff, fcs%algn, gs%local_blk_len, gs%local_blk_off, &
+           gs%local_dof_gs, gs%local_gs_dof, gs%nlocal, gs%nlocal_blks, &
+           gs%local_facet_offset)
+      ! shared
+      call gs_fill_arrays(lx, vrt%nshare, edg%nshare, fcs%nshare, nsfcs_ncon, &
+           vrt_mult, edg_mult, fcs_mult, vrt_shr, edg_shr, fcs_shr, vrt%lmap, &
+           vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, fcs%lmap, &
+           fcs%lmapoff, fcs%algn, gs%shared_blk_len, gs%shared_blk_off, &
+           gs%shared_dof_gs, gs%shared_gs_dof, gs%nshared, gs%nshared_blks, &
+           gs%shared_facet_offset)
 
-      i = lo - 1
-      j = hi + 1
-      pivot = dg((lo + hi) / 2)
-      do
-         do
-            i = i + 1
-            if (dg(i) .ge. pivot) exit
+      ! sanity check; gs%shared_dof_gs should be sorted inside the sections
+      ! 1 : gs%shared_facet_offset - 1, and gs%shared_facet_offset : gs%nshared
+      ! There may be no faces for coarse grid solver
+      if (gs%shared_facet_offset .gt. gs%nshared) then
+         do il = 1, gs%nshared - 1
+            if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
+                 call neko_error('gs%shared_dof_gs not ordered 1')
          end do
-
-         do
-            j = j - 1
-            if (dg(j) .le. pivot) exit
+      else
+         do il = 1, gs%shared_facet_offset - 2
+            if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
+                 call neko_error('gs%shared_dof_gs not ordered 2')
          end do
+         do il = gs%shared_facet_offset, gs%nshared - 1
+            if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
+                 call neko_error('gs%shared_dof_gs not ordered 3')
+         end do
+      end if
 
-         if (i .lt. j) then
-            tmp = dg(i)
-            dg(i) = dg(j)
-            dg(j) = tmp
+      ! Initialise communication arrays
+      ! This must be done consistently on all the ranks to avoid node mismatch.
+      ! To get it right all the shared objects were sorted according to the
+      ! global object id and the faces were reshuffled according to the global
+      ! multiplicity number. As the operation relies on object data not dof, the
+      ! point numbering must be consistent with the one in gs_fill_arrays, but
+      ! object alignment shouldn't matter this time.
+      ! As object lists are sorted, send_dof and recv_dof arrays are identical.
+      ! vertices
+      ! Order of jl and kl loops important to keep proper object ordering
+      do il = 1, vrt%nrank ! ranks
+         do jl = 1, vrt%nshare ! all shared
+            do kl = vrt%rankoff(il), vrt%rankoff(il + 1) - 1 ! rank shared
+               ! rank shared list can have different order than sorted one
+               if (vrt%rankshare(kl) .eq. vrt_shr(jl)) then
+                  id = jl
+                  call gs%comm%send_dof(vrt%rank(il))%push(id)
+                  call gs%comm%recv_dof(vrt%rank(il))%push(id)
+                  exit
+               end if
+            end do
+         end do
+      end do
 
-            tmp = gd(i)
-            gd(i) = gd(j)
-            gd(j) = tmp
-         else if (i .eq. j) then
-            i = i + 1
-            exit
-         else
-            exit
+      ! edges
+      ! Order of jl and kl loops important to keep proper object ordering
+      do il = 1, edg%nrank ! ranks
+         do jl = 1, edg%nshare ! all shared
+            do kl = edg%rankoff(il), edg%rankoff(il + 1) - 1 ! rank shared
+               ! rank shared list can have different order than sorted one
+               if (edg%rankshare(kl) .eq. edg_shr(jl)) then
+                  id = vrt%nshare + (jl - 1) * (lx - 2)
+                  do ll = 1, lx - 2
+                     call gs%comm%send_dof(edg%rank(il))%push(id + ll)
+                     call gs%comm%recv_dof(edg%rank(il))%push(id + ll)
+                  end do
+                  exit
+               end if
+            end do
+         end do
+      end do
+      ! faces
+      ! Order of jl and kl loops important to keep proper object ordering
+      do il = 1, fcs%nrank ! ranks
+         do jl = 1, fcs%nshare ! all shared
+            do kl = fcs%rankoff(il), fcs%rankoff(il + 1) - 1 ! rank shared
+               ! rank shared list can have different order than sorted one
+               if (fcs%rankshare(kl) .eq. fcs_shr(jl)) then
+                  id = vrt%nshare + edg%nshare * (lx - 2) + &
+                       (jl - 1) * (lx - 2) * (lx - 2)
+                  do ll = 1, lx - 2
+                     do ml = 1, lx - 2
+                        call gs%comm%send_dof(edg%rank(il))%push(id + &
+                             (ll - 1) * (lx - 2) + ml)
+                        call gs%comm%recv_dof(edg%rank(il))%push(id + &
+                             (ll - 1) * (lx - 2) + ml)
+                     end do
+                  end do
+                  exit
+               end if
+            end do
+         end do
+      end do
+
+      ! rank list; it has to correspond to the send/receive order
+      ! At this point I use mesh_t construct
+      call send_pe%init()
+      call recv_pe%init()
+      !> @todo Consider switching to a crystal router...
+      do il = 1, size(gs%dofmap%msh%neigh_order)
+         src = modulo(pe_rank - gs%dofmap%msh%neigh_order(il) + pe_size, &
+              pe_size)
+         dst = modulo(pe_rank + gs%dofmap%msh%neigh_order(il), pe_size)
+
+         if (gs%dofmap%msh%neigh(src) .and. &
+              gs%comm%recv_dof(src)%size() .gt. 0) then
+            call recv_pe%push(src)
          end if
-      end do
-      if (lo .lt. j) call gs_qsort_dofmap(dg, gd, n, lo, j)
-      if (i .lt. hi) call gs_qsort_dofmap(dg, gd, n, i, hi)
 
-    end subroutine gs_qsort_dofmap
+         if (gs%dofmap%msh%neigh(dst) .and. &
+              gs%comm%send_dof(dst)%size() .gt. 0) then
+            call send_pe%push(dst)
+         end if
 
-    !> Find blocks sharing dofs in non-facet data
-    subroutine gs_find_blks(dg, blk_len, blk_off, nblks, n, m)
-      integer, intent(in) :: n
-      integer, intent(in) :: m
-      integer, dimension(n), intent(inout) :: dg
-      integer, allocatable, intent(inout) :: blk_len(:)
-      integer, allocatable, intent(inout) :: blk_off(:)
-      integer, intent(inout) :: nblks
-      integer :: i, j
-      integer :: id, count
-      type(stack_i4_t), target :: blks
-
-      call blks%init()
-      i = 1
-      do while (i .lt. m)
-         id = dg(i)
-         count = 1
-         j = i
-         do while ( j+1 .le. n .and. dg(j+1) .eq. id)
-            j = j + 1
-            count = count + 1
-         end do
-         call blks%push(count)
-         i = j + 1
       end do
 
-      select type (blk_array => blks%data)
-      type is (integer)
-         nblks = blks%size()
-         allocate(blk_len(nblks))
-         do i = 1, nblks
-            blk_len(i) = blk_array(i)
-         end do
-         allocate(blk_off(nblks))
-         blk_off(1) = 0
-         do i = 2, nblks
-            blk_off(i) = blk_off(i - 1) + blk_len(i - 1)
-         end do
-      end select
-      call blks%free()
+      call gs%comm%init(send_pe, recv_pe)
 
-    end subroutine gs_find_blks
+      ! sanity check
+      ! Compare send/receive lists with vertex neighbour list.
+      ! send/receive lists should differ by ordering only
+      id = send_pe%size()
+      if (id .ne. recv_pe%size()) &
+           call neko_error('send_pe and recv_pe differ in size')
+      if (id .ne. vrt%nrank) &
+           call neko_error('send_pe size inconsistent with vertex neighbour &
+           &number')
+      if (id .gt. 0) then
+         allocate(ind(id))
+         select type(sdp => send_pe%data)
+         type is (integer)
+            call sort(sdp, ind, id)
+            do il = 1, id
+               if (sdp(il) .ne. vrt%rank(il)) &
+                    call neko_error('send_pe size inconsistent with vertex &
+                    &neighbour')
+            end do
+         end select
+         select type(sdp => recv_pe%data)
+         type is (integer)
+            call sort(sdp, ind, id)
+            do il = 1, id
+               if (sdp(il) .ne. vrt%rank(il)) &
+                    call neko_error('recv_pe size inconsistent with vertex &
+                    &neighbour')
+            end do
+         end select
 
-  end subroutine gs_init_mapping
+         deallocate(ind)
+      end if
 
-  !> Schedule shared gather-scatter operations
-  subroutine gs_schedule(gs)
-    type(gs_t), target, intent(inout) :: gs
-    integer(kind=i8), allocatable :: send_buf(:), recv_buf(:)
-    integer(kind=i2), allocatable :: shared_flg(:), recv_flg(:)
-    type(htable_iter_i8_t) :: it
-    type(stack_i4_t) :: send_pe, recv_pe
-    type(MPI_Status) :: status
-    type(MPI_Request) :: send_req, recv_req
-    integer :: i, j, max_recv, src, dst, ierr, n_recv
-    integer :: tmp, shared_gs_id
-    integer :: nshared_unique
+      call send_pe%free()
+      call recv_pe%free()
+      deallocate(vrt_mult, fcs_mult, edg_mult, fcs_mult_glb, vrt_loc, fcs_loc, &
+           edg_loc, vrt_shr, fcs_shr, edg_shr)
 
-    nshared_unique = gs%shared_dofs%num_entries()
+    end associate
 
-    call it%init(gs%shared_dofs)
-    allocate(send_buf(nshared_unique))
-    i = 1
-    do while (it%next())
-       send_buf(i) = it%key()
-       i = i + 1
-    end do
+  end subroutine gs_init_mapping_schedule
 
-    call send_pe%init()
-    call recv_pe%init()
+  !> Get local object multiplicity and list of shared/local objects
+  !! @param[in]    obj       object connectivity info
+  !! @param[out]   loc_mult  object's local multiplicity
+  !! @param[out]   shr_list  sorted list of shared objects
+  !! @param[out]   loc_list  list of local objects
+  !! @param[out]   nlist     number of local objects
+  !! @param[out]   nlocal    number of local objects including multiplicity
+  !! @param[out]   nshared   number of shared objects including multiplicity
+  !! @param[out]   glb_mult  object's global multiplicity
+  subroutine gs_size_list_get(obj, loc_mult, shr_list, loc_list, nlist, &
+       nlocal, nshared, glb_mult)
+    type(mesh_conn_obj_t), intent(in) :: obj
+    integer, dimension(:), allocatable, intent(out):: loc_mult, shr_list, &
+         loc_list
+    integer, dimension(:), allocatable, intent(out), optional:: glb_mult
+    integer, intent(out) :: nlist, nlocal, nshared
+    integer :: il, jl
+    integer(i8), dimension(:), allocatable :: gidx
+    integer, dimension(:), allocatable :: ind
 
-
-    !
-    ! Schedule exchange of shared dofs
-    !
-
-    call MPI_Allreduce(nshared_unique, max_recv, 1, &
-         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
-
-    allocate(recv_buf(max_recv))
-    allocate(shared_flg(max_recv))
-    allocate(recv_flg(max_recv))
-
-    !> @todo Consider switching to a crystal router...
-    do i = 1, size(gs%dofmap%msh%neigh_order)
-       src = modulo(pe_rank - gs%dofmap%msh%neigh_order(i) + pe_size, pe_size)
-       dst = modulo(pe_rank + gs%dofmap%msh%neigh_order(i), pe_size)
-
-       if (gs%dofmap%msh%neigh(src)) then
-          call MPI_Irecv(recv_buf, max_recv, MPI_INTEGER8, &
-               src, 0, NEKO_COMM, recv_req, ierr)
-       end if
-
-       if (gs%dofmap%msh%neigh(dst)) then
-          call MPI_Isend(send_buf, nshared_unique, MPI_INTEGER8, &
-               dst, 0, NEKO_COMM, send_req, ierr)
-       end if
-
-       if (gs%dofmap%msh%neigh(src)) then
-          call MPI_Wait(recv_req, status, ierr)
-          call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
-
-          do j = 1, n_recv
-             shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
-             if (shared_flg(j) .eq. 0) then
-                !> @todo don't touch others data...
-                call gs%comm%recv_dof(src)%push(shared_gs_id)
-             end if
-          end do
-
-          if (gs%comm%recv_dof(src)%size() .gt. 0) then
-             call recv_pe%push(src)
+    nlocal = 0
+    nshared = 0
+    ! local
+    nlist = obj%lnum - obj%nshare
+    allocate(loc_mult(obj%lnum), loc_list(nlist))
+    jl = 0
+    do il = 1, obj%lnum
+       loc_mult(il) = obj%lmapoff(il + 1) - obj%lmapoff(il)
+       ! local object
+       if (.not. obj%lshare(il)) then
+          ! local only object with no neighbour can be skipped
+          if (loc_mult(il) .gt. 1) then
+             nlocal = nlocal + loc_mult(il) ! multiplicity count
+             jl = jl + 1 ! object count
+             loc_list(jl) = il
           end if
        end if
-
-       if (gs%dofmap%msh%neigh(dst)) then
-          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
-          call MPI_Irecv(recv_flg, max_recv, MPI_INTEGER2, &
-               dst, 0, NEKO_COMM, recv_req, ierr)
-       end if
-
-       if (gs%dofmap%msh%neigh(src)) then
-          call MPI_Isend(shared_flg, n_recv, MPI_INTEGER2, &
-               src, 0, NEKO_COMM, send_req, ierr)
-       end if
-
-       if (gs%dofmap%msh%neigh(dst)) then
-          call MPI_Wait(recv_req, status, ierr)
-          call MPI_Get_count(status, MPI_INTEGER2, n_recv, ierr)
-
-          do j = 1, n_recv
-             if (recv_flg(j) .eq. 0) then
-                tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id)
-                !> @todo don't touch others data...
-                call gs%comm%send_dof(dst)%push(shared_gs_id)
-             end if
-          end do
-
-          if (gs%comm%send_dof(dst)%size() .gt. 0) then
-             call send_pe%push(dst)
-          end if
-       end if
-
-       if (gs%dofmap%msh%neigh(src)) then
-          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
-       end if
-
     end do
 
-    call gs%comm%init(send_pe, recv_pe)
+    ! sanity check
+    if (jl .gt. nlist) &
+         call neko_error('gs_size_list_get: inconsistent local object number')
+    nlist = jl
 
-    call send_pe%free()
-    call recv_pe%free()
+    ! shared
+    ! for communication consistency shared objects must be sorted according
+    ! to their global id
+    allocate(gidx(obj%nshare), ind(obj%nshare), shr_list(obj%nshare))
+    shr_list(:) = obj%sharelist(:)
+    do il = 1, obj%nshare
+       jl = shr_list(il)
+       gidx(il) = obj%gidx(jl)
+    end do
+    !! Nicals is not happy with using these routines; TO DO BEGIN!!!!
+    call sort(gidx, ind, obj%nshare)
+    call swap(shr_list, ind, obj%nshare)
+    !! Nicals is not happy with using these routines; TO DO END!!!!
+    deallocate(gidx, ind)
+    ! all shared objects must be included
+    do il = 1, obj%nshare
+       jl = shr_list(il)
+       nshared = nshared + loc_mult(jl) ! multiplicity count
+    end do
+    ! provide global object multiplicity if requested
+    if (present(glb_mult)) then
+       allocate(glb_mult(obj%lnum))
+       glb_mult(:) = loc_mult(:)
+       do il = 1, obj%nshare
+          glb_mult(obj%sharelist(il)) = glb_mult(obj%sharelist(il)) + &
+               obj%gmapoff(il + 1) - obj%gmapoff(il)
+       end do
+    end if
+  end subroutine gs_size_list_get
 
-    deallocate(send_buf)
-    deallocate(recv_flg)
-    deallocate(shared_flg)
-    !This arrays seems to take massive amounts of memory...
-    call gs%shared_dofs%free()
+  !> Get local object multiplicity and list of shared/local objects
+  !! @param[in]    lx        number of points in 1D
+  !! @param[in]    nvrt      number of vertices
+  !! @param[in]    nedg      number of edges
+  !! @param[in]    nfcs      number of faces
+  !! @param[in]    nfcsn     number of nonconforming faces
+  !! @param[in]    vrt_mult  vertex multiplicity
+  !! @param[in]    edg_mult  edge multiplicity
+  !! @param[in]    fcs_mult  face multiplicity
+  !! @param[in]    vrt       vertex list
+  !! @param[in]    edg       edge list
+  !! @param[in]    fcs       face list
+  !! @param[in]    vrt_map   vertex to element mapping
+  !! @param[in]    vrt_off   vertex to element mapping offset
+  !! @param[in]    edg_map   edge to element mapping
+  !! @param[in]    edg_off   edge to element mapping offset
+  !! @param[in]    edg_algn  edge alignment
+  !! @param[in]    fcs_map   face to element mapping
+  !! @param[in]    fcs_off   face to element mapping offset
+  !! @param[in]    fcs_algn  face alignment
+  !! @param[out]   blk_len   block length
+  !! @param[out]   blk_off   block offset
+  !! @param[out]   mdg       dof to gs mapping
+  !! @param[out]   mgd       gs to dof mapping
+  !! @param[in]    ndof      number of dof
+  !! @param[in]    nblks     number of blocks
+  !! @param[in]    cfcs_off  conforming facet offset
+  subroutine gs_fill_arrays(lx, nvrt, nedg, nfcs, nfcsn, vrt_mult, edg_mult, &
+       fcs_mult, vrt, edg, fcs, vrt_map, vrt_off, edg_map, edg_off, edg_algn, &
+       fcs_map, fcs_off, fcs_algn, blk_len, blk_off, mdg, mgd, ndof, nblks, &
+       cfcs_off)
+    integer, intent(in) :: lx, nvrt, nedg, nfcs, nfcsn, ndof, nblks, cfcs_off
+    integer, dimension(:), intent(in) :: vrt_mult, edg_mult, fcs_mult, &
+         vrt, edg, fcs, vrt_off, edg_off, fcs_off
+    integer, dimension(:, :), intent(in) :: vrt_map, edg_map, edg_algn, &
+         fcs_map, fcs_algn
+    integer, dimension(:), intent(out) :: blk_len, blk_off, mdg, mgd
+    integer :: lxl, il, jl, kl, ll, ml, itmp, mult, iel, ipos, algn, el_off, &
+         edg_id, fcs_id, id, lid
+    integer :: ix, iy, iz, nx, ny, nz, nxyz
+    integer, dimension(3) :: edg_stride
+    integer, dimension(12) :: edg_start
+    integer, dimension(6) :: fcs_stride, fcs_strider, fcs_start
 
-  end subroutine gs_schedule
+    ! block length
+    lxl = lx -2
+    ! vertex
+    do il = 1, nvrt
+       blk_len(il) = vrt_mult(vrt(il))
+    end do
+    itmp = nvrt
+    ! edge
+    do il = 1, nedg
+       mult = edg_mult(edg(il))
+       do jl = 1, lxl
+          itmp = itmp + 1
+          blk_len(itmp) = mult
+       end do
+    end do
+    ! faces; only those with multiplicity bigger than 2; nonconforming only
+    do il = 1, nfcsn
+       mult = fcs_mult(fcs(il))
+       do jl = 1, lxl
+          do kl = 1, lxl
+             itmp = itmp + 1
+             blk_len(itmp) = mult
+          end do
+       end do
+    end do
+
+    ! offset
+    blk_off(1) = 0
+    do il = 2, itmp
+       blk_off(il) = blk_off(il - 1) + blk_len(il - 1)
+    end do
+
+    ! sanity checks
+    if (itmp .ne. nblks) &
+         call neko_error('gs_fill_arrays: inconsistent block number')
+    if (blk_off(itmp) + blk_len(itmp) .ne. cfcs_off - 1) &
+         call neko_error('gs_fill_arrays: inconsistent facet offset')
+
+    ! mappings
+    itmp = 0
+    lxl = lx - 1
+    ! vertex
+    do il = 1, nvrt
+       id = il
+       ! offset array
+       do jl = vrt_off(vrt(il)), vrt_off(vrt(il) + 1) - 1
+          ! local element and vertex position
+          iel = vrt_map(1, jl)
+          ipos = vrt_map(2, jl)
+          ! position in the element
+          ix = mod(ipos - 1, 2) * lxl + 1
+          iy = (mod(ipos - 1, 4)/2) * lxl + 1
+          iz = ((ipos - 1)/4) * lxl + 1
+          ! linear id
+          lid = linear_index(ix, iy, iz, iel, lx, lx, lx)
+          itmp = itmp + 1
+          ! dof => gs
+          mdg(itmp) = id
+          ! gs => dof
+          mgd(itmp) = lid
+       end do
+    end do
+
+    ! edge
+    ! data position in the element; assuming lx = ly = lz
+    nx = lx
+    ny = lx
+    nz = lx
+    nxyz = nx * ny * nz
+    ! data stride
+    edg_stride(1)  = 1
+    edg_stride(2)  = nx
+    edg_stride(3)  = nx * ny
+    ! data start
+    edg_start(1)  = 1
+    edg_start(2)  = nx * (ny - 1) + 1
+    edg_start(3)  = nx * ny * (nz - 1) + 1
+    edg_start(4)  = nx * (ny * nz - 1) + 1
+    edg_start(5)  = 1
+    edg_start(6)  = nx
+    edg_start(7)  = nx * ny * (nz - 1) + 1
+    edg_start(8)  = nx * ny * (nz - 1) + nx
+    edg_start(9)  = 1
+    edg_start(10) = nx
+    edg_start(11) = nx * (ny - 1) + 1
+    edg_start(12) = nx * ny
+
+    ! For a global communication it is important to order array entrances in
+    ! such a way, that "id" is always growing withing the element despite of
+    ! the alignment. Combining it with the proper object order gives global
+    ! unique dof ordering.
+    do il = 1, nedg
+       id = nvrt + (il - 1) * (nx - 2)
+       ! multiplicity
+       mult = edg_mult(edg(il))
+       do jl = 1, mult
+          ! position in map array
+          ml = jl + edg_off(edg(il)) - 1
+          ! local element and vertex position
+          iel = edg_map(1, ml)
+          ipos = edg_map(2, ml)
+          el_off = (iel - 1) * nxyz + edg_start(ipos)
+          edg_id = (ipos - 1)/4 + 1
+          ! alignment
+          algn = edg_algn(ipos, iel)
+          select case (algn)
+          case (0) ! identity
+             ! points at the edge
+             do concurrent (kl = 1: nx - 2)
+                ! linear id
+                lid = el_off + kl * edg_stride(edg_id)
+                ! dof => gs
+                mdg(itmp + (kl - 1) * mult + jl) = id + kl
+                ! gs => dof
+                mgd(itmp + (kl - 1) * mult + jl) = lid
+             end do
+          case (1) ! permutation
+             ! points at the edge
+             do concurrent (kl = 1: nx - 2)
+                ! linear id
+                lid = el_off + kl * edg_stride(edg_id)
+                ! dof => gs
+                mdg(itmp + (nx - 1 - kl - 1) * mult + jl) = id + nx - 1 - kl
+                ! gs => dof
+                mgd(itmp + (nx - 1 - kl - 1) * mult + jl) = lid
+             end do
+          end select
+       end do
+       itmp = itmp + (nx -2) * mult
+    end do
+
+    ! face
+    ! data stride; within 1D row
+    fcs_stride(1) = nx
+    fcs_stride(2) = nx
+    fcs_stride(3) = 1
+    fcs_stride(4) = 1
+    fcs_stride(5) = 1
+    fcs_stride(6) = 1
+    ! data stride; between 1D rows
+    fcs_strider(1) = nx * ny
+    fcs_strider(2) = nx * ny
+    fcs_strider(3) = nx * ny
+    fcs_strider(4) = nx * ny
+    fcs_strider(5) = nx
+    fcs_strider(6) = nx
+    ! data start
+    fcs_start(1) = nx * ny + 1
+    fcs_start(2) = nx * (ny + 1)
+    fcs_start(3) = nx * ny + 1
+    fcs_start(4) = nx * (2 * ny - 1) + 1
+    fcs_start(5) = nx + 1
+    fcs_start(6) = nx * ny * (nz - 1) + nx + 1
+
+    ! For a global communication it is important to order array entrances in
+    ! such a way, that "id" is always growing withing the element despite of
+    ! the alignment. Combining it with the proper object order gives global
+    ! unique dof ordering.
+    do il = 1, nfcs
+       id = nvrt + nedg * (nx - 2) + (il - 1) * (nx - 2) * (nx - 2)
+       ! multiplicity
+       mult = fcs_mult(fcs(il))
+       do jl = 1, mult
+          ! position in map array
+          ml = jl + fcs_off(fcs(il)) - 1
+          ! local element and vertex position
+          iel = fcs_map(1, ml)
+          ipos = fcs_map(2, ml)
+          el_off = (iel - 1) * nxyz + fcs_start(ipos)
+          fcs_id = (ipos - 1)/2 + 1
+          ! alignment
+          algn = fcs_algn(ipos, iel)
+          select case (algn)
+          case (0) ! identity
+             ! points at the face
+             do concurrent (kl = 1: nx - 2, ll = 1: nx - 2)
+                ! linear id
+                lid = el_off + (kl - 1) * fcs_strider(ipos) + &
+                     ll * fcs_stride(ipos)
+                ! dof => gs
+                mdg(itmp + ((kl - 1) * (nx - 2) + &
+                     (ll - 1))* mult + jl) = id + (kl - 1) * (nx - 2) + ll
+                ! gs => dof
+                mgd(itmp + ((kl - 1) * (nx - 2) + &
+                     (ll - 1))* mult + jl) = lid
+             end do
+          case (1) ! transpose
+             ! points at the face
+             do concurrent (kl = 1: nx - 2, ll = 1: nx - 2)
+                ! linear id
+                lid = el_off + (kl - 1) * fcs_strider(ipos) + &
+                     ll * fcs_stride(ipos)
+                ! dof => gs
+                mdg(itmp + ((ll - 1) * (nx - 2) + &
+                     (kl - 1))* mult + jl) = id + (ll - 1) * (nx - 2) + kl
+                ! gs => dof
+                mgd(itmp + ((ll - 1) * (nx - 2) + &
+                     (kl - 1))* mult + jl) = lid
+             end do
+          case (2) ! permutation in X
+             ! points at the face
+             do concurrent (kl = 1: nx - 2, ll = 1: nx - 2)
+                ! linear id
+                lid = el_off + (kl - 1) * fcs_strider(ipos) + &
+                     ll * fcs_stride(ipos)
+                ! dof => gs
+                mdg(itmp + ((kl - 1) * (nx - 2) + &
+                     (nx - 2 - ll))* mult + jl) = &
+                     id + (kl - 1) * (nx - 2) + nx - 1 - ll
+                ! gs => dof
+                mgd(itmp + ((kl - 1) * (nx - 2) + &
+                     (nx - 2 - ll))* mult + jl) = lid
+             end do
+          case (3) ! permutation in X; transpose; inverse of 4
+             ! Be careful, as depending on perspective (element realisation
+             ! or a reference one) this can turn into P_Y T. Moreover,
+             ! take int account that P_X T = T P_Y.
+             ! points at the face
+             do concurrent (kl = 1: nx - 2, ll = 1: nx - 2)
+                ! linear id
+                lid = el_off + (kl - 1) * fcs_strider(ipos) + &
+                     ll * fcs_stride(ipos)
+                ! dof => gs
+                mdg(itmp + ((ll - 1) * (nx - 2) + &
+                     (nx - 2 - kl))* mult + jl) = &
+                     id + (ll - 1) * (nx - 2) + nx - 1 - kl
+                ! gs => dof
+                mgd(itmp + ((ll - 1) * (nx - 2) + &
+                     (nx - 2 - kl))* mult + jl) = lid
+             end do
+          case (4) ! permutation in Y; transpose; inverse of 3
+             ! Be careful, as depending on perspective (element realisation
+             ! or a reference one) this can turn into P_X T. Moreover,
+             ! take int account that P_Y T = T P_X.
+             ! points at the face
+             do concurrent (kl = 1: nx - 2, ll = 1: nx - 2)
+                ! linear id
+                lid = el_off + (kl - 1) * fcs_strider(ipos) + &
+                     ll * fcs_stride(ipos)
+                ! dof => gs
+                mdg(itmp + ((nx - 2 - ll) * (nx - 2) + &
+                     (kl - 1))* mult + jl) = &
+                     id + (nx - 2 - ll) * (nx - 2) + kl
+                ! gs => dof
+                mgd(itmp + ((nx - 2 - ll) * (nx - 2) + &
+                     (kl - 1))* mult + jl) = lid
+             end do
+          case (5) ! permutation in Y
+             ! points at the face
+             do concurrent (kl = 1: nx - 2, ll = 1: nx - 2)
+                ! linear id
+                lid = el_off + (kl - 1) * fcs_strider(ipos) + &
+                     ll * fcs_stride(ipos)
+                ! dof => gs
+                mdg(itmp + ((nx - 2 - kl) * (nx - 2) + &
+                     (ll - 1))* mult + jl) = id + (nx - 2 - kl) * (nx - 2) + ll
+                ! gs => dof
+                mgd(itmp + ((nx - 2 - kl) * (nx - 2) + &
+                     (ll - 1))* mult + jl) = lid
+             end do
+          case (6) ! permutation in Y; permutation in X; transpose
+             ! points at the face
+             do concurrent (kl = 1: nx - 2, ll = 1: nx - 2)
+                ! linear id
+                lid = el_off + (kl - 1) * fcs_strider(ipos) + &
+                     ll * fcs_stride(ipos)
+                ! dof => gs
+                mdg(itmp + ((nx - 2 - ll) * (nx - 2) + &
+                     (nx - 2 - kl))* mult + jl) = &
+                     id + (nx - 2 - ll) * (nx - 2) + nx - 1 - kl
+                ! gs => dof
+                mgd(itmp + ((nx - 2 - ll) * (nx - 2) + &
+                     (nx - 2 - kl))* mult + jl) = lid
+             end do
+          case (7) ! permutation in Y; permutation in X
+             ! points at the face
+             do concurrent (kl = 1: nx - 2, ll = 1: nx - 2)
+                ! linear id
+                lid = el_off + (kl - 1) * fcs_strider(ipos) + &
+                     ll * fcs_stride(ipos)
+                ! dof => gs
+                mdg(itmp + ((nx - 2 - kl) * (nx - 2) + &
+                     (nx - 2 - ll))* mult + jl) = &
+                     id + (nx - 2 - kl) * (nx - 2) + nx - 1 - ll
+                ! gs => dof
+                mgd(itmp + ((nx - 2 - kl) * (nx - 2) + &
+                     (nx - 2 - ll))* mult + jl) = lid
+             end do
+          end select
+       end do
+       itmp = itmp + (nx -2) * (nx -2) * mult
+    end do
+
+  end subroutine gs_fill_arrays
 
   !> Gather-scatter operation on a field @a u with op @a op
   subroutine gs_op_fld(gs, u, op, event)
@@ -1529,9 +1224,7 @@ contains
     if (allocated(this%comm)) &
          call this%comm%amr_restart(reconstruct, counter, tstep)
 
-    call gs_init_mapping(this)
-
-    call gs_schedule(this)
+    call gs_init_mapping_schedule(this)
 
     ! Global number of points not needing to be sent over mpi for gs operations
     ! "Internal points"
