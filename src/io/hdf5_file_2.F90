@@ -60,7 +60,7 @@ module hdf5_file_2
 #endif
 
      character(len=1) :: mode
-     integer :: precision
+     integer :: precision = 0
      integer :: offset
      integer :: count
 
@@ -76,7 +76,8 @@ module hdf5_file_2
      procedure, pass(this) :: write_vector => hdf5_file_2_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_2_write_matrix
      procedure, pass(this) :: write_field => hdf5_file_2_write_field
-     generic :: write_dataset => write_vector, write_matrix, write_field
+     !generic :: write_dataset => write_vector, write_matrix, write_field
+     procedure :: write_dataset => hdf5_file_2_write_dataset
   end type hdf5_file_2_t
 
 contains
@@ -113,6 +114,23 @@ contains
 
 #ifdef HAVE_HDF5
 
+  subroutine hdf5_file_2_write_dataset(this, data)
+    class(hdf5_file_2_t), intent(inout) :: this
+    class(*), intent(inout) :: data
+
+    select type (d => data)
+    type is (vector_t)
+       call this%write_vector(d)
+    type is (matrix_t)
+        call this%write_matrix(d)
+    type is (field_t)
+        call this%write_field(d)
+    class default
+        call neko_error("write_dataset not implemented for this data type")
+    end select
+  end subroutine hdf5_file_2_write_dataset
+
+
   !> Open a HDF5 file in a mode
   subroutine hdf5_file_2_open(this, mode)
     class(hdf5_file_2_t), intent(inout) :: this
@@ -133,7 +151,7 @@ contains
     end if
 
     ! File counter management
-    call this%increment_counter()
+    !call this%increment_counter() <- It is better to call this outside if I want indexed output
     fname = trim(this%get_fname())
     counter = this%get_counter() - this%get_start_counter()
 
@@ -199,7 +217,7 @@ contains
          MPI_SUM, NEKO_COMM, ierr)
 
     ! Sync the data
-    call vec%copy_from(DEVICE_TO_HOST, .true.)
+    !call vec%copy_from(DEVICE_TO_HOST, .true.)
 
     ! ===============
     ! Configure MPIIO
@@ -276,7 +294,7 @@ contains
          MPI_SUM, NEKO_COMM, ierr)
 
     ! Sync the data
-    call mat%copy_from(DEVICE_TO_HOST, .true.)
+    !call mat%copy_from(DEVICE_TO_HOST, .true.)
 
     ! ===============
     ! Configure MPIIO
@@ -352,7 +370,7 @@ contains
     offset = field%msh%offset_el
 
     ! Sync the data
-    call field%copy_from(DEVICE_TO_HOST, .true.)
+    !call field%copy_from(DEVICE_TO_HOST, .true.)
 
     ! ===============
     ! Configure MPIIO

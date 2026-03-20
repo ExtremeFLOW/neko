@@ -53,6 +53,9 @@ module probes
   use point_zone_registry, only: neko_point_zone_registry
   use file, only : file_t, file_free
   use csv_file, only : csv_file_t
+  use hdf5_file_2, only : hdf5_file_2_t
+  use math, only : copy
+  use device_math, only : device_copy
   use case, only : case_t
   use, intrinsic :: iso_c_binding
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
@@ -536,6 +539,23 @@ contains
           !! Write the data to the file
           call this%fout%write(mat_coords)
        end if
+    class is (hdf5_file_2_t)
+    
+       !> This is always on cpus I think
+       write(*,*) "local probes is ", this%n_local_probes
+       call mat_coords%init(3, this%n_local_probes, "coordinates")
+       call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
+
+       call this%fout%open("w")
+       call this%fout%set_active_group(["probes"])
+       call this%fout%write_dataset(mat_coords)
+       call this%fout%close()
+
+
+       !> Set up the output matrix
+       this%seq_io = .false.
+       call this%mat_out%init(this%n_fields, this%n_local_probes, "interpolated_fields")
+
     class default
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
@@ -668,6 +688,7 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: i, ierr
     logical :: do_interp_on_host = .false.
+    character(len=1000) :: group_name
 
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
@@ -704,10 +725,24 @@ contains
              call this%fout%write(this%mat_out, time%t)
           end if
        else
-          call neko_error('probes sim comp, parallel io need implementation')
+
+          call trsp(this%out_vals_trsp, this%n_fields, &
+               this%out_values, this%n_local_probes)
+          call copy(this%mat_out%x, this%out_vals_trsp, this%n_fields*this%n_local_probes)
+
+
+            write(group_name, '(A,I0)') "t_", this%output_controller%nexecutions
+            write(*,*) "Writing probes at time ", time%t, " to group ", trim(group_name)
+            write(*,*) "local probes is ", this%n_local_probes
+            call this%fout%open("w")
+            call this%fout%set_active_group(["probes", trim(group_name)])
+            call this%fout%write_dataset(this%mat_out)
+            call this%fout%close()
+
        end if
 
        !! Register the execution of the activity
+       write(*,*) "We are at exectuion ", this%output_controller%nexecutions
        call this%output_controller%register_execution()
     end if
 
