@@ -74,7 +74,6 @@ module fluid_pnpn
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
-  use bc_list, only : bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
@@ -127,28 +126,6 @@ module fluid_pnpn
 
      !> Surface term in pressure rhs. Masks symmetry bcs.
      type(facet_normal_t) :: bc_sym_surface
-
-     !
-     ! Boundary conditions and  lists for residuals and solution increments
-     !
-
-     !> A dummy bc for marking strong velocity bcs. Used for vel_res.
-     type(zero_dirichlet_t) :: bc_vel_res
-     !> A dummy bc for marking strong velocity bcs. Used for du.
-     type(zero_dirichlet_t) :: bc_du
-     !> A dummy bc for marking strong velocity bcs. Used for dv.
-     type(zero_dirichlet_t) :: bc_dv
-     !> A dummy bc for marking strong velocity bcs. Used for dw.
-     type(zero_dirichlet_t) :: bc_dw
-     !> A dummy bc for marking strong pressure bcs. Used for dp.
-     type(zero_dirichlet_t) :: bc_dp
-
-     !> Lists for holding the corresponding dummy bc, e.g. bclst_du holds bc_du
-     type(bc_list_t) :: bclst_vel_res
-     type(bc_list_t) :: bclst_du
-     type(bc_list_t) :: bclst_dv
-     type(bc_list_t) :: bclst_dw
-     type(bc_list_t) :: bclst_dp
 
      !> Resolver for strong velocity residual constraints.
      type(vector_bc_resolver_t) :: vel_resolver
@@ -562,19 +539,8 @@ contains
        deallocate(this%ext_bdf)
     end if
 
-    call this%bc_vel_res%free()
-    call this%bc_du%free()
-    call this%bc_dv%free()
-    call this%bc_dw%free()
-    call this%bc_dp%free()
-
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
-    call this%bclst_vel_res%free()
-    call this%bclst_du%free()
-    call this%bclst_dv%free()
-    call this%bclst_dw%free()
-    call this%bclst_dp%free()
     call this%vel_resolver%free()
     call this%dp_resolver%free()
     call this%proj_prs%free()
@@ -897,19 +863,6 @@ contains
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
 
-    ! Lists for the residuals and solution increments
-    call this%bclst_vel_res%init()
-    call this%bclst_du%init()
-    call this%bclst_dv%init()
-    call this%bclst_dw%init()
-    call this%bclst_dp%init()
-
-    call this%bc_vel_res%init_from_components(this%c_Xh)
-    call this%bc_du%init_from_components(this%c_Xh)
-    call this%bc_dv%init_from_components(this%c_Xh)
-    call this%bc_dw%init_from_components(this%c_Xh)
-    call this%bc_dp%init_from_components(this%c_Xh)
-
     ! Special PnPn boundary conditions for pressure
     call this%bc_prs_surface%init_from_components(this%c_Xh)
     call this%bc_sym_surface%init_from_components(this%c_Xh)
@@ -979,14 +932,8 @@ contains
                 ! Symmetry has 3 internal bcs, but only one actually contains
                 ! markings.
                 ! Symmetry's apply_scalar doesn't do anything, so we need to mark
-                ! individual nested bcs to the du,dv,dw, whereas the vel_res can
-                ! just get symmetry as a whole, because on this list we call
-                ! apply_vector.
+                ! the individual nested bcs on the component resolvers.
                 ! Additionally we have to mark the special surface bc for p.
-                call this%bclst_vel_res%append(bc_i)
-                call this%bc_du%mark_facets(bc_i%bc_x%marked_facet)
-                call this%bc_dv%mark_facets(bc_i%bc_y%marked_facet)
-                call this%bc_dw%mark_facets(bc_i%bc_z%marked_facet)
                 call this%vel_resolver%mark_x(bc_i%bc_x)
                 call this%vel_resolver%mark_y(bc_i%bc_y)
                 call this%vel_resolver%mark_z(bc_i%bc_z)
@@ -997,19 +944,11 @@ contains
              type is (non_normal_t)
                 ! This is a bc for the residuals and increments, not the
                 ! velocity itself. So, don't append to bcs_vel
-                call this%bclst_vel_res%append(bc_i)
-                call this%bc_du%mark_facets(bc_i%bc_x%marked_facet)
-                call this%bc_dv%mark_facets(bc_i%bc_y%marked_facet)
-                call this%bc_dw%mark_facets(bc_i%bc_z%marked_facet)
                 call this%vel_resolver%mark_x(bc_i%bc_x)
                 call this%vel_resolver%mark_y(bc_i%bc_y)
                 call this%vel_resolver%mark_z(bc_i%bc_z)
              type is (shear_stress_t)
                 ! Same as symmetry
-                call this%bclst_vel_res%append(bc_i%symmetry)
-                call this%bclst_du%append(bc_i%symmetry%bc_x)
-                call this%bclst_dv%append(bc_i%symmetry%bc_y)
-                call this%bclst_dw%append(bc_i%symmetry%bc_z)
                 call this%vel_resolver%mark_x(bc_i%symmetry%bc_x)
                 call this%vel_resolver%mark_y(bc_i%symmetry%bc_y)
                 call this%vel_resolver%mark_z(bc_i%symmetry%bc_z)
@@ -1017,10 +956,6 @@ contains
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
                 ! Same as symmetry
-                call this%bclst_vel_res%append(bc_i%symmetry)
-                call this%bclst_du%append(bc_i%symmetry%bc_x)
-                call this%bclst_dv%append(bc_i%symmetry%bc_y)
-                call this%bclst_dw%append(bc_i%symmetry%bc_z)
                 call this%vel_resolver%mark_x(bc_i%symmetry%bc_x)
                 call this%vel_resolver%mark_y(bc_i%symmetry%bc_y)
                 call this%vel_resolver%mark_z(bc_i%symmetry%bc_z)
@@ -1028,15 +963,8 @@ contains
                 call this%bcs_vel%append(bc_i)
              class default
 
-                ! For the default case we use our dummy zero_dirichlet bcs to
-                ! mark the same faces as in ordinary velocity dirichlet
-                ! conditions.
-                ! Additionally we mark the special PnPn pressure  bc.
+                ! Additionally we mark the special PnPn pressure bc.
                 if (bc_i%strong) then
-                   call this%bc_vel_res%mark_labeled_zones(bc_i%zone_indices)
-                   call this%bc_du%mark_labeled_zones(bc_i%zone_indices)
-                   call this%bc_dv%mark_labeled_zones(bc_i%zone_indices)
-                   call this%bc_dw%mark_labeled_zones(bc_i%zone_indices)
                    call this%bc_prs_surface%mark_labeled_zones( &
                         bc_i%zone_indices)
                    call this%vel_resolver%mark_x(bc_i)
@@ -1075,9 +1003,8 @@ contains
           if (associated(bc_i)) then
              call this%bcs_prs%append(bc_i)
 
-             ! Mark strong bcs in the dummy dp bc to force zero change.
+             ! Mark strong pressure bcs in the resolver to force zero change.
              if (bc_i%strong) then
-                call this%bc_dp%mark_labeled_zones(bc_i%zone_indices)
                 call this%dp_resolver%mark(bc_i)
              end if
 
@@ -1102,20 +1029,8 @@ contains
     call this%bc_prs_surface%finalize()
     call this%bc_sym_surface%finalize()
 
-    call this%bc_vel_res%finalize()
-    call this%bc_du%finalize()
-    call this%bc_dv%finalize()
-    call this%bc_dw%finalize()
-    call this%bc_dp%finalize()
-
-    call this%bclst_vel_res%append(this%bc_vel_res)
-    call this%bclst_du%append(this%bc_du)
-    call this%bclst_dv%append(this%bc_dv)
-    call this%bclst_dw%append(this%bc_dw)
-    call this%bclst_dp%append(this%bc_dp)
-
     ! If we have no strong pressure bcs, we will demean the pressure
-    this%prs_dirichlet = .not. this%bclst_dp%is_empty()
+    this%prs_dirichlet = this%dp_resolver%dof_mask%is_set()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
 

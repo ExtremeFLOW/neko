@@ -40,7 +40,6 @@ module scalar_pnpn
   use scalar_scheme, only : scalar_scheme_t
   use checkpoint, only : chkp_t
   use field, only : field_t
-  use bc_list, only : bc_list_t
   use bc_resolver, only : scalar_bc_resolver_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
@@ -64,7 +63,6 @@ module scalar_pnpn
   use json_module, only : json_file, json_core, json_value
   use user_intf, only : user_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use time_state, only : time_state_t
   use bc, only : bc_t
@@ -87,17 +85,6 @@ module scalar_pnpn
 
      !> Solution projection.
      type(projection_t) :: proj_s
-
-     !> Dirichlet conditions for the residual
-     !! Collects all the Dirichlet condition facets into one bc and applies 0,
-     !! Since the values never change there during the solve.
-     type(zero_dirichlet_t) :: bc_res
-
-     !> A bc list for the bc_res. Contains only that, essentially just to wrap
-     !! the if statement determining whether to apply on the device or CPU.
-     !! Also needed since a bc_list is the type that is sent to, e.g. solvers,
-     !! cannot just send `bc_res` on its own.
-     type(bc_list_t) :: bclst_ds
 
      !> Resolver for the scalar increment constraints.
      type(scalar_bc_resolver_t) :: bc_resolver
@@ -233,21 +220,12 @@ contains
     ! Set up boundary conditions
     call this%setup_bcs_(user)
 
-    ! Initialize dirichlet bcs for scalar residual
-    call this%bc_res%init(this%c_Xh, params)
     do i = 1, this%bcs%size()
        if (this%bcs%strong(i)) then
           bc_i => this%bcs%get(i)
-          call this%bc_res%mark_labeled_zones(bc_i%zone_indices)
           call this%bc_resolver%mark(bc_i)
        end if
     end do
-
-    call this%bc_res%finalize()
-
-    call this%bclst_ds%init()
-    call this%bclst_ds%append(this%bc_res)
-
 
     ! Initialize projection space
     call this%proj_s%init(this%dm_Xh%size(), this%projection_dim, &
@@ -310,8 +288,6 @@ contains
     !Deallocate scalar field
     call this%scheme_free()
 
-    call this%bc_res%free()
-    call this%bclst_ds%free()
     call this%bc_resolver%free()
     call this%proj_s%free()
 
