@@ -782,7 +782,7 @@ contains
       call profiler_end_region('Pressure_residual', 18)
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%bclst_dp, string='Pressure')
+           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%dp_resolver, string='Pressure')
 
       call this%pc_prs%update()
 
@@ -798,7 +798,7 @@ contains
       call profiler_end_region('Pressure_solve', 3)
 
       call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-           this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+           this%dp_resolver, gs_Xh, n, tstep, dt_controller)
 
       ! Update the pressure with the increment. Demean if necessary.
       call field_add2(p, dp, n)
@@ -853,7 +853,7 @@ contains
       end if
 
       call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
+           this%vel_resolver, gs_Xh, n, tstep, &
            dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then

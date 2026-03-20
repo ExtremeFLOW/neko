@@ -443,7 +443,7 @@ contains
       ksp_results%name = trim(this%name)
       call profiler_end_region(trim(this%name) // '_solve', 21)
 
-      call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bclst_ds, gs_Xh, &
+      call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bc_resolver, gs_Xh, &
            n, tstep, dt_controller)
 
       ! Update the solution
