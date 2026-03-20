@@ -257,7 +257,8 @@ contains
 
     ! Write field data in PointData group
     if (n_fields > 0) then
-       call vtkhdf_write_pointdata(vtkhdf_grp, fp, this%precision, counter, t)
+       call vtkhdf_write_pointdata(vtkhdf_grp, fp, this%precision, counter, &
+            fname, t)
     end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
@@ -863,16 +864,21 @@ contains
   !> Write field data into the VTKHDF PointData group.
   !! Groups u, v, w fields into a 3-component Velocity vector dataset.
   !! All other fields are written as scalar datasets.
+  !! Each dataset is stored in a separate external HDF5 file and linked
+  !! into the main file via HDF5 external links.
   !! For temporal output, PointDataOffsets are appended under Steps.
   !! @param vtkhdf_grp Root VTKHDF group
   !! @param fp Array of field pointers to write
   !! @param precision Output precision (optional, for VTKHDF files)
+  !! @param fname Main VTKHDF file path (used to derive external file names)
   !! @param t Current simulation time (optional, for temporal output)
-  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, counter, t)
+  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, counter, &
+       fname, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     type(field_ptr_t), intent(in) :: fp(:)
     integer, intent(in) :: precision
     integer, intent(in) :: counter
+    character(len=*), intent(in) :: fname
     real(kind=rp), intent(in), optional :: t
 
     logical, allocatable :: field_written(:)
@@ -895,10 +901,23 @@ contains
     character(len=128) :: field_name
     logical :: link_exists, is_vector
 
+    ! External file variables
+    character(len=1024) :: ext_fname, ext_basename
+    character(len=1024) :: main_path, main_name, main_suffix
+    integer(hid_t) :: ext_file_id, ext_plist_id
+    integer :: mpi_info, mpi_comm
+    logical :: ext_file_exists
+
     ! Create collective transfer property list
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
     call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
     precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
+
+    ! Derive base path from main filename for external files
+    call filename_split(fname, main_path, main_name, main_suffix)
+
+    mpi_info = MPI_INFO_NULL%mpi_val
+    mpi_comm = NEKO_COMM%mpi_val
 
     n_fields = size(fp)
 
@@ -988,11 +1007,35 @@ contains
           call h5gclose_f(grp_id, ierr)
        end if
 
+       ! Build external file path: path/mainname_FieldName.h5
+       write(ext_fname, '(A,A,".data/",A,".h5")') &
+            trim(main_path), trim(main_name), trim(field_name)
+       ! Basename only (for the external link, so files stay portable)
+       write(ext_basename, '(A,".data/",A,".h5")') &
+            trim(main_name), trim(field_name)
+
+       ! Open or create the external HDF5 file with MPI-IO
+       call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
+       call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
+
+       ! Check if the external link already exists in PointData
+       call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
+
+       if (link_exists) then
+          ! External file already exists, open it for read-write
+          call h5fopen_f(trim(ext_fname), H5F_ACC_RDWR_F, ext_file_id, ierr, &
+               access_prp = ext_plist_id)
+       else
+          ! Create the external file
+          call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, ext_file_id, &
+               ierr, access_prp = ext_plist_id)
+       end if
+       call h5pclose_f(ext_plist_id, ierr)
+
        if (is_vector) then
-          ! Create or extend 2D dataset (3 x total_points)
-          call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
+          ! Create or extend 2D dataset (3 x total_points) in external file
           if (link_exists .and. present(t)) then
-             call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
+             call h5dopen_f(ext_file_id, trim(field_name), dset_id, ierr)
              call h5dget_space_f(dset_id, filespace, ierr)
              call h5sget_simple_extent_dims_f(filespace, pd_dims2, &
                   pd_maxdims2, ierr)
@@ -1013,7 +1056,7 @@ contains
              call h5screate_simple_f(2, pd_dims2, filespace, ierr, pd_maxdims2)
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
              call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
-             call h5dcreate_f(pointdata_grp, trim(field_name), precision_hdf, &
+             call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
                   filespace, dset_id, ierr, dcpl_id = dcpl_id)
              call h5sclose_f(filespace, ierr)
              call h5pclose_f(dcpl_id, ierr)
@@ -1040,10 +1083,9 @@ contains
           call h5dclose_f(dset_id, ierr)
 
        else
-          ! Write scalar field as 1D dataset
-          call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
+          ! Write scalar field as 1D dataset in external file
           if (link_exists) then
-             call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
+             call h5dopen_f(ext_file_id, trim(field_name), dset_id, ierr)
              call h5dget_space_f(dset_id, filespace, ierr)
              call h5sget_simple_extent_dims_f(filespace, pd_dims1, &
                   pd_maxdims1, ierr)
@@ -1063,7 +1105,7 @@ contains
              call h5screate_simple_f(1, pd_dims1, filespace, ierr, pd_maxdims1)
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
              call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-             call h5dcreate_f(pointdata_grp, trim(field_name), precision_hdf, &
+             call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
                   filespace, dset_id, ierr, dcpl_id = dcpl_id)
              call h5sclose_f(filespace, ierr)
              call h5pclose_f(dcpl_id, ierr)
@@ -1122,6 +1164,16 @@ contains
           call h5sclose_f(memspace, ierr)
           call h5dclose_f(dset_id, ierr)
        end if
+
+       ! Close the external file
+       call h5fclose_f(ext_file_id, ierr)
+
+       ! Create external link on first write (when the link doesn't exist yet)
+       if (.not. link_exists) then
+          call h5lcreate_external_f(trim(ext_basename), trim(field_name), &
+               pointdata_grp, trim(field_name), ierr)
+       end if
+
     end do
 
     if (present(t)) call h5gclose_f(step_grp_id, ierr)
