@@ -462,7 +462,7 @@ $(document).ready(function(){initNavTree('d0/dc1/scalar__pnpn_8f90_source.html',
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>              xh, this%c_Xh, dm_xh%size())</div>
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span> </div>
 <div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>         <span class="keyword">call </span>makeext%compute_scalar(this%abx1, this%abx2, f_xh%x, &amp;</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)</div>
 <div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span> </div>
 <div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>         <span class="keyword">call </span>makeoifs%compute_scalar(this%advs%x, f_xh%x, rho%x(1,1,1,1), dt,&amp;</div>
 <div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>              n)</div>
@@ -476,11 +476,11 @@ $(document).ready(function(){initNavTree('d0/dc1/scalar__pnpn_8f90_source.html',
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>         <span class="comment">! the scalar field from the previous time-step. Now, this value is used in</span></div>
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>         <span class="comment">! the explicit time scheme to advance these terms in time.</span></div>
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>         <span class="keyword">call </span>makeext%compute_scalar(this%abx1, this%abx2, f_xh%x, &amp;</div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)</div>
 <div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span> </div>
 <div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>         <span class="comment">! Add the RHS contributions coming from the BDF scheme.</span></div>
 <div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>         <span class="keyword">call </span>makebdf%compute_scalar(slag, f_xh%x, s, c_xh%B, rho%x(1,1,1,1), &amp;</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>              dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>              dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)</div>
 <div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span><span class="keywordflow">      end if</span></div>
 <div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span> </div>
 <div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>      <span class="keyword">call </span>slag%update()</div>
@@ -493,7 +493,7 @@ $(document).ready(function(){initNavTree('d0/dc1/scalar__pnpn_8f90_source.html',
 <div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>      <span class="comment">! Compute scalar residual.</span></div>
 <div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>      <span class="keyword">call </span>profiler_start_region(trim(this%name) // <span class="stringliteral">&#39;_residual&#39;</span>, 20)</div>
 <div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>      <span class="keyword">call </span>res%compute(ax, s, s_res, f_xh, c_xh, msh, xh, lambda_tot, &amp;</div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs(1), dt, &amp;</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs%x(1), dt, &amp;</div>
 <div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>           dm_xh%size())</div>
 <div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span> </div>
 <div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>      <span class="keyword">call </span>gs_xh%op(s_res, gs_op_add)</div>
@@ -761,7 +761,7 @@ $(document).ready(function(){initNavTree('d0/dc1/scalar__pnpn_8f90_source.html',
 <div class="ttc" id="astructscalar__pnpn_1_1scalar__pnpn__t_html"><div class="ttname"><a href="../../d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html">scalar_pnpn::scalar_pnpn_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00076">scalar_pnpn.f90:76</a></div></div>
 <div class="ttc" id="astructscalar__residual_1_1scalar__residual__t_html"><div class="ttname"><a href="../../de/de3/structscalar__residual_1_1scalar__residual__t.html">scalar_residual::scalar_residual_t</a></div><div class="ttdoc">Abstract type to compute scalar residual.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d30/scalar__residual_8f90_source.html#l00047">scalar_residual.f90:47</a></div></div>
 <div class="ttc" id="astructscalar__scheme_1_1scalar__scheme__t_html"><div class="ttname"><a href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html">scalar_scheme::scalar_scheme_t</a></div><div class="ttdoc">Base type for a scalar advection-diffusion solver.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dc7/scalar__scheme_8f90_source.html#l00073">scalar_scheme.f90:73</a></div></div>
-<div class="ttc" id="astructtime__scheme__controller_1_1time__scheme__controller__t_html"><div class="ttname"><a href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller::time_scheme_controller_t</a></div><div class="ttdoc">Implements the logic to compute the time coefficients for the advection and diffusion operators in a ...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d67/time__scheme__controller_8f90_source.html#l00071">time_scheme_controller.f90:71</a></div></div>
+<div class="ttc" id="astructtime__scheme__controller_1_1time__scheme__controller__t_html"><div class="ttname"><a href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller::time_scheme_controller_t</a></div><div class="ttdoc">Implements the logic to compute the time coefficients for the advection and diffusion operators in a ...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d67/time__scheme__controller_8f90_source.html#l00072">time_scheme_controller.f90:72</a></div></div>
 <div class="ttc" id="astructtime__state_1_1time__state__t_html"><div class="ttname"><a href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state::time_state_t</a></div><div class="ttdoc">A struct that contains all info about the time, expand as needed.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00045">time_state.f90:45</a></div></div>
 <div class="ttc" id="astructtime__step__controller_1_1time__step__controller__t_html"><div class="ttname"><a href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller::time_step_controller_t</a></div><div class="ttdoc">Provides a tool to set time step dt.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/da8/time__step__controller_8f90_source.html#l00044">time_step_controller.f90:44</a></div></div>
 <div class="ttc" id="astructuser__intf_1_1user__t_html"><div class="ttname"><a href="../../d7/da0/structuser__intf_1_1user__t.html">user_intf::user_t</a></div><div class="ttdoc">A type collecting all the overridable user routines and flag to suppress type injection from custom m...</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d30/user__intf_8f90_source.html#l00142">user_intf.f90:142</a></div></div>
@@ -772,7 +772,7 @@ $(document).ready(function(){initNavTree('d0/dc1/scalar__pnpn_8f90_source.html',
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../d0/dc1/scalar__pnpn_8f90.html">scalar_pnpn.f90</a></li>
-    <li class="footer">Generated on Thu Mar 19 2026 04:19:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Mar 20 2026 04:17:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

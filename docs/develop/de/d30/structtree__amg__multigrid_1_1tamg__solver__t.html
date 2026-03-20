@@ -101,6 +101,7 @@ $(document).ready(function(){initNavTree('de/d30/structtree__amg__multigrid_1_1t
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="../../de/d4c/structtree__amg__multigrid_1_1tamg__solver__t-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tree_amg_multigrid::tamg_solver_t Type Reference</div></div>
 </div><!--header-->
@@ -242,10 +243,19 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a4f463e723c8542e295c90057d94dd4a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85574f0489be9692da7e764753026381" id="r_a85574f0489be9692da7e764753026381"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a85574f0489be9692da7e764753026381">max_iter</a></td></tr>
 <tr class="separator:a85574f0489be9692da7e764753026381"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a781dd532b6b637f8273ac5f93ba37fcf" id="r_a781dd532b6b637f8273ac5f93ba37fcf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a781dd532b6b637f8273ac5f93ba37fcf">mg_cycle</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, zero_initial_guess)</td></tr>
+<tr class="memdesc:a781dd532b6b637f8273ac5f93ba37fcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">multigrid cycle for the TreeAMG solver object  <br /></td></tr>
+<tr class="separator:a781dd532b6b637f8273ac5f93ba37fcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dc2582b16f3a75739c56fa17af5d4c2" id="r_a2dc2582b16f3a75739c56fa17af5d4c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a2dc2582b16f3a75739c56fa17af5d4c2">mg_cycle_d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, zero_initial_guess)</td></tr>
+<tr class="memdesc:a2dc2582b16f3a75739c56fa17af5d4c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">multigrid cycle for the TreeAMG solver object on device  <br /></td></tr>
+<tr class="separator:a2dc2582b16f3a75739c56fa17af5d4c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="af42cc6d3ecb898236d8f1d27d77dfe2f" name="af42cc6d3ecb898236d8f1d27d77dfe2f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af42cc6d3ecb898236d8f1d27d77dfe2f">&#9670;&#160;</a></span>free()</h2>
@@ -263,7 +273,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 
 </div>
 </div>
@@ -354,7 +364,97 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+
+</div>
+</div>
+<a id="a781dd532b6b637f8273ac5f93ba37fcf" name="a781dd532b6b637f8273ac5f93ba37fcf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a781dd532b6b637f8273ac5f93ba37fcf">&#9670;&#160;</a></span>mg_cycle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> tree_amg_multigrid::tamg_solver_t::mg_cycle </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html">tamg_solver_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>zero_initial_guess</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The Solver object. </td></tr>
+    <tr><td class="paramname">zero_initial_guess</td><td>Flag for when the initial guess is zero </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+
+</div>
+</div>
+<a id="a2dc2582b16f3a75739c56fa17af5d4c2" name="a2dc2582b16f3a75739c56fa17af5d4c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2dc2582b16f3a75739c56fa17af5d4c2">&#9670;&#160;</a></span>mg_cycle_d()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> tree_amg_multigrid::tamg_solver_t::mg_cycle_d </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html">tamg_solver_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>zero_initial_guess</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>The Solver object. </td></tr>
+    <tr><td class="paramname">zero_initial_guess</td><td>Flag for when the initial guess is zero </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 
 </div>
 </div>
@@ -404,7 +504,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 
 </div>
 </div>
@@ -421,7 +521,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 
 </div>
 </div>
@@ -437,7 +537,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 
 </div>
 </div>
@@ -453,7 +553,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 
 </div>
 </div>
@@ -469,7 +569,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 
 </div>
 </div>
@@ -485,7 +585,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d4/ded/tree__amg__multigrid_8f90_source.html">tree_amg_multigrid.f90</a>.</p>
 
 </div>
 </div>
@@ -498,7 +598,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d5/d1b/namespacetree__amg__multigrid.html">tree_amg_multigrid</a></li><li class="navelem"><a class="el" href="../../de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html">tamg_solver_t</a></li>
-    <li class="footer">Generated on Thu Mar 19 2026 04:19:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Mar 20 2026 04:17:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -757,7 +757,7 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span> </div>
 <div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>      <span class="comment">! Extrapolate the velocity if it&#39;s not done in nut_field estimation</span></div>
 <div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>      <span class="keyword">call </span>sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &amp;</div>
-<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)</div>
+<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>           ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)</div>
 <div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span> </div>
 <div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>      <span class="comment">! Compute the source terms</span></div>
 <div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span>      <span class="keyword">call </span>this%source_term%compute(time)</div>
@@ -780,7 +780,7 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span>         <span class="keyword">call </span>makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&amp;</div>
 <div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>              this%abx2, this%aby2, this%abz2, &amp;</div>
 <div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>              f_x%x, f_y%x, f_z%x, &amp;</div>
-<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)</div>
+<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)</div>
 <div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span> </div>
 <div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>         <span class="comment">! Now, the source terms from the previous time step are added to the RHS.</span></div>
 <div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>         <span class="keyword">call </span>makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &amp;</div>
@@ -799,12 +799,12 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>         <span class="keyword">call </span>makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&amp;</div>
 <div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span>              this%abx2, this%aby2, this%abz2, &amp;</div>
 <div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>              f_x%x, f_y%x, f_z%x, &amp;</div>
-<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)</div>
+<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)</div>
 <div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span> </div>
 <div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span>         <span class="comment">! Add the RHS contributions coming from the BDF scheme.</span></div>
 <div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>         <span class="keyword">call </span>makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &amp;</div>
 <div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>              u, v, w, c_xh%B, rho%x(1,1,1,1), dt, &amp;</div>
-<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)</div>
+<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)</div>
 <div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span><span class="keywordflow">      end if</span></div>
 <div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span> </div>
 <div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>      <span class="keyword">call </span>ulag%update()</div>
@@ -826,7 +826,7 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>           f_x, f_y, f_z, &amp;</div>
 <div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>           c_xh, gs_xh, &amp;</div>
 <div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>           this%bc_prs_surface, this%bc_sym_surface,&amp;</div>
-<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>           ax_prs, ext_bdf%diffusion_coeffs(1), dt, &amp;</div>
+<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>           ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &amp;</div>
 <div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>           mu_tot, rho, event)</div>
 <div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span> </div>
 <div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span>      <span class="comment">! De-mean the pressure residual when no strong pressure boundaries present</span></div>
@@ -879,7 +879,7 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>           p, &amp;</div>
 <div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>           f_x, f_y, f_z, &amp;</div>
 <div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>           c_xh, msh, xh, &amp;</div>
-<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>           mu_tot, rho, ext_bdf%diffusion_coeffs(1), &amp;</div>
+<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>           mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &amp;</div>
 <div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>           dt, dm_xh%size())</div>
 <div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span> </div>
 <div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span>      <span class="keyword">call </span>rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_xh)</div>
@@ -1443,7 +1443,7 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d7/db9/fluid__pnpn_8f90.html">fluid_pnpn.f90</a></li>
-    <li class="footer">Generated on Thu Mar 19 2026 04:19:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Mar 20 2026 04:17:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

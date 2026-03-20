@@ -484,19 +484,19 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>      ifcomp = 0.0_rp</div>
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>      <span class="keywordflow">if</span> ((.not. abscmp(dt, this%dtlag)) .or. &amp;</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>           (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>           (.not. abscmp(ext_bdf%diffusion_coeffs%x(1), this%bdlag))) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>         ifcomp = 1.0_rp</div>
 <div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span><span class="keywordflow">      end if</span></div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>      this%dtlag = dt</div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>      this%bdlag = ext_bdf%diffusion_coeffs(1)</div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>      this%bdlag = ext_bdf%diffusion_coeffs%x(1)</div>
 <div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span> </div>
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>      <span class="keyword">call </span>mpi_allreduce(mpi_in_place, ifcomp, 1, &amp;</div>
 <div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>           mpi_real_precision, mpi_sum, neko_comm, ierr)</div>
 <div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span> </div>
 <div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>      <span class="keywordflow">if</span> (ifcomp .gt. 0d0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>         <span class="keyword">call </span>this%compute(u_res, v_res, w_res, p_res, &amp;</div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>              ext_bdf, gs_xh, c_xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &amp;</div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>              ext_bdf, gs_xh, c_xh, rho, mu, ext_bdf%diffusion_coeffs%x(1), dt, &amp;</div>
 <div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>              bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &amp;</div>
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>              ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &amp;</div>
 <div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>              vel_max_iter)</div>
@@ -636,7 +636,7 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div class="ttc" id="astructkrylov_1_1ksp__monitor__t_html"><div class="ttname"><a href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">krylov::ksp_monitor_t</a></div><div class="ttdoc">Type for storing initial and final residuals in a Krylov solver.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00056">krylov.f90:56</a></div></div>
 <div class="ttc" id="astructkrylov_1_1ksp__t_html"><div class="ttname"><a href="../../d0/d3b/structkrylov_1_1ksp__t.html">krylov::ksp_t</a></div><div class="ttdoc">Base abstract type for a canonical Krylov method, solving .</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00073">krylov.f90:73</a></div></div>
 <div class="ttc" id="astructprecon_1_1pc__t_html"><div class="ttname"><a href="../../d7/d3a/structprecon_1_1pc__t.html">precon::pc_t</a></div><div class="ttdoc">Defines a canonical Krylov preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/de5/precon_8f90_source.html#l00040">precon.f90:40</a></div></div>
-<div class="ttc" id="astructtime__scheme__controller_1_1time__scheme__controller__t_html"><div class="ttname"><a href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller::time_scheme_controller_t</a></div><div class="ttdoc">Implements the logic to compute the time coefficients for the advection and diffusion operators in a ...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d67/time__scheme__controller_8f90_source.html#l00071">time_scheme_controller.f90:71</a></div></div>
+<div class="ttc" id="astructtime__scheme__controller_1_1time__scheme__controller__t_html"><div class="ttname"><a href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller::time_scheme_controller_t</a></div><div class="ttdoc">Implements the logic to compute the time coefficients for the advection and diffusion operators in a ...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d67/time__scheme__controller_8f90_source.html#l00072">time_scheme_controller.f90:72</a></div></div>
 <div class="ttc" id="astructtime__state_1_1time__state__t_html"><div class="ttname"><a href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state::time_state_t</a></div><div class="ttdoc">A struct that contains all info about the time, expand as needed.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00045">time_state.f90:45</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -644,7 +644,7 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../dd/d8d/fluid__volflow_8f90.html">fluid_volflow.f90</a></li>
-    <li class="footer">Generated on Thu Mar 19 2026 04:19:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Mar 20 2026 04:17:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
