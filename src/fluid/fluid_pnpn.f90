@@ -791,7 +791,7 @@ contains
       ! Solve for the pressure increment.
       ksp_results(1) = &
            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-           this%bclst_dp, gs_Xh)
+           this%dp_resolver, gs_Xh)
       ksp_results(1)%name = 'Pressure'
 
 
@@ -841,7 +841,7 @@ contains
       call profiler_start_region("Velocity_solve", 4)
       ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, n, c_Xh, &
-           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
+           this%vel_resolver, gs_Xh, &
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
       if (this%full_stress_formulation) then
@@ -867,8 +867,8 @@ contains
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
-              dt, time, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-              this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
+              dt, time, this%dp_resolver, this%vel_resolver, &
+              Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if

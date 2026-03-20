@@ -41,7 +41,7 @@ module tree_amg_smoother
        device_cmult2, device_sub2, device_add2, device_add3s2, &
        device_copy
   use krylov, only : ksp_monitor_t
-  use bc_list, only: bc_list_t
+  use bc_resolver, only: scalar_bc_resolver_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
   use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
@@ -160,7 +160,7 @@ contains
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
+         msh => amg%msh, Xh => amg%Xh, bc_resolver => amg%bc_resolver)
 
       do i = 1, n
          !call random_number(rn)
@@ -169,7 +169,7 @@ contains
       end do
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call blst%apply(d, n)
+         call bc_resolver%apply(d, n)
       end if
       !Power method to get lamba max
       do i = 1, this%power_its
@@ -233,7 +233,7 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w => this%w, r => this%r, d => this%d, blst => amg%blst)
+    associate( w => this%w, r => this%r, d => this%d, bc_resolver => amg%bc_resolver)
       call copy(r, f, n)
       if (.not. zero_initial_guess) then
          call amg%matvec(w, x, this%lvl)
@@ -283,7 +283,7 @@ contains
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
+         msh => amg%msh, Xh => amg%Xh, bc_resolver => amg%bc_resolver)
       do i = 1, n
          !TODO: replace with a better way to initialize power method
          d(i) = sin(real(i))
@@ -291,7 +291,7 @@ contains
       call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
-         call blst%apply(d, n)
+         call bc_resolver%apply(d, n)
       end if
       do i = 1, this%power_its
          call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
@@ -356,8 +356,7 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, &
-         blst => amg%blst)
+    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d )
 
       if (.not. zero_initial_guess) then
          call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)

@@ -44,6 +44,7 @@ module PDE_filter
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
   use precon, only : pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
+  use bc_resolver, only : scalar_bc_resolver_t
   use neumann, only : neumann_t
   use profiler, only : profiler_start_region, profiler_end_region
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -81,6 +82,7 @@ module PDE_filter
      class(pc_t), allocatable :: pc_filt
      !> Filter boundary conditions (they will all be Neumann, so empty)
      type(bc_list_t) :: bclst_filt
+     type(scalar_bc_resolver_t) :: bc_resolver_filt
 
      ! Inputs from the user
      !> filter radius
@@ -187,6 +189,7 @@ contains
        deallocate(this%precon_type_filt)
     end if
 
+    call this%bc_resolver_filt%free()
     call this%bclst_filt%free()
 
     call this%free_base()
@@ -264,13 +267,13 @@ contains
     call this%coef%gs_h%op(RHS, GS_OP_ADD)
 
     ! set BCs
-    call this%bclst_filt%apply_scalar(RHS%x, n)
+    call this%bc_resolver_filt%apply(RHS%x, n)
 
     ! Solve Helmholtz equation
     call profiler_start_region('filter solve')
     this%ksp_results(1) = &
          this%ksp_filt%solve(this%Ax, d_F_out, RHS%x, n, this%coef, &
-         this%bclst_filt, this%coef%gs_h)
+         this%bc_resolver_filt, this%coef%gs_h)
 
     call profiler_end_region
 

@@ -41,7 +41,7 @@ module cheby_device
   use mesh, only : mesh_t
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t
   use schwarz, only : schwarz_t
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy, &
@@ -237,13 +237,13 @@ contains
 
   end subroutine cheby_device_free
 
-  subroutine cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
+  subroutine cheby_device_power(this, Ax, x, n, coef, bc_resolver, gs_h)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
     real(kind=rp) :: boost = 1.1_rp
@@ -261,13 +261,13 @@ contains
       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
 
       call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(d, n)
+      call bc_resolver%apply(d, n)
 
       !Power method to get lamba max
       do i = 1, this%power_its
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call blst%apply(w, n)
+         call bc_resolver%apply(w, n)
          if (associated(this%schwarz)) then
             call this%schwarz%compute(this%r, w)
             call device_copy(w_d, this%r_d, n)
@@ -278,12 +278,12 @@ contains
 
          wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
          call device_cmult2(d_d, w_d, 1.0_rp/sqrt(wtw), n)
-         call blst%apply(d, n)
+         call bc_resolver%apply(d, n)
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(w, n)
+      call bc_resolver%apply(w, n)
       if (associated(this%schwarz)) then
          call this%schwarz%compute(this%r, w)
          call device_copy(w_d, this%r_d, n)
@@ -305,7 +305,7 @@ contains
   end subroutine cheby_device_power
 
   !> A chebyshev preconditioner
-  function cheby_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cheby_device_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
        result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -313,7 +313,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -324,7 +324,7 @@ contains
     f_d = device_get_ptr(f)
 
     if (this%recompute_eigs) then
-       call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
+       call cheby_device_power(this, Ax, x, n, coef, bc_resolver, gs_h)
     end if
 
     if (present(niter)) then
@@ -340,7 +340,7 @@ contains
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(w, n)
+      call bc_resolver%apply(w, n)
       call device_sub2(r_d, w_d, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
@@ -361,7 +361,7 @@ contains
          call device_copy(r_d, f_d, n)
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call blst%apply(w, n)
+         call bc_resolver%apply(w, n)
          call device_sub2(r_d, w_d, n)
 
          call this%M%solve(w, r, n)
@@ -381,7 +381,7 @@ contains
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(w, n)
+      call bc_resolver%apply(w, n)
       call device_sub2(r_d, w_d, n)
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr) * norm_fac
@@ -394,7 +394,7 @@ contains
   end function cheby_device_solve
 
   !> A chebyshev preconditioner
-  function cheby_device_impl(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cheby_device_impl(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
        result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -402,7 +402,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -414,7 +414,7 @@ contains
     f_d = device_get_ptr(f)
 
     if (this%recompute_eigs) then
-       call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
+       call cheby_device_power(this, Ax, x, n, coef, bc_resolver, gs_h)
     end if
 
     if (present(niter)) then
@@ -430,7 +430,7 @@ contains
       if (.not.this%zero_initial_guess) then
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call blst%apply(w, n)
+         call bc_resolver%apply(w, n)
          call device_sub3(r_d, f_d, w_d, n)
       else
          call device_copy(r_d, f_d, n)
@@ -459,7 +459,7 @@ contains
          ! calculate residual
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call blst%apply(w, n)
+         call bc_resolver%apply(w, n)
          call device_sub3(r_d, f_d, w_d, n)
 
          if (associated(this%schwarz)) then
@@ -477,7 +477,7 @@ contains
 
   !> Standard Cheby_Deviceshev coupled solve
   function cheby_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_resolver, gs_h, niter) result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -488,16 +488,14 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    type(vector_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_resolver%x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_resolver%y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_resolver%z, gs_h, niter)
 
   end function cheby_device_solve_coupled
 

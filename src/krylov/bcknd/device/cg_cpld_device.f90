@@ -39,7 +39,7 @@ module cg_cpld_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t
   use math, only : abscmp
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
@@ -278,7 +278,7 @@ contains
 
   end subroutine cg_cpld_device_free
 
-  function cg_cpld_device_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cg_cpld_device_nop(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
        result(ksp_results)
     class(cg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -286,7 +286,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -300,7 +300,7 @@ contains
 
   !> Standard PCG solve
   function cg_cpld_device_solve(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_resolver, gs_h, niter) result(ksp_results)
     class(cg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -311,9 +311,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    type(vector_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -397,9 +395,7 @@ contains
          call device_event_sync(this%gs_event)
          call rotate_cyc(this%w1, this%w2, this%w3, 0, coef)
 
-         call blstx%apply(this%w1, n)
-         call blsty%apply(this%w2, n)
-         call blstz%apply(this%w3, n)
+         call bc_resolver%apply(this%w1, this%w2, this%w3, n)
 
          call device_vdot3(tmp_d, w1_d, w2_d, w3_d, p1_d, p2_d, p3_d, n)
 

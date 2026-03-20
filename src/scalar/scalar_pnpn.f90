@@ -439,7 +439,7 @@ contains
       call this%pc%update()
       call profiler_start_region(trim(this%name) // '_solve', 21)
       ksp_results = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh)
+           c_Xh, this%bc_resolver, gs_Xh)
       ksp_results%name = trim(this%name)
       call profiler_end_region(trim(this%name) // '_solve', 21)
 

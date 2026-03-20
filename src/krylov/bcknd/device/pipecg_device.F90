@@ -39,7 +39,7 @@ module pipecg_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, &
        device_glsc3, device_vlsc3
@@ -339,14 +339,14 @@ contains
   end subroutine pipecg_device_free
 
   !> Pipelined PCG solve
-  function pipecg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function pipecg_device_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -389,7 +389,7 @@ contains
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call device_event_sync(this%gs_event)
-      call blst%apply_scalar(w, n)
+      call bc_resolver%apply(w, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr)*norm_fac
@@ -421,7 +421,7 @@ contains
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
          call gs_h%op(ni, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call blst%apply(ni, n)
+         call bc_resolver%apply(ni, n)
 
          call MPI_Wait(request, status, ierr)
          gamma2 = gamma1
@@ -483,7 +483,7 @@ contains
 
   !> Pipelined PCG coupled solve
   function pipecg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_resolver, gs_h, niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -494,16 +494,14 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    type(vector_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_resolver%x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_resolver%y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_resolver%z, gs_h, niter)
 
   end function pipecg_device_solve_coupled
 

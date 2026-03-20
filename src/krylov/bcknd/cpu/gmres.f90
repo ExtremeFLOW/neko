@@ -39,7 +39,7 @@ module gmres
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t
   use math, only : glsc3, rzero, copy, sub2, cmult2, abscmp
   use neko_config, only : NEKO_BLK_SIZE
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
@@ -160,7 +160,7 @@ contains
   end subroutine gmres_free
 
   !> Standard GMRES solve
-  function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function gmres_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
        result(ksp_results)
     class(gmres_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -168,7 +168,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(scalar_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -207,7 +207,7 @@ contains
             call copy(r, f, n)
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD)
-            call blst%apply(w, n)
+            call bc_resolver%apply(w, n)
             call sub2(r, w, n)
          end if
 
@@ -228,7 +228,7 @@ contains
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD)
-            call blst%apply(w, n)
+            call bc_resolver%apply(w, n)
 
             do l = 1, j
                h(l,j) = 0.0_rp
@@ -364,7 +364,7 @@ contains
 
   !> Standard GMRES coupled solve
   function gmres_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_resolver, gs_h, niter) result(ksp_results)
     class(gmres_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -375,19 +375,15 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    type(vector_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_resolver%x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_resolver%y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_resolver%z, gs_h, niter)
 
   end function gmres_solve_coupled
 
 end module gmres
-
-
