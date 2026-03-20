@@ -212,7 +212,8 @@ subroutine hdf5_file_2_write_vector(this, vec)
   call h5lexists_f(this%active_group_id, trim(vec%name), dset_exists, ierr)
   if (dset_exists) then
      ! retireve the dset id for the existing data set
-     call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
+     !call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
+     call neko_error("dataset already exist in the file")
   else
     dset_rank = 1 ! rank 1 array, i.e. a vector
     ddims = [int(total_count, hsize_t)] ! global size of the vector
@@ -260,9 +261,9 @@ subroutine hdf5_file_2_write_matrix(this, mat)
   integer(hsize_t), dimension(2) :: ddims
   logical :: dset_exists
  
-  ! ====================
-  ! Get Matrix info info
-  ! ====================
+  ! ===============
+  ! Get Matrix info
+  ! ===============
   strides = mat%get_nrows()
   counts = mat%get_ncols()
   total_count = 0
@@ -287,8 +288,9 @@ subroutine hdf5_file_2_write_matrix(this, mat)
   ! ===================
   call h5lexists_f(this%active_group_id, trim(mat%name), dset_exists, ierr)
   if (dset_exists) then
-     ! retireve the dset id for the existing data set
-     call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
+     !! retireve the dset id for the existing data set
+     !call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
+     call neko_error("dataset already exist in the file")
   else
     dset_rank = 2 ! rank 2 array, i.e. a matrix
     ddims = [int(strides, hsize_t), int(total_count, hsize_t)] ! global size of the matrix
