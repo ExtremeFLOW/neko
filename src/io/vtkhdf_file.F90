@@ -32,7 +32,7 @@
 !
 !> VTKHDF file format
 module vtkhdf_file
-  use num_types, only : rp, sp, dp
+  use num_types, only : rp, sp, dp, i8
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
   use utils, only : neko_error, neko_warning, filename_split, &
@@ -59,7 +59,7 @@ module vtkhdf_file
   type, public, extends(generic_file_t) :: vtkhdf_file_t
      logical :: amr_enabled = .false.
      logical :: subdivide = .false.
-     integer :: precision = 0
+     integer :: precision = -1
    contains
      procedure :: get_vtkhdf_fname => vtkhdf_file_get_fname
      procedure :: read => vtkhdf_file_read
@@ -189,7 +189,7 @@ contains
     if (this%precision .gt. rp) then
        this%precision = rp
        call neko_warning('Requested precision is higher than working precision')
-    else if (this%precision .eq. 0) then
+    else if (this%precision .eq. -1) then
        this%precision = rp
     end if
 
@@ -348,10 +348,10 @@ contains
     integer :: total_offsets, cell_offset, conn_offset, offsets_offset
     integer :: max_local_cells, max_local_conn
     integer(hid_t) :: xf_id, dset_id, dcpl_id, grp_id, attr_id
-    integer(hid_t) :: filespace, memspace
+    integer(hid_t) :: filespace, memspace, H5T_NEKO_DOUBLE
     integer(hsize_t), dimension(1) :: dcount, vdims, maxdims, doffset, chunkdims
     integer(hsize_t), dimension(2) :: dcount2, vdims2, maxdims2, doffset2
-    integer(kind=8) :: i8_value
+    integer(kind=i8) :: i8_value
     logical :: link_exists
     integer, dimension(3) :: component_sizes
     integer, dimension(3) :: component_offsets
@@ -422,13 +422,14 @@ contains
       integer(hsize_t), dimension(1) :: nof_dims, nof_maxdims
       integer(hsize_t), dimension(1) :: nof_count, nof_offset, nof_chunk
       integer(hid_t) :: nof_filespace, nof_memspace, nof_dcpl
-      integer :: nof_values(3)
+      integer(kind=i8) :: nof_values(3)
 
       nof_count(1) = 1_hsize_t
       nof_offset(1) = int(counter, hsize_t) * int(pe_size, hsize_t) &
            + int(pe_rank, hsize_t)
       nof_chunk(1) = max(1_hsize_t, int(pe_size, hsize_t))
-      nof_values = [local_points, local_cells, local_conn]
+      nof_values = [int(local_points, kind=i8), int(local_cells, kind=i8), &
+           int(local_conn, kind=i8)]
 
       call h5pcreate_f(H5P_DATASET_CREATE_F, nof_dcpl, ierr)
       call h5pset_chunk_f(nof_dcpl, 1, nof_chunk, ierr)
@@ -455,11 +456,12 @@ contains
        chunkdims(1) = int(max(1, min(max_local_points, total_points)), hsize_t)
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
+       H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
 
        call h5screate_simple_f(2, vdims2, filespace, ierr, maxdims2)
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
-       call h5dcreate_f(vtkhdf_grp, "Points", H5T_NATIVE_DOUBLE, &
+       call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_DOUBLE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5screate_simple_f(2, dcount2, memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -479,7 +481,7 @@ contains
               coords(3, local_idx) = dof%z(idx(1), idx(2), idx(3), idx(4))
             end block
          end do
-         call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, coords, dcount2, ierr, &
+         call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, coords, dcount2, ierr, &
               file_space_id = filespace, mem_space_id = memspace, &
               xfer_prp = xf_id)
          deallocate(coords)
@@ -601,27 +603,27 @@ contains
        call h5gopen_f(vtkhdf_grp, "Steps", grp_id, ierr)
 
        ! --- NumberOfParts ---
-       call vtkhdf_write_i8_at(grp_id, "NumberOfParts", int(pe_size, kind=8), &
+       call vtkhdf_write_i8_at(grp_id, "NumberOfParts", int(pe_size, kind=i8), &
             counter)
 
        ! --- PartOffsets ---
        i8_value = 0
        if (amr) then
-          i8_value = int(counter - 1, kind=8) * int(pe_size, kind=8)
+          i8_value = int(counter - 1, kind=i8) * int(pe_size, kind=i8)
           call vtkhdf_write_i8_at(grp_id, "PartOffsets", i8_value, counter)
 
-          i8_value = int(counter - 1, kind=8) * int(total_points, kind=8)
+          i8_value = int(counter - 1, kind=i8) * int(total_points, kind=i8)
           call vtkhdf_write_i8_at(grp_id, "PointOffsets", i8_value, counter)
 
-          i8_value = int(counter - 1, kind=8) * int(total_cells, kind=8)
+          i8_value = int(counter - 1, kind=i8) * int(total_cells, kind=i8)
           call vtkhdf_write_i8_at(grp_id, "CellOffsets", i8_value, counter)
 
-          i8_value = int(counter - 1, kind=8) * int(total_conn, kind=8)
+          i8_value = int(counter - 1, kind=i8) * int(total_conn, kind=i8)
           call vtkhdf_write_i8_at(grp_id, "ConnectivityIdOffsets", i8_value, &
                counter)
 
        else
-          i8_value = int(0, kind=8)
+          i8_value = 0_i8
           call vtkhdf_write_i8_at(grp_id, "PartOffsets", i8_value, counter)
           call vtkhdf_write_i8_at(grp_id, "PointOffsets", i8_value, counter)
           call vtkhdf_write_i8_at(grp_id, "CellOffsets", i8_value, counter)
@@ -652,13 +654,17 @@ contains
        dcpl, counter, xf_id, ierr)
     integer(hid_t), intent(in) :: grp, dcpl, xf_id
     character(len=*), intent(in) :: dset_name
-    integer, intent(in) :: value, counter
+    integer(kind=i8), intent(in) :: value
+    integer, intent(in):: counter
     integer(hsize_t), dimension(1), intent(in) :: offset, cnt
     integer, intent(out) :: ierr
 
     integer(hid_t) :: dset_id, fspace, mspace
     integer(hsize_t), dimension(1) :: dims, maxdims
+    integer(hid_t) :: H5T_NEKO_INTEGER
     logical :: link_exists
+
+    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
 
     call h5lexists_f(grp, dset_name, link_exists, ierr)
     if (link_exists) then
@@ -670,7 +676,7 @@ contains
        dims(1) = int(pe_size, hsize_t)
        maxdims(1) = H5S_UNLIMITED_F
        call h5screate_simple_f(1, dims, fspace, ierr, maxdims)
-       call h5dcreate_f(grp, dset_name, H5T_STD_I64LE, &
+       call h5dcreate_f(grp, dset_name, H5T_NEKO_INTEGER, &
             fspace, dset_id, ierr, dcpl_id = dcpl)
        call h5sclose_f(fspace, ierr)
     end if
@@ -678,7 +684,7 @@ contains
     call h5dget_space_f(dset_id, fspace, ierr)
     call h5sselect_hyperslab_f(fspace, H5S_SELECT_SET_F, offset, cnt, ierr)
     call h5screate_simple_f(1, cnt, mspace, ierr)
-    call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, value, cnt, ierr, &
+    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, value, cnt, ierr, &
          file_space_id = fspace, mem_space_id = mspace, xfer_prp = xf_id)
     call h5sclose_f(mspace, ierr)
     call h5sclose_f(fspace, ierr)
@@ -696,18 +702,19 @@ contains
     integer, intent(in) :: counter
     real(kind=rp), intent(in) :: t
 
-    integer(hid_t) :: xf_id
+    integer(hid_t) :: xf_id, H5T_NEKO_DOUBLE
     integer :: ierr
     integer(hid_t) :: grp_id, dset_id, dcpl_id, filespace, memspace, attr_id
     integer(hsize_t), dimension(1) :: step_dims, step_maxdims
     integer(hsize_t), dimension(1) :: step_count, step_offset, chunkdims, ddim
     real(kind=dp), dimension(1) :: time_value
-    integer(kind=8) :: i8_value
+    integer(kind=i8) :: i8_value
     logical :: link_exists, attr_exists
 
     ! Create collective transfer property list
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
     call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+    H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
 
     ! Create or open Steps group
     call h5lexists_f(vtkhdf_grp, "Steps", link_exists, ierr)
@@ -741,7 +748,7 @@ contains
        call h5screate_simple_f(1, step_dims, filespace, ierr, step_maxdims)
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(grp_id, "Values", H5T_NATIVE_DOUBLE, &
+       call h5dcreate_f(grp_id, "Values", H5T_NEKO_DOUBLE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5sclose_f(filespace, ierr)
        call h5pclose_f(dcpl_id, ierr)
@@ -756,7 +763,7 @@ contains
          step_offset, step_count, ierr)
 
     time_value(1) = real(t, kind=dp)
-    call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, time_value, step_count, ierr, &
+    call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, time_value, step_count, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
 
     call h5sclose_f(memspace, ierr)
@@ -783,7 +790,7 @@ contains
 
   end subroutine vtkhdf_write_steps
 
-  !> Append an integer(kind=8) scalar to a 1D chunked HDF5 dataset.
+  !> Append an integer scalar to a 1D chunked HDF5 dataset.
   !! Opens the dataset if it exists, or creates a new empty chunked dataset.
   !! Extends by 1 element and writes the value at the end.
   !! @param grp_id HDF5 group containing the dataset
@@ -793,15 +800,17 @@ contains
   subroutine vtkhdf_write_i8_at(grp_id, name, value, counter)
     integer(hid_t), intent(in) :: grp_id
     character(len=*), intent(in) :: name
-    integer(kind=8), intent(in) :: value
+    integer(kind=i8), intent(in) :: value
     integer, intent(in) :: counter
 
     integer :: ierr
-    integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
+    integer(hid_t) :: dset_id, dcpl_id, xf_id, filespace, memspace
     integer(hsize_t), dimension(1) :: dims, maxdims, cnt, off, chunkdims
-    integer(kind=8), dimension(1) :: buf
-    integer(hid_t) :: xf_id
+    integer, dimension(1) :: buf
+    integer(hid_t) :: H5T_NEKO_INTEGER
     logical :: link_exists
+
+    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
 
     ! Create collective transfer property list
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
@@ -828,7 +837,7 @@ contains
        call h5screate_simple_f(1, dims, filespace, ierr, maxdims)
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(grp_id, name, H5T_STD_I64LE, &
+       call h5dcreate_f(grp_id, name, H5T_NEKO_INTEGER, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5sclose_f(filespace, ierr)
        call h5pclose_f(dcpl_id, ierr)
@@ -841,7 +850,7 @@ contains
     call h5dget_space_f(dset_id, filespace, ierr)
     call h5screate_simple_f(1, cnt, memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, off, cnt, ierr)
-    call h5dwrite_f(dset_id, H5T_STD_I64LE, buf, cnt, ierr, &
+    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, buf, cnt, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
 
     call h5sclose_f(memspace, ierr)
@@ -862,12 +871,12 @@ contains
   subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, counter, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     type(field_ptr_t), intent(in) :: fp(:)
-    integer, intent(in), optional :: precision
+    integer, intent(in) :: precision
     integer, intent(in) :: counter
     real(kind=rp), intent(in), optional :: t
 
     logical, allocatable :: field_written(:)
-    integer(kind=8) :: time_offset
+    integer(kind=i8) :: time_offset
     integer :: nelv
     integer :: local_points, point_offset
     integer :: lx, ly, lz
@@ -889,7 +898,7 @@ contains
     ! Create collective transfer property list
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
     call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
-    precision_hdf = vtkhdf_file_determine_real(precision)
+    precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
 
     n_fields = size(fp)
 
@@ -929,9 +938,9 @@ contains
     ! Read how many steps have been written so far
     if (present(t)) then
        call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
-       time_offset = int(counter, kind=8) * int(total_points, kind=8)
+       time_offset = int(counter, kind=i8) * int(total_points, kind=i8)
     else
-       time_offset = 0_8
+       time_offset = 0_i8
     end if
 
     do i = 1, n_fields
@@ -1139,6 +1148,7 @@ contains
     real(kind=sp), allocatable :: data_2d(:,:)
     integer :: ie, kk, ii, jj, local_idx
     integer :: lx, ly, lz, nelv, npts_per_cell, local_points
+    integer(hid_t) :: H5T_NEKO_FLOAT
 
     lx = u%dof%Xh%lx
     ly = u%dof%Xh%ly
@@ -1167,7 +1177,8 @@ contains
        end do
     end do
 
-    call h5dwrite_f(dset_id, H5T_NATIVE_REAL, data_2d, dcount2, ierr, &
+    H5T_NEKO_FLOAT = h5kind_to_type(sp, H5_REAL_KIND)
+    call h5dwrite_f(dset_id, H5T_NEKO_FLOAT, data_2d, dcount2, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
 
@@ -1187,6 +1198,7 @@ contains
     real(kind=dp), allocatable :: data_2d(:,:)
     integer :: ie, kk, ii, jj, local_idx
     integer :: lx, ly, lz, nelv, npts_per_cell, local_points
+    integer(hid_t) :: H5T_NEKO_DOUBLE
 
     lx = u%dof%Xh%lx
     ly = u%dof%Xh%ly
@@ -1215,7 +1227,8 @@ contains
        end do
     end do
 
-    call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, data_2d, dcount2, ierr, &
+    H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
+    call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, data_2d, dcount2, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
 
@@ -1230,23 +1243,6 @@ contains
     call neko_error('VTKHDF file reading is not yet implemented')
 
   end subroutine vtkhdf_file_read
-
-  !> Determine hdf5 real type corresponding to NEKO_REAL
-  !! @note This must be called after h5open_f, otherwise
-  !! the H5T_NATIVE_XYZ types has a value of 0
-  function vtkhdf_file_determine_real(precision) result(H5T_NEKO_REAL)
-    integer, intent(in) :: precision
-    integer(hid_t) :: H5T_NEKO_REAL
-
-    select case(precision)
-    case(sp)
-       H5T_NEKO_REAL = H5T_NATIVE_REAL
-    case(dp)
-       H5T_NEKO_REAL = H5T_NATIVE_DOUBLE
-    case default
-       call neko_error("Unsupported real type")
-    end select
-  end function vtkhdf_file_determine_real
 
 #else
   ! -------------------------------------------------------------------------- !
