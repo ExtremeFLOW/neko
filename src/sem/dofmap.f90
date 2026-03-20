@@ -476,8 +476,7 @@ contains
             case (3) ! permutation in X; transpose; inverse of 4
                ! Be careful, as depending on perspective (element realisation
                ! or a reference one) this can turn into P_Y T. Moreover,
-               ! the order of applied operations counts, as P_X T = T P_Y.
-               ! What follows is actually T P_Y
+               ! take int account that P_X T = T P_Y.
                ! just nx and num_dofs_edges(1)
                do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
                     kl = start(jl) + stride(jl) : &
@@ -490,8 +489,7 @@ contains
             case (4) ! permutation in Y; transpose; inverse of 3
                ! Be careful, as depending on perspective (element realisation
                ! or a reference one) this can turn into P_X T. Moreover,
-               ! the order of applied operations counts, as P_Y T = T P_X.
-               ! What follows is actually T P_X
+               ! take int account that P_Y T = T P_X.
                ! just nx and num_dofs_edges(1)
                do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
                     kl = start(jl) + stride(jl) : &
