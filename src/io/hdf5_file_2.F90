@@ -183,13 +183,14 @@ subroutine hdf5_file_2_write_vector(this, vec)
   integer(hid_t) :: xf_id, filespace, dset_id, memspace
   integer(hsize_t), dimension(1) :: dcount, doffset
   integer(hsize_t), dimension(1) :: ddims
- 
+  logical :: dset_exists
   
   ! ===============
   ! Get vector info
   ! ===============
   counts = vec%size()
   offset = 0
+  total_count = 0
   call MPI_Exscan(counts, offset, 1, MPI_INTEGER, &
        MPI_SUM, NEKO_COMM, ierr)
   call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
@@ -208,20 +209,26 @@ subroutine hdf5_file_2_write_vector(this, vec)
   ! =================== 
   ! Create the data set
   ! ===================
-  dset_rank = 1 ! rank 1 array, i.e. a vector
-  ddims = [total_count] ! global size of the vector
-  ! create file space of this shape
-  call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
-  ! create the data set with the given shape  
-  call h5dcreate_f(this%active_group_id, trim(vec%name), precision_hdf, &
-         filespace, dset_id, ierr)
-  call h5sclose_f(filespace, ierr)
+  call h5lexists_f(this%active_group_id, trim(vec%name), dset_exists, ierr)
+  if (dset_exists) then
+     ! retireve the dset id for the existing data set
+     call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
+  else
+    dset_rank = 1 ! rank 1 array, i.e. a vector
+    ddims = [int(total_count, hsize_t)] ! global size of the vector
+    ! create file space of this shape
+    call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
+    ! create the data set with the given shape  
+    call h5dcreate_f(this%active_group_id, trim(vec%name), precision_hdf, &
+          filespace, dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+  end if
 
   ! =======================
   ! Write the data set
   ! =======================
-  dcount = [counts] ! local size of the vector
-  doffset = [offset] ! offset for this rank in the global vector
+  dcount = [int(counts, hsize_t)] ! local size of the vector
+  doffset = [int(offset, hsize_t)] ! offset for this rank in the global vector
   ! Get the total file space (shape) of the data set
   call h5dget_space_f(dset_id, filespace, ierr)
   ! Get only the slice where my rank writes
@@ -242,6 +249,82 @@ subroutine hdf5_file_2_write_vector(this, vec)
   call h5dclose_f(dset_id, ierr)
 
 end subroutine hdf5_file_2_write_vector
+
+subroutine hdf5_file_2_write_matrix(this, mat)
+  class(hdf5_file_2_t), intent(inout) :: this
+  type(matrix_t), intent(inout) :: mat
+  integer :: ierr, counts, offset, total_count, dset_rank, strides
+  integer(hid_t) :: precision_hdf
+  integer(hid_t) :: xf_id, filespace, dset_id, memspace
+  integer(hsize_t), dimension(2) :: dcount, doffset
+  integer(hsize_t), dimension(2) :: ddims
+  logical :: dset_exists
+ 
+  ! ====================
+  ! Get Matrix info info
+  ! ====================
+  strides = mat%get_nrows()
+  counts = mat%get_ncols()
+  total_count = 0
+  offset = 0
+  call MPI_Exscan(counts, offset, 1, MPI_INTEGER, &
+       MPI_SUM, NEKO_COMM, ierr)
+  call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
+       MPI_SUM, NEKO_COMM, ierr)
+
+  ! Sync the data
+  call mat%copy_from(DEVICE_TO_HOST, .true.)
+  
+  ! ===============
+  ! Configure MPIIO
+  ! ===============
+  call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+  call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+  precision_hdf = hdf5_file_2_determine_real(this%precision)
+
+  ! =================== 
+  ! Create the data set
+  ! ===================
+  call h5lexists_f(this%active_group_id, trim(mat%name), dset_exists, ierr)
+  if (dset_exists) then
+     ! retireve the dset id for the existing data set
+     call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
+  else
+    dset_rank = 2 ! rank 2 array, i.e. a matrix
+    ddims = [int(strides, hsize_t), int(total_count, hsize_t)] ! global size of the matrix
+    ! create file space of this shape
+    call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
+    ! create the data set with the given shape  
+    call h5dcreate_f(this%active_group_id, trim(mat%name), precision_hdf, &
+          filespace, dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+  end if
+
+  ! =======================
+  ! Write the data set
+  ! =======================
+  dcount = [int(strides, hsize_t), int(counts, hsize_t)] ! local size of the matrix
+  doffset = [0_hsize_t, int(offset, hsize_t)] ! offset for this rank in the global matrix
+  ! Get the total file space (shape) of the data set
+  call h5dget_space_f(dset_id, filespace, ierr)
+  ! Get only the slice where my rank writes
+  call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+  ! Create the corresponding memory space (buffer) for my local data
+  call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
+  ! Write the data
+  call h5dwrite_f(dset_id, precision_hdf, mat%x, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
+
+  ! =======================
+  ! Clean up
+  ! =======================
+  call h5pclose_f(xf_id, ierr)
+  call h5sclose_f(memspace, ierr)
+  call h5sclose_f(filespace, ierr)
+  call h5dclose_f(dset_id, ierr)
+
+end subroutine hdf5_file_2_write_matrix
 
 
 !> Write data in HDF5 format
