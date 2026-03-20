@@ -32,10 +32,10 @@
 !
 !> Object for handling masks in Neko.
 module mask
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated, &
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, &
        c_size_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_map, device_free, device_memcpy, &
+  use device, only : device_map, device_unmap, device_memcpy, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, DEVICE_TO_DEVICE
   use device_math, only : device_cadd
   use utils, only : neko_error
@@ -111,11 +111,10 @@ contains
     class(mask_t), intent(inout) :: this
 
     if (allocated(this%mask)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%mask, this%mask_d)
+       end if
        deallocate(this%mask)
-    end if
-
-    if (c_associated(this%mask_d)) then
-       call device_free(this%mask_d)
     end if
 
     this%n_elements = 0
