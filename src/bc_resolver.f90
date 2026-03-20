@@ -35,13 +35,15 @@ module bc_resolver
   use bc, only : bc_t
   use bc_list, only : bc_list_t
   use mask, only : mask_t
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
   use math, only : cfill_mask
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use utils, only : neko_error
   use device, only : device_get_ptr
   use device_math, only : device_cfill_mask
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   implicit none
   private
 
@@ -80,7 +82,27 @@ module bc_resolver
   end type vector_bc_resolver_t
 
   type, public, extends(bc_resolver_t) :: coupled_vector_bc_resolver_t
-  end type coupled_vector_bc_resolver_t
+     type(mask_t) :: dof_mask
+     type(bc_list_t) :: bcs
+     type(coef_t), pointer :: coef => null()
+     type(dofmap_t), pointer :: dof => null()
+     logical, allocatable :: constraint_n(:)
+     logical, allocatable :: constraint_t1(:)
+     logical, allocatable :: constraint_t2(:)
+     real(kind=rp), allocatable :: n(:,:)
+     real(kind=rp), allocatable :: t1(:,:)
+     real(kind=rp), allocatable :: t2(:,:)
+     type(c_ptr) :: constraint_n_d = c_null_ptr
+     type(c_ptr) :: constraint_t1_d = c_null_ptr
+     type(c_ptr) :: constraint_t2_d = c_null_ptr
+     type(c_ptr) :: n_d = c_null_ptr
+     type(c_ptr) :: t1_d = c_null_ptr
+     type(c_ptr) :: t2_d = c_null_ptr
+   contains
+     procedure, pass(this) :: free => coupled_vector_bc_resolver_free
+     procedure, pass(this) :: mark_bc => coupled_vector_bc_resolver_mark_bc
+     procedure, pass(this) :: finalize => coupled_vector_bc_resolver_finalize
+   end type coupled_vector_bc_resolver_t
 
 contains
 
@@ -180,6 +202,66 @@ contains
     call this%y%free()
     call this%z%free()
   end subroutine vector_bc_resolver_free
+
+  !> Free a coupled vector boundary resolver.
+  subroutine coupled_vector_bc_resolver_free(this)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+
+    call this%dof_mask%free()
+    call this%bcs%free()
+
+    if (allocated(this%constraint_n)) then
+       deallocate(this%constraint_n)
+    end if
+
+    if (allocated(this%constraint_t1)) then
+       deallocate(this%constraint_t1)
+    end if
+
+    if (allocated(this%constraint_t2)) then
+       deallocate(this%constraint_t2)
+    end if
+
+    if (allocated(this%n)) then
+       deallocate(this%n)
+    end if
+
+    if (allocated(this%t1)) then
+       deallocate(this%t1)
+    end if
+
+    if (allocated(this%t2)) then
+       deallocate(this%t2)
+    end if
+
+    this%constraint_n_d = c_null_ptr
+    this%constraint_t1_d = c_null_ptr
+    this%constraint_t2_d = c_null_ptr
+    this%n_d = c_null_ptr
+    this%t1_d = c_null_ptr
+    this%t2_d = c_null_ptr
+    nullify(this%coef)
+    nullify(this%dof)
+  end subroutine coupled_vector_bc_resolver_free
+
+  !> Add a physical boundary condition to the coupled resolver.
+  subroutine coupled_vector_bc_resolver_mark_bc(this, bc)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(inout), target :: bc
+
+    if (.not. associated(this%coef)) then
+       this%coef => bc%coef
+       this%dof => bc%dof
+       call this%bcs%init()
+    end if
+
+    call this%bcs%append(bc)
+  end subroutine coupled_vector_bc_resolver_mark_bc
+
+  !> Finalize the coupled resolver by resolving the accumulated BC list.
+  subroutine coupled_vector_bc_resolver_finalize(this)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+  end subroutine coupled_vector_bc_resolver_finalize
 
   !> Add the constrained dofs from an x-component boundary condition.
   subroutine vector_bc_resolver_mark_bc_x(this, bc)
