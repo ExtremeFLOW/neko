@@ -37,9 +37,12 @@ module hdf5_file_2
   use utils, only : neko_error, neko_warning, filename_suffix_pos, filename_split
   use logger, only : neko_log
   use vector, only : vector_t
+  use matrix, only : matrix_t
+  use device, only : DEVICE_TO_HOST
   use comm, only : pe_rank, NEKO_COMM
-  use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_IN_PLACE, &
-       MPI_INTEGER8, MPI_SUM
+  use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
+       MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
+       MPI_Barrier
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -61,14 +64,17 @@ module hdf5_file_2
     integer :: count
 
    contains
+     procedure :: open => hdf5_file_2_open
+     procedure :: close => hdf5_file_2_close
      procedure :: read => hdf5_file_2_read
      procedure :: write => hdf5_file_2_write
      procedure :: set_overwrite => hdf5_file_2_set_overwrite
-     procedure :: set_active_group => hdf5_file_2_set_group
-     procedure :: open => hdf5_file_2_open
-     procedure :: close => hdf5_file_2_close
+     procedure :: set_active_group => hdf5_file_2_set_group 
      procedure :: get_fname => file_get_fname
      procedure :: set_precision => hdf5_file_2_set_precision
+     procedure, pass(this) :: write_vector => hdf5_file_2_write_vector
+     procedure, pass(this) :: write_matrix => hdf5_file_2_write_matrix
+     generic :: write_dataset => write_vector, write_matrix
   end type hdf5_file_2_t
 
 contains
@@ -115,8 +121,7 @@ contains
 
     ! Set the mode for the file
     this%mode = mode
-    
-    
+ 
     ! Ensure precision is set and are valid.
     if (this%precision .gt. rp) then
        this%precision = rp
@@ -170,23 +175,89 @@ contains
 
   end subroutine hdf5_file_2_close
 
+subroutine hdf5_file_2_write_vector(this, vec)
+  class(hdf5_file_2_t), intent(inout) :: this
+  type(vector_t), intent(inout) :: vec 
+  integer :: ierr, counts, offset, total_count, dset_rank
+  integer(hid_t) :: precision_hdf
+  integer(hid_t) :: xf_id, filespace, dset_id, memspace
+  integer(hsize_t), dimension(1) :: dcount, doffset
+  integer(hsize_t), dimension(1) :: ddims
+ 
+  
+  ! ===============
+  ! Get vector info
+  ! ===============
+  counts = vec%size()
+  offset = 0
+  call MPI_Exscan(counts, offset, 1, MPI_INTEGER, &
+       MPI_SUM, NEKO_COMM, ierr)
+  call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
+       MPI_SUM, NEKO_COMM, ierr)
 
-  !> Write data in HDF5 format
-  subroutine hdf5_file_2_write(this, data, t)
-    class(hdf5_file_2_t), intent(inout) :: this
-    class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
-    integer :: ierr
-    select type (data)
+  ! Sync the data
+  call vec%copy_from(DEVICE_TO_HOST, .true.)
+  
+  ! ===============
+  ! Configure MPIIO
+  ! ===============
+  call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+  call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+  precision_hdf = hdf5_file_2_determine_real(this%precision)
 
-    type is (vector_t)
-      ierr = 1
+  ! =================== 
+  ! Create the data set
+  ! ===================
+  dset_rank = 1 ! rank 1 array, i.e. a vector
+  ddims = [total_count] ! global size of the vector
+  ! create file space of this shape
+  call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
+  ! create the data set with the given shape  
+  call h5dcreate_f(this%active_group_id, trim(vec%name), precision_hdf, &
+         filespace, dset_id, ierr)
+  call h5sclose_f(filespace, ierr)
 
-    class default
-       call neko_error("Unsupported data type for HDF5 output")
-    end select
+  ! =======================
+  ! Write the data set
+  ! =======================
+  dcount = [counts] ! local size of the vector
+  doffset = [offset] ! offset for this rank in the global vector
+  ! Get the total file space (shape) of the data set
+  call h5dget_space_f(dset_id, filespace, ierr)
+  ! Get only the slice where my rank writes
+  call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+  ! Create the corresponding memory space (buffer) for my local data
+  call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
+  ! Write the data
+  call h5dwrite_f(dset_id, precision_hdf, vec%x, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
 
-  end subroutine hdf5_file_2_write
+  ! =======================
+  ! Clean up
+  ! =======================
+  call h5pclose_f(xf_id, ierr)
+  call h5sclose_f(memspace, ierr)
+  call h5sclose_f(filespace, ierr)
+  call h5dclose_f(dset_id, ierr)
+
+end subroutine hdf5_file_2_write_vector
+
+
+!> Write data in HDF5 format
+subroutine hdf5_file_2_write(this, data, t)
+  class(hdf5_file_2_t), intent(inout) :: this
+  class(*), target, intent(in) :: data
+  real(kind=rp), intent(in), optional :: t
+  
+  select type (data)
+  type is (vector_t)
+    call neko_error("Nothing implemented here yet")
+  class default
+    call neko_error("Unsupported data type for HDF5 output")
+  end select
+
+end subroutine hdf5_file_2_write
 
   !> Read data in HDF5 format
   subroutine hdf5_file_2_read(this, data)
@@ -243,6 +314,23 @@ contains
   this%active_group_id = current_id
   end subroutine hdf5_file_2_set_group
 
+  !> Determine hdf5 real type corresponding to NEKO_REAL
+  !! @note This must be called after h5open_f, otherwise
+  !! the H5T_NATIVE_XYZ types has a value of 0
+  function hdf5_file_2_determine_real(precision) result(H5T_NEKO_REAL)
+    integer, intent(in) :: precision
+    integer(hid_t) :: H5T_NEKO_REAL
+
+    select case(precision)
+    case(sp)
+       H5T_NEKO_REAL = H5T_NATIVE_REAL
+    case(dp)
+       H5T_NEKO_REAL = H5T_NATIVE_DOUBLE
+    case default
+       call neko_error("Unsupported real type")
+    end select
+  end function hdf5_file_2_determine_real
+
 #else
 
   !> Write data in HDF5 format
@@ -259,29 +347,6 @@ contains
     class(*), target, intent(inout) :: data
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_2_read
-
-   !> Set the active group for HDF5 files
-   !! @param this The HDF5 file object
-   !! @param An array of strings that show the path to the group to create or open.
-   subroutine hdf5_file_2_set_group(this, group_name)
-      class(hdf5_file_2_t), intent(inout) :: this
-      character(len=*), intent(in) :: group_name(:)
-      call neko_error('Neko needs to be built with HDF5 support')
-   end subroutine hdf5_file_2_set_group
-
-   !> Open a HDF5 file in a mode
-   subroutine hdf5_file_2_open(this, mode)
-      class(hdf5_file_2_t), intent(inout) :: this
-      character(len=1), intent(in) :: mode
-      call neko_error('Neko needs to be built with HDF5 support')
-   end subroutine hdf5_file_2_open
-
-   !> Close the file
-   subroutine hdf5_file_2_close(this)
-      class(hdf5_file_2_t), intent(inout) :: this
-      call neko_error('Neko needs to be built with HDF5 support')
-   end subroutine hdf5_file_2_close
-
 
 #endif
 
