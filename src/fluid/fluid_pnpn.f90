@@ -128,9 +128,9 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_sym_surface
 
      !> Resolver for strong velocity residual constraints.
-     type(vector_bc_resolver_t) :: vel_resolver
+     type(vector_bc_resolver_t) :: bcs_vel_resolver
      !> Resolver for strong pressure constraints.
-     type(scalar_bc_resolver_t) :: dp_resolver
+     type(scalar_bc_resolver_t) :: bcs_prs_resolver
 
 
      ! Checker for wether we have a strong pressure bc. If not, the pressure
@@ -541,8 +541,8 @@ contains
 
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
-    call this%vel_resolver%free()
-    call this%dp_resolver%free()
+    call this%bcs_vel_resolver%free()
+    call this%bcs_prs_resolver%free()
     call this%proj_prs%free()
     call this%proj_vel%free()
 
@@ -742,13 +742,14 @@ contains
       call device_event_sync(event)
 
       ! Set the residual to zero at strong pressure boundaries.
-      call this%dp_resolver%apply(p_res%x, p%dof%size())
+      call this%bcs_prs_resolver%apply(p_res%x, p%dof%size())
 
 
       call profiler_end_region('Pressure_residual', 18)
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%dp_resolver, string='Pressure')
+           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%bcs_prs_resolver, &
+           string='Pressure')
 
       call this%pc_prs%update()
 
@@ -757,14 +758,14 @@ contains
       ! Solve for the pressure increment.
       ksp_results(1) = &
            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-           this%dp_resolver, gs_Xh)
+           this%bcs_prs_resolver, gs_Xh)
       ksp_results(1)%name = 'Pressure'
 
 
       call profiler_end_region('Pressure_solve', 3)
 
       call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-           this%dp_resolver, gs_Xh, n, tstep, dt_controller)
+           this%bcs_prs_resolver, gs_Xh, n, tstep, dt_controller)
 
       ! Update the pressure with the increment. Demean if necessary.
       call field_add2(p, dp, n)
@@ -794,7 +795,7 @@ contains
       call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
 
       ! Set residual to zero at strong velocity boundaries.
-      call this%vel_resolver%apply(u_res%x, v_res%x, w_res%x, dm_Xh%size())
+      call this%bcs_vel_resolver%apply(u_res%x, v_res%x, w_res%x, dm_Xh%size())
 
 
       call profiler_end_region('Velocity_residual', 19)
@@ -807,7 +808,7 @@ contains
       call profiler_start_region("Velocity_solve", 4)
       ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, n, c_Xh, &
-           this%vel_resolver, gs_Xh, &
+           this%bcs_vel_resolver, gs_Xh, &
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
       if (this%full_stress_formulation) then
@@ -819,7 +820,7 @@ contains
       end if
 
       call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-           this%vel_resolver, gs_Xh, n, tstep, &
+           this%bcs_vel_resolver, gs_Xh, n, tstep, &
            dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -833,7 +834,7 @@ contains
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
-              dt, time, this%dp_resolver, this%vel_resolver, &
+              dt, time, this%bcs_prs_resolver, this%bcs_vel_resolver, &
               Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
@@ -934,9 +935,9 @@ contains
                 ! Symmetry's apply_scalar doesn't do anything, so we need to mark
                 ! the individual nested bcs on the component resolvers.
                 ! Additionally we have to mark the special surface bc for p.
-                call this%vel_resolver%mark_x(bc_i%bc_x)
-                call this%vel_resolver%mark_y(bc_i%bc_y)
-                call this%vel_resolver%mark_z(bc_i%bc_z)
+                call this%bcs_vel_resolver%mark_x(bc_i%bc_x)
+                call this%bcs_vel_resolver%mark_y(bc_i%bc_y)
+                call this%bcs_vel_resolver%mark_z(bc_i%bc_z)
 
                 call this%bcs_vel%append(bc_i)
 
@@ -944,21 +945,21 @@ contains
              type is (non_normal_t)
                 ! This is a bc for the residuals and increments, not the
                 ! velocity itself. So, don't append to bcs_vel
-                call this%vel_resolver%mark_x(bc_i%bc_x)
-                call this%vel_resolver%mark_y(bc_i%bc_y)
-                call this%vel_resolver%mark_z(bc_i%bc_z)
+                call this%bcs_vel_resolver%mark_x(bc_i%bc_x)
+                call this%bcs_vel_resolver%mark_y(bc_i%bc_y)
+                call this%bcs_vel_resolver%mark_z(bc_i%bc_z)
              type is (shear_stress_t)
                 ! Same as symmetry
-                call this%vel_resolver%mark_x(bc_i%symmetry%bc_x)
-                call this%vel_resolver%mark_y(bc_i%symmetry%bc_y)
-                call this%vel_resolver%mark_z(bc_i%symmetry%bc_z)
+                call this%bcs_vel_resolver%mark_x(bc_i%symmetry%bc_x)
+                call this%bcs_vel_resolver%mark_y(bc_i%symmetry%bc_y)
+                call this%bcs_vel_resolver%mark_z(bc_i%symmetry%bc_z)
 
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
                 ! Same as symmetry
-                call this%vel_resolver%mark_x(bc_i%symmetry%bc_x)
-                call this%vel_resolver%mark_y(bc_i%symmetry%bc_y)
-                call this%vel_resolver%mark_z(bc_i%symmetry%bc_z)
+                call this%bcs_vel_resolver%mark_x(bc_i%symmetry%bc_x)
+                call this%bcs_vel_resolver%mark_y(bc_i%symmetry%bc_y)
+                call this%bcs_vel_resolver%mark_z(bc_i%symmetry%bc_z)
 
                 call this%bcs_vel%append(bc_i)
              class default
@@ -967,9 +968,9 @@ contains
                 if (bc_i%strong) then
                    call this%bc_prs_surface%mark_labeled_zones( &
                         bc_i%zone_indices)
-                   call this%vel_resolver%mark_x(bc_i)
-                   call this%vel_resolver%mark_y(bc_i)
-                   call this%vel_resolver%mark_z(bc_i)
+                   call this%bcs_vel_resolver%mark_x(bc_i)
+                   call this%bcs_vel_resolver%mark_y(bc_i)
+                   call this%bcs_vel_resolver%mark_z(bc_i)
                 end if
 
                 call this%bcs_vel%append(bc_i)
@@ -1005,7 +1006,7 @@ contains
 
              ! Mark strong pressure bcs in the resolver to force zero change.
              if (bc_i%strong) then
-                call this%dp_resolver%mark(bc_i)
+                call this%bcs_prs_resolver%mark(bc_i)
              end if
 
           end if
@@ -1030,7 +1031,7 @@ contains
     call this%bc_sym_surface%finalize()
 
     ! If we have no strong pressure bcs, we will demean the pressure
-    this%prs_dirichlet = this%dp_resolver%dof_mask%is_set()
+    this%prs_dirichlet = this%bcs_prs_resolver%dof_mask%is_set()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
 
