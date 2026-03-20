@@ -33,6 +33,7 @@
 !> Scaffolding for future global boundary resolution.
 module bc_resolver
   use bc, only : bc_t
+  use bc_list, only : bc_list_t
   use mask, only : mask_t
   use math, only : cfill_mask
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -55,7 +56,9 @@ module bc_resolver
    contains
      procedure, pass(this) :: free => scalar_bc_resolver_free
      procedure, pass(this) :: mark_bc => scalar_bc_resolver_mark_bc
-     procedure, pass(this) :: apply_scalar => scalar_bc_resolver_apply_scalar
+     procedure, pass(this) :: mark_bc_list => scalar_bc_resolver_mark_bc_list
+     procedure, pass(this) :: apply => scalar_bc_resolver_apply
+     generic :: mark => mark_bc, mark_bc_list
   end type scalar_bc_resolver_t
 
   type, public, extends(bc_resolver_t) :: vector_bc_resolver_t
@@ -64,6 +67,16 @@ module bc_resolver
      type(scalar_bc_resolver_t) :: z
    contains
      procedure, pass(this) :: free => vector_bc_resolver_free
+     procedure, pass(this) :: mark_bc_x => vector_bc_resolver_mark_bc_x
+     procedure, pass(this) :: mark_bc_list_x => vector_bc_resolver_mark_bc_list_x
+     procedure, pass(this) :: mark_bc_y => vector_bc_resolver_mark_bc_y
+     procedure, pass(this) :: mark_bc_list_y => vector_bc_resolver_mark_bc_list_y
+     procedure, pass(this) :: mark_bc_z => vector_bc_resolver_mark_bc_z
+     procedure, pass(this) :: mark_bc_list_z => vector_bc_resolver_mark_bc_list_z
+     procedure, pass(this) :: apply => vector_bc_resolver_apply
+     generic :: mark_x => mark_bc_x, mark_bc_list_x
+     generic :: mark_y => mark_bc_y, mark_bc_list_y
+     generic :: mark_z => mark_bc_z, mark_bc_list_z
   end type vector_bc_resolver_t
 
   type, public, extends(bc_resolver_t) :: coupled_vector_bc_resolver_t
@@ -129,8 +142,20 @@ contains
     call this%dof_mask%set(merged_mask(1:merged_size), merged_size)
   end subroutine scalar_bc_resolver_mark_bc
 
+  !> Add the constrained dofs from all boundary conditions in a list.
+  subroutine scalar_bc_resolver_mark_bc_list(this, bclst)
+    class(scalar_bc_resolver_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+
+    integer :: i
+
+    do i = 1, bclst%size()
+       call this%mark_bc(bclst%get(i))
+    end do
+  end subroutine scalar_bc_resolver_mark_bc_list
+
   !> Apply the scalar boundary constraints by zeroing constrained dofs.
-  subroutine scalar_bc_resolver_apply_scalar(this, x, n)
+  subroutine scalar_bc_resolver_apply(this, x, n)
     class(scalar_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
@@ -145,7 +170,7 @@ contains
     else
        call cfill_mask(x, 0.0_rp, n, this%dof_mask%get(), this%dof_mask%size())
     end if
-  end subroutine scalar_bc_resolver_apply_scalar
+  end subroutine scalar_bc_resolver_apply
 
   !> Free a vector boundary resolver.
   subroutine vector_bc_resolver_free(this)
@@ -155,5 +180,66 @@ contains
     call this%y%free()
     call this%z%free()
   end subroutine vector_bc_resolver_free
+
+  !> Add the constrained dofs from an x-component boundary condition.
+  subroutine vector_bc_resolver_mark_bc_x(this, bc)
+    class(vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(in) :: bc
+
+    call this%x%mark_bc(bc)
+  end subroutine vector_bc_resolver_mark_bc_x
+
+  !> Add the constrained dofs from all x-component boundary conditions in a list.
+  subroutine vector_bc_resolver_mark_bc_list_x(this, bclst)
+    class(vector_bc_resolver_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+
+    call this%x%mark_bc_list(bclst)
+  end subroutine vector_bc_resolver_mark_bc_list_x
+
+  !> Add the constrained dofs from a y-component boundary condition.
+  subroutine vector_bc_resolver_mark_bc_y(this, bc)
+    class(vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(in) :: bc
+
+    call this%y%mark_bc(bc)
+  end subroutine vector_bc_resolver_mark_bc_y
+
+  !> Add the constrained dofs from all y-component boundary conditions in a list.
+  subroutine vector_bc_resolver_mark_bc_list_y(this, bclst)
+    class(vector_bc_resolver_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+
+    call this%y%mark_bc_list(bclst)
+  end subroutine vector_bc_resolver_mark_bc_list_y
+
+  !> Add the constrained dofs from a z-component boundary condition.
+  subroutine vector_bc_resolver_mark_bc_z(this, bc)
+    class(vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(in) :: bc
+
+    call this%z%mark_bc(bc)
+  end subroutine vector_bc_resolver_mark_bc_z
+
+  !> Add the constrained dofs from all z-component boundary conditions in a list.
+  subroutine vector_bc_resolver_mark_bc_list_z(this, bclst)
+    class(vector_bc_resolver_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+
+    call this%z%mark_bc_list(bclst)
+  end subroutine vector_bc_resolver_mark_bc_list_z
+
+  !> Apply the vector boundary constraints component-wise.
+  subroutine vector_bc_resolver_apply(this, x, y, z, n)
+    class(vector_bc_resolver_t), intent(in) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: x(n)
+    real(kind=rp), intent(inout) :: y(n)
+    real(kind=rp), intent(inout) :: z(n)
+
+    call this%x%apply(x, n)
+    call this%y%apply(y, n)
+    call this%z%apply(z, n)
+  end subroutine vector_bc_resolver_apply
 
 end module bc_resolver

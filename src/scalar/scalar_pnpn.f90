@@ -41,6 +41,7 @@ module scalar_pnpn
   use checkpoint, only : chkp_t
   use field, only : field_t
   use bc_list, only : bc_list_t
+  use bc_resolver, only : scalar_bc_resolver_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &
@@ -97,6 +98,9 @@ module scalar_pnpn
      !! Also needed since a bc_list is the type that is sent to, e.g. solvers,
      !! cannot just send `bc_res` on its own.
      type(bc_list_t) :: bclst_ds
+
+     !> Resolver for the scalar increment constraints.
+     type(scalar_bc_resolver_t) :: bc_resolver
 
      !> Advection operator.
      class(advection_t), allocatable :: adv
@@ -235,6 +239,7 @@ contains
        if (this%bcs%strong(i)) then
           bc_i => this%bcs%get(i)
           call this%bc_res%mark_labeled_zones(bc_i%zone_indices)
+          call this%bc_resolver%mark(bc_i)
        end if
     end do
 
@@ -307,6 +312,7 @@ contains
 
     call this%bc_res%free()
     call this%bclst_ds%free()
+    call this%bc_resolver%free()
     call this%proj_s%free()
 
     call this%s_res%free()
@@ -424,7 +430,7 @@ contains
       call gs_Xh%op(s_res, GS_OP_ADD)
 
       ! Apply a 0-valued Dirichlet boundary conditions on the ds.
-      call this%bclst_ds%apply_scalar(s_res%x, dm_Xh%size())
+      call this%bc_resolver%apply(s_res%x, dm_Xh%size())
 
       call profiler_end_region(trim(this%name) // '_residual', 20)
 

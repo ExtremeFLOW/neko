@@ -79,6 +79,7 @@ module fluid_pnpn
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t
+  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t
   use file, only : file_t
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
@@ -148,6 +149,11 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
+
+     !> Resolver for strong velocity residual constraints.
+     type(vector_bc_resolver_t) :: vel_resolver
+     !> Resolver for strong pressure constraints.
+     type(scalar_bc_resolver_t) :: dp_resolver
 
 
      ! Checker for wether we have a strong pressure bc. If not, the pressure
@@ -569,6 +575,8 @@ contains
     call this%bclst_dv%free()
     call this%bclst_dw%free()
     call this%bclst_dp%free()
+    call this%vel_resolver%free()
+    call this%dp_resolver%free()
     call this%proj_prs%free()
     call this%proj_vel%free()
 
@@ -768,7 +776,7 @@ contains
       call device_event_sync(event)
 
       ! Set the residual to zero at strong pressure boundaries.
-      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
+      call this%dp_resolver%apply(p_res%x, p%dof%size())
 
 
       call profiler_end_region('Pressure_residual', 18)
@@ -820,7 +828,7 @@ contains
       call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
 
       ! Set residual to zero at strong velocity boundaries.
-      call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+      call this%vel_resolver%apply(u_res%x, v_res%x, w_res%x, dm_Xh%size())
 
 
       call profiler_end_region('Velocity_residual', 19)
@@ -979,6 +987,9 @@ contains
                 call this%bc_du%mark_facets(bc_i%bc_x%marked_facet)
                 call this%bc_dv%mark_facets(bc_i%bc_y%marked_facet)
                 call this%bc_dw%mark_facets(bc_i%bc_z%marked_facet)
+                call this%vel_resolver%mark_x(bc_i%bc_x)
+                call this%vel_resolver%mark_y(bc_i%bc_y)
+                call this%vel_resolver%mark_z(bc_i%bc_z)
 
                 call this%bcs_vel%append(bc_i)
 
@@ -990,12 +1001,18 @@ contains
                 call this%bc_du%mark_facets(bc_i%bc_x%marked_facet)
                 call this%bc_dv%mark_facets(bc_i%bc_y%marked_facet)
                 call this%bc_dw%mark_facets(bc_i%bc_z%marked_facet)
+                call this%vel_resolver%mark_x(bc_i%bc_x)
+                call this%vel_resolver%mark_y(bc_i%bc_y)
+                call this%vel_resolver%mark_z(bc_i%bc_z)
              type is (shear_stress_t)
                 ! Same as symmetry
                 call this%bclst_vel_res%append(bc_i%symmetry)
                 call this%bclst_du%append(bc_i%symmetry%bc_x)
                 call this%bclst_dv%append(bc_i%symmetry%bc_y)
                 call this%bclst_dw%append(bc_i%symmetry%bc_z)
+                call this%vel_resolver%mark_x(bc_i%symmetry%bc_x)
+                call this%vel_resolver%mark_y(bc_i%symmetry%bc_y)
+                call this%vel_resolver%mark_z(bc_i%symmetry%bc_z)
 
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
@@ -1004,6 +1021,9 @@ contains
                 call this%bclst_du%append(bc_i%symmetry%bc_x)
                 call this%bclst_dv%append(bc_i%symmetry%bc_y)
                 call this%bclst_dw%append(bc_i%symmetry%bc_z)
+                call this%vel_resolver%mark_x(bc_i%symmetry%bc_x)
+                call this%vel_resolver%mark_y(bc_i%symmetry%bc_y)
+                call this%vel_resolver%mark_z(bc_i%symmetry%bc_z)
 
                 call this%bcs_vel%append(bc_i)
              class default
@@ -1019,6 +1039,9 @@ contains
                    call this%bc_dw%mark_labeled_zones(bc_i%zone_indices)
                    call this%bc_prs_surface%mark_labeled_zones( &
                         bc_i%zone_indices)
+                   call this%vel_resolver%mark_x(bc_i)
+                   call this%vel_resolver%mark_y(bc_i)
+                   call this%vel_resolver%mark_z(bc_i)
                 end if
 
                 call this%bcs_vel%append(bc_i)
@@ -1055,6 +1078,7 @@ contains
              ! Mark strong bcs in the dummy dp bc to force zero change.
              if (bc_i%strong) then
                 call this%bc_dp%mark_labeled_zones(bc_i%zone_indices)
+                call this%dp_resolver%mark(bc_i)
              end if
 
           end if
