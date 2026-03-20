@@ -464,11 +464,13 @@ contains
   !> Initialize without json things
   !! @param dof Dofmap to probe
   !! @output_file Name of output file, current must be CSV
-  subroutine probes_init_from_components(this, dof, output_file, name)
+  subroutine probes_init_from_components(this, dof, output_file, name, 
+          tolerance, padding)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
     character(len=*), intent(in) :: name
+    real(kind=rp), intent(in), optional :: tolerance, padding
 
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
@@ -478,7 +480,7 @@ contains
     this%name = name
 
     !> Init interpolator
-    call this%global_interp%init(dof)
+    call this%global_interp%init(dof, tol = tolerance, pad = padding)
 
     !> find probes and redistribute them
     call this%global_interp%find_points_and_redist(this%xyz, &

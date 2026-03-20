@@ -97,13 +97,14 @@ contains
   !! subroutine. The required data must be copied manually beforehand (see
   !! import_field_utils.f90).
   subroutine fld_file_data_import_fields(this, u, v, w, p, t, &
-       s_target_list, s_index_list, interpolate, tolerance)
+       s_target_list, s_index_list, interpolate, tolerance, padding)
     class(fld_file_data_t), intent(inout) :: this
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
     type(field_list_t), intent(inout), optional :: s_target_list
     integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
-    real(kind=rp), intent(in), optional :: tolerance
+    real(kind=rp), intent(in) :: tolerance
+    real(kind=rp), intent(in), optional :: padding
 
     integer :: i
 
@@ -187,7 +188,7 @@ contains
 
        ! Generates an interpolator object and performs the point search
        call this%generate_interpolator(global_interp, dof, msh, &
-            tolerance = tolerance)
+            tolerance, padding = padding)
 
        ! Evaluate all the fields
        if (present(u)) call global_interp%evaluate(u%x(:,1,1,1), this%u%x, &
@@ -482,12 +483,13 @@ contains
   !! @param to_msh Mesh on which to interpolate.
   !! @param tolerance Tolerance for the newton iterations.
   subroutine fld_file_data_generate_interpolator(this, global_interp, to_dof, &
-       to_msh, tolerance)
+       to_msh, tolerance, padding)
     class(fld_file_data_t), intent(in) :: this
     type(global_interpolation_t), intent(inout) :: global_interp
     type(dofmap_t), intent(in), target :: to_dof
     type(mesh_t), intent(in), target :: to_msh
     real(kind=rp), intent(in) :: tolerance
+    real(kind=rp), intent(in), optional :: padding
 
     ! --- variables for interpolation
     type(space_t) :: fld_Xh
@@ -544,7 +546,7 @@ contains
     ! The initialization is done based on the variables created from
     ! fld data
     call global_interp%init(this%x%x, this%y%x, this%z%x, this%gdim, &
-         this%nelv, fld_Xh, tol = tolerance)
+         this%nelv, fld_Xh, tol = tolerance, pad = padding)
     call global_interp%find_points(x_coords, y_coords, z_coords, &
          to_dof%size())
 

@@ -82,7 +82,7 @@ contains
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
-    real(kind=rp) :: delta, tol
+    real(kind=rp) :: delta, tol, padding
     real(kind=rp), allocatable :: uinf(:)
     real(kind=rp), allocatable :: zone_value(:)
     character(len=:), allocatable :: read_str
@@ -134,7 +134,14 @@ contains
        call json_get_or_default(params, 'mesh_file_name', read_str, "none")
        mesh_fname = trim(read_str)
 
-       call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, mesh_fname)
+       if (params%valid_path('padding')) then
+          call json_get(params, 'padding', padding) 
+          call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, &
+                  mesh_fname, padding)
+       else
+          call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, &
+                  mesh_fname)
+       end if
 
     else
        call neko_error('Invalid initial condition')
@@ -410,7 +417,7 @@ contains
   !! @param sample_mesh_idx If interpolation is enabled, index of the field
   !! file where the mesh coordinates are located.
   subroutine set_flow_ic_fld(u, v, w, p, file_name, &
-       interpolate, tolerance, mesh_file_name)
+       interpolate, tolerance, mesh_file_name, padding)
     type(field_t), target, intent(inout) :: u
     type(field_t), target, intent(inout) :: v
     type(field_t), target, intent(inout) :: w
@@ -419,6 +426,7 @@ contains
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    real(kind=rp), intent(in), optional :: padding
 
     type(field_t), pointer :: us, vs, ws, ps
 
@@ -427,9 +435,17 @@ contains
     ws => w
     ps => p
 
-    call import_fields(file_name, mesh_file_name, &
-         u = us, v = vs, w = ws, p = ps, &
-         interpolate = interpolate, tolerance = tolerance)
+    if (present(padding)) then
+
+       call import_fields(file_name, mesh_file_name, &
+            u = us, v = vs, w = ws, p = ps, &
+            interpolate = interpolate, tolerance = tolerance, &
+            padding = padding)
+    else
+       call import_fields(file_name, mesh_file_name, &
+            u = us, v = vs, w = ws, p = ps, &
+            interpolate = interpolate, tolerance = tolerance)
+    end if
 
     nullify(us, vs, ws, ps)
 

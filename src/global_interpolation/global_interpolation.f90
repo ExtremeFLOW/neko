@@ -186,27 +186,19 @@ contains
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
   !! @mask  Mask that indicates which portions of the domain to include
-  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask)
+  !! @param params_subdict A JSON object containing parameters to use for 
+  !! initialization instead of tol and pad.
+  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask, &
+                  params_subdict)
     class(global_interpolation_t), target, intent(inout) :: this
     type(dofmap_t) :: dof
     type(MPI_COMM), optional, intent(in) :: comm
     real(kind=rp), optional :: tol
     real(kind=rp), optional :: pad
     type(mask_t), intent(in), optional :: mask
-    real(kind=rp) :: padding, tolerance
+    type(json_file), intent(in), optional :: params_subdict
+    
     integer :: temp_nelv
-
-    if (present(pad)) then
-       padding = pad
-    else
-       padding = 1e-2 ! 1% padding of the bounding boxes
-    end if
-
-    if (present(tol)) then
-       tolerance = tol
-    else
-       tolerance = NEKO_EPS*1e3_xp ! 1% padding of the bounding boxes
-    end if
 
     ! Store the number of dofs
     this%n_dof = dof%size()
@@ -215,7 +207,8 @@ contains
     ! to get the right dimension (see global_interpolation_init_xyz).
     if (.not. present(mask)) then
        call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm, tol = tolerance, &
+            pad = padding, params_subdict = params_subdict)
     else
 
        ! Initialize a helper field with the size of the mask
@@ -223,11 +216,14 @@ contains
        ! Verify that the mask size is compatible with the dofmap
        temp_nelv = mask%size() / (dof%Xh%lx*dof%Xh%ly*dof%Xh%lz)
        if (mod(mask%size(), dof%Xh%lx*dof%Xh%ly*dof%Xh%lz) /= 0) then
-          call neko_error("Mask size must be a multiple of the number of elements in the mesh.")
+          call neko_error("Mask size must be a multiple of the number of" // &
+                  " elements in the mesh.")
        end if
        ! Initialize with the masked coordinates
-       call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), dof%z(mask%get(),1,1,1), &
-            dof%msh%gdim, temp_nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+       call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), &
+               dof%z(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
+               comm, tol = tolerance, pad = padding, &
+               params_subdict = params_subdict)
     end if
 
   end subroutine global_interpolation_init_dof
@@ -242,8 +238,10 @@ contains
   !! @param Xh Space on which to interpolate.
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
+  !! @param params_subdict A JSON object containing parameters to use for 
+  !! initialization instead of tol and pad.
   subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, &
-       comm, tol, pad)
+       comm, tol, pad, params_subdict)
     class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(in) :: x(:)
     real(kind=rp), intent(in) :: y(:)
@@ -254,9 +252,11 @@ contains
     type(space_t), intent(in) :: Xh
     real(kind=rp), intent(in), optional :: tol
     real(kind=rp), intent(in), optional :: pad
+    type(json_file), intent(in), optional :: params_subdict
+
     integer :: lx, ly, lz, ierr, i, n
     character(len=8000) :: log_buf
-    real(kind=dp) :: padding
+    real(kind=dp) :: padding ! <-- note that this padding is in dp
     real(kind=rp) :: time1, time_start
     character(len=255) :: mode_str
     integer :: boxdim, envvar_len
@@ -269,13 +269,26 @@ contains
        this%comm = NEKO_COMM
     end if
 
-    if (present(pad)) then
-       padding = pad
-       this%padding = pad
+    ! If the subdict is given, override the other optional params
+    if (present(params_subdict)) then
+       call json_get_or_lookup_or_default(params, 'tolerance', this%tol, NEKO_EPS*1e3_xp)
+       call json_get_or_lookup_or_default(params, 'padding', padding, 1e-2_dp)
+       this%padding = padding
     else
-       padding = 1e-2 ! 1% padding of the bounding boxes
-       this%padding = 1e-2
+       if (present(pad)) then
+          padding = pad
+          this%padding = pad
+       else
+          padding = 1e-2 ! 1% padding of the bounding boxes
+          this%padding = 1e-2
+       end if
+       if (present(tol)) then
+          this%tol = tol
+       else
+          this%tol = NEKO_EPS*1e3_xp
+       end if
     end if
+
 
     time_start = MPI_Wtime()
     call MPI_Barrier(this%comm)
@@ -285,11 +298,6 @@ contains
 
     this%gdim = gdim
     this%nelv = nelv
-    if (present(tol)) then
-       this%tol = tol
-    else
-       this%tol = NEKO_EPS*1e3_xp
-    end if
 
     call MPI_Allreduce(nelv, this%glb_nelv, 1, MPI_INTEGER, &
          MPI_SUM, this%comm, ierr)

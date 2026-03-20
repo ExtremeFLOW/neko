@@ -84,7 +84,7 @@ contains
   !! to device when necessary, i.e. only the required fields are copied to
   !! device.
   subroutine import_fields(fname, mesh_fname, u, v, w, p, t, s_target_list, &
-       s_index_list, interpolate, tolerance)
+       s_index_list, interpolate, tolerance, padding, interp_subdict)
     character(len=*), intent(in) :: fname
     character(len=*), intent(in), optional :: mesh_fname
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
@@ -92,6 +92,8 @@ contains
     integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
     real(kind=rp), intent(in), optional :: tolerance
+    real(kind=rp), intent(in), optional :: padding
+    type(json_file), intent(in), optional :: interp_subdict
 
     character(len=LOG_SIZE) :: log_buf
     integer :: sample_idx, sample_mesh_idx, i
@@ -107,6 +109,13 @@ contains
     if (present(interpolate)) interpolate_ = interpolate
     mesh_fname_ = "none"
     if (present(mesh_fname)) mesh_fname_ = trim(mesh_fname)
+
+    ! Note: the tolerance must be given a value here because it is used
+    ! in fld_file_data%generate_interpolator. The padding is not so it doesn't
+    ! need to be initialized until global_interpolation init.
+    tolerance_ = NEKO_EPS*1e3 ! Keep the same tolerance as the default in 
+                              ! global interpolation for now
+    if (present(tolerance)) tolerance_ = tolerance 
     ! ----
 
     call neko_log%section("Import fields")
@@ -134,8 +143,14 @@ contains
     ! If interpolate, check if we need to read the mesh file
     if (interpolate_) then
 
+       ! yes this is correct, the check is on tolerance and not tolerance_
        if (present(tolerance)) then
           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
+          call neko_log%message(log_buf)
+       end if
+       
+       if (present(padding)) then
+          write (log_buf, '(A,ES12.6)') "Padding       : ", padding
           call neko_log%message(log_buf)
        end if
 
@@ -219,7 +234,7 @@ contains
 
     ! Call the import of fields
     call fld_data%import_fields(u, v, w, p, t, s_target_list, s_index_list, &
-         interpolate_, tolerance = tolerance)
+         interpolate_, tolerance_, padding = padding)
 
     call neko_log%end_section()
     call fld_data%free()
