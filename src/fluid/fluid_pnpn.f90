@@ -267,7 +267,7 @@ contains
 
     call json_get_or_default(params, "case.fluid.full_stress_formulation", &
          this%full_stress_formulation, .false.)
-    call json_get(params, "case.fluid.coupled_resolver", coupled_resolver)
+    call json_get_or_default(params, "case.fluid.coupled_resolver", coupled_resolver, .false.)
 
     if (coupled_resolver) then
        allocate(coupled_vector_bc_resolver_t :: this%bcs_vel_resolver)
