@@ -44,7 +44,7 @@ module bc_resolver
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use utils, only : neko_error, nonlinear_index
-  use device, only : device_get_ptr
+  use device, only : device_get_ptr, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_math, only : device_cfill_mask
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
@@ -109,6 +109,7 @@ module bc_resolver
      procedure, pass(this) :: free => coupled_vector_bc_resolver_free
      procedure, pass(this) :: mark_bc => coupled_vector_bc_resolver_mark_bc
      procedure, pass(this) :: finalize => coupled_vector_bc_resolver_finalize
+     procedure, pass(this) :: apply => coupled_vector_bc_resolver_apply
    end type coupled_vector_bc_resolver_t
 
 contains
@@ -453,6 +454,47 @@ contains
        deallocate(mask_values)
     end if
   end subroutine coupled_vector_bc_resolver_finalize
+
+  !> Apply the coupled vector boundary constraints in the local basis.
+  subroutine coupled_vector_bc_resolver_apply(this, x, y, z, n)
+    class(coupled_vector_bc_resolver_t), intent(in) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: x(n)
+    real(kind=rp), intent(inout) :: y(n)
+    real(kind=rp), intent(inout) :: z(n)
+    integer, pointer :: msk(:)
+    integer :: i, j, m
+    real(kind=rp) :: u(3), uloc(3)
+
+    m = this%dof_mask%size()
+    msk => this%dof_mask%get()
+
+    do i = 1, m
+       j = msk(i)
+
+       u(1) = x(j)
+       u(2) = y(j)
+       u(3) = z(j)
+
+       uloc(1) = u(1) * this%n(1,i) + u(2) * this%n(2,i) + &
+            u(3) * this%n(3,i)
+       uloc(2) = u(1) * this%t1(1,i) + u(2) * this%t1(2,i) + &
+            u(3) * this%t1(3,i)
+       uloc(3) = u(1) * this%t2(1,i) + u(2) * this%t2(2,i) + &
+            u(3) * this%t2(3,i)
+
+       if (this%constraint_n(i)) uloc(1) = 0.0_rp
+       if (this%constraint_t1(i)) uloc(2) = 0.0_rp
+       if (this%constraint_t2(i)) uloc(3) = 0.0_rp
+
+       u = uloc(1) * this%n(:,i) + uloc(2) * this%t1(:,i) + &
+            uloc(3) * this%t2(:,i)
+
+       x(j) = u(1)
+       y(j) = u(2)
+       z(j) = u(3)
+    end do
+  end subroutine coupled_vector_bc_resolver_apply
 
   !> Add the constrained dofs from an x-component boundary condition.
   subroutine vector_bc_resolver_mark_bc_x(this, bc)
