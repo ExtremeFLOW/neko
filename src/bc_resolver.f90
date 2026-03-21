@@ -40,10 +40,10 @@ module bc_resolver
   use field, only : field_t
   use scratch_registry, only : neko_scratch_registry
   use math, only : cfill_mask
-  use gs_ops, only : GS_OP_MAX
+  use gs_ops, only : GS_OP_MAX, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use utils, only : neko_error
+  use utils, only : neko_error, nonlinear_index
   use device, only : device_get_ptr
   use device_math, only : device_cfill_mask
   use symmetry, only : symmetry_t
@@ -90,9 +90,9 @@ module bc_resolver
 
   type, public, extends(bc_resolver_t) :: coupled_vector_bc_resolver_t
      type(mask_t) :: dof_mask
-     type(bc_list_t) :: bcs
-     type(coef_t), pointer :: coef => null()
-     type(dofmap_t), pointer :: dof => null()
+     type(bc_list_t), private :: bcs
+     type(coef_t), pointer, private :: coef => null()
+     type(dofmap_t), pointer, private :: dof => null()
      logical, allocatable :: constraint_n(:)
      logical, allocatable :: constraint_t1(:)
      logical, allocatable :: constraint_t2(:)
@@ -275,7 +275,9 @@ contains
     integer :: scratch_idx(4)
     integer, allocatable :: mask_values(:)
     integer :: i, j, n, m
+    integer :: idx(4), facet
     logical :: c_n, c_t1, c_t2
+    real(kind=rp) :: normal(3), ref(3), t1_vec(3), t2_vec(3), len
     class(bc_t), pointer :: bc
 
     call this%dof_mask%free()
@@ -323,13 +325,20 @@ contains
           end if
        end select
 
-       do j = 1, bc%msk(0)
-          m = bc%msk(j)
-          boundary_flag%x(m,1,1,1) = 1.0_rp
-          if (c_n) constraint_n_flag%x(m,1,1,1) = 1.0_rp
-          if (c_t1) constraint_t1_flag%x(m,1,1,1) = 1.0_rp
-          if (c_t2) constraint_t2_flag%x(m,1,1,1) = 1.0_rp
-       end do
+       call cfill_mask(boundary_flag%x(:,1,1,1), 1.0_rp, n, &
+            bc%msk(1:bc%msk(0)), bc%msk(0))
+       if (c_n) then
+          call cfill_mask(constraint_n_flag%x(:,1,1,1), 1.0_rp, n, &
+               bc%msk(1:bc%msk(0)), bc%msk(0))
+       end if
+       if (c_t1) then
+          call cfill_mask(constraint_t1_flag%x(:,1,1,1), 1.0_rp, n, &
+               bc%msk(1:bc%msk(0)), bc%msk(0))
+       end if
+       if (c_t2) then
+          call cfill_mask(constraint_t2_flag%x(:,1,1,1), 1.0_rp, n, &
+               bc%msk(1:bc%msk(0)), bc%msk(0))
+       end if
     end do
 
     call this%coef%gs_h%op(boundary_flag, GS_OP_MAX)
@@ -344,28 +353,99 @@ contains
       end if
     end do
 
-    if (m .gt. 0) then
-       allocate(mask_values(m))
-       j = 0
-       do i = 1, n
-          if (boundary_flag%x(i,1,1,1) .gt. 0.5_rp) then
-             j = j + 1
-             mask_values(j) = i
-          end if
-       end do
-
-       call this%dof_mask%init(mask_values(1:m), m)
-       allocate(this%constraint_n(m))
-       allocate(this%constraint_t1(m))
-       allocate(this%constraint_t2(m))
-
-       do i = 1, m
-          j = mask_values(i)
-          this%constraint_n(i) = constraint_n_flag%x(j,1,1,1) .gt. 0.5_rp
-          this%constraint_t1(i) = constraint_t1_flag%x(j,1,1,1) .gt. 0.5_rp
-          this%constraint_t2(i) = constraint_t2_flag%x(j,1,1,1) .gt. 0.5_rp
-       end do
+    if (m .eq. 0) then
+       call neko_scratch_registry%relinquish_field(scratch_idx)
+       return
     end if
+
+    allocate(mask_values(m))
+    j = 0
+    do i = 1, n
+       if (boundary_flag%x(i,1,1,1) .gt. 0.5_rp) then
+          j = j + 1
+          mask_values(j) = i
+       end if
+    end do
+
+    call this%dof_mask%init(mask_values(1:m), m)
+    allocate(this%constraint_n(m))
+    allocate(this%constraint_t1(m))
+    allocate(this%constraint_t2(m))
+    allocate(this%n(3,m))
+    allocate(this%t1(3,m))
+    allocate(this%t2(3,m))
+
+    do i = 1, m
+       j = mask_values(i)
+       this%constraint_n(i) = constraint_n_flag%x(j,1,1,1) .gt. 0.5_rp
+       this%constraint_t1(i) = constraint_t1_flag%x(j,1,1,1) .gt. 0.5_rp
+       this%constraint_t2(i) = constraint_t2_flag%x(j,1,1,1) .gt. 0.5_rp
+    end do
+
+    associate(nx => constraint_n_flag, ny => constraint_t1_flag, &
+         nz => constraint_t2_flag)
+      nx%x = 0.0_rp
+      ny%x = 0.0_rp
+      nz%x = 0.0_rp
+
+      do i = 1, this%bcs%size()
+         bc => this%bcs%get(i)
+         do j = 1, bc%facet_msk(0)
+            m = bc%facet_msk(j)
+            facet = bc%facet(j)
+            idx = nonlinear_index(m, this%coef%Xh%lx, this%coef%Xh%ly, &
+                 this%coef%Xh%lz)
+            normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+            nx%x(m,1,1,1) = nx%x(m,1,1,1) + normal(1)
+            ny%x(m,1,1,1) = ny%x(m,1,1,1) + normal(2)
+            nz%x(m,1,1,1) = nz%x(m,1,1,1) + normal(3)
+         end do
+      end do
+
+      this%n = 0.0_rp
+      this%t1 = 0.0_rp
+      this%t2 = 0.0_rp
+
+      do i = 1, size(mask_values)
+         j = mask_values(i)
+         normal(1) = nx%x(j,1,1,1)
+         normal(2) = ny%x(j,1,1,1)
+         normal(3) = nz%x(j,1,1,1)
+         len = sqrt(sum(normal**2))
+         if (len .gt. 0.0_rp) then
+            this%n(:,i) = normal / len
+
+            if (this%coef%msh%gdim .eq. 2) then
+               t1_vec = [ -this%n(2,i), this%n(1,i), 0.0_rp ]
+               len = sqrt(sum(t1_vec**2))
+               if (len .gt. 0.0_rp) then
+                  this%t1(:,i) = t1_vec / len
+               end if
+               this%t2(:,i) = [ 0.0_rp, 0.0_rp, 1.0_rp ]
+            else
+               if (abs(this%n(1,i)) .lt. 0.9_rp) then
+                  ref = [ 1.0_rp, 0.0_rp, 0.0_rp ]
+               else
+                  ref = [ 0.0_rp, 1.0_rp, 0.0_rp ]
+               end if
+
+               t1_vec = ref - sum(ref * this%n(:,i)) * this%n(:,i)
+               len = sqrt(sum(t1_vec**2))
+               if (len .gt. 0.0_rp) then
+                  this%t1(:,i) = t1_vec / len
+               end if
+
+               t2_vec(1) = this%n(2,i) * this%t1(3,i) - this%n(3,i) * this%t1(2,i)
+               t2_vec(2) = this%n(3,i) * this%t1(1,i) - this%n(1,i) * this%t1(3,i)
+               t2_vec(3) = this%n(1,i) * this%t1(2,i) - this%n(2,i) * this%t1(1,i)
+               len = sqrt(sum(t2_vec**2))
+               if (len .gt. 0.0_rp) then
+                  this%t2(:,i) = t2_vec / len
+               end if
+            end if
+         end if
+      end do
+    end associate
 
     call neko_scratch_registry%relinquish_field(scratch_idx)
 
