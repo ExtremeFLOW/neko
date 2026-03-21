@@ -936,9 +936,9 @@ contains
                 ! Symmetry's apply_scalar doesn't do anything, so we need to mark
                 ! the individual nested bcs on the component resolvers.
                 ! Additionally we have to mark the special surface bc for p.
-                call this%bcs_vel_resolver%mark_x(bc_i%bc_x)
-                call this%bcs_vel_resolver%mark_y(bc_i%bc_y)
-                call this%bcs_vel_resolver%mark_z(bc_i%bc_z)
+                call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
+                call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
+                call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
 
                 call this%bcs_vel%append(bc_i)
 
@@ -946,21 +946,27 @@ contains
              type is (non_normal_t)
                 ! This is a bc for the residuals and increments, not the
                 ! velocity itself. So, don't append to bcs_vel
-                call this%bcs_vel_resolver%mark_x(bc_i%bc_x)
-                call this%bcs_vel_resolver%mark_y(bc_i%bc_y)
-                call this%bcs_vel_resolver%mark_z(bc_i%bc_z)
+                call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
+                call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
+                call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
              type is (shear_stress_t)
                 ! Same as symmetry
-                call this%bcs_vel_resolver%mark_x(bc_i%symmetry%bc_x)
-                call this%bcs_vel_resolver%mark_y(bc_i%symmetry%bc_y)
-                call this%bcs_vel_resolver%mark_z(bc_i%symmetry%bc_z)
+                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_x, &
+                     component='x')
+                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_y, &
+                     component='y')
+                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_z, &
+                     component='z')
 
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
                 ! Same as symmetry
-                call this%bcs_vel_resolver%mark_x(bc_i%symmetry%bc_x)
-                call this%bcs_vel_resolver%mark_y(bc_i%symmetry%bc_y)
-                call this%bcs_vel_resolver%mark_z(bc_i%symmetry%bc_z)
+                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_x, &
+                     component='x')
+                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_y, &
+                     component='y')
+                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_z, &
+                     component='z')
 
                 call this%bcs_vel%append(bc_i)
              class default
@@ -969,9 +975,9 @@ contains
                 if (bc_i%strong) then
                    call this%bc_prs_surface%mark_labeled_zones( &
                         bc_i%zone_indices)
-                   call this%bcs_vel_resolver%mark_x(bc_i)
-                   call this%bcs_vel_resolver%mark_y(bc_i)
-                   call this%bcs_vel_resolver%mark_z(bc_i)
+                   call this%bcs_vel_resolver%mark(bc_i, component='x')
+                   call this%bcs_vel_resolver%mark(bc_i, component='y')
+                   call this%bcs_vel_resolver%mark(bc_i, component='z')
                 end if
 
                 call this%bcs_vel%append(bc_i)
