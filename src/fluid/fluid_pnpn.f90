@@ -79,7 +79,7 @@ module fluid_pnpn
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t
   use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
-       segregated_vector_bc_resolver_t
+       segregated_vector_bc_resolver_t, coupled_vector_bc_resolver_t
   use file, only : file_t
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
@@ -128,9 +128,9 @@ module fluid_pnpn
      !> Surface term in pressure rhs. Masks symmetry bcs.
      type(facet_normal_t) :: bc_sym_surface
 
-     !> Resolver for strong velocity residual constraints.
-     type(segregated_vector_bc_resolver_t) :: bcs_vel_resolver
-     !> Resolver for strong pressure constraints.
+     !> Boundary conditions resolver for velocity constraints.
+     class(vector_bc_resolver_t), allocatable :: bcs_vel_resolver
+     !> Boundary conditions resolver for pressure constraints.
      type(scalar_bc_resolver_t) :: bcs_prs_resolver
 
 
@@ -244,6 +244,7 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
     logical :: monitor, found
     logical :: advection
+    logical :: coupled_resolver
     type(json_file) :: numerics_params, precon_params
 
     call this%free()
@@ -266,6 +267,13 @@ contains
 
     call json_get_or_default(params, "case.fluid.full_stress_formulation", &
          this%full_stress_formulation, .false.)
+    call json_get(params, "case.fluid.coupled_resolver", coupled_resolver)
+
+    if (coupled_resolver) then
+       allocate(coupled_vector_bc_resolver_t :: this%bcs_vel_resolver)
+    else
+       allocate(segregated_vector_bc_resolver_t :: this%bcs_vel_resolver)
+    end if
 
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
          .false.)
@@ -542,7 +550,10 @@ contains
 
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
-    call this%bcs_vel_resolver%free()
+    if (allocated(this%bcs_vel_resolver)) then
+       call this%bcs_vel_resolver%free()
+       deallocate(this%bcs_vel_resolver)
+    end if
     call this%bcs_prs_resolver%free()
     call this%proj_prs%free()
     call this%proj_vel%free()
@@ -950,24 +961,10 @@ contains
                 call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
                 call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
              type is (shear_stress_t)
-                ! Same as symmetry
-                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_x, &
-                     component='x')
-                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_y, &
-                     component='y')
-                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_z, &
-                     component='z')
-
+                call this%bcs_vel_resolver%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
-                ! Same as symmetry
-                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_x, &
-                     component='x')
-                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_y, &
-                     component='y')
-                call this%bcs_vel_resolver%mark(bc_i%symmetry%bc_z, &
-                     component='z')
-
+                call this%bcs_vel_resolver%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              class default
 
@@ -1036,6 +1033,7 @@ contains
 
     call this%bc_prs_surface%finalize()
     call this%bc_sym_surface%finalize()
+    call this%bcs_vel_resolver%finalize()
 
     ! If we have no strong pressure bcs, we will demean the pressure
     this%prs_dirichlet = this%bcs_prs_resolver%dof_mask%is_set()

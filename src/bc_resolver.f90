@@ -47,10 +47,6 @@ module bc_resolver
   use device, only : device_get_ptr, device_memcpy, HOST_TO_DEVICE, &
        DEVICE_TO_HOST
   use device_math, only : device_cfill_mask
-  use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
-  use shear_stress, only : shear_stress_t
-  use wall_model_bc, only : wall_model_bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   implicit none
   private
@@ -69,6 +65,8 @@ module bc_resolver
   type, public, abstract :: vector_bc_resolver_t
    contains
      procedure(vector_bc_resolver_free_intrf), pass(this), deferred :: free
+     procedure(vector_bc_resolver_finalize_intrf), pass(this), deferred :: &
+          finalize
      procedure(vector_bc_resolver_apply_intrf), pass(this), deferred :: apply
      procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: mark_bc
      procedure(vector_bc_resolver_mark_bc_list_intrf), pass(this), deferred :: &
@@ -82,6 +80,7 @@ module bc_resolver
      type(scalar_bc_resolver_t) :: z
    contains
      procedure, pass(this) :: free => segregated_vector_bc_resolver_free
+     procedure, pass(this) :: finalize => segregated_vector_bc_resolver_finalize
      procedure, pass(this) :: mark_bc => segregated_vector_bc_resolver_mark_bc
      procedure, pass(this) :: mark_bc_list => &
           segregated_vector_bc_resolver_mark_bc_list
@@ -119,6 +118,13 @@ module bc_resolver
        import :: vector_bc_resolver_t
        class(vector_bc_resolver_t), intent(inout) :: this
      end subroutine vector_bc_resolver_free_intrf
+  end interface
+
+  abstract interface
+     subroutine vector_bc_resolver_finalize_intrf(this)
+       import :: vector_bc_resolver_t
+       class(vector_bc_resolver_t), intent(inout) :: this
+     end subroutine vector_bc_resolver_finalize_intrf
   end interface
 
   abstract interface
@@ -247,11 +253,21 @@ contains
     call this%z%free()
   end subroutine segregated_vector_bc_resolver_free
 
+  !> Finalize a segregated vector boundary resolver.
+  subroutine segregated_vector_bc_resolver_finalize(this)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+  end subroutine segregated_vector_bc_resolver_finalize
+
   !> Add the constrained dofs from a vector boundary condition.
   subroutine segregated_vector_bc_resolver_mark_bc(this, bc, component)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
     character(len=1), optional, intent(in) :: component
+
+    if (.not. all(bc%constraints)) then
+       call neko_error("Segregated vector BC resolver only accepts " // &
+            "BCs with constraints = (.true., .true., .true.).")
+    end if
 
     if (.not. present(component)) then
        call neko_error("Segregated vector BC resolver mark requires " // &
@@ -433,27 +449,9 @@ contains
                "unfinalized BC.")
        end if
 
-       c_n = .false.
-       c_t1 = .false.
-       c_t2 = .false.
-
-       select type (bc)
-       type is (symmetry_t)
-          c_n = .true.
-       type is (shear_stress_t)
-          c_n = .true.
-       type is (wall_model_bc_t)
-          c_n = .true.
-       type is (non_normal_t)
-          c_t1 = .true.
-          c_t2 = .true.
-       class default
-          if (bc%strong) then
-             c_n = .true.
-             c_t1 = .true.
-             c_t2 = .true.
-          end if
-       end select
+       c_n = bc%constraints(1)
+       c_t1 = bc%constraints(2)
+       c_t2 = bc%constraints(3)
 
        call cfill_mask(boundary_flag%x(:,1,1,1), 1.0_rp, n, &
             bc%msk(1:bc%msk(0)), bc%msk(0))
