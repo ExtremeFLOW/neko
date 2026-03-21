@@ -36,25 +36,19 @@ module shear_stress
   use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
+  use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
-  use symmetry, only : symmetry_t
   use neumann, only : neumann_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup
   use vector, only : vector_t
   use time_state, only : time_state_t
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   implicit none
   private
 
   !> A shear stress boundary condition.
-  !! @warning Currently strictly for axis-aligned boundaries.
   type, public, extends(bc_t) :: shear_stress_t
-     ! This bc takes care of setting the wall-normal component to zero.
-     ! It can be passed to associated bc lists, which take care of masking
-     ! changes in residuals and solution increments.
-     type(symmetry_t) :: symmetry
-
      !> Neumann condition for the x direction.
      type(neumann_t) :: neumann_x
      !> Neumann condition for the y direction.
@@ -111,6 +105,9 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     logical :: strong_
+    integer :: i, m, facet
+    integer :: idx(4)
+    real(kind=rp) :: normal(3), u_n
 
     if (present(strong)) then
        strong_ = strong
@@ -119,7 +116,17 @@ contains
     end if
 
     if (strong_) then
-       call this%symmetry%apply_vector(x, y, z, n, strong = .true.)
+       do i = 1, this%facet_msk(0)
+          m = this%facet_msk(i)
+          facet = this%facet(i)
+          idx = nonlinear_index(m, this%coef%Xh%lx, this%coef%Xh%ly, &
+               this%coef%Xh%lz)
+          normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+          u_n = x(m) * normal(1) + y(m) * normal(2) + z(m) * normal(3)
+          x(m) = x(m) - u_n * normal(1)
+          y(m) = y(m) - u_n * normal(2)
+          z(m) = z(m) - u_n * normal(3)
+       end do
     else
        call this%neumann_x%apply_scalar(x, n, strong = .false.)
        call this%neumann_y%apply_scalar(y, n, strong = .false.)
@@ -153,6 +160,8 @@ contains
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
     logical :: strong_
+    integer :: n
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
 
     if (present(strong)) then
        strong_ = strong
@@ -160,9 +169,9 @@ contains
        strong_ = .true.
     end if
 
+    call neko_error("Device version of shear stress bc is not implemented yet.")
+
     if (strong_) then
-       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, strong = .true., &
-            strm = strm)
     else
        call this%neumann_x%apply_scalar_dev(x_d, strong = .false., strm = strm)
        call this%neumann_y%apply_scalar_dev(y_d, strong = .false., strm = strm)
@@ -200,9 +209,7 @@ contains
 
     call this%init_base(coef)
     this%strong = .false.
-
-    call this%symmetry%free()
-    call this%symmetry%init_from_components(this%coef)
+    this%constraints = (/ .true., .false., .false. /)
 
     call this%neumann_x%free()
     call this%neumann_y%free()
@@ -217,10 +224,6 @@ contains
   subroutine shear_stress_finalize(this)
     class(shear_stress_t), target, intent(inout) :: this
     call this%finalize_base()
-
-    call this%symmetry%mark_facets(this%marked_facet)
-    call this%symmetry%finalize()
-
 
     call this%neumann_x%mark_facets(this%marked_facet)
     call this%neumann_y%mark_facets(this%marked_facet)
@@ -267,7 +270,6 @@ contains
   subroutine shear_stress_free(this)
     class(shear_stress_t), target, intent(inout) :: this
     call this%free_base
-    call this%symmetry%free
 
     call this%neumann_x%free
     call this%neumann_y%free

@@ -77,6 +77,7 @@ contains
 
     call this%free()
     call this%symmetry_t%init_from_components(coef)
+    this%constraints = (/ .false., .true., .true. /)
 
   end subroutine non_normal_init_from_components
 

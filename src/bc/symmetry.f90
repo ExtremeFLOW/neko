@@ -92,6 +92,7 @@ contains
     this%strong = .false.
 
     call this%init_base(coef)
+    this%constraints = (/ .true., .false., .false. /)
     call this%bc_x%init_from_components(this%coef)
     call this%bc_y%init_from_components(this%coef)
     call this%bc_z%init_from_components(this%coef)
