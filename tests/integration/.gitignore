@@ -7,3 +7,5 @@ logs/
 tests/**/*.case
 **/genmeshbox*
 **/*.csv
+neko.dSYM
+

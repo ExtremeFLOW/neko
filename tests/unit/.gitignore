@@ -69,3 +69,4 @@ point_interpolation/point_interpolation_suite
 **/test_write_*.vtkhdf
 templates/parallel/parallel_suite
 templates/serial/serial_test
+bc_resolver/bc_resolver_suite
