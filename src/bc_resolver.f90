@@ -44,7 +44,8 @@ module bc_resolver
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use utils, only : neko_error, nonlinear_index
-  use device, only : device_get_ptr, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use device, only : device_get_ptr, device_memcpy, HOST_TO_DEVICE, &
+       DEVICE_TO_HOST
   use device_math, only : device_cfill_mask
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
@@ -53,14 +54,9 @@ module bc_resolver
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   implicit none
   private
+  public :: vector_bc_resolver_components
 
-  type, public, abstract :: bc_resolver_t
-   contains
-     procedure, pass(this) :: init => bc_resolver_init
-     procedure, pass(this) :: free => bc_resolver_free
-  end type bc_resolver_t
-
-  type, public, extends(bc_resolver_t) :: scalar_bc_resolver_t
+  type, public :: scalar_bc_resolver_t
      type(mask_t) :: dof_mask
    contains
      procedure, pass(this) :: free => scalar_bc_resolver_free
@@ -70,25 +66,49 @@ module bc_resolver
      generic :: mark => mark_bc, mark_bc_list
   end type scalar_bc_resolver_t
 
-  type, public, extends(bc_resolver_t) :: vector_bc_resolver_t
-     type(scalar_bc_resolver_t) :: x
-     type(scalar_bc_resolver_t) :: y
-     type(scalar_bc_resolver_t) :: z
+  type, public, abstract :: vector_bc_resolver_t
    contains
-     procedure, pass(this) :: free => vector_bc_resolver_free
-     procedure, pass(this) :: mark_bc_x => vector_bc_resolver_mark_bc_x
-     procedure, pass(this) :: mark_bc_list_x => vector_bc_resolver_mark_bc_list_x
-     procedure, pass(this) :: mark_bc_y => vector_bc_resolver_mark_bc_y
-     procedure, pass(this) :: mark_bc_list_y => vector_bc_resolver_mark_bc_list_y
-     procedure, pass(this) :: mark_bc_z => vector_bc_resolver_mark_bc_z
-     procedure, pass(this) :: mark_bc_list_z => vector_bc_resolver_mark_bc_list_z
-     procedure, pass(this) :: apply => vector_bc_resolver_apply
+     procedure(vector_bc_resolver_free_intrf), pass(this), deferred :: free
+     procedure(vector_bc_resolver_apply_intrf), pass(this), deferred :: apply
+     procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: &
+          mark_bc_x
+     procedure(vector_bc_resolver_mark_bc_list_intrf), pass(this), deferred :: &
+          mark_bc_list_x
+     procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: &
+          mark_bc_y
+     procedure(vector_bc_resolver_mark_bc_list_intrf), pass(this), deferred :: &
+          mark_bc_list_y
+     procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: &
+          mark_bc_z
+     procedure(vector_bc_resolver_mark_bc_list_intrf), pass(this), deferred :: &
+          mark_bc_list_z
      generic :: mark_x => mark_bc_x, mark_bc_list_x
      generic :: mark_y => mark_bc_y, mark_bc_list_y
      generic :: mark_z => mark_bc_z, mark_bc_list_z
   end type vector_bc_resolver_t
 
-  type, public, extends(bc_resolver_t) :: coupled_vector_bc_resolver_t
+  type, public, extends(vector_bc_resolver_t) :: segregated_vector_bc_resolver_t
+     type(scalar_bc_resolver_t) :: x
+     type(scalar_bc_resolver_t) :: y
+     type(scalar_bc_resolver_t) :: z
+   contains
+     procedure, pass(this) :: free => segregated_vector_bc_resolver_free
+     procedure, pass(this) :: mark_bc_x => &
+          segregated_vector_bc_resolver_mark_bc_x
+     procedure, pass(this) :: mark_bc_list_x => &
+          segregated_vector_bc_resolver_mark_bc_list_x
+     procedure, pass(this) :: mark_bc_y => &
+          segregated_vector_bc_resolver_mark_bc_y
+     procedure, pass(this) :: mark_bc_list_y => &
+          segregated_vector_bc_resolver_mark_bc_list_y
+     procedure, pass(this) :: mark_bc_z => &
+          segregated_vector_bc_resolver_mark_bc_z
+     procedure, pass(this) :: mark_bc_list_z => &
+          segregated_vector_bc_resolver_mark_bc_list_z
+     procedure, pass(this) :: apply => segregated_vector_bc_resolver_apply
+  end type segregated_vector_bc_resolver_t
+
+  type, public, extends(vector_bc_resolver_t) :: coupled_vector_bc_resolver_t
      type(mask_t) :: dof_mask
      type(bc_list_t), private :: bcs
      type(coef_t), pointer, private :: coef => null()
@@ -107,22 +127,54 @@ module bc_resolver
      type(c_ptr) :: t2_d = c_null_ptr
    contains
      procedure, pass(this) :: free => coupled_vector_bc_resolver_free
-     procedure, pass(this) :: mark_bc => coupled_vector_bc_resolver_mark_bc
+     procedure, pass(this) :: mark_bc_x => coupled_vector_bc_resolver_mark_bc_x
+     procedure, pass(this) :: mark_bc_list_x => &
+          coupled_vector_bc_resolver_mark_bc_list_x
+     procedure, pass(this) :: mark_bc_y => coupled_vector_bc_resolver_mark_bc_y
+     procedure, pass(this) :: mark_bc_list_y => &
+          coupled_vector_bc_resolver_mark_bc_list_y
+     procedure, pass(this) :: mark_bc_z => coupled_vector_bc_resolver_mark_bc_z
+     procedure, pass(this) :: mark_bc_list_z => &
+          coupled_vector_bc_resolver_mark_bc_list_z
      procedure, pass(this) :: finalize => coupled_vector_bc_resolver_finalize
      procedure, pass(this) :: apply => coupled_vector_bc_resolver_apply
-   end type coupled_vector_bc_resolver_t
+  end type coupled_vector_bc_resolver_t
+
+  abstract interface
+     subroutine vector_bc_resolver_free_intrf(this)
+       import :: vector_bc_resolver_t
+       class(vector_bc_resolver_t), intent(inout) :: this
+     end subroutine vector_bc_resolver_free_intrf
+  end interface
+
+  abstract interface
+     subroutine vector_bc_resolver_apply_intrf(this, x, y, z, n)
+       import :: vector_bc_resolver_t, rp
+       class(vector_bc_resolver_t), intent(in) :: this
+       integer, intent(in) :: n
+       real(kind=rp), intent(inout) :: x(n)
+       real(kind=rp), intent(inout) :: y(n)
+       real(kind=rp), intent(inout) :: z(n)
+     end subroutine vector_bc_resolver_apply_intrf
+  end interface
+
+  abstract interface
+     subroutine vector_bc_resolver_mark_bc_intrf(this, bc)
+       import :: vector_bc_resolver_t, bc_t
+       class(vector_bc_resolver_t), intent(inout) :: this
+       class(bc_t), intent(inout), target :: bc
+     end subroutine vector_bc_resolver_mark_bc_intrf
+  end interface
+
+  abstract interface
+     subroutine vector_bc_resolver_mark_bc_list_intrf(this, bclst)
+       import :: vector_bc_resolver_t, bc_list_t
+       class(vector_bc_resolver_t), intent(inout) :: this
+       type(bc_list_t), intent(in) :: bclst
+     end subroutine vector_bc_resolver_mark_bc_list_intrf
+  end interface
 
 contains
-
-  !> Initialize the boundary resolver.
-  subroutine bc_resolver_init(this)
-    class(bc_resolver_t), intent(inout) :: this
-  end subroutine bc_resolver_init
-
-  !> Free the boundary resolver.
-  subroutine bc_resolver_free(this)
-    class(bc_resolver_t), intent(inout) :: this
-  end subroutine bc_resolver_free
 
   !> Free a scalar boundary resolver.
   subroutine scalar_bc_resolver_free(this)
@@ -202,14 +254,32 @@ contains
     end if
   end subroutine scalar_bc_resolver_apply
 
-  !> Free a vector boundary resolver.
-  subroutine vector_bc_resolver_free(this)
-    class(vector_bc_resolver_t), intent(inout) :: this
+  !> Return scalar component resolvers for a segregated vector resolver.
+  subroutine vector_bc_resolver_components(this, x, y, z)
+    class(vector_bc_resolver_t), target, intent(inout) :: this
+    type(scalar_bc_resolver_t), pointer :: x
+    type(scalar_bc_resolver_t), pointer :: y
+    type(scalar_bc_resolver_t), pointer :: z
+
+    select type (this)
+    type is (segregated_vector_bc_resolver_t)
+       x => this%x
+       y => this%y
+       z => this%z
+    class default
+       call neko_error("Component access is only available for " // &
+            "segregated vector BC resolvers.")
+    end select
+  end subroutine vector_bc_resolver_components
+
+  !> Free a segregated vector boundary resolver.
+  subroutine segregated_vector_bc_resolver_free(this)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
 
     call this%x%free()
     call this%y%free()
     call this%z%free()
-  end subroutine vector_bc_resolver_free
+  end subroutine segregated_vector_bc_resolver_free
 
   !> Free a coupled vector boundary resolver.
   subroutine coupled_vector_bc_resolver_free(this)
@@ -252,8 +322,8 @@ contains
     nullify(this%dof)
   end subroutine coupled_vector_bc_resolver_free
 
-  !> Add a physical boundary condition to the coupled resolver.
-  subroutine coupled_vector_bc_resolver_mark_bc(this, bc)
+  !> Add an x-component boundary condition to the coupled resolver.
+  subroutine coupled_vector_bc_resolver_mark_bc_x(this, bc)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
 
@@ -264,7 +334,56 @@ contains
     end if
 
     call this%bcs%append(bc)
-  end subroutine coupled_vector_bc_resolver_mark_bc
+  end subroutine coupled_vector_bc_resolver_mark_bc_x
+
+  !> Add all x-component boundary conditions in a list to the coupled resolver.
+  subroutine coupled_vector_bc_resolver_mark_bc_list_x(this, bclst)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+    integer :: i
+
+    do i = 1, bclst%size()
+       call this%mark_bc_x(bclst%get(i))
+    end do
+  end subroutine coupled_vector_bc_resolver_mark_bc_list_x
+
+  !> Add a y-component boundary condition to the coupled resolver.
+  subroutine coupled_vector_bc_resolver_mark_bc_y(this, bc)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(inout), target :: bc
+
+    call this%mark_bc_x(bc)
+  end subroutine coupled_vector_bc_resolver_mark_bc_y
+
+  !> Add all y-component boundary conditions in a list to the coupled resolver.
+  subroutine coupled_vector_bc_resolver_mark_bc_list_y(this, bclst)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+    integer :: i
+
+    do i = 1, bclst%size()
+       call this%mark_bc_y(bclst%get(i))
+    end do
+  end subroutine coupled_vector_bc_resolver_mark_bc_list_y
+
+  !> Add a z-component boundary condition to the coupled resolver.
+  subroutine coupled_vector_bc_resolver_mark_bc_z(this, bc)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(inout), target :: bc
+
+    call this%mark_bc_x(bc)
+  end subroutine coupled_vector_bc_resolver_mark_bc_z
+
+  !> Add all z-component boundary conditions in a list to the coupled resolver.
+  subroutine coupled_vector_bc_resolver_mark_bc_list_z(this, bclst)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    type(bc_list_t), intent(in) :: bclst
+    integer :: i
+
+    do i = 1, bclst%size()
+       call this%mark_bc_z(bclst%get(i))
+    end do
+  end subroutine coupled_vector_bc_resolver_mark_bc_list_z
 
   !> Finalize the coupled resolver by resolving the accumulated BC list.
   subroutine coupled_vector_bc_resolver_finalize(this)
@@ -290,10 +409,14 @@ contains
     if (.not. associated(this%dof)) return
     if (this%bcs%size() .eq. 0) return
 
-    call neko_scratch_registry%request_field(boundary_flag, scratch_idx(1), .true.)
-    call neko_scratch_registry%request_field(constraint_n_flag, scratch_idx(2), .true.)
-    call neko_scratch_registry%request_field(constraint_t1_flag, scratch_idx(3), .true.)
-    call neko_scratch_registry%request_field(constraint_t2_flag, scratch_idx(4), .true.)
+    call neko_scratch_registry%request_field(boundary_flag, scratch_idx(1), &
+         .true.)
+    call neko_scratch_registry%request_field(constraint_n_flag, scratch_idx(2), &
+         .true.)
+    call neko_scratch_registry%request_field(constraint_t1_flag, &
+         scratch_idx(3), .true.)
+    call neko_scratch_registry%request_field(constraint_t2_flag, &
+         scratch_idx(4), .true.)
 
     n = this%dof%size()
 
@@ -301,7 +424,8 @@ contains
        bc => this%bcs%get(i)
 
        if (.not. allocated(bc%msk)) then
-          call neko_error("Attempting to finalize coupled resolver from an unfinalized BC.")
+          call neko_error("Attempting to finalize coupled resolver from an " // &
+               "unfinalized BC.")
        end if
 
        c_n = .false.
@@ -436,9 +560,12 @@ contains
                   this%t1(:,i) = t1_vec / len
                end if
 
-               t2_vec(1) = this%n(2,i) * this%t1(3,i) - this%n(3,i) * this%t1(2,i)
-               t2_vec(2) = this%n(3,i) * this%t1(1,i) - this%n(1,i) * this%t1(3,i)
-               t2_vec(3) = this%n(1,i) * this%t1(2,i) - this%n(2,i) * this%t1(1,i)
+               t2_vec(1) = this%n(2,i) * this%t1(3,i) - &
+                    this%n(3,i) * this%t1(2,i)
+               t2_vec(2) = this%n(3,i) * this%t1(1,i) - &
+                    this%n(1,i) * this%t1(3,i)
+               t2_vec(3) = this%n(1,i) * this%t1(2,i) - &
+                    this%n(2,i) * this%t1(1,i)
                len = sqrt(sum(t2_vec**2))
                if (len .gt. 0.0_rp) then
                   this%t2(:,i) = t2_vec / len
@@ -497,56 +624,59 @@ contains
   end subroutine coupled_vector_bc_resolver_apply
 
   !> Add the constrained dofs from an x-component boundary condition.
-  subroutine vector_bc_resolver_mark_bc_x(this, bc)
-    class(vector_bc_resolver_t), intent(inout) :: this
-    class(bc_t), intent(in) :: bc
+  subroutine segregated_vector_bc_resolver_mark_bc_x(this, bc)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(inout), target :: bc
 
     call this%x%mark_bc(bc)
-  end subroutine vector_bc_resolver_mark_bc_x
+  end subroutine segregated_vector_bc_resolver_mark_bc_x
 
-  !> Add the constrained dofs from all x-component boundary conditions in a list.
-  subroutine vector_bc_resolver_mark_bc_list_x(this, bclst)
-    class(vector_bc_resolver_t), intent(inout) :: this
+  !> Add the constrained dofs from all x-component boundary conditions in a
+  !! list.
+  subroutine segregated_vector_bc_resolver_mark_bc_list_x(this, bclst)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
 
     call this%x%mark_bc_list(bclst)
-  end subroutine vector_bc_resolver_mark_bc_list_x
+  end subroutine segregated_vector_bc_resolver_mark_bc_list_x
 
   !> Add the constrained dofs from a y-component boundary condition.
-  subroutine vector_bc_resolver_mark_bc_y(this, bc)
-    class(vector_bc_resolver_t), intent(inout) :: this
-    class(bc_t), intent(in) :: bc
+  subroutine segregated_vector_bc_resolver_mark_bc_y(this, bc)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(inout), target :: bc
 
     call this%y%mark_bc(bc)
-  end subroutine vector_bc_resolver_mark_bc_y
+  end subroutine segregated_vector_bc_resolver_mark_bc_y
 
-  !> Add the constrained dofs from all y-component boundary conditions in a list.
-  subroutine vector_bc_resolver_mark_bc_list_y(this, bclst)
-    class(vector_bc_resolver_t), intent(inout) :: this
+  !> Add the constrained dofs from all y-component boundary conditions in a
+  !! list.
+  subroutine segregated_vector_bc_resolver_mark_bc_list_y(this, bclst)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
 
     call this%y%mark_bc_list(bclst)
-  end subroutine vector_bc_resolver_mark_bc_list_y
+  end subroutine segregated_vector_bc_resolver_mark_bc_list_y
 
   !> Add the constrained dofs from a z-component boundary condition.
-  subroutine vector_bc_resolver_mark_bc_z(this, bc)
-    class(vector_bc_resolver_t), intent(inout) :: this
-    class(bc_t), intent(in) :: bc
+  subroutine segregated_vector_bc_resolver_mark_bc_z(this, bc)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+    class(bc_t), intent(inout), target :: bc
 
     call this%z%mark_bc(bc)
-  end subroutine vector_bc_resolver_mark_bc_z
+  end subroutine segregated_vector_bc_resolver_mark_bc_z
 
-  !> Add the constrained dofs from all z-component boundary conditions in a list.
-  subroutine vector_bc_resolver_mark_bc_list_z(this, bclst)
-    class(vector_bc_resolver_t), intent(inout) :: this
+  !> Add the constrained dofs from all z-component boundary conditions in a
+  !! list.
+  subroutine segregated_vector_bc_resolver_mark_bc_list_z(this, bclst)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
 
     call this%z%mark_bc_list(bclst)
-  end subroutine vector_bc_resolver_mark_bc_list_z
+  end subroutine segregated_vector_bc_resolver_mark_bc_list_z
 
   !> Apply the vector boundary constraints component-wise.
-  subroutine vector_bc_resolver_apply(this, x, y, z, n)
-    class(vector_bc_resolver_t), intent(in) :: this
+  subroutine segregated_vector_bc_resolver_apply(this, x, y, z, n)
+    class(segregated_vector_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
     real(kind=rp), intent(inout) :: y(n)
@@ -555,6 +685,6 @@ contains
     call this%x%apply(x, n)
     call this%y%apply(y, n)
     call this%z%apply(z, n)
-  end subroutine vector_bc_resolver_apply
+  end subroutine segregated_vector_bc_resolver_apply
 
 end module bc_resolver

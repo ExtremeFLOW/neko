@@ -78,7 +78,8 @@ module fluid_pnpn
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t
-  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t
+  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
+       segregated_vector_bc_resolver_t
   use file, only : file_t
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
@@ -128,7 +129,7 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_sym_surface
 
      !> Resolver for strong velocity residual constraints.
-     type(vector_bc_resolver_t) :: bcs_vel_resolver
+     type(segregated_vector_bc_resolver_t) :: bcs_vel_resolver
      !> Resolver for strong pressure constraints.
      type(scalar_bc_resolver_t) :: bcs_prs_resolver
 

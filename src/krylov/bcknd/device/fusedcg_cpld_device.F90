@@ -39,7 +39,8 @@ module fusedcg_cpld_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t
+  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
+       vector_bc_resolver_components
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
   use device
@@ -540,7 +541,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(vector_bc_resolver_t), intent(inout) :: bc_resolver
+    class(vector_bc_resolver_t), intent(inout) :: bc_resolver
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -550,10 +551,12 @@ contains
     type(c_ptr) :: fx_d
     type(c_ptr) :: fy_d
     type(c_ptr) :: fz_d
+    type(scalar_bc_resolver_t), pointer :: bc_x, bc_y, bc_z
 
     fx_d = device_get_ptr(fx)
     fy_d = device_get_ptr(fy)
     fz_d = device_get_ptr(fz)
+    call vector_bc_resolver_components(bc_resolver, bc_x, bc_y, bc_z)
 
     if (present(niter)) then
        max_iter = niter
@@ -623,13 +626,13 @@ contains
          call rotate_cyc(w1, w2, w3, 1, coef)
          call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
-         call bc_resolver%x%apply(w1, n)
+         call bc_x%apply(w1, n)
          call gs_h%op(w2, n, GS_OP_ADD, this%gs_event2)
          call device_event_sync(this%gs_event2)
-         call bc_resolver%y%apply(w2, n)
+         call bc_y%apply(w2, n)
          call gs_h%op(w3, n, GS_OP_ADD, this%gs_event3)
          call device_event_sync(this%gs_event3)
-         call bc_resolver%z%apply(w3, n)
+         call bc_z%apply(w3, n)
          call rotate_cyc(w1, w2, w3, 0, coef)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &

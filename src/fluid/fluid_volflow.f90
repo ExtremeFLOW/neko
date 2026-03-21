@@ -162,7 +162,7 @@ contains
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(scalar_bc_resolver_t), intent(inout) :: dp_resolver
-    type(vector_bc_resolver_t), intent(inout) :: vel_resolver
+    class(vector_bc_resolver_t), intent(inout) :: vel_resolver
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
@@ -355,7 +355,7 @@ contains
     real(kind=rp), intent(in) :: rho, dt
     type(field_t) :: mu
     type(scalar_bc_resolver_t), intent(inout) :: dp_resolver
-    type(vector_bc_resolver_t), intent(inout) :: vel_resolver
+    class(vector_bc_resolver_t), intent(inout) :: vel_resolver
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
