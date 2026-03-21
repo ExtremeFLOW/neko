@@ -37,12 +37,19 @@ module bc_resolver
   use mask, only : mask_t
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
+  use field, only : field_t
+  use scratch_registry, only : neko_scratch_registry
   use math, only : cfill_mask
+  use gs_ops, only : GS_OP_MAX
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use utils, only : neko_error
   use device, only : device_get_ptr
   use device_math, only : device_cfill_mask
+  use symmetry, only : symmetry_t
+  use non_normal, only : non_normal_t
+  use shear_stress, only : shear_stress_t
+  use wall_model_bc, only : wall_model_bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   implicit none
   private
@@ -261,6 +268,110 @@ contains
   !> Finalize the coupled resolver by resolving the accumulated BC list.
   subroutine coupled_vector_bc_resolver_finalize(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    type(field_t), pointer :: boundary_flag
+    type(field_t), pointer :: constraint_n_flag
+    type(field_t), pointer :: constraint_t1_flag
+    type(field_t), pointer :: constraint_t2_flag
+    integer :: scratch_idx(4)
+    integer, allocatable :: mask_values(:)
+    integer :: i, j, n, m
+    logical :: c_n, c_t1, c_t2
+    class(bc_t), pointer :: bc
+
+    call this%dof_mask%free()
+
+    if (allocated(this%constraint_n)) deallocate(this%constraint_n)
+    if (allocated(this%constraint_t1)) deallocate(this%constraint_t1)
+    if (allocated(this%constraint_t2)) deallocate(this%constraint_t2)
+
+    if (.not. associated(this%dof)) return
+    if (this%bcs%size() .eq. 0) return
+
+    call neko_scratch_registry%request_field(boundary_flag, scratch_idx(1), .true.)
+    call neko_scratch_registry%request_field(constraint_n_flag, scratch_idx(2), .true.)
+    call neko_scratch_registry%request_field(constraint_t1_flag, scratch_idx(3), .true.)
+    call neko_scratch_registry%request_field(constraint_t2_flag, scratch_idx(4), .true.)
+
+    n = this%dof%size()
+
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+
+       if (.not. allocated(bc%msk)) then
+          call neko_error("Attempting to finalize coupled resolver from an unfinalized BC.")
+       end if
+
+       c_n = .false.
+       c_t1 = .false.
+       c_t2 = .false.
+
+       select type (bc)
+       type is (symmetry_t)
+          c_n = .true.
+       type is (shear_stress_t)
+          c_n = .true.
+       type is (wall_model_bc_t)
+          c_n = .true.
+       type is (non_normal_t)
+          c_t1 = .true.
+          c_t2 = .true.
+       class default
+          if (bc%strong) then
+             c_n = .true.
+             c_t1 = .true.
+             c_t2 = .true.
+          end if
+       end select
+
+       do j = 1, bc%msk(0)
+          m = bc%msk(j)
+          boundary_flag%x(m,1,1,1) = 1.0_rp
+          if (c_n) constraint_n_flag%x(m,1,1,1) = 1.0_rp
+          if (c_t1) constraint_t1_flag%x(m,1,1,1) = 1.0_rp
+          if (c_t2) constraint_t2_flag%x(m,1,1,1) = 1.0_rp
+       end do
+    end do
+
+    call this%coef%gs_h%op(boundary_flag, GS_OP_MAX)
+    call this%coef%gs_h%op(constraint_n_flag, GS_OP_MAX)
+    call this%coef%gs_h%op(constraint_t1_flag, GS_OP_MAX)
+    call this%coef%gs_h%op(constraint_t2_flag, GS_OP_MAX)
+
+    m = 0
+    do i = 1, n
+      if (boundary_flag%x(i,1,1,1) .gt. 0.5_rp) then
+         m = m + 1
+      end if
+    end do
+
+    if (m .gt. 0) then
+       allocate(mask_values(m))
+       j = 0
+       do i = 1, n
+          if (boundary_flag%x(i,1,1,1) .gt. 0.5_rp) then
+             j = j + 1
+             mask_values(j) = i
+          end if
+       end do
+
+       call this%dof_mask%init(mask_values(1:m), m)
+       allocate(this%constraint_n(m))
+       allocate(this%constraint_t1(m))
+       allocate(this%constraint_t2(m))
+
+       do i = 1, m
+          j = mask_values(i)
+          this%constraint_n(i) = constraint_n_flag%x(j,1,1,1) .gt. 0.5_rp
+          this%constraint_t1(i) = constraint_t1_flag%x(j,1,1,1) .gt. 0.5_rp
+          this%constraint_t2(i) = constraint_t2_flag%x(j,1,1,1) .gt. 0.5_rp
+       end do
+    end if
+
+    call neko_scratch_registry%relinquish_field(scratch_idx)
+
+    if (allocated(mask_values)) then
+       deallocate(mask_values)
+    end if
   end subroutine coupled_vector_bc_resolver_finalize
 
   !> Add the constrained dofs from an x-component boundary condition.
