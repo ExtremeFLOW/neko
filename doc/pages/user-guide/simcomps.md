@@ -40,6 +40,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Probing of fields at selected points \ref simcomp_probes
 - Output of registered fields to a file \ref simcomp_field_writer
 - Computation of forces and torque on a surface \ref simcomp_force_torque
+- Boundary operations on labeled zones \ref simcomp_boundary_operation
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
 - User defined components \ref user-file_simcomps
@@ -192,6 +193,36 @@ the `"output_filename"` parameter.
    "name": "lambda2"
  }
  ~~~~~~~~~~~~~~~
+
+### boundary_operation {#simcomp_boundary_operation}
+Computes boundary operations on one or more labeled boundary zones. The
+supported operations are `integral`, `average`, `min`, and `max`. Any subset of
+these can be requested. The `integral` and `average` use the facet area weights.
+
+Mandatory fields for this simcomp are:
+- `zone_indices`: the labeled boundary zones to include.
+- `field_name`: the name of the registered field to integrate.
+- `operations`: array containing any subset of `integral`, `average`, `min`,
+  and `max`.
+
+Optional fields for this simcomp are:
+- `log`: if `true` (default), print the requested operations in the log each
+  time the simcomp computes.
+- `output_filename`: if set to a `.csv` file, write `tstep`, `time`, and the
+  requested operations to that file. These writes respect `output_control` and
+  `output_value`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "boundary_operation",
+  "name": "wall_pressure_integral",
+  "zone_indices": [1, 2],
+  "field_name": "p",
+  "operations": ["integral", "average"],
+  "log": true,
+  "output_filename": "wall_pressure.csv"
+}
+~~~~~~~~~~~~~~~
 
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
