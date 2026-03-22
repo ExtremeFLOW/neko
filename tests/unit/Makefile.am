@@ -38,6 +38,7 @@ SUBDIRS = tuple\
 	  point_interpolation\
 	  templates/parallel\
 	  bc_resolver\
+	  boundary_operation\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -80,6 +81,7 @@ TESTS = device/device_test\
 	point_interpolation/point_interpolation_test\
 	templates/parallel/parallel_test\
 	bc_resolver/bc_resolver_test\
+	boundary_operation/boundary_operation_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -158,6 +160,7 @@ EXTRA_DIST = \
 	point_interpolation/test_point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test\
 	bc_resolver/test_bc_resolver.pf\
+	boundary_operation/test_boundary_operation.pf\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
 	templates/serial/test_serial.pf

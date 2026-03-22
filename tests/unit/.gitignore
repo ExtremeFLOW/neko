@@ -25,6 +25,7 @@ test-suite.log
 # Processed files
 **.inc
 **.F90
+!fixtures/*.f90
 **.log
 **.trs
 
@@ -70,3 +71,4 @@ point_interpolation/point_interpolation_suite
 templates/parallel/parallel_suite
 templates/serial/serial_test
 bc_resolver/bc_resolver_suite
+boundary_operation/boundary_operation_suite
