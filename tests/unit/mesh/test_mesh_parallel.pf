@@ -32,6 +32,8 @@ contains
        call device_init
     end if
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
     call neko_mpi_types_init()
   end subroutine setUp
 
