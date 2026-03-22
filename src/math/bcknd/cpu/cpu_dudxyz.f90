@@ -127,7 +127,7 @@ contains
                 do l = 1, lx
                    tmp = tmp + dy(j,l) * u(i,l,k,e)
                 end do
-                drst(i,j,k) =  tmp
+                drst(i,j,k) = tmp
              end do
           end do
        end do
@@ -430,7 +430,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-   !$omp do private(e,i,j,k)
+    !$omp do private(e,i,j,k)
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
