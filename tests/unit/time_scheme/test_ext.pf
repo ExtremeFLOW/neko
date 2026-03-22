@@ -1,11 +1,39 @@
 module test_ext
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_ext_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_ext_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_ext_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_ext_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_ext_constant_dt()
+subroutine test_ext_constant_dt(this)
   use pfunit
   use ext_time_scheme
   use num_types
   implicit none
+  class(test_ext_case), intent(inout) :: this
   
   type(ext_time_scheme_t) ext
   real(kind=rp) :: dt(10), x, coeffs(4)
@@ -31,11 +59,12 @@ subroutine test_ext_constant_dt()
 end subroutine test_ext_constant_dt
 
 @test
-subroutine test_ext_variable_dt()
+subroutine test_ext_variable_dt(this)
   use pfunit
   use ext_time_scheme, only: ext_time_scheme_t
   use num_types, only : rp
   implicit none
+  class(test_ext_case), intent(inout) :: this
   
   type(ext_time_scheme_t) ext
   real(kind=rp) :: dt(10), coeffs(4)
@@ -60,11 +89,12 @@ subroutine test_ext_variable_dt()
 end subroutine test_ext_variable_dt
 
 @test
-subroutine test_ext_modified()
+subroutine test_ext_modified(this)
   use pfunit
   use ext_time_scheme
   use num_types
   implicit none
+  class(test_ext_case), intent(inout) :: this
   
   type(ext_time_scheme_t) ext
   real(kind=rp) :: dt(10), x, coeffs(4)

@@ -1,11 +1,39 @@
 module test_fd_weights_full
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_fd_weights_full_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_fd_weights_full_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_fd_weights_full_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_fd_weights_full_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
  @test
- subroutine test_linear_midpoint()
+ subroutine test_linear_midpoint(this)
    use pfunit
    use fast3d
    use num_types
    implicit none
+   class(test_fd_weights_full_case), intent(inout) :: this
    
    integer, parameter :: n=1, m=0
    real(kind=rp) :: xi, x(0:n), c(0:n,0:m)
@@ -21,11 +49,12 @@ contains
 end subroutine test_linear_midpoint
 
  @test
- subroutine test_central_difference()
+ subroutine test_central_difference(this)
    use pfunit
    use fast3d
    use num_types
    implicit none
+   class(test_fd_weights_full_case), intent(inout) :: this
    
    integer, parameter :: n=2, m=1
    real(kind=rp) :: xi, x(0:n), c(0:n,0:m)

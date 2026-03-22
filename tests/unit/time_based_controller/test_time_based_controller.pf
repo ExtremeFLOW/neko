@@ -1,13 +1,41 @@
 module test_time_based_controller
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_time_based_controller_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_time_based_controller_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_time_based_controller_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_time_based_controller_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 !> Test the constructor
 @test
-subroutine test_init()
+subroutine test_init(this)
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use time_state, only : time_state_t
   use num_types, only : rp
   implicit none
+  class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
 
@@ -35,11 +63,12 @@ end subroutine test_init
 
 !> Test assignment
 @test
-subroutine test_assign()
+subroutine test_assign(this)
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
   implicit none
+  class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl1
   type(time_based_controller_t) ctrl2
@@ -58,12 +87,13 @@ end subroutine test_assign
 
 !> Test check simulationtime
 @test
-subroutine test_check_simulationtime()
+subroutine test_check_simulationtime(this)
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
   use time_state, only : time_state_t
   implicit none
+  class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
   type(time_state_t) :: time
@@ -100,12 +130,13 @@ end subroutine test_check_simulationtime
 
 !> Test check nsamples
 @test
-subroutine test_check_nsamples()
+subroutine test_check_nsamples(this)
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
   use time_state, only : time_state_t
   implicit none
+  class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
   type(time_state_t) :: time
@@ -128,12 +159,13 @@ end subroutine test_check_nsamples
 
 !> Test check tsteps
 @test
-subroutine test_check_tsteps()
+subroutine test_check_tsteps(this)
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
   use time_state, only : time_state_t
   implicit none
+  class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
   type(time_state_t) :: time
@@ -156,11 +188,12 @@ end subroutine test_check_tsteps
 
 !> Test register
 @test
-subroutine test_register()
+subroutine test_register(this)
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
   implicit none
+  class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
 

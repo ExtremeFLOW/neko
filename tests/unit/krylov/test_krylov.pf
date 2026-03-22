@@ -1,10 +1,38 @@
 module test_krylov
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_krylov_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_krylov_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_krylov_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_krylov_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_krylov_init
+subroutine test_krylov_init(this)
   use pfunit
   use krylov
   implicit none
+  class(test_krylov_case), intent(inout) :: this
 
   integer :: i
 
@@ -13,10 +41,11 @@ subroutine test_krylov_init
 end subroutine test_krylov_init
 
 @test
-subroutine test_krylov_free
+subroutine test_krylov_free(this)
   use pfunit
   use krylov
   implicit none
+  class(test_krylov_case), intent(inout) :: this
   integer :: i
 
   ! UPDATE once redesign is done

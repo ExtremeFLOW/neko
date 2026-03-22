@@ -1,15 +1,45 @@
 module test_math_parallel
   use mpi
   use pfunit
+
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init
   use math
   use num_types
   use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
+
+  @TestCase
+  type, extends(MPITestCase) :: test_math_parallel_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_math_parallel_case
+
 contains
 
+  subroutine setUp(this)
+    class(test_math_parallel_case), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_math_parallel_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
   @test
-  subroutine test_math_abscmp
+  subroutine test_math_abscmp(this)
+    class(test_math_parallel_case), intent(inout) :: this
     real(kind=rp) :: a, b, c, d
 
     a = 17.0_rp
@@ -28,7 +58,8 @@ contains
   end subroutine test_math_abscmp
 
   @test
-  subroutine test_math_rzero
+  subroutine test_math_rzero(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp) :: a(n)
     integer :: i
@@ -50,7 +81,8 @@ contains
   end subroutine test_math_rzero
 
   @test
-  subroutine test_math_izero
+  subroutine test_math_izero(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     integer :: a(n)
     integer :: i
@@ -64,7 +96,8 @@ contains
   end subroutine test_math_izero
 
   @test
-  subroutine test_math_rone
+  subroutine test_math_rone(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp) :: a(n)
     integer :: i
@@ -81,7 +114,8 @@ contains
   end subroutine test_math_rone
 
   @test
-  subroutine test_math_copy
+  subroutine test_math_copy(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp) :: a(n), b(n)
     integer :: i
@@ -100,7 +134,8 @@ contains
   end subroutine test_math_copy
 
   @test
-  subroutine test_math_cadd
+  subroutine test_math_cadd(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp) :: a(n)
     real(kind=rp), parameter :: s = 42
@@ -116,7 +151,8 @@ contains
   end subroutine test_math_cadd
 
   @test
-  subroutine test_math_vcross
+  subroutine test_math_vcross(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
     real(kind=rp), parameter :: s = 42
@@ -147,7 +183,8 @@ contains
   end subroutine test_math_vcross
 
   @test
-  subroutine test_math_vdot2
+  subroutine test_math_vdot2(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: dot, v1, v2, w1, w2
     integer :: i
@@ -172,8 +209,9 @@ contains
 
 
   @test
-  subroutine test_math_vdot3
+  subroutine test_math_vdot3(this)
     implicit none
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: dot, v1, v2, v3, w1, w2, w3
     integer :: i
@@ -199,7 +237,8 @@ contains
   end subroutine test_math_vdot3
 
   @test
-  subroutine test_math_add2
+  subroutine test_math_add2(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: dot, a, b
     integer :: i
@@ -218,7 +257,8 @@ contains
   end subroutine test_math_add2
 
   @test
-  subroutine test_math_add3
+  subroutine test_math_add3(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: dot, a, b, c
     integer :: i
@@ -238,7 +278,8 @@ contains
   end subroutine test_math_add3
 
   @test
-  subroutine test_math_add4
+  subroutine test_math_add4(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: dot, a, b, c, d
     integer :: i
@@ -260,7 +301,8 @@ contains
   end subroutine test_math_add4
 
   @test
-  subroutine test_math_add2s1
+  subroutine test_math_add2s1(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b
     real(kind=rp), parameter :: c1 = 2.0_rp
@@ -280,7 +322,8 @@ contains
   end subroutine test_math_add2s1
 
   @test
-  subroutine test_math_add2s2
+  subroutine test_math_add2s2(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b
     real(kind=rp), parameter :: c1 = 2_rp
@@ -300,7 +343,8 @@ contains
   end subroutine test_math_add2s2
 
   @test
-  subroutine test_math_invcol2
+  subroutine test_math_invcol2(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b
     integer :: i
@@ -319,7 +363,8 @@ contains
   end subroutine test_math_invcol2
 
   @test
-  subroutine test_math_col2
+  subroutine test_math_col2(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b
     integer :: i
@@ -338,7 +383,8 @@ contains
   end subroutine test_math_col2
 
   @test
-  subroutine test_math_col3
+  subroutine test_math_col3(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b, c
     integer :: i
@@ -358,7 +404,8 @@ contains
   end subroutine test_math_col3
 
   @test
-  subroutine test_math_sub3
+  subroutine test_math_sub3(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b, c
     integer :: i
@@ -378,7 +425,8 @@ contains
   end subroutine test_math_sub3
 
   @test
-  subroutine test_math_addcol3
+  subroutine test_math_addcol3(this)
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b, c
     integer :: i
@@ -399,13 +447,11 @@ contains
 
   @test(npes=[1,2])
   subroutine test_math_glsc3(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_math_parallel_case), intent(inout) :: this
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b, c
     real(kind=rp) :: res, expected
     integer :: i, ierr
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     do i = 1, n
        a(i) = 1.0_rp
@@ -425,7 +471,8 @@ contains
 
   !> Test the point-wise maximum operation
   @test
-  subroutine test_math_pwmax2
+  subroutine test_math_pwmax2(this)
+    class(test_math_parallel_case), intent(inout) :: this
 
     integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c
@@ -451,7 +498,8 @@ contains
 
   !> Test the point-wise maximum operation
   @test
-  subroutine test_math_pwmax3
+  subroutine test_math_pwmax3(this)
+    class(test_math_parallel_case), intent(inout) :: this
 
     integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c, d
@@ -478,7 +526,8 @@ contains
 
   !> Test the point-wise minimum operation
   @test
-  subroutine test_math_pwmin2
+  subroutine test_math_pwmin2(this)
+    class(test_math_parallel_case), intent(inout) :: this
 
     integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c
@@ -504,7 +553,8 @@ contains
 
   !> Test the point-wise minimum operation
   @test
-  subroutine test_math_pwmin3
+  subroutine test_math_pwmin3(this)
+    class(test_math_parallel_case), intent(inout) :: this
 
     integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c, d

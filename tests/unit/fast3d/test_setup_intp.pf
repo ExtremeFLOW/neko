@@ -1,12 +1,40 @@
 module test_setup_intp
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_setup_intp_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_setup_intp_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_setup_intp_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_setup_intp_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 !> Normal interpolation from space with 2 points to 4
 @test
-subroutine test_setup_intp_basic()
+subroutine test_setup_intp_basic(this)
   use pfunit
   use fast3d, only : setup_intp
   use num_types, only : rp
   implicit none
+  class(test_setup_intp_case), intent(inout) :: this
   
   integer, parameter :: lx = 4
   real(kind=rp) Xh_to_Yh(lx, lx-2)
@@ -51,11 +79,12 @@ end subroutine test_setup_intp_basic
 
 !> Use a single point in the "from" space, expecting weight 1
 @test
-subroutine test_setup_intp_single_n_from()
+subroutine test_setup_intp_single_n_from(this)
   use pfunit
   use fast3d, only : setup_intp
   use num_types, only : rp
   implicit none
+  class(test_setup_intp_case), intent(inout) :: this
   
   integer, parameter :: lx = 4
   real(kind=rp) Xh_to_Yh(lx, 1)

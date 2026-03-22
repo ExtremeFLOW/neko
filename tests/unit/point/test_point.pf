@@ -1,11 +1,39 @@
 module test_point
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_point_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_point_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_point_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_point_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_point_init
+subroutine test_point_init(this)
   use pfunit
   use point
   use num_types
   implicit none
+  class(test_point_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: coords(3) = (/1d0, 2d0, 3d0/)
@@ -38,11 +66,12 @@ subroutine test_point_init
 end subroutine test_point_init
 
 @test
-subroutine test_point_assign
+subroutine test_point_assign(this)
   use pfunit
   use point
   use num_types
   implicit none
+  class(test_point_case), intent(inout) :: this
   type(point_t) :: p1, p2
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/1d0, 2d0, 3d0/)
@@ -79,11 +108,12 @@ subroutine test_point_assign
 end subroutine test_point_assign
 
 @test
-subroutine test_point_eqne
+subroutine test_point_eqne(this)
   use pfunit
   use point
   use num_types
   implicit none
+  class(test_point_case), intent(inout) :: this
   type(point_t) :: p1, p2
   real(kind=dp), parameter :: c1(3) = (/1d0, 2d0, 3d0/)
   real(kind=dp), parameter :: c2(3) = (/4d0, 5d0, 6d0/)
@@ -97,11 +127,12 @@ subroutine test_point_eqne
 end subroutine test_point_eqne
 
 @test
-subroutine test_point_ltgt
+subroutine test_point_ltgt(this)
   use pfunit
   use point
   use num_types
   implicit none
+  class(test_point_case), intent(inout) :: this
   type(point_t) :: p1, p2
   real(kind=dp), parameter :: c1(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/2d0, 0d0, 0d0/)

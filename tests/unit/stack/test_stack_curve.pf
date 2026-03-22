@@ -1,12 +1,40 @@
 module test_stack_curve
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_stack_curve_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_stack_curve_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_stack_curve_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_stack_curve_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_stack_curve_init
+subroutine test_stack_curve_init(this)
   use pfunit
   use stack
   use math, only : NEKO_M_LN2
   use num_types, only : rp
   implicit none
+  class(test_stack_curve_case), intent(inout) :: this
   type(stack_curve_t) :: s1, s2, s3
   integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
 
@@ -40,10 +68,11 @@ subroutine test_stack_curve_init
 end subroutine test_stack_curve_init
 
 @test
-subroutine test_stack_curve_free
+subroutine test_stack_curve_free(this)
   use pfunit
   use stack
   implicit none
+  class(test_stack_curve_case), intent(inout) :: this
   type(stack_curve_t) :: s
 
   call s%init()
@@ -57,11 +86,12 @@ subroutine test_stack_curve_free
 end subroutine test_stack_curve_free
 
 @test
-subroutine test_stack_curve_push
+subroutine test_stack_curve_push(this)
   use pfunit
   use stack
   use structs
   implicit none
+  class(test_stack_curve_case), intent(inout) :: this
   type(stack_curve_t) :: s
   integer :: i, j, k
   type(struct_curve_t) :: data
@@ -111,11 +141,12 @@ subroutine test_stack_curve_push
 end subroutine test_stack_curve_push
 
 @test
-subroutine test_stack_curve_pop
+subroutine test_stack_curve_pop(this)
   use pfunit
   use stack
   use structs
   implicit none
+  class(test_stack_curve_case), intent(inout) :: this
   type(stack_curve_t) :: s
   integer :: i, j, k
   type(struct_curve_t) :: data, data2
@@ -151,11 +182,12 @@ subroutine test_stack_curve_pop
 end subroutine test_stack_curve_pop
 
 @test
-subroutine test_stack_curve_clear
+subroutine test_stack_curve_clear(this)
   use pfunit
   use stack
   use structs
   implicit none
+  class(test_stack_curve_case), intent(inout) :: this
   type(stack_curve_t) :: s
   integer :: i
   type(struct_curve_t) :: data

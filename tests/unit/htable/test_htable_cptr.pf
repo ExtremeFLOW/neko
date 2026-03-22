@@ -1,11 +1,39 @@
 module test_htable_cptr
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_htable_cptr_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_htable_cptr_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_htable_cptr_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_htable_cptr_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_htable_cptr_contract
+subroutine test_htable_cptr_contract(this)
   use pfunit
   use htable
   use, intrinsic :: iso_c_binding, only : c_loc, c_associated
   implicit none
+  class(test_htable_cptr_case), intent(inout) :: this
   type(htable_cptr_t) :: h
   type(htable_iter_cptr_t) :: it
   integer, target :: key_targets(2), data_targets(3)

@@ -1,11 +1,39 @@
 module test_bdf
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_bdf_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_bdf_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_bdf_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_bdf_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
  @test
- subroutine test_constant_dt()
+ subroutine test_constant_dt(this)
    use pfunit
    use bdf_time_scheme, only : bdf_time_scheme_t
    use num_types, only : rp
    implicit none
+   class(test_bdf_case), intent(inout) :: this
    
    type(bdf_time_scheme_t) bdf
    real(kind=rp) :: dt(10), x
@@ -36,11 +64,12 @@ contains
 end subroutine test_constant_dt
 
  @test
- subroutine test_variable_dt()
+ subroutine test_variable_dt(this)
    use pfunit
    use bdf_time_scheme, only : bdf_time_scheme_t
    use num_types, only : rp
    implicit none
+   class(test_bdf_case), intent(inout) :: this
    
    type(bdf_time_scheme_t) bdf
    real(kind=rp) :: dt(10), coeffs(10), coeffs_new(4)
@@ -81,12 +110,13 @@ end subroutine test_variable_dt
 
 !> Shows that we can use df_weights_full to get a scheme of arbitrary order
  @test
- subroutine test_with_df_weights_full()
+ subroutine test_with_df_weights_full(this)
    use pfunit
    use bdf_time_scheme, only : bdf_time_scheme_t
    use fast3d, only : fd_weights_full
    use num_types
    implicit none
+   class(test_bdf_case), intent(inout) :: this
    
    type(bdf_time_scheme_t) bdf
    integer, parameter :: n=3, m=1

@@ -1,13 +1,41 @@
 module test_htable_i4t4
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_htable_i4t4_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_htable_i4t4_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_htable_i4t4_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_htable_i4t4_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_htable_init_i4t4
+subroutine test_htable_init_i4t4(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
   implicit none
+  class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   integer :: data_i4
   integer(kind=i8) :: data_i8
@@ -37,13 +65,14 @@ subroutine test_htable_init_i4t4
 end subroutine test_htable_init_i4t4
 
 @test
-subroutine test_htable_add_i4t4
+subroutine test_htable_add_i4t4(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
   implicit none
+  class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -112,11 +141,12 @@ subroutine test_htable_add_i4t4
 end subroutine test_htable_add_i4t4
 
 @test
-subroutine test_htable_contract_i4t4
+subroutine test_htable_contract_i4t4(this)
   use pfunit
   use htable
   use tuple
   implicit none
+  class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   type(htable_iter_i4t4_t) :: it
   type(tuple4_i4_t) :: key, key_expected, data_t4i4, copy_t4i4
@@ -164,11 +194,12 @@ subroutine test_htable_contract_i4t4
 end subroutine test_htable_contract_i4t4
 
 @test
-subroutine test_htable_clear_i4t4
+subroutine test_htable_clear_i4t4(this)
   use pfunit
   use htable
   use tuple
   implicit none
+  class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   integer :: i
   type(tuple4_i4_t) :: key, data
@@ -187,11 +218,12 @@ subroutine test_htable_clear_i4t4
 end subroutine test_htable_clear_i4t4
 
 @test
-subroutine test_htable_free_i4t4
+subroutine test_htable_free_i4t4(this)
   use pfunit
   use htable
   use tuple
   implicit none
+  class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   integer :: i
   type(tuple4_i4_t) :: key, data
@@ -211,13 +243,14 @@ end subroutine test_htable_free_i4t4
 
 
 @test
-subroutine test_htable_get_i4t4
+subroutine test_htable_get_i4t4(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
   implicit none
+  class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -318,13 +351,14 @@ end subroutine test_htable_get_i4t4
 
 
 @test
-subroutine test_htable_remove_i4t4
+subroutine test_htable_remove_i4t4(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
   implicit none
+  class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -409,11 +443,12 @@ subroutine test_htable_remove_i4t4
 end subroutine test_htable_remove_i4t4
 
 @test
-subroutine test_htable_iter_i4t4
+subroutine test_htable_iter_i4t4(this)
   use pfunit
   use htable
   use tuple
   implicit none
+  class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   type(htable_iter_i4t4_t) :: it
   integer :: i, rcode

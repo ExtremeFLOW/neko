@@ -1,8 +1,35 @@
 module test_device_mathops
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_device_mathops_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_device_mathops_case
+
 contains
 
+  subroutine setUp(this)
+    class(test_device_mathops_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_device_mathops_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+
 @test
-subroutine test_mathops_opchsign
+subroutine test_mathops_opchsign(this)
   use pfunit
   use device
   use device_mathops
@@ -10,6 +37,7 @@ subroutine test_mathops_opchsign
   use neko_config
   use, intrinsic :: iso_c_binding
   implicit none 
+  class(test_device_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: a1, a2, a3
   type(c_ptr) :: a1_d = C_NULL_PTR
@@ -19,8 +47,6 @@ subroutine test_mathops_opchsign
 
   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
        (NEKO_BCKND_OPENCL .eq. 1)) then
-     
-     call device_init
      call device_map(a1, a1_d, n)
      call device_map(a2, a2_d, n)
      call device_map(a3, a3_d, n)
@@ -49,15 +75,12 @@ subroutine test_mathops_opchsign
            end if
         end do
      end do
-     
-     call device_finalize
-
   end if
   
 end subroutine test_mathops_opchsign
 
 @test
-subroutine test_mathops_opcolv
+subroutine test_mathops_opcolv(this)
   use pfunit
   use device
   use device_mathops
@@ -65,6 +88,7 @@ subroutine test_mathops_opcolv
   use neko_config
   use, intrinsic :: iso_c_binding
   implicit none 
+  class(test_device_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: a1, a2, a3, c
   type(c_ptr) :: a1_d = C_NULL_PTR
@@ -75,8 +99,6 @@ subroutine test_mathops_opcolv
 
   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
        (NEKO_BCKND_OPENCL .eq. 1)) then
-
-     call device_init
      call device_map(a1, a1_d, n)
      call device_map(a2, a2_d, n)
      call device_map(a3, a3_d, n)
@@ -107,14 +129,12 @@ subroutine test_mathops_opcolv
            end if
         end do
      end do
-
-     call device_finalize
   end if
      
 end subroutine test_mathops_opcolv
 
 @test
-subroutine test_mathops_opcolv3c
+subroutine test_mathops_opcolv3c(this)
   use pfunit
   use device
   use device_mathops
@@ -122,6 +142,7 @@ subroutine test_mathops_opcolv3c
   use neko_config
   use, intrinsic :: iso_c_binding
   implicit none 
+  class(test_device_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), dimension(n):: c(n)
   real(kind=rp), parameter :: d = 1/42.0_rp
@@ -138,8 +159,6 @@ subroutine test_mathops_opcolv3c
 
   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
        (NEKO_BCKND_OPENCL .eq. 1)) then
-     
-     call device_init
      call device_map(a1, a1_d, n)
      call device_map(a2, a2_d, n)
      call device_map(a3, a3_d, n)
@@ -179,13 +198,12 @@ subroutine test_mathops_opcolv3c
            end if
         end do
      end do
-     call device_finalize
   end if
   
 end subroutine test_mathops_opcolv3c
 
 @test
-subroutine test_mathops_opadd2cm
+subroutine test_mathops_opadd2cm(this)
   use pfunit
   use device
   use device_mathops
@@ -193,6 +211,7 @@ subroutine test_mathops_opadd2cm
   use neko_config
   use, intrinsic :: iso_c_binding
   implicit none 
+  class(test_device_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c = 42.0_rp
   real(kind=rp), dimension(n) :: a1, a2, a3
@@ -207,8 +226,6 @@ subroutine test_mathops_opadd2cm
 
   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
        (NEKO_BCKND_OPENCL .eq. 1)) then
-     
-     call device_init
      call device_map(a1, a1_d, n)
      call device_map(a2, a2_d, n)
      call device_map(a3, a3_d, n)
@@ -245,13 +262,12 @@ subroutine test_mathops_opadd2cm
            end if
         end do
      end do
-     call device_finalize
   end if
   
 end subroutine test_mathops_opadd2cm
 
 @test
-subroutine test_mathops_opadd2col
+subroutine test_mathops_opadd2col(this)
   use pfunit
   use device
   use device_mathops
@@ -259,6 +275,7 @@ subroutine test_mathops_opadd2col
   use neko_config
   use, intrinsic :: iso_c_binding
   implicit none 
+  class(test_device_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: c
   real(kind=rp), dimension(n) :: a1, a2, a3
@@ -274,8 +291,6 @@ subroutine test_mathops_opadd2col
 
   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
        (NEKO_BCKND_OPENCL .eq. 1)) then
-     
-     call device_init
      call device_map(a1, a1_d, n)
      call device_map(a2, a2_d, n)
      call device_map(a3, a3_d, n)
@@ -315,7 +330,6 @@ subroutine test_mathops_opadd2col
            end if
         end do
      end do
-     call device_finalize
   end if
   
 end subroutine test_mathops_opadd2col
