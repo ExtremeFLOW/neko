@@ -596,6 +596,8 @@ contains
     integer :: i, j, m
     real(kind=rp) :: u(3), uloc(3)
 
+    if (.not. this%dof_mask%is_set()) return
+
     m = this%dof_mask%size()
     msk => this%dof_mask%get()
 
