@@ -698,6 +698,26 @@ __inline__ __device__ T reduce_warp(T val) {
   return val;
 }
 
+template< typename T>
+__inline__ __device__ T max_reduce_warp(T val) {
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 16));
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 8));
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 4));
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 2));
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 1));
+  return val;
+}
+
+template< typename T>
+__inline__ __device__ T min_reduce_warp(T val) {
+  val = fmin(val, __shfl_down_sync(0xffffffff, val, 16));
+  val = fmin(val, __shfl_down_sync(0xffffffff, val, 8));
+  val = fmin(val, __shfl_down_sync(0xffffffff, val, 4));
+  val = fmin(val, __shfl_down_sync(0xffffffff, val, 2));
+  val = fmin(val, __shfl_down_sync(0xffffffff, val, 1));
+  return val;
+}
+
 /**
  * Vector reduction kernel
  */
@@ -727,6 +747,62 @@ __global__ void reduce_kernel(T * bufred, const int n) {
 
   if (threadIdx.x == 0)
     bufred[blockIdx.x] = sum;
+}
+
+template< typename T >
+__global__ void max_reduce_kernel(T * bufred, const int n) {
+
+  T vmax = bufred[0];
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  for (int i = idx; i<n ; i += str)
+  {
+    vmax = fmax(vmax, bufred[i]);
+  }
+
+  __shared__ T shared[32];
+  unsigned int lane = threadIdx.x % warpSize;
+  unsigned int wid = threadIdx.x / warpSize;
+
+  vmax = max_reduce_warp<T>(vmax);
+  if (lane == 0)
+    shared[wid] = vmax;
+  __syncthreads();
+
+  vmax = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : bufred[0];
+  if (wid == 0)
+    vmax = max_reduce_warp<T>(vmax);
+
+  if (threadIdx.x == 0)
+    bufred[blockIdx.x] = vmax;
+}
+
+template< typename T >
+__global__ void min_reduce_kernel(T * bufred, const int n) {
+
+  T vmin = bufred[0];
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  for (int i = idx; i<n ; i += str)
+  {
+    vmin = fmin(vmin, bufred[i]);
+  }
+
+  __shared__ T shared[32];
+  unsigned int lane = threadIdx.x % warpSize;
+  unsigned int wid = threadIdx.x / warpSize;
+
+  vmin = min_reduce_warp<T>(vmin);
+  if (lane == 0)
+    shared[wid] = vmin;
+  __syncthreads();
+
+  vmin = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : bufred[0];
+  if (wid == 0)
+    vmin = min_reduce_warp<T>(vmin);
+
+  if (threadIdx.x == 0)
+    bufred[blockIdx.x] = vmin;
 }
 
 
@@ -944,6 +1020,70 @@ __global__ void glsum_kernel(const T * a,
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
+
+}
+
+template< typename T >
+__global__ void glmax_kernel(const T * a,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[32];
+  T vmax = a[0];
+  for (int i = idx; i<n ; i += str)
+  {
+    vmax = fmax(vmax, a[i]);
+  }
+
+  vmax = max_reduce_warp<T>(vmax);
+  if (lane == 0)
+    shared[wid] = vmax;
+  __syncthreads();
+
+  vmax = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : a[0];
+  if (wid == 0)
+    vmax = max_reduce_warp<T>(vmax);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = vmax;
+
+}
+
+template< typename T >
+__global__ void glmin_kernel(const T * a,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[32];
+  T vmin = a[0];
+  for (int i = idx; i<n ; i += str)
+  {
+    vmin = fmin(vmin, a[i]);
+  }
+
+  vmin = min_reduce_warp<T>(vmin);
+  if (lane == 0)
+    shared[wid] = vmin;
+  __syncthreads();
+
+  vmin = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : a[0];
+  if (wid == 0)
+    vmin = min_reduce_warp<T>(vmin);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = vmin;
 
 }
 

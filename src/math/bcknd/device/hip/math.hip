@@ -35,6 +35,7 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
+#include <limits>
 #include "math_kernel.h"
 
 extern "C" {
@@ -669,6 +670,42 @@ extern "C" {
     #endif
   }
 
+  void hip_global_reduce_max(real * bufred, void * bufred_d, int n,
+                             const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+                              DEVICE_NCCL_MAX, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_MAX);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
+
+  void hip_global_reduce_min(real * bufred, void * bufred_d, int n,
+                             const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+                              DEVICE_NCCL_MIN, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_MIN);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
+
   /**
    * Fortran wrapper vlsc3
    * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
@@ -848,6 +885,60 @@ extern "C" {
     }
 
     hip_global_reduce_add(bufred, bufred_d, 1, stream);
+
+    return bufred[0];
+  }
+
+  real hip_glmax(void *a, int *n, hipStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    const int one = 1;
+    const real fill = -std::numeric_limits<real>::max();
+
+    hip_redbuf_check_alloc(nb);
+    if( *n > 0) {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glmax_kernel<real>),
+                         nblcks, nthrds, 0, stream,
+                         (real *) a, bufred_d, *n);
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(max_reduce_kernel<real>),
+                         1, 1024, 0, stream, bufred_d, nb);
+      HIP_CHECK(hipGetLastError());
+    }
+    else {
+      hip_cfill(bufred_d, const_cast<real *>(&fill), const_cast<int *>(&one),
+                stream);
+    }
+
+    hip_global_reduce_max(bufred, bufred_d, 1, stream);
+
+    return bufred[0];
+  }
+
+  real hip_glmin(void *a, int *n, hipStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    const int one = 1;
+    const real fill = std::numeric_limits<real>::max();
+
+    hip_redbuf_check_alloc(nb);
+    if( *n > 0) {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glmin_kernel<real>),
+                         nblcks, nthrds, 0, stream,
+                         (real *) a, bufred_d, *n);
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(min_reduce_kernel<real>),
+                         1, 1024, 0, stream, bufred_d, nb);
+      HIP_CHECK(hipGetLastError());
+    }
+    else {
+      hip_cfill(bufred_d, const_cast<real *>(&fill), const_cast<int *>(&one),
+                stream);
+    }
+
+    hip_global_reduce_min(bufred, bufred_d, 1, stream);
 
     return bufred[0];
   }

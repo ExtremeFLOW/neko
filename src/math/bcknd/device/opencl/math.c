@@ -40,6 +40,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
@@ -1353,6 +1354,102 @@ real opencl_glsum(void *a, int *n, cl_command_queue cmd_queue) {
   real res = 0.0;
   for (i = 0; i < nb; i++) {
     res += buf[i];
+  }
+
+  free(buf);
+  CL_CHECK(clReleaseMemObject(buf_d));
+  CL_CHECK(clReleaseKernel(kernel));
+
+  return res;
+}
+
+real opencl_glmax(void *a, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+  cl_event kern_wait;
+  int i;
+
+  if (*n <= 0) {
+    return -((real) HUGE_VAL);
+  }
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  real * buf = (real *) malloc(nb * sizeof(real));
+
+  cl_kernel kernel = clCreateKernel(math_program, "glmax_kernel", &err);
+  CL_CHECK(err);
+
+  cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                                nb * sizeof(real), NULL, &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &buf_d));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, &kern_wait));
+
+  CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
+                               nb * sizeof(real), buf, 1, &kern_wait, NULL));
+
+  real res = buf[0];
+  for (i = 1; i < nb; i++) {
+    res = fmax(res, buf[i]);
+  }
+
+  free(buf);
+  CL_CHECK(clReleaseMemObject(buf_d));
+  CL_CHECK(clReleaseKernel(kernel));
+
+  return res;
+}
+
+real opencl_glmin(void *a, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+  cl_event kern_wait;
+  int i;
+
+  if (*n <= 0) {
+    return (real) HUGE_VAL;
+  }
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  real * buf = (real *) malloc(nb * sizeof(real));
+
+  cl_kernel kernel = clCreateKernel(math_program, "glmin_kernel", &err);
+  CL_CHECK(err);
+
+  cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                                nb * sizeof(real), NULL, &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &buf_d));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, &kern_wait));
+
+  CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
+                               nb * sizeof(real), buf, 1, &kern_wait, NULL));
+
+  real res = buf[0];
+  for (i = 1; i < nb; i++) {
+    res = fmin(res, buf[i]);
   }
 
   free(buf);
