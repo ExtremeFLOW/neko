@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -65,11 +65,12 @@ contains
     real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_len)
     real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_len)
     real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_len)
-    
+
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
          jacinv => coef%jacinv)
+      !$omp parallel
       select case (Xh%lx)
       case (14)
          call cpu_conv1_lx14(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
@@ -156,6 +157,7 @@ contains
               drdz(1,1,1, e_start), dsdz(1,1,1, e_start), dtdz(1,1,1, e_start),&
               jacinv(1,1,1, e_start), e_len, Xh%lx)
       end select
+      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_conv1_many
@@ -176,7 +178,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
-
+    !$omp do private(e,i,j,k,l)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -226,7 +228,7 @@ contains
                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx
 
   subroutine cpu_conv1_lx14(du, u, vx, vy, vz, dx, dy, dz, &
@@ -245,7 +247,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -322,7 +324,7 @@ contains
                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx14
 
   subroutine cpu_conv1_lx13(du, u, vx, vy, vz, dx, dy, dz, &
@@ -341,7 +343,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -415,7 +417,7 @@ contains
                          + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx13
 
   subroutine cpu_conv1_lx12(du, u, vx, vy, vz, dx, dy, dz, &
@@ -434,7 +436,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -505,7 +507,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx12
 
   subroutine cpu_conv1_lx11(du, u, vx, vy, vz, dx, dy, dz, &
@@ -524,7 +526,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -592,7 +594,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx11
 
   subroutine cpu_conv1_lx10(du, u, vx, vy, vz, dx, dy, dz, &
@@ -611,7 +613,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -676,7 +678,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx10
 
   subroutine cpu_conv1_lx9(du, u, vx, vy, vz, dx, dy, dz, &
@@ -695,7 +697,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -757,7 +759,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx9
 
   subroutine cpu_conv1_lx8(du, u, vx, vy, vz, dx, dy, dz, &
@@ -776,7 +778,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -835,7 +837,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx8
 
   subroutine cpu_conv1_lx7(du, u, vx, vy, vz, dx, dy, dz, &
@@ -854,7 +856,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -910,7 +912,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx7
 
   subroutine cpu_conv1_lx6(du, u, vx, vy, vz, dx, dy, dz, &
@@ -929,7 +931,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -982,7 +984,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx6
 
   subroutine cpu_conv1_lx5(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1001,7 +1003,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1051,7 +1053,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx5
 
   subroutine cpu_conv1_lx4(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1070,7 +1072,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1117,7 +1119,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx4
 
   subroutine cpu_conv1_lx3(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1136,7 +1138,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1180,7 +1182,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx3
 
   subroutine cpu_conv1_lx2(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1199,7 +1201,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) ::  duds
     real(kind=rp), dimension(lx, lx, lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do private(e,i,j,k)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1240,7 +1242,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx2
 
   subroutine opr_cpu_conv1_single(du, u, vx, vy, vz, Xh, coef, e)
@@ -1253,7 +1255,7 @@ contains
     real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_len)
     real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_len)
     real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_len)
-    
+
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
@@ -1348,6 +1350,7 @@ contains
 
   end subroutine opr_cpu_conv1_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, lx)
@@ -1386,7 +1389,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           tmp = 0.0_rp
@@ -1396,7 +1399,7 @@ contains
           dudt(i,1,k) = tmp
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                 * ( vx(i,1,1) &
@@ -1412,9 +1415,10 @@ contains
                     + dsdz(i,1,1) * duds(i,1,1) &
                     + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
-    
+
   end subroutine cpu_conv1_lx_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx14_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 14
@@ -1488,7 +1492,7 @@ contains
                       + dz(k,14) * u(i,1,14)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                    * ( vx(i,1,1) &
@@ -1504,9 +1508,10 @@ contains
                        + dsdz(i,1,1) * duds(i,1,1) &
                        + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
-  
+
   end subroutine cpu_conv1_lx14_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx13_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 13
@@ -1539,7 +1544,7 @@ contains
                       + dx(i,13) * u(13,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
@@ -1559,7 +1564,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -1596,7 +1601,7 @@ contains
 
   end subroutine cpu_conv1_lx13_single
 
-  
+  !OCL SERIAL
   subroutine cpu_conv1_lx12_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 12
@@ -1664,7 +1669,7 @@ contains
                       + dz(k,12) * u(i,1,12)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
@@ -1683,6 +1688,7 @@ contains
 
   end subroutine cpu_conv1_lx12_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx11_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 11
@@ -1731,7 +1737,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -1766,6 +1772,7 @@ contains
 
   end subroutine cpu_conv1_lx11_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx10_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 10
@@ -1795,7 +1802,7 @@ contains
                       + dx(i,10) * u(10,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
@@ -1812,7 +1819,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -1827,7 +1834,7 @@ contains
                       + dz(k,10) * u(i,1,10)
        end do
     end do
-       
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
@@ -1846,6 +1853,7 @@ contains
 
   end subroutine cpu_conv1_lx10_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx9_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 9
@@ -1874,7 +1882,7 @@ contains
                       + dx(i,9) * u(9,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
@@ -1890,7 +1898,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -1904,7 +1912,7 @@ contains
                       + dz(k,9) * u(i,1,9)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
@@ -1920,9 +1928,10 @@ contains
                         + dsdz(i,1,1) * duds(i,1,1) &
                         + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
-    
+
   end subroutine cpu_conv1_lx9_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx8_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 8
@@ -1965,7 +1974,7 @@ contains
           end do
        end do
     end do
-       
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -1994,9 +2003,10 @@ contains
                         + dsdz(i,1,1) * duds(i,1,1) &
                         + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
-    
+
   end subroutine cpu_conv1_lx8_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx7_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 7
@@ -2023,7 +2033,7 @@ contains
                       + dx(i,7) * u(7,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
@@ -2037,7 +2047,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -2049,7 +2059,7 @@ contains
                       + dz(k,7) * u(i,1,7)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
@@ -2068,6 +2078,7 @@ contains
 
   end subroutine cpu_conv1_lx7_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx6_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 6
@@ -2093,7 +2104,7 @@ contains
                       + dx(i,6) * u(6,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
@@ -2106,7 +2117,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -2117,7 +2128,7 @@ contains
                       + dz(k,6) * u(i,1,6)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
@@ -2136,6 +2147,7 @@ contains
 
   end subroutine cpu_conv1_lx6_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx5_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 5
@@ -2172,7 +2184,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -2182,7 +2194,7 @@ contains
                       + dz(k,5) * u(i,1,5)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
@@ -2201,6 +2213,7 @@ contains
 
   end subroutine cpu_conv1_lx5_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx4_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 4
@@ -2224,7 +2237,7 @@ contains
                       + dx(i,4) * u(4,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
@@ -2235,7 +2248,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
@@ -2244,7 +2257,7 @@ contains
                       + dz(k,4) * u(i,1,4)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
@@ -2263,6 +2276,7 @@ contains
 
   end subroutine cpu_conv1_lx4_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx3_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 3
@@ -2285,7 +2299,7 @@ contains
                       + dx(i,3) * u(3,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
@@ -2303,7 +2317,7 @@ contains
                       + dz(k,3) * u(i,1,3)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
@@ -2322,6 +2336,7 @@ contains
 
   end subroutine cpu_conv1_lx3_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx2_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 2
@@ -2343,7 +2358,7 @@ contains
                       + dx(i,2) * u(2,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
@@ -2352,14 +2367,14 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
                       + dz(k,2) * u(i,1,2)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
                     * ( vx(i,1,1) &
