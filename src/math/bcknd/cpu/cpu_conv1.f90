@@ -40,11 +40,11 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_end
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_end-e_start+1)
-    real(kind=rp), intent(inout) ::  u(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
     integer :: e_len
 
     e_len = e_end-e_start+1
@@ -60,11 +60,11 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_len
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_len)
-    real(kind=rp), intent(inout) ::  u(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, e_len)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_len)
 
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
@@ -166,16 +166,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, lx)
     integer, intent(in) :: nelv, lx
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
     !$omp do private(e,i,j,k,l)
@@ -236,16 +236,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 14
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -332,16 +332,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 13
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -425,16 +425,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 12
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -515,16 +515,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 11
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -602,16 +602,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 10
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -686,16 +686,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 9
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -767,16 +767,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 8
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -845,16 +845,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 7
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -920,16 +920,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 6
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -992,16 +992,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 5
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -1061,16 +1061,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 4
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -1127,16 +1127,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 3
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -1190,16 +1190,16 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 2
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
     !$omp do private(e,i,j,k)
     do e = 1, nelv
@@ -1250,11 +1250,11 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_len)
-    real(kind=rp), intent(inout) ::  u(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, e_len)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_len)
 
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
@@ -1355,16 +1355,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, lx)
     integer, intent(in) :: lx
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     real(kind=rp) :: tmp
     integer :: i, j, k, l
 
@@ -1422,16 +1422,16 @@ contains
   subroutine cpu_conv1_lx14_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 14
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -1515,16 +1515,16 @@ contains
   subroutine cpu_conv1_lx13_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 13
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -1605,16 +1605,16 @@ contains
   subroutine cpu_conv1_lx12_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 12
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -1692,16 +1692,16 @@ contains
   subroutine cpu_conv1_lx11_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 11
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -1776,16 +1776,16 @@ contains
   subroutine cpu_conv1_lx10_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 10
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -1857,16 +1857,16 @@ contains
   subroutine cpu_conv1_lx9_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 9
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -1935,16 +1935,16 @@ contains
   subroutine cpu_conv1_lx8_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 8
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -2010,16 +2010,16 @@ contains
   subroutine cpu_conv1_lx7_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 7
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -2082,16 +2082,16 @@ contains
   subroutine cpu_conv1_lx6_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 6
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -2151,16 +2151,16 @@ contains
   subroutine cpu_conv1_lx5_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 5
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -2217,16 +2217,16 @@ contains
   subroutine cpu_conv1_lx4_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 4
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -2280,16 +2280,16 @@ contains
   subroutine cpu_conv1_lx3_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 3
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
@@ -2340,16 +2340,16 @@ contains
   subroutine cpu_conv1_lx2_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 2
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx

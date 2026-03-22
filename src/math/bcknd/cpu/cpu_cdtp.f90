@@ -67,59 +67,59 @@ contains
     associate(Xh => coef%Xh)
       !$omp parallel
       select case (Xh%lx)
-        case (14)
+      case (14)
          call cpu_cdtp_lx14(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (13)
+      case (13)
          call cpu_cdtp_lx13(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (12)
+      case (12)
          call cpu_cdtp_lx12(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (11)
+      case (11)
          call cpu_cdtp_lx11(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (10)
+      case (10)
          call cpu_cdtp_lx10(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (9)
+      case (9)
          call cpu_cdtp_lx9(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (8)
+      case (8)
          call cpu_cdtp_lx8(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (7)
+      case (7)
          call cpu_cdtp_lx7(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (6)
+      case (6)
          call cpu_cdtp_lx6(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (5)
+      case (5)
          call cpu_cdtp_lx5(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (4)
+      case (4)
          call cpu_cdtp_lx4(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (3)
+      case (3)
          call cpu_cdtp_lx3(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case (2)
+      case (2)
          call cpu_cdtp_lx2(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-        case default
+      case default
          call cpu_cdtp_lx(dtx, x, &
               dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len, Xh%lx)
