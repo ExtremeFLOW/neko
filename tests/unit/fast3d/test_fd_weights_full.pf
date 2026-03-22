@@ -32,7 +32,6 @@ contains
    use pfunit
    use fast3d
    use num_types
-   implicit none
    class(test_fd_weights_full_case), intent(inout) :: this
    
    integer, parameter :: n=1, m=0
@@ -53,7 +52,6 @@ end subroutine test_linear_midpoint
    use pfunit
    use fast3d
    use num_types
-   implicit none
    class(test_fd_weights_full_case), intent(inout) :: this
    
    integer, parameter :: n=2, m=1

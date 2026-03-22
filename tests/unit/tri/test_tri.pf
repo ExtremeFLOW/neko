@@ -33,7 +33,6 @@ subroutine test_tri_init(this)
   use point
   use tri
   use num_types
-  implicit none
   class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -72,7 +71,6 @@ subroutine test_tri_free(this)
   use point
   use tri
   use num_types
-  implicit none
   class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -103,7 +101,6 @@ subroutine test_tri_centroid(this)
   use point
   use tri
   use num_types
-  implicit none
   class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -134,7 +131,6 @@ subroutine test_tri_diameter(this)
   use point
   use tri
   use num_types
-  implicit none
   class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -160,7 +156,6 @@ subroutine test_tri_equal(this)
   use point
   use tri
   use num_types
-  implicit none
   class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p5, p6, p7
   integer :: point_id
@@ -206,7 +201,6 @@ subroutine test_tri_facet_id(this)
   use tri
   use tuple
   use num_types
-  implicit none
   class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id

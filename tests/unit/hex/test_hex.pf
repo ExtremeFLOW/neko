@@ -33,7 +33,6 @@ subroutine test_hex_init(this)
   use point
   use hex
   use num_types
-  implicit none
   class(test_hex_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -97,7 +96,6 @@ subroutine test_hex_free(this)
   use point
   use hex
   use num_types
-  implicit none
   class(test_hex_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -148,7 +146,6 @@ subroutine test_hex_centroid(this)
   use point
   use hex
   use num_types
-  implicit none
   class(test_hex_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -190,7 +187,6 @@ subroutine test_hex_diameter(this)
   use point
   use hex
   use num_types
-  implicit none
   class(test_hex_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -226,7 +222,6 @@ subroutine test_hex_equal(this)
   use point
   use hex
   use num_types
-  implicit none
   class(test_hex_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   type(point_t) :: pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8
@@ -301,7 +296,6 @@ subroutine test_hex_facet_id(this)
   use tuple
   use hex
   use num_types
-  implicit none
   class(test_hex_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -390,7 +384,6 @@ subroutine test_hex_edge_id(this)
   use tuple
   use hex
   use num_types
-  implicit none
   class(test_hex_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id

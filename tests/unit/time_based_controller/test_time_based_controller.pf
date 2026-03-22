@@ -34,7 +34,6 @@ subroutine test_init(this)
   use time_based_controller, only : time_based_controller_t
   use time_state, only : time_state_t
   use num_types, only : rp
-  implicit none
   class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
@@ -67,7 +66,6 @@ subroutine test_assign(this)
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
-  implicit none
   class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl1
@@ -92,7 +90,6 @@ subroutine test_check_simulationtime(this)
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
   use time_state, only : time_state_t
-  implicit none
   class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
@@ -135,7 +132,6 @@ subroutine test_check_nsamples(this)
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
   use time_state, only : time_state_t
-  implicit none
   class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
@@ -164,7 +160,6 @@ subroutine test_check_tsteps(this)
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
   use time_state, only : time_state_t
-  implicit none
   class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl
@@ -192,7 +187,6 @@ subroutine test_register(this)
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
-  implicit none
   class(test_time_based_controller_case), intent(inout) :: this
 
   type(time_based_controller_t) ctrl

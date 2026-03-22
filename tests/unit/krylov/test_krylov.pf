@@ -31,7 +31,6 @@ contains
 subroutine test_krylov_init(this)
   use pfunit
   use krylov
-  implicit none
   class(test_krylov_case), intent(inout) :: this
 
   integer :: i
@@ -44,7 +43,6 @@ end subroutine test_krylov_init
 subroutine test_krylov_free(this)
   use pfunit
   use krylov
-  implicit none
   class(test_krylov_case), intent(inout) :: this
   integer :: i
 

@@ -31,7 +31,6 @@ contains
 subroutine test_octree_init(this)
   use pfunit
   use octree
-  implicit none
   class(test_octree_case), intent(inout) :: this
 
   type(octree_t) :: t
@@ -46,7 +45,6 @@ end subroutine test_octree_init
 subroutine test_octree_free(this)
   use pfunit
   use octree
-  implicit none
   class(test_octree_case), intent(inout) :: this
 
   type(octree_t) :: t
@@ -64,7 +62,6 @@ subroutine test_octree_insert(this)
   use pfunit
   use octree
   use point
-  implicit none
   class(test_octree_case), intent(inout) :: this
 
   type(octree_t) :: t
@@ -87,7 +84,6 @@ subroutine test_octree_find(this)
   use octree
   use point
   use math
-  implicit none
   class(test_octree_case), intent(inout) :: this
 
   type(octree_t) :: t

@@ -32,7 +32,6 @@ subroutine test_ext_constant_dt(this)
   use pfunit
   use ext_time_scheme
   use num_types
-  implicit none
   class(test_ext_case), intent(inout) :: this
   
   type(ext_time_scheme_t) ext
@@ -63,7 +62,6 @@ subroutine test_ext_variable_dt(this)
   use pfunit
   use ext_time_scheme, only: ext_time_scheme_t
   use num_types, only : rp
-  implicit none
   class(test_ext_case), intent(inout) :: this
   
   type(ext_time_scheme_t) ext
@@ -93,7 +91,6 @@ subroutine test_ext_modified(this)
   use pfunit
   use ext_time_scheme
   use num_types
-  implicit none
   class(test_ext_case), intent(inout) :: this
   
   type(ext_time_scheme_t) ext

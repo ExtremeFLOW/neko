@@ -30,7 +30,6 @@ contains
 @test
 subroutine test_signal_trap_cpulimit(this)
   use signal
-  implicit none
   class(test_signal_case), intent(inout) :: this
 
   call signal_trap_cpulimit()
@@ -42,7 +41,6 @@ subroutine test_signal_timeout(this)
   use signal
   use funit
   use, intrinsic :: iso_c_binding
-  implicit none
   class(test_signal_case), intent(inout) :: this
 
   @assertFalse(signal_timeout())
@@ -54,7 +52,6 @@ subroutine test_signal_set_timeout(this)
   use signal
   use funit
   use, intrinsic :: iso_c_binding
-  implicit none
   class(test_signal_case), intent(inout) :: this
 
   call signal_set_timeout(3)

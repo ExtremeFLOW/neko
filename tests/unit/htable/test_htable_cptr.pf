@@ -32,7 +32,6 @@ subroutine test_htable_cptr_contract(this)
   use pfunit
   use htable
   use, intrinsic :: iso_c_binding, only : c_loc, c_associated
-  implicit none
   class(test_htable_cptr_case), intent(inout) :: this
   type(htable_cptr_t) :: h
   type(htable_iter_cptr_t) :: it

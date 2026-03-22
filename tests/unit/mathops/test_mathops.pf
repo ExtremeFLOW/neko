@@ -33,7 +33,6 @@ subroutine test_mathops_opchsign(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
   class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: a1, a2, a3
@@ -60,7 +59,6 @@ subroutine test_mathops_opcolv(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
   class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp
@@ -88,7 +86,6 @@ subroutine test_mathops_opcolv3c(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
   class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp
@@ -122,7 +119,6 @@ subroutine test_mathops_opadd2cm(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
   class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c = 42.0_rp
@@ -155,7 +151,6 @@ subroutine test_mathops_opadd2col(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
   class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp

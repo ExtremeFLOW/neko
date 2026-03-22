@@ -33,7 +33,6 @@ subroutine test_tet_init(this)
   use point
   use tet
   use num_types
-  implicit none
   class(test_tet_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -77,7 +76,6 @@ subroutine test_tet_free(this)
   use point
   use tet
   use num_types
-  implicit none
   class(test_tet_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -112,7 +110,6 @@ subroutine test_tet_centroid(this)
   use point
   use tet
   use num_types
-  implicit none
   class(test_tet_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -145,7 +142,6 @@ subroutine test_tet_diameter(this)
   use point
   use tet
   use num_types
-  implicit none
   class(test_tet_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
@@ -173,7 +169,6 @@ subroutine test_tet_equal(this)
   use point
   use tet
   use num_types
-  implicit none
   class(test_tet_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
@@ -224,7 +219,6 @@ subroutine test_tet_facet_id(this)
   use tet
   use tuple
   use num_types
-  implicit none
   class(test_tet_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id

@@ -33,7 +33,6 @@ subroutine test_setup_intp_basic(this)
   use pfunit
   use fast3d, only : setup_intp
   use num_types, only : rp
-  implicit none
   class(test_setup_intp_case), intent(inout) :: this
   
   integer, parameter :: lx = 4
@@ -83,7 +82,6 @@ subroutine test_setup_intp_single_n_from(this)
   use pfunit
   use fast3d, only : setup_intp
   use num_types, only : rp
-  implicit none
   class(test_setup_intp_case), intent(inout) :: this
   
   integer, parameter :: lx = 4

@@ -32,7 +32,6 @@ subroutine test_point_init(this)
   use pfunit
   use point
   use num_types
-  implicit none
   class(test_point_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
@@ -70,7 +69,6 @@ subroutine test_point_assign(this)
   use pfunit
   use point
   use num_types
-  implicit none
   class(test_point_case), intent(inout) :: this
   type(point_t) :: p1, p2
   integer :: point_id
@@ -112,7 +110,6 @@ subroutine test_point_eqne(this)
   use pfunit
   use point
   use num_types
-  implicit none
   class(test_point_case), intent(inout) :: this
   type(point_t) :: p1, p2
   real(kind=dp), parameter :: c1(3) = (/1d0, 2d0, 3d0/)
@@ -131,7 +128,6 @@ subroutine test_point_ltgt(this)
   use pfunit
   use point
   use num_types
-  implicit none
   class(test_point_case), intent(inout) :: this
   type(point_t) :: p1, p2
   real(kind=dp), parameter :: c1(3) = (/1d0, 0d0, 0d0/)

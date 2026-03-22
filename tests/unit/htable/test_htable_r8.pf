@@ -34,7 +34,6 @@ subroutine test_htable_init_r8(this)
   use num_types
   use point
   use tuple
-  implicit none
   class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   integer :: data_i4
@@ -71,7 +70,6 @@ subroutine test_htable_add_r8(this)
   use num_types
   use point
   use tuple
-  implicit none
   class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -145,7 +143,6 @@ subroutine test_htable_contract_r8(this)
   use pfunit
   use htable
   use num_types, only : dp
-  implicit none
   class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   type(htable_iter_r8_t) :: it
@@ -196,7 +193,6 @@ subroutine test_htable_clear_r8(this)
   use pfunit
   use htable
   use num_types
-  implicit none
   class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   integer :: i
@@ -220,7 +216,6 @@ subroutine test_htable_free_r8(this)
   use pfunit
   use htable
   use num_types
-  implicit none
   class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   integer :: i
@@ -247,7 +242,6 @@ subroutine test_htable_get_r8(this)
   use num_types
   use point
   use tuple
-  implicit none
   class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -355,7 +349,6 @@ subroutine test_htable_remove_r8(this)
   use num_types
   use point
   use tuple
-  implicit none
   class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -445,7 +438,6 @@ subroutine test_htable_iter_r8(this)
   use pfunit
   use htable
   use num_types
-  implicit none
   class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   type(htable_iter_r8_t) :: it

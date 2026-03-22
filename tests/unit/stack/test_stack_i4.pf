@@ -33,7 +33,6 @@ subroutine test_stack_i4_init(this)
   use stack
   use math, only : NEKO_M_LN2
   use num_types, only : rp
-  implicit none
   class(test_stack_i4_case), intent(inout) :: this
   type(stack_i4_t) :: s1, s2, s3
   integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
@@ -71,7 +70,6 @@ end subroutine test_stack_i4_init
 subroutine test_stack_i4_free(this)
   use pfunit
   use stack
-  implicit none
   class(test_stack_i4_case), intent(inout) :: this
   type(stack_i4_t) :: s
 
@@ -89,7 +87,6 @@ end subroutine test_stack_i4_free
 subroutine test_stack_i4_push(this)
   use pfunit
   use stack
-  implicit none
   class(test_stack_i4_case), intent(inout) :: this
   type(stack_i4_t) :: s
   integer :: i, data
@@ -124,7 +121,6 @@ end subroutine test_stack_i4_push
 subroutine test_stack_i4_pop(this)
   use pfunit
   use stack
-  implicit none
   class(test_stack_i4_case), intent(inout) :: this
   type(stack_i4_t) :: s
   integer :: i, data
@@ -150,7 +146,6 @@ end subroutine test_stack_i4_pop
 subroutine test_stack_i4_clear(this)
   use pfunit
   use stack
-  implicit none
   class(test_stack_i4_case), intent(inout) :: this
   type(stack_i4_t) :: s
   integer :: i, data

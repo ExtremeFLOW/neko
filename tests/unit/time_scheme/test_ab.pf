@@ -32,7 +32,6 @@ contains
    use pfunit
    use ab_time_scheme, only: ab_time_scheme_t
    use num_types, only : rp
-   implicit none
    class(test_ab_case), intent(inout) :: this
    
    type(ab_time_scheme_t) ab
@@ -63,7 +62,6 @@ end subroutine test_ab_constant_dt
    use pfunit
    use ab_time_scheme, only: ab_time_scheme_t
    use num_types, only : rp
-   implicit none
    class(test_ab_case), intent(inout) :: this
    
    type(ab_time_scheme_t) ab

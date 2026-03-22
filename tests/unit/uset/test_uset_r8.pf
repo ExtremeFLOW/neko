@@ -31,7 +31,6 @@ contains
 subroutine test_uset_init_r8(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_r8_case), intent(inout) :: this
   type(uset_r8_t) :: s
 
@@ -44,7 +43,6 @@ end subroutine test_uset_init_r8
 subroutine test_uset_free_r8(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_r8_case), intent(inout) :: this
   type(uset_r8_t) :: s
 
@@ -59,7 +57,6 @@ subroutine test_uset_size_r8(this)
   use pfunit
   use uset
   use num_types
-  implicit none
   class(test_uset_r8_case), intent(inout) :: this
   type(uset_r8_t) :: s
   integer :: i
@@ -92,7 +89,6 @@ subroutine test_uset_clear_r8(this)
   use pfunit
   use uset
   use num_types
-  implicit none
   class(test_uset_r8_case), intent(inout) :: this
   type(uset_r8_t) :: s
   integer :: i
@@ -119,7 +115,6 @@ subroutine test_uset_element_r8(this)
   use pfunit
   use uset
   use num_types
-  implicit none
   class(test_uset_r8_case), intent(inout) :: this
   type(uset_r8_t) :: s
   integer :: i
@@ -158,7 +153,6 @@ subroutine test_uset_remove_r8(this)
   use pfunit
   use uset
   use num_types
-  implicit none
   class(test_uset_r8_case), intent(inout) :: this
   type(uset_r8_t) :: s
   integer :: i
@@ -209,7 +203,6 @@ subroutine test_uset_iter_r8(this)
   use pfunit
   use uset
   use num_types
-  implicit none
   class(test_uset_r8_case), intent(inout) :: this
   type(uset_r8_t) :: s
   integer :: i, n_entries

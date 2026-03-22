@@ -34,7 +34,6 @@ subroutine test_htable_init_i4t4(this)
   use num_types
   use point
   use tuple
-  implicit none
   class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   integer :: data_i4
@@ -71,7 +70,6 @@ subroutine test_htable_add_i4t4(this)
   use num_types
   use point
   use tuple
-  implicit none
   class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -145,7 +143,6 @@ subroutine test_htable_contract_i4t4(this)
   use pfunit
   use htable
   use tuple
-  implicit none
   class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   type(htable_iter_i4t4_t) :: it
@@ -198,7 +195,6 @@ subroutine test_htable_clear_i4t4(this)
   use pfunit
   use htable
   use tuple
-  implicit none
   class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   integer :: i
@@ -222,7 +218,6 @@ subroutine test_htable_free_i4t4(this)
   use pfunit
   use htable
   use tuple
-  implicit none
   class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   integer :: i
@@ -249,7 +244,6 @@ subroutine test_htable_get_i4t4(this)
   use num_types
   use point
   use tuple
-  implicit none
   class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -357,7 +351,6 @@ subroutine test_htable_remove_i4t4(this)
   use num_types
   use point
   use tuple
-  implicit none
   class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
@@ -447,7 +440,6 @@ subroutine test_htable_iter_i4t4(this)
   use pfunit
   use htable
   use tuple
-  implicit none
   class(test_htable_i4t4_case), intent(inout) :: this
   type(htable_i4t4_t) :: h
   type(htable_iter_i4t4_t) :: it

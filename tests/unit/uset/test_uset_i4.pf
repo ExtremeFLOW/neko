@@ -31,7 +31,6 @@ contains
 subroutine test_uset_init_i4(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_i4_case), intent(inout) :: this
   type(uset_i4_t) :: s
 
@@ -44,7 +43,6 @@ end subroutine test_uset_init_i4
 subroutine test_uset_free_i4(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_i4_case), intent(inout) :: this
   type(uset_i4_t) :: s
 
@@ -58,7 +56,6 @@ end subroutine test_uset_free_i4
 subroutine test_uset_size_i4(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_i4_case), intent(inout) :: this
   type(uset_i4_t) :: s
   integer :: i, data
@@ -89,7 +86,6 @@ end subroutine test_uset_size_i4
 subroutine test_uset_clear_i4(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_i4_case), intent(inout) :: this
   type(uset_i4_t) :: s
   integer :: i, data
@@ -114,7 +110,6 @@ end subroutine test_uset_clear_i4
 subroutine test_uset_element_i4(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_i4_case), intent(inout) :: this
   type(uset_i4_t) :: s
   integer :: i, data
@@ -151,7 +146,6 @@ end subroutine test_uset_element_i4
 subroutine test_uset_remove_i4(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_i4_case), intent(inout) :: this
   type(uset_i4_t) :: s
   integer :: i, data
@@ -201,7 +195,6 @@ end subroutine test_uset_remove_i4
 subroutine test_uset_iter_i4(this)
   use pfunit
   use uset
-  implicit none
   class(test_uset_i4_case), intent(inout) :: this
   type(uset_i4_t) :: s
   integer :: i, data, n_entries
