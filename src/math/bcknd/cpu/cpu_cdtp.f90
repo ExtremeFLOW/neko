@@ -141,46 +141,46 @@ contains
 
     associate(Xh => coef%Xh)
       select case (Xh%lx)
-        case (14)
+      case (14)
          call cpu_cdtp_lx14_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (13)
+      case (13)
          call cpu_cdtp_lx13_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (12)
+      case (12)
          call cpu_cdtp_lx12_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (11)
+      case (11)
          call cpu_cdtp_lx11_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (10)
+      case (10)
          call cpu_cdtp_lx10_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (9)
+      case (9)
          call cpu_cdtp_lx9_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (8)
+      case (8)
          call cpu_cdtp_lx8_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (7)
+      case (7)
          call cpu_cdtp_lx7_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (6)
+      case (6)
          call cpu_cdtp_lx6_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (5)
+      case (5)
          call cpu_cdtp_lx5_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (4)
+      case (4)
          call cpu_cdtp_lx4_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (3)
+      case (3)
          call cpu_cdtp_lx3_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case (2)
+      case (2)
          call cpu_cdtp_lx2_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3)
-        case default
+      case default
          call cpu_cdtp_lx_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, Xh%lx)
       end select
