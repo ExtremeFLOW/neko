@@ -181,10 +181,13 @@ contains
     ! Wait to help system flush data to disc before we read
     call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
-    ! Test that the file exists
+    ! Test that the main file exists and data files do not
     inquire(file="test_write_0.vtkhdf", exist=exists)
     message = "Output file must exist"
     @assertTrue(exists, message = message)
+    inquire(file="test_write_0.data/0.h5", exist=exists)
+    message = "Data file must not exist for non-subdivided write"
+    @assertFalse(exists, message = message)
 
     ! ================================================================
     ! Validate HDF5 file contents
@@ -429,9 +432,12 @@ contains
     ! Wait to help system flush data to disc before we read
     call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
-    ! Test that the file exists
+    ! Test that the file exists and must be split to a data file
     inquire(file="test_write_time_0.vtkhdf", exist=exists)
     message = "Temporal output file must exist"
+    @assertTrue(exists, message = message)
+    inquire(file="test_write_time_0.data/0.h5", exist=exists)
+    message = "Data file must exist for temporal write"
     @assertTrue(exists, message = message)
 
     ! ================================================================
@@ -830,9 +836,12 @@ contains
     ! Wait to help system flush data to disc before we read
     call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
-    ! Test that the file exists
+    ! Test that the file exists and data file exists as well
     inquire(file='test_write_time_subdivide_0.vtkhdf', exist=exists)
     message = "Temporal subdivided output file must exist"
+    @assertTrue(exists, message = message)
+    inquire(file='test_write_time_subdivide_0.data/0.h5', exist=exists)
+    message = "Data file must exist for temporal subdivided write"
     @assertTrue(exists, message = message)
 
     ! ================================================================
