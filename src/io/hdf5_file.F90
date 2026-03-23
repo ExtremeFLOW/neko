@@ -873,6 +873,7 @@ contains
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+      deallocate(write_buffer_sp)
     else if (this%precision == dp) then
       allocate(write_buffer_dp(vec%size()))
       write_buffer_dp = real(vec%x, kind=dp)
@@ -880,6 +881,7 @@ contains
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+      deallocate(write_buffer_dp)
     else
       call neko_error("Unsupported precision")
     end if
@@ -973,6 +975,7 @@ contains
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+      deallocate(write_buffer_sp)
     else if (this%precision == dp) then
       allocate(write_buffer_dp(mat%get_nrows(), mat%get_ncols()))
       write_buffer_dp = real(mat%x, kind=dp)
@@ -980,6 +983,7 @@ contains
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+      deallocate(write_buffer_dp)
     else
       call neko_error("Unsupported precision")
     end if
@@ -1072,6 +1076,7 @@ contains
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+      deallocate(write_buffer_sp)
     else if (this%precision == dp) then
       allocate(write_buffer_dp(field%msh%nelv, field%Xh%lx, field%Xh%ly, field%Xh%lz))
       write_buffer_dp = real(field%x, kind=dp)
@@ -1079,6 +1084,7 @@ contains
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+      deallocate(write_buffer_dp)
     else
       call neko_error("Unsupported precision")
     end if
