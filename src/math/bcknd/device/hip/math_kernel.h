@@ -698,12 +698,12 @@ __inline__ __device__ T reduce_warp(T val) {
  */
 template< typename T>
 __inline__ __device__ T reduce_max_warp(T val) {
-  val = fmax(val, __shfl_down(val, 32));
-  val = fmax(val, __shfl_down(val, 16));
-  val = fmax(val, __shfl_down(val, 8));
-  val = fmax(val, __shfl_down(val, 4));
-  val = fmax(val, __shfl_down(val, 2));
-  val = fmax(val, __shfl_down(val, 1));
+  val = max(val, __shfl_down(val, 32));
+  val = max(val, __shfl_down(val, 16));
+  val = max(val, __shfl_down(val, 8));
+  val = max(val, __shfl_down(val, 4));
+  val = max(val, __shfl_down(val, 2));
+  val = max(val, __shfl_down(val, 1));
   return val;
 }
 
@@ -749,7 +749,7 @@ __global__ void reduce_max_kernel(T * bufred, const T ninf, const int n) {
   const int str = blockDim.x * gridDim.x;
   for (int i = idx; i<n ; i += str)
   {
-    max = fmax(max, bufred[i]);
+    max = max(max, bufred[i]);
   }
 
   __shared__ T shared[64];
@@ -1004,7 +1004,7 @@ __global__ void glmax_kernel(const T * a,
   T max = ninf;
   for (int i = idx; i<n ; i += str)
   {
-    max = fmax(max, a[i]);
+    max = max(max, a[i]);
   }
 
   max = reduce_max_warp<T>(max);
