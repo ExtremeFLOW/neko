@@ -76,14 +76,14 @@ contains
        this%wy => neko_registry%get_field('wm_y')
        this%wz => neko_registry%get_field('wm_z')
     end if
-    
+
     ! If moving is requested, mesh velocitiy fileds should be linked already
     ! in ale_manager.
     if (this%is_moving) then
        if (.not. associated(this%wx) .or. .not. associated(this%wy) .or. &
             .not. associated(this%wz)) then
           call neko_error("Velocity BC 'no_slip' with moving=true is &
-               found, but ALE is not activated in case file.")
+          &found, but ALE is not activated in case file.")
        end if
     end if
   end subroutine no_slip_init
@@ -142,11 +142,11 @@ contains
 
   subroutine no_slip_free(this)
     class(no_slip_t), intent(inout), target :: this
+
     call this%zero_dirichlet_t%free()
     nullify(this%wx)
     nullify(this%wy)
     nullify(this%wz)
-
   end subroutine no_slip_free
 
 end module no_slip
