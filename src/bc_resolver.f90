@@ -40,13 +40,14 @@ module bc_resolver
   use field, only : field_t
   use scratch_registry, only : neko_scratch_registry
   use math, only : cfill_mask
-  use gs_ops, only : GS_OP_MAX, GS_OP_ADD
+  use gs_ops, only : GS_OP_MAX, GS_OP_ADD, GS_OP_MIN
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use utils, only : neko_error, nonlinear_index
   use device, only : device_get_ptr, device_memcpy, HOST_TO_DEVICE, &
        DEVICE_TO_HOST
   use device_math, only : device_cfill_mask
+  use field_math, only : field_cfill
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   implicit none
   private
@@ -152,7 +153,7 @@ module bc_resolver
        import :: vector_bc_resolver_t, bc_list_t
        class(vector_bc_resolver_t), intent(inout) :: this
        type(bc_list_t), intent(in) :: bclst
-        character(len=1), optional, intent(in) :: component
+       character(len=1), optional, intent(in) :: component
      end subroutine vector_bc_resolver_mark_bc_list_intrf
   end interface
 
@@ -182,7 +183,7 @@ contains
     integer :: i
 
     if (.not. allocated(bc%msk)) then
-      call neko_error("Attempting to mark resolver from an unfinalized BC.")
+       call neko_error("Attempting to mark resolver from an unfinalized BC.")
     end if
 
     incoming_size = bc%msk(0)
@@ -409,16 +410,16 @@ contains
   !> Finalize the coupled resolver by resolving the accumulated BC list.
   subroutine coupled_vector_bc_resolver_finalize(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
-    type(field_t), pointer :: boundary_flag
-    type(field_t), pointer :: constraint_n_flag
-    type(field_t), pointer :: constraint_t1_flag
-    type(field_t), pointer :: constraint_t2_flag
+    type(field_t), pointer :: work1
+    type(field_t), pointer :: work2
+    type(field_t), pointer :: work3
+    type(field_t), pointer :: work4
     integer :: scratch_idx(4)
     integer, allocatable :: mask_values(:)
     integer :: i, j, n, m
     integer :: idx(4), facet
     logical :: c_n, c_t1, c_t2
-    real(kind=rp) :: normal(3), ref(3), t1_vec(3), t2_vec(3), len
+    real(kind=rp) :: normal(3), ref(3), t1_vec(3), t2_vec(3), len, prio
     class(bc_t), pointer :: bc
 
     call this%dof_mask%free()
@@ -430,14 +431,10 @@ contains
     if (.not. associated(this%dof)) return
     if (this%bcs%size() .eq. 0) return
 
-    call neko_scratch_registry%request_field(boundary_flag, scratch_idx(1), &
-         .true.)
-    call neko_scratch_registry%request_field(constraint_n_flag, scratch_idx(2), &
-         .true.)
-    call neko_scratch_registry%request_field(constraint_t1_flag, &
-         scratch_idx(3), .true.)
-    call neko_scratch_registry%request_field(constraint_t2_flag, &
-         scratch_idx(4), .true.)
+    call neko_scratch_registry%request_field(work1, scratch_idx(1), .true.)
+    call neko_scratch_registry%request_field(work2, scratch_idx(2), .true.)
+    call neko_scratch_registry%request_field(work3, scratch_idx(3), .true.)
+    call neko_scratch_registry%request_field(work4, scratch_idx(4), .true.)
 
     n = this%dof%size()
 
@@ -449,36 +446,63 @@ contains
                "unfinalized BC.")
        end if
 
-       c_n = bc%constraints(1)
-       c_t1 = bc%constraints(2)
-       c_t2 = bc%constraints(3)
-
-       call cfill_mask(boundary_flag%x(:,1,1,1), 1.0_rp, n, &
+       ! Mask all the dofs touched by this BC. Since %msk is propagated to all
+       ! local dofs via gather-scatter, work1 will contain all local nodes on
+       ! the boundary, including those elements that don't touch it with a face.
+       call cfill_mask(work1%x(:,1,1,1), 1.0_rp, n, &
             bc%msk(1:bc%msk(0)), bc%msk(0))
-       if (c_n) then
-          call cfill_mask(constraint_n_flag%x(:,1,1,1), 1.0_rp, n, &
-               bc%msk(1:bc%msk(0)), bc%msk(0))
-       end if
-       if (c_t1) then
-          call cfill_mask(constraint_t1_flag%x(:,1,1,1), 1.0_rp, n, &
-               bc%msk(1:bc%msk(0)), bc%msk(0))
-       end if
-       if (c_t2) then
-          call cfill_mask(constraint_t2_flag%x(:,1,1,1), 1.0_rp, n, &
-               bc%msk(1:bc%msk(0)), bc%msk(0))
-       end if
     end do
 
-    call this%coef%gs_h%op(boundary_flag, GS_OP_MAX)
-    call this%coef%gs_h%op(constraint_n_flag, GS_OP_MAX)
-    call this%coef%gs_h%op(constraint_t1_flag, GS_OP_MAX)
-    call this%coef%gs_h%op(constraint_t2_flag, GS_OP_MAX)
 
+    ! Set priority values for constraint assignment. Mimics the procedure in
+    ! Nek5000 directly.
+    ! The values are chosen in a way that a min reduction applies the most
+    ! restrictive constraint.
+    ! 5 -> unconstrained
+    ! 3 -> tangentially constrained
+    ! 2 -> normally constrained
+    ! 0 -> fully constrained
+    ! Fill the field to not mess up gather-scatter reduction later.
+    call field_cfill(work2, 5.0_rp)
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+
+
+       prio = 5.0_rp
+
+       if (all(bc%constraints)) then
+          prio = 0.0_rp
+       else if ((bc%constraints(1)) .and. (.not. bc%constraints(2)) &
+            .and. (.not. bc%constraints(3))) then
+          prio = 2.0_rp
+       else if ((.not. bc%constraints(1)) .and. bc%constraints(2) &
+            .and. bc%constraints(3)) then
+          prio = 3.0_rp
+       else
+          call neko_error("Unsupported constraint combination in " // &
+               "vector BC resolver.")
+       end if
+
+       ! Note that the face_msk is used, so constraints are only directly
+       ! applied to elements that touch the boundary at this point.
+       ! The min here ensures that the most restricive constraint is kept 
+       ! within a single element.
+       do j = 1, bc%facet_msk(0)
+          m = bc%facet_msk(j)
+          work2%x(m,1,1,1) = min(prio, work2%x(m,1,1,1))
+       end do
+    end do
+
+    ! Propagate constraints to all local dofs via gather-scatter.
+    ! Ensures most restrictive constraint is kept across element boundaries.
+    call this%coef%gs_h%op(work2, GS_OP_MIN)
+
+    ! Compute the number of constrained dofs so we can allocate vectors.
     m = 0
     do i = 1, n
-      if (boundary_flag%x(i,1,1,1) .gt. 0.5_rp) then
-         m = m + 1
-      end if
+       if (work1%x(i,1,1,1) .gt. 0.5_rp) then
+          m = m + 1
+       end if
     end do
 
     if (m .eq. 0) then
@@ -486,32 +510,52 @@ contains
        return
     end if
 
+    ! Fill in the full mask indices and copy to this%dof_mask.
     allocate(mask_values(m))
     j = 0
     do i = 1, n
-       if (boundary_flag%x(i,1,1,1) .gt. 0.5_rp) then
+       if (work1%x(i,1,1,1) .gt. 0.5_rp) then
           j = j + 1
           mask_values(j) = i
        end if
     end do
-
     call this%dof_mask%init(mask_values(1:m), m)
+
+    ! Allocate constraints
     allocate(this%constraint_n(m))
     allocate(this%constraint_t1(m))
     allocate(this%constraint_t2(m))
+
+    ! Use the priority value to assign constraints.
+    do i = 1, m
+       j = mask_values(i)
+
+       if (work2%x(j,1,1,1) .lt. 1.9_rp) then
+          this%constraint_n(i) = .true.
+          this%constraint_t1(i) = .true.
+          this%constraint_t2(i) = .true.
+       else if (work2%x(j,1,1,1) .gt. 1.9_rp .and. &
+            work2%x(j,1,1,1) .lt. 2.9_rp) then
+          this%constraint_n(i) = .true.
+          this%constraint_t1(i) = .false.
+          this%constraint_t2(i) = .false.
+       else if (work2%x(j,1,1,1) .gt. 2.9_rp .and. &
+            work2%x(j,1,1,1) .lt. 3.9_rp) then
+          this%constraint_n(i) = .false.
+          this%constraint_t1(i) = .true.
+          this%constraint_t2(i) = .true.
+       else if (work2%x(j,1,1,1) .gt. 3.9_rp) then
+          this%constraint_n(i) = .false.
+          this%constraint_t1(i) = .false.
+          this%constraint_t2(i) = .false.
+       end if
+    end do
+
     allocate(this%n(3,m))
     allocate(this%t1(3,m))
     allocate(this%t2(3,m))
 
-    do i = 1, m
-       j = mask_values(i)
-       this%constraint_n(i) = constraint_n_flag%x(j,1,1,1) .gt. 0.5_rp
-       this%constraint_t1(i) = constraint_t1_flag%x(j,1,1,1) .gt. 0.5_rp
-       this%constraint_t2(i) = constraint_t2_flag%x(j,1,1,1) .gt. 0.5_rp
-    end do
-
-    associate(nx => constraint_n_flag, ny => constraint_t1_flag, &
-         nz => constraint_t2_flag)
+    associate(nx => work1, ny => work2, nz => work3)
       nx%x = 0.0_rp
       ny%x = 0.0_rp
       nz%x = 0.0_rp
