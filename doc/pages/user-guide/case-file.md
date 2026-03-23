@@ -223,7 +223,7 @@ of the boundary as follows.
 
 | Boundary Condition              | Key |
 | ------------------------------- | --- |
-| no_slip                         | 1   |
+| no_slip (stationary wall)       | 1   |
 | velocity_value                  | 2   |
 | outflow, normal_outflow (+dong) | 3   |
 | symmetry                        | 4   |
@@ -429,7 +429,7 @@ table below.
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | symmetry            | A symmetry plane. Must be axis-aligned.                                                                                                                |
 | velocity_value      | A Dirichlet condition for velocity.                                                                                                                    |
-| no_slip             | A no-slip wall.                                                                                                                                        |
+| no_slip             | A no-slip wall. It can be stationary or moving.                                                                                                                                       |
 | outflow             | A pressure outlet.                                                                                                                                     |
 | normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
 | outflow+user        | Same as `outflow` but with user-specified pressure.                                                                                                    |
@@ -464,12 +464,12 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
-* `no_slip`. A standard no-slip wall, which sets velocity to zero. Requires no
-  additional keywords.
+* `no_slip`. A standard no-slip wall, which sets velocity to zero relative to the wall. For moving walls, setting the optional argument `"moving": true` is required. This also requires setting up the ALE module separately. For stationary walls, no additional keyword is needed.
   ```json
   {
     "type": "no_slip",
-    "zone_indices": [1, 2]
+    "zone_indices": [1, 2],
+    "moving": false
   }
   ```
 * `outflow`. A standard pressure outlet condition. Requires no additional
