@@ -1000,9 +1000,7 @@ contains
 
     ! ===== Phase 1: Write field data to per-timestep file =====
     do i = 1, n_fields
-       if (field_written(i)) cycle
        fld => fp(i)%ptr
-
        field_name = fld%name
        if (field_name .eq. 'p') field_name = 'Pressure'
 
@@ -1031,20 +1029,23 @@ contains
           field_name = 'Velocity'
        end if
 
+
        ! Skip duplicate fields (e.g. fluid_rho added by both fluid output
        ! and field_writer when sharing the same output file)
+       link_exists = .false.
        do j = 1, n_vds_fields
           if (trim(vds_names(j)) .eq. trim(field_name)) then
-             field_written(i) = .true.
+             link_exists = .true.
              exit
           end if
        end do
-       if (field_written(i)) cycle
 
        ! Collect field info for the VDS phase
-       n_vds_fields = n_vds_fields + 1
-       vds_names(n_vds_fields) = field_name
-       vds_is_vector(n_vds_fields) = is_vector
+       if (.not. link_exists) then
+          n_vds_fields = n_vds_fields + 1
+          vds_names(n_vds_fields) = field_name
+          vds_is_vector(n_vds_fields) = is_vector
+       end if
 
        ! Write PointDataOffsets under Steps for temporal output
        if (present(t)) then
@@ -1059,23 +1060,25 @@ contains
           call h5gclose_f(grp_id, ierr)
        end if
 
+       ! Skip already written fields.
+       call h5lexists_f(ext_file_id, trim(field_name), link_exists, ierr)
+       if (link_exists) call h5ldelete_f(ext_file_id, trim(field_name), ierr)
+
        ! Write field data to per-timestep file
        if (is_vector) then
           ! Create fixed-size 2D dataset (3, total_points) for this timestep
           pd_dims2 = [3_hsize_t, int(total_points, hsize_t)]
-          call h5screate_simple_f(2, pd_dims2, filespace, ierr)
-          call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
-               filespace, dset_id, ierr)
-          call h5sclose_f(filespace, ierr)
-
-          ! Write this rank's portion
           dcount2 = [3_hsize_t, int(local_points, hsize_t)]
           doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
 
-          call h5dget_space_f(dset_id, filespace, ierr)
+          ! Prepare memory and filespaces
           call h5screate_simple_f(2, dcount2, memspace, ierr)
+          call h5screate_simple_f(2, pd_dims2, filespace, ierr)
           call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
                doffset2, dcount2, ierr)
+
+          call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
+               filespace, dset_id, ierr)
 
           if (precision .eq. sp) then
              call write_vector_single(dset_id, u, v, w, dcount2, ierr, &
@@ -1092,19 +1095,17 @@ contains
        else
           ! Create fixed-size 1D dataset (total_points) for this timestep
           pd_dims1(1) = int(total_points, hsize_t)
-          call h5screate_simple_f(1, pd_dims1, filespace, ierr)
-          call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
-               filespace, dset_id, ierr)
-          call h5sclose_f(filespace, ierr)
-
-          ! Write this rank's portion
           dcount(1) = int(local_points, hsize_t)
           doffset(1) = int(point_offset, hsize_t)
 
-          call h5dget_space_f(dset_id, filespace, ierr)
+          ! Prepare memory and filespaces
           call h5screate_simple_f(1, dcount, memspace, ierr)
+          call h5screate_simple_f(1, pd_dims1, filespace, ierr)
           call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
                doffset, dcount, ierr)
+
+          call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
+               filespace, dset_id, ierr)
 
           if (precision .eq. rp) then
              call h5dwrite_f(dset_id, precision_hdf, fld%x, dcount, ierr, &
@@ -1144,7 +1145,6 @@ contains
                     xfer_prp = xf_id)
                deallocate(data_1d)
              end block
-
           end if
 
           call h5sclose_f(filespace, ierr)
