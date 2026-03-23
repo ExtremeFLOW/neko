@@ -178,7 +178,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
-    !$omp do private(e,i,j,k,l)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -247,7 +247,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -343,7 +343,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -436,7 +436,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -526,7 +526,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -613,7 +613,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -697,7 +697,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -778,7 +778,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -856,7 +856,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -931,7 +931,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1003,7 +1003,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1072,7 +1072,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1138,7 +1138,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1201,7 +1201,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: duds
     real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx

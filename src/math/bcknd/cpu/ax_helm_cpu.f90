@@ -64,7 +64,7 @@ contains
     real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     integer :: i
 
-    !$omp parallel private(i)
+    !$omp parallel
     select case(Xh%lx)
     case (14)
        call ax_helm_lx14(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
@@ -125,7 +125,7 @@ contains
     end select
 
     if (coef%ifh2) then
-       !$omp do
+       !$omp do private(i)
        do i = 1, coef%dof%size()
           w(i,1,1,1) = w(i,1,1,1) + &
                coef%h2(i,1,1,1) * coef%B(i,1,1,1) * u(i,1,1,1)
@@ -175,7 +175,7 @@ contains
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
 
-    !$omp do private(e,i,j,k,l)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -287,7 +287,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -455,7 +455,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -618,7 +618,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -774,7 +774,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -924,7 +924,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1068,7 +1068,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1206,7 +1206,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1338,7 +1338,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1464,7 +1464,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1584,7 +1584,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1698,7 +1698,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1806,7 +1806,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1908,7 +1908,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx

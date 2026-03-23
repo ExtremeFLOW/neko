@@ -104,7 +104,7 @@ contains
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
 
-    !$omp do private(e,i,j,k,l)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -168,7 +168,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -259,7 +259,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
 
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -346,7 +346,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -430,7 +430,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -511,7 +511,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -589,7 +589,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -664,7 +664,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -736,7 +736,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -805,7 +805,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -871,7 +871,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -934,7 +934,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -994,7 +994,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -1051,7 +1051,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     integer :: e, i, j, k
-    !$omp do private(e,i,j,k)
+    !$omp do
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx

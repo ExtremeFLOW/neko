@@ -73,7 +73,7 @@ contains
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     integer :: i
 
-    !$omp parallel private(i)
+    !$omp parallel
     select case (Xh%lx)
     case (14)
        call ax_helm_stress_lx14(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
@@ -162,7 +162,7 @@ contains
     end select
 
     if (coef%ifh2) then
-       !$omp do
+       !$omp do private(i)
        do i = 1, coef%dof%size()
           au(i,1,1,1) = au(i,1,1,1) + &
                coef%h2(i,1,1,1) * coef%B(i,1,1,1) * u(i,1,1,1)
