@@ -53,7 +53,7 @@ module probes
   use point_zone_registry, only: neko_point_zone_registry
   use file, only : file_t, file_free
   use csv_file, only : csv_file_t
-  use hdf5_file_2, only : hdf5_file_2_t
+  use hdf5_file, only : hdf5_file_t
   use math, only : copy
   use device_math, only : device_copy
   use case, only : case_t
@@ -539,7 +539,7 @@ contains
           !! Write the data to the file
           call this%fout%write(mat_coords)
        end if
-    class is (hdf5_file_2_t)
+    class is (hdf5_file_t)
     
        !> This is always on cpus I think
        write(*,*) "local probes is ", this%n_local_probes

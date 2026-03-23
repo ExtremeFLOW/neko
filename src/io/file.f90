@@ -48,7 +48,6 @@ module file
   use stl_file, only : stl_file_t
   use csv_file, only : csv_file_t
   use hdf5_file, only : hdf5_file_t
-  use hdf5_file_2, only : hdf5_file_2_t
   implicit none
 
   !> A wrapper around a polymorphic `generic_file_t` that handles its init.
@@ -136,8 +135,6 @@ contains
        this%file_type%serial = .true.
     case ("hdf5", "h5")
        allocate(hdf5_file_t::this%file_type)
-    case ("hdf")
-       allocate(hdf5_file_2_t::this%file_type)
     case ("vtkhdf")
        allocate(vtkhdf_file_t::this%file_type)
     case default
@@ -351,7 +348,7 @@ contains
       class(file_t), intent(inout) :: this
       character(len=1), intent(in) :: mode
       select type (ft => this%file_type)
-      type is (hdf5_file_2_t)
+      type is (hdf5_file_t)
          call ft%open(mode)
       class default
          call neko_error("open not implemented for this file type")
@@ -361,7 +358,7 @@ contains
    subroutine file_close_default(this)
       class(file_t), intent(inout) :: this
       select type (ft => this%file_type)
-      type is (hdf5_file_2_t)
+      type is (hdf5_file_t)
          call ft%close()
       class default
       call neko_error("close not implemented for this file type")
@@ -372,7 +369,7 @@ contains
       class(file_t), intent(inout) :: this
       class(*), intent(inout) :: data
       select type (ft => this%file_type)
-      type is (hdf5_file_2_t)
+      type is (hdf5_file_t)
          call ft%write_dataset(data)
       class default
          call neko_error("write_dataset not implemented for this file type")
@@ -383,7 +380,7 @@ contains
       class(file_t), intent(inout) :: this
       character(len=*), intent(in) :: group(:)
       select type (ft => this%file_type)
-      type is (hdf5_file_2_t)
+      type is (hdf5_file_t)
          call ft%set_active_group(group)
       class default
 
