@@ -178,6 +178,9 @@ contains
     call file%write(f)
     call file%free()
 
+    ! Wait to help system flush data to disc before we read
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
+
     ! Test that the file exists
     inquire(file="test_write_0.vtkhdf", exist=exists)
     message = "Output file must exist"
@@ -422,6 +425,9 @@ contains
     call field_cfill(f, 2.0_rp)
     call file%write(f, 1.0_rp)
     call file%free()
+
+    ! Wait to help system flush data to disc before we read
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
     ! Test that the file exists
     inquire(file="test_write_time_0.vtkhdf", exist=exists)
@@ -820,6 +826,9 @@ contains
     call field_cfill(f, 2.0_rp)
     call file%write(f, 1.0_rp)
     call file%free()
+
+    ! Wait to help system flush data to disc before we read
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
     ! Test that the file exists
     inquire(file='test_write_time_subdivide_0.vtkhdf', exist=exists)
