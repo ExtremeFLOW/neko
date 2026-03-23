@@ -63,7 +63,7 @@ module hdf5_file
 #ifdef HAVE_HDF5
      integer(hid_t) :: file_id = -1_hid_t
      integer(hid_t) :: active_group_id = -1_hid_t
-     integer(hid_t) :: plist_id
+     integer(hid_t) :: plist_id = -1_hid_t
 #endif
      character(len=1) :: mode
      integer :: precision = -1
@@ -692,6 +692,9 @@ contains
             this%file_id, ierr, access_prp = this%plist_id)
     end if
 
+    ! Set the active group to the root of the file
+    call this%set_active_group()
+
     if (pe_rank .eq.0) then
       write(*,*) "Opened HDF5 file: ", trim(fname), " with counter: ", counter
     end if
@@ -705,11 +708,13 @@ contains
 
     if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. this%file_id) then
        call h5gclose_f(this%active_group_id, ierr)
-       this%active_group_id = -1_hid_t
     end if
+    this%active_group_id = -1_hid_t
 
     call h5pclose_f(this%plist_id, ierr)
+    this%plist_id = -1_hid_t
     call h5fclose_f(this%file_id, ierr)
+    this%file_id = -1_hid_t
     call h5close_f(ierr)
 
     if (pe_rank .eq.0) then
@@ -733,8 +738,8 @@ contains
     ! Close previous active group if one is open
     if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. this%file_id) then
        call h5gclose_f(this%active_group_id, ierr)
-       this%active_group_id = -1_hid_t
     end if
+    this%active_group_id = -1_hid_t
 
     ! Start from root location = file
     current_id = this%file_id 
