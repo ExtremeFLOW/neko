@@ -429,7 +429,7 @@ contains
     call file%write(f, 1.0_rp)
     call file%free()
 
-    ! Wait to help system flush data to disc before we read
+    ! Wait to help system flush data to disk before we read
     call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
     ! Test that the file exists and must be split to a data file
