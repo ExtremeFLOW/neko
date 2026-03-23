@@ -197,6 +197,9 @@ approach allows for efficient storage and access of large temporal datasets
 while maintaining compatibility with the VTKHDF specification. Please note that
 the data must be stored as specified above to function.
 
+Please see the HDF5 documentation for Virtual Datasets if needed:
+https://support.hdfgroup.org/documentation/hdf5/latest/_v_d_s_t_n.html
+
 ### Limitations {#vtkhdf-limitations}
 
 - High order Lagrange cells are not supported by all visualisation tools. If you
