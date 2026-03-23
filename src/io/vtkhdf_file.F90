@@ -950,12 +950,12 @@ contains
        call filename_split(fname, main_path, main_name, main_suffix)
        write(ext_path, '(A,A,".data/")') trim(main_path), trim(main_name)
        write(ext_fname, '(A,I0,".h5")') trim(ext_path), counter
-       write(src_pattern, '(A,"%b.h5")') trim(ext_path)
+       write(src_pattern, '(A,".data/%b.h5")') trim(main_name)
 
        if (pe_rank == 0) then
           inquire(file = trim(ext_path), exist = ext_file_exists)
           if (.not. ext_file_exists) then
-             call execute_command_line("mkdir -p " // trim(ext_path))
+             call execute_command_line("mkdir -p '" // trim(ext_path) // "'")
           end if
        end if
        call MPI_Barrier(NEKO_COMM, ierr)
@@ -1174,7 +1174,7 @@ contains
     integer, intent(in) :: n_local
     integer(hid_t), intent(in) :: hdf_root
     character(len=*), intent(in) :: name
-    real(kind=rp), dimension(n_local) :: x
+    real(kind=rp), dimension(n_local), intent(in) :: x
     integer, intent(in), optional :: precision
     integer, intent(in), optional :: n_total, offset
 
@@ -1227,8 +1227,9 @@ contains
 
     else if (precision_local .eq. sp) then
        block
-         real(kind=sp) :: x_sp(n_local)
+         real(kind=sp), allocatable :: x_sp(:)
 
+         allocate(x_sp(n_local))
          do concurrent (i = 1:n_local)
             x_sp(i) = real(x(i), sp)
          end do
@@ -1236,12 +1237,14 @@ contains
          call h5dwrite_f(dset_id, precision_hdf, x_sp, dcount, ierr, &
               file_space_id = filespace, mem_space_id = memspace, &
               xfer_prp = xf_id)
+         deallocate(x_sp)
        end block
 
     else if (precision_local .eq. dp) then
        block
-         real(kind=dp) :: x_dp(n_local)
+         real(kind=dp), allocatable :: x_dp(:)
 
+         allocate(x_dp(n_local))
          do concurrent (i = 1:n_local)
             x_dp(i) = real(x(i), dp)
          end do
@@ -1249,6 +1252,22 @@ contains
          call h5dwrite_f(dset_id, precision_hdf, x_dp, dcount, ierr, &
               file_space_id = filespace, mem_space_id = memspace, &
               xfer_prp = xf_id)
+         deallocate(x_dp)
+       end block
+
+    else if (precision_local .eq. qp) then
+       block
+         real(kind=qp), allocatable :: x_qp(:)
+
+         allocate(x_qp(n_local))
+         do concurrent (i = 1:n_local)
+            x_qp(i) = real(x(i), qp)
+         end do
+
+         call h5dwrite_f(dset_id, precision_hdf, x_qp, dcount, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
+         deallocate(x_qp)
        end block
 
     else
@@ -1270,7 +1289,7 @@ contains
   !! @param u Local array of u component to write
   !! @param v Local array of v component to write
   !! @param w Local array of w component to write
-  !! @param n_local Number of local points in x
+  !! @param n_local Number of entries in each component
   !! @param precision Desired output precision (sp, dp, or rp)
   !! @param n_total Total number of points across all MPI ranks (optional)
   !! @param offset Starting index offset for this rank (optional)
@@ -1279,8 +1298,7 @@ contains
     integer, intent(in) :: n_local
     integer(hid_t), intent(in) :: hdf_root
     character(len=*), intent(in) :: name
-    real(kind=rp), dimension(n_local) :: u, v
-    real(kind=rp), dimension(n_local), optional :: w
+    real(kind=rp), dimension(n_local), intent(in) :: u, v, w
     integer, intent(in), optional :: precision
     integer, intent(in), optional :: n_total, offset
 
@@ -1318,7 +1336,6 @@ contains
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
     call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
 
-    ! Prepare memory and filespaces
     call h5screate_simple_f(2, dims, filespace, ierr)
     call h5screate_simple_f(2, dcount, memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -1329,8 +1346,9 @@ contains
 
     if (precision_local .eq. sp) then
        block
-         real(kind=sp) :: f(3, n_local)
+         real(kind=sp), allocatable :: f(:,:)
 
+         allocate(f(3, n_local))
          do concurrent (i = 1:n_local)
             f(1, i) = real(u(i), sp)
             f(2, i) = real(v(i), sp)
@@ -1340,12 +1358,14 @@ contains
          call h5dwrite_f(dset_id, precision_hdf, f, dcount, ierr, &
               file_space_id = filespace, mem_space_id = memspace, &
               xfer_prp = xf_id)
+         deallocate(f)
        end block
 
     else if (precision_local .eq. dp) then
        block
-         real(kind=dp) :: f(3, n_local)
+         real(kind=dp), allocatable :: f(:,:)
 
+         allocate(f(3, n_local))
          do concurrent (i = 1:n_local)
             f(1, i) = real(u(i), dp)
             f(2, i) = real(v(i), dp)
@@ -1355,6 +1375,24 @@ contains
          call h5dwrite_f(dset_id, precision_hdf, f, dcount, ierr, &
               file_space_id = filespace, mem_space_id = memspace, &
               xfer_prp = xf_id)
+         deallocate(f)
+       end block
+
+    else if (precision_local .eq. qp) then
+       block
+         real(kind=qp), allocatable :: f(:,:)
+
+         allocate(f(3, n_local))
+         do concurrent (i = 1:n_local)
+            f(1, i) = real(u(i), qp)
+            f(2, i) = real(v(i), qp)
+            f(3, i) = real(w(i), qp)
+         end do
+
+         call h5dwrite_f(dset_id, precision_hdf, f, dcount, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
+         deallocate(f)
        end block
 
     else
