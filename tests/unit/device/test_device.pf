@@ -33,6 +33,8 @@ subroutine test_device_init(this)
   use pfunit
   use device
   class(test_device_case), intent(inout) :: this
+
+  call device_init()
 end subroutine test_device_init
 
 @test
