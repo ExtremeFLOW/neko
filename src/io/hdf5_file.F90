@@ -825,14 +825,21 @@ contains
     ! ===================
     ! Create the data set
     ! ===================
+    dset_rank = 1 ! rank 1 array, i.e. a vector
+    ddims = [int(total_count, hsize_t)] ! global size of the vector
     call h5lexists_f(this%active_group_id, trim(vec%name), dset_exists, ierr)
     if (dset_exists) then
-       ! retireve the dset id for the existing data set
-       !call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
-       call neko_error("dataset already exist in the file")
+       if (this%overwrite) then
+         ! retrieve the dset id for the existing data set
+         if (pe_rank .eq. 0) then
+             write(*,*) "Dataset ", trim(vec%name), " already exists in file ", trim(this%get_fname()), " and will be overwritten."
+             write(*,*) "This only works if the global shape is the same"
+         end if
+         call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
+       else
+         call neko_error("dataset already exist in the file")
+       end if
     else
-       dset_rank = 1 ! rank 1 array, i.e. a vector
-       ddims = [int(total_count, hsize_t)] ! global size of the vector
        ! create file space of this shape
        call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
        ! create the data set with the given shape
@@ -1024,14 +1031,21 @@ contains
     ! ===================
     ! Create the data set
     ! ===================
+    dset_rank = 4 ! rank 4 array, i.e. a 4D tensor
+    ddims = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(total_count, hsize_t)] ! global size of the tensor
     call h5lexists_f(this%active_group_id, trim(field%name), dset_exists, ierr)
     if (dset_exists) then
-       !! retireve the dset id for the existing data set
-       !call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
-       call neko_error("dataset already exist in the file")
+       if (this%overwrite) then
+         ! retrieve the dset id for the existing data set
+         if (pe_rank .eq. 0) then
+             write(*,*) "Dataset ", trim(field%name), " already exists in file ", trim(this%get_fname()), " and will be overwritten."
+             write(*,*) "This only works if the global shape is the same"
+         end if
+         call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
+       else
+         call neko_error("dataset already exist in the file")
+       end if
     else
-       dset_rank = 4 ! rank 4 array, i.e. a 4D tensor
-       ddims = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(total_count, hsize_t)] ! global size of the tensor
        ! create file space of this shape
        call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
        ! create the data set with the given shape
