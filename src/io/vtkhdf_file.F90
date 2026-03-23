@@ -32,7 +32,7 @@
 !
 !> VTKHDF file format
 module vtkhdf_file
-  use num_types, only : rp, sp, dp, i8
+  use num_types, only : rp, sp, dp, qp, i8
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
   use utils, only : neko_error, neko_warning, filename_split, &
