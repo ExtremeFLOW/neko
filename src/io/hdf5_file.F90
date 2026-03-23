@@ -834,7 +834,7 @@ contains
          MPI_SUM, NEKO_COMM, ierr)
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
-
+ 
     ! ===============
     ! Configure MPIIO
     ! ===============
@@ -1088,7 +1088,7 @@ contains
     ! Cast and write the data
     ! =======================
     if (this%precision == sp) then
-      allocate(write_buffer_sp(field%msh%nelv, field%Xh%lx, field%Xh%ly, field%Xh%lz))
+      allocate(write_buffer_sp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
       write_buffer_sp = real(field%x, kind=sp)
      ! Write the data
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
@@ -1096,7 +1096,7 @@ contains
          xfer_prp = xf_id)
       deallocate(write_buffer_sp)
     else if (this%precision == dp) then
-      allocate(write_buffer_dp(field%msh%nelv, field%Xh%lx, field%Xh%ly, field%Xh%lz))
+      allocate(write_buffer_dp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
       write_buffer_dp = real(field%x, kind=dp)
      ! Write the data
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
