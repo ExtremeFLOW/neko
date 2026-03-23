@@ -884,20 +884,13 @@ contains
     character(len=*), intent(in) :: fname
     real(kind=rp), intent(in), optional :: t
 
-    logical, allocatable :: field_written(:)
     integer(kind=i8) :: time_offset
-    integer :: nelv
-    integer :: local_points, point_offset
-    integer :: lx, ly, lz
-    integer :: max_local_points, total_points
+    integer :: local_points, point_offset, total_points
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id
-    integer :: ierr, i, j, local_idx
-    integer :: n_fields, npts_per_cell
+    integer :: ierr, i, j
+    integer :: n_fields
     integer(hid_t) :: pointdata_grp, grp_id, step_grp_id
-    integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
-    integer(hsize_t), dimension(1) :: dcount, doffset
-    integer(hsize_t), dimension(2) :: dcount2, doffset2
+    integer(hid_t) :: dset_id, dcpl_id, filespace
     integer(hsize_t), dimension(1) :: pd_dims1, pd_maxdims1
     integer(hsize_t), dimension(2) :: pd_dims2, pd_maxdims2
     type(field_t), pointer :: fld, u, v, w
@@ -913,9 +906,9 @@ contains
     logical :: ext_file_exists
 
     ! Collected field info for VDS phase
-    integer :: n_vds_fields, vds_idx
-    character(len=128), allocatable :: vds_names(:)
-    logical, allocatable :: vds_is_vector(:)
+    integer :: fields_written
+    character(len=128), allocatable :: name_list(:)
+    logical, allocatable :: vector_list(:)
 
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
@@ -936,14 +929,9 @@ contains
        end if
     end do
 
-    allocate(field_written(n_fields), source=.false.)
-    allocate(vds_names(n_fields))
-    allocate(vds_is_vector(n_fields))
-    n_vds_fields = 0
-
-    ! Create collective transfer property list
-    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+    fields_written = 0
+    allocate(name_list(n_fields))
+    allocate(vector_list(n_fields))
 
     ! Create or open PointData group
     call h5lexists_f(vtkhdf_grp, "PointData", link_exists, ierr)
@@ -960,8 +948,9 @@ contains
 
        ! Derive base path from main filename for external files
        call filename_split(fname, main_path, main_name, main_suffix)
-       write(ext_path, '(A,A,A)') trim(main_path), trim(main_name), ".data/"
+       write(ext_path, '(A,A,".data/")') trim(main_path), trim(main_name)
        write(ext_fname, '(A,I0,".h5")') trim(ext_path), counter
+       write(src_pattern, '(A,"%b.h5")') trim(ext_path)
 
        if (pe_rank == 0) then
           inquire(file = trim(ext_path), exist = ext_file_exists)
@@ -1004,13 +993,10 @@ contains
              select case (fp(j)%ptr%name)
              case ('u')
                 u => fp(j)%ptr
-                field_written(j) = .true.
              case ('v')
                 v => fp(j)%ptr
-                field_written(j) = .true.
              case ('w')
                 w => fp(j)%ptr
-                field_written(j) = .true.
              end select
           end do
           field_name = 'Velocity'
@@ -1019,19 +1005,20 @@ contains
        ! Skip duplicate fields (e.g. fluid_rho added by both fluid output
        ! and field_writer when sharing the same output file)
        link_exists = .false.
-       do j = 1, n_vds_fields
-          if (trim(vds_names(j)) .eq. trim(field_name)) then
+       do j = 1, fields_written
+          if (trim(name_list(j)) .eq. trim(field_name)) then
              link_exists = .true.
              exit
           end if
        end do
 
-       ! Track unique field names for VDS phase / dedup
-       if (.not. link_exists) then
-          n_vds_fields = n_vds_fields + 1
-          vds_names(n_vds_fields) = field_name
-          vds_is_vector(n_vds_fields) = is_vector
-       end if
+       ! Skip duplicate fields
+       if (link_exists) cycle
+
+       ! Track unique field names for VDS phase
+       fields_written = fields_written + 1
+       name_list(fields_written) = field_name
+       vector_list(fields_written) = is_vector
 
        ! Remove existing dataset in the write target if present
        call h5lexists_f(write_target, trim(field_name), link_exists, ierr)
@@ -1065,24 +1052,24 @@ contains
        else
           call h5gcreate_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
        end if
-       do vds_idx = 1, n_vds_fields
-          call vtkhdf_write_i8_at(grp_id, trim(vds_names(vds_idx)), &
+       do i = 1, fields_written
+          call vtkhdf_write_i8_at(grp_id, trim(name_list(i)), &
                time_offset, counter)
        end do
        call h5gclose_f(grp_id, ierr)
 
        ! ===== Create or extend VDS in main file =====
-       write(src_pattern, '(A,".data/",A,".h5")') trim(main_name), "%b"
 
-       do vds_idx = 1, n_vds_fields
-          field_name = vds_names(vds_idx)
-          is_vector = vds_is_vector(vds_idx)
+       do i = 1, fields_written
+          field_name = name_list(i)
+          is_vector = vector_list(i)
 
           call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
 
           if (.not. link_exists) then
              ! First write: create VDS with pattern-based mapping
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+
              precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
 
              if (is_vector) then
@@ -1110,7 +1097,7 @@ contains
                      dcpl_id = dcpl_id)
                 call h5sclose_f(filespace, ierr)
              else
-                pd_dims1(1) = int(total_points, hsize_t)
+                pd_dims1 = int(total_points, hsize_t)
                 call h5screate_simple_f(1, pd_dims1, vds_src_space, ierr)
                 call h5sselect_all_f(vds_src_space, ierr)
 
@@ -1147,7 +1134,7 @@ contains
                      int((counter + 1) * total_points, hsize_t)]
                 call h5dset_extent_f(dset_id, pd_dims2, ierr)
              else
-                pd_dims1(1) = int((counter + 1) * total_points, hsize_t)
+                pd_dims1 = int((counter + 1) * total_points, hsize_t)
                 call h5dset_extent_f(dset_id, pd_dims1, ierr)
              end if
 
@@ -1162,11 +1149,9 @@ contains
     ! Cleanup before returning
 
     call h5gclose_f(pointdata_grp, ierr)
-    call h5pclose_f(xf_id, ierr)
 
-    deallocate(field_written)
-    deallocate(vds_names)
-    deallocate(vds_is_vector)
+    deallocate(name_list)
+    deallocate(vector_list)
 
   end subroutine vtkhdf_write_pointdata
 
