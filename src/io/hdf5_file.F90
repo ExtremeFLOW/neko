@@ -788,6 +788,8 @@ contains
     integer(hsize_t), dimension(1) :: dcount, doffset
     integer(hsize_t), dimension(1) :: ddims
     logical :: dset_exists
+    real(kind=sp), allocatable :: write_buffer_sp(:) ! Write buffer single
+    real(kind=dp), allocatable :: write_buffer_dp(:) ! Write buffer double
 
     ! ===============
     ! Get vector info
@@ -829,9 +831,9 @@ contains
        call h5sclose_f(filespace, ierr)
     end if
 
-    ! =======================
-    ! Write the data set
-    ! =======================
+    ! ===========================
+    ! Set up writing the data set
+    ! ===========================
     dcount = [int(counts, hsize_t)] ! local size of the vector
     doffset = [int(offset, hsize_t)] ! offset for this rank in the global vector
     ! Get the total file space (shape) of the data set
@@ -840,10 +842,28 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
-    ! Write the data
-    call h5dwrite_f(dset_id, precision_hdf, vec%x, dcount, ierr, &
+
+
+    ! =======================
+    ! Cast and write the data
+    ! =======================
+    if (this%precision == sp) then
+      allocate(write_buffer_sp(vec%size()))
+      write_buffer_sp = real(vec%x, kind=sp)
+     ! Write the data
+     call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+    else if (this%precision == dp) then
+      allocate(write_buffer_dp(vec%size()))
+      write_buffer_dp = real(vec%x, kind=dp)
+     ! Write the data
+     call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
+    else
+      call neko_error("Unsupported precision")
+    end if
 
     ! =======================
     ! Clean up
@@ -864,6 +884,8 @@ contains
     integer(hsize_t), dimension(2) :: dcount, doffset
     integer(hsize_t), dimension(2) :: ddims
     logical :: dset_exists
+    real(kind=sp), allocatable :: write_buffer_sp(:,:) ! Write buffer single
+    real(kind=dp), allocatable :: write_buffer_dp(:,:) ! Write buffer double
 
     ! ===============
     ! Get Matrix info
@@ -906,9 +928,9 @@ contains
        call h5sclose_f(filespace, ierr)
     end if
 
-    ! =======================
-    ! Write the data set
-    ! =======================
+    ! ===========================
+    ! Set up writing the data set
+    ! ===========================
     dcount = [int(strides, hsize_t), int(counts, hsize_t)] ! local size of the matrix
     doffset = [0_hsize_t, int(offset, hsize_t)] ! offset for this rank in the global matrix
     ! Get the total file space (shape) of the data set
@@ -917,10 +939,27 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
-    ! Write the data
-    call h5dwrite_f(dset_id, precision_hdf, mat%x, dcount, ierr, &
+    
+    ! =======================
+    ! Cast and write the data
+    ! =======================
+    if (this%precision == sp) then
+      allocate(write_buffer_sp(mat%get_nrows(), mat%get_ncols()))
+      write_buffer_sp = real(mat%x, kind=sp)
+     ! Write the data
+     call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+    else if (this%precision == dp) then
+      allocate(write_buffer_dp(mat%get_nrows(), mat%get_ncols()))
+      write_buffer_dp = real(mat%x, kind=dp)
+     ! Write the data
+     call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
+    else
+      call neko_error("Unsupported precision")
+    end if
 
     ! =======================
     ! Clean up
@@ -942,6 +981,8 @@ contains
     integer(hsize_t), dimension(4) :: dcount, doffset
     integer(hsize_t), dimension(4) :: ddims
     logical :: dset_exists
+    real(kind=sp), allocatable :: write_buffer_sp(:,:,:,:) ! Write buffer single
+    real(kind=dp), allocatable :: write_buffer_dp(:,:,:,:) ! Write buffer double
 
     ! ==============
     ! Get Field info
@@ -982,9 +1023,9 @@ contains
        call h5sclose_f(filespace, ierr)
     end if
 
-    ! =======================
-    ! Write the data set
-    ! =======================
+    ! ===========================
+    ! Set up writing the data set
+    ! ===========================
     dcount = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(counts, hsize_t)] ! local size of the tensor
     doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, int(offset, hsize_t)] ! offset for this rank in the global tensor
     ! Get the total file space (shape) of the data set
@@ -993,10 +1034,27 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
-    ! Write the data
-    call h5dwrite_f(dset_id, precision_hdf, field%x, dcount, ierr, &
+    
+    ! =======================
+    ! Cast and write the data
+    ! =======================
+    if (this%precision == sp) then
+      allocate(write_buffer_sp(field%msh%nelv, field%Xh%lx, field%Xh%ly, field%Xh%lz))
+      write_buffer_sp = real(field%x, kind=sp)
+     ! Write the data
+     call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
+    else if (this%precision == dp) then
+      allocate(write_buffer_dp(field%msh%nelv, field%Xh%lx, field%Xh%ly, field%Xh%lz))
+      write_buffer_dp = real(field%x, kind=dp)
+     ! Write the data
+     call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
+    else
+      call neko_error("Unsupported precision")
+    end if
 
     ! =======================
     ! Clean up
