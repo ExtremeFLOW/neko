@@ -922,14 +922,21 @@ contains
     ! ===================
     ! Create the data set
     ! ===================
+    dset_rank = 2 ! rank 2 array, i.e. a matrix
+    ddims = [int(strides, hsize_t), int(total_count, hsize_t)] ! global size of the matrix
     call h5lexists_f(this%active_group_id, trim(mat%name), dset_exists, ierr)
     if (dset_exists) then
-       !! retireve the dset id for the existing data set
-       !call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
-       call neko_error("dataset already exist in the file")
+       if (this%overwrite) then
+         ! retrieve the dset id for the existing data set
+         if (pe_rank .eq. 0) then
+             write(*,*) "Dataset ", trim(mat%name), " already exists in file ", trim(this%get_fname()), " and will be overwritten."
+             write(*,*) "This only works if the global shape is the same"
+         end if
+         call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
+       else
+         call neko_error("dataset already exist in the file")
+       end if
     else
-       dset_rank = 2 ! rank 2 array, i.e. a matrix
-       ddims = [int(strides, hsize_t), int(total_count, hsize_t)] ! global size of the matrix
        ! create file space of this shape
        call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
        ! create the data set with the given shape
