@@ -1113,6 +1113,7 @@ contains
     use blasius, only : blasius_t
     use field_dirichlet_vector, only : field_dirichlet_vector_t
     use dong_outflow, only : dong_outflow_t
+    use no_slip, only : no_slip_t
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(dirichlet_t) :: bdry_mask
     type(field_t), pointer :: bdry_field
@@ -1125,7 +1126,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A)') 'Condition-value pairs: '
     call neko_log%message(log_buf)
-    write(log_buf, '(A)') '  no_slip                         = 1'
+    write(log_buf, '(A)') '  no_slip (stationary wall)       = 1'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  velocity_value                  = 2'
     call neko_log%message(log_buf)
@@ -1183,7 +1184,7 @@ contains
     do i = 1, this%bcs_vel%size()
        bci => this%bcs_vel%get(i)
        select type (bc => bci)
-       type is (zero_dirichlet_t)
+       type is (no_slip_t)
           call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
