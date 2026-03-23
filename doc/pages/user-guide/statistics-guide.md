@@ -467,4 +467,3 @@ the following two characteristics of the `stats0` files:
    This issue has been discussed more in detail in
    [#2278](https://github.com/ExtremeFLOW/neko/issues/2278).
 
-Note also that the initial conditions _do not_ appear in the `stats0` file.
