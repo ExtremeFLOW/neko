@@ -4,7 +4,7 @@ module test_jobctrl_parallel
 
   use device, only : device_init, device_finalize
   use neko_config, only : NEKO_BCKND_DEVICE
-  use neko_mpi_types, only : neko_mpi_types_init
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use mesh
   use jobctrl
   use signal
@@ -35,6 +35,7 @@ contains
 
   subroutine tearDown(this)
     class(test_jobctrl_parallel_case), intent(inout) :: this
+    call neko_mpi_types_free()
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
