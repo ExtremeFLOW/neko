@@ -703,7 +703,7 @@ contains
     class(hdf5_file_t), intent(inout) :: this
     integer :: ierr
 
-    if (this%active_group_id /= -1_hid_t) then
+    if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. this%file_id) then
        call h5gclose_f(this%active_group_id, ierr)
        this%active_group_id = -1_hid_t
     end if
@@ -731,7 +731,7 @@ contains
 
 
     ! Close previous active group if one is open
-    if (this%active_group_id /= -1_hid_t) then
+    if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. this%file_id) then
        call h5gclose_f(this%active_group_id, ierr)
        this%active_group_id = -1_hid_t
     end if
@@ -811,9 +811,6 @@ contains
          MPI_SUM, NEKO_COMM, ierr)
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
-
-    ! Sync the data
-    !call vec%copy_from(DEVICE_TO_HOST, .true.)
 
     ! ===============
     ! Configure MPIIO
@@ -916,9 +913,6 @@ contains
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
 
-    ! Sync the data
-    !call mat%copy_from(DEVICE_TO_HOST, .true.)
-
     ! ===============
     ! Configure MPIIO
     ! ===============
@@ -1018,9 +1012,6 @@ contains
     total_count = field%msh%glb_nelv
     offset = field%msh%offset_el
 
-    ! Sync the data
-    !call field%copy_from(DEVICE_TO_HOST, .true.)
-
     ! ===============
     ! Configure MPIIO
     ! ===============
@@ -1038,7 +1029,7 @@ contains
        if (this%overwrite) then
          ! retrieve the dset id for the existing data set
          if (pe_rank .eq. 0) then
-             write(*,*) "Dataset ", trim(field%name), " already exists in file ", trim(this%get_fname()), " and will be overwritten."
+             write(*,*) "Overwriting Dataset: ", trim(field%name)
              write(*,*) "This only works if the global shape is the same"
          end if
          call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
