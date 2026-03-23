@@ -16,6 +16,7 @@ subroutine test_stack_i8_init
   @assertEqual(size(s1%array()), size_t)
   @assertEqual(s1%size_, size(s1%array()))
   @assertEqual(s1%top_, s1%size())
+  @assertTrue(s1%is_empty())
   @assertLessThan(s1%size(), size(s1%array()))
 
   call s2%init(10)
@@ -24,6 +25,7 @@ subroutine test_stack_i8_init
   @assertEqual(size(s2%array()), 16)
   @assertEqual(s2%size_, size(s2%array()))
   @assertEqual(s2%top_, s2%size())
+  @assertTrue(s2%is_empty())
   @assertLessThan(s2%size(), size(s2%array()))
 
   call s3%init(0)
@@ -32,6 +34,7 @@ subroutine test_stack_i8_init
   @assertEqual(size(s3%array()), size_t)
   @assertEqual(s3%size_, size(s3%array()))
   @assertEqual(s3%top_, s3%size())
+  @assertTrue(s3%is_empty())
   @assertLessThan(s3%size(), size(s3%array()))
 
 end subroutine test_stack_i8_init
@@ -49,6 +52,7 @@ subroutine test_stack_i8_free
   @assertEqual(s%size_, 0)
   @assertEqual(s%top_, 0)
   @assertEqual(s%size(), 0)
+  @assertTrue(s%is_empty())
   
 end subroutine test_stack_i8_free
 
@@ -68,13 +72,16 @@ subroutine test_stack_i8_push
      data = int(i, i8)
      call s%push(data)
   end do
+  ! Pushing data should make the stack non-empty without reallocating early.
   @assertEqual(s%size_, 64, message='Unnecessary reallocation')
   @assertEqual(s%top_, s%size_, message='Corrupt size')
+  @assertFalse(s%is_empty())
 
   do i = 1, 2
      data = int(i + 64, i8)
      call s%push(data)
   end do
+  ! Crossing the initial capacity should resize once and preserve order.
   @assertEqual(s%size_, 128, message='Unnecessary reallocation')
   @assertEqual(s%top_, (64 + 2), message='Corrupt size')
 
@@ -105,8 +112,10 @@ subroutine test_stack_i8_pop
      @assertEqual(s%pop(), int(i, i8))
   end do
 
+  ! Popping all entries should restore the empty-state markers.
   @assertEqual(s%top_, 0, message='Leftover data')
   @assertEqual(s%size_, 128, message='Corrupt size')
+  @assertTrue(s%is_empty())
   
 end subroutine test_stack_i8_pop
 
@@ -126,8 +135,10 @@ subroutine test_stack_i8_clear
      call s%push(data)
   end do
   call s%clear()
+  ! Clearing should drop the logical contents without shrinking storage.
   @assertEqual(s%size(), s%top_)
   @assertEqual(s%top_, 0, message='Corrupt top marker')
+  @assertTrue(s%is_empty())
 
 end subroutine test_stack_i8_clear
 
