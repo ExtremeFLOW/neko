@@ -13,7 +13,6 @@ module test_gather_scatter_parallel
   use datadist
   use gather_scatter
   use device
-  use neko_config, only : NEKO_BCKND_DEVICE
   use neko_config
   use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
