@@ -3,7 +3,7 @@ authors = ["Neko authors"]
 channels = ["conda-forge"]
 name = "neko"
 platforms = ["osx-arm64", "osx-64", "linux-64"]
-version = "0.9.0"
+version = "1.0.x"
 
 [activation.env]
 PREFIX = "$PWD/install"
@@ -13,30 +13,47 @@ LD_LIBRARY_PATH = "$PREFIX/lib:$LD_LIBRARY_PATH"
 LIBRARY_PATH = "$PREFIX/lib:$LIBRARY_PATH"
 CPATH = "$PREFIX/include:$CPATH"
 
-[tasks]
-download-deps = { cmd = [
+[tasks.download-deps]
+cmd = [
   "sh",
   "-c",
   '''
   mkdir -p $PREFIX/deps && cd $PREFIX/deps
   rm -rf *
+  git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
   git clone https://github.com/Nek5000/gslib.git gslib
   wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz
-  '''
-]}
+  ''',
+]
 
-build-gslib = { cmd = [
+[tasks.build-gslib]
+cmd = [
   "sh",
   "-c",
   '''
-  cd $PREFIX/deps/gslib 
-  make CC=mpicc DESTDIR=$PREFIX 
+  cd $PREFIX/deps/gslib
+  make CC=mpicc DESTDIR=$PREFIX
   make install
-  '''
-  ]}
+  ''',
+]
 
-build-hdf5 = { cmd = [
-  "bash", "-c",
+[tasks.build-pfunit]
+cmd = [
+  "sh",
+  "-c",
+  '''
+  cd $PREFIX/deps/pFUnit
+  mkdir b
+  cd b
+  cmake -DCMAKE_INSTALL_PREFIX=$PREFIX ..
+  make -j install
+  ''',
+]
+
+[tasks.build-hdf5]
+cmd = [
+  "bash",
+  "-c",
   '''
   cd $PREFIX/deps
   tar xvf hdf5_1.14.6.tar.gz
@@ -44,43 +61,51 @@ build-hdf5 = { cmd = [
   cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON -DHDF5_BUILD_FORTRAN=ON -DCMAKE_BUILD_TYPE=Release
   cmake --build build/ --parallel
   cmake --install build/
-  '''
-  ]}
+  ''',
+]
 
-build-neko-cpu = { cmd = [
+[tasks.build-neko-cpu]
+args = [{ arg = "real_precision", default = "dp" }]
+cmd = [
   "bash",
   "-c",
   '''
   set -e
+  case "{{ real_precision }}" in
+    sp|dp) ;;
+    *) echo "Unsupported real precision: {{ real_precision }}"; exit 1 ;;
+  esac
+
   ./regen.sh
-  ./configure FCFLAGS="-O3" --prefix=$PREFIX --with-hdf5=$PREFIX --with-parmetis=$PREFIX --with-gslib=$PREFIX
+  ./configure FCFLAGS="-O3" --enable-real={{ real_precision }} --prefix=$PREFIX --with-hdf5=$PREFIX --with-parmetis=$PREFIX --with-pfunit=$PREFIX/PFUNIT-4.4
   grep hdf5 config.log
   grep parmetis config.log
-  grep gslib config.log
+  grep pfunit config.log
   make -j install
-  '''
-  ]}
+  ''',
+]
 
-install-neko-cpu = { cmd = [
+[tasks.install-neko-cpu]
+args = [{ arg = "real_precision", default = "dp" }]
+cmd = [
   "bash",
   "-c",
   '''
   set -e
   pixi run download-deps
-  pixi run build-gslib
+  pixi run build-pfunit
   pixi run build-hdf5
-  pixi run build-neko-cpu
-
-  '''
-  ]}
+  pixi run build-neko-cpu {{ real_precision }}
+  ''',
+]
 
 [dependencies]
 gfortran = "14.*"
 openmpi = "5.*"
 cmake = "3.*"
-json-fortran  = "*"
-parmetis  = "4.0.3.*"
-metis  = "5.1.0.*"
+json-fortran = "*"
+parmetis = "4.0.3.*"
+metis = "5.1.0.*"
 libtool = "*"
 autoconf = "*"
 automake = "*"
@@ -89,3 +114,14 @@ wget = "*"
 blas = "*"
 lapack = "*"
 
+[feature.python.dependencies]
+python = "3.14.*"
+pytest = "*"
+findent = "*"
+
+[feature.python.pypi-dependencies]
+flinter = "==0.4.0"
+
+[environments]
+default = []
+python = ["python"]

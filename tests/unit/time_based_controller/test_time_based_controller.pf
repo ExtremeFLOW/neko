@@ -1,3 +1,5 @@
+module test_time_based_controller
+contains
 !> Test the constructor
 @test
 subroutine test_init()
@@ -167,3 +169,5 @@ subroutine test_register()
   @assertEqual(ctrl%nexecutions, 1)
 
 end subroutine test_register
+
+end module test_time_based_controller

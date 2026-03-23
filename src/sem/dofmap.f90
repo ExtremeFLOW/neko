@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -51,12 +51,12 @@ module dofmap
   private
 
   type, public :: dofmap_t
-     integer(kind=i8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
-     logical, allocatable :: shared_dof(:,:,:,:)    !< True if the dof is shared
-     real(kind=rp), allocatable :: x(:,:,:,:)       !< Mapping to x-coordinates
-     real(kind=rp), allocatable :: y(:,:,:,:)       !< Mapping to y-coordinates
-     real(kind=rp), allocatable :: z(:,:,:,:)       !< Mapping to z-coordinates
-     integer, private :: ntot                       !< Total number of dofs
+     integer(kind=i8), allocatable :: dof(:,:,:,:) !< Mapping to unique dof
+     logical, allocatable :: shared_dof(:,:,:,:) !< True if the dof is shared
+     real(kind=rp), allocatable :: x(:,:,:,:) !< Mapping to x-coordinates
+     real(kind=rp), allocatable :: y(:,:,:,:) !< Mapping to y-coordinates
+     real(kind=rp), allocatable :: z(:,:,:,:) !< Mapping to z-coordinates
+     integer, private :: ntot !< Local number of dofs
 
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
@@ -73,8 +73,10 @@ module dofmap
      procedure, pass(this) :: init => dofmap_init
      !> Destructor.
      procedure, pass(this) :: free => dofmap_free
-     !> Return the total number of degrees of freedom, lx*ly*lz*nelv
+     !> Return the local number of degrees of freedom, lx*ly*lz*nelv
      procedure, pass(this) :: size => dofmap_size
+     !> Return the global number of degrees of freedom, lx*ly*lz*glb_nelv
+     procedure, pass(this) :: global_size => dofmap_global_size
   end type dofmap_t
 
 contains
@@ -140,14 +142,14 @@ contains
        call device_map(this%z, this%z_d, this%ntot)
 
        call device_memcpy(this%x, this%x_d, this%ntot, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%y, this%y_d, this%ntot, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%z, this%z_d, this%ntot, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
-   end subroutine dofmap_init
+  end subroutine dofmap_init
 
   !> Destructor.
   subroutine dofmap_free(this)
@@ -193,12 +195,19 @@ contains
 
   end subroutine dofmap_free
 
-  !> Return the total number of dofs in the dofmap, lx*ly*lz*nelv
+  !> Return the local number of dofs in the dofmap, lx*ly*lz*nelv
   pure function dofmap_size(this) result(res)
     class(dofmap_t), intent(in) :: this
     integer :: res
     res = this%ntot
   end function dofmap_size
+
+  !> Return the global number of dofs in the dofmap, lx*ly*lz*glb_nelv
+  pure function dofmap_global_size(this) result(res)
+    class(dofmap_t), intent(in) :: this
+    integer :: res
+    res = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%glb_nelv
+  end function dofmap_global_size
 
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
@@ -211,9 +220,9 @@ contains
     Xh => this%Xh
     do il = 1, msh%nelv
        do jl = 1, msh%npts
-          ix = mod(jl - 1, 2)     * (Xh%lx - 1) + 1
+          ix = mod(jl - 1, 2) * (Xh%lx - 1) + 1
           iy = (mod(jl - 1, 4)/2) * (Xh%ly - 1) + 1
-          iz = ((jl - 1)/4)       * (Xh%lz - 1) + 1
+          iz = ((jl - 1)/4) * (Xh%lz - 1) + 1
           this%dof(ix, iy, iz, il) = int(msh%elements(il)%e%pts(jl)%p%id(), i8)
           this%shared_dof(ix, iy, iz, il) = &
                msh%is_shared(msh%elements(il)%e%pts(jl)%p)
@@ -237,11 +246,12 @@ contains
     Xh => this%Xh
 
     ! Number of dofs on an edge excluding end-points
-    num_dofs_edges(1) =  int(Xh%lx - 2, i8)
-    num_dofs_edges(2) =  int(Xh%ly - 2, i8)
-    num_dofs_edges(3) =  int(Xh%lz - 2, i8)
+    num_dofs_edges(1) = int(Xh%lx - 2, i8)
+    num_dofs_edges(2) = int(Xh%ly - 2, i8)
+    num_dofs_edges(3) = int(Xh%lz - 2, i8)
     edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
+    !$omp parallel do private(i,j,k,global_id,edge,edge_id,shared_dof)
     do i = 1, msh%nelv
 
        select type (ep => msh%elements(i)%e)
@@ -267,7 +277,7 @@ contains
                 this%shared_dof(k, 1, 1, i) = shared_dof
              end do
           end if
-          
+
           call ep%edge_id(edge, 3)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -285,7 +295,7 @@ contains
                 this%shared_dof(k, 1, Xh%lz, i) = shared_dof
              end do
           end if
-             
+
           call ep%edge_id(edge, 2)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -303,7 +313,7 @@ contains
                 this%shared_dof(k, Xh%ly, 1, i) = shared_dof
              end do
           end if
-          
+
           call ep%edge_id(edge, 4)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -343,7 +353,7 @@ contains
                 this%shared_dof(1, k, 1, i) = shared_dof
              end do
           end if
-          
+
           call ep%edge_id(edge, 7)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -423,7 +433,7 @@ contains
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i))  then
+          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) then
              do concurrent (j = 2:Xh%lz - 1)
                 k = Xh%lz+1-j
                 this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
@@ -454,7 +464,7 @@ contains
                 this%shared_dof(1, Xh%ly, k, i) = shared_dof
              end do
           end if
-          
+
           call ep%edge_id(edge, 12)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -522,7 +532,7 @@ contains
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
              do concurrent (j = 2:Xh%ly - 1)
-                k = Xh%ly+1-j 
+                k = Xh%ly+1-j
                 this%dof(1, k, 1, i) = edge_id + (j-2)
                 this%shared_dof(1, k, 1, i) = shared_dof
              end do
@@ -533,7 +543,7 @@ contains
                 this%shared_dof(1, k, 1, i) = shared_dof
              end do
           end if
-          
+
           call ep%facet_id(edge, 2)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
@@ -554,6 +564,7 @@ contains
        end select
 
     end do
+    !$omp end parallel do
   end subroutine dofmap_number_edges
 
   !> Assign numbers to dofs on faces
@@ -576,10 +587,11 @@ contains
          int(msh%glb_meds, i8) * int(Xh%lx-2, i8) + int(1, i8)
 
     ! Number of dofs on an face excluding end-points
-    num_dofs_faces(1) =  int((Xh%ly - 2) * (Xh%lz - 2), i8)
-    num_dofs_faces(2) =  int((Xh%lx - 2) * (Xh%lz - 2), i8)
-    num_dofs_faces(3) =  int((Xh%lx - 2) * (Xh%ly - 2), i8)
+    num_dofs_faces(1) = int((Xh%ly - 2) * (Xh%lz - 2), i8)
+    num_dofs_faces(2) = int((Xh%lx - 2) * (Xh%lz - 2), i8)
+    num_dofs_faces(3) = int((Xh%lx - 2) * (Xh%ly - 2), i8)
 
+    !$omp parallel do private(i,j,k,global_id,face,face_order,facet_id, shared_dof)
     do i = 1, msh%nelv
 
        !
@@ -659,6 +671,7 @@ contains
           this%shared_dof(j, k, Xh%lz, i) = shared_dof
        end do
     end do
+    !$omp end parallel do
 
   end subroutine dofmap_number_faces
 
@@ -696,7 +709,7 @@ contains
        else
           facet_idx = facet_id + j*lk + k
        end if
-    else  if (face_order%x(2) .eq. face%x(1)) then
+    else if (face_order%x(2) .eq. face%x(1)) then
        if (face_order%x(3) .lt. face_order%x(1)) then
           facet_idx = facet_id + lk*(lj-1-j) + k
        else
@@ -738,10 +751,13 @@ contains
        n_edge = 4
     end if
 
+    !$omp parallel do
     do i = 1, msh%nelv
        call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x(1,1,1,i), &
-                          this%y(1,1,1,i), this%z(1,1,1,i))
+            this%y(1,1,1,i), this%z(1,1,1,i))
     end do
+    !$omp end parallel do
+
     do i = 1, msh%curve%size
        midpoint = .false.
        el_idx = msh%curve%curve_el(i)%el_idx
@@ -764,10 +780,10 @@ contains
           if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
              rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
              call arc_surface(j, rp_curve_data, &
-                              this%x(1, 1, 1, el_idx), &
-                              this%y(1, 1, 1, el_idx), &
-                              this%z(1, 1, 1, el_idx), &
-                              Xh, msh%elements(el_idx)%e, msh%gdim)
+                  this%x(1, 1, 1, el_idx), &
+                  this%y(1, 1, 1, el_idx), &
+                  this%z(1, 1, 1, el_idx), &
+                  Xh, msh%elements(el_idx)%e, msh%gdim)
           end if
        end do
     end do
@@ -789,8 +805,8 @@ contains
     type(space_t), intent(in) :: Xh
     class(element_t), intent(in) :: element
     real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz), &
-                                    y(Xh%lx, Xh%ly, Xh%lz), &
-                                    z(Xh%lx, Xh%ly, Xh%lz)
+         y(Xh%lx, Xh%ly, Xh%lz), &
+         z(Xh%lx, Xh%ly, Xh%lz)
     real(kind=rp) :: xyzb(2,2,2,3), zgml(Xh%lx, 3)
     real(kind=rp) :: jx(Xh%lx*2)
     real(kind=rp) :: jxt(Xh%lx*2), jyt(Xh%lx*2), jzt(Xh%lx*2)
@@ -830,7 +846,7 @@ contains
           xyzb(2,1,1,j) = element%pts(2)%p%x(j)
           xyzb(1,2,1,j) = element%pts(3)%p%x(j)
           xyzb(2,2,1,j) = element%pts(4)%p%x(j)
-          
+
           xyzb(1,1,2,j) = element%pts(5)%p%x(j)
           xyzb(2,1,2,j) = element%pts(6)%p%x(j)
           xyzb(1,2,2,j) = element%pts(7)%p%x(j)
@@ -859,6 +875,7 @@ contains
     end if
   end subroutine dofmap_xyzlin
 
+  !OCL SERIAL
   subroutine dofmap_xyzquad(Xh, msh, element, x, y, z, curve_type, curve_data)
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
@@ -874,9 +891,9 @@ contains
     real(kind=rp) :: jxt(Xh%lx*3), jyt(Xh%lx*3), jzt(Xh%lx*3)
     real(kind=rp) :: w(4*Xh%lxyz,2)
     integer :: j, k, n_edges
-    eindx = [2 ,  6 ,  8 ,  4, &
-             20 , 24 , 26 , 22, &
-             10 , 12 , 18 , 16]
+    eindx = [2 , 6 , 8 , 4, &
+         20 , 24 , 26 , 22, &
+         10 , 12 , 18 , 16]
 
     w = 0d0
     if (msh%gdim .eq. 3) then
@@ -896,8 +913,8 @@ contains
        end if
     end do
     zg(1) = -1
-    zg(2) =  0
-    zg(3) =  1
+    zg(2) = 0
+    zg(3) = 1
     if (msh%gdim .eq. 3) then
        call gh_face_extend_3d(x3, zg, 3, 2, w(1,1), w(1,2)) ! 2 --> edge extend
        call gh_face_extend_3d(y3, zg, 3, 2, w(1,1), w(1,2))
@@ -934,6 +951,8 @@ contains
     call Xh3%free()
   end subroutine dofmap_xyzquad
 
+
+  !OCL SERIAL
   !> Extend faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and edges
@@ -941,10 +960,10 @@ contains
   !! Original in Nek5000/core/navier5.f
   subroutine gh_face_extend_3d(x, zg, n, gh_type, e, v)
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) ::  x(n, n, n)
-    real(kind=rp), intent(in) ::  zg(n)
-    real(kind=rp), intent(inout) ::  e(n, n, n)
-    real(kind=rp), intent(inout) ::  v(n, n, n)
+    real(kind=rp), intent(inout) :: x(n, n, n)
+    real(kind=rp), intent(in) :: zg(n)
+    real(kind=rp), intent(inout) :: e(n, n, n)
+    real(kind=rp), intent(inout) :: v(n, n, n)
     integer :: gh_type, ntot, kk, jj, ii, k, j, i
     real(kind=xp) :: si, sj, sk, hi, hj, hk
 
@@ -957,10 +976,10 @@ contains
     end do
 
     do concurrent (i = 1:n, j = 1:n, k = 1:n, &
-                   ii = 1:n:n-1, jj = 1:n:n-1, kk = 1:n:n-1)
-       si       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-       sj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-       sk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+         ii = 1:n:n-1, jj = 1:n:n-1, kk = 1:n:n-1)
+       si = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       sj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       sk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
        v(i,j,k) = v(i,j,k) + si * sj* sk * x(ii, jj, kk)
     end do
 
@@ -980,24 +999,24 @@ contains
     !  x-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1, kk = 1:n:n-1)
-       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
        e(i,j,k) = e(i,j,k) + hj*hk*(x(i, jj, kk) - v(i, jj, kk))
     end do
     !
     !  y-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, kk = 1:n:n-1)
-       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
        e(i,j,k) = e(i,j,k) + hi*hk*(x(ii, j, kk) - v(ii, j, kk))
     end do
     !
     !  z-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, jj = 1:n:n-1)
-       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
        e(i,j,k) = e(i,j,k) + hi*hj*(x(ii, jj, k) - v(ii, jj, k))
     end do
 
@@ -1021,7 +1040,7 @@ contains
     !  x-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1)
-       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
        v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
     end do
 
@@ -1029,7 +1048,7 @@ contains
     ! y-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1)
-       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
        v(i,j,k) = v(i,j,k) + hj*(x(i, jj, k) - e(i, jj, k))
     end do
 
@@ -1037,7 +1056,7 @@ contains
     !  z-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, kk = 1:n:n-1)
-       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       hk = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
        v(i,j,k) = v(i,j,k) + hk*(x(i, j, kk) - e(i, j, kk))
     end do
 
@@ -1048,6 +1067,7 @@ contains
 
   end subroutine gh_face_extend_3d
 
+  !OCL SERIAL
   !> Extend 2D faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and faces
@@ -1069,8 +1089,8 @@ contains
        do ii = 1, n, n-1
           do j = 1, n
              do i = 1, n
-                si     = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-                sj     = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                si = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                sj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
                 v(i,j) = v(i,j) + si*sj*x(ii, jj)
              end do
           end do
@@ -1089,7 +1109,7 @@ contains
     do jj = 1, n, n-1
        do j = 1, n
           do i = 1, n
-             hj     = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+             hj = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
              e(i,j) = e(i,j) + hj*(x(i, jj) - v(i, jj))
           end do
        end do
@@ -1100,7 +1120,7 @@ contains
     do ii = 1, n, n-1
        do j = 1, n
           do i = 1, n
-             hi     = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+             hi = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
              e(i,j) = e(i,j) + hi*(x(ii,j)-v(ii,j))
           end do
        end do
@@ -1124,14 +1144,14 @@ contains
     real(kind=rp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
     integer :: isid1, ixt, iyt, izt, ix, itmp
     ! Cyclic to symmetric face mapping
-    integer(i4),  dimension(6), parameter :: fcyc_to_sym = [3, 2, 4, 1, 5, 6]
+    integer(i4), dimension(6), parameter :: fcyc_to_sym = [3, 2, 4, 1, 5, 6]
     ! Cyclic to symmetric edge mapping
-    integer(i4),  dimension(12), parameter :: ecyc_to_sym = [1, 6, 2, 5, 3, 8,&
-         & 4, 7, 9, 10, 12, 11]
+    integer(i4), dimension(12), parameter :: ecyc_to_sym = [1, 6, 2, 5, 3, 8, &
+         4, 7, 9, 10, 12, 11]
     ! Symmetric edge to vertex mapping
     integer, parameter, dimension(2, 12) :: edge_nodes = reshape([1, 2, 3, 4, &
-         & 5, 6, 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8], &
-         & [2,12]) 
+         5, 6, 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8], &
+         [2,12])
     ! copy from hex as this has private attribute there
 
     ! this subroutine is a mess of symmetric and cyclic edge/face numberring and
@@ -1162,12 +1182,12 @@ contains
     & call neko_error('Radius to small for arced element surface')
     ! find center
     dtheta = abs(asin(0.5_xp*xys/radius))
-    pt12x  = (pt1x + pt2x)/2.0
-    pt12y  = (pt1y + pt2y)/2.0
-    xcenn  = pt12x - xs/xys * radius*cos(dtheta)
-    ycenn  = pt12y - ys/xys * radius*cos(dtheta)
+    pt12x = (pt1x + pt2x)/2.0
+    pt12y = (pt1y + pt2y)/2.0
+    xcenn = pt12x - xs/xys * radius*cos(dtheta)
+    ycenn = pt12y - ys/xys * radius*cos(dtheta)
     theta0 = atan2((pt12y-ycenn), (pt12x-xcenn))
-!   compute perturbation of geometry
+    !   compute perturbation of geometry
     isid1 = mod(isid+4-1, 4)+1
     call compute_h(h, Xh%zg, gdim, Xh%lx)
     if (radius < 0.0) dtheta = -dtheta
@@ -1176,33 +1196,34 @@ contains
        if (isid1 .gt. 2) ixt = Xh%lx+1-ix
        r = Xh%zg(ix,1)
        xcrved(ixt) = xcenn + abs(radius) * cos(theta0 + r*dtheta) &
-                           - ( h(ix,1,1)*pt1x + h(ix,1,2)*pt2x )
+            - ( h(ix,1,1)*pt1x + h(ix,1,2)*pt2x )
        ycrved(ixt) = ycenn + abs(radius) * sin(theta0 + r*dtheta) &
-                           - ( h(ix,1,1)*pt1y + h(ix,1,2)*pt2y )
+            - ( h(ix,1,1)*pt1y + h(ix,1,2)*pt2y )
     end do
-!   points all set, add perturbation to current mesh.
-!   LEGACY WARNING
-!   I dont want to dive in this again, Martin Karp 2/3 - 2021
+    !   points all set, add perturbation to current mesh.
+    !   LEGACY WARNING
+    !   I dont want to dive in this again, Martin Karp 2/3 - 2021
     isid1 = fcyc_to_sym(isid1)
     izt = (isid-1)/4+1
     iyt = isid1-2
     ixt = isid1
     if (isid1 .le. 2) then
        call addtnsr(x, h(1, 1, ixt), xcrved, h(1, 3, izt), &
-                   Xh%lx, Xh%ly, Xh%lz)
+            Xh%lx, Xh%ly, Xh%lz)
        call addtnsr(y, h(1, 1, ixt), ycrved, h(1, 3, izt), &
-                   Xh%lx, Xh%ly, Xh%lz)
+            Xh%lx, Xh%ly, Xh%lz)
     else
        call addtnsr(x, xcrved, h(1, 2, iyt), h(1, 3, izt), &
-                    Xh%lx, Xh%ly, Xh%lz)
+            Xh%lx, Xh%ly, Xh%lz)
        call addtnsr(y, ycrved, h(1, 2, iyt), h(1, 3, izt), &
-                    Xh%lx, Xh%ly, Xh%lz)
+            Xh%lx, Xh%ly, Xh%lz)
     end if
   end subroutine arc_surface
 
+  !OCL SERIAL
   subroutine compute_h(h, zgml, gdim, lx)
     integer, intent(in) :: lx, gdim
-    real(kind=rp), intent(inout) ::  h(lx, 3, 2)
+    real(kind=rp), intent(inout) :: h(lx, 3, 2)
     real(kind=rp), intent(in) :: zgml(lx, 3)
     integer :: ix, iy, iz
 

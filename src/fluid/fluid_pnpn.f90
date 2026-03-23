@@ -707,7 +707,7 @@ contains
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+           ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)
 
       ! Compute the source terms
       call this%source_term%compute(time)
@@ -742,7 +742,7 @@ contains
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
          ! Now, the source terms from the previous time step are added to the RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
@@ -762,7 +762,7 @@ contains
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          ! Blag and Blaglag are history of B matrices, mainly used for ALE.
@@ -770,7 +770,7 @@ contains
          ! are just the initial B matrix, filled at initialization.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
               u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
-              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n, &
+              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n, &
               c_Xh%Blag, c_Xh%Blaglag)
 
       end if
@@ -804,7 +804,7 @@ contains
            f_x, f_y, f_z, &
            c_Xh, gs_Xh, &
            this%bc_prs_surface, this%bc_sym_surface,&
-           Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
+           Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
            mu_tot, rho, event)
 
 
@@ -858,7 +858,7 @@ contains
            p, &
            f_x, f_y, f_z, &
            c_Xh, msh, Xh, &
-           mu_tot, rho, ext_bdf%diffusion_coeffs(1), &
+           mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
            dt, dm_Xh%size())
 
       call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
@@ -910,7 +910,7 @@ contains
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
-              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              dt, time, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
