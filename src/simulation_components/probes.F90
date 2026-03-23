@@ -541,16 +541,16 @@ contains
        end if
     class is (hdf5_file_t)
     
-       !> This is always on cpus I think
-       write(*,*) "local probes is ", this%n_local_probes
+       !> This is always on cpus.
+       call this%fout%set_overwrite(.true.)
        call mat_coords%init(3, this%n_local_probes, "coordinates")
        call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
 
+       !> Write the coordinates in the root directory
        call this%fout%open("w")
-       call this%fout%set_active_group()
+       call this%fout%set_active_group() ! Empty sets it to the root group "/"
        call this%fout%write_dataset(mat_coords)
        call this%fout%close()
-
 
        !> Set up the output matrix
        this%seq_io = .false.
@@ -726,14 +726,11 @@ contains
           end if
        else
 
-          call trsp(this%out_vals_trsp, this%n_fields, &
+          !> Copy the data to correct contiguous layout for output
+          call trsp(this%mat_out%x, this%n_fields, &
                this%out_values, this%n_local_probes)
-          call copy(this%mat_out%x, this%out_vals_trsp, this%n_fields*this%n_local_probes)
 
-
-            write(group_name, '(A,I0)') "t_", this%output_controller%nexecutions
-            write(*,*) "Writing probes at time ", time%t, " to group ", trim(group_name)
-            write(*,*) "local probes is ", this%n_local_probes
+            write(group_name, '(A,I00000)') "t_", this%output_controller%nexecutions
             call this%fout%open("w")
             call this%fout%set_active_group(["probes", trim(group_name)])
             call this%fout%write_dataset(this%mat_out)
