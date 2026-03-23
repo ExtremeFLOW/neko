@@ -689,6 +689,9 @@ contains
     integer :: i, ierr
     logical :: do_interp_on_host = .false.
     character(len=1000) :: group_name
+   integer :: testing = 10
+   real(kind=rp) :: testing2 = 10.0001560_rp
+   character(len=100) :: test_str = "test"
 
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
@@ -734,6 +737,8 @@ contains
             call this%fout%open("w")
             call this%fout%set_active_group(["probes", trim(group_name)])
             call this%fout%write_dataset(this%mat_out)
+            call this%fout%write_attribute(testing, "testing")
+            call this%fout%write_attribute(testing2, "time")
             call this%fout%close()
 
        end if
