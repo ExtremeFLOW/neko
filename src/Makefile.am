@@ -150,7 +150,6 @@ neko_fortran_SOURCES = \
 	io/chkp_file.f90\
 	io/csv_file.f90\
 	io/hdf5_file.F90\
-	io/hdf5_file_2.F90\
 	io/vtkhdf_file.F90\
 	io/file.f90\
 	io/output.f90\

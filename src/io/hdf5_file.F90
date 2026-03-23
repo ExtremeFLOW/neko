@@ -106,6 +106,9 @@ contains
     fname = trim(this%get_base_fname())
     call filename_split(fname, path, name, suffix)
 
+    write(base_fname, '(A,A,"_",I0,A)') &
+       trim(path), trim(name), this%get_start_counter(), trim(suffix)
+
   end function file_get_fname
 
   !> Set the precision for the output (single or double)
@@ -720,13 +723,12 @@ contains
   !! @param An array of strings that show the path to the group to create or open.
   subroutine hdf5_file_set_group(this, group_name)
     class(hdf5_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: group_name(:)
+    character(len=*), intent(in), optional :: group_name(:)
 
     integer(hid_t) :: current_id, group_id
     integer :: ierr, i, num_groups
     logical :: group_exists
 
-    num_groups = size(group_name)
 
     ! Close previous active group if one is open
     if (this%active_group_id /= -1_hid_t) then
@@ -735,7 +737,15 @@ contains
     end if
 
     ! Start from root location = file
-    current_id = this%file_id
+    current_id = this%file_id 
+    ! Return the root directory if no group name is given
+    if (.not. present(group_name)) then
+       this%active_group_id = current_id
+       return
+    end if
+   
+    ! Iterate through the group names
+    num_groups = size(group_name)
 
     do i = 1, num_groups
        call h5lexists_f(current_id, trim(group_name(i)), group_exists, ierr)

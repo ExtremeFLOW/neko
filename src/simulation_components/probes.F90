@@ -547,7 +547,7 @@ contains
        call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
 
        call this%fout%open("w")
-       call this%fout%set_active_group(["probes"])
+       call this%fout%set_active_group()
        call this%fout%write_dataset(mat_coords)
        call this%fout%close()
 

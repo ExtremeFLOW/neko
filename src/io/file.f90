@@ -378,7 +378,7 @@ contains
 
    subroutine file_set_active_group_default(this, group)
       class(file_t), intent(inout) :: this
-      character(len=*), intent(in) :: group(:)
+      character(len=*), intent(in), optional :: group(:)
       select type (ft => this%file_type)
       type is (hdf5_file_t)
          call ft%set_active_group(group)
