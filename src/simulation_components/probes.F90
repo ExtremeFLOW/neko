@@ -37,6 +37,7 @@
 module probes
   use num_types, only: rp
   use matrix, only: matrix_t
+  use vector, only: vector_t
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use utils, only: neko_error, nonlinear_index
   use field_list, only: field_list_t
@@ -96,6 +97,7 @@ module probes
      !> Output variables
      type(file_t) :: fout
      type(matrix_t) :: mat_out
+     type(vector_t) :: vec_out
    contains
      !> Initialize from json
      procedure, pass(this) :: init => probes_init_from_json
@@ -555,9 +557,10 @@ contains
        !> Set up the output matrix
        this%seq_io = .false.
        call this%mat_out%init(this%n_fields, this%n_local_probes, "interpolated_fields")
+       call this%vec_out%init(this%n_local_probes, "interpolated_fields_trsp")
 
     class default
-       call neko_error("Invalid data. Expected csv_file_t.")
+       call neko_error("Invalid data. Expected csv_file_t or hdf5_file_t.")
     end select
 
   end subroutine probes_init_from_components
@@ -711,37 +714,61 @@ contains
     end if
 
     if (this%output_controller%check(time)) then
-       ! Gather all values to rank 0
-       ! If io is only done at root
-       if (this%seq_io) then
-          call trsp(this%out_vals_trsp, this%n_fields, &
-               this%out_values, this%n_local_probes)
-          call MPI_Gatherv(this%out_vals_trsp, &
-               this%n_fields*this%n_local_probes, &
-               MPI_REAL_PRECISION, this%global_output_values, &
-               this%n_fields*this%n_local_probes_tot, &
-               this%n_fields*this%n_local_probes_tot_offset, &
-               MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
-          if (pe_rank .eq. 0) then
-             call trsp(this%mat_out%x, this%n_global_probes, &
-                  this%global_output_values, this%n_fields)
-             call this%fout%write(this%mat_out, time%t)
-          end if
-       else
+       select type (ft => this%fout%file_type)
+       type is (csv_file_t)
+         ! Gather all values to rank 0
+         ! If io is only done at root
+         if (this%seq_io) then
+            call trsp(this%out_vals_trsp, this%n_fields, &
+                  this%out_values, this%n_local_probes)
+            call MPI_Gatherv(this%out_vals_trsp, &
+                  this%n_fields*this%n_local_probes, &
+                  MPI_REAL_PRECISION, this%global_output_values, &
+                  this%n_fields*this%n_local_probes_tot, &
+                  this%n_fields*this%n_local_probes_tot_offset, &
+                  MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+            if (pe_rank .eq. 0) then
+               call trsp(this%mat_out%x, this%n_global_probes, &
+                     this%global_output_values, this%n_fields)
+               call this%fout%write(this%mat_out, time%t)
+            end if
+         else
+            call neko_error("CSV outputs only works sequentially")
+         end if
 
-          !> Copy the data to correct contiguous layout for output
-          call trsp(this%mat_out%x, this%n_fields, &
-               this%out_values, this%n_local_probes)
+       type is (hdf5_file_t)
 
-            write(group_name, '(A,I00000)') "t_", this%output_controller%nexecutions
-            call this%fout%open("w")
-            call this%fout%set_active_group(["probes", trim(group_name)])
-            call this%fout%write_dataset(this%mat_out)
-            call this%fout%write_attribute(testing, "testing")
-            call this%fout%write_attribute(testing2, "time")
-            call this%fout%close()
+         if (this%seq_io) then
+            call neko_error("HDF5 outputs only works in parallel currently.")
+         
+         else
+            !> Copy the data to correct contiguous layout for output
+            call trsp(this%mat_out%x, this%n_fields, &
+                  this%out_values, this%n_local_probes)
 
-       end if
+               write(group_name, '(A,I00000)') "Step_", this%output_controller%nexecutions
+               call this%fout%open("w")
+               call this%fout%set_active_group(["probes", trim(group_name)])
+
+               ! Write out the data
+               do i = 1, this%n_fields
+                  write(*,*) "Writing field: ", trim(this%which_fields(i))
+                  call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
+                  this%vec_out%name = trim(this%which_fields(i))
+                  write(*,*) "Copied: ", trim(this%which_fields(i))
+                  call this%fout%write_dataset(this%vec_out)
+                  write(*,*) "DONE - Writing field: ", trim(this%which_fields(i))
+               end do
+
+               !call this%fout%write_dataset(this%mat_out)
+               !call this%fout%write_attribute(testing, "testing")
+               !call this%fout%write_attribute(testing2, "time")
+               call this%fout%close()
+
+        end if
+         class default
+            call neko_error("Invalid data. Expected csv_file_t or hdf5_file_t.")
+      end select
 
        !! Register the execution of the activity
        call this%output_controller%register_execution()
