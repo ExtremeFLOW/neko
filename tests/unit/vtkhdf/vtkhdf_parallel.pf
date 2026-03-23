@@ -366,6 +366,7 @@ contains
     if (exists .and. pe_rank .eq. 0) then
        open(newunit=unit, file='test_write_0.vtkhdf')
        close(unit, status='delete')
+       call execute_command_line('rm -rf test_write_0.data')
     end if
 
   end subroutine test_vtkhdf_write
@@ -754,6 +755,7 @@ contains
     if (exists .and. pe_rank .eq. 0) then
        open(newunit=unit, file='test_write_time_0.vtkhdf')
        close(unit, status='delete')
+       call execute_command_line('rm -rf test_write_time_0.data')
     end if
 
   end subroutine test_vtkhdf_write_time
@@ -1092,6 +1094,7 @@ contains
     if (exists .and. pe_rank .eq. 0) then
        open(newunit=unit, file='test_write_time_subdivide_0.vtkhdf')
        close(unit, status='delete')
+       call execute_command_line('rm -rf test_write_time_subdivide_0.data')
     end if
 
   end subroutine test_vtkhdf_write_time_subdivide

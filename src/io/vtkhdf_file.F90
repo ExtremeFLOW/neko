@@ -148,7 +148,7 @@ contains
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16) :: type_str
-    logical :: link_exists, file_exists
+    logical :: link_exists
     integer :: counter
 
     ! Determine mesh and field data
@@ -204,13 +204,13 @@ contains
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
-    inquire(file = fname, exist = file_exists)
-    if (file_exists) then
-       call h5fopen_f(fname, H5F_ACC_RDWR_F, file_id, ierr, &
-            access_prp = plist_id)
-    else
+    if (counter .eq. 0) then
+       ! First write: always create a fresh file to avoid stale data
        call h5fcreate_f(fname, H5F_ACC_TRUNC_F, &
             file_id, ierr, access_prp = plist_id)
+    else
+       call h5fopen_f(fname, H5F_ACC_RDWR_F, file_id, ierr, &
+            access_prp = plist_id)
     end if
 
     ! Create/open VTKHDF root group with vtkhdf_version and type attributes
@@ -864,12 +864,15 @@ contains
   !> Write field data into the VTKHDF PointData group.
   !! Groups u, v, w fields into a 3-component Velocity vector dataset.
   !! All other fields are written as scalar datasets.
-  !! Each dataset is stored in a separate external HDF5 file and linked
-  !! into the main file via HDF5 external links.
+  !! All fields for each timestep are stored together in a single external
+  !! HDF5 file (one file per timestep). The main VTKHDF file uses HDF5
+  !! Virtual Datasets (VDS) with printf-style source file patterns to
+  !! transparently map each timestep's data from the per-timestep files.
   !! For temporal output, PointDataOffsets are appended under Steps.
   !! @param vtkhdf_grp Root VTKHDF group
   !! @param fp Array of field pointers to write
-  !! @param precision Output precision (optional, for VTKHDF files)
+  !! @param precision Output precision
+  !! @param counter Current timestep counter
   !! @param fname Main VTKHDF file path (used to derive external file names)
   !! @param t Current simulation time (optional, for temporal output)
   subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, counter, &
@@ -889,11 +892,11 @@ contains
     integer :: max_local_points, total_points
     integer(hid_t) :: precision_hdf
     integer(hid_t) :: xf_id
-    integer :: ierr, i, j, ie, ii, jj, kk, local_idx
+    integer :: ierr, i, j, local_idx
     integer :: n_fields, npts_per_cell
     integer(hid_t) :: pointdata_grp, grp_id, step_grp_id
-    integer(hid_t) :: dset_id, dcpl_id, attr_id, filespace, memspace
-    integer(hsize_t), dimension(1) :: dcount, doffset, chunkdims
+    integer(hid_t) :: dset_id, dcpl_id, filespace, memspace
+    integer(hsize_t), dimension(1) :: dcount, doffset
     integer(hsize_t), dimension(2) :: dcount2, doffset2
     integer(hsize_t), dimension(1) :: pd_dims1, pd_maxdims1
     integer(hsize_t), dimension(2) :: pd_dims2, pd_maxdims2
@@ -901,12 +904,17 @@ contains
     character(len=128) :: field_name
     logical :: link_exists, is_vector
 
-    ! External file variables
-    character(len=1024) :: ext_fname, ext_basename, ext_path
+    ! VDS and per-timestep external file variables
+    character(len=1024) :: ext_fname, ext_path, src_pattern
     character(len=1024) :: main_path, main_name, main_suffix
-    integer(hid_t) :: ext_file_id, ext_plist_id
+    integer(hid_t) :: ext_file_id, ext_plist_id, vds_src_space
     integer :: mpi_info, mpi_comm
     logical :: ext_file_exists
+
+    ! Collected field info for VDS phase
+    integer :: n_vds_fields, vds_idx
+    character(len=128), allocatable :: vds_names(:)
+    logical, allocatable :: vds_is_vector(:)
 
     ! Create collective transfer property list
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
@@ -921,7 +929,7 @@ contains
 
     n_fields = size(fp)
 
-    ! --- Build the number of cells and the connectivity
+    ! Compute local/global point counts and MPI offsets
     local_points = fp(1)%ptr%dof%size()
     total_points = fp(1)%ptr%dof%global_size()
     nelv = fp(1)%ptr%msh%nelv
@@ -945,6 +953,34 @@ contains
     end do
 
     allocate(field_written(n_fields), source=.false.)
+    allocate(vds_names(n_fields))
+    allocate(vds_is_vector(n_fields))
+    n_vds_fields = 0
+
+    ! Create data directory if it does not exist (rank 0 only, then barrier)
+    write(ext_path, '(A,A,A)') trim(main_path), trim(main_name), ".data"
+    if (pe_rank == 0) then
+       if (counter .eq. 0) then
+          call execute_command_line("rm -rf " // trim(ext_path))
+       end if
+       inquire(file = trim(ext_path), exist = ext_file_exists)
+       if (.not. ext_file_exists) then
+          call execute_command_line("mkdir -p " // trim(ext_path))
+       end if
+    end if
+    call MPI_Barrier(NEKO_COMM, ierr)
+
+    ! Create per-timestep external file (one file for all fields)
+    write(ext_fname, '(A,A,".data/",I0,".h5")') &
+         trim(main_path), trim(main_name), counter
+    call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
+    call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
+    call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, ext_file_id, ierr, &
+         access_prp = ext_plist_id)
+    call h5pclose_f(ext_plist_id, ierr)
+
+    ! VDS source file pattern (relative to main file location)
+    write(src_pattern, '(A,".data/",A,".h5")') trim(main_name), "%b"
 
     ! Create or open PointData group
     call h5lexists_f(vtkhdf_grp, "PointData", link_exists, ierr)
@@ -954,7 +990,7 @@ contains
        call h5gcreate_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
     end if
 
-    ! Read how many steps have been written so far
+    ! Set temporal offsets
     if (present(t)) then
        call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
        time_offset = int(counter, kind=i8) * int(total_points, kind=i8)
@@ -962,6 +998,7 @@ contains
        time_offset = 0_i8
     end if
 
+    ! ===== Phase 1: Write field data to per-timestep file =====
     do i = 1, n_fields
        if (field_written(i)) cycle
        fld => fp(i)%ptr
@@ -994,6 +1031,21 @@ contains
           field_name = 'Velocity'
        end if
 
+       ! Skip duplicate fields (e.g. fluid_rho added by both fluid output
+       ! and field_writer when sharing the same output file)
+       do j = 1, n_vds_fields
+          if (trim(vds_names(j)) .eq. trim(field_name)) then
+             field_written(i) = .true.
+             exit
+          end if
+       end do
+       if (field_written(i)) cycle
+
+       ! Collect field info for the VDS phase
+       n_vds_fields = n_vds_fields + 1
+       vds_names(n_vds_fields) = field_name
+       vds_is_vector(n_vds_fields) = is_vector
+
        ! Write PointDataOffsets under Steps for temporal output
        if (present(t)) then
           call h5lexists_f(step_grp_id, "PointDataOffsets", link_exists, ierr)
@@ -1007,72 +1059,18 @@ contains
           call h5gclose_f(grp_id, ierr)
        end if
 
-       ! Build external file path: path/mainname.data/FieldName.h5
-       write(ext_path, '(A,A,A)') trim(main_path), trim(main_name), ".data/"
-       write(ext_fname, '(A,A,".data/",A,".h5")') &
-            trim(main_path), trim(main_name), trim(field_name)
-       ! Basename only (for the external link, so files stay portable)
-       write(ext_basename, '(A,".data/",A,".h5")') &
-            trim(main_name), trim(field_name)
-
-       ! Check that data path exists, if not create it (only on rank 0)
-       if (pe_rank == 0) then
-          inquire(file=trim(ext_path), exist=ext_file_exists)
-          if (.not. ext_file_exists) then
-             call execute_command_line("mkdir -p " // trim(ext_path))
-          end if
-       end if
-
-       ! Open or create the external HDF5 file with MPI-IO
-       call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
-       call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
-
-       ! Check if the external link already exists in PointData
-       call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
-
-       if (link_exists) then
-          ! External file already exists, open it for read-write
-          call h5fopen_f(trim(ext_fname), H5F_ACC_RDWR_F, ext_file_id, ierr, &
-               access_prp = ext_plist_id)
-       else
-          ! Create the external file
-          call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, ext_file_id, &
-               ierr, access_prp = ext_plist_id)
-       end if
-       call h5pclose_f(ext_plist_id, ierr)
-
+       ! Write field data to per-timestep file
        if (is_vector) then
-          ! Create or extend 2D dataset (3 x total_points) in external file
-          if (link_exists .and. present(t)) then
-             call h5dopen_f(ext_file_id, trim(field_name), dset_id, ierr)
-             call h5dget_space_f(dset_id, filespace, ierr)
-             call h5sget_simple_extent_dims_f(filespace, pd_dims2, &
-                  pd_maxdims2, ierr)
-             call h5sclose_f(filespace, ierr)
+          ! Create fixed-size 2D dataset (3, total_points) for this timestep
+          pd_dims2 = [3_hsize_t, int(total_points, hsize_t)]
+          call h5screate_simple_f(2, pd_dims2, filespace, ierr)
+          call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
+               filespace, dset_id, ierr)
+          call h5sclose_f(filespace, ierr)
 
-             if (pd_dims2(2) .eq. counter * total_points) then
-                pd_dims2(2) = int((counter + 1) * total_points, hsize_t)
-                call h5dset_extent_f(dset_id, pd_dims2, ierr)
-             else if (pd_dims2(2) .lt. counter * total_points) then
-                call neko_error("VTKHDF: Data written out of order.")
-             end if
-
-          else if (.not. link_exists) then
-             pd_dims2 = [3_hsize_t, int(total_points, hsize_t)]
-             pd_maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
-             chunkdims(1) = max(1_hsize_t, int(max_local_points, hsize_t))
-
-             call h5screate_simple_f(2, pd_dims2, filespace, ierr, pd_maxdims2)
-             call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-             call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
-             call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
-                  filespace, dset_id, ierr, dcpl_id = dcpl_id)
-             call h5sclose_f(filespace, ierr)
-             call h5pclose_f(dcpl_id, ierr)
-          end if
-
+          ! Write this rank's portion
           dcount2 = [3_hsize_t, int(local_points, hsize_t)]
-          doffset2 = [0_hsize_t, int(time_offset + point_offset, hsize_t)]
+          doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
 
           call h5dget_space_f(dset_id, filespace, ierr)
           call h5screate_simple_f(2, dcount2, memspace, ierr)
@@ -1092,36 +1090,16 @@ contains
           call h5dclose_f(dset_id, ierr)
 
        else
-          ! Write scalar field as 1D dataset in external file
-          if (link_exists) then
-             call h5dopen_f(ext_file_id, trim(field_name), dset_id, ierr)
-             call h5dget_space_f(dset_id, filespace, ierr)
-             call h5sget_simple_extent_dims_f(filespace, pd_dims1, &
-                  pd_maxdims1, ierr)
-             call h5sclose_f(filespace, ierr)
+          ! Create fixed-size 1D dataset (total_points) for this timestep
+          pd_dims1(1) = int(total_points, hsize_t)
+          call h5screate_simple_f(1, pd_dims1, filespace, ierr)
+          call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
+               filespace, dset_id, ierr)
+          call h5sclose_f(filespace, ierr)
 
-             if (pd_dims1(1) .eq. counter * total_points) then
-                pd_dims1(1) = int((counter + 1) * total_points, hsize_t)
-                call h5dset_extent_f(dset_id, pd_dims1, ierr)
-             else if (pd_dims1(1) .lt. counter * total_points) then
-                call neko_error("VTKHDF: Data written out of order.")
-             end if
-          else
-             pd_dims1(1) = int(total_points, hsize_t)
-             pd_maxdims1(1) = H5S_UNLIMITED_F
-             chunkdims(1) = max(1_hsize_t, int(max_local_points, hsize_t))
-
-             call h5screate_simple_f(1, pd_dims1, filespace, ierr, pd_maxdims1)
-             call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-             call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-             call h5dcreate_f(ext_file_id, trim(field_name), precision_hdf, &
-                  filespace, dset_id, ierr, dcpl_id = dcpl_id)
-             call h5sclose_f(filespace, ierr)
-             call h5pclose_f(dcpl_id, ierr)
-          end if
-
+          ! Write this rank's portion
           dcount(1) = int(local_points, hsize_t)
-          doffset(1) = int(time_offset + point_offset, hsize_t)
+          doffset(1) = int(point_offset, hsize_t)
 
           call h5dget_space_f(dset_id, filespace, ierr)
           call h5screate_simple_f(1, dcount, memspace, ierr)
@@ -1174,22 +1152,109 @@ contains
           call h5dclose_f(dset_id, ierr)
        end if
 
-       ! Close the external file
-       call h5fclose_f(ext_file_id, ierr)
+    end do
 
-       ! Create external link on first write (when the link doesn't exist yet)
+    ! Close per-timestep file before VDS operations to ensure it is flushed
+    call h5fclose_f(ext_file_id, ierr)
+
+    ! ===== Phase 2: Create or extend VDS in main file =====
+    do vds_idx = 1, n_vds_fields
+       field_name = vds_names(vds_idx)
+       is_vector = vds_is_vector(vds_idx)
+
+       call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
+
        if (.not. link_exists) then
-          call h5lcreate_external_f(trim(ext_basename), trim(field_name), &
-               pointdata_grp, trim(field_name), ierr)
+          ! First write: create VDS with pattern-based mapping.
+          ! The %b in src_pattern is replaced by the block index at read time,
+          ! mapping block k to the per-timestep file k.h5.
+          call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+
+          if (is_vector) then
+             ! Source space: (3, total_points) — one timestep
+             pd_dims2 = [3_hsize_t, int(total_points, hsize_t)]
+             call h5screate_simple_f(2, pd_dims2, vds_src_space, ierr)
+             call h5sselect_all_f(vds_src_space, ierr)
+
+             ! Virtual space: (3, total_points) initial, unlimited in dim 2
+             pd_maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
+             call h5screate_simple_f(2, pd_dims2, filespace, ierr, pd_maxdims2)
+
+             ! Repeating hyperslab: each block = (3, total_points)
+             call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+                  [0_hsize_t, 0_hsize_t], &
+                  [1_hsize_t, H5S_UNLIMITED_F], &
+                  ierr, &
+                  stride = [3_hsize_t, int(total_points, hsize_t)], &
+                  block = [3_hsize_t, int(total_points, hsize_t)])
+
+             call h5pset_virtual_f(dcpl_id, filespace, trim(src_pattern), &
+                  trim(field_name), vds_src_space, ierr)
+             call h5sclose_f(vds_src_space, ierr)
+
+             call h5dcreate_f(pointdata_grp, trim(field_name), &
+                  precision_hdf, filespace, dset_id, ierr, &
+                  dcpl_id = dcpl_id)
+             call h5sclose_f(filespace, ierr)
+
+          else
+             ! Source space: (total_points,) — one timestep
+             pd_dims1(1) = int(total_points, hsize_t)
+             call h5screate_simple_f(1, pd_dims1, vds_src_space, ierr)
+             call h5sselect_all_f(vds_src_space, ierr)
+
+             ! Virtual space: (total_points,) initial, unlimited
+             pd_maxdims1(1) = H5S_UNLIMITED_F
+             call h5screate_simple_f(1, pd_dims1, filespace, ierr, pd_maxdims1)
+
+             ! Repeating hyperslab: each block = total_points
+             call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+                  [0_hsize_t], &
+                  [H5S_UNLIMITED_F], &
+                  ierr, &
+                  stride = [int(total_points, hsize_t)], &
+                  block = [int(total_points, hsize_t)])
+
+             call h5pset_virtual_f(dcpl_id, filespace, trim(src_pattern), &
+                  trim(field_name), vds_src_space, ierr)
+             call h5sclose_f(vds_src_space, ierr)
+
+             call h5dcreate_f(pointdata_grp, trim(field_name), &
+                  precision_hdf, filespace, dset_id, ierr, &
+                  dcpl_id = dcpl_id)
+             call h5sclose_f(filespace, ierr)
+          end if
+
+          call h5pclose_f(dcpl_id, ierr)
+          call h5dclose_f(dset_id, ierr)
+
+       else
+          ! Subsequent write: extend VDS to include new timestep
+          call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
+
+          if (is_vector) then
+             pd_dims2 = [3_hsize_t, &
+                  int((counter + 1) * total_points, hsize_t)]
+             call h5dset_extent_f(dset_id, pd_dims2, ierr)
+          else
+             pd_dims1(1) = int((counter + 1) * total_points, hsize_t)
+             call h5dset_extent_f(dset_id, pd_dims1, ierr)
+          end if
+
+          call h5dclose_f(dset_id, ierr)
        end if
 
     end do
 
-    if (present(t)) call h5gclose_f(step_grp_id, ierr)
+    if (present(t)) then
+       call h5gclose_f(step_grp_id, ierr)
+    end if
     call h5gclose_f(pointdata_grp, ierr)
     call h5pclose_f(xf_id, ierr)
 
     deallocate(field_written)
+    deallocate(vds_names)
+    deallocate(vds_is_vector)
 
   end subroutine vtkhdf_write_pointdata
 
