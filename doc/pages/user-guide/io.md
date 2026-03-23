@@ -184,6 +184,19 @@ object of the case file:
 }
 ```
 
+### Temporal vs non-temporal output {#vtkhdf-temporal-vs-non-temporal}
+
+The VTKHDF system in Neko can write both temporal and non-temporal data.
+Non-temporal data (Called in code without time) is written to a single VTKHDF
+file, following all the standards defined above. Temporal data (Called in code
+with time) is split into a main VTKHDF file containing the mesh and metadata,
+and separate HDF5 files containing any field data for each timestep. Each
+timestep is saved under `filename.data/###.h5`, while the main VTKHDF file
+`filename.vtkhdf` loads these files seamlessly when opened in ParaView. This
+approach allows for efficient storage and access of large temporal datasets
+while maintaining compatibility with the VTKHDF specification. Please note that
+the data must be stored as specified above to function.
+
 ### Limitations {#vtkhdf-limitations}
 
 - High order Lagrange cells are not supported by all visualisation tools. If you
