@@ -744,7 +744,7 @@ __global__ void reduce_kernel(T * bufred, const int n) {
 template< typename T >
 __global__ void reduce_max_kernel(T * bufred, const T ninf, const int n) {
 
-  T max = ninf;
+  T max_val = ninf;
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   for (int i = idx; i<n ; i += str)
