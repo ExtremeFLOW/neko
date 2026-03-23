@@ -186,7 +186,7 @@ contains
     message = "Output file must exist"
     @assertTrue(exists, message = message)
     inquire(file="test_write_0.data/0.h5", exist=exists)
-    message = "Data file must not exist for non-subdivided write"
+    message = "Data file must not exist for non-temporal output (no t argument)"
     @assertFalse(exists, message = message)
 
     ! ================================================================
