@@ -739,7 +739,6 @@ contains
        end if
 
        !! Register the execution of the activity
-       write(*,*) "We are at exectuion ", this%output_controller%nexecutions
        call this%output_controller%register_execution()
     end if
 
