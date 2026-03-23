@@ -89,6 +89,7 @@ module file
      procedure :: close => file_close_default
      procedure :: write_dataset => file_write_dataset
      procedure :: set_active_group => file_set_active_group_default
+     procedure :: write_attribute => file_write_attribute
   end type file_t
 
 contains
@@ -373,6 +374,18 @@ contains
          call ft%write_dataset(data)
       class default
          call neko_error("write_dataset not implemented for this file type")
+      end select
+   end subroutine
+   
+   subroutine file_write_attribute(this, data, data_name)
+      class(file_t), intent(inout) :: this
+      class(*), intent(inout) :: data
+      character(len=*), intent(in) :: data_name
+      select type (ft => this%file_type)
+      type is (hdf5_file_t)
+         call ft%write_attribute(data, data_name)
+      class default
+         call neko_error("write_attribute not implemented for this file type")
       end select
    end subroutine
 

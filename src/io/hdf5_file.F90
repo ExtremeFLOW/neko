@@ -84,7 +84,9 @@ module hdf5_file
      procedure, pass(this) :: write_vector => hdf5_file_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_write_matrix
      procedure, pass(this) :: write_field => hdf5_file_write_field
+     procedure, pass(this) :: write_int_attribute => hdf5_file_write_int_attribute
      procedure :: write_dataset => hdf5_file_write_dataset
+     procedure :: write_attribute => hdf5_file_write_attribute
   end type hdf5_file_t
 
 contains
@@ -792,6 +794,19 @@ contains
         call neko_error("write_dataset not implemented for this data type")
     end select
   end subroutine hdf5_file_write_dataset
+  
+  subroutine hdf5_file_write_attribute(this, data, data_name)
+    class(hdf5_file_t), intent(inout) :: this
+    class(*), intent(inout) :: data
+    character(len=*), intent(in) :: data_name
+
+    select type (d => data)
+    type is (integer)
+        call this%write_int_attribute(d, data_name)
+    class default
+        call neko_error("write_attribute not implemented for this data type")
+    end select
+  end subroutine hdf5_file_write_attribute
 
 
   subroutine hdf5_file_write_vector(this, vec)
@@ -1098,6 +1113,62 @@ contains
     call h5dclose_f(dset_id, ierr)
 
   end subroutine hdf5_file_write_field
+  
+  !> Write an integer attribute
+  subroutine hdf5_file_write_int_attribute(this, attr, attr_name)
+    class(hdf5_file_t), intent(inout) :: this
+    integer, intent(in) :: attr
+    character(len=*), intent(in) :: attr_name
+    integer :: ierr, counts, offset, total_count, dset_rank
+    integer(hid_t) :: precision_hdf
+    integer(hid_t) :: xf_id, filespace, dset_id, memspace
+    integer(hsize_t), dimension(1) :: dcount, doffset
+    integer(hsize_t), dimension(1) :: ddims
+    logical :: dset_exists
+    real(kind=sp), allocatable :: write_buffer_sp(:) ! Write buffer single
+    real(kind=dp), allocatable :: write_buffer_dp(:) ! Write buffer double
+
+    ! ===============
+    ! Configure MPIIO
+    ! ===============
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+    precision_hdf = h5kind_to_type(this%precision, H5_REAL_KIND)
+
+    ! ====================
+    ! Create the attribute
+    ! ====================
+    ddims = [int(1, hsize_t)]
+    dcount = [int(1, hsize_t)]
+    call h5aexists_f(this%active_group_id, trim(attr_name), dset_exists, ierr)
+    if (dset_exists) then
+       if (this%overwrite) then
+         ! retrieve the dset id for the existing data set
+         call h5aopen_f(this%active_group_id, trim(attr_name), dset_id, ierr)
+       else
+         call neko_error("attribute already exist in the file")
+       end if
+    else
+       ! create file space of this shape
+       call h5screate_f(H5S_SCALAR_F, filespace, ierr)
+       ! create the data set with the given shape
+       call h5acreate_f(this%active_group_id, trim(attr_name), H5T_NATIVE_INTEGER, &
+            filespace, dset_id, ierr, h5p_default_f, h5p_default_f)
+       call h5sclose_f(filespace, ierr)
+    end if
+
+    ! ===========================
+    ! Set up writing the data set
+    ! ===========================
+     call h5awrite_f(dset_id, H5T_NATIVE_INTEGER, attr, dcount, ierr)
+
+    ! =======================
+    ! Clean up
+    ! =======================
+    call h5pclose_f(xf_id, ierr)
+    call h5aclose_f(dset_id, ierr)
+
+  end subroutine hdf5_file_write_int_attribute
 
 #else
 
