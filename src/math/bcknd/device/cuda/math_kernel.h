@@ -748,29 +748,29 @@ __global__ void reduce_kernel(T * bufred, const int n) {
 template< typename T >
 __global__ void reduce_max_kernel(T * bufred, const T ninf, const int n) {
 
-  T max = ninf;
+  T max_val = ninf;
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   for (int i = idx; i<n ; i += str)
   {
-    max = max(max, bufred[i]);
+    max_val = max(max_val, bufred[i]);
   }
 
   __shared__ T shared[32];
   unsigned int lane = threadIdx.x % warpSize;
   unsigned int wid = threadIdx.x / warpSize;
 
-  max = reduce_max_warp<T>(max);
+  max_val = reduce_max_warp<T>(max_val);
   if (lane == 0)
-    shared[wid] = max;
+    shared[wid] = max_val;
   __syncthreads();
 
-  max = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
   if (wid == 0)
-    max = reduce_max_warp<T>(max);
+    max_val = reduce_max_warp<T>(max_val);
 
   if (threadIdx.x == 0)
-    bufred[blockIdx.x] = max;
+    bufred[blockIdx.x] = max_val;
 }
 
 /**
@@ -1006,23 +1006,23 @@ __global__ void glmax_kernel(const T * a,
   const unsigned int wid = threadIdx.x / warpSize;
 
   __shared__ T shared[32];
-  T max = ninf;
+  T max_val = ninf;
   for (int i = idx; i<n ; i += str)
   {
-    max = max(max, a[i]);
+    max_val = max(max_val, a[i]);
   }
 
-  max = reduce_max_warp<T>(max);
+  max_val = reduce_max_warp<T>(max_val);
   if (lane == 0)
-    shared[wid] = max;
+    shared[wid] = max_val;
   __syncthreads();
 
-  max = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
   if (wid == 0)
-    max = reduce_max_warp<T>(max);
+    max_val = reduce_max_warp<T>(max_val);
 
   if (threadIdx.x == 0)
-    buf_h[blockIdx.x] = max;
+    buf_h[blockIdx.x] = max_val;
 
 }
 
