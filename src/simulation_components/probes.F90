@@ -182,35 +182,39 @@ contains
             this%n_global_probes, input_file)
     end if
 
-    ! Go through the points list and construct the probe list
-    call json%get('points', json_point_list)
-    call json%info('points', n_children = n_point_children)
+    if (json%valid_path('points')) then
 
-    do idx = 1, n_point_children
-       call json_extract_item(core, json_point_list, idx, json_point)
+       ! Go through the points list and construct the probe list
+       call json%get('points', json_point_list)
+       call json%info('points', n_children = n_point_children)
 
-       call json_get_or_default(json_point, 'type', point_type, 'none')
-       select case (point_type)
+       do idx = 1, n_point_children
+          call json_extract_item(core, json_point_list, idx, json_point)
 
-       case ('file')
-          call this%read_file(json_point)
-       case ('points')
-          call this%read_point(json_point)
-       case ('line')
-          call this%read_line(json_point)
-       case ('plane')
-          call neko_error('Plane probes not implemented yet.')
-       case ('circle')
-          call this%read_circle(json_point)
-       case ('point_zone')
-          call this%read_point_zone(json_point, case%fluid%dm_Xh)
-       case ('none')
-          call json_point%print()
-          call neko_error('No point type specified.')
-       case default
-          call neko_error('Unknown region type ' // point_type)
-       end select
-    end do
+          call json_get_or_default(json_point, 'type', point_type, 'none')
+          select case (point_type)
+
+          case ('file')
+             call this%read_file(json_point)
+          case ('points')
+             call this%read_point(json_point)
+          case ('line')
+             call this%read_line(json_point)
+          case ('plane')
+             call neko_error('Plane probes not implemented yet.')
+          case ('circle')
+             call this%read_circle(json_point)
+          case ('point_zone')
+             call this%read_point_zone(json_point, case%fluid%dm_Xh)
+          case ('none')
+             call json_point%print()
+             call neko_error('No point type specified.')
+          case default
+             call neko_error('Unknown region type ' // point_type)
+          end select
+       end do
+
+    end if
 
     call MPI_Allreduce(this%n_local_probes, this%n_global_probes, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
