@@ -82,7 +82,7 @@ contains
     if (this%is_moving) then
        if (.not. associated(this%wx) .or. .not. associated(this%wy) .or. &
             .not. associated(this%wz)) then
-          call neko_error("Velocity BC 'no_slip' with moving=true is &
+          call neko_error("Velocity BC 'no_slip' with moving: true is &
           &found, but ALE is not activated in case file.")
        end if
     end if
@@ -125,14 +125,12 @@ contains
     if (.not. strong_) return
 
     if (this%is_moving) then
-       if (this%msk(0) .gt. 0) then
-          call device_masked_copy_0(x_d, this%wx%x_d, this%msk_d, &
-               this%wx%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(y_d, this%wy%x_d, this%msk_d, &
-               this%wy%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(z_d, this%wz%x_d, this%msk_d, &
-               this%wz%dof%size(), this%msk(0), strm)
-       end if
+       call device_masked_copy_0(x_d, this%wx%x_d, this%msk_d, &
+            this%wx%dof%size(), this%msk(0), strm)
+       call device_masked_copy_0(y_d, this%wy%x_d, this%msk_d, &
+            this%wy%dof%size(), this%msk(0), strm)
+       call device_masked_copy_0(z_d, this%wz%x_d, this%msk_d, &
+            this%wz%dof%size(), this%msk(0), strm)
     else
        call this%zero_dirichlet_t%apply_vector_dev(x_d, y_d, z_d, time, &
             strong_, strm)
