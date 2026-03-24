@@ -481,6 +481,7 @@ contains
     real(kind=rp), allocatable :: global_output_coords(:,:)
     integer :: i, ierr, out_int
     type(matrix_t) :: mat_coords
+    logical :: attr_exist = .false.
 
     this%name = name
 
@@ -554,12 +555,21 @@ contains
        call mat_coords%init(3, this%n_local_probes, "coordinates")
        call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
 
-       !> Write the coordinates in the root directory
+       !> Set up output
        call this%fout%open("w")
-       call this%fout%set_active_group(["probes"]) ! Empty sets it to the root group "/"
-       call this%fout%write_dataset(mat_coords)
-       out_int = this%n_global_probes
-       call this%fout%write_attribute("NProbes", out_int)
+      call this%fout%set_active_group([character(len=1000) :: "probes"]) ! Empty sets it to the root group "/"
+
+       ! Check if the NSteps attribute already exists
+       call this%fout%read_attribute("NSteps", out_int, attr_exist)
+       if (attr_exist) then
+         ! If the attribute exists, do not write the coordinates but register the executions
+         this%output_controller%nexecutions = out_int 
+       else
+         ! Write out the mesh
+         call this%fout%write_dataset(mat_coords)
+         out_int = this%n_global_probes
+         call this%fout%write_attribute("NProbes", out_int)  
+       end if
        call this%fout%close()
 
        !> Set up the output matrix
@@ -754,7 +764,7 @@ contains
              if (this%append_out) then
 
                 call this%fout%open("w")
-                call this%fout%set_active_group(["probes"])
+                call this%fout%set_active_group([character(len=1000) :: "probes"])
                 ! Write Nsteps in root
                 out_int = this%output_controller%nexecutions + 1
                 call this%fout%write_attribute("NSteps", out_int)
@@ -783,11 +793,11 @@ contains
                 ! Set up the name
                 write(group_name, '(A,I0)') "Step_", out_int
                 call this%fout%open("w")
-                call this%fout%set_active_group(["probes"])
+                call this%fout%set_active_group([character(len=1000) :: "probes"])
                 ! Write Nsteps in root
                 call this%fout%write_attribute("NSteps", out_int)
                 ! Write out the data
-                call this%fout%set_active_group(["probes", trim(group_name)])
+                call this%fout%set_active_group([character(len=1000) :: "probes", trim(group_name)])
                 do i = 1, this%n_fields
                    call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
                    this%vec_out%name = trim(this%which_fields(i))
