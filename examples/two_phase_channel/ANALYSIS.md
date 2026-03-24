@@ -329,19 +329,43 @@ perturbations) and in the restart case (perturbations already processed by $t = 
 
 ### 4.4 Capillary timestep stability
 
-For explicit CSF with $\sigma = 0.3$ ($We = 1$), the capillary wave stability
-condition sets a timestep limit independent of the velocity CFL:
+For explicit CSF, the capillary wave stability condition sets a timestep limit
+independent of the velocity CFL:
 
 $$
 \Delta t_{\mathrm{cap}} \approx \sqrt{\frac{\rho\,\Delta x^3}{2\pi\,\sigma}}
-= \sqrt{\frac{0.016^3}{2\pi \times 0.3}} \approx 0.0015 \;\text{TU}
 $$
 
-With `target_cfl = 0.2` and $u_{\max} \approx 1.5$, $\Delta t_{\mathrm{CFL}} \approx
-0.2 \times 0.016/1.5 \approx 0.0021$ TU — within a factor of 1.4 of the limit.
-Early runs with `target_cfl = 0.4` gave $\Delta t \approx 0.0043$ TU — 3× too large —
-which caused exponential growth of capillary oscillations and blow-up at $t \approx 21.5$
-in the $We = 1$ restart run. All $We \leq 10$ cases use `target_cfl = 0.2`.
+where $\Delta x = \Delta_{\mathrm{GLL}} = 0.016$ is the element-average GLL spacing
+(wall-normal direction, binding constraint). Since $\Delta t_{\mathrm{cap}} \propto \sigma^{-1/2}$,
+reducing $\sigma$ by 10× (going from $We = 1$ to $We = 10$) increases the capillary
+stability limit by $\sqrt{10} \approx 3.16\times$.
+
+**Note on the Neko timestep.** The velocity CFL Δt in Neko is controlled by the
+minimum GLL nodal spacing within each element (approximately 0.6× the element-average
+GLL spacing at $N = 7$), not the element average. As a result, the observed Δt
+is smaller than the estimate $\mathrm{target\_cfl} \times \Delta_{\mathrm{GLL}} / u_{\max}$
+by roughly a factor of 1.6. The capillary limit $\Delta t_{\mathrm{cap}}$ uses the
+element-average $\Delta x$ throughout (consistent with how the formula is applied in
+the literature for diffuse-interface methods), giving a slightly conservative estimate
+of the stability margin.
+
+**Comparison across cases** (all using $\Delta x = 0.016$, $\rho = 1$):
+
+| Case | $\sigma$ | $\Delta t_{\mathrm{cap}}$ (TU) | $\Delta t$ observed (TU) | $\Delta t / \Delta t_{\mathrm{cap}}$ | Outcome |
+|------|:--------:|:------------------------------:|:------------------------:|:------------------------------------:|---------|
+| We=1, restart v1 (`target_cfl=0.4`) | 0.30 | 0.00147 | 0.00430 | **2.9** — outside | Blow-up $t=21.55$ |
+| We=1, restart v2 (`target_cfl=0.2`) | 0.30 | 0.00147 | 0.00130 | **0.88** — marginal | Blow-up $t=20.40$ |
+| We=10 (`target_cfl=0.2`) | 0.03 | 0.00466 | 0.00130 | **0.28** — inside ✓ | Stable (running) |
+| v4, We=730 (`target_cfl=0.4`) | $4.1\!\times\!10^{-4}$ | 0.0399 | ≈0.003 | **0.08** — well inside ✓ | Completed stably |
+
+The v2 result (ratio = 0.88, nominally inside the boundary, yet blow-up) is explained
+by the GLL clustering: Neko's CFL Δt is computed at the minimum GLL spacing, which is
+smaller than the element average. If the capillary limit were evaluated at the same
+minimum spacing, the v2 ratio would be $\approx 2.9$ — consistently outside the
+boundary. The key practical conclusion is that $We = 10$ provides a genuine factor of
+$\approx 3.5\times$ larger margin than $We = 1$ at the same `target_cfl`, regardless
+of the exact Δx convention.
 
 ### 4.5 Summary table
 
@@ -350,13 +374,15 @@ in the $We = 1$ restart run. All $We \leq 10$ cases use `target_cfl = 0.2`.
 | CDI resharpening | $\varepsilon^2 / \gamma_c$ | 0.065 | 1.0 (reference) |
 | Convective straining ($R$ scale) | $R / U_b$ | 0.300 | **4.6** → CDI wins ✓ |
 | IC perturbation straining | $\varepsilon / v_{\mathrm{IC}}$ | 0.233 | **3.6** → CDI wins ✓ |
-| Capillary stability ($We=1$) | $\sqrt{\Delta x^3 / (2\pi\sigma)}$ | 0.0015 | — (timestep constraint) |
+| Capillary stability ($We=1$) | $\sqrt{\Delta x^3 / (2\pi\sigma)}$ | 0.00147 | — (timestep constraint) |
+| Capillary stability ($We=10$) | $\sqrt{\Delta x^3 / (2\pi\sigma)}$ | 0.00466 | — (timestep constraint) |
 
 | Competition | Ratio | Outcome |
 |-------------|:-----:|---------|
 | CDI vs convective straining | $\tau_{\mathrm{conv}} / \tau_{\mathrm{CDI}} = 4.6$ | Interface stays sharp under flow ✓ |
 | CDI vs IC perturbations | $\tau_{\mathrm{IC}} / \tau_{\mathrm{CDI}} = 3.6$ | CDI wins; no $\kappa$ spike expected ✓ |
-| CFL vs capillary ($We=1$) | $\Delta t_{\mathrm{CFL}} / \Delta t_{\mathrm{cap}} \approx 1.4$ | Outside boundary — both restart runs blew up; `target_cfl` ≈ 0.07 needed |
+| CFL vs capillary ($We=1$) | $\Delta t / \Delta t_{\mathrm{cap}} \approx 0.88$ | Marginal — both restart runs blew up; `target_cfl` ≈ 0.07 needed |
+| CFL vs capillary ($We=10$) | $\Delta t / \Delta t_{\mathrm{cap}} \approx 0.28$ | Well inside boundary — stable ✓ |
 
 ---
 

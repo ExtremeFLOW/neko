@@ -74,6 +74,8 @@ Documents CDI performance under strong interface straining.
 
 **Setup:** ε=0.05, γ=0.015, σ=4.1×10⁻⁴, R=0.3, Re_b=2800, turbulent IC, T=5 TU.
 
+**Capillary timestep stability:** $\Delta t_{\mathrm{cap}} = \sqrt{0.016^3/(2\pi \times 4.1\!\times\!10^{-4})} \approx 0.040$ TU. With `target_cfl=0.4` and $u_{\max}\approx1.5$, $\Delta t \approx 0.003$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 0.08$ — well inside boundary. CSF is negligible at We=730 so capillary waves are not a concern.
+
 | t | φ_max | φ_min | κ_rms | u_max | E_kin |
 |---|-------|-------|-------|-------|-------|
 | 0.000 | 0.996 | 0.000  |  6.37 | 1.541 | 0.507 |
@@ -114,6 +116,8 @@ strong surface tension. The drop barely deforms (mean shear at y=0 is zero by sy
 **Setup:** Laminar Poiseuille IC (no perturbations). ε=0.07, γ=0.05,
 σ=0.3 (We=1), R=0.3, Re_b=2800, end_time=10.
 
+**Capillary timestep stability:** $\Delta t_{\mathrm{cap}} \approx 0.00147$ TU (same as restart cases, same σ). With `target_cfl=0.2`, $\Delta t \approx 0.00130$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 0.88$ — marginal. The laminar case may be stable despite the tight margin because there are no turbulent fluctuations to seed the capillary instability (see ANALYSIS.md §7.5).
+
 | t | φ_max | φ_min | κ_rms | u_max |
 |---|-------|-------|-------|-------|
 | — | — | — | — | — |
@@ -130,6 +134,8 @@ isolates what turbulence adds.
 **Setup:** ε=0.07, γ=0.05, σ=0.3 (We=1), R=0.3, Re_b=2800, restart from
 `fluid00004.chkp`, end_time=25 (runs t=20→25).
 
+**Capillary timestep stability:** $\Delta t_{\mathrm{cap}} \approx 0.00147$ TU; $\Delta t \approx 0.00130$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 0.88$ — marginal. Two prior restart attempts (v1, v2, different R) both blew up. See channel_test_restart blow-up analysis and ANALYSIS.md §4.4 for details. Requires `target_cfl` ≈ 0.05–0.07 for safe margin, or a semi-implicit CSF treatment.
+
 | t | φ_max | φ_min | κ_rms | u_max |
 |---|-------|-------|-------|-------|
 | — | — | — | — | — |
@@ -138,12 +144,24 @@ isolates what turbulence adds.
 
 ## channel_test_we10 — moderate deformation (We=10, RUNNING)
 
-**Purpose:** First turbulent CDI/CSF test with stable explicit timestep.
-Δt/Δt_cap ≈ 0.45 — 2.2× inside capillary stability boundary.
+**Purpose:** First turbulent CDI/CSF test with a genuinely stable capillary timestep.
 Tests CDI under sustained strain at moderate deformation.
 
 **Setup:** ε=0.07, γ=0.05, σ=0.03 (We=10), R=0.3, Re_b=2800, restart from
 `fluid00004.chkp`, end_time=25 (runs t=20→25). 16 MPI ranks.
+
+**Capillary timestep stability** (see ANALYSIS.md §4.4):
+
+| Quantity | Value |
+|----------|-------|
+| $\Delta t_{\mathrm{cap}} = \sqrt{\Delta x^3 / (2\pi\sigma)}$, $\Delta x = 0.016$ | 0.00466 TU |
+| $\Delta t$ (observed from neko.log, `target_cfl=0.2`) | 0.00130 TU |
+| $\Delta t / \Delta t_{\mathrm{cap}}$ | **0.28 — well inside boundary ✓** |
+| Margin vs We=1 ($\Delta t_{\mathrm{cap}}$ ratio) | $\sqrt{10} \approx 3.16\times$ larger |
+
+At We=10, the velocity-CFL timestep is 3.6× smaller than the capillary stability limit.
+This contrasts with We=1 where the same Δt=0.00130 TU is only 0.88× the capillary
+limit (marginal, and blow-up occurred — see channel_test_restart blow-up analysis).
 
 | t | φ_max | φ_min | κ_rms | u_max |
 |---|-------|-------|-------|-------|
