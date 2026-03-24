@@ -694,6 +694,20 @@ __inline__ __device__ T reduce_warp(T val) {
 }
 
 /**
+ * Warp shuffle reduction of maximisation
+ */
+template< typename T>
+__inline__ __device__ T reduce_max_warp(T val) {
+  val = max(val, __shfl_down(val, 32));
+  val = max(val, __shfl_down(val, 16));
+  val = max(val, __shfl_down(val, 8));
+  val = max(val, __shfl_down(val, 4));
+  val = max(val, __shfl_down(val, 2));
+  val = max(val, __shfl_down(val, 1));
+  return val;
+}
+
+/**
  * Vector reduction kernel
  */
 template< typename T >
@@ -722,6 +736,37 @@ __global__ void reduce_kernel(T * bufred, const int n) {
 
   if (threadIdx.x == 0)
     bufred[blockIdx.x] = sum;
+}
+
+/**
+ * Vector reduction maximisation kernel
+ */
+template< typename T >
+__global__ void reduce_max_kernel(T * bufred, const T ninf, const int n) {
+
+  T max_val = ninf;
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  for (int i = idx; i<n ; i += str)
+  {
+    max_val = max(max_val, bufred[i]);
+  }
+
+  __shared__ T shared[64];
+  unsigned int lane = threadIdx.x % warpSize;
+  unsigned int wid = threadIdx.x / warpSize;
+
+  max_val = reduce_max_warp<T>(max_val);
+  if (lane == 0)
+    shared[wid] = max_val;
+  __syncthreads();
+
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  if (wid == 0)
+    max_val = reduce_max_warp<T>(max_val);
+
+  if (threadIdx.x == 0)
+    bufred[blockIdx.x] = max_val;
 }
 
 /**
@@ -937,6 +982,42 @@ __global__ void glsum_kernel(const T * a,
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
+
+}
+
+/**
+ * Device kernel for glmax
+ */
+template< typename T >
+__global__ void glmax_kernel(const T * a,
+                             const T ninf,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[64];
+  T max_val = ninf;
+  for (int i = idx; i<n ; i += str)
+  {
+    max_val = max(max_val, a[i]);
+  }
+
+  max_val = reduce_max_warp<T>(max_val);
+  if (lane == 0)
+    shared[wid] = max_val;
+  __syncthreads();
+
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  if (wid == 0)
+    max_val = reduce_max_warp<T>(max_val);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = max_val;
 
 }
 
