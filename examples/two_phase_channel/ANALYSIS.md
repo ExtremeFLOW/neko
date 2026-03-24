@@ -253,13 +253,19 @@ This gives the following validation cases:
 | 100  | 0.003    | Strong deformation; CDI stress test approaching highly deformed regime. |
 | 730 (v4) | $4.1\times10^{-4}$ | Surface tension essentially absent at the flow scale; drop deforms freely. High-$We$ reference only. |
 
-**Primary validation target: $We = 1$ ($\sigma = 0.3$).** The CSF restoring force
+**Primary validation target: $We = 1$ ($\sigma = 0.3$, $R = 0.3$).** The CSF restoring force
 is large and directly measurable. For a sphere of radius $R = 0.3$, the exact
 curvature is $\kappa = 2/R = 6.67$ and any error in the curvature computation
 amplifies into a visible spurious velocity — making this the most sensitive test
 of the CDI/CSF implementation. The laminar $We = 1$ case (no turbulence, no startup
 burst) is the cleanest baseline: $\kappa_{\mathrm{rms}}$ should remain constant at
 $6.67$ throughout, and any deviation is a method error rather than a physical effect.
+
+**Note on the restart blow-up cases.** The `restart.case` and `restart_off.case` use
+$R = 0.4$ with the same $\sigma = 0.3$, giving $We = R/\sigma = 0.4/0.3 \approx 1.33$
+rather than exactly 1. These were used as blow-up reference runs (see section 7)
+and are not primary validation cases. The active validation cases (laminar, we1, we10)
+all use $R = 0.3$, so $\sigma = 0.3/We$ holds throughout.
 
 ---
 
