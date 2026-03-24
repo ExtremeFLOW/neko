@@ -939,11 +939,13 @@ contains
   subroutine hdf5_file_write_matrix(this, mat)
     class(hdf5_file_t), intent(inout) :: this
     type(matrix_t), intent(inout) :: mat
-    integer :: ierr, counts, offset, total_count, dset_rank, strides
+      integer :: ierr, counts, offset, total_count, dset_rank, strides, max_count
+      integer(hsize_t) :: append_offset
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id, filespace, dset_id, memspace
+      integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
     integer(hsize_t), dimension(2) :: dcount, doffset
-    integer(hsize_t), dimension(2) :: ddims
+      integer(hsize_t), dimension(2) :: ddims, ddims_max, chunkdims
+      integer(hsize_t), dimension(2) :: tempddims, tempmaxddims
     logical :: dset_exists
     real(kind=sp), allocatable :: write_buffer_sp(:,:) ! Write buffer single
     real(kind=dp), allocatable :: write_buffer_dp(:,:) ! Write buffer double
@@ -953,13 +955,17 @@ contains
     ! ===============
     strides = mat%get_nrows()
     counts = mat%get_ncols()
+       append_offset = 0_hsize_t
     total_count = 0
+       max_count = 0
     offset = 0
     call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
     offset = offset - counts ! Not using exclusive scan
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
+          MPI_MAX, NEKO_COMM, ierr)
 
     ! ===============
     ! Configure MPIIO
@@ -973,6 +979,8 @@ contains
     ! ===================
     dset_rank = 2 ! rank 2 array, i.e. a matrix
     ddims = [int(strides, hsize_t), int(total_count, hsize_t)] ! global size of the matrix
+    chunkdims = [int(strides, hsize_t), max(int(max_count, hsize_t), 1_hsize_t)]
+    ddims_max = [int(strides, hsize_t), H5S_UNLIMITED_F]
     call h5lexists_f(this%active_group_id, trim(mat%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
@@ -983,22 +991,31 @@ contains
           end if
           call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
        else
-          call neko_error("dataset already exist in the file")
+          call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
+          call h5dget_space_f(dset_id, filespace, ierr)
+          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+          call h5sclose_f(filespace, ierr)
+          ddims(2) = ddims(2) + tempddims(2)
+          append_offset = tempddims(2)
+          call h5dset_extent_f(dset_id, ddims, ierr)
        end if
     else
        ! create file space of this shape
-       call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
+       call h5screate_simple_f(dset_rank, ddims, filespace, ierr, ddims_max)
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       call h5pset_chunk_f(dcpl_id, dset_rank, chunkdims, ierr)
        ! create the data set with the given shape
        call h5dcreate_f(this%active_group_id, trim(mat%name), precision_hdf, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5sclose_f(filespace, ierr)
+       call h5pclose_f(dcpl_id, ierr)
     end if
 
     ! ===========================
     ! Set up writing the data set
     ! ===========================
     dcount = [int(strides, hsize_t), int(counts, hsize_t)] ! local size of the matrix
-    doffset = [0_hsize_t, int(offset, hsize_t)] ! offset for this rank in the global matrix
+   doffset = [0_hsize_t, int(offset, hsize_t) + append_offset] ! offset for this rank in the global matrix
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
@@ -1042,12 +1059,14 @@ contains
   subroutine hdf5_file_write_field(this, field)
     class(hdf5_file_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
-    integer :: ierr, counts, offset, total_count, dset_rank
+      integer :: ierr, counts, offset, total_count, dset_rank, max_count
     integer :: stride_ax_1, stride_ax_2, stride_ax_3
+      integer(hsize_t) :: append_offset
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id, filespace, dset_id, memspace
+      integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
     integer(hsize_t), dimension(4) :: dcount, doffset
-    integer(hsize_t), dimension(4) :: ddims
+      integer(hsize_t), dimension(4) :: ddims, ddims_max, chunkdims
+      integer(hsize_t), dimension(4) :: tempddims, tempmaxddims
     logical :: dset_exists
     real(kind=sp), allocatable :: write_buffer_sp(:,:,:,:) ! Write buffer single
     real(kind=dp), allocatable :: write_buffer_dp(:,:,:,:) ! Write buffer double
@@ -1059,8 +1078,12 @@ contains
     stride_ax_2 = field%Xh%ly
     stride_ax_3 = field%Xh%lz
     counts = field%msh%nelv
+       append_offset = 0_hsize_t
     total_count = field%msh%glb_nelv
+       max_count = 0
     offset = field%msh%offset_el
+       call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
+          MPI_MAX, NEKO_COMM, ierr)
 
     ! ===============
     ! Configure MPIIO
@@ -1074,6 +1097,8 @@ contains
     ! ===================
     dset_rank = 4 ! rank 4 array, i.e. a 4D tensor
     ddims = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(total_count, hsize_t)] ! global size of the tensor
+    chunkdims = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), max(int(max_count, hsize_t), 1_hsize_t)]
+    ddims_max = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), H5S_UNLIMITED_F]
     call h5lexists_f(this%active_group_id, trim(field%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
@@ -1084,22 +1109,31 @@ contains
           end if
           call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
        else
-          call neko_error("dataset already exist in the file")
+          call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
+          call h5dget_space_f(dset_id, filespace, ierr)
+          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+          call h5sclose_f(filespace, ierr)
+          ddims(4) = ddims(4) + tempddims(4)
+          append_offset = tempddims(4)
+          call h5dset_extent_f(dset_id, ddims, ierr)
        end if
     else
        ! create file space of this shape
-       call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
+       call h5screate_simple_f(dset_rank, ddims, filespace, ierr, ddims_max)
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       call h5pset_chunk_f(dcpl_id, dset_rank, chunkdims, ierr)
        ! create the data set with the given shape
        call h5dcreate_f(this%active_group_id, trim(field%name), precision_hdf, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5sclose_f(filespace, ierr)
+       call h5pclose_f(dcpl_id, ierr)
     end if
 
     ! ===========================
     ! Set up writing the data set
     ! ===========================
     dcount = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(counts, hsize_t)] ! local size of the tensor
-    doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, int(offset, hsize_t)] ! offset for this rank in the global tensor
+   doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, int(offset, hsize_t) + append_offset] ! offset for this rank in the global tensor
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
