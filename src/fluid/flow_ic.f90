@@ -407,25 +407,22 @@ contains
   !! @param w The z-component of the velocity field.
   !! @param p The pressure field.
   !! @param file_name The name of the "fld" file series.
-  !! @param sample_idx index of the field file .f000* to read, default is
-  !! -1.
   !! @param interpolate Flag to indicate wether or not to interpolate the
   !! values onto the current mesh.
-  !! @param tolerance If interpolation is enabled, tolerance for finding the
-  !! points in the mesh.
-  !! @param sample_mesh_idx If interpolation is enabled, index of the field
-  !! file where the mesh coordinates are located.
+  !! @param file_name If interpolation is enabled the name of the "fld" file
+  !! containing the mesh coordinates (if they are not in `file_name`).
+  !! @param global_interp_subdict If interpolation is enabled, subdict
+  !! containing the interpolation parameters to use.
   subroutine set_flow_ic_fld(u, v, w, p, file_name, &
-       interpolate, tolerance, mesh_file_name, padding)
+       interpolate, mesh_file_name, global_interp_subdict)
     type(field_t), target, intent(inout) :: u
     type(field_t), target, intent(inout) :: v
     type(field_t), target, intent(inout) :: w
     type(field_t), target, intent(inout) :: p
     character(len=*), intent(inout) :: file_name
     logical, intent(in) :: interpolate
-    real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
-    real(kind=rp), intent(in), optional :: padding
+    type(json_file), intent(inout) :: global_interp_subdict
 
     type(field_t), pointer :: us, vs, ws, ps
 
@@ -434,17 +431,10 @@ contains
     ws => w
     ps => p
 
-    if (present(padding)) then
-
-       call import_fields(file_name, mesh_file_name, &
-            u = us, v = vs, w = ws, p = ps, &
-            interpolate = interpolate, tolerance = tolerance, &
-            padding = padding)
-    else
-       call import_fields(file_name, mesh_file_name, &
-            u = us, v = vs, w = ws, p = ps, &
-            interpolate = interpolate, tolerance = tolerance)
-    end if
+    call import_fields(file_name, mesh_file_name, &
+         u = us, v = vs, w = ws, p = ps, &
+         interpolate = interpolate, &
+         global_interp_subdict = global_interp_subdict)
 
     nullify(us, vs, ws, ps)
 
