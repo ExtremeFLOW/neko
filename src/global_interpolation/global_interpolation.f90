@@ -39,6 +39,8 @@ module global_interpolation
   use stack, only: stack_i4_t
   use dofmap, only: dofmap_t
   use logger, only: neko_log, LOG_SIZE
+  use json_utils, only : json_get_or_lookup_or_default
+  use json_module, only : json_file
   use utils, only: neko_error
   use local_interpolation, only : local_interpolator_t
   use device, only: device_free, device_map, device_memcpy, &
@@ -147,7 +149,16 @@ module global_interpolation
      type(vector_t) :: masked_field
 
    contains
-     !> Initialize the global interpolation object based on a set of spectral elements.
+     !> Initialize the global interpolation object from a JSON subdict
+     !! (xyz version).
+     procedure, pass(this) :: init_json_xyz => &
+          global_interpolation_init_json_xyz
+     !> Initialize the global interpolation object from a JSON subdict
+     !! (dof version).
+     procedure, pass(this) :: init_json_dof => &
+          global_interpolation_init_json_dof
+     !> Initialize the global interpolation object based on a set of spectral
+     !! elements.
      procedure, pass(this) :: init_xyz => global_interpolation_init_xyz
      !> Initialize the global interpolation object based on a dofmap.
      procedure, pass(this) :: init_dof => global_interpolation_init_dof
@@ -175,11 +186,74 @@ module global_interpolation
      procedure, pass(this) :: evaluate_masked => global_interpolation_evaluate_masked
 
      !> Generic constructor
-     generic :: init => init_dof, init_xyz
+     generic :: init => init_dof, init_xyz, init_json_xyz, init_json_dof
 
   end type global_interpolation_t
 
 contains
+
+  !> Initialize the global interpolation object on a set of coordinates,
+  !! with configuration parameters given in a JSON subdirectory.
+  !! @param x x-coordinates.
+  !! @param y y-coordinates.
+  !! @param z z-coordinates.
+  !! @param gdim Geometric dimension.
+  !! @param nelv Number of elements of the mesh in which to search for the
+  !! points.
+  !! @param Xh Space on which to interpolate.
+  !! @param params_subdict A JSON object containing parameters to use for
+  !! initialization instead of tol and pad.
+  !! @param comm Communicator to use for initialization. If not given,
+  !! NEKO_COMM is used.
+  subroutine global_interpolation_init_json_xyz(this, x, y, z, gdim, nelv, Xh, &
+       params_subdict, comm)
+    class(global_interpolation_t), target, intent(inout) :: this
+    real(kind=rp), intent(in) :: x(:)
+    real(kind=rp), intent(in) :: y(:)
+    real(kind=rp), intent(in) :: z(:)
+    integer, intent(in) :: gdim
+    integer, intent(in) :: nelv
+    type(space_t), intent(in) :: Xh
+    type(json_file), intent(inout) :: params_subdict
+    type(MPI_COMM), intent(in), optional :: comm
+
+    real(kind=dp) :: tol, pad
+
+    call json_get_or_lookup_or_default(params_subdict, 'tolerance', &
+         tol, GLOBAL_INTERP_TOL)
+    call json_get_or_lookup_or_default(params_subdict, 'padding', &
+         pad, GLOBAL_INTERP_PAD)
+
+    call this%init_xyz(x, y, z, gdim, nelv, Xh, comm = comm, tol = tol, &
+         pad = pad)
+
+  end subroutine global_interpolation_init_json_xyz
+
+  !> Initialize the global interpolation object on a dofmap.
+  !! @param dof Dofmap on which the interpolation is to be carried out.
+  !! @param params_subdict A JSON object containing parameters to use for
+  !! initialization.
+  !! @param comm Communicator to use for initialization. If not given,
+  !! NEKO_COMM is used.
+  !! @param mask Mask that indicates which portions of the domain to include.
+  subroutine global_interpolation_init_json_dof(this, dof, params_subdict, &
+       comm, mask)
+    class(global_interpolation_t), target, intent(inout) :: this
+    type(dofmap_t) :: dof
+    type(json_file), intent(inout) :: params_subdict
+    type(MPI_COMM), optional, intent(in) :: comm
+    type(mask_t), intent(in), optional :: mask
+
+    real(kind=dp) :: tol, pad
+
+    call json_get_or_lookup_or_default(params_subdict, 'tolerance', &
+         tol, GLOBAL_INTERP_TOL)
+    call json_get_or_lookup_or_default(params_subdict, 'padding', &
+         pad, GLOBAL_INTERP_PAD)
+
+    call this%init_dof(dof, comm = comm, tol = tol, pad = pad, mask = mask)
+
+  end subroutine global_interpolation_init_json_dof
 
   !> Initialize the global interpolation object on a dofmap.
   !! @param dof Dofmap on which the interpolation is to be carried out.
