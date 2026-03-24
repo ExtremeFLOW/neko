@@ -1292,7 +1292,7 @@ contains
   function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
     real(kind=rp) :: rst1(3), res1(3)
     real(kind=rp) :: rst2(3), res2(3)
-    real(kind=rp) :: tol
+    real(kind=dp) :: tol
     logical :: rst2_better
     !If rst1 is invalid and rst2 is valid, take rst2
     ! If both invalidl, take smallest residual
