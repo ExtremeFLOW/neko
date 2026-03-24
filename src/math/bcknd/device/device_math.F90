@@ -59,14 +59,14 @@ module device_math
        device_subcol3, device_sub2, device_sub3, device_addcol3, &
        device_addcol4, device_addcol3s2, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
-       device_glsum, device_glmax, device_glmin, device_masked_copy_0, &
-       device_cfill_mask, &
+       device_glsum, device_masked_copy_0, device_cfill_mask, &
        device_masked_gather_copy_aligned, &
        device_vcross, device_absval, device_masked_atomic_reduction_0, &
        device_masked_gather_copy_0, device_masked_scatter_copy_0, &
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
        device_pwmax2, device_pwmax3, device_cpwmax2, device_cpwmax3, &
-       device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3
+       device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3, &
+       device_glmax, device_glmin
 
 contains
 
@@ -1299,11 +1299,11 @@ contains
 #endif
   end function device_glsum
 
-  !> Max of a vector of length n
+  !>Max of a vector of length n
   function device_glmax(a_d, n, strm) result(res)
     type(c_ptr) :: a_d
     integer :: n, ierr
-    real(kind=rp) :: res
+    real(kind=rp) :: res, ninf
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
@@ -1313,13 +1313,13 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = -huge(0.0_rp)
+    ninf = -huge(0.0_rp)
 #if HAVE_HIP
-    res = hip_glmax(a_d, n, strm_)
+    res = hip_glmax(a_d, ninf, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glmax(a_d, n, strm_)
+    res = cuda_glmax(a_d, ninf, n, strm_)
 #elif HAVE_OPENCL
-    res = opencl_glmax(a_d, n, strm_)
+    call neko_error('glmax is not supported by OpenCL')
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1332,11 +1332,11 @@ contains
 #endif
   end function device_glmax
 
-  !> Min of a vector of length n
+  !>Min of a vector of length n
   function device_glmin(a_d, n, strm) result(res)
     type(c_ptr) :: a_d
     integer :: n, ierr
-    real(kind=rp) :: res
+    real(kind=rp) :: res, pinf
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
@@ -1346,11 +1346,11 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = huge(0.0_rp)
+    pinf = huge(0.0_rp)
 #if HAVE_HIP
-    res = hip_glmin(a_d, n, strm_)
+    res = hip_glmin(a_d, pinf, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glmin(a_d, n, strm_)
+    res = cuda_glmin(a_d, pinf, n, strm_)
 #elif HAVE_OPENCL
     res = opencl_glmin(a_d, n, strm_)
 #else

@@ -698,23 +698,29 @@ __inline__ __device__ T reduce_warp(T val) {
   return val;
 }
 
+/**
+ * Warp shuffle reduction of maximisation
+ */
 template< typename T>
-__inline__ __device__ T max_reduce_warp(T val) {
-  val = fmax(val, __shfl_down_sync(0xffffffff, val, 16));
-  val = fmax(val, __shfl_down_sync(0xffffffff, val, 8));
-  val = fmax(val, __shfl_down_sync(0xffffffff, val, 4));
-  val = fmax(val, __shfl_down_sync(0xffffffff, val, 2));
-  val = fmax(val, __shfl_down_sync(0xffffffff, val, 1));
+__inline__ __device__ T reduce_max_warp(T val) {
+  val = max(val, __shfl_down_sync(0xffffffff, val, 16));
+  val = max(val, __shfl_down_sync(0xffffffff, val, 8));
+  val = max(val, __shfl_down_sync(0xffffffff, val, 4));
+  val = max(val, __shfl_down_sync(0xffffffff, val, 2));
+  val = max(val, __shfl_down_sync(0xffffffff, val, 1));
   return val;
 }
 
+/**
+ * Warp shuffle reduction of minimisation
+ */
 template< typename T>
-__inline__ __device__ T min_reduce_warp(T val) {
-  val = fmin(val, __shfl_down_sync(0xffffffff, val, 16));
-  val = fmin(val, __shfl_down_sync(0xffffffff, val, 8));
-  val = fmin(val, __shfl_down_sync(0xffffffff, val, 4));
-  val = fmin(val, __shfl_down_sync(0xffffffff, val, 2));
-  val = fmin(val, __shfl_down_sync(0xffffffff, val, 1));
+__inline__ __device__ T reduce_min_warp(T val) {
+  val = min(val, __shfl_down_sync(0xffffffff, val, 16));
+  val = min(val, __shfl_down_sync(0xffffffff, val, 8));
+  val = min(val, __shfl_down_sync(0xffffffff, val, 4));
+  val = min(val, __shfl_down_sync(0xffffffff, val, 2));
+  val = min(val, __shfl_down_sync(0xffffffff, val, 1));
   return val;
 }
 
@@ -749,62 +755,67 @@ __global__ void reduce_kernel(T * bufred, const int n) {
     bufred[blockIdx.x] = sum;
 }
 
+/**
+ * Vector reduction maximisation kernel
+ */
 template< typename T >
-__global__ void max_reduce_kernel(T * bufred, const int n) {
+__global__ void reduce_max_kernel(T * bufred, const T ninf, const int n) {
 
-  T vmax = bufred[0];
+  T max_val = ninf;
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   for (int i = idx; i<n ; i += str)
   {
-    vmax = fmax(vmax, bufred[i]);
+    max_val = max(max_val, bufred[i]);
   }
 
   __shared__ T shared[32];
   unsigned int lane = threadIdx.x % warpSize;
   unsigned int wid = threadIdx.x / warpSize;
 
-  vmax = max_reduce_warp<T>(vmax);
+  max_val = reduce_max_warp<T>(max_val);
   if (lane == 0)
-    shared[wid] = vmax;
+    shared[wid] = max_val;
   __syncthreads();
 
-  vmax = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : bufred[0];
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
   if (wid == 0)
-    vmax = max_reduce_warp<T>(vmax);
+    max_val = reduce_max_warp<T>(max_val);
 
   if (threadIdx.x == 0)
-    bufred[blockIdx.x] = vmax;
+    bufred[blockIdx.x] = max_val;
 }
 
+/**
+ * Vector reduction minimisation kernel
+ */
 template< typename T >
-__global__ void min_reduce_kernel(T * bufred, const int n) {
+__global__ void reduce_min_kernel(T * bufred, const T pinf, const int n) {
 
-  T vmin = bufred[0];
+  T min_val = pinf;
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   for (int i = idx; i<n ; i += str)
   {
-    vmin = fmin(vmin, bufred[i]);
+    min_val = min(min_val, bufred[i]);
   }
 
   __shared__ T shared[32];
   unsigned int lane = threadIdx.x % warpSize;
   unsigned int wid = threadIdx.x / warpSize;
 
-  vmin = min_reduce_warp<T>(vmin);
+  min_val = reduce_min_warp<T>(min_val);
   if (lane == 0)
-    shared[wid] = vmin;
+    shared[wid] = min_val;
   __syncthreads();
 
-  vmin = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : bufred[0];
+  min_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : pinf;
   if (wid == 0)
-    vmin = min_reduce_warp<T>(vmin);
+    min_val = reduce_min_warp<T>(min_val);
 
   if (threadIdx.x == 0)
-    bufred[blockIdx.x] = vmin;
+    bufred[blockIdx.x] = min_val;
 }
-
 
 /**
  * Reduction kernel for glsc3
@@ -1023,8 +1034,12 @@ __global__ void glsum_kernel(const T * a,
 
 }
 
+/**
+ * Device kernel for glmax
+ */
 template< typename T >
 __global__ void glmax_kernel(const T * a,
+                             const T ninf,
                              T * buf_h,
                              const int n) {
 
@@ -1035,28 +1050,32 @@ __global__ void glmax_kernel(const T * a,
   const unsigned int wid = threadIdx.x / warpSize;
 
   __shared__ T shared[32];
-  T vmax = a[0];
+  T max_val = ninf;
   for (int i = idx; i<n ; i += str)
   {
-    vmax = fmax(vmax, a[i]);
+    max_val = max(max_val, a[i]);
   }
 
-  vmax = max_reduce_warp<T>(vmax);
+  max_val = reduce_max_warp<T>(max_val);
   if (lane == 0)
-    shared[wid] = vmax;
+    shared[wid] = max_val;
   __syncthreads();
 
-  vmax = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : a[0];
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
   if (wid == 0)
-    vmax = max_reduce_warp<T>(vmax);
+    max_val = reduce_max_warp<T>(max_val);
 
   if (threadIdx.x == 0)
-    buf_h[blockIdx.x] = vmax;
+    buf_h[blockIdx.x] = max_val;
 
 }
 
+/**
+ * Device kernel for glmin
+ */
 template< typename T >
 __global__ void glmin_kernel(const T * a,
+                             const T pinf,
                              T * buf_h,
                              const int n) {
 
@@ -1067,23 +1086,23 @@ __global__ void glmin_kernel(const T * a,
   const unsigned int wid = threadIdx.x / warpSize;
 
   __shared__ T shared[32];
-  T vmin = a[0];
+  T min_val = pinf;
   for (int i = idx; i<n ; i += str)
   {
-    vmin = fmin(vmin, a[i]);
+    min_val = min(min_val, a[i]);
   }
 
-  vmin = min_reduce_warp<T>(vmin);
+  min_val = reduce_min_warp<T>(min_val);
   if (lane == 0)
-    shared[wid] = vmin;
+    shared[wid] = min_val;
   __syncthreads();
 
-  vmin = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : a[0];
+  min_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : pinf;
   if (wid == 0)
-    vmin = min_reduce_warp<T>(vmin);
+    min_val = reduce_min_warp<T>(min_val);
 
   if (threadIdx.x == 0)
-    buf_h[blockIdx.x] = vmin;
+    buf_h[blockIdx.x] = min_val;
 
 }
 

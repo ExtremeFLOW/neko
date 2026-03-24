@@ -35,7 +35,6 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include <limits>
 #include "math_kernel.h"
 
 extern "C" {
@@ -670,6 +669,10 @@ extern "C" {
     #endif
   }
 
+
+  /**
+   * Global maximise reduction
+   */
   void hip_global_reduce_max(real * bufred, void * bufred_d, int n,
                              const hipStream_t stream) {
     #ifdef HAVE_RCCL
@@ -688,6 +691,9 @@ extern "C" {
     #endif
   }
 
+  /**
+   * Global minimise reduction
+   */
   void hip_global_reduce_min(real * bufred, void * bufred_d, int n,
                              const hipStream_t stream) {
     #ifdef HAVE_RCCL
@@ -889,26 +895,28 @@ extern "C" {
     return bufred[0];
   }
 
-  real hip_glmax(void *a, int *n, hipStream_t stream) {
+
+  /**
+   * Fortran wrapper glmax
+   * Take the maxmum of a vector of length n
+   */
+  real hip_glmax(void *a, real *ninf, int *n, hipStream_t stream) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    const int one = 1;
-    const real fill = -std::numeric_limits<real>::max();
 
     hip_redbuf_check_alloc(nb);
     if( *n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glmax_kernel<real>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, bufred_d, *n);
+                         (real *) a, *ninf, bufred_d, *n);
       HIP_CHECK(hipGetLastError());
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(max_reduce_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, nb);
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_max_kernel<real>),
+                         1, 1024, 0, stream, bufred_d, *ninf, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_cfill(bufred_d, const_cast<real *>(&fill), const_cast<int *>(&one),
-                stream);
+      hip_rzero(bufred_d, &red_s, stream);
     }
 
     hip_global_reduce_max(bufred, bufred_d, 1, stream);
@@ -916,26 +924,27 @@ extern "C" {
     return bufred[0];
   }
 
-  real hip_glmin(void *a, int *n, hipStream_t stream) {
+  /**
+   * Fortran wrapper glmin
+   * Take the minimum of a vector of length n
+   */
+  real hip_glmin(void *a, real *pinf, int *n, hipStream_t stream) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    const int one = 1;
-    const real fill = std::numeric_limits<real>::max();
 
     hip_redbuf_check_alloc(nb);
     if( *n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glmin_kernel<real>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, bufred_d, *n);
+                         (real *) a, *pinf, bufred_d, *n);
       HIP_CHECK(hipGetLastError());
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(min_reduce_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, nb);
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_min_kernel<real>),
+                         1, 1024, 0, stream, bufred_d, *pinf, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_cfill(bufred_d, const_cast<real *>(&fill), const_cast<int *>(&one),
-                stream);
+      hip_rzero(bufred_d, &red_s, stream);
     }
 
     hip_global_reduce_min(bufred, bufred_d, 1, stream);

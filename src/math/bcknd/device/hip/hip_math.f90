@@ -394,19 +394,21 @@ module hip_math
        integer(c_int) :: n
      end function hip_glsum
 
-     real(c_rp) function hip_glmax(a_d, n, strm) &
+     real(c_rp) function hip_glmax(a_d, ninf, n, strm) &
           bind(c, name = 'hip_glmax')
-       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        import c_rp
        type(c_ptr), value :: a_d, strm
+       real(c_rp) :: ninf
        integer(c_int) :: n
      end function hip_glmax
 
-     real(c_rp) function hip_glmin(a_d, n, strm) &
+     real(c_rp) function hip_glmin(a_d, pinf, n, strm) &
           bind(c, name = 'hip_glmin')
-       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        import c_rp
        type(c_ptr), value :: a_d, strm
+       real(c_rp) :: pinf
        integer(c_int) :: n
      end function hip_glmin
 
