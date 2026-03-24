@@ -379,39 +379,39 @@ contains
     end select
   end subroutine file_write_dataset
 
-  subroutine file_read_dataset(this, keyword, data, strategy)
+  subroutine file_read_dataset(this, data_name, data, strategy)
     class(file_t), intent(inout) :: this
-    character(len=*), intent(in) :: keyword
+    character(len=*), intent(in) :: data_name
     class(*), intent(inout) :: data
     character(len=*), intent(in), optional :: strategy
     select type (ft => this%file_type)
     type is (hdf5_file_t)
-       call ft%read_dataset(keyword, data, strategy)
+       call ft%read_dataset(data_name, data, strategy)
     class default
        call neko_error("read_dataset not implemented for this file type")
     end select
   end subroutine file_read_dataset
 
-  subroutine file_write_attribute(this, data, data_name)
+  subroutine file_write_attribute(this, data_name, data)
     class(file_t), intent(inout) :: this
-    class(*), intent(inout) :: data
     character(len=*), intent(in) :: data_name
+    class(*), intent(inout) :: data
     select type (ft => this%file_type)
     type is (hdf5_file_t)
-       call ft%write_attribute(data, data_name)
+       call ft%write_attribute(data_name, data)
     class default
        call neko_error("write_attribute not implemented for this file type")
     end select
   end subroutine file_write_attribute
 
-  subroutine file_read_attribute(this, data, data_name, exist)
+  subroutine file_read_attribute(this, data_name, data, exist)
     class(file_t), intent(inout) :: this 
-    class(*), intent(inout) :: data
     character(len=*), intent(in) :: data_name
+    class(*), intent(inout) :: data
     logical, intent(inout) :: exist
     select type (ft => this%file_type)
     type is (hdf5_file_t)
-       call ft%read_attribute(data, data_name, exist)
+       call ft%read_attribute(data_name, data, exist)
     class default
        call neko_error("read_attribute not implemented for this file type")
     end select

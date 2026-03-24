@@ -807,17 +807,17 @@ contains
     end select
   end subroutine hdf5_file_write_dataset
 
-  subroutine hdf5_file_read_dataset(this, keyword, data, strategy)
+   subroutine hdf5_file_read_dataset(this, data_name, data, strategy)
     class(hdf5_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: keyword
+      character(len=*), intent(in) :: data_name
     class(*), intent(inout) :: data
     character(len=*), intent(in), optional :: strategy
 
     select type (d => data)
     type is (vector_t)
-       call this%read_vector(keyword, d, strategy)
+       call this%read_vector(data_name, d, strategy)
     type is (matrix_t)
-       call this%read_matrix(keyword, d, strategy)
+       call this%read_matrix(data_name, d, strategy)
     type is (field_t)
        call neko_error("Reading a field_t is not supported yet")
     class default
@@ -825,32 +825,32 @@ contains
     end select
   end subroutine hdf5_file_read_dataset
 
-  subroutine hdf5_file_write_attribute(this, data, data_name)
+  subroutine hdf5_file_write_attribute(this, data_name, data)
     class(hdf5_file_t), intent(inout) :: this
-    class(*), intent(inout) :: data
     character(len=*), intent(in) :: data_name
+    class(*), intent(inout) :: data
 
     select type (d => data)
     type is (integer)
-       call this%write_int_attribute(d, data_name)
+       call this%write_int_attribute(data_name, d)
     type is (real(kind=rp))
-       call this%write_rp_attribute(d, data_name)
+       call this%write_rp_attribute(data_name, d)
     class default
        call neko_error("write_attribute not implemented for this data type")
     end select
   end subroutine hdf5_file_write_attribute
 
-  subroutine hdf5_file_read_attribute(this, data, data_name, exist)
+  subroutine hdf5_file_read_attribute(this, data_name, data, exist)
     class(hdf5_file_t), intent(inout) :: this 
-    class(*), intent(inout) :: data
     character(len=*), intent(in) :: data_name
+    class(*), intent(inout) :: data
     logical, intent(inout) :: exist
 
     select type (d => data)
     type is (integer)
-       call this%read_int_attribute(d, data_name, exist)
+       call this%read_int_attribute(data_name, d, exist)
     type is (real(kind=rp))
-       call this%read_rp_attribute(d, data_name, exist)
+       call this%read_rp_attribute(data_name, d, exist)
     class default
        call neko_error("read_attribute not implemented for this data type")
     end select
@@ -1229,9 +1229,9 @@ contains
   end subroutine hdf5_file_write_field
 
   !> Read a vector
-  subroutine hdf5_file_read_vector(this, keyword, vec, strategy)
+   subroutine hdf5_file_read_vector(this, data_name, vec, strategy)
     class(hdf5_file_t) :: this
-    character(len=*), intent(in) :: keyword
+      character(len=*), intent(in) :: data_name
     type(vector_t), intent(inout) :: vec
     character(len=*), intent(in), optional :: strategy
     character(len=1000) :: strategy_
@@ -1269,21 +1269,21 @@ contains
     ! ===================
     ! Get the data set info
     ! ===================
-    call h5lexists_f(this%active_group_id, trim(keyword), dset_exists, ierr)
+      call h5lexists_f(this%active_group_id, trim(data_name), dset_exists, ierr)
     if (dset_exists) then
        ! Open the data set
-       call h5dopen_f(this%active_group_id, trim(keyword), dset_id, ierr)
+         call h5dopen_f(this%active_group_id, trim(data_name), dset_id, ierr)
        ! Get the current rank of the dataset
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
        if (temprank .ne. 1) then
-          call neko_error("Dataset " // trim(keyword) // " is not a rank 1 vector in file " // trim(this%get_fname()))
+             call neko_error("Dataset " // trim(data_name) // " is not a rank 1 vector in file " // trim(this%get_fname()))
        end if
        ! Get the current shape and close the filespace
        call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
        call h5sclose_f(filespace, ierr)
     else
-       call neko_error("Dataset " // trim(keyword) // " does not exist in current group " // trim(this%get_fname()))
+         call neko_error("Dataset " // trim(data_name) // " does not exist in current group " // trim(this%get_fname()))
     end if
 
     ! =============================
@@ -1322,7 +1322,7 @@ contains
     ! =============================
     ! Allocate data. HDF5 will cast
     ! =============================
-    call vec%init(counts, trim(keyword)) ! this is rp
+   call vec%init(counts, trim(data_name)) ! this is rp
     call h5dread_f(dset_id, precision_hdf, vec%x, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
@@ -1338,9 +1338,9 @@ contains
   end subroutine hdf5_file_read_vector
 
   !> Read a matrix
-  subroutine hdf5_file_read_matrix(this, keyword, mat, strategy)
+   subroutine hdf5_file_read_matrix(this, data_name, mat, strategy)
     class(hdf5_file_t) :: this
-    character(len=*), intent(in) :: keyword
+      character(len=*), intent(in) :: data_name
     type(matrix_t), intent(inout) :: mat
     character(len=*), intent(in), optional :: strategy
     character(len=1000) :: strategy_
@@ -1378,21 +1378,21 @@ contains
     ! ===================
     ! Get the data set info
     ! ===================
-    call h5lexists_f(this%active_group_id, trim(keyword), dset_exists, ierr)
+      call h5lexists_f(this%active_group_id, trim(data_name), dset_exists, ierr)
     if (dset_exists) then
        ! Openr the data set
-       call h5dopen_f(this%active_group_id, trim(keyword), dset_id, ierr)
+         call h5dopen_f(this%active_group_id, trim(data_name), dset_id, ierr)
        ! Get the current rank of the of the dataset
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
        if (temprank .ne. 2) then
-          call neko_error("Dataset " // trim(keyword) // " is not a rank 2 matrix in file " // trim(this%get_fname()))
+             call neko_error("Dataset " // trim(data_name) // " is not a rank 2 matrix in file " // trim(this%get_fname()))
        end if
        ! Get the current shape and close the filespace
        call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
        call h5sclose_f(filespace, ierr)
     else
-       call neko_error("Dataset " // trim(keyword) // " does not exist in current group " // trim(this%get_fname()))
+         call neko_error("Dataset " // trim(data_name) // " does not exist in current group " // trim(this%get_fname()))
     end if
 
     ! =============================
@@ -1431,7 +1431,7 @@ contains
     ! =============================
     ! Allocate data. HDF5 will cast
     ! =============================
-    call mat%init(int(tempddims(1)), counts, trim(keyword)) ! this is rp
+   call mat%init(int(tempddims(1)), counts, trim(data_name)) ! this is rp
     call h5dread_f(dset_id, precision_hdf, mat%x, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
          xfer_prp = xf_id)
@@ -1448,10 +1448,10 @@ contains
   end subroutine hdf5_file_read_matrix
 
   !> Write an integer attribute
-  subroutine hdf5_file_write_int_attribute(this, attr, attr_name)
+   subroutine hdf5_file_write_int_attribute(this, attr_name, attr)
     class(hdf5_file_t), intent(inout) :: this
-    integer, intent(in) :: attr
     character(len=*), intent(in) :: attr_name
+      integer, intent(in) :: attr
     integer :: ierr
     integer(hid_t) :: filespace, attr_id
     integer(hsize_t), dimension(1) :: dcount
@@ -1487,10 +1487,10 @@ contains
   end subroutine hdf5_file_write_int_attribute
 
   !> Write a real (kind=rp) attribute
-  subroutine hdf5_file_write_rp_attribute(this, attr, attr_name)
+   subroutine hdf5_file_write_rp_attribute(this, attr_name, attr)
     class(hdf5_file_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: attr
     character(len=*), intent(in) :: attr_name
+      real(kind=rp), intent(in) :: attr
     integer :: ierr
     integer(hid_t) :: precision_hdf
     integer(hid_t) :: filespace, attr_id
@@ -1530,10 +1530,10 @@ contains
   end subroutine hdf5_file_write_rp_attribute
   
   !> Read an integer attribute
-  subroutine hdf5_file_read_int_attribute(this, attr, attr_name, attr_exists)
+   subroutine hdf5_file_read_int_attribute(this, attr_name, attr, attr_exists)
     class(hdf5_file_t), intent(inout) :: this
-    integer, intent(inout) :: attr
     character(len=*), intent(in) :: attr_name
+      integer, intent(inout) :: attr
     logical, intent(inout) :: attr_exists
     integer :: ierr
     integer(hid_t) :: filespace, attr_id
@@ -1564,10 +1564,10 @@ contains
   end subroutine hdf5_file_read_int_attribute
   
   !> Read a real (kind=rp) attribute
-  subroutine hdf5_file_read_rp_attribute(this, attr, attr_name, attr_exists)
+   subroutine hdf5_file_read_rp_attribute(this, attr_name, attr, attr_exists)
     class(hdf5_file_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: attr
     character(len=*), intent(in) :: attr_name
+      real(kind=rp), intent(inout) :: attr
     logical, intent(inout) :: attr_exists
     integer :: ierr
     integer(hid_t) :: precision_hdf

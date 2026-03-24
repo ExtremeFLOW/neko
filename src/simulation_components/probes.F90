@@ -559,7 +559,7 @@ contains
        call this%fout%set_active_group(["probes"]) ! Empty sets it to the root group "/"
        call this%fout%write_dataset(mat_coords)
        out_int = this%n_global_probes
-       call this%fout%write_attribute(out_int, "NProbes")
+      call this%fout%write_attribute("NProbes", out_int)
        call this%fout%close()
 
        !> Set up the output matrix
@@ -757,7 +757,7 @@ contains
                 call this%fout%set_active_group(["probes"])
                 ! Write Nsteps in root
                 out_int = this%output_controller%nexecutions + 1
-                call this%fout%write_attribute(out_int, "NSteps")
+                call this%fout%write_attribute("NSteps", out_int)
                 ! Write out the data
                 do i = 1, this%n_fields
                    call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
@@ -785,7 +785,7 @@ contains
                 call this%fout%open("w")
                 call this%fout%set_active_group(["probes"])
                 ! Write Nsteps in root
-                call this%fout%write_attribute(out_int, "NSteps")
+                call this%fout%write_attribute("NSteps", out_int)
                 ! Write out the data
                 call this%fout%set_active_group(["probes", trim(group_name)])
                 do i = 1, this%n_fields
@@ -795,7 +795,7 @@ contains
                 end do
                 ! Write the time as an attribute
                 time_ = time%t
-                call this%fout%write_attribute(time_, "time")
+                call this%fout%write_attribute("time", time_)
                 call this%fout%close()
              end if
 
