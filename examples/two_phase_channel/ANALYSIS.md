@@ -822,31 +822,48 @@ amplitudes at which the feedback becomes nonlinear and explosive. The incubation
 phase (Phase 1) corresponds to these linear capillary perturbations growing to
 nonlinear amplitude.
 
-### 7.5 Why the laminar case should be stable
+### 7.5 The laminar case: seeding is not necessary
 
-In the laminar case (`turb_channel_two_phase_laminar.case`), the initial fluid
-velocity is the Poiseuille/Reichardt profile with no perturbations. The mean
-velocity at the drop centre ($y=0$) is $U(y=0) \approx 1.15$ in the $x$-direction;
-the wall-normal and spanwise velocities are zero. The drop is placed at the
-centreline where $\partial U/\partial y = 0$ by symmetry.
+The laminar case (`turb_channel_two_phase_laminar.case`) used the Reichardt profile
+with no velocity perturbations (turbulent\_ic = false), $We = 1$, $\sigma = 0.3$,
+`target_cfl = 0.2`. The capillary ratio $\Delta t / \Delta t_{\mathrm{cap}} \approx 2.9$
+(slightly worse than the turbulent v2 case at 2.2, because $u_{\max} \approx 1.15$
+gives a larger $\Delta t$).
 
-The turbulent fluctuations that seed the instability in the restart cases are absent.
-The mean strain rate at the centreline is also zero by symmetry ($y = 0$ is a
-symmetry plane of the channel mean flow). The only velocity component acting on the
-drop is the streamwise mean flow, which by itself creates minimal curvature change
-on a centred drop (it advects the drop as a whole without deforming it much — the
-Stokes deformation by a pure shear at $y=0$ is zero for a spherical drop at $y=0$
-because there is no shear to leading order).
+**Result: blow-up at $t \approx 0.9$ TU.** The diagnostic trace:
 
-Under these conditions, the drop should remain nearly spherical throughout. Surface
-tension provides a strong restoring force against any small perturbation (We=1),
-and CDI maintains the interface thickness. $\kappa_{\mathrm{rms}}$ should be stable
-near $2/R = 6.67$ with only small oscillations due to the small velocity perturbations
-that develop as Poiseuille flow evolves under the channel BCs.
+| $t$ | $\kappa_{\mathrm{rms}}$ | $\varphi_{\max}$ | $u_{\max}$ | Notes |
+|:---:|:---:|:---:|:---:|---|
+| 0.000 | 6.10 | 0.981 | 1.149 | IC; flat |
+| 0.173 | 6.10 | 0.985 | 1.207 | flat — no turbulent seeding |
+| 0.520 | 7.30 | 0.987 | 1.233 | growth above $2/R$ — numerical seed |
+| 0.751 | 10.51 | 0.989 | 1.507 | flow relaminarised to Poiseuille |
+| 0.840 | 22.0 | 0.990 | 2.180 | runaway |
+| 0.893 | 158.8 | 0.992 | 14.7 | plateau; $\varphi_{\max} < 1$ still |
+| 0.896 | 179.4 | 1.061 | 31.2 | $\varphi_{\max} > 1$: fully diverged |
 
-The laminar case thus provides the cleanest possible validation of CDI+CSF: any
-$\kappa_{\mathrm{rms}}$ growth or $\varphi_{\max}$ decline in this case is
-unambiguously a method error.
+The signature is identical to the turbulent blow-up cases: $\varphi_{\max} < 1$
+throughout the $\kappa_{\mathrm{rms}}$ runaway, plateau near $\kappa \approx 155$–180
+($= 2/\varepsilon$ resolution saturation), then $\varphi_{\max} > 1$ only once
+the flow is already irreversibly diverged.
+
+**Revised conclusion — seeding is not necessary.** Numerical round-off alone is
+sufficient to trigger the capillary instability when $\Delta t / \Delta t_{\mathrm{cap}} > 0.5$.
+The role of turbulent fluctuations is to accelerate the onset, not to enable it:
+
+| Case | $\Delta t / \Delta t_{\mathrm{cap}}$ | Stable duration |
+|:---:|:---:|:---:|
+| Turbulent We=10 | 0.69 | 0.44 TU |
+| Laminar We=1 | 2.9 | 0.90 TU |
+
+The laminar case survived roughly twice as long despite having a *worse* capillary
+ratio — the absence of turbulent seeding is the only explanation. But it still blew
+up, proving that numerical round-off is a sufficient seed when the ratio exceeds the
+stability threshold.
+
+This result strengthens the fundamental conclusion: **the only path to a stable
+We=1 simulation is reducing $\Delta t / \Delta t_{\mathrm{cap}}$ below $\sim 0.5$**,
+either by lowering `target_cfl` or treating CSF implicitly.
 
 ### 7.6 Why We=10 also blew up: ratio < 1 is insufficient
 

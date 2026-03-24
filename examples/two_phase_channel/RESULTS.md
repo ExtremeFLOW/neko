@@ -11,7 +11,7 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 | Run | Case file | We | σ | R | y_c | IC | Status | Purpose |
 |-----|-----------|:--:|---|---|-----|----|--------|---------|
 | `channel_test_v4` | `_v4.case` | 730 | 4.1×10⁻⁴ | 0.3 | 0 | Turbulent Reichardt | **Completed** t=0–5 | High-We reference |
-| `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Laminar Poiseuille | **Planned** | Ground-truth CDI/CSF baseline |
+| `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Reichardt IC, no perturbations | **Blown up** t=0.90 | Confirms seeding not necessary; same CSF instability |
 | `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.44 | We=10 blow-up: ratio=0.69, insufficient margin |
 | `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Planned** | Primary validation (after we10) |
 | `channel_single_phase` | `_single_phase.case` | — | — | — | — | Turbulent Reichardt | **Completed** t=0–25 | Fluid spin-up; checkpoint at t=20 |
@@ -107,20 +107,37 @@ CDI/CSF validation target.
 
 ---
 
-## channel_test_laminar — CDI/CSF ground truth (We=1, PLANNED)
+## channel_test_laminar — seeding test (We=1, BLOWN UP t=0.90)
 
-**Purpose:** Cleanest possible CDI/CSF test. No turbulence, no startup perturbations,
-strong surface tension. The drop barely deforms (mean shear at y=0 is zero by symmetry).
-κ_rms = 6.67 throughout is the analytical expectation; any deviation is a method error.
+**Purpose:** Test whether turbulent seeding is necessary for the CSF instability.
+Same parameters as we1 but Reichardt IC with no velocity perturbations.
 
-**Setup:** Laminar Poiseuille IC (no perturbations). ε=0.07, γ=0.05,
+**Setup:** Reichardt IC (no perturbations, turbulent\_ic=false). ε=0.07, γ=0.05,
 σ=0.3 (We=1), R=0.3, Re_b=2800, end_time=10.
 
-**Capillary timestep stability:** Using $\Delta x_{\mathrm{eff}} = 0.0087$ (see ANALYSIS.md §4.4): $\Delta t_{\mathrm{cap}} \approx 0.00059$ TU. With `target_cfl=0.2` and u_max≈1.15 (Reichardt centreline, no perturbations), $\Delta t \approx 0.0015$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 2.6$ — **outside the stability boundary, and worse than the turbulent restart cases (ratio=2.2)**. The laminar case may still be stable because there are no turbulent fluctuations to seed the capillary instability — only numerical round-off can trigger growth (see ANALYSIS.md §7.5). Running this tests that hypothesis directly.
+**Capillary timestep stability:** $\Delta t_{\mathrm{cap}} \approx 0.00059$ TU at $\Delta x_{\mathrm{eff}}=0.0087$. With u_max≈1.15 (Reichardt, no perturbations), $\Delta t \approx 0.0015$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 2.9$ — worse than turbulent v2 (ratio=2.2), yet blow-up took twice as long (0.90 TU vs 0.44 TU). The longer survival directly measures the seeding effect of turbulent fluctuations.
 
-| t | φ_max | φ_min | κ_rms | u_max |
-|---|-------|-------|-------|-------|
-| — | — | — | — | — |
+**Blow-up trace:**
+
+| t | φ_max | φ_min | κ_rms | u_max | Notes |
+|---|-------|-------|-------|-------|-------|
+| 0.000 | 0.981 | 0.000 | 6.097 | 1.149 | IC; κ_rms ≈ 2/R ✓ |
+| 0.173 | 0.985 | 0.000 | 6.105 | 1.207 | Flat — no turbulent seeding |
+| 0.433 | 0.987 | 0.000 | 6.648 | 1.227 | Slow growth above 6.67 begins |
+| 0.606 | 0.988 | 0.000 | 8.089 | 1.246 | Growth accelerating |
+| 0.751 | 0.989 | 0.000 | 10.51 | 1.507 | Flow relaminarised to Poiseuille |
+| 0.840 | 0.990 | 0.000 | 22.02 | 2.180 | Runaway |
+| 0.868 | 0.991 | 0.000 | 40.92 | 3.285 | Explosive |
+| 0.893 | 0.992 | 0.000 | 158.8 | 14.70 | Plateau; φ_max still < 1 — CDI intact ✓ |
+| 0.896 | 1.061 | −0.192 | 179.4 | 31.17 | φ_max > 1: diverged |
+
+**Key observations:**
+- φ_max < 1 throughout the κ_rms runaway — CDI intact, same as all turbulent blow-ups
+- Slow incubation (~0.5 TU flat, vs ~0.26 TU for turbulent v2): numerical round-off seeds more slowly than turbulent fluctuations
+- After seeding, the growth pattern is identical: same plateau (~155–180), same mechanism
+- Flow relaminarised from Reichardt (u_max≈1.15) to Poiseuille (u_max≈1.5) around t=0.75 — this accelerated the blow-up slightly but was not the trigger
+
+**Conclusion:** Turbulent seeding is not necessary — numerical round-off alone triggers the instability. Turbulent fluctuations roughly halve the stable duration. The fundamental cause is $\Delta t / \Delta t_{\mathrm{cap}} > 0.5$ in all cases.
 
 ---
 
@@ -551,7 +568,7 @@ the explicit CSF timestep constraint was the limiting factor.
 - [x] `channel_test_restart` v1 — blew up at t=21.55 (1.55 TU); Δt/Δt_cap=7.2
 - [x] `channel_test_restart` v2 — blew up at t=20.40 (0.40 TU); Δt/Δt_cap=2.2
 - [x] `channel_test_we10` — **blew up at t=20.44 (0.44 TU)**; Δt/Δt_cap=0.69; outside 0.5 safety band
-- [ ] **`channel_test_laminar`** (We=1, laminar IC) — immediate priority; validate CDI+CSF without turbulence
+- [x] **`channel_test_laminar`** — blown up at t=0.90 TU; seeding not necessary, but turbulence halves stable duration
 - [ ] **`channel_test_we100`** (We=100, σ=0.003, restart) — first turbulent case predicted stable; Δt/Δt_cap≈0.22 ✓
 - [ ] `channel_test_we10` re-run with `target_cfl=0.10–0.12` (ratio≈0.35–0.42, inside 0.5 band)
 - [ ] `channel_test_we1` (We=1, restart) — blocked pending stable timestep; needs `target_cfl≈0.046`
