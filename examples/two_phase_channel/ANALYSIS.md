@@ -532,9 +532,14 @@ the startup IC burst entirely.
 
 Expected outcomes:
 - No $\kappa$ spike at $t = 0$ of restart (flow is already stationary)
-- $\kappa_{\mathrm{rms}}$ begins at $6.67$ and evolves smoothly
+- $\kappa_{\mathrm{rms}}$ begins at $2/R$ and evolves smoothly
 - $\varphi_{\max}$ stable or slowly varying from 0.995
 - This is the cleanest test of CDI/CSF under sustained turbulent straining
+
+**Status:** Both v1 and v2 restart runs blew up. See section 8 for detailed
+analysis of the failure mechanism. The instability is in the explicit CSF
+treatment at $We = 1$, not in CDI. Run Test 1 (laminar) and Test 3 (turbulent
+$We = 10$) first to establish a stable baseline.
 
 ### 6.3 Open questions
 
@@ -554,6 +559,287 @@ $\tau_{\mathrm{IC}}/\tau_{\mathrm{CDI}} = 3.6$ — CDI is substantially faster t
 velocity impulse, so the startup $\kappa$ spike is expected to be minor. The restart case
 (Test 4) eliminates the transient entirely and provides the cleanest test of sustained CDI
 performance.
+
+---
+
+## 8. Explicit CSF stability in turbulent flow — analysis of We=1 blow-up
+
+### 8.1 Background: the stiffness of explicit CSF
+
+The CSF surface tension force is applied as an explicit source term in the
+Navier–Stokes RHS:
+
+$$
+\mathbf{F}_{\mathrm{ST}} = \sigma\,\kappa\,\nabla\varphi
+$$
+
+Explicit time integration of this term introduces a stability constraint beyond
+the standard velocity CFL condition. The capillary wave stability limit for an
+explicit scheme is (Brackbill et al. 1992):
+
+$$
+\Delta t_{\mathrm{cap}} = \sqrt{\frac{\rho\,(\Delta x)^3}{2\pi\,\sigma}}
+$$
+
+where $\Delta x$ is the relevant spatial scale of the capillary waves being
+resolved. For the $81\times18\times27$ mesh at $N=7$ with $\sigma = 0.3$:
+
+$$
+\Delta t_{\mathrm{cap}} = \sqrt{\frac{1 \times 0.016^3}{2\pi \times 0.3}}
+= \sqrt{\frac{4.1\times10^{-6}}{1.88}} \approx 0.0015\;\text{TU}
+\quad (\Delta x = \Delta_{\mathrm{GLL},y} = 0.016)
+$$
+
+With `target_cfl = 0.2` and $u_{\max} \approx 1.34$, the velocity timestep is:
+
+$$
+\Delta t_{\mathrm{CFL}} = 0.2 \times \frac{0.016}{1.34} \approx 0.0024\;\text{TU}
+$$
+
+This exceeds $\Delta t_{\mathrm{cap}} = 0.0015$ TU by a factor of $1.6$ — meaning
+the nominal timestep at `target_cfl = 0.2` is still outside the capillary
+stability boundary. The margin is negative; any capillary perturbation is expected
+to grow.
+
+**The SEM complication.** In a spectral element method, the GLL nodes are clustered
+near element edges. For $N = 7$ on an element of height $\Delta_y = 2/18 = 0.111$,
+the minimum GLL spacing is approximately:
+
+$$
+\Delta x_{\min} \approx \frac{\pi^2}{4(N-1)^2}\,\Delta_y
+\approx \frac{9.87}{144} \times 0.111 \approx 0.0076\;\text{m}
+$$
+
+(using the known Chebyshev-like clustering of GLL points). The capillary stability
+limit at this scale is:
+
+$$
+\Delta t_{\mathrm{cap,min}} = \sqrt{\frac{0.0076^3}{2\pi \times 0.3}} \approx 0.00021\;\text{TU}
+$$
+
+This is an order of magnitude smaller than the velocity CFL timestep. While the
+SEM discretisation partially mitigates this (high-order accuracy suppresses the
+high-frequency capillary modes more than a low-order method would), it does not
+eliminate the instability: the large $\sigma = 0.3$ creates a surface tension force
+that is genuinely stiff for explicit integration at all reasonable CFL numbers.
+
+### 8.2 The two observed blow-up events: a comparison
+
+Two restart attempts with $We = 1$ both blew up, despite substantially different
+CDI parameters. This section interprets both events using the diagnostic data.
+
+**What they had in common:**
+
+Both runs show identical qualitative behaviour:
+1. $\kappa_{\mathrm{rms}}$ grows immediately from $t_0$, monotonically, with
+   an accelerating rate
+2. $\varphi_{\max}$ is stable throughout the growth phase (CDI maintains the interface)
+3. $u_{\max}$ remains at the turbulent level until the explosive phase begins, then spikes
+4. $E_{\mathrm{kin}}$ is undisturbed through most of the blow-up (local, not global)
+5. $\kappa_{\mathrm{rms}}$ saturates near 170–180 once features become sub-interface in scale
+
+This consistency across two very different parameter sets ($\varepsilon$: 0.05 vs 0.07;
+$\gamma$: 0.015 vs 0.05; `target_cfl`: 0.4 vs 0.2; $R$: 0.3 vs 0.4) is strong evidence
+that the instability mechanism is **independent of the CDI parameters** and is intrinsic
+to the explicit CSF treatment at $We = 1$.
+
+**What was different and why v2 was faster:**
+
+| Feature | v1 | v2 | Interpretation |
+|---------|----|----|----------------|
+| Stable duration | ~1.0 TU | ~0.25 TU | v2 had larger drop |
+| Doubling time at onset | ~0.4 TU | ~0.13 TU | Same mechanism, faster feedback |
+| $R$ | 0.3 | 0.4 | More interface exposed to turbulent strain |
+| $We$ | 1.0 | 1.33 | Weaker surface tension restoring force |
+| $\varepsilon$ | 0.05 | 0.07 | Larger ε → larger |∇φ| on scale of ε |
+| $\Delta t$ (nominal) | ~0.0043 TU | ~0.0013 TU | v2 actually slower |
+
+At first glance, v2's smaller $\Delta t$ should help stability. It does not, because
+the fundamental ratio $\Delta t / \Delta t_{\mathrm{cap}}$ improved only slightly
+(from $\approx 2.9\times$ to $\approx 1.6\times$) — still outside the stability boundary.
+The larger $R$ and weaker restoring force per unit curvature ($\sigma/R = 0.75$
+vs $1.0$) more than offset the timestep improvement, and the blow-up arrived sooner.
+
+### 8.3 The feedback mechanism in detail
+
+The blow-up proceeds through a well-defined sequence that is visible in the v2 data:
+
+**Phase 1 — Incubation (t=20.002–20.263, ~0.26 TU):**
+
+$\kappa_{\mathrm{rms}}$ grows slowly from 4.76 to 7.69. The turbulent velocity
+field at $t = 20$ contains a particular realisation of turbulent structures. The drop,
+just injected, is perfectly spherical — but the surrounding flow is not axisymmetric.
+The turbulent strain rate immediately begins deforming the interface, developing small
+non-spherical perturbations. The rate of curvature growth in this phase is governed
+by the ratio:
+
+$$
+\frac{\tau_{\mathrm{CDI}}}{\tau_{\mathrm{cap,grow}}}
+= \frac{\varepsilon^2/\gamma_c}{\Delta t_{\mathrm{cap}}/\ln 2}
+$$
+
+CDI (timescale $\tau_{\mathrm{CDI}} = 0.065$ TU) is trying to suppress curvature
+perturbations, but capillary instability on the timescale $\Delta t_{\mathrm{cap}} \approx
+0.0015$ TU is seeding them faster. During this phase, $\varphi_{\max}$ is completely
+stable — CDI is successfully maintaining the interface thickness. Only the curvature
+(shape) is being affected.
+
+**Phase 2 — Onset of rapid growth (t=20.263–20.356, ~0.09 TU):**
+
+$\kappa_{\mathrm{rms}}$ reaches a threshold (~8–10) at which the CSF force becomes
+large enough to drive significant interface deformation within a single timestep.
+The curvature doubling time drops from ~0.4 TU to ~0.04 TU. This transition
+corresponds to the CSF-driven velocity perturbation becoming comparable to the
+turbulent fluctuations ($u' \approx 0.15$–$0.20$). Specifically:
+
+$$
+F_{\mathrm{ST}} \approx \sigma\,\kappa\,|\nabla\varphi| \approx 0.3 \times 10 \times 7.1 \approx 21
+$$
+$$
+\Delta u_{\mathrm{CSF}} \approx F_{\mathrm{ST}} \times \Delta t \approx 21 \times 0.0013 \approx 0.027
+$$
+
+This $\Delta u_{\mathrm{CSF}} \approx 0.027$ is still smaller than $u'$, but it is
+not random — it is coherent, directed normal to the interface, and is applied every
+timestep. Over $\sim 0.09/0.0013 \approx 70$ steps, it delivers a cumulative velocity
+perturbation of order $0.027 \times \sqrt{70} \approx 0.23$ (random walk estimate) or
+$0.027 \times 70 \approx 1.9$ (coherent growth estimate). Even the random walk estimate
+is comparable to $U_b = 1$.
+
+**Phase 3 — Explosive runaway (t=20.356–20.400, ~0.04 TU):**
+
+$\kappa_{\mathrm{rms}}$ doubles roughly every $0.02$ TU. The CSF force at this stage:
+
+$$
+F_{\mathrm{ST}} \approx 0.3 \times 42 \times 7.1 \approx 90 \quad \text{at } t=20.378
+$$
+$$
+\Delta u_{\mathrm{CSF}} \approx 90 \times 0.00043 \approx 0.039 \quad \text{(Δt has shrunk)}
+$$
+
+At this point $u_{\max} = 4.5$ and growing. The CFL controller cannot reduce $\Delta t$
+fast enough to track the growing $u_{\max}$ because the velocity is changing on a
+sub-timestep timescale. The actual CFL rises well above 0.2 during this phase. The
+CSF-driven velocity increment exceeds the turbulent velocity level, and the interface
+begins to move at super-turbulent speeds driven by surface tension feedback. $E_{\mathrm{kin}}$
+begins to rise as the interface velocity spikes couple to the surrounding flow.
+
+**Phase 4 — Saturation and incoherence (t > 20.395):**
+
+$\varphi_{\max}$ exceeds 1.0 for the first time. This marks the breakdown of the
+CDI model — CDI can no longer maintain the equilibrium tanh profile because the
+interface is being advected at velocities ($u_{\max} > 26$) that create a CFL number
+of $26 \times 0.0013/0.016 \approx 2.1$ within the interface zone. The advection
+is under-resolved. $\kappa_{\mathrm{rms}}$ saturates and then decreases because the
+interface shape has become numerically unrepresentable.
+
+### 8.4 Stability criterion for We=1 in this configuration
+
+From the data, the blow-up initiates when the CSF-driven velocity perturbation per
+step becomes comparable to the local interface velocity due to turbulence:
+
+$$
+F_{\mathrm{ST}} \times \Delta t \sim u'
+\quad \Rightarrow \quad
+\sigma\,\kappa_{\mathrm{crit}}\,|\nabla\varphi| \times \Delta t \sim u'
+$$
+
+Solving for $\kappa_{\mathrm{crit}}$:
+
+$$
+\kappa_{\mathrm{crit}} = \frac{u'}{\sigma\,|\nabla\varphi|\,\Delta t}
+= \frac{0.15}{0.3 \times 7.1 \times 0.0013} \approx 54
+$$
+
+This exceeds the observed onset $\kappa_{\mathrm{rms}} \approx 8$–$10$ by a factor
+of $\sim 6$, suggesting the runaway is not initiated by the CSF force overwhelming
+turbulent fluctuations directly. Instead, the instability seeds itself through the
+capillary wave mechanism (see section 4.4): small perturbations grow at the rate
+$\sim 1/\Delta t_{\mathrm{cap}}$ regardless of amplitude, eventually reaching
+amplitudes at which the feedback becomes nonlinear and explosive. The incubation
+phase (Phase 1) corresponds to these linear capillary perturbations growing to
+nonlinear amplitude.
+
+### 8.5 Why the laminar case should be stable
+
+In the laminar case (`turb_channel_two_phase_laminar.case`), the initial fluid
+velocity is the Poiseuille/Reichardt profile with no perturbations. The mean
+velocity at the drop centre ($y=0$) is $U(y=0) \approx 1.15$ in the $x$-direction;
+the wall-normal and spanwise velocities are zero. The drop is placed at the
+centreline where $\partial U/\partial y = 0$ by symmetry.
+
+The turbulent fluctuations that seed the instability in the restart cases are absent.
+The mean strain rate at the centreline is also zero by symmetry ($y = 0$ is a
+symmetry plane of the channel mean flow). The only velocity component acting on the
+drop is the streamwise mean flow, which by itself creates minimal curvature change
+on a centred drop (it advects the drop as a whole without deforming it much — the
+Stokes deformation by a pure shear at $y=0$ is zero for a spherical drop at $y=0$
+because there is no shear to leading order).
+
+Under these conditions, the drop should remain nearly spherical throughout. Surface
+tension provides a strong restoring force against any small perturbation (We=1),
+and CDI maintains the interface thickness. $\kappa_{\mathrm{rms}}$ should be stable
+near $2/R = 6.67$ with only small oscillations due to the small velocity perturbations
+that develop as Poiseuille flow evolves under the channel BCs.
+
+The laminar case thus provides the cleanest possible validation of CDI+CSF: any
+$\kappa_{\mathrm{rms}}$ growth or $\varphi_{\max}$ decline in this case is
+unambiguously a method error.
+
+### 8.6 Why We=10 should be stable in turbulent flow
+
+At $We = 10$ ($\sigma = 0.03$), the capillary stability limit becomes:
+
+$$
+\Delta t_{\mathrm{cap}} = \sqrt{\frac{0.016^3}{2\pi \times 0.03}} \approx 0.0047\;\text{TU}
+$$
+
+With `target_cfl = 0.2` and $u_{\max} \approx 1.5$:
+
+$$
+\Delta t_{\mathrm{CFL}} \approx 0.2 \times \frac{0.016}{1.5} \approx 0.0021\;\text{TU}
+$$
+
+The ratio $\Delta t_{\mathrm{CFL}} / \Delta t_{\mathrm{cap}} \approx 0.45$ — the
+velocity CFL gives a timestep 2.2× inside the capillary stability boundary. Unlike
+the $We = 1$ case where we were outside the boundary, $We = 10$ provides genuine
+margin. The CSF force per unit curvature is 10× smaller ($\sigma = 0.03$ vs $0.30$),
+so the feedback loop amplification is 10× slower, and CDI has much more time to
+respond.
+
+At $We = 10$ the drop will deform — surface tension is comparable to inertia, and
+turbulent eddies will stretch and compress the interface. But this deformation is
+physical and bounded: CDI and CSF together should maintain a sharp, stable interface
+with $\kappa_{\mathrm{rms}}$ rising from $2/R = 6.67$ to some larger value
+representing the deformed shape, without runaway. This makes $We = 10$ the first
+meaningful test of CDI+CSF performance under turbulent straining.
+
+### 8.7 Required timestep for stable We=1 turbulent simulation
+
+If one insists on running the turbulent $We = 1$ case explicitly, the required
+timestep is constrained by the capillary stability condition. Using the element-level
+GLL spacing $\Delta_{\mathrm{GLL},y} = 0.016$ as the relevant scale and requiring
+$\Delta t < 0.5\,\Delta t_{\mathrm{cap}}$ (50% margin):
+
+$$
+\Delta t < 0.5 \times 0.0015 = 0.00075\;\text{TU}
+$$
+
+With $u_{\max} \approx 1.5$ and $\Delta_{\mathrm{GLL},y} = 0.016$, this corresponds to:
+
+$$
+\text{target\_cfl} < \frac{0.00075 \times u_{\max}}{\Delta_{\mathrm{GLL},y}}
+= \frac{0.00075 \times 1.5}{0.016} \approx 0.07
+$$
+
+So `target_cfl ≈ 0.05–0.07` would likely stabilise the We=1 turbulent case at this
+mesh resolution. This is a 4–5× cost increase relative to `target_cfl = 0.4` for the
+single-phase case, making a 5 TU two-phase run roughly equivalent in cost to 20–25 TU
+of single-phase flow.
+
+Whether this cost is justified depends on the scientific question. For primary
+validation, the laminar $We = 1$ case and the turbulent $We = 10$ case together cover
+the relevant physics at reasonable cost.
 
 ---
 
