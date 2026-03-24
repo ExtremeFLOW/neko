@@ -1159,12 +1159,8 @@ contains
     dcount = [int(1, hsize_t)]
     call h5aexists_f(this%active_group_id, trim(attr_name), attr_exists, ierr)
     if (attr_exists) then
-       if (this%overwrite) then
-          ! retrieve the attr id for the existing attribute
-          call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
-       else
-          call neko_error("attribute already exist in the file")
-       end if
+      ! retrieve the attr id for the existing attribute
+      call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
     else
        ! create file space of this shape
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
@@ -1208,12 +1204,8 @@ contains
     dcount = [int(1, hsize_t)]
     call h5aexists_f(this%active_group_id, trim(attr_name), attr_exists, ierr)
     if (attr_exists) then
-       if (this%overwrite) then
-          ! retrieve the attr id for the existing attribute
-          call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
-       else
-          call neko_error("attribute already exist in the file")
-       end if
+      ! retrieve the attr id for the existing attribute
+      call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
     else
        ! create file space of this shape
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
