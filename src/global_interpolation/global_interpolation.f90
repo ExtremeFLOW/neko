@@ -357,7 +357,7 @@ contains
          'Tolerance: ', this%tolerance
     call neko_log%message(log_buf)
     write(log_buf, '(A,E15.7)') &
-         'Padding: ', this%padding
+         'Padding  : ', this%padding
     call neko_log%message(log_buf)
 
     time_start = MPI_Wtime()
