@@ -872,9 +872,9 @@ contains
           call h5sclose_f(filespace, ierr)
           ! Overwrite the new full shape
           ddims(1) = ddims(1) + tempddims(1) ! New size
-          append_offset = tempddims(1)       ! current size which is the offset
+          append_offset = tempddims(1) ! current size which is the offset
           ! Extend the data set to the new shape
-          call h5dset_extent_f(dset_id, ddims, ierr) 
+          call h5dset_extent_f(dset_id, ddims, ierr)
        end if
     else
        ! create file space of this shape
@@ -939,13 +939,13 @@ contains
   subroutine hdf5_file_write_matrix(this, mat)
     class(hdf5_file_t), intent(inout) :: this
     type(matrix_t), intent(inout) :: mat
-      integer :: ierr, counts, offset, total_count, dset_rank, strides, max_count
-      integer(hsize_t) :: append_offset
+    integer :: ierr, counts, offset, total_count, dset_rank, strides, max_count
+    integer(hsize_t) :: append_offset
     integer(hid_t) :: precision_hdf
-      integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
+    integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
     integer(hsize_t), dimension(2) :: dcount, doffset
-      integer(hsize_t), dimension(2) :: ddims, ddims_max, chunkdims
-      integer(hsize_t), dimension(2) :: tempddims, tempmaxddims
+    integer(hsize_t), dimension(2) :: ddims, ddims_max, chunkdims
+    integer(hsize_t), dimension(2) :: tempddims, tempmaxddims
     logical :: dset_exists
     real(kind=sp), allocatable :: write_buffer_sp(:,:) ! Write buffer single
     real(kind=dp), allocatable :: write_buffer_dp(:,:) ! Write buffer double
@@ -955,17 +955,17 @@ contains
     ! ===============
     strides = mat%get_nrows()
     counts = mat%get_ncols()
-       append_offset = 0_hsize_t
+    append_offset = 0_hsize_t
     total_count = 0
-       max_count = 0
+    max_count = 0
     offset = 0
     call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
     offset = offset - counts ! Not using exclusive scan
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
-       call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
-          MPI_MAX, NEKO_COMM, ierr)
+    call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
+         MPI_MAX, NEKO_COMM, ierr)
 
     ! ===============
     ! Configure MPIIO
@@ -1015,7 +1015,7 @@ contains
     ! Set up writing the data set
     ! ===========================
     dcount = [int(strides, hsize_t), int(counts, hsize_t)] ! local size of the matrix
-   doffset = [0_hsize_t, int(offset, hsize_t) + append_offset] ! offset for this rank in the global matrix
+    doffset = [0_hsize_t, int(offset, hsize_t) + append_offset] ! offset for this rank in the global matrix
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
@@ -1059,14 +1059,14 @@ contains
   subroutine hdf5_file_write_field(this, field)
     class(hdf5_file_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
-      integer :: ierr, counts, offset, total_count, dset_rank, max_count
+    integer :: ierr, counts, offset, total_count, dset_rank, max_count
     integer :: stride_ax_1, stride_ax_2, stride_ax_3
-      integer(hsize_t) :: append_offset
+    integer(hsize_t) :: append_offset
     integer(hid_t) :: precision_hdf
-      integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
+    integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
     integer(hsize_t), dimension(4) :: dcount, doffset
-      integer(hsize_t), dimension(4) :: ddims, ddims_max, chunkdims
-      integer(hsize_t), dimension(4) :: tempddims, tempmaxddims
+    integer(hsize_t), dimension(4) :: ddims, ddims_max, chunkdims
+    integer(hsize_t), dimension(4) :: tempddims, tempmaxddims
     logical :: dset_exists
     real(kind=sp), allocatable :: write_buffer_sp(:,:,:,:) ! Write buffer single
     real(kind=dp), allocatable :: write_buffer_dp(:,:,:,:) ! Write buffer double
@@ -1078,12 +1078,12 @@ contains
     stride_ax_2 = field%Xh%ly
     stride_ax_3 = field%Xh%lz
     counts = field%msh%nelv
-       append_offset = 0_hsize_t
+    append_offset = 0_hsize_t
     total_count = field%msh%glb_nelv
-       max_count = 0
+    max_count = 0
     offset = field%msh%offset_el
-       call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
-          MPI_MAX, NEKO_COMM, ierr)
+    call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
+         MPI_MAX, NEKO_COMM, ierr)
 
     ! ===============
     ! Configure MPIIO
@@ -1133,7 +1133,7 @@ contains
     ! Set up writing the data set
     ! ===========================
     dcount = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(counts, hsize_t)] ! local size of the tensor
-   doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, int(offset, hsize_t) + append_offset] ! offset for this rank in the global tensor
+    doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, int(offset, hsize_t) + append_offset] ! offset for this rank in the global tensor
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
@@ -1193,8 +1193,8 @@ contains
     dcount = [int(1, hsize_t)]
     call h5aexists_f(this%active_group_id, trim(attr_name), attr_exists, ierr)
     if (attr_exists) then
-      ! retrieve the attr id for the existing attribute
-      call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
+       ! retrieve the attr id for the existing attribute
+       call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
     else
        ! create file space of this shape
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
@@ -1238,8 +1238,8 @@ contains
     dcount = [int(1, hsize_t)]
     call h5aexists_f(this%active_group_id, trim(attr_name), attr_exists, ierr)
     if (attr_exists) then
-      ! retrieve the attr id for the existing attribute
-      call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
+       ! retrieve the attr id for the existing attribute
+       call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
     else
        ! create file space of this shape
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
