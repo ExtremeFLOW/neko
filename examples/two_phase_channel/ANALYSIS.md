@@ -572,8 +572,17 @@ Run with `target_cfl=0.10–0.12` to achieve ratio $\approx 0.35$–$0.42$.
 Blocked pending stable timestep strategy (see section 7.7). Requires `target_cfl`
 $\approx$ 0.046 for 50% margin, or a semi-implicit CSF treatment.
 
-**Status:** Test 1 (laminar) is the immediate priority. Test 2 (We=100) is the first
-turbulent case expected to be stable at `target_cfl=0.2`. Tests 3–4 require reduced CFL.
+**Test 0 — Turbulent σ=0** (`turb_channel_two_phase_sigma0.case`)
+
+Restart from `fluid00004.chkp` (t=20→25) with σ=0: no CSF force on the momentum
+equation, CDI only on the scalar. Directly tests CDI quality under turbulent straining
+independently of any CSF timestep issues. If $\kappa_{\mathrm{rms}}$ is stable (or
+rises slowly due to physical deformation) for 5 TU, CDI is correctly maintaining
+normals and curvature. If $\kappa_{\mathrm{rms}}$ grows unboundedly at σ=0, CDI
+parameters need revisiting before any CSF conclusion is valid.
+
+**Status:** Test 0 (σ=0 CDI quality) is currently running. Tests 2–4 require either
+a σ=0 stability confirmation first, or reduced CFL.
 
 ### 6.3 Open questions
 

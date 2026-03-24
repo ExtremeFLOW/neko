@@ -1,0 +1,97 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box_phys_81x18x27.nmsh",
+        "restart_file": "fluid00004.chkp",
+        "output_at_end": true,
+        "output_checkpoints": false,
+        "time": {
+            "end_time": 25.0,
+            "variable_timestep": true,
+            "target_cfl": 0.2,
+            "max_timestep": 5e-2
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 7,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 2800,
+            "ipostproc": 50,
+            "initial_condition": {
+                "type": "user"
+            },
+            "source_terms": [
+                {
+                    "type": "user"
+                }
+            ],
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-4,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 5,
+                "absolute_tolerance": 1e-3,
+                "max_iterations": 800
+            },
+            "flow_rate_force": {
+                "direction": 1,
+                "value": 1.0,
+                "use_averaged_flow": true
+            },
+            "boundary_conditions": [
+                {
+                    "type": "no_slip",
+                    "zone_indices": [3, 4]
+                }
+            ],
+            "output_control": "simulationtime",
+            "output_value": 0.5
+        },
+        "scalar": {
+            "enabled": true,
+            "name": "phase",
+            "epsilon": 0.07,
+            "gamma": 0.05,
+            "sigma": 0.0,
+            "drop_radius": 0.3,
+            "initial_condition": {
+                "type": "user"
+            },
+            "solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 200
+            },
+            "source_terms": [
+                {
+                    "type": "user"
+                }
+            ],
+            "boundary_conditions": [
+                {
+                    "type": "neumann",
+                    "flux": 0.0,
+                    "zone_indices": [3, 4]
+                }
+            ],
+            "output_control": "simulationtime",
+            "output_value": 0.5
+        }
+    }
+}

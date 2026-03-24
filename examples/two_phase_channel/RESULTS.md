@@ -12,6 +12,7 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 |-----|-----------|:--:|---|---|-----|----|--------|---------|
 | `channel_test_v4` | `_v4.case` | 730 | 4.1×10⁻⁴ | 0.3 | 0 | Turbulent Reichardt | **Completed** t=0–5 | High-We reference |
 | `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Reichardt IC, no perturbations | **Blown up** t=0.90 | Confirms seeding not necessary; same CSF instability |
+| `channel_test_sigma0` | `_sigma0.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Running** t=20→25 | CDI-only quality test: normals, curvature without CSF |
 | `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.44 | We=10 blow-up: ratio=0.69, insufficient margin |
 | `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Planned** | Primary validation (after we10) |
 | `channel_single_phase` | `_single_phase.case` | — | — | — | — | Turbulent Reichardt | **Completed** t=0–25 | Fluid spin-up; checkpoint at t=20 |
@@ -324,6 +325,45 @@ mpirun -np 16 ./neko turb_channel_two_phase_restart_off.case
 
 ---
 
+## channel_test_sigma0 — CDI quality test (σ=0, RUNNING)
+
+**Purpose:** Isolate CDI performance from CSF instability. With σ=0 the momentum
+equation has no surface tension force — the fluid is pure turbulent channel flow and
+the scalar evolves under CDI only. This tests whether CDI correctly maintains interface
+sharpness, normal accuracy, and curvature under turbulent straining, independently of
+any CSF timestep issues.
+
+**Motivation:** φ_max < 1 in all blow-up cases confirms CDI maintains the interface
+amplitude, but does not guarantee accurate normals $\hat{\mathbf{n}} = \nabla\varphi/|\nabla\varphi|$.
+Inaccurate normals feed into inaccurate $\kappa = -\nabla\cdot\hat{\mathbf{n}}$, which
+could contribute to the CSF instability even if the timestep constraint is the primary
+cause. This run separates the two effects.
+
+**Setup:** ε=0.07, γ=0.05, σ=0.0 (no CSF force), R=0.3, Re_b=2800, restart from
+`fluid00004.chkp`, end_time=25 (runs t=20→25). 16 MPI ranks. Output every 0.5 TU.
+
+**What to look for:**
+
+| Diagnostic | Good CDI | CDI failing |
+|------------|----------|-------------|
+| κ_rms | Slowly rising from 6.67 (physical deformation), no runaway | Rapid unbounded growth |
+| φ_max | Stable near 0.986 | Monotonic decline toward 0.5 |
+| φ_min | Near 0, small negatives acceptable | Large negatives |
+| u_max | Turbulent fluctuations ~1.35–1.45, no spike | Spike from bad normals feeding back |
+
+If κ_rms is stable (or rises slowly reflecting physical drop deformation) for the full
+5 TU, CDI is correctly maintaining the interface under turbulent straining. The blow-ups
+in the CSF cases are then definitively a timestep stability issue, not a CDI quality issue.
+
+If κ_rms grows unboundedly even with σ=0, CDI is insufficient for this flow and
+ε or γ need to be revisited.
+
+| t | φ_max | φ_min | κ_rms | u_max | Notes |
+|---|-------|-------|-------|-------|-------|
+| — | — | — | — | — | Running |
+
+---
+
 ## CDI/CSF instability analysis — We=1 restart cases (v1 and v2)
 
 Both restart attempts with We=1 (σ=0.3) in turbulent channel flow have blown up
@@ -569,6 +609,7 @@ the explicit CSF timestep constraint was the limiting factor.
 - [x] `channel_test_restart` v2 — blew up at t=20.40 (0.40 TU); Δt/Δt_cap=2.2
 - [x] `channel_test_we10` — **blew up at t=20.44 (0.44 TU)**; Δt/Δt_cap=0.69; outside 0.5 safety band
 - [x] **`channel_test_laminar`** — blown up at t=0.90 TU; seeding not necessary, but turbulence halves stable duration
+- [~] **`channel_test_sigma0`** (σ=0, CDI-only) — **running** t=20→25; CDI quality test: are normals and κ accurate without CSF?
 - [ ] **`channel_test_we100`** (We=100, σ=0.003, restart) — first turbulent case predicted stable; Δt/Δt_cap≈0.22 ✓
 - [ ] `channel_test_we10` re-run with `target_cfl=0.10–0.12` (ratio≈0.35–0.42, inside 0.5 band)
 - [ ] `channel_test_we1` (We=1, restart) — blocked pending stable timestep; needs `target_cfl≈0.046`
