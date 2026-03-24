@@ -32,7 +32,7 @@
 !
 !> VTKHDF file format
 module vtkhdf_file
-  use num_types, only : rp, sp, dp, i8
+  use num_types, only : rp, sp, dp, qp, i8
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
   use utils, only : neko_error, neko_warning, filename_split, &
@@ -148,7 +148,7 @@ contains
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16) :: type_str
-    logical :: link_exists, file_exists
+    logical :: link_exists
     integer :: counter
 
     ! Determine mesh and field data
@@ -204,13 +204,13 @@ contains
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
-    inquire(file = fname, exist = file_exists)
-    if (file_exists) then
-       call h5fopen_f(fname, H5F_ACC_RDWR_F, file_id, ierr, &
-            access_prp = plist_id)
-    else
+    if (counter .eq. 0) then
+       ! First write: always create a fresh file to avoid stale data
        call h5fcreate_f(fname, H5F_ACC_TRUNC_F, &
             file_id, ierr, access_prp = plist_id)
+    else
+       call h5fopen_f(fname, H5F_ACC_RDWR_F, file_id, ierr, &
+            access_prp = plist_id)
     end if
 
     ! Create/open VTKHDF root group with vtkhdf_version and type attributes
@@ -257,7 +257,8 @@ contains
 
     ! Write field data in PointData group
     if (n_fields > 0) then
-       call vtkhdf_write_pointdata(vtkhdf_grp, fp, this%precision, counter, t)
+       call vtkhdf_write_pointdata(vtkhdf_grp, fp, this%precision, counter, &
+            fname, t)
     end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
@@ -863,60 +864,63 @@ contains
   !> Write field data into the VTKHDF PointData group.
   !! Groups u, v, w fields into a 3-component Velocity vector dataset.
   !! All other fields are written as scalar datasets.
-  !! For temporal output, PointDataOffsets are appended under Steps.
+  !! For temporal output (when t is present), each timestep's data is stored
+  !! in a separate external HDF5 file and the main file uses HDF5 Virtual
+  !! Datasets (VDS) with printf-style source file patterns to map them.
+  !! For non-temporal output (when t is absent), fields are written directly
+  !! into the main file's PointData group as regular datasets.
   !! @param vtkhdf_grp Root VTKHDF group
   !! @param fp Array of field pointers to write
-  !! @param precision Output precision (optional, for VTKHDF files)
+  !! @param precision Output precision
+  !! @param counter Current timestep counter
+  !! @param fname Main VTKHDF file path (used to derive external file names)
   !! @param t Current simulation time (optional, for temporal output)
-  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, counter, t)
+  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, counter, &
+       fname, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     type(field_ptr_t), intent(in) :: fp(:)
     integer, intent(in) :: precision
     integer, intent(in) :: counter
+    character(len=*), intent(in) :: fname
     real(kind=rp), intent(in), optional :: t
 
-    logical, allocatable :: field_written(:)
     integer(kind=i8) :: time_offset
-    integer :: nelv
-    integer :: local_points, point_offset
-    integer :: lx, ly, lz
-    integer :: max_local_points, total_points
+    integer :: local_points, point_offset, total_points
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id
-    integer :: ierr, i, j, ie, ii, jj, kk, local_idx
-    integer :: n_fields, npts_per_cell
+    integer :: ierr, i, j
+    integer :: n_fields
     integer(hid_t) :: pointdata_grp, grp_id, step_grp_id
-    integer(hid_t) :: dset_id, dcpl_id, attr_id, filespace, memspace
-    integer(hsize_t), dimension(1) :: dcount, doffset, chunkdims
-    integer(hsize_t), dimension(2) :: dcount2, doffset2
+    integer(hid_t) :: dset_id, dcpl_id, filespace
     integer(hsize_t), dimension(1) :: pd_dims1, pd_maxdims1
     integer(hsize_t), dimension(2) :: pd_dims2, pd_maxdims2
     type(field_t), pointer :: fld, u, v, w
     character(len=128) :: field_name
     logical :: link_exists, is_vector
 
-    ! Create collective transfer property list
-    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
-    precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
+    ! VDS and per-timestep external file variables
+    character(len=1024) :: ext_fname, ext_path, src_pattern
+    character(len=1024) :: main_path, main_name, main_suffix
+    integer(hid_t) :: ext_file_id, ext_plist_id, vds_src_space
+    integer(hid_t) :: write_target
+    integer :: mpi_info, mpi_comm
+    logical :: ext_file_exists
+
+    ! Collected field info for VDS phase
+    integer :: fields_written
+    character(len=128), allocatable :: name_list(:)
+    logical, allocatable :: vector_list(:)
+
+    mpi_info = MPI_INFO_NULL%mpi_val
+    mpi_comm = NEKO_COMM%mpi_val
 
     n_fields = size(fp)
 
-    ! --- Build the number of cells and the connectivity
+    ! Compute local/global point counts and MPI offsets
     local_points = fp(1)%ptr%dof%size()
     total_points = fp(1)%ptr%dof%global_size()
-    nelv = fp(1)%ptr%msh%nelv
-    lx = fp(1)%ptr%dof%Xh%lx
-    ly = fp(1)%ptr%dof%Xh%ly
-    lz = fp(1)%ptr%dof%Xh%lz
-
     point_offset = 0
-    max_local_points = 0
     call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(local_points, max_local_points, 1, MPI_INTEGER, &
-         MPI_MAX, NEKO_COMM, ierr)
-    npts_per_cell = lx * ly * lz
 
     ! Sync all the fields
     do i = 1, n_fields
@@ -925,7 +929,9 @@ contains
        end if
     end do
 
-    allocate(field_written(n_fields), source=.false.)
+    fields_written = 0
+    allocate(name_list(n_fields))
+    allocate(vector_list(n_fields))
 
     ! Create or open PointData group
     call h5lexists_f(vtkhdf_grp, "PointData", link_exists, ierr)
@@ -935,27 +941,50 @@ contains
        call h5gcreate_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
     end if
 
-    ! Read how many steps have been written so far
+    ! ------------------------------------------------------------------------ !
+    ! Construct the target where data is written
+
     if (present(t)) then
-       call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
-       time_offset = int(counter, kind=i8) * int(total_points, kind=i8)
+
+       ! Derive base path from main filename for external files
+       call filename_split(fname, main_path, main_name, main_suffix)
+       write(ext_path, '(A,A,".data/")') trim(main_path), trim(main_name)
+       write(ext_fname, '(A,I0,".h5")') trim(ext_path), counter
+       write(src_pattern, '(A,".data/%b.h5")') trim(main_name)
+
+       if (pe_rank == 0) then
+          inquire(file = trim(ext_path), exist = ext_file_exists)
+          if (.not. ext_file_exists) then
+             call execute_command_line("mkdir -p '" // trim(ext_path) // "'")
+          end if
+       end if
+       call MPI_Barrier(NEKO_COMM, ierr)
+
+       call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
+       call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
+       call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, ext_file_id, ierr, &
+            access_prp = ext_plist_id)
+       call h5pclose_f(ext_plist_id, ierr)
+
+       write_target = ext_file_id
     else
-       time_offset = 0_i8
+       ! Non-temporal: write directly into the main file's PointData group
+       write_target = pointdata_grp
     end if
 
-    do i = 1, n_fields
-       if (field_written(i)) cycle
-       fld => fp(i)%ptr
+    ! ------------------------------------------------------------------------ !
+    ! Write field data
 
+    do i = 1, n_fields
+       fld => fp(i)%ptr
        field_name = fld%name
        if (field_name .eq. 'p') field_name = 'Pressure'
 
        ! Determine if this is a velocity component to group as a vector
-       is_vector = (field_name .eq. 'u' .or. &
+       is_vector = .false.
+       if (field_name .eq. 'u' .or. &
             field_name .eq. 'v' .or. &
-            field_name .eq. 'w')
-
-       if (is_vector) then
+            field_name .eq. 'w') then
           u => null()
           v => null()
           w => null()
@@ -963,277 +992,421 @@ contains
              select case (fp(j)%ptr%name)
              case ('u')
                 u => fp(j)%ptr
-                field_written(j) = .true.
              case ('v')
                 v => fp(j)%ptr
-                field_written(j) = .true.
              case ('w')
                 w => fp(j)%ptr
-                field_written(j) = .true.
              end select
           end do
-          field_name = 'Velocity'
-       end if
 
-       ! Write PointDataOffsets under Steps for temporal output
-       if (present(t)) then
-          call h5lexists_f(step_grp_id, "PointDataOffsets", link_exists, ierr)
-          if (link_exists) then
-             call h5gopen_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
-          else
-             call h5gcreate_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
+          if (associated(u) .and. associated(v) .and. associated(w)) then
+             is_vector = .true.
+             field_name = 'Velocity'
           end if
-          call vtkhdf_write_i8_at(grp_id, trim(field_name), time_offset, &
-               counter)
-          call h5gclose_f(grp_id, ierr)
        end if
 
+       ! Skip duplicate fields (e.g. fluid_rho added by both fluid output
+       ! and field_writer when sharing the same output file)
+       link_exists = .false.
+       do j = 1, fields_written
+          if (trim(name_list(j)) .eq. trim(field_name)) then
+             link_exists = .true.
+             exit
+          end if
+       end do
+
+       ! Skip duplicate fields
+       if (link_exists) cycle
+
+       ! Track unique field names for VDS phase
+       fields_written = fields_written + 1
+       name_list(fields_written) = field_name
+       vector_list(fields_written) = is_vector
+
+       ! Remove existing dataset in the write target if present
+       call h5lexists_f(write_target, trim(field_name), link_exists, ierr)
+       if (link_exists) call h5ldelete_f(write_target, trim(field_name), ierr)
+
+       ! Write field data to the target
        if (is_vector) then
-          ! Create or extend 2D dataset (3 x total_points)
-          call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
-          if (link_exists .and. present(t)) then
-             call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
-             call h5dget_space_f(dset_id, filespace, ierr)
-             call h5sget_simple_extent_dims_f(filespace, pd_dims2, &
-                  pd_maxdims2, ierr)
-             call h5sclose_f(filespace, ierr)
-
-             if (pd_dims2(2) .eq. counter * total_points) then
-                pd_dims2(2) = int((counter + 1) * total_points, hsize_t)
-                call h5dset_extent_f(dset_id, pd_dims2, ierr)
-             else if (pd_dims2(2) .lt. counter * total_points) then
-                call neko_error("VTKHDF: Data written out of order.")
-             end if
-
-          else if (.not. link_exists) then
-             pd_dims2 = [3_hsize_t, int(total_points, hsize_t)]
-             pd_maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
-             chunkdims(1) = max(1_hsize_t, int(max_local_points, hsize_t))
-
-             call h5screate_simple_f(2, pd_dims2, filespace, ierr, pd_maxdims2)
-             call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-             call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
-             call h5dcreate_f(pointdata_grp, trim(field_name), precision_hdf, &
-                  filespace, dset_id, ierr, dcpl_id = dcpl_id)
-             call h5sclose_f(filespace, ierr)
-             call h5pclose_f(dcpl_id, ierr)
-          end if
-
-          dcount2 = [3_hsize_t, int(local_points, hsize_t)]
-          doffset2 = [0_hsize_t, int(time_offset + point_offset, hsize_t)]
-
-          call h5dget_space_f(dset_id, filespace, ierr)
-          call h5screate_simple_f(2, dcount2, memspace, ierr)
-          call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-               doffset2, dcount2, ierr)
-
-          if (precision .eq. sp) then
-             call write_vector_single(dset_id, u, v, w, dcount2, ierr, &
-                  filespace, memspace, xf_id)
-          else if (precision .eq. dp) then
-             call write_vector_double(dset_id, u, v, w, dcount2, ierr, &
-                  filespace, memspace, xf_id)
-          end if
-
-          call h5sclose_f(filespace, ierr)
-          call h5sclose_f(memspace, ierr)
-          call h5dclose_f(dset_id, ierr)
-
+          call write_vector_field(write_target, field_name, u%x, v%x, w%x, &
+               local_points, precision, total_points, point_offset)
        else
-          ! Write scalar field as 1D dataset
-          call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
-          if (link_exists) then
-             call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
-             call h5dget_space_f(dset_id, filespace, ierr)
-             call h5sget_simple_extent_dims_f(filespace, pd_dims1, &
-                  pd_maxdims1, ierr)
-             call h5sclose_f(filespace, ierr)
-
-             if (pd_dims1(1) .eq. counter * total_points) then
-                pd_dims1(1) = int((counter + 1) * total_points, hsize_t)
-                call h5dset_extent_f(dset_id, pd_dims1, ierr)
-             else if (pd_dims1(1) .lt. counter * total_points) then
-                call neko_error("VTKHDF: Data written out of order.")
-             end if
-          else
-             pd_dims1(1) = int(total_points, hsize_t)
-             pd_maxdims1(1) = H5S_UNLIMITED_F
-             chunkdims(1) = max(1_hsize_t, int(max_local_points, hsize_t))
-
-             call h5screate_simple_f(1, pd_dims1, filespace, ierr, pd_maxdims1)
-             call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-             call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-             call h5dcreate_f(pointdata_grp, trim(field_name), precision_hdf, &
-                  filespace, dset_id, ierr, dcpl_id = dcpl_id)
-             call h5sclose_f(filespace, ierr)
-             call h5pclose_f(dcpl_id, ierr)
-          end if
-
-          dcount(1) = int(local_points, hsize_t)
-          doffset(1) = int(time_offset + point_offset, hsize_t)
-
-          call h5dget_space_f(dset_id, filespace, ierr)
-          call h5screate_simple_f(1, dcount, memspace, ierr)
-          call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-               doffset, dcount, ierr)
-
-          if (precision .eq. rp) then
-             call h5dwrite_f(dset_id, precision_hdf, fld%x, dcount, ierr, &
-                  file_space_id = filespace, mem_space_id = memspace, &
-                  xfer_prp = xf_id)
-
-          else if (precision .eq. sp) then
-             block
-               real(kind=rp), pointer :: x(:)
-               real(kind=sp), allocatable :: data_1d(:)
-
-               x(1:local_points) => fld%x
-               allocate(data_1d(local_points))
-               do concurrent (local_idx = 1:local_points)
-                  data_1d(local_idx) = real(x(local_idx), sp)
-               end do
-
-               call h5dwrite_f(dset_id, precision_hdf, data_1d, dcount, ierr, &
-                    file_space_id = filespace, mem_space_id = memspace, &
-                    xfer_prp = xf_id)
-               deallocate(data_1d)
-             end block
-
-          else if (precision .eq. dp) then
-             block
-               real(kind=rp), pointer :: x(:)
-               real(kind=dp), allocatable :: data_1d(:)
-
-               x(1:local_points) => fld%x
-               allocate(data_1d(local_points))
-               do concurrent (local_idx = 1:local_points)
-                  data_1d(local_idx) = real(x(local_idx), dp)
-               end do
-
-               call h5dwrite_f(dset_id, precision_hdf, data_1d, dcount, ierr, &
-                    file_space_id = filespace, mem_space_id = memspace, &
-                    xfer_prp = xf_id)
-               deallocate(data_1d)
-             end block
-
-          end if
-
-          call h5sclose_f(filespace, ierr)
-          call h5sclose_f(memspace, ierr)
-          call h5dclose_f(dset_id, ierr)
+          call write_scalar_field(write_target, field_name, fld%x, &
+               local_points, precision, total_points, point_offset)
        end if
     end do
 
-    if (present(t)) call h5gclose_f(step_grp_id, ierr)
-    call h5gclose_f(pointdata_grp, ierr)
-    call h5pclose_f(xf_id, ierr)
+    ! ------------------------------------------------------------------------ !
+    ! Manage temporal datasets through VDS
 
-    deallocate(field_written)
+    if (present(t)) then
+       ! Close per-timestep file before VDS operations
+       call h5fclose_f(ext_file_id, ierr)
+
+       ! Temporal: set up per-timestep external file as write target
+       call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
+       time_offset = int(counter, kind=i8) * int(total_points, kind=i8)
+
+       ! Write PointDataOffsets under Steps for each unique field
+       call h5lexists_f(step_grp_id, "PointDataOffsets", link_exists, ierr)
+       if (link_exists) then
+          call h5gopen_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
+       else
+          call h5gcreate_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
+       end if
+       do i = 1, fields_written
+          call vtkhdf_write_i8_at(grp_id, trim(name_list(i)), &
+               time_offset, counter)
+       end do
+       call h5gclose_f(grp_id, ierr)
+
+       ! ===== Create or extend VDS in main file =====
+
+       do i = 1, fields_written
+          field_name = name_list(i)
+          is_vector = vector_list(i)
+
+          call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
+
+          if (.not. link_exists) then
+             ! First write: create VDS with pattern-based mapping
+             call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+
+             precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
+
+             if (is_vector) then
+                pd_dims2 = [3_hsize_t, int(total_points, hsize_t)]
+                call h5screate_simple_f(2, pd_dims2, vds_src_space, ierr)
+                call h5sselect_all_f(vds_src_space, ierr)
+
+                pd_maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
+                call h5screate_simple_f(2, pd_dims2, filespace, ierr, &
+                     pd_maxdims2)
+
+                call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+                     [0_hsize_t, 0_hsize_t], &
+                     [1_hsize_t, H5S_UNLIMITED_F], &
+                     ierr, &
+                     stride = [3_hsize_t, int(total_points, hsize_t)], &
+                     block = [3_hsize_t, int(total_points, hsize_t)])
+
+                call h5pset_virtual_f(dcpl_id, filespace, trim(src_pattern), &
+                     trim(field_name), vds_src_space, ierr)
+                call h5sclose_f(vds_src_space, ierr)
+
+                call h5dcreate_f(pointdata_grp, trim(field_name), &
+                     precision_hdf, filespace, dset_id, ierr, &
+                     dcpl_id = dcpl_id)
+                call h5sclose_f(filespace, ierr)
+             else
+                pd_dims1 = int(total_points, hsize_t)
+                call h5screate_simple_f(1, pd_dims1, vds_src_space, ierr)
+                call h5sselect_all_f(vds_src_space, ierr)
+
+                pd_maxdims1(1) = H5S_UNLIMITED_F
+                call h5screate_simple_f(1, pd_dims1, filespace, ierr, &
+                     pd_maxdims1)
+
+                call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+                     [0_hsize_t], &
+                     [H5S_UNLIMITED_F], &
+                     ierr, &
+                     stride = [int(total_points, hsize_t)], &
+                     block = [int(total_points, hsize_t)])
+
+                call h5pset_virtual_f(dcpl_id, filespace, trim(src_pattern), &
+                     trim(field_name), vds_src_space, ierr)
+                call h5sclose_f(vds_src_space, ierr)
+
+                call h5dcreate_f(pointdata_grp, trim(field_name), &
+                     precision_hdf, filespace, dset_id, ierr, &
+                     dcpl_id = dcpl_id)
+                call h5sclose_f(filespace, ierr)
+             end if
+
+             call h5pclose_f(dcpl_id, ierr)
+             call h5dclose_f(dset_id, ierr)
+
+          else
+             ! Subsequent write: extend VDS to include new timestep
+             call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
+
+             if (is_vector) then
+                pd_dims2 = [3_hsize_t, &
+                     int((counter + 1) * total_points, hsize_t)]
+                call h5dset_extent_f(dset_id, pd_dims2, ierr)
+             else
+                pd_dims1 = int((counter + 1) * total_points, hsize_t)
+                call h5dset_extent_f(dset_id, pd_dims1, ierr)
+             end if
+
+             call h5dclose_f(dset_id, ierr)
+          end if
+       end do
+
+       call h5gclose_f(step_grp_id, ierr)
+    end if
+
+    ! ------------------------------------------------------------------------ !
+    ! Cleanup before returning
+
+    call h5gclose_f(pointdata_grp, ierr)
+
+    deallocate(name_list)
+    deallocate(vector_list)
 
   end subroutine vtkhdf_write_pointdata
 
   ! -------------------------------------------------------------------------- !
   ! Helper functions and routines
 
-  !> Write a 3-component vector field as a 2D dataset with single precision,
-  !! converting from double if necessary.
-  !! The dataset is organized as (3, total_points) for VTK compatibility.
-  subroutine write_vector_single(dset_id, u, v, w, dcount2, ierr, filespace, &
-       memspace, xf_id)
-    integer(hid_t), intent(in) :: dset_id
-    type(field_t), intent(in), pointer :: u, v, w
-    integer(hsize_t), intent(in) :: dcount2(:)
-    integer, intent(inout) :: ierr
-    integer(hid_t), intent(inout) :: filespace, memspace, xf_id
-    real(kind=sp), allocatable :: data_2d(:,:)
-    integer :: ie, kk, ii, jj, local_idx
-    integer :: lx, ly, lz, nelv, npts_per_cell, local_points
-    integer(hid_t) :: H5T_NEKO_FLOAT
+  !> @brief Write a scalar field as a 1D dataset.
+  !! @details
+  !! This function simplifies the interfacing with HDF5 for the purpose of
+  !! writing an array.
+  !! @param hdf_root HDF5 group or file identifier to write under
+  !! @param name Dataset name
+  !! @param x Local array of field data to write
+  !! @param n_local Number of local points in x
+  !! @param precision Desired output precision (sp, dp, or rp)
+  !! @param n_total Total number of points across all MPI ranks (optional)
+  !! @param offset Starting index offset for this rank (optional)
+  subroutine write_scalar_field(hdf_root, name, x, n_local, &
+       precision, n_total, offset)
+    integer, intent(in) :: n_local
+    integer(hid_t), intent(in) :: hdf_root
+    character(len=*), intent(in) :: name
+    real(kind=rp), dimension(n_local), intent(in) :: x
+    integer, intent(in), optional :: precision
+    integer, intent(in), optional :: n_total, offset
 
-    lx = u%dof%Xh%lx
-    ly = u%dof%Xh%ly
-    lz = u%dof%Xh%lz
-    nelv = u%msh%nelv
-    local_points = lx * ly * lz * nelv
-    npts_per_cell = lx * ly * lz
+    integer(hsize_t), dimension(1) :: dims, dcount, doffset
+    integer(hid_t) :: xf_id, dset_id, filespace, memspace, precision_hdf
+    integer :: i, ierr, precision_local, n_tot, off
 
-    ! Assemble 3-component vector from u, v, w fields
-    allocate(data_2d(3, local_points))
-    do ie = 1, nelv
-       local_idx = (ie - 1) * npts_per_cell
-       do kk = 1, lz
-          do jj = 1, ly
-             do ii = 1, lx
-                local_idx = local_idx + 1
-                data_2d(1, local_idx) = real(u%x(ii, jj, kk, ie), sp)
-                data_2d(2, local_idx) = real(v%x(ii, jj, kk, ie), sp)
-                if (associated(w)) then
-                   data_2d(3, local_idx) = real(w%x(ii, jj, kk, ie), sp)
-                else
-                   data_2d(3, local_idx) = 0.0_sp
-                end if
-             end do
-          end do
-       end do
-    end do
+    ! Setup data sizes, offsets and precision
+    dcount = int(n_local, hsize_t)
 
-    H5T_NEKO_FLOAT = h5kind_to_type(sp, H5_REAL_KIND)
-    call h5dwrite_f(dset_id, H5T_NEKO_FLOAT, data_2d, dcount2, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
+    if (present(n_total)) then
+       dims = int(n_total, hsize_t)
+    else
+       call MPI_Allreduce(n_local, n_tot, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+            ierr)
+       dims = int(n_tot, hsize_t)
+    end if
 
-    deallocate(data_2d)
-  end subroutine write_vector_single
+    if (present(offset)) then
+       doffset = int(offset, hsize_t)
+    else
+       call MPI_Exscan(n_local, off, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+            ierr)
+       doffset = int(off, hsize_t)
+    end if
 
-  !> Write a 3-component vector field as a 2D dataset with double precision,
-  !! converting from single if necessary.
-  !! The dataset is organized as (3, total_points) for VTK compatibility.
-  subroutine write_vector_double(dset_id, u, v, w, dcount2, ierr, filespace, &
-       memspace, xf_id)
-    integer(hid_t), intent(in) :: dset_id
-    type(field_t), intent(in), pointer :: u, v, w
-    integer(hsize_t), intent(in) :: dcount2(:)
-    integer, intent(inout) :: ierr
-    integer(hid_t), intent(inout) :: filespace, memspace, xf_id
-    real(kind=dp), allocatable :: data_2d(:,:)
-    integer :: ie, kk, ii, jj, local_idx
-    integer :: lx, ly, lz, nelv, npts_per_cell, local_points
-    integer(hid_t) :: H5T_NEKO_DOUBLE
+    if (present(precision)) then
+       precision_local = precision
+    else
+       precision_local = rp
+    end if
+    precision_hdf = h5kind_to_type(precision_local, H5_REAL_KIND)
 
-    lx = u%dof%Xh%lx
-    ly = u%dof%Xh%ly
-    lz = u%dof%Xh%lz
-    nelv = u%msh%nelv
-    local_points = lx * ly * lz * nelv
-    npts_per_cell = lx * ly * lz
+    ! Prepare memory and filespaces
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
 
-    ! Assemble 3-component vector from u, v, w fields
-    allocate(data_2d(3, local_points))
-    do ie = 1, nelv
-       local_idx = (ie - 1) * npts_per_cell
-       do kk = 1, lz
-          do jj = 1, ly
-             do ii = 1, lx
-                local_idx = local_idx + 1
-                data_2d(1, local_idx) = real(u%x(ii, jj, kk, ie), dp)
-                data_2d(2, local_idx) = real(v%x(ii, jj, kk, ie), dp)
-                if (associated(w)) then
-                   data_2d(3, local_idx) = real(w%x(ii, jj, kk, ie), dp)
-                else
-                   data_2d(3, local_idx) = 0.0_dp
-                end if
-             end do
-          end do
-       end do
-    end do
+    call h5screate_simple_f(1, dims, filespace, ierr)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+         doffset, dcount, ierr)
 
-    H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
-    call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, data_2d, dcount2, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
+    call h5dcreate_f(hdf_root, trim(name), precision_hdf, &
+         filespace, dset_id, ierr)
 
-    deallocate(data_2d)
-  end subroutine write_vector_double
+    if (precision_local .eq. rp) then
+       call h5dwrite_f(dset_id, precision_hdf, x, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+
+    else if (precision_local .eq. sp) then
+       block
+         real(kind=sp), allocatable :: x_sp(:)
+
+         allocate(x_sp(n_local))
+         do concurrent (i = 1:n_local)
+            x_sp(i) = real(x(i), sp)
+         end do
+
+         call h5dwrite_f(dset_id, precision_hdf, x_sp, dcount, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
+         deallocate(x_sp)
+       end block
+
+    else if (precision_local .eq. dp) then
+       block
+         real(kind=dp), allocatable :: x_dp(:)
+
+         allocate(x_dp(n_local))
+         do concurrent (i = 1:n_local)
+            x_dp(i) = real(x(i), dp)
+         end do
+
+         call h5dwrite_f(dset_id, precision_hdf, x_dp, dcount, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
+         deallocate(x_dp)
+       end block
+
+    else if (precision_local .eq. qp) then
+       block
+         real(kind=qp), allocatable :: x_qp(:)
+
+         allocate(x_qp(n_local))
+         do concurrent (i = 1:n_local)
+            x_qp(i) = real(x(i), qp)
+         end do
+
+         call h5dwrite_f(dset_id, precision_hdf, x_qp, dcount, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
+         deallocate(x_qp)
+       end block
+
+    else
+       call neko_error("Unsupported precision in HDF5 write_scalar_field")
+    end if
+
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+    call h5dclose_f(dset_id, ierr)
+    call h5pclose_f(xf_id, ierr)
+  end subroutine write_scalar_field
+
+  !> @brief Write 3 vector components as a single 2D dataset with shape (3, n_local).
+  !! @details
+  !! This function simplifies the interfacing with HDF5 for the purpose of
+  !! writing an array.
+  !! @param hdf_root HDF5 group or file identifier to write under
+  !! @param name Dataset name
+  !! @param u Local array of u component to write
+  !! @param v Local array of v component to write
+  !! @param w Local array of w component to write
+  !! @param n_local Number of entries in each component
+  !! @param precision Desired output precision (sp, dp, or rp)
+  !! @param n_total Total number of points across all MPI ranks (optional)
+  !! @param offset Starting index offset for this rank (optional)
+  subroutine write_vector_field(hdf_root, name, u, v, w, n_local, &
+       precision, n_total, offset)
+    integer, intent(in) :: n_local
+    integer(hid_t), intent(in) :: hdf_root
+    character(len=*), intent(in) :: name
+    real(kind=rp), dimension(n_local), intent(in) :: u, v, w
+    integer, intent(in), optional :: precision
+    integer, intent(in), optional :: n_total, offset
+
+    integer(hsize_t), dimension(2) :: dims, dcount, doffset
+    integer(hid_t) :: xf_id, dset_id, filespace, memspace, precision_hdf
+    integer :: i, ierr, precision_local, n_tot, off
+
+    ! Setup data sizes, offsets and precision
+    dcount = [3_hsize_t, int(n_local, hsize_t)]
+
+    if (present(n_total)) then
+       dims = [3_hsize_t, int(n_total, hsize_t)]
+    else
+       call MPI_Allreduce(n_local, n_tot, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+            ierr)
+       dims = [3_hsize_t, int(n_tot, hsize_t)]
+    end if
+
+    if (present(offset)) then
+       doffset = [0_hsize_t, int(offset, hsize_t)]
+    else
+       call MPI_Exscan(n_local, off, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+            ierr)
+       doffset = [0_hsize_t, int(off, hsize_t)]
+    end if
+
+    if (present(precision)) then
+       precision_local = precision
+    else
+       precision_local = rp
+    end if
+    precision_hdf = h5kind_to_type(precision_local, H5_REAL_KIND)
+
+    ! Prepare memory and filespaces
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+
+    call h5screate_simple_f(2, dims, filespace, ierr)
+    call h5screate_simple_f(2, dcount, memspace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+         doffset, dcount, ierr)
+
+    call h5dcreate_f(hdf_root, trim(name), precision_hdf, &
+         filespace, dset_id, ierr)
+
+    if (precision_local .eq. sp) then
+       block
+         real(kind=sp), allocatable :: f(:,:)
+
+         allocate(f(3, n_local))
+         do concurrent (i = 1:n_local)
+            f(1, i) = real(u(i), sp)
+            f(2, i) = real(v(i), sp)
+            f(3, i) = real(w(i), sp)
+         end do
+
+         call h5dwrite_f(dset_id, precision_hdf, f, dcount, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
+         deallocate(f)
+       end block
+
+    else if (precision_local .eq. dp) then
+       block
+         real(kind=dp), allocatable :: f(:,:)
+
+         allocate(f(3, n_local))
+         do concurrent (i = 1:n_local)
+            f(1, i) = real(u(i), dp)
+            f(2, i) = real(v(i), dp)
+            f(3, i) = real(w(i), dp)
+         end do
+
+         call h5dwrite_f(dset_id, precision_hdf, f, dcount, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
+         deallocate(f)
+       end block
+
+    else if (precision_local .eq. qp) then
+       block
+         real(kind=qp), allocatable :: f(:,:)
+
+         allocate(f(3, n_local))
+         do concurrent (i = 1:n_local)
+            f(1, i) = real(u(i), qp)
+            f(2, i) = real(v(i), qp)
+            f(3, i) = real(w(i), qp)
+         end do
+
+         call h5dwrite_f(dset_id, precision_hdf, f, dcount, ierr, &
+              file_space_id = filespace, mem_space_id = memspace, &
+              xfer_prp = xf_id)
+         deallocate(f)
+       end block
+
+    else
+       call neko_error("Unsupported precision in HDF5 write_vector_field")
+    end if
+
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+    call h5dclose_f(dset_id, ierr)
+    call h5pclose_f(xf_id, ierr)
+  end subroutine write_vector_field
 
   !> Read data in HDF5 format following official VTKHDF specification
   subroutine vtkhdf_file_read(this, data)
