@@ -143,8 +143,7 @@ single or double precision, defaulting to current working precision.
 
 ### File structure {#vtkhdf-file-structure}
 
-All time steps are written into a single `.vtkhdf` file. The file contains a
-top-level `VTKHDF` group with the following structure:
+The file contains a top-level `VTKHDF` group with the following structure:
 
 - **Mesh datasets**: `NumberOfPoints`, `NumberOfCells`,
   `NumberOfConnectivityIds`, `Points`, `Connectivity`, `Offsets`, and `Types`.
@@ -183,6 +182,22 @@ object of the case file:
   }
 }
 ```
+
+### Temporal vs non-temporal output {#vtkhdf-temporal-vs-non-temporal}
+
+The VTKHDF system in Neko can write both temporal and non-temporal data.
+Non-temporal data (called in code without time) is written to a single VTKHDF
+file, following all the standards defined above. Temporal data (called in code
+with time) is split into a main VTKHDF file containing the mesh and metadata,
+and separate HDF5 files containing any field data for each timestep. Each
+timestep is saved under `filename.data/###.h5`, while the main VTKHDF file
+`filename.vtkhdf` loads these files seamlessly when opened in ParaView. This
+approach allows for efficient storage and access of large temporal datasets
+while maintaining compatibility with the VTKHDF specification. Please note that
+the data must be stored as specified above to function.
+
+Please see the HDF5 documentation for Virtual Datasets if needed:
+https://support.hdfgroup.org/documentation/hdf5/latest/_v_d_s_t_n.html
 
 ### Limitations {#vtkhdf-limitations}
 
