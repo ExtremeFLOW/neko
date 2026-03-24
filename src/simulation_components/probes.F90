@@ -778,11 +778,11 @@ contains
             ! Write data in different steps
             else
 
+               n_executions = this%output_controller%nexecutions + 1
                ! Set up the name
-               write(group_name, '(A,I0)') "Step_", this%output_controller%nexecutions
+               write(group_name, '(A,I0)') "Step_", n_executions
                call this%fout%open("w")
                ! Write Nsteps in root
-               n_executions = this%output_controller%nexecutions + 1
                call this%fout%write_attribute(n_executions, "NSteps")
                ! Write out the data
                call this%fout%set_active_group(["probes", trim(group_name)])
