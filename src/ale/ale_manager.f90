@@ -108,7 +108,7 @@ module ale_manager
      type(field_t), pointer :: wm_y => null()
      type(field_t), pointer :: wm_z => null()
 
-     !> History buffers for mesh velocity components (for AB/BDF schemes)
+     !> History buffers for mesh velocity components
      type(field_series_t) :: wm_x_lag
      type(field_series_t) :: wm_y_lag
      type(field_series_t) :: wm_z_lag
@@ -229,15 +229,15 @@ contains
 
     ! Enable B history
     call coef%enable_B_history()
-    call json_get_or_default(json, 'case.numerics.time_order', &
-       time_order, 3)
+    call json_get(json, 'case.numerics.time_order', &
+       time_order)
 
     ! Stuff for zone_id checks
     n_moving_zones = 0
     if (allocated(moving_zone_ids)) deallocate(moving_zone_ids)
     allocate(moving_zone_ids(0))
 
-    ! Register Fields
+    ! Register mesh velocity fields
     call neko_registry%add_field(coef%dof, 'wm_x')
     call neko_registry%add_field(coef%dof, 'wm_y')
     call neko_registry%add_field(coef%dof, 'wm_z')
@@ -276,8 +276,10 @@ contains
        this%config%if_output_stiffness = tmp_logical
     end if
 
-    ! Matrix & BCs
+
     call ax_helm_factory(this%Ax, full_formulation = .false.)
+
+    ! Mark BCs
     call this%bc_moving%init_from_components(coef)
     call this%bc_fixed%init_from_components(coef)
 
@@ -286,7 +288,7 @@ contains
 
        do i = 1, n_bcs
           call json_extract_item(json, 'case.fluid.boundary_conditions', &
-             i, bc_subdict)
+               i, bc_subdict)
           call json_get(bc_subdict, 'type', bc_type)
           call json_get(bc_subdict, 'zone_indices', zone_indices)
 
@@ -297,10 +299,11 @@ contains
 
           if (moving_) then
              do j = 1, size(zone_indices)
+                ! we append unique moving zone ids for future checks
                 call append_unique_int(moving_zone_ids, n_moving_zones, &
-                   zone_indices(j))
+                     zone_indices(j))
                 call this%bc_moving%mark_zone(coef%msh%labeled_zones(&
-                   zone_indices(j)))
+                     zone_indices(j)))
              end do
              this%has_moving_boundary = .true.
           else
@@ -318,7 +321,7 @@ contains
     call this%bc_list%append(this%bc_moving)
     call this%bc_list%append(this%bc_fixed)
 
-    ! Stiffness
+    ! Mesh Stiffness
     if (json%valid_path('case.fluid.ale.solver.mesh_stiffness.type')) then
        call json%get('case.fluid.ale.solver.mesh_stiffness.type', tmp_str)
        this%config%stiffness_type = tmp_str
@@ -379,8 +382,8 @@ contains
              this%config%bodies(i)%zone_indices = zone_indices
           else
              call neko_error("ALE: body " // &
-                trim(this%config%bodies(i)%name) // &
-                " must have 'zone_indices'")
+                  trim(this%config%bodies(i)%name) // &
+                  " must have 'zone_indices'")
           endif
 
           ! Oscillation
@@ -435,6 +438,9 @@ contains
                 call json_get(body_sub, 'rotation.target_angle_deg', tmp_val)
                 this%config%bodies(i)%target_rot_angle_deg = tmp_val
 
+                ! This mode can be neglected. It exists just in case!
+                ! user motion can be combined with any other type from above
+                ! using user interfaces.
              case ('user')
                 if (.not. associated(this%user_ale_mesh_vel) .and. &
                    .not. associated(this%user_ale_rigid_kinematics)) then
@@ -460,9 +466,9 @@ contains
 
              tmp_str = this%config%bodies(i)%rotation_center_type
              if (trim(tmp_str) /= 'relative' .and. &
-                trim(tmp_str) /= 'relative_sin') then
+                  trim(tmp_str) /= 'relative_sin') then
                 call neko_error("ALE: pivot.type must be " // &
-                   "'relative', or 'relative_sin'.")
+                     "'relative', or 'relative_sin'.")
              end if
           end if
 
@@ -471,22 +477,22 @@ contains
              call json_get(body_sub, 'stiff_geom.type', tmp_str)
              this%config%bodies(i)%stiff_geom%type = tmp_str
              call json_get(body_sub, 'stiff_geom.gain', &
-                this%config%bodies(i)%stiff_geom%gain)
+                  this%config%bodies(i)%stiff_geom%gain)
              call json_get(body_sub, 'stiff_geom.decay_profile', tmp_str)
              this%config%bodies(i)%stiff_geom%decay_profile = tmp_str
 
              select case (trim(this%config%bodies(i)%stiff_geom%decay_profile))
              case ('gaussian')
                 call json_get_or_default(body_sub, &
-                   'stiff_geom.cutoff_coef', &
-                   this%config%bodies(i)%stiff_geom%cutoff_coef, 9.0_rp)
+                     'stiff_geom.cutoff_coef', &
+                     this%config%bodies(i)%stiff_geom%cutoff_coef, 9.0_rp)
              case ('tanh')
                 call json_get_or_default(body_sub, &
-                   'stiff_geom.cutoff_coef', &
-                   this%config%bodies(i)%stiff_geom%cutoff_coef, 3.5_rp)
+                     'stiff_geom.cutoff_coef', &
+                     this%config%bodies(i)%stiff_geom%cutoff_coef, 3.5_rp)
              case default
                 call neko_error("ALE: Invalid stiff_geom.decay_profile: " // &
-                   trim(this%config%bodies(i)%stiff_geom%decay_profile))
+                     trim(this%config%bodies(i)%stiff_geom%decay_profile))
              end select
 
              select case (trim(this%config%bodies(i)%stiff_geom%type))
@@ -495,21 +501,21 @@ contains
                 this%config%bodies(i)%stiff_geom%center = tmp_vec
 
                 call json_get(body_sub, 'stiff_geom.radius', &
-                   this%config%bodies(i)%stiff_geom%radius)
+                     this%config%bodies(i)%stiff_geom%radius)
              case ('cheap_dist')
                 call json_get(body_sub, 'stiff_geom.stiff_dist', &
-                   this%config%bodies(i)%stiff_geom%stiff_dist)
+                     this%config%bodies(i)%stiff_geom%stiff_dist)
              case ('box')
                 call neko_error("ALE: stiff_geom.type 'box' not yet" // &
-                   " implemented.")
+                     " implemented.")
              case default
                 call neko_error("ALE: Invalid stiff_geom.type: " // &
-                   trim(this%config%bodies(i)%stiff_geom%type))
+                     trim(this%config%bodies(i)%stiff_geom%type))
              end select
           else
              call neko_error("ALE: Body '" // &
-                trim(this%config%bodies(i)%name) // &
-                "' must have 'stiff_geom' definition.")
+                  trim(this%config%bodies(i)%name) // &
+                  "' must have 'stiff_geom' definition.")
           end if
 
           ! Initialize the pivots.
@@ -520,7 +526,7 @@ contains
           call field_rzero(this%base_shapes(i))
 
           ! Create Ghost Trackers for numerically forming the rotation matrix
-          ! of each body
+          ! of each body.
           ! Basis X (Pivot + 1.0 in X)
           this%ghost_handles(1, i) = this%request_tracker( &
              this%config%bodies(i)%rot_center + [1.0_rp, 0.0_rp, 0.0_rp], &
@@ -537,24 +543,24 @@ contains
           call neko_log%message(' ')
           if (.not. associated(this%user_ale_base_shapes)) then
              write(log_buf, '(A,A)') '   Stiff Type    : ', &
-                trim(this%config%bodies(i)%stiff_geom%type)
+                  trim(this%config%bodies(i)%stiff_geom%type)
              call neko_log%message(log_buf)
              write(log_buf, '(A,ES10.3,A,A,A,F5.2)') '        Gain      : ', &
-                this%config%bodies(i)%stiff_geom%gain, ' | Profile: ', &
-                trim(this%config%bodies(i)%stiff_geom%decay_profile), &
-                ' | Cutoff: ', this%config%bodies(i)%stiff_geom%cutoff_coef
+                  this%config%bodies(i)%stiff_geom%gain, ' | Profile: ', &
+                  trim(this%config%bodies(i)%stiff_geom%decay_profile), &
+                  ' | Cutoff: ', this%config%bodies(i)%stiff_geom%cutoff_coef
              call neko_log%message(log_buf)
              select case (trim(this%config%bodies(i)%stiff_geom%type))
              case ('cylinder', 'sphere')
                 write(log_buf, '(A,3(F8.3,1X))') '      Center       :', &
-                   this%config%bodies(i)%stiff_geom%center
+                     this%config%bodies(i)%stiff_geom%center
                 call neko_log%message(log_buf)
                 write(log_buf, '(A,F10.4)') '      Radius       :', &
-                   this%config%bodies(i)%stiff_geom%radius
+                     this%config%bodies(i)%stiff_geom%radius
                 call neko_log%message(log_buf)
              case ('cheap_dist')
                 write(log_buf, '(A,F10.4)') '        Stiff Dist   :', &
-                   this%config%bodies(i)%stiff_geom%stiff_dist
+                     this%config%bodies(i)%stiff_geom%stiff_dist
                 call neko_log%message(log_buf)
              end select
           end if
@@ -621,32 +627,32 @@ contains
                 if (trim(this%config%bodies(i)%rotation_type) == 'harmonic') then
                    if (has_user_kin .or. has_user_mesh) then
                       call neko_log%message('   Rotation     : ' // &
-                         'Theta(t) = Amp*sin(2*pi*Freq*t) + User')
+                           'Theta(t) = Amp*sin(2*pi*Freq*t) + User')
                    else
                       call neko_log%message('   Rotation     : ' // &
-                         'Theta(t) = Amp*sin(2*pi*Freq*t)')
+                           'Theta(t) = Amp*sin(2*pi*Freq*t)')
                    end if
                    write(log_buf, '(A,3(F8.3,1X))') '        Amp (deg):', &
-                      this%config%bodies(i)%rot_amp_degree
+                        this%config%bodies(i)%rot_amp_degree
                    call neko_log%message(log_buf)
                    write(log_buf, '(A,3(F8.3,1X))') '        Freq      :', &
-                      this%config%bodies(i)%rot_freq
+                        this%config%bodies(i)%rot_freq
                    call neko_log%message(log_buf)
 
                    ! Ramp
                 elseif (trim(this%config%bodies(i)%rotation_type) == 'ramp') then
                    if (has_user_kin .or. has_user_mesh) then
                       call neko_log%message('   Rotation     : ' // &
-                         'Omega(t) = Omega0*(1 - exp(-4.6*t/t0)) + User')
+                           'Omega(t) = Omega0*(1 - exp(-4.6*t/t0)) + User')
                    else
                       call neko_log%message('   Rotation     : ' // &
-                         'Omega(t) = Omega0*(1 - exp(-4.6*t/t0))')
+                           'Omega(t) = Omega0*(1 - exp(-4.6*t/t0))')
                    end if
                    write(log_buf, '(A,3(F8.3,1X))') '        Omega0    :', &
-                      this%config%bodies(i)%ramp_omega0
+                        this%config%bodies(i)%ramp_omega0
                    call neko_log%message(log_buf)
                    write(log_buf, '(A,3(F8.3,1X))') '        t0        :', &
-                      this%config%bodies(i)%ramp_t0
+                        this%config%bodies(i)%ramp_t0
                    call neko_log%message(log_buf)
 
                    ! Smooth Step
@@ -654,20 +660,20 @@ contains
                    == 'smooth_step') then
                    if (has_user_kin .or. has_user_mesh) then
                       call neko_log%message('   Rotation     : ' // &
-                         'Smooth Step Control + User')
+                           'Smooth Step Control + User')
                    else
                       call neko_log%message('   Rotation     : ' // &
-                         'Smooth Step Control')
+                           'Smooth Step Control')
                    end if
                    write(log_buf, '(A,I10)') '        Rotation Axis    :', &
-                      this%config%bodies(i)%rotation_axis
+                        this%config%bodies(i)%rotation_axis
                    call neko_log%message(log_buf)
                    write(log_buf, '(A,F10.3)') '        Target Rot Angle (deg)  :', &
-                      this%config%bodies(i)%target_rot_angle_deg
+                        this%config%bodies(i)%target_rot_angle_deg
                    call neko_log%message(log_buf)
                    write(log_buf, '(A,4(F8.3,1X))') &
-                      '        Control Times [t0, t1, t2, t3]    :', &
-                      this%config%bodies(i)%step_control_times
+                        '        Control Times [t0, t1, t2, t3]    :', &
+                        this%config%bodies(i)%step_control_times
                    call neko_log%message(log_buf)
                 end if
              else
@@ -714,13 +720,13 @@ contains
        if (.not. found_zone) then
           write(log_buf_l, '(A,I0,A)') &
              "ALE: zone index ", z, &
-             " has BC no_slip with moving=true, " // &
+             " has BC no_slip with moving: true, " // &
              "but it is not registered in ALE bodies."
           call neko_error(trim(log_buf_l))
        end if
     end do
 
-    ! Any id registered in ALE bodies must have no_slip with moving=true in BCs.
+    ! Any id registered in ALE bodies must have no_slip with moving: true in BCs.
     do j = 1, this%config%nbodies
        if (allocated(this%config%bodies(j)%zone_indices)) then
           do i = 1, size(this%config%bodies(j)%zone_indices)
@@ -735,7 +741,7 @@ contains
                 write(log_buf_l, '(A,I0,A,A)') &
                    "ALE: zone index ", z, &
                    " is registered in ALE bodies, ", &
-                   "but the BC is not no_slip with moving=true."
+                   "but the BC is not no_slip with moving: true."
                 call neko_error(trim(log_buf_l))
              end if
           end do
@@ -743,13 +749,15 @@ contains
     end do
 
     call krylov_solver_factory(this%ksp, n, this%ksp_solver, &
-       this%ksp_max_iter, this%abstol, monitor = .false.)
+         this%ksp_max_iter, this%abstol, monitor = .false.)
     call ale_precon_factory(this%pc, this%ksp, coef, coef%dof, &
-       coef%gs_h, this%bc_list, this%precon_type, this%precon_params)
+         coef%gs_h, this%bc_list, this%precon_type, this%precon_params)
 
+    ! Find the smooth blending function for mesh displacement.
     call this%solve_base_mesh_displacement(coef)
 
-
+    ! If we are restarting, we skip this. It will be handled
+    ! properly by chkp file.
     if (.not. json%valid_path('case.restart_file')) then
        t_init%t = 0.0_rp
        t_init%tstep = 0
@@ -766,12 +774,15 @@ contains
        call field_rzero(this%wm_z_lag%lf(i))
     end do
     if (allocated(moving_zone_ids)) deallocate(moving_zone_ids)
-    call this%mesh_preview(coef, json)
-    call neko_log%end_section()
 
+    ! Performing mesh_preview.
+    call this%mesh_preview(coef, json)
+
+    call neko_log%end_section()
   end subroutine ale_manager_init
 
-  !> Solves the Laplace equation to determine the base shape (phi) for each body
+  !> Solves the Laplace equation to determine the base shape (phi) for each body.
+  !> It finds a smooth blending function for mesh deformation.
   !> For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.
   !> should be modified for device support (ToDo)
   subroutine solve_base_mesh_displacement(this, coef)
@@ -809,7 +820,7 @@ contains
     call rhs_field%init(coef%dof)
     call corr_field%init(coef%dof)
 
-    ! User Defined Base Shapes (Skip Solver)
+    ! User Defined Base Shapes (Skip Solver).
     if (associated(this%user_ale_base_shapes)) then
        call neko_log%message("   Using user-defined base shapes " // &
             "(skipping Laplace solve)")
@@ -902,6 +913,11 @@ contains
 
           call field_rzero(this%base_shapes(body_idx))
 
+          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          ! phi = phi_corr + phi_lifted!
+          ! A*phi_corr = -A*phi_lifted !
+          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
           ! Lift BC (Dirichlet = 1.0 on moving body)
           m = bc_active_body%msk(0)
           do i = 1, m
@@ -909,16 +925,19 @@ contains
              this%base_shapes(body_idx)%x(k, 1, 1, 1) = 1.0_rp
           end do
 
-          ! Apply Zeros to others (Do not touch the 1 zones!)
-          ! This ensures fixed walls and other bodies are 0.0
+          ! Apply Zeros to others.
+          ! This ensures fixed walls and other bodies are 0.0,
+          ! even if they share grid with a moving wall.
           call bcloc_zeros_only%apply_scalar(this%base_shapes(body_idx)%x, n)
 
-          ! Compute RHS: RHS = -A * Phi_lifted
+          ! Compute RHS: RHS = -A * Phi_lifted.
+          ! The following is motivated by implementation in Nek5000.
           call this%Ax%compute(rhs_field%x, this%base_shapes(body_idx)%x, &
                coef, coef%msh, coef%Xh)
           call field_cmult(rhs_field, -1.0_rp)
 
-          ! Here we use the FULL list because we want the solver to keep the 1.0
+          ! Here we use the FULL list to apply zero Dirichlet BC
+          ! on all boundaries.
           call bcloc%apply_scalar(rhs_field%x, n)
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
@@ -928,10 +947,11 @@ contains
           this%monitor(1) = this%ksp%solve(this%Ax, corr_field, &
                rhs_field%x, n, coef, bcloc, coef%gs_h)
 
-          ! Update Solution
+          ! phi = phi_lifted + phi_corr
           call field_add2(this%base_shapes(body_idx), corr_field, n)
 
           ! Update Total Phi
+          ! phi_total should be between 0 and 1.
           if (this%config%nbodies > 1) then
              call field_add2(this%phi_total, this%base_shapes(body_idx), n)
           end if
@@ -1006,7 +1026,7 @@ contains
        call compute_body_kinematics_built_in(kin, &
             this%config%bodies(i), time_s)
 
-       ! User Modifier (Superposition or Override)
+       ! User modifier (Superposition or Override)
        if (associated(this%user_ale_rigid_kinematics)) then
           call this%user_ale_rigid_kinematics(this%config%bodies(i)%id, &
                time_s, &
@@ -1080,14 +1100,14 @@ contains
          this%wm_x_lag, this%wm_y_lag, this%wm_z_lag, &
          time, nadv, "ab")
 
-    ! Update internal history of mesh velocity
+    ! Update internal history of mesh velocity.
     call this%wm_x_lag%update()
     call this%wm_y_lag%update()
     call this%wm_z_lag%update()
     call profiler_end_region('ALE update mesh')
   end subroutine advance_mesh
 
-  ! Compute mesh stiffness with per-body gain/decay from stiff_geom
+  ! Compute mesh stiffness with per-body gain/decay from stiff_geom.
   subroutine compute_stiffness_ale(coef, params)
     type(coef_t), intent(inout) :: coef
     type(ale_config_t), intent(in) :: params
@@ -1098,7 +1118,7 @@ contains
     end if
   end subroutine compute_stiffness_ale
 
-  ! Adds kinematics to mesh velocity
+  ! Adds kinematics to mesh velocity.
   subroutine add_kinematics_to_mesh_velocity(wx, wy, wz, &
        x_ref, y_ref, z_ref, phi, coef, kinematics, rot_mat, initial_pivot_loc)
     type(field_t), intent(inout) :: wx, wy, wz
@@ -1119,7 +1139,7 @@ contains
     end if
   end subroutine add_kinematics_to_mesh_velocity
 
-  ! Updates mesh position by integrating mesh velocity in time using AB
+  ! Updates mesh position by integrating mesh velocity in time using AB scheme.
   subroutine update_ale_mesh(c_Xh, wm_x, wm_y, wm_z, wm_x_lag, wm_y_lag, &
        wm_z_lag, time, nadv, scheme_)
     type(coef_t), intent(inout) :: c_Xh
@@ -1273,7 +1293,7 @@ contains
     end do
   end subroutine set_pivot_restart
 
-  ! Restores the current coef and realted metrics
+  ! Restores the current coef and related metrics
   ! and the pivot states at restart.
   subroutine set_coef_restart(this, coef, adv, time_restart)
     class(ale_manager_t), intent(inout) :: this
@@ -1288,6 +1308,39 @@ contains
     call adv%recompute_metrics(coef, .true.)
 
   end subroutine set_coef_restart
+
+  subroutine set_pivot_basis_for_checkpoint(this, body_idx)
+    class(ale_manager_t), intent(inout) :: this
+    integer, intent(in) :: body_idx
+    integer :: idx, offset_base, h1, h2
+
+    if (.not. this%active) return
+    if (.not. this%has_moving_boundary) return
+
+    idx = (body_idx - 1) * 3
+    this%global_pivot_pos(idx + 1:idx + 3) = this%ale_pivot(body_idx)%pos(1:3)
+    this%global_pivot_vel_lag(idx + 1:idx + 3, :) = &
+         this%ale_pivot(body_idx)%vel_lag(1:3, 1:3)
+
+    h1 = this%ghost_handles(1, body_idx)
+    h2 = this%ghost_handles(2, body_idx)
+
+    offset_base = (body_idx-1)*6
+
+    ! Save Positions
+    this%global_basis_pos(offset_base + 1 : offset_base + 3) = &
+         this%get_tracker_pos(h1)
+    this%global_basis_pos(offset_base + 4 : offset_base + 6) = &
+         this%get_tracker_pos(h2)
+
+    ! Ghost-x history
+    this%global_basis_vel_lag(offset_base + 1 : offset_base + 3, :) = &
+         this%trackers(h1)%vel_lag
+
+    ! Ghost-y history
+    this%global_basis_vel_lag(offset_base + 4 : offset_base + 6, :) = &
+         this%trackers(h2)%vel_lag
+  end subroutine set_pivot_basis_for_checkpoint
 
   ! Append val to arr if not already present.
   subroutine append_unique_int(arr, n, val)
@@ -1353,7 +1406,7 @@ contains
          output_freq, 100)
 
     n_steps = int((t_end - t_start) / dt)
-    call json_get_or_default(json, 'case.numerics.time_order', nadv_sim, 3)
+    call json_get(json, 'case.numerics.time_order', nadv_sim)
 
     write(log_buf, '(A, F10.4)') '  Start Time : ', t_start
     call neko_log%message(log_buf)
@@ -1647,40 +1700,6 @@ contains
 
   end subroutine log_pivot
 
-  subroutine set_pivot_basis_for_checkpoint(this, body_idx)
-    class(ale_manager_t), intent(inout) :: this
-    integer, intent(in) :: body_idx
-    integer :: idx, offset_base, h1, h2
-
-    if (.not. this%active) return
-    if (.not. this%has_moving_boundary) return
-
-    idx = (body_idx - 1) * 3
-    this%global_pivot_pos(idx + 1:idx + 3) = this%ale_pivot(body_idx)%pos(1:3)
-    this%global_pivot_vel_lag(idx + 1:idx + 3, :) = &
-         this%ale_pivot(body_idx)%vel_lag(1:3, 1:3)
-
-    h1 = this%ghost_handles(1, body_idx)
-    h2 = this%ghost_handles(2, body_idx)
-
-    offset_base = (body_idx-1)*6
-
-    ! Save Positions
-    this%global_basis_pos(offset_base + 1 : offset_base + 3) = &
-         this%get_tracker_pos(h1)
-    this%global_basis_pos(offset_base + 4 : offset_base + 6) = &
-         this%get_tracker_pos(h2)
-
-    ! Ghost-x history
-    this%global_basis_vel_lag(offset_base + 1 : offset_base + 3, :) = &
-         this%trackers(h1)%vel_lag
-
-    ! Ghost-y history
-    this%global_basis_vel_lag(offset_base + 4 : offset_base + 6, :) = &
-         this%trackers(h2)%vel_lag
-
-  end subroutine set_pivot_basis_for_checkpoint
-
   subroutine ghost_tracker_coord_step(this, kin_object, time_s, nadv, body_idx)
     class(ale_manager_t), intent(inout) :: this
     type(body_kinematics_t), intent(inout) :: kin_object
@@ -1700,7 +1719,7 @@ contains
              if (t == this%ghost_handles(1, body_idx) .or. &
                   t == this%ghost_handles(2, body_idx)) then
 
-                ! Calculate the 'Arm' vector (r) at current step
+                ! Calculate the Arm vector (r) at current step
                 rel_pos = this%trackers(t)%pos - kin_object%center
 
                 ! Calculate tangential velocity (Omega \cross r)

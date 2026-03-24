@@ -431,7 +431,7 @@ contains
 
   end subroutine chkp_add_scalar
 
-  !> Add mesh velocity and other required variables to checkpointing
+  !> Add mesh velocity and other required variables to checkpointing for ALE
   subroutine chkp_add_ale(this, x, y, z, Blag, Blaglag, wm_x, wm_y, wm_z, &
                           wm_x_lag, wm_y_lag, wm_z_lag, &
                           pivot_pos, pivot_vel_lag, basis_pos, &
@@ -444,6 +444,7 @@ contains
     real(kind=rp), pointer, intent(in) :: Blag(:,:,:,:), Blaglag(:,:,:,:)
     real(kind=rp), intent(in), pointer :: basis_pos(:)
     real(kind=rp), intent(in), pointer :: basis_vel_lag(:,:)
+
     this%msh_x => x
     this%msh_y => y
     this%msh_z => z

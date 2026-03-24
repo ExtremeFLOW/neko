@@ -67,21 +67,24 @@ contains
     type(coef_t), intent(in), target :: coef
     type(json_file), intent(inout) :: json
 
-    call this%zero_dirichlet_t%init_from_components(coef)
+    ! Normal init (zero_dirichlet)
+    call this%zero_dirichlet_t%init(coef, json)
     call json_get_or_default(json, "moving", this%is_moving, .false.)
 
+    ! If wm_x exists, wm_y and wm_z also exist!
     if (neko_registry%field_exists('wm_x')) then
        this%wx => neko_registry%get_field('wm_x')
        this%wy => neko_registry%get_field('wm_y')
        this%wz => neko_registry%get_field('wm_z')
     end if
 
-    ! If moving is requested, mesh velocitiy fileds should be lineked.
+    ! If moving is requested, mesh velocitiy fileds should be linked already
+    ! in ale_manager.
     if (this%is_moving) then
        if (.not. associated(this%wx) .or. .not. associated(this%wy) .or. &
-            .not. associated(this%wz)) then
-          call neko_error("Velocity BC 'no_slip' with moving=true is" // &
-               " found, but ALE is not activated in case file.")
+               .not. associated(this%wz)) then
+          call neko_error("Velocity BC 'no_slip' with moving: true is &
+          &found, but ALE is not activated in case file.")
        end if
     end if
   end subroutine no_slip_init
@@ -123,14 +126,12 @@ contains
     if (.not. strong_) return
 
     if (this%is_moving) then
-       if (this%msk(0) .gt. 0) then
-          call device_masked_copy_0(x_d, this%wx%x_d, this%msk_d, &
-               this%wx%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(y_d, this%wy%x_d, this%msk_d, &
-               this%wy%dof%size(), this%msk(0), strm)
-          call device_masked_copy_0(z_d, this%wz%x_d, this%msk_d, &
-               this%wz%dof%size(), this%msk(0), strm)
-       end if
+       call device_masked_copy_0(x_d, this%wx%x_d, this%msk_d, &
+            this%wx%dof%size(), this%msk(0), strm)
+       call device_masked_copy_0(y_d, this%wy%x_d, this%msk_d, &
+            this%wy%dof%size(), this%msk(0), strm)
+       call device_masked_copy_0(z_d, this%wz%x_d, this%msk_d, &
+            this%wz%dof%size(), this%msk(0), strm)
     else
        call this%zero_dirichlet_t%apply_vector_dev(x_d, y_d, z_d, time, &
             strong_, strm)
@@ -140,11 +141,11 @@ contains
 
   subroutine no_slip_free(this)
     class(no_slip_t), intent(inout), target :: this
+
     call this%zero_dirichlet_t%free()
     nullify(this%wx)
     nullify(this%wy)
     nullify(this%wz)
-
   end subroutine no_slip_free
 
 end module no_slip

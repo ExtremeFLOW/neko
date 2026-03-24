@@ -73,7 +73,7 @@ contains
     n = c_Xh%dof%size()
 
     factor = time%dt * ab_coeffs(1)
-    ! for now we leave it like this. Should be replaced by a single kernel
+    ! for now we leave it like this. Can be replaced by a single routine
     ! that does all three components at once
     call device_add2s2(c_Xh%dof%x_d, wm_x%x_d, factor, n)
     call device_add2s2(c_Xh%dof%y_d, wm_y%x_d, factor, n)

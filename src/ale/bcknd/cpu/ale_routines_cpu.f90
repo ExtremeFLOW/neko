@@ -68,7 +68,7 @@ contains
     real(kind=rp) :: cx, cy, cz, dx, dy, dz
     real(kind=rp) :: arg, decay, gain, norm_dist
     real(kind=rp) :: sample_start_time, sample_end_time, sample_time
-    real(kind=rp), allocatable :: dist_fields(:, :)
+    real(kind=rp), allocatable :: dist_fields(:,:)
     character(len=128) :: log_buf
 
     n = coef%dof%size()
@@ -101,11 +101,11 @@ contains
 
              ! Compute into the specific slot for this body
 
-             ! Nek5000 algorithm (typically slower then eikonal!)
+             ! Nek5000 algorithm
              ! call compute_cheap_dist_cpu(dist_fields(:, map_idx), coef, &
              !     coef%msh, params%bodies(b)%zone_indices)
 
-             call compute_dist_eikonal_cpu(dist_fields(:, map_idx), coef, &
+             call compute_cheap_dist_v2_cpu(dist_fields(:, map_idx), coef, &
                   coef%msh, params%bodies(b)%zone_indices)
 
              call MPI_Barrier(NEKO_COMM, ierr)
@@ -298,22 +298,24 @@ contains
     end do
   end subroutine compute_cheap_dist_cpu
 
-  !> Solves the Eikonal equation across the mesh
-  !> using a block-iterative relaxation scheme
-  subroutine compute_dist_eikonal_cpu(d, coef, msh, zone_indices)
+  !> Compute cheap_dist field by passing distance information
+  !> throughout an entire local element
+  !> before doing a global MPI synchronization.
+  subroutine compute_cheap_dist_v2_cpu(d, coef, msh, zone_indices)
     real(kind=rp), intent(inout), target :: d(:)
     type(coef_t), intent(in) :: coef
     type(mesh_t), intent(in) :: msh
     type(zero_dirichlet_t) :: bc_wall
     integer, intent(in) :: zone_indices(:)
-
     real(kind=rp), pointer :: d4(:, :, :, :)
-
-    integer :: i, j, k, e, n, idx, z_idx
+    integer :: i, j, k, e, n
     integer :: ipass, nchange, max_pass
-    integer :: lx, ly, lz, nel
+    integer :: ii, jj, kk, i0, i1, j0, j1, k0, k1
+    integer :: lx, ly, lz, nel, z_idx
+    integer :: m, idx, iter, local_iters
+    real(kind=rp) :: dtmp, x1, y1, z1, x2, y2, z2
     integer :: change_vec(1)
-    logical :: done
+    logical :: done, changed_local, element_changed_ever
     character(len=128) :: log_buf
 
     lx = coef%dof%Xh%lx
@@ -321,12 +323,15 @@ contains
     lz = coef%dof%Xh%lz
     nel = msh%nelv
     n = size(d)
-
     d4(1:lx, 1:ly, 1:lz, 1:nel) => d
+    max_pass = 10000
 
-    max_pass = 5000
+!   Limit for worst case scenario such that all nodes can propagate
+!   their values across the element before triggering an MPI call.
+    local_iters = lx + ly + lz
 
-    d = huge(0.0_rp)
+    call cfill(d, huge(0.0_rp), n)
+
     if (size(zone_indices) > 0) then
        call bc_wall%init_from_components(coef)
        do k = 1, size(zone_indices)
@@ -334,108 +339,80 @@ contains
           call bc_wall%mark_zone(msh%labeled_zones(z_idx))
        end do
        call bc_wall%finalize()
-       do i = 1, bc_wall%msk(0)
-          d(bc_wall%msk(i)) = 0.0_rp
+       m = bc_wall%msk(0)
+       do i = 1, m
+          idx = bc_wall%msk(i)
+          d(idx) = 0.0_rp
        end do
        call bc_wall%free()
     end if
 
     ipass = 1
     done = .false.
-
     do while (ipass <= max_pass .and. .not. done)
        nchange = 0
 
        do e = 1, nel
-          call relax_dist_element_local_cpu(d4, coef%dof%x, coef%dof%y, &
-               coef%dof%z, lx, ly, lz, e, nchange)
-       end do
+          iter = 1
+          element_changed_ever = .false.
+          changed_local = .true.
+          do while (changed_local .and. iter <= local_iters)
 
-       call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
+             changed_local = .false.
+             do k = 1, lz
+                do j = 1, ly
+                   do i = 1, lx
+                      x1 = coef%dof%x(i, j, k, e)
+                      y1 = coef%dof%y(i, j, k, e)
+                      z1 = coef%dof%z(i, j, k, e)
+                      i0 = max(1, i - 1)
+                      i1 = min(lx, i + 1)
+                      j0 = max(1, j - 1)
+                      j1 = min(ly, j + 1)
+                      k0 = max(1, k - 1)
+                      k1 = min(lz, k + 1)
+                      do kk = k0, k1
+                         do jj = j0, j1
+                            do ii = i0, i1
+                               if (ii == i .and. jj == j .and. kk == k) cycle
 
-       change_vec(1) = nchange
-       if (glimax(change_vec, 1) == 0) done = .true.
+                               x2 = coef%dof%x(ii, jj, kk, e)
+                               y2 = coef%dof%y(ii, jj, kk, e)
+                               z2 = coef%dof%z(ii, jj, kk, e)
 
-       ipass = ipass + 1
-    end do
+                               dtmp = d4(ii, jj, kk, e) + &
+                               sqrt((x1 - x2)**2 + &
+                               (y1 - y2)**2 + (z1 - z2)**2)
 
+                               if (dtmp < d4(i, j, k, e)) then
+                                  d4(i, j, k, e) = dtmp
+                                  changed_local = .true.
+                               end if
 
-    write(log_buf, '(A, I0, A)') "   converged in: ", ipass, " passes"
-    call neko_log%message(log_buf)
-  end subroutine compute_dist_eikonal_cpu
-
-  !> Performs local node-to-node distance propagation
-  subroutine relax_dist_element_local_cpu(d, x, y, z, lx, ly, lz, e, nchange)
-    real(kind=rp), intent(inout) :: d(:, :, :, :)
-    real(kind=rp), intent(in) :: x(:, :, :, :), y(:, :, :, :), z(:, :, :, :)
-    integer, intent(in) :: lx, ly, lz, e
-    integer, intent(inout) :: nchange
-
-    integer :: i, j, k, ii, jj, kk, iter
-    real(kind=rp) :: my_x, my_y, my_z, best_d, cand
-    logical :: changed_local, element_changed_ever
-    integer :: micro_iters
-
-    !> limit for worst case scenario such that
-    !> all nodes can propagate their values across the element
-    !> can potentially be added to an optin with default
-    micro_iters = lx + ly + lz
-
-    iter = 1
-    element_changed_ever = .false.
-    changed_local = .true.
-
-    do while (changed_local .and. iter <= micro_iters)
-
-       changed_local = .false.
-
-       do k = 1, lz
-          do j = 1, ly
-             do i = 1, lx
-
-                best_d = d(i, j, k, e)
-                my_x = x(i, j, k, e)
-                my_y = y(i, j, k, e)
-                my_z = z(i, j, k, e)
-
-                ! Check all neighbors
-                do kk = max(1, k-1), min(lz, k+1)
-                   do jj = max(1, j-1), min(ly, j+1)
-                      do ii = max(1, i-1), min(lx, i+1)
-
-                         if (ii==i .and. jj==j .and. kk==k) cycle
-
-                         cand = d(ii, jj, kk, e) + &
-                              sqrt((my_x - x(ii, jj, kk, e))**2 + &
-                              (my_y - y(ii, jj, kk, e))**2 + &
-                              (my_z - z(ii, jj, kk, e))**2)
-
-                         if (cand < best_d) then
-                            best_d = cand
-                         end if
-
+                            end do
+                         end do
                       end do
                    end do
                 end do
-
-                if (best_d < d(i, j, k, e)) then
-                   d(i, j, k, e) = best_d
-                   changed_local = .true.
-                end if
-
              end do
+             if (changed_local) element_changed_ever = .true.
+             iter = iter + 1
           end do
+
+          if (element_changed_ever) nchange = nchange + 1
        end do
 
-       ! Track if any change happened at any point in history
-       if (changed_local) element_changed_ever = .true.
+       call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
+       change_vec(1) = nchange
 
-       iter = iter + 1
-
+       if (glimax(change_vec, 1) == 0) done = .true.
+       ipass = ipass + 1
     end do
 
-    if (element_changed_ever) nchange = nchange + 1
-  end subroutine relax_dist_element_local_cpu
+    write(log_buf, '(A, I0, A)') "   converged in: ", ipass, " passes"
+    call neko_log%message(log_buf)
+  end subroutine compute_cheap_dist_v2_cpu
+
 
   !> Adds kinematics to mesh velocity (CPU)
   subroutine add_kinematics_to_mesh_velocity_cpu(wx, wy, wz, &
@@ -483,22 +460,31 @@ contains
 
             ! Rotate to find the "ghost" target vector
             ! Apply the rotation matrix R(t) to the reference vector
-            rx_target = rot_mat(1,1)*dx_ref + rot_mat(1,2)*dy_ref + rot_mat(1,3)*dz_ref
-            ry_target = rot_mat(2,1)*dx_ref + rot_mat(2,2)*dy_ref + rot_mat(2,3)*dz_ref
-            rz_target = rot_mat(3,1)*dx_ref + rot_mat(3,2)*dy_ref + rot_mat(3,3)*dz_ref
+            rx_target = rot_mat(1,1)*dx_ref + rot_mat(1,2)*dy_ref + &
+                 rot_mat(1,3)*dz_ref
+            ry_target = rot_mat(2,1)*dx_ref + rot_mat(2,2)*dy_ref + &
+                 rot_mat(2,3)*dz_ref
+            rz_target = rot_mat(3,1)*dx_ref + rot_mat(3,2)*dy_ref + &
+                 rot_mat(3,3)*dz_ref
 
             ! Calculate tangential velocity at the ghost target
             ! v_tan = Omega \corss R_target
-            v_tan_x = kinematics%vel_ang(2) * rz_target - kinematics%vel_ang(3) * ry_target
-            v_tan_y = kinematics%vel_ang(3) * rx_target - kinematics%vel_ang(1) * rz_target
-            v_tan_z = kinematics%vel_ang(1) * ry_target - kinematics%vel_ang(2) * rx_target
+            v_tan_x = kinematics%vel_ang(2) * rz_target - &
+                 kinematics%vel_ang(3) * ry_target
+            v_tan_y = kinematics%vel_ang(3) * rx_target - &
+                 kinematics%vel_ang(1) * rz_target
+            v_tan_z = kinematics%vel_ang(1) * ry_target - &
+                 kinematics%vel_ang(2) * rx_target
 
             p_val = phi%x(i, 1, 1, 1)
 
             ! Total Mesh Velocity
-            wx%x(i, 1, 1, 1) = wx%x(i, 1, 1, 1) + (kinematics%vel_trans(1) + v_tan_x) * p_val
-            wy%x(i, 1, 1, 1) = wy%x(i, 1, 1, 1) + (kinematics%vel_trans(2) + v_tan_y) * p_val
-            wz%x(i, 1, 1, 1) = wz%x(i, 1, 1, 1) + (kinematics%vel_trans(3) + v_tan_z) * p_val
+            wx%x(i, 1, 1, 1) = wx%x(i, 1, 1, 1) + &
+                 (kinematics%vel_trans(1) + v_tan_x) * p_val
+            wy%x(i, 1, 1, 1) = wy%x(i, 1, 1, 1) + &
+                 (kinematics%vel_trans(2) + v_tan_y) * p_val
+            wz%x(i, 1, 1, 1) = wz%x(i, 1, 1, 1) + &
+                 (kinematics%vel_trans(3) + v_tan_z) * p_val
 
          end if
       end do

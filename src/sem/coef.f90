@@ -1396,6 +1396,7 @@ contains
     integer :: n
     integer(c_size_t) :: n_bytes
 
+    ! If this%Blag does not have separate memory, we don't need to update it.
     if (associated(this%Blag, this%B)) return
 
     this%Blaglag = this%Blag
