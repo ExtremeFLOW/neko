@@ -311,7 +311,7 @@ contains
     !
     call import_fields(file_name, mesh_file_name, &
          u = this%u_bf, v = this%v_bf, w = this%w_bf, &
-         interpolate = interpolate, interp_subdict = interp_subdict)
+         interpolate = interpolate, global_interp_subdict = interp_subdict)
 
     this%baseflow_set = .true.
 
