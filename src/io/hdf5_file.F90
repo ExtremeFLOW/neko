@@ -49,7 +49,7 @@ module hdf5_file
   use comm, only : pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier, MPI_INTEGER8
+       MPI_Barrier, MPI_INTEGER8, MPI_Scan
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -830,8 +830,9 @@ contains
     counts = vec%size()
     offset = 0
     total_count = 0
-    call MPI_Exscan(counts, offset, 1, MPI_INTEGER, &
+    call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
+    offset = offset - counts ! Not using exclusive scan
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
  
@@ -886,7 +887,7 @@ contains
     ! =======================
     if (this%precision == sp) then
       allocate(write_buffer_sp(vec%size()))
-      write_buffer_sp = real(vec%x, kind=sp)
+      if (vec%size() > 0) write_buffer_sp = real(vec%x, kind=sp)
      ! Write the data
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
@@ -894,7 +895,7 @@ contains
       deallocate(write_buffer_sp)
     else if (this%precision == dp) then
       allocate(write_buffer_dp(vec%size()))
-      write_buffer_dp = real(vec%x, kind=dp)
+      if (vec%size() > 0) write_buffer_dp = real(vec%x, kind=dp)
      ! Write the data
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
@@ -933,8 +934,9 @@ contains
     counts = mat%get_ncols()
     total_count = 0
     offset = 0
-    call MPI_Exscan(counts, offset, 1, MPI_INTEGER, &
+    call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
+    offset = offset - counts ! Not using exclusive scan
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
 
@@ -988,7 +990,7 @@ contains
     ! =======================
     if (this%precision == sp) then
       allocate(write_buffer_sp(mat%get_nrows(), mat%get_ncols()))
-      write_buffer_sp = real(mat%x, kind=sp)
+      if (mat%size() > 0) write_buffer_sp = real(mat%x, kind=sp)
      ! Write the data
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
@@ -996,7 +998,7 @@ contains
       deallocate(write_buffer_sp)
     else if (this%precision == dp) then
       allocate(write_buffer_dp(mat%get_nrows(), mat%get_ncols()))
-      write_buffer_dp = real(mat%x, kind=dp)
+      if (mat%size() > 0) write_buffer_dp = real(mat%x, kind=dp)
      ! Write the data
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
@@ -1089,7 +1091,7 @@ contains
     ! =======================
     if (this%precision == sp) then
       allocate(write_buffer_sp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
-      write_buffer_sp = real(field%x, kind=sp)
+      if (field%msh%nelv > 0) write_buffer_sp = real(field%x, kind=sp)
      ! Write the data
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
@@ -1097,7 +1099,7 @@ contains
       deallocate(write_buffer_sp)
     else if (this%precision == dp) then
       allocate(write_buffer_dp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
-      write_buffer_dp = real(field%x, kind=dp)
+      if (field%msh%nelv > 0) write_buffer_dp = real(field%x, kind=dp)
      ! Write the data
      call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &

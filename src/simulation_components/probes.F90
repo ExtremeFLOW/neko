@@ -692,9 +692,7 @@ contains
     integer :: i, ierr
     logical :: do_interp_on_host = .false.
     character(len=1000) :: group_name
-   integer :: testing = 10
-   real(kind=rp) :: testing2 = 10.0001560_rp
-   character(len=100) :: test_str = "test"
+   real(kind=rp) :: time_
 
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
@@ -742,27 +740,20 @@ contains
             call neko_error("HDF5 outputs only works in parallel currently.")
          
          else
-            !> Copy the data to correct contiguous layout for output
-            call trsp(this%mat_out%x, this%n_fields, &
-                  this%out_values, this%n_local_probes)
 
-               write(group_name, '(A,I00000)') "Step_", this%output_controller%nexecutions
+               write(group_name, '(A,I0)') "Step_", this%output_controller%nexecutions
                call this%fout%open("w")
                call this%fout%set_active_group(["probes", trim(group_name)])
 
                ! Write out the data
                do i = 1, this%n_fields
-                  write(*,*) "Writing field: ", trim(this%which_fields(i))
                   call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
                   this%vec_out%name = trim(this%which_fields(i))
-                  write(*,*) "Copied: ", trim(this%which_fields(i))
                   call this%fout%write_dataset(this%vec_out)
-                  write(*,*) "DONE - Writing field: ", trim(this%which_fields(i))
                end do
 
-               !call this%fout%write_dataset(this%mat_out)
-               !call this%fout%write_attribute(testing, "testing")
-               !call this%fout%write_attribute(testing2, "time")
+               time_ = time%t
+               call this%fout%write_attribute(time_, "time")
                call this%fout%close()
 
         end if
