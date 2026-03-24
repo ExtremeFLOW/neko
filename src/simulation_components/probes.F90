@@ -35,7 +35,7 @@
 !! `findpts`, and `findpts_eval`. A full description of these subroutines can
 !! be found at https://github.com/Nek5000/gslib/blob/master/src/findpts.c
 module probes
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use matrix, only : matrix_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use utils, only : neko_error, nonlinear_index

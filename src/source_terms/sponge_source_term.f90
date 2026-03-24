@@ -172,15 +172,19 @@ contains
        fname = trim(read_str)
        call json_get_or_default(baseflow_subdict, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(baseflow_subdict, 'tolerance', tolerance, &
-            0.000001_rp)
        call json_get_or_default(baseflow_subdict, 'mesh_file_name', read_str, &
             "none")
        mesh_fname = trim(read_str)
 
-       call this%init_field(fields, coef, start_time, end_time, amplitudes, &
-            fringe_registry_name, bf_registry_pref, dump_fields, dump_fname, &
-            fname, interpolate, tolerance, mesh_fname)
+       block
+         type(json_file) :: interp_subdict
+         call json_get_or_default(baseflow_subdict, "interpolation", &
+              interp_subdict)
+
+         call this%init_field(fields, coef, start_time, end_time, amplitudes, &
+              fringe_registry_name, bf_registry_pref, dump_fields, dump_fname, &
+              fname, interpolate, mesh_fname, interp_subdict)
+       end block
 
        ! Constant base flow
     case ("constant")
@@ -261,7 +265,7 @@ contains
   !> Initialize a sponge with a baseflow imported from a field file.
   subroutine sponge_init_field(this, fields, coef, start_time, end_time, &
        amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
-       dump_fname, file_name, interpolate, tolerance, mesh_file_name)
+       dump_fname, file_name, interpolate, mesh_file_name, interp_subdict)
     class(sponge_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
@@ -272,8 +276,8 @@ contains
     logical, intent(in) :: dump_fields
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
-    real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    type(json_file), intent(inout) :: interp_subdict
 
     type(field_t) :: wk
     integer :: tmp_index
@@ -307,7 +311,7 @@ contains
     !
     call import_fields(file_name, mesh_file_name, &
          u = this%u_bf, v = this%v_bf, w = this%w_bf, &
-         interpolate = interpolate, tolerance = tolerance)
+         interpolate = interpolate, interp_subdict = interp_subdict)
 
     this%baseflow_set = .true.
 
