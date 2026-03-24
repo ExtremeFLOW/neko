@@ -123,7 +123,7 @@ module global_interpolation
      !> Turns true if points are redistributed to their respective owners
      logical :: all_points_local = .false.
      !> Tolerance for Newton solve to find the correct rst coordinates.
-     real(kind=dp) :: tolerance = NEKO_EPS*1e3_dp
+     real(kind=dp) :: tolerance = GLOBAL_INTERP_TOL
      !> Padding
      real(kind=dp) :: padding = 1e-2_dp
 
