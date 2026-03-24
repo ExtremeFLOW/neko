@@ -1891,8 +1891,8 @@ contains
        if (objmm%rank(il) .ne. pe_rank) then
           itmp = itmp + 1 ! count messages
           jl = 2 * (cmoffr(itmp + 1) - cmoffr(itmp))
-          call MPI_IRecv(rbuf(:, cmoffr(itmp) : cmoffr(itmp + 1) - 1), jl, &
-               MPI_INTEGER, objmm%rank(il), jl, NEKO_COMM, request(itmp), ierr)
+          call MPI_IRecv(rbuf(:, cmoffr(itmp)), jl, MPI_INTEGER, &
+               objmm%rank(il), jl, NEKO_COMM, request(itmp), ierr)
        end if
     end do
 
