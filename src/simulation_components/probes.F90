@@ -479,7 +479,7 @@ contains
 
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
-    integer :: i, ierr
+    integer :: i, ierr, out_int
     type(matrix_t) :: mat_coords
 
     this%name = name
@@ -556,8 +556,10 @@ contains
 
        !> Write the coordinates in the root directory
        call this%fout%open("w")
-       call this%fout%set_active_group() ! Empty sets it to the root group "/"
+       call this%fout%set_active_group(["probes"]) ! Empty sets it to the root group "/"
        call this%fout%write_dataset(mat_coords)
+       out_int = this%n_global_probes
+       call this%fout%write_attribute(out_int, "NProbes")
        call this%fout%close()
 
        !> Set up the output matrix
@@ -699,7 +701,7 @@ contains
     character(len=1000) :: group_name
     real(kind=rp) :: time_
     type(vector_t) :: vec_time
-    integer :: n_executions
+    integer :: out_int
 
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
@@ -752,11 +754,11 @@ contains
              if (this%append_out) then
 
                 call this%fout%open("w")
-                ! Write Nsteps in root
-                n_executions = this%output_controller%nexecutions + 1
-                call this%fout%write_attribute(n_executions, "NSteps")
-                ! Write out the data
                 call this%fout%set_active_group(["probes"])
+                ! Write Nsteps in root
+                out_int = this%output_controller%nexecutions + 1
+                call this%fout%write_attribute(out_int, "NSteps")
+                ! Write out the data
                 do i = 1, this%n_fields
                    call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
                    this%vec_out%name = trim(this%which_fields(i))
@@ -764,7 +766,6 @@ contains
                 end do
 
                 ! Write the time by hacking the vector write
-                call this%fout%set_active_group()
                 if (pe_rank .eq. 0) then
                    call vec_time%init(1, "time")
                    vec_time%x(1) = time%t
@@ -778,12 +779,13 @@ contains
                 ! Write data in different steps
              else
 
-                n_executions = this%output_controller%nexecutions + 1
+                out_int = this%output_controller%nexecutions + 1
                 ! Set up the name
-                write(group_name, '(A,I0)') "Step_", n_executions
+                write(group_name, '(A,I0)') "Step_", out_int
                 call this%fout%open("w")
+                call this%fout%set_active_group(["probes"])
                 ! Write Nsteps in root
-                call this%fout%write_attribute(n_executions, "NSteps")
+                call this%fout%write_attribute(out_int, "NSteps")
                 ! Write out the data
                 call this%fout%set_active_group(["probes", trim(group_name)])
                 do i = 1, this%n_fields
