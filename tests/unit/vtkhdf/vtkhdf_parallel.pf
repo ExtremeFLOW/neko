@@ -5,6 +5,7 @@ module vtkhdf_parallel
   use field_math, only : field_cfill
   use file, only : file_t
   use vtkhdf_file, only : vtkhdf_file_t
+  use num_types, only : i8
   use mesh, only : mesh_t
   use point, only : point_t
   use space, only : space_t, GLL
@@ -17,8 +18,9 @@ module vtkhdf_parallel
        h5gopen_f, h5gclose_f, h5aopen_f, h5aclose_f, h5aread_f, &
        h5dopen_f, h5dclose_f, h5dget_space_f, h5dread_f, &
        h5sget_simple_extent_dims_f, h5sget_simple_extent_ndims_f, &
-       h5sclose_f, h5lexists_f, &
-       hid_t, hsize_t, H5F_ACC_RDONLY_F, H5T_NATIVE_INTEGER, H5T_NATIVE_DOUBLE
+       h5sclose_f, h5lexists_f, h5kind_to_type, &
+       hid_t, hsize_t, H5F_ACC_RDONLY_F, &
+       H5_INTEGER_KIND, H5T_NATIVE_INTEGER, H5T_NATIVE_DOUBLE
   implicit none
 
   @TestCase
@@ -141,7 +143,8 @@ contains
     integer(hsize_t), dimension(2) :: h5dims, h5maxdims
     integer :: hdferr, h5rank
     integer :: version_read(2)
-    integer :: nop_read(2), noc_read(2), noci_read(2)
+    integer(kind=i8) :: nop_read(2), noc_read(2), noci_read(2)
+    integer(hid_t) :: precision_i8
     logical :: link_exists
     character(len=16) :: type_read
 
@@ -161,10 +164,13 @@ contains
     integer, parameter :: EXP_TOTAL_OFFSETS = 6
     integer, parameter :: EXP_NUM_PARTS = 2
 
-    ! Prepare the environment for the test
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    inquire(file='test_write_0.vtkhdf', exist=exists)
+    if (exists .and. pe_rank .eq. 0) then
+       open(newunit=unit, file='test_write_0.vtkhdf')
+       close(unit, status='delete')
+       call execute_command_line('rm -rf test_write_0.data')
+    end if
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
     ! Create the test mesh and field
     call test_vtkhdf_gen_msh(msh)
@@ -196,6 +202,9 @@ contains
     call h5fopen_f("test_write_0.vtkhdf", H5F_ACC_RDONLY_F, file_id, hdferr)
     message = "Must open HDF5 file"
     @assertEqual(0, hdferr, message = message)
+
+    ! -- Set the precision --
+    precision_i8 = h5kind_to_type(i8, H5_INTEGER_KIND)
 
     ! -- VTKHDF group must exist --
     call h5lexists_f(file_id, "VTKHDF", link_exists, hdferr)
@@ -232,7 +241,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfPoints size must equal num partitions"
     @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nop_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, nop_read, h5dims(1:1), hdferr)
     message = "NumberOfPoints partition 0 must match local"
     @assertEqual(EXP_LOCAL_POINTS, nop_read(1), message = message)
     message = "NumberOfPoints partition 1 must match local"
@@ -249,7 +258,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfCells size must equal num partitions"
     @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noc_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, noc_read, h5dims(1:1), hdferr)
     message = "NumberOfCells partition 0 must match local"
     @assertEqual(EXP_LOCAL_CELLS, noc_read(1), message = message)
     message = "NumberOfCells partition 1 must match local"
@@ -266,7 +275,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfConnectivityIds size must equal num partitions"
     @assertEqual(EXP_NUM_PARTS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noci_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, noci_read, h5dims(1:1), hdferr)
     message = "NumberOfConnectivityIds partition 0 must match local"
     @assertEqual(EXP_LOCAL_CONN, noci_read(1), message = message)
     message = "NumberOfConnectivityIds partition 1 must match local"
@@ -368,13 +377,6 @@ contains
     call h5fclose_f(file_id, hdferr)
     call h5close_f(hdferr)
 
-    inquire(file='test_write_0.vtkhdf', exist=exists)
-    if (exists .and. pe_rank .eq. 0) then
-       open(newunit=unit, file='test_write_0.vtkhdf')
-       close(unit, status='delete')
-       call execute_command_line('rm -rf test_write_0.data')
-    end if
-
   end subroutine test_vtkhdf_write
 
   @test(npes=[2])
@@ -394,13 +396,14 @@ contains
     integer(hid_t) :: file_id, vtkhdf_grp, attr_id, dset_id
     integer(hid_t) :: filespace, pointdata_grp, steps_grp, pdo_grp
     integer(hsize_t), dimension(2) :: h5dims, h5maxdims
+    integer(hid_t) :: precision_i8
     integer :: hdferr, h5rank
     integer :: version_read(2)
-    integer :: nop_read(4), noc_read(4), noci_read(4)
+    integer(kind=i8) :: nop_read(4), noc_read(4), noci_read(4)
     integer :: nsteps_read(1)
-    integer :: nparts_read(2), partoffs_read(2)
-    integer :: ptoffs_read(2), celloffs_read(2)
-    integer :: connoffs_read(2), pdoffs_read(2)
+    integer(kind=i8) :: nparts_read(2), partoffs_read(2)
+    integer(kind=i8) :: ptoffs_read(2), celloffs_read(2)
+    integer(kind=i8) :: connoffs_read(2), pdoffs_read(2)
     real(rp) :: values_read(2)
     logical :: link_exists
 
@@ -414,6 +417,15 @@ contains
     integer, parameter :: EXP_TOTAL_OFFSETS = 6
     integer, parameter :: EXP_NUM_PARTS = 2
     integer, parameter :: EXP_NUM_STEPS = 2
+
+
+    inquire(file='test_write_time_0.vtkhdf', exist=exists)
+    if (exists .and. pe_rank .eq. 0) then
+       open(newunit=unit, file='test_write_time_0.vtkhdf')
+       close(unit, status='delete')
+       call execute_command_line('rm -rf test_write_time_0.data')
+    end if
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
     ! Create the test mesh and field
     call test_vtkhdf_gen_msh(msh)
@@ -448,6 +460,9 @@ contains
     message = "Must open temporal HDF5 file"
     @assertEqual(0, hdferr, message = message)
 
+    ! -- Set the precision --
+    precision_i8 = h5kind_to_type(i8, H5_INTEGER_KIND)
+
     ! -- VTKHDF group --
     call h5lexists_f(file_id, "VTKHDF", link_exists, hdferr)
     message = "VTKHDF group must exist (temporal)"
@@ -480,7 +495,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfPoints size"
     @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nop_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, nop_read, h5dims(1:1), hdferr)
     message = "NumberOfPoints step0 part0"
     @assertEqual(EXP_LOCAL_POINTS, nop_read(1), message = message)
     message = "NumberOfPoints step0 part1"
@@ -501,7 +516,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfCells size"
     @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noc_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, noc_read, h5dims(1:1), hdferr)
     message = "NumberOfCells step0 part0"
     @assertEqual(EXP_LOCAL_CELLS, noc_read(1), message = message)
     message = "NumberOfCells step0 part1"
@@ -519,7 +534,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfConnectivityIds size"
     @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noci_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, noci_read, h5dims(1:1), hdferr)
     message = "NumberOfConnectivityIds step0 part0"
     @assertEqual(EXP_LOCAL_CONN, noci_read(1), message = message)
     message = "NumberOfConnectivityIds step0 part1"
@@ -657,7 +672,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfParts size must be num steps"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nparts_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, nparts_read, h5dims(1:1), hdferr)
     message = "NumberOfParts(1) must be 2"
     @assertEqual(EXP_NUM_PARTS, nparts_read(1), message = message)
     message = "NumberOfParts(2) must be 2"
@@ -674,7 +689,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "PartOffsets size must be num steps"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, partoffs_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, partoffs_read, h5dims(1:1), hdferr)
     message = "PartOffsets(1) must be 0"
     @assertEqual(0, partoffs_read(1), message = message)
     message = "PartOffsets(2) must be 0"
@@ -691,7 +706,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "PointOffsets size must be num steps"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, ptoffs_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, ptoffs_read, h5dims(1:1), hdferr)
     message = "PointOffsets(1) must be 0"
     @assertEqual(0, ptoffs_read(1), message = message)
     message = "PointOffsets(2) must be 0"
@@ -708,7 +723,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "CellOffsets size must be num steps"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, celloffs_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, celloffs_read, h5dims(1:1), hdferr)
     message = "CellOffsets(1) must be 0"
     @assertEqual(0, celloffs_read(1), message = message)
     message = "CellOffsets(2) must be 0"
@@ -725,7 +740,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "ConnectivityIdOffsets size must be num steps"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, connoffs_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, connoffs_read, h5dims(1:1), hdferr)
     message = "ConnectivityIdOffsets(1) must be 0"
     @assertEqual(0, connoffs_read(1), message = message)
     message = "ConnectivityIdOffsets(2) must be 0"
@@ -746,7 +761,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "PointDataOffsets/test size must be num steps"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, pdoffs_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, pdoffs_read, h5dims(1:1), hdferr)
     message = "PointDataOffsets/test(1) must be 0"
     @assertEqual(0, pdoffs_read(1), message = message)
     message = "PointDataOffsets/test(2) must be total_points"
@@ -762,13 +777,6 @@ contains
     call h5gclose_f(vtkhdf_grp, hdferr)
     call h5fclose_f(file_id, hdferr)
     call h5close_f(hdferr)
-
-    inquire(file='test_write_time_0.vtkhdf', exist=exists)
-    if (exists .and. pe_rank .eq. 0) then
-       open(newunit=unit, file='test_write_time_0.vtkhdf')
-       close(unit, status='delete')
-       call execute_command_line('rm -rf test_write_time_0.data')
-    end if
 
   end subroutine test_vtkhdf_write_time
 
@@ -789,13 +797,14 @@ contains
     integer(hid_t) :: file_id, vtkhdf_grp, attr_id, dset_id
     integer(hid_t) :: filespace, pointdata_grp, steps_grp, pdo_grp
     integer(hsize_t), dimension(2) :: h5dims, h5maxdims
+    integer(hid_t) :: precision_i8
     integer :: hdferr, h5rank
     integer :: version_read(2)
-    integer :: nop_read(4), noc_read(4), noci_read(4)
+    integer(kind=i8) :: nop_read(4), noc_read(4), noci_read(4)
     integer :: nsteps_read(1)
-    integer :: nparts_read(2), partoffs_read(2)
-    integer :: ptoffs_read(2), celloffs_read(2)
-    integer :: connoffs_read(2), pdoffs_read(2)
+    integer(kind=i8) :: nparts_read(2), partoffs_read(2)
+    integer(kind=i8) :: ptoffs_read(2), celloffs_read(2)
+    integer(kind=i8) :: connoffs_read(2), pdoffs_read(2)
     real(rp) :: values_read(2)
     logical :: link_exists
 
@@ -814,6 +823,14 @@ contains
     integer, parameter :: EXP_TOTAL_OFFSETS = 110
     integer, parameter :: EXP_NUM_PARTS = 2
     integer, parameter :: EXP_NUM_STEPS = 2
+
+    inquire(file='test_write_time_subdivide_0.vtkhdf', exist=exists)
+    if (exists .and. pe_rank .eq. 0) then
+       open(newunit=unit, file='test_write_time_subdivide_0.vtkhdf')
+       close(unit, status='delete')
+       call execute_command_line('rm -rf test_write_time_subdivide_0.data')
+    end if
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
 
     ! Create the test mesh and field
     call test_vtkhdf_gen_msh(msh)
@@ -853,6 +870,9 @@ contains
     message = "Must open temporal subdivided HDF5 file"
     @assertEqual(0, hdferr, message = message)
 
+    ! -- Set the precision --
+    precision_i8 = h5kind_to_type(i8, H5_INTEGER_KIND)
+
     ! -- VTKHDF group --
     call h5lexists_f(file_id, "VTKHDF", link_exists, hdferr)
     message = "VTKHDF group must exist (subdivide)"
@@ -875,7 +895,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfPoints size (subdivide)"
     @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nop_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, nop_read, h5dims(1:1), hdferr)
     message = "NumberOfPoints step0 part0 (subdivide)"
     @assertEqual(EXP_LOCAL_POINTS, nop_read(1), message = message)
     message = "NumberOfPoints step0 part1 (subdivide)"
@@ -893,7 +913,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfCells size (subdivide)"
     @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noc_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, noc_read, h5dims(1:1), hdferr)
     message = "NumberOfCells step0 part0 (subdivide)"
     @assertEqual(EXP_LOCAL_CELLS, noc_read(1), message = message)
     message = "NumberOfCells step0 part1 (subdivide)"
@@ -911,7 +931,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfConnectivityIds size (subdivide)"
     @assertEqual(EXP_NUM_PARTS * EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, noci_read, h5dims(1:1), hdferr)
+    call h5dread_f(dset_id, precision_i8, noci_read, h5dims(1:1), hdferr)
     message = "NumberOfConnectivityIds step0 part0 (subdivide)"
     @assertEqual(EXP_LOCAL_CONN, noci_read(1), message = message)
     message = "NumberOfConnectivityIds step0 part1 (subdivide)"
@@ -1024,7 +1044,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "NumberOfParts size (subdivide)"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, nparts_read, &
+    call h5dread_f(dset_id, precision_i8, nparts_read, &
          h5dims(1:1), hdferr)
     message = "NumberOfParts(1) must be 2 (subdivide)"
     @assertEqual(EXP_NUM_PARTS, nparts_read(1), message = message)
@@ -1037,7 +1057,7 @@ contains
     call h5dopen_f(steps_grp, "PartOffsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, partoffs_read, &
+    call h5dread_f(dset_id, precision_i8, partoffs_read, &
          h5dims(1:1), hdferr)
     message = "PartOffsets(1) must be 0 (subdivide)"
     @assertEqual(0, partoffs_read(1), message = message)
@@ -1050,7 +1070,7 @@ contains
     call h5dopen_f(steps_grp, "PointOffsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, ptoffs_read, &
+    call h5dread_f(dset_id, precision_i8, ptoffs_read, &
          h5dims(1:1), hdferr)
     message = "PointOffsets(1) must be 0 (subdivide)"
     @assertEqual(0, ptoffs_read(1), message = message)
@@ -1063,7 +1083,7 @@ contains
     call h5dopen_f(steps_grp, "CellOffsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, celloffs_read, &
+    call h5dread_f(dset_id, precision_i8, celloffs_read, &
          h5dims(1:1), hdferr)
     message = "CellOffsets(1) must be 0 (subdivide)"
     @assertEqual(0, celloffs_read(1), message = message)
@@ -1076,7 +1096,7 @@ contains
     call h5dopen_f(steps_grp, "ConnectivityIdOffsets", dset_id, hdferr)
     call h5dget_space_f(dset_id, filespace, hdferr)
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, connoffs_read, &
+    call h5dread_f(dset_id, precision_i8, connoffs_read, &
          h5dims(1:1), hdferr)
     message = "ConnectivityIdOffsets(1) must be 0 (subdivide)"
     @assertEqual(0, connoffs_read(1), message = message)
@@ -1092,7 +1112,7 @@ contains
     call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
     message = "PointDataOffsets/test size (subdivide)"
     @assertEqual(EXP_NUM_STEPS, int(h5dims(1)), message = message)
-    call h5dread_f(dset_id, H5T_NATIVE_INTEGER, pdoffs_read, &
+    call h5dread_f(dset_id, precision_i8, pdoffs_read, &
          h5dims(1:1), hdferr)
     message = "PointDataOffsets/test(1) must be 0 (subdivide)"
     @assertEqual(0, pdoffs_read(1), message = message)
@@ -1107,13 +1127,6 @@ contains
     call h5gclose_f(vtkhdf_grp, hdferr)
     call h5fclose_f(file_id, hdferr)
     call h5close_f(hdferr)
-
-    inquire(file='test_write_time_subdivide_0.vtkhdf', exist=exists)
-    if (exists .and. pe_rank .eq. 0) then
-       open(newunit=unit, file='test_write_time_subdivide_0.vtkhdf')
-       close(unit, status='delete')
-       call execute_command_line('rm -rf test_write_time_subdivide_0.data')
-    end if
 
   end subroutine test_vtkhdf_write_time_subdivide
 
