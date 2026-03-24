@@ -43,6 +43,7 @@ module checkpoint
   use utils, only : neko_error
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
+  use global_interpolation, only : GLOBAL_INTERP_TOL
   implicit none
   private
 
