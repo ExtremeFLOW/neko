@@ -86,8 +86,6 @@ contains
     real(kind=rp), allocatable :: uinf(:)
     real(kind=rp), allocatable :: zone_value(:)
     character(len=:), allocatable :: read_str
-    character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
-    logical :: interpolate
 
 
     !
@@ -125,23 +123,24 @@ contains
        !
     else if (trim(type) .eq. 'field') then
 
-       call json_get(params, 'file_name', read_str)
-       fname = trim(read_str)
-       call json_get_or_default(params, 'interpolate', interpolate, &
-            .false.)
-       call json_get_or_lookup_or_default(params, 'tolerance', tol, &
-            0.000001_rp)
-       call json_get_or_default(params, 'mesh_file_name', read_str, "none")
-       mesh_fname = trim(read_str)
+       block
+         character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
+         logical :: interpolate
+         type(json_file) :: interp_subdict
 
-       if (params%valid_path('padding')) then
-          call json_get(params, 'padding', padding) 
-          call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, &
-                  mesh_fname, padding)
-       else
-          call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, &
-                  mesh_fname)
-       end if
+         call json_get(params, 'file_name', read_str)
+         fname = trim(read_str)
+
+         call json_get_or_default(params, 'interpolate', interpolate, &
+              .false.)
+
+         call json_get_or_default(params, 'mesh_file_name', read_str, "none")
+         mesh_fname = trim(read_str)
+
+         call json_get_or_default(params, "interpolation", interp_subdict)
+         call set_flow_ic_fld(u, v, w, p, fname, interpolate, &
+              mesh_fname, interp_subdict)
+       end block
 
     else
        call neko_error('Invalid initial condition')
