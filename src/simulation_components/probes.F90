@@ -245,7 +245,7 @@ contains
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(in), optional :: tolerance, padding
+    real(kind=dp), intent(in), optional :: tolerance, padding
 
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
