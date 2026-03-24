@@ -283,8 +283,8 @@ simulation.lo : simulation.f90 common/time_step_controller.lo common/time_state.
 math/ax_helm_fctry.lo : math/ax_helm_fctry.f90 common/utils.lo math/bcknd/device/ax_helm_full_device.lo math/bcknd/cpu/ax_helm_full_cpu.lo math/bcknd/cpu/ax_helm_cpu.lo math/ax_helm.lo math/bcknd/sx/ax_helm_sx.lo math/bcknd/xsmm/ax_helm_xsmm.lo math/bcknd/device/ax_helm_device.lo config/neko_config.lo math/ax.lo 
 math/ax_helm.lo : math/ax_helm.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax.lo 
 math/ax_helm_full.lo : math/ax_helm_full.f90 common/utils.lo math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax.lo 
-math/bcknd/cpu/ax_helm_cpu.lo : math/bcknd/cpu/ax_helm_cpu.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
-math/bcknd/cpu/ax_helm_full_cpu.lo : math/bcknd/cpu/ax_helm_full_cpu.f90 common/utils.lo math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_full.lo 
+math/bcknd/cpu/ax_helm_cpu.lo : math/bcknd/cpu/ax_helm_cpu.f90 mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
+math/bcknd/cpu/ax_helm_full_cpu.lo : math/bcknd/cpu/ax_helm_full_cpu.f90 mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_full.lo 
 math/bcknd/sx/ax_helm_sx.lo : math/bcknd/sx/ax_helm_sx.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
 math/bcknd/xsmm/ax_helm_xsmm.lo : math/bcknd/xsmm/ax_helm_xsmm.F90 math/mxm_wrapper.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
 math/bcknd/device/ax_helm_device.lo : math/bcknd/device/ax_helm_device.F90 device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
