@@ -56,7 +56,7 @@ the speed of interface resharpening. The right-hand side has two parts:
   source term.
 
 In this implementation $\gamma_c$ is not a fixed constant but is set adaptively as
-$\gamma_c = \gamma_{\mathrm{param}}\, u_{\max}$, where $\gamma_{\mathrm{param}} = 0.015$
+$\gamma_c = \gamma_{\mathrm{param}}\, u_{\max}$, where $\gamma_{\mathrm{param}} = 0.05$
 is the dimensionless coefficient read from the case file and $u_{\max}$ is the
 instantaneous maximum velocity magnitude updated every `ipostproc` steps. This
 ensures CDI keeps up with the flow if the velocity scale changes. See section 3.2
@@ -350,7 +350,7 @@ in the $We = 1$ restart run. All $We \leq 10$ cases use `target_cfl = 0.2`.
 |-------------|:-----:|---------|
 | CDI vs convective straining | $\tau_{\mathrm{conv}} / \tau_{\mathrm{CDI}} = 4.6$ | Interface stays sharp under flow ✓ |
 | CDI vs IC perturbations | $\tau_{\mathrm{IC}} / \tau_{\mathrm{CDI}} = 3.6$ | CDI wins; no $\kappa$ spike expected ✓ |
-| CFL vs capillary ($We=1$) | $\Delta t_{\mathrm{CFL}} / \Delta t_{\mathrm{cap}} \approx 1.4$ | Marginal; `target_cfl = 0.2` required |
+| CFL vs capillary ($We=1$) | $\Delta t_{\mathrm{CFL}} / \Delta t_{\mathrm{cap}} \approx 1.4$ | Outside boundary — both restart runs blew up; `target_cfl` ≈ 0.07 needed |
 
 ---
 
@@ -502,44 +502,30 @@ Expected outcomes:
 - **Any** $\kappa_{\mathrm{rms}}$ growth or $\varphi_{\max}$ decline would
   indicate a CDI/CSF method error, since no physical deformation is expected
 
-**Test 2 — Turbulent + $We = 1$** (`turb_channel_two_phase_we1.case`, $\sigma = 0.3$)
+**Test 2 — Turbulent + $We = 10$** (`turb_channel_two_phase_we10.case`, $\sigma = 0.03$)
 
-Same as v4 but with strong surface tension. The flow strains the interface, but
-surface tension ($\Delta p = 2\sigma/R = 2.0$) dominates inertia ($\rho U_b^2/2 = 0.5$),
-restoring the drop toward spherical shape. CDI/CSF tested under turbulent straining.
-
-Expected outcomes:
-- $\kappa_{\mathrm{rms}}$ fluctuates but mean stays near $6.67$ after startup transient
-- $\varphi_{\max}$ stable (strong surface tension resists deformation)
-- Startup $\kappa$ spike still present (same IC perturbations), but surface
-  tension actively resists it — spike amplitude should be smaller than v4
-
-**Test 3 — Turbulent + $We = 10$** (`turb_channel_two_phase_we10.case`, $\sigma = 0.03$)
-
-Moderate deformation regime: inertia and surface tension comparable.
-CDI/CSF tested under sustained interface strain.
+Restart from `fluid00004.chkp` (t=20→25). Moderate deformation regime: inertia and
+surface tension comparable. First test of CDI/CSF under turbulent straining with
+a stable explicit timestep ($\Delta t / \Delta t_{\mathrm{cap}} \approx 0.45$).
 
 Expected outcomes:
-- $\kappa_{\mathrm{rms}}$ rising above $6.67$ but growing more slowly than v4
-- $\varphi_{\max}$ declining slowly
-- The comparison with $We = 1$ isolates the role of surface tension strength
+- $\kappa_{\mathrm{rms}}$ rising above $6.67$ and settling at a deformed-drop value
+- $\varphi_{\max}$ stable or slowly varying
+- No blow-up: capillary stability margin is genuine
 
-**Test 4 — Turbulent restart + $We = 1$**
+**Test 3 — Turbulent + $We = 1$** (`turb_channel_two_phase_we1.case`, $\sigma = 0.3$)
 
-Requires single-phase spin-up to complete (`fluid00004.chkp` at $t = 20$ TU).
-Drop injected analytically into statistically stationary turbulence — eliminates
-the startup IC burst entirely.
+Restart from `fluid00004.chkp` (t=20→25). Strong surface tension. Two prior attempts
+(v1, v2) blew up due to explicit CSF stiffness (see section 8). Stable operation
+requires `target_cfl` ≈ 0.05–0.07 or a semi-implicit CSF treatment.
 
-Expected outcomes:
-- No $\kappa$ spike at $t = 0$ of restart (flow is already stationary)
-- $\kappa_{\mathrm{rms}}$ begins at $2/R$ and evolves smoothly
-- $\varphi_{\max}$ stable or slowly varying from 0.995
-- This is the cleanest test of CDI/CSF under sustained turbulent straining
+Expected outcomes (if stable):
+- $\kappa_{\mathrm{rms}}$ stable near $6.67 = 2/R$ throughout
+- $\varphi_{\max}$ near 0.997 (R=0.3 → φ(0)=0.986, IC value)
+- Comparison with $We = 10$ isolates the surface tension strength effect
 
-**Status:** Both v1 and v2 restart runs blew up. See section 8 for detailed
-analysis of the failure mechanism. The instability is in the explicit CSF
-treatment at $We = 1$, not in CDI. Run Test 1 (laminar) and Test 3 (turbulent
-$We = 10$) first to establish a stable baseline.
+**Status:** Tests 1 and 2 are the immediate priority. Test 3 blocked pending
+stable timestep strategy (see section 8.7).
 
 ### 6.3 Open questions
 
@@ -557,14 +543,14 @@ will map out the resolution limits.
 With current parameters ($\varepsilon = 0.07$, $\gamma_{\mathrm{param}} = 0.05$) the ratio
 $\tau_{\mathrm{IC}}/\tau_{\mathrm{CDI}} = 3.6$ — CDI is substantially faster than the initial
 velocity impulse, so the startup $\kappa$ spike is expected to be minor. The restart case
-(Test 4) eliminates the transient entirely and provides the cleanest test of sustained CDI
+(Test 3) eliminates the transient entirely and provides the cleanest test of sustained CDI
 performance.
 
 ---
 
-## 8. Explicit CSF stability in turbulent flow — analysis of We=1 blow-up
+## 7. Explicit CSF stability in turbulent flow — analysis of We=1 blow-up
 
-### 8.1 Background: the stiffness of explicit CSF
+### 7.1 Background: the stiffness of explicit CSF
 
 The CSF surface tension force is applied as an explicit source term in the
 Navier–Stokes RHS:
@@ -843,7 +829,7 @@ the relevant physics at reasonable cost.
 
 ---
 
-## 7. Summary
+## 8. Summary
 
 The CDI and CSF implementations are verified correct (see section 6.1). The
 primary goal of this case suite is **interface capturing method validation**:

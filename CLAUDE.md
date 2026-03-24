@@ -134,7 +134,7 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | `examples/two_phase_channel/turb_channel_two_phase_laminar.case` | Laminar + We=1 (σ=0.3): CDI/CSF ground-truth baseline |
 | `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Turbulent + We=1 (σ=0.3): primary validation; restart from `fluid00004.chkp` |
 | `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Turbulent + We=10 (σ=0.03): moderate deformation; restart from `fluid00004.chkp` |
-| `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1 restart from `fluid00004.chkp` (t=20→25), R=0.3, y_c=0 (centre) |
+| `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp` (t=20→25), R=0.4, y_c=0 (centre); blow-up reference data |
 | `examples/two_phase_channel/turb_channel_two_phase_restart_off.case` | We=1.33 restart, R=0.4, y_c=0.3 (off-centre, log-law region) |
 | `examples/two_phase_channel/turb_channel_two_phase_v4.case` | v4: We=730 high-We reference (completed) |
 | `examples/two_phase_channel/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up |

@@ -11,11 +11,11 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 | Run | Case file | We | σ | R | y_c | IC | Status | Purpose |
 |-----|-----------|:--:|---|---|-----|----|--------|---------|
 | `channel_test_v4` | `_v4.case` | 730 | 4.1×10⁻⁴ | 0.3 | 0 | Turbulent Reichardt | **Completed** t=0–5 | High-We reference |
-| `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Laminar | **Planned** | Ground-truth CDI/CSF baseline |
-| `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | Turbulent Reichardt | **Planned** | Primary validation |
-| `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | Turbulent Reichardt | **Planned** | Moderate deformation |
+| `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Laminar Poiseuille | **Planned** | Ground-truth CDI/CSF baseline |
+| `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Running** t=20→25 | First turbulent CDI/CSF test |
+| `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Planned** | Primary validation (after we10) |
 | `channel_single_phase` | `_single_phase.case` | — | — | — | — | Turbulent Reichardt | **Completed** t=0–25 | Fluid spin-up; checkpoint at t=20 |
-| `channel_test_restart` | `_restart.case` | 1 | 0.3 | 0.4 | 0 | `fluid00004.chkp` + drop | **Ready** (v2) | CDI/CSF without startup transient |
+| `channel_test_restart` | `_restart.case` | 1.33 | 0.3 | 0.4 | 0 | `fluid00004.chkp` + drop | **Blown up** (v1, v2) | We=1 blow-up reference data |
 | `channel_test_restart_off` | `_restart_off.case` | 1.33 | 0.3 | 0.4 | 0.3 | `fluid00004.chkp` + drop | **Ready** | Larger off-centre drop; log-law region shear |
 
 Run directories: `/lscratch/sieburgh/simulations/<run_name>/`
@@ -111,7 +111,7 @@ CDI/CSF validation target.
 strong surface tension. The drop barely deforms (mean shear at y=0 is zero by symmetry).
 κ_rms = 6.67 throughout is the analytical expectation; any deviation is a method error.
 
-**Setup:** Identical to we1.case except `turbulent_ic: false`. ε=0.05, γ=0.015,
+**Setup:** Laminar Poiseuille IC (no perturbations). ε=0.07, γ=0.05,
 σ=0.3 (We=1), R=0.3, Re_b=2800, end_time=10.
 
 | t | φ_max | φ_min | κ_rms | u_max |
@@ -127,7 +127,8 @@ force is large and measurable: Δp = 2σ/R = 2.0 ≫ ρU_b²/2 = 0.5. Any curvat
 error amplifies into a visible spurious velocity. Comparison with the laminar case
 isolates what turbulence adds.
 
-**Setup:** ε=0.05, γ=0.015, σ=0.3 (We=1), R=0.3, Re_b=2800, turbulent IC, T=5 TU.
+**Setup:** ε=0.07, γ=0.05, σ=0.3 (We=1), R=0.3, Re_b=2800, restart from
+`fluid00004.chkp`, end_time=25 (runs t=20→25).
 
 | t | φ_max | φ_min | κ_rms | u_max |
 |---|-------|-------|-------|-------|
@@ -135,12 +136,14 @@ isolates what turbulence adds.
 
 ---
 
-## channel_test_we10 — moderate deformation (We=10, PLANNED)
+## channel_test_we10 — moderate deformation (We=10, RUNNING)
 
-**Purpose:** CDI/CSF with moderate interface deformation. Inertia and surface tension
-comparable. Tests CDI under sustained strain without the free-deformation limit of v4.
+**Purpose:** First turbulent CDI/CSF test with stable explicit timestep.
+Δt/Δt_cap ≈ 0.45 — 2.2× inside capillary stability boundary.
+Tests CDI under sustained strain at moderate deformation.
 
-**Setup:** ε=0.05, γ=0.015, σ=0.03 (We=10), R=0.3, Re_b=2800, turbulent IC, T=5 TU.
+**Setup:** ε=0.07, γ=0.05, σ=0.03 (We=10), R=0.3, Re_b=2800, restart from
+`fluid00004.chkp`, end_time=25 (runs t=20→25). 16 MPI ranks.
 
 | t | φ_max | φ_min | κ_rms | u_max |
 |---|-------|-------|-------|-------|
@@ -227,8 +230,6 @@ mpirun -np 16 ./neko turb_channel_two_phase_restart.case
 
 ---
 
----
-
 ## channel_test_restart_off — off-centre drop, larger radius (READY)
 
 **Purpose:** Same restart approach as `channel_test_restart` but with a larger drop
@@ -269,8 +270,6 @@ mpirun -np 16 ./neko turb_channel_two_phase_restart_off.case
 | t | φ_max | φ_min | κ_rms | u_max | Notes |
 |---|-------|-------|-------|-------|-------|
 | — | — | — | — | — | Not yet run |
-
----
 
 ---
 
@@ -517,9 +516,8 @@ the explicit CSF timestep constraint was the limiting factor.
 - [x] `channel_single_phase` completed — `fluid00004.chkp` at t=20 available
 - [x] `channel_test_restart` v1 — blew up at t=21.55 (1.55 TU); 14 field files available
 - [x] `channel_test_restart` v2 — blew up at t=20.40 (0.40 TU); corrected CDI params not sufficient
-- [ ] **`channel_test_we10`** (We=10, σ=0.03) — **run first**: CSF 10× less stiff, expected stable
+- [~] **`channel_test_we10`** (We=10, σ=0.03) — **running** t=20→25; expected stable (Δt/Δt_cap=0.45)
 - [ ] **`channel_test_laminar`** (We=1, laminar IC) — validate CDI+CSF without turbulence
-- [ ] `channel_test_restart` v3 — We=1, target_cfl=0.05 (or We=10 restart), after diagnosing instability
+- [ ] `channel_test_we1` (We=1, restart) — primary validation; blocked pending stable timestep strategy
 - [ ] `channel_test_restart_off` (We=1.33, R=0.4, y_c=0.3) — after stable parameters found
-- [ ] `channel_test_we1` (We=1, turbulent Reichardt IC) — primary validation (after laminar baseline)
 - [ ] Compare κ_rms, φ_max across laminar / We=10 / We=1 to quantify CSF stiffness regime
