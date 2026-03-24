@@ -67,7 +67,7 @@ module json_utils
   interface json_get_or_default
      module procedure json_get_or_default_real, json_get_or_default_double, &
           json_get_or_default_integer, json_get_or_default_string, &
-          json_get_or_default_logical
+          json_get_or_default_logical, json_get_subdict_or_empty
   end interface json_get_or_default
 
   interface json_get_or_lookup
@@ -449,6 +449,32 @@ contains
     call output%load_from_string(buffer)
 
   end subroutine json_get_subdict
+
+  !> Extract a sub-object from a json object and returns
+  !! an empty object if the key is missing.
+  subroutine json_get_subdict_or_empty(json, key, output)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: key
+    type(json_file), intent(inout) :: output
+
+    type(json_value), pointer :: ptr
+    type(json_core) :: core
+    logical :: found
+    character(len=:), allocatable :: buffer
+
+    ! Initalize empty object to return
+    call output%initialize(strict_type_checking = .true.)
+
+    call json%get_core(core)
+    call json%get(key, ptr, found)
+
+    ! Load the contents if found, otherwise the object stays empty.
+    if (found) then
+       call core%print_to_string(ptr, buffer)
+       call output%load_from_string(buffer)
+    end if
+
+  end subroutine json_get_subdict_or_empty
 
   !> Retrieves a real parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
