@@ -344,61 +344,61 @@ contains
        end if
     end select
   end subroutine file_set_subdivide
- 
+
   subroutine file_open_default(this, mode)
-      class(file_t), intent(inout) :: this
-      character(len=1), intent(in) :: mode
-      select type (ft => this%file_type)
-      type is (hdf5_file_t)
-         call ft%open(mode)
-      class default
-         call neko_error("open not implemented for this file type")
-  end select
-   end subroutine
+    class(file_t), intent(inout) :: this
+    character(len=1), intent(in) :: mode
+    select type (ft => this%file_type)
+    type is (hdf5_file_t)
+       call ft%open(mode)
+    class default
+       call neko_error("open not implemented for this file type")
+    end select
+  end subroutine file_open_default
 
-   subroutine file_close_default(this)
-      class(file_t), intent(inout) :: this
-      select type (ft => this%file_type)
-      type is (hdf5_file_t)
-         call ft%close()
-      class default
-      call neko_error("close not implemented for this file type")
-   end select
-   end subroutine
+  subroutine file_close_default(this)
+    class(file_t), intent(inout) :: this
+    select type (ft => this%file_type)
+    type is (hdf5_file_t)
+       call ft%close()
+    class default
+       call neko_error("close not implemented for this file type")
+    end select
+  end subroutine file_close_default
 
-   subroutine file_write_dataset(this, data)
-      class(file_t), intent(inout) :: this
-      class(*), intent(inout) :: data
-      select type (ft => this%file_type)
-      type is (hdf5_file_t)
-         call ft%write_dataset(data)
-      class default
-         call neko_error("write_dataset not implemented for this file type")
-      end select
-   end subroutine
-   
-   subroutine file_write_attribute(this, data, data_name)
-      class(file_t), intent(inout) :: this
-      class(*), intent(inout) :: data
-      character(len=*), intent(in) :: data_name
-      select type (ft => this%file_type)
-      type is (hdf5_file_t)
-         call ft%write_attribute(data, data_name)
-      class default
-         call neko_error("write_attribute not implemented for this file type")
-      end select
-   end subroutine
+  subroutine file_write_dataset(this, data)
+    class(file_t), intent(inout) :: this
+    class(*), intent(inout) :: data
+    select type (ft => this%file_type)
+    type is (hdf5_file_t)
+       call ft%write_dataset(data)
+    class default
+       call neko_error("write_dataset not implemented for this file type")
+    end select
+  end subroutine file_write_dataset
 
-   subroutine file_set_active_group_default(this, group)
-      class(file_t), intent(inout) :: this
-      character(len=*), intent(in), optional :: group(:)
-      select type (ft => this%file_type)
-      type is (hdf5_file_t)
-         call ft%set_active_group(group)
-      class default
+  subroutine file_write_attribute(this, data, data_name)
+    class(file_t), intent(inout) :: this
+    class(*), intent(inout) :: data
+    character(len=*), intent(in) :: data_name
+    select type (ft => this%file_type)
+    type is (hdf5_file_t)
+       call ft%write_attribute(data, data_name)
+    class default
+       call neko_error("write_attribute not implemented for this file type")
+    end select
+  end subroutine file_write_attribute
 
-         call neko_error("set_active_group not implemented for this file type")
-      end select
-      end subroutine
+  subroutine file_set_active_group_default(this, group)
+    class(file_t), intent(inout) :: this
+    character(len=*), intent(in), optional :: group(:)
+    select type (ft => this%file_type)
+    type is (hdf5_file_t)
+       call ft%set_active_group(group)
+    class default
+
+       call neko_error("set_active_group not implemented for this file type")
+    end select
+  end subroutine file_set_active_group_default
 
 end module file

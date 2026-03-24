@@ -542,7 +542,7 @@ contains
           call this%fout%write(mat_coords)
        end if
     class is (hdf5_file_t)
-    
+
        !> This is always on cpus.
        call this%fout%set_overwrite(.true.)
        call mat_coords%init(3, this%n_local_probes, "coordinates")
@@ -691,7 +691,7 @@ contains
     integer :: i, ierr
     logical :: do_interp_on_host = .false.
     character(len=1000) :: group_name
-   real(kind=rp) :: time_
+    real(kind=rp) :: time_
 
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
@@ -713,54 +713,54 @@ contains
     if (this%output_controller%check(time)) then
        select type (ft => this%fout%file_type)
        type is (csv_file_t)
-         ! Gather all values to rank 0
-         ! If io is only done at root
-         if (this%seq_io) then
-            call trsp(this%out_vals_trsp, this%n_fields, &
+          ! Gather all values to rank 0
+          ! If io is only done at root
+          if (this%seq_io) then
+             call trsp(this%out_vals_trsp, this%n_fields, &
                   this%out_values, this%n_local_probes)
-            call MPI_Gatherv(this%out_vals_trsp, &
+             call MPI_Gatherv(this%out_vals_trsp, &
                   this%n_fields*this%n_local_probes, &
                   MPI_REAL_PRECISION, this%global_output_values, &
                   this%n_fields*this%n_local_probes_tot, &
                   this%n_fields*this%n_local_probes_tot_offset, &
                   MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
-            if (pe_rank .eq. 0) then
-               call trsp(this%mat_out%x, this%n_global_probes, &
+             if (pe_rank .eq. 0) then
+                call trsp(this%mat_out%x, this%n_global_probes, &
                      this%global_output_values, this%n_fields)
-               call this%fout%write(this%mat_out, time%t)
-            end if
-         else
-            call neko_error("CSV outputs only works sequentially")
-         end if
+                call this%fout%write(this%mat_out, time%t)
+             end if
+          else
+             call neko_error("CSV outputs only works sequentially")
+          end if
 
        type is (hdf5_file_t)
 
-         if (this%seq_io) then
-            call neko_error("HDF5 outputs only works in parallel currently.")
-         
-         else
+          if (this%seq_io) then
+             call neko_error("HDF5 outputs only works in parallel currently.")
 
-               ! Set up the name
-               write(group_name, '(A,I0)') "Step_", this%output_controller%nexecutions
-               call this%fout%open("w")
-               ! Write Nsteps in root
-               call this%fout%write_attribute(this%output_controller%nexecutions, "nSteps")
-               ! Write out the data
-               call this%fout%set_active_group(["probes", trim(group_name)])
-               do i = 1, this%n_fields
-                  call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
-                  this%vec_out%name = trim(this%which_fields(i))
-                  call this%fout%write_dataset(this%vec_out)
-               end do
-               ! Write the time as an attribute
-               time_ = time%t
-               call this%fout%write_attribute(time_, "time")
-               call this%fout%close()
+          else
 
-        end if
-         class default
-            call neko_error("Invalid data. Expected csv_file_t or hdf5_file_t.")
-      end select
+             ! Set up the name
+             write(group_name, '(A,I0)') "Step_", this%output_controller%nexecutions
+             call this%fout%open("w")
+             ! Write Nsteps in root
+             call this%fout%write_attribute(this%output_controller%nexecutions, "nSteps")
+             ! Write out the data
+             call this%fout%set_active_group(["probes", trim(group_name)])
+             do i = 1, this%n_fields
+                call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
+                this%vec_out%name = trim(this%which_fields(i))
+                call this%fout%write_dataset(this%vec_out)
+             end do
+             ! Write the time as an attribute
+             time_ = time%t
+             call this%fout%write_attribute(time_, "time")
+             call this%fout%close()
+
+          end if
+       class default
+          call neko_error("Invalid data. Expected csv_file_t or hdf5_file_t.")
+       end select
 
        !! Register the execution of the activity
        call this%output_controller%register_execution()

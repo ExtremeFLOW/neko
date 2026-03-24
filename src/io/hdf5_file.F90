@@ -76,11 +76,11 @@ module hdf5_file
      procedure :: write => hdf5_file_write
      procedure :: set_overwrite => hdf5_file_set_overwrite
      ! Granular methods for dealing with HDF5 files
-     procedure :: open => hdf5_file_open 
+     procedure :: open => hdf5_file_open
      procedure :: close => hdf5_file_close
      procedure :: set_active_group => hdf5_file_set_group
      procedure :: set_precision => hdf5_file_set_precision
-     procedure :: get_fname => file_get_fname 
+     procedure :: get_fname => file_get_fname
      procedure, pass(this) :: write_vector => hdf5_file_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_write_matrix
      procedure, pass(this) :: write_field => hdf5_file_write_field
@@ -98,7 +98,7 @@ contains
     logical, intent(in) :: overwrite
     this%overwrite = overwrite
   end subroutine hdf5_file_set_overwrite
-  
+
   !> Return the file name with the start counter.
   function file_get_fname(this) result(base_fname)
     class(hdf5_file_t), intent(in) :: this
@@ -110,7 +110,7 @@ contains
     call filename_split(fname, path, name, suffix)
 
     write(base_fname, '(A,A,"_",I0,A)') &
-       trim(path), trim(name), this%get_start_counter(), trim(suffix)
+         trim(path), trim(name), this%get_start_counter(), trim(suffix)
 
   end function file_get_fname
 
@@ -123,7 +123,7 @@ contains
 
 
 #ifdef HAVE_HDF5
-  
+
   ! ===============
   ! General methods
   ! ===============
@@ -651,11 +651,11 @@ contains
        call neko_error("Unsupported real type")
     end select
   end subroutine hdf5_file_determine_real
-  
+
   ! ================
   ! Granular methods
   ! ================
-  
+
   !> Open a HDF5 file in a given mode
   subroutine hdf5_file_open(this, mode)
     class(hdf5_file_t), intent(inout) :: this
@@ -699,7 +699,7 @@ contains
     call this%set_active_group()
 
     if (pe_rank .eq.0) then
-      write(*,*) "Opened HDF5 file: ", trim(fname), " with counter: ", counter
+       write(*,*) "Opened HDF5 file: ", trim(fname), " with counter: ", counter
     end if
 
   end subroutine hdf5_file_open
@@ -721,7 +721,7 @@ contains
     call h5close_f(ierr)
 
     if (pe_rank .eq.0) then
-      write(*,*) "Closed HDF5 file: ", trim(this%get_fname())
+       write(*,*) "Closed HDF5 file: ", trim(this%get_fname())
     end if
 
   end subroutine hdf5_file_close
@@ -745,13 +745,13 @@ contains
     this%active_group_id = -1_hid_t
 
     ! Start from root location = file
-    current_id = this%file_id 
+    current_id = this%file_id
     ! Return the root directory if no group name is given
     if (.not. present(group_name)) then
        this%active_group_id = current_id
        return
     end if
-   
+
     ! Iterate through the group names
     num_groups = size(group_name)
 
@@ -788,14 +788,14 @@ contains
     type is (vector_t)
        call this%write_vector(d)
     type is (matrix_t)
-        call this%write_matrix(d)
+       call this%write_matrix(d)
     type is (field_t)
-        call this%write_field(d)
+       call this%write_field(d)
     class default
-        call neko_error("write_dataset not implemented for this data type")
+       call neko_error("write_dataset not implemented for this data type")
     end select
   end subroutine hdf5_file_write_dataset
-  
+
   subroutine hdf5_file_write_attribute(this, data, data_name)
     class(hdf5_file_t), intent(inout) :: this
     class(*), intent(inout) :: data
@@ -803,11 +803,11 @@ contains
 
     select type (d => data)
     type is (integer)
-        call this%write_int_attribute(d, data_name)
+       call this%write_int_attribute(d, data_name)
     type is (real(kind=rp))
-        call this%write_rp_attribute(d, data_name)
+       call this%write_rp_attribute(d, data_name)
     class default
-        call neko_error("write_attribute not implemented for this data type")
+       call neko_error("write_attribute not implemented for this data type")
     end select
   end subroutine hdf5_file_write_attribute
 
@@ -835,7 +835,7 @@ contains
     offset = offset - counts ! Not using exclusive scan
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
- 
+
     ! ===============
     ! Configure MPIIO
     ! ===============
@@ -851,14 +851,14 @@ contains
     call h5lexists_f(this%active_group_id, trim(vec%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
-         ! retrieve the dset id for the existing data set
-         if (pe_rank .eq. 0) then
+          ! retrieve the dset id for the existing data set
+          if (pe_rank .eq. 0) then
              write(*,*) "Dataset ", trim(vec%name), " already exists in file ", trim(this%get_fname()), " and will be overwritten."
              write(*,*) "This only works if the global shape is the same"
-         end if
-         call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
+          end if
+          call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
        else
-         call neko_error("dataset already exist in the file")
+          call neko_error("dataset already exist in the file")
        end if
     else
        ! create file space of this shape
@@ -886,23 +886,23 @@ contains
     ! Cast and write the data
     ! =======================
     if (this%precision == sp) then
-      allocate(write_buffer_sp(vec%size()))
-      if (vec%size() > 0) write_buffer_sp = real(vec%x, kind=sp)
-     ! Write the data
-     call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
-      deallocate(write_buffer_sp)
+       allocate(write_buffer_sp(vec%size()))
+       if (vec%size() > 0) write_buffer_sp = real(vec%x, kind=sp)
+       ! Write the data
+       call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       deallocate(write_buffer_sp)
     else if (this%precision == dp) then
-      allocate(write_buffer_dp(vec%size()))
-      if (vec%size() > 0) write_buffer_dp = real(vec%x, kind=dp)
-     ! Write the data
-     call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
-      deallocate(write_buffer_dp)
+       allocate(write_buffer_dp(vec%size()))
+       if (vec%size() > 0) write_buffer_dp = real(vec%x, kind=dp)
+       ! Write the data
+       call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       deallocate(write_buffer_dp)
     else
-      call neko_error("Unsupported precision")
+       call neko_error("Unsupported precision")
     end if
 
     ! =======================
@@ -955,14 +955,14 @@ contains
     call h5lexists_f(this%active_group_id, trim(mat%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
-         ! retrieve the dset id for the existing data set
-         if (pe_rank .eq. 0) then
+          ! retrieve the dset id for the existing data set
+          if (pe_rank .eq. 0) then
              write(*,*) "Dataset ", trim(mat%name), " already exists in file ", trim(this%get_fname()), " and will be overwritten."
              write(*,*) "This only works if the global shape is the same"
-         end if
-         call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
+          end if
+          call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
        else
-         call neko_error("dataset already exist in the file")
+          call neko_error("dataset already exist in the file")
        end if
     else
        ! create file space of this shape
@@ -984,28 +984,28 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
-    
+
     ! =======================
     ! Cast and write the data
     ! =======================
     if (this%precision == sp) then
-      allocate(write_buffer_sp(mat%get_nrows(), mat%get_ncols()))
-      if (mat%size() > 0) write_buffer_sp = real(mat%x, kind=sp)
-     ! Write the data
-     call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
-      deallocate(write_buffer_sp)
+       allocate(write_buffer_sp(mat%get_nrows(), mat%get_ncols()))
+       if (mat%size() > 0) write_buffer_sp = real(mat%x, kind=sp)
+       ! Write the data
+       call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       deallocate(write_buffer_sp)
     else if (this%precision == dp) then
-      allocate(write_buffer_dp(mat%get_nrows(), mat%get_ncols()))
-      if (mat%size() > 0) write_buffer_dp = real(mat%x, kind=dp)
-     ! Write the data
-     call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
-      deallocate(write_buffer_dp)
+       allocate(write_buffer_dp(mat%get_nrows(), mat%get_ncols()))
+       if (mat%size() > 0) write_buffer_dp = real(mat%x, kind=dp)
+       ! Write the data
+       call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       deallocate(write_buffer_dp)
     else
-      call neko_error("Unsupported precision")
+       call neko_error("Unsupported precision")
     end if
 
     ! =======================
@@ -1056,14 +1056,14 @@ contains
     call h5lexists_f(this%active_group_id, trim(field%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
-         ! retrieve the dset id for the existing data set
-         if (pe_rank .eq. 0) then
+          ! retrieve the dset id for the existing data set
+          if (pe_rank .eq. 0) then
              write(*,*) "Overwriting Dataset: ", trim(field%name)
              write(*,*) "This only works if the global shape is the same"
-         end if
-         call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
+          end if
+          call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
        else
-         call neko_error("dataset already exist in the file")
+          call neko_error("dataset already exist in the file")
        end if
     else
        ! create file space of this shape
@@ -1085,28 +1085,28 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
-    
+
     ! =======================
     ! Cast and write the data
     ! =======================
     if (this%precision == sp) then
-      allocate(write_buffer_sp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
-      if (field%msh%nelv > 0) write_buffer_sp = real(field%x, kind=sp)
-     ! Write the data
-     call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
-      deallocate(write_buffer_sp)
+       allocate(write_buffer_sp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
+       if (field%msh%nelv > 0) write_buffer_sp = real(field%x, kind=sp)
+       ! Write the data
+       call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       deallocate(write_buffer_sp)
     else if (this%precision == dp) then
-      allocate(write_buffer_dp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
-      if (field%msh%nelv > 0) write_buffer_dp = real(field%x, kind=dp)
-     ! Write the data
-     call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, &
-         xfer_prp = xf_id)
-      deallocate(write_buffer_dp)
+       allocate(write_buffer_dp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
+       if (field%msh%nelv > 0) write_buffer_dp = real(field%x, kind=dp)
+       ! Write the data
+       call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       deallocate(write_buffer_dp)
     else
-      call neko_error("Unsupported precision")
+       call neko_error("Unsupported precision")
     end if
 
     ! =======================
@@ -1118,7 +1118,7 @@ contains
     call h5dclose_f(dset_id, ierr)
 
   end subroutine hdf5_file_write_field
-  
+
   !> Write an integer attribute
   subroutine hdf5_file_write_int_attribute(this, attr, attr_name)
     class(hdf5_file_t), intent(inout) :: this
@@ -1139,10 +1139,10 @@ contains
     call h5aexists_f(this%active_group_id, trim(attr_name), attr_exists, ierr)
     if (attr_exists) then
        if (this%overwrite) then
-         ! retrieve the attr id for the existing attribute
-         call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
+          ! retrieve the attr id for the existing attribute
+          call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
        else
-         call neko_error("attribute already exist in the file")
+          call neko_error("attribute already exist in the file")
        end if
     else
        ! create file space of this shape
@@ -1156,7 +1156,7 @@ contains
     ! ===========================
     ! Set up writing the data set
     ! ===========================
-     call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, attr, dcount, ierr)
+    call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, attr, dcount, ierr)
 
     ! =======================
     ! Clean up
@@ -1164,7 +1164,7 @@ contains
     call h5aclose_f(attr_id, ierr)
 
   end subroutine hdf5_file_write_int_attribute
-  
+
   !> Write a real (kind=rp) attribute
   subroutine hdf5_file_write_rp_attribute(this, attr, attr_name)
     class(hdf5_file_t), intent(inout) :: this
@@ -1188,10 +1188,10 @@ contains
     call h5aexists_f(this%active_group_id, trim(attr_name), attr_exists, ierr)
     if (attr_exists) then
        if (this%overwrite) then
-         ! retrieve the attr id for the existing attribute
-         call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
+          ! retrieve the attr id for the existing attribute
+          call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
        else
-         call neko_error("attribute already exist in the file")
+          call neko_error("attribute already exist in the file")
        end if
     else
        ! create file space of this shape
@@ -1205,7 +1205,7 @@ contains
     ! ===========================
     ! Set up writing the data set
     ! ===========================
-     call h5awrite_f(attr_id, precision_hdf, attr, dcount, ierr)
+    call h5awrite_f(attr_id, precision_hdf, attr, dcount, ierr)
 
     ! =======================
     ! Clean up
