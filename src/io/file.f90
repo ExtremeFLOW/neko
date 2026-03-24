@@ -377,7 +377,7 @@ contains
        call neko_error("write_dataset not implemented for this file type")
     end select
   end subroutine file_write_dataset
-  
+
   subroutine file_read_dataset(this, keyword, data, strategy)
     class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: keyword

@@ -87,7 +87,7 @@ module hdf5_file
      procedure, pass(this) :: write_field => hdf5_file_write_field
      procedure, pass(this) :: write_int_attribute => hdf5_file_write_int_attribute
      procedure, pass(this) :: write_rp_attribute => hdf5_file_write_rp_attribute
-   procedure, pass(this) :: read_vector => hdf5_file_read_vector
+     procedure, pass(this) :: read_vector => hdf5_file_read_vector
      procedure, pass(this) :: read_matrix => hdf5_file_read_matrix
      procedure :: write_dataset => hdf5_file_write_dataset
      procedure :: read_dataset => hdf5_file_read_dataset
@@ -116,7 +116,7 @@ contains
     ! Append a counter
     !write(base_fname, '(A,A,"_",I0,A)') &
     !     trim(path), trim(name), this%get_start_counter(), trim(suffix)
-    
+
     ! Do not append anything
     base_fname = trim(fname)
 
@@ -803,9 +803,9 @@ contains
        call neko_error("write_dataset not implemented for this data type")
     end select
   end subroutine hdf5_file_write_dataset
-  
+
   subroutine hdf5_file_read_dataset(this, keyword, data, strategy)
-    class(hdf5_file_t), intent(inout) :: this 
+    class(hdf5_file_t), intent(inout) :: this
     character(len=*), intent(in) :: keyword
     class(*), intent(inout) :: data
     character(len=*), intent(in), optional :: strategy
@@ -1123,17 +1123,17 @@ contains
     ! ===================
     dset_rank = 4 ! rank 4 array, i.e. a 4D tensor
     ddims = [int(stride_ax_1, hsize_t), &
-             int(stride_ax_2, hsize_t), &
-             int(stride_ax_3, hsize_t), &
-             int(total_count, hsize_t)] ! global size of the tensor
+         int(stride_ax_2, hsize_t), &
+         int(stride_ax_3, hsize_t), &
+         int(total_count, hsize_t)] ! global size of the tensor
     chunkdims = [int(stride_ax_1, hsize_t), &
-                 int(stride_ax_2, hsize_t), &
-                 int(stride_ax_3, hsize_t), &
-                 max(int(max_count, hsize_t), 1_hsize_t)]
+         int(stride_ax_2, hsize_t), &
+         int(stride_ax_3, hsize_t), &
+         max(int(max_count, hsize_t), 1_hsize_t)]
     ddims_max = [int(stride_ax_1, hsize_t), &
-                 int(stride_ax_2, hsize_t), &
-                 int(stride_ax_3, hsize_t), &
-                 H5S_UNLIMITED_F]
+         int(stride_ax_2, hsize_t), &
+         int(stride_ax_3, hsize_t), &
+         H5S_UNLIMITED_F]
     call h5lexists_f(this%active_group_id, trim(field%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
@@ -1209,114 +1209,114 @@ contains
 
   end subroutine hdf5_file_write_field
 
-   !> Read a vector
-   subroutine hdf5_file_read_vector(this, keyword, vec, strategy)
-      class(hdf5_file_t) :: this
-      character(len=*), intent(in) :: keyword
-      type(vector_t), intent(inout) :: vec
-      character(len=*), intent(in), optional :: strategy
-      character(len=1000) :: strategy_
-      integer :: ierr, counts, offset, total_count, dset_rank
-      integer(hid_t) :: precision_hdf
-      integer(hid_t) :: xf_id, filespace, dset_id, memspace
-      integer(hsize_t), dimension(1) :: dcount, doffset
-      integer(hsize_t), dimension(1) :: tempddims, tempmaxddims
-      integer :: temprank
-      logical :: dset_exists
-      type(linear_dist_t) :: dist
+  !> Read a vector
+  subroutine hdf5_file_read_vector(this, keyword, vec, strategy)
+    class(hdf5_file_t) :: this
+    character(len=*), intent(in) :: keyword
+    type(vector_t), intent(inout) :: vec
+    character(len=*), intent(in), optional :: strategy
+    character(len=1000) :: strategy_
+    integer :: ierr, counts, offset, total_count, dset_rank
+    integer(hid_t) :: precision_hdf
+    integer(hid_t) :: xf_id, filespace, dset_id, memspace
+    integer(hsize_t), dimension(1) :: dcount, doffset
+    integer(hsize_t), dimension(1) :: tempddims, tempmaxddims
+    integer :: temprank
+    logical :: dset_exists
+    type(linear_dist_t) :: dist
 
-      ! Set up strategy
-      if (present(strategy)) then
-         if (trim(strategy) .eq. "linear" .or. &
-               trim(strategy) .eq. "rank_0") then
-             strategy_ = strategy
-         else
-             call neko_error("Unsupported strategy: " // trim(strategy))
-         end if
-      else
-          strategy_ = "linear"
-      end if
+    ! Set up strategy
+    if (present(strategy)) then
+       if (trim(strategy) .eq. "linear" .or. &
+            trim(strategy) .eq. "rank_0") then
+          strategy_ = strategy
+       else
+          call neko_error("Unsupported strategy: " // trim(strategy))
+       end if
+    else
+       strategy_ = "linear"
+    end if
 
-      ! Free the input
-      call vec%free()
+    ! Free the input
+    call vec%free()
 
-      ! ===============
-      ! Configure MPIIO
-      ! ===============
-      call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-      call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
-      precision_hdf = h5kind_to_type(rp, H5_REAL_KIND)
+    ! ===============
+    ! Configure MPIIO
+    ! ===============
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+    precision_hdf = h5kind_to_type(rp, H5_REAL_KIND)
 
-      ! ===================
-      ! Get the data set info
-      ! ===================
-      call h5lexists_f(this%active_group_id, trim(keyword), dset_exists, ierr)
-      if (dset_exists) then
-         ! Open the data set
-         call h5dopen_f(this%active_group_id, trim(keyword), dset_id, ierr)
-         ! Get the current rank of the dataset
-         call h5dget_space_f(dset_id, filespace, ierr)
-         call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
-         if (temprank .ne. 1) then
-             call neko_error("Dataset " // trim(keyword) // " is not a rank 1 vector in file " // trim(this%get_fname()))
-         end if
-         ! Get the current shape and close the filespace
-         call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
-         call h5sclose_f(filespace, ierr)
-      else
-         call neko_error("Dataset " // trim(keyword) // " does not exist in current group " // trim(this%get_fname()))
-      end if
+    ! ===================
+    ! Get the data set info
+    ! ===================
+    call h5lexists_f(this%active_group_id, trim(keyword), dset_exists, ierr)
+    if (dset_exists) then
+       ! Open the data set
+       call h5dopen_f(this%active_group_id, trim(keyword), dset_id, ierr)
+       ! Get the current rank of the dataset
+       call h5dget_space_f(dset_id, filespace, ierr)
+       call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
+       if (temprank .ne. 1) then
+          call neko_error("Dataset " // trim(keyword) // " is not a rank 1 vector in file " // trim(this%get_fname()))
+       end if
+       ! Get the current shape and close the filespace
+       call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+       call h5sclose_f(filespace, ierr)
+    else
+       call neko_error("Dataset " // trim(keyword) // " does not exist in current group " // trim(this%get_fname()))
+    end if
 
-      ! =============================
-      ! Perform the data distribution
-      ! =============================
-      total_count = int(tempddims(1))
-      if (strategy_ .eq. "linear") then
-         dist = linear_dist_t(total_count, pe_rank, pe_size, NEKO_COMM)
-         counts = dist%num_local()
-         offset = 0
-      else if (strategy_ .eq. "rank_0") then
-         if (pe_rank .eq. 0) then
-             counts = total_count
-         else
-             counts = 0
-         end if
-         offset = 0
-      end if
-      call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
-             MPI_SUM, NEKO_COMM, ierr)
-      offset = offset - counts ! Not using exclusive scan
+    ! =============================
+    ! Perform the data distribution
+    ! =============================
+    total_count = int(tempddims(1))
+    if (strategy_ .eq. "linear") then
+       dist = linear_dist_t(total_count, pe_rank, pe_size, NEKO_COMM)
+       counts = dist%num_local()
+       offset = 0
+    else if (strategy_ .eq. "rank_0") then
+       if (pe_rank .eq. 0) then
+          counts = total_count
+       else
+          counts = 0
+       end if
+       offset = 0
+    end if
+    call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+    offset = offset - counts ! Not using exclusive scan
 
-      ! ===========================
-      ! Set up reading the data set
-      ! ===========================
-      dset_rank = 1 ! rank 1 array, i.e. a vector
-      dcount = [int(counts, hsize_t)] ! local size of the vector
-      doffset = [int(offset, hsize_t)] ! offset for this rank in the global vector
-      ! Get the total file space (shape) of the data set
-      call h5dget_space_f(dset_id, filespace, ierr)
-      ! Get only the slice where my rank reads
-      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
-      ! Create the corresponding memory space (buffer) for my local data
-      call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
+    ! ===========================
+    ! Set up reading the data set
+    ! ===========================
+    dset_rank = 1 ! rank 1 array, i.e. a vector
+    dcount = [int(counts, hsize_t)] ! local size of the vector
+    doffset = [int(offset, hsize_t)] ! offset for this rank in the global vector
+    ! Get the total file space (shape) of the data set
+    call h5dget_space_f(dset_id, filespace, ierr)
+    ! Get only the slice where my rank reads
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+    ! Create the corresponding memory space (buffer) for my local data
+    call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
 
-      ! =============================
-      ! Allocate data. HDF5 will cast
-      ! =============================
-      call vec%init(counts, trim(keyword)) ! this is rp
-      call h5dread_f(dset_id, precision_hdf, vec%x, dcount, ierr, &
-             file_space_id = filespace, mem_space_id = memspace, &
-             xfer_prp = xf_id)
+    ! =============================
+    ! Allocate data. HDF5 will cast
+    ! =============================
+    call vec%init(counts, trim(keyword)) ! this is rp
+    call h5dread_f(dset_id, precision_hdf, vec%x, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
 
-      ! =======================
-      ! Clean up
-      ! =======================
-      call h5pclose_f(xf_id, ierr)
-      call h5sclose_f(memspace, ierr)
-      call h5sclose_f(filespace, ierr)
-      call h5dclose_f(dset_id, ierr)
+    ! =======================
+    ! Clean up
+    ! =======================
+    call h5pclose_f(xf_id, ierr)
+    call h5sclose_f(memspace, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5dclose_f(dset_id, ierr)
 
-   end subroutine hdf5_file_read_vector
+  end subroutine hdf5_file_read_vector
 
   !> Read a matrix
   subroutine hdf5_file_read_matrix(this, keyword, mat, strategy)
@@ -1336,19 +1336,19 @@ contains
 
     ! Set up strategy
     if (present(strategy)) then
-      if (trim(strategy) .eq. "linear" .or. &
-          trim(strategy) .eq. "rank_0") then
-         strategy_ = strategy
-      else
-         call neko_error("Unsupported strategy: " // trim(strategy))
-      end if
+       if (trim(strategy) .eq. "linear" .or. &
+            trim(strategy) .eq. "rank_0") then
+          strategy_ = strategy
+       else
+          call neko_error("Unsupported strategy: " // trim(strategy))
+       end if
     else
        strategy_ = "linear"
     end if
 
     ! Free the input
     call mat%free()
-    
+
     ! ===============
     ! Configure MPIIO
     ! ===============
@@ -1361,19 +1361,19 @@ contains
     ! ===================
     call h5lexists_f(this%active_group_id, trim(keyword), dset_exists, ierr)
     if (dset_exists) then
-      ! Openr the data set
-      call h5dopen_f(this%active_group_id, trim(keyword), dset_id, ierr) 
-      ! Get the current rank of the of the dataset
-      call h5dget_space_f(dset_id, filespace, ierr)
-      call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
-      if (temprank .ne. 2) then
-         call neko_error("Dataset " // trim(keyword) // " is not a rank 2 matrix in file " // trim(this%get_fname()))
-      end if
-      ! Get the current shape and close the filespace
-      call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
-      call h5sclose_f(filespace, ierr)
+       ! Openr the data set
+       call h5dopen_f(this%active_group_id, trim(keyword), dset_id, ierr)
+       ! Get the current rank of the of the dataset
+       call h5dget_space_f(dset_id, filespace, ierr)
+       call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
+       if (temprank .ne. 2) then
+          call neko_error("Dataset " // trim(keyword) // " is not a rank 2 matrix in file " // trim(this%get_fname()))
+       end if
+       ! Get the current shape and close the filespace
+       call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+       call h5sclose_f(filespace, ierr)
     else
-      call neko_error("Dataset " // trim(keyword) // " does not exist in current group " // trim(this%get_fname()))
+       call neko_error("Dataset " // trim(keyword) // " does not exist in current group " // trim(this%get_fname()))
     end if
 
     ! =============================
@@ -1381,17 +1381,17 @@ contains
     ! =============================
     total_count = int(tempddims(2))
     if (strategy_ .eq. "linear") then
-      dist = linear_dist_t(total_count, pe_rank, pe_size, NEKO_COMM)
-      counts = dist%num_local()
-      offset = 0
+       dist = linear_dist_t(total_count, pe_rank, pe_size, NEKO_COMM)
+       counts = dist%num_local()
+       offset = 0
     else if (strategy_ .eq. "rank_0") then
-      if (pe_rank .eq. 0) then
-         counts = total_count
-      else
-         counts = 0
-      end if
-      offset = 0
-   end if
+       if (pe_rank .eq. 0) then
+          counts = total_count
+       else
+          counts = 0
+       end if
+       offset = 0
+    end if
     call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
     offset = offset - counts ! Not using exclusive scan
