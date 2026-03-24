@@ -91,6 +91,7 @@ module file
      procedure :: read_dataset => file_read_dataset
      procedure :: set_active_group => file_set_active_group_default
      procedure :: write_attribute => file_write_attribute
+     procedure :: read_attribute => file_read_attribute
   end type file_t
 
 contains
@@ -402,6 +403,19 @@ contains
        call neko_error("write_attribute not implemented for this file type")
     end select
   end subroutine file_write_attribute
+
+  subroutine file_read_attribute(this, data, data_name, exist)
+    class(file_t), intent(inout) :: this 
+    class(*), intent(inout) :: data
+    character(len=*), intent(in) :: data_name
+    logical, intent(inout) :: exist
+    select type (ft => this%file_type)
+    type is (hdf5_file_t)
+       call ft%read_attribute(data, data_name, exist)
+    class default
+       call neko_error("read_attribute not implemented for this file type")
+    end select
+  end subroutine file_read_attribute
 
   subroutine file_set_active_group_default(this, group)
     class(file_t), intent(inout) :: this

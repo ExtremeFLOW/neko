@@ -89,9 +89,12 @@ module hdf5_file
      procedure, pass(this) :: write_rp_attribute => hdf5_file_write_rp_attribute
      procedure, pass(this) :: read_vector => hdf5_file_read_vector
      procedure, pass(this) :: read_matrix => hdf5_file_read_matrix
+     procedure, pass(this) :: read_int_attribute => hdf5_file_read_int_attribute
+     procedure, pass(this) :: read_rp_attribute => hdf5_file_read_rp_attribute
      procedure :: write_dataset => hdf5_file_write_dataset
      procedure :: read_dataset => hdf5_file_read_dataset
      procedure :: write_attribute => hdf5_file_write_attribute
+     procedure :: read_attribute => hdf5_file_read_attribute
   end type hdf5_file_t
 
 contains
@@ -837,6 +840,22 @@ contains
     end select
   end subroutine hdf5_file_write_attribute
 
+  subroutine hdf5_file_read_attribute(this, data, data_name, exist)
+    class(hdf5_file_t), intent(inout) :: this 
+    class(*), intent(inout) :: data
+    character(len=*), intent(in) :: data_name
+    logical, intent(inout) :: exist
+
+    select type (d => data)
+    type is (integer)
+       call this%read_int_attribute(d, data_name, exist)
+    type is (real(kind=rp))
+       call this%read_rp_attribute(d, data_name, exist)
+    class default
+       call neko_error("read_attribute not implemented for this data type")
+    end select
+  end subroutine hdf5_file_read_attribute
+
 
   subroutine hdf5_file_write_vector(this, vec)
     class(hdf5_file_t), intent(inout) :: this
@@ -1509,6 +1528,78 @@ contains
     call h5aclose_f(attr_id, ierr)
 
   end subroutine hdf5_file_write_rp_attribute
+  
+  !> Read an integer attribute
+  subroutine hdf5_file_read_int_attribute(this, attr, attr_name, attr_exists)
+    class(hdf5_file_t), intent(inout) :: this
+    integer, intent(inout) :: attr
+    character(len=*), intent(in) :: attr_name
+    logical, intent(inout) :: attr_exists
+    integer :: ierr
+    integer(hid_t) :: filespace, attr_id
+    integer(hsize_t), dimension(1) :: dcount
+
+    ! ====================
+    ! Create the attribute
+    ! ====================
+    dcount = [int(1, hsize_t)]
+    call h5aexists_f(this%active_group_id, trim(attr_name), attr_exists, ierr)
+    if (attr_exists) then
+       ! retrieve the attr id for the existing attribute
+       call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
+    else
+       return
+    end if
+
+    ! ===========================
+    ! Set up writing the data set
+    ! ===========================
+    call h5aread_f(attr_id, H5T_NATIVE_INTEGER, attr, dcount, ierr)
+
+    ! =======================
+    ! Clean up
+    ! =======================
+    call h5aclose_f(attr_id, ierr)
+
+  end subroutine hdf5_file_read_int_attribute
+  
+  !> Read a real (kind=rp) attribute
+  subroutine hdf5_file_read_rp_attribute(this, attr, attr_name, attr_exists)
+    class(hdf5_file_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: attr
+    character(len=*), intent(in) :: attr_name
+    logical, intent(inout) :: attr_exists
+    integer :: ierr
+    integer(hid_t) :: precision_hdf
+    integer(hid_t) :: filespace, attr_id
+    integer(hsize_t), dimension(1) :: dcount
+
+    ! Get the precision
+    precision_hdf = h5kind_to_type(rp, H5_REAL_KIND)
+
+    ! ====================
+    ! Create the attribute
+    ! ====================
+    dcount = [int(1, hsize_t)]
+    call h5aexists_f(this%active_group_id, trim(attr_name), attr_exists, ierr)
+    if (attr_exists) then
+       ! retrieve the attr id for the existing attribute
+       call h5aopen_f(this%active_group_id, trim(attr_name), attr_id, ierr)
+    else
+       return
+    end if
+
+    ! ===========================
+    ! Set up writing the data set
+    ! ===========================
+    call h5aread_f(attr_id, precision_hdf, attr, dcount, ierr)
+
+    ! =======================
+    ! Clean up
+    ! =======================
+    call h5aclose_f(attr_id, ierr)
+
+  end subroutine hdf5_file_read_rp_attribute
 
 #else
 
