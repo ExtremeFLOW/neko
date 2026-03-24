@@ -33,39 +33,39 @@
 !> Implements global_interpolation given a dofmap.
 !!
 module global_interpolation
-  use num_types, only: rp, dp, xp
+  use num_types, only : rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use space, only: space_t
-  use stack, only: stack_i4_t
-  use dofmap, only: dofmap_t
-  use logger, only: neko_log, LOG_SIZE
+  use space, only : space_t
+  use stack, only : stack_i4_t
+  use dofmap, only : dofmap_t
+  use logger, only : neko_log, LOG_SIZE
   use json_utils, only : json_get_or_lookup_or_default
   use json_module, only : json_file
-  use utils, only: neko_error
+  use utils, only : neko_error
   use local_interpolation, only : local_interpolator_t
-  use device, only: device_free, device_map, device_memcpy, &
+  use device, only : device_free, device_map, device_memcpy, &
        device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr
-  use aabb_pe_finder, only: aabb_pe_finder_t
-  use aabb_el_finder, only: aabb_el_finder_t
-  use cartesian_el_finder, only: cartesian_el_finder_t
-  use cartesian_pe_finder, only: cartesian_pe_finder_t
-  use legendre_rst_finder, only: legendre_rst_finder_t
-  use el_finder, only: el_finder_t
-  use pe_finder, only: pe_finder_t
-  use comm, only: NEKO_COMM
-  use mpi_f08, only: MPI_SUM, MPI_COMM, MPI_Comm_rank, &
+  use aabb_pe_finder, only : aabb_pe_finder_t
+  use aabb_el_finder, only : aabb_el_finder_t
+  use cartesian_el_finder, only : cartesian_el_finder_t
+  use cartesian_pe_finder, only : cartesian_pe_finder_t
+  use legendre_rst_finder, only : legendre_rst_finder_t
+  use el_finder, only : el_finder_t
+  use pe_finder, only : pe_finder_t
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_SUM, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_MIN, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
        MPI_ISend, MPI_IRecv
   use glb_intrp_comm, only : glb_intrp_comm_t
-  use vector, only: vector_t
-  use vector_math, only: vector_masked_gather_copy
-  use matrix, only: matrix_t
-  use math, only: copy, NEKO_EPS
-  use mask, only: mask_t
+  use vector, only : vector_t
+  use vector_math, only : vector_masked_gather_copy
+  use matrix, only : matrix_t
+  use math, only : copy, NEKO_EPS
+  use mask, only : mask_t
   use structs, only : array_ptr_t
-  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -284,7 +284,8 @@ contains
     ! to get the right dimension (see global_interpolation_init_xyz).
     if (.not. present(mask)) then
        call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm = comm, tol = tol, pad = pad)
+            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm = comm, &
+            tol = tol, pad = pad)
     else
 
        ! Initialize a helper field with the size of the mask
@@ -596,7 +597,8 @@ contains
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
-         'Found PE candidates time since start of findpts (s):', time1-time_start
+         'Found PE candidates time since start of findpts (s):', &
+         time1 - time_start
     call neko_log%message(log_buf)
 
     !Send number of points I want to candidates
@@ -809,7 +811,8 @@ contains
          this%n_points_local*3, n_glb_point_cand*3)
     do i = 1, size(glb_intrp_find_back%send_pe)
        rank = glb_intrp_find_back%send_pe(i)
-       call MPI_Isend(this%el_owner0_local(this%n_points_offset_pe_local(rank) + 1), &
+       call MPI_Isend(this%el_owner0_local( &
+            this%n_points_offset_pe_local(rank) + 1), &
             this%n_points_pe_local(rank), &
             MPI_INTEGER, rank, 0, &
             this%comm, glb_intrp_find_back%send_buf(i)%request, ierr)
@@ -888,17 +891,20 @@ contains
           call send_pe_find%push(i)
           point_ids => this%points_at_pe(i)%array()
           do j = 1, this%n_points_pe(i)
-             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
-             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
-             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+3)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j) - 1) + 1)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j) - 1) + 2)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j) - 1) + 3)
           end do
        end if
        if (this%n_points_pe_local(i) .gt. 0) then
           call recv_pe_find%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+             this%n_points_offset_pe_local(i) - 1) + 1)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+             this%n_points_offset_pe_local(i) - 1) + 2)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+             this%n_points_offset_pe_local(i) - 1) + 3)
           end do
        end if
     end do
