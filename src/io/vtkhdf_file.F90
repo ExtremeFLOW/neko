@@ -981,11 +981,10 @@ contains
        if (field_name .eq. 'p') field_name = 'Pressure'
 
        ! Determine if this is a velocity component to group as a vector
-       is_vector = (field_name .eq. 'u' .or. &
+       is_vector = .false.
+       if (field_name .eq. 'u' .or. &
             field_name .eq. 'v' .or. &
-            field_name .eq. 'w')
-
-       if (is_vector) then
+            field_name .eq. 'w') then
           u => null()
           v => null()
           w => null()
@@ -999,7 +998,11 @@ contains
                 w => fp(j)%ptr
              end select
           end do
-          field_name = 'Velocity'
+
+          if (associated(u) .and. associated(v) .and. associated(w)) then
+             is_vector = .true.
+             field_name = 'Velocity'
+          end if
        end if
 
        ! Skip duplicate fields (e.g. fluid_rho added by both fluid output
