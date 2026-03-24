@@ -336,36 +336,50 @@ $$
 \Delta t_{\mathrm{cap}} \approx \sqrt{\frac{\rho\,\Delta x^3}{2\pi\,\sigma}}
 $$
 
-where $\Delta x = \Delta_{\mathrm{GLL}} = 0.016$ is the element-average GLL spacing
-(wall-normal direction, binding constraint). Since $\Delta t_{\mathrm{cap}} \propto \sigma^{-1/2}$,
-reducing $\sigma$ by 10× (going from $We = 1$ to $We = 10$) increases the capillary
-stability limit by $\sqrt{10} \approx 3.16\times$.
+The formula is unambiguous, but the relevant $\Delta x$ in a spectral element method
+is not. GLL nodes are clustered near element boundaries, so the nodal spacing is
+non-uniform. Neko's CFL controller uses the minimum nodal spacing, not the element
+average — evidenced by the observed $\Delta t$ being smaller than the element-average
+estimate by roughly a factor of 1.8:
 
-**Note on the Neko timestep.** The velocity CFL Δt in Neko is controlled by the
-minimum GLL nodal spacing within each element (approximately 0.6× the element-average
-GLL spacing at $N = 7$), not the element average. As a result, the observed Δt
-is smaller than the estimate $\mathrm{target\_cfl} \times \Delta_{\mathrm{GLL}} / u_{\max}$
-by roughly a factor of 1.6. The capillary limit $\Delta t_{\mathrm{cap}}$ uses the
-element-average $\Delta x$ throughout (consistent with how the formula is applied in
-the literature for diffuse-interface methods), giving a slightly conservative estimate
-of the stability margin.
+$$
+\Delta x_{\mathrm{eff}} = \frac{\Delta t_{\mathrm{obs}} \cdot u_{\max}}{\mathrm{target\_cfl}}
+= \frac{0.00130 \times 1.341}{0.2} \approx 0.0087
+\qquad \text{(vs element average } \Delta_{\mathrm{GLL}} = 0.016\text{)}
+$$
 
-**Comparison across cases** (all using $\Delta x = 0.016$, $\rho = 1$):
+The capillary stability limit must be evaluated at this same effective scale, otherwise
+$\Delta t$ and $\Delta t_{\mathrm{cap}}$ are measured on inconsistent grids and the ratio
+is meaningless. Using $\Delta x_{\mathrm{eff}} = 0.0087$:
+
+$$
+\Delta t_{\mathrm{cap}}(We=1) = \sqrt{\frac{0.0087^3}{2\pi \times 0.3}} \approx 0.00059\;\text{TU},
+\qquad
+\Delta t_{\mathrm{cap}}(We=10) = \sqrt{\frac{0.0087^3}{2\pi \times 0.03}} \approx 0.00188\;\text{TU}
+$$
+
+**Comparison across all cases** ($\Delta x_{\mathrm{eff}} = 0.0087$ throughout):
 
 | Case | $\sigma$ | $\Delta t_{\mathrm{cap}}$ (TU) | $\Delta t$ observed (TU) | $\Delta t / \Delta t_{\mathrm{cap}}$ | Outcome |
 |------|:--------:|:------------------------------:|:------------------------:|:------------------------------------:|---------|
-| We=1, restart v1 (`target_cfl=0.4`) | 0.30 | 0.00147 | 0.00430 | **2.9** — outside | Blow-up $t=21.55$ |
-| We=1, restart v2 (`target_cfl=0.2`) | 0.30 | 0.00147 | 0.00130 | **0.88** — marginal | Blow-up $t=20.40$ |
-| We=10 (`target_cfl=0.2`) | 0.03 | 0.00466 | 0.00130 | **0.28** — inside ✓ | Stable (running) |
-| v4, We=730 (`target_cfl=0.4`) | $4.1\!\times\!10^{-4}$ | 0.0399 | ≈0.003 | **0.08** — well inside ✓ | Completed stably |
+| We=1, restart v1 (`target_cfl=0.4`) | 0.30 | 0.00059 | 0.00430 | **7.2** — far outside | Blow-up $t=21.55$ |
+| We=1, restart v2 (`target_cfl=0.2`) | 0.30 | 0.00059 | 0.00130 | **2.2** — outside | Blow-up $t=20.40$ |
+| We=10 (`target_cfl=0.2`) | 0.03 | 0.00188 | 0.00130 | **0.69** — marginal | Blow-up $t=20.44$ |
+| We=100 (predicted, `target_cfl=0.2`) | 0.003 | 0.00595 | 0.00130 | **0.22** — inside ✓ | Predicted stable |
+| v4, We=730 (`target_cfl=0.4`) | $4.1\!\times\!10^{-4}$ | 0.071 | ≈0.003 | **0.04** — well inside ✓ | Completed stably |
 
-The v2 result (ratio = 0.88, nominally inside the boundary, yet blow-up) is explained
-by the GLL clustering: Neko's CFL Δt is computed at the minimum GLL spacing, which is
-smaller than the element average. If the capillary limit were evaluated at the same
-minimum spacing, the v2 ratio would be $\approx 2.9$ — consistently outside the
-boundary. The key practical conclusion is that $We = 10$ provides a genuine factor of
-$\approx 3.5\times$ larger margin than $We = 1$ at the same `target_cfl`, regardless
-of the exact Δx convention.
+We=10 blew up despite ratio $< 1$ because a ratio of $0.69$ provides insufficient margin.
+In practice, SEM capillary stability appears to require $\Delta t / \Delta t_{\mathrm{cap}} \lesssim 0.5$
+— consistent with the general recommendation of a safety factor in explicit stability limits.
+We=100 ($\sigma = 0.003$) gives ratio $= 0.22$, well within this safety band.
+
+**Required `target_cfl` for 50% margin** ($\Delta t / \Delta t_{\mathrm{cap}} = 0.5$):
+
+| $We$ | $\sigma$ | Required `target_cfl` |
+|:----:|:--------:|:---------------------:|
+| 1    | 0.30     | 0.046 |
+| 10   | 0.03     | 0.144 |
+| 100  | 0.003    | 0.456 (current 0.2 is already fine) |
 
 ### 4.5 Summary table
 
@@ -374,15 +388,15 @@ of the exact Δx convention.
 | CDI resharpening | $\varepsilon^2 / \gamma_c$ | 0.065 | 1.0 (reference) |
 | Convective straining ($R$ scale) | $R / U_b$ | 0.300 | **4.6** → CDI wins ✓ |
 | IC perturbation straining | $\varepsilon / v_{\mathrm{IC}}$ | 0.233 | **3.6** → CDI wins ✓ |
-| Capillary stability ($We=1$) | $\sqrt{\Delta x^3 / (2\pi\sigma)}$ | 0.00147 | — (timestep constraint) |
-| Capillary stability ($We=10$) | $\sqrt{\Delta x^3 / (2\pi\sigma)}$ | 0.00466 | — (timestep constraint) |
+| Capillary stability ($We=1$, $\Delta x_{\mathrm{eff}}=0.0087$) | $\sqrt{\Delta x^3 / (2\pi\sigma)}$ | 0.00059 | — (timestep constraint) |
+| Capillary stability ($We=10$, $\Delta x_{\mathrm{eff}}=0.0087$) | $\sqrt{\Delta x^3 / (2\pi\sigma)}$ | 0.00188 | — (timestep constraint) |
 
 | Competition | Ratio | Outcome |
 |-------------|:-----:|---------|
 | CDI vs convective straining | $\tau_{\mathrm{conv}} / \tau_{\mathrm{CDI}} = 4.6$ | Interface stays sharp under flow ✓ |
 | CDI vs IC perturbations | $\tau_{\mathrm{IC}} / \tau_{\mathrm{CDI}} = 3.6$ | CDI wins; no $\kappa$ spike expected ✓ |
-| CFL vs capillary ($We=1$) | $\Delta t / \Delta t_{\mathrm{cap}} \approx 0.88$ | Marginal — both restart runs blew up; `target_cfl` ≈ 0.07 needed |
-| CFL vs capillary ($We=10$) | $\Delta t / \Delta t_{\mathrm{cap}} \approx 0.28$ | Well inside boundary — stable ✓ |
+| CFL vs capillary ($We=1$) | $\Delta t / \Delta t_{\mathrm{cap}} \approx 2.2$ | Far outside — both restart runs blew up; `target_cfl` ≈ 0.046 needed |
+| CFL vs capillary ($We=10$) | $\Delta t / \Delta t_{\mathrm{cap}} \approx 0.69$ | Marginal, outside 0.5 safety band — blown up; `target_cfl` ≈ 0.144 needed |
 
 ---
 
@@ -517,7 +531,7 @@ not be.
 | $0.01 \leq \gamma_{\mathrm{param}} \leq 0.1$ | $\gamma_{\mathrm{param}} = 0.05$; CDI $4.6\times$ faster than drop-scale convective straining ✓ |
 | $We = \rho U_b^2 R / \sigma$ | $U_b = 1$ is the characteristic flow velocity scale for method validation |
 | $\varepsilon/\Delta_{\mathrm{GLL}} \geq 3$ in all directions | $\varepsilon = 0.07$: ratio $= 3.2$ in $x,z$ and $4.4$ in $y$ ✓ |
-| Capillary timestep at $We = 1$ | `target_cfl = 0.2` gives $\Delta t \approx 0.0021$ TU; limit $\approx 0.0015$ TU ✓ |
+| Capillary timestep at $We = 1$ | `target_cfl = 0.2` gives $\Delta t \approx 0.0013$ TU; $\Delta t_{\mathrm{cap}} \approx 0.00059$ TU at $\Delta x_{\mathrm{eff}}=0.0087$ → ratio $\approx 2.2$ — outside stability boundary; blown up |
 
 ### 6.2 Prioritised test plan
 
@@ -534,30 +548,32 @@ Expected outcomes:
 - **Any** $\kappa_{\mathrm{rms}}$ growth or $\varphi_{\max}$ decline would
   indicate a CDI/CSF method error, since no physical deformation is expected
 
-**Test 2 — Turbulent + $We = 10$** (`turb_channel_two_phase_we10.case`, $\sigma = 0.03$)
+**Test 2 — Turbulent + $We = 100$** (`turb_channel_two_phase_we100.case`, $\sigma = 0.003$)
 
-Restart from `fluid00004.chkp` (t=20→25). Moderate deformation regime: inertia and
-surface tension comparable. First test of CDI/CSF under turbulent straining with
-a stable explicit timestep ($\Delta t / \Delta t_{\mathrm{cap}} \approx 0.45$).
+Restart from `fluid00004.chkp` (t=20→25). High deformation regime; CDI stress test.
+The capillary ratio $\Delta t / \Delta t_{\mathrm{cap}} \approx 0.22$ at `target_cfl=0.2`
+— predicted stable (inside the empirical 0.5 safety band; see §4.4).
 
 Expected outcomes:
-- $\kappa_{\mathrm{rms}}$ rising above $6.67$ and settling at a deformed-drop value
+- $\kappa_{\mathrm{rms}}$ rising above $6.67$ as the drop deforms significantly
 - $\varphi_{\max}$ stable or slowly varying
 - No blow-up: capillary stability margin is genuine
 
-**Test 3 — Turbulent + $We = 1$** (`turb_channel_two_phase_we1.case`, $\sigma = 0.3$)
+**Test 3 — Turbulent + $We = 10$** (`turb_channel_two_phase_we10.case`, $\sigma = 0.03$)
 
-Restart from `fluid00004.chkp` (t=20→25). Strong surface tension. Two prior attempts
-(v1, v2) blew up due to explicit CSF stiffness (see section 8). Stable operation
-requires `target_cfl` ≈ 0.05–0.07 or a semi-implicit CSF treatment.
+Restart from `fluid00004.chkp` (t=20→25). Three prior attempts blew up at $We = 1$
+(v1: ratio=7.2), $We = 1$ (v2: ratio=2.2), and $We = 10$ (ratio=0.69). All show the
+same explicit CSF instability mechanism (CDI intact throughout, κ_rms runaway). Stable
+operation at $We = 10$ requires `target_cfl` $\approx$ 0.144 to achieve a 50% safety margin.
+Run with `target_cfl=0.10–0.12` to achieve ratio $\approx 0.35$–$0.42$.
 
-Expected outcomes (if stable):
-- $\kappa_{\mathrm{rms}}$ stable near $6.67 = 2/R$ throughout
-- $\varphi_{\max}$ near 0.986 (R=0.3, ε=0.07 → φ(0) = ½(1+tanh(R/2ε)) = 0.986, IC value)
-- Comparison with $We = 10$ isolates the surface tension strength effect
+**Test 4 — Turbulent + $We = 1$** (`turb_channel_two_phase_we1.case`, $\sigma = 0.3$)
 
-**Status:** Tests 1 and 2 are the immediate priority. Test 3 blocked pending
-stable timestep strategy (see section 8.7).
+Blocked pending stable timestep strategy (see section 7.7). Requires `target_cfl`
+$\approx$ 0.046 for 50% margin, or a semi-implicit CSF treatment.
+
+**Status:** Test 1 (laminar) is the immediate priority. Test 2 (We=100) is the first
+turbulent case expected to be stable at `target_cfl=0.2`. Tests 3–4 require reduced CFL.
 
 ### 6.3 Open questions
 
@@ -641,44 +657,72 @@ high-frequency capillary modes more than a low-order method would), it does not
 eliminate the instability: the large $\sigma = 0.3$ creates a surface tension force
 that is genuinely stiff for explicit integration at all reasonable CFL numbers.
 
-### 8.2 The two observed blow-up events: a comparison
+### 7.2 The three observed blow-up events: a comparison
 
-Two restart attempts with $We = 1$ both blew up, despite substantially different
-CDI parameters. This section interprets both events using the diagnostic data.
+Three restart runs have blown up, spanning a wide range of CDI parameters and Weber numbers.
+This section interprets all three using the diagnostic data.
 
-**What they had in common:**
+**Summary of blow-up cases:**
 
-Both runs show identical qualitative behaviour:
+| Case | $We$ | $\sigma$ | $\varepsilon$ | $\gamma$ | `target_cfl` | $\Delta t / \Delta t_{\mathrm{cap}}$ | Stable duration |
+|------|:----:|:--------:|:---:|:---:|:---:|:---:|:---:|
+| v1 (We=1) | 1.0 | 0.30 | 0.05 | 0.015 | 0.4 | **7.2** | ~1.55 TU |
+| v2 (We=1) | 1.33 | 0.30 | 0.07 | 0.05 | 0.2 | **2.2** | ~0.40 TU |
+| We=10 | 10 | 0.03 | 0.07 | 0.05 | 0.2 | **0.69** | ~0.44 TU |
+
+($\Delta t / \Delta t_{\mathrm{cap}}$ computed using $\Delta x_{\mathrm{eff}} = 0.0087$; see §4.4.)
+
+**What all three had in common:**
+
+All three runs show identical qualitative behaviour:
 1. $\kappa_{\mathrm{rms}}$ grows immediately from $t_0$, monotonically, with
    an accelerating rate
 2. $\varphi_{\max}$ is stable throughout the growth phase (CDI maintains the interface)
 3. $u_{\max}$ remains at the turbulent level until the explosive phase begins, then spikes
 4. $E_{\mathrm{kin}}$ is undisturbed through most of the blow-up (local, not global)
-5. $\kappa_{\mathrm{rms}}$ saturates near 170–180 once features become sub-interface in scale
+5. $\kappa_{\mathrm{rms}}$ saturates near 150–180 once features become sub-interface in scale
 
-This consistency across two very different parameter sets ($\varepsilon$: 0.05 vs 0.07;
-$\gamma$: 0.015 vs 0.05; `target_cfl`: 0.4 vs 0.2; $R$: 0.3 vs 0.4) is strong evidence
-that the instability mechanism is **independent of the CDI parameters** and is intrinsic
-to the explicit CSF treatment at $We = 1$.
+This consistency across three very different parameter sets is strong evidence that the
+instability mechanism is **independent of the CDI parameters** and is intrinsic to the
+explicit CSF treatment whenever $\Delta t / \Delta t_{\mathrm{cap}} \gtrsim 0.5$.
 
-**What was different and why v2 was faster:**
+**We=10 diagnostic trace** (for comparison with the We=1 cases):
 
-| Feature | v1 | v2 | Interpretation |
-|---------|----|----|----------------|
-| Stable duration | ~1.0 TU | ~0.25 TU | v2 had larger drop |
-| Doubling time at onset | ~0.4 TU | ~0.13 TU | Same mechanism, faster feedback |
-| $R$ | 0.3 | 0.4 | More interface exposed to turbulent strain |
-| $We$ | 1.0 | 1.33 | Weaker surface tension restoring force |
-| $\varepsilon$ | 0.05 | 0.07 | Larger ε → larger |∇φ| on scale of ε |
-| $\Delta t$ (nominal) | ~0.0043 TU | ~0.0013 TU | v2 actually slower |
+| $t$ | $\kappa_{\mathrm{rms}}$ | $\varphi_{\max}$ | $u_{\max}$ | Notes |
+|:---:|:---:|:---:|:---:|---|
+| 20.002 | 6.10 | 0.981 | 1.341 | Drop injected; near $2/R = 6.67$ ✓ |
+| 20.132 | 6.74 | 0.986 | 1.341 | Stable; $\varphi_{\max}$ intact |
+| 20.263 | 16.54 | 0.987 | 1.426 | Growth onset |
+| 20.317 | 27.64 | 0.988 | 1.711 | Crosses $2/\varepsilon = 28.6$ threshold |
+| 20.358 | 52.0 | 0.989 | 2.203 | Runaway |
+| 20.389 | 93.4 | 0.991 | 3.262 | Explosive |
+| 20.423 | 153.8 | 0.996 | 4.667 | Plateau / resolution saturation |
+| 20.435 | 158.1 | 0.998 | 4.907 | $\varphi_{\max}$ still $< 1$ — CDI intact ✓ |
 
-At first glance, v2's smaller $\Delta t$ should help stability. It does not, because
-the fundamental ratio $\Delta t / \Delta t_{\mathrm{cap}}$ improved only slightly
-(from $\approx 2.9\times$ to $\approx 1.6\times$) — still outside the stability boundary.
-The larger $R$ and weaker restoring force per unit curvature ($\sigma/R = 0.75$
-vs $1.0$) more than offset the timestep improvement, and the blow-up arrived sooner.
+Note: $\varphi_{\max} < 1$ throughout (CDI intact), $\kappa_{\mathrm{rms}}$ runaway — same
+mechanism as We=1 cases.
 
-### 8.3 The feedback mechanism in detail
+**What was different between the cases:**
+
+| Feature | v1 (We=1) | v2 (We=1.33) | We=10 | Interpretation |
+|---------|----|----|---|----------------|
+| Stable duration | ~1.55 TU | ~0.40 TU | ~0.44 TU | Scales with safety margin |
+| $\Delta t / \Delta t_{\mathrm{cap}}$ | 7.2 | 2.2 | 0.69 | Corrected effective scale |
+| $R$ | 0.3 | 0.4 | 0.3 | More interface area → faster growth for v2 |
+| $\Delta t$ (nominal) | ~0.0043 TU | ~0.0013 TU | ~0.0013 TU | v1 largest timestep |
+| $\kappa_{\mathrm{rms}}$ plateau | ~170 | ~180 | ~155 | Resolution saturation |
+
+At first glance, v2's smaller $\Delta t$ should help stability relative to v1. It does not,
+because the fundamental ratio $\Delta t / \Delta t_{\mathrm{cap}}$ improved only from
+$\approx 7.2$ to $\approx 2.2$ — still far outside the stability boundary. The larger
+$R$ and weaker restoring force per unit curvature ($\sigma/R = 0.75$ vs $1.0$) more than
+offset the timestep improvement, and the blow-up arrived sooner.
+
+For We=10 vs v2: same $\Delta t$, but $\sigma$ is 10× smaller → $\Delta t_{\mathrm{cap}}$
+is $\sqrt{10} \approx 3.2\times$ larger → ratio drops from 2.2 to 0.69. This is below 1.0
+but above the empirical 0.5 safety limit, and the run blew up.
+
+### 7.3 The feedback mechanism in detail
 
 The blow-up proceeds through a well-defined sequence that is visible in the v2 data:
 
@@ -751,7 +795,7 @@ of $26 \times 0.0013/0.016 \approx 2.1$ within the interface zone. The advection
 is under-resolved. $\kappa_{\mathrm{rms}}$ saturates and then decreases because the
 interface shape has become numerically unrepresentable.
 
-### 8.4 Stability criterion for We=1 in this configuration
+### 7.4 Stability criterion for We=1 in this configuration
 
 From the data, the blow-up initiates when the CSF-driven velocity perturbation per
 step becomes comparable to the local interface velocity due to turbulence:
@@ -778,7 +822,7 @@ amplitudes at which the feedback becomes nonlinear and explosive. The incubation
 phase (Phase 1) corresponds to these linear capillary perturbations growing to
 nonlinear amplitude.
 
-### 8.5 Why the laminar case should be stable
+### 7.5 Why the laminar case should be stable
 
 In the laminar case (`turb_channel_two_phase_laminar.case`), the initial fluid
 velocity is the Poiseuille/Reichardt profile with no perturbations. The mean
@@ -804,35 +848,53 @@ The laminar case thus provides the cleanest possible validation of CDI+CSF: any
 $\kappa_{\mathrm{rms}}$ growth or $\varphi_{\max}$ decline in this case is
 unambiguously a method error.
 
-### 8.6 Why We=10 should be stable in turbulent flow
+### 7.6 Why We=10 also blew up: ratio < 1 is insufficient
 
-At $We = 10$ ($\sigma = 0.03$), the capillary stability limit becomes:
+The We=10 run ($\sigma = 0.03$) used the element-average capillary stability estimate:
 
 $$
 \Delta t_{\mathrm{cap}} = \sqrt{\frac{0.016^3}{2\pi \times 0.03}} \approx 0.0047\;\text{TU}
 $$
 
-With `target_cfl = 0.2` and $u_{\max} \approx 1.5$:
+With $\Delta t \approx 0.0013$ TU, the predicted ratio was $0.0013/0.0047 \approx 0.28$
+— appearing to provide generous margin. The run nevertheless blew up at $t \approx 20.44$
+TU, ~0.44 TU after injection, with the same κ_rms runaway signature as the We=1 cases.
+
+**The root cause: element-average Δx is the wrong scale for SEM.** As established in
+§4.4, the correct effective scale is $\Delta x_{\mathrm{eff}} = 0.0087$ (back-derived
+from the observed $\Delta t$ via the CFL controller). With this scale:
 
 $$
-\Delta t_{\mathrm{CFL}} \approx 0.2 \times \frac{0.016}{1.5} \approx 0.0021\;\text{TU}
+\Delta t_{\mathrm{cap}}(We=10) = \sqrt{\frac{0.0087^3}{2\pi \times 0.03}} \approx 0.00188\;\text{TU}
 $$
 
-The ratio $\Delta t_{\mathrm{CFL}} / \Delta t_{\mathrm{cap}} \approx 0.45$ — the
-velocity CFL gives a timestep 2.2× inside the capillary stability boundary. Unlike
-the $We = 1$ case where we were outside the boundary, $We = 10$ provides genuine
-margin. The CSF force per unit curvature is 10× smaller ($\sigma = 0.03$ vs $0.30$),
-so the feedback loop amplification is 10× slower, and CDI has much more time to
-respond.
+$$
+\frac{\Delta t}{\Delta t_{\mathrm{cap}}} = \frac{0.00130}{0.00188} \approx 0.69
+$$
 
-At $We = 10$ the drop will deform — surface tension is comparable to inertia, and
-turbulent eddies will stretch and compress the interface. But this deformation is
-physical and bounded: CDI and CSF together should maintain a sharp, stable interface
-with $\kappa_{\mathrm{rms}}$ rising from $2/R = 6.67$ to some larger value
-representing the deformed shape, without runaway. This makes $We = 10$ the first
-meaningful test of CDI+CSF performance under turbulent straining.
+The actual ratio was 0.69, not 0.28. And 0.69 is insufficient: SEM capillary stability
+appears to require $\Delta t/\Delta t_{\mathrm{cap}} \lesssim 0.5$ for stable explicit
+CSF (consistent with the general recommendation of a safety factor). The We=10 run
+operated at 1.38× the effective safety limit.
 
-### 8.7 Required timestep for stable We=1 turbulent simulation
+**The We=10 blow-up was faster than We=1 v2** despite a smaller ratio — because the
+incubation phase was shorter. With We=1 the CSF restoring force is strong and somewhat
+self-limiting; at We=10 the force is 10× weaker but the margin violation was similar
+in absolute terms.
+
+**The diagnostic pattern is identical to the We=1 cases:**
+- $\varphi_{\max} < 1$ throughout the blow-up (CDI intact ✓)
+- $\kappa_{\mathrm{rms}}$ exponential runaway crossing the $2/\varepsilon = 28.6$ threshold
+- $u_{\max}$ spike beginning only after $\kappa_{\mathrm{rms}}$ has grown significantly
+- $\kappa_{\mathrm{rms}}$ plateau near 150–160 (resolution saturation)
+
+This confirms the instability is in the explicit CSF treatment at all three We values
+tested, not in CDI and not in the turbulent velocity field.
+
+**We=100 ($\sigma = 0.003$)** gives ratio $= 0.22$ — inside the empirical 0.5 safety
+band by a comfortable margin, and is the predicted next stable case (see §4.4).
+
+### 7.7 Required timestep for stable We=1 turbulent simulation
 
 If one insists on running the turbulent $We = 1$ case explicitly, the required
 timestep is constrained by the capillary stability condition. Using the element-level

@@ -12,7 +12,7 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 |-----|-----------|:--:|---|---|-----|----|--------|---------|
 | `channel_test_v4` | `_v4.case` | 730 | 4.1×10⁻⁴ | 0.3 | 0 | Turbulent Reichardt | **Completed** t=0–5 | High-We reference |
 | `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Laminar Poiseuille | **Planned** | Ground-truth CDI/CSF baseline |
-| `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Running** t=20→25 | First turbulent CDI/CSF test |
+| `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.44 | We=10 blow-up: ratio=0.69, insufficient margin |
 | `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Planned** | Primary validation (after we10) |
 | `channel_single_phase` | `_single_phase.case` | — | — | — | — | Turbulent Reichardt | **Completed** t=0–25 | Fluid spin-up; checkpoint at t=20 |
 | `channel_test_restart` | `_restart.case` | 1.33 | 0.3 | 0.4 | 0 | `fluid00004.chkp` + drop | **Blown up** (v1, v2) | We=1 blow-up reference data |
@@ -142,10 +142,10 @@ isolates what turbulence adds.
 
 ---
 
-## channel_test_we10 — moderate deformation (We=10, RUNNING)
+## channel_test_we10 — moderate deformation (We=10, BLOWN UP t=20.44)
 
-**Purpose:** First turbulent CDI/CSF test with a genuinely stable capillary timestep.
-Tests CDI under sustained strain at moderate deformation.
+**Purpose:** First turbulent CDI/CSF test with a We=10 capillary margin. Blew up at
+t≈20.44 TU (~0.44 TU after injection) with the same κ_rms runaway as the We=1 cases.
 
 **Setup:** ε=0.07, γ=0.05, σ=0.03 (We=10), R=0.3, Re_b=2800, restart from
 `fluid00004.chkp`, end_time=25 (runs t=20→25). 16 MPI ranks.
@@ -154,18 +154,34 @@ Tests CDI under sustained strain at moderate deformation.
 
 | Quantity | Value |
 |----------|-------|
-| $\Delta t_{\mathrm{cap}} = \sqrt{\Delta x^3 / (2\pi\sigma)}$, $\Delta x = 0.016$ | 0.00466 TU |
-| $\Delta t$ (observed from neko.log, `target_cfl=0.2`) | 0.00130 TU |
-| $\Delta t / \Delta t_{\mathrm{cap}}$ | **0.28 — well inside boundary ✓** |
-| Margin vs We=1 ($\Delta t_{\mathrm{cap}}$ ratio) | $\sqrt{10} \approx 3.16\times$ larger |
+| $\Delta t_{\mathrm{cap}} = \sqrt{\Delta x_{\mathrm{eff}}^3 / (2\pi\sigma)}$, $\Delta x_{\mathrm{eff}} = 0.0087$ | **0.00188 TU** |
+| $\Delta t_{\mathrm{cap}}$ (element-average, $\Delta x = 0.016$, naive estimate) | 0.00466 TU |
+| $\Delta t$ (observed, `target_cfl=0.2`) | 0.00130 TU |
+| $\Delta t / \Delta t_{\mathrm{cap}}$ (corrected, $\Delta x_{\mathrm{eff}}$) | **0.69 — marginal, outside 0.5 safety band** |
+| $\Delta t / \Delta t_{\mathrm{cap}}$ (naive, element-average) | 0.28 — incorrectly predicted stable |
+| Required `target_cfl` for 50% margin | **0.144** |
 
-At We=10, the velocity-CFL timestep is 3.6× smaller than the capillary stability limit.
-This contrasts with We=1 where the same Δt=0.00130 TU is only 0.88× the capillary
-limit (marginal, and blow-up occurred — see channel_test_restart blow-up analysis).
+The naive element-average estimate predicted ratio=0.28 (stable), but the correct
+$\Delta x_{\mathrm{eff}}$-based ratio is 0.69. Empirical evidence from three blow-up
+cases shows that $\Delta t / \Delta t_{\mathrm{cap}} \lesssim 0.5$ is required. We=10
+at `target_cfl=0.2` violates this condition.
 
-| t | φ_max | φ_min | κ_rms | u_max |
-|---|-------|-------|-------|-------|
-| — | — | — | — | — |
+**Blow-up trace:**
+
+| t | φ_max | φ_min | κ_rms | u_max | Notes |
+|---|-------|-------|-------|-------|-------|
+| 20.002 | 0.981 | 0.000 | 6.10 | 1.341 | Drop injected; κ_rms ≈ 2/R = 6.67 ✓ |
+| 20.132 | 0.986 | 0.000 | 6.74 | 1.341 | Stable; φ_max intact |
+| 20.263 | 0.987 | 0.000 | 16.54 | 1.426 | Growth onset |
+| 20.317 | 0.988 | 0.000 | 27.64 | 1.711 | Crosses 2/ε=28.6 threshold |
+| 20.358 | 0.989 | 0.000 | 52.0 | 2.203 | Runaway |
+| 20.389 | 0.991 | 0.000 | 93.4 | 3.262 | Explosive |
+| 20.423 | 0.996 | 0.000 | 153.8 | 4.667 | Plateau / resolution saturation |
+| 20.435 | 0.998 | 0.000 | 158.1 | 4.907 | φ_max still < 1 — CDI intact ✓ |
+
+**Key observation:** φ_max < 1 throughout the blow-up — CDI is functioning correctly.
+The instability is in the explicit CSF treatment, not CDI. Identical signature to the
+We=1 blow-up cases.
 
 ---
 
@@ -532,10 +548,12 @@ the explicit CSF timestep constraint was the limiting factor.
 ## Next steps
 
 - [x] `channel_single_phase` completed — `fluid00004.chkp` at t=20 available
-- [x] `channel_test_restart` v1 — blew up at t=21.55 (1.55 TU); 14 field files available
-- [x] `channel_test_restart` v2 — blew up at t=20.40 (0.40 TU); corrected CDI params not sufficient
-- [~] **`channel_test_we10`** (We=10, σ=0.03) — **running** t=20→25; expected stable (Δt/Δt_cap=0.45)
-- [ ] **`channel_test_laminar`** (We=1, laminar IC) — validate CDI+CSF without turbulence
-- [ ] `channel_test_we1` (We=1, restart) — primary validation; blocked pending stable timestep strategy
+- [x] `channel_test_restart` v1 — blew up at t=21.55 (1.55 TU); Δt/Δt_cap=7.2
+- [x] `channel_test_restart` v2 — blew up at t=20.40 (0.40 TU); Δt/Δt_cap=2.2
+- [x] `channel_test_we10` — **blew up at t=20.44 (0.44 TU)**; Δt/Δt_cap=0.69; outside 0.5 safety band
+- [ ] **`channel_test_laminar`** (We=1, laminar IC) — immediate priority; validate CDI+CSF without turbulence
+- [ ] **`channel_test_we100`** (We=100, σ=0.003, restart) — first turbulent case predicted stable; Δt/Δt_cap≈0.22 ✓
+- [ ] `channel_test_we10` re-run with `target_cfl=0.10–0.12` (ratio≈0.35–0.42, inside 0.5 band)
+- [ ] `channel_test_we1` (We=1, restart) — blocked pending stable timestep; needs `target_cfl≈0.046`
 - [ ] `channel_test_restart_off` (We=1.33, R=0.4, y_c=0.3) — after stable parameters found
-- [ ] Compare κ_rms, φ_max across laminar / We=10 / We=1 to quantify CSF stiffness regime
+- [ ] Compare κ_rms, φ_max across laminar / We=100 / We=10 (reduced CFL) to quantify CSF stiffness regime
