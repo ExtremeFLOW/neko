@@ -1319,7 +1319,7 @@ contains
 #elif HAVE_CUDA
     res = cuda_glmax(a_d, ninf, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('glmax is not supported by OpenCL')
+    res = opencl_glmax(a_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
