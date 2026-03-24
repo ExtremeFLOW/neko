@@ -78,9 +78,9 @@ Use target_cfl=0.2 for all two-phase cases with σ≥0.03 (We≤10).
 | `turb_channel_two_phase.f90` | User module (IC, CDI source, CSF source, diagnostics) |
 | `turb_channel_two_phase_v4.case` | High-We reference (We=730, σ=4.1×10⁻⁴); completed t=0–5 |
 | `turb_channel_two_phase_laminar.case` | **Baseline**: laminar flow, We=1 (σ=0.3); ground-truth CDI/CSF test |
-| `turb_channel_two_phase_we1.case` | **Primary validation**: turbulent, We=1 (σ=0.3) |
-| `turb_channel_two_phase_we10.case` | Turbulent, We=10 (σ=0.03); moderate deformation |
-| `turb_channel_two_phase_restart.case` | We=1 restart from `fluid00004.chkp`; R=0.4, y_c=0 (centre); ε=0.07, γ=0.05, CFL=0.2 |
+| `turb_channel_two_phase_we1.case` | **Primary validation**: turbulent, We=1 (σ=0.3); restart from `fluid00004.chkp` |
+| `turb_channel_two_phase_we10.case` | Turbulent, We=10 (σ=0.03); moderate deformation; restart from `fluid00004.chkp` |
+| `turb_channel_two_phase_restart.case` | We=1 restart from `fluid00004.chkp`; R=0.3, y_c=0 (centre); ε=0.07, γ=0.05, CFL=0.2 |
 | `turb_channel_two_phase_restart_off.case` | We=1.33 restart; R=0.4, y_c=0.3 (off-centre, log-law region) |
 | `turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up |
 | `turb_channel_single_phase.case` | Single-phase spin-up to t=25, checkpoint every 5 TU |
@@ -176,6 +176,10 @@ when Ekin fluctuates around a flat mean with no trend. Typical time to reach sta
 from a Reichardt IC: **t ≈ 10–15 convective time units** (t × U_b/h, U_b=h=1 here).
 
 ### Checkpoint selection for two-phase restart
+
+**All turbulent two-phase cases restart from `fluid00004.chkp`.** This is the standard
+workflow: run the single-phase spin-up first, then inject the drop analytically via the
+scalar IC. The laminar case is the only exception (Poiseuille IC, no checkpoint).
 
 The single-phase case (`turb_channel_single_phase.case`) runs to t=25 with checkpoints
 at t=5, 10, 15, 20, 25. The recommended restart checkpoint is **`fluid00004.chkp` (t=20)**:

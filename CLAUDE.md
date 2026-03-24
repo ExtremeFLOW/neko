@@ -88,7 +88,11 @@ cp ~/code/neko-multiphase-channel/examples/two_phase_channel/box_phys_81x18x27.n
 mpirun -np 32 ./neko turb_channel_two_phase_v4.case
 ```
 
-### Turbulent restart (two-step)
+### Turbulent restart (two-step) — standard workflow for all turbulent two-phase cases
+
+**All turbulent two-phase cases restart from `fluid00004.chkp`.** This gives genuinely
+developed turbulence at t=20 rather than a synthetic Reichardt IC. The laminar case
+is the only exception (it uses a Poiseuille IC with no perturbations).
 
 ```bash
 # Step 1: single-phase spin-up — generates fluid00004.chkp at t=20
@@ -98,18 +102,12 @@ mpirun -np 16 ./neko turb_channel_single_phase.case
 # (mean profile matches Reichardt Re_tau=180 — confirmed via postprocess_single_phase.py)
 
 # Step 2: two-phase restart — reads fluid00004.chkp, injects drop analytically
-mkdir /lscratch/sieburgh/simulations/channel_test_restart
-cd /lscratch/sieburgh/simulations/channel_test_restart
-cp ~/code/neko-multiphase-channel/examples/two_phase_channel/{turb_channel_two_phase_restart.case,neko,box_phys_81x18x27.nmsh} .
+# Replace <CASE> with restart, we10, we1, restart_off, etc.
+mkdir /lscratch/sieburgh/simulations/channel_test_<CASE>
+cd /lscratch/sieburgh/simulations/channel_test_<CASE>
+cp ~/code/neko-multiphase-channel/examples/two_phase_channel/{turb_channel_two_phase_<CASE>.case,neko,box_phys_81x18x27.nmsh} .
 cp /lscratch/sieburgh/simulations/channel_single_phase/fluid00004.chkp .
-mpirun -np 16 ./neko turb_channel_two_phase_restart.case
-
-# Off-centre variant (R=0.4, y_c=0.3):
-mkdir /lscratch/sieburgh/simulations/channel_test_restart_off
-cd /lscratch/sieburgh/simulations/channel_test_restart_off
-cp ~/code/neko-multiphase-channel/examples/two_phase_channel/{turb_channel_two_phase_restart_off.case,neko,box_phys_81x18x27.nmsh} .
-cp /lscratch/sieburgh/simulations/channel_single_phase/fluid00004.chkp .
-mpirun -np 16 ./neko turb_channel_two_phase_restart_off.case
+mpirun -np 16 ./neko turb_channel_two_phase_<CASE>.case
 ```
 
 **Restart mechanics:** Neko restores t=20 from the checkpoint. `end_time: 25.0` is
@@ -134,9 +132,9 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 |------|---------|
 | `examples/two_phase_channel/turb_channel_two_phase.f90` | User module: IC, CDI, CSF, diagnostics |
 | `examples/two_phase_channel/turb_channel_two_phase_laminar.case` | Laminar + We=1 (σ=0.3): CDI/CSF ground-truth baseline |
-| `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Turbulent + We=1 (σ=0.3): primary validation |
-| `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Turbulent + We=10 (σ=0.03): moderate deformation |
-| `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1 restart from `fluid00004.chkp` (t=20→25), R=0.3, y_c=0 |
+| `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Turbulent + We=1 (σ=0.3): primary validation; restart from `fluid00004.chkp` |
+| `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Turbulent + We=10 (σ=0.03): moderate deformation; restart from `fluid00004.chkp` |
+| `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1 restart from `fluid00004.chkp` (t=20→25), R=0.3, y_c=0 (centre) |
 | `examples/two_phase_channel/turb_channel_two_phase_restart_off.case` | We=1.33 restart, R=0.4, y_c=0.3 (off-centre, log-law region) |
 | `examples/two_phase_channel/turb_channel_two_phase_v4.case` | v4: We=730 high-We reference (completed) |
 | `examples/two_phase_channel/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up |

@@ -2,10 +2,13 @@
     "version": 1.0,
     "case": {
         "mesh_file": "box_phys_81x18x27.nmsh",
+        "restart_file": "fluid00004.chkp",
         "output_at_end": true,
-        "output_checkpoints": false,
+        "output_checkpoints": true,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 5.0,
         "time": {
-            "end_time": 5.0,
+            "end_time": 25.0,
             "variable_timestep": true,
             "target_cfl": 0.2,
             "max_timestep": 5e-2
