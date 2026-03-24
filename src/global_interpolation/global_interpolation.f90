@@ -900,11 +900,11 @@ contains
           call recv_pe_find%push(i)
           do j = 1, this%n_points_pe_local(i)
              call glb_intrp_find%recv_dof(i)%push(3*(j + &
-             this%n_points_offset_pe_local(i) - 1) + 1)
+                  this%n_points_offset_pe_local(i) - 1) + 1)
              call glb_intrp_find%recv_dof(i)%push(3*(j + &
-             this%n_points_offset_pe_local(i) - 1) + 2)
+                  this%n_points_offset_pe_local(i) - 1) + 2)
              call glb_intrp_find%recv_dof(i)%push(3*(j + &
-             this%n_points_offset_pe_local(i) - 1) + 3)
+                  this%n_points_offset_pe_local(i) - 1) + 3)
           end do
        end if
     end do
@@ -923,7 +923,7 @@ contains
           ii = ii + 1
           el_owner_results(ii) = this%el_owner0(point_ids(j))
        end do
-       call MPI_Isend(el_owner_results(this%n_points_offset_pe(rank)+1),&
+       call MPI_Isend(el_owner_results(this%n_points_offset_pe(rank) + 1),&
             this%n_points_pe(rank), &
             MPI_INTEGER, rank, 0, &
             this%comm, glb_intrp_find%send_buf(i)%request, ierr)
@@ -931,7 +931,8 @@ contains
     end do
     do i = 1, size(glb_intrp_find%recv_pe)
        rank = glb_intrp_find%recv_pe(i)
-       call MPI_IRecv(this%el_owner0_local(this%n_points_offset_pe_local(rank)+1), &
+       call MPI_IRecv(this%el_owner0_local( &
+            this%n_points_offset_pe_local(rank) + 1), &
             this%n_points_pe_local(rank), &
             MPI_INTEGER, rank, 0, &
             this%comm, glb_intrp_find%recv_buf(i)%request, ierr)
@@ -956,7 +957,8 @@ contains
        if (this%n_points_pe_local(i) .gt. 0) then
           call send_pe%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call this%glb_intrp_comm%send_dof(i)%push(j+this%n_points_offset_pe_local(i))
+             call this%glb_intrp_comm%send_dof(i)%push(j + &
+                  this%n_points_offset_pe_local(i))
           end do
        end if
     end do
@@ -974,7 +976,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%el_owner0, this%el_owner0_d, &
             this%n_points, HOST_TO_DEVICE, sync = .true.)
-       call device_map(this%el_owner0_local, this%el_owner0_local_d, this%n_points_local)
+       call device_map(this%el_owner0_local, this%el_owner0_local_d, &
+            this%n_points_local)
        call device_memcpy(this%el_owner0_local, this%el_owner0_local_d, &
             this%n_points_local, HOST_TO_DEVICE, sync = .true.)
     end if
@@ -1003,8 +1006,8 @@ contains
     if (allocated(el_owner_results)) deallocate(el_owner_results)
     call MPI_Barrier(this%comm, ierr)
     time2 = MPI_Wtime()
-    write(log_buf, '(A,E15.7)') 'Global interpolation find points done, time (s):', &
-         time2-time_start
+    write(log_buf, '(A,E15.7)') 'Global interpolation find points ' // &
+         'done, time (s):', time2-time_start
     call neko_log%message(log_buf)
     call neko_log%end_section()
     call neko_log%newline()
@@ -1041,7 +1044,8 @@ contains
        zdiff = z_check%x(i)-this%xyz(3,i)
        isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tolerance
        if (isdiff) then
-          write(*,*) 'Point ', i,'at rank ', this%pe_rank, 'with coordinates: ', &
+          write(*,*) 'Point ', i,'at rank ', this%pe_rank, &
+               'with coordinates: ', &
                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
                'Differ from interpolated coords: ', &
                x_check%x(i), y_check%x(i), z_check%x(i), &
