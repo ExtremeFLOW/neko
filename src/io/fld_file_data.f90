@@ -111,8 +111,8 @@ contains
     type(field_list_t), intent(inout), optional :: s_target_list
     integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
-    real(kind=rp), intent(in), optional :: tolerance
-    real(kind=rp), intent(in), optional :: padding
+    real(kind=dp), intent(in), optional :: tolerance
+    real(kind=dp), intent(in), optional :: padding
     type(json_file), intent(inout), optional :: global_interp_subdict
 
     integer :: i
