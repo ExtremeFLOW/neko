@@ -216,7 +216,16 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_components(case%fluid%dm_Xh, output_file, name)
+
+    block
+      type(json_file) :: interp_subdict
+      call json_get_or_default(json, "interpolation", interp_subdict)
+      call this%global_interp%init(case%fluid%dm_Xh, &
+           params_subdict = interp_subdict)
+
+      call this%init_common(case%fluid%dm_Xh, output_file, name)
+
+    end block
 
   end subroutine probes_init_from_json
 
