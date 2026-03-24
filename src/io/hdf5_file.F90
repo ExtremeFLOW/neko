@@ -1434,12 +1434,9 @@ contains
     integer, intent(in) :: attr
     character(len=*), intent(in) :: attr_name
     integer :: ierr
-    integer(hid_t) :: precision_hdf
     integer(hid_t) :: filespace, attr_id
     integer(hsize_t), dimension(1) :: dcount
     logical :: attr_exists
-    real(kind=sp), allocatable :: write_buffer_sp(:) ! Write buffer single
-    real(kind=dp), allocatable :: write_buffer_dp(:) ! Write buffer double
 
     ! ====================
     ! Create the attribute
@@ -1480,8 +1477,6 @@ contains
     integer(hid_t) :: filespace, attr_id
     integer(hsize_t), dimension(1) :: dcount
     logical :: attr_exists
-    real(kind=sp), allocatable :: write_buffer_sp(:) ! Write buffer single
-    real(kind=dp), allocatable :: write_buffer_dp(:) ! Write buffer double
 
     ! Get the precision
     precision_hdf = h5kind_to_type(rp, H5_REAL_KIND)
