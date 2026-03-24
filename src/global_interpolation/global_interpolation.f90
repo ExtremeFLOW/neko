@@ -353,10 +353,10 @@ contains
     this%tolerance = GLOBAL_INTERP_TOL
     if (present(tol)) this%tolerance = tol
 
-    write(log_buf,'(A,E15.7)') &
+    write(log_buf, '(A,E15.7)') &
          'Tolerance: ', this%tolerance
     call neko_log%message(log_buf)
-    write(log_buf,'(A,E15.7)') &
+    write(log_buf, '(A,E15.7)') &
          'Padding: ', this%padding
     call neko_log%message(log_buf)
 
@@ -415,7 +415,7 @@ contains
     if (.not. allocated(this%pe_finder)) then
        allocate(cartesian_pe_finder_t :: this%pe_finder)
     end if
-    select type(el_find => this%el_finder)
+    select type (el_find => this%el_finder)
     type is (aabb_el_finder_t)
        call neko_log%message('Using AABB element finder')
        call el_find%init(x, y, z, nelv, Xh, this%padding)
@@ -428,7 +428,7 @@ contains
        call neko_error('Unknown element finder type')
     end select
 
-    select type(pe_find => this%pe_finder)
+    select type (pe_find => this%pe_finder)
     type is (aabb_pe_finder_t)
        call neko_log%message('Using AABB PE finder')
        call pe_find%init(this%x%x, this%y%x, this%z%x, &
@@ -586,7 +586,7 @@ contains
     call recv_pe_find%init()
     call MPI_Barrier(this%comm)
     time_start = MPI_Wtime()
-    write(log_buf,'(A)') 'Global interpolation, finding points'
+    write(log_buf, '(A)') 'Global interpolation, finding points'
     call neko_log%message(log_buf)
     ! Find pe candidates that the points i want may be at
     ! Add number to n_points_pe_local
@@ -756,7 +756,7 @@ contains
          'Found rst with Newton iteration, time (s):', time2-time1
     call neko_log%message(log_buf)
 
-    write(log_buf,'(A)') &
+    write(log_buf, '(A)') &
          'Checking validity of points and choosing best candidates.'
     call neko_log%message(log_buf)
     call MPI_Barrier(this%comm,ierr)
@@ -778,7 +778,7 @@ contains
        do j = 1, n_el_cands(i)
           ii = ii + 1
           if (rst_cmp(this%rst_local(:,i), rst_local_cand%x(:,ii),&
-               this%xyz_local(:,i), (/resx%x(ii),resy%x(ii),resz%x(ii)/), &
+               this%xyz_local(:,i), [resx%x(ii),resy%x(ii),resz%x(ii)], &
                this%padding)) then
              this%rst_local(1,i) = rst_local_cand%x(1,ii)
              this%rst_local(2,i) = rst_local_cand%x(2,ii)
@@ -1030,10 +1030,10 @@ contains
     call x_check%init(this%n_points)
     call y_check%init(this%n_points)
     call z_check%init(this%n_points)
-    call this%evaluate(x_check%x, x, on_host=.true.)
-    call this%evaluate(y_check%x, y, on_host=.true.)
-    call this%evaluate(z_check%x, z, on_host=.true.)
-    write(log_buf,'(A)') 'Checking validity of points.'
+    call this%evaluate(x_check%x, x, on_host = .true.)
+    call this%evaluate(y_check%x, y, on_host = .true.)
+    call this%evaluate(z_check%x, z, on_host = .true.)
+    write(log_buf, '(A)') 'Checking validity of points.'
     call neko_log%message(log_buf)
     j = 0
     do i = 1 , this%n_points
@@ -1042,7 +1042,7 @@ contains
        xdiff = x_check%x(i)-this%xyz(1,i)
        ydiff = y_check%x(i)-this%xyz(2,i)
        zdiff = z_check%x(i)-this%xyz(3,i)
-       isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tolerance
+       isdiff = norm2(real([xdiff,ydiff,zdiff],xp)) > this%tolerance
        if (isdiff) then
           write(*,*) 'Point ', i,'at rank ', this%pe_rank, &
                'with coordinates: ', &
@@ -1050,7 +1050,7 @@ contains
                'Differ from interpolated coords: ', &
                x_check%x(i), y_check%x(i), z_check%x(i), &
                'Actual difference: ', &
-               xdiff, ydiff, zdiff, norm2(real((/xdiff,ydiff,zdiff/),xp)),&
+               xdiff, ydiff, zdiff, norm2(real([xdiff,ydiff,zdiff],xp)),&
                'Process, element: ', &
                this%pe_owner(i), this%el_owner0(i)+1, &
                'Calculated rst: ', &
