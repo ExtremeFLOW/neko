@@ -70,6 +70,8 @@ module global_interpolation
   private
 
   integer, public, parameter :: GLOB_MAP_SIZE = 4096
+  real(kind=dp), public, parameter :: GLOBAL_INTERP_TOL = NEKO_EPS*1e3_dp
+  real(kind=dp), public, parameter :: GLOBAL_INTERP_PAD = 1e-2_dp
 
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
@@ -121,9 +123,9 @@ module global_interpolation
      !> Turns true if points are redistributed to their respective owners
      logical :: all_points_local = .false.
      !> Tolerance for Newton solve to find the correct rst coordinates.
-     real(kind=rp) :: tol = NEKO_EPS*1e3_rp
+     real(kind=dp) :: tolerance = NEKO_EPS*1e3_dp
      !> Padding
-     real(kind=rp) :: padding = 1e-2_rp
+     real(kind=dp) :: padding = 1e-2_dp
 
      !> Mapping of points to ranks.
      !> n_points_pe(pe_rank) = n_points I have at this rank
@@ -260,18 +262,15 @@ contains
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
   !! @mask  Mask that indicates which portions of the domain to include
-  !! @param params_subdict A JSON object containing parameters to use for 
   !! initialization instead of tol and pad.
-  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask, &
-                  params_subdict)
+  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask)
     class(global_interpolation_t), target, intent(inout) :: this
     type(dofmap_t) :: dof
     type(MPI_COMM), optional, intent(in) :: comm
-    real(kind=rp), optional :: tol
-    real(kind=rp), optional :: pad
+    real(kind=dp), optional :: tol
+    real(kind=dp), optional :: pad
     type(mask_t), intent(in), optional :: mask
-    type(json_file), intent(in), optional :: params_subdict
-    
+
     integer :: temp_nelv
 
     ! Store the number of dofs
@@ -324,9 +323,9 @@ contains
     integer, intent(in) :: nelv
     type(MPI_COMM), intent(in), optional :: comm
     type(space_t), intent(in) :: Xh
-    real(kind=rp), intent(in), optional :: tol
-    real(kind=rp), intent(in), optional :: pad
-    type(json_file), intent(in), optional :: params_subdict
+    type(MPI_COMM), intent(in), optional :: comm
+    real(kind=dp), intent(in), optional :: tol
+    real(kind=dp), intent(in), optional :: pad
 
     integer :: lx, ly, lz, ierr, i, n
     character(len=8000) :: log_buf
@@ -334,6 +333,9 @@ contains
     real(kind=rp) :: time1, time_start
     character(len=255) :: mode_str
     integer :: boxdim, envvar_len
+
+    call neko_log%section('Global Interpolation')
+    call neko_log%message('Initializing global interpolation')
 
     call this%free()
 
@@ -343,26 +345,19 @@ contains
        this%comm = NEKO_COMM
     end if
 
-    ! If the subdict is given, override the other optional params
-    if (present(params_subdict)) then
-       call json_get_or_lookup_or_default(params, 'tolerance', this%tol, NEKO_EPS*1e3_xp)
-       call json_get_or_lookup_or_default(params, 'padding', padding, 1e-2_dp)
-       this%padding = padding
-    else
-       if (present(pad)) then
-          padding = pad
-          this%padding = pad
-       else
-          padding = 1e-2 ! 1% padding of the bounding boxes
-          this%padding = 1e-2
-       end if
-       if (present(tol)) then
-          this%tol = tol
-       else
-          this%tol = NEKO_EPS*1e3_xp
-       end if
-    end if
+    ! Set point search parameters
+    this%padding = GLOBAL_INTERP_PAD
+    if (present(pad)) this%padding = pad
 
+    this%tolerance = GLOBAL_INTERP_TOL
+    if (present(tol)) this%tolerance = tol
+
+    write(log_buf,'(A,E15.7)') &
+         'Tolerance: ', this%tolerance
+    call neko_log%message(log_buf)
+    write(log_buf,'(A,E15.7)') &
+         'Padding: ', this%padding
+    call neko_log%message(log_buf)
 
     time_start = MPI_Wtime()
     call MPI_Barrier(this%comm)
@@ -424,12 +419,12 @@ contains
     select type(el_find => this%el_finder)
     type is (aabb_el_finder_t)
        call neko_log%message('Using AABB element finder')
-       call el_find%init(x, y, z, nelv, Xh, padding)
+       call el_find%init(x, y, z, nelv, Xh, this%padding)
     type is (cartesian_el_finder_t)
        call neko_log%message('Using Cartesian element finder')
        boxdim = max(lx*int(real(nelv,xp)**(1.0_xp/3.0_xp)),2)
        boxdim = min(boxdim, 300)
-       call el_find%init(x, y, z, nelv, Xh, boxdim, padding)
+       call el_find%init(x, y, z, nelv, Xh, boxdim, this%padding)
     class default
        call neko_error('Unknown element finder type')
     end select
@@ -438,7 +433,7 @@ contains
     type is (aabb_pe_finder_t)
        call neko_log%message('Using AABB PE finder')
        call pe_find%init(this%x%x, this%y%x, this%z%x, &
-            nelv, Xh, this%comm, padding)
+            nelv, Xh, this%comm, this%padding)
     type is (cartesian_pe_finder_t)
        call neko_log%message('Using Cartesian PE finder')
        boxdim = lx*int(real(this%glb_nelv,xp)**(1.0_xp/3.0_xp))
@@ -446,12 +441,13 @@ contains
        boxdim = min(boxdim, &
             int(8.0_xp*(30000.0_xp*this%pe_size)**(1.0_xp/3.0_xp)))
        call pe_find%init(this%x%x, this%y%x, this%z%x, &
-            nelv, Xh, this%comm, boxdim, padding)
+            nelv, Xh, this%comm, boxdim, this%padding)
     class default
        call neko_error('Unknown PE finder type')
     end select
 
-    call this%rst_finder%init(this%x%x, this%y%x, this%z%x, nelv, Xh, this%tol)
+    call this%rst_finder%init(this%x%x, this%y%x, this%z%x, nelv, Xh, &
+         this%tolerance)
     if (allocated(this%n_points_pe)) deallocate(this%n_points_pe)
     if (allocated(this%n_points_pe_local)) deallocate(this%n_points_pe_local)
     if (allocated(this%n_points_offset_pe_local)) &
@@ -752,9 +748,6 @@ contains
          'Found rst with Newton iteration, time (s):', time2-time1
     call neko_log%message(log_buf)
 
-    write(log_buf,'(A,E15.7)') &
-         'Tolerance: ', this%tol
-    call neko_log%message(log_buf)
     write(log_buf,'(A)') &
          'Checking validity of points and choosing best candidates.'
     call neko_log%message(log_buf)
@@ -1031,7 +1024,7 @@ contains
        xdiff = x_check%x(i)-this%xyz(1,i)
        ydiff = y_check%x(i)-this%xyz(2,i)
        zdiff = z_check%x(i)-this%xyz(3,i)
-       isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tol
+       isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tolerance
        if (isdiff) then
           write(*,*) 'Point ', i,'at rank ', this%pe_rank, 'with coordinates: ', &
                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
