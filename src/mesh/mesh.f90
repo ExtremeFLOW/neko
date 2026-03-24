@@ -99,11 +99,6 @@ module mesh
      ! connectivity information including element objects mapping
      type(mesh_conn_t) :: conn
 
-     logical, allocatable :: neigh(:) !< Neighbouring ranks
-     integer, allocatable :: neigh_order(:) !< Neighbour order
-
-     integer, allocatable :: facet_neigh(:,:) !< Facet to neigh. element table
-
      ! boundary condition and curvature
      integer(2), allocatable :: facet_type(:,:) !< Facet type
 
@@ -116,11 +111,16 @@ module mesh
      type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
      type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
 
+     logical, allocatable :: neigh(:) !< Neighbouring ranks
+     integer, allocatable :: neigh_order(:) !< Neighbour order
+
      !> Facet to element's id tuple and the mapping of the
      !! points between lower id element and higher
      !! \f$ t=(low_id element, element with higher global id) \f$
      class(htable_t), allocatable :: facet_map
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
+
+     integer, allocatable :: facet_neigh(:,:) !< Facet to neigh. element table
 
      type(distdata_t) :: ddata !< Mesh distributed data
 

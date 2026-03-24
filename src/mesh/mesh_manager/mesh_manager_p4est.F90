@@ -1458,10 +1458,10 @@ contains
     ! Fill in neighbour and mesh distribution information
     select type (conn => this%mesh%conn)
     type is (manager_conn_p4est_t)
-       ! used in: gather_scatter.f90;
-       ! get neighbour rank info
-       call p4est_rank_neighbour_fill(mesh, conn)
-
+!!$       ! used in: gather_scatter.f90; removed
+!!$       ! get neighbour rank info
+!!$       call p4est_rank_neighbour_fill(mesh, conn)
+!!$
 !!$       ! not used outside mesh.f90
 !!$       ! get vertex neighbours
 !!$       ! MORE INVESTIGATION NEEDED
@@ -1485,45 +1485,45 @@ contains
 !!$          end if
 !!$       end select
 
-       ! used in: gather_scatter.f90, tree_amg_multigrid.f90;
-       ! MORE INVESTIGATION NEEDED
-       ! get face neighbours
-       select type (fcs => conn%fcs)
-       type is (manager_conn_obj_p4est_t)
-          call p4est_object_neighbour_fill(obj, mesh%nelv, &
-               this%mesh%gidx, fcs, conn%fmap, conn%nfcs)
-          ! extract global element index
-          ! THIS WORKS FOR CONFORMING MESHES ONLY
-          ! IN GENERAL THIS IS NOT A FAST AND SMOOTH CODE
-          if (allocated(obj)) then
-             allocate(mesh%facet_neigh(conn%nfcs, conn%nel))
-             do il = 1, conn%nel
-                do jl = 1, conn%nfcs
-                   itmp = conn%fmap(jl, il)
-                   neighn = obj(itmp)%size()
-                   neighl => obj(itmp)%array()
-                   select case(neighn)
-                   case (1)
-                      ! just one face
-                      mesh%facet_neigh(jl, il) = 0
-                   case (2)
-                      if (neighl(1)%x(2) .eq. int(this%mesh%gidx(il), i4)) then
-                         mesh%facet_neigh(jl, il) = neighl(2)%x(2)
-                      else
-                         mesh%facet_neigh(jl, il) = neighl(1)%x(2)
-                      end if
-                   case default
-                      ! none or too many neighbours
-                      call neko_error('This works for conformal mesh only.')
-                   end select
-                end do
-             end do
-             do il = 1, size(obj)
-                call obj(il)%free()
-             end do
-             deallocate(obj)
-          end if
-       end select
+!!$       ! used in: gather_scatter.f90, tree_amg_multigrid.f90; removed
+!!$       ! MORE INVESTIGATION NEEDED
+!!$       ! get face neighbours
+!!$       select type (fcs => conn%fcs)
+!!$       type is (manager_conn_obj_p4est_t)
+!!$          call p4est_object_neighbour_fill(obj, mesh%nelv, &
+!!$               this%mesh%gidx, fcs, conn%fmap, conn%nfcs)
+!!$          ! extract global element index
+!!$          ! THIS WORKS FOR CONFORMING MESHES ONLY
+!!$          ! IN GENERAL THIS IS NOT A FAST AND SMOOTH CODE
+!!$          if (allocated(obj)) then
+!!$             allocate(mesh%facet_neigh(conn%nfcs, conn%nel))
+!!$             do il = 1, conn%nel
+!!$                do jl = 1, conn%nfcs
+!!$                   itmp = conn%fmap(jl, il)
+!!$                   neighn = obj(itmp)%size()
+!!$                   neighl => obj(itmp)%array()
+!!$                   select case(neighn)
+!!$                   case (1)
+!!$                      ! just one face
+!!$                      mesh%facet_neigh(jl, il) = 0
+!!$                   case (2)
+!!$                      if (neighl(1)%x(2) .eq. int(this%mesh%gidx(il), i4)) then
+!!$                         mesh%facet_neigh(jl, il) = neighl(2)%x(2)
+!!$                      else
+!!$                         mesh%facet_neigh(jl, il) = neighl(1)%x(2)
+!!$                      end if
+!!$                   case default
+!!$                      ! none or too many neighbours
+!!$                      call neko_error('This works for conformal mesh only.')
+!!$                   end select
+!!$                end do
+!!$             end do
+!!$             do il = 1, size(obj)
+!!$                call obj(il)%free()
+!!$             end do
+!!$             deallocate(obj)
+!!$          end if
+!!$       end select
 
 !!$       ! used in dofmap.f90 through get_global and is_shared methods
 !!$       ! MORE INVESTIGATION NEEDED
@@ -1719,347 +1719,347 @@ contains
 
   end subroutine p4est_curve_fill
 
-  !> Fill the mesh type with rank neighbour information
-  !! @param[inout]   mesh    neko mesh type
-  !! @param[in]      conn    connectivity
-  subroutine p4est_rank_neighbour_fill(mesh, conn)
-    type(mesh_t), intent(inout) :: mesh
-    type(manager_conn_p4est_t), intent(in) :: conn
-    integer :: il, jl, src, dst
-    type(stack_i4_t) :: neigh_order
+!!$  !> Fill the mesh type with rank neighbour information
+!!$  !! @param[inout]   mesh    neko mesh type
+!!$  !! @param[in]      conn    connectivity
+!!$  subroutine p4est_rank_neighbour_fill(mesh, conn)
+!!$    type(mesh_t), intent(inout) :: mesh
+!!$    type(manager_conn_p4est_t), intent(in) :: conn
+!!$    integer :: il, jl, src, dst
+!!$    type(stack_i4_t) :: neigh_order
+!!$
+!!$    ! initialize neighbour ranks
+!!$    allocate(mesh%neigh(0:pe_size-1))
+!!$    mesh%neigh = .false.
+!!$
+!!$    if (pe_size > 1) then
+!!$       ! get rank list
+!!$       ! vertex information
+!!$       select type (vrt => conn%vrt)
+!!$       type is (manager_conn_obj_p4est_t)
+!!$          do il= 1, vrt%nrank ! mpi rank loop
+!!$             ! not sure I have to exclude myself
+!!$             if (vrt%rank(il) .ne. pe_rank) mesh%neigh(vrt%rank(il)) = .true.
+!!$          end do
+!!$       end select
+!!$       ! face information
+!!$       select type (fcs => conn%fcs)
+!!$       type is (manager_conn_obj_p4est_t)
+!!$          do il= 1, fcs%nrank ! mpi rank loop
+!!$             ! not sure I have to exclude myself
+!!$             if (fcs%rank(il) .ne. pe_rank) mesh%neigh(fcs%rank(il)) = .true.
+!!$          end do
+!!$       end select
+!!$       ! edge information
+!!$       select type (edg => conn%edg)
+!!$       type is (manager_conn_obj_p4est_t)
+!!$          do il= 1, edg%nrank ! mpi rank loop
+!!$             ! not sure I have to exclude myself
+!!$             if (edg%rank(il) .ne. pe_rank) mesh%neigh(edg%rank(il)) = .true.
+!!$          end do
+!!$       end select
+!!$
+!!$       ! Generate neighbour exchange order
+!!$       call neigh_order%init(pe_size)
+!!$
+!!$       do il = 1, pe_size - 1
+!!$          src = modulo(pe_rank - il + pe_size, pe_size)
+!!$          dst = modulo(pe_rank + il, pe_size)
+!!$          if (mesh%neigh(src) .or. mesh%neigh(dst)) then
+!!$             jl = il ! adhere to standards...
+!!$             call neigh_order%push(jl)
+!!$          end if
+!!$       end do
+!!$
+!!$       allocate(mesh%neigh_order(neigh_order%size()))
+!!$       select type(order => neigh_order%data)
+!!$       type is (integer)
+!!$          do il = 1, neigh_order%size()
+!!$             mesh%neigh_order(il) = order(il)
+!!$          end do
+!!$       end select
+!!$       call neigh_order%free()
+!!$    else
+!!$       allocate(mesh%neigh_order(1))
+!!$       mesh%neigh_order = 1
+!!$    end if
+!!$
+!!$  end subroutine p4est_rank_neighbour_fill
 
-    ! initialize neighbour ranks
-    allocate(mesh%neigh(0:pe_size-1))
-    mesh%neigh = .false.
+!!$  !> Fill the mesh type with vertex, face and edge neighbour information
+!!$  !! @param[inout]   obj     object (position, neighbour) list
+!!$  !! @param[in]      nel     local number of elements
+!!$  !! @param[in]      gidx    element global index
+!!$  !! @param[in]      objmm   mesh manager info about the object
+!!$  !! @param[in]      map     object mapping
+!!$  !! @param[in]      nmap    map array size
+!!$  subroutine p4est_object_neighbour_fill(obj, nel, gidx, objmm, map, nmap)
+!!$    type(stack_i4t2_t), allocatable, dimension(:), intent(inout) :: obj
+!!$    integer, intent(in) :: nel, nmap
+!!$    integer(i8), dimension(:), intent(in) :: gidx
+!!$    type(manager_conn_obj_p4est_t), intent(in) :: objmm
+!!$    integer(i4), dimension(:,:), intent(in) :: map
+!!$
+!!$    integer(i4) :: il, jl, kl, ll, ml
+!!$    integer(i4) :: itmp, ierr
+!!$    type(tuple_i4_t) :: ttmp
+!!$    ! offest in send/receive buffers
+!!$    integer(i4), allocatable, dimension(:) :: cmoff, cmoffr
+!!$    integer(i4) :: neighn
+!!$    type(tuple_i4_t), pointer, dimension(:) :: neighl
+!!$    integer(i4), allocatable, dimension(:, :) :: rbuf, sbuf ! snd/rcv buffers
+!!$    type(MPI_Request), allocatable, dimension(:) :: request ! MPI request
+!!$    type(MPI_Status), allocatable, dimension(:) :: status ! MPI status
+!!$
+!!$    ! Get list of neighbours (elements a given object belongs to)
+!!$    if (allocated(obj)) then
+!!$       do il = 1, size(obj)
+!!$          call obj(il)%free()
+!!$       end do
+!!$       deallocate(obj)
+!!$    end if
+!!$    ! local object neighbours
+!!$    allocate(obj(objmm%lnum))
+!!$    do il = 1, objmm%lnum
+!!$       call obj(il)%init()
+!!$    end do
+!!$    do il = 1, nel
+!!$       ! get global element id
+!!$       itmp = int(gidx(il), i4)
+!!$       do jl = 1, nmap
+!!$          ttmp%x = [jl, itmp]
+!!$          call obj(map(jl, il))%push(ttmp)
+!!$       end do
+!!$    end do
+!!$
+!!$    ! SHOULD THE COMMUNICATION PATTERN BE CHANGED?
+!!$    ! non-local object neighbours
+!!$    ! count size of send/receive buffers
+!!$    allocate(cmoff(objmm%nrank), cmoffr(objmm%nrank))
+!!$    itmp = 1
+!!$    cmoff(itmp) = 1
+!!$    do il= 1, objmm%nrank ! mpi rank loop
+!!$       if (objmm%rank(il) .ne. pe_rank) then
+!!$          itmp = itmp + 1 ! mpi rank loop
+!!$          cmoff(itmp) = cmoff(itmp - 1)
+!!$          do jl = objmm%off(il), objmm%off(il + 1) -1
+!!$             ! sum number of local object neighbours for a given rank
+!!$             neighn = obj(objmm%share(jl))%size()
+!!$             cmoff(itmp) = cmoff(itmp) + 1 + neighn
+!!$          end do
+!!$       end if
+!!$    end do
+!!$    allocate(request(objmm%nrank - 1), status(objmm%nrank - 1))
+!!$
+!!$    ! Exchange size information
+!!$    ! set non-blocking receive
+!!$    itmp = 0
+!!$    do il=1, objmm%nrank ! mpi rank loop
+!!$       if (objmm%rank(il) .ne. pe_rank) then
+!!$          itmp = itmp + 1 ! count messages
+!!$          call MPI_IRecv(cmoffr(itmp), 1, MPI_INTEGER, objmm%rank(il), &
+!!$               objmm%rank(il), NEKO_COMM, request(itmp), ierr)
+!!$       end if
+!!$    end do
+!!$
+!!$    ! send buffer size
+!!$    itmp = 0
+!!$    do il=1, objmm%nrank ! mpi rank loop
+!!$       if (objmm%rank(il) .ne. pe_rank) then
+!!$          itmp = itmp + 1 ! count messages
+!!$          jl = cmoff(itmp + 1) - cmoff(itmp)
+!!$          call MPI_Send(jl, 1, MPI_INTEGER, objmm%rank(il), &
+!!$               pe_rank, NEKO_COMM, ierr)
+!!$       end if
+!!$    end do
+!!$
+!!$    ! finalise communication
+!!$    call MPI_Waitall(objmm%nrank - 1, request, status, ierr)
+!!$
+!!$    itmp = cmoffr(1)
+!!$    cmoffr(1) = 1
+!!$    do il=2, objmm%nrank ! mpi rank loop
+!!$       ierr = cmoffr(il)
+!!$       cmoffr(il) = cmoffr(il - 1) + itmp
+!!$       itmp = ierr
+!!$    end do
+!!$    allocate(rbuf(2, cmoffr(objmm%nrank)), sbuf(2, cmoff(objmm%nrank)))
+!!$
+!!$    ! set non-blocking receive
+!!$    itmp = 0
+!!$    do il=1, objmm%nrank ! mpi rank loop
+!!$       if (objmm%rank(il) .ne. pe_rank) then
+!!$          itmp = itmp + 1 ! count messages
+!!$          jl = 2 * (cmoffr(itmp + 1) - cmoffr(itmp))
+!!$          call MPI_IRecv(rbuf(:, cmoffr(itmp)), jl, MPI_INTEGER, &
+!!$               objmm%rank(il), jl, NEKO_COMM, request(itmp), ierr)
+!!$       end if
+!!$    end do
+!!$
+!!$    ! redistribute object information
+!!$    itmp = 0
+!!$    do il = 1, objmm%nrank ! mpi rank loop
+!!$       if (objmm%rank(il) .ne. pe_rank) then
+!!$          itmp = itmp + 1 ! count messages
+!!$          ll = cmoff(itmp)
+!!$          do jl = objmm%off(il), objmm%off(il + 1) - 1
+!!$             ! extract local neighbours
+!!$             neighn = obj(objmm%share(jl))%size()
+!!$             neighl => obj(objmm%share(jl))%array()
+!!$             sbuf(1, ll) = neighn ! local number of neighbours
+!!$             ! object global id
+!!$             sbuf(2, ll) = int(objmm%gidx(objmm%share(jl)), i4)
+!!$             ll = ll + 1
+!!$             do kl = 1, neighn
+!!$                sbuf(:, ll) = neighl(kl)%x(:)
+!!$                ll = ll + 1
+!!$             end do
+!!$          end do
+!!$          ! sanity check
+!!$          if (ll .ne. cmoff(itmp + 1)) call neko_error('Inconsistent number of &
+!!$               &local object neighbours; receive.')
+!!$          jl = 2 * (cmoff(itmp+1) - cmoff(itmp))
+!!$          call MPI_Send(sbuf(:, cmoff(itmp) : cmoff(itmp + 1) - 1), jl, &
+!!$               MPI_INTEGER, objmm%rank(il), jl, NEKO_COMM, ierr)
+!!$       end if
+!!$    end do
+!!$
+!!$    ! finalise communication
+!!$    call MPI_Waitall(objmm%nrank - 1, request, status, ierr)
+!!$
+!!$    ! extract data
+!!$    itmp = 0
+!!$    do il = 1, objmm%nrank ! mpi rank loop
+!!$       if (objmm%rank(il) .ne. pe_rank) then
+!!$          itmp = itmp + 1 ! count messages
+!!$          ll = cmoffr(itmp)
+!!$          do jl = objmm%off(il), objmm%off(il + 1) - 1
+!!$             ! check object global id
+!!$             if (objmm%gidx(objmm%share(jl)) .ne. rbuf(2, ll)) &
+!!$                  call neko_error('Inconsistent global vertex number in &
+!!$                  &neighbour exchange.')
+!!$             neighn = rbuf(1, ll)
+!!$             ll = ll + 1
+!!$             do kl = 1, neighn
+!!$                ttmp%x(:) = -rbuf(:, ll)
+!!$                call obj(objmm%share(jl))%push(ttmp)
+!!$                ll = ll + 1
+!!$             end do
+!!$          end do
+!!$          ! sanity check
+!!$          if (ll .ne. cmoffr(itmp + 1)) call neko_error('Inconsistent number &
+!!$               &of local vertex neighbours; extract.')
+!!$       end if
+!!$    end do
+!!$
+!!$    deallocate(cmoff, request, status, rbuf, sbuf)
+!!$
+!!$  end subroutine p4est_object_neighbour_fill
 
-    if (pe_size > 1) then
-       ! get rank list
-       ! vertex information
-       select type (vrt => conn%vrt)
-       type is (manager_conn_obj_p4est_t)
-          do il= 1, vrt%nrank ! mpi rank loop
-             ! not sure I have to exclude myself
-             if (vrt%rank(il) .ne. pe_rank) mesh%neigh(vrt%rank(il)) = .true.
-          end do
-       end select
-       ! face information
-       select type (fcs => conn%fcs)
-       type is (manager_conn_obj_p4est_t)
-          do il= 1, fcs%nrank ! mpi rank loop
-             ! not sure I have to exclude myself
-             if (fcs%rank(il) .ne. pe_rank) mesh%neigh(fcs%rank(il)) = .true.
-          end do
-       end select
-       ! edge information
-       select type (edg => conn%edg)
-       type is (manager_conn_obj_p4est_t)
-          do il= 1, edg%nrank ! mpi rank loop
-             ! not sure I have to exclude myself
-             if (edg%rank(il) .ne. pe_rank) mesh%neigh(edg%rank(il)) = .true.
-          end do
-       end select
-
-       ! Generate neighbour exchange order
-       call neigh_order%init(pe_size)
-
-       do il = 1, pe_size - 1
-          src = modulo(pe_rank - il + pe_size, pe_size)
-          dst = modulo(pe_rank + il, pe_size)
-          if (mesh%neigh(src) .or. mesh%neigh(dst)) then
-             jl = il ! adhere to standards...
-             call neigh_order%push(jl)
-          end if
-       end do
-
-       allocate(mesh%neigh_order(neigh_order%size()))
-       select type(order => neigh_order%data)
-       type is (integer)
-          do il = 1, neigh_order%size()
-             mesh%neigh_order(il) = order(il)
-          end do
-       end select
-       call neigh_order%free()
-    else
-       allocate(mesh%neigh_order(1))
-       mesh%neigh_order = 1
-    end if
-
-  end subroutine p4est_rank_neighbour_fill
-
-  !> Fill the mesh type with vertex, face and edge neighbour information
-  !! @param[inout]   obj     object (position, neighbour) list
-  !! @param[in]      nel     local number of elements
-  !! @param[in]      gidx    element global index
-  !! @param[in]      objmm   mesh manager info about the object
-  !! @param[in]      map     object mapping
-  !! @param[in]      nmap    map array size
-  subroutine p4est_object_neighbour_fill(obj, nel, gidx, objmm, map, nmap)
-    type(stack_i4t2_t), allocatable, dimension(:), intent(inout) :: obj
-    integer, intent(in) :: nel, nmap
-    integer(i8), dimension(:), intent(in) :: gidx
-    type(manager_conn_obj_p4est_t), intent(in) :: objmm
-    integer(i4), dimension(:,:), intent(in) :: map
-
-    integer(i4) :: il, jl, kl, ll, ml
-    integer(i4) :: itmp, ierr
-    type(tuple_i4_t) :: ttmp
-    ! offest in send/receive buffers
-    integer(i4), allocatable, dimension(:) :: cmoff, cmoffr
-    integer(i4) :: neighn
-    type(tuple_i4_t), pointer, dimension(:) :: neighl
-    integer(i4), allocatable, dimension(:, :) :: rbuf, sbuf ! snd/rcv buffers
-    type(MPI_Request), allocatable, dimension(:) :: request ! MPI request
-    type(MPI_Status), allocatable, dimension(:) :: status ! MPI status
-
-    ! Get list of neighbours (elements a given object belongs to)
-    if (allocated(obj)) then
-       do il = 1, size(obj)
-          call obj(il)%free()
-       end do
-       deallocate(obj)
-    end if
-    ! local object neighbours
-    allocate(obj(objmm%lnum))
-    do il = 1, objmm%lnum
-       call obj(il)%init()
-    end do
-    do il = 1, nel
-       ! get global element id
-       itmp = int(gidx(il), i4)
-       do jl = 1, nmap
-          ttmp%x = [jl, itmp]
-          call obj(map(jl, il))%push(ttmp)
-       end do
-    end do
-
-    ! SHOULD THE COMMUNICATION PATTERN BE CHANGED?
-    ! non-local object neighbours
-    ! count size of send/receive buffers
-    allocate(cmoff(objmm%nrank), cmoffr(objmm%nrank))
-    itmp = 1
-    cmoff(itmp) = 1
-    do il= 1, objmm%nrank ! mpi rank loop
-       if (objmm%rank(il) .ne. pe_rank) then
-          itmp = itmp + 1 ! mpi rank loop
-          cmoff(itmp) = cmoff(itmp - 1)
-          do jl = objmm%off(il), objmm%off(il + 1) -1
-             ! sum number of local object neighbours for a given rank
-             neighn = obj(objmm%share(jl))%size()
-             cmoff(itmp) = cmoff(itmp) + 1 + neighn
-          end do
-       end if
-    end do
-    allocate(request(objmm%nrank - 1), status(objmm%nrank - 1))
-
-    ! Exchange size information
-    ! set non-blocking receive
-    itmp = 0
-    do il=1, objmm%nrank ! mpi rank loop
-       if (objmm%rank(il) .ne. pe_rank) then
-          itmp = itmp + 1 ! count messages
-          call MPI_IRecv(cmoffr(itmp), 1, MPI_INTEGER, objmm%rank(il), &
-               objmm%rank(il), NEKO_COMM, request(itmp), ierr)
-       end if
-    end do
-
-    ! send buffer size
-    itmp = 0
-    do il=1, objmm%nrank ! mpi rank loop
-       if (objmm%rank(il) .ne. pe_rank) then
-          itmp = itmp + 1 ! count messages
-          jl = cmoff(itmp + 1) - cmoff(itmp)
-          call MPI_Send(jl, 1, MPI_INTEGER, objmm%rank(il), &
-               pe_rank, NEKO_COMM, ierr)
-       end if
-    end do
-
-    ! finalise communication
-    call MPI_Waitall(objmm%nrank - 1, request, status, ierr)
-
-    itmp = cmoffr(1)
-    cmoffr(1) = 1
-    do il=2, objmm%nrank ! mpi rank loop
-       ierr = cmoffr(il)
-       cmoffr(il) = cmoffr(il - 1) + itmp
-       itmp = ierr
-    end do
-    allocate(rbuf(2, cmoffr(objmm%nrank)), sbuf(2, cmoff(objmm%nrank)))
-
-    ! set non-blocking receive
-    itmp = 0
-    do il=1, objmm%nrank ! mpi rank loop
-       if (objmm%rank(il) .ne. pe_rank) then
-          itmp = itmp + 1 ! count messages
-          jl = 2 * (cmoffr(itmp + 1) - cmoffr(itmp))
-          call MPI_IRecv(rbuf(:, cmoffr(itmp)), jl, MPI_INTEGER, &
-               objmm%rank(il), jl, NEKO_COMM, request(itmp), ierr)
-       end if
-    end do
-
-    ! redistribute object information
-    itmp = 0
-    do il = 1, objmm%nrank ! mpi rank loop
-       if (objmm%rank(il) .ne. pe_rank) then
-          itmp = itmp + 1 ! count messages
-          ll = cmoff(itmp)
-          do jl = objmm%off(il), objmm%off(il + 1) - 1
-             ! extract local neighbours
-             neighn = obj(objmm%share(jl))%size()
-             neighl => obj(objmm%share(jl))%array()
-             sbuf(1, ll) = neighn ! local number of neighbours
-             ! object global id
-             sbuf(2, ll) = int(objmm%gidx(objmm%share(jl)), i4)
-             ll = ll + 1
-             do kl = 1, neighn
-                sbuf(:, ll) = neighl(kl)%x(:)
-                ll = ll + 1
-             end do
-          end do
-          ! sanity check
-          if (ll .ne. cmoff(itmp + 1)) call neko_error('Inconsistent number of &
-               &local object neighbours; receive.')
-          jl = 2 * (cmoff(itmp+1) - cmoff(itmp))
-          call MPI_Send(sbuf(:, cmoff(itmp) : cmoff(itmp + 1) - 1), jl, &
-               MPI_INTEGER, objmm%rank(il), jl, NEKO_COMM, ierr)
-       end if
-    end do
-
-    ! finalise communication
-    call MPI_Waitall(objmm%nrank - 1, request, status, ierr)
-
-    ! extract data
-    itmp = 0
-    do il = 1, objmm%nrank ! mpi rank loop
-       if (objmm%rank(il) .ne. pe_rank) then
-          itmp = itmp + 1 ! count messages
-          ll = cmoffr(itmp)
-          do jl = objmm%off(il), objmm%off(il + 1) - 1
-             ! check object global id
-             if (objmm%gidx(objmm%share(jl)) .ne. rbuf(2, ll)) &
-                  call neko_error('Inconsistent global vertex number in &
-                  &neighbour exchange.')
-             neighn = rbuf(1, ll)
-             ll = ll + 1
-             do kl = 1, neighn
-                ttmp%x(:) = -rbuf(:, ll)
-                call obj(objmm%share(jl))%push(ttmp)
-                ll = ll + 1
-             end do
-          end do
-          ! sanity check
-          if (ll .ne. cmoffr(itmp + 1)) call neko_error('Inconsistent number &
-               &of local vertex neighbours; extract.')
-       end if
-    end do
-
-    deallocate(cmoff, request, status, rbuf, sbuf)
-
-  end subroutine p4est_object_neighbour_fill
-
-  !> Fill the mesh type with mesh data distribution information
-  !! @param[inout]   mesh    neko mesh type
-  !! @param[in]      conn    connectivity
-  subroutine p4est_distdata_fill(mesh, conn)
-    type(mesh_t), intent(inout) :: mesh
-    type(manager_conn_p4est_t), intent(in) :: conn
-    integer :: il, jl, itmp, neighn
-    type(stack_i4t2_t), allocatable, dimension(:) :: obj
-    type(tuple_i4_t) :: ttmp
-    type(tuple_i4_t), pointer, dimension(:) :: neighl
-
-    ! initialise connectivity information
-    call mesh%ddata%init()
-
-    ! Add shared vertices
-    select type (vrt => conn%vrt)
-    type is (manager_conn_obj_p4est_t)
-       ! Local id
-       do il = 1, vrt%nrank
-          if (vrt%rank(il) == pe_rank) then
-             do jl = vrt%off(il), vrt%off(il + 1) - 1
-                call mesh%ddata%set_shared_point(vrt%share(jl))
-             end do
-             exit
-          end if
-       end do
-    end select
-
-    ! Add shared faces
-    select type (fcs => conn%fcs)
-    type is (manager_conn_obj_p4est_t)
-       ! Local id
-       do il = 1, fcs%nrank
-          if (fcs%rank(il) == pe_rank) then
-             itmp = il
-             do jl = fcs%off(il), fcs%off(il + 1) - 1
-                call mesh%ddata%set_shared_facet(fcs%share(jl))
-             end do
-             exit
-          end if
-       end do
-       ! Get faces that are shared
-       ! This part is to some extent already done in p4est_object_neighbour_fill
-       ! (local element number missing, so maybe could be taken from previous
-       ! steps.
-       allocate(obj(fcs%lnum))
-       do il = 1, fcs%lnum
-          call obj(il)%init()
-       end do
-       do il = 1, conn%nel
-          do jl = 1, conn%nfcs
-             ttmp%x = [il, jl]
-             call obj(conn%fmap(jl, il))%push(ttmp)
-          end do
-       end do
-       ! extract positions
-       do il = fcs%off(itmp), fcs%off(itmp + 1) - 1
-          jl = fcs%share(il)
-          neighn = obj(jl)%size()
-          neighl => obj(jl)%array()
-          do jl = 1, neighn
-             call mesh%ddata%set_shared_el_facet(neighl(jl)%x(1), &
-                  neighl(jl)%x(2))
-          end do
-       end do
-       ! Local to global id mapping
-       allocate(mesh%ddata%local_to_global_facet(fcs%lnum))
-       do il = 1, fcs%lnum
-          ! global face id; notice type casting
-          itmp = int(fcs%gidx(il),i4)
-          call mesh%ddata%set_local_to_global_facet(il, itmp)
-       end do
-
-       do il = 1, size(obj)
-          call obj(il)%free()
-       end do
-       deallocate(obj)
-    end select
-
-    ! Add shared edges
-    select type (edg => conn%edg)
-    type is (manager_conn_obj_p4est_t)
-       ! Local id
-       do il = 1, edg%nrank
-          if (edg%rank(il) == pe_rank) then
-             do jl = edg%off(il), edg%off(il + 1) - 1
-                call mesh%ddata%set_shared_edge(edg%share(jl))
-             end do
-             exit
-          end if
-       end do
-       ! Local to global id mapping
-       allocate(mesh%ddata%local_to_global_edge(edg%lnum))
-       do il = 1, edg%lnum
-          ! global face id; notice type casting
-          itmp = int(edg%gidx(il),i4)
-          call mesh%ddata%set_local_to_global_edge(il, itmp)
-       end do
-    end select
-
-    ! not used
-    !mesh%ldist = .true.
-
-  end subroutine p4est_distdata_fill
+!!$  !> Fill the mesh type with mesh data distribution information
+!!$  !! @param[inout]   mesh    neko mesh type
+!!$  !! @param[in]      conn    connectivity
+!!$  subroutine p4est_distdata_fill(mesh, conn)
+!!$    type(mesh_t), intent(inout) :: mesh
+!!$    type(manager_conn_p4est_t), intent(in) :: conn
+!!$    integer :: il, jl, itmp, neighn
+!!$    type(stack_i4t2_t), allocatable, dimension(:) :: obj
+!!$    type(tuple_i4_t) :: ttmp
+!!$    type(tuple_i4_t), pointer, dimension(:) :: neighl
+!!$
+!!$    ! initialise connectivity information
+!!$    call mesh%ddata%init()
+!!$
+!!$    ! Add shared vertices
+!!$    select type (vrt => conn%vrt)
+!!$    type is (manager_conn_obj_p4est_t)
+!!$       ! Local id
+!!$       do il = 1, vrt%nrank
+!!$          if (vrt%rank(il) == pe_rank) then
+!!$             do jl = vrt%off(il), vrt%off(il + 1) - 1
+!!$                call mesh%ddata%set_shared_point(vrt%share(jl))
+!!$             end do
+!!$             exit
+!!$          end if
+!!$       end do
+!!$    end select
+!!$
+!!$    ! Add shared faces
+!!$    select type (fcs => conn%fcs)
+!!$    type is (manager_conn_obj_p4est_t)
+!!$       ! Local id
+!!$       do il = 1, fcs%nrank
+!!$          if (fcs%rank(il) == pe_rank) then
+!!$             itmp = il
+!!$             do jl = fcs%off(il), fcs%off(il + 1) - 1
+!!$                call mesh%ddata%set_shared_facet(fcs%share(jl))
+!!$             end do
+!!$             exit
+!!$          end if
+!!$       end do
+!!$       ! Get faces that are shared
+!!$       ! This part is to some extent already done in p4est_object_neighbour_fill
+!!$       ! (local element number missing, so maybe could be taken from previous
+!!$       ! steps.
+!!$       allocate(obj(fcs%lnum))
+!!$       do il = 1, fcs%lnum
+!!$          call obj(il)%init()
+!!$       end do
+!!$       do il = 1, conn%nel
+!!$          do jl = 1, conn%nfcs
+!!$             ttmp%x = [il, jl]
+!!$             call obj(conn%fmap(jl, il))%push(ttmp)
+!!$          end do
+!!$       end do
+!!$       ! extract positions
+!!$       do il = fcs%off(itmp), fcs%off(itmp + 1) - 1
+!!$          jl = fcs%share(il)
+!!$          neighn = obj(jl)%size()
+!!$          neighl => obj(jl)%array()
+!!$          do jl = 1, neighn
+!!$             call mesh%ddata%set_shared_el_facet(neighl(jl)%x(1), &
+!!$                  neighl(jl)%x(2))
+!!$          end do
+!!$       end do
+!!$       ! Local to global id mapping
+!!$       allocate(mesh%ddata%local_to_global_facet(fcs%lnum))
+!!$       do il = 1, fcs%lnum
+!!$          ! global face id; notice type casting
+!!$          itmp = int(fcs%gidx(il),i4)
+!!$          call mesh%ddata%set_local_to_global_facet(il, itmp)
+!!$       end do
+!!$
+!!$       do il = 1, size(obj)
+!!$          call obj(il)%free()
+!!$       end do
+!!$       deallocate(obj)
+!!$    end select
+!!$
+!!$    ! Add shared edges
+!!$    select type (edg => conn%edg)
+!!$    type is (manager_conn_obj_p4est_t)
+!!$       ! Local id
+!!$       do il = 1, edg%nrank
+!!$          if (edg%rank(il) == pe_rank) then
+!!$             do jl = edg%off(il), edg%off(il + 1) - 1
+!!$                call mesh%ddata%set_shared_edge(edg%share(jl))
+!!$             end do
+!!$             exit
+!!$          end if
+!!$       end do
+!!$       ! Local to global id mapping
+!!$       allocate(mesh%ddata%local_to_global_edge(edg%lnum))
+!!$       do il = 1, edg%lnum
+!!$          ! global face id; notice type casting
+!!$          itmp = int(edg%gidx(il),i4)
+!!$          call mesh%ddata%set_local_to_global_edge(il, itmp)
+!!$       end do
+!!$    end select
+!!$
+!!$    ! not used
+!!$    !mesh%ldist = .true.
+!!$
+!!$  end subroutine p4est_distdata_fill
 
   !> Fill the mesh type with connectivity mapping information
   !! @param[inout]   conn    neko mesh type connectivity
