@@ -80,7 +80,7 @@ Use target_cfl=0.2 for all two-phase cases with σ≥0.03 (We≤10).
 | `turb_channel_two_phase_laminar.case` | **Baseline**: laminar flow, We=1 (σ=0.3); ground-truth CDI/CSF test |
 | `turb_channel_two_phase_we1.case` | **Primary validation**: turbulent, We=1 (σ=0.3); restart from `fluid00004.chkp` |
 | `turb_channel_two_phase_we10.case` | Turbulent, We=10 (σ=0.03); moderate deformation; restart from `fluid00004.chkp` |
-| `turb_channel_two_phase_restart.case` | We=1 restart from `fluid00004.chkp`; R=0.3, y_c=0 (centre); ε=0.07, γ=0.05, CFL=0.2 |
+| `turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp`; R=0.4, y_c=0 (centre); blow-up reference data |
 | `turb_channel_two_phase_restart_off.case` | We=1.33 restart; R=0.4, y_c=0.3 (off-centre, log-law region) |
 | `turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up |
 | `turb_channel_single_phase.case` | Single-phase spin-up to t=25, checkpoint every 5 TU |

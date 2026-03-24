@@ -521,7 +521,7 @@ requires `target_cfl` ≈ 0.05–0.07 or a semi-implicit CSF treatment.
 
 Expected outcomes (if stable):
 - $\kappa_{\mathrm{rms}}$ stable near $6.67 = 2/R$ throughout
-- $\varphi_{\max}$ near 0.997 (R=0.3 → φ(0)=0.986, IC value)
+- $\varphi_{\max}$ near 0.986 (R=0.3, ε=0.07 → φ(0) = ½(1+tanh(R/2ε)) = 0.986, IC value)
 - Comparison with $We = 10$ isolates the surface tension strength effect
 
 **Status:** Tests 1 and 2 are the immediate priority. Test 3 blocked pending
