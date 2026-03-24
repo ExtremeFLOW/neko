@@ -1260,6 +1260,7 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   }
 
   free(buf);
+  CL_CHECK(clReleaseEvent(kern_wait));
   CL_CHECK(clReleaseMemObject(buf_d));
   CL_CHECK(clReleaseKernel(kernel));
 
@@ -1309,6 +1310,7 @@ real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   }
 
   free(buf);
+  CL_CHECK(clReleaseEvent(kern_wait));
   CL_CHECK(clReleaseMemObject(buf_d));
   CL_CHECK(clReleaseKernel(kernel));
 
@@ -1357,6 +1359,7 @@ real opencl_glsum(void *a, int *n, cl_command_queue cmd_queue) {
   }
 
   free(buf);
+  CL_CHECK(clReleaseEvent(kern_wait));
   CL_CHECK(clReleaseMemObject(buf_d));
   CL_CHECK(clReleaseKernel(kernel));
 
@@ -1405,6 +1408,7 @@ real opencl_glmax(void *a, int *n, cl_command_queue cmd_queue) {
   }
 
   free(buf);
+  CL_CHECK(clReleaseEvent(kern_wait));
   CL_CHECK(clReleaseMemObject(buf_d));
   CL_CHECK(clReleaseKernel(kernel));
 
@@ -1453,6 +1457,7 @@ real opencl_glmin(void *a, int *n, cl_command_queue cmd_queue) {
   }
 
   free(buf);
+  CL_CHECK(clReleaseEvent(kern_wait));
   CL_CHECK(clReleaseMemObject(buf_d));
   CL_CHECK(clReleaseKernel(kernel));
 

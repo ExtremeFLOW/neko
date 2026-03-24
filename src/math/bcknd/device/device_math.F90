@@ -1307,6 +1307,11 @@ contains
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
+    if (n .lt. 1) then
+       res = -huge(0.0_rp)
+       return
+    end if
+
     if (present(strm)) then
        strm_ = strm
     else
@@ -1339,6 +1344,11 @@ contains
     real(kind=rp) :: res, pinf
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
+
+    if (n .lt. 1) then
+       res = huge(0.0_rp)
+       return
+    end if
 
     if (present(strm)) then
        strm_ = strm
