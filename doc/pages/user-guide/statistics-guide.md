@@ -454,7 +454,7 @@ statistics. When using an arithmetic average, it is important to keep in mind
 the following two characteristics of the `stats0` files:
 
 1. If one computes statistics from time 0 (`"start_time": 0.0`), the first
-   entry in the `stats0` file will be zero-filled (both for scalar and fluid
+   sample will be zero-filled (both for scalar and fluid
    statistics). This issue has been discussed more in detail in
    [#2378](https://github.com/ExtremeFLOW/neko/issues/2378).
 
