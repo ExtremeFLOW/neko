@@ -162,6 +162,7 @@ contains
     call json_get(json, 'output_file', output_file)
     call json_get_or_lookup_or_default(json, 'start_time', this%start_time, &
          -1.0_rp)
+    call json_get_or_default(json, 'append_output', this%append_out, .true.)  
 
     call this%sampled_fields%init(this%n_fields)
     do i = 1, this%n_fields
@@ -698,6 +699,7 @@ contains
     character(len=1000) :: group_name
     real(kind=rp) :: time_
     type(vector_t) :: vec_time
+    integer :: n_executions
 
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
@@ -751,7 +753,8 @@ contains
                
                call this%fout%open("w")
                ! Write Nsteps in root
-               call this%fout%write_attribute(this%output_controller%nexecutions, "NSteps")
+               n_executions = this%output_controller%nexecutions + 1
+               call this%fout%write_attribute(n_executions, "NSteps")
                ! Write out the data
                call this%fout%set_active_group(["probes"])
                do i = 1, this%n_fields
@@ -761,6 +764,7 @@ contains
                end do
 
                ! Write the time by hacking the vector write
+               call this%fout%set_active_group()
                if (pe_rank .eq. 0) then
                   call vec_time%init(1, "time")
                   vec_time%x(1) = time%t
@@ -778,7 +782,8 @@ contains
                write(group_name, '(A,I0)') "Step_", this%output_controller%nexecutions
                call this%fout%open("w")
                ! Write Nsteps in root
-               call this%fout%write_attribute(this%output_controller%nexecutions, "NSteps")
+               n_executions = this%output_controller%nexecutions + 1
+               call this%fout%write_attribute(n_executions, "NSteps")
                ! Write out the data
                call this%fout%set_active_group(["probes", trim(group_name)])
                do i = 1, this%n_fields
