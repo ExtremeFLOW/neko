@@ -125,7 +125,7 @@ module global_interpolation
      !> Tolerance for Newton solve to find the correct rst coordinates.
      real(kind=dp) :: tolerance = GLOBAL_INTERP_TOL
      !> Padding
-     real(kind=dp) :: padding = 1e-2_dp
+     real(kind=dp) :: padding = GLOBAL_INTERP_PAD
 
      !> Mapping of points to ranks.
      !> n_points_pe(pe_rank) = n_points I have at this rank
@@ -143,7 +143,8 @@ module global_interpolation
      class(el_finder_t), allocatable :: el_finder
      !> Object to find rst coordinates
      type(legendre_rst_finder_t) :: rst_finder
-     !> Things for communication operation (sending interpolated values back and forth)
+     !> Things for communication operation (sending interpolated values back
+     !! and forth)
      type(glb_intrp_comm_t) :: glb_intrp_comm
      !> Working vectors for global interpolation
      type(vector_t) :: temp_local, temp
@@ -168,7 +169,8 @@ module global_interpolation
      procedure, pass(this) :: free => global_interpolation_free
      !> Destructor for arrays related to evaluation points
      procedure, pass(this) :: free_points => global_interpolation_free_points
-     procedure, pass(this) :: free_points_local => global_interpolation_free_points_local
+     procedure, pass(this) :: free_points_local => &
+          global_interpolation_free_points_local
      procedure, pass(this) :: find_points_and_redist => &
           global_interpolation_find_and_redist
      !> Finds the process owner, global element number,
@@ -182,10 +184,12 @@ module global_interpolation
      procedure, pass(this) :: check_points => &
           global_interpolation_check_points
      procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
-     generic :: find_points => find_points_xyz, find_points_coords, find_points_coords1d
+     generic :: find_points => find_points_xyz, find_points_coords, &
+          find_points_coords1d
      !> Evaluate the value of the field in each point.
      procedure, pass(this) :: evaluate => global_interpolation_evaluate
-     procedure, pass(this) :: evaluate_masked => global_interpolation_evaluate_masked
+     procedure, pass(this) :: evaluate_masked => &
+          global_interpolation_evaluate_masked
 
      !> Generic constructor
      generic :: init => init_dof, init_xyz, init_json_xyz, init_json_dof
@@ -280,8 +284,7 @@ contains
     ! to get the right dimension (see global_interpolation_init_xyz).
     if (.not. present(mask)) then
        call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm, tol = tolerance, &
-            pad = padding, params_subdict = params_subdict)
+            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm = comm, tol = tol, pad = pad)
     else
 
        ! Initialize a helper field with the size of the mask
@@ -290,13 +293,12 @@ contains
        temp_nelv = mask%size() / (dof%Xh%lx*dof%Xh%ly*dof%Xh%lz)
        if (mod(mask%size(), dof%Xh%lx*dof%Xh%ly*dof%Xh%lz) /= 0) then
           call neko_error("Mask size must be a multiple of the number of" // &
-                  " elements in the mesh.")
+               " elements in the mesh.")
        end if
        ! Initialize with the masked coordinates
        call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), &
-               dof%z(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
-               comm, tol = tolerance, pad = padding, &
-               params_subdict = params_subdict)
+            dof%z(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
+            comm = comm, tol = tol, pad = pad)
     end if
 
   end subroutine global_interpolation_init_dof
@@ -311,17 +313,14 @@ contains
   !! @param Xh Space on which to interpolate.
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
-  !! @param params_subdict A JSON object containing parameters to use for 
-  !! initialization instead of tol and pad.
   subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, &
-       comm, tol, pad, params_subdict)
+       comm, tol, pad)
     class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(in) :: x(:)
     real(kind=rp), intent(in) :: y(:)
     real(kind=rp), intent(in) :: z(:)
     integer, intent(in) :: gdim
     integer, intent(in) :: nelv
-    type(MPI_COMM), intent(in), optional :: comm
     type(space_t), intent(in) :: Xh
     type(MPI_COMM), intent(in), optional :: comm
     real(kind=dp), intent(in), optional :: tol
@@ -329,7 +328,7 @@ contains
 
     integer :: lx, ly, lz, ierr, i, n
     character(len=8000) :: log_buf
-    real(kind=dp) :: padding ! <-- note that this padding is in dp
+    !real(kind=dp) :: padding ! <-- note that this padding is in dp
     real(kind=rp) :: time1, time_start
     character(len=255) :: mode_str
     integer :: boxdim, envvar_len
@@ -339,6 +338,7 @@ contains
 
     call this%free()
 
+    ! Set communicator
     if (present(comm)) then
        this%comm = comm
     else
@@ -390,9 +390,7 @@ contains
        this%n_dof = n
     end if
 
-    call neko_log%section('Global Interpolation')
 
-    call neko_log%message('Initializing global interpolation')
     call get_environment_variable("NEKO_GLOBAL_INTERP_EL_FINDER", &
          mode_str, envvar_len)
 
@@ -603,7 +601,8 @@ contains
 
     !Send number of points I want to candidates
     ! n_points_local -> how many points might be at this rank
-    ! n_points_pe_local -> how many points local on this rank that other pes might want
+    ! n_points_pe_local -> how many points local on this rank that other pes
+    !                      might want
     this%n_points_pe_local = 0
     this%n_points_local = 0
     call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, &
@@ -633,9 +632,12 @@ contains
        if (this%n_points_pe_local(i) .gt. 0) then
           call recv_pe_find%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 1)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 2)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 3)
           end do
        end if
     end do
@@ -671,8 +673,10 @@ contains
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
-         'Sent to points to PE candidates, time since start of find_points (s):', time1-time_start
+         'Sent to points to PE candidates, time since start of ' &
+         // 'find_points (s):', time1 - time_start
     call neko_log%message(log_buf)
+
     !Okay, now we need to find the rst...
     call all_el_candidates%init()
 
@@ -687,7 +691,8 @@ contains
 
     n_point_cand = all_el_candidates%size()
     if (n_point_cand .gt. 1e8) then
-       print *,'Warning, many point candidates on rank', this%pe_rank,'cands:', n_point_cand, &
+       print *,'Warning, many point candidates on rank', this%pe_rank, &
+            'cands:', n_point_cand, &
             'Consider increasing number of ranks'
     end if
     call x_t%init(n_point_cand)
@@ -707,7 +712,8 @@ contains
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
-         'Element candidates found, now time for finding rst,time since start of find_points (s):', time1-time_start
+         'Element candidates found, now time for finding rst,time ' // &
+         'since start of find_points (s):', time1 - time_start
     call neko_log%message(log_buf)
     call rst_local_cand%init(3,n_point_cand)
     call resx%init(n_point_cand)
@@ -770,7 +776,8 @@ contains
        do j = 1, n_el_cands(i)
           ii = ii + 1
           if (rst_cmp(this%rst_local(:,i), rst_local_cand%x(:,ii),&
-               this%xyz_local(:,i), (/resx%x(ii),resy%x(ii),resz%x(ii)/), this%padding)) then
+               this%xyz_local(:,i), (/resx%x(ii),resy%x(ii),resz%x(ii)/), &
+               this%padding)) then
              this%rst_local(1,i) = rst_local_cand%x(1,ii)
              this%rst_local(2,i) = rst_local_cand%x(2,ii)
 
@@ -802,7 +809,7 @@ contains
          this%n_points_local*3, n_glb_point_cand*3)
     do i = 1, size(glb_intrp_find_back%send_pe)
        rank = glb_intrp_find_back%send_pe(i)
-       call MPI_Isend(this%el_owner0_local(this%n_points_offset_pe_local(rank)+1),&
+       call MPI_Isend(this%el_owner0_local(this%n_points_offset_pe_local(rank) + 1), &
             this%n_points_pe_local(rank), &
             MPI_INTEGER, rank, 0, &
             this%comm, glb_intrp_find_back%send_buf(i)%request, ierr)
@@ -832,7 +839,8 @@ contains
              this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
           !  if (this%pe_rank .eq. 0) print *,point_id,  &
-          !this%rst(:,point_ids(j)),res%x(:,point_ids(j)), this%el_owner0(point_ids(j))
+          !this%rst(:,point_ids(j)),res%x(:,point_ids(j)),
+          ! this%el_owner0(point_ids(j))
        end do
     end do
 
@@ -852,12 +860,13 @@ contains
                ' Interpolation will always yield 0.0. Try increase padding.'
        else
           call this%points_at_pe(this%pe_owner(i))%push(stupid_intent)
-          this%n_points_pe(this%pe_owner(i)) = this%n_points_pe(this%pe_owner(i)) + 1
+          this%n_points_pe(this%pe_owner(i)) = &
+               this%n_points_pe(this%pe_owner(i)) + 1
        end if
     end do
-    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, MPI_INTEGER, &
-         MPI_SUM, this%comm, ierr)
-    call MPI_Alltoall(this%n_points_pe, 1, MPI_INTEGER,&
+    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, &
+         MPI_INTEGER, MPI_SUM, this%comm, ierr)
+    call MPI_Alltoall(this%n_points_pe, 1, MPI_INTEGER, &
          this%n_points_pe_local, 1, MPI_INTEGER, this%comm, ierr)
     this%n_points_offset_pe_local(0) = 0
     this%n_points_offset_pe(0) = 0
