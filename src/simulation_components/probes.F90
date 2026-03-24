@@ -556,7 +556,6 @@ contains
 
        !> Set up the output matrix
        this%seq_io = .false.
-       call this%mat_out%init(this%n_fields, this%n_local_probes, "interpolated_fields")
        call this%vec_out%init(this%n_local_probes, "interpolated_fields_trsp")
 
     class default
@@ -741,17 +740,19 @@ contains
          
          else
 
+               ! Set up the name
                write(group_name, '(A,I0)') "Step_", this%output_controller%nexecutions
                call this%fout%open("w")
-               call this%fout%set_active_group(["probes", trim(group_name)])
-
+               ! Write Nsteps in root
+               call this%fout%write_attribute(this%output_controller%nexecutions, "nSteps")
                ! Write out the data
+               call this%fout%set_active_group(["probes", trim(group_name)])
                do i = 1, this%n_fields
                   call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
                   this%vec_out%name = trim(this%which_fields(i))
                   call this%fout%write_dataset(this%vec_out)
                end do
-
+               ! Write the time as an attribute
                time_ = time%t
                call this%fout%write_attribute(time_, "time")
                call this%fout%close()
