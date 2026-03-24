@@ -1603,6 +1603,26 @@ contains
 
 #else
 
+   !> Open a HDF5 file in a given mode
+   subroutine hdf5_file_open(this, mode)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=1), intent(in) :: mode
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_open
+
+   !> Close the file
+   subroutine hdf5_file_close(this)
+      class(hdf5_file_t), intent(inout) :: this
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_close
+
+   !> Set the active group for HDF5 files
+   subroutine hdf5_file_set_group(this, group_name)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=*), intent(in), optional :: group_name(:)
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_set_group
+
   !> Write data in HDF5 format
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
@@ -1617,6 +1637,99 @@ contains
     class(*), target, intent(inout) :: data
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_read
+
+   subroutine hdf5_file_write_dataset(this, data)
+      class(hdf5_file_t), intent(inout) :: this
+      class(*), intent(inout) :: data
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_write_dataset
+
+   subroutine hdf5_file_read_dataset(this, data_name, data, strategy)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: data_name
+      class(*), intent(inout) :: data
+      character(len=*), intent(in), optional :: strategy
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_read_dataset
+
+   subroutine hdf5_file_write_attribute(this, data_name, data)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: data_name
+      class(*), intent(inout) :: data
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_write_attribute
+
+   subroutine hdf5_file_read_attribute(this, data_name, data, exist)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: data_name
+      class(*), intent(inout) :: data
+      logical, intent(inout) :: exist
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_read_attribute
+
+   subroutine hdf5_file_write_vector(this, vec)
+      class(hdf5_file_t), intent(inout) :: this
+      type(vector_t), intent(inout) :: vec
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_write_vector
+
+   subroutine hdf5_file_write_matrix(this, mat)
+      class(hdf5_file_t), intent(inout) :: this
+      type(matrix_t), intent(inout) :: mat
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_write_matrix
+
+   subroutine hdf5_file_write_field(this, fld)
+      class(hdf5_file_t), intent(inout) :: this
+      type(field_t), intent(inout) :: fld
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_write_field
+
+   subroutine hdf5_file_read_vector(this, data_name, vec, strategy)
+      class(hdf5_file_t) :: this
+      character(len=*), intent(in) :: data_name
+      type(vector_t), intent(inout) :: vec
+      character(len=*), intent(in), optional :: strategy
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_read_vector
+
+   subroutine hdf5_file_read_matrix(this, data_name, mat, strategy)
+      class(hdf5_file_t) :: this
+      character(len=*), intent(in) :: data_name
+      type(matrix_t), intent(inout) :: mat
+      character(len=*), intent(in), optional :: strategy
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_read_matrix
+
+   subroutine hdf5_file_write_int_attribute(this, attr_name, attr)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, intent(in) :: attr
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_write_int_attribute
+
+   subroutine hdf5_file_write_rp_attribute(this, attr_name, attr)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      real(kind=rp), intent(in) :: attr
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_write_rp_attribute
+
+   subroutine hdf5_file_read_int_attribute(this, attr_name, attr, attr_exists)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, intent(inout) :: attr
+      logical, intent(inout) :: attr_exists
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_read_int_attribute
+
+   subroutine hdf5_file_read_rp_attribute(this, attr_name, attr, attr_exists)
+      class(hdf5_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      real(kind=rp), intent(inout) :: attr
+      logical, intent(inout) :: attr_exists
+      call neko_error('Neko needs to be built with HDF5 support')
+   end subroutine hdf5_file_read_rp_attribute
 
 #endif
 
