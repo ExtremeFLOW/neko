@@ -12,8 +12,8 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 |-----|-----------|:--:|---|---|-----|----|--------|---------|
 | `channel_test_v4` | `_v4.case` | 730 | 4.1×10⁻⁴ | 0.3 | 0 | Turbulent Reichardt | **Completed** t=0–5 | High-We reference |
 | `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Reichardt IC, no perturbations | **Blown up** t=0.90 | Confirms seeding not necessary; same CSF instability |
-| `channel_test_sigma0` | `_sigma0.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Running** t=20→25 | CDI-only quality test: normals, curvature without CSF |
-| `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.44 | We=10 blow-up: ratio=0.69, insufficient margin |
+| `channel_test_sigma0` | `_sigma0.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Terminated** t=20→21.24 | CDI-only quality test: κ_rms spikes to ~64 then declines; φ_max stable |
+| `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.44 | We=10 blow-up: ratio=0.69, below 1 not sufficient |
 | `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Planned** | Primary validation (after we10) |
 | `channel_single_phase` | `_single_phase.case` | — | — | — | — | Turbulent Reichardt | **Completed** t=0–25 | Fluid spin-up; checkpoint at t=20 |
 | `channel_test_restart` | `_restart.case` | 1.33 | 0.3 | 0.4 | 0 | `fluid00004.chkp` + drop | **Blown up** (v1, v2) | We=1 blow-up reference data |
@@ -34,8 +34,9 @@ For a correctly functioning CDI/CSF implementation:
 | φ_min | \|φ_min\| ≪ 0.01 | Large negatives → numerical noise |
 | E_kin | Consistent with imposed flow rate | Divergence → CSF sign/magnitude error |
 
-The laminar We=1 case is the ground truth: κ_rms = 6.67 throughout, no deformation.
-Any deviation there is a method error, not a physical effect.
+The laminar We=1 case was intended as a ground truth (κ_rms = 6.67 throughout), but
+blew up at t=0.90 TU due to the same CSF capillary instability. A static (zero-flow)
+or semi-implicit CSF case is needed for a clean baseline.
 
 ---
 
@@ -138,7 +139,7 @@ Same parameters as we1 but Reichardt IC with no velocity perturbations.
 - After seeding, the growth pattern is identical: same plateau (~155–180), same mechanism
 - Flow relaminarised from Reichardt (u_max≈1.15) to Poiseuille (u_max≈1.5) around t=0.75 — this accelerated the blow-up slightly but was not the trigger
 
-**Conclusion:** Turbulent seeding is not necessary — numerical round-off alone triggers the instability. Turbulent fluctuations roughly halve the stable duration. The fundamental cause is $\Delta t / \Delta t_{\mathrm{cap}} > 0.5$ in all cases.
+**Conclusion:** Turbulent seeding is not necessary — numerical round-off alone triggers the instability. Turbulent fluctuations roughly halve the stable duration. The exact stability boundary is not yet established; We=10 (ratio $= 0.69 < 1$) also blew up.
 
 ---
 
@@ -152,7 +153,7 @@ isolates what turbulence adds.
 **Setup:** ε=0.07, γ=0.05, σ=0.3 (We=1), R=0.3, Re_b=2800, restart from
 `fluid00004.chkp`, end_time=25 (runs t=20→25).
 
-**Capillary timestep stability:** $\Delta t_{\mathrm{cap}} \approx 0.00147$ TU; $\Delta t \approx 0.00130$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 0.88$ — marginal. Two prior restart attempts (v1, v2, different R) both blew up. See channel_test_restart blow-up analysis and ANALYSIS.md §4.4 for details. Requires `target_cfl` ≈ 0.05–0.07 for safe margin, or a semi-implicit CSF treatment.
+**Capillary timestep stability:** $\Delta t_{\mathrm{cap}} \approx 0.00059$ TU ($\Delta x_{\mathrm{eff}} = 0.0087$); $\Delta t \approx 0.00130$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 2.2$ — well above 1. Two prior restart attempts (v1, v2, different R) both blew up. See channel_test_restart blow-up analysis and ANALYSIS.md §4.4 for details.
 
 | t | φ_max | φ_min | κ_rms | u_max |
 |---|-------|-------|-------|-------|
@@ -175,14 +176,12 @@ t≈20.44 TU (~0.44 TU after injection) with the same κ_rms runaway as the We=1
 | $\Delta t_{\mathrm{cap}} = \sqrt{\Delta x_{\mathrm{eff}}^3 / (2\pi\sigma)}$, $\Delta x_{\mathrm{eff}} = 0.0087$ | **0.00188 TU** |
 | $\Delta t_{\mathrm{cap}}$ (element-average, $\Delta x = 0.016$, naive estimate) | 0.00466 TU |
 | $\Delta t$ (observed, `target_cfl=0.2`) | 0.00130 TU |
-| $\Delta t / \Delta t_{\mathrm{cap}}$ (corrected, $\Delta x_{\mathrm{eff}}$) | **0.69 — marginal, outside 0.5 safety band** |
+| $\Delta t / \Delta t_{\mathrm{cap}}$ (corrected, $\Delta x_{\mathrm{eff}}$) | **0.69** |
 | $\Delta t / \Delta t_{\mathrm{cap}}$ (naive, element-average) | 0.28 — incorrectly predicted stable |
-| Required `target_cfl` for 50% margin | **0.144** |
 
 The naive element-average estimate predicted ratio=0.28 (stable), but the correct
-$\Delta x_{\mathrm{eff}}$-based ratio is 0.69. Empirical evidence from three blow-up
-cases shows that $\Delta t / \Delta t_{\mathrm{cap}} \lesssim 0.5$ is required. We=10
-at `target_cfl=0.2` violates this condition.
+$\Delta x_{\mathrm{eff}}$-based ratio is 0.69. The ratio is below 1 but the run still
+blew up. The stability boundary is not yet established.
 
 **Blow-up trace:**
 
@@ -325,42 +324,54 @@ mpirun -np 16 ./neko turb_channel_two_phase_restart_off.case
 
 ---
 
-## channel_test_sigma0 — CDI quality test (σ=0, RUNNING)
+## channel_test_sigma0 — CDI quality test (σ=0, TERMINATED t=21.24)
 
-**Purpose:** Isolate CDI performance from CSF instability. With σ=0 the momentum
-equation has no surface tension force — the fluid is pure turbulent channel flow and
-the scalar evolves under CDI only. This tests whether CDI correctly maintains interface
-sharpness, normal accuracy, and curvature under turbulent straining, independently of
-any CSF timestep issues.
+**Purpose:** Isolate CDI from CSF. With σ=0 the momentum equation has no surface tension
+force. The scalar evolves under CDI only. Tests whether CDI maintains interface sharpness
+and whether κ is accurate under turbulent straining, independently of CSF timestep issues.
 
-**Motivation:** φ_max < 1 in all blow-up cases confirms CDI maintains the interface
-amplitude, but does not guarantee accurate normals $\hat{\mathbf{n}} = \nabla\varphi/|\nabla\varphi|$.
-Inaccurate normals feed into inaccurate $\kappa = -\nabla\cdot\hat{\mathbf{n}}$, which
-could contribute to the CSF instability even if the timestep constraint is the primary
-cause. This run separates the two effects.
+**Motivation:** φ_max < 1 in all blow-up cases confirms CDI maintains interface amplitude,
+but does not confirm accurate normals $\hat{\mathbf{n}} = \nabla\varphi/|\nabla\varphi|$.
+Inaccurate normals give inaccurate $\kappa = -\nabla\cdot\hat{\mathbf{n}}$, which would
+amplify the CSF force even if the timestep constraint is the primary cause.
 
-**Setup:** ε=0.07, γ=0.05, σ=0.0 (no CSF force), R=0.3, Re_b=2800, restart from
-`fluid00004.chkp`, end_time=25 (runs t=20→25). 16 MPI ranks. Output every 0.5 TU.
+**Setup:** ε=0.07, γ=0.05, σ=0.0, R=0.3, Re_b=2800, restart from `fluid00004.chkp`,
+end_time=25. 16 MPI ranks. Terminated early at t=21.24 (1.24 TU after injection).
 
-**What to look for:**
+**Diagnostic trace:**
 
-| Diagnostic | Good CDI | CDI failing |
-|------------|----------|-------------|
-| κ_rms | Slowly rising from 6.67 (physical deformation), no runaway | Rapid unbounded growth |
-| φ_max | Stable near 0.986 | Monotonic decline toward 0.5 |
-| φ_min | Near 0, small negatives acceptable | Large negatives |
-| u_max | Turbulent fluctuations ~1.35–1.45, no spike | Spike from bad normals feeding back |
-
-If κ_rms is stable (or rises slowly reflecting physical drop deformation) for the full
-5 TU, CDI is correctly maintaining the interface under turbulent straining. The blow-ups
-in the CSF cases are then definitively a timestep stability issue, not a CDI quality issue.
-
-If κ_rms grows unboundedly even with σ=0, CDI is insufficient for this flow and
-ε or γ need to be revisited.
-
-| t | φ_max | φ_min | κ_rms | u_max | Notes |
+| t | φ_max | κ_rms | κ_max | u_max | Notes |
 |---|-------|-------|-------|-------|-------|
-| — | — | — | — | — | Running |
+| 20.002 | 0.981 | 6.1 | 125 | 1.341 | Drop injected; κ_rms ≈ 2/R ✓ |
+| 20.067 | 0.985 | 6.3 | 254 | 1.341 | κ_max already elevated |
+| 20.132 | 0.986 | 7.8 | 558 | 1.341 | κ_rms above spherical value |
+| 20.197 | 0.987 | 19.9 | 756 | 1.342 | Rapid growth |
+| 20.263 | 0.987 | 38.7 | 867 | 1.342 | Continues rising |
+| 20.393 | 0.988 | 59.0 | 808 | 1.344 | Approaching plateau |
+| 20.588 | 0.989 | 63.9 | 858 | 1.352 | **Peak; ~9.6× spherical value** |
+| 20.784 | 0.988 | 61.0 | 816 | 1.359 | Slow decline |
+| 21.044 | 0.989 | 55.5 | 812 | 1.356 | Continues declining |
+| 21.240 | 0.986 | 51.3 | 859 | 1.355 | Terminated |
+
+**Key observations:**
+
+- **u_max and Ekin unaffected throughout** — no blow-up without CSF. CDI alone does not destabilise the flow.
+- **φ_max stable at 0.986–0.989** — CDI maintains interface amplitude.
+- **κ_rms spikes from 6.1 to ~64 in 0.4 TU**, then slowly declines. Expected spherical value: 6.67.
+- **κ_max reaches 800+** — large point-wise curvature values at highly deformed interface regions.
+- The peak κ_rms ≈ 64 is ~9.6× the spherical reference. This reflects both genuine drop deformation (no surface tension to restore shape) and potentially inaccurate normal computation in stretched regions.
+
+**What this means for the CSF blow-ups:**
+
+At σ=0 the drop freely deforms, reaching κ_rms ≈ 64. When CSF is active at We=10 (σ=0.03),
+this curvature feeds into the surface tension force: $F_{\mathrm{ST}} \approx 0.03 \times 64 / 0.14 \approx 14$.
+This is large — the CSF force is not driven by a near-spherical κ ≈ 6.67 but by the actual
+deformed shape with κ_rms ≈ 64. The combination of a large κ and an explicit integrator
+makes the blow-up more likely than the idealized capillary analysis suggests.
+
+CDI maintains φ_max, but curvature accuracy under turbulent deformation is limited.
+Whether κ inaccuracy is primarily from CDI normal error or from genuine deformation requires
+deeper investigation of the normal field (next step).
 
 ---
 
@@ -571,34 +582,9 @@ But they did not address the fundamental stability issue:
 **The instability is in the explicit CSF treatment, not CDI.** CDI is maintaining the
 interface; CSF is creating velocity spikes that the explicit integrator cannot damp.
 
-### Path forward
-
-Three options, in order of increasing We=1 difficulty:
-
-**Option 1: We=10, σ=0.03 (recommended first run)**
-
-σ=0.03 reduces the CSF force by 10× relative to We=1. The capillary stability limit
-becomes Δt_cap = sqrt(0.016³/(2π×0.03)) ≈ 0.005 TU — more than 3× larger than the
-velocity CFL Δt at target_cfl=0.4. CSF at We=10 should be stable with current parameters.
-This is the physically interesting case for CDI validation under moderate deformation.
-
-**Option 2: laminar We=1 (ground-truth validation)**
-
-The laminar case has no turbulent straining — the drop barely deforms (mean shear at
-y=0 is zero by symmetry). Without the turbulent amplification, any CSF instability
-grows much slower and the laminar flow provides a clean analytical baseline (κ_rms=5.0
-throughout). Running the laminar case first would confirm whether CDI+CSF work correctly
-in the absence of turbulence before diagnosing the turbulent instability.
-
-**Option 3: We=1 turbulent with target_cfl=0.05**
-
-A 4× reduction in target_cfl (from 0.2 to 0.05) would give Δt ≈ 0.00033 TU —
-roughly 4× inside the estimated capillary stability limit even accounting for CFL
-controller lag. This would make the We=1 turbulent run ≈4× more expensive (4× more
-timesteps), but would definitively test whether the blow-up is timestep-driven or
-physical. If the blow-up persists at target_cfl=0.05, the instability is physical
-(turbulence genuinely destroys the drop at We=1 with R=0.4); if it disappears,
-the explicit CSF timestep constraint was the limiting factor.
+Both We=10 (`channel_test_we10`) and laminar We=1 (`channel_test_laminar`) have since
+been run — both blew up. See their respective sections above. The explicit CSF
+instability occurs across all We values tested so far and in the absence of turbulence.
 
 ---
 
@@ -607,11 +593,11 @@ the explicit CSF timestep constraint was the limiting factor.
 - [x] `channel_single_phase` completed — `fluid00004.chkp` at t=20 available
 - [x] `channel_test_restart` v1 — blew up at t=21.55 (1.55 TU); Δt/Δt_cap=7.2
 - [x] `channel_test_restart` v2 — blew up at t=20.40 (0.40 TU); Δt/Δt_cap=2.2
-- [x] `channel_test_we10` — **blew up at t=20.44 (0.44 TU)**; Δt/Δt_cap=0.69; outside 0.5 safety band
+- [x] `channel_test_we10` — **blew up at t=20.44 (0.44 TU)**; Δt/Δt_cap=0.69
 - [x] **`channel_test_laminar`** — blown up at t=0.90 TU; seeding not necessary, but turbulence halves stable duration
-- [~] **`channel_test_sigma0`** (σ=0, CDI-only) — **running** t=20→25; CDI quality test: are normals and κ accurate without CSF?
-- [ ] **`channel_test_we100`** (We=100, σ=0.003, restart) — first turbulent case predicted stable; Δt/Δt_cap≈0.22 ✓
-- [ ] `channel_test_we10` re-run with `target_cfl=0.10–0.12` (ratio≈0.35–0.42, inside 0.5 band)
-- [ ] `channel_test_we1` (We=1, restart) — blocked pending stable timestep; needs `target_cfl≈0.046`
+- [x] **`channel_test_sigma0`** (σ=0, CDI-only) — terminated t=21.24; κ_rms spikes to ~64 then declines; φ_max stable; deeper normal investigation planned
+- [ ] **Investigate normal field** — visualise $\hat{\mathbf{n}}$ and κ pointwise; distinguish genuine deformation from CDI normal error
+- [ ] **`channel_test_we100`** (We=100, σ=0.003, restart) — Δt/Δt_cap≈0.22; next CSF stability test
+- [ ] `channel_test_we10` re-run with lower `target_cfl` once stability boundary is better understood
+- [ ] `channel_test_we1` (We=1, restart) — blocked pending stable timestep or semi-implicit CSF
 - [ ] `channel_test_restart_off` (We=1.33, R=0.4, y_c=0.3) — after stable parameters found
-- [ ] Compare κ_rms, φ_max across laminar / We=100 / We=10 (reduced CFL) to quantify CSF stiffness regime

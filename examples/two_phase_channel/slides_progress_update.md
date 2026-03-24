@@ -115,16 +115,8 @@ Corrected estimate: $\Delta t/\Delta t_\text{cap} = 0.69$; run blew up.
 | We=100 (planned) | $100$ | $0.003$ | $0.00595$ | $0.0013$ | $\mathbf{0.22}$ | Predicted stable |
 | v4, We=730 | $730$ | $4\times10^{-4}$ | $0.071$ | $0.003$ | $\mathbf{0.04}$ | Completed |
 
-Empirical safety criterion:
-$$\frac{\Delta t}{\Delta t_\text{cap}} \lesssim 0.5$$
-
-Required target\_cfl for 50\% margin:
-
-| $We$ | Required target\_cfl |
-|:---:|:---:|
-| $1$ | $0.046$ |
-| $10$ | $0.144$ |
-| $100$ | $\checkmark$ current $0.2$ fine |
+Every case with non-negligible $\sigma$ has blown up, including We=10 (ratio $= 0.69 < 1$).
+Stability boundary not yet established.
 
 **[NOTES]**
 v4 is stable because $We = 730$ makes $\sigma$ negligible; CSF force is tiny regardless of $\Delta t$.
@@ -209,7 +201,7 @@ is the only explanation. But still blew up.
 
 **RIGHT COLUMN: Cases and path forward**
 
-All runs so far, turbulent or laminar, with $\Delta t/\Delta t_\text{cap} > 0.5$ blew up:
+All runs so far blew up:
 
 | Case | $We$ | $\Delta t/\Delta t_\text{cap}$ | Outcome |
 |:---:|:---:|:---:|:---:|

@@ -131,9 +131,10 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | Path | Purpose |
 |------|---------|
 | `examples/two_phase_channel/turb_channel_two_phase.f90` | User module: IC, CDI, CSF, diagnostics |
-| `examples/two_phase_channel/turb_channel_two_phase_laminar.case` | Laminar + We=1 (σ=0.3): CDI/CSF ground-truth baseline |
-| `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Turbulent + We=1 (σ=0.3): primary validation; restart from `fluid00004.chkp` |
-| `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Turbulent + We=10 (σ=0.03): moderate deformation; restart from `fluid00004.chkp` |
+| `examples/two_phase_channel/turb_channel_two_phase_laminar.case` | Laminar + We=1 (σ=0.3): blew up at t=0.90 TU (same CSF instability as turbulent cases) |
+| `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Turbulent + We=1 (σ=0.3): primary validation; restart from `fluid00004.chkp`; blocked on capillary stability |
+| `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Turbulent + We=10 (σ=0.03): blew up at t=20.44 (Δt/Δt_cap=0.69); restart from `fluid00004.chkp` |
+| `examples/two_phase_channel/turb_channel_two_phase_sigma0.case` | σ=0 CDI-only quality test; restart from `fluid00004.chkp`; κ_rms spikes to ~64 without CSF |
 | `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp` (t=20→25), R=0.4, y_c=0 (centre); blow-up reference data |
 | `examples/two_phase_channel/turb_channel_two_phase_restart_off.case` | We=1.33 restart, R=0.4, y_c=0.3 (off-centre, log-law region) |
 | `examples/two_phase_channel/turb_channel_two_phase_v4.case` | v4: We=730 high-We reference (completed) |
