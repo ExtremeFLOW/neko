@@ -94,11 +94,13 @@ module probes
      type(file_t) :: fout
      type(matrix_t) :: mat_out
    contains
-     !> Initialize from json
+     !> Initialize from json.
      procedure, pass(this) :: init => probes_init_from_json
-     ! Actual constructor
+     !> Initialize from parameters.
      procedure, pass(this) :: init_from_components => &
           probes_init_from_components
+     !> Common constructor.
+     procedure, private, pass(this) :: init_common => probes_init_common
      !> Destructor
      procedure, pass(this) :: free => probes_free
      !> Setup offset for I/O when using sequential write/read from rank 0
@@ -217,6 +219,31 @@ contains
     call this%init_from_components(case%fluid%dm_Xh, output_file, name)
 
   end subroutine probes_init_from_json
+
+  !> Initialize based on individual parameters.
+  !! @param dof Dofmap to probe
+  !! @param output_file Name of output file, current must be CSV
+  !! @param name Name of the probes simcomp.
+  !! @param tolerance Tolerance for finding the probe coordinates.
+  !! @param padding Padding for finding the probe coordinates.
+  subroutine probes_init_from_components(this, dof, output_file, name, &
+       tolerance, padding)
+    class(probes_t), intent(inout) :: this
+    type(dofmap_t), intent(in) :: dof
+    character(len=:), allocatable, intent(inout) :: output_file
+    character(len=*), intent(in) :: name
+    real(kind=rp), intent(in), optional :: tolerance, padding
+
+    character(len=1024) :: header_line
+    real(kind=rp), allocatable :: global_output_coords(:,:)
+    integer :: i, ierr
+    type(matrix_t) :: mat_coords
+
+    call this%global_interp%init(dof, tol = tolerance, pad = padding)
+
+    call this%init_common(dof, output_file, name)
+
+  end subroutine probes_init_from_components
 
   ! ========================================================================== !
   ! Readers for different point types
@@ -461,16 +488,15 @@ contains
   ! ========================================================================== !
   ! General initialization routine
 
-  !> Initialize without json things
+  !> Common constructor.
   !! @param dof Dofmap to probe
-  !! @output_file Name of output file, current must be CSV
-  subroutine probes_init_from_components(this, dof, output_file, name, 
-          tolerance, padding)
+  !! @param output_file Name of output file, current must be CSV
+  !! @param name Name of the probes simcomp.
+  subroutine probes_init_common(this, dof, output_file, name)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(in), optional :: tolerance, padding
 
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
@@ -478,9 +504,6 @@ contains
     type(matrix_t) :: mat_coords
 
     this%name = name
-
-    !> Init interpolator
-    call this%global_interp%init(dof, tol = tolerance, pad = padding)
 
     !> find probes and redistribute them
     call this%global_interp%find_points_and_redist(this%xyz, &
@@ -542,7 +565,7 @@ contains
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
-  end subroutine probes_init_from_components
+  end subroutine probes_init_common
 
   !> Destructor
   subroutine probes_free(this)
