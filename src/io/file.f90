@@ -405,7 +405,7 @@ contains
   end subroutine file_write_attribute
 
   subroutine file_read_attribute(this, data_name, data, exist)
-    class(file_t), intent(inout) :: this 
+    class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: data_name
     class(*), intent(inout) :: data
     logical, intent(inout) :: exist

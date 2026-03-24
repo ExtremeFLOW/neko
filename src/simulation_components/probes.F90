@@ -559,7 +559,7 @@ contains
        call this%fout%set_active_group(["probes"]) ! Empty sets it to the root group "/"
        call this%fout%write_dataset(mat_coords)
        out_int = this%n_global_probes
-      call this%fout%write_attribute("NProbes", out_int)
+       call this%fout%write_attribute("NProbes", out_int)
        call this%fout%close()
 
        !> Set up the output matrix
