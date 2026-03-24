@@ -45,9 +45,8 @@ module gather_scatter
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
   use gs_device_shmem, only : gs_device_shmem_t
-  use math, only : swap, sort
+  use math, only : swap, sort, sort_tuple
   use mesh_conn, only : mesh_conn_obj_t
-  use mesh, only : mesh_t
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use mpi_f08, only : MPI_Reduce, MPI_Allreduce, MPI_Barrier, MPI_IN_PLACE, &
        MPI_Wait, MPI_Irecv, MPI_Isend, MPI_Wtime, MPI_SUM, MPI_MAX, &
@@ -421,6 +420,12 @@ contains
     integer, dimension(:), allocatable :: vrt_mult, fcs_mult, edg_mult, &
          fcs_mult_glb, vrt_shr, fcs_shr, edg_shr, vrt_loc, fcs_loc, edg_loc, ind
     integer :: il ,jl, kl, ll, ml, id, src, dst
+    integer, allocatable, dimension(:, :) :: ngh_src, ngh_dst
+    integer, parameter :: lda1 = 2 ! tuple length
+    integer, dimension(lda1) :: aa1 ! tmp array for sorting
+    integer, dimension(:), allocatable :: ind_src, ind_dst
+    integer, parameter :: nkey = 1 ! max. number of keys
+    integer, dimension(nkey) :: key
     type(stack_i4_t) :: send_pe, recv_pe
 
     ! Number of degrees of freedom; assumption lx=ly=lz
@@ -599,61 +604,30 @@ contains
          end do
       end do
 
-      ! rank list; it has to correspond to the send/receive order
-      ! At this point I use mesh_t construct
-      call send_pe%init()
-      call recv_pe%init()
-      !> @todo Consider switching to a crystal router...
-      do il = 1, size(gs%dofmap%msh%neigh_order)
-         src = modulo(pe_rank - gs%dofmap%msh%neigh_order(il) + pe_size, &
-              pe_size)
-         dst = modulo(pe_rank + gs%dofmap%msh%neigh_order(il), pe_size)
-
-         if (gs%dofmap%msh%neigh(src) .and. &
-              gs%comm%recv_dof(src)%size() .gt. 0) then
-            call recv_pe%push(src)
-         end if
-
-         if (gs%dofmap%msh%neigh(dst) .and. &
-              gs%comm%send_dof(dst)%size() .gt. 0) then
-            call send_pe%push(dst)
-         end if
+      ! rank list
+      ! Build send/receive list based on the vertex neighbour list.
+      ! What follows recreates the send/receive order from the ring,
+      ! but it may be not needed.
+      allocate(ngh_src(lda1, vrt%nrank), ind_src(vrt%nrank), &
+            ngh_dst(lda1, vrt%nrank), ind_dst(vrt%nrank))
+      do il = 1, vrt%nrank
+         ngh_src(1, il) = mod(pe_rank - vrt%rank(il) + pe_size, pe_size)
+         ngh_src(2, il) = il
+         ngh_dst(1, il) = mod(vrt%rank(il) - pe_rank + pe_size, pe_size)
+         ngh_dst(2, il) = il
       end do
+      il = vrt%nrank
+      key(1) = 1
+      call sort_tuple(ngh_src, lda1, il, key, 1, ind_src, aa1)
+      call sort_tuple(ngh_dst, lda1, il, key, 1, ind_dst, aa1)
+      do il = 1, vrt%nrank
+         call recv_pe%push(vrt%rank(ngh_src(2, il)))
+         call send_pe%push(vrt%rank(ngh_dst(2, il)))
+      end do
+      deallocate(ngh_src, ind_src, ngh_dst, ind_dst)
+
 
       call gs%comm%init(send_pe, recv_pe)
-
-      ! sanity check
-      ! Compare send/receive lists with vertex neighbour list.
-      ! send/receive lists should differ by ordering only
-      id = send_pe%size()
-      if (id .ne. recv_pe%size()) &
-           call neko_error('send_pe and recv_pe differ in size')
-      if (id .ne. vrt%nrank) &
-           call neko_error('send_pe size inconsistent with vertex neighbour &
-           &number')
-      if (id .gt. 0) then
-         allocate(ind(id))
-         select type(sdp => send_pe%data)
-         type is (integer)
-            call sort(sdp, ind, id)
-            do il = 1, id
-               if (sdp(il) .ne. vrt%rank(il)) &
-                    call neko_error('send_pe size inconsistent with vertex &
-                    &neighbour')
-            end do
-         end select
-         select type(sdp => recv_pe%data)
-         type is (integer)
-            call sort(sdp, ind, id)
-            do il = 1, id
-               if (sdp(il) .ne. vrt%rank(il)) &
-                    call neko_error('recv_pe size inconsistent with vertex &
-                    &neighbour')
-            end do
-         end select
-
-         deallocate(ind)
-      end if
 
       call send_pe%free()
       call recv_pe%free()
