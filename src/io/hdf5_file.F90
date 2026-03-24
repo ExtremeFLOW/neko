@@ -815,11 +815,13 @@ contains
   subroutine hdf5_file_write_vector(this, vec)
     class(hdf5_file_t), intent(inout) :: this
     type(vector_t), intent(inout) :: vec
-    integer :: ierr, counts, offset, total_count, dset_rank
+    integer :: ierr, counts, offset, total_count, dset_rank, max_count
+    integer(hsize_t) :: append_offset
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id, filespace, dset_id, memspace
+    integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
     integer(hsize_t), dimension(1) :: dcount, doffset
-    integer(hsize_t), dimension(1) :: ddims
+    integer(hsize_t), dimension(1) :: ddims, ddims_max, chunkdims
+    integer(hsize_t), dimension(1) :: tempddims, tempmaxddims
     logical :: dset_exists
     real(kind=sp), allocatable :: write_buffer_sp(:) ! Write buffer single
     real(kind=dp), allocatable :: write_buffer_dp(:) ! Write buffer double
@@ -828,13 +830,17 @@ contains
     ! Get vector info
     ! ===============
     counts = vec%size()
+    append_offset = 0_hsize_t
     offset = 0
     total_count = 0
+    max_count = 0
     call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
     offset = offset - counts ! Not using exclusive scan
     call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
+         MPI_MAX, NEKO_COMM, ierr)
 
     ! ===============
     ! Configure MPIIO
@@ -848,32 +854,47 @@ contains
     ! ===================
     dset_rank = 1 ! rank 1 array, i.e. a vector
     ddims = [int(total_count, hsize_t)] ! global size of the vector
+    chunkdims = [max(int(max_count, hsize_t), 1_hsize_t)] ! Enable chunking to be able to append
+    ddims_max = [H5S_UNLIMITED_F] ! allow unlimited size for appending
     call h5lexists_f(this%active_group_id, trim(vec%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
           ! retrieve the dset id for the existing data set
-          if (pe_rank .eq. 0) then
-             write(*,*) "Dataset ", trim(vec%name), " already exists in file ", trim(this%get_fname()), " and will be overwritten."
-             write(*,*) "This only works if the global shape is the same"
-          end if
           call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
        else
-          call neko_error("dataset already exist in the file")
+          ! Retreive the existing data set
+          call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
+          ! Retrieve the current filespace (shape space)
+          call h5dget_space_f(dset_id, filespace, ierr)
+          ! Get the current shape
+          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+          ! Clean up the opened file space
+          call h5sclose_f(filespace, ierr)
+          ! Overwrite the new full shape
+          ddims(1) = ddims(1) + tempddims(1) ! New size
+          append_offset = tempddims(1)       ! current size which is the offset
+          ! Extend the data set to the new shape
+          call h5dset_extent_f(dset_id, ddims, ierr) 
        end if
     else
        ! create file space of this shape
-       call h5screate_simple_f(dset_rank, ddims, filespace, ierr)
+       call h5screate_simple_f(dset_rank, ddims, filespace, ierr, ddims_max)
+       ! Create chunk property list (needed to be able to append)
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       call h5pset_chunk_f(dcpl_id, dset_rank, chunkdims, ierr)
        ! create the data set with the given shape
        call h5dcreate_f(this%active_group_id, trim(vec%name), precision_hdf, &
-            filespace, dset_id, ierr)
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
+       ! clean opened ids
        call h5sclose_f(filespace, ierr)
+       call h5pclose_f(dcpl_id, ierr)
     end if
 
     ! ===========================
     ! Set up writing the data set
     ! ===========================
     dcount = [int(counts, hsize_t)] ! local size of the vector
-    doffset = [int(offset, hsize_t)] ! offset for this rank in the global vector
+    doffset = [int(offset, hsize_t) + append_offset] ! offset for this rank in the global vector
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes

@@ -98,6 +98,7 @@ module probes
      type(file_t) :: fout
      type(matrix_t) :: mat_out
      type(vector_t) :: vec_out
+     logical :: append_out = .false.
    contains
      !> Initialize from json
      procedure, pass(this) :: init => probes_init_from_json
@@ -544,7 +545,11 @@ contains
     class is (hdf5_file_t)
 
        !> This is always on cpus.
-       call this%fout%set_overwrite(.true.)
+       if (this%append_out) then
+         call this%fout%set_overwrite(.false.)
+       else
+         call this%fout%set_overwrite(.true.)
+       end if
        call mat_coords%init(3, this%n_local_probes, "coordinates")
        call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
 
@@ -692,6 +697,7 @@ contains
     logical :: do_interp_on_host = .false.
     character(len=1000) :: group_name
     real(kind=rp) :: time_
+    type(vector_t) :: vec_time
 
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
@@ -740,22 +746,51 @@ contains
 
           else
 
-             ! Set up the name
-             write(group_name, '(A,I0)') "Step_", this%output_controller%nexecutions
-             call this%fout%open("w")
-             ! Write Nsteps in root
-             call this%fout%write_attribute(this%output_controller%nexecutions, "nSteps")
-             ! Write out the data
-             call this%fout%set_active_group(["probes", trim(group_name)])
-             do i = 1, this%n_fields
-                call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
-                this%vec_out%name = trim(this%which_fields(i))
-                call this%fout%write_dataset(this%vec_out)
-             end do
-             ! Write the time as an attribute
-             time_ = time%t
-             call this%fout%write_attribute(time_, "time")
-             call this%fout%close()
+            ! Append output format
+            if (this%append_out) then
+               
+               call this%fout%open("w")
+               ! Write Nsteps in root
+               call this%fout%write_attribute(this%output_controller%nexecutions, "NSteps")
+               ! Write out the data
+               call this%fout%set_active_group(["probes"])
+               do i = 1, this%n_fields
+                  call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
+                  this%vec_out%name = trim(this%which_fields(i))
+                  call this%fout%write_dataset(this%vec_out)
+               end do
+
+               ! Write the time by hacking the vector write
+               if (pe_rank .eq. 0) then
+                  call vec_time%init(1, "time")
+                  vec_time%x(1) = time%t
+               else
+                  call vec_time%init(0, "time")
+               end if
+               call this%fout%write_dataset(vec_time)
+               call vec_time%free()
+               call this%fout%close()
+ 
+            ! Write data in different steps
+            else
+
+               ! Set up the name
+               write(group_name, '(A,I0)') "Step_", this%output_controller%nexecutions
+               call this%fout%open("w")
+               ! Write Nsteps in root
+               call this%fout%write_attribute(this%output_controller%nexecutions, "NSteps")
+               ! Write out the data
+               call this%fout%set_active_group(["probes", trim(group_name)])
+               do i = 1, this%n_fields
+                  call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
+                  this%vec_out%name = trim(this%which_fields(i))
+                  call this%fout%write_dataset(this%vec_out)
+               end do
+               ! Write the time as an attribute
+               time_ = time%t
+               call this%fout%write_attribute(time_, "time")
+               call this%fout%close()
+            end if
 
           end if
        class default
