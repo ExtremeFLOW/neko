@@ -1325,17 +1325,13 @@ contains
     type(matrix_t), intent(inout) :: mat
     character(len=*), intent(in), optional :: strategy
     character(len=1000) :: strategy_
-    integer :: ierr, counts, offset, total_count, dset_rank, strides, max_count
-    integer(hsize_t) :: append_offset
+    integer :: ierr, counts, offset, total_count, dset_rank
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
+    integer(hid_t) :: xf_id, filespace, dset_id, memspace
     integer(hsize_t), dimension(2) :: dcount, doffset
-    integer(hsize_t), dimension(2) :: ddims, ddims_max, chunkdims
     integer(hsize_t), dimension(2) :: tempddims, tempmaxddims
     integer :: temprank
     logical :: dset_exists
-    real(kind=sp), allocatable :: read_buffer_sp(:,:) ! Read buffer single
-    real(kind=dp), allocatable :: read_buffer_dp(:,:) ! Read buffer double
     type(linear_dist_t) :: dist
 
     ! Set up strategy
@@ -1388,7 +1384,6 @@ contains
       dist = linear_dist_t(total_count, pe_rank, pe_size, NEKO_COMM)
       counts = dist%num_local()
       offset = 0
-      max_count = 0
     else if (strategy_ .eq. "rank_0") then
       if (pe_rank .eq. 0) then
          counts = total_count
@@ -1396,13 +1391,10 @@ contains
          counts = 0
       end if
       offset = 0
-      max_count = 0
    end if
     call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
     offset = offset - counts ! Not using exclusive scan
-    call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
-         MPI_MAX, NEKO_COMM, ierr)
 
     ! ===========================
     ! Set up reading the data set
