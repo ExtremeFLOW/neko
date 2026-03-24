@@ -92,10 +92,7 @@ contains
     ! Variables for retrieving JSON parameters
     real(kind=rp) :: ic_value
     character(len=:), allocatable :: read_str
-    character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
-    real(kind=rp) :: zone_value, tol
-    logical :: interpolate
-    integer :: tgt_scal_idx
+    real(kind=rp) :: zone_value
 
     if (trim(type) .eq. 'uniform') then
 
@@ -112,21 +109,32 @@ contains
 
     else if (trim(type) .eq. 'field') then
 
-       call json_get(params, 'file_name', read_str)
-       fname = trim(read_str)
-       call json_get_or_default(params, 'interpolate', interpolate, &
-            .false.)
-       call json_get_or_lookup_or_default(params, 'tolerance', tol, 0.000001_rp)
-       call json_get_or_default(params, 'mesh_file_name', read_str, &
-            "none")
-       mesh_fname = trim(read_str)
+       block
+         character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
+         logical :: interpolate
+         type(json_file) :: interp_subdict
+         integer :: tgt_scal_idx
 
-       ! Give the user the option to select which scalar they want to import
-       ! the values from, in the fld file. 0 corresponds to temperature.
-       call json_get_or_default(params, 'target_index', tgt_scal_idx, i)
+         call json_get(params, 'file_name', read_str)
+         fname = trim(read_str)
 
-       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname, i, &
-            tgt_scal_idx)
+         call json_get_or_default(params, 'interpolate', interpolate, &
+              .false.)
+
+         call json_get_or_default(params, 'mesh_file_name', read_str, &
+              "none")
+         mesh_fname = trim(read_str)
+
+         ! Give the user the option to select which scalar they want to import
+         ! the values from, in the fld file. 0 corresponds to temperature.
+         call json_get_or_default(params, 'target_index', tgt_scal_idx, i)
+
+         call json_get_or_default(params, "interpolation", interp_subdict)
+
+         call set_scalar_ic_fld(s, fname, interpolate, mesh_fname, i, &
+              tgt_scal_idx, interp_subdict)
+
+       end block
 
     else
        call neko_error('Invalid initial condition')
@@ -250,26 +258,24 @@ contains
   !! another file in the `fld` field series.
   !! @param s The scalar field.
   !! @param file_name The name of the "fld" file series.
-  !! @param sample_idx index of the field file .f000* to read, default is
-  !! -1.
   !! @param interpolate Flag to indicate wether or not to interpolate the
   !! values onto the current mesh.
-  !! @param tolerance If interpolation is enabled, tolerance for finding the
-  !! points in the mesh.
   !! @param mesh_file_name If interpolation is enabled, name of the field
   !! file series where the mesh coordinates are located.
   !! @param i Index of the scalar field. 0 corresponds to temperature.
   !! @param target_idx The index of the scalar field to import from the
   !! fld file. 0 corresponds to temperature.
+  !! @param global_interp_subdict If interpolation is enabled, subdict
+  !! containing the interpolation parameters to use.
   subroutine set_scalar_ic_fld(s, file_name, &
-       interpolate, tolerance, mesh_file_name, i, target_idx)
+       interpolate, mesh_file_name, i, target_idx, global_interp_subdict)
     type(field_t), target, intent(inout) :: s
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
-    real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
     integer, intent(in) :: i
     integer, intent(in) :: target_idx
+    type(json_file), intent(inout) :: global_interp_subdict
 
     character(len=LOG_SIZE) :: log_buf
     type(field_t), pointer :: ss
@@ -291,7 +297,8 @@ contains
     call import_fields(file_name, mesh_file_name, &
          s_target_list = s_tgt_list, & ! The target field
          s_index_list = [target_idx], & ! Take values from target scalar
-         interpolate = interpolate, tolerance = tolerance)
+         interpolate = interpolate, &
+         global_interp_subdict = global_interp_subdict)
 
     call s_tgt_list%free()
 
