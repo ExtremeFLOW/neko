@@ -210,23 +210,20 @@ All runs so far blew up:
 | We=10 | $10$ | $0.69$ | Blown up |
 | Laminar | $1$ | $2.9$ | Blown up at $0.90$ TU |
 
-Open question: is CDI maintaining accurate normals and curvature?
+$\sigma = 0$ CDI-only test (completed, terminated at $t = 21.24$ TU):
+- No blow-up: $u_\text{max}$ and $E_\text{kin}$ unaffected $\Rightarrow$ CDI alone is stable
+- $\varphi_\text{max}$ stable at $0.986$--$0.989$ $\Rightarrow$ CDI maintains interface amplitude
+- $\kappa_\text{rms}$ spikes from $6.1$ to $\mathbf{64}$ in $0.4$ TU, then slowly declines
 
-$\varphi_\text{max} < 1$ only confirms interface amplitude. Inaccurate $\hat{\mathbf{n}}$
-gives inaccurate $\kappa = -\nabla\cdot\hat{\mathbf{n}}$, which could contribute to CSF instability.
+$\kappa_\text{rms} \approx 64$ is $9.6\times$ the spherical reference. Two possible causes (not yet separated):
+1. Genuine drop deformation ($\sigma=0$, no restoring force)
+2. CDI normal inaccuracy in stretched regions
 
-Immediate next step: $\sigma = 0$ turbulent restart (running)
-- CDI only, no CSF force on momentum
-- If $\kappa_\text{rms}$ stable near $6.67$ for 5 TU: CDI normals are accurate
-- Then blow-ups are definitively a CSF timestep issue
+With CSF active at $We = 10$: $F_\text{ST} \approx 0.03 \times 64 / (2\varepsilon) \approx 14$ --- much larger than the idealised $F \approx 1.4$ from a sphere.
 
-If CDI quality confirmed, next case: We=100 ($\sigma=0.003$, $\Delta t/\Delta t_\text{cap} = 0.22$)
-
-Open question: semi-implicit CSF
-$$\left(\mathbf{I} - \Delta t\,\mathcal{L}_\text{CSF}\right)\mathbf{u}^{n+1} = \text{RHS}$$
-Removes $\Delta t_\text{cap}$ constraint entirely; requires modifying Neko's momentum solver.
+Next step: visualise $\hat{\mathbf{n}}$ and $\kappa$ pointwise on field snapshots.
 
 **[NOTES]**
 Laminar survived twice as long as turbulent We=10 (0.90 vs 0.44 TU) despite worse ratio (2.9 vs 0.69).
 Turbulent fluctuations seed the instability faster but are not necessary.
-The sigma=0 test is the key missing piece before drawing a final conclusion.
+The sigma=0 result shows CDI is stable without CSF, but κ accuracy under turbulent deformation is an open question.

@@ -77,7 +77,7 @@ Use target_cfl=0.2 for all two-phase cases with σ≥0.03 (We≤10).
 |------|---------|
 | `turb_channel_two_phase.f90` | User module (IC, CDI source, CSF source, diagnostics) |
 | `turb_channel_two_phase_v4.case` | High-We reference (We=730, σ=4.1×10⁻⁴); completed t=0–5 |
-| `turb_channel_two_phase_laminar.case` | **Baseline**: laminar flow, We=1 (σ=0.3); ground-truth CDI/CSF test |
+| `turb_channel_two_phase_laminar.case` | Laminar flow, We=1 (σ=0.3); blown up at t=0.90 TU (same CSF capillary instability) |
 | `turb_channel_two_phase_we1.case` | **Primary validation**: turbulent, We=1 (σ=0.3); restart from `fluid00004.chkp` |
 | `turb_channel_two_phase_we10.case` | Turbulent, We=10 (σ=0.03); moderate deformation; restart from `fluid00004.chkp` |
 | `turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp`; R=0.4, y_c=0 (centre); blow-up reference data |
