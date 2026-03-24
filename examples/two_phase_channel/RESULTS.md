@@ -116,7 +116,7 @@ strong surface tension. The drop barely deforms (mean shear at y=0 is zero by sy
 **Setup:** Laminar Poiseuille IC (no perturbations). ε=0.07, γ=0.05,
 σ=0.3 (We=1), R=0.3, Re_b=2800, end_time=10.
 
-**Capillary timestep stability:** $\Delta t_{\mathrm{cap}} \approx 0.00147$ TU (same as restart cases, same σ). With `target_cfl=0.2`, $\Delta t \approx 0.00130$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 0.88$ — marginal. The laminar case may be stable despite the tight margin because there are no turbulent fluctuations to seed the capillary instability (see ANALYSIS.md §7.5).
+**Capillary timestep stability:** Using $\Delta x_{\mathrm{eff}} = 0.0087$ (see ANALYSIS.md §4.4): $\Delta t_{\mathrm{cap}} \approx 0.00059$ TU. With `target_cfl=0.2` and u_max≈1.15 (Reichardt centreline, no perturbations), $\Delta t \approx 0.0015$ TU → $\Delta t/\Delta t_{\mathrm{cap}} \approx 2.6$ — **outside the stability boundary, and worse than the turbulent restart cases (ratio=2.2)**. The laminar case may still be stable because there are no turbulent fluctuations to seed the capillary instability — only numerical round-off can trigger growth (see ANALYSIS.md §7.5). Running this tests that hypothesis directly.
 
 | t | φ_max | φ_min | κ_rms | u_max |
 |---|-------|-------|-------|-------|
