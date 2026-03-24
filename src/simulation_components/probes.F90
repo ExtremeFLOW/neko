@@ -557,18 +557,19 @@ contains
 
        !> Set up output
        call this%fout%open("w")
-      call this%fout%set_active_group([character(len=1000) :: "probes"]) ! Empty sets it to the root group "/"
+       call this%fout%set_active_group([character(len=1000) :: "probes"])
 
        ! Check if the NSteps attribute already exists
        call this%fout%read_attribute("NSteps", out_int, attr_exist)
        if (attr_exist) then
-         ! If the attribute exists, do not write the coordinates but register the executions
-         this%output_controller%nexecutions = out_int 
+          ! If the attribute exists,
+          ! do not write the coordinates but register the executions
+          this%output_controller%nexecutions = out_int
        else
-         ! Write out the mesh
-         call this%fout%write_dataset(mat_coords)
-         out_int = this%n_global_probes
-         call this%fout%write_attribute("NProbes", out_int)  
+          ! Write out the mesh
+          call this%fout%write_dataset(mat_coords)
+          out_int = this%n_global_probes
+          call this%fout%write_attribute("NProbes", out_int)
        end if
        call this%fout%close()
 
