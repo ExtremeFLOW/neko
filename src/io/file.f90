@@ -88,6 +88,7 @@ module file
      procedure :: open => file_open_default
      procedure :: close => file_close_default
      procedure :: write_dataset => file_write_dataset
+     procedure :: read_dataset => file_read_dataset
      procedure :: set_active_group => file_set_active_group_default
      procedure :: write_attribute => file_write_attribute
   end type file_t
@@ -376,6 +377,19 @@ contains
        call neko_error("write_dataset not implemented for this file type")
     end select
   end subroutine file_write_dataset
+  
+  subroutine file_read_dataset(this, keyword, data, strategy)
+    class(file_t), intent(inout) :: this
+    character(len=*), intent(in) :: keyword
+    class(*), intent(inout) :: data
+    character(len=*), intent(in), optional :: strategy
+    select type (ft => this%file_type)
+    type is (hdf5_file_t)
+       call ft%read_dataset(keyword, data, strategy)
+    class default
+       call neko_error("read_dataset not implemented for this file type")
+    end select
+  end subroutine file_read_dataset
 
   subroutine file_write_attribute(this, data, data_name)
     class(file_t), intent(inout) :: this

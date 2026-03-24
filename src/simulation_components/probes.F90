@@ -816,6 +816,8 @@ contains
     character(len=:), allocatable :: points_file
     real(kind=rp), allocatable :: xyz(:,:)
     integer, intent(inout) :: n_local_probes, n_global_probes
+    type(matrix_t) :: mat_in
+    integer :: ierr
 
     !> Supporting variables
     type(file_t) :: file_in
@@ -826,6 +828,20 @@ contains
     type is (csv_file_t)
        call read_xyz_from_csv(xyz, n_local_probes, n_global_probes, ft)
        this%seq_io = .true.
+    type is (hdf5_file_t)
+       call file_in%open("r")
+       call file_in%set_active_group() ! Empty sets it to the root group "/"
+       call file_in%read_dataset("xyz", mat_in, "rank_0")
+       call file_in%close()
+
+       ! Copy the data to the xyz location
+       n_local_probes = mat_in%get_ncols()
+       call MPI_Allreduce(n_local_probes, n_global_probes, 1, MPI_INTEGER, &
+            MPI_SUM, NEKO_COMM, ierr)
+
+       allocate(xyz(3, n_local_probes)) ! We asume that axis 1 has 3 entries
+       call copy(xyz, mat_in%x, 3*n_local_probes)
+       call mat_in%free()
     class default
        call neko_error("Invalid data. Expected csv_file_t.")
     end select

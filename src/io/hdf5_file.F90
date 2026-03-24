@@ -46,7 +46,8 @@ module hdf5_file
   use matrix, only : matrix_t
   use field, only : field_t
   use device, only : DEVICE_TO_HOST
-  use comm, only : pe_rank, NEKO_COMM
+  use datadist, only : linear_dist_t
+  use comm, only : pe_rank, pe_size, NEKO_COMM
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
        MPI_Barrier, MPI_INTEGER8, MPI_Scan
@@ -86,7 +87,9 @@ module hdf5_file
      procedure, pass(this) :: write_field => hdf5_file_write_field
      procedure, pass(this) :: write_int_attribute => hdf5_file_write_int_attribute
      procedure, pass(this) :: write_rp_attribute => hdf5_file_write_rp_attribute
+     procedure, pass(this) :: read_matrix => hdf5_file_read_matrix
      procedure :: write_dataset => hdf5_file_write_dataset
+     procedure :: read_dataset => hdf5_file_read_dataset
      procedure :: write_attribute => hdf5_file_write_attribute
   end type hdf5_file_t
 
@@ -109,8 +112,12 @@ contains
     fname = trim(this%get_base_fname())
     call filename_split(fname, path, name, suffix)
 
-    write(base_fname, '(A,A,"_",I0,A)') &
-         trim(path), trim(name), this%get_start_counter(), trim(suffix)
+    ! Append a counter
+    !write(base_fname, '(A,A,"_",I0,A)') &
+    !     trim(path), trim(name), this%get_start_counter(), trim(suffix)
+    
+    ! Do not append anything
+    base_fname = trim(fname)
 
   end function file_get_fname
 
@@ -795,6 +802,24 @@ contains
        call neko_error("write_dataset not implemented for this data type")
     end select
   end subroutine hdf5_file_write_dataset
+  
+  subroutine hdf5_file_read_dataset(this, keyword, data, strategy)
+    class(hdf5_file_t), intent(inout) :: this 
+    character(len=*), intent(in) :: keyword
+    class(*), intent(inout) :: data
+    character(len=*), intent(in), optional :: strategy
+
+    select type (d => data)
+    type is (vector_t)
+       call neko_error("not implemented")
+    type is (matrix_t)
+       call this%read_matrix(keyword, d, strategy)
+    type is (field_t)
+       call neko_error("not implemented")
+    class default
+       call neko_error("read_dataset not implemented for this data type")
+    end select
+  end subroutine hdf5_file_read_dataset
 
   subroutine hdf5_file_write_attribute(this, data, data_name)
     class(hdf5_file_t), intent(inout) :: this
@@ -1096,9 +1121,18 @@ contains
     ! Create the data set
     ! ===================
     dset_rank = 4 ! rank 4 array, i.e. a 4D tensor
-    ddims = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(total_count, hsize_t)] ! global size of the tensor
-    chunkdims = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), max(int(max_count, hsize_t), 1_hsize_t)]
-    ddims_max = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), H5S_UNLIMITED_F]
+    ddims = [int(stride_ax_1, hsize_t), &
+             int(stride_ax_2, hsize_t), &
+             int(stride_ax_3, hsize_t), &
+             int(total_count, hsize_t)] ! global size of the tensor
+    chunkdims = [int(stride_ax_1, hsize_t), &
+                 int(stride_ax_2, hsize_t), &
+                 int(stride_ax_3, hsize_t), &
+                 max(int(max_count, hsize_t), 1_hsize_t)]
+    ddims_max = [int(stride_ax_1, hsize_t), &
+                 int(stride_ax_2, hsize_t), &
+                 int(stride_ax_3, hsize_t), &
+                 H5S_UNLIMITED_F]
     call h5lexists_f(this%active_group_id, trim(field%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
@@ -1173,6 +1207,124 @@ contains
     call h5dclose_f(dset_id, ierr)
 
   end subroutine hdf5_file_write_field
+
+  !> Read a matrix
+  subroutine hdf5_file_read_matrix(this, keyword, mat, strategy)
+    class(hdf5_file_t) :: this
+    character(len=*), intent(in) :: keyword
+    type(matrix_t), intent(inout) :: mat
+    character(len=*), intent(in), optional :: strategy
+    character(len=1000) :: strategy_
+    integer :: ierr, counts, offset, total_count, dset_rank, strides, max_count
+    integer(hsize_t) :: append_offset
+    integer(hid_t) :: precision_hdf
+    integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
+    integer(hsize_t), dimension(2) :: dcount, doffset
+    integer(hsize_t), dimension(2) :: ddims, ddims_max, chunkdims
+    integer(hsize_t), dimension(2) :: tempddims, tempmaxddims
+    integer :: temprank
+    logical :: dset_exists
+    real(kind=sp), allocatable :: read_buffer_sp(:,:) ! Read buffer single
+    real(kind=dp), allocatable :: read_buffer_dp(:,:) ! Read buffer double
+    type(linear_dist_t) :: dist
+
+    ! Set up strategy
+    if (present(strategy)) then
+      if (trim(strategy) .eq. "linear" .or. &
+          trim(strategy) .eq. "rank_0") then
+         strategy_ = strategy
+      else
+         call neko_error("Unsupported strategy: " // trim(strategy))
+      end if
+    else
+       strategy_ = "linear"
+    end if
+
+    ! Free the input
+    call mat%free()
+    
+    ! ===============
+    ! Configure MPIIO
+    ! ===============
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+    precision_hdf = h5kind_to_type(rp, H5_REAL_KIND)
+
+    ! ===================
+    ! Get the data set info
+    ! ===================
+    call h5lexists_f(this%active_group_id, trim(keyword), dset_exists, ierr)
+    if (dset_exists) then
+      ! Openr the data set
+      call h5dopen_f(this%active_group_id, trim(keyword), dset_id, ierr) 
+      ! Get the current rank of the of the dataset
+      call h5dget_space_f(dset_id, filespace, ierr)
+      call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
+      if (temprank .ne. 2) then
+         call neko_error("Dataset " // trim(keyword) // " is not a rank 2 matrix in file " // trim(this%get_fname()))
+      end if
+      ! Get the current shape and close the filespace
+      call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+      call h5sclose_f(filespace, ierr)
+    else
+      call neko_error("Dataset " // trim(keyword) // " does not exist in current group " // trim(this%get_fname()))
+    end if
+
+    ! =============================
+    ! Perform the data distribution
+    ! =============================
+    total_count = int(tempddims(2))
+    if (strategy_ .eq. "linear") then
+      dist = linear_dist_t(total_count, pe_rank, pe_size, NEKO_COMM)
+      counts = dist%num_local()
+      offset = 0
+      max_count = 0
+    else if (strategy_ .eq. "rank_0") then
+      if (pe_rank .eq. 0) then
+         counts = total_count
+      else
+         counts = 0
+      end if
+      offset = 0
+      max_count = 0
+   end if
+    call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+    offset = offset - counts ! Not using exclusive scan
+    call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
+         MPI_MAX, NEKO_COMM, ierr)
+
+    ! ===========================
+    ! Set up reading the data set
+    ! ===========================
+    dset_rank = 2 ! rank 2 array, i.e. a matrix
+    dcount = [int(tempddims(1), hsize_t), int(counts, hsize_t)] ! local size of the matrix
+    doffset = [0_hsize_t, int(offset, hsize_t)] ! offset for this rank in the global matrix
+    ! Get the total file space (shape) of the data set
+    call h5dget_space_f(dset_id, filespace, ierr)
+    ! Get only the slice where my rank reads
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+    ! Create the corresponding memory space (buffer) for my local data
+    call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
+
+    ! =============================
+    ! Allocate data. HDF5 will cast
+    ! =============================
+    call mat%init(int(tempddims(1)), counts, trim(keyword)) ! this is rp
+    call h5dread_f(dset_id, precision_hdf, mat%x, dcount, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, &
+         xfer_prp = xf_id)
+
+    ! =======================
+    ! Clean up
+    ! =======================
+    call h5pclose_f(xf_id, ierr)
+    call h5sclose_f(memspace, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5dclose_f(dset_id, ierr)
+
+
+  end subroutine hdf5_file_read_matrix
 
   !> Write an integer attribute
   subroutine hdf5_file_write_int_attribute(this, attr, attr_name)
