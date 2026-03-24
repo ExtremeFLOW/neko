@@ -290,7 +290,7 @@ contains
 
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
          .false.)
-    call this%c_Xh%check_cyclic()
+    call this%c_Xh%generate_cyclic_bc()
 
     if (this%full_stress_formulation) then
        ! Setup backend dependent Ax routines
@@ -375,7 +375,7 @@ contains
     call neko_log%end_section()
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
-         this%pr_projection_activ_step)
+         this%pr_projection_activ_step, this%pr_projection_reorthogonalize_basis)
 
     call this%proj_vel%init(this%dm_Xh%size(), this%vel_projection_dim, &
          this%vel_projection_activ_step)
@@ -692,7 +692,7 @@ contains
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+           ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)
 
       ! Compute the source terms
     call this%source_term%compute(time)
@@ -715,7 +715,7 @@ contains
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
          ! Now, the source terms from the previous time step are added to
          ! the RHS.
@@ -735,12 +735,12 @@ contains
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
               u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
-              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
       end if
 
       call ulag%update()
@@ -762,7 +762,7 @@ contains
            f_x, f_y, f_z, &
            c_Xh, gs_Xh, &
            this%bc_prs_surface, this%bc_sym_surface,&
-           Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
+           Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
            mu_tot, rho, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
@@ -780,9 +780,8 @@ contains
 
       call profiler_end_region('Pressure_residual', 18)
 
-
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-           'Pressure')
+           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%bclst_dp, string='Pressure')
 
       call this%pc_prs%update()
 
@@ -815,7 +814,7 @@ contains
            p, &
            f_x, f_y, f_z, &
            c_Xh, msh, Xh, &
-           mu_tot, rho, ext_bdf%diffusion_coeffs(1), &
+           mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
            dt, dm_Xh%size())
 
       call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
@@ -867,7 +866,7 @@ contains
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
-              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              dt, time, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)

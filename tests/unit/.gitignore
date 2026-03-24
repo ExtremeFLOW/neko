@@ -3,7 +3,8 @@ test-suite.log
 
 # Makefiles
 */Makefile
-!*/Makefile.in
+!**/Makefile.in
+/Makefile.in
 
 # Test scripts
 !field/field_test
@@ -17,13 +18,15 @@ test-suite.log
 !mean_field/mean_field_test
 !mesh/mesh_test
 !point_interpolation/point_interpolation_test
+!templates/parallel/parallel_test
 !vector/vector_test
+!vtkhdf/vtkhdf_test
 
 # Processed files
-*/*.inc
-*/*.F90
-*/*.log
-*/*.trs
+**.inc
+**.F90
+**.log
+**.trs
 
 bc/bc_test
 case_file_utils/case_file_utils_test
@@ -63,3 +66,6 @@ time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 json_utils/json_utils_test
 point_interpolation/point_interpolation_suite
+**/test_write_*.vtkhdf
+templates/parallel/parallel_suite
+templates/serial/serial_test

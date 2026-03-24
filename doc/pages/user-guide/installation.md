@@ -109,7 +109,18 @@ export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
 
 To build the PFunit testing framework, please refers to the \subpage testing page
 
-### Building Neko
+#### Python (optional) {#deps-python}
+Neko itself does not depend on Python, however, it is necessary for the following:
+
+- Running unit tests; only depends on an interpreter.
+- Running integration tests; requires `pytest`.
+- Using the `lint.sh` and `format.sh` tools under `contrib`; requires `findent`
+  and `flinter==0.4.0`.
+- Running Python post-processing scripts for selected examples. A dependency of
+  note is [`pySEMtools`](https://github.com/ExtremeFLOW/pySEMTools), which is
+  the package we recommend for post-processing Neko simulation results.
+
+### Building Neko {#building-neko}
 Neko uses autotools as its build system. The first step is to run the `configure` script, located in the top directory.
 
 ``` shell
@@ -246,9 +257,10 @@ and run the following command inside it
 pixi run install-neko-cpu
 ```
 
-This will give you a double-precision CPU build charged with all optional
-dependencies: hdf5, and parmetis. For now, this is the only configuration
-that can be installed automatically with pixi.
+This will give you a double-precision CPU build charged with optional
+dependencies: HDF5, pFUnit, and ParMETIS. You can, however choose the precision
+of reals, by appending either `sp` or `dp` to the command above. Only CPU builds
+are currently supported with pixi.
 
 To use Neko, you need to drop into a shell, where the pixi environment will be
 activated. For that run
@@ -265,6 +277,19 @@ The installed executables, libraries, etc. are all located inside the `install` 
 Note that you can use this pixi environment as you like, including manually
 `configuring` and building Neko (as per instructions for building from source),
 for example, with single precision reals or even with a different backend.
+
+Pixi also provides the option to create a Python environment, which is just an
+ordinary `conda` environment underneath. This can be convenient because Neko's
+unit and integration tests, some post-processing in examples, and developer
+tools like `flinter` require Python.
+
+Running
+```bash
+pixi shell -e python
+```
+will drop into a shell, which, in addition to Neko, has a Python interpreter
+with `pytest`, `findent`, and `flinter` installed. Additional packages can be
+installed manually.
 
 
 ## Using a Docker container

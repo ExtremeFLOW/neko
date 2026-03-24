@@ -381,8 +381,8 @@ contains
     class(ksp_monitor_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf
 
-    write(log_buf, '((A5,7x),A3,(A5,13x),1x,A6,3x,A15,3x,A15)') &
-         'Step:', ' | ', 'Field:', 'Iters:', &
+    write(log_buf, '(A10,2x,A3,(A5,13x),1x,A6,3x,A15,3x,A15)') &
+         'KSP solver', ' | ', 'Field:', 'Iters:', &
          'Start residual:', 'Final residual:'
     call neko_log%message(log_buf)
 

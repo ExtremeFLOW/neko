@@ -22,6 +22,8 @@ where again you need to provide the path
 ```
 Make sure that in the output you see it says `pFUnit ... yes` at some point.
 
+Additionally, pFUnit requires a Python interpreter to work.
+
 ## Running the tests
 To run the tests you should execute
 ```bash

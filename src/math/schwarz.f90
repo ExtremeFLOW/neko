@@ -223,8 +223,8 @@ contains
   subroutine schwarz_setup_wt(this)
     class(schwarz_t), intent(inout) :: this
     integer :: enx, eny, enz, n, ie, k, ns
-    real(kind=rp), parameter :: zero = 0.0
-    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: zero = 0.0_rp
+    real(kind=rp), parameter :: one = 1.0_rp
     associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
          Xh => this%Xh, Xh_schwarz => this%Xh_schwarz)
 
@@ -352,6 +352,7 @@ contains
     real(kind=rp), intent(inout) :: a(0:n+1, 0:n+1, 0:n+1, nelv)
     real(kind=rp), intent(inout) :: b(n, n, n, nelv)
     integer :: i, j, k, ie
+    !$omp parallel do private(ie, i, j, k)
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -361,6 +362,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
   end subroutine schwarz_toreg3d
 
   !> convert array a from original size to size extended array with border
@@ -371,6 +373,7 @@ contains
     integer :: i, j, k, ie
 
     call rzero(a, (n+2)*(n+2)*(n+2)*nelv)
+    !$omp parallel do private(ie, i, j, k)
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -380,6 +383,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
   end subroutine schwarz_toext3d
 
   !> Sum values along rows l1, l2 with weights f1, f2 and store along row l1.
@@ -395,6 +399,7 @@ contains
     i1 = nx - 1
 
     if (nz .eq. 1) then
+       !$omp parallel do private(ie, i, j)
        do ie = 1, nelv
           do j = i0, i1
              arr1(l1 + 1, j, 1, ie) = f1 * arr1(l1 + 1, j, 1, ie) &
@@ -409,7 +414,9 @@ contains
                   + f2 * arr2(i, nx - l2, 1, ie)
           end do
        end do
+       !$omp end parallel do
     else
+       !$omp parallel do private(ie, i, j, k)
        do ie = 1, nelv
           do k = i0, i1
              do j = i0, i1
@@ -436,6 +443,7 @@ contains
              end do
           end do
        end do
+       !$omp end parallel do
     end if
   end subroutine schwarz_extrude
 
@@ -536,6 +544,7 @@ contains
     real(kind=rp), intent(inout) :: wt(n, n, 4, 3, nelv)
     integer :: ie, i, j, k
 
+    !$omp parallel do private(ie, i, j, k)
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -562,6 +571,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
   end subroutine schwarz_wt3d
 
   !> AMR restart

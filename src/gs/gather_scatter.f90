@@ -271,8 +271,6 @@ contains
     write(log_buf, '(A)') 'Backend      : ' // trim(bcknd_str)
     call neko_log%message(log_buf)
 
-
-
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
     if (use_device_mpi .or. use_device_nccl .or. use_device_shmem) then
@@ -457,11 +455,12 @@ contains
       ! Multiplicity of vertices and edges is neglected, but for faces it has
       ! to be taken into account to set up properly facet offset, that is used
       ! to flag array section that can be used for vectorisation. In conforming
-      ! case all faces have multiplicity 2 so are automatically marked for
-      ! vectorisation. In AMR case some faces may have multiplicity higher than
-      ! 2. Flag those objects using the global multiplicity information and
-      ! reorder shared/local lists. It is necessary to use global information
-      ! not to destroy unique communication order. This influences block lists.
+      ! case all local faces have multiplicity 2 and shared one multiplicity 1,
+      ! so are automatically marked for vectorisation. In AMR case hanging faces
+      ! have multiplicity higher than 2. Flag those objects using the global
+      ! multiplicity information and reorder shared/local lists. It is necessary
+      ! to use global information not to destroy unique communication order.
+      ! This influences block lists.
       ! conforming case; vertices and edges only
       gs%local_facet_offset = nlvrt_dof + nledg_dof * (lx - 2) + 1
       gs%shared_facet_offset = nsvrt_dof + nsedg_dof * (lx - 2) + 1
@@ -545,16 +544,16 @@ contains
       ! point numbering must be consistent with the one in gs_fill_arrays, but
       ! object alignment shouldn't matter this time.
       ! As object lists are sorted, send_dof and recv_dof arrays are identical.
+      ! loop order matters
       ! vertices
-      ! Order of jl and kl loops important to keep proper object ordering
-      do il = 1, vrt%nrank ! ranks
-         do jl = 1, vrt%nshare ! all shared
-            do kl = vrt%rankoff(il), vrt%rankoff(il + 1) - 1 ! rank shared
+      do il = 1, vrt%nshare ! all shared
+         id = il
+         do jl = 1, vrt%nrank ! ranks
+            do kl = vrt%rankoff(jl), vrt%rankoff(jl + 1) - 1 ! rank shared
                ! rank shared list can have different order than sorted one
-               if (vrt%rankshare(kl) .eq. vrt_shr(jl)) then
-                  id = jl
-                  call gs%comm%send_dof(vrt%rank(il))%push(id)
-                  call gs%comm%recv_dof(vrt%rank(il))%push(id)
+               if (vrt%rankshare(kl) .eq. vrt_shr(il)) then
+                  call gs%comm%send_dof(vrt%rank(jl))%push(id)
+                  call gs%comm%recv_dof(vrt%rank(jl))%push(id)
                   exit
                end if
             end do
@@ -562,36 +561,35 @@ contains
       end do
 
       ! edges
-      ! Order of jl and kl loops important to keep proper object ordering
-      do il = 1, edg%nrank ! ranks
-         do jl = 1, edg%nshare ! all shared
-            do kl = edg%rankoff(il), edg%rankoff(il + 1) - 1 ! rank shared
+      do il = 1, edg%nshare ! all shared
+         id = vrt%nshare + (il - 1) * (lx - 2)
+         do jl = 1, edg%nrank ! ranks
+            do kl = edg%rankoff(jl), edg%rankoff(jl + 1) - 1 ! rank shared
                ! rank shared list can have different order than sorted one
-               if (edg%rankshare(kl) .eq. edg_shr(jl)) then
-                  id = vrt%nshare + (jl - 1) * (lx - 2)
+               if (edg%rankshare(kl) .eq. edg_shr(il)) then
                   do ll = 1, lx - 2
-                     call gs%comm%send_dof(edg%rank(il))%push(id + ll)
-                     call gs%comm%recv_dof(edg%rank(il))%push(id + ll)
+                     call gs%comm%send_dof(edg%rank(jl))%push(id + ll)
+                     call gs%comm%recv_dof(edg%rank(jl))%push(id + ll)
                   end do
-                  exit
+                 exit
                end if
             end do
          end do
       end do
+
       ! faces
-      ! Order of jl and kl loops important to keep proper object ordering
-      do il = 1, fcs%nrank ! ranks
-         do jl = 1, fcs%nshare ! all shared
-            do kl = fcs%rankoff(il), fcs%rankoff(il + 1) - 1 ! rank shared
+      do il = 1, fcs%nshare ! all shared
+         id = vrt%nshare + edg%nshare * (lx - 2) + &
+                       (il - 1) * (lx - 2) * (lx - 2)
+         do jl = 1, fcs%nrank ! ranks
+            do kl = fcs%rankoff(jl), fcs%rankoff(jl + 1) - 1 ! rank shared
                ! rank shared list can have different order than sorted one
-               if (fcs%rankshare(kl) .eq. fcs_shr(jl)) then
-                  id = vrt%nshare + edg%nshare * (lx - 2) + &
-                       (jl - 1) * (lx - 2) * (lx - 2)
+               if (fcs%rankshare(kl) .eq. fcs_shr(il)) then
                   do ll = 1, lx - 2
                      do ml = 1, lx - 2
-                        call gs%comm%send_dof(edg%rank(il))%push(id + &
+                        call gs%comm%send_dof(fcs%rank(jl))%push(id + &
                              (ll - 1) * (lx - 2) + ml)
-                        call gs%comm%recv_dof(edg%rank(il))%push(id + &
+                        call gs%comm%recv_dof(fcs%rank(jl))%push(id + &
                              (ll - 1) * (lx - 2) + ml)
                      end do
                   end do
@@ -620,7 +618,6 @@ contains
               gs%comm%send_dof(dst)%size() .gt. 0) then
             call send_pe%push(dst)
          end if
-
       end do
 
       call gs%comm%init(send_pe, recv_pe)

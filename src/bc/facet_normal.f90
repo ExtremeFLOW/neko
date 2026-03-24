@@ -44,7 +44,7 @@ module facet_normal
   use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
   use htable, only : htable_i4_t
-  use device, only : device_map, device_memcpy, device_free, &
+  use device, only : device_map, device_memcpy, device_unmap, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
   use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
@@ -213,10 +213,10 @@ contains
 
     call this%free_base()
     if (allocated(this%unique_mask)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%unique_mask, this%unique_mask_d)
+       end if
        deallocate(this%unique_mask)
-    end if
-    if (c_associated(this%unique_mask_d)) then
-       call device_free(this%unique_mask_d)
     end if
 
     call this%nx%free()
@@ -255,10 +255,10 @@ contains
     ! we also ensure that we only visit each point once
     ! and create a new mask with only unique points (this%unique_mask).
     if (allocated(this%unique_mask)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%unique_mask, this%unique_mask_d)
+       end if
        deallocate(this%unique_mask)
-    end if
-    if (c_associated(this%unique_mask_d)) then
-       call device_free(this%unique_mask_d)
     end if
 
     call unique_point_idx%init(this%msk(0), htable_data)
