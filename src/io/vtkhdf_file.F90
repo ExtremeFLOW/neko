@@ -270,57 +270,6 @@ contains
 
   end subroutine vtkhdf_file_write
 
-  !> Build local connectivity for VTK cells from a spectral element
-  !! tensor-product grid. For linear types (12, 9) subdivides each spectral
-  !! element into linear sub-cells. For Lagrange types (72, 70) writes one
-  !! high-order cell per element with VTK node ordering.
-  !! @param conn Output connectivity array (pre-allocated)
-  !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD,
-  !!        72 = VTK_LAGRANGE_HEXAHEDRON, 70 = VTK_LAGRANGE_QUADRILATERAL
-  !! @param msh Mesh object containing element information
-  !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral
-  !!            element grid
-  !! @param subdivide Logical flag indicating whether to subdivide to linear
-  !!        elements
-  subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof, subdivide)
-    integer, intent(out) :: conn(:)
-    integer(kind=1), intent(in) :: vtk_type
-    type(mesh_t), intent(in) :: msh
-    type(dofmap_t), intent(in) :: dof
-    logical, intent(in) :: subdivide
-    integer :: lx, ly, lz, nelv
-    integer :: ie, ii, n_pts_per_cell, n_conn_per_elem
-    integer, allocatable :: node_order(:)
-
-    nelv = msh%nelv
-    lx = dof%Xh%lx
-    ly = dof%Xh%ly
-    lz = dof%Xh%lz
-    n_pts_per_cell = lx * ly * lz
-
-    if (subdivide .and. vtk_type .eq. 12) then
-       node_order = subdivide_to_hex_ordering(lx, ly, lz)
-    else if (subdivide .and. vtk_type .eq. 9) then
-       node_order = subdivide_to_quad_ordering(lx, ly)
-    else
-       node_order = vtk_ordering(vtk_type, lx, ly, lz)
-    end if
-
-    n_conn_per_elem = size(node_order)
-
-    do concurrent (ie = 1:nelv, ii = 1:n_conn_per_elem)
-       block
-         integer :: idx, base
-         idx = (ie - 1) * n_conn_per_elem
-         base = (ie - 1) * n_pts_per_cell
-         conn(idx + ii) = base + node_order(ii)
-       end block
-    end do
-
-    deallocate(node_order)
-
-  end subroutine vtkhdf_build_connectivity
-
   !> Write mesh geometry datasets to the VTKHDF group.
   !! Writes NumberOfPoints, NumberOfCells, NumberOfConnectivityIds,
   !! Points, Connectivity, Offsets, and Types datasets.
@@ -642,60 +591,6 @@ contains
 
   end subroutine vtkhdf_write_mesh
 
-  !> Create-or-extend a 1D NumberOf* dataset, then write one entry.
-  !! On step 0 the dataset is created with unlimited max extent.
-  !! On subsequent steps it is extended to (counter+1)*nPieces.
-  !! @param grp        Parent HDF5 group (VTKHDF root)
-  !! @param dset_name  Dataset name, e.g. "NumberOfPoints"
-  !! @param value      The integer value to write for this rank
-  !! @param offset     1-element array: counter*pe_size + pe_rank
-  !! @param cnt        1-element array, always [1]
-  !! @param dcpl       Dataset creation property list (chunked)
-  !! @param index      Current timestep index (0-based)
-  !! @param xf_id      Collective transfer property list
-  !! @param ierr       HDF5 error code (output)
-  subroutine vtkhdf_write_numberof(grp, dset_name, value, offset, cnt, &
-       dcpl, index, xf_id, ierr)
-    integer(hid_t), intent(in) :: grp, dcpl, xf_id
-    character(len=*), intent(in) :: dset_name
-    integer(kind=i8), intent(in) :: value
-    integer, intent(in):: index
-    integer(hsize_t), dimension(1), intent(in) :: offset, cnt
-    integer, intent(out) :: ierr
-
-    integer(hid_t) :: dset_id, fspace, mspace
-    integer(hsize_t), dimension(1) :: dims, maxdims
-    integer(hid_t) :: H5T_NEKO_INTEGER
-    logical :: exists
-
-    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
-
-    call h5lexists_f(grp, dset_name, exists, ierr)
-    if (exists) then
-       call h5dopen_f(grp, dset_name, dset_id, ierr)
-       dims(1) = int(index + 1, hsize_t) * int(pe_size, hsize_t)
-       call h5dset_extent_f(dset_id, dims, ierr)
-    else
-       dims(1) = int(pe_size, hsize_t)
-       maxdims(1) = H5S_UNLIMITED_F
-       call h5screate_simple_f(1, dims, fspace, ierr, maxdims)
-       call h5dcreate_f(grp, dset_name, H5T_NEKO_INTEGER, &
-            fspace, dset_id, ierr, dcpl_id = dcpl)
-       call h5sclose_f(fspace, ierr)
-    end if
-
-    call h5dget_space_f(dset_id, fspace, ierr)
-    call h5screate_simple_f(1, cnt, mspace, ierr)
-    call h5sselect_hyperslab_f(fspace, H5S_SELECT_SET_F, offset, cnt, ierr)
-
-    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, value, cnt, ierr, &
-         file_space_id = fspace, mem_space_id = mspace, xfer_prp = xf_id)
-
-    call h5sclose_f(mspace, ierr)
-    call h5sclose_f(fspace, ierr)
-    call h5dclose_f(dset_id, ierr)
-  end subroutine vtkhdf_write_numberof
-
   !> Write temporal Steps group metadata to the VTKHDF group.
   !! Writes Values, NumberOfParts, PartOffsets, PointOffsets,
   !! CellOffsets, ConnectivityIdOffsets datasets, and NSteps attribute.
@@ -794,74 +689,6 @@ contains
     call h5pclose_f(xf_id, ierr)
 
   end subroutine vtkhdf_write_steps
-
-  !> Append an integer scalar to a 1D chunked HDF5 dataset.
-  !! Opens the dataset if it exists, or creates a new empty chunked dataset.
-  !! Extends by 1 element and writes the value at the end.
-  !! @param grp_id HDF5 group containing the dataset
-  !! @param name Dataset name
-  !! @param value Value to append
-  !! @param index Position to write to
-  subroutine vtkhdf_write_i8_at(grp_id, name, value, index)
-    integer(hid_t), intent(in) :: grp_id
-    character(len=*), intent(in) :: name
-    integer(kind=i8), intent(in) :: value
-    integer, intent(in) :: index
-
-    integer :: ierr
-    integer(hid_t) :: dset_id, dcpl_id, xf_id, filespace, memspace
-    integer(hsize_t), dimension(1) :: dims, maxdims, count, offset, chunkdims
-    integer(hid_t) :: H5T_NEKO_INTEGER
-    logical :: exists
-
-    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
-
-    ! Create collective transfer property list
-    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
-
-    call h5lexists_f(grp_id, name, exists, ierr)
-    if (exists) then
-       call h5dopen_f(grp_id, name, dset_id, ierr)
-       call h5dget_space_f(dset_id, filespace, ierr)
-       call h5sget_simple_extent_dims_f(filespace, dims, maxdims, ierr)
-       call h5sclose_f(filespace, ierr)
-
-       if (index .eq. dims(1)) then
-          dims(1) = int(index + 1, hsize_t)
-          call h5dset_extent_f(dset_id, dims, ierr)
-       else if (index .gt. dims(1)) then
-          call neko_error("VTKHDF: Values written out of order.")
-       end if
-    else
-       dims = 1_hsize_t
-       maxdims = H5S_UNLIMITED_F
-       chunkdims = 1_hsize_t
-
-       call h5screate_simple_f(1, dims, filespace, ierr, maxdims)
-       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(grp_id, name, H5T_NEKO_INTEGER, &
-            filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5sclose_f(filespace, ierr)
-       call h5pclose_f(dcpl_id, ierr)
-    end if
-
-    count = 1_hsize_t
-    offset = int(index, hsize_t)
-
-    call h5dget_space_f(dset_id, filespace, ierr)
-    call h5screate_simple_f(1, count, memspace, ierr)
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, count, ierr)
-    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, value, count, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
-
-    call h5sclose_f(memspace, ierr)
-    call h5sclose_f(filespace, ierr)
-    call h5dclose_f(dset_id, ierr)
-    call h5pclose_f(xf_id, ierr)
-
-  end subroutine vtkhdf_write_i8_at
 
   !> Write field data into the VTKHDF PointData group.
   !! Groups u, v, w fields into a 3-component Velocity vector dataset.
@@ -1171,6 +998,179 @@ contains
 
   ! -------------------------------------------------------------------------- !
   ! Helper functions and routines
+
+  !> Build local connectivity for VTK cells from a spectral element
+  !! tensor-product grid. For linear types (12, 9) subdivides each spectral
+  !! element into linear sub-cells. For Lagrange types (72, 70) writes one
+  !! high-order cell per element with VTK node ordering.
+  !! @param conn Output connectivity array (pre-allocated)
+  !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD,
+  !!        72 = VTK_LAGRANGE_HEXAHEDRON, 70 = VTK_LAGRANGE_QUADRILATERAL
+  !! @param msh Mesh object containing element information
+  !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral
+  !!            element grid
+  !! @param subdivide Logical flag indicating whether to subdivide to linear
+  !!        elements
+  subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof, subdivide)
+    integer, intent(inout) :: conn(:)
+    integer(kind=1), intent(in) :: vtk_type
+    type(mesh_t), intent(in) :: msh
+    type(dofmap_t), intent(in) :: dof
+    logical, intent(in) :: subdivide
+    integer :: lx, ly, lz, nelv
+    integer :: ie, ii, n_pts_per_elem, n_conn_per_elem
+    integer, allocatable :: node_order(:)
+
+    nelv = msh%nelv
+    lx = dof%Xh%lx
+    ly = dof%Xh%ly
+    lz = dof%Xh%lz
+    n_pts_per_elem = lx * ly * lz
+
+    if (subdivide .and. vtk_type .eq. 12) then
+       node_order = subdivide_to_hex_ordering(lx, ly, lz)
+    else if (subdivide .and. vtk_type .eq. 9) then
+       node_order = subdivide_to_quad_ordering(lx, ly)
+    else
+       node_order = vtk_ordering(vtk_type, lx, ly, lz)
+    end if
+
+    n_conn_per_elem = size(node_order)
+
+    do concurrent (ie = 1:nelv, ii = 1:n_conn_per_elem)
+       block
+         integer :: idx, base
+         idx = (ie - 1) * n_conn_per_elem
+         base = (ie - 1) * n_pts_per_elem
+         conn(idx + ii) = base + node_order(ii)
+       end block
+    end do
+
+    deallocate(node_order)
+
+  end subroutine vtkhdf_build_connectivity
+
+  !> Create-or-extend a 1D NumberOf* dataset, then write one entry.
+  !! On step 0 the dataset is created with unlimited max extent.
+  !! On subsequent steps it is extended to (counter+1)*nPieces.
+  !! @param grp        Parent HDF5 group (VTKHDF root)
+  !! @param dset_name  Dataset name, e.g. "NumberOfPoints"
+  !! @param value      The integer value to write for this rank
+  !! @param offset     1-element array: counter*pe_size + pe_rank
+  !! @param cnt        1-element array, always [1]
+  !! @param dcpl       Dataset creation property list (chunked)
+  !! @param index      Current timestep index (0-based)
+  !! @param xf_id      Collective transfer property list
+  !! @param ierr       HDF5 error code (output)
+  subroutine vtkhdf_write_numberof(grp, dset_name, value, offset, cnt, &
+       dcpl, index, xf_id, ierr)
+    integer(hid_t), intent(in) :: grp, dcpl, xf_id
+    character(len=*), intent(in) :: dset_name
+    integer(kind=i8), intent(in) :: value
+    integer, intent(in):: index
+    integer(hsize_t), dimension(1), intent(in) :: offset, cnt
+    integer, intent(out) :: ierr
+
+    integer(hid_t) :: dset_id, fspace, mspace
+    integer(hsize_t), dimension(1) :: dims, maxdims
+    integer(hid_t) :: H5T_NEKO_INTEGER
+    logical :: exists
+
+    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
+
+    call h5lexists_f(grp, dset_name, exists, ierr)
+    if (exists) then
+       call h5dopen_f(grp, dset_name, dset_id, ierr)
+       dims(1) = int(index + 1, hsize_t) * int(pe_size, hsize_t)
+       call h5dset_extent_f(dset_id, dims, ierr)
+    else
+       dims(1) = int(pe_size, hsize_t)
+       maxdims(1) = H5S_UNLIMITED_F
+       call h5screate_simple_f(1, dims, fspace, ierr, maxdims)
+       call h5dcreate_f(grp, dset_name, H5T_NEKO_INTEGER, &
+            fspace, dset_id, ierr, dcpl_id = dcpl)
+       call h5sclose_f(fspace, ierr)
+    end if
+
+    call h5dget_space_f(dset_id, fspace, ierr)
+    call h5screate_simple_f(1, cnt, mspace, ierr)
+    call h5sselect_hyperslab_f(fspace, H5S_SELECT_SET_F, offset, cnt, ierr)
+
+    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, value, cnt, ierr, &
+         file_space_id = fspace, mem_space_id = mspace, xfer_prp = xf_id)
+
+    call h5sclose_f(mspace, ierr)
+    call h5sclose_f(fspace, ierr)
+    call h5dclose_f(dset_id, ierr)
+  end subroutine vtkhdf_write_numberof
+
+  !> Append an integer scalar to a 1D chunked HDF5 dataset.
+  !! Opens the dataset if it exists, or creates a new empty chunked dataset.
+  !! Extends by 1 element and writes the value at the end.
+  !! @param grp_id HDF5 group containing the dataset
+  !! @param name Dataset name
+  !! @param value Value to append
+  !! @param index Position to write to
+  subroutine vtkhdf_write_i8_at(grp_id, name, value, index)
+    integer(hid_t), intent(in) :: grp_id
+    character(len=*), intent(in) :: name
+    integer(kind=i8), intent(in) :: value
+    integer, intent(in) :: index
+
+    integer :: ierr
+    integer(hid_t) :: dset_id, dcpl_id, xf_id, filespace, memspace
+    integer(hsize_t), dimension(1) :: dims, maxdims, count, offset, chunkdims
+    integer(hid_t) :: H5T_NEKO_INTEGER
+    logical :: exists
+
+    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
+
+    ! Create collective transfer property list
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+
+    call h5lexists_f(grp_id, name, exists, ierr)
+    if (exists) then
+       call h5dopen_f(grp_id, name, dset_id, ierr)
+       call h5dget_space_f(dset_id, filespace, ierr)
+       call h5sget_simple_extent_dims_f(filespace, dims, maxdims, ierr)
+       call h5sclose_f(filespace, ierr)
+
+       if (index .eq. dims(1)) then
+          dims(1) = int(index + 1, hsize_t)
+          call h5dset_extent_f(dset_id, dims, ierr)
+       else if (index .gt. dims(1)) then
+          call neko_error("VTKHDF: Values written out of order.")
+       end if
+    else
+       dims = 1_hsize_t
+       maxdims = H5S_UNLIMITED_F
+       chunkdims = 1_hsize_t
+
+       call h5screate_simple_f(1, dims, filespace, ierr, maxdims)
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
+       call h5dcreate_f(grp_id, name, H5T_NEKO_INTEGER, &
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
+       call h5sclose_f(filespace, ierr)
+       call h5pclose_f(dcpl_id, ierr)
+    end if
+
+    count = 1_hsize_t
+    offset = int(index, hsize_t)
+
+    call h5dget_space_f(dset_id, filespace, ierr)
+    call h5screate_simple_f(1, count, memspace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, count, ierr)
+    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, value, count, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+
+    call h5sclose_f(memspace, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5dclose_f(dset_id, ierr)
+    call h5pclose_f(xf_id, ierr)
+
+  end subroutine vtkhdf_write_i8_at
 
   !> @brief Write a scalar field as a 1D dataset.
   !! @details
