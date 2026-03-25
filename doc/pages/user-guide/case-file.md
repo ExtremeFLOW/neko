@@ -906,8 +906,7 @@ The reference velocity field, or `baseflow` can be set from three methods:
              "method": "field",
              "file_name": "my_field0.f00016",
              "mesh_file_name": "my_field0.f00000",
-             "interpolate": true,
-             "tolerance": 1e-6
+             "interpolate": true
          }
       }
    ]
