@@ -99,6 +99,7 @@ module ale_manager
      logical :: active = .false.
      real(kind=rp) :: abstol = 1.0e-10_rp
      integer :: ksp_max_iter = 10000
+     logical :: res_monitor = .false.
      character(len=:), allocatable :: ksp_solver
      character(len=:), allocatable :: precon_type
      type(json_file) :: precon_params
@@ -262,6 +263,10 @@ contains
     if (json%valid_path('case.fluid.ale.solver.absolute_tolerance')) then
        call json%get('case.fluid.ale.solver.absolute_tolerance', &
           this%abstol)
+    end if
+    if (json%valid_path('case.fluid.ale.solver.monitor')) then
+       call json%get('case.fluid.ale.solver.monitor', &
+          this%res_monitor)
     end if
     if (json%valid_path('case.fluid.ale.solver.max_iterations')) then
        call json%get('case.fluid.ale.solver.max_iterations', &
@@ -749,7 +754,7 @@ contains
     end do
 
     call krylov_solver_factory(this%ksp, n, this%ksp_solver, &
-         this%ksp_max_iter, this%abstol, monitor = .false.)
+         this%ksp_max_iter, this%abstol, monitor = this%res_monitor)
     call ale_precon_factory(this%pc, this%ksp, coef, coef%dof, &
          coef%gs_h, this%bc_list, this%precon_type, this%precon_params)
 
