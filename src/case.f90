@@ -503,7 +503,7 @@ contains
 
     ! Kind of hacky for the moment to ensure we don't miss
     ! saving the mesh for ALE.
-    call json_get_or_default(this%params, 'case.fluid.ale.active', &
+    call json_get_or_default(this%params, 'case.fluid.ale.enabled', &
          tmp_feature, .false.)
     if (tmp_feature) logical_val = .true.
 

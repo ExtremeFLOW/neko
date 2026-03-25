@@ -201,8 +201,8 @@ contains
     logical :: has_user_kin, has_user_mesh
     logical :: has_builtin_osc, has_builtin_rot, is_rot_active
 
-    if (json%valid_path('case.fluid.ale.active')) then
-       call json_get(json, 'case.fluid.ale.active', this%active)
+    if (json%valid_path('case.fluid.ale')) then
+       call json_get(json, 'case.fluid.ale.enabled', this%active)
     end if
 
     if (.not. this%active) then
@@ -334,7 +334,7 @@ contains
           trim(this%ksp_solver) // ', ' // trim(this%precon_type) // ')')
        write(log_buf, '(A,ES13.6)') 'Abs tol           :', this%abstol
        call neko_log%message(log_buf)
-       call neko_log%message('Mesh Stiffness : ' // &
+       call neko_log%message('Mesh Stiffness    : ' // &
           trim(this%config%stiffness_type))
     end if
     call neko_log%message(' ')
