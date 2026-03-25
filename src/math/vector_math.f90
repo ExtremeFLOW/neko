@@ -657,6 +657,7 @@ contains
 
   end function vector_glsum
 
+  !> Global maximum of all elements in a vector \f$ max = \max_i a_i \f$
   function vector_glmax(a, n) result(val)
     integer, intent(in), optional :: n
     type(vector_t), intent(in) :: a
@@ -677,6 +678,7 @@ contains
 
   end function vector_glmax
 
+  !> Global minimum of all elements in a vector \f$ min = \min_i a_i \f$
   function vector_glmin(a, n) result(val)
     integer, intent(in), optional :: n
     type(vector_t), intent(in) :: a

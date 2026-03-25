@@ -657,6 +657,7 @@ contains
 
   end function field_glsum
 
+  !> Global maximum of all elements in a field \f$ max = \max_i a_i \f$
   function field_glmax(a, n) result(val)
     integer, intent(in), optional :: n
     type(field_t), intent(in) :: a
@@ -677,6 +678,7 @@ contains
 
   end function field_glmax
 
+  !> Global minimum of all elements in a field \f$ min = \min_i a_i \f$
   function field_glmin(a, n) result(val)
     integer, intent(in), optional :: n
     type(field_t), intent(in) :: a
