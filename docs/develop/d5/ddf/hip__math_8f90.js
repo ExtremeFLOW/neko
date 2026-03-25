@@ -44,6 +44,7 @@ var hip__math_8f90 =
     [ "hip_math::hip_glsc2", "d8/d3d/interfacehip__math_1_1hip__glsc2.html", "d8/d3d/interfacehip__math_1_1hip__glsc2" ],
     [ "hip_math::hip_glsubnorm2", "d3/db1/interfacehip__math_1_1hip__glsubnorm2.html", "d3/db1/interfacehip__math_1_1hip__glsubnorm2" ],
     [ "hip_math::hip_glsum", "db/d09/interfacehip__math_1_1hip__glsum.html", "db/d09/interfacehip__math_1_1hip__glsum" ],
+    [ "hip_math::hip_glmax", "d2/d0b/interfacehip__math_1_1hip__glmax.html", "d2/d0b/interfacehip__math_1_1hip__glmax" ],
     [ "hip_math::hip_absval", "d0/d22/interfacehip__math_1_1hip__absval.html", "d0/d22/interfacehip__math_1_1hip__absval" ],
     [ "hip_math::hip_pwmax_vec2", "db/daf/interfacehip__math_1_1hip__pwmax__vec2.html", "db/daf/interfacehip__math_1_1hip__pwmax__vec2" ],
     [ "hip_math::hip_pwmax_vec3", "d0/d0b/interfacehip__math_1_1hip__pwmax__vec3.html", "d0/d0b/interfacehip__math_1_1hip__pwmax__vec3" ],

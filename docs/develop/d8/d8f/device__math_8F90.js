@@ -29,6 +29,7 @@ var device__math_8F90 =
     [ "device_cpwmax3", "d8/d8f/device__math_8F90.html#a3ae3ac974a8472094250a1030934515f", null ],
     [ "device_cpwmin2", "d8/d8f/device__math_8F90.html#ae13c7a7b6c185e17343c0b40a0edc135", null ],
     [ "device_cpwmin3", "d8/d8f/device__math_8F90.html#abc1b3ba3858e026dceb33d5485174f44", null ],
+    [ "device_glmax", "d8/d8f/device__math_8F90.html#a1ee50aeefd384889cdfcbec9e2c22eae", null ],
     [ "device_glsc2", "d8/d8f/device__math_8F90.html#acf1634c9bad3b3a0d6215c9a076629aa", null ],
     [ "device_glsc3", "d8/d8f/device__math_8F90.html#abb89ff66f95f255dc98c0fe714d8ddbf", null ],
     [ "device_glsc3_many", "d8/d8f/device__math_8F90.html#a72276cc6d0ace14e118c8312940699a8", null ],

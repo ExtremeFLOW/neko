@@ -44,6 +44,7 @@ var cuda__math_8f90 =
     [ "cuda_math::cuda_glsc2", "d7/de4/interfacecuda__math_1_1cuda__glsc2.html", "d7/de4/interfacecuda__math_1_1cuda__glsc2" ],
     [ "cuda_math::cuda_glsubnorm2", "d3/d85/interfacecuda__math_1_1cuda__glsubnorm2.html", "d3/d85/interfacecuda__math_1_1cuda__glsubnorm2" ],
     [ "cuda_math::cuda_glsum", "d1/d88/interfacecuda__math_1_1cuda__glsum.html", "d1/d88/interfacecuda__math_1_1cuda__glsum" ],
+    [ "cuda_math::cuda_glmax", "d0/dd9/interfacecuda__math_1_1cuda__glmax.html", "d0/dd9/interfacecuda__math_1_1cuda__glmax" ],
     [ "cuda_math::cuda_absval", "db/d5a/interfacecuda__math_1_1cuda__absval.html", "db/d5a/interfacecuda__math_1_1cuda__absval" ],
     [ "cuda_math::cuda_pwmax_vec2", "d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html", "d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2" ],
     [ "cuda_math::cuda_pwmax_vec3", "d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html", "d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3" ],

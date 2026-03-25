@@ -119,6 +119,7 @@ $(document).ready(function(){initNavTree('df/d8f/statistics-guide.html','../../'
 <li class="level2"><a href="#autotoc_md187">List of fields in output files</a></li>
 </ul>
 </li>
+<li class="level1"><a href="#note-to-users">Note to users</a></li>
 </ul>
 </div>
 <div class="textblock"><p>Statistics in the context of Neko, is the common name for fields that are averaged in time and possible also space.</p>
@@ -134,7 +135,8 @@ $(document).ready(function(){initNavTree('df/d8f/statistics-guide.html','../../'
 <p>$$ \langle u \rangle_t = \sum_{i=0}^N u_i \Delta t_i $$ where \( u_0 \) is the fields value at \( T_0 \) and \( N \) is the number of time steps needed to reach \( T_N \), \( T_N = T_0 + \sum_{i=0}^N \Delta t_i \).</p>
 <h1><a class="anchor" id="fluid-statistics"></a>
 Fluid Statistics</h1>
-<p>In the fluid statistics in Neko, various averages of the different velocity components, derivatives and pressure are computed. In total, 44 "raw statistics" are computed that are required to compute the Reynolds stress budgets, mean fields, and the different terms in the turbulent kinetic energy equation.</p>
+<p>In the fluid statistics in Neko, various averages of the different velocity components, derivatives and pressure are computed. In total, 44 "raw 
+statistics" are computed that are required to compute the Reynolds stress budgets, mean fields, and the different terms in the turbulent kinetic energy equation.</p>
 <h2><a class="anchor" id="autotoc_md179"></a>
 Using statistics</h2>
 <p>Statistics are enabled in the case file as a simcomp with the added argument <code>avg_direction</code>, <code>set_of_stats</code>, and <code>start_time</code>:</p>
@@ -148,7 +150,7 @@ Using statistics</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>set_of_stats</code>   </td><td class="markdownTableBodyNone">What set of stats to compute.   </td><td class="markdownTableBodyNone">basic, full   </td><td class="markdownTableBodyNone">full    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">Not set (but recommended with every 50 timesteps or so    </td></tr>
+<td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">- (recommended every 50 timesteps or so)    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">fluid_statsX*   </td></tr>
 </table>
@@ -161,8 +163,8 @@ Using statistics</h2>
 <div class="line">      &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">      &quot;compute_value&quot;: 4,</div>
 <div class="line">      &quot;output_control&quot;: &quot;simulationtime&quot;,</div>
-<div class="line">      &quot;output_value&quot;: 20,</div>
-<div class="line">      &quot;start_time&quot;:60.0,</div>
+<div class="line">      &quot;output_value&quot;: 20.0,</div>
+<div class="line">      &quot;start_time&quot;: 60.0,</div>
 <div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
 <div class="line">      &quot;set_of_stats&quot;:&quot;basic&quot;</div>
 <div class="line">    }</div>
@@ -185,7 +187,7 @@ List of fields in output files</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone">\( \langle v \rangle \)   </td><td class="markdownTableBodyNone">Y-Velocity    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle w \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity    </td></tr>
+<td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle w \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity (empty if 2D)    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">5   </td><td class="markdownTableBodyNone">\( \langle pp \rangle \)   </td><td class="markdownTableBodyNone">Temperature    </td></tr>
 <tr class="markdownTableRowEven">
@@ -201,7 +203,7 @@ List of fields in output files</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">11   </td><td class="markdownTableBodyNone">\( \langle vw \rangle \)   </td><td class="markdownTableBodyNone">s6    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">12   </td><td class="markdownTableBodyNone">\( \langle uuu \rangle \)   </td><td class="markdownTableBodyNone">s7    </td></tr>
+<td class="markdownTableBodyNone">12   </td><td class="markdownTableBodyNone">\( \langle uuu \rangle \) or \( \langle w \rangle \) (if 2D and <code>basic</code>)   </td><td class="markdownTableBodyNone">s7    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">13   </td><td class="markdownTableBodyNone">\( \langle vvv \rangle \)   </td><td class="markdownTableBodyNone">s8    </td></tr>
 <tr class="markdownTableRowEven">
@@ -265,7 +267,9 @@ List of fields in output files</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">43   </td><td class="markdownTableBodyNone">\( \langle  e13   \rangle \)   </td><td class="markdownTableBodyNone">s38    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">44   </td><td class="markdownTableBodyNone">\( \langle  e23   \rangle \)   </td><td class="markdownTableBodyNone">s39   </td></tr>
+<td class="markdownTableBodyNone">44   </td><td class="markdownTableBodyNone">\( \langle  e23   \rangle \)   </td><td class="markdownTableBodyNone">s39    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">-   </td><td class="markdownTableBodyNone">\( \langle w \rangle \) (only if 2D and <code>full</code>)   </td><td class="markdownTableBodyNone">s40 (only if 2D, empty if 3D)   </td></tr>
 </table>
 <p>where \(e11,e22...\) is computed as: $$ \begin{aligned} e11 &amp;= \left(\frac{\partial u}{\partial x}\right)^2 + \left(\frac{\partial u}{\partial y}\right)^2 + \left(\frac{\partial u}{\partial z}\right)^2 \\ e22 &amp;= \left(\frac{\partial v}{\partial x}\right)^2 + \left(\frac{\partial v}{\partial y}\right)^2 + \left(\frac{\partial v}{\partial z}\right)^2 \\ e33 &amp;= \left(\frac{\partial w}{\partial x}\right)^2 + \left(\frac{\partial w}{\partial y}\right)^2 + \left(\frac{\partial w}{\partial z}\right)^2 \\ e12 &amp;= \frac{\partial u}{\partial x} \frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial v}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial v}{\partial z} \\ e13 &amp;= \frac{\partial u}{\partial x} \frac{\partial w}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial w}{\partial z} \\ e23 &amp;= \frac{\partial v}{\partial x} \frac{\partial w}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial w}{\partial z} \\ \end{aligned} $$</p>
 <h1><a class="anchor" id="autotoc_md181"></a>
@@ -291,9 +295,9 @@ Using statistics</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>set_of_stats</code>   </td><td class="markdownTableBodyNone">What set of stats to compute.   </td><td class="markdownTableBodyNone">basic, full   </td><td class="markdownTableBodyNone">full    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">Not set (but recommended with every 50 timesteps or so)    </td></tr>
+<td class="markdownTableBodyNone"><code>compute_value</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps or simulationtime, depending on compute_control, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive real or int   </td><td class="markdownTableBodyNone">- (recommended every 50 timesteps or so)    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone">scalar_statsX*   </td></tr>
+<td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone"><code>scalar_statsX*</code>   </td></tr>
 </table>
 <p>*The name of the written statistics file will by default be <code>scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run. Note that if you want to compute statistics for multiple scalars, you will need to specify an independent <code>output_filename</code> for each.</p>
 <p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
@@ -305,7 +309,7 @@ Using statistics</h2>
 <div class="line">      &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">      &quot;compute_value&quot;: 4,</div>
 <div class="line">      &quot;output_control&quot;: &quot;simulationtime&quot;,</div>
-<div class="line">      &quot;output_value&quot;: 20,</div>
+<div class="line">      &quot;output_value&quot;: 20.0,</div>
 <div class="line">      &quot;start_time&quot;: 60.0,</div>
 <div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
 <div class="line">      &quot;set_of_stats&quot;:&quot;basic&quot;</div>
@@ -328,7 +332,7 @@ List of fields in output files</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">5   </td><td class="markdownTableBodyNone">\( \langle ss \rangle \)   </td><td class="markdownTableBodyNone">Temperature    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">6   </td><td class="markdownTableBodyNone">\( \langle sss \rangle \)   </td><td class="markdownTableBodyNone">Scalar 1 (s1)    </td></tr>
+<td class="markdownTableBodyNone">6   </td><td class="markdownTableBodyNone">\( \langle sss \rangle \) or \( \langle ws \rangle \) (if 2D and <code>basic</code>)   </td><td class="markdownTableBodyNone">Scalar 1 (s1)    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">7   </td><td class="markdownTableBodyNone">\( \langle ssss \rangle \)   </td><td class="markdownTableBodyNone">Scalar 2 (s2)    </td></tr>
 <tr class="markdownTableRowEven">
@@ -400,7 +404,9 @@ List of fields in output files</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">41   </td><td class="markdownTableBodyNone">\( \langle  e_{vs}   \rangle \)   </td><td class="markdownTableBodyNone">s36    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">42   </td><td class="markdownTableBodyNone">\( \langle  e_{ws}   \rangle \)   </td><td class="markdownTableBodyNone">s37   </td></tr>
+<td class="markdownTableBodyNone">42   </td><td class="markdownTableBodyNone">\( \langle  e_{ws}   \rangle \)   </td><td class="markdownTableBodyNone">s37    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">-   </td><td class="markdownTableBodyNone">\( \langle  ws   \rangle \) (only if 2D and <code>full</code>)   </td><td class="markdownTableBodyNone">s38   </td></tr>
 </table>
 <p>where \(e_{ss}, e_{us}, e_{vs}, e_{ws}\) are computed as: $$ \begin{aligned} e_{ss} &amp;= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\ e_{us} &amp;= \frac{\partial u}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\ e_{vs} &amp;= \frac{\partial v}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\ e_{ws} &amp;= \frac{\partial w}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\ \end{aligned} $$</p>
 <h1><a class="anchor" id="fluid-sgs-statistics"></a>
@@ -433,7 +439,7 @@ Using statistics</h2>
 <div class="line">      &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">      &quot;compute_value&quot;: 4,</div>
 <div class="line">      &quot;output_control&quot;: &quot;simulationtime&quot;,</div>
-<div class="line">      &quot;output_value&quot;: 20,</div>
+<div class="line">      &quot;output_value&quot;: 20.0,</div>
 <div class="line">      &quot;start_time&quot;: 60.0,</div>
 <div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
 <div class="line">    }</div>
@@ -500,7 +506,7 @@ Using statistics</h2>
 <div class="line">      &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">      &quot;compute_value&quot;: 4,</div>
 <div class="line">      &quot;output_control&quot;: &quot;simulationtime&quot;,</div>
-<div class="line">      &quot;output_value&quot;: 20,</div>
+<div class="line">      &quot;output_value&quot;: 20.0,</div>
 <div class="line">      &quot;start_time&quot;: 60.0,</div>
 <div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
 <div class="line">    }</div>
@@ -519,7 +525,7 @@ Using statistics</h2>
 <div class="line">      &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">      &quot;compute_value&quot;: 4,</div>
 <div class="line">      &quot;output_control&quot;: &quot;simulationtime&quot;,</div>
-<div class="line">      &quot;output_value&quot;: 20,</div>
+<div class="line">      &quot;output_value&quot;: 20.0,</div>
 <div class="line">      &quot;start_time&quot;: 60.0,</div>
 <div class="line">      &quot;avg_direction&quot;:&quot;xz&quot;,</div>
 <div class="line">    }</div>
@@ -538,6 +544,13 @@ List of fields in output files</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle \alpha_t \frac{\partial s}{\partial z} \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity   </td></tr>
 </table>
+<h1><a class="anchor" id="note-to-users"></a>
+Note to users</h1>
+<p>The general recommendation is to always use weighted averages to analyse the statistics. When using an arithmetic average, it is important to keep in mind the following two characteristics of the <code>stats0</code> files:</p>
+<ol type="1">
+<li>If one computes statistics from time 0 (<code>"start_time": 0.0</code>), the first sample will be zero-filled (both for scalar and fluid statistics). This issue has been discussed more in detail in <a href="https://github.com/ExtremeFLOW/neko/issues/2378">#2378</a>.</li>
+<li>When <code>"end_time"</code> is an exact multiple of <code>"output_value"</code> (e.g. <code>"end_time": 1000.0</code>, <code>"output_value": 100.0</code>), the resulting <code>.csv</code> file has the last timestep repeated twice, with the second one having zeros everywhere (both for fluid and scalar statistics). This is the intended behaviour of <code>output_at_end</code> - please see <a href="https://neko.cfd/docs/develop/dd/d33/case-file.html">the case file documentation</a>. This issue has been discussed more in detail in <a href="https://github.com/ExtremeFLOW/neko/issues/2278">#2278</a>. </li>
+</ol>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
@@ -545,7 +558,7 @@ List of fields in output files</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Mar 24 2026 04:18:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 25 2026 04:18:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

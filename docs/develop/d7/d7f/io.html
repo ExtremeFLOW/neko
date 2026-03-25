@@ -111,6 +111,7 @@ $(document).ready(function(){initNavTree('d7/d7f/io.html','../../'); initResizab
 <li class="level2"><a href="#vtkhdf-enabling">Enabling VTKHDF output</a></li>
 <li class="level2"><a href="#vtkhdf-file-structure">File structure</a></li>
 <li class="level2"><a href="#vtkhdf-cell-representation">Cell representation</a></li>
+<li class="level2"><a href="#vtkhdf-temporal-vs-non-temporal">Temporal vs non-temporal output</a></li>
 <li class="level2"><a href="#vtkhdf-limitations">Limitations</a></li>
 </ul>
 </li>
@@ -155,7 +156,7 @@ Enabling VTKHDF output</h2>
 </div><!-- fragment --><p>The <code>output_precision</code> setting controls whether field data is written in single or double precision, defaulting to current working precision.</p>
 <h2><a class="anchor" id="vtkhdf-file-structure"></a>
 File structure</h2>
-<p>All time steps are written into a single <code>.vtkhdf</code> file. The file contains a top-level <code>VTKHDF</code> group with the following structure:</p>
+<p>The file contains a top-level <code>VTKHDF</code> group with the following structure:</p>
 <ul>
 <li><b>Mesh datasets</b>: <code>NumberOfPoints</code>, <code>NumberOfCells</code>, <code>NumberOfConnectivityIds</code>, <code>Points</code>, <code>Connectivity</code>, <code>Offsets</code>, and <code>Types</code>. For static meshes, these are written once on the first output call.</li>
 <li><b>PointData group</b>: Contains field datasets. The velocity components <code>u</code>, <code>v</code>, <code>w</code> are automatically grouped into a three-component <code>Velocity</code> vector dataset. The pressure field <code>p</code> is stored as <code>Pressure</code>. All other fields are written as scalar datasets under their original names.</li>
@@ -173,7 +174,11 @@ Cell representation</h2>
 <div class="line">    }</div>
 <div class="line">  }</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="vtkhdf-limitations"></a>
+</div><!-- fragment --><h2><a class="anchor" id="vtkhdf-temporal-vs-non-temporal"></a>
+Temporal vs non-temporal output</h2>
+<p>The VTKHDF system in Neko can write both temporal and non-temporal data. Non-temporal data (called in code without time) is written to a single VTKHDF file, following all the standards defined above. Temporal data (called in code with time) is split into a main VTKHDF file containing the mesh and metadata, and separate HDF5 files containing any field data for each timestep. Each timestep is saved under <code>filename.data/###.h5</code>, while the main VTKHDF file <code>filename.vtkhdf</code> loads these files seamlessly when opened in ParaView. This approach allows for efficient storage and access of large temporal datasets while maintaining compatibility with the VTKHDF specification. Please note that the data must be stored as specified above to function.</p>
+<p>Please see the HDF5 documentation for Virtual Datasets if needed: <a href="https://support.hdfgroup.org/documentation/hdf5/latest/_v_d_s_t_n.html">https://support.hdfgroup.org/documentation/hdf5/latest/_v_d_s_t_n.html</a></p>
+<h2><a class="anchor" id="vtkhdf-limitations"></a>
 Limitations</h2>
 <ul>
 <li>High order Lagrange cells are not supported by all visualisation tools. If you encounter issues visualising the output, try enabling subdivision into linear sub-cells as described above.</li>
@@ -187,7 +192,7 @@ Limitations</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Mar 24 2026 04:18:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Mar 25 2026 04:18:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

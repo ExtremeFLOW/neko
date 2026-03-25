@@ -157,7 +157,8 @@ var index =
         [ "Scalar Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#scalar-sgs-statistics", [
           [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md186", null ],
           [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md187", null ]
-        ] ]
+        ] ],
+        [ "Note to users", "df/d8f/statistics-guide.html#note-to-users", null ]
       ] ],
       [ "Global Interpolation", "dd/d61/global-interpolation.html", [
         [ "Overview", "dd/d61/global-interpolation.html#autotoc_md105", null ],
@@ -208,6 +209,7 @@ var index =
           [ "Enabling VTKHDF output", "d7/d7f/io.html#vtkhdf-enabling", null ],
           [ "File structure", "d7/d7f/io.html#vtkhdf-file-structure", null ],
           [ "Cell representation", "d7/d7f/io.html#vtkhdf-cell-representation", null ],
+          [ "Temporal vs non-temporal output", "d7/d7f/io.html#vtkhdf-temporal-vs-non-temporal", null ],
           [ "Limitations", "d7/d7f/io.html#vtkhdf-limitations", null ]
         ] ]
       ] ],
