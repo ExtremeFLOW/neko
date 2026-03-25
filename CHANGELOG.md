@@ -5,11 +5,11 @@
 - Added the possibility to configure interpolation parameters for `probes`.
 - *BREAKING* Changed the user interface of fluid/scalar initial condition
   to read interpolation parameters from the `interpolation` JSON subdict
-  instead of indivial parameters.
+  instead of individual parameters.
 - Added public variables `GLOBAL_INTERP_PAD` and `GLOBAL_INTERP_TOL`
   in `global_interpolation` as default values for `tolerance` and 
   `padding` parameters.
-- Added the possibility to initialize `global_initialization` from a JSON subdict.
+- Added the possibility to initialize `global_interpolation` from a JSON subdict.
 - Added the `json_get_subdict_or_empty` which seeks a JSON subdict and returns
   an empty object if not found.
 - Added a script to add new unit tests under `contrib/add_unit_test`. Added
