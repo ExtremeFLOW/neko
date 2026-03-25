@@ -47,7 +47,7 @@ module bc_resolver
   use device, only : device_get_ptr, device_memcpy, HOST_TO_DEVICE, &
        DEVICE_TO_HOST
   use device_math, only : device_cfill_mask
-  use field_math, only : field_cfill
+  use field_math, only : field_cfill, field_rzero
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   implicit none
   private
@@ -415,8 +415,10 @@ contains
     type(field_t), pointer :: work3
     type(field_t), pointer :: work4
     integer :: scratch_idx(4)
-    integer, allocatable :: mask_values(:)
-    integer :: i, j, n, m
+    integer, allocatable :: mask_values(:), dof_to_masked(:)
+    integer, allocatable :: incident_count(:), incident_facet(:,:), &
+         incident_el(:,:)
+    integer :: i, j, k, n, m, mask_size, masked_idx, max_incident
     integer :: idx(4), facet
     logical :: c_n, c_t1, c_t2
     real(kind=rp) :: normal(3), ref(3), t1_vec(3), t2_vec(3), len, prio
@@ -485,7 +487,7 @@ contains
 
        ! Note that the face_msk is used, so constraints are only directly
        ! applied to elements that touch the boundary at this point.
-       ! The min here ensures that the most restricive constraint is kept 
+       ! The min here ensures that the most restricive constraint is kept
        ! within a single element.
        do j = 1, bc%facet_msk(0)
           m = bc%facet_msk(j)
@@ -520,6 +522,7 @@ contains
        end if
     end do
     call this%dof_mask%init(mask_values(1:m), m)
+    mask_size = size(mask_values)
 
     ! Allocate constraints
     allocate(this%constraint_n(m))
@@ -555,30 +558,105 @@ contains
     allocate(this%t1(3,m))
     allocate(this%t2(3,m))
 
-    associate(nx => work1, ny => work2, nz => work3)
-      nx%x = 0.0_rp
-      ny%x = 0.0_rp
-      nz%x = 0.0_rp
+    ! Maps a full local dof index to its position in the compact masked-dof
+    ! arrays. A value of zero means the dof is not part of the resolved
+    ! boundary set.
+    allocate(dof_to_masked(n))
+    dof_to_masked = 0
+    do i = 1, size(mask_values)
+       dof_to_masked(mask_values(i)) = i
+    end do
 
-      do i = 1, this%bcs%size()
-         bc => this%bcs%get(i)
-         do j = 1, bc%facet_msk(0)
-            m = bc%facet_msk(j)
-            facet = bc%facet(j)
-            idx = nonlinear_index(m, this%coef%Xh%lx, this%coef%Xh%ly, &
-                 this%coef%Xh%lz)
-            normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
-            nx%x(m,1,1,1) = nx%x(m,1,1,1) + normal(1)
-            ny%x(m,1,1,1) = ny%x(m,1,1,1) + normal(2)
-            nz%x(m,1,1,1) = nz%x(m,1,1,1) + normal(3)
-         end do
+    if (this%coef%msh%gdim .eq. 2) then
+       max_incident = 4
+    else
+       max_incident = 8
+    end if
+
+    allocate(incident_count(mask_size))
+    allocate(incident_facet(max_incident, mask_size))
+    allocate(incident_el(max_incident, mask_size))
+    incident_count = 0
+    incident_facet = 0
+    incident_el = 0
+
+    ! First-pass topological classification:
+    ! for each resolved boundary dof, collect the distinct local (element,
+    ! facet) pairs that touch it through the active BC set. This is the Neko
+    ! analogue of Nek's Step 1 lookup tables, but built directly from the BC
+    ! facet masks and assembled dof ids.
+    !
+    ! At this stage the only question we need answered is whether a resolved
+    ! boundary dof is touched by one local boundary facet or by several. The
+    ! single-facet case is the unambiguous face-node case; multi-facet cases
+    ! are the candidates for later edge/corner handling.
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+       do j = 1, bc%facet_msk(0)
+          k = bc%facet_msk(j)
+          masked_idx = dof_to_masked(k)
+          ! Skip facet nodes that are not part of the resolved boundary dof set.
+          if (masked_idx .eq. 0) cycle
+
+          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%ly, &
+               this%coef%Xh%lz)
+          facet = bc%facet(j)
+
+          m = incident_count(masked_idx) + 1
+          do k = 1, incident_count(masked_idx)
+             ! Avoid double-counting the same local (element, facet) pair.
+             if (incident_el(k, masked_idx) .eq. idx(4) .and. &
+                  incident_facet(k, masked_idx) .eq. facet) then
+                m = k
+                exit
+             end if
+          end do
+
+          ! Nothing to do if this local boundary facet was already recorded.
+          if (m .le. incident_count(masked_idx)) cycle
+          ! The storage bound is chosen to comfortably exceed the expected local
+          ! boundary incidence for quads/hexes. Abort if that assumption fails.
+          if (incident_count(masked_idx) .ge. max_incident) then
+             call neko_error("Boundary resolver incident-facet storage " // &
+                  "exhausted.")
+          end if
+
+          ! Record one more distinct local boundary facet for this dof.
+          incident_count(masked_idx) = incident_count(masked_idx) + 1
+          incident_el(incident_count(masked_idx), masked_idx) = idx(4)
+          incident_facet(incident_count(masked_idx), masked_idx) = facet
+       end do
+    end do
+
+    ! Set normals at unambiguous boundary dofs based on face normals.
+    associate(nx => work1, ny => work2, nz => work3)
+      call field_rzero(nx)
+      call field_rzero(ny)
+      call field_rzero(nz)
+
+      do i = 1, mask_size
+         ! A single incident local facet is the plain face-node case.
+         ! More complicated incidence patterns are left for later passes.
+         if (incident_count(i) .ne. 1) cycle
+
+         j = mask_values(i)
+         idx = nonlinear_index(j, this%coef%Xh%lx, this%coef%Xh%ly, &
+              this%coef%Xh%lz)
+         facet = incident_facet(1, i)
+         normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+
+         nx%x(j,1,1,1) = normal(1)
+         ny%x(j,1,1,1) = normal(2)
+         nz%x(j,1,1,1) = normal(3)
       end do
+
+      !! STOP HERE FOR NOW
 
       this%n = 0.0_rp
       this%t1 = 0.0_rp
       this%t2 = 0.0_rp
 
-      do i = 1, size(mask_values)
+      do i = 1, mask_size
          j = mask_values(i)
          normal(1) = nx%x(j,1,1,1)
          normal(2) = ny%x(j,1,1,1)
@@ -624,9 +702,11 @@ contains
 
     call neko_scratch_registry%relinquish_field(scratch_idx)
 
-    if (allocated(mask_values)) then
-       deallocate(mask_values)
-    end if
+    if (allocated(mask_values)) deallocate(mask_values)
+    if (allocated(dof_to_masked)) deallocate(dof_to_masked)
+    if (allocated(incident_count)) deallocate(incident_count)
+    if (allocated(incident_facet)) deallocate(incident_facet)
+    if (allocated(incident_el)) deallocate(incident_el)
   end subroutine coupled_vector_bc_resolver_finalize
 
   !> Apply the coupled vector boundary constraints in the local basis.
