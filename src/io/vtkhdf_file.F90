@@ -55,15 +55,18 @@ module vtkhdf_file
        h5open_f, h5close_f, &
        h5fcreate_f, h5fopen_f, h5fclose_f, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
-       h5acreate_f, h5awrite_f, h5aclose_f, &
+       h5acreate_f, h5aopen_f, h5awrite_f, h5aclose_f, h5aexists_f, &
        h5dcreate_f, h5dopen_f, h5dwrite_f, h5dclose_f, &
-       h5screate_f, h5screate_simple_f, h5sclose_f, h5sselect_hyperslab_f, &
+       h5tcopy_f, h5tclose_f, h5tset_strpad_f, h5tset_size_f, &
+       h5screate_f, h5screate_simple_f, h5sclose_f, &
+       h5sselect_hyperslab_f, h5sselect_all_f, h5sget_simple_extent_dims_f, &
+       h5dget_space_f, h5dset_extent_f, &
        h5pcreate_f, h5pclose_f, h5pset_fapl_mpio_f, h5pset_dxpl_mpio_f, &
-       h5lexists_f, h5tset_strpad_f, h5tset_size_f, h5tcopy_f, &
+       h5lexists_f, h5ldelete_f, &
        H5P_FILE_ACCESS_F, H5P_DATASET_XFER_F, H5P_DATASET_CREATE_F, &
-       H5F_ACC_TRUNC_F, H5F_ACC_RDWR_F, &
+       H5F_ACC_TRUNC_F, H5F_ACC_RDWR_F, h5pset_chunk_f, &
        H5T_STD_U8LE, H5T_NATIVE_INTEGER, H5T_FORTRAN_S1, H5T_STR_NULLTERM_F, &
-       h5kind_to_type, H5_REAL_KIND, H5_INTEGER_KIND, &
+       h5kind_to_type, H5_REAL_KIND, H5_INTEGER_KIND, h5pset_virtual_f, &
        H5S_SCALAR_F, H5S_SELECT_SET_F, H5FD_MPIO_COLLECTIVE_F, h5p_default_f, &
        H5S_UNLIMITED_F
 #endif
