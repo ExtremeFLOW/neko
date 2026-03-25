@@ -108,7 +108,7 @@ module ale_rigid_kinematics
      !> Stiffness Control.
      !> A placeholder for future options.
      character(len=32) :: stiffness_type = 'built-in'
-     logical :: if_output_phi = .false.
+     logical :: if_output_phi = .true.
      logical :: if_output_stiffness = .false.
      !> Array of Moving Bodies
      type(ale_body_t), allocatable :: bodies(:)
