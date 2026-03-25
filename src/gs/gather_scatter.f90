@@ -42,6 +42,7 @@ module gather_scatter
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
        GS_COMM_NVSHMEM
   use gs_mpi, only : gs_mpi_t
+  use gs_interp, only : gs_interp_t
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
   use gs_device_shmem, only : gs_device_shmem_t
@@ -88,6 +89,7 @@ module gather_scatter
      integer :: shared_facet_offset !< offset for shr. facets
      class(gs_bcknd_t), allocatable :: bcknd !< Gather-scatter backend
      class(gs_comm_t), allocatable :: comm !< Comm. method
+     type(gs_interp_t) :: interp !< Face/edge interpolation
      ! no longer needed for AMR version
      type(htable_i8_t) :: shared_dofs !< Htable of shared dofs
    contains
@@ -160,7 +162,6 @@ contains
        end if
     end if
 
-
     if (present(comm_bcknd)) then
        comm_bcknd_ = comm_bcknd
     else if (use_host_mpi) then
@@ -200,9 +201,12 @@ contains
     ! that rank
     call gs%comm%init_dofs()
 
-    ! Initialise mapping/scheduling and interpolation using connectivity
-    ! information; needed by nonconforming solver
+    ! Initialise mapping/scheduling using connectivitu information
+    ! needed by nonconforming solver
     call gs_init_mapping_schedule(gs)
+    ! Initialise interpolation using connectivity information
+    ! needed by nonconforming solver
+    call gs%interp%init(gs%dofmap%Xh, gs%dofmap%msh%conn)
 
     ! Global number of points not needing to be sent over mpi for gs operations
     ! "Internal points"
@@ -620,6 +624,9 @@ contains
       key(1) = 1
       call sort_tuple(ngh_src, lda1, il, key, 1, ind_src, aa1)
       call sort_tuple(ngh_dst, lda1, il, key, 1, ind_dst, aa1)
+
+      call send_pe%init(vrt%nrank)
+      call recv_pe%init(vrt%nrank)
       do il = 1, vrt%nrank
          call recv_pe%push(vrt%rank(ngh_src(2, il)))
          call send_pe%push(vrt%rank(ngh_dst(2, il)))
@@ -1191,11 +1198,14 @@ contains
     this%nshared_blks = 0
 
     ! reconstruct comm; for now just clearing stacks and deallocating arrays,
-    ! as gs_schedule calls comm%init
+    ! as gs_init_mapping_schedule calls comm%init
     if (allocated(this%comm)) &
          call this%comm%amr_restart(reconstruct, counter, tstep)
 
     call gs_init_mapping_schedule(this)
+
+    ! reconstruct interpolation
+    call this%interp%amr_restart(reconstruct, counter, tstep)
 
     ! Global number of points not needing to be sent over mpi for gs operations
     ! "Internal points"
