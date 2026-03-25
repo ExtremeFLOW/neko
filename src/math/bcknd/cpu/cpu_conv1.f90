@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,11 +40,11 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_end
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_end-e_start+1)
-    real(kind=rp), intent(inout) ::  u(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
     integer :: e_len
 
     e_len = e_end-e_start+1
@@ -60,16 +60,17 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_len
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_len)
-    real(kind=rp), intent(inout) ::  u(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_len)
-    
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, e_len)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_len)
+
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
          jacinv => coef%jacinv)
+      !$omp parallel
       select case (Xh%lx)
       case (14)
          call cpu_conv1_lx14(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
@@ -156,6 +157,7 @@ contains
               drdz(1,1,1, e_start), dsdz(1,1,1, e_start), dtdz(1,1,1, e_start),&
               jacinv(1,1,1, e_start), e_len, Xh%lx)
       end select
+      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_conv1_many
@@ -164,19 +166,19 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, lx)
     integer, intent(in) :: nelv, lx
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -212,21 +214,21 @@ contains
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                      * ( vx(i,1,1,e) &
-                        * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                          + dsdx(i,1,1,e) * duds(i,1,1) &
-                          + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                        + vy(i,1,1,e) &
-                        * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                          + dsdy(i,1,1,e) * duds(i,1,1) &
-                          + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                        + vz(i,1,1,e) &
-                        * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                          + dsdz(i,1,1,e) * duds(i,1,1) &
-                          + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx
 
   subroutine cpu_conv1_lx14(du, u, vx, vy, vz, dx, dy, dz, &
@@ -234,35 +236,35 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 14
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e) &
-                         + dx(i,8) * u(8,j,1,e) &
-                         + dx(i,9) * u(9,j,1,e) &
-                         + dx(i,10) * u(10,j,1,e) &
-                         + dx(i,11) * u(11,j,1,e) &
-                         + dx(i,12) * u(12,j,1,e) &
-                         + dx(i,13) * u(13,j,1,e) &
-                         + dx(i,14) * u(14,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e) &
+                  + dx(i,7) * u(7,j,1,e) &
+                  + dx(i,8) * u(8,j,1,e) &
+                  + dx(i,9) * u(9,j,1,e) &
+                  + dx(i,10) * u(10,j,1,e) &
+                  + dx(i,11) * u(11,j,1,e) &
+                  + dx(i,12) * u(12,j,1,e) &
+                  + dx(i,13) * u(13,j,1,e) &
+                  + dx(i,14) * u(14,j,1,e)
           end do
        end do
 
@@ -270,19 +272,19 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e) &
-                            + dy(j,7) * u(i,7,k,e) &
-                            + dy(j,8) * u(i,8,k,e) &
-                            + dy(j,9) * u(i,9,k,e) &
-                            + dy(j,10) * u(i,10,k,e) &
-                            + dy(j,11) * u(i,11,k,e) &
-                            + dy(j,12) * u(i,12,k,e) &
-                            + dy(j,13) * u(i,13,k,e) &
-                            + dy(j,14) * u(i,14,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e) &
+                     + dy(j,7) * u(i,7,k,e) &
+                     + dy(j,8) * u(i,8,k,e) &
+                     + dy(j,9) * u(i,9,k,e) &
+                     + dy(j,10) * u(i,10,k,e) &
+                     + dy(j,11) * u(i,11,k,e) &
+                     + dy(j,12) * u(i,12,k,e) &
+                     + dy(j,13) * u(i,13,k,e) &
+                     + dy(j,14) * u(i,14,k,e)
              end do
           end do
        end do
@@ -290,39 +292,39 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e) &
-                         + dz(k,7) * u(i,1,7,e) &
-                         + dz(k,8) * u(i,1,8,e) &
-                         + dz(k,9) * u(i,1,9,e) &
-                         + dz(k,10) * u(i,1,10,e) &
-                         + dz(k,11) * u(i,1,11,e) &
-                         + dz(k,12) * u(i,1,12,e) &
-                         + dz(k,13) * u(i,1,13,e) &
-                         + dz(k,14) * u(i,1,14,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e) &
+                  + dz(k,7) * u(i,1,7,e) &
+                  + dz(k,8) * u(i,1,8,e) &
+                  + dz(k,9) * u(i,1,9,e) &
+                  + dz(k,10) * u(i,1,10,e) &
+                  + dz(k,11) * u(i,1,11,e) &
+                  + dz(k,12) * u(i,1,12,e) &
+                  + dz(k,13) * u(i,1,13,e) &
+                  + dz(k,14) * u(i,1,14,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                      * ( vx(i,1,1,e) &
-                        * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                          + dsdx(i,1,1,e) * duds(i,1,1) &
-                          + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                        + vy(i,1,1,e) &
-                        * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                          + dsdy(i,1,1,e) * duds(i,1,1) &
-                          + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                        + vz(i,1,1,e) &
-                        * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                          + dsdz(i,1,1,e) * duds(i,1,1) &
-                          + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx14
 
   subroutine cpu_conv1_lx13(du, u, vx, vy, vz, dx, dy, dz, &
@@ -330,34 +332,34 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 13
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e) &
-                         + dx(i,8) * u(8,j,1,e) &
-                         + dx(i,9) * u(9,j,1,e) &
-                         + dx(i,10) * u(10,j,1,e) &
-                         + dx(i,11) * u(11,j,1,e) &
-                         + dx(i,12) * u(12,j,1,e) &
-                         + dx(i,13) * u(13,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e) &
+                  + dx(i,7) * u(7,j,1,e) &
+                  + dx(i,8) * u(8,j,1,e) &
+                  + dx(i,9) * u(9,j,1,e) &
+                  + dx(i,10) * u(10,j,1,e) &
+                  + dx(i,11) * u(11,j,1,e) &
+                  + dx(i,12) * u(12,j,1,e) &
+                  + dx(i,13) * u(13,j,1,e)
           end do
        end do
 
@@ -365,18 +367,18 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e) &
-                            + dy(j,7) * u(i,7,k,e) &
-                            + dy(j,8) * u(i,8,k,e) &
-                            + dy(j,9) * u(i,9,k,e) &
-                            + dy(j,10) * u(i,10,k,e) &
-                            + dy(j,11) * u(i,11,k,e) &
-                            + dy(j,12) * u(i,12,k,e) &
-                            + dy(j,13) * u(i,13,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e) &
+                     + dy(j,7) * u(i,7,k,e) &
+                     + dy(j,8) * u(i,8,k,e) &
+                     + dy(j,9) * u(i,9,k,e) &
+                     + dy(j,10) * u(i,10,k,e) &
+                     + dy(j,11) * u(i,11,k,e) &
+                     + dy(j,12) * u(i,12,k,e) &
+                     + dy(j,13) * u(i,13,k,e)
              end do
           end do
        end do
@@ -384,38 +386,38 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e) &
-                         + dz(k,7) * u(i,1,7,e) &
-                         + dz(k,8) * u(i,1,8,e) &
-                         + dz(k,9) * u(i,1,9,e) &
-                         + dz(k,10) * u(i,1,10,e) &
-                         + dz(k,11) * u(i,1,11,e) &
-                         + dz(k,12) * u(i,1,12,e) &
-                         + dz(k,13) * u(i,1,13,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e) &
+                  + dz(k,7) * u(i,1,7,e) &
+                  + dz(k,8) * u(i,1,8,e) &
+                  + dz(k,9) * u(i,1,9,e) &
+                  + dz(k,10) * u(i,1,10,e) &
+                  + dz(k,11) * u(i,1,11,e) &
+                  + dz(k,12) * u(i,1,12,e) &
+                  + dz(k,13) * u(i,1,13,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                     * ( vx(i,1,1,e) &
-                       * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                         + dsdx(i,1,1,e) * duds(i,1,1) &
-                         + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                       + vy(i,1,1,e) &
-                       * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                         + dsdy(i,1,1,e) * duds(i,1,1) &
-                         + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                       + vz(i,1,1,e) &
-                       * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                         + dsdz(i,1,1,e) * duds(i,1,1) &
-                         + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx13
 
   subroutine cpu_conv1_lx12(du, u, vx, vy, vz, dx, dy, dz, &
@@ -423,33 +425,33 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 12
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e) &
-                         + dx(i,8) * u(8,j,1,e) &
-                         + dx(i,9) * u(9,j,1,e) &
-                         + dx(i,10) * u(10,j,1,e) &
-                         + dx(i,11) * u(11,j,1,e) &
-                         + dx(i,12) * u(12,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e) &
+                  + dx(i,7) * u(7,j,1,e) &
+                  + dx(i,8) * u(8,j,1,e) &
+                  + dx(i,9) * u(9,j,1,e) &
+                  + dx(i,10) * u(10,j,1,e) &
+                  + dx(i,11) * u(11,j,1,e) &
+                  + dx(i,12) * u(12,j,1,e)
           end do
        end do
 
@@ -457,17 +459,17 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e) &
-                            + dy(j,7) * u(i,7,k,e) &
-                            + dy(j,8) * u(i,8,k,e) &
-                            + dy(j,9) * u(i,9,k,e) &
-                            + dy(j,10) * u(i,10,k,e) &
-                            + dy(j,11) * u(i,11,k,e) &
-                            + dy(j,12) * u(i,12,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e) &
+                     + dy(j,7) * u(i,7,k,e) &
+                     + dy(j,8) * u(i,8,k,e) &
+                     + dy(j,9) * u(i,9,k,e) &
+                     + dy(j,10) * u(i,10,k,e) &
+                     + dy(j,11) * u(i,11,k,e) &
+                     + dy(j,12) * u(i,12,k,e)
              end do
           end do
        end do
@@ -475,37 +477,37 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e) &
-                         + dz(k,7) * u(i,1,7,e) &
-                         + dz(k,8) * u(i,1,8,e) &
-                         + dz(k,9) * u(i,1,9,e) &
-                         + dz(k,10) * u(i,1,10,e) &
-                         + dz(k,11) * u(i,1,11,e) &
-                         + dz(k,12) * u(i,1,12,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e) &
+                  + dz(k,7) * u(i,1,7,e) &
+                  + dz(k,8) * u(i,1,8,e) &
+                  + dz(k,9) * u(i,1,9,e) &
+                  + dz(k,10) * u(i,1,10,e) &
+                  + dz(k,11) * u(i,1,11,e) &
+                  + dz(k,12) * u(i,1,12,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx12
 
   subroutine cpu_conv1_lx11(du, u, vx, vy, vz, dx, dy, dz, &
@@ -513,32 +515,32 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 11
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e) &
-                         + dx(i,8) * u(8,j,1,e) &
-                         + dx(i,9) * u(9,j,1,e) &
-                         + dx(i,10) * u(10,j,1,e) &
-                         + dx(i,11) * u(11,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e) &
+                  + dx(i,7) * u(7,j,1,e) &
+                  + dx(i,8) * u(8,j,1,e) &
+                  + dx(i,9) * u(9,j,1,e) &
+                  + dx(i,10) * u(10,j,1,e) &
+                  + dx(i,11) * u(11,j,1,e)
           end do
        end do
 
@@ -546,16 +548,16 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e) &
-                            + dy(j,7) * u(i,7,k,e) &
-                            + dy(j,8) * u(i,8,k,e) &
-                            + dy(j,9) * u(i,9,k,e) &
-                            + dy(j,10) * u(i,10,k,e) &
-                            + dy(j,11) * u(i,11,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e) &
+                     + dy(j,7) * u(i,7,k,e) &
+                     + dy(j,8) * u(i,8,k,e) &
+                     + dy(j,9) * u(i,9,k,e) &
+                     + dy(j,10) * u(i,10,k,e) &
+                     + dy(j,11) * u(i,11,k,e)
              end do
           end do
        end do
@@ -563,36 +565,36 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e) &
-                         + dz(k,7) * u(i,1,7,e) &
-                         + dz(k,8) * u(i,1,8,e) &
-                         + dz(k,9) * u(i,1,9,e) &
-                         + dz(k,10) * u(i,1,10,e) &
-                         + dz(k,11) * u(i,1,11,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e) &
+                  + dz(k,7) * u(i,1,7,e) &
+                  + dz(k,8) * u(i,1,8,e) &
+                  + dz(k,9) * u(i,1,9,e) &
+                  + dz(k,10) * u(i,1,10,e) &
+                  + dz(k,11) * u(i,1,11,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx11
 
   subroutine cpu_conv1_lx10(du, u, vx, vy, vz, dx, dy, dz, &
@@ -600,31 +602,31 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 10
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e) &
-                         + dx(i,8) * u(8,j,1,e) &
-                         + dx(i,9) * u(9,j,1,e) &
-                         + dx(i,10) * u(10,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e) &
+                  + dx(i,7) * u(7,j,1,e) &
+                  + dx(i,8) * u(8,j,1,e) &
+                  + dx(i,9) * u(9,j,1,e) &
+                  + dx(i,10) * u(10,j,1,e)
           end do
        end do
 
@@ -632,15 +634,15 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e) &
-                            + dy(j,7) * u(i,7,k,e) &
-                            + dy(j,8) * u(i,8,k,e) &
-                            + dy(j,9) * u(i,9,k,e) &
-                            + dy(j,10) * u(i,10,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e) &
+                     + dy(j,7) * u(i,7,k,e) &
+                     + dy(j,8) * u(i,8,k,e) &
+                     + dy(j,9) * u(i,9,k,e) &
+                     + dy(j,10) * u(i,10,k,e)
              end do
           end do
        end do
@@ -648,35 +650,35 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e) &
-                         + dz(k,7) * u(i,1,7,e) &
-                         + dz(k,8) * u(i,1,8,e) &
-                         + dz(k,9) * u(i,1,9,e) &
-                         + dz(k,10) * u(i,1,10,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e) &
+                  + dz(k,7) * u(i,1,7,e) &
+                  + dz(k,8) * u(i,1,8,e) &
+                  + dz(k,9) * u(i,1,9,e) &
+                  + dz(k,10) * u(i,1,10,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx10
 
   subroutine cpu_conv1_lx9(du, u, vx, vy, vz, dx, dy, dz, &
@@ -684,30 +686,30 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 9
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e) &
-                         + dx(i,8) * u(8,j,1,e) &
-                         + dx(i,9) * u(9,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e) &
+                  + dx(i,7) * u(7,j,1,e) &
+                  + dx(i,8) * u(8,j,1,e) &
+                  + dx(i,9) * u(9,j,1,e)
           end do
        end do
 
@@ -715,14 +717,14 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e) &
-                            + dy(j,7) * u(i,7,k,e) &
-                            + dy(j,8) * u(i,8,k,e) &
-                            + dy(j,9) * u(i,9,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e) &
+                     + dy(j,7) * u(i,7,k,e) &
+                     + dy(j,8) * u(i,8,k,e) &
+                     + dy(j,9) * u(i,9,k,e)
              end do
           end do
        end do
@@ -730,34 +732,34 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e) &
-                         + dz(k,7) * u(i,1,7,e) &
-                         + dz(k,8) * u(i,1,8,e) &
-                         + dz(k,9) * u(i,1,9,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e) &
+                  + dz(k,7) * u(i,1,7,e) &
+                  + dz(k,8) * u(i,1,8,e) &
+                  + dz(k,9) * u(i,1,9,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx9
 
   subroutine cpu_conv1_lx8(du, u, vx, vy, vz, dx, dy, dz, &
@@ -765,29 +767,29 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 8
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e) &
-                         + dx(i,8) * u(8,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e) &
+                  + dx(i,7) * u(7,j,1,e) &
+                  + dx(i,8) * u(8,j,1,e)
           end do
        end do
 
@@ -795,13 +797,13 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e) &
-                            + dy(j,7) * u(i,7,k,e) &
-                            + dy(j,8) * u(i,8,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e) &
+                     + dy(j,7) * u(i,7,k,e) &
+                     + dy(j,8) * u(i,8,k,e)
              end do
           end do
        end do
@@ -809,33 +811,33 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e) &
-                         + dz(k,7) * u(i,1,7,e) &
-                         + dz(k,8) * u(i,1,8,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e) &
+                  + dz(k,7) * u(i,1,7,e) &
+                  + dz(k,8) * u(i,1,8,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx8
 
   subroutine cpu_conv1_lx7(du, u, vx, vy, vz, dx, dy, dz, &
@@ -843,28 +845,28 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 7
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e) &
+                  + dx(i,7) * u(7,j,1,e)
           end do
        end do
 
@@ -872,12 +874,12 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e) &
-                            + dy(j,7) * u(i,7,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e) &
+                     + dy(j,7) * u(i,7,k,e)
              end do
           end do
        end do
@@ -885,32 +887,32 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e) &
-                         + dz(k,7) * u(i,1,7,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e) &
+                  + dz(k,7) * u(i,1,7,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx7
 
   subroutine cpu_conv1_lx6(du, u, vx, vy, vz, dx, dy, dz, &
@@ -918,27 +920,27 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 6
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e) &
-                         + dx(i,6) * u(6,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e) &
+                  + dx(i,6) * u(6,j,1,e)
           end do
        end do
 
@@ -946,11 +948,11 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e) &
-                            + dy(j,6) * u(i,6,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e) &
+                     + dy(j,6) * u(i,6,k,e)
              end do
           end do
        end do
@@ -958,31 +960,31 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e) &
-                         + dz(k,6) * u(i,1,6,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e) &
+                  + dz(k,6) * u(i,1,6,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx6
 
   subroutine cpu_conv1_lx5(du, u, vx, vy, vz, dx, dy, dz, &
@@ -990,26 +992,26 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 5
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e) &
-                         + dx(i,5) * u(5,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e) &
+                  + dx(i,5) * u(5,j,1,e)
           end do
        end do
 
@@ -1017,10 +1019,10 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e) &
-                            + dy(j,5) * u(i,5,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e) &
+                     + dy(j,5) * u(i,5,k,e)
              end do
           end do
        end do
@@ -1028,30 +1030,30 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e) &
-                         + dz(k,5) * u(i,1,5,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e) &
+                  + dz(k,5) * u(i,1,5,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx5
 
   subroutine cpu_conv1_lx4(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1059,25 +1061,25 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 4
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e) &
-                         + dx(i,4) * u(4,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e) &
+                  + dx(i,4) * u(4,j,1,e)
           end do
        end do
 
@@ -1085,9 +1087,9 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e) &
-                            + dy(j,4) * u(i,4,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e) &
+                     + dy(j,4) * u(i,4,k,e)
              end do
           end do
        end do
@@ -1095,29 +1097,29 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e) &
-                         + dz(k,4) * u(i,1,4,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e) &
+                  + dz(k,4) * u(i,1,4,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx4
 
   subroutine cpu_conv1_lx3(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1125,24 +1127,24 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 3
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) &
-                         + dx(i,3) * u(3,j,1,e)
+                  + dx(i,2) * u(2,j,1,e) &
+                  + dx(i,3) * u(3,j,1,e)
           end do
        end do
 
@@ -1150,8 +1152,8 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e) &
-                            + dy(j,3) * u(i,3,k,e)
+                     + dy(j,2) * u(i,2,k,e) &
+                     + dy(j,3) * u(i,3,k,e)
              end do
           end do
        end do
@@ -1159,28 +1161,28 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) &
-                         + dz(k,3) * u(i,1,3,e)
+                  + dz(k,2) * u(i,1,2,e) &
+                  + dz(k,3) * u(i,1,3,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx3
 
   subroutine cpu_conv1_lx2(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1188,23 +1190,23 @@ contains
        jacinv, nelv)
     integer, parameter :: lx = 2
     integer, intent(in) :: nelv
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
              dudr(i,j,1) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e)
+                  + dx(i,2) * u(2,j,1,e)
           end do
        end do
 
@@ -1212,7 +1214,7 @@ contains
           do j = 1, lx
              do i = 1, lx
                 duds(i,j,k) = dy(j,1) * u(i,1,k,e) &
-                            + dy(j,2) * u(i,2,k,e)
+                     + dy(j,2) * u(i,2,k,e)
              end do
           end do
        end do
@@ -1220,27 +1222,27 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dudt(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e)
+                  + dz(k,2) * u(i,1,2,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = jacinv(i,1,1,e) &
-                       * ( vx(i,1,1,e) &
-                         * ( drdx(i,1,1,e) * dudr(i,1,1) &
-                           + dsdx(i,1,1,e) * duds(i,1,1) &
-                           + dtdx(i,1,1,e) * dudt(i,1,1) ) &
-                         + vy(i,1,1,e) &
-                         * ( drdy(i,1,1,e) * dudr(i,1,1) &
-                           + dsdy(i,1,1,e) * duds(i,1,1) &
-                           + dtdy(i,1,1,e) * dudt(i,1,1) ) &
-                         + vz(i,1,1,e) &
-                         * ( drdz(i,1,1,e) * dudr(i,1,1) &
-                           + dsdz(i,1,1,e) * duds(i,1,1) &
-                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+               * ( vx(i,1,1,e) &
+               * ( drdx(i,1,1,e) * dudr(i,1,1) &
+               + dsdx(i,1,1,e) * duds(i,1,1) &
+               + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+               + vy(i,1,1,e) &
+               * ( drdy(i,1,1,e) * dudr(i,1,1) &
+               + dsdy(i,1,1,e) * duds(i,1,1) &
+               + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+               + vz(i,1,1,e) &
+               * ( drdz(i,1,1,e) * dudr(i,1,1) &
+               + dsdz(i,1,1,e) * duds(i,1,1) &
+               + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-
+    !$omp end do
   end subroutine cpu_conv1_lx2
 
   subroutine opr_cpu_conv1_single(du, u, vx, vy, vz, Xh, coef, e)
@@ -1248,12 +1250,12 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_len)
-    real(kind=rp), intent(inout) ::  u(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_len)
-    
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, e_len)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_len)
+
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
@@ -1348,20 +1350,21 @@ contains
 
   end subroutine opr_cpu_conv1_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, lx)
     integer, intent(in) :: lx
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     real(kind=rp) :: tmp
     integer :: i, j, k, l
 
@@ -1386,7 +1389,7 @@ contains
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           tmp = 0.0_rp
@@ -1396,56 +1399,57 @@ contains
           dudt(i,1,k) = tmp
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                * ( vx(i,1,1) &
-                  * ( drdx(i,1,1) * dudr(i,1,1) &
-                    + dsdx(i,1,1) * duds(i,1,1) &
-                    + dtdx(i,1,1) * dudt(i,1,1) ) &
-                  + vy(i,1,1) &
-                  * ( drdy(i,1,1) * dudr(i,1,1) &
-                    + dsdy(i,1,1) * duds(i,1,1) &
-                    + dtdy(i,1,1) * dudt(i,1,1) ) &
-                  + vz(i,1,1) &
-                  * ( drdz(i,1,1) * dudr(i,1,1) &
-                    + dsdz(i,1,1) * duds(i,1,1) &
-                    + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
-    
+
   end subroutine cpu_conv1_lx_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx14_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 14
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1) &
-                      + dx(i,7) * u(7,j,1) &
-                      + dx(i,8) * u(8,j,1) &
-                      + dx(i,9) * u(9,j,1) &
-                      + dx(i,10) * u(10,j,1) &
-                      + dx(i,11) * u(11,j,1) &
-                      + dx(i,12) * u(12,j,1) &
-                      + dx(i,13) * u(13,j,1) &
-                      + dx(i,14) * u(14,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1) &
+               + dx(i,7) * u(7,j,1) &
+               + dx(i,8) * u(8,j,1) &
+               + dx(i,9) * u(9,j,1) &
+               + dx(i,10) * u(10,j,1) &
+               + dx(i,11) * u(11,j,1) &
+               + dx(i,12) * u(12,j,1) &
+               + dx(i,13) * u(13,j,1) &
+               + dx(i,14) * u(14,j,1)
        end do
     end do
 
@@ -1453,19 +1457,19 @@ contains
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k) &
-                         + dy(j,7) * u(i,7,k) &
-                         + dy(j,8) * u(i,8,k) &
-                         + dy(j,9) * u(i,9,k) &
-                         + dy(j,10) * u(i,10,k) &
-                         + dy(j,11) * u(i,11,k) &
-                         + dy(j,12) * u(i,12,k) &
-                         + dy(j,13) * u(i,13,k) &
-                         + dy(j,14) * u(i,14,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k) &
+                  + dy(j,7) * u(i,7,k) &
+                  + dy(j,8) * u(i,8,k) &
+                  + dy(j,9) * u(i,9,k) &
+                  + dy(j,10) * u(i,10,k) &
+                  + dy(j,11) * u(i,11,k) &
+                  + dy(j,12) * u(i,12,k) &
+                  + dy(j,13) * u(i,13,k) &
+                  + dy(j,14) * u(i,14,k)
           end do
        end do
     end do
@@ -1473,159 +1477,160 @@ contains
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6) &
-                      + dz(k,7) * u(i,1,7) &
-                      + dz(k,8) * u(i,1,8) &
-                      + dz(k,9) * u(i,1,9) &
-                      + dz(k,10) * u(i,1,10) &
-                      + dz(k,11) * u(i,1,11) &
-                      + dz(k,12) * u(i,1,12) &
-                      + dz(k,13) * u(i,1,13) &
-                      + dz(k,14) * u(i,1,14)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6) &
+               + dz(k,7) * u(i,1,7) &
+               + dz(k,8) * u(i,1,8) &
+               + dz(k,9) * u(i,1,9) &
+               + dz(k,10) * u(i,1,10) &
+               + dz(k,11) * u(i,1,11) &
+               + dz(k,12) * u(i,1,12) &
+               + dz(k,13) * u(i,1,13) &
+               + dz(k,14) * u(i,1,14)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                   * ( vx(i,1,1) &
-                     * ( drdx(i,1,1) * dudr(i,1,1) &
-                       + dsdx(i,1,1) * duds(i,1,1) &
-                       + dtdx(i,1,1) * dudt(i,1,1) ) &
-                     + vy(i,1,1) &
-                     * ( drdy(i,1,1) * dudr(i,1,1) &
-                       + dsdy(i,1,1) * duds(i,1,1) &
-                       + dtdy(i,1,1) * dudt(i,1,1) ) &
-                     + vz(i,1,1) &
-                     * ( drdz(i,1,1) * dudr(i,1,1) &
-                       + dsdz(i,1,1) * duds(i,1,1) &
-                       + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
-  
+
   end subroutine cpu_conv1_lx14_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx13_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 13
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1) &
-                      + dx(i,7) * u(7,j,1) &
-                      + dx(i,8) * u(8,j,1) &
-                      + dx(i,9) * u(9,j,1) &
-                      + dx(i,10) * u(10,j,1) &
-                      + dx(i,11) * u(11,j,1) &
-                      + dx(i,12) * u(12,j,1) &
-                      + dx(i,13) * u(13,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1) &
+               + dx(i,7) * u(7,j,1) &
+               + dx(i,8) * u(8,j,1) &
+               + dx(i,9) * u(9,j,1) &
+               + dx(i,10) * u(10,j,1) &
+               + dx(i,11) * u(11,j,1) &
+               + dx(i,12) * u(12,j,1) &
+               + dx(i,13) * u(13,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k) &
-                         + dy(j,7) * u(i,7,k) &
-                         + dy(j,8) * u(i,8,k) &
-                         + dy(j,9) * u(i,9,k) &
-                         + dy(j,10) * u(i,10,k) &
-                         + dy(j,11) * u(i,11,k) &
-                         + dy(j,12) * u(i,12,k) &
-                         + dy(j,13) * u(i,13,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k) &
+                  + dy(j,7) * u(i,7,k) &
+                  + dy(j,8) * u(i,8,k) &
+                  + dy(j,9) * u(i,9,k) &
+                  + dy(j,10) * u(i,10,k) &
+                  + dy(j,11) * u(i,11,k) &
+                  + dy(j,12) * u(i,12,k) &
+                  + dy(j,13) * u(i,13,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6) &
-                      + dz(k,7) * u(i,1,7) &
-                      + dz(k,8) * u(i,1,8) &
-                      + dz(k,9) * u(i,1,9) &
-                      + dz(k,10) * u(i,1,10) &
-                      + dz(k,11) * u(i,1,11) &
-                      + dz(k,12) * u(i,1,12) &
-                      + dz(k,13) * u(i,1,13)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6) &
+               + dz(k,7) * u(i,1,7) &
+               + dz(k,8) * u(i,1,8) &
+               + dz(k,9) * u(i,1,9) &
+               + dz(k,10) * u(i,1,10) &
+               + dz(k,11) * u(i,1,11) &
+               + dz(k,12) * u(i,1,12) &
+               + dz(k,13) * u(i,1,13)
        end do
     end do
 
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                  * ( vx(i,1,1) &
-                    * ( drdx(i,1,1) * dudr(i,1,1) &
-                      + dsdx(i,1,1) * duds(i,1,1) &
-                      + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                    * ( drdy(i,1,1) * dudr(i,1,1) &
-                      + dsdy(i,1,1) * duds(i,1,1) &
-                      + dtdy(i,1,1) * dudt(i,1,1) ) &
-                    + vz(i,1,1) &
-                    * ( drdz(i,1,1) * dudr(i,1,1) &
-                      + dsdz(i,1,1) * duds(i,1,1) &
-                      + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx13_single
 
-  
+  !OCL SERIAL
   subroutine cpu_conv1_lx12_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 12
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1) &
-                      + dx(i,7) * u(7,j,1) &
-                      + dx(i,8) * u(8,j,1) &
-                      + dx(i,9) * u(9,j,1) &
-                      + dx(i,10) * u(10,j,1) &
-                      + dx(i,11) * u(11,j,1) &
-                      + dx(i,12) * u(12,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1) &
+               + dx(i,7) * u(7,j,1) &
+               + dx(i,8) * u(8,j,1) &
+               + dx(i,9) * u(9,j,1) &
+               + dx(i,10) * u(10,j,1) &
+               + dx(i,11) * u(11,j,1) &
+               + dx(i,12) * u(12,j,1)
        end do
     end do
 
@@ -1633,17 +1638,17 @@ contains
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k) &
-                         + dy(j,7) * u(i,7,k) &
-                         + dy(j,8) * u(i,8,k) &
-                         + dy(j,9) * u(i,9,k) &
-                         + dy(j,10) * u(i,10,k) &
-                         + dy(j,11) * u(i,11,k) &
-                         + dy(j,12) * u(i,12,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k) &
+                  + dy(j,7) * u(i,7,k) &
+                  + dy(j,8) * u(i,8,k) &
+                  + dy(j,9) * u(i,9,k) &
+                  + dy(j,10) * u(i,10,k) &
+                  + dy(j,11) * u(i,11,k) &
+                  + dy(j,12) * u(i,12,k)
           end do
        end do
     end do
@@ -1651,66 +1656,67 @@ contains
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6) &
-                      + dz(k,7) * u(i,1,7) &
-                      + dz(k,8) * u(i,1,8) &
-                      + dz(k,9) * u(i,1,9) &
-                      + dz(k,10) * u(i,1,10) &
-                      + dz(k,11) * u(i,1,11) &
-                      + dz(k,12) * u(i,1,12)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6) &
+               + dz(k,7) * u(i,1,7) &
+               + dz(k,8) * u(i,1,8) &
+               + dz(k,9) * u(i,1,9) &
+               + dz(k,10) * u(i,1,10) &
+               + dz(k,11) * u(i,1,11) &
+               + dz(k,12) * u(i,1,12)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx12_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx11_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 11
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1) &
-                      + dx(i,7) * u(7,j,1) &
-                      + dx(i,8) * u(8,j,1) &
-                      + dx(i,9) * u(9,j,1) &
-                      + dx(i,10) * u(10,j,1) &
-                      + dx(i,11) * u(11,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1) &
+               + dx(i,7) * u(7,j,1) &
+               + dx(i,8) * u(8,j,1) &
+               + dx(i,9) * u(9,j,1) &
+               + dx(i,10) * u(10,j,1) &
+               + dx(i,11) * u(11,j,1)
        end do
     end do
 
@@ -1718,236 +1724,239 @@ contains
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k) &
-                         + dy(j,7) * u(i,7,k) &
-                         + dy(j,8) * u(i,8,k) &
-                         + dy(j,9) * u(i,9,k) &
-                         + dy(j,10) * u(i,10,k) &
-                         + dy(j,11) * u(i,11,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k) &
+                  + dy(j,7) * u(i,7,k) &
+                  + dy(j,8) * u(i,8,k) &
+                  + dy(j,9) * u(i,9,k) &
+                  + dy(j,10) * u(i,10,k) &
+                  + dy(j,11) * u(i,11,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6) &
-                      + dz(k,7) * u(i,1,7) &
-                      + dz(k,8) * u(i,1,8) &
-                      + dz(k,9) * u(i,1,9) &
-                      + dz(k,10) * u(i,1,10) &
-                      + dz(k,11) * u(i,1,11)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6) &
+               + dz(k,7) * u(i,1,7) &
+               + dz(k,8) * u(i,1,8) &
+               + dz(k,9) * u(i,1,9) &
+               + dz(k,10) * u(i,1,10) &
+               + dz(k,11) * u(i,1,11)
        end do
     end do
 
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                         + dsdx(i,1,1) * duds(i,1,1) &
-                         + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx11_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx10_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 10
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1) &
-                      + dx(i,7) * u(7,j,1) &
-                      + dx(i,8) * u(8,j,1) &
-                      + dx(i,9) * u(9,j,1) &
-                      + dx(i,10) * u(10,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1) &
+               + dx(i,7) * u(7,j,1) &
+               + dx(i,8) * u(8,j,1) &
+               + dx(i,9) * u(9,j,1) &
+               + dx(i,10) * u(10,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k) &
-                         + dy(j,7) * u(i,7,k) &
-                         + dy(j,8) * u(i,8,k) &
-                         + dy(j,9) * u(i,9,k) &
-                         + dy(j,10) * u(i,10,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k) &
+                  + dy(j,7) * u(i,7,k) &
+                  + dy(j,8) * u(i,8,k) &
+                  + dy(j,9) * u(i,9,k) &
+                  + dy(j,10) * u(i,10,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6) &
-                      + dz(k,7) * u(i,1,7) &
-                      + dz(k,8) * u(i,1,8) &
-                      + dz(k,9) * u(i,1,9) &
-                      + dz(k,10) * u(i,1,10)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6) &
+               + dz(k,7) * u(i,1,7) &
+               + dz(k,8) * u(i,1,8) &
+               + dz(k,9) * u(i,1,9) &
+               + dz(k,10) * u(i,1,10)
        end do
     end do
-       
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx10_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx9_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 9
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1) &
-                      + dx(i,7) * u(7,j,1) &
-                      + dx(i,8) * u(8,j,1) &
-                      + dx(i,9) * u(9,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1) &
+               + dx(i,7) * u(7,j,1) &
+               + dx(i,8) * u(8,j,1) &
+               + dx(i,9) * u(9,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k) &
-                         + dy(j,7) * u(i,7,k) &
-                         + dy(j,8) * u(i,8,k) &
-                         + dy(j,9) * u(i,9,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k) &
+                  + dy(j,7) * u(i,7,k) &
+                  + dy(j,8) * u(i,8,k) &
+                  + dy(j,9) * u(i,9,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6) &
-                      + dz(k,7) * u(i,1,7) &
-                      + dz(k,8) * u(i,1,8) &
-                      + dz(k,9) * u(i,1,9)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6) &
+               + dz(k,7) * u(i,1,7) &
+               + dz(k,8) * u(i,1,8) &
+               + dz(k,9) * u(i,1,9)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
-    
+
   end subroutine cpu_conv1_lx9_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx8_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 8
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1) &
-                      + dx(i,7) * u(7,j,1) &
-                      + dx(i,8) * u(8,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1) &
+               + dx(i,7) * u(7,j,1) &
+               + dx(i,8) * u(8,j,1)
        end do
     end do
 
@@ -1955,209 +1964,212 @@ contains
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k) &
-                         + dy(j,7) * u(i,7,k) &
-                         + dy(j,8) * u(i,8,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k) &
+                  + dy(j,7) * u(i,7,k) &
+                  + dy(j,8) * u(i,8,k)
           end do
        end do
     end do
-       
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6) &
-                      + dz(k,7) * u(i,1,7) &
-                      + dz(k,8) * u(i,1,8)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6) &
+               + dz(k,7) * u(i,1,7) &
+               + dz(k,8) * u(i,1,8)
        end do
     end do
 
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
-    
+
   end subroutine cpu_conv1_lx8_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx7_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 7
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1) &
-                      + dx(i,7) * u(7,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1) &
+               + dx(i,7) * u(7,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k) &
-                         + dy(j,7) * u(i,7,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k) &
+                  + dy(j,7) * u(i,7,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6) &
-                      + dz(k,7) * u(i,1,7)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6) &
+               + dz(k,7) * u(i,1,7)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx7_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx6_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 6
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1) &
-                      + dx(i,6) * u(6,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1) &
+               + dx(i,6) * u(6,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k) &
-                         + dy(j,6) * u(i,6,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k) &
+                  + dy(j,6) * u(i,6,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5) &
-                      + dz(k,6) * u(i,1,6)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5) &
+               + dz(k,6) * u(i,1,6)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx6_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx5_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 5
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1) &
-                      + dx(i,5) * u(5,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1) &
+               + dx(i,5) * u(5,j,1)
        end do
     end do
 
@@ -2165,133 +2177,135 @@ contains
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k) &
-                         + dy(j,5) * u(i,5,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k) &
+                  + dy(j,5) * u(i,5,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4) &
-                      + dz(k,5) * u(i,1,5)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4) &
+               + dz(k,5) * u(i,1,5)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx5_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx4_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 4
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1) &
-                      + dx(i,4) * u(4,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1) &
+               + dx(i,4) * u(4,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k) &
-                         + dy(j,4) * u(i,4,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k) &
+                  + dy(j,4) * u(i,4,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3) &
-                      + dz(k,4) * u(i,1,4)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3) &
+               + dz(k,4) * u(i,1,4)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx4_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx3_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 3
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1) &
-                      + dx(i,3) * u(3,j,1)
+               + dx(i,2) * u(2,j,1) &
+               + dx(i,3) * u(3,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k) &
-                         + dy(j,3) * u(i,3,k)
+                  + dy(j,2) * u(i,2,k) &
+                  + dy(j,3) * u(i,3,k)
           end do
        end do
     end do
@@ -2299,81 +2313,82 @@ contains
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2) &
-                      + dz(k,3) * u(i,1,3)
+               + dz(k,2) * u(i,1,2) &
+               + dz(k,3) * u(i,1,3)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx3_single
 
+  !OCL SERIAL
   subroutine cpu_conv1_lx2_single(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, jacinv)
     integer, parameter :: lx = 2
-    real(kind=rp), dimension(lx, lx, lx), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx, lx, lx), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: u, vx, vy, vz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) ::  dudr
-    real(kind=rp), dimension(lx, lx, lx) ::  duds
-    real(kind=rp), dimension(lx, lx, lx) ::  dudt
+    real(kind=rp), dimension(lx, lx, lx) :: dudr
+    real(kind=rp), dimension(lx, lx, lx) :: duds
+    real(kind=rp), dimension(lx, lx, lx) :: dudt
     integer :: i, j, k
 
     do j = 1, lx * lx
        do i = 1, lx
           dudr(i,j,1) = dx(i,1) * u(1,j,1) &
-                      + dx(i,2) * u(2,j,1)
+               + dx(i,2) * u(2,j,1)
        end do
     end do
-    
+
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
              duds(i,j,k) = dy(j,1) * u(i,1,k) &
-                         + dy(j,2) * u(i,2,k)
+                  + dy(j,2) * u(i,2,k)
           end do
        end do
     end do
-    
+
     do k = 1, lx
        do i = 1, lx*lx
           dudt(i,1,k) = dz(k,1) * u(i,1,1) &
-                      + dz(k,2) * u(i,1,2)
+               + dz(k,2) * u(i,1,2)
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        du(i,1,1) = jacinv(i,1,1) &
-                    * ( vx(i,1,1) &
-                      * ( drdx(i,1,1) * dudr(i,1,1) &
-                        + dsdx(i,1,1) * duds(i,1,1) &
-                        + dtdx(i,1,1) * dudt(i,1,1) ) &
-                      + vy(i,1,1) &
-                      * ( drdy(i,1,1) * dudr(i,1,1) &
-                        + dsdy(i,1,1) * duds(i,1,1) &
-                        + dtdy(i,1,1) * dudt(i,1,1) ) &
-                      + vz(i,1,1) &
-                      * ( drdz(i,1,1) * dudr(i,1,1) &
-                        + dsdz(i,1,1) * duds(i,1,1) &
-                        + dtdz(i,1,1) * dudt(i,1,1) ) )
+            * ( vx(i,1,1) &
+            * ( drdx(i,1,1) * dudr(i,1,1) &
+            + dsdx(i,1,1) * duds(i,1,1) &
+            + dtdx(i,1,1) * dudt(i,1,1) ) &
+            + vy(i,1,1) &
+            * ( drdy(i,1,1) * dudr(i,1,1) &
+            + dsdy(i,1,1) * duds(i,1,1) &
+            + dtdy(i,1,1) * dudt(i,1,1) ) &
+            + vz(i,1,1) &
+            * ( drdz(i,1,1) * dudr(i,1,1) &
+            + dsdz(i,1,1) * duds(i,1,1) &
+            + dtdz(i,1,1) * dudt(i,1,1) ) )
     end do
 
   end subroutine cpu_conv1_lx2_single

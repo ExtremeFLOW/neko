@@ -70,7 +70,7 @@ Please refer to the documentation of ADIOS2 (and the specific compression
 library) to configure the data "operators" of the parallel I/O library.
 
 The tool `adios2_to_nek5000` can be used to decompress the field data for
-postprocessing and visualization with the conventional nek5000 format.
+postprocessing and visualisation with the conventional nek5000 format.
 Additionally, the data can be compressed using this tool as a postprocessing
 step using the `adios2.xml` configuration and a given uncompressed data set as
 input.
@@ -93,10 +93,10 @@ workflow to compare and find an optimal compression rate with an acceptable
 accuracy loss. The value of the PSNR decreases with increasing accuracy loss.
 Tune the compression by increasing the compression ratio until a desired lower
 limiting value for the PSNR is reached. As a rule of thumb, target values of 60
-or 40 can be used as lower limit for accurate postprocessing or visualization,
+or 40 can be used as lower limit for accurate postprocessing or visualisation,
 respectively.  Separately, it is recommended to check for compression errors
 from lossy compressors in the specific quantities of interest in postprocessing
-and visualization.
+and visualisation.
 
 ## Checkpoint files
 Simulations cannot be restarted from `.fld` files (although you can use an `fld`
@@ -104,3 +104,105 @@ to provide initial conditions). Instead, separate checkpoint files can be output
 for the purpose of restarts. These contain additional information allowing a
 clean restart, with, e.g., the correct time integration order. A separate file
 format, `.chkp` is adopted for the checkpoint files.
+
+## VTKHDF output {#vtkhdf-output}
+
+Neko supports output in the
+[VTKHDF](https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#vtkhdf-file-format)
+file format, which stores field data in HDF5 files following the VTKHDF
+UnstructuredGrid specification (version 2.6). The resulting `.vtkhdf` files can
+be opened directly in ParaView (version 5.12 or later) without any additional
+metadata files.
+
+@attention The VTKHDF output format is still experimental and may change in
+future releases.
+
+### Prerequisites {#vtkhdf-prerequisites}
+
+VTKHDF output requires that Neko is built with HDF5 support. If HDF5 is not
+available, attempting to use the VTKHDF format will result in an error. The
+HDF5 library must be compiled with MPI (parallel) support, since all I/O is
+performed collectively.
+
+### Enabling VTKHDF output {#vtkhdf-enabling}
+
+To use VTKHDF as the output format, set `output_format` to `vtkhdf` in the
+`case` object of the case file:
+
+```json
+{
+  "case": {
+    "output_format": "vtkhdf",
+    "output_precision": "single"
+  }
+}
+```
+
+The `output_precision` setting controls whether field data is written in
+single or double precision, defaulting to current working precision.
+
+### File structure {#vtkhdf-file-structure}
+
+The file contains a top-level `VTKHDF` group with the following structure:
+
+- **Mesh datasets**: `NumberOfPoints`, `NumberOfCells`,
+  `NumberOfConnectivityIds`, `Points`, `Connectivity`, `Offsets`, and `Types`.
+  For static meshes, these are written once on the first output call.
+- **PointData group**: Contains field datasets. The velocity components `u`,
+  `v`, `w` are automatically grouped into a three-component `Velocity` vector
+  dataset. The pressure field `p` is stored as `Pressure`. All other fields are
+  written as scalar datasets under their original names.
+- **Steps group**: Stores temporal metadata including time values, the number
+  of steps written, and offset arrays that allow ParaView to locate each time
+  step's data within the concatenated datasets.
+
+### Cell representation {#vtkhdf-cell-representation}
+
+By default, each spectral element is written as a single high-order VTK
+Lagrange cell (`VTK_LAGRANGE_HEXAHEDRON` in 3D, `VTK_LAGRANGE_QUADRILATERAL`
+in 2D). This preserves the polynomial basis of the spectral element and
+produces compact output files.
+
+Alternatively, spectral elements can be subdivided into linear sub-cells
+(`VTK_HEXAHEDRON` in 3D, `VTK_QUAD` in 2D), writing one degree of freedom per
+sub-cell vertex. This results in larger files but may offer broader
+compatibility with visualisation tools that have limited support for high-order
+Lagrange cells. This subdivision mimics more closely how tools like ParaView
+read the Nek5000 fld files, and may be necessary for visualising the output.
+Subdivision is enabled by setting `output_subdivide` to `true` in the `case`
+object of the case file:
+
+```json
+{
+  "case": {
+    "fluid": {
+      "output_format": "vtkhdf",
+      "output_subdivide": true
+    }
+  }
+}
+```
+
+### Temporal vs non-temporal output {#vtkhdf-temporal-vs-non-temporal}
+
+The VTKHDF system in Neko can write both temporal and non-temporal data.
+Non-temporal data (called in code without time) is written to a single VTKHDF
+file, following all the standards defined above. Temporal data (called in code
+with time) is split into a main VTKHDF file containing the mesh and metadata,
+and separate HDF5 files containing any field data for each timestep. Each
+timestep is saved under `filename.data/###.h5`, while the main VTKHDF file
+`filename.vtkhdf` loads these files seamlessly when opened in ParaView. This
+approach allows for efficient storage and access of large temporal datasets
+while maintaining compatibility with the VTKHDF specification. Please note that
+the data must be stored as specified above to function.
+
+Please see the HDF5 documentation for Virtual Datasets if needed:
+https://support.hdfgroup.org/documentation/hdf5/latest/_v_d_s_t_n.html
+
+### Limitations {#vtkhdf-limitations}
+
+- High order Lagrange cells are not supported by all visualisation tools. If you
+  encounter issues visualising the output, try enabling subdivision into linear
+  sub-cells as described above.
+- Reading `.vtkhdf` files back into Neko is not currently supported.
+- Adaptive mesh refinement (AMR) output is not yet implemented.
