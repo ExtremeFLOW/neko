@@ -52,7 +52,8 @@ module overset_interface_vector
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
-  use utils, only : neko_error
+  use utils, only : neko_error, nonlinear_index, linear_index
+  use stack, only: stack_i4_t
   use json_module, only : json_file
   use field_list, only : field_list_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
@@ -74,7 +75,7 @@ module overset_interface_vector
      !> Interpolator
      type(global_interpolation_t) :: interface_interpolator
      !> Mask for the overset interface points.
-     type(mask_t) :: overset_mask
+     type(mask_t) :: interface_dof_mask
      !> Vectors holding the dof coordinates for cases where mesh moves
      type(vector_t) :: x_dof, y_dof, z_dof
      !> Function pointer to the user routine performing the update of the values
@@ -298,6 +299,12 @@ contains
     class(overset_interface_vector_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
     logical :: only_facets_
+    type(mask_t) :: temp_mask
+    logical, allocatable :: found(:)
+    integer :: i, j, k, e, new_size, nelems
+    integer :: lx, ly, lz
+    integer :: nonlinear_idx(4), linear_idx
+    type(stack_i4_t) :: stack
 
     if (present(only_facets)) then
        only_facets_ = only_facets
@@ -315,9 +322,42 @@ contains
     call this%bc_v%finalize(only_facets_)
     call this%bc_w%finalize(only_facets_)
 
-    !> adperez: here create a new mask_t based on the 0 masks for the overset mesh
+    !> Create a new mask_t based on the 0-mask for the overset boundary points
+    call this%interface_dof_mask%init(this%msk(1:this%msk(0)), this%msk(0))
    
-    !> adperez: create a mask that marks the full elements
+    !> Create a mask that marks the full elements
+    !! containing overset boundary points
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
+    allocate(found(this%msh%nelv))
+    found = .false. 
+    !! Find sem elements that contain the boundary points
+    do i = 1, this%msk(0)
+      linear_idx = this%msk(i)
+      nonlinear_idx = nonlinear_index(linear_idx, lx, ly, lz)
+      found(nonlinear_idx(4)) = .true. 
+    end do
+    !! fill the stack containing the gll indices
+    nelems = 0
+    call stack%init()
+    do e = 1, this%msh%nelv
+       if (found(e)) then
+          nelems = nelems + 1
+          do k = 1, this%Xh%lz
+             do j = 1, this%Xh%ly
+                do i = 1, this%Xh%lx
+                   linear_idx = linear_index(i, j, k, e, lx, ly, lz) 
+                   call stack%push(linear_idx)
+                end do
+             end do
+          end do
+       end if
+    end do
+    deallocate(found)
+    call temp_mask%init(stack%array(), stack%size())
+    call stack%free()
+
     
     !> adperez: here create a new mask that is used to initialize the interp
 
