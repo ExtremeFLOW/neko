@@ -69,8 +69,8 @@ The `global_interpolation_t` type encapsulates the functionality for global inte
 #### Initialization
 - `init_xyz(x, y, z, gdim, nelv, Xh, comm, tol, pad)`: Initializes the global interpolation object using coordinates and mesh information.
 - `init_dof(dofmap, comm, tol, pad)`: Initializes the object using a `dofmap_t` instance.
-- `init_json_xyz(x, y, z, gdim, nelv, Xh, comm, params_subdict)`: Initializes the global interpolation object using coordinates and mesh information, and a JSON subdict for parameters.
-- `init_json_dof(dofmap, comm, params_subdict)`: Initializes the object using a `dofmap_t` instance, and a JSON subdict for parameters.
+- `init_json_xyz(x, y, z, gdim, nelv, Xh, params_subdict, comm)`: Initializes the global interpolation object using coordinates and mesh information, and a JSON subdict for parameters.
+- `init_json_dof(dofmap, params_subdict, comm, mask)`: Initializes the object using a `dofmap_t` instance, a JSON subdict for parameters, and an optional mask.
 
 #### Point Management
 - `find_points_coords(x, y, z)`: Finds process owners, elements, and `rst` coordinates for given points.

@@ -462,7 +462,7 @@ contains
     logical :: found
     character(len=:), allocatable :: buffer
 
-    ! Initalize empty object to return
+    ! Initialize empty object to return
     call output%initialize(strict_type_checking = .true.)
 
     call json%get_core(core)
