@@ -49,6 +49,7 @@ module overset_interface_vector
   use device_math, only : device_masked_copy_0, device_copy
   use dofmap, only : dofmap_t
   use vector, only : vector_t
+  use vector_math, only : vector_masked_gather_copy
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
@@ -80,6 +81,7 @@ module overset_interface_vector
      type(mask_t) :: domain_element_mask
      !> Vectors holding the dof coordinates for cases where mesh moves
      type(vector_t) :: x_dof, y_dof, z_dof
+     type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null() !adperez: I need to override this to update the values internally
@@ -314,6 +316,7 @@ contains
        only_facets_ = .false.
     end if
 
+    !> From field_dirichlet_vector_t
     call this%finalize_base(only_facets_)
 
     call this%bc_u%mark_facets(this%marked_facet)
@@ -367,6 +370,35 @@ contains
     call this%interface_interpolator%init(this%dof, &
                                           NEKO_GLOBAL_COMM, &
                                           mask=this%domain_element_mask)
+
+    !> Keep a vector list that holds the coordinates of the interface
+    call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
+    call this%y_interface_dof%init(this%interface_dof_mask%size(), 'y_interface')
+    call this%z_interface_dof%init(this%interface_dof_mask%size(), 'z_interface')
+    !> Gather the coordinates to the vectors
+    call vector_masked_gather_copy(this%x_interface_dof, &
+                                   this%dof%x(:,1,1,1), &
+                                   this%interface_dof_mask, &
+                                   this%dof%size()) 
+    call vector_masked_gather_copy(this%y_interface_dof, &
+                                   this%dof%y(:,1,1,1), &
+                                   this%interface_dof_mask, &
+                                   this%dof%size())
+    call vector_masked_gather_copy(this%z_interface_dof, &
+                                   this%dof%z(:,1,1,1), &
+                                   this%interface_dof_mask, &
+                                   this%dof%size())
+    !> synchronize if on device
+    call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.) 
+    call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
+
+    !> Find the interface points on the global domain
+    call this%interface_interpolator%find_points(this%x_interface_dof%x, &
+                                                 this%y_interface_dof%x, &
+                                                 this%z_interface_dof%x, & 
+                                                 this%x_interface_dof%size())
+
 
   end subroutine overset_interface_vector_finalize
 
