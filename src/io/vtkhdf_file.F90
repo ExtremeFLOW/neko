@@ -48,7 +48,7 @@ module vtkhdf_file
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
        MPI_Barrier
-  use vtk, only: vtk_ordering
+  use vtk, only : vtk_ordering
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -849,13 +849,6 @@ contains
        name_list(fields_written) = field_name
        vector_list(fields_written) = is_vector
 
-       ! Remove existing dataset in the write target if present
-       call h5lexists_f(write_target, trim(field_name), exists, ierr)
-       if (exists) then
-          call MPI_Barrier(NEKO_COMM, ierr)
-          call h5ldelete_f(write_target, trim(field_name), ierr)
-       end if
-
        ! Write field data to the target
        if (is_vector) then
           call write_vector_field(write_target, field_name, u%x, v%x, w%x, &
@@ -905,14 +898,7 @@ contains
 
           if (counter .eq. 0) then
              ! First write: create VDS with pattern-based mapping
-             call h5lexists_f(pointdata_grp, trim(field_name), exists, ierr)
-             if (exists) then
-                call MPI_Barrier(NEKO_COMM, ierr)
-                call h5ldelete_f(pointdata_grp, trim(field_name), ierr)
-             end if
-
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-
              precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
 
              if (is_vector) then
