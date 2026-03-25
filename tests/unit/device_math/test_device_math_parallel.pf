@@ -708,6 +708,64 @@ contains
 
   end subroutine test_device_math_glsum
 
+  @test(npes=[1])
+  subroutine test_device_math_glmax(this)
+    class (test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a
+    real(kind=rp) :: res, expected
+    type(c_ptr) :: a_d = C_NULL_PTR
+    integer :: i, ierr
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+       do i = 1, n
+          a(i) = real(i, rp) + 10.0_rp * real(pe_rank, rp)
+       end do
+
+       call device_map(a, a_d, size(a))
+
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+
+       expected = real(n, rp) + 10.0_rp * real(this%getNumProcesses() - 1, rp)
+       res = device_glmax(a_d, n)
+       @assertEqual(expected, res)
+       @MPIassertEqual(expected, res)
+    end if
+
+  end subroutine test_device_math_glmax
+
+  @test(npes=[1])
+  subroutine test_device_math_glmin(this)
+    class (test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a
+    real(kind=rp) :: res, expected
+    type(c_ptr) :: a_d = C_NULL_PTR
+    integer :: i, ierr
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+       do i = 1, n
+          a(i) = real(i, rp) + 10.0_rp * real(pe_rank, rp)
+       end do
+
+       call device_map(a, a_d, size(a))
+
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+
+       expected = 1.0_rp
+       res = device_glmin(a_d, n)
+       @assertEqual(expected, res)
+       @MPIassertEqual(expected, res)
+    end if
+
+  end subroutine test_device_math_glmin
+
   ! ========================================================================== !
   ! Tests for the pointwise operations
 

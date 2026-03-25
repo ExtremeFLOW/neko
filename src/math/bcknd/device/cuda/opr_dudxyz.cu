@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -51,36 +51,36 @@ int tune_dudxyz(void *du, void *u,
 
 extern "C" {
 
-  /** 
+  /**
    * Fortran wrapper for device cuda derivative kernels
    */
   void cuda_dudxyz(void *du, void *u,
                   void *dr, void *ds, void *dt,
                   void *dx, void *dy, void *dz,
                   void *jacinv, int *nel, int *lx) {
-    
+
     static int autotune[16] = { 0 };
-    
+
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-          
+
 #define CASE_1D(LX)                                                             \
     dudxyz_kernel_1d<real, LX, 1024>                                            \
       <<<nblcks, nthrds_1d, 0, stream>>>((real *) du, (real *) u,               \
                               (real *) dr, (real *) ds, (real *) dt,            \
                               (real *) dx, (real *) dy, (real *) dz,            \
                               (real *) jacinv);                                 \
-    CUDA_CHECK(cudaGetLastError());                                           
-    
+    CUDA_CHECK(cudaGetLastError());
+
 #define CASE_KSTEP(LX)                                                          \
     dudxyz_kernel_kstep<real, LX>                                               \
       <<<nblcks, nthrds_kstep, 0, stream>>>((real *) du, (real *) u,            \
                                 (real *) dr, (real *) ds, (real *) dt,          \
                                 (real *) dx, (real *) dy, (real *) dz,          \
                                 (real *) jacinv);                               \
-      CUDA_CHECK(cudaGetLastError());                                           
+      CUDA_CHECK(cudaGetLastError());
 
  #define CASE(LX)                                                               \
     case LX:                                                                    \
@@ -102,7 +102,7 @@ extern "C" {
       break
 
 
-    if ((*lx) < 11) {      
+    if ((*lx) < 11) {
       switch(*lx) {
         CASE(2);
         CASE(3);
@@ -133,7 +133,7 @@ extern "C" {
           fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
           exit(1);
         }
-      } 
+      }
     }
   }
 }
@@ -151,18 +151,18 @@ int tune_dudxyz(void *du, void *u,
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks((*nel), 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-  
+
   char *env_value = NULL;
   char neko_log_buf[80];
-  
+
   env_value=getenv("NEKO_AUTOTUNE");
 
   sprintf(neko_log_buf, "Autotune dudxyz (lx: %d)", *lx);
   log_section(neko_log_buf);
-  
+
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      CASE_1D(LX);       
+      CASE_1D(LX);
       sprintf(neko_log_buf,"Set by env : 1 (1D)");
       log_message(neko_log_buf);
       log_end_section();
@@ -173,7 +173,7 @@ int tune_dudxyz(void *du, void *u,
       log_message(neko_log_buf);
       log_end_section();
       return 2;
-    } else {       
+    } else {
        sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
        log_error(neko_log_buf);
     }
@@ -181,27 +181,32 @@ int tune_dudxyz(void *du, void *u,
 
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-  
-  cudaEventRecord(start,0);
-   
+
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  cudaEventRecord(start, stream);
+
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
-  
-  cudaEventRecord(stop,0); 
+
+  cudaEventRecord(stop, stream);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&time1, start, stop);
-  
-  cudaEventRecord(start,0);
-   
+
+  cudaEventRecord(start, stream);
+
   for(int i = 0; i < 100; i++) {
      CASE_KSTEP(LX);
    }
-  
-  cudaEventRecord(stop,0); 
+
+  cudaEventRecord(stop, stream);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&time2, start, stop);
-  
+
   if(time1 < time2) {
      retval = 1;
   } else {

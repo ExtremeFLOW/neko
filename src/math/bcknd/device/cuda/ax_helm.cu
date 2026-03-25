@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2024, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -311,23 +311,28 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
 
-  cudaEventRecord(start,0);
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  cudaEventRecord(start, stream);
 
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
 
-  cudaEventRecord(stop,0);
+  cudaEventRecord(stop, stream);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&time1, start, stop);
 
-  cudaEventRecord(start,0);
+  cudaEventRecord(start, stream);
 
   for(int i = 0; i < 100; i++) {
      CASE_KSTEP(LX);
    }
 
-  cudaEventRecord(stop,0);
+  cudaEventRecord(stop, stream);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&time2, start, stop);
 
@@ -389,23 +394,28 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
 
-  cudaEventRecord(start,0);
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  cudaEventRecord(start, stream);
 
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
 
-  cudaEventRecord(stop, 0);
+  cudaEventRecord(stop, stream);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&time1, start, stop);
 
-  cudaEventRecord(start, 0);
+  cudaEventRecord(start, stream);
 
   for(int i = 0; i < 100; i++) {
     CASE_KSTEP_PADDED(LX);
   }
 
-  cudaEventRecord(stop, 0);
+  cudaEventRecord(stop, stream);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&time2, start, stop);
 
