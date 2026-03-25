@@ -49,7 +49,7 @@ module most
   private
 
   !> Wall model based on the Monin-Obukhov Similarity Theory for atmospheric
-  !! boundary layer flows. Automatically switches between stable, unstable and 
+  !! boundary layer flows. Automatically switches between stable, unstable and
   !! neutral layer formulations based on the Richardson number.
   !!
   type, public, extends(wall_model_t) :: most_t
@@ -103,9 +103,11 @@ contains
 
     call json_get_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
-    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp) ! if z0h not specified, assign negative 
-    call json_get(json, "temp_bc_value", bc_value)          ! and compute automatically with Zilitinkevich
-
+    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp)
+    ! if z0h not specified, assign negative
+    ! and compute automatically with Zilitinkevich
+    call json_get(json, "type_of_temp_bc", bc_type)
+    call json_get(json, "bottom_bc_flux_or_temp", bc_value)
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, z0, z0h_in, bc_type, bc_value)
   end subroutine most_init
@@ -119,7 +121,7 @@ contains
     type(json_file), intent(inout) :: json
 
     call this%partial_init_base(coef, json)
-    call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
+    call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -10.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
