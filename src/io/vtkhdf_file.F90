@@ -316,7 +316,7 @@ contains
     integer :: total_offsets, cell_offset, conn_offset, offsets_offset
     integer :: max_local_cells, max_local_conn
     integer(hid_t) :: xf_id, dset_id, dcpl_id, grp_id, attr_id
-    integer(hid_t) :: filespace, memspace, H5T_NEKO_DOUBLE, H5T_NEKO_INT8
+    integer(hid_t) :: filespace, memspace, H5T_NEKO_DOUBLE
     integer(hsize_t), dimension(1) :: dcount, vdims, maxdims, doffset, chunkdims
     integer(hsize_t), dimension(2) :: dcount2, vdims2, maxdims2, doffset2
     integer(kind=i8) :: i8_value
@@ -506,27 +506,26 @@ contains
     chunkdims = int(max(1, min(max_local_cells + 1, total_offsets)), hsize_t)
     dcount = int(local_cells + 1, hsize_t)
     doffset = int(offsets_offset, hsize_t)
-    H5T_NEKO_INT8 = h5kind_to_type(i8, H5_INTEGER_KIND)
 
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
     call h5screate_simple_f(1, dcount, memspace, ierr)
     call h5screate_simple_f(1, vdims, filespace, ierr, maxdims)
 
     call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-    call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_NEKO_INT8, &
+    call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_NATIVE_INTEGER, &
          filespace, dset_id, ierr, dcpl_id = dcpl_id)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset, dcount, ierr)
 
     block
-      integer(kind=i8), allocatable :: offsets(:)
+      integer, allocatable :: offsets(:)
 
       allocate(offsets(local_cells + 1))
       do concurrent (i = 1:local_cells)
-         offsets(i) = int((i - 1) * nodes_per_cell, kind=i8)
+         offsets(i) = (i - 1) * nodes_per_cell
       end do
-      offsets(local_cells + 1) = int(local_conn, kind=i8)
-      call h5dwrite_f(dset_id, H5T_NEKO_INT8, offsets, dcount, ierr, &
+      offsets(local_cells + 1) = local_conn
+      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, offsets, dcount, ierr, &
            file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
       deallocate(offsets)
     end block
