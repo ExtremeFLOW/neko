@@ -30,8 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines inflow dirichlet conditions
+!> Defines overset interface vector boundary conditions
 module overset_interface_vector
+  use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only : rp
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
@@ -44,8 +45,12 @@ module overset_interface_vector
   use field, only : field_t
   use field_list, only : field_list_t
   use math, only : masked_copy_0
-  use device_math, only : device_masked_copy_0
+  use device_math, only : device_masked_copy_0, device_copy
   use dofmap, only : dofmap_t
+  use vector, only : vector_t
+  use math, only : copy
+  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
+  use vector_math, only : vector_copy
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use utils, only : neko_error
   use json_module, only : json_file
@@ -70,8 +75,8 @@ module overset_interface_vector
      type(global_interpolation_t) :: interface_interpolator
      !> Mask for the overset interface points.
      type(mask_t) :: overset_mask
-     !> Pointer to the coordinates
-     type(dofmap_t), pointer :: coord_dofmap => null()
+     !> Vectors holding the dof coordinates for cases where mesh moves
+     type(vector_t) :: x_dof, y_dof, z_dof
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null() !adperez: I need to override this to update the values internally
@@ -119,18 +124,39 @@ contains
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
 
+    !> This initializes coef, dof, msh, and Xh pointers 
     call this%init_base(coef)
 
     call this%bc_u%init_from_components(coef, "u")
     call this%bc_v%init_from_components(coef, "v")
     call this%bc_w%init_from_components(coef, "w")
 
-    ! TODO set to u v w values
-
     call this%field_list%init(3)
     call this%field_list%assign_to_field(1, this%bc_u%field_bc)
     call this%field_list%assign_to_field(2, this%bc_v%field_bc)
     call this%field_list%assign_to_field(3, this%bc_w%field_bc)
+
+    !> init coord vectors
+    call this%x_dof%init(this%dof%size())
+    call this%y_dof%init(this%dof%size())
+    call this%z_dof%init(this%dof%size())
+
+    !> Copy the dof coordinates to the internal vectors
+    !> keep this to later check if the coordinates have changed.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       ! copy
+       call device_copy(this%x_dof%x_d, this%dof%x_d, this%dof%size())
+       call device_copy(this%y_dof%x_d, this%dof%y_d, this%dof%size())
+       call device_copy(this%z_dof%x_d, this%dof%z_d, this%dof%size())
+       ! synchronize
+       this%x_dof%copy_from(HOST_TO_DEVICE, .false.)
+       this%y_dof%copy_from(HOST_TO_DEVICE, .false.)
+       this%z_dof%copy_from(HOST_TO_DEVICE, .true.)
+    else
+       call copy(this%x_dof%x, this%dof%x, this%dof%size())
+       call copy(this%y_dof%x, this%dof%y, this%dof%size())
+       call copy(this%z_dof%x, this%dof%z, this%dof%size())
+    end if
 
   end subroutine overset_interface_vector_init_from_components
 
@@ -144,6 +170,11 @@ contains
     call this%bc_w%free()
 
     call this%field_list%free()
+
+    call this%x_dof%free()
+    call this%y_dof%free()
+    call this%z_dof%free()
+
 
     if (associated(this%update)) then
        nullify(this%update)
@@ -161,8 +192,8 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
 
-    call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-    & Use field_dirichlet instead!")
+   call neko_error("overset_interface_vector cannot apply scalar BCs.&
+   & Use overset_interface_vector::apply_vector instead!")
 
   end subroutine overset_interface_vector_apply_scalar
 
@@ -177,8 +208,8 @@ contains
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
 
-    call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-    & Use field_dirichlet instead!")
+   call neko_error("overset_interface_vector cannot apply scalar BCs.&
+   & Use overset_interface_vector::apply_vector instead!")
 
   end subroutine overset_interface_vector_apply_scalar_dev
 
@@ -214,7 +245,7 @@ contains
           this%updated = .true.
        end if
 
-       call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0)) !adperez: change the masks used here
        call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy_0(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
     end if
@@ -252,7 +283,7 @@ contains
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
-               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), strm)
+               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), strm) ! adperez: change the masks used here
           call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, &
                this%bc_v%msk_d, this%bc_v%dof%size(), this%msk(0), strm)
           call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
@@ -283,6 +314,8 @@ contains
     call this%bc_u%finalize(only_facets_)
     call this%bc_v%finalize(only_facets_)
     call this%bc_w%finalize(only_facets_)
+
+    !> adperez: here create a new mask_t based on the 0 masks
 
   end subroutine overset_interface_vector_finalize
 
