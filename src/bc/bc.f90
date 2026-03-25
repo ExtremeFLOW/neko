@@ -47,7 +47,7 @@ module bc
   use field, only : field_t
   use gs_ops, only : GS_OP_ADD
   use math, only : relcmp
-  use utils, only : neko_error, neko_warning, linear_index, split_string
+  use utils, only : neko_error, linear_index, split_string
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   use json_module, only : json_file
@@ -101,8 +101,6 @@ module bc
      procedure, pass(this) :: mark_facets => bc_mark_facets
      !> Mark all facets from a zone
      procedure, pass(this) :: mark_zone => bc_mark_zone
-     !> Mark all facets from a labeled zone
-     procedure, pass(this) :: mark_labeled_zone => bc_mark_labeled_zone
      !> Finalize the construction of the bc by populating the msk and facet
      !! arrays
      procedure, pass(this) :: finalize_base => bc_finalize_base
@@ -416,44 +414,10 @@ contains
     class(bc_t), intent(inout) :: this
     class(facet_zone_t), intent(in) :: bc_zone
     integer :: i
-
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))
     end do
   end subroutine bc_mark_zone
-
-  !> Mark all facets from a labeled zone.
-  !! @param bc_zone Boundary zone to be marked.
-  !! @param zone_index The index of the labeled zone to be marked.
-  subroutine bc_mark_labeled_zone(this, bc_zone, zone_index)
-    class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(in) :: bc_zone
-    integer, intent(in) :: zone_index
-    integer, allocatable :: tmp(:)
-    integer :: i
-    character(len=LOG_SIZE) :: log_buf
-
-    if (allocated(this%zone_indices)) then
-       do i = 1, size(this%zone_indices)
-          if (this%zone_indices(i) .eq. zone_index) then
-             write(log_buf, '(A,I0,A)') 'Zone index ', zone_index, &
-                  ' already marked for this boundary condition'
-             call neko_warning(log_buf)
-             return
-          end if
-       end do
-
-       allocate(tmp(size(this%zone_indices) + 1))
-       tmp(1:size(this%zone_indices)) = this%zone_indices
-       tmp(size(tmp)) = zone_index
-       call move_alloc(tmp, this%zone_indices)
-    else
-       allocate(this%zone_indices(1))
-       this%zone_indices(1) = zone_index
-    end if
-
-    call this%mark_zone(bc_zone)
-  end subroutine bc_mark_labeled_zone
 
   !> Finalize the construction of the bc by populting the `msk` and `facet`
   !! arrays.
