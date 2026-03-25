@@ -40,14 +40,13 @@
         "max_iterations": 1000
       },
       "ale": {
-        "active": true,
+        "enabled": true,
         "solver": {
           "type": "cg",
           "preconditioner": { "type": "jacobi" },
           "absolute_tolerance": 1.0e-10,
           "max_iterations": 10000,
-          "output_base_shape": true,
-          "mesh_stiffness": { "type": "built-in" }
+          "output_base_shape": true
         },
         "mesh_preview": {
           "enabled": false,
