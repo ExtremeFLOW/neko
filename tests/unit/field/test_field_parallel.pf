@@ -8,6 +8,7 @@ module test_field_parallel
   use dofmap
   use num_types
   use device
+  use math, only : NEKO_EPS
   use field_math
   use space
   use mesh
@@ -279,10 +280,10 @@ contains
        call device_memcpy(f%x, f%x_d, n, HOST_TO_DEVICE, sync=.true.)
     end if
 
-    @assertEqual(7.0_rp, field_glmax(f), tolerance=NEKO_EPS)
-    @assertEqual(-3.0_rp, field_glmin(f), tolerance=NEKO_EPS)
-    @assertEqual(1.0_rp, field_glmax(f, n - 1), tolerance=NEKO_EPS)
-    @assertEqual(-3.0_rp, field_glmin(f, n - 1), tolerance=NEKO_EPS)
+    @assertEqual(7.0_rp, field_glmax(f))
+    @assertEqual(-3.0_rp, field_glmin(f))
+    @assertEqual(1.0_rp, field_glmax(f, n - 1))
+    @assertEqual(-3.0_rp, field_glmin(f, n - 1))
 
   end subroutine test_field_glminmax
 
