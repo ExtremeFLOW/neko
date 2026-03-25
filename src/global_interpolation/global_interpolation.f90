@@ -265,7 +265,7 @@ contains
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
-  !! @param mask Mask that indicates which portions of the domain to include 
+  !! @param mask Mask that indicates which portions of the domain to include
   !! instead of tol and pad.
   subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask)
     class(global_interpolation_t), target, intent(inout) :: this

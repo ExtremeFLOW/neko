@@ -68,7 +68,7 @@ module json_utils
   interface json_get_or_default
      module procedure json_get_or_default_real, json_get_or_default_double, &
           json_get_or_default_integer, json_get_or_default_string, &
-          json_get_or_default_logical 
+          json_get_or_default_logical
   end interface json_get_or_default
 
   interface json_get_or_lookup

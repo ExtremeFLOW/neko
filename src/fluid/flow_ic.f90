@@ -139,7 +139,7 @@ contains
          mesh_fname = trim(read_str)
 
          call json_get_subdict_or_empty(params, "interpolation", &
-                 interp_subdict)
+              interp_subdict)
          call set_flow_ic_fld(u, v, w, p, fname, interpolate, &
               mesh_fname, interp_subdict)
        end block

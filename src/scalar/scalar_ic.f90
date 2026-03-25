@@ -45,7 +45,8 @@ module scalar_ic
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, &
-       json_get_or_lookup, json_get_or_lookup_or_default
+       json_get_or_lookup, json_get_or_lookup_or_default, &
+       json_get_subdict_or_empty
   use point_zone, only : point_zone_t
   use point_zone_registry, only : neko_point_zone_registry
   use logger, only : neko_log, LOG_SIZE
@@ -129,7 +130,8 @@ contains
          ! the values from, in the fld file. 0 corresponds to temperature.
          call json_get_or_default(params, 'target_index', tgt_scal_idx, i)
 
-         call json_get_or_default(params, "interpolation", interp_subdict)
+         call json_get_subdict_or_empty(params, "interpolation", &
+              interp_subdict)
 
          call set_scalar_ic_fld(s, fname, interpolate, mesh_fname, i, &
               tgt_scal_idx, interp_subdict)
