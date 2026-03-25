@@ -49,7 +49,8 @@ module flow_ic
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, &
-       json_get_or_lookup_or_default, json_get_or_lookup
+       json_get_or_lookup_or_default, json_get_or_lookup, &
+       json_get_subdict_or_empty
   use point_zone, only : point_zone_t
   use point_zone_registry, only : neko_point_zone_registry
   use fld_file_data, only : fld_file_data_t
@@ -82,7 +83,7 @@ contains
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
-    real(kind=rp) :: delta, tol, padding
+    real(kind=rp) :: delta
     real(kind=rp), allocatable :: uinf(:)
     real(kind=rp), allocatable :: zone_value(:)
     character(len=:), allocatable :: read_str
@@ -137,7 +138,8 @@ contains
          call json_get_or_default(params, 'mesh_file_name', read_str, "none")
          mesh_fname = trim(read_str)
 
-         call json_get_or_default(params, "interpolation", interp_subdict)
+         call json_get_subdict_or_empty(params, "interpolation", &
+                 interp_subdict)
          call set_flow_ic_fld(u, v, w, p, fname, interpolate, &
               mesh_fname, interp_subdict)
        end block

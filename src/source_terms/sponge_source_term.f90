@@ -37,7 +37,8 @@ module sponge_source_term
   use json_module, only : json_file
   use registry, only : neko_registry
   use field, only : field_t
-  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+          json_get_subdict_or_empty
   use utils, only : neko_error
   use device, only : device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_sub3, device_col2, device_add2s2
@@ -178,7 +179,7 @@ contains
 
        block
          type(json_file) :: interp_subdict
-         call json_get_or_default(baseflow_subdict, "interpolation", &
+         call json_get_subdict_or_empty(baseflow_subdict, "interpolation", &
               interp_subdict)
 
          call this%init_field(fields, coef, start_time, end_time, amplitudes, &

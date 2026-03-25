@@ -19,7 +19,7 @@ module fld_file_data
   use json_module, only : json_file
   use space, only : space_t, GLL
   use global_interpolation, only : global_interpolation_t, &
-       GLOBAL_INTERP_PAD, GLOBAL_INTERP_TOL
+       GLOB_INTERP_PAD, GLOB_INTERP_TOL
   use utils, only : neko_error, NEKO_FNAME_LEN, extract_fld_file_index
   use mesh, only : mesh_t
   implicit none
@@ -514,7 +514,7 @@ contains
          z_coords(:,:,:,:)
     real(kind=rp) :: center_x, center_y, center_z
     integer :: e, i
-    real(kind=rp) :: tol_ = GLOBAL_INTERP_TOL
+    real(kind=rp) :: tol_ = GLOB_INTERP_TOL
     ! ---
 
     type(space_t), pointer :: to_Xh
@@ -543,7 +543,7 @@ contains
     else if (present(tolerance)) then
        tol_ = tolerance
     else
-       call neko_error("No tolerance provided for interpolation!" // &
+       call neko_error("No tolerance provided for interpolation! " // &
             "Please provide a tolerance or a subdict with a tolerance entry.")
     end if
 
@@ -565,11 +565,11 @@ contains
        center_z = center_z / to_Xh%lxyz
        do i = 1, to_Xh%lxyz
           x_coords(i, 1, 1, e) = to_dof%x(i, 1, 1, e) - &
-               tolerance * (to_dof%x(i, 1, 1, e) - center_x)
+               tol_ * (to_dof%x(i, 1, 1, e) - center_x)
           y_coords(i, 1, 1, e) = to_dof%y(i, 1, 1, e) - &
-               tolerance * (to_dof%y(i, 1, 1, e) - center_y)
+               tol_ * (to_dof%y(i, 1, 1, e) - center_y)
           z_coords(i, 1, 1, e) = to_dof%z(i, 1, 1, e) - &
-               tolerance * (to_dof%z(i, 1, 1, e) - center_z)
+               tol_ * (to_dof%z(i, 1, 1, e) - center_z)
        end do
     end do
 

@@ -76,8 +76,11 @@ contains
   !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`.
   !! @param interpolate Whether or not to interpolate the fld data.
   !! @param tolerance If interpolation is enabled, the tolerance to use for the
-  !! point
-  !! finding.
+  !! point finding.
+  !! @param padding If interpolation is enabled, the tolerance to use for the
+  !! point finding.
+  !! @param global_interp_subdict If interpolation is enabled, subdict
+  !! containing the interpolation parameters to use.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
   !! order for the same given mesh.

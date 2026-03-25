@@ -46,7 +46,8 @@ module probes
   use dofmap, only : dofmap_t
   use json_module, only : json_file, json_value, json_core
   use json_utils, only : json_get, json_extract_item, json_get_or_default, &
-       json_get_or_lookup, json_get_or_lookup_or_default
+       json_get_or_lookup, json_get_or_lookup_or_default, &
+       json_get_subdict_or_empty
   use global_interpolation, only : global_interpolation_t
   use tensor, only : trsp
   use point_zone, only : point_zone_t
@@ -223,7 +224,7 @@ contains
 
     block
       type(json_file) :: interp_subdict
-      call json_get_or_default(json, "interpolation", interp_subdict)
+      call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
       call this%global_interp%init(case%fluid%dm_Xh, &
            params_subdict = interp_subdict)
 

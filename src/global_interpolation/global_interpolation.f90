@@ -70,8 +70,8 @@ module global_interpolation
   private
 
   integer, public, parameter :: GLOB_MAP_SIZE = 4096
-  real(kind=dp), public, parameter :: GLOBAL_INTERP_TOL = NEKO_EPS*1e3_dp
-  real(kind=dp), public, parameter :: GLOBAL_INTERP_PAD = 1e-2_dp
+  real(kind=dp), public, parameter :: GLOB_INTERP_TOL = NEKO_EPS*1e3_dp
+  real(kind=dp), public, parameter :: GLOB_INTERP_PAD = 1e-2_dp
 
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
@@ -123,9 +123,9 @@ module global_interpolation
      !> Turns true if points are redistributed to their respective owners
      logical :: all_points_local = .false.
      !> Tolerance for Newton solve to find the correct rst coordinates.
-     real(kind=dp) :: tolerance = GLOBAL_INTERP_TOL
+     real(kind=dp) :: tolerance = GLOB_INTERP_TOL
      !> Padding
-     real(kind=dp) :: padding = GLOBAL_INTERP_PAD
+     real(kind=dp) :: padding = GLOB_INTERP_PAD
 
      !> Mapping of points to ranks.
      !> n_points_pe(pe_rank) = n_points I have at this rank
@@ -226,9 +226,9 @@ contains
     real(kind=dp) :: tol, pad
 
     call json_get_or_lookup_or_default(params_subdict, 'tolerance', &
-         tol, GLOBAL_INTERP_TOL)
+         tol, GLOB_INTERP_TOL)
     call json_get_or_lookup_or_default(params_subdict, 'padding', &
-         pad, GLOBAL_INTERP_PAD)
+         pad, GLOB_INTERP_PAD)
 
     call this%init_xyz(x, y, z, gdim, nelv, Xh, comm = comm, tol = tol, &
          pad = pad)
@@ -253,9 +253,9 @@ contains
     real(kind=dp) :: tol, pad
 
     call json_get_or_lookup_or_default(params_subdict, 'tolerance', &
-         tol, GLOBAL_INTERP_TOL)
+         tol, GLOB_INTERP_TOL)
     call json_get_or_lookup_or_default(params_subdict, 'padding', &
-         pad, GLOBAL_INTERP_PAD)
+         pad, GLOB_INTERP_PAD)
 
     call this%init_dof(dof, comm = comm, tol = tol, pad = pad, mask = mask)
 
@@ -265,8 +265,8 @@ contains
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
-  !! @mask  Mask that indicates which portions of the domain to include
-  !! initialization instead of tol and pad.
+  !! @param mask Mask that indicates which portions of the domain to include 
+  !! instead of tol and pad.
   subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask)
     class(global_interpolation_t), target, intent(inout) :: this
     type(dofmap_t) :: dof
@@ -347,10 +347,10 @@ contains
     end if
 
     ! Set point search parameters
-    this%padding = GLOBAL_INTERP_PAD
+    this%padding = GLOB_INTERP_PAD
     if (present(pad)) this%padding = pad
 
-    this%tolerance = GLOBAL_INTERP_TOL
+    this%tolerance = GLOB_INTERP_TOL
     if (present(tol)) this%tolerance = tol
 
     write(log_buf, '(A,E15.7)') &

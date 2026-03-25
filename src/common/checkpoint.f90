@@ -43,7 +43,7 @@ module checkpoint
   use utils, only : neko_error
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
-  use global_interpolation, only : GLOBAL_INTERP_TOL
+  use global_interpolation, only : GLOB_INTERP_TOL
   implicit none
   private
 
@@ -86,7 +86,7 @@ module checkpoint
      real(kind=dp) :: t = 0d0 !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
      type(space_t) :: previous_Xh
-     real(kind=dp) :: mesh2mesh_tol = GLOBAL_INTERP_TOL
+     real(kind=dp) :: mesh2mesh_tol = GLOB_INTERP_TOL
 
    contains
      procedure, pass(this) :: init => chkp_init
