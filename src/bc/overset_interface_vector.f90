@@ -32,6 +32,7 @@
 !
 !> Defines overset interface vector boundary conditions
 module overset_interface_vector
+  use comm, only : NEKO_GLOBAL_COMM
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only : rp
   use coefs, only : coef_t
@@ -76,6 +77,7 @@ module overset_interface_vector
      type(global_interpolation_t) :: interface_interpolator
      !> Mask for the overset interface points.
      type(mask_t) :: interface_dof_mask
+     type(mask_t) :: domain_element_mask
      !> Vectors holding the dof coordinates for cases where mesh moves
      type(vector_t) :: x_dof, y_dof, z_dof
      !> Function pointer to the user routine performing the update of the values
@@ -357,12 +359,14 @@ contains
     deallocate(found)
     call temp_mask%init(stack%array(), stack%size())
     call stack%free()
+ 
+    !> Create a domain mask that exclude the boundary elements.
+    call this%domain_element_mask%invert_mask(temp_mask, this%dof%size())
 
-    
-    !> adperez: here create a new mask that is used to initialize the interp
-
-
-    !> adperez: initialize the interpolator with the mask and the dof coords
+    !> Initialize the interpolator with the mask and the dof coords
+    call this%interface_interpolator%init(this%dof, &
+                                          NEKO_GLOBAL_COMM, &
+                                          mask=this%domain_element_mask)
 
   end subroutine overset_interface_vector_finalize
 
