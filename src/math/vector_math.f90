@@ -66,8 +66,8 @@ module vector_math
   use utils, only : neko_error
   use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
        add2, add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, &
-       invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, &
-       glsc3, masked_gather_copy_0, masked_gather_copy, &
+       invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glmax, &
+       glmin, glsc2, glsc3, masked_gather_copy_0, masked_gather_copy, &
        masked_scatter_copy_0, glsubnorm, invcol3
   use device_math, only : device_rzero, device_rone, device_copy, &
        device_cmult, device_cadd, device_cfill, device_invcol1, device_vdot3, &
@@ -75,9 +75,9 @@ module vector_math
        device_add2s1, device_add2s2, device_addsqr2s2, device_cmult2, &
        device_invcol2, device_col2, device_col3, device_subcol3, &
        device_add3s2, device_addcol3, device_addcol4, device_glsum, &
-       device_glsc2, device_glsc3, device_masked_gather_copy_0, &
-       device_masked_gather_copy_aligned, device_masked_scatter_copy_0, &
-       device_glsubnorm, device_invcol3
+       device_glmax, device_glmin, device_glsc2, device_glsc3, &
+       device_masked_gather_copy_0, device_masked_gather_copy_aligned, &
+       device_masked_scatter_copy_0, device_glsubnorm, device_invcol3
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -89,8 +89,8 @@ module vector_math
        vector_add2s2, vector_addsqr2s2, vector_cmult2, &
        vector_invcol2, vector_col2, vector_col3, vector_subcol3, &
        vector_add3s2, vector_addcol3, vector_addcol4, vector_glsum, &
-       vector_glsc2, vector_glsc3, vector_add3, vector_masked_gather_copy_0, &
-       vector_masked_gather_copy, &
+       vector_glmax, vector_glmin, vector_glsc2, vector_glsc3, vector_add3, &
+       vector_masked_gather_copy_0, vector_masked_gather_copy, &
        vector_masked_scatter_copy_0, vector_glsubnorm
 
 
@@ -656,6 +656,46 @@ contains
     end if
 
   end function vector_glsum
+
+  function vector_glmax(a, n) result(val)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(in) :: a
+    real(kind=rp) :: val
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       val = device_glmax(a%x_d, size)
+    else
+       val = glmax(a%x, size)
+    end if
+
+  end function vector_glmax
+
+  function vector_glmin(a, n) result(val)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(in) :: a
+    real(kind=rp) :: val
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       val = device_glmin(a%x_d, size)
+    else
+       val = glmin(a%x, size)
+    end if
+
+  end function vector_glmin
 
   function vector_glsc2(a, b, n) result(norm)
     integer, intent(in), optional :: n
