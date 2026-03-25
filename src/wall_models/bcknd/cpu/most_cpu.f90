@@ -207,6 +207,8 @@ contains
        call select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
        call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
+       call set_stability_regime(Ri_b,Ri_threshold)
+
        if (abs(Ri_b) <= Ri_threshold) then
           ! Neutral (L_ob undefined)
           L_ob = 0.0_rp
