@@ -137,9 +137,9 @@ contains
     call this%field_list%assign_to_field(3, this%bc_w%field_bc)
 
     !> init coord vectors
-    call this%x_dof%init(this%dof%size())
-    call this%y_dof%init(this%dof%size())
-    call this%z_dof%init(this%dof%size())
+    call this%x_dof%init(this%dof%size(), 'x')
+    call this%y_dof%init(this%dof%size(), 'y')
+    call this%z_dof%init(this%dof%size(), 'z')
 
     !> Copy the dof coordinates to the internal vectors
     !> keep this to later check if the coordinates have changed.
@@ -149,9 +149,9 @@ contains
        call device_copy(this%y_dof%x_d, this%dof%y_d, this%dof%size())
        call device_copy(this%z_dof%x_d, this%dof%z_d, this%dof%size())
        ! synchronize
-       this%x_dof%copy_from(HOST_TO_DEVICE, .false.)
-       this%y_dof%copy_from(HOST_TO_DEVICE, .false.)
-       this%z_dof%copy_from(HOST_TO_DEVICE, .true.)
+       call this%x_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%y_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%z_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
     else
        call copy(this%x_dof%x, this%dof%x, this%dof%size())
        call copy(this%y_dof%x, this%dof%y, this%dof%size())
@@ -315,7 +315,14 @@ contains
     call this%bc_v%finalize(only_facets_)
     call this%bc_w%finalize(only_facets_)
 
-    !> adperez: here create a new mask_t based on the 0 masks
+    !> adperez: here create a new mask_t based on the 0 masks for the overset mesh
+   
+    !> adperez: create a mask that marks the full elements
+    
+    !> adperez: here create a new mask that is used to initialize the interp
+
+
+    !> adperez: initialize the interpolator with the mask and the dof coords
 
   end subroutine overset_interface_vector_finalize
 
