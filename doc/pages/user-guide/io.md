@@ -70,7 +70,7 @@ Please refer to the documentation of ADIOS2 (and the specific compression
 library) to configure the data "operators" of the parallel I/O library.
 
 The tool `adios2_to_nek5000` can be used to decompress the field data for
-postprocessing and visualization with the conventional nek5000 format.
+postprocessing and visualisation with the conventional nek5000 format.
 Additionally, the data can be compressed using this tool as a postprocessing
 step using the `adios2.xml` configuration and a given uncompressed data set as
 input.
@@ -93,10 +93,10 @@ workflow to compare and find an optimal compression rate with an acceptable
 accuracy loss. The value of the PSNR decreases with increasing accuracy loss.
 Tune the compression by increasing the compression ratio until a desired lower
 limiting value for the PSNR is reached. As a rule of thumb, target values of 60
-or 40 can be used as lower limit for accurate postprocessing or visualization,
+or 40 can be used as lower limit for accurate postprocessing or visualisation,
 respectively.  Separately, it is recommended to check for compression errors
 from lossy compressors in the specific quantities of interest in postprocessing
-and visualization.
+and visualisation.
 
 ## Checkpoint files
 Simulations cannot be restarted from `.fld` files (although you can use an `fld`
@@ -143,8 +143,7 @@ single or double precision, defaulting to current working precision.
 
 ### File structure {#vtkhdf-file-structure}
 
-All time steps are written into a single `.vtkhdf` file. The file contains a
-top-level `VTKHDF` group with the following structure:
+The file contains a top-level `VTKHDF` group with the following structure:
 
 - **Mesh datasets**: `NumberOfPoints`, `NumberOfCells`,
   `NumberOfConnectivityIds`, `Points`, `Connectivity`, `Offsets`, and `Types`.
@@ -157,10 +156,53 @@ top-level `VTKHDF` group with the following structure:
   of steps written, and offset arrays that allow ParaView to locate each time
   step's data within the concatenated datasets.
 
+### Cell representation {#vtkhdf-cell-representation}
+
+By default, each spectral element is written as a single high-order VTK
+Lagrange cell (`VTK_LAGRANGE_HEXAHEDRON` in 3D, `VTK_LAGRANGE_QUADRILATERAL`
+in 2D). This preserves the polynomial basis of the spectral element and
+produces compact output files.
+
+Alternatively, spectral elements can be subdivided into linear sub-cells
+(`VTK_HEXAHEDRON` in 3D, `VTK_QUAD` in 2D), writing one degree of freedom per
+sub-cell vertex. This results in larger files but may offer broader
+compatibility with visualisation tools that have limited support for high-order
+Lagrange cells. This subdivision mimics more closely how tools like ParaView
+read the Nek5000 fld files, and may be necessary for visualising the output.
+Subdivision is enabled by setting `output_subdivide` to `true` in the `case`
+object of the case file:
+
+```json
+{
+  "case": {
+    "fluid": {
+      "output_format": "vtkhdf",
+      "output_subdivide": true
+    }
+  }
+}
+```
+
+### Temporal vs non-temporal output {#vtkhdf-temporal-vs-non-temporal}
+
+The VTKHDF system in Neko can write both temporal and non-temporal data.
+Non-temporal data (called in code without time) is written to a single VTKHDF
+file, following all the standards defined above. Temporal data (called in code
+with time) is split into a main VTKHDF file containing the mesh and metadata,
+and separate HDF5 files containing any field data for each timestep. Each
+timestep is saved under `filename.data/###.h5`, while the main VTKHDF file
+`filename.vtkhdf` loads these files seamlessly when opened in ParaView. This
+approach allows for efficient storage and access of large temporal datasets
+while maintaining compatibility with the VTKHDF specification. Please note that
+the data must be stored as specified above to function.
+
+Please see the HDF5 documentation for Virtual Datasets if needed:
+https://support.hdfgroup.org/documentation/hdf5/latest/_v_d_s_t_n.html
+
 ### Limitations {#vtkhdf-limitations}
 
-- The VTKHDF writer performs a linear sub-division of spectral elements, writing
-  one degree of freedom per sub-cell vertex. The high-order polynomial
-  representation is not preserved in the output.
+- High order Lagrange cells are not supported by all visualisation tools. If you
+  encounter issues visualising the output, try enabling subdivision into linear
+  sub-cells as described above.
 - Reading `.vtkhdf` files back into Neko is not currently supported.
 - Adaptive mesh refinement (AMR) output is not yet implemented.

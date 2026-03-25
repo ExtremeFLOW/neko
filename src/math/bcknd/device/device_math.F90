@@ -35,7 +35,7 @@ module device_math
   use num_types, only : rp, c_rp
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
+  use mpi_f08, only : MPI_SUM, MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_Allreduce
   use device, only : glb_cmd_queue
   ! ========================================================================== !
   ! Device math interfaces
@@ -65,7 +65,8 @@ module device_math
        device_masked_gather_copy_0, device_masked_scatter_copy_0, &
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
        device_pwmax2, device_pwmax3, device_cpwmax2, device_cpwmax3, &
-       device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3
+       device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3, &
+       device_glmax, device_glmin
 
 contains
 
@@ -1297,6 +1298,82 @@ contains
     end if
 #endif
   end function device_glsum
+
+  !>Max of a vector of length n
+  function device_glmax(a_d, n, strm) result(res)
+    type(c_ptr) :: a_d
+    integer :: n, ierr
+    real(kind=rp) :: res, ninf
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) then
+       res = -huge(0.0_rp)
+       return
+    end if
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    ninf = -huge(0.0_rp)
+#if HAVE_HIP
+    res = hip_glmax(a_d, ninf, n, strm_)
+#elif HAVE_CUDA
+    res = cuda_glmax(a_d, ninf, n, strm_)
+#elif HAVE_OPENCL
+    res = opencl_glmax(a_d, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+#ifndef HAVE_DEVICE_MPI
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    end if
+#endif
+  end function device_glmax
+
+  !>Min of a vector of length n
+  function device_glmin(a_d, n, strm) result(res)
+    type(c_ptr) :: a_d
+    integer :: n, ierr
+    real(kind=rp) :: res, pinf
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) then
+       res = huge(0.0_rp)
+       return
+    end if
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    pinf = huge(0.0_rp)
+#if HAVE_HIP
+    res = hip_glmin(a_d, pinf, n, strm_)
+#elif HAVE_CUDA
+    res = cuda_glmin(a_d, pinf, n, strm_)
+#elif HAVE_OPENCL
+    res = opencl_glmin(a_d, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+#ifndef HAVE_DEVICE_MPI
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+            MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+    end if
+#endif
+  end function device_glmin
 
   subroutine device_absval(a_d, n, strm)
     integer, intent(in) :: n

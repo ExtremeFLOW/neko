@@ -1,13 +1,13 @@
-module test_stack_i4t4
+module test_stack_curve
 contains
 @test
-subroutine test_stack_i4t4_init
+subroutine test_stack_curve_init
   use pfunit
   use stack
   use math, only : NEKO_M_LN2
   use num_types, only : rp
   implicit none
-  type(stack_i4t4_t) :: s1, s2, s3
+  type(stack_curve_t) :: s1, s2, s3
   integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
 
   call s1%init()
@@ -37,14 +37,14 @@ subroutine test_stack_i4t4_init
   @assertTrue(s3%is_empty())
   @assertLessThan(s3%size(), size(s3%array()))
 
-end subroutine test_stack_i4t4_init
+end subroutine test_stack_curve_init
 
 @test
-subroutine test_stack_i4t4_free
+subroutine test_stack_curve_free
   use pfunit
   use stack
   implicit none
-  type(stack_i4t4_t) :: s
+  type(stack_curve_t) :: s
 
   call s%init()
   call s%free()
@@ -53,23 +53,29 @@ subroutine test_stack_i4t4_free
   @assertEqual(s%top_, 0)
   @assertEqual(s%size(), 0)
   @assertTrue(s%is_empty())
-  
-end subroutine test_stack_i4t4_free
+
+end subroutine test_stack_curve_free
 
 @test
-subroutine test_stack_i4t4_push
+subroutine test_stack_curve_push
   use pfunit
   use stack
-  use tuple
+  use structs
   implicit none
-  type(stack_i4t4_t) :: s
-  integer :: i
-  type(tuple4_i4_t) :: data
-  type(tuple4_i4_t), pointer :: dp(:)
+  type(stack_curve_t) :: s
+  integer :: i, j, k
+  type(struct_curve_t) :: data
+  type(struct_curve_t), pointer :: curve_ptr(:)
 
-  call s%init()  
+  call s%init()
   do i = 1, 64
-     data = (/i , -i, i, -i/)
+     data%el_idx = i
+     do j = 1, 12
+        data%curve_type(j) = i + j
+        do k = 1, 5
+           data%curve_data(k, j) = dble(i + 10 * j + k)
+        end do
+     end do
      call s%push(data)
   end do
   ! Pushing data should make the stack non-empty without reallocating early.
@@ -78,62 +84,85 @@ subroutine test_stack_i4t4_push
   @assertFalse(s%is_empty())
 
   do i = 1, 2
-     data = (/i + 64, -(i + 64), i + 64, -(i + 64)/)
+     data%el_idx = i + 64
+     do j = 1, 12
+        data%curve_type(j) = i + 64 + j
+        do k = 1, 5
+           data%curve_data(k, j) = dble(i + 64 + 10 * j + k)
+        end do
+     end do
      call s%push(data)
   end do
   ! Crossing the initial capacity should resize once and preserve order.
   @assertEqual(s%size_, 128, message='Unnecessary reallocation')
-  @assertEqual(s%top_, (64 + 2), message='Corrupt size')
+  @assertEqual(s%top_, 66, message='Corrupt size')
 
-  dp => s%array()
+  curve_ptr => s%array()
   do i = 1, 66
-     data = (/i, -i, i, -i/)
-     @assertTrue(dp(i) .eq. data)
+     @assertEqual(curve_ptr(i)%el_idx, i)
+     do j = 1, 12
+        @assertEqual(curve_ptr(i)%curve_type(j), i + j)
+        do k = 1, 5
+           @assertEqual(curve_ptr(i)%curve_data(k, j), dble(i + 10 * j + k))
+        end do
+     end do
   end do
- 
-end subroutine test_stack_i4t4_push
+
+end subroutine test_stack_curve_push
 
 @test
-subroutine test_stack_i4t4_pop
+subroutine test_stack_curve_pop
   use pfunit
   use stack
-  use tuple
+  use structs
   implicit none
-  type(stack_i4t4_t) :: s
-  integer :: i
-  type(tuple4_i4_t) :: data
+  type(stack_curve_t) :: s
+  integer :: i, j, k
+  type(struct_curve_t) :: data, data2
 
   call s%init()
   do i = 1, 66
-     data = (/i, -i, i, -i/)
+     data%el_idx = i
+     do j = 1, 12
+        data%curve_type(j) = i + j
+        do k = 1, 5
+           data%curve_data(k, j) = dble(i + 10 * j + k)
+        end do
+     end do
      call s%push(data)
   end do
 
   do i = 66, 1, -1
-     data = (/i, -i, i, -i/)
-     @assertTrue(s%pop() .eq. data)
+     data2 = s%pop()
+     @assertEqual(data2%el_idx, i)
+     do j = 1, 12
+        @assertEqual(data2%curve_type(j), i + j)
+        do k = 1, 5
+           @assertEqual(data2%curve_data(k, j), dble(i + 10 * j + k))
+        end do
+     end do
   end do
 
   ! Popping all entries should restore the empty-state markers.
   @assertEqual(s%top_, 0, message='Leftover data')
   @assertEqual(s%size_, 128, message='Corrupt size')
   @assertTrue(s%is_empty())
-  
-end subroutine test_stack_i4t4_pop
 
-@test 
-subroutine test_stack_i4t4_clear
+end subroutine test_stack_curve_pop
+
+@test
+subroutine test_stack_curve_clear
   use pfunit
   use stack
-  use tuple
+  use structs
   implicit none
-  type(stack_i4t4_t) :: s
+  type(stack_curve_t) :: s
   integer :: i
-  type(tuple4_i4_t) :: data
+  type(struct_curve_t) :: data
 
   call s%init()
   do i = 1, 66
-     data = (/i, -i, i, -i/)
+     data%el_idx = i
      call s%push(data)
   end do
   call s%clear()
@@ -142,6 +171,6 @@ subroutine test_stack_i4t4_clear
   @assertEqual(s%top_, 0, message='Corrupt top marker')
   @assertTrue(s%is_empty())
 
-end subroutine test_stack_i4t4_clear
+end subroutine test_stack_curve_clear
 
-end module test_stack_i4t4
+end module test_stack_curve

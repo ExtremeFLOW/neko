@@ -200,7 +200,7 @@ contains
          w_e => neko_registry%get_field_by_name("w_e")
 
          call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+              ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)
 
        end associate
     end if
