@@ -340,7 +340,6 @@ neko_fortran_SOURCES = \
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	simulation_components/simulation_component.f90\
 	simulation_components/simcomp_executor.f90\
-	simulation_components/boundary_operation.f90\
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/curl_simcomp.f90\
