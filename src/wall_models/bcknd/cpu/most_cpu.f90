@@ -35,6 +35,7 @@ module most_cpu
   use num_types, only : rp
   use utils, only : neko_error, neko_warning
   use logger, only : LOG_SIZE, neko_log
+  use math, only : glsum, glmin, glmax
   implicit none
   private
 
@@ -166,15 +167,21 @@ contains
     integer :: ts_idx(3)
     integer :: i, count
     integer, parameter :: max_count = 50
-    real(kind=rp) :: ui, vi, wi, ti, ts, q, hi
-    real(kind=rp) :: magu, utau, normu, z0h
-    real(kind=rp) :: L_ob, L_upper, L_lower, L_old
-    real(kind=rp) :: Ri_b, f, dfdl, fd_h, L_new, L_sign
+    real(kind=rp) :: ui, vi, wi, ti, ts, hi
+    real(kind=rp) :: normu, z0h
+    real(kind=rp) :: L_upper, L_lower, L_old
+    real(kind=rp) :: f, dfdl, fd_h, L_new, L_sign
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
     real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp), dimension(n_nodes) :: utau, Ri_b, L_ob, magu, q
+    real(kind=rp) :: utau_min, utau_max, utau_mean
+    real(kind=rp) :: Ri_b_min, Ri_b_max, Ri_b_mean
+    real(kind=rp) :: L_ob_min, L_ob_max, L_ob_mean
+    real(kind=rp) :: magu_min, magu_max, magu_mean
+    real(kind=rp) :: q_min, q_max, q_mean
 
     do i=1, n_nodes
        ! Sample the variables
@@ -193,18 +200,18 @@ contains
        ! Compute velocity magnitude
        magu = sqrt(ui**2 + vi**2 + wi**2)
        magu = max(magu, 1.0e-6_rp)
-       utau = magu*kappa / log(hi/z0)
+       utau(i) = magu*kappa / log(hi/z0)
 
        ! Compute thermal roughness length from Zilitinkevich, 1995
        if (z0h_in < 0) then
-          z0h = z0 * exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))
+          z0h = z0 * exp(-0.1_rp*sqrt((utau(i)*z0)/1.46e-5_rp))
        else
           z0h = z0h_in
        end if
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
        ! Maybe redundant, but needed to initialise Rib
-       call select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
+       call select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau(i),z0h,hi)
        call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
        call set_stability_regime(Ri_b,Ri_threshold)
@@ -261,30 +268,36 @@ contains
        select case (bc_type)
          case ("neumann")
           ! Compute u* with the new Obukhov length
-          utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
+          utau(i) = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
          case ("dirichlet")
           ! Compute u* with the new Obukhov length
-          utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
+          utau(i) = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
           ! and compute q from here
-          q = kappa*utau*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
+          q = kappa*utau(i)*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
          case default
           call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
        end select
 
        ! Distribute according to the velocity vector and bound magu to avoid 0 division
        magu = max(magu, 1.0e-6_rp)
-       tau_x(i) = -utau**2 * ui / magu
-       tau_y(i) = -utau**2 * vi / magu
-       tau_z(i) = -utau**2 * wi / magu
+       tau_x(i) = -utau(i)**2 * ui / magu
+       tau_y(i) = -utau(i)**2 * vi / magu
+       tau_z(i) = -utau(i)**2 * wi / magu
     end do
 
+    utau_max = glmax(utau, n_nodes)
+    utau_min = glmin(utau, n_nodes)
+    utau_mean = glsum(utau, n_nodes) / n_nodes
     ! Print some indicative quantities (these are just point quantities: don't trust 100%)
-    call neko_log%section('Wall model quick look')
+    call neko_log%section('Wall model diagnostics')
+    write(log_buf, '(A,E15.7)') 'mean min max'
+    call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7)') 'Ri_b: ', Ri_b
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7)') 'L_ob: ', L_ob
     call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7)') 'utau: ', utau
+    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'utau: ', utau_mean, &
+    utau_min, utau_max
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7)') 'magu: ', magu
     call neko_log%message(trim(log_buf))
