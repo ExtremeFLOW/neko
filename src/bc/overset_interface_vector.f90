@@ -331,28 +331,18 @@ contains
     call this%bc_v%finalize(only_facets_)
     call this%bc_w%finalize(only_facets_)
 
-    ! ===========================================
-    ! Build heper masks
-    ! ===========================================
+    !> Build heper masks
     call build_masks_(this)
  
-    ! ===========================================
-    ! Gather the interface boundary points
-    ! ===========================================
+    !> Gather the interface boundary points
     call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
     call this%y_interface_dof%init(this%interface_dof_mask%size(), 'y_interface')
     call this%z_interface_dof%init(this%interface_dof_mask%size(), 'z_interface')
     call gather_interface_dofs_(this)
     
-    ! ===============================================
-    ! Initialize the interpolator and find the points
-    ! ===============================================
+    !> Initialize the interpolator and find the points
     call setup_interpolator_(this)
-
-    ! ===============================================
-    ! Initialize the vectors that hold values
-    ! ===============================================
-    
+ 
     !> Keep a vector list that holds the values of interface fields
     call this%u_interface%init(this%interface_dof_mask%size(), 'u_interface')
     call this%v_interface%init(this%interface_dof_mask%size(), 'v_interface')
