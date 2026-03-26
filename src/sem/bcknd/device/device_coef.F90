@@ -37,8 +37,7 @@ module device_coef
   implicit none
   private
 
-  public :: device_coef_generate_geo, device_coef_generate_dxydrst, &
-       device_coef_get_areas_by_mask
+  public :: device_coef_generate_geo, device_coef_generate_dxydrst
 
 #ifdef HAVE_HIP
   interface
@@ -74,14 +73,6 @@ module device_coef
        type(c_ptr), value :: jacinv, jac
        integer(c_int) :: lx, nel
      end subroutine hip_coef_generate_dxyzdrst
-
-     subroutine hip_coef_get_areas_by_mask(areas, msk, facet, area, lx, m) &
-          bind(c, name='hip_coef_get_areas_by_mask')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr), value :: areas, msk, facet, area
-       integer(c_int) :: lx, m
-     end subroutine hip_coef_get_areas_by_mask
   end interface
 #elif HAVE_CUDA
   interface
@@ -117,14 +108,6 @@ module device_coef
        type(c_ptr), value :: jacinv, jac
        integer(c_int) :: lx, nel
      end subroutine cuda_coef_generate_dxyzdrst
-
-     subroutine cuda_coef_get_areas_by_mask(areas, msk, facet, area, lx, m) &
-          bind(c, name='cuda_coef_get_areas_by_mask')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr), value :: areas, msk, facet, area
-       integer(c_int) :: lx, m
-     end subroutine cuda_coef_get_areas_by_mask
   end interface
 #elif HAVE_OPENCL
   interface
@@ -160,14 +143,6 @@ module device_coef
        type(c_ptr), value :: jacinv, jac
        integer(c_int) :: lx, nel
      end subroutine opencl_coef_generate_dxyzdrst
-
-     subroutine opencl_coef_get_areas_by_mask(areas, msk, facet, area, lx, m) &
-          bind(c, name='opencl_coef_get_areas_by_mask')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr), value :: areas, msk, facet, area
-       integer(c_int) :: lx, m
-     end subroutine opencl_coef_get_areas_by_mask
   end interface
 #endif
 
@@ -235,19 +210,5 @@ contains
 #endif
   end subroutine device_coef_generate_dxydrst
 
-  subroutine device_coef_get_areas_by_mask(areas_d, msk_d, facet_d, area_d, lx, m)
-    type(c_ptr) :: areas_d, msk_d, facet_d, area_d
-    integer :: lx, m
-
-#ifdef HAVE_HIP
-    call hip_coef_get_areas_by_mask(areas_d, msk_d, facet_d, area_d, lx, m)
-#elif HAVE_CUDA
-    call cuda_coef_get_areas_by_mask(areas_d, msk_d, facet_d, area_d, lx, m)
-#elif HAVE_OPENCL
-    call opencl_coef_get_areas_by_mask(areas_d, msk_d, facet_d, area_d, lx, m)
-#else
-    call neko_error('No device backend configured')
-#endif
-  end subroutine device_coef_get_areas_by_mask
 
 end module device_coef

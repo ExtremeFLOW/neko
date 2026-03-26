@@ -62,6 +62,7 @@ module math
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_Allreduce
+  use utils, only : nonlinear_index
   implicit none
   private
 
@@ -105,7 +106,8 @@ module math
        add3s2, add4s3, add5s4, subcol4, addcol3, addcol4, addcol3s2, ascol5, &
        p_update, x_update, glsc2, glsc3, glsc4, sort, masked_copy_0, &
        cfill_mask, relcmp, glimax, glimin, swap, reord, flipv, cadd2, &
-       masked_gather_copy_0, absval, matinv3, matinv39, &
+       masked_gather_copy_0, face_masked_gather_copy_0, absval, matinv3, &
+       matinv39, &
        pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
        masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp
@@ -321,6 +323,39 @@ contains
     end do
 
   end subroutine masked_gather_copy_0
+
+  !> Gather values from a face-local SEM field to a reduced contiguous vector.
+  !! @param a Destination array of size `n_mask`.
+  !! @param b Source face-local array indexed as `b(:, :, facet, element)`.
+  !! @param mask Mask array of length `n_mask + 1`, where `mask(0) = n_mask`.
+  !! @param facet Facet ids associated with the masked points.
+  !! @param lx Number of points in the first SEM direction.
+  !! @param ly Number of points in the second SEM direction.
+  !! @param lz Number of points in the third SEM direction.
+  !! @param n_mask Size of the mask and destination arrays.
+  subroutine face_masked_gather_copy_0(a, b, mask, facet, lx, ly, lz, n_mask)
+    integer, intent(in) :: lx, ly, lz, n_mask
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    real(kind=rp), dimension(:, :, :, :), intent(in) :: b
+    integer, dimension(0:n_mask), intent(in) :: mask
+    integer, dimension(0:n_mask), intent(in) :: facet
+    integer :: l
+    integer :: idx(4)
+
+    do l = 1, n_mask
+       idx = nonlinear_index(mask(l), lx, ly, lz)
+
+       select case (facet(l))
+       case (1, 2)
+          a(l) = b(idx(2), idx(3), facet(l), idx(4))
+       case (3, 4)
+          a(l) = b(idx(1), idx(3), facet(l), idx(4))
+       case (5, 6)
+          a(l) = b(idx(1), idx(2), facet(l), idx(4))
+       end select
+    end do
+
+  end subroutine face_masked_gather_copy_0
 
   !> Gather a masked vector to reduced contigous vector
   !! \f$ a = b(mask) \f$.

@@ -225,27 +225,3 @@ void opencl_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
-void opencl_coef_get_areas_by_mask(void *areas, void *msk, void *facet,
-                                   void *area, int *lx, int *m) {
-  cl_int err;
-  if (coef_program == NULL)
-    opencl_kernel_jit(coef_kernel, (cl_program *) &coef_program);
-
-  const size_t local_item_size = 256;
-  const size_t global_item_size = 256 * (((size_t) (*m) + 255) / 256);
-  cl_kernel kernel = clCreateKernel(coef_program,
-                                    "coef_get_areas_by_mask_kernel", &err);
-  CL_CHECK(err);
-
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &areas));
-  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &msk));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &facet));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &area));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), lx));
-  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), m));
-
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,
-                                  kernel, 1, NULL, &global_item_size,
-                                  &local_item_size, 0, NULL, NULL));
-  CL_CHECK(clReleaseKernel(kernel));
-}

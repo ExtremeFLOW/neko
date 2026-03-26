@@ -48,7 +48,8 @@ module boundary_operation
   use file, only : file_t
   use vector, only : vector_t
   use vector_math, only : vector_masked_gather_copy_0, vector_glsc2, &
-       vector_glsum, vector_glmin, vector_glmax
+       vector_glsum, vector_glmin, vector_glmax, &
+       vector_face_masked_gather_copy_0
   use time_based_controller, only : time_based_controller_t
   implicit none
   private
@@ -230,7 +231,9 @@ contains
     n_pts = this%bc%msk(0)
     if (n_pts .gt. 0) then
        call this%surface_values%init(n_pts)
-       call this%coef%get_areas_by_mask(this%areas, this%bc%msk, this%bc%facet)
+       call vector_face_masked_gather_copy_0(this%areas, this%coef%area, &
+            this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &
+            this%coef%Xh%lz, n_pts)
     end if
 
     if (present(output_filename)) then

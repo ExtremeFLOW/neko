@@ -106,6 +106,24 @@ extern "C" {
 
   }
 
+  /** Fortran wrapper for face-masked gather copy
+   * Copy a face-local field \f$ a(i) = b(face(mask(i), facet(i))) \f$
+   */
+  void cuda_face_masked_gather_copy(void *a, void *b, void *mask,
+                                    void *facet, int *n1, int *n2, int *lx,
+                                    int *ly, int *lz, int *m,
+                                    cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    face_masked_gather_copy_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, (real *) b, (int *) mask, (int *) facet, *n1, *n2, *lx,
+       *ly, *lz, *m);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
   /** Fortran wrapper for masked atomic reduction
    * update a vector \f$ a += b(mask) \f$ where mask is not unique
    */
