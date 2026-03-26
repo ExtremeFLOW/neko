@@ -192,7 +192,7 @@ contains
 
     ! If a name is specified and is not the default name, add it
     ! as a prefix to the mean field names, followed by a "/".
-    if (present(name) .and. trim(name) .ne. "scalar_stats") then
+    if (present(name)) then
        unique_name = name // "/"
     else
        unique_name = "scalar_stats/"
