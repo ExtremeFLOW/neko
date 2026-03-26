@@ -190,8 +190,6 @@ contains
        this%n_stats = 42
     end if
 
-    ! If a name is specified and is not the default name, add it
-    ! as a prefix to the mean field names, followed by a "/".
     if (present(name)) then
        unique_name = name // "/"
     else
