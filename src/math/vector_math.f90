@@ -768,27 +768,27 @@ contains
 
   end subroutine vector_masked_gather_copy
 
-  !> Gather a contigous array into a vector
+  !> Scatter a contigous vector into an array
   !! \f$ a(mask) = b \f$.
-  !! @param a Destination vector.
-  !! @param b Source array of size `n_mask`.
+  !! @param a Destination array.
+  !! @param b Source vector of size `n_mask`.
   !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
-  !! @param n Size of the vector `a`.
-  !! @param n_mask Size of the mask array `mask` and `b`.
+  !! @param n Size of the array `a`.
+  !! @param n_mask Size of the mask array `mask` and vector `b`.
   subroutine vector_masked_scatter_copy_0(a, b, mask, n, n_mask)
     integer, intent(in) :: n, n_mask
-    real(kind=rp), dimension(n_mask), intent(in) :: b
-    type(vector_t), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(inout) :: a
+    type(vector_t), intent(in) :: b
     integer, dimension(0:n_mask) :: mask
-    type(c_ptr) :: mask_d, b_d
+    type(c_ptr) :: mask_d, a_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       mask_d = device_get_ptr(mask)
-       b_d = device_get_ptr(b)
-       call device_masked_scatter_copy_0(a%x_d, b_d, mask_d, n, n_mask)
+       a_d = device_get_ptr(a)
+       mask_d = device_get_ptr(mask) 
+       call device_masked_scatter_copy_0(a_d, b%x_d, mask_d, n, n_mask)
     else
-       call masked_scatter_copy_0(a%x, b, mask, n, n_mask)
+       call masked_scatter_copy_0(a, b%x, mask, n, n_mask)
     end if
 
   end subroutine vector_masked_scatter_copy_0

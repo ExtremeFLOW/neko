@@ -50,7 +50,7 @@ module overset_interface_vector
   use device_math, only : device_masked_copy_0, device_copy
   use dofmap, only : dofmap_t
   use vector, only : vector_t
-  use vector_math, only : vector_masked_gather_copy
+  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
@@ -337,6 +337,10 @@ contains
     call this%bc_v%finalize(only_facets_)
     call this%bc_w%finalize(only_facets_)
 
+    ! ===========================================
+    ! Build heper masks
+    ! ===========================================
+
     !> Create a new mask_t based on the 0-mask for the overset boundary points
     call this%interface_dof_mask%init(this%msk(1:this%msk(0)), this%msk(0))
    
@@ -372,14 +376,13 @@ contains
     deallocate(found)
     call temp_mask%init(stack%array(), stack%size())
     call stack%free()
- 
+    
     !> Create a domain mask that exclude the boundary elements.
     call this%domain_element_mask%invert_mask(temp_mask, this%dof%size())
-
-    !> Initialize the interpolator with the mask and the dof coords
-    call this%interface_interpolator%init(this%dof, &
-                                          NEKO_GLOBAL_COMM, &
-                                          mask=this%domain_element_mask)
+    
+    ! ===========================================
+    ! Gather the interface boundary points
+    ! ===========================================
 
     !> Keep a vector list that holds the coordinates of the interface
     call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
@@ -402,12 +405,26 @@ contains
     call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.) 
     call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
     call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
+    
+    
+    ! ===============================================
+    ! Initialize the interpolator and find the points
+    ! ===============================================
+
+    !> Initialize the interpolator with the mask and the dof coords
+    call this%interface_interpolator%init(this%dof, &
+                                          NEKO_GLOBAL_COMM, &
+                                          mask=this%domain_element_mask)
 
     !> Find the interface points on the global domain
     call this%interface_interpolator%find_points(this%x_interface_dof%x, &
                                                  this%y_interface_dof%x, &
                                                  this%z_interface_dof%x, & 
                                                  this%x_interface_dof%size())
+    
+    ! ===============================================
+    ! Initialize the vectors that hold values
+    ! ===============================================
     
     !> Keep a vector list that holds the values of interface fields
     call this%u_interface%init(this%interface_dof_mask%size(), 'u_interface')
@@ -438,9 +455,18 @@ contains
    v => neko_registry%get_field("v")
    w => neko_registry%get_field("w")
 
+   !> Interpolate the values
    call this%interface_interpolator%evaluate_masked(this%u_interface%x, u%x, this%domain_element_mask, .false.)
    call this%interface_interpolator%evaluate_masked(this%v_interface%x, v%x, this%domain_element_mask, .false.)
    call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
+
+   !> Scatter them to the bc fields
+   call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), this%u_interface, &
+                                   this%interface_dof_mask, this%bc_u%dof%size())
+   call vector_masked_scatter_copy(this%bc_v%field_bc%x(:,1,1,1), this%v_interface, &
+                                   this%interface_dof_mask, this%bc_v%dof%size())
+   call vector_masked_scatter_copy(this%bc_w%field_bc%x(:,1,1,1), this%w_interface, &
+                                   this%interface_dof_mask, this%bc_w%dof%size())
 
 
   end subroutine overset_interface_update
