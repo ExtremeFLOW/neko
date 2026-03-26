@@ -103,11 +103,19 @@ contains
     real(kind=rp) :: start_time
     type(field_t), pointer :: s, u, v, w, p
     type(coef_t), pointer :: coef
+    logical :: sname_provided
+
+    sname_provided = json%valid_path('field')
 
     call json_get_or_default(json, 'field', &
          sname, 's')
-    call json_get_or_default(json, "name", &
-         name, "scalar_stats_" // trim(sname))
+    if (sname_provided) then
+       call json_get_or_default(json, "name", &
+            name, "scalar_stats_" // trim(sname))
+    else
+       call json_get_or_default(json, "name", &
+            name, "scalar_stats")
+    endif
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
@@ -180,7 +188,7 @@ contains
        this%default_fname = .false.
        stats_fname = fname
     else
-       stats_fname = "scalar_stats0"
+       stats_fname = trim(this%name) // "0"
        this%default_fname = .true.
     end if
 
