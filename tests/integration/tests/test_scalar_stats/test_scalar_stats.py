@@ -113,7 +113,7 @@ def test_scalar_stats(launcher_script, request, log_file, tmp_path):
     #
 
 
-    csv = np.genfromtxt(join("tests", "test_scalar_stats", "1d0.csv"),
+    csv = np.genfromtxt(join("tests", "test_scalar_stats", "scalar_stats0.csv"),
                         delimiter=",")[12, 2:]
 
     quants = ["<s>", "<us>", "<vs>", "<ws>", "<s^2>"]
