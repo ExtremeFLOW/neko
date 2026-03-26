@@ -1424,9 +1424,9 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, ES23.15)') '  dt         : ', dt
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)')      '  Num Steps  :   ', n_steps
+    write(log_buf, '(A, I0)') '  Num Steps  :   ', n_steps
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)')      '  Output Freq:   ', output_freq
+    write(log_buf, '(A, I0)') '  Output Freq:   ', output_freq
     call neko_log%message(log_buf)
     call neko_log%message('')
 
