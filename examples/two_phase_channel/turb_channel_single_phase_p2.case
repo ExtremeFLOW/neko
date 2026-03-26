@@ -54,7 +54,7 @@
                 }
             ],
             "output_control": "simulationtime",
-            "output_value": 1.0
+            "output_value": 5.0
         }
     }
 }
