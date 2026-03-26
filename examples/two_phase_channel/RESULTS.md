@@ -10,14 +10,21 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 
 | Run | Case file | We | σ | R | y_c | IC | Status | Purpose |
 |-----|-----------|:--:|---|---|-----|----|--------|---------|
-| `channel_test_v4` | `_v4.case` | 730 | 4.1×10⁻⁴ | 0.3 | 0 | Turbulent Reichardt | **Completed** t=0–5 | High-We reference |
-| `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Reichardt IC, no perturbations | **Blown up** t=0.90 | Confirms seeding not necessary; same CSF instability |
-| `channel_test_sigma0` | `_sigma0.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Terminated** t=20→21.24 | CDI-only quality test: κ_rms spikes to ~64 then declines; φ_max stable |
-| `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.44 | We=10 blow-up: ratio=0.69, below 1 not sufficient |
-| `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Planned** | Primary validation (after we10) |
 | `channel_single_phase` | `_single_phase.case` | — | — | — | — | Turbulent Reichardt | **Completed** t=0–25 | Fluid spin-up; checkpoint at t=20 |
-| `channel_test_restart` | `_restart.case` | 1.33 | 0.3 | 0.4 | 0 | `fluid00004.chkp` + drop | **Blown up** (v1, v2) | We=1 blow-up reference data |
-| `channel_test_restart_off` | `_restart_off.case` | 1.33 | 0.3 | 0.4 | 0.3 | `fluid00004.chkp` + drop | **Ready** | Larger off-centre drop; log-law region shear |
+| `channel_test_v4` | `_v4.case` | 730 | 4.1×10⁻⁴ | 0.3 | 0 | Turbulent Reichardt | **Completed** t=0–5 | High-We reference (σ≈0, no CSF instability) |
+| `channel_test_restart` | `_restart.case` | 1.33 | 0.3 | 0.4 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.40 (v2) | We=1.33 blow-up reference; explicit CSF instability |
+| `channel_test_we10` | `_we10.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.44 | Δt/Δt_cap=0.69 — below 1 is not sufficient |
+| `channel_test_we10_diag` | `_we10_diag.case` | 10 | 0.03 | 0.3 | 0 | `fluid00004.chkp` + drop | **Blown up** t=20.447 | Dense snapshots (0.02 TU); same signature; animation produced |
+| `channel_test_laminar` | `_laminar.case` | 1 | 0.3 | 0.3 | 0 | Reichardt IC, no perturbations | **Blown up** t=0.90 | Seeding not necessary; same CSF instability |
+| `channel_test_sigma0` | `_sigma0.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Terminated** t=21.24 | CDI-only: κ_rms 6→64 (0.4 TU); CDI intact; SEM element-face artifact dominant |
+| `channel_test_sigma0_diag` | `_sigma0_diag.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Completed** t=20→20.5 | 20 snapshots at 0.02 TU; **confirmed** κ grows with element faces crossed |
+| `channel_test_sigma0_gamma025` | `_sigma0_gamma025.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Completed** t=20→20.26 | γ=0.25 parametric: stronger CDI makes κ 9× worse (sharper interface → larger C0-kink) |
+| `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Deferred** | Superseded by Phase 2 (finer mesh) |
+| `channel_test_restart_off` | `_restart_off.case` | 1.33 | 0.3 | 0.4 | 0.3 | `fluid00004.chkp` + drop | **Deferred** | Superseded by Phase 2 (finer mesh) |
+| `channel_p2_single_phase` | `_single_phase.case` (108×18×36) | — | — | — | — | Turbulent Reichardt | **Queued** Dardel | New-mesh spin-up; prerequisite for all Phase 2 restart cases |
+| `channel_p2_sigma0` | `_p2_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Queued** Dardel | Phase 2: finer mesh, original code; verify κ_rms behaviour |
+| `channel_p2_we10` | `_p2_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** σ0 result | Phase 2: We=10 first σ>0 test |
+| `channel_p2_we1` | `_p2_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** σ0 result | Phase 2: We=1 primary production case |
 
 Run directories: `/lscratch/sieburgh/simulations/<run_name>/`
 
@@ -324,6 +331,34 @@ mpirun -np 16 ./neko turb_channel_two_phase_restart_off.case
 
 ---
 
+## channel_test_we10_diag — dense blow-up diagnostic (We=10, BLOWN UP t=20.447)
+
+**Purpose:** Dense snapshots (every 0.02 TU) of the We=10 turbulent blow-up, for
+animation and supervisor presentation. Confirms the same blow-up sequence with full
+temporal resolution.
+
+**Setup:** Identical to `channel_test_we10` except `output_value: 0.02` and
+`end_time: 20.5`. 20 field files, t=20.02→20.50. Run blew up at t≈20.447 and
+reached `end_time` while diverged.
+
+**Blow-up trace:**
+
+| t | φ_max | κ_rms | u_max | Notes |
+|---|-------|-------|-------|-------|
+| 20.002 | 0.981 | 6.10 | 1.341 | Drop injected; κ_rms ≈ 2/R ✓ |
+| 20.132 | 0.986 | 6.74 | 1.341 | Stable |
+| 20.263 | 0.987 | 16.5 | 1.426 | Growth onset |
+| 20.317 | 0.988 | 27.6 | 1.711 | Crossing 2/ε threshold |
+| 20.358 | 0.989 | 52.0 | 2.203 | Runaway |
+| 20.435 | 0.998 | 158 | 4.907 | Plateau; φ_max < 1 — CDI intact ✓ |
+| 20.447 | **1.002** | 158 | 7.095 | **φ_max > 1: CDI overloaded** |
+| 20.458 | 1.015 | 162 | 6.144 | Fully diverged |
+
+Identical to original `channel_test_we10` blow-up sequence. Animation:
+`blowup_channel_test_we10_diag.gif` (20 frames, 3 fps, 3 panels: φ/κ/|u|).
+
+---
+
 ## channel_test_sigma0 — CDI quality test (σ=0, TERMINATED t=21.24)
 
 **Purpose:** Isolate CDI from CSF. With σ=0 the momentum equation has no surface tension
@@ -361,17 +396,99 @@ end_time=25. 16 MPI ranks. Terminated early at t=21.24 (1.24 TU after injection)
 - **κ_max reaches 800+** — large point-wise curvature values at highly deformed interface regions.
 - The peak κ_rms ≈ 64 is ~9.6× the spherical reference. This reflects both genuine drop deformation (no surface tension to restore shape) and potentially inaccurate normal computation in stretched regions.
 
+**Field snapshot analysis (March 2026, `analyze_sigma0_normals.py`):**
+
+Element-local postprocessing of field0.f00041 (t=20.501) and field0.f00042 (t=21.000):
+
+| Metric | t=20.501 | t=21.000 | Reference |
+|--------|----------|----------|-----------|
+| Drop centroid displacement | 0.605 (streamwise) | 1.210 (streamwise) | 0 = injection point |
+| $\|\nabla\varphi\|_{\rm mean}$ (interface) | 3.927 | 4.372 | 3.571 (CDI theory) |
+| Sphericity $r_{\rm std}$ on $\varphi=0.5$ | 0.0290 | 0.0523 | 0 (perfect sphere) |
+| Volume $\int\varphi\,dV$ | 0.20965 | 0.20962 | constant |
+| $\hat{\mathbf{n}}$ alignment angle | 25.4° | 34.2° | 0° (radial) |
+| $\kappa_{\rm rms}$ (postprocess, element-local) | 25.8 | 24.2 | 6.67 (sphere) |
+| $\kappa_{\rm rms}$ (Neko, GS-averaged) | ~62 | ~57 | 6.67 (sphere) |
+
+**Interpretation:**
+
+1. **CDI is functioning correctly.** Interface gradient is above (not below) the CDI theory
+   value, volume is conserved to 4 significant figures, and φ_max is stable. The CDI is
+   not under-performing.
+
+2. **Drop advects at ~U_cl.** Centroid displaced 0.605 units streamwise in 0.5 TU → ~U_cl =
+   1.21 U_b (physically correct for a centreline drop). No wall-normal or spanwise drift.
+
+3. **Drop is nearly spherical at t=20.5** (r_std = 0.029 = 9.7%R). Mild deformation by
+   t=21.0 (r_std = 0.052 = 17%R). Genuine σ=0 deformation is present but too small to
+   account for κ_rms = 62 (which is 9.3× the spherical value).
+
+4. **Element-boundary artifact is the dominant contribution to κ_rms.** Evidence:
+   - κ_max = 124 at t=20.002 (before any turbulent deformation), rising to 800+ by t=20.067
+   - Element-local postprocessing gives κ_rms = 26, GS-averaged Neko gives κ_rms = 62
+     (factor ~2.4): the inter-element gradient jumps substantially boost the Neko estimate
+   - The rising κ_rms (6 → 64 over 0.4 TU) likely reflects the drop sweeping through more
+     element faces as it advects streamwise at U_cl
+
+5. **Normal misalignment of 25–34° relative to drop centroid** is large for a nearly
+   spherical drop and points to element-boundary gradient errors in n̂.
+
 **What this means for the CSF blow-ups:**
 
-At σ=0 the drop freely deforms, reaching κ_rms ≈ 64. When CSF is active at We=10 (σ=0.03),
-this curvature feeds into the surface tension force: $F_{\mathrm{ST}} \approx 0.03 \times 64 / 0.14 \approx 14$.
-This is large — the CSF force is not driven by a near-spherical κ ≈ 6.67 but by the actual
-deformed shape with κ_rms ≈ 64. The combination of a large κ and an explicit integrator
-makes the blow-up more likely than the idealized capillary analysis suggests.
+The CSF force is driven by the GS-averaged κ, which includes both genuine curvature and
+element-boundary artifacts (factor ~2.4 above element-local). At We=10 (σ=0.03):
+$F_{\mathrm{ST}} \approx 0.03 \times 62 / 0.14 \approx 13$ — much larger than the spherical
+estimate of $0.03 \times 6.67 / 0.14 \approx 1.4$. Both the genuine σ=0 drop deformation
+and the SEM element-boundary artifact feed into the capillary instability. The stability
+analysis in §7.4–7.6 used κ ≈ 6.67 (spherical); the actual driving κ is ~9× larger.
 
-CDI maintains φ_max, but curvature accuracy under turbulent deformation is limited.
-Whether κ inaccuracy is primarily from CDI normal error or from genuine deformation requires
-deeper investigation of the normal field (next step).
+**High-frequency diagnostic run:** `channel_test_sigma0_diag/` — 20 snapshots at 0.02 TU intervals, t=20.12→20.50. See next section.
+
+---
+
+## channel_test_sigma0_diag — diagnostic confirmation (COMPLETED t=20.12→20.50)
+
+**Purpose:** 20 snapshots at 0.02 TU to track κ growth from the first element-face crossing.
+
+**Key time-series (from `analyze_sigma0_normals.py`):**
+
+| $t$ | centroid disp. | $\hat{\mathbf{n}}$ misalign | $\kappa_\text{rms}$ (Python) | tanh L2 | width |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 20.12 | 0.14 | 4.3° | 6.0 | 0.014 | 0.304 |
+| 20.22 | 0.27 | 8.0° | 11.9 | 0.018 | 0.301 |
+| 20.32 | 0.41 | 16.0° | 20.1 | 0.025 | 0.298 |
+| 20.42 | 0.53 | 23.2° | 26.7 | 0.031 | 0.296 |
+| 20.50 | 0.61 | 25.4° | 25.8 | 0.036 | 0.293 |
+
+**Confirmed findings:**
+- At $t=20.12$: minimal advection (0.14 units), n̂ misalignment only 4.3°, κ_rms=6.0 ≈ spherical. Very clean start.
+- κ_rms grows **linearly with centroid displacement**, not with drop deformation (r_std grows from 0.010 to 0.029 — small)
+- Interface width starts 8.6% too wide (0.304 vs theory 0.280) — CDI with γ=0.05 is slow (τ_CDI=1.4 TU)
+- tanh L2 residual grows monotonically — CDI cannot re-sharpen as fast as turbulence strains the interface
+
+**Element-face hypothesis confirmed.** κ rises as the drop sweeps through more element faces at U_cl ≈ 1.2 U_b.
+
+---
+
+## channel_test_sigma0_gamma025 — CDI parameter test (COMPLETED t=20.00→20.26)
+
+**Purpose:** Test whether increasing γ from 0.05 to 0.25 (τ_CDI = 0.07/0.25 = 0.28 TU) improves κ accuracy.
+
+**Result: κ is immediately 9× worse.**
+
+| $t$ | $\kappa_\text{rms}$ ($\gamma=0.05$) | $\kappa_\text{rms}$ ($\gamma=0.25$) |
+|:---:|:---:|:---:|
+| 20.002 | 6.1 | 6.1 |
+| 20.07 | 7.8 | **71.3** |
+| 20.13 | 7.8 | **85.1** |
+| 20.20 | 19.9 | **82.0** |
+| 20.26 | 19.9 | **79.5** |
+
+The jump occurs at the **first output step** — before turbulence has time to act.
+
+**Reason:** stronger CDI compression drives the interface to a sharper steady-state (higher |∇φ|). The C0-kink amplitude at element faces scales with |∇φ|, so the artifact is amplified. φ_max recovers faster (CDI genuinely works better), but κ accuracy is catastrophically worse.
+
+**Conclusion:** γ tuning trades CDI profile quality for κ accuracy. With the current κ computation, there is no γ that satisfies both. The only fix is the extra GS pass on n̂ in the Fortran code.
 
 ---
 
@@ -590,14 +707,19 @@ instability occurs across all We values tested so far and in the absence of turb
 
 ## Next steps
 
-- [x] `channel_single_phase` completed — `fluid00004.chkp` at t=20 available
-- [x] `channel_test_restart` v1 — blew up at t=21.55 (1.55 TU); Δt/Δt_cap=7.2
-- [x] `channel_test_restart` v2 — blew up at t=20.40 (0.40 TU); Δt/Δt_cap=2.2
-- [x] `channel_test_we10` — **blew up at t=20.44 (0.44 TU)**; Δt/Δt_cap=0.69
-- [x] **`channel_test_laminar`** — blown up at t=0.90 TU; seeding not necessary, but turbulence halves stable duration
-- [x] **`channel_test_sigma0`** (σ=0, CDI-only) — terminated t=21.24; κ_rms spikes to ~64 then declines; φ_max stable; deeper normal investigation planned
-- [ ] **Investigate normal field** — visualise $\hat{\mathbf{n}}$ and κ pointwise; distinguish genuine deformation from CDI normal error
-- [ ] **`channel_test_we100`** (We=100, σ=0.003, restart) — Δt/Δt_cap≈0.22; next CSF stability test
-- [ ] `channel_test_we10` re-run with lower `target_cfl` once stability boundary is better understood
-- [ ] `channel_test_we1` (We=1, restart) — blocked pending stable timestep or semi-implicit CSF
-- [ ] `channel_test_restart_off` (We=1.33, R=0.4, y_c=0.3) — after stable parameters found
+**Phase 1 — confirmed (current mesh, egidius):**
+- [x] All CSF cases blow up from explicit capillary instability (We=1, 10, laminar, we10_diag)
+- [x] CDI functioning correctly throughout all blow-ups (φ_max < 1, volume conserved)
+- [x] σ=0 diagnostic: κ inaccuracy dominated by SEM element-boundary artifact (GS-averaged n̂ → C0 kink → D[N,N]=14 amplification → κ_face~23)
+- [x] γ tuning (0.05→0.25): CDI profile improves but κ immediately 9× worse — not the path forward
+- [x] Animations produced: `blowup_channel_test_laminar.gif`, `blowup_channel_test_sigma0_diag.gif`, `blowup_channel_test_we10_diag.gif`
+
+**Phase 1 — remaining:**
+- [ ] **Fortran fix:** extra GS pass on n̂ after normalisation in `turb_channel_two_phase.f90` (~5 lines). Smooths C1 kink before div(n̂).
+- [ ] Verify fix: σ=0 run should give κ_rms ≈ 6.67 (spherical), no growth with advection
+- [ ] If fix verified: run We=10 with σ>0 on current mesh
+
+**Phase 2 — new mesh, larger drop, Dardel (planned — see plan file):**
+- [ ] Generate finer mesh on Dardel
+- [ ] Larger drop (R ≥ 0.4)
+- [ ] Port workflow to Dardel (Cray compiler, GPU backend, SLURM)

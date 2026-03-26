@@ -117,4 +117,4 @@ examples/**/results/
 .DS_Store
 
 # Large generated notebooks
-examples/**/*_executed.ipynb
+examples/**/*_executed.ipynblatex-report/

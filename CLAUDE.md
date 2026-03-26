@@ -62,9 +62,33 @@ includedir=/lscratch/sieburgh/local/jsonfortran-gnu-9.2.1/lib
 
 ### Dardel (production HPC)
 
-See the Dardel workflow in the original `spurious-currents` CLAUDE.md.
-Use `--cluster` flag. Neko installs to:
-`/cfs/klemming/projects/supr/kthmech/eriksie/builds/neko-channel/`
+Use `--cluster` flag. Key paths:
+
+| Purpose | Path |
+|---------|------|
+| Source code | `$KTHMECH_PROJECT/src/neko-multiphase-channel/` |
+| Built Neko | `$KTHMECH_PROJECT/builds/neko-channel/` |
+| Simulation runs | `$SCRATCH_DIR/<run_name>/` |
+
+Where `KTHMECH_PROJECT=/cfs/klemming/projects/supr/kthmech/eriksie` and
+`SCRATCH_DIR=/cfs/klemming/scratch/e/eriksie`.
+
+**One-time setup:**
+```bash
+cd $KTHMECH_PROJECT/src
+git clone git@github.com:ExtremeFLOW/neko.git neko-multiphase-channel
+cd neko-multiphase-channel && git checkout eriksie/multiphase/two-phase-channel
+sbatch $KTHMECH_PROJECT/scripts/build_neko_channel.sh
+```
+
+**File transfer node:** use `dardel-ftn` for rsync. Use `dardel` for sbatch/monitoring.
+Account: `naiss2025-3-39`, partition: `main`, 128 cores/node.
+
+**Cluster scripts** (in `cluster/`):
+- `build_neko_channel.sh` — SLURM build job (sbatch wrapper)
+- `sync_to_dardel.sh` — rsync source → Dardel
+- `sync_from_dardel.sh <run_name> [--all]` — rsync results → egidius
+- `job_template.sh` — Dardel run job template (copy and edit CASE → actual name)
 
 ## Running the two-phase channel example
 
@@ -130,21 +154,83 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 
 | Path | Purpose |
 |------|---------|
-| `examples/two_phase_channel/turb_channel_two_phase.f90` | User module: IC, CDI, CSF, diagnostics |
+| `examples/two_phase_channel/turb_channel_two_phase.f90` | **Phase 1** user module (original, no n̂ fix). Use for Phase 1 reference cases. |
+| `examples/two_phase_channel/turb_channel_two_phase_p2.f90` | **Phase 2** user module: identical to Phase 1 except adds a second GS averaging pass on n̂ before `div()`. The diff is documented in the file header. Compile with `makeneko turb_channel_two_phase_p2.f90` for all `p2_*` cases. |
 | `examples/two_phase_channel/turb_channel_two_phase_laminar.case` | Laminar + We=1 (σ=0.3): blew up at t=0.90 TU (same CSF instability as turbulent cases) |
-| `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Turbulent + We=1 (σ=0.3): primary validation; restart from `fluid00004.chkp`; blocked on capillary stability |
-| `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Turbulent + We=10 (σ=0.03): blew up at t=20.44 (Δt/Δt_cap=0.69); restart from `fluid00004.chkp` |
-| `examples/two_phase_channel/turb_channel_two_phase_sigma0.case` | σ=0 CDI-only quality test; restart from `fluid00004.chkp`; κ_rms spikes to ~64 without CSF |
-| `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp` (t=20→25), R=0.4, y_c=0 (centre); blow-up reference data |
+| `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Phase 1 turbulent + We=1 (σ=0.3): blew up; superseded by p2_we1 |
+| `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Phase 1 turbulent + We=10 (σ=0.03): blew up at t=20.44 (Δt/Δt_cap=0.69); superseded by p2_we10 |
+| `examples/two_phase_channel/turb_channel_two_phase_sigma0.case` | Phase 1 σ=0 CDI-only quality test; κ_rms→64; root cause confirmed as element-face C0 kink in n̂ |
+| `examples/two_phase_channel/turb_channel_two_phase_p2_sigma0.case` | **Phase 2** σ=0 fix-verification: 108×18×36 mesh, ε=0.09, R=0.4. Target: κ_rms≈5.0 stable |
+| `examples/two_phase_channel/turb_channel_two_phase_p2_we10.case` | **Phase 2** We=10 (σ=0.04): first σ>0 test with Fortran fix; 108×18×36 mesh |
+| `examples/two_phase_channel/turb_channel_two_phase_p2_we1.case` | **Phase 2** We=1 (σ=0.4): primary production case; 108×18×36 mesh |
+| `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp` (t=20→25), R=0.4, y_c=0 (centre); Phase 1 blow-up reference |
 | `examples/two_phase_channel/turb_channel_two_phase_restart_off.case` | We=1.33 restart, R=0.4, y_c=0.3 (off-centre, log-law region) |
-| `examples/two_phase_channel/turb_channel_two_phase_v4.case` | v4: We=730 high-We reference (completed) |
+| `examples/two_phase_channel/turb_channel_two_phase_v4.case` | v4: We=730 high-We reference (completed, Phase 1) |
+| `examples/two_phase_channel/turb_channel_single_phase.case` | Single-phase spin-up to t=25, checkpoints every 5 TU. **Must be re-run on 108×18×36 mesh for Phase 2.** |
 | `examples/two_phase_channel/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up |
-| `examples/two_phase_channel/turb_channel_single_phase.case` | Single-phase spin-up to t=25, checkpoints every 5 TU |
 | `examples/two_phase_channel/postprocess_single_phase.py` | Single-phase postprocessing: ekin plot + mean velocity profile |
+| `examples/two_phase_channel/animate_blowup.py` | Animation: φ/κ/\|u\| panels. Flags: `--stride N`, `--mesh p1\|p2`, `--kappa-scale`. |
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
 | `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
+| `cluster/build_neko_channel.sh` | Dardel SLURM build job |
+| `cluster/sync_to_dardel.sh` | rsync source → Dardel |
+| `cluster/sync_from_dardel.sh` | rsync results ← Dardel |
+| `cluster/job_template.sh` | Dardel run job template |
 | `setup-env-channel.sh` | Environment setup (local/egidius/cluster) |
 | `build-neko-channel.sh` | Build script |
+
+## Phase 2 workflow (new mesh + Fortran fix)
+
+### Mesh
+
+```bash
+# 108x18x36 — uniform xz (Δx=Δz=0.1164), 3.1 elements across interface
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 108 18 36 .true. .false. .true.
+mv box.nmsh box_phys_108x18x36.nmsh
+```
+
+Key parameters for Phase 2 cases: `ε=0.09`, `R=0.4`, `γ=0.05`.
+- 4ε/Δ = 3.1 elements across interface (vs 1.8 in Phase 1)
+- We=10: σ=0.04, Δt_cap≈0.079, Δt/Δt_cap≈0.051
+- We=1: σ=0.4, Δt_cap≈0.025, Δt/Δt_cap≈0.16
+
+### Phase 2 strategy
+
+**Phase 2 investigates the finer mesh only — the Fortran fix is deferred.**
+The original `turb_channel_two_phase.f90` is used for all Phase 2 cases.
+`turb_channel_two_phase_p2.f90` (with extra GS pass on n̂) exists for later
+comparison but is not used yet. The question is: does better interface
+coverage (3.1 elements vs 1.8) alone change the blow-up behaviour?
+
+### Compile for Phase 2
+
+```bash
+cd examples/two_phase_channel
+source ../../setup-env-channel.sh --egidius   # or --cluster on Dardel
+makeneko turb_channel_two_phase.f90           # original code, no Fortran fix
+```
+
+### Verification sequence
+
+1. Run `p2_sigma0.case` on Dardel (1 TU, 128 ranks). Observe κ_rms — expect still ~64 if element-face artifact dominates mesh resolution, or lower if coverage helps.
+2. If verified, sync to Dardel, build, re-run single-phase spin-up on 108×18×36 mesh (128 ranks),
+   then run p2_we10 and p2_we1.
+
+### Single-phase spin-up on new mesh (Dardel)
+
+```bash
+# Update turb_channel_single_phase.case: change mesh_file to box_phys_108x18x36.nmsh
+mkdir $SCRATCH_DIR/channel_p2_single_phase
+cd    $SCRATCH_DIR/channel_p2_single_phase
+cp $SRC/turb_channel_single_phase.case .
+cp $SRC/box_phys_108x18x36.nmsh .
+cp $SRC/neko .
+srun -u -n 128 ./neko turb_channel_single_phase.case
+# fluid00004.chkp written at t=20; copy to each Phase 2 run directory
+```
+
+**MPI rank count for restart must match spin-up.** New-mesh spin-up uses 128 ranks →
+all Phase 2 restart cases use `srun -n 128`.
 
 ## Style and architecture
 

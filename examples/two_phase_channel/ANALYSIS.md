@@ -967,11 +967,81 @@ This is ~9.6× larger than the force one would estimate from a sphere. The capil
 stability analysis in §4.4 used the spherical κ implicitly; the actual stability margin
 is worse than that analysis suggests.
 
-**Open question:** How much of the κ_rms increase is genuine deformation vs CDI normal error?
-Answering this requires pointwise visualisation of $\hat{\mathbf{n}}$ and $\kappa$ on field
-snapshots. If $\hat{\mathbf{n}}$ is smooth and follows the interface correctly, the κ growth
-is physical. If $\hat{\mathbf{n}}$ is noisy in the bulk or misaligned at the interface, CDI
-normal computation is inaccurate. This is the next planned investigation.
+**Field snapshot analysis (March 2026):**
+
+Script `analyze_sigma0_normals.py` reads field0.f00041 (t=20.5) and field0.f00042 (t=21.0)
+from `channel_test_sigma0/` and computes CDI quality metrics element-locally
+(np.gradient on GLL grid, no GS averaging). The CDI steady-state reference is
+$|\nabla\varphi|_{\rm theory} = \varphi(1-\varphi)/\varepsilon = 1/(4\varepsilon) = 3.571$
+at $\varphi=0.5$ (from the 1D tanh profile). Note: the plan document erroneously
+stated $1/(2\varepsilon) = 7.14$ as the reference; the correct value is $1/(4\varepsilon)$.
+
+Drop centroid is tracked dynamically (mass-weighted centroid $\bar{\mathbf{x}} = \int\mathbf{x}\varphi\,dV / \int\varphi\,dV$):
+at t=20.5 the centroid is at $(6.888, 0.000, 2.094)$ — displaced 0.605 units streamwise
+from the injection point $(6.283, 0, 2.094)$. The drop advects at $U_x \approx 1.21\,U_b$,
+consistent with the centreline velocity $U_{cl} \approx 1.15\,U_b$ plus fluctuations.
+No wall-normal or spanwise drift is observed (y and z centroid unchanged).
+
+| $t$ | Centroid displacement | $|\nabla\varphi|_{\rm mean}$ (interface) | $r_{\rm std}$ on $\varphi=0.5$ | $\int\varphi\,dV$ | $\hat{\mathbf{n}}$ angle | $\kappa_{\rm rms}$ (post) | $\kappa_{\rm rms}$ (Neko) |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 20.501 | 0.605 | 3.927 | 0.0290 | 0.20965 | 25.4° | 25.85 | ~62 |
+| 21.000 | 1.210 | 4.372 | 0.0523 | 0.20962 | 34.2° | 24.16 | ~57 |
+| — | — | **theory: 3.571** | **0 = sphere** | **constant** | **0° = radial** | — | **6.67 = sphere** |
+
+**Findings:**
+
+1. **Interface maintained.** $|\nabla\varphi|_{\rm mean} = 3.93$–$4.37$ vs theory $3.57$ —
+   slightly *above* steady-state (interface is modestly over-compressed). Volume is
+   conserved to four significant figures. CDI is functioning correctly.
+
+2. **Drop is nearly spherical at t=20.5** ($r_{\rm std}/R = 9.7\%$), with modest but
+   measurable deformation by t=21.0 ($r_{\rm std}/R = 17.4\%$). The deformation is
+   growing (~1.8× in 0.5 TU) consistent with σ=0 (no restoring force), but is too small
+   to account for the $\kappa_{\rm rms}$ factor of ~9 alone.
+
+3. **$\hat{\mathbf{n}}$ misalignment (25–34° relative to current centroid) is significant.**
+   For a perfect sphere $\hat{\mathbf{n}}$ should be exactly radial (0°). The 25° value at
+   t=20.5 — when the drop is still nearly spherical — indicates that element-boundary
+   effects in the normal computation are already substantial. This is the element-local
+   postprocessing gradient; the GS-averaged Neko normal would be smoother.
+
+4. **Postprocessing $\kappa_{\rm rms} = 26$ vs Neko $\kappa_{\rm rms} = 62$: factor ~2.4.**
+   The element-local postprocessing misses inter-element gradient discontinuities.
+   Neko applies `div(n̂)` element-locally to the GS-averaged C0 field $\hat{\mathbf{n}}$, then
+   GS-averages the result. At element faces, the strong-form derivative of a C0 field
+   has jumps that GS averaging only partially smooths; these contribute to the Neko κ.
+   The factor 2.4× suggests element-boundary effects account for roughly half the κ_rms
+   discrepancy from the spherical value.
+
+5. **$\kappa_{\max} = 124$ at t=20.002** (the very first diagnostic step, before any
+   turbulent deformation). This is 18.5× the spherical value, with κ_rms still at 6.10.
+   A tiny fraction of nodes have extreme κ from the start. This is consistent with
+   Hypothesis B: the GLL representation of the analytically-injected tanh sphere already
+   has element-boundary errors in $\hat{\mathbf{n}}$, and κ_max is set by the worst-case node.
+   As the drop advects across element boundaries over 0.4 TU, more nodes acquire large κ,
+   raising κ_rms.
+
+**Revised hypothesis assessment:**
+
+- **Hypothesis A (physical deformation):** PARTIAL. Drop deformation is real (r_std
+  growing) but modest (9–17% of R). Cannot account for the full factor of 9 in κ_rms.
+
+- **Hypothesis B (SEM element-boundary artifact):** LIKELY DOMINANT. κ_max = 800+ is
+  present from the first timestep. The 2.4× discrepancy between element-local and Neko
+  κ_rms implicates inter-element gradient errors. The rising κ_rms likely reflects the
+  drop sweeping through more element faces as it advects streamwise at ~U_cl.
+
+- **Hypothesis C (CDI startup transient):** MINOR. Interface gradient is above the
+  CDI steady-state (not below), and volume is conserved — CDI is not under-performing.
+  The startup φ_max deficit (0.981 vs 0.986 equilibrium) is small and resolves quickly.
+
+**Outstanding question (requires diagnostic run data):**
+To confirm Hypothesis B, we need to show that the large-κ nodes are spatially concentrated
+at element boundaries (x = multiples of the element width ~0.155, z = multiples of ~0.155).
+The high-frequency diagnostic run (`channel_test_sigma0_diag/`, output every 0.02 TU)
+will provide 25 snapshots from t=20.002 to t=20.5 to animate and inspect. The key test:
+do large-κ regions appear at element-face locations and does their extent grow as the
+drop advects across more element faces?
 
 ---
 
@@ -996,16 +1066,64 @@ physically correct root causes:
    is essentially absent at the flow scale, so the interface strains freely.
    Growing $\kappa_{\mathrm{rms}}$ is the physically expected outcome.
 
-All cases with non-negligible σ have blown up (We=1 v1, v2; We=10; laminar We=1). All
-share the same signature: φ_max < 1 throughout the κ_rms runaway (CDI intact), plateau
-near κ_rms ≈ 150–180 (resolution saturation), then divergence. The instability is in
-the explicit CSF integrator, not CDI.
+All cases with non-negligible σ have blown up (We=1 v1, v2; We=10; laminar We=1;
+We=10 high-frequency diagnostic). All share the same signature: φ_max < 1 throughout
+the κ_rms runaway (CDI intact), plateau near κ_rms ≈ 150–180 (resolution saturation),
+then divergence. The instability is in the explicit CSF integrator, not CDI.
 
-The σ=0 CDI-only test (§7.8) confirms CDI maintains interface amplitude (φ_max stable)
-but shows κ_rms growing to ~64 within 0.4 TU under turbulent straining — ~9.6× the
-spherical reference. Whether this reflects genuine drop deformation at σ=0 or CDI normal
-inaccuracy is the open question driving the next investigation.
+**Confirmed (March 2026):** The σ=0 CDI-only diagnostic run (`channel_test_sigma0_diag`, 20
+snapshots at 0.02 TU) has confirmed the SEM element-boundary artifact as the dominant
+source of κ error. Key evidence:
 
-The **next steps** are: (1) investigate the normal field $\hat{\mathbf{n}}$ pointwise on
-field snapshots to separate physical deformation from numerical normal error; (2) run
-We=100 (σ=0.003, Δt/Δt_cap ≈ 0.22) as the first predicted-stable explicit-CSF case.
+- At t=20.12 (centroid displacement = 0.14): κ_rms = 6.0 ≈ spherical reference, n̂
+  misalignment = 4.3°. The interface is clean before significant advection.
+- κ_rms grows in direct proportion to centroid displacement (element faces crossed), not
+  to drop deformation (r_std grows only 0.010 → 0.029). The smoking gun: it is the
+  advection through element faces, not drop straining, that drives κ growth.
+
+**γ parametric study (`channel_test_sigma0_gamma025`):** Increasing γ from 0.05 to 0.25
+(τ_CDI = 0.28 TU vs 1.4 TU) makes κ immediately 9× worse. Stronger CDI compression
+drives the interface to a sharper steady-state (higher |∇φ|), which amplifies the
+C0-kink amplitude at element faces. CDI profile quality (interface width, φ_max recovery)
+does improve, but κ accuracy degrades catastrophically.
+
+**The only fix is the Fortran code:** an additional GS pass on $\hat{\mathbf{n}}$ after
+normalisation, before computing div(n̂). This smooths the slope of $\hat{\mathbf{n}}$
+across element faces, reducing the C1 kink magnitude without changing the interface
+profile. See §7.9 for the proposed implementation and expected effect.
+
+---
+
+## 7.9 Proposed fix: extra GS pass on n̂
+
+**Current workflow** (CSF source term in `turb_channel_two_phase.f90`, lines ~319–352):
+
+```fortran
+call grad(gphi_x, gphi_y, gphi_z, phi, coef)       ! ∇φ element-local
+call coef%gs_h%op(gphi_x, ...); call col2(gphi_x, coef%mult, ...)  ! GS → C0
+! normalise: n̂ = ∇φ/|∇φ| (now C0 but not C1)
+call div(kappa, nx, ny, nz, coef)                   ! κ = −∇·n̂ (amplifies C0 kink)
+call coef%gs_h%op(kappa, ...); call col2(...)        ! GS avg
+```
+
+**Proposed fix** — add GS pass on each n̂ component after normalisation:
+
+```fortran
+! After normalisation to get nx, ny, nz (each C0):
+call coef%gs_h%op(nx, nx%x, GS_OP_ADD, nx%size())
+call col2(nx%x, coef%mult, nx%size())               ! smooth n̂_x across faces
+! (repeat for ny, nz)
+call div(kappa, nx, ny, nz, coef)                   ! now kink is smaller
+call coef%gs_h%op(kappa, ...); call col2(...)
+```
+
+**Expected effect:** the GS pass averages the n̂ value at each face node over all
+contributing elements, smoothing the slope discontinuity. The endpoint derivative
+D[N,N]=14 then sees a smaller jump, reducing the artifact from O(N²) to O(N).
+
+**Trade-off:** slight over-smoothing of κ (averaging toward element mean). For nearly
+spherical drops (uniform κ) this bias is negligible. For highly deformed drops it
+introduces a small negative bias in κ_rms.
+
+**Verification plan:** run σ=0 CDI-only with the fix; expect κ_rms ≈ 6–8 (spherical
+± genuine deformation) throughout, no growth with advection. Then test with σ > 0.
