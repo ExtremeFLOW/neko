@@ -34,6 +34,7 @@
 module overset_interface_vector
   use comm, only : NEKO_GLOBAL_COMM
   use neko_config, only: NEKO_BCKND_DEVICE
+  use registry, only : neko_registry
   use num_types, only : rp
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
@@ -82,9 +83,10 @@ module overset_interface_vector
      !> Vectors holding the dof coordinates for cases where mesh moves
      type(vector_t) :: x_dof, y_dof, z_dof
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
+     type(vector_t) :: u_interface, v_interface, w_interface
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
-     procedure(field_dirichlet_update), nopass, pointer :: update => null() !adperez: I need to override this to update the values internally
+     procedure(field_dirichlet_update), nopass, pointer :: update_ => null() !adperez: I need to override this to update the values internally
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_vector_init
@@ -107,6 +109,7 @@ module overset_interface_vector
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => &
           overset_interface_vector_apply_scalar_dev
+     procedure, pass(this) :: update => overset_interface_update
   end type overset_interface_vector_t
 
 contains
@@ -180,9 +183,16 @@ contains
     call this%y_dof%free()
     call this%z_dof%free()
 
+    call this%x_interface_dof%free()
+    call this%y_interface_dof%free()
+    call this%z_interface_dof%free()
+    call this%u_interface%free()
+    call this%v_interface%free()
+    call this%w_interface%free()
 
-    if (associated(this%update)) then
-       nullify(this%update)
+
+    if (associated(this%update_)) then
+       nullify(this%update_)
     end if
   end subroutine overset_interface_vector_free
 
@@ -246,7 +256,7 @@ contains
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
        if (.not. this%updated) then
-          call this%update(this%field_list, this%bc_u, time)
+          call this%update_(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
 
@@ -282,7 +292,7 @@ contains
 
     if (strong_) then
        if (.not. this%updated) then
-          call this%update(this%field_list, this%bc_u, time)
+          call this%update_(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
 
@@ -398,8 +408,41 @@ contains
                                                  this%y_interface_dof%x, &
                                                  this%z_interface_dof%x, & 
                                                  this%x_interface_dof%size())
+    
+    !> Keep a vector list that holds the values of interface fields
+    call this%u_interface%init(this%interface_dof_mask%size(), 'u_interface')
+    call this%v_interface%init(this%interface_dof_mask%size(), 'v_interface')
+    call this%w_interface%init(this%interface_dof_mask%size(), 'w_interface')
 
 
   end subroutine overset_interface_vector_finalize
+
+  !> Update the values at the interfaces
+  subroutine overset_interface_update(this, time)
+   class(overset_interface_vector_t), intent(inout) :: this
+   type(time_state_t), intent(in) :: time
+   type(field_t), pointer :: u, v, w
+
+
+   !> Update in sub-step 1 should be an extrapolation of the boundary values
+   ! not implemented for now
+   ! if (substep .eq. 1) then
+   !   call this%extrapolate()
+   ! end if
+
+   !> At some point check if the coordintes have changed. If so, find points again
+   ! not implemented for now
+
+   !> For more substep than 1, then we just interpolate
+   u => neko_registry%get_field("u")
+   v => neko_registry%get_field("v")
+   w => neko_registry%get_field("w")
+
+   call this%interface_interpolator%evaluate_masked(this%u_interface%x, u%x, this%domain_element_mask, .false.)
+   call this%interface_interpolator%evaluate_masked(this%v_interface%x, v%x, this%domain_element_mask, .false.)
+   call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
+
+
+  end subroutine overset_interface_update
 
 end module overset_interface_vector
