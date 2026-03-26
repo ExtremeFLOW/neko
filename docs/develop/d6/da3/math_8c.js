@@ -24,6 +24,8 @@ var math_8c =
     [ "opencl_col2", "d6/da3/math_8c.html#a2654c6c05803a4511fb69381bd234b1f", null ],
     [ "opencl_col3", "d6/da3/math_8c.html#a0c5139fd937bb2fb1ed0df8d246aba19", null ],
     [ "opencl_copy", "d6/da3/math_8c.html#ab992326db2bff0db13778dd25541ebf3", null ],
+    [ "opencl_glmax", "d6/da3/math_8c.html#afbb0b02e0f2a6904c6747eaf4d94cccd", null ],
+    [ "opencl_glmin", "d6/da3/math_8c.html#aab903d8f7cfa3c9904586738c4745aae", null ],
     [ "opencl_glsc2", "d6/da3/math_8c.html#ad46d6fd4a132906e40ad174cead51a4f", null ],
     [ "opencl_glsc3", "d6/da3/math_8c.html#a34ab772f383af6773ef5839ec506a7da", null ],
     [ "opencl_glsc3_many", "d6/da3/math_8c.html#a85cfd5aea3c92d8b531f55644af02781", null ],

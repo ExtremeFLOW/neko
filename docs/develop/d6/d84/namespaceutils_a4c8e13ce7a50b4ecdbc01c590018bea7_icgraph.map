@@ -1,34 +1,32 @@
 <map id="utils::linear_index" name="utils::linear_index">
-<area shape="rect" id="Node000001" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="671,334,809,359"/>
-<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#a98e7b195bc43fad16dcf171919c3e38d" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="429,5,608,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="733,320,723,266,703,195,688,158,670,122,648,89,621,59,605,48,608,43,624,55,652,86,675,120,693,156,708,194,728,265,738,319"/>
-<area shape="rect" id="Node000004" href="$d0/dc0/namespacebc.html#aaeeaa7c90eedcd2f206514d689a31a0d" title="Finalize the construction of the bc by populting the msk and facet arrays." alt="" coords="443,70,595,95"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="731,321,719,275,698,217,666,158,645,132,621,109,594,94,596,89,624,105,649,128,670,155,703,215,724,273,736,320"/>
-<area shape="rect" id="Node000005" href="$d6/d46/namespacecartesian__el__finder.html#aaf75ef631a1b655a9641da4b824b4a95" title=" " alt="" coords="442,119,595,174"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="724,323,684,257,655,220,621,189,594,173,597,168,624,185,659,217,688,254,729,320"/>
-<area shape="rect" id="Node000006" href="$d6/d46/namespacecartesian__el__finder.html#a9b83fef0a0d494b57493941aceeabc34" title=" " alt="" coords="428,199,609,239"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="715,326,673,289,621,253,595,241,598,236,624,248,677,284,718,322"/>
-<area shape="rect" id="Node000007" href="$d4/d53/namespacecartesian__pe__finder.html#a5d41aee4204e950695179dfb6d2c39e8" title="Initialize the global interpolation object on a set of coordinates." alt="" coords="426,263,611,303"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="681,333,588,305,589,300,683,327"/>
-<area shape="rect" id="Node000008" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="449,327,588,367"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="656,349,588,349,588,344,656,344"/>
-<area shape="rect" id="Node000010" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="437,391,600,417"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="681,366,623,381,573,394,572,389,622,376,680,360"/>
-<area shape="rect" id="Node000011" href="$d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b" title="Compute (i,j,k,l) array given linear index with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="437,441,600,466"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="715,370,674,401,624,430,588,443,586,438,622,426,671,397,712,366"/>
-<area shape="rect" id="Node000012" href="$dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d" title="Maps the GLL points that verify a point_zone&#39;s criterion by adding them to the stack." alt="" coords="415,490,623,515"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="726,372,685,427,656,455,624,480,596,492,593,488,621,475,653,451,681,423,722,369"/>
-<area shape="rect" id="Node000013" href="$d7/d37/namespacevtk.html#a6aeb6b9cc6bfc315d02d79146c7fc600" title="Build the VTK Lagrange hexahedron node ordering for a given lx. Returns an array of size lx*ly*lz map..." alt="" coords="435,540,602,580"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="731,373,715,408,692,450,662,492,624,529,602,542,599,538,621,525,658,489,688,447,711,406,726,371"/>
-<area shape="rect" id="Node000016" href="$d7/d37/namespacevtk.html#a90f8c0cdcc0abc4161039100136e8a78" title="Build the VTK Lagrange quadrilateral node ordering for a given lx, ly. Returns an array of size lx*ly..." alt="" coords="431,604,606,644"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="736,374,724,421,702,480,670,541,649,569,624,594,607,606,604,602,621,590,645,566,665,538,697,478,719,419,731,372"/>
-<area shape="rect" id="Node000003" href="$d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d" title="Initialization of the TreeAMG multigrid solver." alt="" coords="208,5,359,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="415,28,359,28,359,23,415,23"/>
-<area shape="rect" id="Node000009" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="200,334,367,359"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="435,349,367,349,367,344,435,344"/>
-<area shape="rect" id="Node000014" href="$d7/d37/namespacevtk.html#a43ebc51559d1b6dfa7e049a761e156ff" title="Get the VTK node ordering for a given cell type. For Lagrange cells, returns an array mapping VTK nod..." alt="" coords="217,579,350,605"/>
-<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="422,576,351,586,350,580,422,570"/>
-<area shape="rect" id="Node000015" href="$db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,572,152,612"/>
-<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="203,595,152,595,152,589,203,589"/>
-<area shape="poly" id="edge16_Node000016_Node000014" title=" " alt="" coords="417,613,350,604,351,598,418,608"/>
+<area shape="rect" id="Node000001" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="476,334,615,359"/>
+<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#a98e7b195bc43fad16dcf171919c3e38d" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="235,5,413,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="538,320,528,266,508,195,494,158,475,122,453,89,426,59,410,48,413,43,430,55,457,86,480,120,499,156,514,194,534,265,544,319"/>
+<area shape="rect" id="Node000004" href="$d0/dc0/namespacebc.html#aaeeaa7c90eedcd2f206514d689a31a0d" title="Finalize the construction of the bc by populting the msk and facet arrays." alt="" coords="248,70,400,95"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="536,321,524,275,503,217,471,158,450,132,426,109,399,94,401,89,430,105,454,128,475,155,508,215,529,273,542,320"/>
+<area shape="rect" id="Node000005" href="$d6/d46/namespacecartesian__el__finder.html#aaf75ef631a1b655a9641da4b824b4a95" title=" " alt="" coords="247,119,401,174"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="530,323,489,257,460,220,426,189,400,173,402,168,430,185,464,217,493,254,534,320"/>
+<area shape="rect" id="Node000006" href="$d6/d46/namespacecartesian__el__finder.html#a9b83fef0a0d494b57493941aceeabc34" title=" " alt="" coords="233,199,415,239"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="520,326,479,289,427,253,401,241,403,236,429,248,482,284,524,322"/>
+<area shape="rect" id="Node000007" href="$d4/d53/namespacecartesian__pe__finder.html#a5d41aee4204e950695179dfb6d2c39e8" title="Initialize the global interpolation object on a set of coordinates." alt="" coords="231,263,417,303"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="486,333,393,305,395,300,488,327"/>
+<area shape="rect" id="Node000008" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="255,327,393,367"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="462,349,394,349,394,344,462,344"/>
+<area shape="rect" id="Node000010" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="243,391,405,417"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="487,366,429,381,379,394,378,389,427,376,485,360"/>
+<area shape="rect" id="Node000011" href="$d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b" title="Compute (i,j,k,l) array given linear index with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="243,441,405,466"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="521,370,479,401,429,430,393,443,391,438,427,426,477,397,518,366"/>
+<area shape="rect" id="Node000012" href="$dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d" title="Maps the GLL points that verify a point_zone&#39;s criterion by adding them to the stack." alt="" coords="220,490,428,515"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="531,372,490,427,462,455,429,480,401,492,399,488,427,475,458,451,486,423,527,369"/>
+<area shape="rect" id="Node000013" href="$d7/d37/namespacevtk.html#a6aeb6b9cc6bfc315d02d79146c7fc600" title="Build the VTK Lagrange hexahedron node ordering for a given lx. Returns an array of size lx*ly*lz map..." alt="" coords="241,540,407,580"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="537,373,521,408,497,450,467,492,430,529,407,542,405,538,426,525,463,489,493,447,516,406,532,371"/>
+<area shape="rect" id="Node000015" href="$d7/d37/namespacevtk.html#a90f8c0cdcc0abc4161039100136e8a78" title="Build the VTK Lagrange quadrilateral node ordering for a given lx, ly. Returns an array of size lx*ly..." alt="" coords="237,604,411,644"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="541,374,529,421,507,480,475,541,454,569,430,594,412,606,409,602,426,590,450,566,470,538,503,478,524,419,536,372"/>
+<area shape="rect" id="Node000003" href="$d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d" title="Initialization of the TreeAMG multigrid solver." alt="" coords="13,5,164,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="220,28,164,28,164,23,220,23"/>
+<area shape="rect" id="Node000009" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,334,172,359"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="241,349,172,349,172,344,241,344"/>
+<area shape="rect" id="Node000014" href="$d7/d37/namespacevtk.html#a43ebc51559d1b6dfa7e049a761e156ff" title="Get the VTK node ordering for a given cell type. For Lagrange cells, returns an array mapping VTK nod..." alt="" coords="22,579,155,605"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="228,576,156,586,155,580,227,570"/>
+<area shape="poly" id="edge15_Node000015_Node000014" title=" " alt="" coords="222,613,155,604,156,598,223,608"/>
 </map>

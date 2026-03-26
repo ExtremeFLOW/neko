@@ -1,5 +1,0 @@
-<map id="vtk::vtk_ordering" name="vtk::vtk_ordering">
-<area shape="rect" id="Node000001" title="Get the VTK node ordering for a given cell type. For Lagrange cells, returns an array mapping VTK nod..." alt="" coords="200,13,333,38"/>
-<area shape="rect" id="Node000002" href="$db/d11/namespacevtkhdf__file.html#ad79fe046d4f3a76aceb410ad77d7e091" title="Enable or disable subdivision of spectral elements into linear sub&#45;cells. When subdivision is enabled..." alt="" coords="5,5,152,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
-</map>
