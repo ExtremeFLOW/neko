@@ -45,16 +45,48 @@ contains
 
   subroutine usage()
     if (pe_rank .eq. 0) then
-       write(*,*) 'Usage: ./average_fields_in_time field_series_name.fld start_time output_name.fld'
-       write(*,*) 'Example command: ./average_fields_in_time mean_field104.fld 103.2 mean_field_avg.fld'
-       write(*,*) 'Computes the average field over the fld files described in mean_field104.nek5000'
-       write(*,*) 'The start time is the time at which the first file startsto collect stats'
-       write(*,*) 'The files need to be aranged chronological order.'
-       write(*,*) 'The average field is then stored in a fld series, i.e. output_name.nek5000 and output_name.f00000'
+       write(*,*)
+       write(*,*) 'average_fields_in_time: Computes a weighted average of a '
+       write(*,*) 'set of statistics samples in time.'
+       write(*,*)
+       write(*,*) 'Usage:'
+       write(*,*) '==========================================================='
+       write(*,*) '  ./average_fields_in_time input.fld start_time output.fld'
+       write(*,*) '  ./average_fields_in_time input.csv start_time output.csv'
+       write(*,*)
+       write(*,*) '  start_time is the time at which the first file starts to '
+       write(*,*) '  collect stats. This usually corresponds to the'
+       write(*,*) '  `start_time` in your case file, but it can be different '
+       write(*,*) '  if you want to adjust the averaging time. '
+       write(*,*)
+       write(*,*) 'Examples:'
+       write(*,*) '==========================================================='
+       write(*,*) '  ./average_fields_in_time fluid_stats00.fld 103.2 ' // &
+            'mean.fld'
+       write(*,*)
+       write(*,*) '    Computes the average field over the fld files ' // &
+            'described '
+       write(*,*) '    in fluid_stats00.nek5000. The files need to be aranged'
+       write(*,*) '    in chronological order. The average field is then '
+       write(*,*) '    stored in a fld series, i.e. mean0.nek5000 and'
+       write(*,*) '    mean0.f00000'
+       write(*,*)
+
+       write(*,*) '  ./average_fields_in_time ' // &
+            'stats0.csv 103.2 mean_field_avg.csv'
+       write(*,*)
+       write(*,*) '    Computes the average field over the csv file'
+       write(*,*) '    stats0.csv and writes it in mean_field_avg.csv'
     end if
     stop
   end subroutine usage
 
+  !> Average fields from a series of fld files
+  !! @param fld_fnam The name of the fld series to process.
+  !! @param output_fname The name of the output fld file.
+  !! @param start_time The starting time to use to compute the sampling time
+  !! of the very first sample. In other words the time at which the statistics
+  !! start to be sampled.
   subroutine avg_flds_in_time_fld(fld_fname, output_fname, start_time)
     character(len=NEKO_FNAME_LEN), intent(in) :: fld_fname, output_fname
     real(kind=rp), intent(in) :: start_time
@@ -96,7 +128,12 @@ contains
 
   end subroutine avg_flds_in_time_fld
 
-  !> Do the time averaging on a csv file
+  !> Average fields from a series of csv files.
+  !! @param in_fname The name of the csv file to process.
+  !! @param output_fname The name of the output csv file.
+  !! @param start_time The starting time to use to compute the sampling time
+  !! of the very first sample. In other words the time at which the statistics
+  !! start to be sampled.
   subroutine avg_flds_in_time_csv(in_fname, out_fname, start_time)
     character(len=NEKO_FNAME_LEN), intent(in) :: in_fname, out_fname
     real(kind=rp), intent(in) :: start_time
@@ -144,7 +181,8 @@ contains
               n_samples, ": ", dt
          call neko_log%message(log_buf)
 
-         avg_data%x = avg_data%x + dt * data%x(sample_size*i + 1:sample_size * (i+1), :)
+         avg_data%x = avg_data%x + &
+              dt * data%x(sample_size*i + 1:sample_size * (i+1), :)
       end do
 
       ! Final rescaling with the total length of signal
@@ -195,7 +233,8 @@ contains
        !
        ! Count lines and columns for initialization
        !
-       open(unit=unit, file=trim(file_name), status='old', action='read', iostat=ios)
+       open(newunit = unit, file = trim(file_name), status = 'old', &
+            action = 'read', iostat = ios)
        if (ios /= 0) then
           call neko_error("Error opening file " // trim(file_name))
        end if
@@ -205,7 +244,7 @@ contains
 
        ! Read the file line by line
        do
-          read(unit, '(A)', iostat=ios) line
+          read(unit, '(A)', iostat = ios) line
           if (ios /= 0) exit
 
           ! If it's the first line, count the columns
@@ -228,7 +267,8 @@ contains
 
     end if
 
-    write (log_buf, '(A,A,A,I5,I5)') "Reading file ", trim(file_name), " of size ", num_lines, num_columns
+    write (log_buf, '(A,A,A,I5,I5)') "Reading file ", trim(file_name), &
+         " of size ", num_lines, num_columns
     call neko_log%message(log_buf)
 
     !
