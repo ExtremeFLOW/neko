@@ -136,6 +136,9 @@ contains
        call json_get(json, "output_filename", filename)
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
             p, coef, start_time, hom_dir, stat_set, filename)
+    else if (sname_provided) then
+       call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
+            p, coef, start_time, hom_dir, stat_set, "scalar_stats_" // trim(sname) // "0")
     else
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
             p, coef, start_time, hom_dir, stat_set)
@@ -188,7 +191,7 @@ contains
        this%default_fname = .false.
        stats_fname = fname
     else
-       stats_fname = trim(this%name) // "0"
+       stats_fname = "scalar_stats0"
        this%default_fname = .true.
     end if
 
