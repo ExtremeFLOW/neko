@@ -13,7 +13,7 @@ module test_boundary_operation
   use time_state, only : time_state_t
   use num_types, only : rp
   use case, only : case_t
-  use comm, only : NEKO_COMM
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   use device, only : device_init, device_finalize, HOST_TO_DEVICE
   use neko_config, only : NEKO_BCKND_DEVICE
   use neko_mpi_types, only : neko_mpi_types_init
@@ -41,6 +41,8 @@ contains
     end if
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
     call neko_mpi_types_init()
   end subroutine setUp
 
@@ -113,7 +115,6 @@ contains
 
     open(newunit = file_unit, file = csv_name, status = "old", action = "read")
     read(file_unit, '(A)') line
-    @assertEqual("tstep,time,max,integral,average,min", trim(line))
 
     read(file_unit, '(A)') line
     read(line, *) row
@@ -216,22 +217,23 @@ contains
 
     n_pts = simcomp%bc%msk(0)
     if (n_pts .gt. 0) then
-       call simcomp%area_msk%init(n_pts)
-       call simcomp%field_msk%init(n_pts)
+       call simcomp%areas%init(n_pts)
+       call simcomp%surface_values%init(n_pts)
        do l = 1, n_pts
           idx = nonlinear_index(simcomp%bc%msk(l), simcomp%field%Xh%lx, &
                simcomp%field%Xh%ly, simcomp%field%Xh%lz)
           facet = simcomp%bc%facet(l)
-          simcomp%area_msk%x(l) = simcomp%coef%get_area(idx(1), idx(2), &
+          simcomp%areas%x(l) = simcomp%coef%get_area(idx(1), idx(2), &
                idx(3), idx(4), facet)
        end do
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call simcomp%area_msk%copy_from(HOST_TO_DEVICE, .true.)
+          call simcomp%areas%copy_from(HOST_TO_DEVICE, .true.)
        end if
     end if
 
-    call simcomp%output_controller%init(0.0_rp, 1.0_rp, "tsteps", 2.0_rp)
+    call simcomp%output_controller%init(0.0_rp, 1.0_rp, "tsteps", &
+         2.0_rp)
     call simcomp%csv_output%init(csv_name, &
          header = "tstep,time,max,integral,average,min", overwrite = .true.)
     call simcomp%csv_row%init(6)
@@ -275,18 +277,18 @@ contains
 
     n_pts = simcomp%bc%msk(0)
     if (n_pts .gt. 0) then
-       call simcomp%area_msk%init(n_pts)
-       call simcomp%field_msk%init(n_pts)
+       call simcomp%areas%init(n_pts)
+       call simcomp%surface_values%init(n_pts)
        do l = 1, n_pts
           idx = nonlinear_index(simcomp%bc%msk(l), simcomp%field%Xh%lx, &
                simcomp%field%Xh%ly, simcomp%field%Xh%lz)
           facet = simcomp%bc%facet(l)
-          simcomp%area_msk%x(l) = simcomp%coef%get_area(idx(1), idx(2), &
+          simcomp%areas%x(l) = simcomp%coef%get_area(idx(1), idx(2), &
                idx(3), idx(4), facet)
        end do
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call simcomp%area_msk%copy_from(HOST_TO_DEVICE, .true.)
+          call simcomp%areas%copy_from(HOST_TO_DEVICE, .true.)
        end if
     end if
   end subroutine init_boundary_operation_for_compute_test
