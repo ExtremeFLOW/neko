@@ -1111,19 +1111,19 @@ contains
 
     if (n_pts .le. 0) then
        call areas%free()
-      return
+       return
     end if
 
     call areas%init(n_pts)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_coef_get_areas_by_mask(areas%x_d, device_get_ptr(msk), &
-           device_get_ptr(facet), this%area_d, this%Xh%lx, size(msk))
+            device_get_ptr(facet), this%area_d, this%Xh%lx, size(msk))
     else
-      do i = 1, n_pts
-        idx = nonlinear_index(msk(i), this%Xh%lx, this%Xh%ly, this%Xh%lz)
-        areas%x(i) = this%get_area(idx(1), idx(2), idx(3), idx(4), facet(i))
-      end do
+       do i = 1, n_pts
+          idx = nonlinear_index(msk(i), this%Xh%lx, this%Xh%ly, this%Xh%lz)
+          areas%x(i) = this%get_area(idx(1), idx(2), idx(3), idx(4), facet(i))
+       end do
     end if
   end subroutine coef_get_areas_by_mask
 
