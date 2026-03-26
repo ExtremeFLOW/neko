@@ -192,7 +192,7 @@ contains
     real(kind=rp) :: default_gain = 100.0_rp
     real(kind=rp) :: default_decay = 1.0_rp
     real(kind=rp) :: tmp_val
-    character(len=LOG_SIZE) :: log_buf
+    character(len=128) :: log_buf
     character(len=256) :: log_buf_l
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: tmp_str
@@ -393,19 +393,20 @@ contains
 
           ! Oscillation
           this%config%bodies(i)%osc_amp = 0.0_rp
-          if (body_sub%valid_path('oscillation_amp')) then
-             call json_get(body_sub, 'oscillation_amp', tmp_vec, expected_size = 3)
-             this%config%bodies(i)%osc_amp = tmp_vec
-          end if
-
           this%config%bodies(i)%osc_freq = 0.0_rp
-          if (body_sub%valid_path('oscillation_freq')) then
-             call json_get(body_sub, 'oscillation_freq', tmp_vec, expected_size = 3)
+          if (body_sub%valid_path('oscillation')) then
+             call json_get(body_sub, 'oscillation.amplitude', tmp_vec, expected_size = 3)
+             this%config%bodies(i)%osc_amp = tmp_vec
+             call json_get(body_sub, 'oscillation.frequency', tmp_vec, expected_size = 3)
              this%config%bodies(i)%osc_freq = tmp_vec
           end if
 
           ! Rotation
           if (body_sub%valid_path('rotation')) then
+             ! Check if pivot exists.
+             if (.not. body_sub%valid_path('pivot')) then
+                call neko_error("ale.bodies.pivot is missing from the case file.")
+             end if
 
              call json_get(body_sub, 'rotation.type', tmp_str)
              this%config%bodies(i)%rotation_type = tmp_str
@@ -550,21 +551,21 @@ contains
              write(log_buf, '(A,A)') '   Stiff Type    : ', &
                   trim(this%config%bodies(i)%stiff_geom%type)
              call neko_log%message(log_buf)
-             write(log_buf, '(A,ES10.3,A,A,A,F5.2)') '        Gain      : ', &
+             write(log_buf, '(A,ES18.11,A,A,A,ES10.4)') '    Gain      : ', &
                   this%config%bodies(i)%stiff_geom%gain, ' | Profile: ', &
                   trim(this%config%bodies(i)%stiff_geom%decay_profile), &
                   ' | Cutoff: ', this%config%bodies(i)%stiff_geom%cutoff_coef
              call neko_log%message(log_buf)
              select case (trim(this%config%bodies(i)%stiff_geom%type))
              case ('cylinder', 'sphere')
-                write(log_buf, '(A,3(F8.3,1X))') '      Center       :', &
+                write(log_buf, '(A,3(ES23.15,1X))') '    Center       :', &
                      this%config%bodies(i)%stiff_geom%center
                 call neko_log%message(log_buf)
-                write(log_buf, '(A,F10.4)') '      Radius       :', &
+                write(log_buf, '(A,ES23.15)') '    Radius       :', &
                      this%config%bodies(i)%stiff_geom%radius
                 call neko_log%message(log_buf)
              case ('cheap_dist')
-                write(log_buf, '(A,F10.4)') '        Stiff Dist   :', &
+                write(log_buf, '(A,ES23.15)') '    Stiff Dist:', &
                      this%config%bodies(i)%stiff_geom%stiff_dist
                 call neko_log%message(log_buf)
              end select
@@ -578,19 +579,19 @@ contains
              if (has_user_kin .or. has_user_mesh) then
                 call neko_log%message('   Oscillation    : ' // &
                    'X(t) = Amp*sin(2*pi*Freq*t) + User')
-                write(log_buf, '(A,3(F8.3,1X))') '        Amp       :', &
+                write(log_buf, '(A,3(ES18.11,1X))') '    Amp       :', &
                    this%config%bodies(i)%osc_amp
                 call neko_log%message(log_buf)
-                write(log_buf, '(A,3(F8.3,1X))') '        Freq      :', &
+                write(log_buf, '(A,3(ES18.11,1X))') '    Freq      :', &
                    this%config%bodies(i)%osc_freq
                 call neko_log%message(log_buf)
              else
                 call neko_log%message('   Oscillation    : ' // &
                    'X(t) = Amp*sin(2*pi*Freq*t)')
-                write(log_buf, '(A,3(F8.3,1X))') '        Amp       :', &
+                write(log_buf, '(A,3(ES18.11,1X))') '    Amp       :', &
                    this%config%bodies(i)%osc_amp
                 call neko_log%message(log_buf)
-                write(log_buf, '(A,3(F8.3,1X))') '        Freq      :', &
+                write(log_buf, '(A,3(ES18.11,1X))') '    Freq      :', &
                    this%config%bodies(i)%osc_freq
                 call neko_log%message(log_buf)
              end if
@@ -637,10 +638,10 @@ contains
                       call neko_log%message('   Rotation     : ' // &
                            'Theta(t) = Amp*sin(2*pi*Freq*t)')
                    end if
-                   write(log_buf, '(A,3(F8.3,1X))') '        Amp (deg):', &
+                   write(log_buf, '(A,3(ES18.11,1X))') '    Amp (deg) :', &
                         this%config%bodies(i)%rot_amp_degree
                    call neko_log%message(log_buf)
-                   write(log_buf, '(A,3(F8.3,1X))') '        Freq      :', &
+                   write(log_buf, '(A,3(ES18.11,1X))') '    Freq      :', &
                         this%config%bodies(i)%rot_freq
                    call neko_log%message(log_buf)
 
@@ -653,10 +654,10 @@ contains
                       call neko_log%message('   Rotation     : ' // &
                            'Omega(t) = Omega0*(1 - exp(-4.6*t/t0))')
                    end if
-                   write(log_buf, '(A,3(F8.3,1X))') '        Omega0    :', &
+                   write(log_buf, '(A,3(ES18.11,1X))') '    Omega0    :', &
                         this%config%bodies(i)%ramp_omega0
                    call neko_log%message(log_buf)
-                   write(log_buf, '(A,3(F8.3,1X))') '        t0        :', &
+                   write(log_buf, '(A,3(ES18.11,1X))') '    t0        :', &
                         this%config%bodies(i)%ramp_t0
                    call neko_log%message(log_buf)
 
@@ -670,13 +671,13 @@ contains
                       call neko_log%message('   Rotation     : ' // &
                            'Smooth Step Control')
                    end if
-                   write(log_buf, '(A,I10)') '        Rotation Axis    :', &
+                   write(log_buf, '(A,I10)') '    Rotation Axis    :', &
                         this%config%bodies(i)%rotation_axis
                    call neko_log%message(log_buf)
-                   write(log_buf, '(A,F10.3)') '        Target Rot Angle (deg)  :', &
+                   write(log_buf, '(A,ES18.11)') '    Target Rot Angle (deg)  :', &
                         this%config%bodies(i)%target_rot_angle_deg
                    call neko_log%message(log_buf)
-                   write(log_buf, '(A,4(F8.3,1X))') &
+                   write(log_buf, '(A,4(ES18.11,1X))') &
                         '        Control Times [t0, t1, t2, t3]    :', &
                         this%config%bodies(i)%step_control_times
                    call neko_log%message(log_buf)
@@ -696,7 +697,7 @@ contains
           call neko_log%message('   Pivot Type    : ' // &
              trim(this%config%bodies(i)%rotation_center_type))
 
-          write(log_buf, '(A,3(F8.3,1X))') '        Init Pivot   :', &
+          write(log_buf, '(A,3(ES18.11,1X))') '    Init Pivot:', &
              this%config%bodies(i)%rot_center
           call neko_log%message(log_buf)
           call neko_log%message(' ')
@@ -964,7 +965,7 @@ contains
           call MPI_Barrier(NEKO_COMM, ierr)
           sample_end_time = MPI_WTIME()
           sample_time = sample_end_time - sample_start_time
-          write(log_buf, '(A, A, A, F10.4, A)') "   Laplace solve for '", &
+          write(log_buf, '(A, A, A, ES11.4, A)') "   Laplace solve for '", &
                trim(this%config%bodies(body_idx)%name), "' took ", &
                sample_time, " (s)"
 
@@ -1390,6 +1391,8 @@ contains
     real(kind=rp) :: min_jac
     integer :: n
 
+    mesh_preview_active = .false.
+
     if (json%valid_path('case.fluid.ale.mesh_preview.enabled')) then
        call json%get('case.fluid.ale.mesh_preview.enabled', &
            mesh_preview_active)
@@ -1397,31 +1400,33 @@ contains
 
     if (.not. mesh_preview_active) return
 
+    call json_get_or_default(json, 'case.fluid.ale.mesh_preview.start_time', &
+         t_start, 0.0_rp)
+    call json_get(json, 'case.fluid.ale.mesh_preview.end_time', &
+         t_end)
+    call json_get(json, 'case.fluid.ale.mesh_preview.dt', &
+         dt)
+    call json_get(json, &
+         'case.fluid.ale.mesh_preview.output_freq', &
+         output_freq)
+
     call neko_log%section("ALE Mesh Preview")
     call neko_log%message("Executing mesh motion preview...")
 
-    call json_get_or_default(json, 'case.fluid.ale.mesh_preview.start_time', &
-         t_start, 0.0_rp)
-    call json_get_or_default(json, 'case.fluid.ale.mesh_preview.end_time', &
-         t_end, 1.0_rp)
-    call json_get_or_default(json, 'case.fluid.ale.mesh_preview.dt', &
-         dt, 1.0e-3_rp)
-    call json_get_or_default(json, &
-         'case.fluid.ale.mesh_preview.output_freq', &
-         output_freq, 100)
+
 
     n_steps = int((t_end - t_start) / dt)
     call json_get(json, 'case.numerics.time_order', nadv_sim)
 
-    write(log_buf, '(A, F10.4)') '  Start Time : ', t_start
+    write(log_buf, '(A, ES23.15)') '  Start Time : ', t_start
     call neko_log%message(log_buf)
-    write(log_buf, '(A, F10.4)') '  End Time   : ', t_end
+    write(log_buf, '(A, ES23.15)') '  End Time   : ', t_end
     call neko_log%message(log_buf)
-    write(log_buf, '(A, F10.4)') '  dt         : ', dt
+    write(log_buf, '(A, ES23.15)') '  dt         : ', dt
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I8)') '  Num Steps  : ', n_steps
+    write(log_buf, '(A, I0)')      '  Num Steps  :   ', n_steps
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I8)') '  Output Freq: ', output_freq
+    write(log_buf, '(A, I0)')      '  Output Freq:   ', output_freq
     call neko_log%message(log_buf)
     call neko_log%message('')
 
@@ -1439,12 +1444,12 @@ contains
     n = coef%dof%size()
     file_index = -2
 
-    min_jac = glmin(coef%B, n)
+    min_jac = glmin(coef%jac, n)
     call save_mesh_preview_step(coef, dummy_field, out_file, t_state, step, &
          file_index)
-    write(log_buf, '(A,I8, A,F12.5, A,ES11.4)') &
-         "Initial Mesh and Mass matrix saved!  Step:", step, " | Time:", &
-         t_state%t, " | Min Jac:", min_jac
+    write(log_buf, '(A,I0, A,ES23.15, A,ES18.11)') &
+         "Initial Mesh and Mass matrix saved!  Step: ", step, " | Time:", &
+         t_state%t, " | Min Jac: ", min_jac
 
     call neko_log%message(trim(log_buf))
     call this%update_mesh_velocity(coef, t_state, nadv)
@@ -1457,19 +1462,19 @@ contains
        call this%advance_mesh(coef, t_state, nadv)
        call coef%recompute_metrics()
 
-       min_jac = glmin(coef%B, n)
+       min_jac = glmin(coef%jac, n)
 
        if (min_jac <= 0.0_rp) then
-          write(log_buf, '(A, ES12.4, A, F10.5)') &
-               "CRITICAL: Negative Jacobian detected (", min_jac, ") at t=", &
+          write(log_buf, '(A, ES18.11, A, ES23.15)') &
+               "CRITICAL: Negative Jacobian detected (",min_jac, ") at t=", &
                t_state%t
           call neko_log%message(log_buf)
 
           call save_mesh_preview_step(coef, dummy_field, out_file, &
                t_state, step, file_index)
 
-          write(log_buf, '(A,I8, A,F12.5, A,ES11.4)') &
-               "Mesh and Mass matrix saved!  Step:", step, " | Time:", &
+          write(log_buf, '(A,I0, A,ES23.15, A,ES18.11)') &
+               "Mesh and Mass matrix saved!  Step: ", step, " | Time:", &
                t_state%t, " | Min Jac:", min_jac
           call neko_log%message(trim(log_buf))
 
@@ -1480,8 +1485,8 @@ contains
 
           call save_mesh_preview_step(coef, dummy_field, out_file, t_state, &
                step, file_index)
-          write(log_buf, '(A,I8, A,F12.5, A,ES11.4)') &
-               "Mesh and Mass matrix saved!  Step:", step, " | Time:", &
+          write(log_buf, '(A,I0, A,ES23.15, A,ES18.11)') &
+               "Mesh and Mass matrix saved!  Step: ", step, " | Time:", &
                t_state%t, " | Min Jac:", min_jac
           call neko_log%message(trim(log_buf))
 

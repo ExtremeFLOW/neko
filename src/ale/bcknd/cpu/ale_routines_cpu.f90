@@ -112,7 +112,7 @@ contains
              sample_end_time = MPI_WTIME()
              sample_time = sample_end_time - sample_start_time
 
-             write(log_buf, '(A, A, A, F10.4, A)') "   cheap dist for '", &
+             write(log_buf, '(A, A, A, ES11.4, A)') "   cheap dist for '", &
                   trim(params%bodies(b)%name), "' took ", sample_time, " (s)"
              call neko_log%message(log_buf)
           end if
