@@ -107,7 +107,7 @@ contains
     call json_get_or_default(json, 'field', &
          sname, 's')
     call json_get_or_default(json, "name", &
-         name, "scalar_stats_" // sname)
+         name, "scalar_stats_" // trim(sname))
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
