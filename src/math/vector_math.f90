@@ -805,13 +805,13 @@ contains
     type(c_ptr) :: mask_d, facet_d, b_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      mask_d = device_get_ptr(mask)
-      facet_d = device_get_ptr(facet)
-      b_d = device_get_ptr(b)
-      call device_face_masked_gather_copy_0(a%x_d, b_d, mask_d, facet_d, &
-           size(b, 1), size(b, 2), lx, ly, lz, n_mask)
+       mask_d = device_get_ptr(mask)
+       facet_d = device_get_ptr(facet)
+       b_d = device_get_ptr(b)
+       call device_face_masked_gather_copy_0(a%x_d, b_d, mask_d, facet_d, &
+            size(b, 1), size(b, 2), lx, ly, lz, n_mask)
     else
-      call face_masked_gather_copy_0(a%x, b, mask, facet, lx, ly, lz, n_mask)
+       call face_masked_gather_copy_0(a%x, b, mask, facet, lx, ly, lz, n_mask)
     end if
 
   end subroutine vector_face_masked_gather_copy_0
