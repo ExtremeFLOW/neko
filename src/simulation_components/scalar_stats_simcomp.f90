@@ -104,7 +104,10 @@ contains
     type(field_t), pointer :: s, u, v, w, p
     type(coef_t), pointer :: coef
 
-    call json_get_or_default(json, "name", name, "scalar_stats")
+    call json_get_or_default(json, 'field', &
+         sname, 's')
+    call json_get_or_default(json, "name", &
+         name, "scalar_stats_" // sname)
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
@@ -112,8 +115,6 @@ contains
          start_time, 0.0_rp)
     call json_get_or_default(json, 'set_of_stats', &
          stat_set, 'full')
-    call json_get_or_default(json, 'field', &
-         sname, 's')
 
     s => neko_registry%get_field_by_name(sname)
     u => neko_registry%get_field("u")
