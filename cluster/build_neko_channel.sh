@@ -4,7 +4,7 @@
 #SBATCH -N 1
 #SBATCH -J build_neko_channel
 #SBATCH -p main
-#SBATCH -o %J_build_neko_channel.log
+#SBATCH -o /cfs/klemming/projects/supr/kthmech/eriksie/logs/%J_build_neko_channel.log
 
 # Build neko-multiphase-channel on Dardel.
 # Submit from $KTHMECH_PROJECT/scripts/:
