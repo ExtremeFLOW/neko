@@ -64,15 +64,16 @@
                     {
                         "name": "left_cylinder",
                         "zone_indices": [ 6 ],
-                        
-                        "oscillation_amp": [ 0.0, 0.4, 0.0 ],
-                        "oscillation_freq": [ 0.0, 0.2, 0.0 ],
+
+                        "oscillation": {
+                            "amplitude": [ 0.0, 0.4, 0.0 ],
+                            "frequency": [ 0.0, 0.2, 0.0 ],
+                       },
 
                         "pivot":{
                           "value": [0.0, 0.0, 0.0],
-                          "type": "relative",
                         },
-                        
+
                         "stiff_geom": {
                             "type": "cheap_dist",
                             "stiff_dist": 0.5,
@@ -87,7 +88,6 @@
 
                         "pivot":{
                           "value": [4.5, 0.0, 0.0],
-                          "type": "relative"
                         },
 
                         "stiff_geom": {

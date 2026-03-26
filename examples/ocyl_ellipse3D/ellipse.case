@@ -59,8 +59,10 @@
             "name": "ellipse",
             "zone_indices": [1],
 
-              "oscillation_amp": [0.2, 0.15, 0.0],
-              "oscillation_freq": [0.1, 0.2, 0.0],
+            "oscillation": {
+              "amplitude": [0.2, 0.15, 0.0],
+              "frequency":[0.1, 0.2, 0.0],
+                       },
 
               "pivot": {
                 "type": "relative",
@@ -72,7 +74,6 @@
 	        "amplitude_deg": [0.0, 0.0, 10.0],
                 "freq": [0.0, 0.0, 0.1]
                         },
-            
 
             "stiff_geom": {
               "type": "cheap_dist",

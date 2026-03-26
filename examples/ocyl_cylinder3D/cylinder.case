@@ -60,9 +60,6 @@
             "name": "cylinder",
             "zone_indices": [7],
 
-            "oscillation_amp": [0.0, 0.0, 0.0],
-            "oscillation_freq": [0.0, 0.0, 0.0],
-
             "pivot": {
                "type": "relative",
                "value": [0.0, 15.0, 0.0]
