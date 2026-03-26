@@ -407,7 +407,7 @@ contains
 
     if (n_pts .gt. 0) then
        call vector_masked_gather_copy_0(this%surface_values, &
-            this%field%x(1,1,1,1), this%bc%msk, this%field%size(), n_pts)
+            this%field%x, this%bc%msk, this%field%size(), n_pts)
 
        if (this%compute_integral .or. this%compute_average) then
           this%integral = vector_glsc2(this%surface_values, this%areas, n_pts)
