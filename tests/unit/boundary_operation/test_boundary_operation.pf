@@ -138,6 +138,46 @@ contains
     call msh%free()
   end subroutine test_boundary_operation_csv_output
 
+  !> Verify computed boundary-operation results are stored on the simcomp.
+  @test(npes=[1])
+  subroutine test_boundary_operation_stored_results(this)
+    class(test_boundary_operation_case), intent(inout) :: this
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(field_t) :: fld
+    type(boundary_operation_t) :: simcomp
+    type(time_state_t) :: time
+
+    call build_single_hex_fixture(msh, Xh, dof, gs, coef)
+    call label_x_faces(msh)
+
+    call fld%init(dof, "xcoord")
+    fld%x = dof%x
+
+    call init_boundary_operation_for_compute_test(simcomp, fld, coef)
+
+    call time%init(0.0_rp, 1.0_rp, 0.1_rp)
+    time%tstep = 1
+    time%t = 0.1_rp
+    call simcomp%compute_(time)
+
+    @assertEqual(sqrt(2.0_rp), simcomp%integral, tolerance = 1.0e-6_rp)
+    @assertEqual(0.5_rp, simcomp%average, tolerance = 1.0e-6_rp)
+    @assertEqual(0.0_rp, simcomp%minimum, tolerance = 1.0e-6_rp)
+    @assertEqual(1.0_rp, simcomp%maximum, tolerance = 1.0e-6_rp)
+
+    call simcomp%free()
+    call fld%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call msh%free()
+  end subroutine test_boundary_operation_stored_results
+
   subroutine init_boundary_operation_for_csv_test(simcomp, fld, coef, csv_name)
     type(boundary_operation_t), intent(inout) :: simcomp
     type(field_t), target, intent(inout) :: fld
@@ -149,7 +189,6 @@ contains
     integer :: idx(4)
     integer :: n_pts
 
-    simcomp = boundary_operation_t()
     simcomp%name = "boundary_operation_test"
     simcomp%field => fld
     simcomp%coef => coef
@@ -198,6 +237,59 @@ contains
     call simcomp%csv_row%init(6)
     simcomp%csv_output_enabled = .true.
   end subroutine init_boundary_operation_for_csv_test
+
+  subroutine init_boundary_operation_for_compute_test(simcomp, fld, coef)
+    type(boundary_operation_t), intent(inout) :: simcomp
+    type(field_t), target, intent(inout) :: fld
+    type(coef_t), target, intent(inout) :: coef
+    integer :: i
+    integer :: l
+    integer :: facet
+    integer :: idx(4)
+    integer :: n_pts
+
+    simcomp%name = "boundary_operation_test"
+    simcomp%field => fld
+    simcomp%coef => coef
+    simcomp%log = .false.
+
+    allocate(simcomp%zone_indices(2))
+    simcomp%zone_indices = [1, 2]
+
+    allocate(character(len=16) :: simcomp%operations(4))
+    simcomp%operations = [character(len=16) :: "max", "integral", &
+         "average", "min"]
+
+    simcomp%compute_max = .true.
+    simcomp%compute_integral = .true.
+    simcomp%compute_average = .true.
+    simcomp%compute_min = .true.
+
+    call simcomp%bc%init_from_components(simcomp%coef, 0.0_rp)
+    simcomp%bc%zone_indices = simcomp%zone_indices
+    do i = 1, size(simcomp%zone_indices)
+       call simcomp%bc%mark_zone(simcomp%bc%msh%labeled_zones( &
+            simcomp%zone_indices(i)))
+    end do
+    call simcomp%bc%finalize()
+
+    n_pts = simcomp%bc%msk(0)
+    if (n_pts .gt. 0) then
+       call simcomp%area_msk%init(n_pts)
+       call simcomp%field_msk%init(n_pts)
+       do l = 1, n_pts
+          idx = nonlinear_index(simcomp%bc%msk(l), simcomp%field%Xh%lx, &
+               simcomp%field%Xh%ly, simcomp%field%Xh%lz)
+          facet = simcomp%bc%facet(l)
+          simcomp%area_msk%x(l) = simcomp%coef%get_area(idx(1), idx(2), &
+               idx(3), idx(4), facet)
+       end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call simcomp%area_msk%copy_from(HOST_TO_DEVICE, .true.)
+       end if
+    end if
+  end subroutine init_boundary_operation_for_compute_test
 
   subroutine build_single_hex_fixture(msh, Xh, dof, gs, coef)
     type(mesh_t), intent(inout) :: msh

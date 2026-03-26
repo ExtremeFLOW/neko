@@ -43,15 +43,12 @@ module boundary_operation
   use coefs, only : coef_t
   use neumann, only : neumann_t
   use logger, only : neko_log, LOG_SIZE
-  use utils, only : nonlinear_index, neko_error
+  use utils, only : neko_error
   use space, only : operator(.ne.)
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
-  use math, only : glmin, glmax
   use file, only : file_t
   use vector, only : vector_t
   use vector_math, only : vector_masked_gather_copy_0, vector_glsc2, &
-       vector_glsum
+       vector_glsum, vector_glmin, vector_glmax
   use time_based_controller, only : time_based_controller_t
   implicit none
   private
@@ -90,6 +87,14 @@ module boundary_operation
      type(vector_t) :: area_msk
      !> Reusable gathered boundary values.
      type(vector_t) :: field_msk
+     !> Most recently computed integral.
+     real(kind=rp) :: integral = 0.0_rp
+     !> Most recently computed average.
+     real(kind=rp) :: average = 0.0_rp
+     !> Most recently computed minimum.
+     real(kind=rp) :: minimum = huge(0.0_rp)
+     !> Most recently computed maximum.
+     real(kind=rp) :: maximum = -huge(0.0_rp)
    contains
      !> Construct the component from a case-file JSON object.
      procedure, pass(this) :: init => boundary_operation_init_from_json
@@ -168,9 +173,6 @@ contains
     character(len=:), allocatable :: csv_header
     character(len=LOG_SIZE) :: log_buf
     integer :: i
-    integer :: l
-    integer :: facet
-    integer :: idx(4)
     integer :: n_pts
 
     this%name = name
@@ -180,6 +182,10 @@ contains
     this%compute_min = .false.
     this%compute_max = .false.
     this%csv_output_enabled = .false.
+    this%integral = 0.0_rp
+    this%average = 0.0_rp
+    this%minimum = huge(0.0_rp)
+    this%maximum = -huge(0.0_rp)
 
     this%coef => coef
     this%field => neko_registry%get_field_by_name(field_name)
@@ -223,19 +229,8 @@ contains
 
     n_pts = this%bc%msk(0)
     if (n_pts .gt. 0) then
-       call this%area_msk%init(n_pts)
        call this%field_msk%init(n_pts)
-       do l = 1, n_pts
-          idx = nonlinear_index(this%bc%msk(l), this%field%Xh%lx, &
-               this%field%Xh%ly, this%field%Xh%lz)
-          facet = this%bc%facet(l)
-          this%area_msk%x(l) = this%coef%get_area(idx(1), idx(2), idx(3), &
-               idx(4), facet)
-       end do
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call this%area_msk%copy_from(HOST_TO_DEVICE, .true.)
-       end if
+       call this%coef%get_areas_by_mask(this%area_msk, this%bc%msk, this%bc%facet)
     end if
 
     if (present(output_filename)) then
@@ -393,7 +388,7 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: n_pts
     integer :: i
-    real(kind=rp) :: integral, average, min_value, max_value, area
+    real(kind=rp) :: area
     character(len=18) :: value_buf
     character(len=12) :: step_str
     character(len=:), allocatable :: section_title, header_line, value_line
@@ -401,10 +396,10 @@ contains
 
     n_pts = this%bc%msk(0)
 
-    integral = 0.0_rp
-    average = 0.0_rp
-    min_value = huge(0.0_rp)
-    max_value = -huge(0.0_rp)
+    this%integral = 0.0_rp
+    this%average = 0.0_rp
+    this%minimum = huge(0.0_rp)
+    this%maximum = -huge(0.0_rp)
     area = 0.0_rp
 
     if (n_pts .gt. 0) then
@@ -412,29 +407,25 @@ contains
             this%bc%msk, this%field%size(), n_pts)
 
        if (this%compute_integral .or. this%compute_average) then
-          integral = vector_glsc2(this%field_msk, this%area_msk, n_pts)
+          this%integral = vector_glsc2(this%field_msk, this%area_msk, n_pts)
        end if
 
        if (this%compute_average) then
           area = vector_glsum(this%area_msk, n_pts)
           if (area .gt. 0.0_rp) then
-             average = integral / area
+             this%average = this%integral / area
           else
-             average = 0.0_rp
+             this%average = 0.0_rp
           end if
        end if
 
-       if ((this%compute_min .or. this%compute_max) .and. &
-            NEKO_BCKND_DEVICE .eq. 1) then
-          call this%field_msk%copy_from(DEVICE_TO_HOST, .true.)
-       end if
 
        if (this%compute_min) then
-          min_value = glmin(this%field_msk%x, n_pts)
+          this%minimum = vector_glmin(this%field_msk, n_pts)
        end if
 
        if (this%compute_max) then
-          max_value = glmax(this%field_msk%x, n_pts)
+          this%maximum = vector_glmax(this%field_msk, n_pts)
        end if
     end if
 
@@ -451,19 +442,19 @@ contains
           select case (trim(this%operations(i)))
           case ('integral')
              header_line = header_line // left_pad('Integral:', 18)
-             write(value_buf, '(ES18.9)') integral
+             write(value_buf, '(ES18.9)') this%integral
              value_line = value_line // value_buf
           case ('average')
              header_line = header_line // left_pad('Average:', 18)
-             write(value_buf, '(ES18.9)') average
+             write(value_buf, '(ES18.9)') this%average
              value_line = value_line // value_buf
           case ('min')
              header_line = header_line // left_pad('Min:', 18)
-             write(value_buf, '(ES18.9)') min_value
+             write(value_buf, '(ES18.9)') this%minimum
              value_line = value_line // value_buf
           case ('max')
              header_line = header_line // left_pad('Max:', 18)
-             write(value_buf, '(ES18.9)') max_value
+             write(value_buf, '(ES18.9)') this%maximum
              value_line = value_line // value_buf
           end select
        end do
@@ -481,13 +472,13 @@ contains
           do i = 1, size(this%operations)
              select case (trim(this%operations(i)))
              case ('integral')
-                this%csv_row%x(output_col) = integral
+                this%csv_row%x(output_col) = this%integral
              case ('average')
-                this%csv_row%x(output_col) = average
+                this%csv_row%x(output_col) = this%average
              case ('min')
-                this%csv_row%x(output_col) = min_value
+                this%csv_row%x(output_col) = this%minimum
              case ('max')
-                this%csv_row%x(output_col) = max_value
+                this%csv_row%x(output_col) = this%maximum
              end select
              output_col = output_col + 1
           end do

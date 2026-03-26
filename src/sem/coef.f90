@@ -44,13 +44,13 @@ module coefs
   use device_math, only : device_rone, device_invcol1, &
        device_glsum
   use device_coef, only : device_coef_generate_geo, &
-       device_coef_generate_dxydrst
+       device_coef_generate_dxydrst, device_coef_get_areas_by_mask
   use mxm_wrapper, only : mxm
   use device
-  use utils, only : index_is_on_facet, linear_index, &
+  use vector, only : vector_t
+  use utils, only : index_is_on_facet, linear_index, nonlinear_index, &
        neko_error
   use comm, only : NEKO_COMM
-  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_c_binding
   implicit none
@@ -164,6 +164,7 @@ module coefs
      procedure, pass(this) :: free => coef_free
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
+     procedure, pass(this) :: get_areas_by_mask => coef_get_areas_by_mask
      procedure, pass(this) :: generate_cyclic_bc => coef_generate_cyclic_bc
      generic :: init => init_empty, init_all
   end type coef_t
@@ -1087,6 +1088,44 @@ contains
        area = this%area(i, j, facet, e)
     end select
   end function coef_get_area
+
+  !> Gather facet areas for a boundary mask into a contiguous vector.
+  !! @param this SEM coefficients.
+  !! @param areas Output vector holding one area per masked boundary point.
+  !! @param msk Linear node-index mask with `msk(0)` equal to the number of points.
+  !! @param facet Facet ids corresponding to `msk`.
+  subroutine coef_get_areas_by_mask(this, areas, msk, facet)
+    class(coef_t), intent(in) :: this
+    type(vector_t), intent(inout) :: areas
+    integer, intent(in) :: msk(0:)
+    integer, intent(in) :: facet(0:)
+    integer :: i
+    integer :: idx(4)
+    integer :: n_pts
+
+    n_pts = msk(0)
+
+    if (size(facet) .ne. size(msk)) then
+       call neko_error('coef_get_areas_by_mask requires matching mask arrays')
+    end if
+
+    if (n_pts .le. 0) then
+       call areas%free()
+      return
+    end if
+
+    call areas%init(n_pts)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_coef_get_areas_by_mask(areas%x_d, device_get_ptr(msk), &
+           device_get_ptr(facet), this%area_d, this%Xh%lx, size(msk))
+    else
+      do i = 1, n_pts
+        idx = nonlinear_index(msk(i), this%Xh%lx, this%Xh%ly, this%Xh%lz)
+        areas%x(i) = this%get_area(idx(1), idx(2), idx(3), idx(4), facet(i))
+      end do
+    end if
+  end subroutine coef_get_areas_by_mask
 
 
   !> Generate facet area and surface normals

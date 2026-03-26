@@ -159,4 +159,16 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
+
+  void hip_coef_get_areas_by_mask(void *areas, void *msk, void *facet,
+                                  void *area, int *lx, int *m) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(coef_get_areas_by_mask_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) areas, (int *) msk, (int *) facet,
+                       (real *) area, *lx, *m);
+    HIP_CHECK(hipGetLastError());
+  }
 }

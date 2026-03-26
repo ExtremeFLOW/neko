@@ -34,6 +34,20 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+__device__ inline void coef_nonlinear_index(const int idx, const int lx,
+                                            int *index) {
+  const int idx2 = idx - 1;
+  index[3] = idx2 / (lx * lx * lx) + 1;
+  index[2] = (idx2 - (lx * lx * lx) * (index[3] - 1)) / (lx * lx) + 1;
+  index[1] = (idx2 - (lx * lx * lx) * (index[3] - 1)
+              - (lx * lx) * (index[2] - 1)) / lx + 1;
+  index[0] = idx2 - (lx * lx * lx) * (index[3] - 1)
+           - (lx * lx) * (index[2] - 1) - lx * (index[1] - 1) + 1;
+}
+
+#define coef_normal_area_idx(i, j, k, l, lx, nf) \
+  (((i) + (lx) * (((j) - 1) + (lx) * (((k) - 1) + (nf) * (((l) - 1))))) - 1)
+
 /**
  * Device kernel for coef geometry
  */
@@ -281,6 +295,41 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
 
   }
 
+}
+
+template< typename T >
+__global__ void coef_get_areas_by_mask_kernel(T * __restrict__ areas,
+                                              const int * __restrict__ msk,
+                                              const int * __restrict__ facet,
+                                              const T * __restrict__ area,
+                                              const int lx,
+                                              const int m) {
+  int index[4];
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx + 1; i < m; i += str) {
+    const int f = facet[i];
+    coef_nonlinear_index(msk[i], lx, index);
+
+    switch (f) {
+    case 1:
+    case 2:
+      areas[i - 1] = area[coef_normal_area_idx(index[1], index[2], f,
+                                               index[3], lx, 6)];
+      break;
+    case 3:
+    case 4:
+      areas[i - 1] = area[coef_normal_area_idx(index[0], index[2], f,
+                                               index[3], lx, 6)];
+      break;
+    case 5:
+    case 6:
+      areas[i - 1] = area[coef_normal_area_idx(index[0], index[1], f,
+                                               index[3], lx, 6)];
+      break;
+    }
+  }
 }
 
 #endif // __SEM_COEF_KERNEL_H__

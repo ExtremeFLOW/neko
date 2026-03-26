@@ -158,8 +158,20 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
   }
-}
 
+  void cuda_coef_get_areas_by_mask(void *areas, void *msk, void *facet,
+                                   void *area, int *lx, int *m) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    coef_get_areas_by_mask_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) areas, (int *) msk,
+                                      (int *) facet, (real *) area,
+                                      *lx, *m);
+    CUDA_CHECK(cudaGetLastError());
+  }
+}
 
 
 
