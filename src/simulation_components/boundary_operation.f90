@@ -84,9 +84,9 @@ module boundary_operation
      !> Reusable row buffer for CSV output.
      type(vector_t) :: csv_row
      !> Precomputed boundary quadrature weights.
-     type(vector_t) :: area_msk
+     type(vector_t) :: areas
      !> Reusable gathered boundary values.
-     type(vector_t) :: field_msk
+     type(vector_t) :: surface_values
      !> Most recently computed integral.
      real(kind=rp) :: integral = 0.0_rp
      !> Most recently computed average.
@@ -229,8 +229,8 @@ contains
 
     n_pts = this%bc%msk(0)
     if (n_pts .gt. 0) then
-       call this%field_msk%init(n_pts)
-       call this%coef%get_areas_by_mask(this%area_msk, this%bc%msk, this%bc%facet)
+       call this%surface_values%init(n_pts)
+       call this%coef%get_areas_by_mask(this%areas, this%bc%msk, this%bc%facet)
     end if
 
     if (present(output_filename)) then
@@ -369,8 +369,8 @@ contains
     call this%bc%free()
     call this%csv_output%free()
     call this%csv_row%free()
-    call this%area_msk%free()
-    call this%field_msk%free()
+    call this%areas%free()
+    call this%surface_values%free()
     if (allocated(this%zone_indices)) deallocate(this%zone_indices)
     if (allocated(this%field_name)) deallocate(this%field_name)
     if (allocated(this%operations)) deallocate(this%operations)
@@ -403,15 +403,15 @@ contains
     area = 0.0_rp
 
     if (n_pts .gt. 0) then
-       call vector_masked_gather_copy_0(this%field_msk, this%field%x(1,1,1,1), &
-            this%bc%msk, this%field%size(), n_pts)
+       call vector_masked_gather_copy_0(this%surface_values, &
+            this%field%x(1,1,1,1), this%bc%msk, this%field%size(), n_pts)
 
        if (this%compute_integral .or. this%compute_average) then
-          this%integral = vector_glsc2(this%field_msk, this%area_msk, n_pts)
+          this%integral = vector_glsc2(this%surface_values, this%areas, n_pts)
        end if
 
        if (this%compute_average) then
-          area = vector_glsum(this%area_msk, n_pts)
+          area = vector_glsum(this%areas, n_pts)
           if (area .gt. 0.0_rp) then
              this%average = this%integral / area
           else
@@ -421,11 +421,11 @@ contains
 
 
        if (this%compute_min) then
-          this%minimum = vector_glmin(this%field_msk, n_pts)
+          this%minimum = vector_glmin(this%surface_values, n_pts)
        end if
 
        if (this%compute_max) then
-          this%maximum = vector_glmax(this%field_msk, n_pts)
+          this%maximum = vector_glmax(this%surface_values, n_pts)
        end if
     end if
 
