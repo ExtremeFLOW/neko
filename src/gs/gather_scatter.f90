@@ -43,6 +43,7 @@ module gather_scatter
        GS_COMM_NVSHMEM
   use gs_mpi, only : gs_mpi_t
   use gs_interp, only : gs_interp_t
+  use gs_interp_cpu, only : gs_interp_cpu_t
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
   use gs_device_shmem, only : gs_device_shmem_t
@@ -89,7 +90,7 @@ module gather_scatter
      integer :: shared_facet_offset !< offset for shr. facets
      class(gs_bcknd_t), allocatable :: bcknd !< Gather-scatter backend
      class(gs_comm_t), allocatable :: comm !< Comm. method
-     type(gs_interp_t) :: interp !< Face/edge interpolation
+     class(gs_interp_t), allocatable :: interp !< Face/edge interpolation
      ! no longer needed for AMR version
      type(htable_i8_t) :: shared_dofs !< Htable of shared dofs
    contains
@@ -202,11 +203,11 @@ contains
     call gs%comm%init_dofs()
 
     ! Initialise mapping/scheduling using connectivitu information
-    ! needed by nonconforming solver
+    ! assumption lx = ly = lz
+    if (gs%dofmap%Xh%lx .ne. gs%dofmap%Xh%ly .or. &
+         gs%dofmap%Xh%lx .ne. gs%dofmap%Xh%lz) &
+         call neko_error('gs_init: inconsistent polynomial order')
     call gs_init_mapping_schedule(gs)
-    ! Initialise interpolation using connectivity information
-    ! needed by nonconforming solver
-    call gs%interp%init(gs%dofmap%Xh, gs%dofmap%msh%conn)
 
     ! Global number of points not needing to be sent over mpi for gs operations
     ! "Internal points"
@@ -250,13 +251,15 @@ contains
        end if
     end if
 
-    ! Setup Gather-scatter backend
+    ! Setup Gather-scatter backend and interpolation
     select case (bcknd_)
     case (GS_BCKND_CPU)
        allocate(gs_cpu_t::gs%bcknd)
+       allocate(gs_interp_cpu_t::gs%interp)
        bcknd_str = '         std'
     case (GS_BCKND_DEV)
        allocate(gs_device_t::gs%bcknd)
+       call neko_error('gs_init: device interpolation not done yet')
        if (NEKO_BCKND_HIP .eq. 1) then
           bcknd_str = '         hip'
        else if (NEKO_BCKND_CUDA .eq. 1) then
@@ -266,15 +269,17 @@ contains
        end if
     case (GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)
+       call neko_error('gs_init: sx interpolation not done yet')
        bcknd_str = '          sx'
     case default
-       call neko_error('Unknown Gather-scatter backend')
+       call neko_error('Unknown Gather-scatter backend/interpolation')
     end select
 
-    write(log_buf, '(A)') 'Backend      : ' // trim(bcknd_str)
+    write(log_buf, '(A)') 'Backend/interpolation : ' // trim(bcknd_str)
     call neko_log%message(log_buf)
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
+    call gs%interp%init(gs%dofmap%Xh%lx, gs%dofmap%msh%conn)
 
     if (use_device_mpi .or. use_device_nccl .or. use_device_shmem) then
        select type (b => gs%bcknd)
@@ -410,11 +415,16 @@ contains
        deallocate(gs%comm)
     end if
 
+    if (allocated(gs%interp)) then
+       call gs%interp%free()
+       deallocate(gs%interp)
+    end if
+
     call gs%free_amr_base()
 
   end subroutine gs_free
 
-  !> Initialise mapping/scheduling and interpolation using connectivity
+  !> Initialise mapping/scheduling using connectivity
   subroutine gs_init_mapping_schedule(gs)
     type(gs_t), target, intent(inout) :: gs
     integer :: lx
@@ -435,7 +445,8 @@ contains
     ! Number of degrees of freedom; assumption lx=ly=lz
     if (gs%dofmap%Xh%lx .ne. gs%dofmap%Xh%ly .or. &
          gs%dofmap%Xh%lx .ne. gs%dofmap%Xh%lz) &
-         call neko_error('gs_init_nonconf: inconsistent polynomial order')
+         call neko_error('gs_init_mapping_schedule: inconsistent polynomial &
+         &order')
     lx = gs%dofmap%Xh%lx
 
     associate (vrt => gs%dofmap%msh%conn%vrt, fcs => gs%dofmap%msh%conn%fcs, &
@@ -486,7 +497,7 @@ contains
       if (maxval(fcs_mult_glb) .gt. 2) then
 
          ! local
-         call neko_error('gs_size_list_get: not done yet')
+         call neko_error('gs_init_mapping_schedule: not done yet')
          
 
          gs%local_facet_offset = gs%local_facet_offset + nlfcs_ncon_dof * &
@@ -494,7 +505,7 @@ contains
          gs%nlocal_blks = gs%nlocal_blks + nlfcs_ncon * (lx - 2) * (lx - 2)
 
          ! shared
-         call neko_error('gs_size_list_get: not done yet')
+         call neko_error('gs_init_mapping_schedule: not done yet')
          
 
          gs%shared_facet_offset = gs%shared_facet_offset + nsfcs_ncon_dof * &
@@ -1202,6 +1213,7 @@ contains
     if (allocated(this%comm)) &
          call this%comm%amr_restart(reconstruct, counter, tstep)
 
+    ! get new mapping/scheduling
     call gs_init_mapping_schedule(this)
 
     ! reconstruct interpolation

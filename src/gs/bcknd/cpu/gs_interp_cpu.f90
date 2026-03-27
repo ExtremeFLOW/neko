@@ -31,86 +31,74 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implementation for the nonconforming faces/edges during communication
-module gs_interp
+module gs_interp_cpu
   use num_types, only : i4, i8, rp
   use mesh_conn, only : mesh_conn_t
   use amr_interpolate, only : amr_interpolate_t, amr_nchildren
   use field, only : field_t
-  use amr_restart_component, only : amr_restart_component_t
+  use gs_interp, only : gs_interp_t
+  use amr_reconstruct, only : amr_reconstruct_t
 
   implicit none
   private
 
   !> Type for face/edge
-  type, public, abstract, extends(amr_restart_component_t) :: gs_interp_t
-     !> Polynomial order + 1
-     integer :: lx
-     !> Mesh connectivity
-     type(mesh_conn_t), pointer :: conn
-     !> AMR interpolation arrays
-     type(amr_interpolate_t) :: interpolate
-     !> Is there any element with hanging objects
-     logical :: ifhang
+  type, public, extends(gs_interp_t) :: gs_interp_cpu_t
+
    contains
-     !> Initialise base type
-     procedure, pass(this) :: init_base => gs_interp_init_base
-     !> Free base type
-     procedure, pass(this) :: free_base => gs_interp_free_base
      !> Initialise type
-     procedure(gs_interp_init), pass(this), deferred :: init
+     procedure, pass(this) :: init => gs_interp_cpu_init
      !> Free type
-     procedure(gs_interp_free), pass(this), deferred :: free
-  end type gs_interp_t
-
-  !> Abstract interface for initialising GS interpolation
-  abstract interface
-     subroutine gs_interp_init(this, lx, conn)
-       import gs_interp_t, mesh_conn_t
-       class(gs_interp_t), intent(inout) :: this
-       integer, intent(in) :: lx
-       type(mesh_conn_t), target, intent(in) :: conn
-     end subroutine gs_interp_init
-  end interface
-
-  !> Abstract interface for deallocating GS interpolation
-  abstract interface
-     subroutine gs_interp_free(this)
-       import gs_interp_t
-       class(gs_interp_t), intent(inout) :: this
-     end subroutine gs_interp_free
-  end interface
+     procedure, pass(this) :: free => gs_interp_cpu_free
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gs_interp_cpu_amr_restart
+  end type gs_interp_cpu_t
 
 contains
   !> Initialise gs interpolation type
   !! @param[in]  lx    polynomial order + 1
   !! @param[in]  conn  mesh connectivity
-  subroutine gs_interp_init_base(this, lx, conn)
-    class(gs_interp_t), intent(inout) :: this
+  subroutine gs_interp_cpu_init(this, lx, conn)
+    class(gs_interp_cpu_t), intent(inout) :: this
     integer, intent(in) :: lx
     type(mesh_conn_t), target, intent(in) :: conn
 
-    call this%free_base()
+    
+    write(*, *) 'TESTinterpINIT'
+     
 
-    ! this type depends on the functional space size and connectivity
-    ! information
-    this%lx = lx
-    this%conn => conn
+    call this%free()
 
-    ! initialise interpolation arrays
-    call this%interpolate%init(conn%tdim, lx)
+    call this%init_base(lx, conn)
 
-  end subroutine gs_interp_init_base
+  end subroutine gs_interp_cpu_init
 
   !> Free gs interpolation type
-  subroutine gs_interp_free_base(this)
-    class(gs_interp_t), intent(inout) :: this
+  subroutine gs_interp_cpu_free(this)
+    class(gs_interp_cpu_t), intent(inout) :: this
 
-    nullify(this%conn)
+    call this%free_base()
 
-    this%lx = 0
+  end subroutine gs_interp_cpu_free
 
-    call this%interpolate%free()
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine gs_interp_cpu_amr_restart(this, reconstruct, counter, tstep)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
 
-  end subroutine gs_interp_free_base
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
 
-  end module gs_interp
+    this%counter = counter
+
+    
+    write(*, *) 'TESTinterpRESTART'
+     
+
+  end subroutine gs_interp_cpu_amr_restart
+
+end module gs_interp_cpu
