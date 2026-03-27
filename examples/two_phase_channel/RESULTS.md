@@ -647,7 +647,7 @@ end_time=25. 16 MPI ranks. Terminated early at t=21.24 (1.24 TU after injection)
 - **κ_max reaches 800+** — large point-wise curvature values at highly deformed interface regions.
 - The peak κ_rms ≈ 64 is ~9.6× the spherical reference. This reflects both genuine drop deformation (no surface tension to restore shape) and potentially inaccurate normal computation in stretched regions.
 
-**Field snapshot analysis (March 2026, `analyze_sigma0_normals.py`):**
+**Field snapshot analysis (March 2026, `postprocess_sigma0.py`):**
 
 Element-local postprocessing of field0.f00041 (t=20.501) and field0.f00042 (t=21.000):
 
@@ -701,7 +701,7 @@ analysis in §7.4–7.6 used κ ≈ 6.67 (spherical); the actual driving κ is ~
 
 **Purpose:** 20 snapshots at 0.02 TU to track κ growth from the first element-face crossing.
 
-**Key time-series (from `analyze_sigma0_normals.py`):**
+**Key time-series (from `postprocess_sigma0.py`):**
 
 | $t$ | centroid disp. | $\hat{\mathbf{n}}$ misalign | $\kappa_\text{rms}$ (Python) | tanh L2 | width |
 |:---:|:---:|:---:|:---:|:---:|:---:|

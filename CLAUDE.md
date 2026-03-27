@@ -189,7 +189,7 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | `examples/two_phase_channel/cases/192x32x64/` | Case files for L3 mesh (192×32×64, ε=0.03) |
 | `examples/two_phase_channel/postprocess/postprocess_single_phase.py` | Single-phase postprocessing: ekin plot + mean velocity profile |
 | `examples/two_phase_channel/postprocess/animate_blowup.py` | Animation: φ/κ/\|u\| panels. Flags: `--stride N`, `--mesh p1\|p2\|p3`, `--kappa-scale` |
-| `examples/two_phase_channel/postprocess/analyze_sigma0_normals.py` | Field-level σ=0 analysis: n̂ alignment, κ_rms, drop geometry |
+| `examples/two_phase_channel/postprocess/postprocess_sigma0.py` | σ=0 diagnostics: κ_rms/φ time-series + field snapshots. Args: `--run`, `--R`, `--eps`, `--mesh`, `--no-snapshots` |
 | `examples/two_phase_channel/figures/` | Output figures and animations (gitignored, generated locally) |
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
 | `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |

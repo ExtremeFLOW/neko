@@ -94,7 +94,7 @@ Use target_cfl=0.2 for all two-phase cases with σ≥0.03 (We≤10).
 | `postprocess/postprocess_single_phase.py` | ekin plot + mean velocity profile |
 | `postprocess/animate_two_phase_channel.py` | Animate φ and \|u\| field snapshots |
 | `postprocess/animate_blowup.py` | φ/κ/\|u\| animation for blow-up diagnostics |
-| `postprocess/analyze_sigma0_normals.py` | Field-level σ=0 analysis: κ_rms, n̂ alignment, drop geometry |
+| `postprocess/postprocess_sigma0.py` | σ=0 diagnostics: κ_rms/φ time-series + field snapshots. Args: `--run`, `--R`, `--eps`, `--mesh`, `--no-snapshots` |
 
 **Meshes** (gitignored, generated with `genmeshbox`):
 - `box_phys_81x18x27.nmsh`, `box_phys_108x18x36.nmsh`, `box_phys_144x24x48.nmsh`, `box_phys_192x32x64.nmsh`
