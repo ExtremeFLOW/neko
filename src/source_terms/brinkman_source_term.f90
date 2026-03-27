@@ -67,6 +67,7 @@ module brinkman_source_term
   use global_interpolation, only: global_interpolation_t
   use interpolation, only: interpolator_t
   use space, only: space_t, GLL
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -92,6 +93,8 @@ module brinkman_source_term
      procedure, public, pass(this) :: free => brinkman_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, public, pass(this) :: compute_ => brinkman_source_term_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => brinkman_source_term_amr_restart
 
      ! ----------------------------------------------------------------------- !
      ! Private methods
@@ -519,5 +522,30 @@ contains
     call field_pwmax2(this%indicator, temp_field)
 
   end subroutine init_point_zone
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine brinkman_source_term_amr_restart(this, reconstruct, counter, tstep)
+    class(brinkman_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+!    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, tstep)
+
+    block
+      use utils, only : neko_error
+      call neko_error('Nothing done yet')
+    end block
+
+  end subroutine brinkman_source_term_amr_restart
 
 end module brinkman_source_term

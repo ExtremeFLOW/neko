@@ -1498,11 +1498,8 @@ contains
        call neko_error('dp bc; already finalised')
     end if
 
-    ! fluid source term?????
-    ! it is not clear is source term need to be reconstructed, as rhs is already
-    ! reconstructed, and the rest of the fields seem to be taken from registries
-    ! gradient_jump_penalty certainly requires
-    ! LEFT FOR FUTURE !!!!!!!
+    ! fluid source term
+    call this%source_term%amr_restart(reconstruct, counter, tstep)
 
     ! Krylov solvers
     call this%ksp_vel%amr_restart(reconstruct, counter, tstep)
