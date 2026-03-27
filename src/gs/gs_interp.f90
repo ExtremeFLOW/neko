@@ -33,6 +33,7 @@
 !> Implementation for the nonconforming faces/edges during communication
 module gs_interp
   use num_types, only : i4, i8, rp
+  use utils, only : neko_error
   use mesh_conn, only : mesh_conn_t
   use amr_interpolate, only : amr_interpolate_t, amr_nchildren
   use field, only : field_t
@@ -51,6 +52,29 @@ module gs_interp
      type(amr_interpolate_t) :: interpolate
      !> Is there any element with hanging objects
      logical :: ifhang
+     !> Number of elements with hanging objects
+     integer :: nhang_el
+     !> List of  elements with hanging objects
+     ! size of nhang_el
+     integer, allocatable, dimension(:) :: hang_el
+     !> List of hanging edges (position in the element)
+     ! size of hang_edg_off(nhang_el + 1) - 1
+     integer, allocatable, dimension(:) :: hang_edg
+     !> List of hanging edges (position on the parent edge)
+     ! size of hang_edg_off(nhang_el + 1) - 1
+     integer, allocatable, dimension(:) :: hang_edg_pos
+     !> Hanging edges offset
+     ! size of nhang_el + 1
+     integer, allocatable, dimension(:) :: hang_edg_off
+     !> List of hanging faces (position in the element)
+     ! size of hang_fcs_off(nhang_el + 1) - 1
+     integer, allocatable, dimension(:) :: hang_fcs
+     !> List of hanging faces (position on the parent face)
+     ! size of hang_edg_off(nhang_el + 1) - 1
+     integer, allocatable, dimension(:) :: hang_fcs_pos
+     !> Hanging faces offset
+     ! size of nhang_el + 1
+     integer, allocatable, dimension(:) :: hang_fcs_off
    contains
      !> Initialise base type
      procedure, pass(this) :: init_base => gs_interp_init_base
@@ -60,6 +84,8 @@ module gs_interp
      procedure(gs_interp_init), pass(this), deferred :: init
      !> Free type
      procedure(gs_interp_free), pass(this), deferred :: free
+     !> AMR restart of a base type
+     procedure, pass(this) :: amr_restart_base => gs_interp_amr_restart_base
   end type gs_interp_t
 
   !> Abstract interface for initialising GS interpolation
@@ -72,7 +98,7 @@ module gs_interp
      end subroutine gs_interp_init
   end interface
 
-  !> Abstract interface for deallocating GS interpolation
+  !> Abstract interface for freeing GS interpolation data
   abstract interface
      subroutine gs_interp_free(this)
        import gs_interp_t
@@ -99,7 +125,84 @@ contains
     ! initialise interpolation arrays
     call this%interpolate%init(conn%tdim, lx)
 
+    ! initialise hanging face/edge information
+    call gs_interp_init_hang(this)
+
   end subroutine gs_interp_init_base
+
+  !> Initialise face/edge hanging information
+  !! @param[in]  this   GS interpolation type
+  subroutine gs_interp_init_hang(this)
+    class(gs_interp_t), intent(inout) :: this
+    integer :: il, jl, itmp
+
+    if (this%conn%ifhang_set .and. this%conn%ifhang) then
+       this%ifhang = .true.
+       this%nhang_el = 0
+       do il = 1, this%conn%nel
+          if (this%conn%hang(il)) this%nhang_el = this%nhang_el + 1
+       end do
+       if (this%nhang_el .eq. 0) call neko_error('gs_interp_init_hang: no &
+            &hanging element on MPI rank')
+       allocate(this%hang_el(this%nhang_el), &
+            this%hang_edg_off(this%nhang_el + 1), &
+            this%hang_fcs_off(this%nhang_el + 1))
+       itmp = 0
+       do il = 1, this%conn%nel
+          if (this%conn%hang(il)) then
+             itmp = itmp + 1
+             this%hang_el(itmp) = il
+          end if
+       end do
+       ! count hanging edges and mark element boundaries
+       itmp = 1
+       this%hang_edg_off(1) = itmp
+       do il = 1, this%nhang_el
+          do jl = 1, this%conn%edg%nobj
+             if (this%conn%edg%hang(jl, this%hang_el(il)) .ne. -1) &
+                  itmp = itmp + 1
+          end do
+          this%hang_edg_off(il + 1) = itmp
+       end do
+       allocate(this%hang_edg(itmp - 1), this%hang_edg_pos(itmp - 1))
+       ! fill arrays
+       itmp = 0
+       do il = 1, this%nhang_el
+          do jl = 1, this%conn%edg%nobj
+             if (this%conn%edg%hang(jl, this%hang_el(il)) .ne. -1) then
+                itmp = itmp + 1
+                this%hang_edg(itmp) = jl
+                this%hang_edg_pos(itmp) = &
+                     this%conn%edg%hang(jl, this%hang_el(il))
+             end if
+          end do
+       end do
+       ! count hanging faces and mark element boundaries
+       itmp = 1
+       this%hang_fcs_off(1) = itmp
+       do il = 1, this%nhang_el
+          do jl = 1, this%conn%fcs%nobj
+             if (this%conn%fcs%hang(jl, this%hang_el(il)) .ne. -1) &
+                  itmp = itmp + 1
+          end do
+          this%hang_fcs_off(il + 1) = itmp
+       end do
+       allocate(this%hang_fcs(itmp - 1), this%hang_fcs_pos(itmp - 1))
+       ! fill arrays
+       itmp = 0
+       do il = 1, this%nhang_el
+          do jl = 1, this%conn%fcs%nobj
+             if (this%conn%fcs%hang(jl, this%hang_el(il)) .ne. -1) then
+                itmp = itmp + 1
+                this%hang_fcs(itmp) = jl
+                this%hang_fcs_pos(itmp) = &
+                     this%conn%fcs%hang(jl, this%hang_el(il))
+             end if
+          end do
+       end do
+    end if
+
+  end subroutine gs_interp_init_hang
 
   !> Free gs interpolation type
   subroutine gs_interp_free_base(this)
@@ -111,6 +214,37 @@ contains
 
     call this%interpolate%free()
 
+    call gs_interp_free_hang(this)
+
   end subroutine gs_interp_free_base
+
+  !> Free gs interpolation type
+  subroutine gs_interp_free_hang(this)
+    class(gs_interp_t), intent(inout) :: this
+
+    this%ifhang = .false.
+    this%nhang_el = 0
+    if (allocated(this%hang_el)) deallocate(this%hang_el)
+    if (allocated(this%hang_edg)) deallocate(this%hang_edg)
+    if (allocated(this%hang_edg_pos)) deallocate(this%hang_edg_pos)
+    if (allocated(this%hang_edg_off)) deallocate(this%hang_edg_off)
+    if (allocated(this%hang_fcs)) deallocate(this%hang_fcs)
+    if (allocated(this%hang_fcs_pos)) deallocate(this%hang_fcs_pos)
+    if (allocated(this%hang_fcs_off)) deallocate(this%hang_fcs_off)
+
+  end subroutine gs_interp_free_hang
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine gs_interp_amr_restart_base(this)
+    class(gs_interp_t), intent(inout) :: this
+
+    ! reinitialise hanging face/edge information
+    call gs_interp_free_hang(this)
+    call gs_interp_init_hang(this)
+
+  end subroutine gs_interp_amr_restart_base
 
   end module gs_interp

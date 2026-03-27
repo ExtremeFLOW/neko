@@ -99,6 +99,8 @@ contains
     write(*, *) 'TESTinterpRESTART'
      
 
+    call this%amr_restart_base()
+
   end subroutine gs_interp_cpu_amr_restart
 
 end module gs_interp_cpu
