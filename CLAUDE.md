@@ -160,14 +160,19 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Phase 1 turbulent + We=1 (σ=0.3): blew up; superseded by p2_we1 |
 | `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Phase 1 turbulent + We=10 (σ=0.03): blew up at t=20.44 (Δt/Δt_cap=0.69); superseded by p2_we10 |
 | `examples/two_phase_channel/turb_channel_two_phase_sigma0.case` | Phase 1 σ=0 CDI-only quality test; κ_rms→64; root cause confirmed as element-face C0 kink in n̂ |
-| `examples/two_phase_channel/turb_channel_two_phase_p2_sigma0.case` | **Phase 2** σ=0 fix-verification: 108×18×36 mesh, ε=0.09, R=0.4. Target: κ_rms≈5.0 stable |
-| `examples/two_phase_channel/turb_channel_two_phase_p2_we10.case` | **Phase 2** We=10 (σ=0.04): first σ>0 test with Fortran fix; 108×18×36 mesh |
-| `examples/two_phase_channel/turb_channel_two_phase_p2_we1.case` | **Phase 2** We=1 (σ=0.4): primary production case; 108×18×36 mesh |
+| `examples/two_phase_channel/turb_channel_two_phase_p2_sigma0.case` | **Phase 2** σ=0: 108×18×36 mesh, ε=0.09, R=0.4; κ_rms vs P1 baseline |
+| `examples/two_phase_channel/turb_channel_two_phase_p2_we10.case` | **Phase 2** We=10 (σ=0.04): 108×18×36 mesh |
+| `examples/two_phase_channel/turb_channel_two_phase_p2_we1.case` | **Phase 2** We=1 (σ=0.4): 108×18×36 mesh |
+| `examples/two_phase_channel/turb_channel_two_phase_p3_sigma0.case` | **Phase 3** σ=0: 144×18×48 mesh, ε=0.09, R=0.4; convergence point for κ_rms |
+| `examples/two_phase_channel/turb_channel_two_phase_p3_we10.case` | **Phase 3** We=10 (σ=0.04): 144×18×48 mesh |
+| `examples/two_phase_channel/turb_channel_two_phase_p3_we1.case` | **Phase 3** We=1 (σ=0.4): 144×18×48 mesh |
 | `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp` (t=20→25), R=0.4, y_c=0 (centre); Phase 1 blow-up reference |
 | `examples/two_phase_channel/turb_channel_two_phase_restart_off.case` | We=1.33 restart, R=0.4, y_c=0.3 (off-centre, log-law region) |
 | `examples/two_phase_channel/turb_channel_two_phase_v4.case` | v4: We=730 high-We reference (completed, Phase 1) |
-| `examples/two_phase_channel/turb_channel_single_phase.case` | Single-phase spin-up to t=25, checkpoints every 5 TU. **Must be re-run on 108×18×36 mesh for Phase 2.** |
-| `examples/two_phase_channel/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up |
+| `examples/two_phase_channel/turb_channel_single_phase.case` | **P1** single-phase spin-up; 81×18×27; 16 ranks; `fluid00004.chkp` completed |
+| `examples/two_phase_channel/turb_channel_single_phase_p2.case` | **P2** single-phase spin-up; 108×18×36; 128 ranks (Dardel) |
+| `examples/two_phase_channel/turb_channel_single_phase_p3.case` | **P3** single-phase spin-up; 144×18×48; 256 ranks (Dardel, 2 nodes) |
+| `examples/two_phase_channel/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up (all phases) |
 | `examples/two_phase_channel/postprocess_single_phase.py` | Single-phase postprocessing: ekin plot + mean velocity profile |
 | `examples/two_phase_channel/animate_blowup.py` | Animation: φ/κ/\|u\| panels. Flags: `--stride N`, `--mesh p1\|p2`, `--kappa-scale`. |
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
@@ -231,6 +236,38 @@ srun -u -n 128 ./neko turb_channel_single_phase.case
 
 **MPI rank count for restart must match spin-up.** New-mesh spin-up uses 128 ranks →
 all Phase 2 restart cases use `srun -n 128`.
+
+## Phase 3 workflow (finer mesh — 144×18×48)
+
+Phase 3 extends the mesh convergence study to Δxz=0.0873 (4ε/Δ=4.1 elements across
+interface). Same original code (`turb_channel_two_phase.f90`), same ε=0.09, R=0.4.
+
+### Mesh
+
+```bash
+# 144x18x48 — uniform xz (Δx=Δz=0.0873), 4.1 elements across interface
+# Run on Dardel login node (fast — not compute-intensive)
+cd $KTHMECH_PROJECT/src/neko-multiphase-channel/examples/two_phase_channel
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 144 18 48 .true. .false. .true.
+mv box.nmsh box_phys_144x18x48.nmsh
+```
+
+### Single-phase spin-up on Dardel (Phase 3)
+
+```bash
+# Copy updated job script from source and submit
+cp .../cluster/job_channel_p3_single_phase.sh $KTHMECH_PROJECT/scripts/
+sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_single_phase.sh
+# 2 nodes / 256 ranks, 8h wall time
+# fluid00004.chkp written at t=20 in $SCRATCH_DIR/channel_p3_single_phase/
+```
+
+**Note:** 2-node jobs require checking the Dardel allocation policy for
+account `naiss2025-3-39`. Verify multi-node job limits before submitting.
+
+### Cluster scripts
+
+- `cluster/job_channel_p3_single_phase.sh` — SLURM spin-up job (2 nodes, 256 ranks, 8h)
 
 ## Style and architecture
 

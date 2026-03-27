@@ -21,10 +21,14 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 | `channel_test_sigma0_gamma025` | `_sigma0_gamma025.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Completed** t=20→20.26 | γ=0.25 parametric: stronger CDI makes κ 9× worse (sharper interface → larger C0-kink) |
 | `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Deferred** | Superseded by Phase 2 (finer mesh) |
 | `channel_test_restart_off` | `_restart_off.case` | 1.33 | 0.3 | 0.4 | 0.3 | `fluid00004.chkp` + drop | **Deferred** | Superseded by Phase 2 (finer mesh) |
-| `channel_p2_single_phase` | `_single_phase.case` (108×18×36) | — | — | — | — | Turbulent Reichardt | **Queued** Dardel | New-mesh spin-up; prerequisite for all Phase 2 restart cases |
-| `channel_p2_sigma0` | `_p2_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Queued** Dardel | Phase 2: finer mesh, original code; verify κ_rms behaviour |
-| `channel_p2_we10` | `_p2_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** σ0 result | Phase 2: We=10 first σ>0 test |
-| `channel_p2_we1` | `_p2_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** σ0 result | Phase 2: We=1 primary production case |
+| `channel_p2_single_phase` | `_single_phase_p2.case` (108×18×36) | — | — | — | — | Turbulent Reichardt | **Running** job 18985538 | New-mesh spin-up; produces `fluid00004.chkp` for all P2 restarts |
+| `channel_p2_sigma0` | `_p2_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 spin-up | Phase 2: 3.1 elem/interface, original code; benchmark κ_rms vs P1 |
+| `channel_p2_we10` | `_p2_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 σ0 result | Phase 2: We=10 first σ>0 test |
+| `channel_p2_we1` | `_p2_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 σ0 result | Phase 2: We=1 primary production case |
+| `channel_p3_single_phase` | `_single_phase_p3.case` (144×18×48) | — | — | — | — | Turbulent Reichardt | **Planned** Dardel | Phase 3 spin-up (2 nodes, 256 ranks); produces P3 `fluid00004.chkp` |
+| `channel_p3_sigma0` | `_p3_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Planned** | Phase 3: 4.1 elem/interface; mesh convergence point vs P1/P2 |
+| `channel_p3_we10` | `_p3_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Planned** | Phase 3: We=10 on finest mesh |
+| `channel_p3_we1` | `_p3_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Planned** | Phase 3: We=1 on finest mesh |
 
 Run directories: `/lscratch/sieburgh/simulations/<run_name>/`
 
@@ -73,6 +77,95 @@ See `postprocess_single_phase.py` → `ekin_single_phase.png`, `meanprofile_sing
 | 15 | 0.531 | 1.363 | Statistically stationary |
 | 20 | 0.532 | 1.344 | **checkpoint fluid00004.chkp** |
 | 25 | 0.531 | 1.400 | Final state |
+
+---
+
+## Single-phase spin-up summary — all meshes
+
+All two-phase restart cases require a turbulent checkpoint at t=20 on the same mesh
+and with the same MPI rank count as the restart. One spin-up is needed per mesh.
+
+| Mesh | Case file | Run dir | MPI ranks | Checkpoint | Status |
+|------|-----------|---------|-----------|------------|--------|
+| 81×18×27 (P1) | `_single_phase.case` | `channel_single_phase/` | 16 | `fluid00004.chkp` (t=20) | **Completed** |
+| 108×18×36 (P2) | `_single_phase_p2.case` | `channel_p2_single_phase/` | 128 | `fluid00004.chkp` (t=20) | **Running** job 18985538 |
+| 144×18×48 (P3) | `_single_phase_p3.case` | `channel_p3_single_phase/` | 256 | `fluid00004.chkp` (t=20) | **Planned** |
+
+**Turbulence indicator:** u_max settles to 1.35–1.45 by t≈10 and fluctuates there.
+**Verification:** check `ekin.csv` — u_max fluctuating, no trend, no blow-up at t=20.
+**MPI rank count for restarts must match spin-up** (mesh partitioning compatibility).
+
+---
+
+## Mesh convergence overview — Phase 1/2/3
+
+The three meshes form a geometric series (factor 1.33× in each xz direction per step),
+giving clean convergence data for interface resolution. All phases use identical physics
+(same code, ε=0.09 for P2/P3, R=0.4) to isolate the mesh variable.
+
+| Phase | Mesh | Δxz | Δy | Elements | 4ε/Δxz | Δt_cap (We=10) | Δt/Δt_cap |
+|-------|------|-----|----|----------|---------|----------------|-----------|
+| P1 | 81×18×27 | 0.155 | 0.111 | 39,366 | 1.8 (ε=0.07) | 0.082 | ~0.016 |
+| P2 | 108×18×36 | 0.1164 | 0.111 | 69,984 | 3.1 (ε=0.09) | 0.079 | ~0.010 |
+| P3 | 144×18×48 | 0.0873 | 0.111 | 124,416 | **4.1** (ε=0.09) | 0.061 | ~0.007 |
+
+**Scientific question:** with the original SEM code (no Fortran fix), does κ_rms error
+scale with interface coverage (4ε/Δ), or is the element-face artifact mesh-independent?
+If κ_rms decreases from P1 to P3, the finer mesh partially mitigates the problem.
+If κ_rms stays ~64 across all meshes, the Fortran fix (extra GS pass) is essential.
+
+**genmeshbox commands:**
+```bash
+# P1 (already done on egidius)
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 81 18 27 .true. .false. .true.
+# P2 (done on Dardel)
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 108 18 36 .true. .false. .true.
+# P3 (to be run on Dardel login node — fast, not compute-intensive)
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 144 18 48 .true. .false. .true.
+mv box.nmsh box_phys_144x18x48.nmsh
+```
+
+---
+
+## channel_p2_single_phase — Phase 2 turbulent spin-up (RUNNING job 18985538)
+
+**Purpose:** Turbulent spin-up on the 108×18×36 mesh. Produces `fluid00004.chkp` at
+t=20 for all Phase 2 two-phase restart cases.
+
+**Setup:** 108×18×36 mesh, N=7, Re_b=2800, 128 MPI ranks (Dardel, 1 node), Reichardt IC
++ perturbations, end_time=25, checkpoints every 5 TU, field output every 5 TU.
+Job 18985538 submitted 2026-03-27.
+
+**Expected outputs** in `$SCRATCH_DIR/channel_p2_single_phase/`:
+- `ekin.csv` — u_max should settle to 1.35–1.45 by t=10, fluctuate through t=20
+- `fluid00004.chkp` at t=20 → copy to each Phase 2 two-phase run directory
+- Field snapshots at t=5, 10, 15, 20, 25
+
+| t | E_kin | u_max | Notes |
+|---|-------|-------|-------|
+| — | — | — | Not yet completed |
+
+---
+
+## channel_p3_single_phase — Phase 3 turbulent spin-up (PLANNED)
+
+**Purpose:** Turbulent spin-up on the 144×18×48 mesh. Produces `fluid00004.chkp` at
+t=20 for all Phase 3 two-phase restart cases.
+
+**Setup:** 144×18×48 mesh, N=7, Re_b=2800, 256 MPI ranks (Dardel, 2 nodes), Reichardt IC
++ perturbations, end_time=25, checkpoints every 5 TU, field output every 5 TU.
+
+**Before submitting:** generate mesh on Dardel login node:
+```bash
+cd $KTHMECH_PROJECT/src/neko-multiphase-channel/examples/two_phase_channel
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 144 18 48 .true. .false. .true.
+mv box.nmsh box_phys_144x18x48.nmsh
+```
+Then submit: `sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_single_phase.sh`
+
+| t | E_kin | u_max | Notes |
+|---|-------|-------|-------|
+| — | — | — | Not yet run |
 
 ---
 
@@ -719,7 +812,20 @@ instability occurs across all We values tested so far and in the absence of turb
 - [ ] Verify fix: σ=0 run should give κ_rms ≈ 6.67 (spherical), no growth with advection
 - [ ] If fix verified: run We=10 with σ>0 on current mesh
 
-**Phase 2 — new mesh, larger drop, Dardel (planned — see plan file):**
-- [ ] Generate finer mesh on Dardel
-- [ ] Larger drop (R ≥ 0.4)
-- [ ] Port workflow to Dardel (Cray compiler, GPU backend, SLURM)
+**Phase 2 — in progress (108×18×36, Dardel):**
+- [x] Dardel setup: clone, build `neko-channel`, generate mesh
+- [x] Case files created: `p2_sigma0`, `p2_we10`, `p2_we1`
+- [ ] P2 spin-up complete (job 18985538 running) → check `fluid00004.chkp` at t=20
+- [ ] Submit `channel_p2_sigma0` — key question: does κ_rms improve from P1 baseline (~64)?
+- [ ] Submit `channel_p2_we10` and `channel_p2_we1` pending σ=0 result
+
+**Phase 3 — planned (144×18×48, Dardel):**
+- [x] Case files created: `p3_sigma0`, `p3_we10`, `p3_we1`, `p3_single_phase`
+- [x] Job script: `cluster/job_channel_p3_single_phase.sh` (2 nodes, 256 ranks)
+- [ ] Generate mesh: `genmeshbox ... 144 18 48 ...` on Dardel login node
+- [ ] Verify 2-node job policy on Dardel (naiss2025-3-39 account)
+- [ ] Submit P3 spin-up → produces `fluid00004.chkp` for P3 restarts
+- [ ] Submit P3 two-phase cases
+
+**Key open question (P1/P2/P3 σ=0 comparison):**
+Does κ_rms follow: P1≈64 → P2≈? → P3≈? (decreasing → mesh helps) or stays ~64 (Fortran fix essential)?
