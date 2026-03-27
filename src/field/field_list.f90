@@ -57,6 +57,8 @@ module field_list
      procedure, pass(this) :: name => field_list_name
      !> AMR restart
      procedure, pass(this) :: amr_restart => field_list_amr_restart
+     !> AMR restart
+     procedure, pass(this) :: amr_reallocate => field_list_amr_reallocate
   end type field_list_t
 
 contains
@@ -295,5 +297,35 @@ contains
     end if
 
   end subroutine field_list_amr_restart
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine field_list_amr_reallocate(this, reconstruct, counter, tstep)
+    class(field_list_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reconstructing Field List'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct fields
+    if (allocated(this%items)) then
+       do il = 1, This%size()
+          if (associated(this%items(il)%ptr)) &
+               call this%items(il)%ptr%amr_reallocate(reconstruct, counter, &
+               tstep)
+       end do
+    end if
+
+  end subroutine field_list_amr_reallocate
 
 end module field_list
