@@ -589,6 +589,188 @@ would add overhead if executed at every time step.
 user-file_tips_running-on-gpus) apply when working on field arrays. Use
 `device_memcpy` to make sure the device arrays are also updated.
 
+## Arbitrary Lagrangian-Eulerian (ALE) user functions {#user-file_ale}
+
+When using the Arbitrary Lagrangian-Eulerian (ALE) framework for simulating moving meshes and boundaries, Neko allows users to explicitly define custom mesh velocities, base shapes, and rigid body kinematics. 
+
+These functions must be registered inside your `user_setup` subroutine in exactly the same way as the standard functions described above:
+
+```fortran
+  ! Register ALE user functions
+  user%ale_rigid_kinematics => user_ale_rigid_kinematics
+  user%ale_mesh_velocity => user_ale_mesh_velocity
+  user%ale_base_shapes => user_ale_base_shapes
+```
+
+### Custom rigid body motion {#user-file_ale-rigid_motion}
+
+The interface `ale_rigid_kinematics` allows you to implement a custom time-dependent **rigid body motion** amplitude for a particular body. The `Double_ocyl_cylinder` example shows the usage of this interface.
+
+@note This user subroutine is called after applying the rigid body motions defined in the case file. This means the subroutine can be used for both superimposing or overriding the kinematics set from the case file. The following examples illustrate this point.
+
+> **Example** (Superimpose):
+```fortran
+ subroutine user_rigid_kinematics(body_id, time, vel_trans, vel_ang)
+   integer, intent(in) :: body_id
+   type(time_state_t), intent(in) :: time
+   real(kind=rp), intent(inout) :: vel_trans(3)
+   real(kind=rp), intent(inout) :: vel_ang(3)
+   real(kind=rp) :: t
+
+   t = time%t
+
+   select case (body_id)
+   case (1) ! First registered body in ALE section in case file.
+
+      ! Amplitude for x motion
+      vel_trans(1) = vel_trans(1) + Your_custom_Translational_Motion
+
+      ! Amplitude for rotation around z
+      vel_ang(3) = vel_ang(3) + Your_custom_Rotational_Motion
+
+   end select
+ end subroutine user_rigid_kinematics
+```
+
+> **Example** (Override):
+```fortran
+ subroutine user_rigid_kinematics(body_id, time, vel_trans, vel_ang)
+   integer, intent(in) :: body_id
+   type(time_state_t), intent(in) :: time
+   real(kind=rp), intent(inout) :: vel_trans(3)
+   real(kind=rp), intent(inout) :: vel_ang(3)
+   real(kind=rp) :: t
+
+   t = time%t
+
+   select case (body_id)
+   case (1) ! First registered body in ALE section in case file.
+
+      ! Amplitude for x motion
+      vel_trans(1) = Your_custom_Translational_Motion
+
+      ! Amplitude for rotation around z
+      vel_ang(3) = Your_custom_Rotational_Motion
+
+   end select
+ end subroutine user_rigid_kinematics
+```
+
+Any motion defined based on `vel_trans` will be applied as an amplitude of translational velocity, whereas any motion defined by `vel_ang` will be the amplitude of angular velocity for that body. In the second example above (override), any motion set in the case file will be completely overridden by the custom motions.
+
+@attention `body_id` is defined based on the order in which the bodies are registered in the `"ale.bodies"` array in the case file.
+
+@note The `ale_rigid_kinematics` interface does not require the `base_shape` fields (see [here](#case-file_fluid-ale-solver) to read more about `base_shape` in Neko). The code will automatically apply the correct base shape fields to the motion based on the `body_id`.
+
+
+### Mesh Velocity {#user-file_ale-mesh-velocity}
+
+The interface `ale_mesh_velocity` allows you to implement a custom subroutine to directly manipulate the mesh velocity fields (`wm_x`, `wm_y`, `wm_z`). This is the only way to create custom surface deformation, e.g., time-dependent surface indentation.
+
+The following example illustrates how to apply a time-dependent surface indentation for a channel flow.
+
+```fortran
+module user
+  use neko
+  implicit none
+
+contains
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+
+    ! Register ALE mesh velocity 
+    user%ale_mesh_velocity => user_indentation_motion
+
+  end subroutine user_setup
+
+  subroutine user_indentation_motion(wm_x, wm_y, wm_z, coef, &
+       x_ref, y_ref, z_ref, base_shapes, time)
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(field_t), intent(in) :: x_ref, y_ref, z_ref
+    type(field_t), intent(in) :: base_shapes(:)
+    type(time_state_t), intent(in) :: time
+      
+    integer :: i
+    real(kind=rp) :: t, x_dist, half_width
+    real(kind=rp) :: omega_ind
+    real(kind=rp) :: h_t, arg, u_tanh, uy
+    real(kind=rp) :: phi_top, phi_bot
+
+    ! freq
+    real(kind=rp) :: indent_freq   = 0.05_rp 
+    ! The middle point of the indentation on x-axis
+    real(kind=rp) :: indent_center = 20.0_rp 
+    ! The total width of the indentation
+    real(kind=rp) :: indent_width  = 4.0_rp 
+    ! Amplitude of the indentation
+    real(kind=rp) :: indent_height = 0.25_rp
+    ! Sharpness of the edge
+    ! Higher = square box, Lower = smooth hill
+    real(kind=rp) :: sharpness     = 4.0_rp 
+      
+    t = time%t
+
+    ! omega
+    omega_ind = indent_freq * 2.0_rp * pi
+
+    h_t = indent_height * omega_ind * cos(omega_ind * t)
+     
+    half_width = 0.5_rp * indent_width
+
+    do i = 1, coef%dof%size()
+               
+       ! Calculate Distance based on INITIAL mesh coordinates
+       x_dist = abs(x_ref%x(i,1,1,1)  - indent_center)
+
+       ! If distance > half_width, arg becomes positive and tanh goes to 1 -> u_tanh goes to 0
+       arg  = sharpness * (x_dist - half_width)
+       u_tanh = 0.5_rp * (1.0_rp - tanh(arg))
+        
+       uy  = h_t * u_tanh
+
+       ! phi for bottom surface. body_ID = 1, since it's the first body registered in ale.bodies
+       phi_bot = base_shapes(1)%x(i,1,1,1)
+
+       ! phi for top surface. body_ID = 2
+       phi_top = base_shapes(2)%x(i,1,1,1)
+
+       wm_y%x(i,1,1,1) = wm_y%x(i,1,1,1) - ((0.5_rp*uy) * phi_top) + (uy * phi_bot)
+     
+    end do
+      
+  end subroutine user_indentation_motion
+end module user
+```
+@warning This user subroutine is called at the very end of the mesh velocity calculation. This means that any modification to the mesh velocity in this subroutine will affect all motions applied earlier. `wm_y%%x(i,1,1,1) = wm_y%%x(i,1,1,1) + Your_Custom_Mesh_velocity` will superimpose on **all** previously set mesh motions, whereas `wm_y%%x(i,1,1,1) = Your_Custom_Mesh_velocity` will completely override any motion set earlier.
+
+@attention Even though it is logically possible to apply rigid body motion to an object using a custom `ale_mesh_velocity` subroutine, it **should not** be used for this purpose. Doing so bypasses several internal steps, causing computations regarding the pivot (see [this section](#case-file_fluid-ale-pivot)) and consequently rigid body calculations to be wrong. Always use the `ale_rigid_kinematics` interface for rigid body motion.
+
+@note Since `user_indentation_motion` subroutine directly manipulates the global mesh velocity fields, the computed mesh velocity should be multiplied by the corresponding `base_shape` for that body (see the example above).
+
+### Custom Base Shapes {#user-file_ale-base-shapes}
+
+The interface `ale_base_shapes` allows you to implement a user subroutine to define your own custom base shape fields for ALE mesh movements.
+
+> **Example:**
+```fortran
+  subroutine user_base_shapes(base_shapes)
+    type(field_t), intent(inout) :: base_shapes(:)
+
+    ! Fix the motion of the first ALE body (body_id = 1)
+    base_shapes(1) = 0.0_rp
+    
+    ! Apply the motion of the second ALE body (body_id = 2) to the entire domain
+    base_shapes(2) = 1.0_rp 
+      
+  end subroutine user_base_shapes
+```
+
+The example above will suppress the mesh deformation associated with the first ALE body and apply the rigid body motion of ALE body 2 to the entire domain (including the inlet, outlet, and any other boundaries).
+
+@note If this user subroutine is utilized, it is the user's responsibility to verify that the total base shape field (\f$ \phi_{total} \f$) remains strictly bounded between 0.0 and 1.0.
+
+
 ## Additional remarks and tips
 
 ### Running on GPUs {#user-file_tips_running-on-gpus}

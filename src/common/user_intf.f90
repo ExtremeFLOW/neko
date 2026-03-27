@@ -139,6 +139,8 @@ module user_intf
 
   !> Abstract interface for user defined ALE mesh velocity.
   !! @param wm_x, wm_y, wm_z The mesh velocity components in x, y, and z.
+  !! @param x_ref, y_ref, z_ref The reference grid point coordinates in x, y, and z.
+  !! @param coef Coef object.
   !! @param base_shapes Array of fields representing the base shapes.
   !! @param time The time state.
   abstract interface
@@ -162,7 +164,7 @@ module user_intf
   end interface
 
   !> Abstract interface for user defined ALE rigid body kinematics.
-  !! @param body_id The unique identifier for the rigid body.
+  !! @param body_id The unique ALE body_ID for the rigid body.
   !! @param time The time state.
   !! @param vel_trans The translational velocity vector (x, y, z).
   !! @param vel_ang The angular velocity vector (x, y, z).

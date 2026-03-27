@@ -1137,7 +1137,7 @@ To run an ALE simulation, the framework must be set up as follows:
 
 In the follwoing, the main blocks of `"ale"` object are explained.
 
-#### Solver
+#### Solver {#case-file_fluid-ale-solver}
 
 To smoothly move the mesh during an ALE simulation, we use a global smooth blending function, \f$ \phi_{total} \f$. This function is found by solving the following variable stiffness Laplace equation:
 
@@ -1159,10 +1159,10 @@ Consequently, the problem reduces to solving a separate Laplace equation for eac
 
 Currently, the base shapes \f$ \phi_i \f$ are computed only once during initialization, and these same blending functions are used throughout the entire simulation.
 
-During the simulation, the mesh velocity \f$ \mathbf{v}_{mesh}(\mathbf{x}, t) \f$ at any given grid point \f$ \mathbf{x} \f$ is calculated by multiplying the prescribed velocity \f$ \mathbf{v}_i(\mathbf{x}, t) \f$ of each body by its local base shape value \f$ \phi_i(\mathbf{x}) \f$, and summing the contributions across all registered bodies:
+During the simulation, the mesh velocity \f$ \mathbf{w}_{mesh}(\mathbf{x}, t) \f$ at any given grid point \f$ \mathbf{x} \f$ is calculated by multiplying the prescribed velocity \f$ \mathbf{v}_i(\mathbf{x}, t) \f$ of each body by its local base shape value \f$ \phi_i(\mathbf{x}) \f$, and summing the contributions across all registered bodies:
 
 \f{eqnarray*}{
- \mathbf{v}_{mesh}(\mathbf{x}, t) = \sum_{i} \phi_i(\mathbf{x}) \mathbf{v}_i(\mathbf{x}, t)
+ \mathbf{w}_{mesh}(\mathbf{x}, t) = \sum_{i} \phi_i(\mathbf{x}) \mathbf{v}_i(\mathbf{x}, t)
 \f}
 
 @note A separate Laplace equation is solved for each registered body. During the solve for body \f$ i \f$, the Dirichlet boundary conditions are set such that \f$ \phi_i = 1 \f$ on its own moving boundary, and \f$ \phi_i = 0 \f$ on all other boundaries (including fixed walls and other moving bodies), with the exception of periodic boundaries. This guarantees that body \f$ i \f$ deforms or moves as intended, while other ALE bodies remain unaffected by this motion, and all other boundaries which define the simulation domain remain fixed. The value of \f$ \phi_i \f$ on periodic boundaries is determined naturally by solving the Laplace equation.
@@ -1191,7 +1191,7 @@ If the output flags are enabled, Neko will generate `.fld` files during the init
 @attention Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately. 
 
 
-@note It is also possible to provide a custom base shape \f$ \phi \f$ using the `user_ale_base_shapes` user hook. In this case, the internal Laplace solver is bypassed entirely, even if `user_ale_base_shapes` is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about setting the user function can be found in the relevant section of the documentation.
+@note It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
 
 
 #### Mesh preview
@@ -1212,6 +1212,8 @@ The `"mesh_preview"` block accepts the following keywords:
 @attention The `"mesh_preview"` feature is strictly a pre-processing step. Once the preview completes, whether successfully or due to a failure, the Neko run will terminate and output a corresponding success or failure message. To proceed with the actual fluid simulation, the user **must** set `"mesh_preview.enabled: false"` in order for the actual simulation to run. Additionally, if the solver detects an inverted mesh element during the preview phase, it will save the exact time step at which the Jacobian becomes negative to assist with debugging.
 
 @note The `"mesh_preview"` feature uses the same time integration order as defined in `"case.numerics.time_order"`. However, the `start_time`, `end_time`, constant `dt`, and `output_freq` parameters must be explicitly defined within the `"mesh_preview"` block itself.
+
+@attention When the ALE module is `enabled`, Neko will **always** save the mesh in the `.fld` files at every output step.
 
 #### Bodies
 
@@ -1337,7 +1339,7 @@ For bounds where \f$ \tau \ge 1 \f$, \f$ S(\tau) = 1 \f$ and \f$ \text{dstep}(\t
 
 @attention Within the case file, both translational oscillation and rotational motion can be applied simultaneously to a body. However, only one rotation mode can be active at a time.
 
-@note A custom motion logic can always be applied to a body via the `user_ale_rigid_kinematics` or `user_ale_mesh_velocity` subroutines in user file. The example `"Double_ocyl_cylinder"` shows an example for this usage. More details regarding the supported user functions for ALE can be found here.
+@note A custom motion logic can always be applied to a body via custom `user_ale_rigid_kinematics` or `user_ale_mesh_velocity` subroutines in the user file (see [here](#user-file_ale-rigid_motion) for more information). The example `"Double_ocyl_cylinder"` shows an example for this usage. More details regarding the supported ALE interfaces and subroutines can be found [here](#user-file_ale).
 
 @attention There are several ways to calculate torque on a moving ALE body. The user is referred to [this part of the documentation](#simcomp_force_torque) for more information.
 
@@ -1351,7 +1353,7 @@ The `"pivot"` sub-object defines the center point around which the body rotates.
 | `pivot.value` | The spatial coordinates of the rotation center \f$ [x, y, z] \f$ | Array of 3 reals | - |
 
 
-@note The rotation center (i.e., the `"pivot"`) moves rigidly with the body. This means that if a body undergoes both translational oscillation and rotation, `"pivot.value"` defines the initial position of the rotation center. Throughout the simulation, the location of the pivot point is numerically updated using the translational velocity of the body, even if a custom rigid motion is applied using `user_ale_rigid_kinematics`.
+@note The rotation center (i.e., the `"pivot"`) moves rigidly with the body. This means that if a body undergoes both translational oscillation and rotation, `"pivot.value"` defines the initial position of the rotation center. Throughout the simulation, the location of the pivot point is numerically updated using the translational velocity of the body, even if a custom rigid motion is applied using a `user_ale_rigid_kinematics` subroutine (see [here](#user-file_ale-rigid_motion) for more information).
 
 ##### Mesh Stiffness {#case-file_fluid_ale_stiff_geom}
 
@@ -1417,8 +1419,13 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
 
 @attention Within the region defined by `radius` (from the center) or `stiff_dist` (from the boundary), the mesh stiffness is at its highest. If the `gain` parameter is set large enough, the mesh within this region moves rigidly with the body, preserving its original element quality without deformation. Users are encouraged to check the `ocyl_cylinder3D`, `ocyl_ellipse3D`, and `Double_ocyl_cylinder` examples to get a better idea of how these parameters are configured in practice.
 
-@note Setting a very large value for `gain` (e.g., `1.0e6`) is recommended if the mesh immediately surrounding the body is intended to be fully rigid. Conversely, if two moving objects are in close proximity, the `gain` should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated `phi_total0.f00000` file, and checking the mesh quality using `mesh_preview` are highly recommended.
+@note Setting a very large value for `gain` (e.g., `1.0e6`) is recommended if the mesh immediately surrounding the body is intended to be fully rigid (i.e., \f$ \phi_i \approx 1 \f$). Conversely, if two moving objects are in close proximity, the `gain` should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated `phi_total0.f00000` file, and checking the mesh quality using `mesh_preview` are highly recommended.
 
+#### Restarting ALE simulations
+
+Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving `.chkp` files.
+
+@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
