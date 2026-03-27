@@ -99,21 +99,23 @@ module bc_resolver
      type(bc_list_t), private :: bcs
      type(coef_t), pointer, private :: coef => null()
      type(dofmap_t), pointer, private :: dof => null()
-     ! Reference-node volume indices [(i,j,k), node].
+     !> Reference-node volume indices [(i,j,k), node].
      integer, allocatable :: node_rst(:,:)
-     ! Representative midpoint volume indices [(i,j,k), edge].
+     !> Representative midpoint volume indices [(i,j,k), edge].
      integer, allocatable :: edge_mid_rst(:,:)
      ! Flattened volume-array indices for the 8 reference nodes.
      integer, allocatable :: node_linear_idx(:)
-     ! Resolved class for each local face. The first dimension is the local
+     !> Resolved class for each local face. The first dimension is the local
      ! facet id and the second is the local element id.
      real(kind=rp), allocatable :: face_class(:,:)
      logical, allocatable :: constraint_n(:)
      logical, allocatable :: constraint_t1(:)
      logical, allocatable :: constraint_t2(:)
+     !> Normal and tangent vectors for each face.
      real(kind=rp), allocatable :: n(:,:)
      real(kind=rp), allocatable :: t1(:,:)
      real(kind=rp), allocatable :: t2(:,:)
+
      type(c_ptr) :: constraint_n_d = c_null_ptr
      type(c_ptr) :: constraint_t1_d = c_null_ptr
      type(c_ptr) :: constraint_t2_d = c_null_ptr
