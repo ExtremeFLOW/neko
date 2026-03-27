@@ -55,6 +55,13 @@ rsync -avz --progress \
     "$REPO_ROOT/src/" \
     "${DARDEL_HOST}:${DARDEL_SRC}/src/"
 
+# Sync cluster scripts
+echo "--- cluster/ ---"
+rsync -avz --progress \
+    "$REPO_ROOT/cluster/" \
+    "${DARDEL_HOST}:${DARDEL_SRC}/cluster/"
+
 echo ""
-echo "Sync complete. On Dardel, rebuild with:"
-echo "  sbatch \$KTHMECH_PROJECT/scripts/build_neko_channel.sh"
+echo "Sync complete."
+echo "To update \$KTHMECH_PROJECT/scripts/ on Dardel, run:"
+echo "  ssh dardel 'cp \$KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_*.sh \$KTHMECH_PROJECT/scripts/'"
