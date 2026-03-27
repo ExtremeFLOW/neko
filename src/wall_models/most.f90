@@ -39,7 +39,7 @@ module most
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
-  use registry, only : neko_registry
+  use registry, only : neko_registry, neko_const_registry
   use json_utils, only : json_get_or_default, json_get
   use most_device, only : most_compute_device
   use most_cpu, only : most_compute_cpu
@@ -100,6 +100,7 @@ contains
     real(kind=rp) :: kappa, z0, z0h_in
     character(len=:), allocatable :: bc_type
     real(kind=rp) :: bc_value
+    real(kind=rp), pointer :: bc_value
 
     call json_get_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
@@ -107,7 +108,14 @@ contains
     ! if z0h not specified, assign negative
     ! and compute automatically with Zilitinkevich
     call json_get(json, "type_of_temp_bc", bc_type)
-    call json_get(json, "bottom_bc_flux_or_temp", bc_value)
+    ! call json_get(json, "bottom_bc_flux_or_temp", bc_value)
+
+    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
+
+    bc_value => neko_const_registry%get_real_scalar("bc_value")
+
+    this%bc_value = bc_type
+
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, z0, z0h_in, bc_type, bc_value)
   end subroutine most_init
@@ -119,13 +127,20 @@ contains
     class(most_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
+    real(kind=rp), pointer :: bc_value
 
     call this%partial_init_base(coef, json)
     call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -10.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
-    call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
+    ! call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
+
+    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
+
+    bc_value => neko_const_registry%get_real_scalar("bc_value")
+
+    this%bc_value = bc_value
 
   end subroutine most_partial_init
 
@@ -192,11 +207,14 @@ contains
     type(field_t), pointer :: v
     type(field_t), pointer :: w
     type(field_t), pointer :: temp
+    real(kind=rp), pointer :: bc_value
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
     temp => neko_registry%get_field("temperature")
+    bc_value => neko_const_registry%get_real_scalar("bc_value")
+    this%bc_value = bc_value
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
