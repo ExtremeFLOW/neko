@@ -20,6 +20,8 @@ var field__math_8f90 =
     [ "field_cpwmax3", "d4/de8/field__math_8f90.html#acde25b76b720721332619a95d20c8cae", null ],
     [ "field_cpwmin2", "d4/de8/field__math_8f90.html#a93f731d44c2c4b72d41a78dd6745f3ff", null ],
     [ "field_cpwmin3", "d4/de8/field__math_8f90.html#a09b5bfaec01c0e74264ab9ae180a6a44", null ],
+    [ "field_glmax", "d4/de8/field__math_8f90.html#a668616d38a8bc5c5f732edcca70d6be3", null ],
+    [ "field_glmin", "d4/de8/field__math_8f90.html#a4834e5276a24cac92bb9169deca61c8b", null ],
     [ "field_glsc2", "d4/de8/field__math_8f90.html#a5cbf579f473ff5d02cbbba9aba8b93b2", null ],
     [ "field_glsc3", "d4/de8/field__math_8f90.html#ad4771a764f05b8b745e4de4a5b9573ab", null ],
     [ "field_glsubnorm", "d4/de8/field__math_8f90.html#a740c53e1107f421c70a60d5609a25091", null ],

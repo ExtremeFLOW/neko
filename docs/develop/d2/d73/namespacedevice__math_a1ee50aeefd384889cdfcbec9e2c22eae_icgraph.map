@@ -1,0 +1,9 @@
+<map id="device_math::device_glmax" name="device_math::device_glmax">
+<area shape="rect" id="Node000001" title="Max of a vector of length n." alt="" coords="228,55,385,95"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a668616d38a8bc5c5f732edcca70d6be3" title="Global maximum of all elements in a field ." alt="" coords="5,5,180,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,54,140,33,142,28,219,49"/>
+<area shape="rect" id="Node000003" href="$dc/d12/namespacematrix__math.html#a0d31fef5fc2197fff35a09c6cc5a8ed0" title="Global maximum of all elements in a matrix ." alt="" coords="14,55,171,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,78,171,78,171,73,214,73"/>
+<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#ac65a6beac86fbbb6fdd9620d3ab26bca" title="Global maximum of all elements in a vector ." alt="" coords="16,119,169,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="227,102,161,122,159,117,225,97"/>
+</map>

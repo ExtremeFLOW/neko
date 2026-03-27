@@ -16,6 +16,8 @@ var vector__math_8f90 =
     [ "vector_col2", "d6/d03/vector__math_8f90.html#a6b7dd93eaf2a1c5a2530f03f83f5819e", null ],
     [ "vector_col3", "d6/d03/vector__math_8f90.html#ae678112c08575e245c53df2f50e5f117", null ],
     [ "vector_copy", "d6/d03/vector__math_8f90.html#a37ffda7f54dcc1310d9db2032117013e", null ],
+    [ "vector_glmax", "d6/d03/vector__math_8f90.html#ac65a6beac86fbbb6fdd9620d3ab26bca", null ],
+    [ "vector_glmin", "d6/d03/vector__math_8f90.html#a138a2e97bdb3da0fe934e14a127b194c", null ],
     [ "vector_glsc2", "d6/d03/vector__math_8f90.html#a956fad3c60febe102ee6455ad32c80f0", null ],
     [ "vector_glsc3", "d6/d03/vector__math_8f90.html#a22f87d8888f31b8cadc879fd56ed03f4", null ],
     [ "vector_glsubnorm", "d6/d03/vector__math_8f90.html#aa13a99b5e0cdf2bf91523adf274b8298", null ],
