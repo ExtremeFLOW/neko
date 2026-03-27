@@ -726,7 +726,11 @@ contains
       call vlag%update()
       call wlag%update()
 
+      ! This zeroes-out Dirichlet boundary dofs and applies mixed-bc contraints.
+      call this%bcs_vel_resolver%apply(u%x, v%x, w%x, dm_Xh%size())
+      ! Apply Dirichlet boundary conditions to the velocity.
       call this%bc_apply_vel(time, strong = .true.)
+      ! Apply Dirichlet boundary conditions to the pressure.
       call this%bc_apply_prs(time)
 
       ! Update material properties if necessary
@@ -948,9 +952,10 @@ contains
                 ! Symmetry's apply_scalar doesn't do anything, so we need to mark
                 ! the individual nested bcs on the component resolvers.
                 ! Additionally we have to mark the special surface bc for p.
-                call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
-                call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
-                call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
+                call this%bcs_vel_resolver%mark(bc_i)
+                !call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
+                !call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
+                !call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
 
                 call this%bcs_vel%append(bc_i)
 

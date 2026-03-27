@@ -115,19 +115,7 @@ contains
        strong_ = .true.
     end if
 
-    if (strong_) then
-       do i = 1, this%facet_msk(0)
-          m = this%facet_msk(i)
-          facet = this%facet(i)
-          idx = nonlinear_index(m, this%coef%Xh%lx, this%coef%Xh%ly, &
-               this%coef%Xh%lz)
-          normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
-          u_n = x(m) * normal(1) + y(m) * normal(2) + z(m) * normal(3)
-          x(m) = x(m) - u_n * normal(1)
-          y(m) = y(m) - u_n * normal(2)
-          z(m) = z(m) - u_n * normal(3)
-       end do
-    else
+    if (.not. strong_) then
        call this%neumann_x%apply_scalar(x, n, strong = .false.)
        call this%neumann_y%apply_scalar(y, n, strong = .false.)
        call this%neumann_z%apply_scalar(z, n, strong = .false.)
