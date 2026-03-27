@@ -21,10 +21,11 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 | `channel_test_sigma0_gamma025` | `_sigma0_gamma025.case` | — | 0 | 0.3 | 0 | `fluid00004.chkp` + drop | **Completed** t=20→20.26 | γ=0.25 parametric: stronger CDI makes κ 9× worse (sharper interface → larger C0-kink) |
 | `channel_test_we1` | `_we1.case` | 1 | 0.3 | 0.3 | 0 | `fluid00004.chkp` + drop | **Deferred** | Superseded by Phase 2 (finer mesh) |
 | `channel_test_restart_off` | `_restart_off.case` | 1.33 | 0.3 | 0.4 | 0.3 | `fluid00004.chkp` + drop | **Deferred** | Superseded by Phase 2 (finer mesh) |
-| `channel_p2_single_phase` | `_single_phase_p2.case` (108×18×36) | — | — | — | — | Turbulent Reichardt | **Running** job 18985538 | New-mesh spin-up; produces `fluid00004.chkp` for all P2 restarts |
-| `channel_p2_sigma0` | `_p2_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 spin-up | Phase 2: 3.1 elem/interface, original code; benchmark κ_rms vs P1 |
-| `channel_p2_we10` | `_p2_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 σ0 result | Phase 2: We=10 first σ>0 test |
-| `channel_p2_we1` | `_p2_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 σ0 result | Phase 2: We=1 primary production case |
+| `channel_p2_single_phase` | `_single_phase_p2.case` (108×18×36) | — | — | — | — | Turbulent Reichardt | **Completed** job 18985538 | L1 spin-up done; `fluid00004.chkp` ready |
+| `channel_p2_sigma0` | `_p2_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Running** job 19003683 | L1: ε=0.09 (informative); benchmark κ_rms vs L1 eps053 |
+| `channel_p2_sigma0_eps053` | `_p2_sigma0_eps053.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Running** job 19003682 | L1: ε=0.053 (convergence series point) |
+| `channel_p2_we10` | `_p2_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Running** job 19003684 | L1: We=10 |
+| `channel_p2_we1` | `_p2_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** job 19003685 | L1: We=1 primary production case |
 | `channel_p3_single_phase` | `_single_phase_p3.case` (144×24×48) | — | — | — | — | Turbulent Reichardt | **Running** job 19002586 | L2 spin-up (2 nodes, 256 ranks, 10h); produces L2 `fluid00004.chkp` |
 | `channel_l3_single_phase` | `_single_phase_l3.case` (192×32×64) | — | — | — | — | Turbulent Reichardt | **Running** job 19003203 | L3 spin-up (4 nodes, 512 ranks, 16h); produces L3 `fluid00004.chkp` |
 | `channel_p3_sigma0` | `_p3_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** L2 spin-up | L2: σ=0, ε=0.04; full 5 TU run |
@@ -92,7 +93,7 @@ and with the same MPI rank count as the restart. One spin-up is needed per mesh.
 | Mesh | Case file | Run dir | MPI ranks | Checkpoint | Status |
 |------|-----------|---------|-----------|------------|--------|
 | 81×18×27 (Legacy) | `_single_phase.case` | `channel_single_phase/` | 16 | `fluid00004.chkp` (t=20) | **Completed** |
-| 108×18×36 (L1) | `_single_phase_p2.case` | `channel_p2_single_phase/` | 128 | `fluid00004.chkp` (t=20) | **Completed** t=0–25 |
+| 108×18×36 (L1) | `_single_phase_p2.case` | `channel_p2_single_phase/` | 128 | `fluid00004.chkp` (t=20) | **Completed** (job 18985538) |
 | 144×24×48 (L2) | `_single_phase_p3.case` | `channel_p3_single_phase/` | 256 | `fluid00004.chkp` (t=20) | **Running** job 19002586 (2 nodes, 10h, est. ~6h) |
 | 192×32×64 (L3) | `_single_phase_l3.case` | `channel_l3_single_phase/` | 512 | `fluid00004.chkp` (t=20) | **Running** job 19003203 (4 nodes, 16h, est. ~12h) |
 
@@ -194,10 +195,10 @@ Script: `cluster/job_channel_l3_single_phase.sh`.
 
 ---
 
-## Phase 2 two-phase cases — 108×18×36 mesh (READY — spin-up complete)
+## Phase 2 two-phase cases — 108×18×36 mesh (RUNNING 2026-03-27)
 
 All cases restart from `channel_p2_single_phase/fluid00004.chkp` (128 ranks).
-Spin-up completed (job 18985538). Run sigma0 cases first, then we10, then we1.
+Spin-up completed (job 18985538). All four two-phase cases submitted 2026-03-27.
 
 Two sigma0 cases test the effect of ε independently of mesh refinement:
 
@@ -209,46 +210,47 @@ Two sigma0 cases test the effect of ε independently of mesh refinement:
 If κ_rms is similar for both, coverage does not help and the Fortran fix is essential.
 If κ_rms is lower for ε=0.09, the more diffuse interface reduces the artifact.
 
-### channel_p2_sigma0 — σ=0, ε=0.09 (PENDING)
+### channel_p2_sigma0 — σ=0, ε=0.09 (RUNNING job 19003683)
 
-**Purpose:** Measure κ_rms on P2 mesh with 3.1 elements across interface.
+**Purpose:** Measure κ_rms on L1 mesh with 3.1 elements across interface (coverage-motivated ε).
+Informative comparison — not part of the convergence series.
 
-**Setup:** ε=0.09, γ=0.05, σ=0, R=0.4, end_time=25.0 (full 5 TU). Target κ_rms ≈ 2/R = 5.0 (spherical).
-Job script: `cluster/job_channel_p2_sigma0.sh`.
+**Setup:** ε=0.09, γ=0.05, σ=0, R=0.4, end_time=25.0 (full 5 TU).
+Job script: `cluster/job_channel_p2_sigma0.sh`. Wall limit 6h.
 
 | t | φ_max | κ_rms | Notes |
 |---|-------|-------|-------|
-| — | — | — | Not yet run |
+| — | — | — | Running — no output yet |
 
-### channel_p2_sigma0_eps053 — σ=0, ε=0.053 (PENDING)
+### channel_p2_sigma0_eps053 — σ=0, ε=0.053 (RUNNING job 19003682)
 
-**Purpose:** Measure κ_rms on P2 mesh with 1.82 elements across interface (same GLL ratio as P1).
-Tests whether coverage or mesh size is the controlling variable. **Convergence series point.**
+**Purpose:** Measure κ_rms on L1 mesh with 1.82 elements across interface (constant ε/Δxz=0.457).
+**Convergence series point** — compare with L2 (ε=0.04) and L3 (ε=0.03) to test CDI convergence.
 
 **Setup:** ε=0.053, γ=0.05, σ=0, R=0.4, end_time=25.0 (full 5 TU).
-Job script: `cluster/job_channel_p2_sigma0_eps053.sh`.
+Job script: `cluster/job_channel_p2_sigma0_eps053.sh`. Wall limit 6h.
 
 | t | φ_max | κ_rms | Notes |
 |---|-------|-------|-------|
-| — | — | — | Not yet run |
+| — | — | — | Running — no output yet |
 
-### channel_p2_we10 — We=10 (PENDING)
+### channel_p2_we10 — We=10 (RUNNING job 19003684)
 
-**Setup:** ε=0.09, γ=0.05, σ=0.04, R=0.4, We=10, end_time=25.0.
-Δt_cap≈0.079, Δt/Δt_cap≈0.051. Phase 1 baseline blew up at t≈20.44.
-
-| t | φ_max | κ_rms | u_max | Notes |
-|---|-------|-------|-------|-------|
-| — | — | — | — | Not yet run |
-
-### channel_p2_we1 — We=1 (PENDING)
-
-**Setup:** ε=0.09, γ=0.05, σ=0.4, R=0.4, We=1, end_time=25.0.
-Δt_cap≈0.025, Δt/Δt_cap≈0.16. Target production case.
+**Setup:** ε=0.053, γ=0.05, σ=0.04, R=0.4, We=10, end_time=25.0.
+Δt_cap≈0.079 (at Δxz=0.116), Δt/Δt_cap≈0.051. Wall limit 6h.
 
 | t | φ_max | κ_rms | u_max | Notes |
 |---|-------|-------|-------|-------|
-| — | — | — | — | Not yet run |
+| — | — | — | — | Running — no output yet |
+
+### channel_p2_we1 — We=1 (PENDING job 19003685)
+
+**Setup:** ε=0.053, γ=0.05, σ=0.4, R=0.4, We=1, end_time=25.0.
+Δt_cap≈0.025 (at Δxz=0.116), Δt/Δt_cap≈0.16. Wall limit 6h.
+
+| t | φ_max | κ_rms | u_max | Notes |
+|---|-------|-------|-------|-------|
+| — | — | — | — | Pending — queued |
 
 ---
 
