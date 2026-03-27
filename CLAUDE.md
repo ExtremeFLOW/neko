@@ -81,7 +81,19 @@ cd neko-multiphase-channel && git checkout eriksie/multiphase/two-phase-channel
 sbatch $KTHMECH_PROJECT/scripts/build_neko_channel.sh
 ```
 
-**File transfer node:** use `dardel-ftn` for rsync. Use `dardel` for sbatch/monitoring.
+**Node roles — use the right node for each task:**
+
+| Task | Node | Command |
+|------|------|---------|
+| File transfers (rsync, scp) | `dardel-ftn` | `rsync ... dardel-ftn:...` |
+| Job submission, monitoring | `dardel` | `sbatch`, `squeue`, `git pull` |
+| Builds, compilation | Compute node via SLURM | `sbatch build_neko_channel.sh` |
+| Simulations | Compute node via SLURM | `sbatch job_*.sh` |
+| Mesh generation | **egidius** (generate + rsync) | `genmeshbox ... && rsync ... dardel-ftn:...` |
+
+**Do not run genmeshbox or makeneko interactively on the Dardel login node.**
+Generate meshes on egidius and transfer via `dardel-ftn`.
+
 Account: `naiss2025-3-39`, partition: `main`, 128 cores/node.
 
 **Cluster scripts** (in `cluster/`):
@@ -189,9 +201,11 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 ### Mesh
 
 ```bash
-# 108x18x36 — uniform xz (Δx=Δz=0.1164), 3.1 elements across interface
+# Generate on egidius, transfer to Dardel via dardel-ftn (already done 2026-03-26)
+source setup-env-channel.sh --egidius
 genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 108 18 36 .true. .false. .true.
 mv box.nmsh box_phys_108x18x36.nmsh
+rsync box_phys_108x18x36.nmsh dardel-ftn:$KTHMECH_PROJECT/src/neko-multiphase-channel/examples/two_phase_channel/
 ```
 
 Key parameters for Phase 2 cases: `ε=0.09`, `R=0.4`, `γ=0.05`.
@@ -245,25 +259,30 @@ interface). Same original code (`turb_channel_two_phase.f90`), same ε=0.09, R=0
 ### Mesh
 
 ```bash
-# 144x18x48 — uniform xz (Δx=Δz=0.0873), 4.1 elements across interface
-# Run on Dardel login node (fast — not compute-intensive)
-cd $KTHMECH_PROJECT/src/neko-multiphase-channel/examples/two_phase_channel
+# Generate on egidius, then transfer to Dardel via dardel-ftn
+# (do NOT run genmeshbox on the Dardel login node)
+source setup-env-channel.sh --egidius
+cd examples/two_phase_channel
 genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 144 18 48 .true. .false. .true.
 mv box.nmsh box_phys_144x18x48.nmsh
+rsync box_phys_144x18x48.nmsh dardel-ftn:$KTHMECH_PROJECT/src/neko-multiphase-channel/examples/two_phase_channel/
 ```
+
+**Already done (2026-03-27):** `box_phys_144x18x48.nmsh` (28MB) is at
+`$KTHMECH_PROJECT/src/neko-multiphase-channel/examples/two_phase_channel/`.
 
 ### Single-phase spin-up on Dardel (Phase 3)
 
 ```bash
-# Copy updated job script from source and submit
-cp .../cluster/job_channel_p3_single_phase.sh $KTHMECH_PROJECT/scripts/
+# On dardel login node:
+cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p3_single_phase.sh \
+   $KTHMECH_PROJECT/scripts/
 sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_single_phase.sh
 # 2 nodes / 256 ranks, 8h wall time
 # fluid00004.chkp written at t=20 in $SCRATCH_DIR/channel_p3_single_phase/
 ```
 
-**Note:** 2-node jobs require checking the Dardel allocation policy for
-account `naiss2025-3-39`. Verify multi-node job limits before submitting.
+**Note:** 2-node jobs — verify multi-node policy for `naiss2025-3-39` before submitting.
 
 ### Cluster scripts
 
