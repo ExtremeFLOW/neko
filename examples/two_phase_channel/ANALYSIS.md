@@ -1087,10 +1087,22 @@ drives the interface to a sharper steady-state (higher |∇φ|), which amplifies
 C0-kink amplitude at element faces. CDI profile quality (interface width, φ_max recovery)
 does improve, but κ accuracy degrades catastrophically.
 
-**The only fix is the Fortran code:** an additional GS pass on $\hat{\mathbf{n}}$ after
-normalisation, before computing div(n̂). This smooths the slope of $\hat{\mathbf{n}}$
-across element faces, reducing the C1 kink magnitude without changing the interface
-profile. See §7.9 for the proposed implementation and expected effect.
+**Ongoing mesh convergence study (March 2026):** Two finer meshes are being run on Dardel
+to test whether better interface coverage alone changes the blow-up behaviour, before
+applying the Fortran fix. The three meshes form a geometric series:
+
+| Mesh | Δxz | 4ε/Δ | Status |
+|------|-----|------|--------|
+| 81×18×27 (P1) | 0.155 | 1.8 (ε=0.07) | Completed — all σ>0 cases blown up |
+| 108×18×36 (P2) | 0.116 | 3.1 (ε=0.09) | Spin-up running on Dardel |
+| 144×18×48 (P3) | 0.087 | 4.1 (ε=0.09) | Spin-up running on Dardel |
+
+The σ=0 diagnostic on each mesh will show whether κ_rms scales down with coverage or
+stays near 64 regardless. If the latter, the Fortran fix (§7.9) is the only path forward.
+
+**The Fortran fix** (an additional GS pass on $\hat{\mathbf{n}}$ after normalisation,
+before div(n̂)) is implemented in `src/turb_channel_two_phase_p2.f90` and deferred until
+the convergence study is complete. See §7.9 for the implementation.
 
 ---
 

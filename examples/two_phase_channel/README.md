@@ -62,49 +62,56 @@ Use target_cfl=0.2 for all two-phase cases with σ≥0.03 (We≤10).
 
 | Parameter | Value | How to choose |
 |-----------|-------|---------------|
-| ε | **0.07** | ε ≥ 3 × Δ_GLL_x,z = 3×0.022=0.066; R/2ε > 2 |
+| ε | **0.07** (P1) / **0.09** (P2/P3) | ε ≥ 3 × Δ_GLL_x,z; R/2ε > 2 |
 | γ | **0.05** | 0.01 ≤ γ/u_max ≤ 0.1; γ/u_max=0.033 at u_max=1.5 |
 | target_cfl | **0.2** | Capillary stability: Δt_cap ≈ 0.0015 TU at We=1 |
 | σ | 0.3 (We=1) | We = ρ U_b² R/σ; σ = R/We |
-| R | 0.3–0.4 | D=0.6–0.8h; clearance to wall ≥ 0.3h (54 wall units) |
+| R | 0.3 (P1) / 0.4 (P2/P3) | D=0.6–0.8h; clearance to wall ≥ 0.3h |
 | y_c | 0 (centre) | `drop_center_y` in case file; 0=centreline, 0.3=log-law region |
 | N | 7 | Polynomial order |
-| Mesh | 81×18×27 (physical) | Nx=3·Nz for equal Δx=Δz |
+| Mesh | 81×18×27 (P1), 108×18×36 (P2), 144×18×48 (P3) | Nx=3·Nz for equal Δx=Δz |
 
 ## Files
 
+**Source modules** (`src/`):
 | File | Purpose |
 |------|---------|
-| `turb_channel_two_phase.f90` | User module (IC, CDI source, CSF source, diagnostics) |
-| `turb_channel_two_phase_v4.case` | High-We reference (We=730, σ=4.1×10⁻⁴); completed t=0–5 |
-| `turb_channel_two_phase_laminar.case` | Laminar flow, We=1 (σ=0.3); blown up at t=0.90 TU (same CSF capillary instability) |
-| `turb_channel_two_phase_we1.case` | **Primary validation**: turbulent, We=1 (σ=0.3); restart from `fluid00004.chkp` |
-| `turb_channel_two_phase_we10.case` | Turbulent, We=10 (σ=0.03); moderate deformation; restart from `fluid00004.chkp` |
-| `turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp`; R=0.4, y_c=0 (centre); blow-up reference data |
-| `turb_channel_two_phase_restart_off.case` | We=1.33 restart; R=0.4, y_c=0.3 (off-centre, log-law region) |
-| `turb_channel_two_phase_sigma0.case` | CDI-only quality test: σ=0, no CSF; restart from `fluid00004.chkp`; tests normal and curvature accuracy |
-| `turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up |
-| `turb_channel_single_phase.case` | Single-phase spin-up to t=25, checkpoint every 5 TU |
-| `box_phys_81x18x27.nmsh` | Uniform physical mesh (gitignored; see below) |
-| `analyze_two_phase_channel.py` | Plot ekin.csv diagnostics (two-phase: φ, κ, u_max, E_kin) |
-| `postprocess_single_phase.py` | Single-phase postprocessing: ekin plot + mean velocity profile |
-| `animate_two_phase_channel.py` | Animate field files (requires pysemtools) |
-| `ANALYSIS.md` | Physics background (CDI/CSF/NS equations), timescale analysis, v4 data interpretation |
+| `src/turb_channel_two_phase.f90` | Two-phase user module (IC, CDI/CSF source terms, diagnostics) |
+| `src/turb_channel_two_phase_p2.f90` | Same with extra GS pass on n̂ — deferred, not yet used |
+| `src/turb_channel_single_phase.f90` | Fluid-only module for single-phase spin-up |
+
+**Case files** (`cases/<mesh>/`):
+| Directory | Mesh | Cases |
+|-----------|------|-------|
+| `cases/81x18x27/` | 81×18×27 (Δ=0.155) | Baseline Phase 1 runs (single-phase, v4, sigma0, we10, laminar, …) |
+| `cases/108x18x36/` | 108×18×36 (Δ=0.116) | Phase 2 runs (single-phase, sigma0, we10, we1) |
+| `cases/144x18x48/` | 144×18×48 (Δ=0.087) | Phase 3 runs (single-phase, sigma0, we10, we1) |
+
+**Postprocessing** (`postprocess/`):
+| File | Purpose |
+|------|---------|
+| `postprocess/postprocess_single_phase.py` | ekin plot + mean velocity profile |
+| `postprocess/animate_two_phase_channel.py` | Animate φ and \|u\| field snapshots |
+| `postprocess/animate_blowup.py` | φ/κ/\|u\| animation for blow-up diagnostics |
+| `postprocess/analyze_sigma0_normals.py` | Field-level σ=0 analysis: κ_rms, n̂ alignment, drop geometry |
+
+**Meshes** (gitignored, generated with `genmeshbox`):
+- `box_phys_81x18x27.nmsh`, `box_phys_108x18x36.nmsh`, `box_phys_144x18x48.nmsh`
 
 ## Running
 
 ```bash
 cd examples/two_phase_channel
+source ../../setup-env-channel.sh --egidius   # or --local / --cluster
 genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 81 18 27 .true. .false. .true.
 mv box.nmsh box_phys_81x18x27.nmsh
-makeneko turb_channel_two_phase.f90
-mpirun -np <N> ./neko turb_channel_two_phase_v4.case
+makeneko src/turb_channel_two_phase.f90
+mpirun -np 16 ./neko cases/81x18x27/turb_channel_two_phase_v4.case
 ```
 
-`genmeshbox` and `makeneko` are installed alongside Neko. Choose `<N>` based on
-available cores — the mesh has 39k elements so anything from 4 to 128 ranks works.
-Domain corners: x∈[0, 4π=12.5664], y∈[−1, 1], z∈[0, 4π/3=4.1888];
-the 81:27=3:1 ratio ensures equal element spacing in x and z.
+All turbulent two-phase cases require a single-phase spin-up first (produces
+`fluid00004.chkp` at t=20). See `CLAUDE.md` for the full workflow. For
+production runs on Dardel use the job scripts in `cluster/`.
 
 ## Turbulence: initial condition and when the flow is turbulent
 
