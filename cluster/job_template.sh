@@ -34,16 +34,20 @@ RUN_DIR=$SCRATCH_DIR/$RUN_NAME
 mkdir -p "$RUN_DIR"
 cd "$RUN_DIR"
 
-# Copy inputs (makeneko must already have been run in SRC)
+# Copy inputs (neko_two_phase must already be built via build_neko_two_phase.sh)
 cp "$SRC/cases/108x18x36/turb_channel_two_phase_p2_CASE.case" .  # adjust mesh dir for p3
-cp "$SRC/box_phys_108x18x36.nmsh" .
-cp "$SRC/neko" .
+cp "$SRC/box_phys_108x18x36.nmsh" .                               # adjust mesh name for p3
+cp "$SRC/neko_two_phase" neko
 
-# fluid00004.chkp must already be present (copied from spin-up run)
+# Copy checkpoint from spin-up if not already present
+SPINUP_CHKP=$SCRATCH_DIR/channel_p2_single_phase/fluid00004.chkp  # adjust for p3
 if [ ! -f fluid00004.chkp ]; then
-    echo "ERROR: fluid00004.chkp not found in $RUN_DIR"
-    echo "Run the new-mesh single-phase spin-up first and copy the checkpoint here."
-    exit 1
+    if [ -f "$SPINUP_CHKP" ]; then
+        cp "$SPINUP_CHKP" .
+    else
+        echo "ERROR: fluid00004.chkp not found. Run the single-phase spin-up first."
+        exit 1
+    fi
 fi
 
 echo "Starting: $RUN_NAME"

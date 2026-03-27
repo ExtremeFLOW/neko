@@ -97,10 +97,19 @@ Generate meshes on egidius and transfer via `dardel-ftn`.
 Account: `naiss2025-3-39`, partition: `main`, 128 cores/node.
 
 **Cluster scripts** (in `cluster/`):
-- `build_neko_channel.sh` — SLURM build job (sbatch wrapper)
+- `build_neko_channel.sh` — SLURM build job for Neko framework (makeneko + libs)
+- `build_neko_two_phase.sh` — SLURM build job for two-phase user module → `neko_two_phase`
 - `sync_to_dardel.sh` — rsync source → Dardel
 - `sync_from_dardel.sh <run_name> [--all]` — rsync results → egidius
 - `job_template.sh` — Dardel run job template (copy and edit CASE → actual name)
+- `job_channel_p2_single_phase.sh` — P2 (108×18×36) single-phase spin-up
+- `job_channel_p2_sigma0.sh` — P2 σ=0 CDI diagnostic
+- `job_channel_p2_we10.sh` — P2 We=10 two-phase
+- `job_channel_p2_we1.sh` — P2 We=1 two-phase
+- `job_channel_p3_single_phase.sh` — P3 (144×18×48) single-phase spin-up
+- `job_channel_p3_sigma0.sh` — P3 σ=0 CDI diagnostic
+- `job_channel_p3_we10.sh` — P3 We=10 two-phase
+- `job_channel_p3_we1.sh` — P3 We=1 two-phase
 
 ## Running the two-phase channel example
 
@@ -212,35 +221,38 @@ The original `turb_channel_two_phase.f90` is used for all Phase 2 cases.
 comparison but is not used yet. The question is: does better interface
 coverage (3.1 elements vs 1.8) alone change the blow-up behaviour?
 
-### Compile for Phase 2
+### Build two-phase binary on Dardel
+
+Compilation must happen on a compute node (Cray compiler). Run once, before any two-phase jobs.
+The resulting `neko_two_phase` is shared by all P2 and P3 two-phase job scripts.
 
 ```bash
-cd examples/two_phase_channel
-source ../../setup-env-channel.sh --egidius   # or --cluster on Dardel
-makeneko src/turb_channel_two_phase.f90           # original code, no Fortran fix
+# On Dardel login node — first sync source, then build:
+bash cluster/sync_to_dardel.sh
+ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/build_neko_two_phase.sh \
+              $KTHMECH_PROJECT/scripts/ && \
+            sbatch $KTHMECH_PROJECT/scripts/build_neko_two_phase.sh"
+# Output: $SRC/neko_two_phase  (reused by all two-phase jobs)
 ```
 
-### Verification sequence
+### Submitting two-phase cases on Dardel
 
-1. Run `p2_sigma0.case` on Dardel (1 TU, 128 ranks). Observe κ_rms — expect still ~64 if element-face artifact dominates mesh resolution, or lower if coverage helps.
-2. If verified, sync to Dardel, build, re-run single-phase spin-up on 108×18×36 mesh (128 ranks),
-   then run p2_we10 and p2_we1.
-
-### Single-phase spin-up on new mesh (Dardel)
+Run sigma0 first (diagnostic, 1 TU, 2h wall time). Then we10 and we1.
+The job scripts auto-copy `fluid00004.chkp` from the corresponding spin-up directory.
 
 ```bash
-# Update turb_channel_single_phase.case: change mesh_file to box_phys_108x18x36.nmsh
-mkdir $SCRATCH_DIR/channel_p2_single_phase
-cd    $SCRATCH_DIR/channel_p2_single_phase
-cp $SRC/turb_channel_single_phase.case .
-cp $SRC/box_phys_108x18x36.nmsh .
-cp $SRC/neko .
-srun -u -n 128 ./neko turb_channel_single_phase.case
-# fluid00004.chkp written at t=20; copy to each Phase 2 run directory
+# Copy job scripts to $KTHMECH_PROJECT/scripts/ (one-time, or after any edits)
+ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p2_*.sh \
+              $KTHMECH_PROJECT/scripts/"
+
+# Submit (wait for spin-up to complete and neko_two_phase to be built first)
+ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p2_sigma0.sh"
+ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p2_we10.sh"
+ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p2_we1.sh"
 ```
 
-**MPI rank count for restart must match spin-up.** New-mesh spin-up uses 128 ranks →
-all Phase 2 restart cases use `srun -n 128`.
+**MPI rank count for restart must match spin-up.** P2 spin-up uses 128 ranks →
+all P2 two-phase restart cases use `srun -n 128`.
 
 ## Phase 3 workflow (finer mesh — 144×18×48)
 
@@ -269,13 +281,26 @@ rsync box_phys_144x18x48.nmsh dardel-ftn:$KTHMECH_PROJECT/src/neko-multiphase-ch
 cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p3_single_phase.sh \
    $KTHMECH_PROJECT/scripts/
 sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_single_phase.sh
-# 2 nodes / 256 ranks, 8h wall time
+# 1 node / 128 ranks, 8h wall time
 # fluid00004.chkp written at t=20 in $SCRATCH_DIR/channel_p3_single_phase/
 ```
 
 **Note:** 1 node / 128 ranks / 8h. Memory is not the concern (124k elements × 512 pts ≈ 10 GB
 of working memory, well within 256 GB/node). Runtime is ~8.5h (2.37× Phase 2's 3.6h).
 All Phase 3 two-phase restart cases must also use `srun -n 128` to match this spin-up.
+
+### Submitting two-phase cases on Dardel (Phase 3)
+
+Same pattern as Phase 2. Uses `neko_two_phase` (same binary, already built for P2).
+
+```bash
+ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p3_*.sh \
+              $KTHMECH_PROJECT/scripts/"
+
+ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0.sh"
+ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we10.sh"
+ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we1.sh"
+```
 
 ### Cluster scripts
 
