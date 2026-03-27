@@ -217,7 +217,7 @@ def _update(frame):
         (ax_vel_xy, triang_xy, s['umag_xy'], 'viridis', vel_max),
         (ax_vel_xz, triang_xz, s['umag_xz'], 'viridis', vel_max),
     ]:
-        ax.tricontourf(trg, vals, levels=80, cmap=cmap, vmin=0, vmax=vmax)
+        ax.tricontourf(trg, vals, levels=80, cmap=cmap, vmin=0, vmax=vmax, extend='both')
 
     # phi=0.5 interface contour
     for ax, trg, phi_vals, colour in [

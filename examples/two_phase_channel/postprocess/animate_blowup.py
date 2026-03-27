@@ -49,8 +49,10 @@ parser.add_argument('--mesh', choices=['p1', 'p2'], default=None,
                          'Overrides nz_elems used for the z-slice selection.')
 args = parser.parse_args()
 
-RUN_DIR = f'/lscratch/sieburgh/simulations/{args.run}'
-OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures')
+RUN_DIR    = f'/lscratch/sieburgh/simulations/{args.run}'
+OUT_DIR    = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures')
+FRAMES_DIR = os.path.join(OUT_DIR, 'frames')
+os.makedirs(FRAMES_DIR, exist_ok=True)
 comm    = MPI.COMM_WORLD
 
 # ---------------------------------------------------------------------------
@@ -219,20 +221,25 @@ for i, f in enumerate(frames):
     fig.subplots_adjust(left=0.06, right=0.90, top=0.91, bottom=0.07, hspace=0.45)
 
     def _add_panel(ax, tcf_data, vals, cmap, vmin, vmax, title, cb_label, cb_ticks):
-        tcf = ax.tricontourf(triang_xy, vals, levels=LEVELS,
-                             cmap=cmap, vmin=vmin, vmax=vmax)
+        # extend='both': out-of-range values render as saturated colours (not white).
+        # This preserves visibility of simulation errors (e.g. phi << 0 or >> 1).
+        # The colorbar is built from a ScalarMappable so it stays clean (no arrows).
+        ax.tricontourf(triang_xy, vals, levels=LEVELS,
+                       cmap=cmap, vmin=vmin, vmax=vmax, extend='both')
         ax.tricontour(triang_xy, f['phi_xy'], levels=[0.5],
                       colors='limegreen', linewidths=1.5)
         ax.set_title(title, fontsize=10, fontweight='bold')
         ax.set_xlabel('x', fontsize=8)
         ax.set_ylabel('y', fontsize=8)
         ax.tick_params(labelsize=7)
-        cb = fig.colorbar(tcf, ax=ax, pad=0.01, aspect=12,
-                          fraction=0.025)
+        from matplotlib.cm import ScalarMappable
+        from matplotlib.colors import Normalize
+        sm = ScalarMappable(cmap=cmap, norm=Normalize(vmin=vmin, vmax=vmax))
+        sm.set_array([])
+        cb = fig.colorbar(sm, ax=ax, pad=0.01, aspect=12, fraction=0.025)
         cb.set_label(cb_label, fontsize=9)
         cb.set_ticks(cb_ticks)
         cb.ax.tick_params(labelsize=8)
-        return tcf
 
     # ---- φ panel ----
     for xv in x_lines:
@@ -269,11 +276,11 @@ for i, f in enumerate(frames):
     png_paths.append(out_png)
     print(f'  Frame {i+1:02d}/{len(frames)}  t={f["t"]:.4f}')
 
-# Also copy frames to OUT_DIR with run name
+# Copy frames to figures/frames/ with run name prefix
+import shutil
 for src in png_paths:
     basename = os.path.basename(src).replace('frame_', f'blowup_{run_name}_frame')
-    import shutil
-    shutil.copy(src, os.path.join(OUT_DIR, basename))
+    shutil.copy(src, os.path.join(FRAMES_DIR, basename))
 
 # ---------------------------------------------------------------------------
 # Assemble GIF from PNGs
