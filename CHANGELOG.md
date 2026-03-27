@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added 1D stats csv files as a possible input to `average_fields_in_time`.
 - Added a script to add new unit tests under `contrib/add_unit_test`. Added
   templates for serial and parallel unit tests.
 - Added optional log output from the flow_rate_force, controlled by the `log`
