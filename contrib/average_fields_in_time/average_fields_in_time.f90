@@ -202,7 +202,7 @@ contains
 
       ! Load the spatial coordinates in the second column
       avg_data%x(:, 2) = data%x(1:sample_size, 2)
-      
+
     end block
 
     ! Write the final averaged fields
