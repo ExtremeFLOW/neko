@@ -19,6 +19,11 @@
 
 set -e
 
+module load PrgEnv-cray
+module use /cfs/klemming/pdc/projects/hpcrd/modules
+module load hpcrd
+module load json-fortran/8.3.0-cce-18.0.1-bjoug3p
+
 SRC=/cfs/klemming/projects/supr/kthmech/eriksie/src/neko-multiphase-channel/examples/two_phase_channel
 RUN=/cfs/klemming/scratch/e/eriksie/channel_p2_single_phase
 
