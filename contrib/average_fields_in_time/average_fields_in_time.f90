@@ -1,6 +1,5 @@
 !> Program to sum up averaged fields computed for statistics and mean field
 !! Martin Karp 27/01-23
-!! Victor Baconnet 26/03/26
 program average_fields_in_time
   use neko
   implicit none
