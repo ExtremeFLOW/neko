@@ -85,6 +85,9 @@ module ale_manager
   public :: log_pivot
 
   type, public :: ale_manager_t
+     ! Default
+     logical :: active = .false.
+
      class(ax_t), allocatable :: Ax
      class(ksp_t), allocatable :: ksp
      class(pc_t), allocatable :: pc
@@ -96,7 +99,6 @@ module ale_manager
 
      type(ale_config_t) :: config
      logical :: has_moving_boundary = .false.
-     logical :: active = .false.
      real(kind=rp) :: abstol = 1.0e-10_rp
      integer :: ksp_max_iter = 10000
      logical :: res_monitor = .false.
@@ -124,7 +126,7 @@ module ale_manager
      !> base_shapes(i) is 1.0 on body i and 0.0 on all others.
      type(field_t), allocatable :: base_shapes(:)
 
-     !> Sum of all base shapes. Should be \in [0, 1].
+     !> Sum of all base shapes. Should be \f$ \in [0, 1] \f$.
      type(field_t) :: phi_total
 
      real(kind=rp), pointer :: global_pivot_pos(:) => null()
@@ -189,8 +191,6 @@ contains
     integer, allocatable :: moving_zone_ids(:)
     integer :: i, j, n_bcs, n, n_bodies
     real(kind=rp), allocatable :: tmp_vec(:)
-    real(kind=rp) :: default_gain = 100.0_rp
-    real(kind=rp) :: default_decay = 1.0_rp
     real(kind=rp) :: tmp_val
     character(len=128) :: log_buf
     character(len=256) :: log_buf_l
@@ -207,6 +207,7 @@ contains
     end if
 
     if (.not. this%active) then
+       neko_ale => null()
        return
     else if (this%active) then
        neko_ale => this

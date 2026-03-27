@@ -145,6 +145,7 @@ module neko
   use source_term, only : source_term_t, source_term_allocate, &
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
+  use ale_manager, only : neko_ale
   use, intrinsic :: iso_fortran_env
   use mpi_f08
   !$ use omp_lib
