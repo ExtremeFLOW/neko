@@ -675,7 +675,7 @@ contains
     character(len=*), intent(in) :: center_type
     real(kind=rp), intent(in) :: center_in(3)
 
-    character(len=512) :: log_buf
+    character(len=128) :: log_buf
     integer :: i, j, nbodies, nindices, body_id
     logical :: body_found
     logical :: ale_active = .false.
@@ -686,7 +686,7 @@ contains
     nullify(this%body_P)
     nullify(this%body_R)
 
-    ! Check Global Pointer for ALE Activity
+    ! Check Global Pointer for ALE
     if (associated(neko_ale)) then
        if (neko_ale%active) then
           ale_active = .true.
@@ -755,7 +755,7 @@ contains
     end if
 
     if ((.not. ale_active) .and. (trim(center_type) == 'pivot' .or. &
-                                  trim(center_type) == 'body_attached')) then
+         trim(center_type) == 'body_attached')) then
        call neko_log%message(' ')
        write(log_buf, '(A,I0,A)') "Warning: Zone ", zone_id, &
             " requested '" // trim(center_type) // "' center, but ALE is not active."

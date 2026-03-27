@@ -377,7 +377,7 @@ When an object undergoes translational or rotational movement, it is often neces
 
 @note If `center_type` is set to `"pivot"` or `"body_attached"` but the specified `zone_id` is not registered as an ALE body (or ALE is globally inactive), the code will print a warning and automatically revert back to `"fixed"` using the provided `"center"` in the case file.
 
-@attention For ALE simulations, the wall normal vectors are dynamically re-calculated at every time step to account for body movement and deformation. If the ALE module is not enabled, this calculation is performed only once during initialization.
+@attention For ALE simulations, the wall normal vectors are re-calculated at every time step to account for body movement and deformation. If the ALE module is not enabled, this calculation is performed only once during initialization.
 
 @note **Restarting Simulations:** When restarting an ALE simulation, the code automatically calculates the correct current position of the torque center at the restart time. Therefore, if the intended torque calculation point remains the same, the `center` array in the JSON file should **not** be modified between restarts. If you wish to calculate torque around a *new* point upon restart, the `center` array must specify the coordinates of that new point in the **original, undeformed mesh** (at \f$ t=0 \f$), not its current spatial location.
 
