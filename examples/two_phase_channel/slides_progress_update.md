@@ -284,3 +284,72 @@ which is negligible compared to the pressure solve.
 The trade-off: over-smoothing κ toward the element average (slightly blurs genuine curvature variations).
 For nearly spherical drops (uniform κ) this is ideal; for highly deformed drops it introduces a bias.
 This should be tested by comparing κ_rms against the postprocessing value after the fix.
+
+=========================================================
+## SLIDE 8: Mesh refinement study — isolating the κ artifact
+**Layout: TWO COLUMNS**
+=========================================================
+
+**LEFT COLUMN: Open question**
+
+The κ artifact analysis (Slide 5) identifies two separate problems:
+
+1. **Capillary timestep instability** — $\Delta t / \Delta t_\text{cap} > 1$, explicit CSF feedback loop
+2. **κ inaccuracy** — C0 kink in $\hat{\mathbf{n}}$ amplifies apparent curvature by $\sim 9\times$
+
+These were diagnosed on the baseline mesh ($\Delta_{xz} = 0.155$, 1.8 elements across the interface).
+Before fixing the Fortran code, a natural question is:
+
+**Does better interface coverage reduce the κ artifact?**
+
+More elements across the interface → the kink at each face contributes a smaller fraction of the total arc → potentially lower $\kappa_\text{rms}$ error. If coverage alone helps significantly, the Fortran fix becomes less urgent.
+
+**RIGHT COLUMN: Three-mesh convergence study**
+
+Same code, same physics ($\varepsilon = 0.09$, $R = 0.4$, $\gamma = 0.05$). Mesh only changes.
+
+| Mesh | $\Delta_{xz}$ | $4\varepsilon/\Delta_{xz}$ | Elements |
+|:---:|:---:|:---:|:---:|
+| $81\!\times\!18\!\times\!27$ | $0.155$ | $1.8$ | $39\,366$ |
+| $108\!\times\!18\!\times\!36$ | $0.116$ | $3.1$ | $69\,984$ |
+| $144\!\times\!18\!\times\!48$ | $0.087$ | $4.1$ | $124\,416$ |
+
+Each mesh is $1.33\times$ finer in $x,z$ — a clean geometric series for convergence analysis.
+
+Key diagnostic: $\sigma = 0$ run on each mesh → measure $\kappa_\text{rms}$ plateau.
+- If $\kappa_\text{rms}$ decreases with mesh: interface coverage partially mitigates the artifact
+- If $\kappa_\text{rms} \approx 64$ on all meshes: the Fortran fix is essential regardless
+
+**[NOTES]**
+The meshes have uniform $\Delta_x = \Delta_z$ by construction ($N_x / N_z = L_x / L_z = 3$ for all three).
+Wall-normal resolution ($\Delta_y = 0.111$) is kept constant — turbulence is already well-resolved at
+$Re_\tau = 180$ and we are not changing the physics, only interface coverage.
+
+=========================================================
+## SLIDE 9: Production runs on Dardel — current status
+**Layout: SINGLE COLUMN**
+=========================================================
+
+**Computing infrastructure**
+
+Simulations moved to Dardel (KTH/PDC HPC cluster): 128 AMD EPYC cores/node, Cray compiler.
+Baseline mesh ran on a workstation (32 cores); finer meshes need more memory bandwidth and parallelism.
+
+**Run plan** (original code, no Fortran fix — isolate mesh variable)
+
+| Run | Mesh | Purpose | Status |
+|---|---|---|---|
+| Single-phase spin-up | $108\!\times\!18\!\times\!36$ | Turbulent IC at $t=20$ for all $108$ restarts | **Running** |
+| Single-phase spin-up | $144\!\times\!18\!\times\!48$ | Turbulent IC at $t=20$ for all $144$ restarts | **Running** |
+| $\sigma = 0$ | $108\!\times\!18\!\times\!36$ | Key diagnostic: $\kappa_\text{rms}$ vs baseline | Queued |
+| $\sigma = 0$ | $144\!\times\!18\!\times\!48$ | Key diagnostic: $\kappa_\text{rms}$ convergence | Queued |
+| $We = 10$ | $108\!\times\!18\!\times\!36$ | First $\sigma > 0$ test on finer mesh | Pending |
+| $We = 1$ | $108\!\times\!18\!\times\!36$ | Primary production case | Pending |
+| $We = 10,\,1$ | $144\!\times\!18\!\times\!48$ | Finest mesh production cases | Pending |
+
+**Next decision point:** once $\sigma = 0$ results come in, compare $\kappa_\text{rms}$ across all three meshes.
+If the trend is clear, decide whether to proceed to $\sigma > 0$ or implement the Fortran fix first.
+
+**[NOTES]**
+The two spin-up jobs run concurrently. The 108×18×36 spin-up takes ~3.6h; 144×18×48 takes ~8.5h.
+All two-phase restarts must use the same MPI rank count as their spin-up (128 ranks for both).
