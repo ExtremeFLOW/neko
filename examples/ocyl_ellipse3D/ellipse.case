@@ -7,6 +7,7 @@
     "output_checkpoints": true,
     "checkpoint_control": "tsteps",
     "checkpoint_value": 2000,
+//    "restart_file": "rst.chkp",
     "time": {
       "end_time": 200.0,
       "variable_timestep": false,
@@ -34,6 +35,7 @@
         "type": "gmres",
         "preconditioner": { "type": "hsmg" },
         "projection_space_size": 10,
+        "projection_reorthogonalize_basis": true,
         "absolute_tolerance": 1e-8,
         "max_iterations": 1000
       },
@@ -102,7 +104,7 @@
         [
             {
                 "type": "force_torque",
-                "name": "center_attached",
+                "name": "body_attached_calc",
                 "compute_control": "tsteps",
                 "compute_value": 1,
                 "zone_id": 1,
@@ -114,14 +116,27 @@
 
             {
                 "type": "force_torque",
-                "name": "center_fixed",
+                "name": "center_fixed_calc",
                 "compute_control": "tsteps",
                 "compute_value": 1,
                 "zone_id": 1,
                 "zone_name": "ellipse_force_fixed",
-                "center": [-1.0, -1.0, 0.0],
+                "center": [0.0, 0.0, 0.0],
                 "center_type": "fixed",
             },
+
+
+            {
+                "type": "force_torque",
+                "name": "pivot_calc",
+                "compute_control": "tsteps",
+                "compute_value": 1,
+                "zone_id": 1,
+                "zone_name": "ellipse_force_pivot",
+                "center": [0.0, 0.0, 0.0],
+                "center_type": "pivot",
+            },
+
 
             
         ]

@@ -6,8 +6,10 @@ contains
 
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
+
     user%ale_rigid_kinematics => user_rigid_kinematics
     user%compute => user_check
+
   end subroutine user_setup
 
   ! Use this to modify (add/override) the built-in rigid body kinematics.
@@ -31,16 +33,16 @@ contains
 
   end subroutine user_rigid_kinematics
 
-
   subroutine user_check(time)
     type(time_state_t), intent(in) :: time
     integer :: ids_to_log(1)
 
-    ! Can be used to log the rotation angle and pivot
-    ! info of bodies.
+    ! Can be used to log the rotation angle and pivot info of bodies.
     ! Here we only log the second registered body.
     ! If the following optional input is not passed, logging will be for all ALE bodies.
+
     ids_to_log = [2]
+
     if (associated(neko_ale)) then
        call neko_ale%log_rot_angles(time, ids_to_log)
        call neko_ale%log_pivot(time, ids_to_log)

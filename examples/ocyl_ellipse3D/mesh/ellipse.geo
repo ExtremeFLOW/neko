@@ -217,8 +217,7 @@ If (meshDim == 3)
       Extrude {0,0,Lz} {
          Surface{1:15};
          Layers{Nz};
-         Recombine;
-      };
+         Recombine;}
 
 
    Color Black{Surface{:};}

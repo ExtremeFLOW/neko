@@ -35,7 +35,8 @@
       "pressure_solver": {
         "type": "gmres",
         "preconditioner": { "type": "phmg" },
-        "projection_space_size": 0,
+        "projection_space_size": 5,
+        "projection_reorthogonalize_basis": true,
         "absolute_tolerance": 1e-8,
         "max_iterations": 1000
       },
@@ -60,22 +61,19 @@
             "name": "cylinder",
             "zone_indices": [7],
 
-            "pivot": {
-               "type": "relative",
-               "value": [0.0, 15.0, 0.0]
-           },
-
-            "rotation": {
-              "type": "harmonic",
-              "amplitude_deg": [0.0, 0.0, 6.0],
-              "freq": [0.0, 0.0, 0.1]
+            "oscillation":{
+              "amplitude": [0.0, 0.3, 0.0],
+              "frequency": [0.0, 0.2, 0.0]
             },
 
+
             "stiff_geom": {
-              "type": "cheap_dist",
-              "decay_profile": "tanh",
-              "gain": 1000000.0,
-              "stiff_dist": 1.0
+              "type": "cylinder",
+              "decay_profile": "gaussian",
+              "center": [0.0, 0.0, 0.0],
+              "radius": 2.0,
+              "gain": 9.0,
+              "cutoff_coef": 1.0
             }
           }
         ]
