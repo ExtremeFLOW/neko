@@ -23,7 +23,7 @@ import os
 
 # ── paths ─────────────────────────────────────────────────────────────────────
 RUN_DIR = '/lscratch/sieburgh/simulations/channel_single_phase'
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures')
 
 Re_tau = 180.0
 Re_b   = 2800.0

@@ -205,7 +205,7 @@ Documents CDI performance under strong interface straining.
 This case serves as the CDI stress test at very high We, not as the primary
 CDI/CSF validation target.
 
-![channel_test_v4 diagnostics](diagnostics_ekin_channel_test_v4.png)
+![channel_test_v4 diagnostics](figures/diagnostics_ekin_channel_test_v4.png)
 
 ---
 

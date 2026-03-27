@@ -51,7 +51,7 @@ parser.add_argument('--no-animation', action='store_true',
 args = parser.parse_args()
 
 RUN_DIR  = f'/lscratch/sieburgh/simulations/{args.run}'
-OUT_DIR  = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR  = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures')
 comm = MPI.COMM_WORLD
 
 # ---------------------------------------------------------------------------

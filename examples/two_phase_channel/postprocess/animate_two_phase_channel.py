@@ -49,7 +49,7 @@ parser.add_argument('--nz_elems', type=int, default=27,
 args = parser.parse_args()
 
 RUN_DIR  = f'/lscratch/sieburgh/simulations/{args.run}'
-OUT_DIR  = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR  = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures')
 OUT_FILE = os.path.join(OUT_DIR, f'animate_{args.run}.gif')
 
 comm = MPI.COMM_WORLD

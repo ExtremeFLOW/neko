@@ -35,7 +35,7 @@ mkdir -p "$RUN_DIR"
 cd "$RUN_DIR"
 
 # Copy inputs (makeneko must already have been run in SRC)
-cp "$SRC/turb_channel_two_phase_p2_CASE.case" .
+cp "$SRC/cases/108x18x36/turb_channel_two_phase_p2_CASE.case" .  # adjust mesh dir for p3
 cp "$SRC/box_phys_108x18x36.nmsh" .
 cp "$SRC/neko" .
 

@@ -16,10 +16,8 @@
 # Purpose: establish turbulence on the Phase 3 mesh and produce fluid00004.chkp
 # at t=20 for use as IC in all Phase 3 two-phase restart cases.
 #
-# Prerequisite: box_phys_144x18x48.nmsh must exist in SRC.
-# Generate it on Dardel login node (not compute-intensive):
-#   cd $SRC && genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 144 18 48 .true. .false. .true.
-#   mv box.nmsh box_phys_144x18x48.nmsh
+# Prerequisite: box_phys_144x18x48.nmsh must exist in SRC (root of two_phase_channel/).
+# Generate on egidius and transfer: rsync box_phys_144x18x48.nmsh dardel-ftn:$SRC/
 #
 # Expected outputs in $SCRATCH_DIR/channel_p3_single_phase/:
 #   ekin.csv            -- Ekin and u_max every 50 steps
@@ -40,7 +38,7 @@ RUN=/cfs/klemming/scratch/e/eriksie/channel_p3_single_phase
 mkdir -p $RUN
 cd $RUN
 
-cp $SRC/turb_channel_single_phase_p3.case .
+cp $SRC/cases/144x18x48/turb_channel_single_phase_p3.case .
 cp $SRC/box_phys_144x18x48.nmsh .
 cp $SRC/neko_single_phase neko
 

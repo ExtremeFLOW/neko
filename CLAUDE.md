@@ -110,7 +110,7 @@ cd examples/two_phase_channel
 genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 81 18 27 .true. .false. .true.
 mv box.nmsh box_phys_81x18x27.nmsh
 source ../../setup-env-channel.sh --egidius   # or --local
-makeneko turb_channel_two_phase.f90
+makeneko src/turb_channel_two_phase.f90
 mpirun -np 4 ./neko turb_channel_two_phase_v4.case
 ```
 
@@ -118,7 +118,7 @@ For production runs on egidius, run from a simulations directory:
 ```bash
 mkdir -p /lscratch/sieburgh/simulations/channel_test_v4
 cd /lscratch/sieburgh/simulations/channel_test_v4
-cp ~/code/neko-multiphase-channel/examples/two_phase_channel/*.case .
+cp ~/code/neko-multiphase-channel/examples/two_phase_channel/cases/81x18x27/*.case .
 cp ~/code/neko-multiphase-channel/examples/two_phase_channel/neko .
 cp ~/code/neko-multiphase-channel/examples/two_phase_channel/box_phys_81x18x27.nmsh .
 mpirun -np 32 ./neko turb_channel_two_phase_v4.case
@@ -132,7 +132,7 @@ is the only exception (it uses a Poiseuille IC with no perturbations).
 
 ```bash
 # Step 1: single-phase spin-up — generates fluid00004.chkp at t=20
-makeneko turb_channel_single_phase.f90
+makeneko src/turb_channel_single_phase.f90
 mpirun -np 16 ./neko turb_channel_single_phase.case
 # Verify: u_max in ekin.csv fluctuating ~1.35–1.45 with no trend at t=20
 # (mean profile matches Reichardt Re_tau=180 — confirmed via postprocess_single_phase.py)
@@ -166,27 +166,18 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 
 | Path | Purpose |
 |------|---------|
-| `examples/two_phase_channel/turb_channel_two_phase.f90` | **Phase 1** user module (original, no n̂ fix). Use for Phase 1 reference cases. |
-| `examples/two_phase_channel/turb_channel_two_phase_p2.f90` | **Phase 2** user module: identical to Phase 1 except adds a second GS averaging pass on n̂ before `div()`. The diff is documented in the file header. Compile with `makeneko turb_channel_two_phase_p2.f90` for all `p2_*` cases. |
-| `examples/two_phase_channel/turb_channel_two_phase_laminar.case` | Laminar + We=1 (σ=0.3): blew up at t=0.90 TU (same CSF instability as turbulent cases) |
-| `examples/two_phase_channel/turb_channel_two_phase_we1.case` | Phase 1 turbulent + We=1 (σ=0.3): blew up; superseded by p2_we1 |
-| `examples/two_phase_channel/turb_channel_two_phase_we10.case` | Phase 1 turbulent + We=10 (σ=0.03): blew up at t=20.44 (Δt/Δt_cap=0.69); superseded by p2_we10 |
-| `examples/two_phase_channel/turb_channel_two_phase_sigma0.case` | Phase 1 σ=0 CDI-only quality test; κ_rms→64; root cause confirmed as element-face C0 kink in n̂ |
-| `examples/two_phase_channel/turb_channel_two_phase_p2_sigma0.case` | **Phase 2** σ=0: 108×18×36 mesh, ε=0.09, R=0.4; κ_rms vs P1 baseline |
-| `examples/two_phase_channel/turb_channel_two_phase_p2_we10.case` | **Phase 2** We=10 (σ=0.04): 108×18×36 mesh |
-| `examples/two_phase_channel/turb_channel_two_phase_p2_we1.case` | **Phase 2** We=1 (σ=0.4): 108×18×36 mesh |
-| `examples/two_phase_channel/turb_channel_two_phase_p3_sigma0.case` | **Phase 3** σ=0: 144×18×48 mesh, ε=0.09, R=0.4; convergence point for κ_rms |
-| `examples/two_phase_channel/turb_channel_two_phase_p3_we10.case` | **Phase 3** We=10 (σ=0.04): 144×18×48 mesh |
-| `examples/two_phase_channel/turb_channel_two_phase_p3_we1.case` | **Phase 3** We=1 (σ=0.4): 144×18×48 mesh |
-| `examples/two_phase_channel/turb_channel_two_phase_restart.case` | We=1.33 restart from `fluid00004.chkp` (t=20→25), R=0.4, y_c=0 (centre); Phase 1 blow-up reference |
-| `examples/two_phase_channel/turb_channel_two_phase_restart_off.case` | We=1.33 restart, R=0.4, y_c=0.3 (off-centre, log-law region) |
-| `examples/two_phase_channel/turb_channel_two_phase_v4.case` | v4: We=730 high-We reference (completed, Phase 1) |
-| `examples/two_phase_channel/turb_channel_single_phase.case` | **P1** single-phase spin-up; 81×18×27; 16 ranks; `fluid00004.chkp` completed |
-| `examples/two_phase_channel/turb_channel_single_phase_p2.case` | **P2** single-phase spin-up; 108×18×36; 128 ranks (Dardel) |
-| `examples/two_phase_channel/turb_channel_single_phase_p3.case` | **P3** single-phase spin-up; 144×18×48; 256 ranks (Dardel, 2 nodes) |
-| `examples/two_phase_channel/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up (all phases) |
-| `examples/two_phase_channel/postprocess_single_phase.py` | Single-phase postprocessing: ekin plot + mean velocity profile |
-| `examples/two_phase_channel/animate_blowup.py` | Animation: φ/κ/\|u\| panels. Flags: `--stride N`, `--mesh p1\|p2`, `--kappa-scale`. |
+| `examples/two_phase_channel/src/turb_channel_two_phase.f90` | Original user module (no n̂ fix) — used for all 81×18×27 and finer mesh runs |
+| `examples/two_phase_channel/src/turb_channel_two_phase_p2.f90` | User module with extra GS pass on n̂ — deferred; not yet used |
+| `examples/two_phase_channel/src/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up (all meshes) |
+| `examples/two_phase_channel/cases/81x18x27/` | All case files for the baseline mesh (single-phase + two-phase runs) |
+| `examples/two_phase_channel/cases/108x18x36/` | Case files for the medium mesh (P2 runs on Dardel) |
+| `examples/two_phase_channel/cases/144x18x48/` | Case files for the fine mesh (P3 runs on Dardel) |
+| `examples/two_phase_channel/postprocess/postprocess_single_phase.py` | Single-phase postprocessing: ekin plot + mean velocity profile |
+| `examples/two_phase_channel/postprocess/animate_blowup.py` | Animation: φ/κ/\|u\| panels. Flags: `--stride N`, `--mesh p1\|p2\|p3`, `--kappa-scale` |
+| `examples/two_phase_channel/postprocess/analyze_sigma0_normals.py` | Field-level σ=0 analysis: n̂ alignment, κ_rms, drop geometry |
+| `examples/two_phase_channel/figures/` | Output figures and animations (gitignored, generated locally) |
+| `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
+| `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
 | `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
 | `cluster/build_neko_channel.sh` | Dardel SLURM build job |
@@ -226,7 +217,7 @@ coverage (3.1 elements vs 1.8) alone change the blow-up behaviour?
 ```bash
 cd examples/two_phase_channel
 source ../../setup-env-channel.sh --egidius   # or --cluster on Dardel
-makeneko turb_channel_two_phase.f90           # original code, no Fortran fix
+makeneko src/turb_channel_two_phase.f90           # original code, no Fortran fix
 ```
 
 ### Verification sequence

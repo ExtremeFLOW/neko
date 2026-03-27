@@ -30,7 +30,7 @@ RUN=/cfs/klemming/scratch/e/eriksie/channel_p2_single_phase
 mkdir -p $RUN
 cd $RUN
 
-cp $SRC/turb_channel_single_phase_p2.case .
+cp $SRC/cases/108x18x36/turb_channel_single_phase_p2.case .
 cp $SRC/box_phys_108x18x36.nmsh .
 cp $SRC/neko_single_phase neko
 
