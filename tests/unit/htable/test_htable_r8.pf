@@ -84,7 +84,8 @@ subroutine test_htable_add_r8
   @assertEqual(h5%num_entries(), 6)
   @assertEqual(h6%num_entries(), 6)
 
-  do i = 6, 8
+  ! Insert new keys past the initial occupancy to exercise growth clearly.
+  do i = 7, 8
      key = dble(i)
      data_i4 = -i
      data_i8 = int(-i, i8)
@@ -109,6 +110,56 @@ subroutine test_htable_add_r8
   @assertEqual(h6%num_entries(), 8)
 
 end subroutine test_htable_add_r8
+
+@test
+subroutine test_htable_contract_r8
+  use pfunit
+  use htable
+  use num_types, only : dp
+  implicit none
+  type(htable_r8_t) :: h
+  type(htable_iter_r8_t) :: it
+  real(kind=dp) :: key, key_expected, data_r8, copy_r8
+  real(kind=dp), pointer :: kp, vp
+
+  call h%init(3, data=data_r8)
+  ! Small requested sizes should round up to the implementation minimum.
+  @assertEqual(h%get_size(), 4)
+
+  key = 2d0
+  data_r8 = -2d0
+  call h%set(key, data_r8)
+  data_r8 = -20d0
+  call h%set(key, data_r8)
+  ! Updating an existing key must overwrite the value without growing entries.
+  @assertEqual(h%num_entries(), 1)
+  copy_r8 = 0d0
+  @assertEqual(h%get(key, copy_r8), 0)
+  @assertEqual(copy_r8, -20d0)
+
+  call h%remove(key)
+  data_r8 = -200d0
+  call h%set(key, data_r8)
+  ! Re-inserting a removed key must work through the tombstone path.
+  @assertEqual(h%num_entries(), 1)
+  copy_r8 = 0d0
+  @assertEqual(h%get(key, copy_r8), 0)
+  @assertEqual(copy_r8, -200d0)
+
+  call it%init(h)
+  @assertTrue(it%next())
+  call it%data(copy_r8)
+  @assertEqual(copy_r8, -200d0)
+  call it%reset()
+  ! Reset should restart iteration from the first valid entry.
+  @assertTrue(it%next())
+  kp => it%key()
+  vp => it%value()
+  key_expected = 2d0
+  @assertEqual(kp, key_expected)
+  @assertEqual(vp, -200d0)
+
+end subroutine test_htable_contract_r8
 
 @test
 subroutine test_htable_clear_r8
@@ -381,6 +432,7 @@ subroutine test_htable_iter_r8
   do while(it%next())
      kp => it%key()
      dr8p=> it%value()
+     ! Iterator traversal should expose the same key/value pairs as get().
      data_r8 = -kp
      @assertEqual(data_r8, dr8p)
 

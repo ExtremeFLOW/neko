@@ -53,6 +53,9 @@ void device_nccl_allreduce(void *sbuf_d, void *rbuf_d, int count,
     else if (op == DEVICE_NCCL_MAX)
       ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat, ncclMax,
                     NEKO_COMM_NCCL, stream);
+    else if (op == DEVICE_NCCL_MIN)
+      ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat, ncclMin,
+                    NEKO_COMM_NCCL, stream);
     else {
       fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
       exit(1);
@@ -64,6 +67,9 @@ void device_nccl_allreduce(void *sbuf_d, void *rbuf_d, int count,
                     NEKO_COMM_NCCL, stream);
     else if (op == DEVICE_NCCL_MAX)
       ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat64, ncclMax,
+                    NEKO_COMM_NCCL, stream);
+    else if (op == DEVICE_NCCL_MIN)
+      ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat64, ncclMin,
                     NEKO_COMM_NCCL, stream);
     else {
       fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
