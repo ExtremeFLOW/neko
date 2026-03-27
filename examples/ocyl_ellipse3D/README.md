@@ -2,4 +2,4 @@ In this example, the torque calculation of the inclined ellipse body is performe
 
 The mesh in this example is kept almost rigid for up to 0.5 units away from the ellipse wall by setting a high value for gain.
 
-To generate the mesh, execute `generate_mesh.sh` in the mesh folder:
+To generate the mesh, execute `generate_mesh.sh` in the mesh folder.
