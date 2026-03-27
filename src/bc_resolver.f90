@@ -38,9 +38,11 @@ module bc_resolver
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
   use field, only : field_t
+  use field_list, only : field_list_t
+  use fld_file, only : fld_file_t
   use hex, only : edge_nodes, edge_faces, node_faces
   use scratch_registry, only : neko_scratch_registry
-  use math, only : cfill_mask
+  use math, only : cfill_mask, masked_scatter_copy
   use gs_ops, only : GS_OP_MAX, GS_OP_ADD, GS_OP_MIN
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
@@ -736,15 +738,15 @@ contains
       ! Mixed edge interiors are rebuilt from the normals of the adjacent
       ! faces whose local face class matches the reduced nodal class.
       ! This is the central point: if the adjacent face is a different class,
-      ! which by construction can only be a less restrictive class, then it 
+      ! which by construction can only be a less restrictive class, then it
       ! should not contribute its normal.
-      ! 
+      !
       ! Consider the following 2D example. In 2D an edge becomes a node in the
       ! corner of the element. Look at the node marked with X. After the nodal
       ! class is propagated, it will have class 2---the most restrictive of the
       ! adjacent. So, only the face with class 2 in El 2 will contribute to the
       ! normal. This is a rather extreme example, but it illustrates well what
-      ! can happen. 
+      ! can happen.
       !
       ! ---------
       ! | El 1  |
@@ -778,9 +780,9 @@ contains
             ! If this is not a mixed bc edge, just leave it alone.
             if (prio .lt. 1.9_rp .or. prio .gt. 3.1_rp) cycle
 
-            ! Recall that "node" in the lookup table names refer to element 
+            ! Recall that "node" in the lookup table names refer to element
             ! corners. This is to stay consistent with the hex_t notation.
-            ! Get edge endpoints index triples. For example, 
+            ! Get edge endpoints index triples. For example,
             ! (1, 1, 1) and (lx, 1, 1)
             rst1 = this%node_rst(:, edge_nodes(1, edge))
             rst2 = this%node_rst(:, edge_nodes(2, edge))
@@ -816,8 +818,8 @@ contains
                facet = edge_faces(ii, edge)
 
                ! Skip if prio class is not the same.
-               if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then 
-                    cycle
+               if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then
+                  cycle
                end if
 
                ! Loop over the interior edge nodes again and add the normals.
@@ -843,17 +845,25 @@ contains
             node_idx = linear_index(rst(1), rst(2), rst(3), el, &
                  this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
             prio = abs(work2%x(node_idx,1,1,1))
+
+            ! Ignore if the bc class is not a mixed one.
             if (prio .lt. 1.9_rp .or. prio .gt. 3.1_rp) cycle
 
+            ! Kill the normal to start fresh.
             nx%x(node_idx,1,1,1) = 0.0_rp
             ny%x(node_idx,1,1,1) = 0.0_rp
             nz%x(node_idx,1,1,1) = 0.0_rp
 
+            ! Note, 3 faces share a corner node in 3D.
             do ii = 1, this%coef%msh%gdim
                facet = node_faces(ii, node)
-               if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) &
-                    cycle
 
+               ! Check class agreement
+               if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then
+                  cycle
+               end if
+
+               ! Add the normal.
                normal = this%coef%get_normal(rst(1), rst(2), rst(3), el, facet)
                nx%x(node_idx,1,1,1) = nx%x(node_idx,1,1,1) + normal(1)
                ny%x(node_idx,1,1,1) = ny%x(node_idx,1,1,1) + normal(2)
@@ -862,12 +872,16 @@ contains
          end do
       end do
 
+      ! We are done element-wise. Now we can just sum the normals across nodes
+      ! shared by multiple elements.
       call this%coef%gs_h%op(nx, GS_OP_ADD)
       call this%coef%gs_h%op(ny, GS_OP_ADD)
       call this%coef%gs_h%op(nz, GS_OP_ADD)
 
       do i = 1, mask_size
          j = mask_values(i)
+
+         ! Normalize the normal
          normal(1) = nx%x(j,1,1,1)
          normal(2) = ny%x(j,1,1,1)
          normal(3) = nz%x(j,1,1,1)
@@ -876,38 +890,58 @@ contains
 
          this%n(:,i) = normal / len
 
-         if (this%coef%msh%gdim .eq. 2) then
+         ! This selects the first tangent direction.
+         ! Generally, we pick a perpendicular to the normal in the x-y plane,
+         ! but if the normal is almost aligned with z, that formula degenerates
+         ! to 0, so we just choose x as the first tangent direction.
+         if (abs(this%n(3,i)) .gt. 0.999_rp) then
+            this%t1(:,i) = [ 1.0_rp, 0.0_rp, 0.0_rp ]
+         else
             t1_vec = [ -this%n(2,i), this%n(1,i), 0.0_rp ]
             len = sqrt(sum(t1_vec**2))
             if (len .gt. 0.0_rp) then
                this%t1(:,i) = t1_vec / len
             end if
-            this%t2(:,i) = [ 0.0_rp, 0.0_rp, 1.0_rp ]
-         else
-            if (abs(this%n(3,i)) .gt. 0.999_rp) then
-               this%t1(:,i) = [ 1.0_rp, 0.0_rp, 0.0_rp ]
-            else
-               t1_vec = [ -this%n(2,i), this%n(1,i), 0.0_rp ]
-               len = sqrt(sum(t1_vec**2))
-               if (len .gt. 0.0_rp) then
-                  this%t1(:,i) = t1_vec / len
-               end if
-            end if
+         end if
 
-            t2_vec(1) = this%n(2,i) * this%t1(3,i) - &
-                 this%n(3,i) * this%t1(2,i)
-            t2_vec(2) = this%n(3,i) * this%t1(1,i) - &
-                 this%n(1,i) * this%t1(3,i)
-            t2_vec(3) = this%n(1,i) * this%t1(2,i) - &
-                 this%n(2,i) * this%t1(1,i)
-            len = sqrt(sum(t2_vec**2))
-            if (len .gt. 0.0_rp) then
-               this%t2(:,i) = t2_vec / len
-            end if
+         ! Get t2 as a cross product of n and t1.
+         t2_vec(1) = this%n(2,i) * this%t1(3,i) - &
+              this%n(3,i) * this%t1(2,i)
+         t2_vec(2) = this%n(3,i) * this%t1(1,i) - &
+              this%n(1,i) * this%t1(3,i)
+         t2_vec(3) = this%n(1,i) * this%t1(2,i) - &
+              this%n(2,i) * this%t1(1,i)
+         len = sqrt(sum(t2_vec**2))
+         if (len .gt. 0.0_rp) then
+            this%t2(:,i) = t2_vec / len
          end if
       end do
-
     end associate
+
+    block
+      type(field_list_t) :: basis_fields
+      type(fld_file_t) :: basis_file
+
+      call field_rzero(work1)
+      call field_rzero(work3)
+      call field_rzero(work4)
+
+      call masked_scatter_copy(work1%x(:,1,1,1), this%n(1,:), &
+           mask_values, dof_size, mask_size)
+      call masked_scatter_copy(work3%x(:,1,1,1), this%n(2,:), &
+           mask_values, dof_size, mask_size)
+      call masked_scatter_copy(work4%x(:,1,1,1), this%n(3,:), &
+           mask_values, dof_size, mask_size)
+
+      call basis_fields%init(3)
+      call basis_fields%assign(1, work1)
+      call basis_fields%assign(2, work3)
+      call basis_fields%assign(3, work4)
+
+      call basis_file%init('bc_resolver_basis.fld')
+      call basis_file%write(basis_fields)
+      call basis_fields%free()
+    end block
 
     call neko_scratch_registry%relinquish_field(scratch_idx)
 
