@@ -31,8 +31,8 @@ program average_fields_in_time
   case default
      block
        character(len=LOG_SIZE) :: log_buf
-       write (log_buf,*) extension, "file format is not supported!"
-       call neko_log%message(log_buf)
+       write (log_buf, *) trim(extension), " files not supported!"
+       call neko_warning(log_buf)
      end block
 
      call usage()
