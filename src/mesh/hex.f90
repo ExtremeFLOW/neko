@@ -130,6 +130,43 @@ module hex
                                                                 4,8/),&
                                                                 (/2,12/))
 
+  !> Face ids incident to each node
+  integer, public, parameter, dimension(3, 8) :: node_faces = &
+       reshape((/1,3,5,&
+                 2,3,5,&
+                 1,4,5,&
+                 2,4,5,&
+                 1,3,6,&
+                 2,3,6,&
+                 1,4,6,&
+                 2,4,6/), (/3,8/))
+
+  !> Edge ids incident to each node
+  integer, public, parameter, dimension(3, 8) :: node_edges = &
+       reshape((/1,5,9,&
+                 1,6,10,&
+                 2,5,11,&
+                 2,6,12,&
+                 3,7,9,&
+                 3,8,10,&
+                 4,7,11,&
+                 4,8,12/), (/3,8/))
+
+  !> Face ids incident to each edge
+  integer, public, parameter, dimension(2, 12) :: edge_faces = &
+       reshape((/3,5,&
+                 4,5,&
+                 3,6,&
+                 4,6,&
+                 1,5,&
+                 2,5,&
+                 1,6,&
+                 2,6,&
+                 1,3,&
+                 2,3,&
+                 1,4,&
+                 2,4/), (/2,12/))
+
 contains
 
   !> Create a hexahedron element based upon eight points

@@ -274,6 +274,7 @@ contains
     else
        allocate(segregated_vector_bc_resolver_t :: this%bcs_vel_resolver)
     end if
+    call this%bcs_vel_resolver%init(this%c_Xh)
 
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
          .false.)

@@ -43,7 +43,8 @@ module bc_resolver
   use gs_ops, only : GS_OP_MAX, GS_OP_ADD, GS_OP_MIN
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use utils, only : neko_error, nonlinear_index
+  use tuple, only : tuple_i4_t
+  use utils, only : neko_error, nonlinear_index, linear_index
   use device, only : device_get_ptr, device_memcpy, HOST_TO_DEVICE, &
        DEVICE_TO_HOST
   use device_math, only : device_cfill_mask
@@ -66,6 +67,7 @@ module bc_resolver
   type, public, abstract :: vector_bc_resolver_t
    contains
      procedure(vector_bc_resolver_free_intrf), pass(this), deferred :: free
+     procedure(vector_bc_resolver_init_intrf), pass(this), deferred :: init
      procedure(vector_bc_resolver_finalize_intrf), pass(this), deferred :: &
           finalize
      procedure(vector_bc_resolver_apply_intrf), pass(this), deferred :: apply
@@ -81,6 +83,7 @@ module bc_resolver
      type(scalar_bc_resolver_t) :: z
    contains
      procedure, pass(this) :: free => segregated_vector_bc_resolver_free
+     procedure, pass(this) :: init => segregated_vector_bc_resolver_init
      procedure, pass(this) :: finalize => segregated_vector_bc_resolver_finalize
      procedure, pass(this) :: mark_bc => segregated_vector_bc_resolver_mark_bc
      procedure, pass(this) :: mark_bc_list => &
@@ -93,6 +96,15 @@ module bc_resolver
      type(bc_list_t), private :: bcs
      type(coef_t), pointer, private :: coef => null()
      type(dofmap_t), pointer, private :: dof => null()
+     ! Reference-node volume indices [(i,j,k), node].
+     integer, allocatable :: node_rst(:,:)
+     ! Representative midpoint volume indices [(i,j,k), edge].
+     integer, allocatable :: edge_mid_rst(:,:)
+     ! Flattened volume-array indices for the 8 reference nodes.
+     integer, allocatable :: node_linear_idx(:)
+     ! Resolved class for each local face. The first dimension is the local
+     ! facet id and the second is the local element id.
+     real(kind=rp), allocatable :: face_class(:,:)
      logical, allocatable :: constraint_n(:)
      logical, allocatable :: constraint_t1(:)
      logical, allocatable :: constraint_t2(:)
@@ -107,6 +119,7 @@ module bc_resolver
      type(c_ptr) :: t2_d = c_null_ptr
    contains
      procedure, pass(this) :: free => coupled_vector_bc_resolver_free
+     procedure, pass(this) :: init => coupled_vector_bc_resolver_init
      procedure, pass(this) :: mark_bc => coupled_vector_bc_resolver_mark_bc
      procedure, pass(this) :: mark_bc_list => &
           coupled_vector_bc_resolver_mark_bc_list
@@ -119,6 +132,14 @@ module bc_resolver
        import :: vector_bc_resolver_t
        class(vector_bc_resolver_t), intent(inout) :: this
      end subroutine vector_bc_resolver_free_intrf
+  end interface
+
+  abstract interface
+     subroutine vector_bc_resolver_init_intrf(this, coef)
+       import :: vector_bc_resolver_t, coef_t
+       class(vector_bc_resolver_t), intent(inout) :: this
+       type(coef_t), target, intent(in) :: coef
+     end subroutine vector_bc_resolver_init_intrf
   end interface
 
   abstract interface
@@ -254,6 +275,13 @@ contains
     call this%z%free()
   end subroutine segregated_vector_bc_resolver_free
 
+  !> Initialize a segregated vector boundary resolver.
+  subroutine segregated_vector_bc_resolver_init(this, coef)
+    class(segregated_vector_bc_resolver_t), intent(inout) :: this
+    type(coef_t), target, intent(in) :: coef
+
+  end subroutine segregated_vector_bc_resolver_init
+
   !> Finalize a segregated vector boundary resolver.
   subroutine segregated_vector_bc_resolver_finalize(this)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
@@ -350,6 +378,22 @@ contains
        deallocate(this%constraint_n)
     end if
 
+    if (allocated(this%node_rst)) then
+       deallocate(this%node_rst)
+    end if
+
+    if (allocated(this%edge_mid_rst)) then
+       deallocate(this%edge_mid_rst)
+    end if
+
+    if (allocated(this%node_linear_idx)) then
+       deallocate(this%node_linear_idx)
+    end if
+
+    if (allocated(this%face_class)) then
+      deallocate(this%face_class)
+    end if
+
     if (allocated(this%constraint_t1)) then
        deallocate(this%constraint_t1)
     end if
@@ -380,6 +424,71 @@ contains
     nullify(this%dof)
   end subroutine coupled_vector_bc_resolver_free
 
+  !> Initialize a coupled vector boundary resolver.
+  subroutine coupled_vector_bc_resolver_init(this, coef)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    type(coef_t), target, intent(in) :: coef
+    integer :: lx, ly, lz
+    integer :: mid_i, mid_j, mid_k
+    integer :: nface
+
+    call this%free()
+    call this%bcs%init()
+
+    this%coef => coef
+    this%dof => coef%dof
+
+    if (allocated(this%node_rst)) deallocate(this%node_rst)
+    if (allocated(this%edge_mid_rst)) deallocate(this%edge_mid_rst)
+    if (allocated(this%node_linear_idx)) deallocate(this%node_linear_idx)
+    if (allocated(this%face_class)) deallocate(this%face_class)
+
+    lx = coef%Xh%lx
+    ly = coef%Xh%ly
+    lz = coef%Xh%lz
+    mid_i = (lx + 1) / 2
+    mid_j = (ly + 1) / 2
+    mid_k = (lz + 1) / 2
+
+    allocate(this%node_rst(3, 8))
+    allocate(this%edge_mid_rst(3, 12))
+    allocate(this%node_linear_idx(8))
+    nface = 2 * coef%msh%gdim
+    allocate(this%face_class(nface, coef%msh%nelv))
+    this%face_class = 5.0_rp
+
+    this%node_rst(:,1) = [1, 1, 1]
+    this%node_rst(:,2) = [lx, 1, 1]
+    this%node_rst(:,3) = [1, ly, 1]
+    this%node_rst(:,4) = [lx, ly, 1]
+    this%node_rst(:,5) = [1, 1, lz]
+    this%node_rst(:,6) = [lx, 1, lz]
+    this%node_rst(:,7) = [1, ly, lz]
+    this%node_rst(:,8) = [lx, ly, lz]
+
+    this%edge_mid_rst(:,1)  = [mid_i, 1, 1]
+    this%edge_mid_rst(:,2)  = [mid_i, ly, 1]
+    this%edge_mid_rst(:,3)  = [mid_i, 1, lz]
+    this%edge_mid_rst(:,4)  = [mid_i, ly, lz]
+    this%edge_mid_rst(:,5)  = [1, mid_j, 1]
+    this%edge_mid_rst(:,6)  = [lx, mid_j, 1]
+    this%edge_mid_rst(:,7)  = [1, mid_j, lz]
+    this%edge_mid_rst(:,8)  = [lx, mid_j, lz]
+    this%edge_mid_rst(:,9)  = [1, 1, mid_k]
+    this%edge_mid_rst(:,10) = [lx, 1, mid_k]
+    this%edge_mid_rst(:,11) = [1, ly, mid_k]
+    this%edge_mid_rst(:,12) = [lx, ly, mid_k]
+
+    this%node_linear_idx(1) = linear_index(1, 1, 1, 1, lx, ly, lz)
+    this%node_linear_idx(2) = linear_index(lx, 1, 1, 1, lx, ly, lz)
+    this%node_linear_idx(3) = linear_index(1, ly, 1, 1, lx, ly, lz)
+    this%node_linear_idx(4) = linear_index(lx, ly, 1, 1, lx, ly, lz)
+    this%node_linear_idx(5) = linear_index(1, 1, lz, 1, lx, ly, lz)
+    this%node_linear_idx(6) = linear_index(lx, 1, lz, 1, lx, ly, lz)
+    this%node_linear_idx(7) = linear_index(1, ly, lz, 1, lx, ly, lz)
+    this%node_linear_idx(8) = linear_index(lx, ly, lz, 1, lx, ly, lz)
+  end subroutine coupled_vector_bc_resolver_init
+
   !> Add a boundary condition to the coupled resolver.
   subroutine coupled_vector_bc_resolver_mark_bc(this, bc, component)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
@@ -387,9 +496,8 @@ contains
     character(len=1), optional, intent(in) :: component
 
     if (.not. associated(this%coef)) then
-       this%coef => bc%coef
-       this%dof => bc%dof
-       call this%bcs%init()
+       call neko_error("Coupled vector BC resolver must be initialized " // &
+            "before mark().")
     end if
 
     call this%bcs%append(bc)
@@ -414,12 +522,14 @@ contains
     type(field_t), pointer :: work2
     type(field_t), pointer :: work3
     type(field_t), pointer :: work4
+    type(tuple_i4_t), pointer :: marked_faces(:)
+    type(tuple_i4_t) :: marked_face
     integer :: scratch_idx(4)
     integer, allocatable :: mask_values(:), dof_to_masked(:)
     integer, allocatable :: incident_count(:), incident_facet(:,:), &
          incident_el(:,:)
-    integer :: i, j, k, n, m, mask_size, masked_idx, max_incident
-    integer :: idx(4), facet
+    integer :: i, j, k, dof_size, m, mask_size, masked_idx, max_incident
+    integer :: idx(4), facet, el
     logical :: c_n, c_t1, c_t2
     real(kind=rp) :: normal(3), ref(3), t1_vec(3), t2_vec(3), len, prio
     class(bc_t), pointer :: bc
@@ -438,7 +548,8 @@ contains
     call neko_scratch_registry%request_field(work3, scratch_idx(3), .true.)
     call neko_scratch_registry%request_field(work4, scratch_idx(4), .true.)
 
-    n = this%dof%size()
+    dof_size = this%dof%size()
+    this%face_class = 5.0_rp
 
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
@@ -451,7 +562,7 @@ contains
        ! Mask all the dofs touched by this BC. Since %msk is propagated to all
        ! local dofs via gather-scatter, work1 will contain all local nodes on
        ! the boundary, including those elements that don't touch it with a face.
-       call cfill_mask(work1%x(:,1,1,1), 1.0_rp, n, &
+       call cfill_mask(work1%x(:,1,1,1), 1.0_rp, dof_size, &
             bc%msk(1:bc%msk(0)), bc%msk(0))
     end do
 
@@ -485,6 +596,17 @@ contains
                "vector BC resolver.")
        end if
 
+       ! Store the class on each boundary face touched by this BC.
+       ! This is the compact analogue of Nek's face-resident HFMASK field:
+       ! one scalar class value per local (facet, element) pair.
+       marked_faces => bc%marked_facet%array()
+       do j = 1, bc%marked_facet%size()
+          marked_face = marked_faces(j)
+          facet = marked_face%x(1)
+          el = marked_face%x(2)
+          this%face_class(facet, el) = prio
+       end do
+
        ! Note that the face_msk is used, so constraints are only directly
        ! applied to elements that touch the boundary at this point.
        ! The min here ensures that the most restricive constraint is kept
@@ -500,37 +622,36 @@ contains
     call this%coef%gs_h%op(work2, GS_OP_MIN)
 
     ! Compute the number of constrained dofs so we can allocate vectors.
-    m = 0
-    do i = 1, n
+    mask_size = 0
+    do i = 1, dof_size
        if (work1%x(i,1,1,1) .gt. 0.5_rp) then
-          m = m + 1
+          mask_size = mask_size + 1
        end if
     end do
 
-    if (m .eq. 0) then
+    if (mask_size .eq. 0) then
        call neko_scratch_registry%relinquish_field(scratch_idx)
        return
     end if
 
     ! Fill in the full mask indices and copy to this%dof_mask.
-    allocate(mask_values(m))
+    allocate(mask_values(mask_size))
     j = 0
-    do i = 1, n
+    do i = 1, dof_size
        if (work1%x(i,1,1,1) .gt. 0.5_rp) then
           j = j + 1
           mask_values(j) = i
        end if
     end do
-    call this%dof_mask%init(mask_values(1:m), m)
-    mask_size = size(mask_values)
+    call this%dof_mask%init(mask_values(1:mask_size), mask_size)
 
     ! Allocate constraints
-    allocate(this%constraint_n(m))
-    allocate(this%constraint_t1(m))
-    allocate(this%constraint_t2(m))
+    allocate(this%constraint_n(mask_size))
+    allocate(this%constraint_t1(mask_size))
+    allocate(this%constraint_t2(mask_size))
 
     ! Use the priority value to assign constraints.
-    do i = 1, m
+    do i = 1, mask_size
        j = mask_values(i)
 
        if (work2%x(j,1,1,1) .lt. 1.9_rp) then
@@ -554,102 +675,22 @@ contains
        end if
     end do
 
-    allocate(this%n(3,m))
-    allocate(this%t1(3,m))
-    allocate(this%t2(3,m))
+    allocate(this%n(3, mask_size))
+    allocate(this%t1(3, mask_size))
+    allocate(this%t2(3, mask_size))
 
     ! Maps a full local dof index to its position in the compact masked-dof
     ! arrays. A value of zero means the dof is not part of the resolved
     ! boundary set.
-    allocate(dof_to_masked(n))
+    allocate(dof_to_masked(dof_size))
     dof_to_masked = 0
-    do i = 1, size(mask_values)
+    do i = 1, mask_size
        dof_to_masked(mask_values(i)) = i
     end do
 
-    if (this%coef%msh%gdim .eq. 2) then
-       max_incident = 4
-    else
-       max_incident = 8
-    end if
-
-    allocate(incident_count(mask_size))
-    allocate(incident_facet(max_incident, mask_size))
-    allocate(incident_el(max_incident, mask_size))
-    incident_count = 0
-    incident_facet = 0
-    incident_el = 0
-
-    ! First-pass topological classification:
-    ! for each resolved boundary dof, collect the distinct local (element,
-    ! facet) pairs that touch it through the active BC set. This is the Neko
-    ! analogue of Nek's Step 1 lookup tables, but built directly from the BC
-    ! facet masks and assembled dof ids.
-    !
-    ! At this stage the only question we need answered is whether a resolved
-    ! boundary dof is touched by one local boundary facet or by several. The
-    ! single-facet case is the unambiguous face-node case; multi-facet cases
-    ! are the candidates for later edge/corner handling.
-    do i = 1, this%bcs%size()
-       bc => this%bcs%get(i)
-       do j = 1, bc%facet_msk(0)
-          k = bc%facet_msk(j)
-          masked_idx = dof_to_masked(k)
-          ! Skip facet nodes that are not part of the resolved boundary dof set.
-          if (masked_idx .eq. 0) cycle
-
-          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%ly, &
-               this%coef%Xh%lz)
-          facet = bc%facet(j)
-
-          m = incident_count(masked_idx) + 1
-          do k = 1, incident_count(masked_idx)
-             ! Avoid double-counting the same local (element, facet) pair.
-             if (incident_el(k, masked_idx) .eq. idx(4) .and. &
-                  incident_facet(k, masked_idx) .eq. facet) then
-                m = k
-                exit
-             end if
-          end do
-
-          ! Nothing to do if this local boundary facet was already recorded.
-          if (m .le. incident_count(masked_idx)) cycle
-          ! The storage bound is chosen to comfortably exceed the expected local
-          ! boundary incidence for quads/hexes. Abort if that assumption fails.
-          if (incident_count(masked_idx) .ge. max_incident) then
-             call neko_error("Boundary resolver incident-facet storage " // &
-                  "exhausted.")
-          end if
-
-          ! Record one more distinct local boundary facet for this dof.
-          incident_count(masked_idx) = incident_count(masked_idx) + 1
-          incident_el(incident_count(masked_idx), masked_idx) = idx(4)
-          incident_facet(incident_count(masked_idx), masked_idx) = facet
-       end do
-    end do
 
     ! Set normals at unambiguous boundary dofs based on face normals.
     associate(nx => work1, ny => work2, nz => work3)
-      call field_rzero(nx)
-      call field_rzero(ny)
-      call field_rzero(nz)
-
-      do i = 1, mask_size
-         ! A single incident local facet is the plain face-node case.
-         ! More complicated incidence patterns are left for later passes.
-         if (incident_count(i) .ne. 1) cycle
-
-         j = mask_values(i)
-         idx = nonlinear_index(j, this%coef%Xh%lx, this%coef%Xh%ly, &
-              this%coef%Xh%lz)
-         facet = incident_facet(1, i)
-         normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
-
-         nx%x(j,1,1,1) = normal(1)
-         ny%x(j,1,1,1) = normal(2)
-         nz%x(j,1,1,1) = normal(3)
-      end do
-
       !! STOP HERE FOR NOW
 
       this%n = 0.0_rp
