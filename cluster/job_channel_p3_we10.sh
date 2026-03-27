@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A naiss2025-3-39
 #SBATCH -t 06:00:00
-#SBATCH -N 1
+#SBATCH -N 2
 #SBATCH -J channel_p3_we10
 #SBATCH -p main
 #SBATCH -o /cfs/klemming/projects/supr/kthmech/eriksie/logs/%J_channel_p3_we10.log
@@ -33,8 +33,8 @@ RUN_DIR=$SCRATCH_DIR/$RUN_NAME
 mkdir -p "$RUN_DIR"
 cd "$RUN_DIR"
 
-cp "$SRC/cases/144x18x48/turb_channel_two_phase_p3_we10.case" .
-cp "$SRC/box_phys_144x18x48.nmsh" .
+cp "$SRC/cases/144x24x48/turb_channel_two_phase_p3_we10.case" .
+cp "$SRC/box_phys_144x24x48.nmsh" .
 cp "$SRC/neko_two_phase" neko
 
 # Copy checkpoint from spin-up if not already present
@@ -53,4 +53,4 @@ echo "Starting: $RUN_NAME"
 echo "Run dir:  $RUN_DIR"
 echo "Nodes: $SLURM_JOB_NUM_NODES  Tasks: $SLURM_NTASKS"
 
-srun -u -n 128 ./neko turb_channel_two_phase_p3_we10.case
+srun -u -n 256 ./neko turb_channel_two_phase_p3_we10.case

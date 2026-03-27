@@ -25,10 +25,14 @@ Weber number: **We = ρ U_b² R / σ = R / σ** (U_b=1, ρ=1).
 | `channel_p2_sigma0` | `_p2_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 spin-up | Phase 2: 3.1 elem/interface, original code; benchmark κ_rms vs P1 |
 | `channel_p2_we10` | `_p2_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 σ0 result | Phase 2: We=10 first σ>0 test |
 | `channel_p2_we1` | `_p2_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P2 σ0 result | Phase 2: We=1 primary production case |
-| `channel_p3_single_phase` | `_single_phase_p3.case` (144×18×48) | — | — | — | — | Turbulent Reichardt | **Running** job 18986273 | Phase 3 spin-up (1 node, 128 ranks, 8h); produces P3 `fluid00004.chkp` |
-| `channel_p3_sigma0` | `_p3_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P3 spin-up | Phase 3: 4.1 elem/interface; mesh convergence point vs P1/P2 |
-| `channel_p3_we10` | `_p3_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P3 σ0 result | Phase 3: We=10 on finest mesh |
-| `channel_p3_we1` | `_p3_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** P3 σ0 result | Phase 3: We=1 on finest mesh |
+| `channel_p3_single_phase` | `_single_phase_p3.case` (144×24×48) | — | — | — | — | Turbulent Reichardt | **Running** job 19002586 | L2 spin-up (2 nodes, 256 ranks, 10h); produces L2 `fluid00004.chkp` |
+| `channel_l3_single_phase` | `_single_phase_l3.case` (192×32×64) | — | — | — | — | Turbulent Reichardt | **Running** job 19003203 | L3 spin-up (4 nodes, 512 ranks, 16h); produces L3 `fluid00004.chkp` |
+| `channel_p3_sigma0` | `_p3_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** L2 spin-up | L2: σ=0, ε=0.04; full 5 TU run |
+| `channel_p3_we10` | `_p3_we10.case` | 10 | 0.04 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** L2 σ0 result | L2: We=10 |
+| `channel_p3_we1` | `_p3_we1.case` | 1 | 0.4 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** L2 σ0 result | L2: We=1 |
+| `channel_l3_sigma0` | `_l3_sigma0.case` | — | 0 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** L3 spin-up | L3: σ=0, ε=0.03; full 5 TU run |
+| `channel_l3_we10` | `_l3_we10.case` | 10 | 0.03 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** L3 σ0 result | L3: We=10 |
+| `channel_l3_we1` | `_l3_we1.case` | 1 | 0.3 | 0.4 | 0 | `fluid00004.chkp` + drop | **Pending** L3 σ0 result | L3: We=1 |
 
 Run directories: `/lscratch/sieburgh/simulations/<run_name>/`
 
@@ -87,9 +91,10 @@ and with the same MPI rank count as the restart. One spin-up is needed per mesh.
 
 | Mesh | Case file | Run dir | MPI ranks | Checkpoint | Status |
 |------|-----------|---------|-----------|------------|--------|
-| 81×18×27 (P1) | `_single_phase.case` | `channel_single_phase/` | 16 | `fluid00004.chkp` (t=20) | **Completed** |
-| 108×18×36 (P2) | `_single_phase_p2.case` | `channel_p2_single_phase/` | 128 | `fluid00004.chkp` (t=20) | **Running** job 18985538 |
-| 144×18×48 (P3) | `_single_phase_p3.case` | `channel_p3_single_phase/` | 128 | `fluid00004.chkp` (t=20) | **Running** job 18986273 |
+| 81×18×27 (Legacy) | `_single_phase.case` | `channel_single_phase/` | 16 | `fluid00004.chkp` (t=20) | **Completed** |
+| 108×18×36 (L1) | `_single_phase_p2.case` | `channel_p2_single_phase/` | 128 | `fluid00004.chkp` (t=20) | **Completed** t=0–25 |
+| 144×24×48 (L2) | `_single_phase_p3.case` | `channel_p3_single_phase/` | 256 | `fluid00004.chkp` (t=20) | **Running** job 19002586 (2 nodes, 10h, est. ~6h) |
+| 192×32×64 (L3) | `_single_phase_l3.case` | `channel_l3_single_phase/` | 512 | `fluid00004.chkp` (t=20) | **Running** job 19003203 (4 nodes, 16h, est. ~12h) |
 
 **Turbulence indicator:** u_max settles to 1.35–1.45 by t≈10 and fluctuates there.
 **Verification:** check `ekin.csv` — u_max fluctuating, no trend, no blow-up at t=20.
@@ -97,89 +102,131 @@ and with the same MPI rank count as the restart. One spin-up is needed per mesh.
 
 ---
 
-## Mesh convergence overview — Phase 1/2/3
+## Mesh convergence overview — isotropic series L1/L2/L3
 
-The three meshes form a geometric series (factor 1.33× in each xz direction per step),
-giving clean convergence data for interface resolution. All phases use identical physics
-(same code, ε=0.09 for P2/P3, R=0.4) to isolate the mesh variable.
+The convergence series uses isotropic meshes with a 4/3 refinement ratio per level and
+**constant ε/Δxz = 0.457** throughout — so the interface is resolved by the same number
+of GLL points on every mesh. ε shrinks with Δ, making the interface sharper at each
+level. The legacy 81×18×27 mesh is anisotropic and is kept only as a reference.
 
-| Phase | Mesh | Δxz | Δy | Elements | 4ε/Δxz | Δt_cap (We=10) | Δt/Δt_cap |
-|-------|------|-----|----|----------|---------|----------------|-----------|
-| P1 | 81×18×27 | 0.155 | 0.111 | 39,366 | 1.8 (ε=0.07) | 0.082 | ~0.016 |
-| P2 | 108×18×36 | 0.1164 | 0.111 | 69,984 | 3.1 (ε=0.09) | 0.079 | ~0.010 |
-| P3 | 144×18×48 | 0.0873 | 0.111 | 124,416 | **4.1** (ε=0.09) | 0.061 | ~0.007 |
+| Level | Mesh | Δxz | Δy | Δy/Δxz | ε | R/2ε | 4ε/Δxz | Elements |
+|-------|------|-----|----|---------|---|------|---------|----------|
+| Legacy | 81×18×27 | 0.155 | 0.111 | 0.72 | 0.070 | 2.86 | 1.81 | 39,366 |
+| **L1** | **108×18×36** | **0.116** | **0.111** | **0.96** | **0.053** | 3.77 | 1.83 | 69,984 |
+| **L2** | **144×24×48** | **0.087** | **0.083** | **0.95** | **0.040** | 5.00 | 1.84 | 165,888 |
+| **L3** | **192×32×64** | **0.065** | **0.063** | **0.96** | **0.030** | 6.67 | 1.85 | 393,216 |
 
 **Scientific question:** with the original SEM code (no Fortran fix), does κ_rms error
-scale with interface coverage (4ε/Δ), or is the element-face artifact mesh-independent?
-If κ_rms decreases from P1 to P3, the finer mesh partially mitigates the problem.
-If κ_rms stays ~64 across all meshes, the Fortran fix (extra GS pass) is essential.
+scale with Δ (i.e., converge to zero) when ε/Δ is held constant?
+The L1 eps053 case establishes the baseline at constant ε/Δ. L2 and L3 test convergence.
+
+**Note on the L1 ε=0.09 case:** `channel_p2_sigma0` (ε=0.09) is informative but not
+part of the convergence series — it violates ε/Δ = const and uses the old coverage-
+motivated ε choice. Compare with `channel_p2_sigma0_eps053` (ε=0.053, correct L1 point).
 
 **genmeshbox commands:**
 ```bash
 # All meshes: generate on egidius, then transfer to Dardel via dardel-ftn
-# P1 (done 2026-03)
+# Legacy (done 2026-03)
 genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 81 18 27 .true. .false. .true.
-# P2 (done 2026-03-26, 16MB on Dardel)
+# L1 (done 2026-03-26, 16MB on Dardel)
 genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 108 18 36 .true. .false. .true.
-# P3 (done 2026-03-27, 28MB on Dardel)
-genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 144 18 48 .true. .false. .true.
-mv box.nmsh box_phys_144x18x48.nmsh
+# L2 (generate on egidius, transfer to Dardel)
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 144 24 48 .true. .false. .true.
+mv box.nmsh box_phys_144x24x48.nmsh
+# L3 (generate on egidius, transfer to Dardel)
+genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 192 32 64 .true. .false. .true.
+mv box.nmsh box_phys_192x32x64.nmsh
 ```
 
 ---
 
-## channel_p2_single_phase — Phase 2 turbulent spin-up (RUNNING job 18985538)
+## channel_p2_single_phase — L1 turbulent spin-up (COMPLETED t=0–25)
 
 **Purpose:** Turbulent spin-up on the 108×18×36 mesh. Produces `fluid00004.chkp` at
-t=20 for all Phase 2 two-phase restart cases.
+t=20 for all L1 two-phase restart cases.
 
 **Setup:** 108×18×36 mesh, N=7, Re_b=2800, 128 MPI ranks (Dardel, 1 node), Reichardt IC
 + perturbations, end_time=25, checkpoints every 5 TU, field output every 5 TU.
-Job 18985538 submitted 2026-03-27.
 
-**Expected outputs** in `$SCRATCH_DIR/channel_p2_single_phase/`:
-- `ekin.csv` — u_max should settle to 1.35–1.45 by t=10, fluctuate through t=20
-- `fluid00004.chkp` at t=20 → copy to each Phase 2 two-phase run directory
-- Field snapshots at t=5, 10, 15, 20, 25
+**Completed** (job 18985538, 2026-03-27). u_max settled to 1.37–1.41 by t=10, stable through t=25.
+`fluid00004.chkp` (t=20) ready in `$SCRATCH_DIR/channel_p2_single_phase/`. Synced to egidius.
 
 | t | E_kin | u_max | Notes |
 |---|-------|-------|-------|
-| — | — | — | Not yet completed |
+| — | — | — | Completed — ekin.csv not yet synced from Dardel |
 
 ---
 
-## channel_p3_single_phase — Phase 3 turbulent spin-up (RUNNING job 18986273)
+## channel_p3_single_phase — L2 turbulent spin-up (RUNNING job 19002586)
 
-**Purpose:** Turbulent spin-up on the 144×18×48 mesh. Produces `fluid00004.chkp` at
-t=20 for all Phase 3 two-phase restart cases.
+**Purpose:** Turbulent spin-up on the 144×24×48 mesh (L2). Produces `fluid00004.chkp` at
+t=20 for all L2 two-phase restart cases.
 
-**Setup:** 144×18×48 mesh, N=7, Re_b=2800, 128 MPI ranks (Dardel, 1 node, 8h), Reichardt IC
-+ perturbations, end_time=25, checkpoints every 5 TU, field output every 5 TU.
+**Setup:** 144×24×48 mesh (165,888 elements, isotropic), N=7, Re_b=2800, 256 MPI ranks
+(Dardel, 2 nodes — 1 node OOM at 1296 elem/rank), Reichardt IC + perturbations, end_time=25, checkpoints every 5 TU.
+Estimated runtime ~6h. Wall limit 10h.
 
-**Mesh:** `box_phys_144x18x48.nmsh` generated on egidius and transferred to Dardel
-(2026-03-27). Already at `$SRC/box_phys_144x18x48.nmsh`.
-
-**Submitted** as job 18986273, 2026-03-27. Script: `cluster/job_channel_p3_single_phase.sh`.
+**Mesh:** `box_phys_144x24x48.nmsh` generated on egidius 2026-03-27 (37MB), transferred to Dardel.
+Script: `cluster/job_channel_p3_single_phase.sh`.
 
 | t | E_kin | u_max | Notes |
+|---|-------|-------|-------|
+| — | — | — | Running — no completed checkpoints yet |
+
+---
+
+## channel_l3_single_phase — L3 turbulent spin-up (RUNNING job 19003203)
+
+**Purpose:** Turbulent spin-up on the 192×32×64 mesh (L3). Produces `fluid00004.chkp` at
+t=20 for all L3 two-phase restart cases.
+
+**Setup:** 192×32×64 mesh (393,216 elements, isotropic), N=7, Re_b=2800, 512 MPI ranks
+(Dardel, 4 nodes — 2 nodes OOM at 1536 elem/rank), Reichardt IC + perturbations, end_time=25, checkpoints every 5 TU.
+Estimated runtime ~12h. Wall limit 16h.
+
+**Mesh:** `box_phys_192x32x64.nmsh` generated on egidius 2026-03-27, transferred to Dardel.
+Script: `cluster/job_channel_l3_single_phase.sh`.
+
+| t | E_kin | u_max | Notes |
+|---|-------|-------|-------|
+| — | — | — | Running — no completed checkpoints yet |
+
+---
+
+## Phase 2 two-phase cases — 108×18×36 mesh (READY — spin-up complete)
+
+All cases restart from `channel_p2_single_phase/fluid00004.chkp` (128 ranks).
+Spin-up completed (job 18985538). Run sigma0 cases first, then we10, then we1.
+
+Two sigma0 cases test the effect of ε independently of mesh refinement:
+
+| Case | ε | 4ε/Δxz | ε/Δ_GLL | Notes |
+|------|---|---------|---------|-------|
+| `channel_p2_sigma0` | 0.09 | 3.1 | 5.4 | Coverage-motivated |
+| `channel_p2_sigma0_eps053` | 0.053 | 1.82 | 3.2 | Same GLL ratio as P1 |
+
+If κ_rms is similar for both, coverage does not help and the Fortran fix is essential.
+If κ_rms is lower for ε=0.09, the more diffuse interface reduces the artifact.
+
+### channel_p2_sigma0 — σ=0, ε=0.09 (PENDING)
+
+**Purpose:** Measure κ_rms on P2 mesh with 3.1 elements across interface.
+
+**Setup:** ε=0.09, γ=0.05, σ=0, R=0.4, end_time=25.0 (full 5 TU). Target κ_rms ≈ 2/R = 5.0 (spherical).
+Job script: `cluster/job_channel_p2_sigma0.sh`.
+
+| t | φ_max | κ_rms | Notes |
 |---|-------|-------|-------|
 | — | — | — | Not yet run |
 
----
+### channel_p2_sigma0_eps053 — σ=0, ε=0.053 (PENDING)
 
-## Phase 2 two-phase cases — 108×18×36 mesh (PENDING spin-up)
+**Purpose:** Measure κ_rms on P2 mesh with 1.82 elements across interface (same GLL ratio as P1).
+Tests whether coverage or mesh size is the controlling variable. **Convergence series point.**
 
-All three cases restart from `channel_p2_single_phase/fluid00004.chkp` (128 ranks).
-Run in order: sigma0 first (diagnostic, 1 TU), then we10, then we1.
-Job scripts: `cluster/job_channel_p2_sigma0.sh`, `_we10.sh`, `_we1.sh`.
-
-### channel_p2_sigma0 — σ=0 CDI diagnostic (PENDING)
-
-**Purpose:** Measure κ_rms on the P2 mesh (3.1 elements across interface). Compare with
-Phase 1 baseline (κ_rms ≈ 64 on 81×18×27). If element-face artifact scales with Δ,
-expect lower κ_rms here. If κ_rms stays ~64, the Fortran fix is essential.
-
-**Setup:** ε=0.09, γ=0.05, σ=0, R=0.4, end_time=21.0 (1 TU). Target κ_rms ≈ 2/R = 5.0 (spherical).
+**Setup:** ε=0.053, γ=0.05, σ=0, R=0.4, end_time=25.0 (full 5 TU).
+Job script: `cluster/job_channel_p2_sigma0_eps053.sh`.
 
 | t | φ_max | κ_rms | Notes |
 |---|-------|-------|-------|
@@ -205,35 +252,72 @@ expect lower κ_rms here. If κ_rms stays ~64, the Fortran fix is essential.
 
 ---
 
-## Phase 3 two-phase cases — 144×18×48 mesh (PENDING spin-up)
+## L2 two-phase cases — 144×24×48 mesh (PENDING spin-up)
 
-All three cases restart from `channel_p3_single_phase/fluid00004.chkp` (128 ranks).
-Job scripts: `cluster/job_channel_p3_sigma0.sh`, `_we10.sh`, `_we1.sh`.
+All cases restart from `channel_p3_single_phase/fluid00004.chkp` (256 ranks).
+ε=0.04 (constant ε/Δxz=0.457), R=0.4. Job scripts: `cluster/job_channel_p3_*.sh`.
 
-### channel_p3_sigma0 — σ=0 CDI diagnostic (PENDING)
+### channel_p3_sigma0 — L2, σ=0 CDI diagnostic (PENDING)
 
-**Purpose:** κ_rms convergence point at finest mesh (4.1 elements across interface).
-Compare with P1 (κ_rms≈64, 1.8 elem) and P2 result.
+**Purpose:** κ_rms convergence point at L2. Full 5 TU run.
 
-**Setup:** ε=0.09, γ=0.05, σ=0, R=0.4, end_time=21.0 (1 TU).
+**Setup:** ε=0.04, γ=0.05, σ=0, R=0.4, end_time=25.0.
 
 | t | φ_max | κ_rms | Notes |
 |---|-------|-------|-------|
 | — | — | — | Not yet run |
 
-### channel_p3_we10 — We=10 (PENDING)
+### channel_p3_we10 — L2, We=10 (PENDING)
 
-**Setup:** ε=0.09, γ=0.05, σ=0.04, R=0.4, We=10, end_time=25.0.
-Δt_cap≈0.061 (at Δx=0.0873), Δt/Δt_cap≈0.042.
+**Setup:** ε=0.04, γ=0.05, σ=0.04, R=0.4, We=10, end_time=25.0.
+Δt_cap≈0.058 (at Δxz=0.0873), Δt/Δt_cap≈0.038.
 
 | t | φ_max | κ_rms | u_max | Notes |
 |---|-------|-------|-------|-------|
 | — | — | — | — | Not yet run |
 
-### channel_p3_we1 — We=1 (PENDING)
+### channel_p3_we1 — L2, We=1 (PENDING)
 
-**Setup:** ε=0.09, γ=0.05, σ=0.4, R=0.4, We=1, end_time=25.0.
-Δt_cap≈0.019 (at Δx=0.0873), Δt/Δt_cap≈0.13.
+**Setup:** ε=0.04, γ=0.05, σ=0.4, R=0.4, We=1, end_time=25.0.
+Δt_cap≈0.019 (at Δxz=0.0873), Δt/Δt_cap≈0.13.
+
+| t | φ_max | κ_rms | u_max | Notes |
+|---|-------|-------|-------|-------|
+| — | — | — | — | Not yet run |
+
+---
+
+## L3 two-phase cases — 192×32×64 mesh (PENDING L3 spin-up)
+
+All cases restart from `channel_l3_single_phase/fluid00004.chkp` (512 ranks).
+ε=0.03 (constant ε/Δxz=0.457), R=0.4. Job scripts: `cluster/job_channel_l3_*.sh`.
+
+**Mesh:** `box_phys_192x32x64.nmsh` generated on egidius 2026-03-27 and transferred to Dardel.
+L3 spin-up running (job 19003203, 4 nodes/512 ranks, est. ~12h).
+
+### channel_l3_sigma0 — L3, σ=0 CDI diagnostic (PENDING)
+
+**Purpose:** κ_rms convergence point at L3. Full 5 TU run.
+
+**Setup:** ε=0.03, γ=0.05, σ=0, R=0.4, end_time=25.0.
+
+| t | φ_max | κ_rms | Notes |
+|---|-------|-------|-------|
+| — | — | — | Not yet run |
+
+### channel_l3_we10 — L3, We=10 (PENDING)
+
+**Setup:** ε=0.03, γ=0.05, σ=0.04, R=0.4, We=10, end_time=25.0.
+Δt_cap≈0.046 (at Δxz=0.0654), Δt/Δt_cap≈0.036.
+
+| t | φ_max | κ_rms | u_max | Notes |
+|---|-------|-------|-------|-------|
+| — | — | — | — | Not yet run |
+
+### channel_l3_we1 — L3, We=1 (PENDING)
+
+**Setup:** ε=0.03, γ=0.05, σ=0.4, R=0.4, We=1, end_time=25.0.
+Δt_cap≈0.014 (at Δxz=0.0654), Δt/Δt_cap≈0.11.
 
 | t | φ_max | κ_rms | u_max | Notes |
 |---|-------|-------|-------|-------|

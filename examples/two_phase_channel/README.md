@@ -62,14 +62,14 @@ Use target_cfl=0.2 for all two-phase cases with σ≥0.03 (We≤10).
 
 | Parameter | Value | How to choose |
 |-----------|-------|---------------|
-| ε | **0.07** (P1) / **0.09** (P2/P3) | ε ≥ 3 × Δ_GLL_x,z; R/2ε > 2 |
+| ε | **0.07** (Legacy) / **0.053** (L1) / **0.040** (L2) / **0.030** (L3) | ε/Δxz=0.457=const; R/2ε > 2 |
 | γ | **0.05** | 0.01 ≤ γ/u_max ≤ 0.1; γ/u_max=0.033 at u_max=1.5 |
 | target_cfl | **0.2** | Capillary stability: Δt_cap ≈ 0.0015 TU at We=1 |
 | σ | 0.3 (We=1) | We = ρ U_b² R/σ; σ = R/We |
 | R | 0.3 (P1) / 0.4 (P2/P3) | D=0.6–0.8h; clearance to wall ≥ 0.3h |
 | y_c | 0 (centre) | `drop_center_y` in case file; 0=centreline, 0.3=log-law region |
 | N | 7 | Polynomial order |
-| Mesh | 81×18×27 (P1), 108×18×36 (P2), 144×18×48 (P3) | Nx=3·Nz for equal Δx=Δz |
+| Mesh | 81×18×27 (Legacy), 108×18×36 (L1), 144×24×48 (L2), 192×32×64 (L3) | 4/3 refinement per level; ε/Δxz=const |
 
 ## Files
 
@@ -84,8 +84,9 @@ Use target_cfl=0.2 for all two-phase cases with σ≥0.03 (We≤10).
 | Directory | Mesh | Cases |
 |-----------|------|-------|
 | `cases/81x18x27/` | 81×18×27 (Δ=0.155) | Baseline Phase 1 runs (single-phase, v4, sigma0, we10, laminar, …) |
-| `cases/108x18x36/` | 108×18×36 (Δ=0.116) | Phase 2 runs (single-phase, sigma0, we10, we1) |
-| `cases/144x18x48/` | 144×18×48 (Δ=0.087) | Phase 3 runs (single-phase, sigma0, we10, we1) |
+| `cases/108x18x36/` | 108×18×36 (Δ=0.116, ε=0.053) | L1 runs (single-phase, sigma0, we10, we1) |
+| `cases/144x24x48/` | 144×24×48 (Δ=0.087, ε=0.040) | L2 runs (single-phase, sigma0, we10, we1) |
+| `cases/192x32x64/` | 192×32×64 (Δ=0.065, ε=0.030) | L3 runs (single-phase, sigma0, we10, we1) |
 
 **Postprocessing** (`postprocess/`):
 | File | Purpose |
@@ -96,7 +97,7 @@ Use target_cfl=0.2 for all two-phase cases with σ≥0.03 (We≤10).
 | `postprocess/analyze_sigma0_normals.py` | Field-level σ=0 analysis: κ_rms, n̂ alignment, drop geometry |
 
 **Meshes** (gitignored, generated with `genmeshbox`):
-- `box_phys_81x18x27.nmsh`, `box_phys_108x18x36.nmsh`, `box_phys_144x18x48.nmsh`
+- `box_phys_81x18x27.nmsh`, `box_phys_108x18x36.nmsh`, `box_phys_144x24x48.nmsh`, `box_phys_192x32x64.nmsh`
 
 ## Running
 

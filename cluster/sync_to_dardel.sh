@@ -28,6 +28,7 @@ echo ""
 # Sync case files and user module
 echo "--- examples/two_phase_channel/ ---"
 rsync -avz --progress \
+    --include="*/" \
     --include="*.f90" \
     --include="*.case" \
     --include="*.py" \

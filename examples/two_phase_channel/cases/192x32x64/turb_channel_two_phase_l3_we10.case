@@ -1,7 +1,7 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "box_phys_144x18x48.nmsh",
+        "mesh_file": "box_phys_192x32x64.nmsh",
         "restart_file": "fluid00004.chkp",
         "output_at_end": true,
         "output_checkpoints": true,
@@ -65,7 +65,7 @@
         "scalar": {
             "enabled": true,
             "name": "phase",
-            "epsilon": 0.09,
+            "epsilon": 0.03,
             "gamma": 0.05,
             "sigma": 0.04,
             "drop_radius": 0.4,

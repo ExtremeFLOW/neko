@@ -1,12 +1,14 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "box_phys_144x18x48.nmsh",
+        "mesh_file": "box_phys_192x32x64.nmsh",
         "restart_file": "fluid00004.chkp",
         "output_at_end": true,
-        "output_checkpoints": false,
+        "output_checkpoints": true,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 5.0,
         "time": {
-            "end_time": 21.0,
+            "end_time": 25.0,
             "variable_timestep": true,
             "target_cfl": 0.2,
             "max_timestep": 5e-2
@@ -63,7 +65,7 @@
         "scalar": {
             "enabled": true,
             "name": "phase",
-            "epsilon": 0.09,
+            "epsilon": 0.03,
             "gamma": 0.05,
             "sigma": 0.0,
             "drop_radius": 0.4,

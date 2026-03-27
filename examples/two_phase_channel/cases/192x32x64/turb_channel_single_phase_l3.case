@@ -1,8 +1,7 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "box_phys_144x18x48.nmsh",
-        "restart_file": "fluid00004.chkp",
+        "mesh_file": "box_phys_192x32x64.nmsh",
         "output_at_end": true,
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
@@ -10,7 +9,7 @@
         "time": {
             "end_time": 25.0,
             "variable_timestep": true,
-            "target_cfl": 0.2,
+            "target_cfl": 0.4,
             "max_timestep": 5e-2
         },
         "numerics": {
@@ -25,11 +24,6 @@
             "initial_condition": {
                 "type": "user"
             },
-            "source_terms": [
-                {
-                    "type": "user"
-                }
-            ],
             "velocity_solver": {
                 "type": "cg",
                 "preconditioner": {
@@ -60,40 +54,7 @@
                 }
             ],
             "output_control": "simulationtime",
-            "output_value": 0.1
-        },
-        "scalar": {
-            "enabled": true,
-            "name": "phase",
-            "epsilon": 0.09,
-            "gamma": 0.05,
-            "sigma": 0.4,
-            "drop_radius": 0.4,
-            "initial_condition": {
-                "type": "user"
-            },
-            "solver": {
-                "type": "cg",
-                "preconditioner": {
-                    "type": "jacobi"
-                },
-                "absolute_tolerance": 1e-6,
-                "max_iterations": 200
-            },
-            "source_terms": [
-                {
-                    "type": "user"
-                }
-            ],
-            "boundary_conditions": [
-                {
-                    "type": "neumann",
-                    "flux": 0.0,
-                    "zone_indices": [3, 4]
-                }
-            ],
-            "output_control": "simulationtime",
-            "output_value": 0.1
+            "output_value": 5.0
         }
     }
 }

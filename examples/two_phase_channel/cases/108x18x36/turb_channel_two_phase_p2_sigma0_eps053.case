@@ -65,7 +65,7 @@
         "scalar": {
             "enabled": true,
             "name": "phase",
-            "epsilon": 0.09,
+            "epsilon": 0.053,
             "gamma": 0.05,
             "sigma": 0.0,
             "drop_radius": 0.4,

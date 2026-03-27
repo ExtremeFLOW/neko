@@ -184,6 +184,38 @@ $$
 With $R = 0.3$, $\varepsilon = 0.07$: $R/2\varepsilon = 2.1 \implies \varphi(\text{centre}) = 0.986$ ✓.
 With $R = 0.4$, $\varepsilon = 0.07$: $R/2\varepsilon = 2.9 \implies \varphi(\text{centre}) = 0.997$ ✓.
 
+**Mesh convergence study — non-dimensional $\varepsilon/\Delta$ held constant.**
+For a proper convergence study, $\varepsilon$ must scale with the element size $\Delta$
+so that the interface is resolved by the same number of GLL points on every mesh:
+
+$$
+\frac{\varepsilon}{\Delta_{xz}} = \text{const} = 0.457 \quad (\text{all convergence levels})
+$$
+
+This keeps $\varepsilon/\Delta_{\mathrm{GLL},xz} = 3.2$ fixed, ensuring each mesh sees
+the same physical interface sharpness relative to its resolution. With $\varepsilon/\Delta_{xz}$
+constant, $\varepsilon$ shrinks as the mesh is refined — the interface becomes sharper in
+absolute terms, converging toward the sharp-interface limit.
+
+**Isotropic mesh requirement.** The convergence series uses isotropic meshes
+($\Delta_{xz} \approx \Delta_y$) with a geometric refinement ratio of $4/3$ per level.
+The legacy 81×18×27 mesh is anisotropic ($\Delta_{xz}/\Delta_y = 1.40$) and is
+retained only as a reference; it is not part of the convergence series.
+
+**Convergence series (L1–L3):**
+
+| Level | Mesh | $\Delta_{xz}$ | $\Delta_y$ | $\Delta_y/\Delta_{xz}$ | $\varepsilon$ | $R/2\varepsilon$ | $4\varepsilon/\Delta_{xz}$ | Elements |
+|-------|------|----------------|------------|------------------------|---------------|------------------|----------------------------|----------|
+| Legacy | 81×18×27 | 0.155 | 0.111 | 0.72 | 0.070 | 2.86 | 1.81 | 39,366 |
+| **L1** | **108×18×36** | **0.116** | **0.111** | **0.96** | **0.053** | 3.77 | 1.83 | 69,984 |
+| **L2** | **144×24×48** | **0.087** | **0.083** | **0.95** | **0.040** | 5.00 | 1.84 | 165,888 |
+| **L3** | **192×32×64** | **0.065** | **0.063** | **0.96** | **0.030** | 6.67 | 1.85 | 393,216 |
+
+Refinement ratio: 108×(4/3)=144×(4/3)=192 in $x$; 18×(4/3)=24×(4/3)=32 in $y$;
+36×(4/3)=48×(4/3)=64 in $z$. Exact integer ratio throughout.
+CDI resharpening time $\tau_{\mathrm{CDI}} = \varepsilon^2/(\gamma_{\mathrm{param}}\,u_{\max})$:
+L1: 0.037 TU, L2: 0.021 TU, L3: 0.012 TU — CDI resharpens faster at each level.
+
 ### 3.2 CDI compression velocity $\gamma_c$
 
 The compression velocity $\gamma_c$ sets the speed of interface resharpening.
@@ -1091,11 +1123,12 @@ does improve, but κ accuracy degrades catastrophically.
 to test whether better interface coverage alone changes the blow-up behaviour, before
 applying the Fortran fix. The three meshes form a geometric series:
 
-| Mesh | Δxz | 4ε/Δ | Status |
-|------|-----|------|--------|
-| 81×18×27 (P1) | 0.155 | 1.8 (ε=0.07) | Completed — all σ>0 cases blown up |
-| 108×18×36 (P2) | 0.116 | 3.1 (ε=0.09) | Spin-up running on Dardel |
-| 144×18×48 (P3) | 0.087 | 4.1 (ε=0.09) | Spin-up running on Dardel |
+| Mesh | Δxz | ε | 4ε/Δ | Status |
+|------|-----|---|------|--------|
+| 81×18×27 (Legacy) | 0.155 | 0.070 | 1.81 | Completed — all σ>0 cases blown up |
+| 108×18×36 (L1) | 0.116 | 0.053 | 1.83 | Spin-up completed; two-phase pending |
+| 144×24×48 (L2) | 0.087 | 0.040 | 1.84 | Spin-up running (job 19002586) |
+| 192×32×64 (L3) | 0.065 | 0.030 | 1.85 | Spin-up running (job 19003203) |
 
 The σ=0 diagnostic on each mesh will show whether κ_rms scales down with coverage or
 stays near 64 regardless. If the latter, the Fortran fix (§7.9) is the only path forward.
