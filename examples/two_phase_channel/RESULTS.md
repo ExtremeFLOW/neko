@@ -89,7 +89,7 @@ and with the same MPI rank count as the restart. One spin-up is needed per mesh.
 |------|-----------|---------|-----------|------------|--------|
 | 81×18×27 (P1) | `_single_phase.case` | `channel_single_phase/` | 16 | `fluid00004.chkp` (t=20) | **Completed** |
 | 108×18×36 (P2) | `_single_phase_p2.case` | `channel_p2_single_phase/` | 128 | `fluid00004.chkp` (t=20) | **Running** job 18985538 |
-| 144×18×48 (P3) | `_single_phase_p3.case` | `channel_p3_single_phase/` | 256 | `fluid00004.chkp` (t=20) | **Planned** |
+| 144×18×48 (P3) | `_single_phase_p3.case` | `channel_p3_single_phase/` | 128 | `fluid00004.chkp` (t=20) | **Planned** |
 
 **Turbulence indicator:** u_max settles to 1.35–1.45 by t≈10 and fluctuates there.
 **Verification:** check `ekin.csv` — u_max fluctuating, no trend, no blow-up at t=20.
@@ -152,7 +152,7 @@ Job 18985538 submitted 2026-03-27.
 **Purpose:** Turbulent spin-up on the 144×18×48 mesh. Produces `fluid00004.chkp` at
 t=20 for all Phase 3 two-phase restart cases.
 
-**Setup:** 144×18×48 mesh, N=7, Re_b=2800, 256 MPI ranks (Dardel, 2 nodes), Reichardt IC
+**Setup:** 144×18×48 mesh, N=7, Re_b=2800, 128 MPI ranks (Dardel, 1 node, 8h), Reichardt IC
 + perturbations, end_time=25, checkpoints every 5 TU, field output every 5 TU.
 
 **Before submitting:** generate mesh on Dardel login node:

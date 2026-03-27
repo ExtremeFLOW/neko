@@ -1,15 +1,17 @@
 #!/bin/bash
 #SBATCH -A naiss2025-3-39
 #SBATCH -t 08:00:00
-#SBATCH -N 2
+#SBATCH -N 1
 #SBATCH -J channel_p3_sp
 #SBATCH -p main
 #SBATCH -o /cfs/klemming/projects/supr/kthmech/eriksie/logs/%J_channel_p3_sp.log
 
-# Phase 3 single-phase spin-up: 144x18x48 mesh, t=0->25, 256 ranks
+# Phase 3 single-phase spin-up: 144x18x48 mesh, t=0->25, 128 ranks
 #
 # Mesh: 144x18x48 = 124416 elements (1.78x Phase 2), Delta_xz=0.0873
-# 2 nodes / 256 ranks: 486 elem/rank
+# 1 node / 128 ranks: 972 elem/rank
+# Memory: ~10 GB (fits easily in 256 GB/node)
+# Runtime: ~8.5h estimated (2.37x Phase 2's 3.6h)
 #
 # Purpose: establish turbulence on the Phase 3 mesh and produce fluid00004.chkp
 # at t=20 for use as IC in all Phase 3 two-phase restart cases.
@@ -48,4 +50,4 @@ echo "Nodes: $SLURM_JOB_NUM_NODES  Tasks: $SLURM_NTASKS"
 echo "Case: turb_channel_single_phase_p3.case"
 echo "Mesh: box_phys_144x18x48.nmsh (144x18x48 = 124416 elements)"
 
-srun -u -n 256 ./neko turb_channel_single_phase_p3.case
+srun -u -n 128 ./neko turb_channel_single_phase_p3.case

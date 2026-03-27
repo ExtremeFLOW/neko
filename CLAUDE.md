@@ -282,7 +282,9 @@ sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_single_phase.sh
 # fluid00004.chkp written at t=20 in $SCRATCH_DIR/channel_p3_single_phase/
 ```
 
-**Note:** 2-node jobs — verify multi-node policy for `naiss2025-3-39` before submitting.
+**Note:** 1 node / 128 ranks / 8h. Memory is not the concern (124k elements × 512 pts ≈ 10 GB
+of working memory, well within 256 GB/node). Runtime is ~8.5h (2.37× Phase 2's 3.6h).
+All Phase 3 two-phase restart cases must also use `srun -n 128` to match this spin-up.
 
 ### Cluster scripts
 
