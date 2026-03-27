@@ -1,6 +1,5 @@
 module user
   use neko
-  use ale_manager, only : neko_ale
   implicit none
 
 contains
