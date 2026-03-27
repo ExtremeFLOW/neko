@@ -256,4 +256,26 @@ contains
 
   end subroutine test_vector_cmult_scalar
 
+  @test(npes=[1])
+  subroutine test_vector_glminmax(this)
+    class (test_vector), intent(inout) :: this
+    integer, parameter :: n = 8
+    type(vector_t) :: v
+
+    call v%init(n)
+    v = 1.0_rp
+    v%x(1) = -3.0_rp
+    v%x(n) = 7.0_rp
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, n, HOST_TO_DEVICE, sync=.true.)
+    end if
+
+    @assertEqual(7.0_rp, vector_glmax(v), tolerance=NEKO_EPS)
+    @assertEqual(-3.0_rp, vector_glmin(v), tolerance=NEKO_EPS)
+    @assertEqual(1.0_rp, vector_glmax(v, n - 1), tolerance=NEKO_EPS)
+    @assertEqual(-3.0_rp, vector_glmin(v, n - 1), tolerance=NEKO_EPS)
+
+  end subroutine test_vector_glminmax
+
 end module test_vector_parallel
