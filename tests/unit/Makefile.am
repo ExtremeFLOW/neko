@@ -161,6 +161,7 @@ EXTRA_DIST = \
 	point_interpolation/point_interpolation_test\
 	bc_resolver/test_bc_resolver.pf\
 	boundary_operation/test_boundary_operation.pf\
+	bc_resolver/test_coupled_bc_resolver.pf\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
 	templates/serial/test_serial.pf
