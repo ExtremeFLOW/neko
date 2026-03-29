@@ -3,27 +3,39 @@
 Single-phase turbulent channel — postprocessing.
 
 Produces two figures:
-  1. ekin_single_phase.png  — u_max and E_kin vs t (spin-up / turbulence indicator)
-  2. meanprofile_single_phase.png — time-averaged mean velocity profile vs DNS / Reichardt
+  1. ekin_single_phase_{label}.png  — u_max and E_kin vs t (spin-up / turbulence indicator)
+  2. meanprofile_single_phase_{label}.png — time-averaged mean velocity profile vs DNS / Reichardt
 
 Usage (serial — no mpirun needed):
     source ../../setup-env-channel.sh --egidius
-    python3 postprocess_single_phase.py
+    python3 postprocess_single_phase.py --run channel_single_phase
+    python3 postprocess_single_phase.py --run channel_p3_single_phase --label l2
+    python3 postprocess_single_phase.py --run channel_l3_single_phase --label l3
 
-The mean profile is computed by time-averaging the last NSNAP field snapshots
-(default: f00020–f00025, i.e. t=20–25 TU) and averaging over the homogeneous
-streamwise (x) and spanwise (z) directions.
+The mean profile is computed by time-averaging the last 3 field snapshots found in
+the run directory and averaging over the homogeneous streamwise (x) and spanwise (z)
+directions.
 """
 
+import argparse
+import glob
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 
-# ── paths ─────────────────────────────────────────────────────────────────────
-RUN_DIR = '/lscratch/sieburgh/simulations/channel_single_phase'
-OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures')
+# ── CLI args ───────────────────────────────────────────────────────────────────
+parser = argparse.ArgumentParser()
+parser.add_argument('--run',   default='channel_single_phase',
+                    help='Run name under /lscratch/sieburgh/simulations/')
+parser.add_argument('--label', default=None,
+                    help='Label for output filenames (default: same as --run)')
+args = parser.parse_args()
+
+RUN_LABEL = args.label if args.label is not None else args.run
+RUN_DIR   = f'/lscratch/sieburgh/simulations/{args.run}'
+OUT_DIR   = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures')
 
 Re_tau = 180.0
 Re_b   = 2800.0
@@ -70,10 +82,10 @@ ax.set(xlabel='$t$ (TU)', ylabel='$E_{kin}$',
        title='Kinetic energy')
 ax.legend(fontsize=8)
 
-fig.suptitle(f'Single-phase channel  ($Re_b={Re_b:.0f}$, $Re_\\tau={Re_tau:.0f}$)',
+fig.suptitle(f'Single-phase channel  ($Re_b={Re_b:.0f}$, $Re_\\tau={Re_tau:.0f}$)  [{RUN_LABEL}]',
              fontsize=12)
 plt.tight_layout()
-out1 = os.path.join(OUT_DIR, 'ekin_single_phase.png')
+out1 = os.path.join(OUT_DIR, f'ekin_single_phase_{RUN_LABEL}.png')
 plt.savefig(out1, dpi=150)
 plt.close()
 print(f'Saved: {out1}')
@@ -98,10 +110,11 @@ xyz_data = preadnek(mesh_file, comm)
 y_all = np.concatenate([e.pos[1].flatten() for e in xyz_data.elem])
 print(f'  {len(xyz_data.elem)} elements, y ∈ [{y_all.min():.3f}, {y_all.max():.3f}]')
 
-# ── indices of snapshots to average (t ≈ 20–25) ──────────────────────────────
-snap_indices = list(range(20, 26))   # f00020 … f00025
-snap_files   = [os.path.join(RUN_DIR, f'field0.f{i:05d}') for i in snap_indices]
-snap_files   = [f for f in snap_files if os.path.exists(f)]
+# ── auto-detect snapshots: take the last 3 field0.f* files ───────────────────
+all_snaps = sorted(glob.glob(os.path.join(RUN_DIR, 'field0.f[0-9]*')))
+# Exclude f00000 (mesh-only file); use last 3 of the remaining
+data_snaps = [f for f in all_snaps if not f.endswith('f00000')]
+snap_files = data_snaps[-3:] if len(data_snaps) >= 3 else data_snaps
 print(f'Averaging {len(snap_files)} snapshots: {[os.path.basename(f) for f in snap_files]}')
 
 # ── accumulate mean u over snapshots ────────────────────────────────────────
@@ -155,22 +168,23 @@ fig, ax = plt.subplots(figsize=(7, 5))
 ax.semilogx(yp_ref, up_ref, 'k--', lw=1.5, label='Reichardt (model)')
 ax.semilogx(yp_vis, yp_vis, 'gray', lw=1.0, ls=':', label='$u^+ = y^+$ (viscous sublayer)')
 ax.semilogx(yp, up, 'o', color='#1f4e79', ms=3.5, alpha=0.7,
-            label='simulation (time-avg, t=20–25)')
+            label=f'simulation (time-avg, last {len(snap_files)} snapshots)')
 
 ax.set(xlabel='$y^+$', ylabel='$u^+$',
-       title=f'Mean velocity profile  ($Re_\\tau={Re_tau:.0f}$)',
+       title=f'Mean velocity profile  ($Re_\\tau={Re_tau:.0f}$)  [{RUN_LABEL}]',
        xlim=(0.5, Re_tau + 20))
 ax.legend(fontsize=9)
 ax.grid(True, which='both', alpha=0.3)
 
 fig.tight_layout()
-out2 = os.path.join(OUT_DIR, 'meanprofile_single_phase.png')
+out2 = os.path.join(OUT_DIR, f'meanprofile_single_phase_{RUN_LABEL}.png')
 plt.savefig(out2, dpi=150)
 plt.close()
 print(f'Saved: {out2}')
 
 print('\n--- Summary ---')
-print(f'  Snapshots used:  t = 20–25  ({len(snap_files)} files)')
+print(f'  Run:             {args.run}  (label: {RUN_LABEL})')
+print(f'  Snapshots used:  {[os.path.basename(f) for f in snap_files]}')
 print(f'  u_max (ekin):    {u_max[-5:].mean():.4f} ± {u_max[-5:].std():.4f}  (last 5 rows)')
 print(f'  Reichardt U_cl:  {u_cl:.4f}  (expected turbulent centerline)')
 print(f'  Laminar U_cl:    1.5000  (Poiseuille)')

@@ -108,7 +108,8 @@ Account: `naiss2025-3-39`, partition: `main`, 128 cores/node.
 - `job_channel_p2_we10.sh` — L1 We=10 two-phase
 - `job_channel_p2_we1.sh` — L1 We=1 two-phase
 - `job_channel_p3_single_phase.sh` — L2 (144×24×48) single-phase spin-up
-- `job_channel_p3_sigma0.sh` — L2 σ=0 CDI diagnostic, ε=0.04 (full 5 TU)
+- `job_channel_p3_sigma0.sh` — L2 σ=0 CDI diagnostic, ε=0.04 (standard, full 5 TU)
+- `job_channel_p3_sigma0_p2.sh` — L2 σ=0 CDI diagnostic, ε=0.04 (_p2 variant: extra GS on n̂)
 - `job_channel_p3_we10.sh` — L2 We=10 two-phase
 - `job_channel_p3_we1.sh` — L2 We=1 two-phase
 - `job_channel_l3_single_phase.sh` — L3 (192×32×64) single-phase spin-up, 4 nodes/512 ranks
@@ -196,6 +197,8 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
 | `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
 | `cluster/build_neko_channel.sh` | Dardel SLURM build job |
+| `cluster/build_neko_two_phase.sh` | Dardel build: `turb_channel_two_phase.f90` → `neko_two_phase` |
+| `cluster/build_neko_two_phase_p2.sh` | Dardel build: `turb_channel_two_phase_p2.f90` → `neko_two_phase_p2` |
 | `cluster/sync_to_dardel.sh` | rsync source → Dardel |
 | `cluster/sync_from_dardel.sh` | rsync results ← Dardel |
 | `cluster/job_template.sh` | Dardel run job template |
@@ -208,55 +211,51 @@ The convergence series uses isotropic meshes with constant ε/Δxz=0.457. L1 is
 108×18×36 (ε=0.053, already running), L2 is 144×24×48 (ε=0.04), L3 is 192×32×64 (ε=0.03).
 All cases use the original `turb_channel_two_phase.f90` (Fortran fix deferred).
 
-### L1 (108×18×36) — mesh done 2026-03-26, spin-up COMPLETED
+### L1 (108×18×36) — spin-up COMPLETED; sigma0 cases COMPLETED (2026-03-27/28)
 
 Key parameters: ε=0.053 (convergence series) or ε=0.09 (informative only), R=0.4, γ=0.05.
-Spin-up: job 18985538 completed. `fluid00004.chkp` ready in `$SCRATCH_DIR/channel_p2_single_phase/`.
+Spin-up: job 18985538 completed. `fluid00004.chkp` in `$SCRATCH_DIR/channel_p2_single_phase/`.
 
-Two-phase cases (eps053 and eps09 sigma0 variants) need to be submitted with the updated
-case files (`end_time: 25.0`). Copy scripts and submit:
-
-```bash
-ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p2_*.sh \
-              $KTHMECH_PROJECT/scripts/"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p2_sigma0_eps053.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p2_sigma0.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p2_we10.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p2_we1.sh"
-```
+Two-phase jobs (jobs 19003682–19003685) submitted 2026-03-28. Results synced to egidius:
+- `channel_p2_sigma0_eps053`: COMPLETED t=20→25, κ_rms≈56 (ε=0.053, convergence series point)
+- `channel_p2_sigma0`: COMPLETED t=20→25, κ_rms≈50 (ε=0.09, informative)
+- `channel_p2_we10`: synced
+- `channel_p2_we1`: synced
 
 **MPI rank count for restart must match spin-up.** L1 spin-up: 128 ranks → all L1 restarts use `srun -n 128`.
 
-### Build two-phase binary on Dardel
+### Build two-phase binaries on Dardel
 
-Run once before any two-phase jobs. Output `neko_two_phase` is shared by all L1/L2/L3 scripts.
+Two binaries — run the corresponding build job before submitting two-phase cases.
 
 ```bash
 bash cluster/sync_to_dardel.sh
+
+# Standard binary (turb_channel_two_phase.f90 → neko_two_phase)
 ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/build_neko_two_phase.sh \
               $KTHMECH_PROJECT/scripts/ && \
             sbatch $KTHMECH_PROJECT/scripts/build_neko_two_phase.sh"
+
+# _p2 binary (turb_channel_two_phase_p2.f90 → neko_two_phase_p2)
+# Extra GS pass on n̂ — for sigma0 comparison to test element-face kink fix
+ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/build_neko_two_phase_p2.sh \
+              $KTHMECH_PROJECT/scripts/ && \
+            sbatch $KTHMECH_PROJECT/scripts/build_neko_two_phase_p2.sh"
 ```
 
-### L2 (144×24×48) — mesh done 2026-03-27, spin-up RUNNING job 19002586
+### L2 (144×24×48) — spin-up COMPLETED (job 19002586, 2026-03-28); TURBULENT validated
 
-`box_phys_144x24x48.nmsh` generated on egidius 2026-03-27, transferred to Dardel.
-Spin-up running: job 19002586, 2 nodes / 256 ranks, 10h wall, est. ~6h runtime.
-1 node / 128 ranks OOM at 1296 elem/rank; 2 nodes keeps it at 648 elem/rank.
+`box_phys_144x24x48.nmsh` generated on egidius 2026-03-27. Spin-up: 2 nodes / 256 ranks.
+u_max (last 5) = 1.37 ± 0.01 — TURBULENT. `fluid00004.chkp` in `$SCRATCH_DIR/channel_p3_single_phase/`.
+Results synced to `/lscratch/sieburgh/simulations/channel_p3_single_phase/`.
 
-**Submit L2 two-phase (after spin-up completes and `fluid00004.chkp` is available):**
+**Submit L2 two-phase (sigma0 pair + we10 + we1):**
 ```bash
 bash cluster/sync_to_dardel.sh
 ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p3_*.sh \
               $KTHMECH_PROJECT/scripts/"
 ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we10.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we1.sh"
-```
-
-**Submit L2 two-phase (after spin-up completes):**
-```bash
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0.sh"
+ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0_p2.sh"
 ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we10.sh"
 ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we1.sh"
 ```
@@ -264,24 +263,17 @@ ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we1.sh"
 **MPI rank count:** L2 spin-up uses 256 ranks (2 nodes) → all L2 restarts use `srun -n 256`.
 Note: 1 node/128 ranks OOM at 1296 elem/rank; 2 nodes/256 ranks = 648 elem/rank.
 
-### L3 (192×32×64) — mesh done 2026-03-27, spin-up RUNNING job 19003203
+### L3 (192×32×64) — spin-up COMPLETED (job 19003203, 2026-03-28); TURBULENT validated
 
-`box_phys_192x32x64.nmsh` generated on egidius 2026-03-27, transferred to Dardel.
-Spin-up running: job 19003203, 4 nodes / 512 ranks, 16h wall, est. ~12h runtime.
-2 nodes / 256 ranks OOM at 1536 elem/rank; 4 nodes keeps it at 768 elem/rank.
+`box_phys_192x32x64.nmsh` generated on egidius 2026-03-27. Spin-up: 4 nodes / 512 ranks.
+u_max (last 5) = 1.34 ± 0.00 — TURBULENT. `fluid00004.chkp` in `$SCRATCH_DIR/channel_l3_single_phase/`.
+Results synced to `/lscratch/sieburgh/simulations/channel_l3_single_phase/`.
 
-**Submit L3 two-phase (after L3 spin-up completes and `fluid00004.chkp` is available):**
+**Submit L3 two-phase (sigma0 + we10 + we1):**
 ```bash
 bash cluster/sync_to_dardel.sh
 ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_l3_*.sh \
               $KTHMECH_PROJECT/scripts/"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_sigma0.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_we10.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_we1.sh"
-```
-
-**Submit L3 two-phase (after L3 spin-up completes):**
-```bash
 ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_sigma0.sh"
 ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_we10.sh"
 ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_we1.sh"
