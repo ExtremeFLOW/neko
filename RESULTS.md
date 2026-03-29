@@ -57,7 +57,7 @@ _p2 build: job 19050141 (`build_neko_two_phase_p2.sh`), submitted 2026-03-29.
 
 | Case | Run name | Job | Status | Notes |
 |------|----------|-----|--------|-------|
-| σ=0 | `channel_l3_sigma0` | TBD | PENDING | |
+| σ=0 | `channel_l3_sigma0` | 19050366 | RUNNING | 4 nodes / 512 ranks |
 | We=10 | `channel_l3_we10` | TBD | PENDING | |
 | We=1 | `channel_l3_we1` | TBD | PENDING | |
 
