@@ -108,8 +108,8 @@ Account: `naiss2025-3-39`, partition: `main`, 128 cores/node.
 - `job_channel_p2_we10.sh` — L1 We=10 two-phase
 - `job_channel_p2_we1.sh` — L1 We=1 two-phase
 - `job_channel_p3_single_phase.sh` — L2 (144×24×48) single-phase spin-up
-- `job_channel_p3_sigma0.sh` — L2 σ=0 CDI diagnostic, ε=0.04 (standard, full 5 TU)
-- `job_channel_p3_sigma0_p2.sh` — L2 σ=0 CDI diagnostic, ε=0.04 (_p2 variant: extra GS on n̂)
+- `job_channel_p3_sigma0.sh` — L2 σ=0 CDI diagnostic, ε=0.04 (full 5 TU)
+- `job_channel_p3_sigma0_p2.sh` — L2 σ=0 _p2 variant (NO-OP for σ=0; not useful)
 - `job_channel_p3_we10.sh` — L2 We=10 two-phase
 - `job_channel_p3_we1.sh` — L2 We=1 two-phase
 - `job_channel_l3_single_phase.sh` — L3 (192×32×64) single-phase spin-up, 4 nodes/512 ranks
@@ -181,8 +181,8 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 
 | Path | Purpose |
 |------|---------|
-| `examples/two_phase_channel/src/turb_channel_two_phase.f90` | Original user module (no n̂ fix) — used for all 81×18×27 and finer mesh runs |
-| `examples/two_phase_channel/src/turb_channel_two_phase_p2.f90` | User module with extra GS pass on n̂ — deferred; not yet used |
+| `examples/two_phase_channel/src/turb_channel_two_phase.f90` | Original user module — used for all convergence series runs |
+| `examples/two_phase_channel/src/turb_channel_two_phase_p2.f90` | Variant with extra GS on n̂ — **NO-OP**: face nodes already consistent after GS(∇φ)+normalize; kink is intra-element, unreachable by GS |
 | `examples/two_phase_channel/src/turb_channel_single_phase.f90` | Fluid-only user module for single-phase spin-up (all meshes) |
 | `examples/two_phase_channel/cases/81x18x27/` | All case files for the baseline mesh (single-phase + two-phase runs) |
 | `examples/two_phase_channel/cases/108x18x36/` | Case files for L1 mesh (108×18×36, ε=0.053) |
@@ -224,24 +224,16 @@ Two-phase jobs (jobs 19003682–19003685) submitted 2026-03-28. Results synced t
 
 **MPI rank count for restart must match spin-up.** L1 spin-up: 128 ranks → all L1 restarts use `srun -n 128`.
 
-### Build two-phase binaries on Dardel
-
-Two binaries — run the corresponding build job before submitting two-phase cases.
+### Build two-phase binary on Dardel
 
 ```bash
 bash cluster/sync_to_dardel.sh
-
-# Standard binary (turb_channel_two_phase.f90 → neko_two_phase)
 ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/build_neko_two_phase.sh \
               $KTHMECH_PROJECT/scripts/ && \
             sbatch $KTHMECH_PROJECT/scripts/build_neko_two_phase.sh"
-
-# _p2 binary (turb_channel_two_phase_p2.f90 → neko_two_phase_p2)
-# Extra GS pass on n̂ — for sigma0 comparison to test element-face kink fix
-ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/build_neko_two_phase_p2.sh \
-              $KTHMECH_PROJECT/scripts/ && \
-            sbatch $KTHMECH_PROJECT/scripts/build_neko_two_phase_p2.sh"
 ```
+
+Note: `build_neko_two_phase_p2.sh` also exists but the _p2 variant is a no-op (see `turb_channel_two_phase_p2.f90` header). Not needed for current runs.
 
 ### L2 (144×24×48) — spin-up COMPLETED (job 19002586, 2026-03-28); TURBULENT validated
 

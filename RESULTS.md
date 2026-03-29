@@ -41,8 +41,8 @@ Validation: u_max (last 5 rows of ekin.csv) < 1.45 → TURBULENT.
 
 | Case | Run name | Job | Status | Notes |
 |------|----------|-----|--------|-------|
-| σ=0 standard | `channel_p3_sigma0` | TBD | PENDING | Standard `turb_channel_two_phase.f90` |
-| σ=0 _p2 | `channel_p3_sigma0_p2` | TBD | PENDING | Extra GS pass on n̂ — test element-face kink fix |
+| σ=0 standard | `channel_p3_sigma0` | 19050210 | RUNNING | Standard `turb_channel_two_phase.f90` |
+| σ=0 _p2 | `channel_p3_sigma0_p2` | 19050211 | CANCELLED | Extra GS on n̂ is a no-op — see note below |
 | We=10 | `channel_p3_we10` | TBD | PENDING | |
 | We=1 | `channel_p3_we1` | TBD | PENDING | |
 
@@ -63,11 +63,25 @@ _p2 build: job 19050141 (`build_neko_two_phase_p2.sh`), submitted 2026-03-29.
 
 ---
 
-## σ=0 CDI diagnostic — interpretation
+## σ=0 CDI diagnostic — interpretation and kink diagnosis
 
-σ=0 cases use CDI (conservative diffuse interface) only, no surface tension.
-κ_rms measures the curvature residual due to numerical diffusion (element-face C0 kink
-amplified by Lagrange endpoint derivatives). Expected baseline: 2/R = 5.
+σ=0 cases use CDI only, no surface tension. κ_rms measures the curvature residual
+from the SEM discretisation. Expected baseline: 2/R = 5.
+
+**Kink root cause (2026-03-29):** The artifact is INTRA-ELEMENT, not inter-element.
+After GS(∇φ)+normalize, n̂ at shared face nodes is already identical between elements.
+An extra GS on n̂ (the _p2 "fix") is therefore a no-op: it sums identical values
+and divides back. The actual kink is in the Lagrange polynomial connecting the
+averaged face-node n̂ to the element-local first-interior n̂; D[N,N]≈14 (N=7)
+amplifies this jump. GS cannot reach interior nodes.
+
+A true fix requires: (a) repeated GS on ∇φ before normalisation (propagates
+average inward one node-ring per pass), (b) a Helmholtz-type smoother on n̂,
+or (c) a fundamentally different curvature scheme.
+
+**Diagnostics to add in postprocessing:** analyse n̂ directly from φ snapshots
+(recomputable via SEM derivative operators), visualise face-node vs first-interior
+jump in n̂ and the raw div(n̂) field.
 
 | Mesh | ε | κ_rms (t=25) | κ_rms / (2/R) | Notes |
 |------|---|-------------|---------------|-------|

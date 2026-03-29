@@ -1,29 +1,27 @@
 ! 3D turbulent two-phase channel flow with CSF surface tension — Phase 2
 !
-! Phase 2 changes vs turb_channel_two_phase.f90 (Phase 1):
+! *** NOTE (2026-03-29): the extra GS on n_hat below is a NO-OP. ***
 !
-!   CSF fix: extra GS averaging pass on n_hat after normalisation, before div().
+!   The first GS pass (on grad(phi), before normalisation) already makes all
+!   shared face nodes identical between neighbouring elements.  After pointwise
+!   normalisation, n_hat at face nodes is therefore also identical on both sides.
+!   A second GS on n_hat sums these identical values and divides back: unchanged.
 !
-!   Root cause (diagnosed in Phase 1 σ=0 runs):
-!     GS-averaged n̂ is only C0 at element faces → C1 kink in n̂ → spectral
-!     derivative operator D[N,N]=14 (Lagrange endpoint) amplified by Jacobian
-!     2/Δ → κ_rms ~ 64 even with σ=0.  Fix: one additional GS average on n̂
-!     smooths the kink before div() is called.
+!   The actual kink is INTRA-ELEMENT: the Lagrange polynomial of n_hat in the
+!   face-normal direction connects an averaged face-node value to an
+!   element-local first-interior value.  GS cannot reach interior nodes.
+!   D[N,N] ~= 14 (Lagrange endpoint derivative, N=7) amplifies this
+!   intra-element jump -> kappa_rms >> 2/R regardless of the extra GS pass.
 !
-!   Diff (CSF source_term block only, ~lines 348-356):
-!     + ! Second GS pass on n_hat: smooths the C0 kink at element faces
-!     + ! that otherwise triggers Lagrange endpoint amplification in div().
-!     + call coef%gs_h%op(temp1, GS_OP_ADD)
-!     + call col2(temp1%x, coef%mult, temp4%size())
-!     + call coef%gs_h%op(temp2, GS_OP_ADD)
-!     + call col2(temp2%x, coef%mult, temp4%size())
-!     + call coef%gs_h%op(temp3, GS_OP_ADD)
-!     + call col2(temp3%x, coef%mult, temp4%size())
-!   inserted immediately after the pointwise normalisation loop and before
-!   "kappa = -div(n)".
+!   For sigma=0 runs the CSF force = sigma*kappa*grad(phi) = 0, so even if
+!   the GS did smooth n_hat, it would have no effect on those runs.
+!
+!   Retained here for reference.  A true fix requires acting on interior nodes,
+!   e.g. repeated GS on grad(phi) before normalisation (propagating the average
+!   inward one ring per pass), or a Helmholtz-type smoother on n_hat.
 !
 !   Phase 2 case files (mesh 108x18x36, eps=0.09, R=0.4):
-!     turb_channel_two_phase_p2_sigma0.case  -- fix verification (sigma=0)
+!     turb_channel_two_phase_p2_sigma0.case  -- (no-op for sigma=0; same as standard)
 !     turb_channel_two_phase_p2_we10.case    -- We=10  (sigma=0.04)
 !     turb_channel_two_phase_p2_we1.case     -- We=1   (sigma=0.4)
 !
@@ -372,11 +370,10 @@ contains
         end if
       end do
 
-      ! *** Phase 2 fix: second GS pass on n_hat ***
-      ! Smooths the C0 kink at element faces that otherwise triggers
-      ! Lagrange endpoint amplification (D[N,N]=14) in div(), giving
-      ! kappa_rms ~ 64 on the Phase 1 mesh.  One extra average reduces
-      ! this to kappa_rms ~ 2/R (spherical reference value).
+      ! *** Phase 2 "fix": second GS pass on n_hat — NO-OP (see file header) ***
+      ! Face nodes are already identical after GS(grad(phi))+normalize above.
+      ! GS here sums equal values and divides back: no change.
+      ! The kink is intra-element (interior nodes), unreachable by GS.
       call coef%gs_h%op(temp1, GS_OP_ADD)
       call col2(temp1%x, coef%mult, temp4%size())
       call coef%gs_h%op(temp2, GS_OP_ADD)
