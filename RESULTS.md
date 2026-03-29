@@ -1,6 +1,6 @@
 # Simulation Results
 
-Convergence series: isotropic meshes L1/L2/L3 with constant ε/Δxz≈0.457.
+Convergence series: isotropic meshes L1/L2/L3/L4 with constant ε/Δxz≈0.457.
 All runs on Dardel (NAISS account `naiss2025-3-39`), results synced to egidius at
 `/lscratch/sieburgh/simulations/<run_name>/`.
 
@@ -17,6 +17,7 @@ Validation: u_max (last 5 rows of ekin.csv) < 1.45 → TURBULENT.
 | L1: 108×18×36 | `channel_p2_single_phase` | 18985538 | 1/128 | COMPLETED | ~1.38 | |
 | L2: 144×24×48 | `channel_p3_single_phase` | 19002586 | 2/256 | COMPLETED | 1.37±0.01 | 2 nodes (1 node OOM) |
 | L3: 192×32×64 | `channel_l3_single_phase` | 19003203 | 4/512 | COMPLETED | 1.34±0.00 | 4 nodes (2 nodes OOM) |
+| L4: 288×48×96 | `channel_l4_single_phase` | — | ~14/1792 | NOT STARTED | — | planned; ~14 nodes est. |
 
 ---
 
@@ -60,6 +61,28 @@ _p2 build: job 19050141 (`build_neko_two_phase_p2.sh`), submitted 2026-03-29.
 | σ=0 | `channel_l3_sigma0` | 19050366 | RUNNING | 4 nodes / 512 ranks |
 | We=10 | `channel_l3_we10` | TBD | PENDING | |
 | We=1 | `channel_l3_we1` | TBD | PENDING | |
+
+---
+
+## L4 (288×48×96) — planned, not yet started
+
+ε=0.02, R=0.4, γ=0.05. 1,327,104 elements, ε/Δxz=0.458, ε/Δ_GLL=3.2, R/ε=20.
+Factor 3/2 from L3 (the 4/3 progression gives nz=85.3, non-integer, so 3/2 used instead).
+Estimated ~14 nodes / 1792 ranks. Intended for high-resolution visualisation and as the
+fourth convergence series point. May need to go higher still for publication quality.
+
+Workflow (when ready):
+1. Generate mesh on egidius: `genmeshbox 0 12.5664 -1.0 1.0 0 4.1888 288 48 96 .true. .false. .true.`
+2. Write spin-up case file (`turb_channel_single_phase_l4.case`) and job script
+3. Run spin-up (~14 nodes, est. wall time TBD)
+4. Submit σ=0 and We cases as for L1/L2/L3
+
+| Case | Run name | Job | Status | Notes |
+|------|----------|-----|--------|-------|
+| Single-phase spin-up | `channel_l4_single_phase` | — | NOT STARTED | ~14 nodes / 1792 ranks |
+| σ=0 | `channel_l4_sigma0` | — | NOT STARTED | |
+| We=10 | `channel_l4_we10` | — | NOT STARTED | |
+| We=1 | `channel_l4_we1` | — | NOT STARTED | |
 
 ---
 

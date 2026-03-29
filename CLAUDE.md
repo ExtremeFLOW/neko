@@ -205,11 +205,22 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | `setup-env-channel.sh` | Environment setup (local/egidius/cluster) |
 | `build-neko-channel.sh` | Build script |
 
-## Convergence series — L1/L2/L3 workflow
+## Convergence series — L1/L2/L3/L4 workflow
 
-The convergence series uses isotropic meshes with constant ε/Δxz=0.457. L1 is
-108×18×36 (ε=0.053, already running), L2 is 144×24×48 (ε=0.04), L3 is 192×32×64 (ε=0.03).
-All cases use the original `turb_channel_two_phase.f90` (Fortran fix deferred).
+Isotropic meshes with constant ε/Δxz=0.457, ε/Δ_GLL=3.2 (N=7 fixed). R=0.4, γ=0.05.
+All cases use `turb_channel_two_phase.f90`.
+
+| Level | Mesh | ε | Δxz | R/ε | Elements | Nodes (est.) |
+|-------|------|---|-----|-----|----------|--------------|
+| L1 | 108×18×36 | 0.053 | 0.1164 | 7.5 | 70k | 1 |
+| L2 | 144×24×48 | 0.040 | 0.0873 | 10 | 166k | 2 |
+| L3 | 192×32×64 | 0.030 | 0.0654 | 13 | 393k | 4 |
+| L4 | 288×48×96 | 0.020 | 0.0436 | 20 | 1327k | ~14 |
+
+**L4 note:** The 4/3 refinement factor breaks at L4 (64×4/3=85.3, not integer). L4 uses
+factor 3/2 from L3 (nz: 64→96). ε=0.02 is a clean round number. L4 is planned for
+high-resolution visualisation and validation, not yet submitted. Will require ~14 nodes
+(1792 ranks); may need to go higher still for publication-quality visualisations.
 
 ### L1 (108×18×36) — spin-up COMPLETED; sigma0 cases COMPLETED (2026-03-27/28)
 
