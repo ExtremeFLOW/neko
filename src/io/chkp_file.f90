@@ -551,7 +551,7 @@ contains
     integer :: have_abvel, have_scalarlag
     integer :: have_ale
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
-    logical :: read_ale, read_ale_mass_lag
+    logical :: read_ale
     real(kind=rp) :: tol
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
@@ -623,6 +623,8 @@ contains
           abs2 => data%abs2
           read_scalarlag = .true.
        end if
+
+       read_ale = .false.
        if (associated(data%wm_x)) then
           msh_x => data%msh_x
           msh_y => data%msh_y
