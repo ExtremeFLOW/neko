@@ -1,9 +1,10 @@
 """
 animate_blowup.py — High-quality blow-up animations for supervisor presentation.
 
-Produces two panels stacked vertically per frame:
+Produces three panels stacked vertically per frame:
   Top:    φ field (drop shape and interface integrity)
-  Bottom: κ (curvature, postprocess) — shows the artifact / blow-up cause
+  Middle: κ (curvature, postprocess) — shows the artifact / blow-up cause
+  Bottom: |u| (velocity magnitude — turbulent flow context)
 
 Each frame is rendered as a fresh figure (colorbars always correct).
 Frames are combined into a GIF via PIL.
@@ -11,6 +12,8 @@ Frames are combined into a GIF via PIL.
 Usage:
     python3 animate_blowup.py --run channel_test_laminar
     python3 animate_blowup.py --run channel_test_sigma0_diag --fps 3 --kappa-scale 35
+    python3 animate_blowup.py --run channel_p3_sigma0 --mesh l2 --R 0.4 --fps 2
+    python3 animate_blowup.py --run channel_l3_sigma0 --mesh l3 --R 0.4 --fps 2
 """
 
 import argparse
@@ -44,9 +47,12 @@ parser.add_argument('--kappa-scale', type=float, default=None,
 parser.add_argument('--no-gif', action='store_true')
 parser.add_argument('--stride', type=int, default=1,
                     help='Animate every Nth snapshot (default: 1 = all)')
-parser.add_argument('--mesh', choices=['p1', 'p2'], default=None,
-                    help='Mesh preset: p1=81x18x27 (nz=27), p2=108x18x36 (nz=36). '
-                         'Overrides nz_elems used for the z-slice selection.')
+parser.add_argument('--mesh', choices=['p1', 'p2', 'l1', 'l2', 'l3', 'l4'], default=None,
+                    help='Mesh preset (sets nz_elems for z-slice selection): '
+                         'p1=81x18x27 (nz=27), p2/l1=108x18x36 (nz=36), '
+                         'l2=144x24x48 (nz=48), l3=192x32x64 (nz=64), l4=288x48x96 (nz=96).')
+parser.add_argument('--R', type=float, default=0.4,
+                    help='Drop radius (default 0.4 for convergence series; old baseline uses 0.3)')
 args = parser.parse_args()
 
 RUN_DIR    = f'/lscratch/sieburgh/simulations/{args.run}'
@@ -62,12 +68,10 @@ LLX = 4.0 * math.pi
 LLY = 2.0
 LLZ = 4.0 / 3.0 * math.pi
 Z_C = LLZ / 2.0
-R   = 0.3
-EPS = 0.07
-KAPPA_SPHERE = 2.0 / R   # 6.667
+R   = args.R
+KAPPA_SPHERE = 2.0 / R
 
-# Mesh preset: default to p1 (81x18x27); --mesh p2 selects 108x18x36
-_MESH_PRESETS = {'p1': 27, 'p2': 36}
+_MESH_PRESETS = {'p1': 27, 'p2': 36, 'l1': 36, 'l2': 48, 'l3': 64, 'l4': 96}
 _mesh_preset  = args.mesh if args.mesh else 'p1'
 NZ_ELEMS_DEFAULT = _MESH_PRESETS[_mesh_preset]
 
