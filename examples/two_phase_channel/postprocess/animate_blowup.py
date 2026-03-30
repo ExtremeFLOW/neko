@@ -75,6 +75,16 @@ _MESH_PRESETS = {'p1': 27, 'p2': 36, 'l1': 36, 'l2': 48, 'l3': 64, 'l4': 96}
 _mesh_preset  = args.mesh if args.mesh else 'p1'
 NZ_ELEMS_DEFAULT = _MESH_PRESETS[_mesh_preset]
 
+# Spin-up run for mesh coordinates (two-phase restart files omit XYZ)
+_SPINUP_RUNS = {
+    'p1': 'channel_single_phase',
+    'p2': 'channel_p2_single_phase', 'l1': 'channel_p2_single_phase',
+    'l2': 'channel_p3_single_phase',
+    'l3': 'channel_l3_single_phase',
+    'l4': 'channel_l4_single_phase',
+}
+SIM_DIR = '/lscratch/sieburgh/simulations'
+
 # ---------------------------------------------------------------------------
 # Load ekin.csv
 # ---------------------------------------------------------------------------
@@ -106,10 +116,13 @@ if args.stride > 1:
 print(f'Found {len(field_files)} field files in {RUN_DIR} (stride={args.stride})')
 
 # ---------------------------------------------------------------------------
-# Mesh
+# Mesh  (two-phase restart files omit XYZ — fall back to spin-up f00000)
 # ---------------------------------------------------------------------------
-print('Reading mesh ...')
-xyz_data = preadnek(field_files[0], comm)
+_spinup_f0 = os.path.join(SIM_DIR, _SPINUP_RUNS[_mesh_preset], 'field0.f00000')
+_mesh_candidates = [os.path.join(RUN_DIR, 'field0.f00000'), _spinup_f0]
+mesh_file = next((f for f in _mesh_candidates if os.path.exists(f)), field_files[0])
+print(f'Reading mesh from: {mesh_file}')
+xyz_data = preadnek(mesh_file, comm)
 msh = msh_c(comm, data=xyz_data)
 
 lz_ = msh.x.shape[1]

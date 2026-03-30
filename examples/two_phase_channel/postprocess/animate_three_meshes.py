@@ -74,11 +74,11 @@ comm = MPI.COMM_WORLD
 
 CONFIGS = [
     dict(run='channel_p2_sigma0_eps053', label='L1', eps=0.053, nz_elems=36,
-         mesh_str='108×18×36'),
+         mesh_str='108×18×36', spinup='channel_p2_single_phase'),
     dict(run='channel_p3_sigma0',        label='L2', eps=0.040, nz_elems=48,
-         mesh_str='144×24×48'),
+         mesh_str='144×24×48', spinup='channel_p3_single_phase'),
     dict(run='channel_l3_sigma0',        label='L3', eps=0.030, nz_elems=64,
-         mesh_str='192×32×64'),
+         mesh_str='192×32×64', spinup='channel_l3_single_phase'),
 ]
 
 R            = 0.4
@@ -139,9 +139,13 @@ def load_level(cfg):
         idx = (ekin_df['t'] - t).abs().idxmin()
         return float(ekin_df.loc[idx, 'kappa_rms'])
 
-    # Mesh from first snapshot
-    print('  Reading mesh ...')
-    xyz_data = preadnek(field_files[0], comm)
+    # Mesh: two-phase restart files don't include XYZ (var[0]=0).
+    # Use spin-up field0.f00000 which has geometry embedded.
+    _spinup_f0 = os.path.join(SIM_DIR, cfg['spinup'], 'field0.f00000')
+    _candidates = [os.path.join(run_dir, 'field0.f00000'), _spinup_f0]
+    mesh_file = next((f for f in _candidates if os.path.exists(f)), field_files[0])
+    print(f'  Reading mesh from: {os.path.relpath(mesh_file, SIM_DIR)}')
+    xyz_data = preadnek(mesh_file, comm)
     msh = msh_c(comm, data=xyz_data)
 
     lz_ = msh.x.shape[1]

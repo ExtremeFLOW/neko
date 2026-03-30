@@ -62,6 +62,9 @@ parser.add_argument('--mesh', choices=['p1', 'p2', 'l2', 'l3', 'l4'], default='p
                          '(p1=81x18x27 nz=27, p2=108x18x36 nz=36, '
                          'l2=144x24x48 nz=48, l3=192x32x64 nz=64, '
                          'l4=288x48x96 nz=96)')
+parser.add_argument('--mesh-file', default=None,
+                    help='Path to a field file with XYZ geometry (var[0]>0). '
+                         'Auto-detected from spin-up run if not given.')
 parser.add_argument('--kappa-scale', type=float, default=None,
                     help='Symmetric κ colour limit for snapshots (auto if unset)')
 parser.add_argument('--no-snapshots', action='store_true',
@@ -86,6 +89,17 @@ X_C   = LLX / 2.0
 Z_C   = LLZ / 2.0
 _NZ   = {'p1': 27, 'p2': 36, 'l2': 48, 'l3': 64, 'l4': 96}
 NZ_ELEMS = _NZ[args.mesh]
+
+# Spin-up run that has field0.f00000 with XYZ geometry.
+# Two-phase restart files do NOT include XYZ (var[0]=0); spin-up f00000 does.
+_SPINUP_RUNS = {
+    'p1': 'channel_single_phase',
+    'p2': 'channel_p2_single_phase',
+    'l2': 'channel_p3_single_phase',
+    'l3': 'channel_l3_single_phase',
+    'l4': 'channel_l4_single_phase',
+}
+SIM_DIR = '/lscratch/sieburgh/simulations'
 
 run_label = args.run.replace('channel_test_', '').replace('channel_', '').replace('_', ' ')
 
@@ -160,8 +174,16 @@ snap_files = [field_files[i] for i in sorted({0, n // 2, n - 1})]
 print(f'\nLoading {len(snap_files)} snapshots for field plots ...')
 
 # --- Mesh ---
-print('Reading mesh ...')
-xyz_data = preadnek(snap_files[0], comm)
+# Two-phase restart files don't include XYZ; find one that does.
+if args.mesh_file:
+    mesh_file = args.mesh_file
+else:
+    _spinup_f0 = os.path.join(SIM_DIR, _SPINUP_RUNS[args.mesh], 'field0.f00000')
+    _candidates = [os.path.join(RUN_DIR, 'field0.f00000'), _spinup_f0]
+    mesh_file = next((f for f in _candidates if os.path.exists(f)), snap_files[0])
+
+print(f'Reading mesh from: {mesh_file}')
+xyz_data = preadnek(mesh_file, comm)
 msh = msh_c(comm, data=xyz_data)
 
 lz_ = msh.x.shape[1]
