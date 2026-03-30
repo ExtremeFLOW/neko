@@ -433,10 +433,9 @@ contains
     ws => w
     ps => p
 
-    call import_fields(file_name, mesh_file_name, &
+    call import_fields(file_name, global_interp_subdict, mesh_file_name, &
          u = us, v = vs, w = ws, p = ps, &
-         interpolate = interpolate, &
-         global_interp_subdict = global_interp_subdict)
+         interpolate = interpolate)
 
     nullify(us, vs, ws, ps)
 

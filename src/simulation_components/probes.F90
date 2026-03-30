@@ -222,6 +222,7 @@ contains
 
     call probes_show(this)
 
+    ! Get interpolation parameters from json
     block
       type(json_file) :: interp_subdict
       call json_get_subdict_or_empty(json, "interpolation", interp_subdict)

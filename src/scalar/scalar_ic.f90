@@ -296,11 +296,10 @@ contains
     call s_tgt_list%init(1)
     call s_tgt_list%assign(1, ss)
 
-    call import_fields(file_name, mesh_file_name, &
+    call import_fields(file_name, global_interp_subdict, mesh_file_name, &
          s_target_list = s_tgt_list, & ! The target field
          s_index_list = [target_idx], & ! Take values from target scalar
-         interpolate = interpolate, &
-         global_interp_subdict = global_interp_subdict)
+         interpolate = interpolate)
 
     call s_tgt_list%free()
 

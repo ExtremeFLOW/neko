@@ -58,8 +58,10 @@ module import_field_utils
 contains
 
   !> Imports fields from an fld file, potentially with
-  !! interpolation, with parameters provided in a JSON subdict.
-  !! @param fname The name of the fld file, e.g. "my_field0.f00019".
+!! interpolation, with parameters provided in a JSON subdict.
+!! @param fname The name of the fld file, e.g. "my_field0.f00019".
+!! @param global_interp_subdict If interpolation is enabled, subdict
+!! containing the interpolation parameters to use.
   !! @param mesh_fname The name of the fld file containing the spatial
   !! coordinates, if interpolation is enabled and fname does not already
   !! contain them.
@@ -80,36 +82,34 @@ contains
   !! Index  0 corresponds to temperature by default. Therefore using
   !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`.
   !! @param interpolate Whether or not to interpolate the fld data.
-  !! @param global_interp_subdict If interpolation is enabled, subdict
-  !! containing the interpolation parameters to use.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
   !! order for the same given mesh.
   !! @note This subroutine also takes care of data movement from host to
   !! to device when necessary, i.e. only the required fields are copied to
   !! device.
-subroutine import_fields_from_json(fname, mesh_fname, u, v, w, p, t, &
-   s_target_list, s_index_list, interpolate, global_interp_subdict)
-character(len=*), intent(in) :: fname
-character(len=*), intent(in), optional :: mesh_fname
-type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
-type(field_list_t), intent(inout), optional :: s_target_list
-integer, intent(in), optional :: s_index_list(:)
-logical, intent(in), optional :: interpolate
-type(json_file), intent(inout), optional :: global_interp_subdict
+  subroutine import_fields_from_json(fname, global_interp_subdict, mesh_fname, &
+       u, v, w, p, t, s_target_list, s_index_list, interpolate)
+    character(len=*), intent(in) :: fname
+    type(json_file), intent(inout) :: global_interp_subdict
+    character(len=*), intent(in), optional :: mesh_fname
+    type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
+    type(field_list_t), intent(inout), optional :: s_target_list
+    integer, intent(in), optional :: s_index_list(:)
+    logical, intent(in), optional :: interpolate
 
-   real(kind=dp) :: tolerance, padding
+    real(kind=dp) :: tolerance, padding
 
-   call json_get_or_default(global_interp_subdict, "tolerance", &
-      GLOB_INTERP_TOL, tolerance)
-   call json_get_or_default(global_interp_subdict, "padding", &
-      GLOB_INTERP_PAD, padding)
+    call json_get_or_default(global_interp_subdict, "tolerance", &
+         tolerance, GLOB_INTERP_TOL)
+    call json_get_or_default(global_interp_subdict, "padding", &
+         padding, GLOB_INTERP_PAD)
 
-   call import_fields_from_params(fname, mesh_fname, &
-        u, v, w, p, t, s_target_list, s_index_list, &
-        interpolate, tolerance = tolerance, padding = padding)
+    call import_fields_from_params(fname, mesh_fname, &
+         u, v, w, p, t, s_target_list, s_index_list, &
+         interpolate, tolerance = tolerance, padding = padding)
 
-end subroutine import_fields_from_json
+  end subroutine import_fields_from_json
 
   !> Imports fields from an fld file, potentially with
   !! interpolation.
@@ -138,16 +138,14 @@ end subroutine import_fields_from_json
   !! point finding.
   !! @param padding If interpolation is enabled, the tolerance to use for the
   !! point finding.
-  !! @param global_interp_subdict If interpolation is enabled, subdict
-  !! containing the interpolation parameters to use.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
   !! order for the same given mesh.
   !! @note This subroutine also takes care of data movement from host to
   !! to device when necessary, i.e. only the required fields are copied to
   !! device.
-  subroutine import_fields_from_params(fname, mesh_fname, u, v, w, p, t, s_target_list, &
-       s_index_list, interpolate, tolerance, padding, global_interp_subdict)
+  subroutine import_fields_from_params(fname, mesh_fname, u, v, w, p, t, &
+       s_target_list, s_index_list, interpolate, tolerance, padding)
     character(len=*), intent(in) :: fname
     character(len=*), intent(in), optional :: mesh_fname
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
@@ -156,7 +154,6 @@ end subroutine import_fields_from_json
     logical, intent(in), optional :: interpolate
     real(kind=dp), intent(in), optional :: tolerance
     real(kind=dp), intent(in), optional :: padding
-    type(json_file), intent(inout), optional :: global_interp_subdict
 
     character(len=LOG_SIZE) :: log_buf
     integer :: sample_idx, sample_mesh_idx, i

@@ -310,9 +310,9 @@ contains
     !
     ! Import the u,v,w baseflows from fld
     !
-    call import_fields(file_name, mesh_file_name, &
+    call import_fields(file_name, interp_subdict, mesh_file_name, &
          u = this%u_bf, v = this%v_bf, w = this%w_bf, &
-         interpolate = interpolate, global_interp_subdict = interp_subdict)
+         interpolate = interpolate)
 
     this%baseflow_set = .true.
 
