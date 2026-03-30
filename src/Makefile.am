@@ -175,7 +175,7 @@ neko_fortran_SOURCES = \
 	io/mean_field_output.f90\
 	common/profiler.F90\
 	common/craypat.F90\
-	bc_resolver.f90\
+	bc/bc_resolver.f90\
 	bc/bc.f90\
 	bc/bc_list.f90\
 	bc/dirichlet.f90\
@@ -229,7 +229,6 @@ neko_fortran_SOURCES = \
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
-	simulation_components/boundary_operation.f90\
 	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
 	simulation_components/fluid_sgs_stats_simcomp.f90\
