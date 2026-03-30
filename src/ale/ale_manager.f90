@@ -196,7 +196,7 @@ contains
     character(len=256) :: log_buf_l
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: tmp_str
-    logical :: tmp_logical = .true.
+    logical :: tmp_logical
     logical :: moving_
     logical :: found_zone
     logical :: has_user_kin, has_user_mesh
@@ -210,11 +210,15 @@ contains
        neko_ale => null()
        return
     else if (this%active) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error("ALE not currently supported with device backend.")
+       end if
        neko_ale => this
     end if
 
     call neko_log%section("ALE Initialization")
 
+    tmp_logical = .false.
     n = coef%dof%size()
     this%x_ref%x = coef%dof%x
     this%y_ref%x = coef%dof%y
@@ -1378,7 +1382,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: json
 
-    logical :: mesh_preview_active = .false.
+    logical :: mesh_preview_active
     real(kind=rp) :: t_start
     real(kind=rp) :: t_end
     real(kind=rp) :: dt

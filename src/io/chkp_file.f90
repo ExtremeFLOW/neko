@@ -277,7 +277,7 @@ contains
        do i = 1, ulag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          ! We should not need this extra associate block, ant it works
+          ! We should not need this extra associate block, and it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
           associate (x => ulag%lf(i)%x)
@@ -290,7 +290,7 @@ contains
        do i = 1, vlag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          ! We should not need this extra associate block, ant it works
+          ! We should not need this extra associate block, and it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
           associate (x => vlag%lf(i)%x)
@@ -303,7 +303,7 @@ contains
        do i = 1, wlag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          ! We should not need this extra associate block, ant it works
+          ! We should not need this extra associate block, and it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
           associate (x => wlag%lf(i)%x)
@@ -369,7 +369,7 @@ contains
        do i = 1, slag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          ! We should not need this extra associate block, ant it works
+          ! We should not need this extra associate block, and it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
           associate (x => slag%lf(i)%x)
@@ -431,7 +431,7 @@ contains
        do i = 1, wm_x_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          ! We should not need this extra associate block, ant it works
+          ! We should not need this extra associate block, and it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
           associate (x => wm_x_lag%lf(i)%x)
@@ -444,7 +444,7 @@ contains
        do i = 1, wm_y_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          ! We should not need this extra associate block, ant it works
+          ! We should not need this extra associate block, and it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
           associate (x => wm_y_lag%lf(i)%x)
@@ -457,7 +457,7 @@ contains
        do i = 1, wm_z_lag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          ! We should not need this extra associate block, ant it works
+          ! We should not need this extra associate block, and it works
           ! great without it for GNU, Intel, NEC and Cray, but throws an
           ! ICE with NAG.
           associate (x => wm_z_lag%lf(i)%x)

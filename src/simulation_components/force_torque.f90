@@ -141,7 +141,6 @@ contains
     integer :: zone_id
     real(kind=rp), allocatable :: center(:)
     character(len=:), allocatable :: zone_name, fluid_name, center_type
-    character(len=:), allocatable :: effective_center_type
     character(len=:), allocatable :: name
     real(kind=rp) :: scale
     logical :: long_print
@@ -357,7 +356,7 @@ contains
 
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    ! Calculatig avg pos here
+    ! Calculating avg pos here
     avg_r(1) = glsum(this%r1%x, n_pts)/glb_n_pts
     avg_r(2) = glsum(this%r2%x, n_pts)/glb_n_pts
     avg_r(3) = glsum(this%r3%x, n_pts)/glb_n_pts
@@ -676,10 +675,11 @@ contains
     real(kind=rp), intent(in) :: center_in(3)
 
     character(len=128) :: log_buf
-    integer :: i, j, nbodies, nindices, body_id
+    integer :: i, j, nbodies, nindices
     logical :: body_found
-    logical :: ale_active = .false.
+    logical :: ale_active
 
+    ale_active = .false.
     this%moving_center = .false.
     this%update_normals = .false.
     this%local_offset = 0.0_rp
@@ -709,7 +709,7 @@ contains
                          this%moving_center = .true.
                          this%pivot_link => neko_ale%ale_pivot(i)
                          this%linked_body_name = neko_ale%config%bodies(i)%name
-                         body_id = neko_ale%config%bodies(i)%id
+                         ! body_id = neko_ale%config%bodies(i)%id
                          body_found = .true.
 
                          ! Point to Live Data

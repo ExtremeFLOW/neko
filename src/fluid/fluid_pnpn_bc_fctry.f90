@@ -45,7 +45,6 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use non_normal, only : non_normal_t
   use no_slip, only : no_slip_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
-  use registry, only : neko_registry
 
   implicit none
 

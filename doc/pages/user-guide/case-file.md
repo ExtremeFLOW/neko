@@ -1135,7 +1135,7 @@ To run an ALE simulation, the framework must be set up as follows:
   * Conversely, any boundary registered as an ALE body **must** be defined as a `"no_slip"` boundary with `"moving": true`.
   * If any of these rules are violated, Neko will not start the simulation loop and will print an informative error message.
 
-In the follwoing, the main blocks of `"ale"` object are explained.
+In the following, the main blocks of `"ale"` object are explained.
 
 #### Solver {#case-file_fluid-ale-solver}
 
@@ -1415,7 +1415,7 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
   \f}
 
 * **Wall Distance** (`"cheap_dist"`): 
-  \f$ r \f$ is assigned from a precomputed pusodo distance field based on the boundary `zone_indices`.
+  \f$ r \f$ is assigned from a precomputed pseudo distance field based on the boundary `zone_indices`.
 
 @attention Within the region defined by `radius` (from the center) or `stiff_dist` (from the boundary), the mesh stiffness is at its highest. If the `gain` parameter is set large enough, the mesh within this region moves rigidly with the body, preserving its original element quality without deformation. Users are encouraged to check the `ocyl_cylinder3D`, `ocyl_ellipse3D`, and `Double_ocyl_cylinder` examples to get a better idea of how these parameters are configured in practice.
 
