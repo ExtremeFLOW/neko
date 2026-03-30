@@ -336,7 +336,7 @@ contains
     real(kind=rp) :: zeta
     zeta = z/L_ob
     a = 1.0_rp
-    b = 0.6666666_rp
+    b = 2.0_rp/3.0_rp
     c = 5.0_rp
     d = 0.35_rp
     corr = - a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d
@@ -350,10 +350,10 @@ contains
 
     zeta = z/L_ob
     a = 1.0_rp
-    b = 0.6666666_rp
+    b = 2.0_rp/3.0_rp
     c = 5.0_rp
     d = 0.35_rp
-    corr = -b * (zeta-c/d)*exp(-d*zeta)-(1.0_rp+ 0.6666666_rp * a * zeta)**1.5_rp-b*c/d + 1.0_rp
+    corr = -b * (zeta-c/d)*exp(-d*zeta)-(1.0_rp+ 2.0_rp/3.0_rp * a * zeta)**1.5_rp-b*c/d + 1.0_rp
   end function corr_h_stable
 
   !> Similarity laws and corrections for the UNSTABLE (convective) regime:

@@ -46,7 +46,7 @@ template<typename T>
 __device__ T corr_m_stable(T z, T L_ob)
 {
     T a = 1.0;
-    T b = 0.6666666;
+    T b = 2.0/3.0p;
     T c = 5.0;
     T d = 0.35;
     T zeta = z / L_ob;
@@ -58,13 +58,13 @@ template<typename T>
 __device__ T corr_h_stable(T z, T L_ob)
 {
     T a = 1.0;
-    T b = 0.6666666;
+    T b = 2.0/3.0;
     T c = 5.0;
     T d = 0.35;
     T zeta = z / L_ob;
 
     return -b*(zeta-c/d)*exp(-d*zeta)
-           -pow(1.0 + 0.6666666*a*zeta, 1.5)
+           -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
            -b*c/d + 1.0;
 }
 
