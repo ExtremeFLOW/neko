@@ -48,6 +48,7 @@ module spalding
   use math, only: masked_gather_copy_0
   use device_math, only: device_masked_gather_copy_0
   use scratch_registry, only : neko_scratch_registry
+  use logger, only : LOG_SIZE, neko_log
 
   implicit none
   private
@@ -112,10 +113,20 @@ contains
     class(spalding_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
+    character(len=LOG_SIZE) :: log_buf
 
     call this%partial_init_base(coef, json)
     call json_get_or_lookup(json, "kappa", this%kappa)
     call json_get_or_lookup(json, "B", this%B)
+
+    call neko_log%section('Wall model')
+    write(log_buf, '(A)') 'Model : Spalding'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'B : ', this%B
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
   end subroutine spalding_partial_init
 
