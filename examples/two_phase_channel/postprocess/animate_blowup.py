@@ -207,6 +207,7 @@ for fname in field_files:
                    'kappa_rms_ek': ek.get('kappa_rms', np.nan),
                    'Fst_max':      ek.get('Fst_max', np.nan),
                    'phi_max':      float(phi_arr.reshape(-1).max())})
+    del data, fld   # free full 3D field immediately; only slice arrays are kept
     print(f't={t:.3f}  κ_rms(Neko)={ek.get("kappa_rms", float("nan")):.1f}  '
           f'Fst_max={ek.get("Fst_max", float("nan")):.1f}')
 
