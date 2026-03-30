@@ -165,6 +165,11 @@ def load_level(cfg):
     x_lines = np.unique(np.round(msh.x[mask_xy, iz_mid, :, 0].reshape(-1), 5))
     y_lines = np.unique(np.round(msh.y[mask_xy, iz_mid, 0, :].reshape(-1), 5))
 
+    # Free the large mesh object — only slice data is kept above.
+    # L3 mesh alone is ~4–5 GB (x/y/z for 393k elements × 512 GLL);
+    # all three levels would exceed egidius RAM if kept simultaneously.
+    del msh, xyz_data
+
     # Snapshots
     frames = []
     for fname in field_files:
@@ -175,6 +180,7 @@ def load_level(cfg):
         phi_xy = fld.fields['scal'][0][mask_xy, iz_mid, :, :].reshape(-1)
         kr = kappa_rms_at(t)
         frames.append({'t': t, 'phi_xy': phi_xy, 'kappa_rms': kr})
+        del data, fld   # free full 3D field immediately after slice extraction
         print(f't={t:.3f}  κ_rms={kr:.1f}')
 
     return dict(cfg=cfg, triang=triang_xy, x_lines=x_lines, y_lines=y_lines,
