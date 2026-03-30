@@ -140,7 +140,7 @@ contains
     @assertEqual(0.0_rp, bc_resolver%face_class(5, 1), tolerance=1e-12)
     @assertEqual(0.0_rp, bc_resolver%face_class(6, 1), tolerance=1e-12)
 
-    ! All nodes are in the mask exceot for the one in the center of the cube.
+    ! All nodes are in the mask except for the one in the center of the cube.
     @assertEqual(26, bc_resolver%dof_mask%size())
 
     ! We expect face 1 to have normals [-1 0 0]. These will be
