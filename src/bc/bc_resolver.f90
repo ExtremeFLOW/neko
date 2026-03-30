@@ -95,7 +95,8 @@ module bc_resolver
   end type segregated_vector_bc_resolver_t
 
   type, public, extends(vector_bc_resolver_t) :: coupled_vector_bc_resolver_t
-     type(mask_t) :: dof_mask
+     type(mask_t) :: dirichlet_dof_mask
+     type(mask_t) :: mixed_dof_mask
      type(bc_list_t), private :: bcs
      type(coef_t), pointer, private :: coef => null()
      type(dofmap_t), pointer, private :: dof => null()
@@ -379,7 +380,8 @@ contains
   subroutine coupled_vector_bc_resolver_free(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
 
-    call this%dof_mask%free()
+    call this%dirichlet_dof_mask%free()
+    call this%mixed_dof_mask%free()
     call this%bcs%free()
 
     if (allocated(this%constraint_n)) then
@@ -533,20 +535,25 @@ contains
     type(tuple_i4_t), pointer :: marked_faces(:)
     type(tuple_i4_t) :: marked_face
     integer :: scratch_idx(4)
-    integer, allocatable :: mask_values(:)
-    integer :: i, j, k, dof_size, m, mask_size, masked_idx
+    integer, allocatable :: dirichlet_mask_values(:)
+    integer, allocatable :: mixed_mask_values(:)
+    integer :: i, j, k, dof_size, m
+    integer :: dirichlet_mask_size, mixed_mask_size
     integer :: idx(4), facet, el, edge, node, ii, p
     integer :: rst(3), rst1(3), rst2(3), step_rst(3)
     integer :: edge_len, edge_idx, node_idx
-    logical :: c_n, c_t1, c_t2
-    real(kind=rp) :: normal(3), ref(3), t1_vec(3), t2_vec(3), len, prio
+    real(kind=rp) :: normal(3), t1_vec(3), t2_vec(3), len, prio
     class(bc_t), pointer :: bc
 
-    call this%dof_mask%free()
+    call this%dirichlet_dof_mask%free()
+    call this%mixed_dof_mask%free()
 
     if (allocated(this%constraint_n)) deallocate(this%constraint_n)
     if (allocated(this%constraint_t1)) deallocate(this%constraint_t1)
     if (allocated(this%constraint_t2)) deallocate(this%constraint_t2)
+    if (allocated(this%n)) deallocate(this%n)
+    if (allocated(this%t1)) deallocate(this%t1)
+    if (allocated(this%t2)) deallocate(this%t2)
 
     if (.not. associated(this%dof)) return
     if (this%bcs%size() .eq. 0) return
@@ -570,6 +577,8 @@ contains
        ! Mask all the dofs touched by this BC. Since %msk is propagated to all
        ! local dofs via gather-scatter, work1 will contain all local nodes on
        ! the boundary, including those elements that don't touch it with a face.
+       ! Note that bc%msk stores its length in slot 0, so math kernels must
+       ! always see the proper 1-based slice bc%msk(1:bc%msk(0)).
        call cfill_mask(work1%x(:,1,1,1), 1.0_rp, dof_size, &
             bc%msk(1:bc%msk(0)), bc%msk(0))
     end do
@@ -632,38 +641,73 @@ contains
     ! Ensures most restrictive constraint is kept across element boundaries.
     call this%coef%gs_h%op(work2, GS_OP_MIN)
 
-    ! Compute the number of constrained dofs so we can allocate vectors.
-    mask_size = 0
+    ! Partition the resolved boundary dofs into the fully constrained subset
+    ! and the mixed subset. Only the latter needs a local basis.
+    dirichlet_mask_size = 0
+    mixed_mask_size = 0
     do i = 1, dof_size
-       if (work1%x(i,1,1,1) .gt. 0.5_rp) then
-          mask_size = mask_size + 1
+       if (work1%x(i,1,1,1) .lt. 0.5_rp) cycle
+
+       if (work2%x(i,1,1,1) .lt. 1.9_rp) then
+          dirichlet_mask_size = dirichlet_mask_size + 1
+       else if (work2%x(i,1,1,1) .gt. 1.9_rp .and. &
+            work2%x(i,1,1,1) .lt. 3.9_rp) then
+          mixed_mask_size = mixed_mask_size + 1
        end if
     end do
 
-    if (mask_size .eq. 0) then
+    if (dirichlet_mask_size .eq. 0 .and. mixed_mask_size .eq. 0) then
        call neko_scratch_registry%relinquish_field(scratch_idx)
        return
     end if
 
-    ! Fill in the full mask indices and copy to this%dof_mask.
-    allocate(mask_values(mask_size))
-    j = 0
+    if (dirichlet_mask_size .gt. 0) allocate(dirichlet_mask_values(dirichlet_mask_size))
+    if (mixed_mask_size .gt. 0) allocate(mixed_mask_values(mixed_mask_size))
+
+    ! We reuse the variables as counters in the loop below, which actually
+    ! fills the masks, now that we know the size.
+    dirichlet_mask_size = 0
+    mixed_mask_size = 0
     do i = 1, dof_size
-       if (work1%x(i,1,1,1) .gt. 0.5_rp) then
-          j = j + 1
-          mask_values(j) = i
+       if (work1%x(i,1,1,1) .lt. 0.5_rp) cycle
+
+       if (work2%x(i,1,1,1) .lt. 1.9_rp) then
+          dirichlet_mask_size = dirichlet_mask_size + 1
+          dirichlet_mask_values(dirichlet_mask_size) = i
+       else if (work2%x(i,1,1,1) .gt. 1.9_rp .and. &
+            work2%x(i,1,1,1) .lt. 3.9_rp) then
+          mixed_mask_size = mixed_mask_size + 1
+          mixed_mask_values(mixed_mask_size) = i
        end if
     end do
-    call this%dof_mask%init(mask_values(1:mask_size), mask_size)
 
-    ! Allocate constraints
-    allocate(this%constraint_n(mask_size))
-    allocate(this%constraint_t1(mask_size))
-    allocate(this%constraint_t2(mask_size))
+    if (dirichlet_mask_size .gt. 0) then
+       ! mask_t stores a normal 1-based index array without the bc_t-style
+       ! size prefix. Downstream math kernels should use this mask, not raw
+       ! bc%msk storage.
+       call this%dirichlet_dof_mask%init(dirichlet_mask_values, &
+            dirichlet_mask_size)
+    end if
+    if (mixed_mask_size .gt. 0) then
+       call this%mixed_dof_mask%init(mixed_mask_values, mixed_mask_size)
+    end if
 
-    ! Use the priority value to assign constraints.
-    do i = 1, mask_size
-       j = mask_values(i)
+    ! If there are somehow no mixed nodes, we can quit at this point, since the
+    ! basis is not needed.
+    if (mixed_mask_size .eq. 0) then
+       call neko_scratch_registry%relinquish_field(scratch_idx)
+       if (allocated(dirichlet_mask_values)) deallocate(dirichlet_mask_values)
+       if (allocated(mixed_mask_values)) deallocate(mixed_mask_values)
+       return
+    end if
+
+    ! Allocate mixed-node constraints and fill them from the reduced class.
+    allocate(this%constraint_n(mixed_mask_size))
+    allocate(this%constraint_t1(mixed_mask_size))
+    allocate(this%constraint_t2(mixed_mask_size))
+
+    do i = 1, mixed_mask_size
+       j = mixed_mask_values(i)
 
        if (work2%x(j,1,1,1) .lt. 1.9_rp) then
           this%constraint_n(i) = .true.
@@ -696,9 +740,9 @@ contains
     ! whether a given face should contribute its normal to the edge and corner
     ! dofs.
 
-    allocate(this%n(3, mask_size))
-    allocate(this%t1(3, mask_size))
-    allocate(this%t2(3, mask_size))
+    allocate(this%n(3, mixed_mask_size))
+    allocate(this%t1(3, mixed_mask_size))
+    allocate(this%t2(3, mixed_mask_size))
 
     ! Set normals at unambiguous boundary dofs based on face normals.
     associate(nx => work1, ny => work3, nz => work4)
@@ -886,8 +930,8 @@ contains
       call this%coef%gs_h%op(ny, GS_OP_ADD)
       call this%coef%gs_h%op(nz, GS_OP_ADD)
 
-      do i = 1, mask_size
-         j = mask_values(i)
+      do i = 1, mixed_mask_size
+         j = mixed_mask_values(i)
 
          ! Normalize the normal
          normal(1) = nx%x(j,1,1,1)
@@ -935,11 +979,11 @@ contains
       call field_rzero(work4)
 
       call masked_scatter_copy(work1%x(:,1,1,1), this%n(1,:), &
-           mask_values, dof_size, mask_size)
+           mixed_mask_values, dof_size, mixed_mask_size)
       call masked_scatter_copy(work3%x(:,1,1,1), this%n(2,:), &
-           mask_values, dof_size, mask_size)
+           mixed_mask_values, dof_size, mixed_mask_size)
       call masked_scatter_copy(work4%x(:,1,1,1), this%n(3,:), &
-           mask_values, dof_size, mask_size)
+           mixed_mask_values, dof_size, mixed_mask_size)
 
       call basis_fields%init(3)
       call basis_fields%assign(1, work1)
@@ -953,7 +997,8 @@ contains
 
     call neko_scratch_registry%relinquish_field(scratch_idx)
 
-    if (allocated(mask_values)) deallocate(mask_values)
+    if (allocated(dirichlet_mask_values)) deallocate(dirichlet_mask_values)
+    if (allocated(mixed_mask_values)) deallocate(mixed_mask_values)
   end subroutine coupled_vector_bc_resolver_finalize
 
   !> Apply the coupled vector boundary constraints in the local basis.
@@ -965,17 +1010,42 @@ contains
     real(kind=rp), intent(inout) :: z(n)
     type(c_ptr), intent(inout), optional :: strm
 
-    integer, pointer :: msk(:)
+    integer, pointer :: dirichlet_msk(:)
+    integer, pointer :: mixed_msk(:)
     integer :: i, j, m
     real(kind=rp) :: u(3), uloc(3)
+    type(c_ptr) :: x_d, y_d, z_d
 
-    if (.not. this%dof_mask%is_set()) return
+    ! Fully constrained nodes do not need the local basis. They are simply
+    ! zeroed in Cartesian space before the mixed-node pass.
+    if (this%dirichlet_dof_mask%is_set()) then
+       m = this%dirichlet_dof_mask%size()
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          x_d = device_get_ptr(x)
+          y_d = device_get_ptr(y)
+          z_d = device_get_ptr(z)
+          call device_cfill_mask(x_d, 0.0_rp, n, &
+               this%dirichlet_dof_mask%get_d(), m, strm = strm)
+          call device_cfill_mask(y_d, 0.0_rp, n, &
+               this%dirichlet_dof_mask%get_d(), m, strm = strm)
+          call device_cfill_mask(z_d, 0.0_rp, n, &
+               this%dirichlet_dof_mask%get_d(), m, strm = strm)
+       else
+          dirichlet_msk => this%dirichlet_dof_mask%get()
+          call cfill_mask(x, 0.0_rp, n, dirichlet_msk, m)
+          call cfill_mask(y, 0.0_rp, n, dirichlet_msk, m)
+          call cfill_mask(z, 0.0_rp, n, dirichlet_msk, m)
+       end if
+    end if
 
-    m = this%dof_mask%size()
-    msk => this%dof_mask%get()
+    ! Mixed nodes use the resolved local basis and component masks.
+    if (.not. this%mixed_dof_mask%is_set()) return
+
+    m = this%mixed_dof_mask%size()
+    mixed_msk => this%mixed_dof_mask%get()
 
     do i = 1, m
-       j = msk(i)
+       j = mixed_msk(i)
 
        u(1) = x(j)
        u(2) = y(j)
