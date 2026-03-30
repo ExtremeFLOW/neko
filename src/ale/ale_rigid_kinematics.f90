@@ -40,9 +40,8 @@ module ale_rigid_kinematics
   use math, only : pi, math_dstepf
   use time_state, only : time_state_t
   use ab_time_scheme, only : ab_time_scheme_t
-  use utils, only : neko_error
   use math, only : rzero
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log
 
   implicit none
   private
@@ -292,37 +291,20 @@ contains
     integer, intent(in) :: nadv
     type(ale_body_t), intent(in) :: body_conf
     real(kind=rp) :: omega_osc(3), trans_disp(3)
-    character(len=128) :: log_buf
-    integer :: i
 
     select case (trim(body_conf%rotation_center_type))
 
        ! This mode uses vel_trans to move the pivot by integrating the velocity
     case ('relative')
 
-       !       write(log_buf, '(A, 3ES23.15)') '  PIVOT_LOC_BEFORE : ', pivot%pos
-       !       call neko_log%message(log_buf)
-       !
-       !       do i = 1, 3
-       !          write(log_buf, '(A, I1, A, 3ES23.15)') '  PIVOT_VEL_LAG_BEFORE (', i, '): ', pivot%vel_lag(i, :)
-       !          call neko_log%message(log_buf)
-       !       end do
        if (time%tstep > 0) then
           call ab_integrate_point_pos(pivot%pos, pivot%vel_lag, &
                pivot_vel, time, nadv)
        end if
        pivot_loc = pivot%pos
 
-       !       write(log_buf, '(A, 3ES23.15)') '  PIVOT_LOC_AFTER  : ', pivot%pos
-       !       call neko_log%message(log_buf)
-
-       !       do i = 1, 3
-       !          write(log_buf, '(A, I1, A, 3ES23.15)') '  PIVOT_VEL_LAG_AFTER  (', i, '): ', pivot%vel_lag(i, :)
-       !          call neko_log%message(log_buf)
-       !       end do
-
-       ! Mostly for validation. It's too restrictive.
-       ! maybe I remove it totally in future.
+    ! Mostly for validation. It's too restrictive.
+    ! maybe I remove it totally in future.
     case ('relative_sin')
        omega_osc = body_conf%osc_freq * 2.0_rp * pi
        trans_disp(1) = body_conf%osc_amp(1) * sin(omega_osc(1) * time%t)

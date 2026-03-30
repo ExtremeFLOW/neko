@@ -56,11 +56,11 @@ module ale_manager
   use ale_rigid_kinematics, only : ale_config_t, pivot_state_t, &
        point_tracker_t, body_kinematics_t, &
        init_pivot_state, update_pivot_location, &
-       advance_point_tracker, compute_body_kinematics_built_in, &
-       ab_integrate_point_pos
+       compute_body_kinematics_built_in, ab_integrate_point_pos
   use ale_routines_cpu, only : compute_stiffness_ale_cpu, &
        add_kinematics_to_mesh_velocity_cpu, update_ale_mesh_cpu
-  use ale_routines_device
+  use ale_routines_device, only : compute_stiffness_ale_device, &
+       add_kinematics_to_mesh_velocity_device, update_ale_mesh_device
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
@@ -87,24 +87,13 @@ module ale_manager
   type, public :: ale_manager_t
      ! Default
      logical :: active = .false.
-
-     class(ax_t), allocatable :: Ax
-     class(ksp_t), allocatable :: ksp
-     class(pc_t), allocatable :: pc
-     type(ksp_monitor_t) :: monitor(1)
+     logical :: has_moving_boundary = .false.
 
      type(bc_list_t) :: bc_list
      type(zero_dirichlet_t) :: bc_moving
      type(zero_dirichlet_t) :: bc_fixed
 
      type(ale_config_t) :: config
-     logical :: has_moving_boundary = .false.
-     real(kind=rp) :: abstol = 1.0e-10_rp
-     integer :: ksp_max_iter = 10000
-     logical :: res_monitor = .false.
-     character(len=:), allocatable :: ksp_solver
-     character(len=:), allocatable :: precon_type
-     type(json_file) :: precon_params
 
      !> Mesh velocity fields (Registered in neko_registry)
      type(field_t), pointer :: wm_x => null()
@@ -115,6 +104,7 @@ module ale_manager
      type(field_series_t) :: wm_x_lag
      type(field_series_t) :: wm_y_lag
      type(field_series_t) :: wm_z_lag
+
      !> Reference initial grid to calculate the rotation accurately
      type(field_t) :: x_ref, y_ref, z_ref
 
@@ -186,21 +176,23 @@ contains
     integer, allocatable :: zone_indices(:)
     integer :: time_order
     integer :: n_moving_zones
-    integer :: z
-    integer :: tmp_int
+    integer :: z, tmp_int, ksp_max_iter
     integer, allocatable :: moving_zone_ids(:)
     integer :: i, j, n_bcs, n, n_bodies
     real(kind=rp), allocatable :: tmp_vec(:)
-    real(kind=rp) :: tmp_val
+    real(kind=rp) :: tmp_val, abstol
     character(len=128) :: log_buf
     character(len=256) :: log_buf_l
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: tmp_str
+    character(len=:), allocatable :: ksp_solver
+    character(len=:), allocatable :: precon_type
     logical :: tmp_logical
     logical :: moving_
     logical :: found_zone
     logical :: has_user_kin, has_user_mesh
     logical :: has_builtin_osc, has_builtin_rot, is_rot_active
+    logical :: res_monitor
 
     if (json%valid_path('case.fluid.ale')) then
        call json_get(json, 'case.fluid.ale.enabled', this%active)
@@ -251,32 +243,24 @@ contains
     this%wm_y => neko_registry%get_field('wm_y')
     this%wm_z => neko_registry%get_field('wm_z')
 
-    if (.not. allocated(this%ksp_solver)) this%ksp_solver = 'cg'
-    if (.not. allocated(this%precon_type)) this%precon_type = 'jacobi'
+    if (allocated(ksp_solver)) deallocate(ksp_solver)
+    if (allocated(precon_type)) deallocate(precon_type)
 
-    if (json%valid_path('case.fluid.ale.solver.type')) then
-       call json%get('case.fluid.ale.solver.type', this%ksp_solver)
-    end if
-    if (json%valid_path('case.fluid.ale.solver.preconditioner.type')) then
-       call json%get('case.fluid.ale.solver.preconditioner.type', &
-          this%precon_type)
-    end if
+    call json_get_or_default(json, 'case.fluid.ale.solver.type', ksp_solver, 'cg')
+
+    call json_get_or_default(json, 'case.fluid.ale.solver.preconditioner.type', &
+         precon_type, 'jacobi')
+
     if (json%valid_path('case.fluid.ale.solver.preconditioner')) then
        call json_get(json, 'case.fluid.ale.solver.preconditioner', &
-          this%precon_params)
+            precon_params)
     end if
-    if (json%valid_path('case.fluid.ale.solver.absolute_tolerance')) then
-       call json%get('case.fluid.ale.solver.absolute_tolerance', &
-          this%abstol)
-    end if
-    if (json%valid_path('case.fluid.ale.solver.monitor')) then
-       call json%get('case.fluid.ale.solver.monitor', &
-          this%res_monitor)
-    end if
-    if (json%valid_path('case.fluid.ale.solver.max_iterations')) then
-       call json%get('case.fluid.ale.solver.max_iterations', &
-          this%ksp_max_iter)
-    end if
+    call json_get_or_default(json, 'case.fluid.ale.solver.absolute_tolerance', &
+         abstol, 1.0e-10_rp)
+    call json_get_or_default(json, 'case.fluid.ale.solver.monitor', &
+         res_monitor, .false.)
+    call json_get_or_default(json, 'case.fluid.ale.solver.max_iterations', &
+         ksp_max_iter, 10000)
     if (json%valid_path('case.fluid.ale.solver.output_base_shape')) then
        call json%get('case.fluid.ale.solver.output_base_shape', tmp_logical)
        this%config%if_output_phi = tmp_logical
@@ -286,8 +270,6 @@ contains
        this%config%if_output_stiffness = tmp_logical
     end if
 
-
-    call ax_helm_factory(this%Ax, full_formulation = .false.)
 
     ! Mark BCs
     call this%bc_moving%init_from_components(coef)
@@ -345,8 +327,8 @@ contains
     end if
     if (.not. associated(this%user_ale_base_shapes)) then
        call neko_log%message('Solver Type       : (' // &
-          trim(this%ksp_solver) // ', ' // trim(this%precon_type) // ')')
-       write(log_buf, '(A,ES13.6)') 'Abs tol           :', this%abstol
+          trim(ksp_solver) // ', ' // trim(precon_type) // ')')
+       write(log_buf, '(A,ES13.6)') 'Abs tol           :', abstol
        call neko_log%message(log_buf)
        call neko_log%message('Mesh Stiffness    : ' // &
           trim(this%config%stiffness_type))
@@ -763,13 +745,9 @@ contains
        end if
     end do
 
-    call krylov_solver_factory(this%ksp, n, this%ksp_solver, &
-         this%ksp_max_iter, this%abstol, monitor = this%res_monitor)
-    call ale_precon_factory(this%pc, this%ksp, coef, coef%dof, &
-         coef%gs_h, this%bc_list, this%precon_type, this%precon_params)
-
     ! Find the smooth blending function for mesh displacement.
-    call this%solve_base_mesh_displacement(coef)
+    call this%solve_base_mesh_displacement(coef, abstol, ksp_solver, &
+         ksp_max_iter, precon_type, precon_params, res_monitor)
 
     ! If we are restarting, we skip this. It will be handled
     ! properly by chkp file.
@@ -777,7 +755,7 @@ contains
        t_init%t = 0.0_rp
        t_init%tstep = 0
        t_init%dt = 0.0_rp
-       call this%update_mesh_velocity(coef, t_init, time_order)
+       call this%update_mesh_velocity(coef, t_init)
     end if
 
     call this%wm_x_lag%init(this%wm_x, time_order)
@@ -792,6 +770,8 @@ contains
     if (allocated(moving_zone_ids)) deallocate(moving_zone_ids)
     if (allocated(bc_type)) deallocate(bc_type)
     if (allocated(zone_indices)) deallocate(zone_indices)
+    if (allocated(ksp_solver)) deallocate(ksp_solver)
+    if (allocated(precon_type)) deallocate(precon_type)
 
     ! Performing mesh_preview.
     call this%mesh_preview(coef, json)
@@ -803,12 +783,22 @@ contains
   !> It finds a smooth blending function for mesh deformation.
   !> For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.
   !> should be modified for device support (ToDo)
-  subroutine solve_base_mesh_displacement(this, coef)
+  subroutine solve_base_mesh_displacement(this, coef, abstol, ksp_solver, &
+       ksp_max_iter, precon_type, precon_params, res_monitor)
     class(ale_manager_t), intent(inout) :: this
+    class(ax_t), allocatable :: Ax
+    class(ksp_t), allocatable :: ksp
+    class(pc_t), allocatable :: pc
     type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(in) :: abstol
+    logical, intent(in) :: res_monitor
+    character(len=*), intent(in) :: ksp_solver, precon_type
+    integer, intent(in) :: ksp_max_iter
+    type(json_file), intent(inout) :: precon_params
     type(file_t) :: phi_file
     type(field_t) :: rhs_field
     type(field_t) :: corr_field
+    type(ksp_monitor_t) :: monitor(1)
     real(kind=rp) :: sample_start_time, sample_end_time
     real(kind=rp) :: sample_time
     character(len=LOG_SIZE) :: log_buf
@@ -820,8 +810,7 @@ contains
     type(zero_dirichlet_t) :: bc_inactive_body
     type(bc_list_t) :: bcloc
     type(bc_list_t) :: bcloc_zeros_only
-    real(kind=rp) :: delta
-    integer :: p
+
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
@@ -831,12 +820,19 @@ contains
     call neko_log%message("Starting base mesh motion solve ...")
     n = coef%dof%size()
 
+    call ax_helm_factory(Ax, full_formulation = .false.)
+    call krylov_solver_factory(ksp, n, ksp_solver, &
+         ksp_max_iter, abstol, monitor = res_monitor)
+    call ale_precon_factory(pc, ksp, coef, coef%dof, &
+         coef%gs_h, this%bc_list, precon_type, precon_params)
+
     ! Save original h1/h2
     h1_restore = coef%h1
     h2_restore = coef%h2
 
     call rhs_field%init(coef%dof)
     call corr_field%init(coef%dof)
+
 
     ! User Defined Base Shapes (Skip Solver).
     if (associated(this%user_ale_base_shapes)) then
@@ -950,7 +946,7 @@ contains
 
           ! Compute RHS: RHS = -A * Phi_lifted.
           ! The following is motivated by implementation in Nek5000.
-          call this%Ax%compute(rhs_field%x, this%base_shapes(body_idx)%x, &
+          call Ax%compute(rhs_field%x, this%base_shapes(body_idx)%x, &
                coef, coef%msh, coef%Xh)
           call field_cmult(rhs_field, -1.0_rp)
 
@@ -961,8 +957,8 @@ contains
 
           ! Solve
           call field_rzero(corr_field)
-          call this%pc%update()
-          this%monitor(1) = this%ksp%solve(this%Ax, corr_field, &
+          call pc%update()
+          monitor(1) = ksp%solve(Ax, corr_field, &
                rhs_field%x, n, coef, bcloc, coef%gs_h)
 
           ! phi = phi_lifted + phi_corr
@@ -1015,21 +1011,26 @@ contains
 
     if (allocated(h1_restore)) deallocate(h1_restore)
     if (allocated(h2_restore)) deallocate(h2_restore)
+    if (allocated(Ax)) deallocate(Ax)
+    if (allocated(ksp)) then
+       call ksp%free()
+       deallocate(ksp)
+    end if
+    if (allocated(pc)) then
+       call precon_destroy(pc)
+       deallocate(pc)
+    end if
 
   end subroutine solve_base_mesh_displacement
 
   !> Updates the mesh velocity field based on current time and kinematics
   !> Sums contributions from all bodies: mesh_vel = Sum( V_i * Phi_i )
-  subroutine update_mesh_velocity(this, coef, time_s, nadv)
+  subroutine update_mesh_velocity(this, coef, time_s)
     class(ale_manager_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(time_state_t), intent(in) :: time_s
-    integer, intent(in) :: nadv
-    integer :: i, idx, t
+    integer :: i
     type(body_kinematics_t) :: kin
-    real(kind=rp) :: pivot_vel(3)
-    real(kind=rp) :: p_vel(3), rel_pos(3), v_tan(3)
-    character(len=1000) :: log_buf
     real(kind=rp) :: rot_mat(3,3)
     real(kind=rp) :: rot_center(3)
 
@@ -1094,7 +1095,6 @@ contains
     type(time_state_t), intent(in) :: time
     integer, intent(in) :: nadv
     integer :: i
-    character(len=128) :: log_buf
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
@@ -1185,17 +1185,6 @@ contains
 
     if (.not. this%active) return
 
-    if (allocated(this%Ax)) deallocate(this%Ax)
-    if (allocated(this%ksp)) then
-       call this%ksp%free()
-       deallocate(this%ksp)
-    end if
-    if (allocated(this%pc)) then
-       call precon_destroy(this%pc)
-       deallocate(this%pc)
-    end if
-    if (allocated(this%ksp_solver)) deallocate(this%ksp_solver)
-    if (allocated(this%precon_type)) deallocate(this%precon_type)
     call this%bc_moving%free()
     call this%bc_fixed%free()
     call this%bc_list%free()
@@ -1213,10 +1202,12 @@ contains
 
     if (allocated(this%ale_pivot)) deallocate(this%ale_pivot)
     if (allocated(this%config%bodies)) deallocate(this%config%bodies)
+    if (allocated(this%body_kin)) deallocate(this%body_kin)
     if (associated(this%global_pivot_pos)) deallocate(this%global_pivot_pos)
     if (associated(this%global_pivot_vel_lag)) &
          deallocate(this%global_pivot_vel_lag)
     if (associated(this%global_basis_pos)) deallocate(this%global_basis_pos)
+    if (associated(this%global_basis_vel_lag)) deallocate(this%global_basis_vel_lag)
     if (allocated(this%ghost_handles)) deallocate(this%ghost_handles)
     if (allocated(this%body_rot_matrices)) deallocate(this%body_rot_matrices)
     if (allocated(this%trackers)) deallocate(this%trackers)
@@ -1256,9 +1247,7 @@ contains
     real(kind=dp), intent(in) :: time_restart
     type(body_kinematics_t) :: kin_restart
     integer :: i, idx, handle_1, handle_2, offset_base
-    real(kind=rp) :: pos_x(3), pos_y(3)
     type(time_state_t) :: time_state_dummy
-    real(kind=rp):: pivot_vel(3)
     time_state_dummy%t = time_restart
 
     !if (.not. allocated(this%global_pivot_pos)) return
@@ -1467,7 +1456,7 @@ contains
          t_state%t, " | Min Jac: ", min_jac
 
     call neko_log%message(trim(log_buf))
-    call this%update_mesh_velocity(coef, t_state, nadv)
+    call this%update_mesh_velocity(coef, t_state)
 
     do step = 1, n_steps
        t_state%tstep = step
@@ -1507,7 +1496,7 @@ contains
 
        end if
 
-       call this%update_mesh_velocity(coef, t_state, nadv)
+       call this%update_mesh_velocity(coef, t_state)
 
     end do
 
@@ -1526,8 +1515,6 @@ contains
     type(time_state_t), intent(in) :: t_state
     integer, intent(in) :: step
     integer, intent(inout) :: file_index
-
-    character(len=LOG_SIZE) :: log_buf
 
     file_index = file_index + 1
     dummy_field%x = coef%B
@@ -1553,6 +1540,7 @@ contains
     integer :: handle
     type(point_tracker_t), allocatable :: tmp(:)
 
+    handle = -100
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
 
@@ -1594,7 +1582,6 @@ contains
     integer :: h_x, h_y
     real(kind=rp) :: P(3), Gx(3), Gy(3)
     real(kind=rp) :: u(3), v(3), w(3), v_temp(3)
-    real(kind=rp) :: norm_u, norm_w
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
@@ -1623,7 +1610,6 @@ contains
     v(2) = w(3)*u(1) - w(1)*u(3)
     v(3) = w(1)*u(2) - w(2)*u(1)
 
-    ! Store in the rotation's matrix array
     this%body_rot_matrices(:, 1, body_idx) = u
     this%body_rot_matrices(:, 2, body_idx) = v
     this%body_rot_matrices(:, 3, body_idx) = w
@@ -1639,7 +1625,7 @@ contains
     type(time_state_t), intent(in) :: time
     integer, optional, intent(in) :: body_idxs(:)
 
-    integer :: b, i, idx
+    integer :: i, idx, n_log
     real(kind=rp) :: roll_deg, pitch_deg, yaw_deg
     real(kind=rp) :: R(3,3)
     character(len=256) :: log_buf
@@ -1647,12 +1633,19 @@ contains
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
+
+    if (present(body_idxs)) then
+       n_log = size(body_idxs)
+    else
+       n_log = this%config%nbodies
+    end if
+
     call neko_log%message(" ")
     call neko_log%message("---------Rotation log---------")
     call neko_log%message("variable, time step, time, body, x_val, y_val, z_val")
 
     ! If body_idxs is provided, only log those. Otherwise, log all.
-    do i = 1, merge(size(body_idxs), this%config%nbodies, present(body_idxs))
+    do i = 1, n_log
 
        if (present(body_idxs)) then
           idx = body_idxs(i)
@@ -1685,19 +1678,25 @@ contains
     class(ale_manager_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
     integer, optional, intent(in) :: body_idxs(:)
-
-    integer :: b, i, idx
+    integer :: i, idx, n_log
     real(kind=rp) :: pivot_pos(3), pivot_vel(3)
     character(len=256) :: log_buf
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
+
+    if (present(body_idxs)) then
+       n_log = size(body_idxs)
+    else
+       n_log = this%config%nbodies
+    end if
+
     call neko_log%message(" ")
     call neko_log%message("----------Pivot Log-----------")
     call neko_log%message("variable, time step, time, body, x_val, y_val, z_val")
 
     ! If body_idxs is provided, only log those. Otherwise, log all.
-    do i = 1, merge(size(body_idxs), this%config%nbodies, present(body_idxs))
+    do i = 1, n_log
 
        if (present(body_idxs)) then
           idx = body_idxs(i)
@@ -1727,13 +1726,12 @@ contains
 
   subroutine ghost_tracker_coord_step(this, kin_object, time_s, nadv, body_idx)
     class(ale_manager_t), intent(inout) :: this
-    type(body_kinematics_t), intent(inout) :: kin_object
+    type(body_kinematics_t), intent(in) :: kin_object
     type(time_state_t), intent(in) :: time_s
     integer, intent(in) :: nadv
     integer, intent(in) :: body_idx
     integer :: t
     real(kind=rp) :: p_vel(3), rel_pos(3), v_tan(3)
-    character(len=128) :: log_buf
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
@@ -1758,16 +1756,11 @@ contains
                 ! Total velocity
                 p_vel = kin_object%vel_trans + v_tan
 
-                ! write(log_buf, '(A, F12.5, A, 3ES23.15)') &
-                !      "time: ", time_s%t, " | tracer pos BEFORE: ", this%trackers(t)%pos
-                ! call neko_log%message(trim(log_buf))
                 if (time_s%tstep > 0) then
                    call ab_integrate_point_pos(this%trackers(t)%pos, this%trackers(t)%vel_lag, &
                         p_vel, time_s, nadv)
                 end if
-                ! write(log_buf, '(A, F12.5, A, 3ES23.15)') &
-                !      "time: ", time_s%t, " | tracer pos AFTER: ", this%trackers(t)%pos
-                ! call neko_log%message(trim(log_buf))
+
              end if
 
           end if

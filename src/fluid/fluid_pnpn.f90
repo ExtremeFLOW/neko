@@ -919,7 +919,7 @@ contains
       ! Update mesh velocities for ALE
       ! We update them here (end of step) for the next step.
       ! Returns if .not. ale.
-      call this%ale%update_mesh_velocity(c_Xh, time, ext_bdf%nadv)
+      call this%ale%update_mesh_velocity(c_Xh, time)
 
       call fluid_step_info(time, ksp_results, &
            this%full_stress_formulation, this%strict_convergence, &

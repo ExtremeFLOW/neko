@@ -35,7 +35,7 @@ module ale_routines_cpu
   use num_types, only : rp
   use field, only : field_t
   use coefs, only : coef_t
-  use math, only : add2s2, cfill, glimax, rzero
+  use math, only : cfill, glimax, rzero
   use field_series, only : field_series_t
   use time_state, only : time_state_t
   use ab_time_scheme, only : ab_time_scheme_t
@@ -65,7 +65,7 @@ contains
     integer :: n_cheap, map_idx
     real(kind=rp) :: x, y, z
     real(kind=rp) :: raw_dist, body_stiff_val, max_added_stiff
-    real(kind=rp) :: cx, cy, cz, dx, dy, dz
+    real(kind=rp) :: cx, cy, cz
     real(kind=rp) :: arg, decay, gain, norm_dist
     real(kind=rp) :: sample_start_time, sample_end_time, sample_time
     real(kind=rp), allocatable :: dist_fields(:,:)
