@@ -303,8 +303,8 @@ contains
        end if
        pivot_loc = pivot%pos
 
-    ! Mostly for validation. It's too restrictive.
-    ! maybe I remove it totally in future.
+       ! Mostly for validation. It's too restrictive.
+       ! maybe I remove it totally in future.
     case ('relative_sin')
        omega_osc = body_conf%osc_freq * 2.0_rp * pi
        trans_disp(1) = body_conf%osc_amp(1) * sin(omega_osc(1) * time%t)
