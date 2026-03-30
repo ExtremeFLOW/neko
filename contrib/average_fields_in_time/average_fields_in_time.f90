@@ -54,9 +54,7 @@ contains
        write(*,*) '  ./average_fields_in_time input.csv start_time output.csv'
        write(*,*)
        write(*,*) '  start_time is the time at which the first file starts to '
-       write(*,*) '  collect stats. This usually corresponds to the'
-       write(*,*) '  `start_time` in your case file, but it can be different '
-       write(*,*) '  if you want to adjust the averaging time. '
+       write(*,*) '  collect stats.
        write(*,*)
        write(*,*) 'Examples:'
        write(*,*) '==========================================================='
