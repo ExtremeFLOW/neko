@@ -201,6 +201,7 @@ contains
          nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
       if (strong_) then
+         !$omp parallel do private(k, facet, idx)
          do i = 1, m
             k = this%msk(i)
             facet = this%facet(i)
@@ -223,6 +224,7 @@ contains
                     this%delta, this%uinf(3))
             end select
          end do
+         !$omp end parallel do
       end if
     end associate
   end subroutine blasius_apply_vector
@@ -269,7 +271,7 @@ contains
          call device_alloc(blax_d, s)
          call device_alloc(blay_d, s)
          call device_alloc(blaz_d, s)
-
+         !$omp parallel do private(k, facet, idx)
          do i = 1, m
             k = this%msk(i)
             facet = this%facet(i)
@@ -292,6 +294,7 @@ contains
                     this%delta, this%uinf(3))
             end select
          end do
+         !$omp end parallel do
 
          call device_memcpy(bla_x, blax_d, m, HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(bla_y, blay_d, m, HOST_TO_DEVICE, sync = .false.)
