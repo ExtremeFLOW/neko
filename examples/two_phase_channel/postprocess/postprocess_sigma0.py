@@ -396,9 +396,23 @@ phi_arr = last['phi_arr']
 # Element size (approximate, isotropic)
 Dxz = LLZ / NZ_ELEMS
 
-# Zoom region: ~6 elements wide × ~4 elements tall, centred on top of drop
-x_zoom_c = X_C
-y_zoom_c = DROP_Y + R
+# Zoom region: ~6 elements wide × ~4 elements tall, centred on top of drop.
+# The drop is advected by mean flow (U_b≈1) and may have drifted from X_C.
+# Auto-detect drop centroid from last snapshot's φ field.
+x_gll_xy = msh.x[mask_xy, iz_mid, :, :].reshape(-1)
+y_gll_xy = msh.y[mask_xy, iz_mid, :, :].reshape(-1)
+_phi_sl   = last['phi_xy']
+_in_drop  = _phi_sl > 0.5
+if _in_drop.sum() > 10:
+    _w = _phi_sl[_in_drop] - 0.5
+    x_zoom_c = float(np.average(x_gll_xy[_in_drop], weights=_w))
+    y_zoom_c = float(np.average(y_gll_xy[_in_drop], weights=_w)) + R
+    print(f'  Drop centroid detected at x={x_zoom_c - R:.2f}, y={y_zoom_c - R:.2f}  '
+          f'(zoom top: y={y_zoom_c:.2f})')
+else:
+    x_zoom_c = X_C
+    y_zoom_c = DROP_Y + R
+    print(f'  Drop centroid not detected; using default (x={x_zoom_c:.2f}, y={y_zoom_c:.2f})')
 half_x = 3.0 * Dxz
 half_y = 2.0 * Dxz
 
