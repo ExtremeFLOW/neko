@@ -35,32 +35,30 @@ Validation: u_max (last 5 rows of ekin.csv) < 1.45 → TURBULENT.
 
 ---
 
-## L2 (144×24×48) — two-phase cases (pending submission 2026-03-29)
+## L2 (144×24×48) — two-phase cases
 
 ε=0.04, R=0.4, γ=0.05. Restart from `fluid00004.chkp` (t=20→25).
-256 ranks, 2 nodes. Build: `neko_two_phase` (job 19050141 running 2026-03-29).
+256 ranks, 2 nodes.
 
-| Case | Run name | Job | Status | Notes |
-|------|----------|-----|--------|-------|
-| σ=0 standard | `channel_p3_sigma0` | 19050210 | RUNNING | Standard `turb_channel_two_phase.f90` |
-| σ=0 _p2 | `channel_p3_sigma0_p2` | 19050211 | CANCELLED | Extra GS on n̂ is a no-op — see note below |
-| We=10 | `channel_p3_we10` | TBD | PENDING | |
-| We=1 | `channel_p3_we1` | TBD | PENDING | |
-
-_p2 build: job 19050141 (`build_neko_two_phase_p2.sh`), submitted 2026-03-29.
+| Case | Run name | Job | Status | κ_rms at t=25 | Notes |
+|------|----------|-----|--------|---------------|-------|
+| σ=0 | `channel_p3_sigma0` | 19050210 | COMPLETED t=20→25 (3h35) | ~55.9 | Convergence series point |
+| σ=0 _p2 | `channel_p3_sigma0_p2` | 19050211 | CANCELLED | — | Extra GS on n̂ is a no-op |
+| We=10 | `channel_p3_we10` | TBD | PENDING | — | |
+| We=1 | `channel_p3_we1` | TBD | PENDING | — | |
 
 ---
 
-## L3 (192×32×64) — two-phase cases (pending submission)
+## L3 (192×32×64) — two-phase cases
 
 ε=0.03, R=0.4, γ=0.05. Restart from `fluid00004.chkp` (t=20→25).
-512 ranks, 4 nodes. Requires `neko_two_phase` binary (same as L2).
+512 ranks, 4 nodes.
 
-| Case | Run name | Job | Status | Notes |
-|------|----------|-----|--------|-------|
-| σ=0 | `channel_l3_sigma0` | 19050366 | RUNNING | 4 nodes / 512 ranks |
-| We=10 | `channel_l3_we10` | TBD | PENDING | |
-| We=1 | `channel_l3_we1` | TBD | PENDING | |
+| Case | Run name | Job | Status | κ_rms at t=25 | Notes |
+|------|----------|-----|--------|---------------|-------|
+| σ=0 | `channel_l3_sigma0` | 19050366 | COMPLETED t=20→25 (5h51) | ~67 | Convergence series point |
+| We=10 | `channel_l3_we10` | TBD | PENDING | — | |
+| We=1 | `channel_l3_we1` | TBD | PENDING | — | |
 
 ---
 
@@ -106,9 +104,21 @@ or (c) a fundamentally different curvature scheme.
 (recomputable via SEM derivative operators), visualise face-node vs first-interior
 jump in n̂ and the raw div(n̂) field.
 
-| Mesh | ε | κ_rms (t=25) | κ_rms / (2/R) | Notes |
-|------|---|-------------|---------------|-------|
+| Mesh | ε | κ_rms plateau | κ_rms / (2/R) | Notes |
+|------|---|---------------|---------------|-------|
 | L1 (ε=0.09) | 0.09 | ~50 | ~10× | Large ε, informative |
-| L1 (ε=0.053) | 0.053 | ~56 | ~11× | Convergence series point |
-| L2 (ε=0.04) | 0.04 | TBD | TBD | Standard vs _p2 comparison |
-| L3 (ε=0.03) | 0.03 | TBD | TBD | |
+| L1 (ε=0.053) | 0.053 | ~56 | ~11.2× | Plateau reached t≈22 |
+| L2 (ε=0.04) | 0.04 | ~54–56 | ~10.8–11.2× | Plateau reached t≈23; slight late-time creep |
+| L3 (ε=0.03) | 0.03 | ~67–68 | ~13.4–13.6× | Plateau reached t≈24; late-time creep similar to L2 |
+
+**Key finding (2026-03-30):** κ_rms does NOT decrease with mesh refinement at constant ε/Δxz.
+L3 (finer) converges to a HIGHER plateau than L2. Both L2 and L3 show a slow upward creep
+after the plateau — consistent with turbulence gradually deforming the interface and increasing
+kink amplitude in dynamic equilibrium.
+
+Interpretation: the kink curvature scales as ~1/ε (curvature of the intra-element kink in n̂
+is proportional to 1/Δx ∝ 1/ε at constant ε/Δx). CDI convergence in the literature refers
+to the INTERFACE SHAPE (φ accuracy), not the COMPUTED curvature via div(n̂). The SEM
+derivative amplification D[N,N]≈14 means the kink in n̂ dominates κ_rms regardless of mesh
+refinement. A different curvature computation scheme (height-function, parabolic fit, or
+pre-smoothed n̂) would be needed to achieve κ_rms → 2/R with mesh refinement.
