@@ -137,9 +137,9 @@ contains
     if (associated(this%w)) nullify(this%w)
     if (associated(this%p)) nullify(this%p)
 
-    nullify(this%ulag)
-    nullify(this%vlag)
-    nullify(this%wlag)
+    if (associated(this%ulag)) nullify(this%ulag)
+    if (associated(this%vlag)) nullify(this%vlag)
+    if (associated(this%wlag)) nullify(this%wlag)
 
     if (associated(this%tlag)) nullify(this%tlag)
     if (associated(this%dtlag)) nullify(this%dtlag)
