@@ -305,11 +305,14 @@ LEVELS = 100
 N_snaps = len(snaps)
 n_rows = 4 if umag_vals else 3   # drop |u| row if velocity not available
 
-fig, axes = plt.subplots(n_rows, N_snaps, figsize=(5 * N_snaps, 3.5 * n_rows),
+# Width: 13 inches per snapshot column (matches blowup animation single-frame width).
+# Height: 2.5 inches per row (≈ same as blowup rows — keeps x:y aspect close to
+# the physical 4π:2 = 6.28:1 domain ratio so the channel looks wide, not squished).
+fig, axes = plt.subplots(n_rows, N_snaps, figsize=(13 * N_snaps, 2.5 * n_rows),
                           dpi=args.dpi)
 fig.patch.set_facecolor('white')
-fig.subplots_adjust(left=0.05, right=0.93, top=0.93, bottom=0.05,
-                    hspace=0.4, wspace=0.28)
+fig.subplots_adjust(left=0.04, right=0.97, top=0.93, bottom=0.06,
+                    hspace=0.55, wspace=0.22)
 if N_snaps == 1:
     axes = axes.reshape(n_rows, 1)
 
@@ -354,7 +357,7 @@ for col, s in enumerate(snaps):
 
     # Row 1: |u|  (physical context — no element lines, drop contour for orientation)
     if row_umag is not None and umag_xy is not None:
-        _add_panel(axes[row_umag, col], triang_xy, umag_xy, 'plasma',
+        _add_panel(axes[row_umag, col], triang_xy, umag_xy, 'viridis',
                    0.0, umag_max,
                    f'|u|   t = {s["t"]:.2f} TU', '|u|',
                    [0, round(umag_max/2, 1), umag_max],
