@@ -671,7 +671,7 @@ contains
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
-    integer :: n, i
+    integer :: n
     ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
 
