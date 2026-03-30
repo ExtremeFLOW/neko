@@ -155,13 +155,14 @@ module bc_resolver
   end interface
 
   abstract interface
-     subroutine vector_bc_resolver_apply_intrf(this, x, y, z, n)
-       import :: vector_bc_resolver_t, rp
+     subroutine vector_bc_resolver_apply_intrf(this, x, y, z, n, strm)
+       import :: vector_bc_resolver_t, rp, c_ptr
        class(vector_bc_resolver_t), intent(in) :: this
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: x(n)
        real(kind=rp), intent(inout) :: y(n)
        real(kind=rp), intent(inout) :: z(n)
+       type(c_ptr), intent(inout), optional :: strm
      end subroutine vector_bc_resolver_apply_intrf
   end interface
 
@@ -250,10 +251,11 @@ contains
   end subroutine scalar_bc_resolver_mark_bc_list
 
   !> Apply the scalar boundary constraints by zeroing constrained dofs.
-  subroutine scalar_bc_resolver_apply(this, x, n)
+  subroutine scalar_bc_resolver_apply(this, x, n, strm)
     class(scalar_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
+    type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: x_d
 
     if (.not. this%dof_mask%is_set()) return
@@ -261,7 +263,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        call device_cfill_mask(x_d, 0.0_rp, n, this%dof_mask%get_d(), &
-            this%dof_mask%size())
+            this%dof_mask%size(), strm = strm)
     else
        call cfill_mask(x, 0.0_rp, n, this%dof_mask%get(), this%dof_mask%size())
     end if
@@ -334,16 +336,17 @@ contains
   end subroutine segregated_vector_bc_resolver_mark_bc_list
 
   !> Apply the vector boundary constraints component-wise.
-  subroutine segregated_vector_bc_resolver_apply(this, x, y, z, n)
+  subroutine segregated_vector_bc_resolver_apply(this, x, y, z, n, strm)
     class(segregated_vector_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
     real(kind=rp), intent(inout) :: y(n)
     real(kind=rp), intent(inout) :: z(n)
+    type(c_ptr), intent(inout), optional :: strm
 
-    call this%x%apply(x, n)
-    call this%y%apply(y, n)
-    call this%z%apply(z, n)
+    call this%x%apply(x, n, strm = strm)
+    call this%y%apply(y, n, strm = strm)
+    call this%z%apply(z, n, strm = strm)
   end subroutine segregated_vector_bc_resolver_apply
 
 !
@@ -596,6 +599,9 @@ contains
        else if ((.not. bc%constraints(1)) .and. bc%constraints(2) &
             .and. bc%constraints(3)) then
           prio = 3.0_rp
+       else if ((.not. bc%constraints(1)) .and. (.not. bc%constraints(2)) &
+            .and. (.not. bc%constraints(3))) then
+          prio = 5.0_rp
        else
           call neko_error("Unsupported constraint combination in " // &
                "vector BC resolver.")
@@ -951,12 +957,14 @@ contains
   end subroutine coupled_vector_bc_resolver_finalize
 
   !> Apply the coupled vector boundary constraints in the local basis.
-  subroutine coupled_vector_bc_resolver_apply(this, x, y, z, n)
+  subroutine coupled_vector_bc_resolver_apply(this, x, y, z, n, strm)
     class(coupled_vector_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
     real(kind=rp), intent(inout) :: y(n)
     real(kind=rp), intent(inout) :: z(n)
+    type(c_ptr), intent(inout), optional :: strm
+
     integer, pointer :: msk(:)
     integer :: i, j, m
     real(kind=rp) :: u(3), uloc(3)

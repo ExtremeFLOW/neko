@@ -488,7 +488,7 @@ contains
          this%gs_h%bcknd%gs_stream = aux_cmd_queue
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
 
-         call this%bc_resolver%apply(e, n)
+         call this%bc_resolver%apply(e, n, strm = aux_cmd_queue)
          call device_col2(e_d, this%wt_d, n, aux_cmd_queue)
 
          ! switch back to the default stream on the shared gs
