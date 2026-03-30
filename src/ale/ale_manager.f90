@@ -299,7 +299,11 @@ contains
        do i = 1, n_bcs
           call json_extract_item(json, 'case.fluid.boundary_conditions', &
                i, bc_subdict)
+
+          if (allocated(bc_type)) deallocate(bc_type)
           call json_get(bc_subdict, 'type', bc_type)
+
+          if (allocated(zone_indices)) deallocate(zone_indices)
           call json_get(bc_subdict, 'zone_indices', zone_indices)
 
           moving_ = .false.
@@ -784,7 +788,10 @@ contains
        call field_rzero(this%wm_y_lag%lf(i))
        call field_rzero(this%wm_z_lag%lf(i))
     end do
+
     if (allocated(moving_zone_ids)) deallocate(moving_zone_ids)
+    if (allocated(bc_type)) deallocate(bc_type)
+    if (allocated(zone_indices)) deallocate(zone_indices)
 
     ! Performing mesh_preview.
     call this%mesh_preview(coef, json)
@@ -1005,6 +1012,9 @@ contains
     ! Restore h1/h2 to what they were before
     coef%h1 = h1_restore
     coef%h2 = h2_restore
+
+    if (allocated(h1_restore)) deallocate(h1_restore)
+    if (allocated(h2_restore)) deallocate(h2_restore)
 
   end subroutine solve_base_mesh_displacement
 
