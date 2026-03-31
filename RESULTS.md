@@ -228,11 +228,11 @@ diagnostic alone cannot separate low γ from bad n̂ as the cause.
 
 **Question 1 — Is γ too low?**
 
-Γ* = γ/u_max ≈ 0.036 is quite low. A γ sensitivity test (single L2 run with γ=0.2
-or 0.5, same case file) would directly answer this: if the profile stays sharp, γ is
-the bottleneck; if it still broadens, n̂ is the root cause. This is the cheapest
-possible test (no code changes, ~3h on Dardel). **This should be done before
-investing in more complex normal smoothing strategies.**
+Γ* = γ/u_max ≈ 0.036 is quite low. Case file and job script for γ=0.2 (Γ*≈0.14) are
+ready: `cases/144x24x48/turb_channel_two_phase_p3_sigma0_gamma02.case` and
+`cluster/job_channel_p3_sigma0_gamma02.sh`. If the φ profile stays at ~4.4ε, γ was the
+bottleneck. If it still broadens to 6ε+, n̂ is the root cause. **Submit before investing
+in normal smoothing strategies.** See CLAUDE.md § L2 for the submit command.
 
 **Question 2 — Can we get a clean normal-quality diagnostic for a non-spherical drop?**
 

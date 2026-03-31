@@ -116,6 +116,7 @@ Account: `naiss2025-3-39`, partition: `main`, 128 cores/node.
 - `job_channel_l3_sigma0.sh` — L3 σ=0 CDI diagnostic, ε=0.03 (full 5 TU)
 - `job_channel_l3_we10.sh` — L3 We=10 two-phase
 - `job_channel_l3_we1.sh` — L3 We=1 two-phase
+- `job_channel_p3_sigma0_gamma02.sh` — L2 σ=0 γ sensitivity test (γ=0.2, Γ*≈0.14)
 
 ## Running the two-phase channel example
 
@@ -271,25 +272,22 @@ Results synced to `/lscratch/sieburgh/simulations/channel_p3_single_phase/`.
 
 **Next L2 two-phase run — γ sensitivity test (RECOMMENDED FIRST):**
 
-Before submitting We cases, run a σ=0 case with higher γ to rule out low γ as root
-cause of CDI failure. See RESULTS.md § "Open questions" for motivation.
+Case file and job script already exist. See RESULTS.md § "Open questions" for motivation.
+γ=0.2 → Γ*=γ/u_max≈0.14 (vs 0.036 for γ=0.05). Rules out low γ as CDI root cause.
 
 ```bash
-# 1. Copy case file and change gamma parameter
-cp examples/two_phase_channel/cases/144x24x48/turb_channel_two_phase_p3_sigma0.case \
-   examples/two_phase_channel/cases/144x24x48/turb_channel_two_phase_p3_sigma0_gamma02.case
-# Edit: set "compression_strength": 0.2  (was 0.05; Γ*=0.14 vs 0.036)
-
-# 2. Create job script (copy p3_sigma0.sh, change RUN_NAME and CASE_FILE)
-cp cluster/job_channel_p3_sigma0.sh cluster/job_channel_p3_sigma0_gamma02.sh
-# Edit: RUN_NAME="channel_p3_sigma0_gamma02"
-#       CASE_FILE="turb_channel_two_phase_p3_sigma0_gamma02.case"
-
-# 3. Submit
 bash cluster/sync_to_dardel.sh
 ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p3_sigma0_gamma02.sh \
               $KTHMECH_PROJECT/scripts/ && \
             sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0_gamma02.sh"
+```
+
+Postprocess with:
+```bash
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_p3_sigma0_gamma02 --R 0.4 --eps 0.04 --mesh l2
+python3 postprocess/postprocess_normals.py \
+    --run channel_p3_sigma0_gamma02 --R 0.4 --eps 0.04 --mesh l2
 ```
 
 **Submit L2 We cases (BLOCKED — await CDI normal fix):**
