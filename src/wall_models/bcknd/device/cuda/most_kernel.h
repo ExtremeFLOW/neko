@@ -321,9 +321,7 @@ __global__ void most_compute(
         // Zilitinkevich 1995 correlation for thermal roughness
         T z0h;
         if (z0h_in < 0.0) {
-            const T nu = 1.46e-5; // Kinematic viscosity of air [m^2/s]
-            const T Re_z0 = (utau * z0) / nu;
-            z0h = z0 * exp(-0.1 * sqrt(Re_z0));
+            z0h = z0 * exp(z0h_in * sqrt((utau*z0)/(mu/rho)));
         } else {
             z0h = z0h_in;
         }
