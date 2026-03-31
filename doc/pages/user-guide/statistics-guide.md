@@ -207,7 +207,8 @@ using the `fluid_stats` simulation component (see
 ## Using statistics
 Similar to fluid statistics, scalar statistics are enabled in the case file
 as a simcomp with an additional argument `field` for the name of the scalar
-field to be averaged:
+field to be averaged, which will be appended to the default prefix of the
+`scalar_stats` field registry entries as `scalar_stats_{field}/*`:
 
 | Name              | Description                                                                                                           | Admissible values    | Default value                            |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------- | ---------------------------------------- |
@@ -222,9 +223,10 @@ field to be averaged:
 
 \*The name of the written statistics file will by default be
 `scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y` where X is the number of
-the first outputted statistic of the current run. Note that if you want to
-compute statistics for multiple scalars, you will need to specify an
-independent `output_filename` for each.
+the first outputted statistic of the current run. If `field` is specified,
+it will be appended to the default filename as `scalar_stats_{field}X0.f0000X`.
+Otherwise, you can specify an independent `output_filename` for each scalar you
+compute statistics for.
 
 In addition, one can specify the usual controls for the output, in the same
 manner as for fluid statistics. For example, if one wants to compute only the
