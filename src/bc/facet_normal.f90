@@ -237,7 +237,7 @@ contains
     ! one will only get the contribution from one face, not both
     ! We solve this by adding up the normals of both faces for these points
     ! and storing this sum in this%nx, this%ny, this%nz.
-    ! As both contrbutions are added already,
+    ! As both contributions are added already,
     ! we also ensure that we only visit each point once
     ! and create a new mask with only unique points (this%unique_mask).
     if (allocated(this%unique_mask)) then
