@@ -133,7 +133,7 @@ contains
 
     bc_value => neko_const_registry%get_real_scalar("bc_value")
 
-    this%bc_value = bc_type
+    this%bc_value = bc_value
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
          kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)

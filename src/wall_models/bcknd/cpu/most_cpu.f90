@@ -119,7 +119,7 @@ contains
   !> Computes the Richardson number.
   subroutine compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Ri_b)
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(in) :: g_dot_n, hi, ti, ts 
+    real(kind=rp), intent(in) :: hi, ti, ts 
     real(kind=rp), intent(in) :: magu, kappa, g_dot_n
     real(kind=rp), intent(inout) :: q, Ri_b
 
@@ -166,12 +166,11 @@ contains
     real(kind=rp), dimension(3), intent(in) :: g_vec
     character(len=*), intent(in) :: bc_type
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
-    integer :: ts_idx(3)
     integer :: i, count
     integer, parameter :: max_count = 50
     real(kind=rp) :: ui, vi, wi, ts, hi
     real(kind=rp) :: normu, z0h
-    real(kind=rp) :: g_dot_n, cos_alpha
+    real(kind=rp) :: g_dot_n
     real(kind=rp) :: L_upper, L_lower, L_old
     real(kind=rp) :: f, dfdl, fd_h, L_new, L_sign
     real(kind=rp), parameter :: tol = 0.001_rp
