@@ -113,7 +113,7 @@ contains
 
     if (strong_) then
        m = this%msk(0)
-       do i = 1, m
+       do concurrent (i = 1:m)
           k = this%msk(i)
           x(k) = this%g
        end do
@@ -141,7 +141,7 @@ contains
 
     if (strong_) then
        m = this%msk(0)
-       do i = 1, m
+       do concurrent (i = 1:m)
           k = this%msk(i)
           x(k) = this%g
           y(k) = this%g

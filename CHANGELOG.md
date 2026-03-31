@@ -3,6 +3,8 @@
 ## Develop
 
 - Added ALE framework.
+- If the "field" is provided for `scalar_stats` in the case file, append this
+  name to the `scalar_stats` registry prefix and the default output filename.
 - Added a script to add new unit tests under `contrib/add_unit_test`. Added
   templates for serial and parallel unit tests.
 - Added optional log output from the flow_rate_force, controlled by the `log`
