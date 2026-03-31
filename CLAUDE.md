@@ -269,13 +269,32 @@ Note: `build_neko_two_phase_p2.sh` also exists but the _p2 variant is a no-op (s
 u_max (last 5) = 1.37 ± 0.01 — TURBULENT. `fluid00004.chkp` in `$SCRATCH_DIR/channel_p3_single_phase/`.
 Results synced to `/lscratch/sieburgh/simulations/channel_p3_single_phase/`.
 
-**Submit L2 two-phase (sigma0 + we10 + we1):**
+**Next L2 two-phase run — γ sensitivity test (RECOMMENDED FIRST):**
+
+Before submitting We cases, run a σ=0 case with higher γ to rule out low γ as root
+cause of CDI failure. See RESULTS.md § "Open questions" for motivation.
+
 ```bash
+# 1. Copy case file and change gamma parameter
+cp examples/two_phase_channel/cases/144x24x48/turb_channel_two_phase_p3_sigma0.case \
+   examples/two_phase_channel/cases/144x24x48/turb_channel_two_phase_p3_sigma0_gamma02.case
+# Edit: set "compression_strength": 0.2  (was 0.05; Γ*=0.14 vs 0.036)
+
+# 2. Create job script (copy p3_sigma0.sh, change RUN_NAME and CASE_FILE)
+cp cluster/job_channel_p3_sigma0.sh cluster/job_channel_p3_sigma0_gamma02.sh
+# Edit: RUN_NAME="channel_p3_sigma0_gamma02"
+#       CASE_FILE="turb_channel_two_phase_p3_sigma0_gamma02.case"
+
+# 3. Submit
 bash cluster/sync_to_dardel.sh
-ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p3_*.sh \
-              $KTHMECH_PROJECT/scripts/"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0.sh"
-# We cases: submit only after CDI kink artifact is resolved
+ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p3_sigma0_gamma02.sh \
+              $KTHMECH_PROJECT/scripts/ && \
+            sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0_gamma02.sh"
+```
+
+**Submit L2 We cases (BLOCKED — await CDI normal fix):**
+```bash
+# Only after γ sensitivity test + CDI fix are resolved:
 # ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we10.sh"
 # ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we1.sh"
 ```

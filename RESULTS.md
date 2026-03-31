@@ -6,6 +6,22 @@ All runs on Dardel (NAISS account `naiss2025-3-39`), results synced to egidius a
 
 See CLAUDE.md for the naming convention mapping (L1/L2/L3 ↔ p2/p3/l3 run prefixes).
 
+## Current status (as of 2026-03-31)
+
+| Category | Status |
+|----------|--------|
+| L1/L2/L3 single-phase spin-ups | ✓ COMPLETED — turbulence validated |
+| L1/L2/L3 σ=0 CDI diagnostic | ✓ COMPLETED and postprocessed |
+| L4 single-phase spin-up | NOT STARTED (planned) |
+| L4 σ=0 | NOT STARTED (planned, after L4 spin-up) |
+| L1/L2/L3 We=10, We=1 | **BLOCKED — awaiting CDI normal fix** |
+
+**Immediate next steps (in order):**
+1. **γ sensitivity test**: run L2 σ=0 with γ=0.2 (Γ*=0.14) — rules out low γ as root cause.
+   Single case file change, ~3h on Dardel, no code modifications needed.
+2. **2D Couette CDI subproject**: clean 2D testbed for diagnosing and fixing normal computation.
+3. Return to L1/L2/L3 We cases once CDI normals are resolved.
+
 ---
 
 ## Single-phase spin-ups
@@ -141,6 +157,26 @@ curvature scheme (height-function, parabolic fit, or pre-smoothed n̂).
 - Helmholtz-type smoother on n̂ — filters the intra-element kink
 - Fundamentally different curvature scheme — height-function or parabolic fit
 
+### Mesh isotropy analysis
+
+The turbulent channel mesh has a systematic 4.51% anisotropy in the wall-normal
+direction: Δy/Δxz ≈ 0.9549 across all mesh levels (consequence of the domain
+aspect ratio 2/(4π/3 / (NZ/3)) — see table below).
+
+| Level | Δx=Δz | Δy | Δy/Δxz |
+|-------|-------|----|--------|
+| L1 | 0.1164 | 0.1111 | 0.9549 |
+| L2 | 0.0873 | 0.0833 | 0.9549 |
+| L3 | 0.0654 | 0.0625 | 0.9549 |
+
+For a 45° interface (worst case), this anisotropy rotates the computed normal by
+**~1.3°** from the true direction. This is ~7% of the early-time kink artifact
+(δ_mean≈16–18° for the spherical drop). The anisotropy is a real but minor
+contributor — not the dominant source of normal error.
+
+**Implication for new subprojects:** the 2D Couette CDI study should use a perfectly
+isotropic mesh (Δx = Δy) to eliminate this confounding factor entirely.
+
 ### Normal field diagnostics (generated 2026-03-31)
 
 Quantitative diagnostics run via `postprocess_normals.py` on L2 and L3 σ=0 runs.
@@ -148,43 +184,73 @@ Quantitative diagnostics run via `postprocess_normals.py` on L2 and L3 σ=0 runs
 **Diagnostic 1 — Angular deviation δ = arccos(n̂_computed · n̂_ideal)**
 
 n̂_computed = ∇φ/|∇φ| from element-local gradient. n̂_ideal = inward radial from
-drop centroid. For a spherical drop n̂_ideal is exact; δ measures the geometric
-error in n̂ at each interface GLL point.
+drop centroid. **This reference is only geometrically correct for a spherical drop.**
+Once the drop deforms, the radial direction from the centroid is no longer the true
+interface normal, so δ at later times conflates two effects: (a) genuine SEM kink
+error and (b) drop non-sphericity. Only the t=20.5 result (near-spherical drop) is
+an unambiguous measure of the SEM normal error.
 
-| Run | t=20.5 TU | t=23.0 TU | t=25.0 TU |
-|-----|-----------|-----------|-----------|
-| L2 ε=0.04 | mean=18.4°, p90=41.0° | mean=39.7°, p90=84.7° | mean=62.1°, p90=114.6° |
-| L3 ε=0.03 | mean=15.5°, p90=33.3° | mean=38.0°, p90=75.5° | mean=57.6°, p90=104.2° |
+| Run | t=20.5 TU (spherical — valid) | t=23.0 TU (deforming — mixed) | t=25.0 TU (deformed — confounded) |
+|-----|-------------------------------|-------------------------------|-----------------------------------|
+| L2 ε=0.04 | mean=18.4°, p90=41° | mean=39.7°, p90=85° | mean=62.1°, p90=115° |
+| L3 ε=0.03 | mean=15.5°, p90=33° | mean=38.0°, p90=76° | mean=57.6°, p90=104° |
 
-**Key finding:** Mean deviation grows from ~15–18° at t=20.5 (near-spherical drop,
-good initial n̂) to ~58–62° at t=25 (severely wrong). This is not a small kink —
-normals are rotated ~60° from ideal on average. The CDI sharpening term
-∇·(γ φ(1-φ) n̂) with n̂ at 60° from the interface normal has a cosine factor of 0.5,
-halving the effective compression. With p90 >100°, most interface points have
-n̂ pointing away from the interface entirely.
+**What t=20.5 tells us:** For the nearly spherical drop immediately after restart,
+the SEM already produces a mean normal error of ~16–18° (p90≈33–41°). This is the
+baseline kink artifact before any interface deformation. A perfectly working CDI would
+give ~0°. The 16–18° is **not** caused by the drop being non-spherical — it is the
+genuine SEM endpoint derivative kink.
+
+**What the late-time data tells us:** The late-time growth of δ cannot be cleanly
+attributed to worsening normals alone (the drop shape changes significantly). However,
+the φ profile width (Diagnostic 2) does not have this ambiguity.
 
 **Diagnostic 2 — φ interface profile width (10-90% width, vertical cut through drop top)**
 
-Expected ideal width = 4ε·arctanh(0.8) ≈ 4.4ε.
+Expected ideal width = 4ε·arctanh(0.8) ≈ 4.4ε. This diagnostic is robust to drop
+shape — it only checks whether the interface stays sharp, regardless of geometry.
 
 | Run | ε | t=20.5 TU | t=23.0 TU | t=25.0 TU |
 |-----|---|-----------|-----------|-----------|
 | L2 ε=0.04 | 0.04 | 4.17ε | 4.17ε | **6.04ε** |
 | L3 ε=0.03 | 0.03 | 3.77ε | 3.33ε | **10.24ε** |
 
-**Key finding:** The L3 profile broadens catastrophically to 10.24ε by t=25, while
-L2 reaches 6.04ε. Both are consistent with failing CDI sharpening. The combination
-of large δ (bad n̂) and profile broadening confirms the root cause is n̂ quality,
-not low γ alone (since γ is the same for both mesh levels but L3 is worse).
+**Key finding:** Interface broadens significantly by t=25 on both meshes — more
+severely on L3. This is consistent with CDI sharpening failing. However, this
+diagnostic alone cannot separate low γ from bad n̂ as the cause.
 
-### Next step (planned)
+**What the two diagnostics together confirm:**
+- The SEM kink artifact produces ~16° mean normal error even for a spherical drop (D1, t=20.5).
+- The φ profile broadens significantly by the end of the run (D2).
+- The diagnostic is insufficient to definitively rule out γ being a contributing cause.
 
-The normal field n̂ is used in both CDI (compression term) and CSF (surface tension
-force). The diagnostics above confirm that n̂ quality is the root cause of the κ_rms
-artifact and interface broadening. The next plan is to investigate smoothing strategies
-for n̂ directly — either pre-smoothing ∇φ with multiple GS passes, or applying a
-Helmholtz-type filter to n̂ after normalisation — still at σ=0 (We=0) to avoid blow-up
-from spurious currents while isolating the normal-field behaviour.
+### Open questions and recommended next steps
+
+**Question 1 — Is γ too low?**
+
+Γ* = γ/u_max ≈ 0.036 is quite low. A γ sensitivity test (single L2 run with γ=0.2
+or 0.5, same case file) would directly answer this: if the profile stays sharp, γ is
+the bottleneck; if it still broadens, n̂ is the root cause. This is the cheapest
+possible test (no code changes, ~3h on Dardel). **This should be done before
+investing in more complex normal smoothing strategies.**
+
+**Question 2 — Can we get a clean normal-quality diagnostic for a non-spherical drop?**
+
+The angular deviation diagnostic breaks down once the drop deforms. A 2D Couette flow
+case (drop in linear shear, steady deformation, no turbulence) would provide a
+controlled geometry where the true interface shape is known analytically at steady
+state. This is the motivation for the planned CDI normals 2D subproject.
+
+**Question 3 — Can the SEM kink be fixed?**
+
+Possible strategies: repeated GS on ∇φ, Helmholtz smoother on n̂, height-function
+curvature. The 2D Couette subproject is the right testbed for these fixes before
+applying them to the turbulent channel.
+
+**Recommended order:**
+1. γ sensitivity test on L2 (cheap, answers open question 1).
+2. 2D Couette CDI normals subproject (clean diagnostic, fix candidates).
+3. Return to turbulent channel We>0 cases once CDI normals are resolved.
 
 ### Postprocessing figures (generated 2026-03-31)
 
