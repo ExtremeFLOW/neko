@@ -34,20 +34,6 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-__device__ inline void coef_nonlinear_index(const int idx, const int lx,
-                                            int *index) {
-  const int idx2 = idx - 1;
-  index[3] = idx2 / (lx * lx * lx) + 1;
-  index[2] = (idx2 - (lx * lx * lx) * (index[3] - 1)) / (lx * lx) + 1;
-  index[1] = (idx2 - (lx * lx * lx) * (index[3] - 1)
-              - (lx * lx) * (index[2] - 1)) / lx + 1;
-  index[0] = idx2 - (lx * lx * lx) * (index[3] - 1)
-           - (lx * lx) * (index[2] - 1) - lx * (index[1] - 1) + 1;
-}
-
-#define coef_normal_area_idx(i, j, k, l, lx, nf) \
-  (((i) + (lx) * (((j) - 1) + (lx) * (((k) - 1) + (nf) * (((l) - 1))))) - 1)
-
 /**
  * Device kernel for coef geometry
  */
@@ -296,6 +282,5 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
   }
 
 }
-
 
 #endif // __SEM_COEF_KERNEL_H__

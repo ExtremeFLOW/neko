@@ -210,5 +210,4 @@ contains
 #endif
   end subroutine device_coef_generate_dxydrst
 
-
 end module device_coef

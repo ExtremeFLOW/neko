@@ -224,4 +224,3 @@ void opencl_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
                                   &local_item_size, 0, NULL, NULL));
   CL_CHECK(clReleaseKernel(kernel));
 }
-

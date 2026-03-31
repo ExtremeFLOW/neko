@@ -47,10 +47,10 @@ module coefs
        device_coef_generate_dxydrst
   use mxm_wrapper, only : mxm
   use device
-  use vector, only : vector_t
-  use utils, only : index_is_on_facet, linear_index, nonlinear_index, &
+  use utils, only : index_is_on_facet, linear_index, &
        neko_error
   use comm, only : NEKO_COMM
+  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_c_binding
   implicit none
@@ -776,7 +776,6 @@ contains
               DEVICE_TO_HOST, sync=.true.)
 
       else
-         !$omp parallel do private(i)
          do e = 1, c%msh%nelv
             call mxm(dx, lx, x(1,1,1,e), lx, dxdr(1,1,1,e), lyz)
             call mxm(dx, lx, y(1,1,1,e), lx, dydr(1,1,1,e), lyz)
@@ -799,7 +798,6 @@ contains
                call rone(dzdt(1,1,1,e), lxy)
             end if
          end do
-         !$omp end parallel do
 
          if (c%msh%gdim .eq. 2) then
             call rzero (jac, ntot)
@@ -815,13 +813,11 @@ contains
             call rzero (dsdz, ntot)
             call rone (dtdz, ntot)
          else
-            !$omp parallel private(i)
-            !$omp do
+
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = 0.0_rp
             end do
-            !$omp end do
-            !$omp do
+
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdr(i, 1, 1, 1) &
                     * c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
@@ -832,8 +828,7 @@ contains
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxds(i, 1, 1, 1) &
                     * c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
-            !$omp end do
-            !$omp do
+
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdr(i, 1, 1, 1) &
                     * c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
@@ -844,8 +839,7 @@ contains
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdt(i, 1, 1, 1) &
                     * c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
-            !$omp end do
-            !$omp do
+
             do i = 1, ntot
                c%drdx(i, 1, 1, 1) = c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
                     - c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
@@ -856,8 +850,7 @@ contains
                c%drdz(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dydt(i, 1, 1, 1) &
                     - c%dxdt(i, 1, 1, 1) * c%dyds(i, 1, 1, 1)
             end do
-            !$omp end do
-            !$omp do
+
             do i = 1, ntot
                c%dsdx(i, 1, 1, 1) = c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
                     - c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
@@ -868,8 +861,7 @@ contains
                c%dsdz(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dydr(i, 1, 1, 1) &
                     - c%dxdr(i, 1, 1, 1) * c%dydt(i, 1, 1, 1)
             end do
-            !$omp end do
-            !$omp do
+
             do i = 1, ntot
                c%dtdx(i, 1, 1, 1) = c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
                     - c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
@@ -880,8 +872,7 @@ contains
                c%dtdz(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dyds(i, 1, 1, 1) &
                     - c%dxds(i, 1, 1, 1) * c%dydr(i, 1, 1, 1)
             end do
-            !$omp end do
-            !$omp end parallel
+
          end if
          call invers2(jacinv, jac, ntot)
       end if
@@ -947,8 +938,7 @@ contains
           end do
 
        else
-          !$omp parallel private(i)
-          !$omp do
+
           do i = 1, ntot
              c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
                   + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1) &
@@ -962,15 +952,13 @@ contains
                   + c%dtdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
                   + c%dtdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
           end do
-          !$omp end do
-          !$omp do
+
           do i = 1, ntot
              c%G11(i, 1, 1, 1) = c%G11(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G22(i, 1, 1, 1) = c%G22(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G33(i, 1, 1, 1) = c%G33(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
           end do
-          !$omp end do
-          !$omp do
+
           do i = 1, ntot
              c%G12(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
                   + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
@@ -984,16 +972,14 @@ contains
                   + c%dsdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
                   + c%dsdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
           end do
-          !$omp end do
-          !$omp do
+
           do i = 1, ntot
              c%G12(i, 1, 1, 1) = c%G12(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G13(i, 1, 1, 1) = c%G13(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G23(i, 1, 1, 1) = c%G23(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
           end do
-          !$omp end do
-          !$omp do
-          do e = 1, c%msh%nelv
+
+          do concurrent (e = 1:c%msh%nelv)
              do concurrent (i = 1:lxyz)
                 c%G11(i,1,1,e) = c%G11(i,1,1,e) * c%Xh%w3(i,1,1)
                 c%G22(i,1,1,e) = c%G22(i,1,1,e) * c%Xh%w3(i,1,1)
@@ -1004,8 +990,7 @@ contains
                 c%G23(i,1,1,e) = c%G23(i,1,1,e) * c%Xh%w3(i,1,1)
              end do
           end do
-          !$omp end do
-          !$omp end parallel
+
        end if
     end if
 
@@ -1087,7 +1072,6 @@ contains
        area = this%area(i, j, facet, e)
     end select
   end function coef_get_area
-
 
 
   !> Generate facet area and surface normals
