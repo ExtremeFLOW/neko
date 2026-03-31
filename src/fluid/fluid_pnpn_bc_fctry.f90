@@ -44,10 +44,11 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use overset_interface_vector, only : overset_interface_vector_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(14) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
@@ -61,7 +62,8 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
        "user_velocity", &
        "user_pressure", &
        "blasius_profile", &
-       "wall_model"]
+       "wall_model", &
+       "overset_interface"]
 
 contains
 
@@ -191,6 +193,9 @@ contains
        type is (field_dirichlet_vector_t)
           obj%update => user%dirichlet_conditions
        end select
+
+    case ("overset_interface")
+       allocate(overset_interface_vector_t::object)
 
     case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)

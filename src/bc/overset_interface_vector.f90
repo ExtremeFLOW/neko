@@ -86,7 +86,7 @@ module overset_interface_vector
      type(vector_t) :: u_interface, v_interface, w_interface
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
-     procedure(field_dirichlet_update), nopass, pointer :: update_ => null() !adperez: I need to override this to update the values internally
+     !procedure(field_dirichlet_update), nopass, pointer :: update_ => null() !adperez: I need to override this to update the values internally
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_vector_init
@@ -191,9 +191,9 @@ contains
     call this%w_interface%free()
 
 
-    if (associated(this%update_)) then
-       nullify(this%update_)
-    end if
+    !if (associated(this%update_)) then
+    !   nullify(this%update_)
+    !end if
   end subroutine overset_interface_vector_free
 
   !> No-op apply scalar.
@@ -256,7 +256,7 @@ contains
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
        if (.not. this%updated) then
-          call this%update_(this%field_list, this%bc_u, time)
+          call this%update(time)
           this%updated = .true.
        end if
 
@@ -292,7 +292,7 @@ contains
 
     if (strong_) then
        if (.not. this%updated) then
-          call this%update_(this%field_list, this%bc_u, time)
+          call this%update(time)
           this%updated = .true.
        end if
 
