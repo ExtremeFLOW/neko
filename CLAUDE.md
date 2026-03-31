@@ -195,8 +195,6 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | `examples/two_phase_channel/figures/` | Output figures and animations (gitignored, generated locally) |
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
 | `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
-| `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
-| `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
 | `cluster/build_neko_channel.sh` | Dardel SLURM build job |
 | `cluster/build_neko_two_phase.sh` | Dardel build: `turb_channel_two_phase.f90` → `neko_two_phase` |
 | `cluster/build_neko_two_phase_p2.sh` | Dardel build: `turb_channel_two_phase_p2.f90` → `neko_two_phase_p2` |
@@ -270,16 +268,17 @@ Note: `build_neko_two_phase_p2.sh` also exists but the _p2 variant is a no-op (s
 u_max (last 5) = 1.37 ± 0.01 — TURBULENT. `fluid00004.chkp` in `$SCRATCH_DIR/channel_p3_single_phase/`.
 Results synced to `/lscratch/sieburgh/simulations/channel_p3_single_phase/`.
 
-**Submit L2 two-phase (sigma0 pair + we10 + we1):**
+**Submit L2 two-phase (sigma0 + we10 + we1):**
 ```bash
 bash cluster/sync_to_dardel.sh
 ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_p3_*.sh \
               $KTHMECH_PROJECT/scripts/"
 ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_sigma0_p2.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we10.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we1.sh"
+# We cases: submit only after CDI kink artifact is resolved
+# ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we10.sh"
+# ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_p3_we1.sh"
 ```
+Note: `job_channel_p3_sigma0_p2.sh` exists but the _p2 variant is a no-op (see RESULTS.md). Do not submit.
 
 **MPI rank count:** L2 spin-up uses 256 ranks (2 nodes) → all L2 restarts use `srun -n 256`.
 Note: 1 node/128 ranks OOM at 1296 elem/rank; 2 nodes/256 ranks = 648 elem/rank.
@@ -296,12 +295,94 @@ bash cluster/sync_to_dardel.sh
 ssh dardel "cp $KTHMECH_PROJECT/src/neko-multiphase-channel/cluster/job_channel_l3_*.sh \
               $KTHMECH_PROJECT/scripts/"
 ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_sigma0.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_we10.sh"
-ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_we1.sh"
+# We cases: submit only after CDI kink artifact is resolved
+# ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_we10.sh"
+# ssh dardel "sbatch $KTHMECH_PROJECT/scripts/job_channel_l3_we1.sh"
 ```
 
 **MPI rank count:** L3 spin-up uses 512 ranks (4 nodes) → all L3 restarts use `srun -n 512`.
 Note: 2 nodes/256 ranks OOM at 1536 elem/rank; 4 nodes/512 ranks = 768 elem/rank.
+
+## Postprocessing
+
+All scripts live in `examples/two_phase_channel/postprocess/`. Always activate the
+environment first:
+```bash
+cd examples/two_phase_channel
+source ../../setup-env-channel.sh --egidius
+```
+Output goes to `examples/two_phase_channel/figures/` (gitignored).
+
+### σ=0 CDI diagnostic runs
+
+```bash
+# Time-series only (fast — reads ekin.csv, no field files):
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_p2_sigma0_eps053 --R 0.4 --eps 0.053 --mesh p2 --no-snapshots
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_p3_sigma0       --R 0.4 --eps 0.04  --mesh l2 --no-snapshots
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_l3_sigma0       --R 0.4 --eps 0.03  --mesh l3 --no-snapshots
+
+# Full (time-series + 4-row snapshot figure φ/|u|/n̂_y/κ — reads 3 field files):
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_p2_sigma0_eps053 --R 0.4 --eps 0.053 --mesh p2
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_p3_sigma0        --R 0.4 --eps 0.04  --mesh l2
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_l3_sigma0        --R 0.4 --eps 0.03  --mesh l3
+
+# With normals quiver zoom (adds zoom+n̂ quiver figure — reads last field file):
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_p3_sigma0 --R 0.4 --eps 0.04 --mesh l2 --normals
+python3 postprocess/postprocess_sigma0.py \
+    --run channel_l3_sigma0 --R 0.4 --eps 0.03 --mesh l3 --normals
+```
+
+### Animations
+
+```bash
+# φ/κ/|u| blowup animation (one run at a time):
+python3 postprocess/animate_blowup.py --run channel_p2_sigma0_eps053 --mesh p2 --R 0.4
+python3 postprocess/animate_blowup.py --run channel_p3_sigma0        --mesh l2 --R 0.4
+python3 postprocess/animate_blowup.py --run channel_l3_sigma0        --mesh l3 --R 0.4
+
+# L1/L2/L3 stacked comparison animation (reads all three runs):
+python3 postprocess/animate_three_meshes.py --fps 2 --stride 2
+# stride=2 recommended: L3 files are 3.8 GB each; stride=1 risks OOM on egidius (91 GB RAM)
+```
+
+### Critical field file gotcha
+
+**Two-phase restart field files do NOT contain XYZ coordinates** (`var[0]=0` in HexaData).
+Reading the mesh from a restart file gives all-zero coordinates (silent failure — the
+x-y slice contains 0 elements). Always source mesh coordinates from the spin-up run's
+initial file:
+
+| Mesh level | Mesh source file |
+|------------|-----------------|
+| L1 | `channel_p2_single_phase/field0.f00000` |
+| L2 | `channel_p3_single_phase/field0.f00000` |
+| L3 | `channel_l3_single_phase/field0.f00000` |
+
+All postprocess scripts handle this automatically via the `--mesh` flag (which selects
+the correct spin-up run from `_SPINUP_RUNS` dict). No manual action needed.
+
+### Memory management on egidius
+
+L3 field files are ~3.8 GB each. Running multiple postprocess scripts in parallel can
+exhaust egidius RAM (91 GB total). Key rules:
+- All scripts `del data, fld` after extracting the x-y slice from each field file.
+- Do not run `animate_three_meshes.py` and a blowup animation simultaneously for L3 —
+  peak concurrent usage can exceed available RAM.
+- Use `--stride 2` for `animate_three_meshes.py` to halve the number of L3 files read.
+
+### Drop drift
+
+The drop is advected by the mean flow (U_b≈1). Over 5 TU it drifts ~5 units in x,
+from x≈6.28 (initial centre) to x≈11.3 (periodic domain, L_x=4π≈12.57). The normals
+quiver figure auto-detects the centroid from φ>0.5 GLL points; it does not rely on
+the hardcoded initial position.
 
 ## Style and architecture
 
