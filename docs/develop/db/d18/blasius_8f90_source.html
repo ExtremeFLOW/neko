@@ -303,160 +303,163 @@ $(document).ready(function(){initNavTree('db/d18/blasius_8f90_source.html','../.
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>         nz =&gt; this%coef%nz, lx =&gt; this%coef%Xh%lx)</div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>      m = this%msk(0)</div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>      <span class="keywordflow">if</span> (strong_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>         <span class="keywordflow">do</span> i = 1, m</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>            k = this%msk(i)</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>            facet = this%facet(i)</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>            idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(k, lx, lx, lx)</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>            <span class="keywordflow">select case</span> (facet)</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>            <span class="keywordflow">case</span> (1, 2)</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>               x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>                    this%delta, this%uinf(1))</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>               y(k) = 0.0_rp</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>               z(k) = 0.0_rp</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>            <span class="keywordflow">case</span> (3, 4)</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>               x(k) = 0.0_rp</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>               y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>                    this%delta, this%uinf(2))</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>               z(k) = 0.0_rp</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>            <span class="keywordflow">case</span> (5, 6)</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>               x(k) = 0.0_rp</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>               y(k) = 0.0_rp</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>               z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>                    this%delta, this%uinf(3))</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordflow">            end select</span></div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>         <span class="comment">!$omp parallel do private(k, facet, idx)</span></div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>         <span class="keywordflow">do</span> i = 1, m</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>            k = this%msk(i)</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>            facet = this%facet(i)</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>            idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(k, lx, lx, lx)</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>            <span class="keywordflow">select case</span> (facet)</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>            <span class="keywordflow">case</span> (1, 2)</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>               x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>                    this%delta, this%uinf(1))</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>               y(k) = 0.0_rp</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>               z(k) = 0.0_rp</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>            <span class="keywordflow">case</span> (3, 4)</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>               x(k) = 0.0_rp</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>               y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>                    this%delta, this%uinf(2))</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>               z(k) = 0.0_rp</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>            <span class="keywordflow">case</span> (5, 6)</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>               x(k) = 0.0_rp</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>               y(k) = 0.0_rp</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>               z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>                    this%delta, this%uinf(3))</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">            end select</span></div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>         <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <span class="keyword">end </span>associate</div>
 </div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#aa8af49165029988273492279c065582b">blasius_apply_vector</a></div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
-<div class="foldopen" id="foldopen00231" data-start="" data-end="">
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno"><a class="line" href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">  231</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">blasius_apply_vector_dev</a>(this, x_d, y_d, z_d, time, strong, strm)</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: x_d</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: y_d</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: z_d</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keywordtype">integer</span> :: i, m, k, idx(4), facet</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keywordtype">integer(c_size_t)</span> :: s</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: bla_x(:), bla_y(:), bla_z(:)</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keywordtype">logical</span> :: strong_</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>       strong_ = strong</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>       strong_ = .true.</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    associate(xc =&gt; this%coef%dof%x, yc =&gt; this%coef%dof%y, &amp;</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>         zc =&gt; this%coef%dof%z, nx =&gt; this%coef%nx, ny =&gt; this%coef%ny, &amp;</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>         nz =&gt; this%coef%nz, lx =&gt; this%coef%Xh%lx , &amp;</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>         blax_d =&gt; this%blax_d, blay_d =&gt; this%blay_d, &amp;</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>         blaz_d =&gt; this%blaz_d)</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>      m = this%msk(0)</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#aa8af49165029988273492279c065582b">blasius_apply_vector</a></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
+<div class="foldopen" id="foldopen00233" data-start="" data-end="">
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno"><a class="line" href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">  233</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">blasius_apply_vector_dev</a>(this, x_d, y_d, z_d, time, strong, strm)</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: x_d</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: y_d</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: z_d</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: time</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strong</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordtype">integer</span> :: i, m, k, idx(4), facet</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keywordtype">integer(c_size_t)</span> :: s</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: bla_x(:), bla_y(:), bla_z(:)</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordtype">logical</span> :: strong_</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strong)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>       strong_ = strong</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>       strong_ = .true.</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    associate(xc =&gt; this%coef%dof%x, yc =&gt; this%coef%dof%y, &amp;</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>         zc =&gt; this%coef%dof%z, nx =&gt; this%coef%nx, ny =&gt; this%coef%ny, &amp;</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>         nz =&gt; this%coef%nz, lx =&gt; this%coef%Xh%lx , &amp;</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>         blax_d =&gt; this%blax_d, blay_d =&gt; this%blay_d, &amp;</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>         blaz_d =&gt; this%blaz_d)</div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span> </div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>      <span class="comment">! Pretabulate values during first call to apply</span></div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>      <span class="keywordflow">if</span> (.not. c_associated(blax_d) .and. strong_ .and. m .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>         <span class="keyword">allocate</span>(bla_x(m), bla_y(m), bla_z(m)) <span class="comment">! Temp arrays</span></div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>         <span class="keywordflow">if</span> (rp .eq. real32) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>            s = m * 4</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (rp .eq. real64) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>            s = m * 8</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>         <span class="keyword">call </span>device_alloc(blax_d, s)</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>         <span class="keyword">call </span>device_alloc(blay_d, s)</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>         <span class="keyword">call </span>device_alloc(blaz_d, s)</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>         <span class="keywordflow">do</span> i = 1, m</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>            k = this%msk(i)</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>            facet = this%facet(i)</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>            idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(k, lx, lx, lx)</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>            <span class="keywordflow">select case</span> (facet)</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>            <span class="keywordflow">case</span> (1,2)</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>               bla_x(i) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>                    this%delta, this%uinf(1))</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>               bla_y(i) = 0.0_rp</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>               bla_z(i) = 0.0_rp</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>            <span class="keywordflow">case</span> (3,4)</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>               bla_x(i) = 0.0_rp</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>               bla_y(i) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>                    this%delta, this%uinf(2))</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>               bla_z(i) = 0.0_rp</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            <span class="keywordflow">case</span> (5,6)</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>               bla_x(i) = 0.0_rp</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>               bla_y(i) = 0.0_rp</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>               bla_z(i) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>                    this%delta, this%uinf(3))</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span><span class="keywordflow">            end select</span></div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>         <span class="keyword">call </span>device_memcpy(bla_x, blax_d, m, host_to_device, sync = .false.)</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>         <span class="keyword">call </span>device_memcpy(bla_y, blay_d, m, host_to_device, sync = .false.)</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>         <span class="keyword">call </span>device_memcpy(bla_z, blaz_d, m, host_to_device, sync = .true.)</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>         <span class="keyword">deallocate</span>(bla_x, bla_y, bla_z)</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>      m = this%msk(0)</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>      <span class="comment">! Pretabulate values during first call to apply</span></div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>      <span class="keywordflow">if</span> (.not. c_associated(blax_d) .and. strong_ .and. m .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>         <span class="keyword">allocate</span>(bla_x(m), bla_y(m), bla_z(m)) <span class="comment">! Temp arrays</span></div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>         <span class="keywordflow">if</span> (rp .eq. real32) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>            s = m * 4</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (rp .eq. real64) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>            s = m * 8</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>         <span class="keyword">call </span>device_alloc(blax_d, s)</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>         <span class="keyword">call </span>device_alloc(blay_d, s)</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>         <span class="keyword">call </span>device_alloc(blaz_d, s)</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>         <span class="comment">!$omp parallel do private(k, facet, idx)</span></div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>         <span class="keywordflow">do</span> i = 1, m</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>            k = this%msk(i)</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>            facet = this%facet(i)</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>            idx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(k, lx, lx, lx)</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            <span class="keywordflow">select case</span> (facet)</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            <span class="keywordflow">case</span> (1,2)</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>               bla_x(i) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                    this%delta, this%uinf(1))</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>               bla_y(i) = 0.0_rp</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>               bla_z(i) = 0.0_rp</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>            <span class="keywordflow">case</span> (3,4)</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>               bla_x(i) = 0.0_rp</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>               bla_y(i) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                    this%delta, this%uinf(2))</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>               bla_z(i) = 0.0_rp</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>            <span class="keywordflow">case</span> (5,6)</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>               bla_x(i) = 0.0_rp</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>               bla_y(i) = 0.0_rp</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>               bla_z(i) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &amp;</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>                    this%delta, this%uinf(3))</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="keywordflow">            end select</span></div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>         <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>         <span class="keyword">call </span>device_memcpy(bla_x, blax_d, m, host_to_device, sync = .false.)</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>         <span class="keyword">call </span>device_memcpy(bla_y, blay_d, m, host_to_device, sync = .false.)</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>         <span class="keyword">call </span>device_memcpy(bla_z, blaz_d, m, host_to_device, sync = .true.)</div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>      <span class="keywordflow">if</span> (strong_ .and. this%msk(0) .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>         <span class="keyword">call </span>device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &amp;</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>              blax_d, blay_d, blaz_d, m, strm)</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span> </div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>         <span class="keyword">deallocate</span>(bla_x, bla_y, bla_z)</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>      <span class="keywordflow">if</span> (strong_ .and. this%msk(0) .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>         <span class="keyword">call </span>device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &amp;</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>              blax_d, blay_d, blaz_d, m, strm)</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
 </div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">blasius_apply_vector_dev</a></div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
-<div class="foldopen" id="foldopen00313" data-start="" data-end="">
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno"><a class="line" href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">  313</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">blasius_set_params</a>(this, uinf, delta, type)</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: uinf(3)</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: delta</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordtype">character(len=*)</span> :: type</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    this%delta = delta</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    this%uinf = uinf</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    <span class="keywordflow">select case</span> (trim(type))</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;linear&#39;</span>)</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>       this%bla =&gt; blasius_linear</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;quadratic&#39;</span>)</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>       this%bla =&gt; blasius_quadratic</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;cubic&#39;</span>)</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>       this%bla =&gt; blasius_cubic</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;quartic&#39;</span>)</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>       this%bla =&gt; blasius_quartic</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;sin&#39;</span>)</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>       this%bla =&gt; blasius_sin</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;tanh&#39;</span>)</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>       this%bla =&gt; blasius_tanh</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span><span class="keywordflow">    case default</span></div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;Invalid Blasius approximation&#39;</span>)</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">blasius_apply_vector_dev</a></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
+<div class="foldopen" id="foldopen00316" data-start="" data-end="">
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno"><a class="line" href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">  316</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">blasius_set_params</a>(this, uinf, delta, type)</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: uinf(3)</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: delta</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    <span class="keywordtype">character(len=*)</span> :: type</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    this%delta = delta</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    this%uinf = uinf</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordflow">select case</span> (trim(type))</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;linear&#39;</span>)</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>       this%bla =&gt; blasius_linear</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;quadratic&#39;</span>)</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       this%bla =&gt; blasius_quadratic</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;cubic&#39;</span>)</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>       this%bla =&gt; blasius_cubic</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;quartic&#39;</span>)</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>       this%bla =&gt; blasius_quartic</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;sin&#39;</span>)</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>       this%bla =&gt; blasius_sin</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;tanh&#39;</span>)</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>       this%bla =&gt; blasius_tanh</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span><span class="keywordflow">    case default</span></div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;Invalid Blasius approximation&#39;</span>)</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span><span class="keywordflow">    end select</span></div>
 </div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">blasius_set_params</a></div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span> </div>
-<div class="foldopen" id="foldopen00340" data-start="" data-end="">
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno"><a class="line" href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">  340</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">blasius_finalize</a>(this, only_facets)</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: only_facets</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordtype">logical</span> :: only_facets_</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(only_facets)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>       only_facets_ = only_facets</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>       only_facets_ = .false.</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    <span class="keyword">call </span>this%finalize_base(only_facets_)</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">blasius_set_params</a></div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
+<div class="foldopen" id="foldopen00343" data-start="" data-end="">
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno"><a class="line" href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">  343</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">blasius_finalize</a>(this, only_facets)</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: only_facets</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keywordtype">logical</span> :: only_facets_</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(only_facets)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>       only_facets_ = only_facets</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>       only_facets_ = .false.</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span> </div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="keyword">call </span>this%finalize_base(only_facets_)</div>
 </div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">blasius_finalize</a></div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../de/da4/namespaceblasius.html">blasius</a></div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">blasius_finalize</a></div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../de/da4/namespaceblasius.html">blasius</a></div>
 <div class="ttc" id="acuda_2bc__utils_8h_html_a97af2a5f58e9e047d747424d0f89132d"><div class="ttname"><a href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a></div><div class="ttdeci">__inline__ __device__ void nonlinear_index(const int idx, const int lx, int *index)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d74/cuda_2bc__utils_8h_source.html#l00044">bc_utils.h:44</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
 <div class="ttc" id="ainterfaceflow__profile_1_1blasius__profile_html"><div class="ttname"><a href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html">flow_profile::blasius_profile</a></div><div class="ttdoc">Abstract interface for computing a Blasius flow profile.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d37/flow__profile_8f90_source.html#l00041">flow_profile.f90:41</a></div></div>
@@ -465,15 +468,15 @@ $(document).ready(function(){initNavTree('db/d18/blasius_8f90_source.html','../.
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacebc_html"><div class="ttname"><a href="../../d0/dc0/namespacebc.html">bc</a></div><div class="ttdoc">Defines a boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00034">bc.f90:34</a></div></div>
 <div class="ttc" id="anamespaceblasius_html"><div class="ttname"><a href="../../de/da4/namespaceblasius.html">blasius</a></div><div class="ttdoc">Defines a Blasius profile dirichlet condition.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00034">blasius.f90:34</a></div></div>
-<div class="ttc" id="anamespaceblasius_html_a038a6c067394f111bb6f8a9b8663b5a7"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">blasius::blasius_finalize</a></div><div class="ttdeci">subroutine blasius_finalize(this, only_facets)</div><div class="ttdoc">Finalize.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00340">blasius.f90:341</a></div></div>
+<div class="ttc" id="anamespaceblasius_html_a038a6c067394f111bb6f8a9b8663b5a7"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">blasius::blasius_finalize</a></div><div class="ttdeci">subroutine blasius_finalize(this, only_facets)</div><div class="ttdoc">Finalize.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00343">blasius.f90:344</a></div></div>
 <div class="ttc" id="anamespaceblasius_html_a5f3897a38481786ea5308671bb6a54b7"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#a5f3897a38481786ea5308671bb6a54b7">blasius::blasius_apply_scalar_dev</a></div><div class="ttdeci">subroutine blasius_apply_scalar_dev(this, x_d, time, strong, strm)</div><div class="ttdoc">No-op scalar apply (device version)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00173">blasius.f90:174</a></div></div>
 <div class="ttc" id="anamespaceblasius_html_a6bf80ee6a1e8749677f6592c19a1e300"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#a6bf80ee6a1e8749677f6592c19a1e300">blasius::blasius_init</a></div><div class="ttdeci">subroutine blasius_init(this, coef, json)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00084">blasius.f90:85</a></div></div>
 <div class="ttc" id="anamespaceblasius_html_aa30673fe1e7478b847dc3c6fcdb39efd"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd">blasius::blasius_init_from_components</a></div><div class="ttdeci">subroutine blasius_init_from_components(this, coef, delta, uinf, approximation)</div><div class="ttdoc">Constructor from components.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00112">blasius.f90:114</a></div></div>
 <div class="ttc" id="anamespaceblasius_html_aa8af49165029988273492279c065582b"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#aa8af49165029988273492279c065582b">blasius::blasius_apply_vector</a></div><div class="ttdeci">subroutine blasius_apply_vector(this, x, y, z, n, time, strong)</div><div class="ttdoc">Apply blasius conditions (vector valued)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00182">blasius.f90:183</a></div></div>
 <div class="ttc" id="anamespaceblasius_html_ab977233e21938a0d12589987f84cd0d9"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#ab977233e21938a0d12589987f84cd0d9">blasius::blasius_apply_scalar</a></div><div class="ttdeci">subroutine blasius_apply_scalar(this, x, n, time, strong)</div><div class="ttdoc">No-op scalar apply.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00164">blasius.f90:165</a></div></div>
-<div class="ttc" id="anamespaceblasius_html_abd0daef6ae710a2b996e38a043ed2198"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">blasius::blasius_apply_vector_dev</a></div><div class="ttdeci">subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)</div><div class="ttdoc">Apply blasius conditions (vector valued) (device version)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00231">blasius.f90:232</a></div></div>
+<div class="ttc" id="anamespaceblasius_html_abd0daef6ae710a2b996e38a043ed2198"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">blasius::blasius_apply_vector_dev</a></div><div class="ttdeci">subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)</div><div class="ttdoc">Apply blasius conditions (vector valued) (device version)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00233">blasius.f90:234</a></div></div>
 <div class="ttc" id="anamespaceblasius_html_ad870c19602eeb17380eeba2452eaca92"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#ad870c19602eeb17380eeba2452eaca92">blasius::blasius_free</a></div><div class="ttdeci">subroutine blasius_free(this)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00143">blasius.f90:144</a></div></div>
-<div class="ttc" id="anamespaceblasius_html_af72bfa9aed6f9f6496bb9c6f16b2e7ac"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">blasius::blasius_set_params</a></div><div class="ttdeci">subroutine blasius_set_params(this, uinf, delta, type)</div><div class="ttdoc">Set Blasius parameters.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00313">blasius.f90:314</a></div></div>
+<div class="ttc" id="anamespaceblasius_html_af72bfa9aed6f9f6496bb9c6f16b2e7ac"><div class="ttname"><a href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">blasius::blasius_set_params</a></div><div class="ttdeci">subroutine blasius_set_params(this, uinf, delta, type)</div><div class="ttdoc">Set Blasius parameters.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d18/blasius_8f90_source.html#l00316">blasius.f90:317</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice__inhom__dirichlet_html"><div class="ttname"><a href="../../d1/dc8/namespacedevice__inhom__dirichlet.html">device_inhom_dirichlet</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d58/device__inhom__dirichlet_8F90_source.html#l00033">device_inhom_dirichlet.F90:33</a></div></div>
 <div class="ttc" id="anamespacedevice__inhom__dirichlet_html_a283bd9fae77f9e619a871c376a7eb8a9"><div class="ttname"><a href="../../d1/dc8/namespacedevice__inhom__dirichlet.html#a283bd9fae77f9e619a871c376a7eb8a9">device_inhom_dirichlet::device_inhom_dirichlet_apply_vector</a></div><div class="ttdeci">subroutine device_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m, strm)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d58/device__inhom__dirichlet_8F90_source.html#l00115">device_inhom_dirichlet.F90:117</a></div></div>
@@ -503,7 +506,7 @@ $(document).ready(function(){initNavTree('db/d18/blasius_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../db/d18/blasius_8f90.html">blasius.f90</a></li>
-    <li class="footer">Generated on Mon Mar 30 2026 04:30:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Mar 31 2026 04:23:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
