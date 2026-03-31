@@ -210,7 +210,6 @@ contains
                   x_plus(k) = 0.0_rp
                end do
 
-               !DIR$ UNROLL CG_P_SPACE
                do j = 1, p_cur
                   do concurrent (k = 1:blk_size)
                      x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
