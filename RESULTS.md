@@ -141,6 +141,17 @@ curvature scheme (height-function, parabolic fit, or pre-smoothed n̂).
 - Helmholtz-type smoother on n̂ — filters the intra-element kink
 - Fundamentally different curvature scheme — height-function or parabolic fit
 
+### Next step (planned)
+
+The normal field n̂ is used in both CDI (compression term) and CSF (surface tension
+force). The working hypothesis is that n̂ quality is the root cause of the κ_rms
+artifact — and will also drive spurious currents once We>0 cases are run. The next
+plan is a dedicated normal-field study, continuing with σ=0 (We=0) to avoid blow-up
+from spurious currents while isolating the normal-field behaviour. This will involve
+directly analysing n̂ computed from the φ snapshots (recomputable via SEM derivative
+operators), visualising the face-node vs first-interior jump, and evaluating candidate
+smoothing strategies before enabling surface tension.
+
 ### Postprocessing figures (generated 2026-03-31)
 
 | Figure | Content |
