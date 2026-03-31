@@ -54,7 +54,7 @@ contains
        write(*,*) '  ./average_fields_in_time input.csv start_time output.csv'
        write(*,*)
        write(*,*) '  start_time is the time at which the first file starts to '
-       write(*,*) '  collect stats.
+       write(*,*) '  collect stats.'
        write(*,*)
        write(*,*) 'Examples:'
        write(*,*) '==========================================================='
