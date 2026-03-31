@@ -48,6 +48,34 @@
 */
 
 template<typename T>
+__device__ T corr_m_stable(T z, T L_ob)
+{
+    // Coefficients specific to Cheng & Brutsaert (2005)
+    T a = 1.0;
+    T b = 2.0/3.0;
+    T c = 5.0;
+    T d = 0.35;
+    T zeta = z / L_ob;
+    
+    return -a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d;
+}
+
+template<typename T>
+__device__ T corr_h_stable(T z, T L_ob)
+{
+    // Coefficients specific to Cheng & Brutsaert (2005)
+    T a = 1.0;
+    T b = 2.0/3.0;
+    T c = 5.0;
+    T d = 0.35;
+    T zeta = z / L_ob;
+    
+    return -b*(zeta-c/d)*exp(-d*zeta)
+    -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
+    -b*c/d + 1.0;
+}
+
+template<typename T>
 __device__ T slaw_m_stable(T z, T L_ob, T z0)
 {
     return log(z/z0)
@@ -61,34 +89,6 @@ __device__ T slaw_h_stable(T z, T L_ob, T z0h)
     return log(z/z0h)
            - corr_h_stable<T>(z,L_ob)
            + corr_h_stable<T>(z0h,L_ob);
-}
-
-template<typename T>
-__device__ T corr_m_stable(T z, T L_ob)
-{
-    // Coefficients specific to Cheng & Brutsaert (2005)
-    T a = 1.0;
-    T b = 2.0/3.0;
-    T c = 5.0;
-    T d = 0.35;
-    T zeta = z / L_ob;
-
-    return -a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d;
-}
-
-template<typename T>
-__device__ T corr_h_stable(T z, T L_ob)
-{
-    // Coefficients specific to Cheng & Brutsaert (2005)
-    T a = 1.0;
-    T b = 2.0/3.0;
-    T c = 5.0;
-    T d = 0.35;
-    T zeta = z / L_ob;
-
-    return -b*(zeta-c/d)*exp(-d*zeta)
-           -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
-           -b*c/d + 1.0;
 }
 
 template<typename T>
@@ -147,22 +147,6 @@ __device__ T dfdl_dirichlet_stable(T l_upper,
 */
 
 template<typename T>
-__device__ T slaw_m_convective(T z, T L_ob, T z0)
-{
-    return log(z/z0)
-           - corr_m_convective<T>(z,L_ob)
-           + corr_m_convective<T>(z0,L_ob);
-}
-
-template<typename T>
-__device__ T slaw_h_convective(T z, T L_ob, T z0h)
-{
-    return log(z/z0h)
-           - corr_h_convective<T>(z,L_ob)
-           + corr_h_convective<T>(z0h,L_ob);
-}
-
-template<typename T>
 __device__ T corr_m_convective(T z, T L_ob)
 {
     T zeta = z / L_ob;
@@ -181,6 +165,22 @@ __device__ T corr_h_convective(T z, T L_ob)
     // Standard Dyer-Businger coefficient gamma = 16.0
     T xi = sqrt(sqrt((1.0 - 16.0*zeta)));
     return 2*log(0.5*(1 + xi*xi));
+}
+
+template<typename T>
+__device__ T slaw_m_convective(T z, T L_ob, T z0)
+{
+    return log(z/z0)
+           - corr_m_convective<T>(z,L_ob)
+           + corr_m_convective<T>(z0,L_ob);
+}
+
+template<typename T>
+__device__ T slaw_h_convective(T z, T L_ob, T z0h)
+{
+    return log(z/z0h)
+           - corr_h_convective<T>(z,L_ob)
+           + corr_h_convective<T>(z0h,L_ob);
 }
 
 template<typename T>

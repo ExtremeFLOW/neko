@@ -47,21 +47,6 @@
 * conditions (large z/L), avoiding the numerical decoupling found in older linear (e.g., Webb or Holtslag) functions.
 */
 
-template<typename T>
-__device__ T slaw_m_stable(T z, T L_ob, T z0)
-{
-    return log(z/z0)
-           - corr_m_stable<T>(z,L_ob)
-           + corr_m_stable<T>(z0,L_ob);
-}
-
-template<typename T>
-__device__ T slaw_h_stable(T z, T L_ob, T z0h)
-{
-    return log(z/z0h)
-           - corr_h_stable<T>(z,L_ob)
-           + corr_h_stable<T>(z0h,L_ob);
-}
 
 template<typename T>
 __device__ T corr_m_stable(T z, T L_ob)
@@ -89,6 +74,22 @@ __device__ T corr_h_stable(T z, T L_ob)
     return -b*(zeta-c/d)*exp(-d*zeta)
            -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
            -b*c/d + 1.0;
+}
+
+template<typename T>
+__device__ T slaw_m_stable(T z, T L_ob, T z0)
+{
+    return log(z/z0)
+           - corr_m_stable<T>(z,L_ob)
+           + corr_m_stable<T>(z0,L_ob);
+}
+
+template<typename T>
+__device__ T slaw_h_stable(T z, T L_ob, T z0h)
+{
+    return log(z/z0h)
+           - corr_h_stable<T>(z,L_ob)
+           + corr_h_stable<T>(z0h,L_ob);
 }
 
 template<typename T>
@@ -147,22 +148,6 @@ __device__ T dfdl_dirichlet_stable(T l_upper,
 */
 
 template<typename T>
-__device__ T slaw_m_convective(T z, T L_ob, T z0)
-{
-    return log(z/z0)
-           - corr_m_convective<T>(z,L_ob)
-           + corr_m_convective<T>(z0,L_ob);
-}
-
-template<typename T>
-__device__ T slaw_h_convective(T z, T L_ob, T z0h)
-{
-    return log(z/z0h)
-           - corr_h_convective<T>(z,L_ob)
-           + corr_h_convective<T>(z0h,L_ob);
-}
-
-template<typename T>
 __device__ T corr_m_convective(T z, T L_ob)
 {
     T zeta = z / L_ob;
@@ -181,6 +166,22 @@ __device__ T corr_h_convective(T z, T L_ob)
     // Standard Dyer-Businger coefficient gamma = 16.0
     T xi = sqrt(sqrt((1.0 - 16.0*zeta)));
     return 2*log(0.5*(1 + xi*xi));
+}
+
+template<typename T>
+__device__ T slaw_m_convective(T z, T L_ob, T z0)
+{
+    return log(z/z0)
+           - corr_m_convective<T>(z,L_ob)
+           + corr_m_convective<T>(z0,L_ob);
+}
+
+template<typename T>
+__device__ T slaw_h_convective(T z, T L_ob, T z0h)
+{
+    return log(z/z0h)
+           - corr_h_convective<T>(z,L_ob)
+           + corr_h_convective<T>(z0h,L_ob);
 }
 
 template<typename T>
