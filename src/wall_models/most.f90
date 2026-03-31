@@ -154,7 +154,7 @@ contains
     call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_default(json, "rho", this%rho, 1.0_rp)
     call json_get_or_default(json, "mu", this%mu, 1.81e-5)
-    call json_get_or_default(json, "g", this%g, [0.0_rp,0.0_rp,-9.80665_rp])
+    call json_get_or_default(json, "g", this%g, [0.0_rp, 0.0_rp, -9.80665_rp])
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
@@ -196,7 +196,7 @@ contains
   !! @param scalar_name The name of the scalar field (temperature) for MOST.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine most_init_from_components(this, scheme_name, scalar_name, coef, msk, &
-       facet, h_index, kappa, z0, z0h_in, bc_type, bc_value)
+       facet, h_index, kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -205,8 +205,9 @@ contains
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
-    real(kind=rp) :: g(3)
-    real(kind=rp) :: g_mag
+    real(kind=rp), intent(in) :: g(3) 
+    real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
+    integer :: i
     real(kind=rp), intent(in) :: kappa, mu, rho
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value
 
@@ -221,22 +222,37 @@ contains
     this%bc_type = bc_type
     this%bc_value = bc_value
     this%scalar_name = scalar_name
-
-    ! Check that the sampling height is above the roughness length
-    if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
-       call neko_error("MOST WM: Sampling height h must be greater than roughness z0. " // &
-                       "Increase h_index or decrease z0.")
+ 
+    !> Check magnitude of g
+    g_mag = sqrt(sum(g**2))
+    if (g_mag < 1.0e-6_rp) then
+       call neko_error("MOST WM: Gravity magnitude is zero. Check your input configuration.")
     end if
 
-    ! Check magnitude of gravity vector
-    g_mag = sqrt(g(1)**2 + g(2)**2 + g(3)**2)
-    if (g_mag < 1.0e-6_rp) call neko_error("Gravity magnitude is zero.")
+    !> Check alignment across all nodes (handling hills/slopes)
+    max_ang = 0.0_rp
+    do i = 1, this%n_nodes
+       g_dot_n = abs(g(1)*this%n_x%x(i) + g(2)*this%n_y%x(i) + g(3)*this%n_z%x(i))
+       cos_alpha = g_dot_n / g_mag
+       max_ang = max(max_ang, acos(min(1.0_rp, cos_alpha)))
+    end do
+    max_ang = max_ang * 180.0_rp / (4.0_rp * atan(1.0_rp))
+    if (max_ang > 8.0_rp) then
+       write(log_buf, '(A, F6.2, A)') "MOST WM: Significant gravity-normal misalignment (max ", &
+            max_ang, " deg). Stability corrections will use projected gravity."
+       call neko_warning(trim(log_buf))
+    end if
+
+    !> Check sampling height
+    if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
+       call neko_error("MOST WM: Sampling height h must be greater than roughness z0.")
+    end if
 
   end subroutine most_init_from_components
 
   !> Destructor for the most_t (base) class.
   subroutine most_free(this)
-    class(most_t), intent(inout) :: thi
+    class(most_t), intent(inout) :: this
 
     if (allocated(this%bc_type)) then
       deallocate(this%bc_type)

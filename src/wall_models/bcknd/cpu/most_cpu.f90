@@ -117,17 +117,17 @@ contains
   end subroutine select_bc_operators
 
   !> Computes the Richardson number.
-  subroutine compute_Ri_b(bc_type, g_mag, hi, ti, ts, magu, kappa, q, Ri_b)
+  subroutine compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Ri_b)
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(in) :: g(:), hi, ti, ts 
-    real(kind=rp), intent(in) :: magu, kappa, g_mag
+    real(kind=rp), intent(in) :: g_dot_n, hi, ti, ts 
+    real(kind=rp), intent(in) :: magu, kappa, g_dot_n
     real(kind=rp), intent(inout) :: q, Ri_b
 
     select case (bc_type)
       case ("neumann")
-       Ri_b = - g_mag*hi / ti*q / (magu**3*kappa**2)
+       Ri_b = - g_dot_n*hi / ti*q / (magu**3*kappa**2)
       case ("dirichlet")
-       Ri_b = g_mag*hi/ti*(ti - ts)/magu**2
+       Ri_b = g_dot_n*hi/ti*(ti - ts)/magu**2
       case default
        call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
     end select
@@ -157,13 +157,13 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value, tstep)
+       kappa, mu, rho, g_vec, z0, z0h_in, bc_type, bc_value, tstep)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value
-    real(kind=rp), dimension(3), intent(in) :: g
+    real(kind=rp), dimension(3), intent(in) :: g_vec
     character(len=*), intent(in) :: bc_type
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     integer :: ts_idx(3)
@@ -171,7 +171,7 @@ contains
     integer, parameter :: max_count = 50
     real(kind=rp) :: ui, vi, wi, ts, hi
     real(kind=rp) :: normu, z0h
-    real(kind=rp) :: g_eff, cos_alpha
+    real(kind=rp) :: g_dot_n, cos_alpha
     real(kind=rp) :: L_upper, L_lower, L_old
     real(kind=rp) :: f, dfdl, fd_h, L_new, L_sign
     real(kind=rp), parameter :: tol = 0.001_rp
@@ -179,7 +179,6 @@ contains
     real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), dimension(n_nodes) :: utau, Ri_b, L_ob, magu, q, ti
-    logical, save :: warning_issued = .false.
 
     do i=1, n_nodes
       ! Sample the variables
@@ -208,23 +207,13 @@ contains
           z0h = z0h_in
       end if
 
-      ! Issue warning if g is not aligned with normals 
-      ! (only for the first node/step to avoid spam)
-      g_eff = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i)) 
-      if (.not. warning_issued) then
-        cos_alpha = g_eff / (sqrt(g(1)**2+g(2)**2+g(3)**2))
-        if (cos_alpha < 0.99_rp) then ! Angle > ~8 degrees
-            write(log_buf, '(A, F6.2, A)') "MOST: Gravity misaligned with normal by ", &
-                acos(min(1.0_rp, cos_alpha))*180.0_rp/(4*atan(1.0_rp)), " deg."
-            call neko_warning(trim(log_buf))
-        end if
-        warning_issued = .true.
-      end if
-
       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
       ! Maybe redundant, but needed to initialise Rib
       call select_bc_operators(bc_type,bc_value,q(i),ts,ti(i),kappa,utau(i),z0h,hi)
-      call compute_Ri_b(bc_type, g_eff, hi, ti(i), ts, magu(i), kappa, q(i), Ri_b(i))
+
+      ! Compute g along the normal (generalisation for hills and similar)
+      g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i)) 
+      call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts, magu(i), kappa, q(i), Ri_b(i))
 
       call set_stability_regime(Ri_b(i),Ri_threshold)
 

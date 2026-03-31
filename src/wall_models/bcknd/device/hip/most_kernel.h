@@ -270,6 +270,9 @@ __global__ void most_compute(
     T kappa,
     T mu,
     T rho, 
+    T g1,
+    T g2,
+    T g3,
     T z0,
     T z0h_in,
     T bc_value
@@ -278,7 +281,6 @@ __global__ void most_compute(
     const int str = blockDim.x * gridDim.x;
     if(idx >= n_nodes) return;
 
-    const T g = 9.80665;
     const T Ri_threshold = 1e-4;
     const T tol = 1e-3;
     const T NR_step = 1e-3;
@@ -338,11 +340,11 @@ __global__ void most_compute(
         }
 
         T Ri_b;
-
+        T g_dot_n = fabs(g1*nx + g2*ny + g3*nz);
         if constexpr (BC_TYPE == 0)
-            Ri_b = -g*hi/ti*q/(magu*magu*magu*kappa*kappa);
+            Ri_b = -g_dot_n*hi/ti*q/(magu*magu*magu*kappa*kappa);
         else
-            Ri_b =  g*hi/ti*(ti-ts)/(magu*magu);
+            Ri_b =  g_dot_n*hi/ti*(ti-ts)/(magu*magu);
 
         T L_ob = 1e10;   // neutral default
 
