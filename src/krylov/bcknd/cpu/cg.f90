@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -205,27 +205,17 @@ contains
          if ((p_cur .eq. CG_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             do i = 0, n, NEKO_BLK_SIZE
-               if (i + NEKO_BLK_SIZE .le. n) then
-                  do k = 1, NEKO_BLK_SIZE
-                     x_plus(k) = 0.0_rp
+               do k = 1, min(NEKO_BLK_SIZE, n - i)
+                  x_plus(k) = 0.0_rp
+               end do
+               do j = 1, p_cur
+                  do k = 1, min(NEKO_BLK_SIZE, n - i)
+                     x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
                   end do
-                  do j = 1, p_cur
-                     do k = 1, NEKO_BLK_SIZE
-                        x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
-                     end do
-                  end do
-                  do k = 1, NEKO_BLK_SIZE
-                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-                  end do
-               else
-                  do k = 1, n-i
-                     x_plus(1) = 0.0_rp
-                     do j = 1, p_cur
-                        x_plus(1) = x_plus(1) + alpha(j) * p(i+k,j)
-                     end do
-                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-                  end do
-               end if
+               end do
+               do k = 1, min(NEKO_BLK_SIZE, n - i)
+                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
+               end do
             end do
             p_prev = p_cur
             p_cur = 1
@@ -287,5 +277,3 @@ contains
   end function cg_solve_coupled
 
 end module cg
-
-
