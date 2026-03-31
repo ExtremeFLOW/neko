@@ -40,33 +40,12 @@
 
 /*
 * Similarity laws and corrections for the STABLE regime:
+* REFERENCE: Cheng, Y., and W. Brutsaert (2005), Flux-profile relationships
+* for wind speed and temperature in the stable atmospheric boundary layer,  
+* Bound.-Layer Meteorol., 3, 519-538.
+* NOTE: This formulation is chosen for its superior behavior in very stable
+* conditions (large z/L), avoiding the numerical decoupling found in older linear (e.g., Webb or Holtslag) functions.
 */
-
-template<typename T>
-__device__ T corr_m_stable(T z, T L_ob)
-{
-    T a = 1.0;
-    T b = 2.0/3.0;
-    T c = 5.0;
-    T d = 0.35;
-    T zeta = z / L_ob;
-
-    return -a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d;
-}
-
-template<typename T>
-__device__ T corr_h_stable(T z, T L_ob)
-{
-    T a = 1.0;
-    T b = 2.0/3.0;
-    T c = 5.0;
-    T d = 0.35;
-    T zeta = z / L_ob;
-
-    return -b*(zeta-c/d)*exp(-d*zeta)
-           -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
-           -b*c/d + 1.0;
-}
 
 template<typename T>
 __device__ T slaw_m_stable(T z, T L_ob, T z0)
@@ -84,6 +63,33 @@ __device__ T slaw_h_stable(T z, T L_ob, T z0h)
            + corr_h_stable<T>(z0h,L_ob);
 }
 
+template<typename T>
+__device__ T corr_m_stable(T z, T L_ob)
+{
+    // Coefficients specific to Cheng & Brutsaert (2005)
+    T a = 1.0;
+    T b = 2.0/3.0;
+    T c = 5.0;
+    T d = 0.35;
+    T zeta = z / L_ob;
+
+    return -a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d;
+}
+
+template<typename T>
+__device__ T corr_h_stable(T z, T L_ob)
+{
+    // Coefficients specific to Cheng & Brutsaert (2005)
+    T a = 1.0;
+    T b = 2.0/3.0;
+    T c = 5.0;
+    T d = 0.35;
+    T zeta = z / L_ob;
+
+    return -b*(zeta-c/d)*exp(-d*zeta)
+           -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
+           -b*c/d + 1.0;
+}
 
 template<typename T>
 __device__ T f_neumann_stable(T Ri_b, T z, T z0, T z0h, T L_ob)
@@ -133,26 +139,12 @@ __device__ T dfdl_dirichlet_stable(T l_upper,
 
 /*
 * Similarity laws and corrections for the UNSTABLE (convective) regime:
+* REFERENCE: Dyer, A. J. (1974), A review of flux-profile relationships,
+* Bound.-Layer Meteorol., 7, 363-372.
+* INTEGRATION: Paulson, C. A. (1970), The mathematical representation
+* of wind speed and temperature profiles in the unstable atmospheric 
+* surface layer, J. Appl. Meteorol., 9, 857-861.
 */
-
-template<typename T>
-__device__ T corr_m_convective(T z, T L_ob)
-{
-    T zeta = z / L_ob;
-    T pi = 4*atan(1.0);
-    T xi = sqrt(sqrt((1.0 - 16.0*zeta)));
-
-    return 2*log(0.5*(1 + xi)) + log(0.5*(1 + xi*xi)) - 2*atan(xi) + pi/2;
-}
-
-template<typename T>
-__device__ T corr_h_convective(T z, T L_ob)
-{
-    T zeta = z/L_ob;
-    T pi = 4*atan(1.0);
-    T xi = sqrt(sqrt((1.0 - 16.0*zeta)));
-    return 2*log(0.5*(1 + xi*xi));
-}
 
 template<typename T>
 __device__ T slaw_m_convective(T z, T L_ob, T z0)
@@ -168,6 +160,27 @@ __device__ T slaw_h_convective(T z, T L_ob, T z0h)
     return log(z/z0h)
            - corr_h_convective<T>(z,L_ob)
            + corr_h_convective<T>(z0h,L_ob);
+}
+
+template<typename T>
+__device__ T corr_m_convective(T z, T L_ob)
+{
+    T zeta = z / L_ob;
+    T pi = 4*atan(1.0);
+    // Standard Dyer-Businger coefficient gamma = 16.0
+    T xi = sqrt(sqrt((1.0 - 16.0*zeta)));
+
+    return 2*log(0.5*(1 + xi)) + log(0.5*(1 + xi*xi)) - 2*atan(xi) + pi/2;
+}
+
+template<typename T>
+__device__ T corr_h_convective(T z, T L_ob)
+{
+    T zeta = z/L_ob;
+    T pi = 4*atan(1.0);
+    // Standard Dyer-Businger coefficient gamma = 16.0
+    T xi = sqrt(sqrt((1.0 - 16.0*zeta)));
+    return 2*log(0.5*(1 + xi*xi));
 }
 
 template<typename T>

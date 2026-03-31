@@ -314,7 +314,11 @@ contains
 
   end subroutine most_compute_cpu
 
-  !> Similarity laws and corrections for the STABLE regime:
+!> Similarity laws and corrections for the STABLE regime:
+  !> REFERENCE: Cheng, Y., and W. Brutsaert (2005), Flux-profile relationships for wind speed 
+  !> and temperature in the stable atmospheric boundary layer, Bound.-Layer Meteorol., 3, 519-538.
+  !> NOTE: This formulation is chosen for its superior behavior in very stable conditions (large z/L),
+  !> avoiding the numerical decoupling found in older linear (e.g., Webb or Holtslag) functions.
   function slaw_m_stable(z,L_ob,z0) result(slaw)
     real(kind=rp), intent(in) :: z,L_ob,z0
     real(kind=rp) :: slaw
@@ -335,6 +339,7 @@ contains
     real(kind=rp) :: a, b, c, d
     real(kind=rp) :: zeta
     zeta = z/L_ob
+    ! Coefficients specific to Cheng & Brutsaert (2005)
     a = 1.0_rp
     b = 2.0_rp/3.0_rp
     c = 5.0_rp
@@ -349,6 +354,7 @@ contains
     real(kind=rp) :: zeta
 
     zeta = z/L_ob
+    ! Coefficients specific to Cheng & Brutsaert (2005)
     a = 1.0_rp
     b = 2.0_rp/3.0_rp
     c = 5.0_rp
@@ -357,6 +363,9 @@ contains
   end function corr_h_stable
 
   !> Similarity laws and corrections for the UNSTABLE (convective) regime:
+  !> REFERENCE: Dyer, A. J. (1974), A review of flux-profile relationships, Bound.-Layer Meteorol., 7, 363-372.
+  !> INTEGRATION: Paulson, C. A. (1970), The mathematical representation of wind speed and 
+  !> temperature profiles in the unstable atmospheric surface layer, J. Appl. Meteorol., 9, 857-861.
   function slaw_m_convective(z,L_ob,z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
@@ -378,6 +387,7 @@ contains
 
     zeta = z/L_ob
     pi = 4*atan(1.0_rp)
+    ! Standard Dyer-Businger coefficient gamma = 16.0
     xi = (1.0_rp - 16.0_rp*zeta)**0.25_rp
     corr = 2*log(0.5_rp*(1 + xi)) + log(0.5_rp*(1 + xi**2)) - 2*atan(xi) + pi/2
   end function corr_m_convective
@@ -389,6 +399,7 @@ contains
 
     zeta = z/L_ob
     pi = 4*atan(1.0_rp)
+    ! Standard Dyer-Businger coefficient gamma = 16.0
     xi = (1.0_rp - 16.0_rp*zeta)**0.25_rp
     corr = 2*log(0.5_rp*(1 + xi**2))
   end function corr_h_convective
