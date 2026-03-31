@@ -117,6 +117,8 @@ contains
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, z0, z0h_in, bc_type, bc_value)
+    
+    deallocate(bc_type)
   end subroutine most_init
 
   !> Constructor from JSON.
