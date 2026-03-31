@@ -11,5 +11,5 @@ inclined_ellipse_3D
 ellipse
 EOF
 
-rea2nbin ellipse.re2 ellipse.nmsh
-cp ellipse.nmsh ../
+rea2nbin ellipse.re2 oscillating_ellipse.nmsh
+cp oscillating_ellipse.nmsh ../
