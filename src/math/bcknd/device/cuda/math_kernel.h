@@ -88,8 +88,8 @@ __global__ void masked_gather_copy_aligned_kernel(T * __restrict__ a,
 }
 
 __device__ __forceinline__
-void face_gather_nonlinear_index(const int idx, const int lx, const int ly,
-                                 const int lz, int *index) {
+void face_gather_nonlinear_index(int *index, const int idx, const int lx,
+                                 const int ly, const int lz) {
   const int idx2 = idx - 1;
   index[3] = idx2 / (lx * ly * lz);
   index[2] = (idx2 - (lx * ly * lz) * index[3]) / (lx * ly);
@@ -129,7 +129,7 @@ __global__ void face_masked_gather_copy_kernel(T * __restrict__ a,
 
   for (int m = idx; m < n_mask; m += str) {
     const int f = facet[m + 1];
-    face_gather_nonlinear_index(mask[m + 1], lx, ly, lz, index);
+    face_gather_nonlinear_index(index, mask[m + 1], lx, ly, lz);
 
     switch (f) {
     case 1:
