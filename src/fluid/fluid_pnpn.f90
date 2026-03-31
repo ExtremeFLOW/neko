@@ -244,7 +244,6 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
     logical :: monitor, found
     logical :: advection
-    logical :: coupled_resolver
     type(json_file) :: numerics_params, precon_params
 
     call this%free()
@@ -267,14 +266,7 @@ contains
 
     call json_get_or_default(params, "case.fluid.full_stress_formulation", &
          this%full_stress_formulation, .false.)
-    call json_get_or_default(params, "case.fluid.coupled_resolver", coupled_resolver, .false.)
 
-    if (coupled_resolver) then
-       allocate(coupled_vector_bc_resolver_t :: this%bcs_vel_resolver)
-    else
-       allocate(segregated_vector_bc_resolver_t :: this%bcs_vel_resolver)
-    end if
-    call this%bcs_vel_resolver%init(this%c_Xh)
 
     call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
          .false.)
@@ -289,6 +281,9 @@ contains
 
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_stress_factory(this%vel_res)
+
+       ! Allocate coupled resolver for velocity boundary conditions
+       allocate(coupled_vector_bc_resolver_t :: this%bcs_vel_resolver)
     else
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .false.)
@@ -298,9 +293,13 @@ contains
 
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_factory(this%vel_res)
+       
+       ! Allocate segregated resolver for velocity boundary conditions
+       allocate(segregated_vector_bc_resolver_t :: this%bcs_vel_resolver)
     end if
-
-
+    
+    ! Initialize the velocity bc resolver
+    call this%bcs_vel_resolver%init(this%c_Xh)
 
     if (params%valid_path('case.fluid.nut_field')) then
        if (.not. this%full_stress_formulation) then
