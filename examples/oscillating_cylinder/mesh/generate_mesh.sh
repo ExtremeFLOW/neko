@@ -11,5 +11,5 @@ gmsh2nek <<EOF
 cylinder
 EOF
 
-rea2nbin cylinder.re2 cylinder.nmsh
-cp cylinder.nmsh ../
+rea2nbin cylinder.re2 oscillating_cylinder.nmsh
+cp oscillating_cylinder.nmsh ../

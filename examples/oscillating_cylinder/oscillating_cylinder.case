@@ -1,18 +1,16 @@
 {
   "version": 1.0,
   "case": {
-    "mesh_file": "cylinder.nmsh",
+    "mesh_file": "oscillating_cylinder.nmsh",
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": true,
     "checkpoint_control": "tsteps",
     "checkpoint_value": 5000,
-//    "restart_file": "rst.chkp",
     "time": {
       "end_time": 100.0,
-      "variable_timestep": true,
-      "max_timestep": 0.003,
-      "target_cfl": 0.4,
+      "variable_timestep": false,
+      "timestep": 0.001,
     },
     "numerics": {
       "time_order": 3,
