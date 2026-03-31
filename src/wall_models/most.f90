@@ -63,6 +63,8 @@ module most
      real(kind=rp) :: rho
      !> The fluid dynamic viscosity
      real(kind=rp) :: mu
+     !> The gravity vector
+     real(kind=rp) :: g(3)
      !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
      !> the heat flux or temperature value set in the case file
@@ -122,6 +124,10 @@ contains
     call json_get_or_default(json, "z0h", z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
+    call json_get_or_default(json, "g", g, [0.0_rp, 0.0_rp, -9.80665_rp])
+    if (.not. size(g) == 3) then
+      call neko_error("MOST WM: The gravity vector should have 3 components")
+    end if
 
     call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
 
@@ -130,7 +136,7 @@ contains
     this%bc_value = bc_type
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, mu, rho z0, z0h_in, bc_type, bc_value)
+         kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)
     
     deallocate(bc_type)
   end subroutine most_init
@@ -148,6 +154,7 @@ contains
     call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_default(json, "rho", this%rho, 1.0_rp)
     call json_get_or_default(json, "mu", this%mu, 1.81e-5)
+    call json_get_or_default(json, "g", this%g, [0.0_rp,0.0_rp,-9.80665_rp])
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
@@ -180,8 +187,9 @@ contains
   !! @param facet The boundary facets.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param kappa The von Karman coefficient.
-  !! @param fluid density
-  !! @param fluid dynamic viscosity
+  !! @param rho fluid density
+  !! @param mu fluid dynamic viscosity
+  !! @param g The gravity vector.
   !! @param z0 The roughness height.
   !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
@@ -197,6 +205,8 @@ contains
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
+    real(kind=rp) :: g(3)
+    real(kind=rp) :: g_mag
     real(kind=rp), intent(in) :: kappa, mu, rho
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value
 
@@ -205,6 +215,7 @@ contains
     this%kappa = kappa
     this%mu = mu
     this%rho = rho
+    this%g = g
     this%z0 = z0
     this%z0h_in = z0h_in
     this%bc_type = bc_type
@@ -216,6 +227,10 @@ contains
        call neko_error("MOST WM: Sampling height h must be greater than roughness z0. " // &
                        "Increase h_index or decrease z0.")
     end if
+
+    ! Check magnitude of gravity vector
+    g_mag = sqrt(g(1)**2 + g(2)**2 + g(3)**2)
+    if (g_mag < 1.0e-6_rp) call neko_error("Gravity magnitude is zero.")
 
   end subroutine most_init_from_components
 
@@ -257,14 +272,14 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu, this%rho, this%z0, this%z0h_in, this%bc_type, &
+            this%mu, this%rho, this%g, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep)
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%mu, this%rho, this%z0, this%z0h_in, this%bc_type, &
+            this%mu, this%rho, this%g, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep)
     end if
 

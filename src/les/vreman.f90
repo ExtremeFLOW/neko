@@ -100,7 +100,7 @@ contains
        call json_get_or_lookup(json, "reference_temperature", ref_temp)
        call json_get_or_lookup(json, "g", g)
        if (.not. size(g) == 3) then
-          call neko_error("The gravity vector should have 3 components")
+          call neko_error("VREMAN: The gravity vector should have 3 components")
        end if
 
        if (ri_c .le. 0.0_rp) then
