@@ -10,7 +10,7 @@
     "time": {
       "end_time": 100.0,
       "variable_timestep": false,
-      "timestep": 0.001,
+      "timestep": 0.001
     },
     "numerics": {
       "time_order": 3,
