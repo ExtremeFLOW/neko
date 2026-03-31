@@ -1,20 +1,19 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "cylinder.nmsh",
+        "mesh_file": "double_oscillating_cylinders.nmsh",
         "output_at_end": true,
         "output_boundary": true,
         "output_checkpoints": true,
         "checkpoint_control": "tsteps",
         "checkpoint_value": 5000,
-//        "restart_file": "rst.chkp",
         "runtime_statistics":{
             "enabled": true
         },
         "time": {
             "end_time": 200.0,
             "variable_timestep": false,
-            "timestep": 0.001,
+            "timestep": 0.001
         },
         "numerics": {
             "time_order": 3,
@@ -61,7 +60,6 @@
                     "output_freq": 250,
                     "dt": 0.001
                 },
-
                 "bodies": [
                     {
                         "name": "left_cylinder",
@@ -69,11 +67,11 @@
 
                         "oscillation": {
                             "amplitude": [ 0.0, 0.4, 0.0 ],
-                            "frequency": [ 0.0, 0.2, 0.0 ],
+                            "frequency": [ 0.0, 0.2, 0.0 ]
                        },
 
                         "pivot":{
-                          "value": [0.0, 0.0, 0.0],
+                          "value": [0.0, 0.0, 0.0]
                         },
 
                         "stiff_geom": {
@@ -82,14 +80,14 @@
                             "decay_profile": "tanh",
                             "gain": 1000.0
                         }
-
+                        
                     },
                     {
                         "name": "right_cylinder",
                         "zone_indices": [ 7 ],
 
                         "pivot":{
-                          "value": [4.5, 0.0, 0.0],
+                          "value": [4.5, 0.0, 0.0]
                         },
 
                         "stiff_geom": {
@@ -134,11 +132,9 @@
                 "name": "right_cyl",
                 "zone_name": "right_cylinder_pivot",
                 "center": [ 4.5, 0.0, 0.0 ],
-                "center_type": "pivot",
-            },
+                "center_type": "pivot"
+            }
 
         ]
-
-
     }
 }

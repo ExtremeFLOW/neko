@@ -45,7 +45,7 @@ contains
 
     if (associated(neko_ale)) then
        call neko_ale%log_rot_angles(time, ids_to_log)
-       call neko_ale%log_pivot(time, ids_to_log)
+       call neko_ale%log_pivot(time)
     end if
 
   end subroutine user_check
