@@ -189,8 +189,9 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | `examples/two_phase_channel/cases/144x24x48/` | Case files for L2 mesh (144×24×48, ε=0.04) |
 | `examples/two_phase_channel/cases/192x32x64/` | Case files for L3 mesh (192×32×64, ε=0.03) |
 | `examples/two_phase_channel/postprocess/postprocess_single_phase.py` | Single-phase postprocessing: ekin plot + mean velocity profile |
-| `examples/two_phase_channel/postprocess/animate_blowup.py` | Animation: φ/κ/\|u\| panels. Flags: `--stride N`, `--mesh p1\|p2\|p3`, `--kappa-scale` |
-| `examples/two_phase_channel/postprocess/postprocess_sigma0.py` | σ=0 diagnostics: κ_rms/φ time-series + field snapshots. Args: `--run`, `--R`, `--eps`, `--mesh`, `--no-snapshots` |
+| `examples/two_phase_channel/postprocess/animate_blowup.py` | Animation: φ/κ/\|u\| panels per frame. Args: `--run`, `--mesh p1\|p2\|l2\|l3\|l4`, `--R`, `--stride N`, `--kappa-scale` |
+| `examples/two_phase_channel/postprocess/animate_three_meshes.py` | Animation: L1/L2/L3 φ field stacked vertically, element grid overlaid, frames matched by time. Args: `--fps`, `--stride N`, `--no-gif` |
+| `examples/two_phase_channel/postprocess/postprocess_sigma0.py` | σ=0 diagnostics: κ_rms/φ time-series + field snapshots (φ/\|u\|/n̂_y/κ rows). Args: `--run`, `--R`, `--eps`, `--mesh p1\|p2\|l2\|l3\|l4`, `--normals`, `--no-snapshots` |
 | `examples/two_phase_channel/figures/` | Output figures and animations (gitignored, generated locally) |
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
 | `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
@@ -216,6 +217,23 @@ All cases use `turb_channel_two_phase.f90`.
 | L2 | 144×24×48 | 0.040 | 0.0873 | 10 | 166k | 2 |
 | L3 | 192×32×64 | 0.030 | 0.0654 | 13 | 393k | 4 |
 | L4 | 288×48×96 | 0.020 | 0.0436 | 20 | 1327k | ~14 |
+
+**Naming conventions warning:** The convergence level labels (L1/L2/L3) do NOT match the
+`p2`/`p3`/`l3` prefixes in run and job-script names. This is a historical accident — the
+`p2`/`p3` prefix came from early ad-hoc naming before the convergence series was formalised.
+The mapping is:
+
+| Convergence level | Run name prefix | `--mesh` flag | Job scripts |
+|-------------------|-----------------|---------------|-------------|
+| L1 | `channel_p2_*` | `p2` | `job_channel_p2_*.sh` |
+| L2 | `channel_p3_*` | `l2` | `job_channel_p3_*.sh` |
+| L3 | `channel_l3_*` | `l3` | `job_channel_l3_*.sh` |
+| L4 (planned) | `channel_l4_*` | `l4` | `job_channel_l4_*.sh` |
+
+The `--mesh` flag used in postprocess scripts (`postprocess_sigma0.py`,
+`animate_blowup.py`, `animate_three_meshes.py`) selects the correct z-slice by nz count
+and spin-up run name. Always use `--mesh l2` for L2 runs (even though the run is called
+`channel_p3_*`), and `--mesh l3` for L3 runs.
 
 **L4 note:** The 4/3 refinement factor breaks at L4 (64×4/3=85.3, not integer). L4 uses
 factor 3/2 from L3 (nz: 64→96). ε=0.02 is a clean round number. L4 is planned for
