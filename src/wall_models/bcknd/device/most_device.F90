@@ -13,7 +13,7 @@ module most_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, z0, z0h_in, bc_type, bc_value, tstep) &
+          kappa, mu, rho, z0, z0h_in, bc_type, bc_value, tstep) &
           bind(c, name = 'hip_most_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -22,7 +22,7 @@ module most_device
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
        type(c_ptr), value :: bc_type ! pointer to first char of the string
-       real(c_rp) :: kappa, z0, z0h_in, bc_value
+       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        integer(c_int) :: n_nodes, lx, tstep
      end subroutine hip_most_compute
@@ -33,7 +33,7 @@ module most_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, z0, z0h_in, bc_type, bc_value, tstep) &
+          kappa, mu, rho, z0, z0h_in, bc_type, bc_value, tstep) &
           bind(c, name = 'cuda_most_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -42,7 +42,7 @@ module most_device
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
        type(c_ptr) :: bc_type
-       real(c_rp) :: kappa, z0, z0h_in, bc_value
+       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        integer(c_int) :: n_nodes, lx, tstep
      end subroutine cuda_most_compute
@@ -58,13 +58,13 @@ contains
   subroutine most_compute_device(u_d, v_d, w_d, temp_d, &
        ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
        n_x_d, n_y_d, n_z_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
-       n_nodes, lx, kappa, z0, z0h_in, bc_type, bc_value, tstep)
+       n_nodes, lx, kappa, mu, rho, z0, z0h_in, bc_type, bc_value, tstep)
     integer, intent(in) :: n_nodes, lx, tstep
     type(c_ptr), intent(in) :: u_d, v_d, w_d, temp_d
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d
-    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value
+    real(kind=rp), intent(in) :: kappa, mu, rho, z0, z0h_in, bc_value
     character(len=*), intent(in) :: bc_type ! passed as a normal Fortran string
     integer :: bc_type_int
 
@@ -83,13 +83,15 @@ contains
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
-         lx, kappa, z0, z0h_in, bc_type_int, bc_value, tstep)
+         lx, kappa, mu, rho, z0, z0h_in, &
+         bc_type_int, bc_value, tstep)
 #elif HAVE_CUDA
     call cuda_most_compute(u_d, v_d, w_d,temp_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
-         lx, kappa, z0, z0h_in, bc_type_int, bc_value, tstep)
+         lx, kappa, mu, rho, z0, z0h_in, &
+         bc_type_int, bc_value, tstep)
 #elif HAVE_OPENCL
     call neko_error("OPENCL is not implemented for the MOST wall model")
 #else

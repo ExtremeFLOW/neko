@@ -54,11 +54,15 @@ module most
   !!
   type, public, extends(wall_model_t) :: most_t
      !> The von Karman coefficient.
-     real(kind=rp) :: kappa = 0.41_rp
+     real(kind=rp) :: kappa
      !> The roughness height
-     real(kind=rp) :: z0 = 0.1_rp
+     real(kind=rp) :: z0 
      !> The thermal roughness height
-     real(kind=rp) :: z0h_in = 0.1_rp
+     real(kind=rp) :: z0h_in 
+     !> The fluid density
+     real(kind=rp) :: rho
+     !> The fluid dynamic viscosity
+     real(kind=rp) :: mu
      !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
      !> the heat flux or temperature value set in the case file
@@ -99,13 +103,15 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: kappa, z0, z0h_in
+    real(kind=rp) :: kappa, z0, z0h_in, mu, rho
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
     real(kind=rp) :: bc_value
     real(kind=rp), pointer :: bc_value
 
     call json_get_or_default(json, "kappa", kappa, 0.4_rp)
+    call json_get_or_default(json, "rho", rho, 1.0_rp)
+    call json_get_or_default(json, "mu", mu, 1.81e-5)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
     ! If z0h is specified and positive, z0h will be constant and equal to
     ! what's specified in the case file.
@@ -124,7 +130,7 @@ contains
     this%bc_value = bc_type
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, z0, z0h_in, bc_type, bc_value)
+         kappa, mu, rho z0, z0h_in, bc_type, bc_value)
     
     deallocate(bc_type)
   end subroutine most_init
@@ -140,8 +146,10 @@ contains
 
     call this%partial_init_base(coef, json)
     call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
+    call json_get_or_default(json, "rho", this%rho, 1.0_rp)
+    call json_get_or_default(json, "mu", this%mu, 1.81e-5)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
-    call json_get_or_default(json, "z0h", this%z0h_in, -10.0_rp)
+    call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     ! call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
 
@@ -172,6 +180,8 @@ contains
   !! @param facet The boundary facets.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param kappa The von Karman coefficient.
+  !! @param fluid density
+  !! @param fluid dynamic viscosity
   !! @param z0 The roughness height.
   !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
@@ -187,12 +197,14 @@ contains
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
-    real(kind=rp), intent(in) :: kappa
+    real(kind=rp), intent(in) :: kappa, mu, rho
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value
 
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
+    this%mu = mu
+    this%rho = rho
     this%z0 = z0
     this%z0h_in = z0h_in
     this%bc_type = bc_type
@@ -245,14 +257,14 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%z0, this%z0h_in, this%bc_type, &
+            this%mu, this%rho, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep)
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%z0, this%z0h_in, this%bc_type, &
+            this%mu, this%rho, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep)
     end if
 

@@ -268,6 +268,8 @@ __global__ void most_compute(
     int n_nodes,
     int lx,                     
     T kappa,
+    T mu,
+    T rho, 
     T z0,
     T z0h_in,
     T bc_value
