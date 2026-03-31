@@ -96,7 +96,6 @@ contains
     call this%bc_x%init_from_components(this%coef)
     call this%bc_y%init_from_components(this%coef)
     call this%bc_z%init_from_components(this%coef)
-
   end subroutine symmetry_init_from_components
 
   !> Finalize.
@@ -221,17 +220,8 @@ contains
     logical, intent(in), optional :: strong
     logical :: strong_
 
-    if (present(strong)) then
-       strong_ = strong
-    else
-       strong_ = .true.
-    end if
-
-    if (strong_) then
-       call this%bc_x%apply_scalar(x, n)
-       call this%bc_y%apply_scalar(y, n)
-       call this%bc_z%apply_scalar(z, n)
-    end if
+    ! The symmetry condition's apply is no-op, because the work
+    ! is done by the bc resolver.
 
   end subroutine symmetry_apply_vector
 
@@ -264,17 +254,8 @@ contains
     type(c_ptr), intent(inout) :: strm
     logical :: strong_
 
-    if (present(strong)) then
-       strong_ = strong
-    else
-       strong_ = .true.
-    end if
-
-    if (strong_ .and. (this%msk(0) .gt. 0)) then
-       call device_symmetry_apply_vector(this%bc_x%msk_d, this%bc_y%msk_d, &
-            this%bc_z%msk_d, x_d, y_d, z_d, &
-            this%bc_x%msk(0), this%bc_y%msk(0), this%bc_z%msk(0), strm)
-    end if
+    ! The symmetry condition's apply is no-op, because the work
+    ! is done by the bc resolver.
   end subroutine symmetry_apply_vector_dev
 
   !> Destructor.

@@ -60,40 +60,65 @@ module bc_resolver
   type, public :: scalar_bc_resolver_t
      type(mask_t) :: dof_mask
    contains
+     !> Destructor.
      procedure, pass(this) :: free => scalar_bc_resolver_free
+     !> Mark a single boundary condition.
      procedure, pass(this) :: mark_bc => scalar_bc_resolver_mark_bc
+     !> Mark all boundary conditions in a list.
      procedure, pass(this) :: mark_bc_list => scalar_bc_resolver_mark_bc_list
-     procedure, pass(this) :: apply => scalar_bc_resolver_apply
+     !> Generic interface for marking boundary conditions.
      generic :: mark => mark_bc, mark_bc_list
+     !> Zero out constrained degrees of freedom.
+     procedure, pass(this) :: apply => scalar_bc_resolver_apply
   end type scalar_bc_resolver_t
 
+  !> Abstract type for resolving vector boundary conditions. 
   type, public, abstract :: vector_bc_resolver_t
    contains
-     procedure(vector_bc_resolver_free_intrf), pass(this), deferred :: free
+     !> Constructor.
      procedure(vector_bc_resolver_init_intrf), pass(this), deferred :: init
+     !> Destructor.
+     procedure(vector_bc_resolver_free_intrf), pass(this), deferred :: free
+     !> Finalize by building masks and other data structures.
      procedure(vector_bc_resolver_finalize_intrf), pass(this), deferred :: &
           finalize
+     !> Constrain the given vector according to the marked boundary conditions.
      procedure(vector_bc_resolver_apply_intrf), pass(this), deferred :: apply
-     procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: mark_bc
+     !> Mark a single boundary condition.
+     procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: &
+          mark_bc
+     !> Mark a list of boundary conditions.
      procedure(vector_bc_resolver_mark_bc_list_intrf), pass(this), deferred :: &
           mark_bc_list
      generic :: mark => mark_bc, mark_bc_list
   end type vector_bc_resolver_t
 
+  !> A resolver for vector fields that acts component-wise.
   type, public, extends(vector_bc_resolver_t) :: segregated_vector_bc_resolver_t
+     !> Resolver for the x component.
      type(scalar_bc_resolver_t) :: x
+     !> Resolver for the y component.
      type(scalar_bc_resolver_t) :: y
+     !> Resolver for the z component.
      type(scalar_bc_resolver_t) :: z
    contains
-     procedure, pass(this) :: free => segregated_vector_bc_resolver_free
+     !> Constructor.
      procedure, pass(this) :: init => segregated_vector_bc_resolver_init
+     !> Destructor.
+     procedure, pass(this) :: free => segregated_vector_bc_resolver_free
+     !> Does nothing here because the masks are constructed at mark time.
      procedure, pass(this) :: finalize => segregated_vector_bc_resolver_finalize
+     !> Mark a single boundary condition.
      procedure, pass(this) :: mark_bc => segregated_vector_bc_resolver_mark_bc
+     !> Mark a list of boundary conditions.
      procedure, pass(this) :: mark_bc_list => &
           segregated_vector_bc_resolver_mark_bc_list
+     ! Constrain each component by apply the respective scalar resolver.
      procedure, pass(this) :: apply => segregated_vector_bc_resolver_apply
   end type segregated_vector_bc_resolver_t
 
+  !> A coupled resolver for vector fields, suitable for mixed boundary
+  !! conditions.
   type, public, extends(vector_bc_resolver_t) :: coupled_vector_bc_resolver_t
      type(mask_t) :: dirichlet_dof_mask
      type(mask_t) :: mixed_dof_mask
@@ -109,10 +134,13 @@ module bc_resolver
      !> Resolved class for each local face. The first dimension is the local
      ! facet id and the second is the local element id.
      real(kind=rp), allocatable :: face_class(:,:)
+     !> Normal constraint per mixed node.
      logical, allocatable :: constraint_n(:)
+     !> Tangent constraint 1 per mixed node.
      logical, allocatable :: constraint_t1(:)
+     !> Tangent constraint 2 per mixed node.
      logical, allocatable :: constraint_t2(:)
-     !> Normal and tangent vectors for each face.
+     !> Normal and tangent vectors for each mixed node.
      real(kind=rp), allocatable :: n(:,:)
      real(kind=rp), allocatable :: t1(:,:)
      real(kind=rp), allocatable :: t2(:,:)

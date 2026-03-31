@@ -946,29 +946,52 @@ contains
              ! bcs, some of which are strong.
              select type (bc_i)
              type is (symmetry_t)
-                ! Symmetry has 3 internal bcs, but only one actually contains
-                ! markings.
-                ! Symmetry's apply_scalar doesn't do anything, so we need to mark
-                ! the individual nested bcs on the component resolvers.
-                ! Additionally we have to mark the special surface bc for p.
-                call this%bcs_vel_resolver%mark(bc_i)
-                !call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
-                !call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
-                !call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
-
-                call this%bcs_vel%append(bc_i)
+                ! For symmetry we have to distinguish between the full and
+                ! simplified stress formulations in order to be able to use
+                ! the old symmetry bc hack of using nested bcs for the
+                ! individual components.
+                if (this%full_stress_formulation) then
+                   ! In this situation, the coupled resolver marks the entire bc
+                   ! and will remove the normal component from velocity on the
+                   ! surface. No reliance on axis alignement.
+                   call this%bcs_vel_resolver%mark(bc_i)
+                else
+                   ! In this case we need to tell the segregated resolver where
+                   ! we have the dirichlet dofs component-wise. This is stored
+                   ! in the nested bcs. Of course, we rely on axis-alignment of
+                   ! the geometry.
+                   call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
+                   call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
+                   call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
+                end if
+                   ! We append it to the list just for structure, the condition
+                   ! itself does nothing on %apply
+                   call this%bcs_vel%append(bc_i)
 
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
              type is (non_normal_t)
                 ! This is a bc for the residuals and increments, not the
-                ! velocity itself. So, don't append to bcs_vel
-                call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
-                call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
-                call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
+                ! velocity itself. So, don't append to bcs_vel.
+                ! Otherwise the situation is the same as symmetry.
+                if (this%full_stress_formulation) then
+                   call this%bcs_vel_resolver%mark(bc_i)
+                else
+                   call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
+                   call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
+                   call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
+                end if
              type is (shear_stress_t)
+                if (.not. this%full_stress_formulation) then
+                   call neko_error("The shear_stress boundary condition " // &
+                        "requires the full stress formulation to be enabled.")
+                end if
                 call this%bcs_vel_resolver%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
+                if (.not. this%full_stress_formulation) then
+                   call neko_error("The wall_model boundary condition " // &
+                        "requires the full stress formulation to be enabled.")
+                end if
                 call this%bcs_vel_resolver%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              class default
