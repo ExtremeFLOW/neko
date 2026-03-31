@@ -45,13 +45,14 @@ module most
   use most_cpu, only : most_compute_cpu
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
   !> Wall model based on the Monin-Obukhov Similarity Theory for atmospheric
   !! boundary layer flows. Automatically switches between stable, unstable and
   !! neutral layer formulations based on the Richardson number.
-  !!
+  !! 
   type, public, extends(wall_model_t) :: most_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa
@@ -59,12 +60,12 @@ module most
      real(kind=rp) :: z0 
      !> The thermal roughness height
      real(kind=rp) :: z0h_in 
-     !> The fluid density
-     real(kind=rp) :: rho
-     !> The fluid dynamic viscosity
-     real(kind=rp) :: mu
      !> The gravity vector
      real(kind=rp) :: g(3)
+     !> The fluid density
+     real(kind=rp) :: rho_val
+     !> The fluid dynamic viscosity
+     real(kind=rp) :: mu_val
      !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
      !> the heat flux or temperature value set in the case file
@@ -104,16 +105,17 @@ contains
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
+    real(kind=rp) :: mu, rho
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: kappa, z0, z0h_in, mu, rho
+    real(kind=rp) :: kappa, z0, z0h_in
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
     real(kind=rp) :: bc_value
-    real(kind=rp), pointer :: bc_value
+    real(kind=rp), pointer :: bc_value_ptr
+    real(kind=rp), allocatable :: g_tmp(:)
+    real(kind=rp) :: g(3)
 
     call json_get_or_default(json, "kappa", kappa, 0.4_rp)
-    call json_get_or_default(json, "rho", rho, 1.0_rp)
-    call json_get_or_default(json, "mu", mu, 1.81e-5)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
     ! If z0h is specified and positive, z0h will be constant and equal to
     ! what's specified in the case file.
@@ -122,18 +124,22 @@ contains
     ! If z0h is to specified, assign default value of -0.8,
     ! corresponding to the Zilitinkevich constant value used in Zilitinkevich 1995.
     call json_get_or_default(json, "z0h", z0h_in, -0.8_rp)
+    call json_get_or_default(json, "mu", mu, 1e-10_rp)
+    call json_get_or_default(json, "rho", rho, 1.0_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
-    call json_get_or_default(json, "g", g, [0.0_rp, 0.0_rp, -9.80665_rp])
-    if (.not. size(g) == 3) then
-      call neko_error("MOST WM: The gravity vector should have 3 components")
+
+    call json_get(json, "g", g_tmp)
+    if (size(g_tmp) == 3) then
+       g = g_tmp
+    else
+       call neko_error("MOST WM: The gravity vector should have exactly 3 components")
     end if
+    deallocate(g_tmp)
 
-    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
-
-    bc_value => neko_const_registry%get_real_scalar("bc_value")
-
-    this%bc_value = bc_value
+    call neko_const_registry%add_real_scalar(0.0_rp, "bc_value")
+    bc_value_ptr => neko_const_registry%get_real_scalar("bc_value")
+    bc_value = bc_value_ptr
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
          kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)
@@ -148,23 +154,26 @@ contains
     class(most_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
-    real(kind=rp), pointer :: bc_value
+    real(kind=rp), pointer :: bc_value_ptr
+    real(kind=rp), allocatable :: g_tmp(:)
 
     call this%partial_init_base(coef, json)
     call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
-    call json_get_or_default(json, "rho", this%rho, 1.0_rp)
-    call json_get_or_default(json, "mu", this%mu, 1.81e-5)
-    call json_get_or_default(json, "g", this%g, [0.0_rp, 0.0_rp, -9.80665_rp])
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
-    ! call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
 
-    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
+    call json_get(json, "g", g_tmp)
+    if (size(g_tmp) == 3) then
+       this%g = g_tmp
+    else
+       call neko_error("MOST WM: Gravity vector must have 3 components")
+    end if
+    deallocate(g_tmp)
 
-    bc_value => neko_const_registry%get_real_scalar("bc_value")
-
-    this%bc_value = bc_value
+    call neko_const_registry%add_real_scalar(0.0_rp, "bc_value")
+    bc_value_ptr => neko_const_registry%get_real_scalar("bc_value")
+    this%bc_value = bc_value_ptr
 
   end subroutine most_partial_init
 
@@ -205,18 +214,19 @@ contains
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
-    real(kind=rp), intent(in) :: g(3) 
+    real(kind=rp), intent(in) :: g(3)
     real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
     integer :: i
     real(kind=rp), intent(in) :: kappa, mu, rho
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value
+    character(len=LOG_SIZE) :: log_buf
 
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
-    this%mu = mu
-    this%rho = rho
     this%g = g
+    this%mu_val = mu
+    this%rho_val = rho
     this%z0 = z0
     this%z0h_in = z0h_in
     this%bc_type = bc_type
@@ -288,14 +298,14 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu, this%rho, this%g, this%z0, this%z0h_in, this%bc_type, &
+            this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep)
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%mu, this%rho, this%g, this%z0, this%z0h_in, this%bc_type, &
+            this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep)
     end if
 

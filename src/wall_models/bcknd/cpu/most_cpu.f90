@@ -162,7 +162,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value
+    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, mu, rho
     real(kind=rp), dimension(3), intent(in) :: g_vec
     character(len=*), intent(in) :: bc_type
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
