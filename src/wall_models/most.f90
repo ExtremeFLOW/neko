@@ -108,7 +108,6 @@ contains
     ! if z0h not specified, assign negative
     ! and compute automatically with Zilitinkevich
     call json_get(json, "type_of_temp_bc", bc_type)
-    ! call json_get(json, "bottom_bc_flux_or_temp", bc_value)
 
     call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
 
@@ -197,7 +196,11 @@ contains
 
   !> Destructor for the most_t (base) class.
   subroutine most_free(this)
-    class(most_t), intent(inout) :: this
+    class(most_t), intent(inout) :: thi
+
+    if (allocated(this%bc_type)) then
+      deallocate(this%bc_type)
+    end if
 
     call this%free_base()
 
