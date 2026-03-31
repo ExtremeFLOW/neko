@@ -63,6 +63,8 @@ module most
      character(len=:), allocatable :: bc_type
      !> the heat flux or temperature value set in the case file
      real(kind=rp) :: bc_value
+     !> The name of the temperature variable
+     character(len=:), allocatable :: scalar_name
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => most_init
@@ -99,15 +101,17 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, z0, z0h_in
     character(len=:), allocatable :: bc_type
+    character(len=:), allocatable :: scalar_name
     real(kind=rp) :: bc_value
     real(kind=rp), pointer :: bc_value
 
     call json_get_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
-    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp)
-    ! if z0h not specified, assign negative
+    ! If z0h not specified, assign negative
     ! and compute automatically with Zilitinkevich
+    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
+    call json_get(json, "scalar_field", scalar_name)
 
     call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
 
@@ -115,7 +119,7 @@ contains
 
     this%bc_value = bc_type
 
-    call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
+    call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
          kappa, z0, z0h_in, bc_type, bc_value)
     
     deallocate(bc_type)
@@ -167,12 +171,14 @@ contains
   !! @param z0 The roughness height.
   !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
+  !! @param scalar_name The name of the scalar field (temperature) for MOST.
   !! @param bc_value The heat flux at the surface boundary condition.
-  subroutine most_init_from_components(this, scheme_name, coef, msk, &
+  subroutine most_init_from_components(this, scheme_name, scalar_name, coef, msk, &
        facet, h_index, kappa, z0, z0h_in, bc_type, bc_value)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
+    character(len=*), intent(in) :: scalar_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
@@ -187,6 +193,7 @@ contains
     this%z0h_in = z0h_in
     this%bc_type = bc_type
     this%bc_value = bc_value
+    this%scalar_name = scalar_name
 
     ! Check that the sampling height is above the roughness length
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
@@ -224,7 +231,7 @@ contains
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
-    temp => neko_registry%get_field("temperature")
+    temp => neko_registry%get_field(this%scalar_name)
     bc_value => neko_const_registry%get_real_scalar("bc_value")
     this%bc_value = bc_value
 
