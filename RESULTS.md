@@ -141,16 +141,50 @@ curvature scheme (height-function, parabolic fit, or pre-smoothed n̂).
 - Helmholtz-type smoother on n̂ — filters the intra-element kink
 - Fundamentally different curvature scheme — height-function or parabolic fit
 
+### Normal field diagnostics (generated 2026-03-31)
+
+Quantitative diagnostics run via `postprocess_normals.py` on L2 and L3 σ=0 runs.
+
+**Diagnostic 1 — Angular deviation δ = arccos(n̂_computed · n̂_ideal)**
+
+n̂_computed = ∇φ/|∇φ| from element-local gradient. n̂_ideal = inward radial from
+drop centroid. For a spherical drop n̂_ideal is exact; δ measures the geometric
+error in n̂ at each interface GLL point.
+
+| Run | t=20.5 TU | t=23.0 TU | t=25.0 TU |
+|-----|-----------|-----------|-----------|
+| L2 ε=0.04 | mean=18.4°, p90=41.0° | mean=39.7°, p90=84.7° | mean=62.1°, p90=114.6° |
+| L3 ε=0.03 | mean=15.5°, p90=33.3° | mean=38.0°, p90=75.5° | mean=57.6°, p90=104.2° |
+
+**Key finding:** Mean deviation grows from ~15–18° at t=20.5 (near-spherical drop,
+good initial n̂) to ~58–62° at t=25 (severely wrong). This is not a small kink —
+normals are rotated ~60° from ideal on average. The CDI sharpening term
+∇·(γ φ(1-φ) n̂) with n̂ at 60° from the interface normal has a cosine factor of 0.5,
+halving the effective compression. With p90 >100°, most interface points have
+n̂ pointing away from the interface entirely.
+
+**Diagnostic 2 — φ interface profile width (10-90% width, vertical cut through drop top)**
+
+Expected ideal width = 4ε·arctanh(0.8) ≈ 4.4ε.
+
+| Run | ε | t=20.5 TU | t=23.0 TU | t=25.0 TU |
+|-----|---|-----------|-----------|-----------|
+| L2 ε=0.04 | 0.04 | 4.17ε | 4.17ε | **6.04ε** |
+| L3 ε=0.03 | 0.03 | 3.77ε | 3.33ε | **10.24ε** |
+
+**Key finding:** The L3 profile broadens catastrophically to 10.24ε by t=25, while
+L2 reaches 6.04ε. Both are consistent with failing CDI sharpening. The combination
+of large δ (bad n̂) and profile broadening confirms the root cause is n̂ quality,
+not low γ alone (since γ is the same for both mesh levels but L3 is worse).
+
 ### Next step (planned)
 
 The normal field n̂ is used in both CDI (compression term) and CSF (surface tension
-force). The working hypothesis is that n̂ quality is the root cause of the κ_rms
-artifact — and will also drive spurious currents once We>0 cases are run. The next
-plan is a dedicated normal-field study, continuing with σ=0 (We=0) to avoid blow-up
-from spurious currents while isolating the normal-field behaviour. This will involve
-directly analysing n̂ computed from the φ snapshots (recomputable via SEM derivative
-operators), visualising the face-node vs first-interior jump, and evaluating candidate
-smoothing strategies before enabling surface tension.
+force). The diagnostics above confirm that n̂ quality is the root cause of the κ_rms
+artifact and interface broadening. The next plan is to investigate smoothing strategies
+for n̂ directly — either pre-smoothing ∇φ with multiple GS passes, or applying a
+Helmholtz-type filter to n̂ after normalisation — still at σ=0 (We=0) to avoid blow-up
+from spurious currents while isolating the normal-field behaviour.
 
 ### Postprocessing figures (generated 2026-03-31)
 
@@ -161,3 +195,5 @@ smoothing strategies before enabling surface tension.
 | `sigma0_normals_channel_{p3_sigma0,l3_sigma0}.png` | Zoom+quiver: n̂ field around drop top |
 | `blowup_channel_{p2_sigma0_eps053,p3_sigma0,l3_sigma0}.gif` | Animated φ/κ/\|u\|, 10 frames |
 | `three_meshes_sigma0.gif` | L1/L2/L3 φ stacked, element grid overlaid, 5 frames |
+| `normals_angular_dev_channel_{p3_sigma0,l3_sigma0}.png` | Angular deviation δ, all 3 snapshots on one panel |
+| `normals_phi_profile_channel_{p3_sigma0,l3_sigma0}.png` | φ profile width over time; ideal tanh reference |

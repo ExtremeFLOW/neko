@@ -192,6 +192,7 @@ wall-normal offset of the drop centre. Used by the restart_off case (y_c=0.3).
 | `examples/two_phase_channel/postprocess/animate_blowup.py` | Animation: φ/κ/\|u\| panels per frame. Args: `--run`, `--mesh p1\|p2\|l2\|l3\|l4`, `--R`, `--stride N`, `--kappa-scale` |
 | `examples/two_phase_channel/postprocess/animate_three_meshes.py` | Animation: L1/L2/L3 φ field stacked vertically, element grid overlaid, frames matched by time. Args: `--fps`, `--stride N`, `--no-gif` |
 | `examples/two_phase_channel/postprocess/postprocess_sigma0.py` | σ=0 diagnostics: κ_rms/φ time-series + field snapshots (φ/\|u\|/n̂_y/κ rows). Args: `--run`, `--R`, `--eps`, `--mesh p1\|p2\|l2\|l3\|l4`, `--normals`, `--no-snapshots` |
+| `examples/two_phase_channel/postprocess/postprocess_normals.py` | Normal field quality diagnostics: (1) angular deviation map δ=arccos(n̂·n̂_ideal) for first/mid/last snapshot on one panel; (2) φ profile width over time. Args: `--run`, `--R`, `--eps`, `--mesh p1\|p2\|l2\|l3\|l4`, `--grad-thresh` |
 | `examples/two_phase_channel/figures/` | Output figures and animations (gitignored, generated locally) |
 | `examples/turb_channel/turb_channel.f90` | Reference: channel IC source |
 | `examples/spurious_currents_multiphase/spurious_currents.f90` | Reference: CSF/CDI source |
@@ -350,6 +351,11 @@ python3 postprocess/animate_blowup.py --run channel_l3_sigma0        --mesh l3 -
 # L1/L2/L3 stacked comparison animation (reads all three runs):
 python3 postprocess/animate_three_meshes.py --fps 2 --stride 2
 # stride=2 recommended: L3 files are 3.8 GB each; stride=1 risks OOM on egidius (91 GB RAM)
+
+# Normal field quality diagnostics (angular deviation + φ profile width):
+python3 postprocess/postprocess_normals.py --run channel_p3_sigma0        --R 0.4 --eps 0.04 --mesh l2
+python3 postprocess/postprocess_normals.py --run channel_l3_sigma0        --R 0.4 --eps 0.03 --mesh l3
+python3 postprocess/postprocess_normals.py --run channel_p2_sigma0_eps053 --R 0.4 --eps 0.053 --mesh p2
 ```
 
 ### Critical field file gotcha
