@@ -186,6 +186,13 @@ contains
     this%z0h_in = z0h_in
     this%bc_type = bc_type
     this%bc_value = bc_value
+
+    ! Check that the sampling height is above the roughness length
+    if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
+       call neko_error("MOST WM: Sampling height h must be greater than roughness z0. " // &
+                       "Increase h_index or decrease z0.")
+    end if
+
   end subroutine most_init_from_components
 
   !> Destructor for the most_t (base) class.

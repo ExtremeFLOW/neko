@@ -157,6 +157,12 @@ contains
     this%B = B
     this%z0 = z0
 
+    ! Check that the sampling height is above the roughness length
+    if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
+       call neko_error("Roughlog WM: Sampling height h must be greater than roughness z0. " // &
+                       "Increase h_index or decrease z0.")
+    end if
+
   end subroutine rough_log_law_init_from_components
 
   !> Destructor for the rough_log_law_t (base) class.
