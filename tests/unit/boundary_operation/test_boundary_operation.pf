@@ -56,17 +56,17 @@ contains
 
   !> Verify the default logging and CSV flags on a fresh simcomp.
   @test(npes=[1])
-  subroutine test_boundary_operation_defaults(this)
+  subroutine test_defaults(this)
     class(test_boundary_operation_case), intent(inout) :: this
     type(boundary_operation_t) :: simcomp
 
     @assertTrue(simcomp%log)
     @assertFalse(simcomp%csv_output_enabled)
-  end subroutine test_boundary_operation_defaults
+  end subroutine test_defaults
 
   !> Verify computed boundary-operation results are stored on the simcomp.
   @test(npes=[1])
-  subroutine test_boundary_operation_stored_results(this)
+  subroutine test_stored_results(this)
     class(test_boundary_operation_case), intent(inout) :: this
     type(mesh_t) :: msh
     type(space_t) :: Xh
@@ -102,8 +102,78 @@ contains
     call dof%free()
     call Xh%free()
     call msh%free()
-  end subroutine test_boundary_operation_stored_results
+  end subroutine test_stored_results
 
+  !> Verify the public constructor initializes the simcomp state.
+  @test(npes=[1])
+  subroutine test_init(this)
+    class(test_boundary_operation_case), intent(inout) :: this
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(boundary_operation_t) :: simcomp
+    type(case_t), target :: test_case
+    type(field_t), pointer :: reg_field
+    integer :: zone_indices(2)
+    character(len=16) :: operations(2)
+
+    call build_single_hex_fixture(msh, Xh, dof, gs, coef)
+    call label_x_faces(msh)
+
+    call neko_registry%init()
+    call neko_registry%add_field(dof, "u")
+    reg_field => neko_registry%get_field_by_name("u")
+    reg_field%x = dof%x
+
+    call test_case%time%init(0.0_rp, 1.0_rp, 0.1_rp)
+    allocate(fluid_pnpn_t :: test_case%fluid)
+    select type(fluid => test_case%fluid)
+    type is (fluid_pnpn_t)
+       fluid%c_Xh = coef
+    end select
+
+    zone_indices = [1, 2]
+    operations = [character(len=16) :: "integral", "max"]
+    call simcomp%init_from_components("boundary_operation_test", test_case, 7, &
+         "tsteps", 1.0_rp, "tsteps", 1.0_rp, "tsteps", 1.0_rp, &
+         zone_indices, "u", operations, .false.)
+
+    @assertEqual("boundary_operation_test", simcomp%name)
+    @assertFalse(simcomp%log)
+    @assertEqual(7, simcomp%order)
+    @assertTrue(simcomp%compute_integral)
+    @assertFalse(simcomp%compute_average)
+    @assertFalse(simcomp%compute_min)
+    @assertTrue(simcomp%compute_max)
+    @assertTrue(associated(simcomp%field, reg_field))
+    @assertEqual("u", simcomp%field_name)
+    @assertEqual(2, size(simcomp%zone_indices))
+    @assertEqual(2, size(simcomp%operations))
+    @assertEqual(zone_indices(1), simcomp%zone_indices(1))
+    @assertEqual(zone_indices(2), simcomp%zone_indices(2))
+    @assertEqual("integral", trim(simcomp%operations(1)))
+    @assertEqual("max", trim(simcomp%operations(2)))
+    @assertEqual(simcomp%bc%msk(0), simcomp%areas%size())
+    @assertEqual(simcomp%bc%msk(0), simcomp%surface_values%size())
+
+    call simcomp%free()
+    select type(fluid => test_case%fluid)
+    type is (fluid_pnpn_t)
+       call fluid%c_Xh%free()
+    end select
+    deallocate(test_case%fluid)
+    call neko_registry%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call msh%free()
+  end subroutine test_init
+
+  ! This builds the entire simcomp to test compute, withot usng a
+  ! constructor.
   subroutine init_boundary_operation_for_compute_test(simcomp, fld, coef)
     type(boundary_operation_t), intent(inout) :: simcomp
     type(field_t), target, intent(inout) :: fld

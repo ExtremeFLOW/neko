@@ -230,6 +230,7 @@ contains
 
     n_pts = this%bc%msk(0)
     if (n_pts .gt. 0) then
+       call this%areas%init(n_pts)
        call this%surface_values%init(n_pts)
        call vector_face_masked_gather_copy_0(this%areas, this%coef%area, &
             this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &
@@ -241,8 +242,8 @@ contains
        do i = 1, size(this%operations)
           csv_header = trim(csv_header) // "," // trim(this%operations(i))
        end do
-       call this%csv_output%init(trim(output_filename), header = trim(csv_header), &
-            overwrite = .true.)
+       call this%csv_output%init(trim(output_filename), header = &
+            trim(csv_header), overwrite = .true.)
        call this%csv_row%init(2 + size(this%operations))
        this%csv_output_enabled = .true.
     end if
@@ -405,31 +406,28 @@ contains
     this%maximum = -huge(0.0_rp)
     area = 0.0_rp
 
-    if (n_pts .gt. 0) then
-       call vector_masked_gather_copy_0(this%surface_values, &
-            this%field%x, this%bc%msk, this%field%size(), n_pts)
+    call vector_masked_gather_copy_0(this%surface_values, &
+         this%field%x, this%bc%msk, this%field%size(), n_pts)
 
-       if (this%compute_integral .or. this%compute_average) then
-          this%integral = vector_glsc2(this%surface_values, this%areas, n_pts)
+    if (this%compute_integral .or. this%compute_average) then
+       this%integral = vector_glsc2(this%surface_values, this%areas, n_pts)
+    end if
+
+    if (this%compute_average) then
+       area = vector_glsum(this%areas, n_pts)
+       if (area .gt. 0.0_rp) then
+          this%average = this%integral / area
+       else
+          this%average = 0.0_rp
        end if
+    end if
 
-       if (this%compute_average) then
-          area = vector_glsum(this%areas, n_pts)
-          if (area .gt. 0.0_rp) then
-             this%average = this%integral / area
-          else
-             this%average = 0.0_rp
-          end if
-       end if
+    if (this%compute_min) then
+       this%minimum = vector_glmin(this%surface_values, n_pts)
+    end if
 
-
-       if (this%compute_min) then
-          this%minimum = vector_glmin(this%surface_values, n_pts)
-       end if
-
-       if (this%compute_max) then
-          this%maximum = vector_glmax(this%surface_values, n_pts)
-       end if
+    if (this%compute_max) then
+       this%maximum = vector_glmax(this%surface_values, n_pts)
     end if
 
     if (this%log) then
