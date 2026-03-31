@@ -156,7 +156,7 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, z0h_in, bc_type, bc_value, tstep)
+       kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value, tstep)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -199,7 +199,8 @@ contains
 
        ! Compute thermal roughness length from Zilitinkevich, 1995
        if (z0h_in < 0) then
-          z0h = z0 * exp(-0.1_rp*sqrt((utau(i)*z0)/1.46e-5_rp))
+          ! z0h_in is interpreted as C_Zil (Zilitinkevich constant) for z0h
+          z0h = z0 * exp(z0h_in*sqrt((utau(i)*z0)/(mu/rho)))
        else
           z0h = z0h_in
        end if

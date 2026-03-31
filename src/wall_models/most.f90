@@ -107,9 +107,13 @@ contains
 
     call json_get_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_default(json, "z0", z0, 0.1_rp)
-    ! If z0h not specified, assign negative
-    ! and compute automatically with Zilitinkevich
-    call json_get_or_default(json, "z0h", z0h_in, -10.0_rp)
+    ! If z0h is specified and positive, z0h will be constant and equal to
+    ! what's specified in the case file.
+    ! If z0h is specified and negative, the Zilitinkevich 1995 formulation
+    ! is used, with the specified value acting as -C_Zil.
+    ! If z0h is to specified, assign default value of -0.8,
+    ! corresponding to the Zilitinkevich constant value used in Zilitinkevich 1995.
+    call json_get_or_default(json, "z0h", z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
 
