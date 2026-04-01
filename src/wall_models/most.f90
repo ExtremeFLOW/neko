@@ -39,12 +39,12 @@ module most
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
-  use registry, only : neko_registry
   use json_utils, only : json_get_or_default, json_get
   use most_device, only : most_compute_device
   use most_cpu, only : most_compute_cpu
-  use scratch_registry, only : neko_scratch_registry, neko_const_registry
+  use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error, neko_warning
+  use registry, only : neko_registry, neko_const_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
