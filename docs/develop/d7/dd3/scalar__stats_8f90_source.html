@@ -276,10 +276,10 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>       this%n_stats = 42</div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="comment">! If a name is specified and is not the default name, add it</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="comment">! as a prefix to the mean field names, followed by a &quot;/&quot;.</span></div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(name) .and. trim(name) .ne. <span class="stringliteral">&quot;fluid_stats&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       unique_name = name // <span class="stringliteral">&quot;/&quot;</span></div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>       unique_name = name // <span class="stringliteral">&quot;/&quot;</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       unique_name = <span class="stringliteral">&quot;scalar_stats/&quot;</span></div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <span class="comment">! Initialize work fields</span></div>
@@ -982,7 +982,7 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../d7/dd3/scalar__stats_8f90.html">scalar_stats.f90</a></li>
-    <li class="footer">Generated on Tue Mar 31 2026 04:23:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 1 2026 04:32:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

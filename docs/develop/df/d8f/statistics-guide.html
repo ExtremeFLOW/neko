@@ -282,7 +282,7 @@ Scalar Statistics</h1>
 <p>In the scalar statistics in Neko, various averages of a given scalar and the different velocity components, derivatives and pressure are computed, in a similar fashion to the fluid statistics. In total, 42 "raw statistics" are computed that are required to compute the mean scalar transport equation, skewness and kurtosis, as well as the scalar variance budget, and turbulent scalar flux budgets. In order to compute the final budgets, some terms are required from the fluid statistics, namely the mean velocities and Reynolds stresses. The user is responsible for collecting these statistics separately using the <code><a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a></code> simulation component (see <a class="el" href="../../df/d8f/statistics-guide.html#fluid-statistics">Fluid Statistics</a>).</p>
 <h2><a class="anchor" id="autotoc_md182"></a>
 Using statistics</h2>
-<p>Similar to fluid statistics, scalar statistics are enabled in the case file as a simcomp with an additional argument <code>field</code> for the name of the scalar field to be averaged:</p>
+<p>Similar to fluid statistics, scalar statistics are enabled in the case file as a simcomp with an additional argument <code>field</code> for the name of the scalar field to be averaged, which will be appended to the default prefix of the <code><a class="el" href="../../dc/d5e/namespacescalar__stats.html" title="Computes various statistics for the scalar fields. We use the Reynolds decomposition for a field u = ...">scalar_stats</a></code> field registry entries as <code>scalar_stats_{field}/*</code>:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
@@ -299,7 +299,7 @@ Using statistics</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">User-specified filename to store output in.   </td><td class="markdownTableBodyNone">filename   </td><td class="markdownTableBodyNone"><code>scalar_statsX*</code>   </td></tr>
 </table>
-<p>*The name of the written statistics file will by default be <code>scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run. Note that if you want to compute statistics for multiple scalars, you will need to specify an independent <code>output_filename</code> for each.</p>
+<p>*The name of the written statistics file will by default be <code>scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run. If <code>field</code> is specified, it will be appended to the default filename as <code>scalar_stats_{field}X0.f0000X</code>. Otherwise, you can specify an independent <code>output_filename</code> for each scalar you compute statistics for.</p>
 <p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
 <div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
 <div class="line">  [</div>
@@ -558,7 +558,7 @@ Note to users</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Mar 31 2026 04:23:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 1 2026 04:32:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
