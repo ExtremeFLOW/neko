@@ -11,7 +11,10 @@ program average_fields_in_time
 
   argc = command_argument_count()
 
-  if ((argc .lt. 3) .or. (argc .gt. 3)) call usage()
+  if ((argc .lt. 3) .or. (argc .gt. 3)) then
+    call usage()
+    stop
+  end if
 
   call neko_init
 
@@ -75,11 +78,10 @@ contains
        write(*,*) '    Computes the average field over the csv file'
        write(*,*) '    stats0.csv and writes it in mean_field_avg.csv'
     end if
-    stop
   end subroutine usage
 
   !> Average fields from a series of fld files
-  !! @param fld_fnam The name of the fld series to process.
+  !! @param fld_fname The name of the fld series to process.
   !! @param output_fname The name of the output fld file.
   !! @param start_time The starting time to use to compute the sampling time
   !! of the very first sample. In other words the time at which the statistics
@@ -123,6 +125,9 @@ contains
     call output_file%write(fld_data_avg, fld_data_avg%time)
     call neko_log%message('Done')
 
+    call fld_data%free()
+    call fld_data_avg%free()
+
   end subroutine avg_flds_in_time_fld
 
   !> Average fields from a series of csv files.
@@ -150,64 +155,68 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: sample_size, n_samples
 
-    ! This will initialize and populate the matrix data
-    call populate_matrix(trim(in_fname), data)
+    if (pe_rank .eq. 0) then
 
-    ! Compute the size of a statistics sample
-    sample_size = determine_size_of_csv_sample(data)
-    n_samples = data%get_nrows() / sample_size
-    write (log_buf, '(A,I5)') "Size of each sample: ", sample_size
-    call neko_log%message(log_buf)
-    write (log_buf, '(A,I5)') "Number of samples  : ", n_samples
-    call neko_log%message(log_buf)
+       ! This will initialize and populate the matrix data
+       call populate_matrix(trim(in_fname), data)
 
-    ! Initialize the matrix for the averaged data
-    call avg_data%init(sample_size, data%get_ncols())
+       ! Compute the size of a statistics sample
+       sample_size = determine_size_of_csv_sample(data)
+       n_samples = data%get_nrows() / sample_size
+       write (log_buf, '(A,I5)') "Size of each sample: ", sample_size
+       call neko_log%message(log_buf)
+       write (log_buf, '(A,I5)') "Number of samples  : ", n_samples
+       call neko_log%message(log_buf)
 
-    block
-      integer :: i
-      real(kind=rp) :: dt, ta, tb
+       ! Initialize the matrix for the averaged data
+       call avg_data%init(sample_size, data%get_ncols())
 
-      tb = data%x(1,1) ! First time stamp
-      ta = start_time ! User defined
-      dt = tb - ta ! First "sampling length"
-      write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", 1, "/", &
-           n_samples, ": ", dt
-      call neko_log%message(log_buf)
+       block
+         integer :: i
+         real(kind=rp) :: dt, ta, tb
 
-      ! First sample, scaled by the starting time
-      avg_data%x(:,1:) = dt*data%x(1:sample_size, :)
-
-      do i = 1, n_samples-1
-
-         ta = data%x(sample_size*(i-1) + 1, 1) ! Previous time stamp
-         tb = data%x(sample_size* i + 1, 1) ! Current time stamp
-         dt = tb - ta ! Sampling time for the current sample
-
-         write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", i+1, "/", &
+         tb = data%x(1,1) ! First time stamp
+         ta = start_time ! User defined
+         dt = tb - ta ! First "sampling length"
+         write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", 1, "/", &
               n_samples, ": ", dt
          call neko_log%message(log_buf)
 
-         avg_data%x = avg_data%x + &
-              dt * data%x(sample_size*i + 1:sample_size * (i+1), :)
-      end do
+         ! First sample, scaled by the starting time
+         avg_data%x(:,1:) = dt*data%x(1:sample_size, :)
 
-      ! Final rescaling with the total length of signal
-      avg_data%x = avg_data%x / (data%x(data%get_nrows(), 1) - start_time)
+         do i = 1, n_samples-1
 
-      ! Set the final time
-      avg_data%x(:,1) = data%x(data%get_nrows(), 1)
+            ta = data%x(sample_size*(i-1) + 1, 1) ! Previous time stamp
+            tb = data%x(sample_size* i + 1, 1) ! Current time stamp
+            dt = tb - ta ! Sampling time for the current sample
 
-      ! Load the spatial coordinates in the second column
-      avg_data%x(:, 2) = data%x(1:sample_size, 2)
+            write (log_buf, '(A,I0,A,I0,A,g0)') "Length of sample ", i+1, "/", &
+                 n_samples, ": ", dt
+            call neko_log%message(log_buf)
 
-    end block
+            avg_data%x = avg_data%x + &
+                 dt * data%x(sample_size*i + 1:sample_size * (i+1), :)
+         end do
 
-    ! Write the final averaged fields
-    call out_file%init(trim(out_fname))
-    call out_file%set_overwrite(.true.)
-    call out_file%write(avg_data)
-    call file_free(out_file)
+         ! Final rescaling with the total length of signal
+         avg_data%x = avg_data%x / (data%x(data%get_nrows(), 1) - start_time)
+
+         ! Set the final time
+         avg_data%x(:,1) = data%x(data%get_nrows(), 1)
+
+         ! Load the spatial coordinates in the second column
+         avg_data%x(:, 2) = data%x(1:sample_size, 2)
+
+       end block
+
+       ! Write the final averaged fields
+       call out_file%init(trim(out_fname))
+       call out_file%set_overwrite(.true.)
+       call out_file%write(avg_data)
+       call file_free(out_file)
+
+    end if
 
   end subroutine avg_flds_in_time_csv
 
@@ -217,6 +226,7 @@ contains
     integer :: n
 
     n = 1
+    
     ! Increment n while the time stamps (in the first column) have the same value
     do while ( abscmp(m%x(n,1), m%x(n+1,1)) )
        n = n + 1
@@ -239,44 +249,40 @@ contains
     character(len=LOG_SIZE) :: log_buf
     delimiter = ','
 
-    if (pe_rank .eq. 0) then
-
-       !
-       ! Count lines and columns for initialization
-       !
-       open(newunit = unit, file = trim(file_name), status = 'old', &
-            action = 'read', iostat = ios)
-       if (ios /= 0) then
-          call neko_error("Error opening file " // trim(file_name))
-       end if
-
-       num_columns = 1
-       num_lines = 0
-
-       ! Read the file line by line
-       do
-          read(unit, '(A)', iostat = ios) line
-          if (ios /= 0) exit
-
-          ! If it's the first line, count the columns
-          if (num_lines .eq. 0) then
-
-             ! Count the number of delimiters in the line
-             do i = 1, len_trim(line)
-                if (line(i:i) == delimiter) then
-                   num_columns = num_columns + 1
-                end if
-             end do
-
-          end if ! if num_columns .eq. 1
-
-          num_lines = num_lines + 1
-       end do
-
-       ! Close the file
-       close(unit)
-
+    !
+    ! Count lines and columns for initialization
+    !
+    open(newunit = unit, file = trim(file_name), status = 'old', &
+         action = 'read', iostat = ios)
+    if (ios /= 0) then
+       call neko_error("Error opening file " // trim(file_name))
     end if
+
+    num_columns = 1
+    num_lines = 0
+
+    ! Read the file line by line
+    do
+       read(unit, '(A)', iostat = ios) line
+       if (ios /= 0) exit
+
+       ! If it's the first line, count the columns
+       if (num_lines .eq. 0) then
+
+          ! Count the number of delimiters in the line
+          do i = 1, len_trim(line)
+             if (line(i:i) == delimiter) then
+                num_columns = num_columns + 1
+             end if
+          end do
+
+       end if ! if num_columns .eq. 1
+
+       num_lines = num_lines + 1
+    end do
+
+    ! Close the file
+    close(unit)
 
     write (log_buf, '(A,A,A,I5,I5)') "Reading file ", trim(file_name), &
          " of size ", num_lines, num_columns
