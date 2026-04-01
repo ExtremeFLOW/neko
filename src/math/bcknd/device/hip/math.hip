@@ -669,6 +669,49 @@ extern "C" {
     #endif
   }
 
+
+  /**
+   * Global maximise reduction
+   */
+  void hip_global_reduce_max(real * bufred, void * bufred_d, int n,
+                             const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+                              DEVICE_NCCL_MAX, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_MAX);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
+
+  /**
+   * Global minimise reduction
+   */
+  void hip_global_reduce_min(real * bufred, void * bufred_d, int n,
+                             const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+                              DEVICE_NCCL_MIN, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_MIN);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
+
   /**
    * Fortran wrapper vlsc3
    * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
@@ -848,6 +891,63 @@ extern "C" {
     }
 
     hip_global_reduce_add(bufred, bufred_d, 1, stream);
+
+    return bufred[0];
+  }
+
+
+  /**
+   * Fortran wrapper glmax
+   * Take the maxmum of a vector of length n
+   */
+  real hip_glmax(void *a, real *ninf, int *n, hipStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+
+    hip_redbuf_check_alloc(nb);
+    if( *n > 0) {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glmax_kernel<real>),
+                         nblcks, nthrds, 0, stream,
+                         (real *) a, *ninf, bufred_d, *n);
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_max_kernel<real>),
+                         1, 1024, 0, stream, bufred_d, *ninf, nb);
+      HIP_CHECK(hipGetLastError());
+    }
+    else {
+      hip_rzero(bufred_d, &red_s, stream);
+    }
+
+    hip_global_reduce_max(bufred, bufred_d, 1, stream);
+
+    return bufred[0];
+  }
+
+  /**
+   * Fortran wrapper glmin
+   * Take the minimum of a vector of length n
+   */
+  real hip_glmin(void *a, real *pinf, int *n, hipStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+
+    hip_redbuf_check_alloc(nb);
+    if( *n > 0) {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glmin_kernel<real>),
+                         nblcks, nthrds, 0, stream,
+                         (real *) a, *pinf, bufred_d, *n);
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_min_kernel<real>),
+                         1, 1024, 0, stream, bufred_d, *pinf, nb);
+      HIP_CHECK(hipGetLastError());
+    }
+    else {
+      hip_rzero(bufred_d, &red_s, stream);
+    }
+
+    hip_global_reduce_min(bufred, bufred_d, 1, stream);
 
     return bufred[0];
   }

@@ -19,6 +19,7 @@ contains
 
     nn = nl**ldim
     if (.not. ldim .eq. 3) then
+       !$omp parallel do private(ie, i)
        do ie = 1, nelv
           call tnsr2d_el_cpu(e(1, ie), nl, r(1, ie), nl, s(1, 2, 1, ie), &
                s(1, 1, 2, ie))
@@ -28,7 +29,9 @@ contains
           call tnsr2d_el_cpu(e(1, ie), nl, r(1, ie), nl, s(1, 1, 1, ie), &
                s(1, 2, 2, ie))
        end do
+       !$omp end parallel do
     else
+       !$omp parallel do private(ie, i)
        do ie = 1, nelv
           call tnsr3d_el_cpu(e(1, ie), nl, r(1, ie), nl, &
                s(1, 2, 1, ie), s(1, 1, 2, ie), s(1, 1, 3, ie))
@@ -38,6 +41,7 @@ contains
           call tnsr3d_el_cpu(e(1, ie), nl, r(1, ie), nl, &
                s(1, 1, 1, ie), s(1, 2, 2, ie), s(1, 2, 3, ie))
        end do
+       !$omp end parallel do
     end if
   end subroutine fdm_do_fast_cpu
 

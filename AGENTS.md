@@ -156,5 +156,5 @@ tests.
   give you a very good idea of how things work.
 
 ## Code review
-If asked to review code, follow instructions under 
+If asked to review code, follow instructions under
 `.github/copilot-instructions.md`.

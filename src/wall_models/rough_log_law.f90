@@ -39,6 +39,7 @@ module rough_log_law
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
+  use utils, only : neko_error
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup
   use rough_log_law_device, only : rough_log_law_compute_device
@@ -157,6 +158,12 @@ contains
     this%B = B
     this%z0 = z0
 
+    ! Check that the sampling height is above the roughness length
+    if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
+       call neko_error("Roughlog WM: Sampling height h must be greater than roughness z0. " // &
+                       "Increase h_index or decrease z0.")
+    end if
+
   end subroutine rough_log_law_init_from_components
 
   !> Destructor for the rough_log_law_t (base) class.
@@ -177,8 +184,6 @@ contains
     type(field_t), pointer :: u
     type(field_t), pointer :: v
     type(field_t), pointer :: w
-    integer :: i
-    real(kind=rp) :: ui, vi, wi, magu, utau, normu
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")

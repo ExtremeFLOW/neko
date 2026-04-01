@@ -1,0 +1,53 @@
+module test_htable_cptr
+contains
+@test
+subroutine test_htable_cptr_contract
+  use pfunit
+  use htable
+  use, intrinsic :: iso_c_binding, only : c_loc, c_associated
+  implicit none
+  type(htable_cptr_t) :: h
+  type(htable_iter_cptr_t) :: it
+  integer, target :: key_targets(2), data_targets(3)
+  type(h_cptr_t) :: key, data, copy_data
+  type(h_cptr_t), pointer :: kp, vp
+
+  call h%init(3, data=data)
+  ! Small requested sizes should round up to the implementation minimum.
+  @assertEqual(h%get_size(), 4)
+
+  key_targets = (/11, 22/)
+  data_targets = (/101, 202, 303/)
+  key%ptr = c_loc(key_targets(1))
+  data%ptr = c_loc(data_targets(1))
+  call h%set(key, data)
+  data%ptr = c_loc(data_targets(2))
+  call h%set(key, data)
+  ! Updating an existing key must overwrite the value without growing entries.
+  @assertEqual(h%num_entries(), 1)
+  @assertEqual(h%get(key, copy_data), 0)
+  @assertTrue(c_associated(copy_data%ptr, c_loc(data_targets(2))))
+
+  call h%remove(key)
+  data%ptr = c_loc(data_targets(3))
+  call h%set(key, data)
+  ! Re-inserting a removed key must work through the tombstone path.
+  @assertEqual(h%num_entries(), 1)
+  @assertEqual(h%get(key, copy_data), 0)
+  @assertTrue(c_associated(copy_data%ptr, c_loc(data_targets(3))))
+
+  call it%init(h)
+  @assertTrue(it%next())
+  call it%data(copy_data)
+  @assertTrue(c_associated(copy_data%ptr, c_loc(data_targets(3))))
+  call it%reset()
+  ! Reset should restart iteration from the first valid entry.
+  @assertTrue(it%next())
+  kp => it%key()
+  vp => it%value()
+  @assertTrue(c_associated(kp%ptr, c_loc(key_targets(1))))
+  @assertTrue(c_associated(vp%ptr, c_loc(data_targets(3))))
+
+end subroutine test_htable_cptr_contract
+
+end module test_htable_cptr

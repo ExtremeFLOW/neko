@@ -1,8 +1,5 @@
 !> Implements the device kernel for the `most_t` type.
 
-
-!!!! TEMPORARY PLACE HOLDER FILE: TO DEVELOP FROM ZERO!!!!
-
 module most_device
   use num_types, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr
@@ -16,7 +13,7 @@ module most_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, z0, tstep) &
+          kappa, mu, rho, g, z0, z0h_in, bc_type_int, bc_value, tstep) &
           bind(c, name = 'hip_most_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -24,9 +21,10 @@ module most_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       real(c_rp) :: kappa, z0
+       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value
+       real(c_rp) :: g(3)
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
-       integer(c_int) :: n_nodes, lx, tstep
+       integer(c_int) :: n_nodes, lx, tstep, bc_type_int
      end subroutine hip_most_compute
   end interface
 #elif HAVE_CUDA
@@ -35,7 +33,7 @@ module most_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, z0, tstep) &
+          kappa, mu, rho, g, z0, z0h_in, bc_type_int, bc_value, tstep) &
           bind(c, name = 'cuda_most_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -43,9 +41,10 @@ module most_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       real(c_rp) :: kappa, z0
+       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value
+       real(c_rp) :: g(3)
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
-       integer(c_int) :: n_nodes, lx, tstep
+       integer(c_int) :: n_nodes, lx, tstep, bc_type_int
      end subroutine cuda_most_compute
   end interface
 #elif HAVE_OPENCL
@@ -59,26 +58,43 @@ contains
   subroutine most_compute_device(u_d, v_d, w_d, temp_d, &
        ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
        n_x_d, n_y_d, n_z_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
-       n_nodes, lx, kappa, z0, tstep)
+       n_nodes, lx, kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value, tstep)
     integer, intent(in) :: n_nodes, lx, tstep
     type(c_ptr), intent(in) :: u_d, v_d, w_d, temp_d
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d
-    real(kind=rp), intent(in) :: kappa, z0
+    real(kind=rp), intent(in) :: kappa, mu, rho, z0, z0h_in, bc_value
+    real(kind=rp) :: g(3)
+    character(len=*), intent(in) :: bc_type ! passed as a normal Fortran string
+    integer :: bc_type_int
+
+    ! convert bc_type to integer to avoid cross-language passing of strings    
+    select case (trim(adjustl(bc_type))) ! (trimmed, lowercase-consistent) 
+    case ("neumann")
+        bc_type_int = 0
+    case ("dirichlet")
+        bc_type_int = 1
+    case default
+      call neko_error("Neumann/Dirichlet bc not specified correctly (most_device)")
+    end select
 
 #if HAVE_HIP
     call hip_most_compute(u_d, v_d, w_d,temp_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
-         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, z0, tstep)
+         tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         lx, kappa, mu, rho, g, z0, z0h_in, &
+         bc_type_int, bc_value, tstep)
 #elif HAVE_CUDA
     call cuda_most_compute(u_d, v_d, w_d,temp_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
-         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, z0, tstep)
+         tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         lx, kappa, mu, rho, g, z0, z0h_in, &
+         bc_type_int, bc_value, tstep)
 #elif HAVE_OPENCL
-    call neko_error("OPENCL is not implemented for the rough log-law model")
+    call neko_error("OPENCL is not implemented for the MOST wall model")
 #else
     call neko_error('No device backend configured')
 #endif

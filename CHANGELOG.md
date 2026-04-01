@@ -2,6 +2,17 @@
 
 ## Develop
 
+- Added a script to add new unit tests under `contrib/add_unit_test`. Added
+  templates for serial and parallel unit tests.
+- Added optional log output from the flow_rate_force, controlled by the `log`
+  parameter.
+- Increased precision of the time value in the log.
+- Added a script to add new unit tests under `contrib/add_unit_test`. The same
+  script can add a .pf file to an existing suite.
+- Bugfix: Fixed a bug in the `unmap` subroutine, where the device pointer was
+  used to check if the field was mapped, which lead to a crash when trying to
+  unmap an array that was not associated with a device. Correctly does nothing
+  now.
 - Added an AI policy to the contribution guidelines.
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
   Simple restarts are supported with fixed mesh and MPI configuration. 

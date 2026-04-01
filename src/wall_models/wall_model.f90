@@ -462,31 +462,31 @@ contains
        normal = -normal
 
        select case (fid)
-       case (1)
+         case (1)
           this%ind_r(i) = idx(1) + this%h_index
           this%ind_s(i) = idx(2)
           this%ind_t(i) = idx(3)
-       case (2)
+         case (2)
           this%ind_r(i) = idx(1) - this%h_index
           this%ind_s(i) = idx(2)
           this%ind_t(i) = idx(3)
-       case (3)
+         case (3)
           this%ind_r(i) = idx(1)
           this%ind_s(i) = idx(2) + this%h_index
           this%ind_t(i) = idx(3)
-       case (4)
+         case (4)
           this%ind_r(i) = idx(1)
           this%ind_s(i) = idx(2) - this%h_index
           this%ind_t(i) = idx(3)
-       case (5)
+         case (5)
           this%ind_r(i) = idx(1)
           this%ind_s(i) = idx(2)
           this%ind_t(i) = idx(3) + this%h_index
-       case (6)
+         case (6)
           this%ind_r(i) = idx(1)
           this%ind_s(i) = idx(2)
           this%ind_t(i) = idx(3) - this%h_index
-       case default
+         case default
           call neko_error("The face index is not correct ")
        end select
        this%ind_e(i) = idx(4)

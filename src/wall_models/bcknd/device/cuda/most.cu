@@ -31,11 +31,6 @@
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 
-
-
-
-TEMNPORARY FILE:: DEVELOP FROM SCRATCH!!!!
-
 */
 
 #include <string.h>
@@ -50,23 +45,36 @@ extern "C" {
           void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
           void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
-          int *n_nodes, int *lx, real *kappa, real *z0, int *tstep) {
-    
+          int *n_nodes, int *lx, real *kappa, real *mu, real *rho, real *g,
+          real *z0, real *z0h_in, int *bc_type, real *bc_value, int *tstep) {
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
+    real g1 = g[0], g2 = g[1], g3 = g[2];
+
     if (*n_nodes > 0) {
-    most_compute<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
-                                    (int *) ind_r_d, (int *) ind_s_d, 
-                                    (int *) ind_t_d, (int *) ind_e_d,
-                                    (real *) n_x_d, (real *) n_y_d, 
-                                    (real *) n_z_d, (real *) h_d,
-                                    (real *) tau_x_d, (real *) tau_y_d, 
-                                    (real *) tau_z_d,
-                                    *n_nodes, *lx, *kappa, *z0);
-    CUDA_CHECK(cudaGetLastError());
+        if (*bc_type == 0) {          /* Neumann */
+            most_compute<real, 0>
+            <<<nblcks, nthrds, 0, stream>>>(
+                (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
+                (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
+                (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
+                (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
+                *n_nodes, *lx, *kappa, *mu, *rho,  g1, g2, g3, 
+                *z0, *z0h_in, *bc_value);
+        } else if (*bc_type == 1) {   /* Dirichlet */
+            most_compute<real, 1>
+            <<<nblcks, nthrds, 0, stream>>>(
+                (real *) u_d, (real *) v_d, (real *) w_d, (real *) temp_d,
+                (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
+                (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
+                (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
+                *n_nodes, *lx, *kappa, *mu, *rho,  g1, g2, g3, 
+                *z0, *z0h_in, *bc_value);
+        }
+      CUDA_CHECK(cudaGetLastError());
     }
   }
 }
