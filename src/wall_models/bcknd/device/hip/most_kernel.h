@@ -395,7 +395,7 @@ __global__ void most_compute(
                 if (fabs(dfdl) < (T)1e-12) break; 
                 L_ob -= f_val / dfdl;
                 if (L_ob * L_sign <= 0) L_ob = 0.5 * L_old;
-                L_ob = L_sign * fmax(fmin(fabs(L_ob), (T)1e6), (T)1e-6);
+                L_ob = L_sign * fmax(fmin(fabs(L_ob), (T)1e8), (T)1e-8);
                 if (fabs((L_ob - L_old) / L_ob) < tol) break;
             }
 

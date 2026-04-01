@@ -168,7 +168,7 @@ contains
     real(kind=rp) :: g_dot_n
     character(len=*), intent(in) :: bc_type
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
-    real(kind=rp) :: ui, vi, wi, ts, hi
+    real(kind=rp) :: ui, vi, wi, hi
     real(kind=rp) :: normu, z0h
     real(kind=rp) :: L_upper, L_lower, L_old
     real(kind=rp) :: f, dfdl, fd_h, L_new, L_sign
@@ -178,7 +178,7 @@ contains
     real(kind=rp), parameter :: NR_step = 0.001_rp
     real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp), dimension(n_nodes) :: utau, Ri_b, L_ob, magu, q, ti
+    real(kind=rp), dimension(n_nodes) :: utau, Ri_b, L_ob, magu, q, ti, ts
 
     do i=1, n_nodes
       ! Sample the variables
@@ -209,12 +209,13 @@ contains
 
       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
       ! Maybe redundant, but needed to initialise Rib
-      call select_bc_operators(bc_type,bc_value,q(i),ts,ti(i),kappa,utau(i),z0h,hi)
+      call select_bc_operators(bc_type,bc_value,q(i),ts(i),ti(i),kappa,utau(i),z0h,hi)
 
       ! Compute g along the normal (generalisation for hills and similar)
       g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i)) 
-      call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts, magu(i), kappa, q(i), Ri_b(i))
 
+      ! Compute Richardson and set stability accordingly
+      call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts(i), magu(i), kappa, q(i), Ri_b(i))
       call set_stability_regime(Ri_b(i), Ri_threshold)
 
       if (abs((Ri_b(i))) <= Ri_threshold) then
@@ -241,10 +242,8 @@ contains
             fd_h = NR_step*L_ob(i)
             L_upper = L_ob(i) + fd_h
             L_lower = L_ob(i) - fd_h
+
             ! Compute L_ob based on stability and bc_type
-            if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
-              call neko_error("Unassociated pointer for f or dfdl")
-            end if
             f = f_ptr(Ri_b(i), hi, z0, z0h, L_ob(i), slaw_m_ptr, slaw_h_ptr)
             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob(i), slaw_m_ptr, slaw_h_ptr, fd_h)
             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
@@ -255,13 +254,17 @@ contains
               L_new = 0.5_rp * L_ob(i)
             end if
             ! Bound L_ob
-            L_ob(i) = sign(max(abs(L_new), 1.0e-6_rp), L_sign)
-            L_ob(i) = sign(min(abs(L_ob(i)), 1.0e6_rp), L_sign)
+            L_ob(i) = sign(max(abs(L_new), 1.0e-8_rp), L_sign)
+            L_ob(i) = sign(min(abs(L_ob(i)), 1.0e8_rp), L_sign)
         end do
 
-        if (abs(L_ob(i)) > 5e4_rp .or. abs(L_ob(i)) < 1e-5_rp) then
+        if (abs(L_ob(i)) > 5e5_rp .or. abs(L_ob(i)) < 1e-6_rp) then
             count = max_count
             call neko_warning("Obukhov length did not converge (MOST wall model)")
+        end if
+
+        if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
+          call neko_error("Unassociated pointer for f or dfdl")
         end if
       end if
 
@@ -274,7 +277,7 @@ contains
         ! Compute u* with the new Obukhov length
         utau(i) = kappa*magu(i)/slaw_m_ptr(hi, L_ob(i), z0)
         ! and compute q from here
-        q(i) = kappa*utau(i)*(ts - ti(i))/slaw_h_ptr(hi, L_ob(i), z0h)
+        q(i) = kappa*utau(i)*(ts(i) - ti(i))/slaw_h_ptr(hi, L_ob(i), z0h)
         case default
         call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
       end select
@@ -309,12 +312,17 @@ contains
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ti: ', &
     glsum(ti, n_nodes) / n_nodes, &
     glmin(ti, n_nodes), glmax(ti, n_nodes)
+    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ts: ', &
+    glsum(ts, n_nodes) / n_nodes, &
+    glmin(ts, n_nodes), glmax(ts, n_nodes)
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'q: ', &
     glsum(q, n_nodes) / n_nodes, &
     glmin(q, n_nodes), glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7)') 'hi: ', hi
+    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'hi: ', &
+    glsum(h, n_nodes) / n_nodes, &
+    glmin(h, n_nodes), glmax(h, n_nodes)
     call neko_log%message(trim(log_buf))
     call neko_log%end_section()
 
