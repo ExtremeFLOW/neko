@@ -44,7 +44,7 @@ module most
   use most_device, only : most_compute_device
   use most_cpu, only : most_compute_cpu
   use scratch_registry, only : neko_scratch_registry
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private

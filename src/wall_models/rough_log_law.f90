@@ -39,6 +39,7 @@ module rough_log_law
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
+  use utils, only : neko_error
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup
   use rough_log_law_device, only : rough_log_law_compute_device
