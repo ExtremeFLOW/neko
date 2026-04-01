@@ -389,7 +389,7 @@ contains
     integer :: optional_fields, have_dtlag
     integer :: have_abvel, have_scalarlag
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
-    real(kind=rp) :: tol
+    real(kind=dp) :: tol
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
