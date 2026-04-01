@@ -44,6 +44,7 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use overset_interface, only : overset_interface_t
   use overset_interface_vector, only : overset_interface_vector_t
   implicit none
 
@@ -104,6 +105,13 @@ contains
        select type (obj => object)
        type is (field_dirichlet_t)
           obj%update => user%dirichlet_conditions
+          call json%add("field_name", scheme%p%name)
+       end select
+    
+    case ("overset_interface")
+       allocate(overset_interface_t::object)
+       select type (obj => object)
+       type is (overset_interface_t)
           call json%add("field_name", scheme%p%name)
        end select
 
