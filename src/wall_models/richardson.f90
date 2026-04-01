@@ -62,6 +62,8 @@ module richardson
      real(kind=rp) :: z0h_in 
      !> The gravity vector
      real(kind=rp) :: g(3)
+     !> The turbulent Prandtl number
+     real(kind=rp) :: Pr
      !> The fluid density
      real(kind=rp) :: rho_val
      !> The fluid dynamic viscosity
@@ -106,7 +108,7 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: kappa, z0, z0h_in, mu, rho
+    real(kind=rp) :: kappa, z0, z0h_in, mu, rho, Pr
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
     real(kind=rp) :: bc_value
@@ -114,10 +116,11 @@ contains
     real(kind=rp) :: g(3)
 
     call json_get_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get_or_default(json, "z0", z0, 0.1_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
+    call json_get_or_default(json, "Pr", Pr, 1.0_rp)
     call json_get(json, "bottom_bc_flux_or_temp", bc_value)
+    call json_get_or_default(json, "z0", z0, 0.1_rp)
     ! If z0h is specified and positive, z0h will be constant and equal to
     ! what's specified in the case file.
     ! If z0h is specified and negative, the Zilitinkevich 1995 formulation
@@ -137,7 +140,7 @@ contains
     deallocate(g_tmp)
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, z0, g, bc_type, bc_value)
+         kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)
 
     deallocate(bc_type)
     deallocate(scalar_name)
@@ -154,6 +157,7 @@ contains
 
     call this%partial_init_base(coef, json)
     call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
+    call json_get_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
@@ -198,7 +202,7 @@ contains
   !! @param scalar_name The name of the scalar field (temperature) for MOST.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine richardson_init_from_components(this, scheme_name, scalar_name, coef, msk, &
-       facet, h_index, kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)
+       facet, h_index, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value)
     class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -207,15 +211,17 @@ contains
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
-    real(kind=rp), intent(in) :: z0, z0h_in, bc_value,
-    real(kind=rp), intent(in) :: kappa, mu, rho
+    real(kind=rp), intent(in) :: z0, z0h_in, bc_value
+    real(kind=rp), intent(in) :: kappa, mu, rho, Pr
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
     character(len=LOG_SIZE) :: log_buf
+    integer :: i
 
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
+    this%Pr = Pr
     this%z0 = z0
     this%z0h_in = z0h_in
     this%mu_val = mu
@@ -290,13 +296,13 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu, this%rho, this%g, this%z0, this%z0h_in, this%bc_type, this%bc_value, tstep)
+            this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, this%bc_value, tstep)
     else
         call richardson_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%mu, this%rho, this%g, this%z0, this%z0h_in, this%bc_type, this%bc_value, tstep)
+            this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, this%bc_value, tstep)
     end if
 
   end subroutine richardson_compute

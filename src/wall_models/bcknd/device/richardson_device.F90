@@ -12,8 +12,8 @@ module richardson_device
      subroutine hip_richardson_compute(u_d, v_d, w_d, temp_d, &
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
-          tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          mu, rho, g, z0, z0h_in, bc_type_int, bc_value, tstep) &
+          tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, &
+          mu, rho, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep) &
           bind(c, name = 'hip_richardson_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -21,7 +21,7 @@ module richardson_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value
+       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value, Pr
        real(c_rp) :: g(3)
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        integer(c_int) :: n_nodes, lx, tstep, bc_type_int
@@ -33,7 +33,7 @@ module richardson_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, mu, rho, g, z0, z0h_in, bc_type_int, bc_value, tstep) &
+          kappa, mu, rho, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep) &
           bind(c, name = 'cuda_richardson_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -41,7 +41,7 @@ module richardson_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value
+       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value, Pr
        real(c_rp) :: g(3)
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        integer(c_int) :: n_nodes, lx, tstep, bc_type_int
@@ -58,7 +58,7 @@ contains
   subroutine richardson_compute_device(u_d, v_d, w_d, temp_d, &
        ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
        n_x_d, n_y_d, n_z_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
-       n_nodes, lx, kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value, tstep)
+       n_nodes, lx, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value, tstep)
     integer, intent(in) :: n_nodes, lx, tstep
     type(c_ptr), intent(in) :: u_d, v_d, w_d, temp_d
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
@@ -84,14 +84,14 @@ contains
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
-         lx, kappa, mu, rho, g, z0, z0h_in, &
+         lx, kappa, mu, rho, g, Pr, z0, z0h_in, &
          bc_type_int, bc_value, tstep)
 #elif HAVE_CUDA
     call cuda_richardson_compute(u_d, v_d, w_d,temp_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
-         lx, kappa, mu, rho, g, z0, z0h_in, &
+         lx, kappa, mu, rho, g, Pr, z0, z0h_in, &
          bc_type_int, bc_value, tstep)
 #elif HAVE_OPENCL
     call neko_error("OPENCL is not implemented for the richardson wall model")

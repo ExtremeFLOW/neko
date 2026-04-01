@@ -48,11 +48,11 @@ module richardson_cpu
        real(kind=rp) :: tau
      end function tau_interface
 
-     function heat_flux_interface(ti, ts, ri_b, h, magu, z1, pr,&
+     function heat_flux_interface(ti, ts, ri_b, h, magu, z1, Pr,&
                                 l, utau, kappa) result(heat_flux)
        import rp
        real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
-       real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
+       real(kind=rp), intent(in) :: z1, Pr, l, utau, kappa
        real(kind=rp) :: heat_flux
      end function heat_flux_interface
 
@@ -85,8 +85,8 @@ contains
   !> Initialises q when the temperature surface bc is dirichlet.
   subroutine assign_bc_value(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(in) :: hi, ti, ts, kappa, utau, z0h
-    real(kind=rp), intent(inout) :: q
+    real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h
+    real(kind=rp), intent(inout) :: q,ts
 
     select case (bc_type)
       case ("neumann")
@@ -104,10 +104,10 @@ contains
   subroutine set_stability_regime(Ri_b,Ri_threshold)
     real(kind=rp), intent(in) :: Ri_b, Ri_threshold
 
-    if (Ri_b > Ri_threshold) then
+    if (Ri_b(i) > Ri_threshold) then
        tau_ptr => tau_stable
        heat_flux_ptr => heat_flux_stable
-    elseif (Ri_b < -Ri_threshold) then
+    elseif (Ri_b(i) < -Ri_threshold) then
        tau_ptr => tau_convective
        heat_flux_ptr => heat_flux_convective
     else
@@ -120,31 +120,31 @@ contains
   !! @param tstep The current time-step
   subroutine richardson_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, mu, rho, g_vec, z0, z0h_in, bc_type, bc_value, tstep)  
+       kappa, mu, rho, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep)  
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, mu, rho
+    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, mu, rho, Pr
     real(kind=rp), dimension(3), intent(in) :: g_vec
     real(kind=rp) :: g_dot_n
     character(len=*), intent(in) :: bc_type
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z 
     integer :: i
-    real(kind=rp) :: ui, vi, ti, ts, hi
-    real(kind=rp) :: magu, utau, normu, z0h
-    real(kind=rp) :: L_ob, Ri_b, l
+    real(kind=rp) :: ui, vi, wi, hi
+    real(kind=rp) :: normu, z0h
+    real(kind=rp) :: l
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp    
     real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp), dimension(n_nodes) :: utau, Ri_b, L_ob, magu, q, ti, ts
 
     do i=1, n_nodes
        ! Sample the variables
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        ti(i) = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        hi = h(i)
 
@@ -169,19 +169,19 @@ contains
 
        ! Get q, ts based on bc_type
        ! Maybe redundant, but needed to initialise Rib
-       call assign_bc_value(bc_type,bc_value,q(i),ts,ti(i),kappa,utau,z0h,hi)
+       call assign_bc_value(bc_type,bc_value,q(i),ts(i),ti(i),kappa,utau(i),z0h,hi)
 
        ! Compute g along the normal (generalisation for hills and similar)
        g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i)) 
 
-       ! Get Ri based on bc_type
-       call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts, magu(i), kappa, q(i), Ri_b(i))
+       ! Compute Richardson and set stability accordingly
+       call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts(i), magu(i), kappa, q(i), Ri_b(i))
        call set_stability_regime(Ri_b(i), Ri_threshold)
  
        ! Set length scale
-       l(i) = kappa * hi
+       l = kappa * hi
        ! Compute u*
-       utau(i) = sqrt(tau_ptr(magu(i), Ri_b(i), hi, z0, l(i), kappa))
+       utau(i) = sqrt(tau_ptr(magu(i), Ri_b(i), hi, z0, l, kappa))
        select case (bc_type)
        case ("neumann")
        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -190,21 +190,21 @@ contains
        q(i) = q(i)
        case ("dirichlet")
           ! Compute q
-          q(i) = heat_flux_ptr(ti(i), ts, Ri_b(i), hi, magu(i), z0h, 1.0_rp, l(i), utau(i), kappa)
+          q(i) = heat_flux_ptr(ti(i), ts(i), Ri_b(i), hi, magu(i), z0h, Pr, l, utau(i), kappa)
        case default
           call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
        end select
 
        ! Distribute according to the velocity vector and bound magu to avoid 0 division
        magu(i) = max(magu(i), 1.0e-6_rp)
-       tau_x(i) = -utau**2 * ui / magu(i)
-       tau_y(i) = -utau**2 * vi / magu(i)
-       tau_z(i) = -utau**2 * wi / magu(i)
+       tau_x(i) = -utau(i)**2 * ui / magu(i)
+       tau_y(i) = -utau(i)**2 * vi / magu(i)
+       tau_z(i) = -utau(i)**2 * wi / magu(i)
        if (abs(Ri_b) <= Ri_threshold) then
              ! Neutral (L_ob undefined)
              L_ob(i) = 1e10_rp
        else
-             L_ob(i) = -(ts*utau**3)/(kappa*g*q)
+             L_ob(i) = -(ts(i)*utau(i)**3)/(kappa*g_dot_n*q(i))
        end if
     end do
 
@@ -236,7 +236,13 @@ contains
     glsum(q, n_nodes) / n_nodes, &
     glmin(q, n_nodes), glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7)') 'hi: ', hi
+    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ts: ', &
+    glsum(ts, n_nodes) / n_nodes, &
+    glmin(ts, n_nodes), glmax(ts, n_nodes)
+    call neko_log%message(trim(log_buf))
+    write(log_buf, '(A,E15.7)') 'hi: ', &
+    glsum(h, n_nodes) / n_nodes, &
+    glmin(h, n_nodes), glmax(h, n_nodes)
     call neko_log%message(trim(log_buf))
     call neko_log%end_section()
 
@@ -252,15 +258,15 @@ contains
           f_tau_stable(0.0_rp) * (l/h)**2
   end function tau_stable
 
-  function heat_flux_stable(ti, ts, ri_b, h, magu, z1, pr,&
+  function heat_flux_stable(ti, ts, ri_b, h, magu, z1, Pr,&
                             l, utau, kappa) result(heat_flux)
     real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
-    real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
+    real(kind=rp), intent(in) :: z1, Pr, l, utau, kappa
     real(kind=rp) :: heat_flux
 
     heat_flux = (ti - ts)/(log(h/z1)) * &
                 f_theta_stable(ri_b)/abs(f_theta_stable(0.0_rp)) * &
-                (l/h) * utau/pr
+                (l/h) * utau/Pr
   end function heat_flux_stable
 
   function f_tau_stable(ri_b) result(f_tau)
@@ -291,10 +297,10 @@ contains
     tau = a**2 * magu**2 * f_tau_convective(ri_b, c)
   end function tau_convective
 
-  function heat_flux_convective(ti, ts, ri_b, h, magu, z1, pr,&
+  function heat_flux_convective(ti, ts, ri_b, h, magu, z1, Pr,&
                                 l, utau, kappa) result(heat_flux)
     real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
-    real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
+    real(kind=rp), intent(in) :: z1, Pr, l, utau, kappa
     real(kind=rp) :: heat_flux
     real(kind=rp) :: a, b, c
 
@@ -329,10 +335,10 @@ contains
     tau = (kappa*magu/log(h/z0))**2
   end function tau_neutral
 
-  function heat_flux_neutral(ti, ts, ri_b, h, magu, z1, pr,&
+  function heat_flux_neutral(ti, ts, ri_b, h, magu, z1, Pr,&
                             l, utau, kappa) result(heat_flux)
     real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
-    real(kind=rp), intent(in) :: z1, pr, l, utau, kappa
+    real(kind=rp), intent(in) :: z1, Pr, l, utau, kappa
     real(kind=rp) :: heat_flux
 
     heat_flux = kappa*utau *(ti - ts)/log(h/z1)
