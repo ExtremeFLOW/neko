@@ -68,7 +68,7 @@ module most
      real(kind=rp) :: mu_val
      !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
-     !> the heat flux or temperature value set in the case file
+     !> The heat flux or temperature value set in the case file
      real(kind=rp) :: bc_value
      !> The name of the temperature variable
      character(len=:), allocatable :: scalar_name
@@ -141,6 +141,7 @@ contains
          kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)
     
     deallocate(bc_type)
+    deallocate(scalar_name)
   end subroutine most_init
 
   !> Constructor from JSON.
@@ -158,14 +159,6 @@ contains
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
-
-    call json_get(json, "g", g_tmp)
-    if (size(g_tmp) == 3) then
-       this%g = g_tmp
-    else
-       call neko_error("MOST WM: Gravity vector must have 3 components")
-    end if
-    deallocate(g_tmp)
 
   end subroutine most_partial_init
 
@@ -258,6 +251,10 @@ contains
 
     if (allocated(this%bc_type)) then
       deallocate(this%bc_type)
+    end if
+
+    if (allocated(this%scalar_name)) then
+      deallocate(this%scalar_name)
     end if
 
     call this%free_base()
