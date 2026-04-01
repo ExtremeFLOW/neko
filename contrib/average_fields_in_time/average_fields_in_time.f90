@@ -7,7 +7,7 @@ program average_fields_in_time
   character(len=NEKO_FNAME_LEN) :: in_fname, out_fname, inputchar
   character(len=80) :: extension
   real(kind=rp) :: start_time
-  integer :: argc, i
+  integer :: argc
 
   argc = command_argument_count()
 
@@ -63,7 +63,7 @@ contains
        write(*,*)
        write(*,*) '    Computes the average field over the fld files ' // &
             'described '
-       write(*,*) '    in fluid_stats00.nek5000. The files need to be aranged'
+       write(*,*) '    in fluid_stats00.nek5000. The files need to be arranged'
        write(*,*) '    in chronological order. The average field is then '
        write(*,*) '    stored in a fld series, i.e. mean0.nek5000 and'
        write(*,*) '    mean0.f00000'
