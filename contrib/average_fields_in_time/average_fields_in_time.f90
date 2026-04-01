@@ -170,7 +170,7 @@ contains
           call neko_log%message(log_buf)
 
           call neko_error("The # of rows in the file must be a multiple" // &
-               "of the size of each sample.")
+               " of the size of each sample.")
        end if
 
        n_samples = data%get_nrows() / sample_size
@@ -303,8 +303,8 @@ contains
     ! Close the file
     close(unit)
 
-    write (log_buf, '(A,A,A,I5,I5)') "Reading file ", trim(file_name), &
-         " of size ", num_lines, num_columns
+    write (log_buf, '(A,A,A,I0,A,I0,A)') "Size of ", trim(file_name), &
+         " : ", num_lines, " rows, ", num_columns, " columns"
     call neko_log%message(log_buf)
 
     !
