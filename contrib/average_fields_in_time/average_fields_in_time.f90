@@ -162,10 +162,21 @@ contains
 
        ! Compute the size of a statistics sample
        sample_size = determine_size_of_csv_sample(data)
+       
+       if (mod(data%get_nrows(), sample_size) .ne. 0) then
+          write(log_buf,*) "# of rows in csv file : ", data%get_nrows()
+          call neko_log%message(log_buf)
+          write(log_buf,*) "Size of each sample   : ", sample_size
+          call neko_log%message(log_buf)
+
+          call neko_error("The # of rows in the file must be a multiple" // &
+                  "of the size of each sample.")
+       end if
+       
        n_samples = data%get_nrows() / sample_size
-       write (log_buf, '(A,I5)') "Size of each sample: ", sample_size
+       write (log_buf, '(A,I0)') "Size of each sample: ", sample_size
        call neko_log%message(log_buf)
-       write (log_buf, '(A,I5)') "Number of samples  : ", n_samples
+       write (log_buf, '(A,I0)') "Number of samples  : ", n_samples
        call neko_log%message(log_buf)
 
        ! Initialize the matrix for the averaged data
@@ -216,6 +227,9 @@ contains
        call out_file%write(avg_data)
        call file_free(out_file)
 
+       call data%free()
+       call avg_data%free()
+
     end if
 
   end subroutine avg_flds_in_time_csv
@@ -225,8 +239,13 @@ contains
     type(matrix_t), intent(in) :: m
     integer :: n
 
+    ! Guard in case the csv file has only 1 row or no rows at all.
+    if (m%get_nrows() .le. 1) then
+       n = m%get_nrows()
+       return
+    end if
+
     n = 1
-    
     ! Increment n while the time stamps (in the first column) have the same value
     do while ( abscmp(m%x(n,1), m%x(n+1,1)) )
        n = n + 1
