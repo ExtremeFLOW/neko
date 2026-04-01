@@ -324,6 +324,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_neumann.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
+	bc/bcknd/device/device_coupled_vector_bc_resolver.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
 	scalar/scalar_scheme_fctry.f90\
@@ -532,6 +533,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/cuda/neumann.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	bc/bcknd/device/cuda/dong_outflow.cu\
+	bc/bcknd/device/cuda/coupled_vector_bc_resolver.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
@@ -701,6 +703,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/bc_utils.h\
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
+	bc/bcknd/device/cuda/coupled_vector_bc_resolver_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	gs/bcknd/device/cuda/gs_nvshmem_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\

@@ -81,6 +81,7 @@ bc/bcknd/device/cuda/facet_normal.lo : bc/bcknd/device/cuda/facet_normal.cu bc/b
 bc/bcknd/device/cuda/neumann.lo : bc/bcknd/device/cuda/neumann.cu bc/bcknd/device/cuda/neumann_kernel.h
 bc/bcknd/device/cuda/inhom_dirichlet.lo : bc/bcknd/device/cuda/inhom_dirichlet.cu bc/bcknd/device/cuda/inhom_dirichlet_kernel.h
 bc/bcknd/device/cuda/dong_outflow.lo : bc/bcknd/device/cuda/dong_outflow.cu bc/bcknd/device/cuda/dong_outflow_kernel.h
+bc/bcknd/device/cuda/coupled_vector_bc_resolver.lo : bc/bcknd/device/cuda/coupled_vector_bc_resolver.cu bc/bcknd/device/cuda/coupled_vector_bc_resolver_kernel.h
 common/bcknd/device/cuda/rhs_maker.lo : common/bcknd/device/cuda/rhs_maker.cu common/bcknd/device/cuda/sumab_kernel.h common/bcknd/device/cuda/makeext_kernel.h common/bcknd/device/cuda/makebdf_kernel.h common/bcknd/device/cuda/makeoifs_kernel.h
 common/bcknd/device/cuda/projection.lo : common/bcknd/device/cuda/projection.cu common/bcknd/device/cuda/projection_kernel.h
 fluid/bcknd/device/cuda/pnpn_res.lo : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h

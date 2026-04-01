@@ -48,9 +48,11 @@ module bc_resolver
   use num_types, only : rp
   use tuple, only : tuple_i4_t
   use utils, only : neko_error, nonlinear_index, linear_index
-  use device, only : device_get_ptr, device_memcpy, HOST_TO_DEVICE, &
-       DEVICE_TO_HOST
+  use device, only : device_get_ptr, device_memcpy, device_map, device_unmap, &
+       HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_math, only : device_cfill_mask
+  use device_coupled_vector_bc_resolver, only : &
+       device_coupled_vector_bc_resolver_apply
   use field_math, only : field_cfill, field_rzero
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   implicit none
@@ -72,7 +74,7 @@ module bc_resolver
      procedure, pass(this) :: apply => scalar_bc_resolver_apply
   end type scalar_bc_resolver_t
 
-  !> Abstract type for resolving vector boundary conditions. 
+  !> Abstract type for resolving vector boundary conditions.
   type, public, abstract :: vector_bc_resolver_t
    contains
      !> Constructor.
@@ -134,12 +136,10 @@ module bc_resolver
      !> Resolved class for each local face. The first dimension is the local
      ! facet id and the second is the local element id.
      real(kind=rp), allocatable :: face_class(:,:)
-     !> Normal constraint per mixed node.
-     logical, allocatable :: constraint_n(:)
-     !> Tangent constraint 1 per mixed node.
-     logical, allocatable :: constraint_t1(:)
-     !> Tangent constraint 2 per mixed node.
-     logical, allocatable :: constraint_t2(:)
+     !> Mixed-node constraint flags. Zero means free, one means constrained.
+     integer, allocatable :: constraint_n(:)
+     integer, allocatable :: constraint_t1(:)
+     integer, allocatable :: constraint_t2(:)
      !> Normal and tangent vectors for each mixed node.
      real(kind=rp), allocatable :: n(:,:)
      real(kind=rp), allocatable :: t1(:,:)
@@ -413,6 +413,9 @@ contains
     call this%bcs%free()
 
     if (allocated(this%constraint_n)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%constraint_n, this%constraint_n_d)
+       end if
        deallocate(this%constraint_n)
     end if
 
@@ -433,22 +436,37 @@ contains
     end if
 
     if (allocated(this%constraint_t1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%constraint_t1, this%constraint_t1_d)
+       end if
        deallocate(this%constraint_t1)
     end if
 
     if (allocated(this%constraint_t2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%constraint_t2, this%constraint_t2_d)
+       end if
        deallocate(this%constraint_t2)
     end if
 
     if (allocated(this%n)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%n, this%n_d)
+       end if
        deallocate(this%n)
     end if
 
     if (allocated(this%t1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%t1, this%t1_d)
+       end if
        deallocate(this%t1)
     end if
 
     if (allocated(this%t2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%t2, this%t2_d)
+       end if
        deallocate(this%t2)
     end if
 
@@ -476,11 +494,7 @@ contains
     this%coef => coef
     this%dof => coef%dof
 
-    if (allocated(this%node_rst)) deallocate(this%node_rst)
-    if (allocated(this%edge_mid_rst)) deallocate(this%edge_mid_rst)
-    if (allocated(this%node_linear_idx)) deallocate(this%node_linear_idx)
-    if (allocated(this%face_class)) deallocate(this%face_class)
-
+    ! Build polynomial order dependent lookup tables for a single element.
     lx = coef%Xh%lx
     ly = coef%Xh%ly
     lz = coef%Xh%lz
@@ -554,10 +568,12 @@ contains
   end subroutine coupled_vector_bc_resolver_mark_bc_list
 
   !> Finalize the coupled resolver by resolving the accumulated BC list.
+  !! @details This routine builds the dof masks for Dirichlet and mixed nodes,
+  !! and computes the local basis for the mixed ones.
   subroutine coupled_vector_bc_resolver_finalize(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(field_t), pointer :: work1
-    type(field_t), pointer :: work2
+    type(field_t), pointer :: node_class
     type(field_t), pointer :: work3
     type(field_t), pointer :: work4
     type(tuple_i4_t), pointer :: marked_faces(:)
@@ -576,24 +592,55 @@ contains
     call this%dirichlet_dof_mask%free()
     call this%mixed_dof_mask%free()
 
-    if (allocated(this%constraint_n)) deallocate(this%constraint_n)
-    if (allocated(this%constraint_t1)) deallocate(this%constraint_t1)
-    if (allocated(this%constraint_t2)) deallocate(this%constraint_t2)
-    if (allocated(this%n)) deallocate(this%n)
-    if (allocated(this%t1)) deallocate(this%t1)
-    if (allocated(this%t2)) deallocate(this%t2)
+    if (allocated(this%constraint_n)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%constraint_n, this%constraint_n_d)
+       end if
+       deallocate(this%constraint_n)
+    end if
+    if (allocated(this%constraint_t1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%constraint_t1, this%constraint_t1_d)
+       end if
+       deallocate(this%constraint_t1)
+    end if
+    if (allocated(this%constraint_t2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%constraint_t2, this%constraint_t2_d)
+       end if
+       deallocate(this%constraint_t2)
+    end if
+    if (allocated(this%n)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%n, this%n_d)
+       end if
+       deallocate(this%n)
+    end if
+    if (allocated(this%t1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%t1, this%t1_d)
+       end if
+       deallocate(this%t1)
+    end if
+    if (allocated(this%t2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%t2, this%t2_d)
+       end if
+       deallocate(this%t2)
+    end if
 
     if (.not. associated(this%dof)) return
     if (this%bcs%size() .eq. 0) return
 
     call neko_scratch_registry%request_field(work1, scratch_idx(1), .true.)
-    call neko_scratch_registry%request_field(work2, scratch_idx(2), .true.)
+    call neko_scratch_registry%request_field(node_class, scratch_idx(2), .true.)
     call neko_scratch_registry%request_field(work3, scratch_idx(3), .true.)
     call neko_scratch_registry%request_field(work4, scratch_idx(4), .true.)
 
     dof_size = this%dof%size()
     this%face_class = 5.0_rp
 
+    ! Build a maks of all dofs on the boundary.
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
 
@@ -612,8 +659,8 @@ contains
     end do
 
 
-    ! Set priority values for constraint assignment. Mimics the procedure in
-    ! Nek5000 directly.
+    ! Set priority values (class) for constraint assignment. Mimics the
+    ! procedure in Nek5000 directly.
     ! The values are chosen in a way that a min reduction applies the most
     ! restrictive constraint.
     ! 5 -> unconstrained
@@ -621,7 +668,7 @@ contains
     ! 2 -> normally constrained
     ! 0 -> fully constrained
     ! Fill the field to not mess up gather-scatter reduction later.
-    call field_cfill(work2, 5.0_rp)
+    call field_cfill(node_class, 5.0_rp)
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
 
@@ -661,13 +708,13 @@ contains
        ! within a single element.
        do j = 1, bc%facet_msk(0)
           m = bc%facet_msk(j)
-          work2%x(m,1,1,1) = min(prio, work2%x(m,1,1,1))
+          node_class%x(m,1,1,1) = min(prio, node_class%x(m,1,1,1))
        end do
     end do
 
     ! Propagate constraints to all local dofs via gather-scatter.
     ! Ensures most restrictive constraint is kept across element boundaries.
-    call this%coef%gs_h%op(work2, GS_OP_MIN)
+    call this%coef%gs_h%op(node_class, GS_OP_MIN)
 
     ! Partition the resolved boundary dofs into the fully constrained subset
     ! and the mixed subset. Only the latter needs a local basis.
@@ -676,10 +723,10 @@ contains
     do i = 1, dof_size
        if (work1%x(i,1,1,1) .lt. 0.5_rp) cycle
 
-       if (work2%x(i,1,1,1) .lt. 1.9_rp) then
+       if (node_class%x(i,1,1,1) .lt. 1.9_rp) then
           dirichlet_mask_size = dirichlet_mask_size + 1
-       else if (work2%x(i,1,1,1) .gt. 1.9_rp .and. &
-            work2%x(i,1,1,1) .lt. 3.9_rp) then
+       else if (node_class%x(i,1,1,1) .gt. 1.9_rp .and. &
+            node_class%x(i,1,1,1) .lt. 3.9_rp) then
           mixed_mask_size = mixed_mask_size + 1
        end if
     end do
@@ -699,11 +746,11 @@ contains
     do i = 1, dof_size
        if (work1%x(i,1,1,1) .lt. 0.5_rp) cycle
 
-       if (work2%x(i,1,1,1) .lt. 1.9_rp) then
+       if (node_class%x(i,1,1,1) .lt. 1.9_rp) then
           dirichlet_mask_size = dirichlet_mask_size + 1
           dirichlet_mask_values(dirichlet_mask_size) = i
-       else if (work2%x(i,1,1,1) .gt. 1.9_rp .and. &
-            work2%x(i,1,1,1) .lt. 3.9_rp) then
+       else if (node_class%x(i,1,1,1) .gt. 1.9_rp .and. &
+            node_class%x(i,1,1,1) .lt. 3.9_rp) then
           mixed_mask_size = mixed_mask_size + 1
           mixed_mask_values(mixed_mask_size) = i
        end if
@@ -737,29 +784,29 @@ contains
     do i = 1, mixed_mask_size
        j = mixed_mask_values(i)
 
-       if (work2%x(j,1,1,1) .lt. 1.9_rp) then
-          this%constraint_n(i) = .true.
-          this%constraint_t1(i) = .true.
-          this%constraint_t2(i) = .true.
-       else if (work2%x(j,1,1,1) .gt. 1.9_rp .and. &
-            work2%x(j,1,1,1) .lt. 2.9_rp) then
-          this%constraint_n(i) = .true.
-          this%constraint_t1(i) = .false.
-          this%constraint_t2(i) = .false.
-       else if (work2%x(j,1,1,1) .gt. 2.9_rp .and. &
-            work2%x(j,1,1,1) .lt. 3.9_rp) then
-          this%constraint_n(i) = .false.
-          this%constraint_t1(i) = .true.
-          this%constraint_t2(i) = .true.
-       else if (work2%x(j,1,1,1) .gt. 3.9_rp) then
-          this%constraint_n(i) = .false.
-          this%constraint_t1(i) = .false.
-          this%constraint_t2(i) = .false.
+       if (node_class%x(j,1,1,1) .lt. 1.9_rp) then
+          this%constraint_n(i) = 1
+          this%constraint_t1(i) = 1
+          this%constraint_t2(i) = 1
+       else if (node_class%x(j,1,1,1) .gt. 1.9_rp .and. &
+            node_class%x(j,1,1,1) .lt. 2.9_rp) then
+          this%constraint_n(i) = 1
+          this%constraint_t1(i) = 0
+          this%constraint_t2(i) = 0
+       else if (node_class%x(j,1,1,1) .gt. 2.9_rp .and. &
+            node_class%x(j,1,1,1) .lt. 3.9_rp) then
+          this%constraint_n(i) = 0
+          this%constraint_t1(i) = 1
+          this%constraint_t2(i) = 1
+       else if (node_class%x(j,1,1,1) .gt. 3.9_rp) then
+          this%constraint_n(i) = 0
+          this%constraint_t1(i) = 0
+          this%constraint_t2(i) = 0
        end if
     end do
 
     ! At this point, face_class stores the face-based bc class values, and
-    ! work2 stores them node-wise, after propagation with min reduction.
+    ! node_class stores them node-wise, after propagation with min reduction.
     ! Note that the propagation means that some nodes may have a different,
     ! more restrictive class than owning face!
     ! The algorithm for constructing normals below will make use of both
@@ -855,7 +902,7 @@ contains
                  this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
 
             ! Get the prio class.
-            prio = abs(work2%x(edge_idx,1,1,1))
+            prio = abs(node_class%x(edge_idx,1,1,1))
 
             ! If this is not a mixed bc edge, just leave it alone.
             if (prio .lt. 1.9_rp .or. prio .gt. 3.1_rp) cycle
@@ -924,7 +971,7 @@ contains
             rst = this%node_rst(:, node)
             node_idx = linear_index(rst(1), rst(2), rst(3), el, &
                  this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
-            prio = abs(work2%x(node_idx,1,1,1))
+            prio = abs(node_class%x(node_idx,1,1,1))
 
             ! Ignore if the bc class is not a mixed one.
             if (prio .lt. 1.9_rp .or. prio .gt. 3.1_rp) cycle
@@ -998,6 +1045,31 @@ contains
       end do
     end associate
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%constraint_n, this%constraint_n_d, &
+            size(this%constraint_n))
+       call device_map(this%constraint_t1, this%constraint_t1_d, &
+            size(this%constraint_t1))
+       call device_map(this%constraint_t2, this%constraint_t2_d, &
+            size(this%constraint_t2))
+       call device_map(this%n, this%n_d, size(this%n))
+       call device_map(this%t1, this%t1_d, size(this%t1))
+       call device_map(this%t2, this%t2_d, size(this%t2))
+
+       call device_memcpy(this%constraint_n, this%constraint_n_d, &
+            size(this%constraint_n), HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%constraint_t1, this%constraint_t1_d, &
+            size(this%constraint_t1), HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%constraint_t2, this%constraint_t2_d, &
+            size(this%constraint_t2), HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%n, this%n_d, size(this%n), HOST_TO_DEVICE, &
+            sync = .true.)
+       call device_memcpy(this%t1, this%t1_d, size(this%t1), HOST_TO_DEVICE, &
+            sync = .true.)
+       call device_memcpy(this%t2, this%t2_d, size(this%t2), HOST_TO_DEVICE, &
+            sync = .true.)
+    end if
+
     block
       type(field_list_t) :: basis_fields
       type(fld_file_t) :: basis_file
@@ -1070,33 +1142,43 @@ contains
     if (.not. this%mixed_dof_mask%is_set()) return
 
     m = this%mixed_dof_mask%size()
-    mixed_msk => this%mixed_dof_mask%get()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       x_d = device_get_ptr(x)
+       y_d = device_get_ptr(y)
+       z_d = device_get_ptr(z)
+       call device_coupled_vector_bc_resolver_apply( &
+            this%mixed_dof_mask%get_d(), x_d, y_d, z_d, this%constraint_n_d, &
+            this%constraint_t1_d, this%constraint_t2_d, this%n_d, this%t1_d, &
+            this%t2_d, m, strm)
+    else
+       mixed_msk => this%mixed_dof_mask%get()
 
-    do i = 1, m
-       j = mixed_msk(i)
+       do i = 1, m
+          j = mixed_msk(i)
 
-       u(1) = x(j)
-       u(2) = y(j)
-       u(3) = z(j)
+          u(1) = x(j)
+          u(2) = y(j)
+          u(3) = z(j)
 
-       uloc(1) = u(1) * this%n(1,i) + u(2) * this%n(2,i) + &
-            u(3) * this%n(3,i)
-       uloc(2) = u(1) * this%t1(1,i) + u(2) * this%t1(2,i) + &
-            u(3) * this%t1(3,i)
-       uloc(3) = u(1) * this%t2(1,i) + u(2) * this%t2(2,i) + &
-            u(3) * this%t2(3,i)
+          uloc(1) = u(1) * this%n(1,i) + u(2) * this%n(2,i) + &
+               u(3) * this%n(3,i)
+          uloc(2) = u(1) * this%t1(1,i) + u(2) * this%t1(2,i) + &
+               u(3) * this%t1(3,i)
+          uloc(3) = u(1) * this%t2(1,i) + u(2) * this%t2(2,i) + &
+               u(3) * this%t2(3,i)
 
-       if (this%constraint_n(i)) uloc(1) = 0.0_rp
-       if (this%constraint_t1(i)) uloc(2) = 0.0_rp
-       if (this%constraint_t2(i)) uloc(3) = 0.0_rp
+          if (this%constraint_n(i) .ne. 0) uloc(1) = 0.0_rp
+          if (this%constraint_t1(i) .ne. 0) uloc(2) = 0.0_rp
+          if (this%constraint_t2(i) .ne. 0) uloc(3) = 0.0_rp
 
-       u = uloc(1) * this%n(:,i) + uloc(2) * this%t1(:,i) + &
-            uloc(3) * this%t2(:,i)
+          u = uloc(1) * this%n(:,i) + uloc(2) * this%t1(:,i) + &
+               uloc(3) * this%t2(:,i)
 
-       x(j) = u(1)
-       y(j) = u(2)
-       z(j) = u(3)
-    end do
+          x(j) = u(1)
+          y(j) = u(2)
+          z(j) = u(3)
+       end do
+    end if
   end subroutine coupled_vector_bc_resolver_apply
 
 end module bc_resolver
