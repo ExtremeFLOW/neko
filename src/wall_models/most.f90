@@ -39,7 +39,7 @@ module most
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
-  use registry, only : neko_registry, neko_const_registry
+  use registry, only : neko_registry
   use json_utils, only : json_get_or_default, json_get
   use most_device, only : most_compute_device
   use most_cpu, only : most_compute_cpu
@@ -111,7 +111,6 @@ contains
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
     real(kind=rp) :: bc_value
-    real(kind=rp), pointer :: bc_value_ptr
     real(kind=rp), allocatable :: g_tmp(:)
     real(kind=rp) :: g(3)
 
@@ -128,6 +127,7 @@ contains
     call json_get_or_default(json, "rho", rho, 1.0_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
+    call json_get(json, "bottom_bc_flux_or_temp", bc_value)
 
     call json_get(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -136,10 +136,6 @@ contains
        call neko_error("MOST WM: The gravity vector should have exactly 3 components")
     end if
     deallocate(g_tmp)
-
-    call neko_const_registry%add_real_scalar(0.0_rp, "bc_value")
-    bc_value_ptr => neko_const_registry%get_real_scalar("bc_value")
-    bc_value = bc_value_ptr
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
          kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)
@@ -154,7 +150,6 @@ contains
     class(most_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
-    real(kind=rp), pointer :: bc_value_ptr
     real(kind=rp), allocatable :: g_tmp(:)
 
     call this%partial_init_base(coef, json)
@@ -162,6 +157,7 @@ contains
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
+    call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
 
     call json_get(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -170,10 +166,6 @@ contains
        call neko_error("MOST WM: Gravity vector must have 3 components")
     end if
     deallocate(g_tmp)
-
-    call neko_const_registry%add_real_scalar(0.0_rp, "bc_value")
-    bc_value_ptr => neko_const_registry%get_real_scalar("bc_value")
-    this%bc_value = bc_value_ptr
 
   end subroutine most_partial_init
 
@@ -283,14 +275,11 @@ contains
     type(field_t), pointer :: v
     type(field_t), pointer :: w
     type(field_t), pointer :: temp
-    real(kind=rp), pointer :: bc_value
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
     temp => neko_registry%get_field(this%scalar_name)
-    bc_value => neko_const_registry%get_real_scalar("bc_value")
-    this%bc_value = bc_value
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
