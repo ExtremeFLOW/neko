@@ -103,7 +103,7 @@ jobs:
         id: setup-env
         run: |
           export NVARCH=`uname -s`_`uname -m`
-          export NVVER=26.1
+          export NVVER=26.3
           export NVCOMPILERS=/opt/nvidia/hpc_sdk
           export PATH=$NVCOMPILERS/$NVARCH/$NVVER/compilers/bin:$PATH
           export PATH=$NVCOMPILERS/$NVARCH/$NVVER/comm_libs/mpi/bin:$PATH
