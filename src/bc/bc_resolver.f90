@@ -42,7 +42,7 @@ module bc_resolver
   use fld_file, only : fld_file_t
   use hex, only : edge_nodes, edge_faces, node_faces
   use scratch_registry, only : neko_scratch_registry
-  use math, only : cfill_mask, masked_scatter_copy
+  use math, only : cfill_mask, masked_scatter_copy, rzero
   use gs_ops, only : GS_OP_MAX, GS_OP_ADD, GS_OP_MIN
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
@@ -53,7 +53,7 @@ module bc_resolver
   use device_math, only : device_cfill_mask
   use device_coupled_vector_bc_resolver, only : &
        device_coupled_vector_bc_resolver_apply
-  use field_math, only : field_cfill, field_rzero
+  use field_math, only : field_cfill
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   implicit none
   private
@@ -356,11 +356,13 @@ contains
   subroutine segregated_vector_bc_resolver_mark_bc_list(this, bclst, component)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
+    class(bc_t), pointer :: bc_i
     character(len=1), optional, intent(in) :: component
     integer :: i
 
     do i = 1, bclst%size()
-       call this%mark_bc(bclst%get(i), component)
+       bc_i => bclst%get(i)
+       call this%mark_bc(bc_i, component)
     end do
   end subroutine segregated_vector_bc_resolver_mark_bc_list
 
@@ -396,7 +398,9 @@ contains
        z => this%z
     class default
        call neko_error("Component access is only available for " // &
-            "segregated vector BC resolvers.")
+            "segregated vector BC resolvers. You have likely fogotten to " // &
+            "select a coupled linear solver for velocity in the fluid " // &
+            "configuration.")
     end select
   end subroutine vector_bc_resolver_components
 
@@ -560,10 +564,12 @@ contains
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
     character(len=1), optional, intent(in) :: component
+    class(bc_t), pointer :: bc_i
     integer :: i
 
     do i = 1, bclst%size()
-       call this%mark_bc(bclst%get(i), component)
+       bc_i => bclst%get(i)
+       call this%mark_bc(bc_i, component)
     end do
   end subroutine coupled_vector_bc_resolver_mark_bc_list
 
@@ -652,10 +658,10 @@ contains
        ! Mask all the dofs touched by this BC. Since %msk is propagated to all
        ! local dofs via gather-scatter, work1 will contain all local nodes on
        ! the boundary, including those elements that don't touch it with a face.
-       ! Note that bc%msk stores its length in slot 0, so math kernels must
-       ! always see the proper 1-based slice bc%msk(1:bc%msk(0)).
-       call cfill_mask(work1%x(:,1,1,1), 1.0_rp, dof_size, &
-            bc%msk(1:bc%msk(0)), bc%msk(0))
+       ! Note that bc%msk stores its length in slot 0 and is therefore passed
+       ! with the `_0` masked-wrapper convention.
+       call cfill_mask(work1%x, 1.0_rp, dof_size, bc%msk(1:bc%msk(0)), &
+            bc%msk(0))
     end do
 
 
@@ -669,6 +675,7 @@ contains
     ! 0 -> fully constrained
     ! Fill the field to not mess up gather-scatter reduction later.
     call field_cfill(node_class, 5.0_rp)
+    !call cfill(node_class%x, 5.0_rp, dof_size)
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
 
@@ -714,6 +721,7 @@ contains
 
     ! Propagate constraints to all local dofs via gather-scatter.
     ! Ensures most restrictive constraint is kept across element boundaries.
+    call node_class%copy_from(HOST_TO_DEVICE, sync = .true.)
     call this%coef%gs_h%op(node_class, GS_OP_MIN)
 
     ! Partition the resolved boundary dofs into the fully constrained subset
@@ -821,9 +829,9 @@ contains
 
     ! Set normals at unambiguous boundary dofs based on face normals.
     associate(nx => work1, ny => work3, nz => work4)
-      call field_rzero(nx)
-      call field_rzero(ny)
-      call field_rzero(nz)
+      call rzero(nx%x, dof_size)
+      call rzero(ny%x, dof_size)
+      call rzero(nz%x, dof_size)
 
       this%n = 0.0_rp
       this%t1 = 0.0_rp
@@ -1074,9 +1082,9 @@ contains
       type(field_list_t) :: basis_fields
       type(fld_file_t) :: basis_file
 
-      call field_rzero(work1)
-      call field_rzero(work3)
-      call field_rzero(work4)
+      call rzero(work1%x, dof_size)
+      call rzero(work3%x, dof_size)
+      call rzero(work4%x, dof_size)
 
       call masked_scatter_copy(work1%x(:,1,1,1), this%n(1,:), &
            mixed_mask_values, dof_size, mixed_mask_size)
