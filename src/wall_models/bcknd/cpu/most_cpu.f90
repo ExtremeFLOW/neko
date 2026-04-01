@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -103,6 +103,7 @@ contains
     real(kind=rp), intent(inout) :: q,ts
     select case (bc_type)
       case ("neumann")
+       ! ts not used
        q = bc_value
        f_ptr => f_neumann
        dfdl_ptr => dfdl_neumann
@@ -164,15 +165,15 @@ contains
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, mu, rho
     real(kind=rp), dimension(3), intent(in) :: g_vec
+    real(kind=rp) :: g_dot_n
     character(len=*), intent(in) :: bc_type
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
-    integer :: i, count
-    integer, parameter :: max_count = 50
     real(kind=rp) :: ui, vi, wi, ts, hi
     real(kind=rp) :: normu, z0h
-    real(kind=rp) :: g_dot_n
     real(kind=rp) :: L_upper, L_lower, L_old
     real(kind=rp) :: f, dfdl, fd_h, L_new, L_sign
+    integer :: i, count
+    integer, parameter :: max_count = 50
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
     real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
@@ -203,7 +204,7 @@ contains
         ! z0h_in is interpreted as -C_Zil (Zilitinkevich constant) for z0h
         z0h = z0 * exp(z0h_in*sqrt((utau(i)*z0)/(mu/rho)))
       else
-          z0h = z0h_in
+        z0h = z0h_in
       end if
 
       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
@@ -214,7 +215,7 @@ contains
       g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i)) 
       call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts, magu(i), kappa, q(i), Ri_b(i))
 
-      call set_stability_regime(Ri_b(i),Ri_threshold)
+      call set_stability_regime(Ri_b(i), Ri_threshold)
 
       if (abs((Ri_b(i))) <= Ri_threshold) then
         ! Neutral (L_ob undefined)
