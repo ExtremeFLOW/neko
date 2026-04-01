@@ -12,8 +12,8 @@ program average_fields_in_time
   argc = command_argument_count()
 
   if ((argc .lt. 3) .or. (argc .gt. 3)) then
-    call usage()
-    stop
+     call usage()
+     stop
   end if
 
   call neko_init
@@ -162,7 +162,7 @@ contains
 
        ! Compute the size of a statistics sample
        sample_size = determine_size_of_csv_sample(data)
-       
+
        if (mod(data%get_nrows(), sample_size) .ne. 0) then
           write(log_buf,*) "# of rows in csv file : ", data%get_nrows()
           call neko_log%message(log_buf)
@@ -170,9 +170,9 @@ contains
           call neko_log%message(log_buf)
 
           call neko_error("The # of rows in the file must be a multiple" // &
-                  "of the size of each sample.")
+               "of the size of each sample.")
        end if
-       
+
        n_samples = data%get_nrows() / sample_size
        write (log_buf, '(A,I0)') "Size of each sample: ", sample_size
        call neko_log%message(log_buf)
