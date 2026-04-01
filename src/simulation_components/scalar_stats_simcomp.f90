@@ -103,8 +103,19 @@ contains
     real(kind=rp) :: start_time
     type(field_t), pointer :: s, u, v, w, p
     type(coef_t), pointer :: coef
+    logical :: sname_provided
 
-    call json_get_or_default(json, "name", name, "scalar_stats")
+    sname_provided = json%valid_path('field')
+
+    call json_get_or_default(json, 'field', &
+         sname, 's')
+    if (sname_provided) then
+       call json_get_or_default(json, "name", &
+            name, "scalar_stats_" // trim(sname))
+    else
+       call json_get_or_default(json, "name", &
+            name, "scalar_stats")
+    endif
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
@@ -112,8 +123,6 @@ contains
          start_time, 0.0_rp)
     call json_get_or_default(json, 'set_of_stats', &
          stat_set, 'full')
-    call json_get_or_default(json, 'field', &
-         sname, 's')
 
     s => neko_registry%get_field_by_name(sname)
     u => neko_registry%get_field("u")
@@ -127,6 +136,9 @@ contains
        call json_get(json, "output_filename", filename)
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
             p, coef, start_time, hom_dir, stat_set, filename)
+    else if (sname_provided) then
+       call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
+            p, coef, start_time, hom_dir, stat_set, "scalar_stats_" // trim(sname) // "0")
     else
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
             p, coef, start_time, hom_dir, stat_set)

@@ -114,7 +114,7 @@ contains
     m = this%msk(0)
 
     if (strong_) then
-       do i = 1, m
+       do concurrent (i = 1:m)
           k = this%msk(i)
           x(k) = this%x(1)
           y(k) = this%x(2)

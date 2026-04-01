@@ -299,7 +299,7 @@ contains
   !! @param error_msg The error message to report.
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
-    write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
+    write(error_unit, *) '*** ERROR: ', trim(error_msg), ' ***'
     error stop
   end subroutine neko_error_msg
 
@@ -344,7 +344,7 @@ contains
   !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)
     character(len=*) :: warning_msg
-    write(output_unit, *) '*** WARNING: ', warning_msg, ' ***'
+    write(output_unit, *) '*** WARNING: ', trim(warning_msg), ' ***'
   end subroutine neko_warning
 
   !> Concatenate an array of strings into one string with array items

@@ -44,6 +44,7 @@ module rough_log_law
   use rough_log_law_device, only : rough_log_law_compute_device
   use rough_log_law_cpu, only : rough_log_law_compute_cpu
   use scratch_registry, only : neko_scratch_registry
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -110,11 +111,23 @@ contains
     class(rough_log_law_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
+    character(len=LOG_SIZE) :: log_buf
 
     call this%partial_init_base(coef, json)
     call json_get_or_lookup(json, "kappa", this%kappa)
     call json_get_or_lookup(json, "B", this%B)
     call json_get_or_lookup(json, "z0", this%z0)
+
+    call neko_log%section('Wall model')
+    write(log_buf, '(A)') 'Model : Rough log law'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'B : ', this%B
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
   end subroutine rough_log_law_partial_init
 
