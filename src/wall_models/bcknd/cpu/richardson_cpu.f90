@@ -42,17 +42,17 @@ module richardson_cpu
   public :: richardson_compute_cpu
 
   abstract interface
-     function tau_interface(magu, ri_b, h, z0, l, kappa) result(tau)
+     function tau_interface(magu, Ri_b, h, z0, l, kappa) result(tau)
        import rp
-       real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
+       real(kind=rp), intent(in) :: magu, Ri_b, h, z0, l, kappa
        real(kind=rp) :: tau
      end function tau_interface
 
-     function heat_flux_interface(ti, ts, ri_b, h, magu, z1, Pr,&
+     function heat_flux_interface(ti, ts, Ri_b, h, magu, z0h, Pr,&
                                 l, utau, kappa) result(heat_flux)
        import rp
-       real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
-       real(kind=rp), intent(in) :: z1, Pr, l, utau, kappa
+       real(kind=rp), intent(in) :: ts, ti, Ri_b, h, magu
+       real(kind=rp), intent(in) :: z0h, Pr, l, utau, kappa
        real(kind=rp) :: heat_flux
      end function heat_flux_interface
 
@@ -250,98 +250,98 @@ contains
 
   !> Similarity laws and corrections for the STABLE regime:
   !> Based on Mauritsen et al. 2007
-  function tau_stable(magu, ri_b, h, z0, l, kappa) result(tau)
-    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
+  function tau_stable(magu, Ri_b, h, z0, l, kappa) result(tau)
+    real(kind=rp), intent(in) :: magu, Ri_b, h, z0, l, kappa
     real(kind=rp) :: tau
 
-    tau = magu**2/(log(h/z0)**2) * f_tau_stable(ri_b)/ &
+    tau = magu**2/(log(h/z0)**2) * f_tau_stable(Ri_b)/ &
           f_tau_stable(0.0_rp) * (l/h)**2
   end function tau_stable
 
-  function heat_flux_stable(ti, ts, ri_b, h, magu, z1, Pr,&
+  function heat_flux_stable(ti, ts, Ri_b, h, magu, z0h, Pr,&
                             l, utau, kappa) result(heat_flux)
-    real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
-    real(kind=rp), intent(in) :: z1, Pr, l, utau, kappa
+    real(kind=rp), intent(in) :: ts, ti, Ri_b, h, magu
+    real(kind=rp), intent(in) :: z0h, Pr, l, utau, kappa
     real(kind=rp) :: heat_flux
 
-    heat_flux = (ti - ts)/(log(h/z1)) * &
-                f_theta_stable(ri_b)/abs(f_theta_stable(0.0_rp)) * &
+    heat_flux = (ti - ts)/(log(h/z0h)) * &
+                f_theta_stable(Ri_b)/abs(f_theta_stable(0.0_rp)) * &
                 (l/h) * utau/Pr
   end function heat_flux_stable
 
-  function f_tau_stable(ri_b) result(f_tau)
-    real(kind=rp), intent(in) :: ri_b
+  function f_tau_stable(Ri_b) result(f_tau)
+    real(kind=rp), intent(in) :: Ri_b
     real(kind=rp) :: f_tau
 
-    f_tau = 0.17 * (0.25 + 0.75 / (1 + 4*ri_b))
+    f_tau = 0.17 * (0.25 + 0.75 / (1.0 + 4.0*Ri_b))
   end function f_tau_stable
 
-  function f_theta_stable(ri_b) result(f_theta)
-    real(kind=rp), intent(in) :: ri_b
+  function f_theta_stable(Ri_b) result(f_theta)
+    real(kind=rp), intent(in) :: Ri_b
     real(kind=rp) :: f_theta
 
-    f_theta = -0.145 / (1 + 4 * ri_b)
+    f_theta = -0.145 / (1.0 + 4.0 * Ri_b)
   end function f_theta_stable
 
   !> Similarity laws and corrections for the UNSTABLE (convective) regime:
   !> Based on Louis 1979
-  function tau_convective(magu, ri_b, h, z0, l, kappa) result(tau)
-    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
+  function tau_convective(magu, Ri_b, h, z0, l, kappa) result(tau)
+    real(kind=rp), intent(in) :: magu, Ri_b, h, z0, l, kappa
     real(kind=rp) :: tau
     real(kind=rp) :: a, b, c
 
     a =  kappa / log(h/z0)
-    b = 2
+    b = 2.0
     c = 7.4 * a**2 * b * (h/z0)**0.5
 
-    tau = a**2 * magu**2 * f_tau_convective(ri_b, c)
+    tau = a**2 * magu**2 * f_tau_convective(Ri_b, c)
   end function tau_convective
 
-  function heat_flux_convective(ti, ts, ri_b, h, magu, z1, Pr,&
+  function heat_flux_convective(ti, ts, Ri_b, h, magu, z0h, Pr,&
                                 l, utau, kappa) result(heat_flux)
-    real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
-    real(kind=rp), intent(in) :: z1, Pr, l, utau, kappa
+    real(kind=rp), intent(in) :: ts, ti, Ri_b, h, magu
+    real(kind=rp), intent(in) :: z0h, Pr, l, utau, kappa
     real(kind=rp) :: heat_flux
     real(kind=rp) :: a, b, c
 
-    a = kappa / log(h/z1)
-    b = 2
-    c = 5.3 * a**2 * b * (h/z1)**0.5
+    a = kappa / log(h/z0h)
+    b = 2.0
+    c = 5.3 * a**2 * b * (h/z0h)**0.5
 
     heat_flux = - a**2 / 0.74 * magu * &
-                       (ti - ts) * f_theta_convective(ri_b, c)
+                       (ti - ts) * f_theta_convective(Ri_b, c)
 
   end function heat_flux_convective
 
-  function f_tau_convective(ri_b, c) result(f_tau)
-    real(kind=rp), intent(in) :: ri_b, c
+  function f_tau_convective(Ri_b, c) result(f_tau)
+    real(kind=rp), intent(in) :: Ri_b, c
     real(kind=rp) :: f_tau
 
-    f_tau = 1 - 2*ri_b / (1 + c * abs(ri_b)**0.5)
+    f_tau = 1.0 - 2*Ri_b / (1.0 + c * abs(Ri_b)**0.5)
   end function f_tau_convective
 
-  function f_theta_convective(ri_b, c) result(f_theta)
-    real(kind=rp), intent(in) :: ri_b, c
+  function f_theta_convective(Ri_b, c) result(f_theta)
+    real(kind=rp), intent(in) :: Ri_b, c
     real(kind=rp) :: f_theta
 
-    f_theta = 1 - 2*ri_b / (1 + c * abs(ri_b)**0.5)
+    f_theta = 1.0 - 2*Ri_b / (1.0 + c * abs(Ri_b)**0.5)
   end function f_theta_convective
 
   !> Similarity laws and corrections for the NEUTRAL regime:
-  function tau_neutral(magu, ri_b, h, z0, l, kappa) result(tau)
-    real(kind=rp), intent(in) :: magu, ri_b, h, z0, l, kappa
+  function tau_neutral(magu, Ri_b, h, z0, l, kappa) result(tau)
+    real(kind=rp), intent(in) :: magu, Ri_b, h, z0, l, kappa
     real(kind=rp) :: tau
 
     tau = (kappa*magu/log(h/z0))**2
   end function tau_neutral
 
-  function heat_flux_neutral(ti, ts, ri_b, h, magu, z1, Pr,&
+  function heat_flux_neutral(ti, ts, Ri_b, h, magu, z0h, Pr,&
                             l, utau, kappa) result(heat_flux)
-    real(kind=rp), intent(in) :: ts, ti, ri_b, h, magu
-    real(kind=rp), intent(in) :: z1, Pr, l, utau, kappa
+    real(kind=rp), intent(in) :: ts, ti, Ri_b, h, magu
+    real(kind=rp), intent(in) :: z0h, Pr, l, utau, kappa
     real(kind=rp) :: heat_flux
 
-    heat_flux = kappa*utau *(ti - ts)/log(h/z1)
+    heat_flux = kappa*utau * (ti - ts)/log(h/z0h)
   end function heat_flux_neutral
 
 end module richardson_cpu
