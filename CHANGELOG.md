@@ -2,6 +2,7 @@
 
 ## Develop
 
+- basic implementation of an overset interface boundary condition is added
 - If the "field" is provided for `scalar_stats` in the case file, append this
   name to the `scalar_stats` registry prefix and the default output filename.
 - Added a script to add new unit tests under `contrib/add_unit_test`. Added
