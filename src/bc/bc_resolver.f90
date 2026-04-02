@@ -49,7 +49,7 @@ module bc_resolver
   use tuple, only : tuple_i4_t
   use utils, only : neko_error, nonlinear_index, linear_index
   use device, only : device_get_ptr, device_memcpy, device_map, device_unmap, &
-       HOST_TO_DEVICE, DEVICE_TO_HOST
+       HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
   use device_math, only : device_cfill_mask
   use device_coupled_vector_bc_resolver, only : &
        device_coupled_vector_bc_resolver_apply
@@ -596,8 +596,6 @@ contains
     real(kind=rp) :: normal(3), t1_vec(3), t2_vec(3), len, prio
     class(bc_t), pointer :: bc
 
-    write(*,*) "Finalizing coupled vector BC resolver with ", this%bcs%size(), &
-         " boundary conditions."
     call this%dirichlet_dof_mask%free()
     call this%mixed_dof_mask%free()
 
@@ -641,7 +639,6 @@ contains
     if (.not. associated(this%dof)) return
     if (this%bcs%size() .eq. 0) return
 
-
     call neko_scratch_registry%request_field(work1, scratch_idx(1), .true.)
     call neko_scratch_registry%request_field(node_class, scratch_idx(2), .true.)
     call neko_scratch_registry%request_field(work3, scratch_idx(3), .true.)
@@ -650,7 +647,6 @@ contains
     dof_size = this%dof%size()
     this%face_class = 5.0_rp
 
-    write(*,*) "Building boundary masks for coupled vector BC resolver."
     ! Build a mask of all dofs on the boundary.
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
@@ -744,8 +740,6 @@ contains
        end if
     end do
 
-    write(*,*) "Found ", dirichlet_mask_size, " Dirichlet nodes and ", &
-         mixed_mask_size, " mixed nodes in coupled vector BC resolver."
 
     if (dirichlet_mask_size .gt. 0) then
        allocate(dirichlet_mask_values(dirichlet_mask_size))
@@ -899,115 +893,115 @@ contains
       ! only treat the interior nodes of the edge here. The endpoints, i.e.
       ! the corner nodes are handled in the next loop.
       if (mixed_mask_size .gt. 0) then
-      do el = 1, this%coef%msh%nelv
-         do edge = 1, size(edge_nodes, 2)
+         do el = 1, this%coef%msh%nelv
+            do edge = 1, size(edge_nodes, 2)
 
-            ! Representitive rst index in the middle of an edge.
-            rst = this%edge_mid_rst(:, edge)
+               ! Representitive rst index in the middle of an edge.
+               rst = this%edge_mid_rst(:, edge)
 
-            ! Global linear index of the midpoint node.
-            edge_idx = linear_index(rst(1), rst(2), rst(3), el, &
-                 this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
-
-            ! Get the prio class.
-            prio = abs(node_class%x(edge_idx,1,1,1))
-
-            ! If this is not a mixed bc edge, just leave it alone.
-            if (prio .lt. 1.9_rp .or. prio .gt. 3.1_rp) cycle
-
-            ! Recall that "node" in the lookup table names refer to element
-            ! corners. This is to stay consistent with the hex_t notation.
-            ! Get edge endpoints index triples. For example,
-            ! (1, 1, 1) and (lx, 1, 1)
-            rst1 = this%node_rst(:, edge_nodes(1, edge))
-            rst2 = this%node_rst(:, edge_nodes(2, edge))
-
-            ! Compute number of gll nodes on the edge, so lx, ly, or lz.
-            ! Which currently in Neko is one and the same.
-            edge_len = maxval(abs(rst2 - rst1)) + 1
-
-            ! The running index direction along the edge in rst-space.
-            ! This is a tripe, but only one component is nonzero.
-            step_rst = 0
-            do ii = 1, 3
-               if (rst2(ii) .gt. rst1(ii)) then
-                  step_rst(ii) = 1
-               else if (rst2(ii) .lt. rst1(ii)) then
-                  step_rst(ii) = -1
-               end if
-            end do
-
-            ! Loop over interior edge nodes and reset the normals.
-            do p = 2, edge_len - 1
-               rst = rst1 + (p - 1) * step_rst
-               k = linear_index(rst(1), rst(2), rst(3), el, &
+               ! Global linear index of the midpoint node.
+               edge_idx = linear_index(rst(1), rst(2), rst(3), el, &
                     this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
-               nx%x(k,1,1,1) = 0.0_rp
-               ny%x(k,1,1,1) = 0.0_rp
-               nz%x(k,1,1,1) = 0.0_rp
-            end do
 
-            ! Loop over the faces adjacent to this edge and add the normals
-            ! if the bc prior class matches between the face and the edge.
-            do ii = 1, size(edge_faces, 1)
-               facet = edge_faces(ii, edge)
+               ! Get the prio class.
+               prio = abs(node_class%x(edge_idx,1,1,1))
 
-               ! Skip if prio class is not the same.
-               if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then
-                  cycle
-               end if
+               ! If this is not a mixed bc edge, just leave it alone.
+               if (prio .lt. 1.9_rp .or. prio .gt. 3.1_rp) cycle
 
-               ! Loop over the interior edge nodes again and add the normals.
+               ! Recall that "node" in the lookup table names refer to element
+               ! corners. This is to stay consistent with the hex_t notation.
+               ! Get edge endpoints index triples. For example,
+               ! (1, 1, 1) and (lx, 1, 1)
+               rst1 = this%node_rst(:, edge_nodes(1, edge))
+               rst2 = this%node_rst(:, edge_nodes(2, edge))
+
+               ! Compute number of gll nodes on the edge, so lx, ly, or lz.
+               ! Which currently in Neko is one and the same.
+               edge_len = maxval(abs(rst2 - rst1)) + 1
+
+               ! The running index direction along the edge in rst-space.
+               ! This is a tripe, but only one component is nonzero.
+               step_rst = 0
+               do ii = 1, 3
+                  if (rst2(ii) .gt. rst1(ii)) then
+                     step_rst(ii) = 1
+                  else if (rst2(ii) .lt. rst1(ii)) then
+                     step_rst(ii) = -1
+                  end if
+               end do
+
+               ! Loop over interior edge nodes and reset the normals.
                do p = 2, edge_len - 1
                   rst = rst1 + (p - 1) * step_rst
                   k = linear_index(rst(1), rst(2), rst(3), el, &
                        this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
-                  normal = this%coef%get_normal(rst(1), rst(2), rst(3), &
-                       el, facet)
-                  nx%x(k,1,1,1) = nx%x(k,1,1,1) + normal(1)
-                  ny%x(k,1,1,1) = ny%x(k,1,1,1) + normal(2)
-                  nz%x(k,1,1,1) = nz%x(k,1,1,1) + normal(3)
+                  nx%x(k,1,1,1) = 0.0_rp
+                  ny%x(k,1,1,1) = 0.0_rp
+                  nz%x(k,1,1,1) = 0.0_rp
+               end do
+
+               ! Loop over the faces adjacent to this edge and add the normals
+               ! if the bc prior class matches between the face and the edge.
+               do ii = 1, size(edge_faces, 1)
+                  facet = edge_faces(ii, edge)
+
+                  ! Skip if prio class is not the same.
+                  if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then
+                     cycle
+                  end if
+
+                  ! Loop over the interior edge nodes again and add the normals.
+                  do p = 2, edge_len - 1
+                     rst = rst1 + (p - 1) * step_rst
+                     k = linear_index(rst(1), rst(2), rst(3), el, &
+                          this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
+                     normal = this%coef%get_normal(rst(1), rst(2), rst(3), &
+                          el, facet)
+                     nx%x(k,1,1,1) = nx%x(k,1,1,1) + normal(1)
+                     ny%x(k,1,1,1) = ny%x(k,1,1,1) + normal(2)
+                     nz%x(k,1,1,1) = nz%x(k,1,1,1) + normal(3)
+                  end do
                end do
             end do
          end do
-      end do
 
-      write(*,*) "Finished reconstructing normals at mixed edges in coupled vector BC resolver."
+         write(*,*) "Finished reconstructing normals at mixed edges in coupled vector BC resolver."
 
-      ! Mixed corner node normals are rebuilt from the adjacent faces whose
-      ! local face class matches the reduced nodal class at that node.
-      do el = 1, this%coef%msh%nelv
-         do node = 1, size(this%node_linear_idx)
-            rst = this%node_rst(:, node)
-            node_idx = linear_index(rst(1), rst(2), rst(3), el, &
-                 this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
-            prio = abs(node_class%x(node_idx,1,1,1))
+         ! Mixed corner node normals are rebuilt from the adjacent faces whose
+         ! local face class matches the reduced nodal class at that node.
+         do el = 1, this%coef%msh%nelv
+            do node = 1, size(this%node_linear_idx)
+               rst = this%node_rst(:, node)
+               node_idx = linear_index(rst(1), rst(2), rst(3), el, &
+                    this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
+               prio = abs(node_class%x(node_idx,1,1,1))
 
-            ! Ignore if the bc class is not a mixed one.
-            if (prio .lt. 1.9_rp .or. prio .gt. 3.1_rp) cycle
+               ! Ignore if the bc class is not a mixed one.
+               if (prio .lt. 1.9_rp .or. prio .gt. 3.1_rp) cycle
 
-            ! Kill the normal to start fresh.
-            nx%x(node_idx,1,1,1) = 0.0_rp
-            ny%x(node_idx,1,1,1) = 0.0_rp
-            nz%x(node_idx,1,1,1) = 0.0_rp
+               ! Kill the normal to start fresh.
+               nx%x(node_idx,1,1,1) = 0.0_rp
+               ny%x(node_idx,1,1,1) = 0.0_rp
+               nz%x(node_idx,1,1,1) = 0.0_rp
 
-            ! Note, 3 faces share a corner node in 3D.
-            do ii = 1, this%coef%msh%gdim
-               facet = node_faces(ii, node)
+               ! Note, 3 faces share a corner node in 3D.
+               do ii = 1, this%coef%msh%gdim
+                  facet = node_faces(ii, node)
 
-               ! Check class agreement
-               if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then
-                  cycle
-               end if
+                  ! Check class agreement
+                  if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then
+                     cycle
+                  end if
 
-               ! Add the normal.
-               normal = this%coef%get_normal(rst(1), rst(2), rst(3), el, facet)
-               nx%x(node_idx,1,1,1) = nx%x(node_idx,1,1,1) + normal(1)
-               ny%x(node_idx,1,1,1) = ny%x(node_idx,1,1,1) + normal(2)
-               nz%x(node_idx,1,1,1) = nz%x(node_idx,1,1,1) + normal(3)
+                  ! Add the normal.
+                  normal = this%coef%get_normal(rst(1), rst(2), rst(3), el, facet)
+                  nx%x(node_idx,1,1,1) = nx%x(node_idx,1,1,1) + normal(1)
+                  ny%x(node_idx,1,1,1) = ny%x(node_idx,1,1,1) + normal(2)
+                  nz%x(node_idx,1,1,1) = nz%x(node_idx,1,1,1) + normal(3)
+               end do
             end do
          end do
-      end do
       end if
 
       write(*,*) "Finished reconstructing normals at mixed corners in coupled vector BC resolver."
@@ -1108,6 +1102,15 @@ contains
       call basis_file%init('bc_resolver_basis.fld')
       call basis_file%write(basis_fields)
       call basis_fields%free()
+
+      call cfill(work1%x, 5.0_rp, dof_size)
+      call cfill_mask(work1%x, 1.0_rp, dof_size, this%dirichlet_dof_mask%get(), &
+           this%dirichlet_dof_mask%size())
+      call cfill_mask(work1%x, 2.0_rp, dof_size, this%mixed_dof_mask%get(), &
+           this%mixed_dof_mask%size())
+
+      call basis_file%init('bc_resolver_mask.fld')
+      call basis_file%write(work1)
     end block
 
     call neko_scratch_registry%relinquish_field(scratch_idx)
@@ -1130,21 +1133,30 @@ contains
     integer :: i, j, m
     real(kind=rp) :: u(3), uloc(3)
     type(c_ptr) :: x_d, y_d, z_d
+    type(c_ptr):: strm_
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
 
     ! Fully constrained nodes do not need the local basis. They are simply
     ! zeroed in Cartesian space before the mixed-node pass.
-    if (this%dirichlet_dof_mask%is_set()) then
-       m = this%dirichlet_dof_mask%size()
+    m = this%dirichlet_dof_mask%size()
+    if (m .gt. 0) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
+
+
           x_d = device_get_ptr(x)
           y_d = device_get_ptr(y)
           z_d = device_get_ptr(z)
           call device_cfill_mask(x_d, 0.0_rp, n, &
-               this%dirichlet_dof_mask%get_d(), m, strm = strm)
+               this%dirichlet_dof_mask%get_d(), m, strm = strm_)
           call device_cfill_mask(y_d, 0.0_rp, n, &
-               this%dirichlet_dof_mask%get_d(), m, strm = strm)
+               this%dirichlet_dof_mask%get_d(), m, strm = strm_)
           call device_cfill_mask(z_d, 0.0_rp, n, &
-               this%dirichlet_dof_mask%get_d(), m, strm = strm)
+               this%dirichlet_dof_mask%get_d(), m, strm = strm_)
        else
           dirichlet_msk => this%dirichlet_dof_mask%get()
           call cfill_mask(x, 0.0_rp, n, dirichlet_msk, m)
@@ -1153,46 +1165,47 @@ contains
        end if
     end if
 
-    ! Mixed nodes use the resolved local basis and component masks.
-    if (.not. this%mixed_dof_mask%is_set()) return
-
     m = this%mixed_dof_mask%size()
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       x_d = device_get_ptr(x)
-       y_d = device_get_ptr(y)
-       z_d = device_get_ptr(z)
-       call device_coupled_vector_bc_resolver_apply( &
-            this%mixed_dof_mask%get_d(), x_d, y_d, z_d, this%constraint_n_d, &
-            this%constraint_t1_d, this%constraint_t2_d, this%n_d, this%t1_d, &
-            this%t2_d, m, strm)
-    else
-       mixed_msk => this%mixed_dof_mask%get()
 
-       do i = 1, m
-          j = mixed_msk(i)
+    if (m .gt. 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          x_d = device_get_ptr(x)
+          y_d = device_get_ptr(y)
+          z_d = device_get_ptr(z)
+          call device_coupled_vector_bc_resolver_apply( &
+               this%mixed_dof_mask%get_d(), x_d, y_d, z_d, &
+               this%constraint_n_d, this%constraint_t1_d, &
+               this%constraint_t2_d, this%n_d, this%t1_d, &
+               this%t2_d, m, strm_)
+       else
+          mixed_msk => this%mixed_dof_mask%get()
 
-          u(1) = x(j)
-          u(2) = y(j)
-          u(3) = z(j)
+          do i = 1, m
+             j = mixed_msk(i)
 
-          uloc(1) = u(1) * this%n(1,i) + u(2) * this%n(2,i) + &
-               u(3) * this%n(3,i)
-          uloc(2) = u(1) * this%t1(1,i) + u(2) * this%t1(2,i) + &
-               u(3) * this%t1(3,i)
-          uloc(3) = u(1) * this%t2(1,i) + u(2) * this%t2(2,i) + &
-               u(3) * this%t2(3,i)
+             u(1) = x(j)
+             u(2) = y(j)
+             u(3) = z(j)
 
-          if (this%constraint_n(i) .ne. 0) uloc(1) = 0.0_rp
-          if (this%constraint_t1(i) .ne. 0) uloc(2) = 0.0_rp
-          if (this%constraint_t2(i) .ne. 0) uloc(3) = 0.0_rp
+             uloc(1) = u(1) * this%n(1,i) + u(2) * this%n(2,i) + &
+                  u(3) * this%n(3,i)
+             uloc(2) = u(1) * this%t1(1,i) + u(2) * this%t1(2,i) + &
+                  u(3) * this%t1(3,i)
+             uloc(3) = u(1) * this%t2(1,i) + u(2) * this%t2(2,i) + &
+                  u(3) * this%t2(3,i)
 
-          u = uloc(1) * this%n(:,i) + uloc(2) * this%t1(:,i) + &
-               uloc(3) * this%t2(:,i)
+             if (this%constraint_n(i) .ne. 0) uloc(1) = 0.0_rp
+             if (this%constraint_t1(i) .ne. 0) uloc(2) = 0.0_rp
+             if (this%constraint_t2(i) .ne. 0) uloc(3) = 0.0_rp
 
-          x(j) = u(1)
-          y(j) = u(2)
-          z(j) = u(3)
-       end do
+             u = uloc(1) * this%n(:,i) + uloc(2) * this%t1(:,i) + &
+                  uloc(3) * this%t2(:,i)
+
+             x(j) = u(1)
+             y(j) = u(2)
+             z(j) = u(3)
+          end do
+       end if
     end if
   end subroutine coupled_vector_bc_resolver_apply
 

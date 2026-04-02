@@ -61,18 +61,11 @@ contains
     type(c_ptr), intent(in) :: mixed_msk, x, y, z
     type(c_ptr), intent(in) :: constraint_n, constraint_t1, constraint_t2
     type(c_ptr), intent(in) :: n, t1, t2
-    type(c_ptr), intent(in), optional :: strm
-    type(c_ptr) :: strm_
-
-    if (present(strm)) then
-       strm_ = strm
-    else
-       strm_ = c_null_ptr
-    end if
+    type(c_ptr), intent(in) :: strm
 
 #ifdef HAVE_CUDA
     call cuda_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
-         constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm_)
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
 #else
     call neko_error('CUDA backend not configured for coupled vector BC apply')
 #endif
