@@ -1172,7 +1172,7 @@ contains
        interp_values = 0.0_rp
        call this%glb_intrp_comm%sendrecv(this%temp_local%x, interp_values, &
             this%n_points_local, this%n_points)
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host .and. this%n_points .gt. 0) then
           interp_d = device_get_ptr(interp_values)
           call device_memcpy(interp_values, interp_d, &
                this%n_points, HOST_TO_DEVICE, .false.)
