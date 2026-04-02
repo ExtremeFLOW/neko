@@ -204,7 +204,7 @@ contains
   !! @param scalar_name The name of the scalar field (temperature) for Richardson WM.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine richardson_init_from_components(this, scheme_name, scalar_name, coef, msk, &
-       facet, h_index, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value)
+       facet, h_index, kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
     class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -214,7 +214,7 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value
-    real(kind=rp), intent(in) :: kappa, mu, rho, Pr
+    real(kind=rp), intent(in) :: kappa, mu_val, rho_val, Pr
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
     character(len=LOG_SIZE) :: log_buf
@@ -226,8 +226,8 @@ contains
     this%Pr = Pr
     this%z0 = z0
     this%z0h_in = z0h_in
-    this%mu_val = mu
-    this%rho_val = rho
+    this%mu_val = mu_val
+    this%rho_val = rho_val
     this%bc_type = bc_type
     this%bc_value = bc_value
     this%scalar_name = scalar_name
