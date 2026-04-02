@@ -575,9 +575,11 @@ Initial conditions</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>interpolate</code>   </td><td class="markdownTableBodyNone">Whether to interpolate the velocity and pressure fields from the field file onto the current mesh.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the point search.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone"><code>1e-6</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>mesh_file_name</code>   </td><td class="markdownTableBodyNone">If interpolation is enabled, the name of the field file that contains the mesh coordinates.   </td><td class="markdownTableBodyNone">Strings ending with <code>f*****</code>   </td><td class="markdownTableBodyNone"><code>file_name</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>mesh_file_name</code>   </td><td class="markdownTableBodyNone">If interpolation is enabled, the name of the field file that contains the mesh coordinates.   </td><td class="markdownTableBodyNone">Strings ending with <code>f*****</code>   </td><td class="markdownTableBodyNone"><code>file_name</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>interpolation.tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the point search.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone"><code>NEKO_EPS*1e3</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>interpolation.padding</code>   </td><td class="markdownTableBodyNone">Padding for the point search.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone"><code>1e-2</code>   </td></tr>
 </table>
 <dl class="section attention"><dt>Attention</dt><dd>Interpolating a field from the same mesh but different polynomial order is performed implicitly and does not require to enable interpolation.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>It is recommended to interpolate from <code>fld</code> files that were written in double precision. To check if your <code>fld</code> file was written in double precision, run the command: <div class="fragment"><div class="line">head -1 field0.f00000</div>
@@ -764,8 +766,7 @@ Sponge</h3>
 <div class="line">          &quot;method&quot;: &quot;field&quot;,</div>
 <div class="line">          &quot;file_name&quot;: &quot;my_field0.f00016&quot;,</div>
 <div class="line">          &quot;mesh_file_name&quot;: &quot;my_field0.f00000&quot;,</div>
-<div class="line">          &quot;interpolate&quot;: true,</div>
-<div class="line">          &quot;tolerance&quot;: 1e-6</div>
+<div class="line">          &quot;interpolate&quot;: true</div>
 <div class="line">      }</div>
 <div class="line">   }</div>
 <div class="line">]</div>
@@ -1259,7 +1260,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Apr 1 2026 04:32:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Apr 2 2026 04:19:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

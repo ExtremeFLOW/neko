@@ -106,7 +106,7 @@ Overview</h1>
 <p>The <code><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html" title="Implements global_interpolation given a dofmap.">global_interpolation</a></code> module in Neko provides functionality for interpolating arbitrary points within a computational domain. It is designed to handle distributed parallel environments, enabling interpolation across multiple processes. This module is particularly useful for applications requiring interpolation of fields or data points in spectral element simulations.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md107"></a>
-Module: &lt;tt&gt;global_interpolation&lt;/tt&gt;</h1>
+The global interpolation module</h1>
 <h2><a class="anchor" id="autotoc_md108"></a>
 Description</h2>
 <p>The <code><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html" title="Implements global_interpolation given a dofmap.">global_interpolation</a></code> module implements global interpolation for arbitrary points in the domain. It supports distributed parallelism using MPI and provides tools for finding process owners, element candidates, and local coordinates (<code>rst</code>) for interpolation.</p>
@@ -121,7 +121,7 @@ Features</h2>
 </ul>
 <hr  />
 <h1><a class="anchor" id="autotoc_md111"></a>
-Type: &lt;tt&gt;global_interpolation_t&lt;/tt&gt;</h1>
+The global interpolation type</h1>
 <h2><a class="anchor" id="autotoc_md112"></a>
 Description</h2>
 <p>The <code>global_interpolation_t</code> type encapsulates the functionality for global interpolation. It manages the data structures, processes, and algorithms required for interpolation in a distributed environment.</p>
@@ -180,6 +180,8 @@ Initialization</h3>
 <ul>
 <li><code>init_xyz(x, y, z, gdim, nelv, Xh, comm, tol, pad)</code>: Initializes the global interpolation object using coordinates and mesh information.</li>
 <li><code>init_dof(dofmap, comm, tol, pad)</code>: Initializes the object using a <code>dofmap_t</code> instance.</li>
+<li><code>init_json_xyz(x, y, z, gdim, nelv, Xh, params_subdict, comm)</code>: Initializes the global interpolation object using coordinates and mesh information, and a JSON subdict for parameters.</li>
+<li><code>init_json_dof(dofmap, params_subdict, comm, mask)</code>: Initializes the object using a <code>dofmap_t</code> instance, a JSON subdict for parameters, and an optional mask.</li>
 </ul>
 <h3><a class="anchor" id="autotoc_md123"></a>
 Point Management</h3>
@@ -271,7 +273,7 @@ Related Modules</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Apr 1 2026 04:32:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Apr 2 2026 04:19:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

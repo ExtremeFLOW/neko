@@ -160,13 +160,45 @@ var index =
         ] ],
         [ "Note to users", "df/d8f/statistics-guide.html#note-to-users", null ]
       ] ],
+      [ "Input-output", "d7/d7f/io.html", [
+        [ "Mesh", "d7/d7f/io.html#autotoc_md151", null ],
+        [ "Three-dimensional field output", "d7/d7f/io.html#autotoc_md152", [
+          [ "Compression of field output", "d7/d7f/io.html#autotoc_md153", null ]
+        ] ],
+        [ "Checkpoint files", "d7/d7f/io.html#autotoc_md154", null ],
+        [ "VTKHDF output", "d7/d7f/io.html#vtkhdf-output", [
+          [ "Prerequisites", "d7/d7f/io.html#vtkhdf-prerequisites", null ],
+          [ "Enabling VTKHDF output", "d7/d7f/io.html#vtkhdf-enabling", null ],
+          [ "File structure", "d7/d7f/io.html#vtkhdf-file-structure", null ],
+          [ "Cell representation", "d7/d7f/io.html#vtkhdf-cell-representation", null ],
+          [ "Temporal vs non-temporal output", "d7/d7f/io.html#vtkhdf-temporal-vs-non-temporal", null ],
+          [ "Limitations", "d7/d7f/io.html#vtkhdf-limitations", null ]
+        ] ]
+      ] ],
+      [ "Extending neko", "d4/d1b/extending.html", null ],
+      [ "Neko API", "d8/daa/api.html", [
+        [ "Installation", "d8/daa/api.html#autotoc_md68", [
+          [ "Python (pyneko)", "d8/daa/api.html#autotoc_md69", null ],
+          [ "Julia (Neko.jl)", "d8/daa/api.html#autotoc_md70", null ]
+        ] ]
+      ] ],
+      [ "Performance guidelines", "dc/d3c/performance.html", [
+        [ "Installation", "dc/d3c/performance.html#autotoc_md156", [
+          [ "Accelerator specific options", "dc/d3c/performance.html#autotoc_md157", null ]
+        ] ],
+        [ "Simulation setup", "dc/d3c/performance.html#autotoc_md158", [
+          [ "Load balancing", "dc/d3c/performance.html#autotoc_md159", null ],
+          [ "Parameters", "dc/d3c/performance.html#autotoc_md160", null ]
+        ] ],
+        [ "Running a simulation", "dc/d3c/performance.html#autotoc_md161", null ]
+      ] ],
       [ "Global Interpolation", "dd/d61/global-interpolation.html", [
         [ "Overview", "dd/d61/global-interpolation.html#autotoc_md105", null ],
-        [ "Module: <tt>global_interpolation</tt>", "dd/d61/global-interpolation.html#autotoc_md107", [
+        [ "The global interpolation module", "dd/d61/global-interpolation.html#autotoc_md107", [
           [ "Description", "dd/d61/global-interpolation.html#autotoc_md108", null ],
           [ "Features", "dd/d61/global-interpolation.html#autotoc_md109", null ]
         ] ],
-        [ "Type: <tt>global_interpolation_t</tt>", "dd/d61/global-interpolation.html#autotoc_md111", [
+        [ "The global interpolation type", "dd/d61/global-interpolation.html#autotoc_md111", [
           [ "Description", "dd/d61/global-interpolation.html#autotoc_md112", null ],
           [ "Attributes", "dd/d61/global-interpolation.html#autotoc_md113", [
             [ "Domain and Space Information", "dd/d61/global-interpolation.html#autotoc_md114", null ],
@@ -198,39 +230,7 @@ var index =
         [ "PDE filter", "df/d4a/filter.html#autotoc_md103", null ],
         [ "Elementwise filter", "df/d4a/filter.html#autotoc_md104", null ]
       ] ],
-      [ "Input-output", "d7/d7f/io.html", [
-        [ "Mesh", "d7/d7f/io.html#autotoc_md151", null ],
-        [ "Three-dimensional field output", "d7/d7f/io.html#autotoc_md152", [
-          [ "Compression of field output", "d7/d7f/io.html#autotoc_md153", null ]
-        ] ],
-        [ "Checkpoint files", "d7/d7f/io.html#autotoc_md154", null ],
-        [ "VTKHDF output", "d7/d7f/io.html#vtkhdf-output", [
-          [ "Prerequisites", "d7/d7f/io.html#vtkhdf-prerequisites", null ],
-          [ "Enabling VTKHDF output", "d7/d7f/io.html#vtkhdf-enabling", null ],
-          [ "File structure", "d7/d7f/io.html#vtkhdf-file-structure", null ],
-          [ "Cell representation", "d7/d7f/io.html#vtkhdf-cell-representation", null ],
-          [ "Temporal vs non-temporal output", "d7/d7f/io.html#vtkhdf-temporal-vs-non-temporal", null ],
-          [ "Limitations", "d7/d7f/io.html#vtkhdf-limitations", null ]
-        ] ]
-      ] ],
-      [ "Examples: Programming the user file", "d5/db5/programming-examples.html", null ],
-      [ "Extending neko", "d4/d1b/extending.html", null ],
-      [ "Neko API", "d8/daa/api.html", [
-        [ "Installation", "d8/daa/api.html#autotoc_md68", [
-          [ "Python (pyneko)", "d8/daa/api.html#autotoc_md69", null ],
-          [ "Julia (Neko.jl)", "d8/daa/api.html#autotoc_md70", null ]
-        ] ]
-      ] ],
-      [ "Performance guidelines", "dc/d3c/performance.html", [
-        [ "Installation", "dc/d3c/performance.html#autotoc_md156", [
-          [ "Accelerator specific options", "dc/d3c/performance.html#autotoc_md157", null ]
-        ] ],
-        [ "Simulation setup", "dc/d3c/performance.html#autotoc_md158", [
-          [ "Load balancing", "dc/d3c/performance.html#autotoc_md159", null ],
-          [ "Parameters", "dc/d3c/performance.html#autotoc_md160", null ]
-        ] ],
-        [ "Running a simulation", "dc/d3c/performance.html#autotoc_md161", null ]
-      ] ]
+      [ "Examples: Programming the user file", "d5/db5/programming-examples.html", null ]
     ] ],
     [ "Developer guide", "dc/d70/developer-guide.html", [
       [ "Contributing to Neko", "d1/d5a/contributing.html", [

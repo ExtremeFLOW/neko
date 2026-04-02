@@ -233,6 +233,13 @@ probes</h2>
 <li><code>fields</code>: a list of fields to probe. Should be a list of field names that exist in the registry. Example: <code>"fields": ["u", "v", "p", "s"]</code>.</li>
 <li><code>output_file</code>: Name of the file in which to output the probed fields. Must be <code>.csv</code>.</li>
 </ul>
+<p>Optional arguments:</p><ul>
+<li>Interpolation parameters can be provided as a JSON sub-dictionary, <code>interpolation</code>. If not provided, default values defined in the <code><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html" title="Implements global_interpolation given a dofmap.">global_interpolation</a></code> module will be used. <div class="fragment"><div class="line">&quot;interpolation&quot;: {</div>
+<div class="line">  &quot;tolerance&quot;: 1e-8,</div>
+<div class="line">  &quot;padding&quot;: 1e-3</div>
+<div class="line">}</div>
+</div><!-- fragment --></li>
+</ul>
 <p>It is also possible to set a <code>start_time</code> before which the probes will not be executed (same behavior as the statistics).</p>
 <h3><a class="anchor" id="autotoc_md177"></a>
 Supported types</h3>
@@ -280,8 +287,8 @@ Example usage</h3>
 <div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;probes&quot;,</div>
 <div class="line">  &quot;compute_control&quot;: &quot;simulationtime&quot;,</div>
-<div class="line">  &quot;compute_value&quot;    : 1,</div>
-<div class="line">  &quot;fields&quot;: [&quot;w&quot;,&quot;s&quot;],</div>
+<div class="line">  &quot;compute_value&quot;    : 1.0,</div>
+<div class="line">  &quot;fields&quot;: [&quot;w&quot;, &quot;s&quot;],</div>
 <div class="line">  &quot;output_file&quot;:  &quot;output.csv&quot;,</div>
 <div class="line">  &quot;points&quot;: [</div>
 <div class="line">     {</div>
@@ -442,7 +449,7 @@ Spectral error indicator</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Apr 1 2026 04:32:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Apr 2 2026 04:19:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

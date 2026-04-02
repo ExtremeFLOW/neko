@@ -522,6 +522,7 @@ var hierarchy =
       [ "htable::htable_r8_t", "da/dee/structhtable_1_1htable__r8__t.html", null ]
     ] ],
     [ "cartesian_pe_finder::i8_mpi_t", "d6/da5/structcartesian__pe__finder_1_1i8__mpi__t.html", null ],
+    [ "import_field_utils::import_fields", "d8/dde/interfaceimport__field__utils_1_1import__fields.html", null ],
     [ "interpolation::interpolator_t", "db/d74/structinterpolation_1_1interpolator__t.html", null ],
     [ "intersection_detector::intersect_detector_t", "d8/d91/structintersection__detector_1_1intersect__detector__t.html", null ],
     [ "aabb::intersection", "d4/d5b/interfaceaabb_1_1intersection.html", null ],

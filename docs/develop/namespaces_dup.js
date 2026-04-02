@@ -326,9 +326,7 @@ var namespaces_dup =
     [ "hsmg", "dd/dd1/namespacehsmg.html", "dd/dd1/namespacehsmg" ],
     [ "htable", "dc/df5/namespacehtable.html", "dc/df5/namespacehtable" ],
     [ "identity", "d2/d1a/namespaceidentity.html", "d2/d1a/namespaceidentity" ],
-    [ "import_field_utils", "d3/d9f/namespaceimport__field__utils.html", [
-      [ "import_fields", "d3/d9f/namespaceimport__field__utils.html#a2a795c64e649438253c19367e6bed9d7", null ]
-    ] ],
+    [ "import_field_utils", "d3/d9f/namespaceimport__field__utils.html", "d3/d9f/namespaceimport__field__utils" ],
     [ "inflow", "d7/d43/namespaceinflow.html", "d7/d43/namespaceinflow" ],
     [ "interpolation", "d9/da0/namespaceinterpolation.html", "d9/da0/namespaceinterpolation" ],
     [ "intersection_detector", "dc/deb/namespaceintersection__detector.html", "dc/deb/namespaceintersection__detector" ],
