@@ -90,7 +90,7 @@ module bc
      !> Constraint flags in the local basis.
      !! Components correspond to `(n, t1, t2)`, where `.true.` means
      !! constrained.
-     logical :: constraints(3) = (/ .true., .true., .true. /)
+     logical :: constraints(3) = [.true., .true., .true.]
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations
      logical :: updated = .false.

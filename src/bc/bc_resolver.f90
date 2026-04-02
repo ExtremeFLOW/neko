@@ -72,6 +72,8 @@ module bc_resolver
      generic :: mark => mark_bc, mark_bc_list
      !> Zero out constrained degrees of freedom.
      procedure, pass(this) :: apply => scalar_bc_resolver_apply
+     !> Write a field showing the resolved scalar mask.
+     procedure, pass(this) :: debug_output => scalar_bc_resolver_debug_output
   end type scalar_bc_resolver_t
 
   !> Abstract type for resolving vector boundary conditions.
@@ -298,6 +300,41 @@ contains
        call cfill_mask(x, 0.0_rp, n, this%dof_mask%get(), this%dof_mask%size())
     end if
   end subroutine scalar_bc_resolver_apply
+
+  !> Write a field showing the resolved scalar BC mask.
+  !! @param[in] field_name Optional base name for the output file. The .fld is
+  !! appended automatically.
+  subroutine scalar_bc_resolver_debug_output(this, field_name)
+    class(scalar_bc_resolver_t), intent(inout) :: this
+    character(len=*), intent(in), optional :: field_name
+    type(field_t), pointer :: mask_field
+    type(fld_file_t) :: mask_file
+    integer :: scratch_idx
+    character(len=:), allocatable :: field_name_
+
+    if (present(field_name)) then
+       field_name_ = trim(field_name)
+    else
+       field_name_ = 'scalar_bc_resolver_mask'
+    end if
+
+    call neko_scratch_registry%request_field(mask_field, scratch_idx, .true.)
+
+    if (this%dof_mask%is_set()) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_cfill_mask(mask_field%x_d, 1.0_rp, mask_field%size(), &
+               this%dof_mask%get_d(), this%dof_mask%size())
+          call mask_field%copy_from(DEVICE_TO_HOST, .true.)
+       else
+          call cfill_mask(mask_field%x, 1.0_rp, mask_field%size(), &
+               this%dof_mask%get(), this%dof_mask%size())
+       end if
+    end if
+
+    call mask_file%init(field_name_ // '.fld')
+    call mask_file%write(mask_field)
+    call neko_scratch_registry%relinquish_field(scratch_idx)
+  end subroutine scalar_bc_resolver_debug_output
 
 !
 !  ********** segregated_vector_bc_resolver_t TBPs **********
