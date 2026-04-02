@@ -54,7 +54,7 @@ module bc_resolver
   use device_coupled_vector_bc_resolver, only : &
        device_coupled_vector_bc_resolver_apply
   use field_math, only : field_cfill
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
   implicit none
   private
   public :: vector_bc_resolver_components
@@ -257,6 +257,7 @@ contains
     merged_mask(1:current_size) = current_mask(1:current_size)
     merged_size = current_size
 
+    ! TODO: avoid O(n^2)
     do i = 1, incoming_size
        if (.not. any(merged_mask(1:merged_size) .eq. bc%msk(i))) then
           merged_size = merged_size + 1
@@ -388,9 +389,9 @@ contains
   !> Return scalar component resolvers for a segregated vector resolver.
   subroutine vector_bc_resolver_components(this, x, y, z)
     class(vector_bc_resolver_t), target, intent(inout) :: this
-    type(scalar_bc_resolver_t), pointer :: x
-    type(scalar_bc_resolver_t), pointer :: y
-    type(scalar_bc_resolver_t), pointer :: z
+    type(scalar_bc_resolver_t), pointer, intent(inout) :: x
+    type(scalar_bc_resolver_t), pointer, intent(inout) :: y
+    type(scalar_bc_resolver_t), pointer, intent(inout) :: z
 
     select type (this)
     type is (segregated_vector_bc_resolver_t)
@@ -399,7 +400,7 @@ contains
        z => this%z
     class default
        call neko_error("Component access is only available for " // &
-            "segregated vector BC resolvers. You have likely fogotten to " // &
+            "segregated vector BC resolvers. You have likely forgotten to " // &
             "select a coupled linear solver for velocity in the fluid " // &
             "configuration.")
     end select
@@ -417,12 +418,6 @@ contains
     call this%mixed_dof_mask%free()
     call this%bcs%free()
 
-    if (allocated(this%constraint_n)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%constraint_n, this%constraint_n_d)
-       end if
-       deallocate(this%constraint_n)
-    end if
 
     if (allocated(this%node_rst)) then
        deallocate(this%node_rst)
@@ -440,36 +435,43 @@ contains
        deallocate(this%face_class)
     end if
 
+    if (allocated(this%constraint_n)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_n_d)) then
+          call device_unmap(this%constraint_n, this%constraint_n_d)
+       end if
+       deallocate(this%constraint_n)
+    end if
+
     if (allocated(this%constraint_t1)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t1_d)) then
           call device_unmap(this%constraint_t1, this%constraint_t1_d)
        end if
        deallocate(this%constraint_t1)
     end if
 
     if (allocated(this%constraint_t2)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t2_d)) then
           call device_unmap(this%constraint_t2, this%constraint_t2_d)
        end if
        deallocate(this%constraint_t2)
     end if
 
     if (allocated(this%n)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%n_d)) then
           call device_unmap(this%n, this%n_d)
        end if
        deallocate(this%n)
     end if
 
     if (allocated(this%t1)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%t1_d)) then
           call device_unmap(this%t1, this%t1_d)
        end if
        deallocate(this%t1)
     end if
 
     if (allocated(this%t2)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%t2_d)) then
           call device_unmap(this%t2, this%t2_d)
        end if
        deallocate(this%t2)
@@ -600,43 +602,42 @@ contains
     call this%mixed_dof_mask%free()
 
     if (allocated(this%constraint_n)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_n_d)) then
           call device_unmap(this%constraint_n, this%constraint_n_d)
        end if
        deallocate(this%constraint_n)
     end if
     if (allocated(this%constraint_t1)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t1_d)) then
           call device_unmap(this%constraint_t1, this%constraint_t1_d)
        end if
        deallocate(this%constraint_t1)
     end if
     if (allocated(this%constraint_t2)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t2_d)) then
           call device_unmap(this%constraint_t2, this%constraint_t2_d)
        end if
        deallocate(this%constraint_t2)
     end if
     if (allocated(this%n)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%n_d)) then
           call device_unmap(this%n, this%n_d)
        end if
        deallocate(this%n)
     end if
     if (allocated(this%t1)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%t1_d)) then
           call device_unmap(this%t1, this%t1_d)
        end if
        deallocate(this%t1)
     end if
     if (allocated(this%t2)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%t2_d)) then
           call device_unmap(this%t2, this%t2_d)
        end if
        deallocate(this%t2)
     end if
 
-    if (.not. associated(this%dof)) return
     if (this%bcs%size() .eq. 0) return
 
     call neko_scratch_registry%request_field(work1, scratch_idx(1), .true.)
@@ -765,18 +766,30 @@ contains
        end if
     end do
 
-    if (dirichlet_mask_size .gt. 0) then
-       call this%dirichlet_dof_mask%init(dirichlet_mask_values, &
-            dirichlet_mask_size)
-    end if
-    if (mixed_mask_size .gt. 0) then
-       call this%mixed_dof_mask%init(mixed_mask_values, mixed_mask_size)
-    end if
+    ! We init even if the size can be zero. Should be OK.
+    call this%dirichlet_dof_mask%init(dirichlet_mask_values, &
+         dirichlet_mask_size)
+    call this%mixed_dof_mask%init(mixed_mask_values, mixed_mask_size)
 
     ! Allocate mixed-node constraints and fill them from the reduced class.
     allocate(this%constraint_n(mixed_mask_size))
     allocate(this%constraint_t1(mixed_mask_size))
     allocate(this%constraint_t2(mixed_mask_size))
+    allocate(this%n(3, mixed_mask_size))
+    allocate(this%t1(3, mixed_mask_size))
+    allocate(this%t2(3, mixed_mask_size))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%constraint_n, this%constraint_n_d, &
+            size(this%constraint_n))
+       call device_map(this%constraint_t1, this%constraint_t1_d, &
+            size(this%constraint_t1))
+       call device_map(this%constraint_t2, this%constraint_t2_d, &
+            size(this%constraint_t2))
+       call device_map(this%n, this%n_d, size(this%n))
+       call device_map(this%t1, this%t1_d, size(this%t1))
+       call device_map(this%t2, this%t2_d, size(this%t2))
+    end if
+
 
     do i = 1, mixed_mask_size
        j = mixed_mask_values(i)
@@ -814,9 +827,6 @@ contains
     ! whether a given face should contribute its normal to the edge and corner
     ! dofs.
 
-    allocate(this%n(3, mixed_mask_size))
-    allocate(this%t1(3, mixed_mask_size))
-    allocate(this%t2(3, mixed_mask_size))
 
     ! Set normals at unambiguous boundary dofs based on face normals.
     associate(nx => work1, ny => work3, nz => work4)
@@ -1055,16 +1065,6 @@ contains
     write(*,*) "Finished building local basis for coupled vector BC resolver."
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%constraint_n, this%constraint_n_d, &
-            size(this%constraint_n))
-       call device_map(this%constraint_t1, this%constraint_t1_d, &
-            size(this%constraint_t1))
-       call device_map(this%constraint_t2, this%constraint_t2_d, &
-            size(this%constraint_t2))
-       call device_map(this%n, this%n_d, size(this%n))
-       call device_map(this%t1, this%t1_d, size(this%t1))
-       call device_map(this%t2, this%t2_d, size(this%t2))
-
        call device_memcpy(this%constraint_n, this%constraint_n_d, &
             size(this%constraint_n), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%constraint_t1, this%constraint_t1_d, &
@@ -1080,6 +1080,7 @@ contains
     end if
 
     block
+      use device_math, only : device_cfill, device_cfill_mask
       type(field_list_t) :: basis_fields
       type(fld_file_t) :: basis_file
 
@@ -1087,27 +1088,47 @@ contains
       call rzero(work3%x, dof_size)
       call rzero(work4%x, dof_size)
 
-      call masked_scatter_copy(work1%x(:,1,1,1), this%n(1,:), &
-           mixed_mask_values, dof_size, mixed_mask_size)
-      call masked_scatter_copy(work3%x(:,1,1,1), this%n(2,:), &
-           mixed_mask_values, dof_size, mixed_mask_size)
-      call masked_scatter_copy(work4%x(:,1,1,1), this%n(3,:), &
-           mixed_mask_values, dof_size, mixed_mask_size)
+      if (this%mixed_dof_mask%is_set()) then
+         call masked_scatter_copy(work1%x(:,1,1,1), this%n(1,:), &
+              mixed_mask_values, dof_size, mixed_mask_size)
+         call masked_scatter_copy(work3%x(:,1,1,1), this%n(2,:), &
+              mixed_mask_values, dof_size, mixed_mask_size)
+         call masked_scatter_copy(work4%x(:,1,1,1), this%n(3,:), &
+              mixed_mask_values, dof_size, mixed_mask_size)
+      end if
 
       call basis_fields%init(3)
       call basis_fields%assign(1, work1)
       call basis_fields%assign(2, work3)
       call basis_fields%assign(3, work4)
 
+
       call basis_file%init('bc_resolver_basis.fld')
       call basis_file%write(basis_fields)
       call basis_fields%free()
 
-      call cfill(work1%x, 5.0_rp, dof_size)
-      call cfill_mask(work1%x, 1.0_rp, dof_size, this%dirichlet_dof_mask%get(), &
-           this%dirichlet_dof_mask%size())
-      call cfill_mask(work1%x, 2.0_rp, dof_size, this%mixed_dof_mask%get(), &
-           this%mixed_dof_mask%size())
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_cfill(work1%x_d, 5.0_rp, dof_size)
+
+         if (this%dirichlet_dof_mask%is_set()) then
+            call device_cfill_mask(work1%x_d, 1.0_rp, dof_size, this%dirichlet_dof_mask%get_d(), &
+                 this%dirichlet_dof_mask%size())
+         end if
+
+         if (this%mixed_dof_mask%is_set()) then
+            call device_cfill_mask(work1%x_d, 2.0_rp, dof_size, this%mixed_dof_mask%get_d(), &
+                 this%mixed_dof_mask%size())
+         end if
+
+         call device_memcpy(work1%x, work1%x_d, dof_size, DEVICE_TO_HOST, sync = .true.)
+
+      else
+         call cfill(work1%x, 5.0_rp, dof_size)
+         call cfill_mask(work1%x, 1.0_rp, dof_size, this%dirichlet_dof_mask%get(), &
+              this%dirichlet_dof_mask%size())
+         call cfill_mask(work1%x, 2.0_rp, dof_size, this%mixed_dof_mask%get(), &
+              this%mixed_dof_mask%size())
+      end if
 
       call basis_file%init('bc_resolver_mask.fld')
       call basis_file%write(work1)
