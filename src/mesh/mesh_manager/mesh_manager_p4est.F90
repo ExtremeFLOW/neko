@@ -1288,7 +1288,7 @@ contains
     integer(i4), target, allocatable, dimension(:) :: pref_mark, pel_lnum, &
          pel_nid
     integer(i4), parameter :: p4est_compare = 0
-    integer(i4) :: il, itmp
+    integer(i4) :: il, jl, itmp
     ! element restructure data
     integer(i4) :: map_nr, rfn_nr, crs_nr
     integer(i8), target, allocatable, dimension(:) :: map_gidx
@@ -1349,14 +1349,18 @@ contains
           call wp4est_msh_get_hst_size(map_nr, rfn_nr, crs_nr)
           ! number of children is equal to number of vertices
           itmp = 2**this%mesh%tdim
+          ! there seems to be some issue with allocating zero size arrays here
+          il = max(1, rfn_nr)
+          jl = max(1, crs_nr)
           allocate(map_gidx(this%mesh%nelt), map(2, this%mesh%nelt), &
-               rfn_gidx(2, rfn_nr), rfn(3, rfn_nr), &
-               crs_gidx(2, itmp, crs_nr), crs(2, itmp, crs_nr))
+               rfn_gidx(2, il), rfn(3, il), &
+               crs_gidx(2, itmp, jl), crs(2, itmp, jl))
           call wp4est_msh_get_hst(c_loc(map_gidx), c_loc(map), &
                c_loc(rfn_gidx), c_loc(rfn), c_loc(crs_gidx), c_loc(crs))
           ! store data in the type
           call transfer%reconstruct_data_set(map_nr, map_gidx, map, rfn_nr, &
                rfn_gidx, rfn, crs_nr, crs_gidx, crs)
+          deallocate(map_gidx, map, rfn_gidx, rfn, crs_gidx, crs)
        else
           ! regenerate the ghost layer
           call wp4est_ghost_new()
@@ -2067,7 +2071,6 @@ contains
   subroutine p4est_conn_mapping_fill(conn, connmm)
     type(mesh_conn_t), intent(inout) :: conn
     type(manager_conn_p4est_t), intent(in) :: connmm
-    logical, allocatable, dimension(:) :: lshare
     integer, allocatable, dimension(:) :: rank, rankshare, sharemap, rankoff
     integer :: il, jl, itmp, irank, idim
 
@@ -2075,92 +2078,75 @@ contains
 
     select type (vrt => connmm%vrt)
     type is (manager_conn_obj_p4est_t)
-       ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
-       call p4est_conn_mapping_convert(vrt, lshare, rank, rankshare, sharemap, &
-            rankoff)
-
        if (vrt%nrank .gt. 0) then
-          call conn%vrt%init(vrt%lnum, vrt%gnum, connmm%nel, connmm%nvrt, &
-               vrt%gidx, lshare, connmm%vmap, sharelist = vrt%glist, &
+          ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
+          call p4est_conn_mapping_convert(vrt, rank, rankshare, sharemap, &
+               rankoff)
+          call conn%vrt%init(vrt%gnum, vrt%gidx, connmm%vmap, &
+               lmap = vrt%lmap, lmapoff = vrt%lmapoff, sharelist = vrt%glist, &
                rank = rank, rankshare = rankshare, sharemap = sharemap, &
-               rankoff = rankoff, lmap = vrt%lmap, lmapoff = vrt%lmapoff, &
-               gmap = vrt%gmap, gmapoff = vrt%gmapoff)
+               rankoff = rankoff, gmap = vrt%gmap, gmapoff = vrt%gmapoff)
           deallocate(rank, rankshare, sharemap, rankoff)
        else
-          call conn%vrt%init(vrt%lnum, vrt%gnum, connmm%nel, connmm%nvrt, &
-               vrt%gidx, lshare, connmm%vmap)
+          call conn%vrt%init(vrt%gnum, vrt%gidx, connmm%vmap, &
+               lmap = vrt%lmap, lmapoff = vrt%lmapoff)
        end if
-       deallocate(lshare)
     end select
 
     select type (edg => connmm%edg)
     type is (manager_conn_obj_p4est_t)
-       ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
-       call p4est_conn_mapping_convert(edg, lshare, rank, rankshare, sharemap, &
-            rankoff)
-
        if (edg%nrank .gt. 0) then
-          call conn%edg%init(edg%lnum, edg%gnum, connmm%nel, connmm%nedg, &
-               edg%gidx, lshare, connmm%emap, sharelist = edg%glist, &
+          ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
+          call p4est_conn_mapping_convert(edg, rank, rankshare, sharemap, &
+               rankoff)
+          call conn%edg%init(edg%gnum, edg%gidx, connmm%emap, &
+               lmap = edg%lmap, lmapoff = edg%lmapoff, sharelist = edg%glist, &
                rank = rank, rankshare = rankshare, sharemap = sharemap, &
-               rankoff = rankoff, lmap = edg%lmap, lmapoff = edg%lmapoff, &
-               gmap = edg%gmap, gmapoff = edg%gmapoff, &
+               rankoff = rankoff, gmap = edg%gmap, gmapoff = edg%gmapoff, &
                algn = connmm%ealgn, hang = connmm%hnged)
           deallocate(rank, rankshare, sharemap, rankoff)
        else
-          call conn%edg%init(edg%lnum, edg%gnum, connmm%nel, connmm%nedg, &
-               edg%gidx, lshare, connmm%emap, algn = connmm%ealgn, &
-               hang = connmm%hnged)
+          call conn%edg%init(edg%gnum, edg%gidx, connmm%emap, &
+               lmap = edg%lmap, lmapoff = edg%lmapoff, &
+               algn = connmm%ealgn, hang = connmm%hnged)
        end if
-       deallocate(lshare)
     end select
 
     select type (fcs => connmm%fcs)
     type is (manager_conn_obj_p4est_t)
-       ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
-       call p4est_conn_mapping_convert(fcs, lshare, rank, rankshare, sharemap, &
-            rankoff)
-
        if (fcs%nrank .gt. 0) then
-          call conn%fcs%init(fcs%lnum, fcs%gnum, connmm%nel, connmm%nfcs, &
-               fcs%gidx, lshare, connmm%fmap, sharelist = fcs%glist, &
+          ! Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
+          call p4est_conn_mapping_convert(fcs, rank, rankshare, sharemap, &
+               rankoff)
+          call conn%fcs%init(fcs%gnum, fcs%gidx, connmm%fmap, &
+               lmap = fcs%lmap, lmapoff = fcs%lmapoff, sharelist = fcs%glist, &
                rank = rank, rankshare = rankshare, sharemap = sharemap, &
-               rankoff = rankoff, lmap = fcs%lmap, lmapoff = fcs%lmapoff, &
-               gmap = fcs%gmap, gmapoff = fcs%gmapoff, &
+               rankoff = rankoff, gmap = fcs%gmap, gmapoff = fcs%gmapoff, &
                algn = connmm%falgn, hang = connmm%hngfc)
           deallocate(rank, rankshare, sharemap, rankoff)
        else
-          call conn%fcs%init(fcs%lnum, fcs%gnum, connmm%nel, connmm%nfcs, &
-               fcs%gidx, lshare, connmm%fmap, algn = connmm%falgn, &
-               hang = connmm%hngfc)
+          call conn%fcs%init(fcs%gnum, fcs%gidx, connmm%fmap, &
+               lmap = fcs%lmap, lmapoff = fcs%lmapoff, &
+               algn = connmm%falgn, hang = connmm%hngfc)
        end if
-       deallocate(lshare)
     end select
 
   end subroutine p4est_conn_mapping_fill
 
   !> Convert manager_conn_obj_p4est_t data into mesh_conn_obj_t one
   !! @param[inout]   mmobj      mesh manager object
-  !! @param[inout]   lshare     flag indicating sharing with other MPI ranks
   !! @param[inout]   rank       list of ranks sharing objects
   !! @param[inout]   rankshare  list of shared objects with respect to MPI rank
   !! @param[inout]   sharemap   mapping of the local number to the remote one
   !! @param[inout]   rankoff    offset in the rankshare and sharemap
-  subroutine p4est_conn_mapping_convert(mmobj, lshare, rank, rankshare, &
+  subroutine p4est_conn_mapping_convert(mmobj, rank, rankshare, &
        sharemap, rankoff)
     type(manager_conn_obj_p4est_t)  :: mmobj
-    logical, allocatable, dimension(:), intent(inout) :: lshare
     integer, allocatable, dimension(:), intent(inout) :: rank, rankshare, &
          sharemap, rankoff
     integer :: il, jl, itmp, irank, idim
 
-    allocate(lshare(mmobj%lnum))
-    lshare(:) = .false.
     if (mmobj%nrank .gt. 0) then
-       ! fill sharing info
-       do il = 1, size(mmobj%glist)
-          lshare(mmobj%glist(il)) = .true.
-       end do
        ! find current rank
        irank = 0
        do il = 1, mmobj%nrank

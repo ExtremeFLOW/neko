@@ -433,7 +433,7 @@ contains
          nlfcs_ncon_dof, nsfcs_ncon_dof
     integer, dimension(:), allocatable :: vrt_mult, fcs_mult, edg_mult, &
          fcs_mult_glb, vrt_shr, fcs_shr, edg_shr, vrt_loc, fcs_loc, edg_loc, ind
-    integer :: il ,jl, kl, ll, ml, id, src, dst
+    integer :: il ,jl, kl, ll, ml, id
     integer, allocatable, dimension(:, :) :: ngh_src, ngh_dst
     integer, parameter :: lda1 = 2 ! tuple length
     integer, dimension(lda1) :: aa1 ! tmp array for sorting
@@ -457,14 +457,16 @@ contains
       ! shared objects lists exists already but is not sorted with respect to
       ! their global index
       ! vertices
-      call gs_size_list_get(vrt, vrt_mult, vrt_shr, vrt_loc, nvrt_loc, &
-           nlvrt_dof, nsvrt_dof)
+      call gs_size_list_get(vrt, vrt_mult, vrt_loc, nvrt_loc,  nlvrt_dof, &
+           vrt_shr, nsvrt_dof)
+
       ! edges
-      call gs_size_list_get(edg, edg_mult, edg_shr, edg_loc, nedg_loc, &
-           nledg_dof, nsedg_dof)
+      call gs_size_list_get(edg, edg_mult, edg_loc, nedg_loc, &
+           nledg_dof, edg_shr, nsedg_dof)
+
       ! faces; added global multiplicity
-      call gs_size_list_get(fcs, fcs_mult, fcs_shr, fcs_loc, nfcs_loc, &
-           nlfcs_dof, nsfcs_dof, fcs_mult_glb)
+      call gs_size_list_get(fcs, fcs_mult, fcs_loc, nfcs_loc, &
+           nlfcs_dof, fcs_shr, nsfcs_dof, fcs_mult_glb)
 
       ! count of all degrees of freedom including multiplicity
       gs%nlocal = nlvrt_dof + nledg_dof * (lx - 2) + nlfcs_dof * (lx - 2) * &
@@ -478,8 +480,7 @@ contains
       ! case all local faces have multiplicity 2 and shared one multiplicity 1,
       ! so are automatically marked for vectorisation. In AMR case hanging faces
       ! have multiplicity higher than 2. Flag those objects using the global
-      ! multiplicity information and reorder shared/local lists. It is necessary
-      ! to use global information not to destroy unique communication order.
+      ! multiplicity information and reorder shared/local lists.
       ! This influences block lists.
       ! conforming case; vertices and edges only
       gs%local_facet_offset = nlvrt_dof + nledg_dof * (lx - 2) + 1
@@ -494,163 +495,187 @@ contains
       nlfcs_ncon_dof = 0
       nsfcs_ncon_dof = 0
       ! AMR case; find nonconforming faces
-      if (maxval(fcs_mult_glb) .gt. 2) then
-
+      ! local
+      ! find max multiplicity for local nodes
+      id = 0
+      do il = 1, nfcs_loc
+         id = max(id, fcs_mult(fcs_loc(il)))
+      end do
+      if (id .gt. 2) then
          ! local
-         call neko_error('gs_init_mapping_schedule: not done yet')
-         
+!         call neko_error('gs_init_mapping_schedule: not done yet')
+            
 
          gs%local_facet_offset = gs%local_facet_offset + nlfcs_ncon_dof * &
               (lx - 2) * (lx - 2)
          gs%nlocal_blks = gs%nlocal_blks + nlfcs_ncon * (lx - 2) * (lx - 2)
+      end if
+      ! shared
+      ! For shared dof it is necessary to use global information not to
+      ! destroy unique communication order.
+      if (fcs%nshare .gt. 0) then
+         if (maxval(fcs_mult_glb) .gt. 2) then
+!            call neko_error('gs_init_mapping_schedule: not done yet')
+            
 
-         ! shared
-         call neko_error('gs_init_mapping_schedule: not done yet')
-         
-
-         gs%shared_facet_offset = gs%shared_facet_offset + nsfcs_ncon_dof * &
-              (lx - 2) * (lx - 2)
-         gs%nshared_blks = gs%nshared_blks + nsfcs_ncon * (lx - 2) * (lx - 2)
+            gs%shared_facet_offset = gs%shared_facet_offset + nsfcs_ncon_dof * &
+                 (lx - 2) * (lx - 2)
+            gs%nshared_blks = gs%nshared_blks + nsfcs_ncon * (lx - 2) * (lx - 2)
+         end if
       end if
 
-      ! allocate arrays
+      ! allocate and fill arrays
+      ! local
       allocate(gs%local_dof_gs(gs%nlocal), gs%local_gs_dof(gs%nlocal), &
            gs%local_gs(gs%nlocal), gs%local_blk_len(gs%nlocal_blks), &
-           gs%local_blk_off(gs%nlocal_blks), &
-           gs%shared_dof_gs(gs%nshared), gs%shared_gs_dof(gs%nshared), &
-           gs%shared_gs(gs%nshared), gs%shared_blk_len(gs%nshared_blks), &
-           gs%shared_blk_off(gs%nshared_blks))
-
-      ! fill arrays
-      ! local
+           gs%local_blk_off(gs%nlocal_blks))
       call gs_fill_arrays(lx, nvrt_loc, nedg_loc, nfcs_loc, nlfcs_ncon, &
            vrt_mult, edg_mult, fcs_mult, vrt_loc, edg_loc, fcs_loc, vrt%lmap, &
            vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, fcs%lmap, &
            fcs%lmapoff, fcs%algn, gs%local_blk_len, gs%local_blk_off, &
            gs%local_dof_gs, gs%local_gs_dof, gs%nlocal, gs%nlocal_blks, &
            gs%local_facet_offset)
-      ! shared
-      call gs_fill_arrays(lx, vrt%nshare, edg%nshare, fcs%nshare, nsfcs_ncon, &
-           vrt_mult, edg_mult, fcs_mult, vrt_shr, edg_shr, fcs_shr, vrt%lmap, &
-           vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, fcs%lmap, &
-           fcs%lmapoff, fcs%algn, gs%shared_blk_len, gs%shared_blk_off, &
-           gs%shared_dof_gs, gs%shared_gs_dof, gs%nshared, gs%nshared_blks, &
-           gs%shared_facet_offset)
 
-      ! sanity check; gs%shared_dof_gs should be sorted inside the sections
-      ! 1 : gs%shared_facet_offset - 1, and gs%shared_facet_offset : gs%nshared
-      ! There may be no faces for coarse grid solver
-      if (gs%shared_facet_offset .gt. gs%nshared) then
-         do il = 1, gs%nshared - 1
-            if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
-                 call neko_error('gs%shared_dof_gs not ordered 1')
-         end do
-      else
-         do il = 1, gs%shared_facet_offset - 2
-            if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
-                 call neko_error('gs%shared_dof_gs not ordered 2')
-         end do
-         do il = gs%shared_facet_offset, gs%nshared - 1
-            if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
-                 call neko_error('gs%shared_dof_gs not ordered 3')
-         end do
+      ! shared
+      if (gs%nshared .gt. 0) then
+         allocate(gs%shared_dof_gs(gs%nshared), gs%shared_gs_dof(gs%nshared), &
+              gs%shared_gs(gs%nshared), gs%shared_blk_len(gs%nshared_blks), &
+              gs%shared_blk_off(gs%nshared_blks))
+         call gs_fill_arrays(lx, vrt%nshare, edg%nshare, fcs%nshare, &
+              nsfcs_ncon, vrt_mult, edg_mult, fcs_mult, vrt_shr, edg_shr, &
+              fcs_shr, vrt%lmap, vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, &
+              fcs%lmap, fcs%lmapoff, fcs%algn, gs%shared_blk_len, &
+              gs%shared_blk_off, gs%shared_dof_gs, gs%shared_gs_dof, &
+              gs%nshared, gs%nshared_blks, gs%shared_facet_offset)
+
+         ! sanity check; gs%shared_dof_gs should be sorted inside the sections
+         ! 1 : gs%shared_facet_offset - 1, and
+         ! gs%shared_facet_offset : gs%nshared
+         ! There may be no faces for coarse grid solver
+         if (gs%shared_facet_offset .gt. gs%nshared) then
+            do il = 1, gs%nshared - 1
+               if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
+                    call neko_error('gs%shared_dof_gs not ordered 1')
+            end do
+         else
+            do il = 1, gs%shared_facet_offset - 2
+               if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
+                    call neko_error('gs%shared_dof_gs not ordered 2')
+            end do
+            do il = gs%shared_facet_offset, gs%nshared - 1
+               if (gs%shared_dof_gs(il) .gt. gs%shared_dof_gs(il + 1)) &
+                    call neko_error('gs%shared_dof_gs not ordered 3')
+            end do
+         end if
+
+         ! Initialise communication arrays
+         ! This must be done consistently on all the ranks to avoid node
+         ! mismatch. To get it right all the shared objects were sorted
+         ! according to the global object id and the faces were reshuffled
+         ! according to the global multiplicity number. As the operation
+         ! relies on object data not dof, the point numbering must be
+         ! consistent with the one in gs_fill_arrays, but object alignment
+         ! shouldn't matter this time. As object lists are sorted, send_dof
+         ! and recv_dof arrays are identical.
+         ! loop order matters
+         ! vertices
+         if (vrt%nshare .gt. 0) then
+            do il = 1, vrt%nshare ! all shared
+               id = il
+               do jl = 1, vrt%nrank ! ranks
+                  do kl = vrt%rankoff(jl), vrt%rankoff(jl + 1) - 1 ! rank shared
+                     ! rank shared list can have different order than sorted one
+                     if (vrt%rankshare(kl) .eq. vrt_shr(il)) then
+                        call gs%comm%send_dof(vrt%rank(jl))%push(id)
+                        call gs%comm%recv_dof(vrt%rank(jl))%push(id)
+                        exit
+                     end if
+                  end do
+               end do
+            end do
+         end if
+
+         ! edges
+         if (edg%nshare .gt. 0) then
+            do il = 1, edg%nshare ! all shared
+               id = vrt%nshare + (il - 1) * (lx - 2)
+               do jl = 1, edg%nrank ! ranks
+                  do kl = edg%rankoff(jl), edg%rankoff(jl + 1) - 1 ! rank shared
+                     ! rank shared list can have different order than sorted one
+                     if (edg%rankshare(kl) .eq. edg_shr(il)) then
+                        do ll = 1, lx - 2
+                           call gs%comm%send_dof(edg%rank(jl))%push(id + ll)
+                           call gs%comm%recv_dof(edg%rank(jl))%push(id + ll)
+                        end do
+                        exit
+                     end if
+                  end do
+               end do
+            end do
+         end if
+
+         ! faces
+         if (fcs%nshare .gt. 0) then
+            do il = 1, fcs%nshare ! all shared
+               id = vrt%nshare + edg%nshare * (lx - 2) + &
+                    (il - 1) * (lx - 2) * (lx - 2)
+               do jl = 1, fcs%nrank ! ranks
+                  do kl = fcs%rankoff(jl), fcs%rankoff(jl + 1) - 1 ! rank shared
+                     ! rank shared list can have different order than sorted one
+                     if (fcs%rankshare(kl) .eq. fcs_shr(il)) then
+                        do ll = 1, lx - 2
+                           do ml = 1, lx - 2
+                              call gs%comm%send_dof(fcs%rank(jl))%push(id + &
+                                   (ll - 1) * (lx - 2) + ml)
+                              call gs%comm%recv_dof(fcs%rank(jl))%push(id + &
+                                   (ll - 1) * (lx - 2) + ml)
+                           end do
+                        end do
+                        exit
+                     end if
+                  end do
+               end do
+            end do
+         end if
+
+         ! rank list
+         ! Build send/receive list based on the vertex neighbour list.
+         ! What follows recreates the send/receive order from the ring,
+         ! but it may be not needed.
+         if (vrt%nshare .gt. 0) then
+            allocate(ngh_src(lda1, vrt%nrank), ind_src(vrt%nrank), &
+                 ngh_dst(lda1, vrt%nrank), ind_dst(vrt%nrank))
+            do il = 1, vrt%nrank
+               ngh_src(1, il) = mod(pe_rank - vrt%rank(il) + pe_size, pe_size)
+               ngh_src(2, il) = il
+               ngh_dst(1, il) = mod(vrt%rank(il) - pe_rank + pe_size, pe_size)
+               ngh_dst(2, il) = il
+            end do
+            il = vrt%nrank
+            key(1) = 1
+            call sort_tuple(ngh_src, lda1, il, key, 1, ind_src, aa1)
+            call sort_tuple(ngh_dst, lda1, il, key, 1, ind_dst, aa1)
+
+            call send_pe%init(vrt%nrank)
+            call recv_pe%init(vrt%nrank)
+            do il = 1, vrt%nrank
+               call recv_pe%push(vrt%rank(ngh_src(2, il)))
+               call send_pe%push(vrt%rank(ngh_dst(2, il)))
+            end do
+            deallocate(ngh_src, ind_src, ngh_dst, ind_dst)
+
+            call gs%comm%init(send_pe, recv_pe)
+
+            call send_pe%free()
+            call recv_pe%free()
+         end if
       end if
 
-      ! Initialise communication arrays
-      ! This must be done consistently on all the ranks to avoid node mismatch.
-      ! To get it right all the shared objects were sorted according to the
-      ! global object id and the faces were reshuffled according to the global
-      ! multiplicity number. As the operation relies on object data not dof, the
-      ! point numbering must be consistent with the one in gs_fill_arrays, but
-      ! object alignment shouldn't matter this time.
-      ! As object lists are sorted, send_dof and recv_dof arrays are identical.
-      ! loop order matters
-      ! vertices
-      do il = 1, vrt%nshare ! all shared
-         id = il
-         do jl = 1, vrt%nrank ! ranks
-            do kl = vrt%rankoff(jl), vrt%rankoff(jl + 1) - 1 ! rank shared
-               ! rank shared list can have different order than sorted one
-               if (vrt%rankshare(kl) .eq. vrt_shr(il)) then
-                  call gs%comm%send_dof(vrt%rank(jl))%push(id)
-                  call gs%comm%recv_dof(vrt%rank(jl))%push(id)
-                  exit
-               end if
-            end do
-         end do
-      end do
-
-      ! edges
-      do il = 1, edg%nshare ! all shared
-         id = vrt%nshare + (il - 1) * (lx - 2)
-         do jl = 1, edg%nrank ! ranks
-            do kl = edg%rankoff(jl), edg%rankoff(jl + 1) - 1 ! rank shared
-               ! rank shared list can have different order than sorted one
-               if (edg%rankshare(kl) .eq. edg_shr(il)) then
-                  do ll = 1, lx - 2
-                     call gs%comm%send_dof(edg%rank(jl))%push(id + ll)
-                     call gs%comm%recv_dof(edg%rank(jl))%push(id + ll)
-                  end do
-                 exit
-               end if
-            end do
-         end do
-      end do
-
-      ! faces
-      do il = 1, fcs%nshare ! all shared
-         id = vrt%nshare + edg%nshare * (lx - 2) + &
-                       (il - 1) * (lx - 2) * (lx - 2)
-         do jl = 1, fcs%nrank ! ranks
-            do kl = fcs%rankoff(jl), fcs%rankoff(jl + 1) - 1 ! rank shared
-               ! rank shared list can have different order than sorted one
-               if (fcs%rankshare(kl) .eq. fcs_shr(il)) then
-                  do ll = 1, lx - 2
-                     do ml = 1, lx - 2
-                        call gs%comm%send_dof(fcs%rank(jl))%push(id + &
-                             (ll - 1) * (lx - 2) + ml)
-                        call gs%comm%recv_dof(fcs%rank(jl))%push(id + &
-                             (ll - 1) * (lx - 2) + ml)
-                     end do
-                  end do
-                  exit
-               end if
-            end do
-         end do
-      end do
-
-      ! rank list
-      ! Build send/receive list based on the vertex neighbour list.
-      ! What follows recreates the send/receive order from the ring,
-      ! but it may be not needed.
-      allocate(ngh_src(lda1, vrt%nrank), ind_src(vrt%nrank), &
-            ngh_dst(lda1, vrt%nrank), ind_dst(vrt%nrank))
-      do il = 1, vrt%nrank
-         ngh_src(1, il) = mod(pe_rank - vrt%rank(il) + pe_size, pe_size)
-         ngh_src(2, il) = il
-         ngh_dst(1, il) = mod(vrt%rank(il) - pe_rank + pe_size, pe_size)
-         ngh_dst(2, il) = il
-      end do
-      il = vrt%nrank
-      key(1) = 1
-      call sort_tuple(ngh_src, lda1, il, key, 1, ind_src, aa1)
-      call sort_tuple(ngh_dst, lda1, il, key, 1, ind_dst, aa1)
-
-      call send_pe%init(vrt%nrank)
-      call recv_pe%init(vrt%nrank)
-      do il = 1, vrt%nrank
-         call recv_pe%push(vrt%rank(ngh_src(2, il)))
-         call send_pe%push(vrt%rank(ngh_dst(2, il)))
-      end do
-      deallocate(ngh_src, ind_src, ngh_dst, ind_dst)
-
-
-      call gs%comm%init(send_pe, recv_pe)
-
-      call send_pe%free()
-      call recv_pe%free()
-      deallocate(vrt_mult, fcs_mult, edg_mult, fcs_mult_glb, vrt_loc, fcs_loc, &
-           edg_loc, vrt_shr, fcs_shr, edg_shr)
+      deallocate(vrt_mult, fcs_mult, edg_mult, vrt_loc, fcs_loc, edg_loc)
+      if (allocated(vrt_shr)) deallocate(vrt_shr)
+      if (allocated(edg_shr)) deallocate(edg_shr)
+      if (allocated(fcs_shr)) deallocate(fcs_shr)
+      if (allocated(fcs_mult_glb)) deallocate(fcs_mult_glb)
 
     end associate
 
@@ -659,14 +684,14 @@ contains
   !> Get local object multiplicity and list of shared/local objects
   !! @param[in]    obj       object connectivity info
   !! @param[out]   loc_mult  object's local multiplicity
-  !! @param[out]   shr_list  sorted list of shared objects
   !! @param[out]   loc_list  list of local objects
   !! @param[out]   nlist     number of local objects
   !! @param[out]   nlocal    number of local objects including multiplicity
+  !! @param[out]   shr_list  sorted list of shared objects
   !! @param[out]   nshared   number of shared objects including multiplicity
   !! @param[out]   glb_mult  object's global multiplicity
-  subroutine gs_size_list_get(obj, loc_mult, shr_list, loc_list, nlist, &
-       nlocal, nshared, glb_mult)
+  subroutine gs_size_list_get(obj, loc_mult, loc_list, nlist, nlocal, &
+       shr_list, nshared, glb_mult)
     type(mesh_conn_obj_t), intent(in) :: obj
     integer, dimension(:), allocatable, intent(out):: loc_mult, shr_list, &
          loc_list
@@ -703,30 +728,34 @@ contains
     ! shared
     ! for communication consistency shared objects must be sorted according
     ! to their global id
-    allocate(gidx(obj%nshare), ind(obj%nshare), shr_list(obj%nshare))
-    shr_list(:) = obj%sharelist(:)
-    do il = 1, obj%nshare
-       jl = shr_list(il)
-       gidx(il) = obj%gidx(jl)
-    end do
-    !! Nicals is not happy with using these routines; TO DO BEGIN!!!!
-    call sort(gidx, ind, obj%nshare)
-    call swap(shr_list, ind, obj%nshare)
-    !! Nicals is not happy with using these routines; TO DO END!!!!
-    deallocate(gidx, ind)
-    ! all shared objects must be included
-    do il = 1, obj%nshare
-       jl = shr_list(il)
-       nshared = nshared + loc_mult(jl) ! multiplicity count
-    end do
-    ! provide global object multiplicity if requested
-    if (present(glb_mult)) then
-       allocate(glb_mult(obj%lnum))
-       glb_mult(:) = loc_mult(:)
+    if (obj%nshare .gt. 0) then
+       allocate(gidx(obj%nshare), ind(obj%nshare), shr_list(obj%nshare))
+       shr_list(:) = obj%sharelist(:)
        do il = 1, obj%nshare
-          glb_mult(obj%sharelist(il)) = glb_mult(obj%sharelist(il)) + &
-               obj%gmapoff(il + 1) - obj%gmapoff(il)
+          jl = shr_list(il)
+          gidx(il) = obj%gidx(jl)
        end do
+       !! Nicals is not happy with using these routines; TO DO BEGIN!!!!
+       call sort(gidx, ind, obj%nshare)
+       call swap(shr_list, ind, obj%nshare)
+       !! Nicals is not happy with using these routines; TO DO END!!!!
+       deallocate(gidx, ind)
+       ! all shared objects must be included
+       do il = 1, obj%nshare
+          jl = shr_list(il)
+          nshared = nshared + loc_mult(jl) ! multiplicity count
+       end do
+       ! provide global object multiplicity if requested
+       if (present(glb_mult)) then
+          allocate(glb_mult(obj%lnum))
+          glb_mult(:) = loc_mult(:)
+          do il = 1, obj%nshare
+             glb_mult(obj%sharelist(il)) = glb_mult(obj%sharelist(il)) + &
+                  obj%gmapoff(il + 1) - obj%gmapoff(il)
+          end do
+       end if
+    else
+       nshared = 0
     end if
   end subroutine gs_size_list_get
 
@@ -1198,9 +1227,11 @@ contains
 
     ! clear space
     deallocate(this%local_dof_gs, this%local_gs_dof, this%local_blk_len, &
-         this%local_blk_off, this%local_gs, this%shared_dof_gs, &
-         this%shared_gs_dof, this%shared_blk_len, this%shared_blk_off, &
-         this%shared_gs)
+         this%local_blk_off, this%local_gs)
+    if (this%nshared .gt. 0) then
+       deallocate(this%shared_dof_gs, this%shared_gs_dof, this%shared_blk_len, &
+            this%shared_blk_off, this%shared_gs)
+    end if
     this%nlocal = 0
     this%local_facet_offset = 0
     this%nlocal_blks = 0

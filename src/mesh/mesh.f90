@@ -1407,6 +1407,8 @@ contains
 
   end subroutine mesh_generate_facet_numbering
 
+  ! THIS IS NOT COMPLETE ANY LONGER AS SHARING INFORMATION GOT COMPLETELY OUT
+  ! THE SAME REGARDING LOCAL/GLOBAL MAPPING
   subroutine mesh_generate_conn_mapping(this)
     type(mesh_t), intent(inout) :: this
     integer :: nobj, loc_id, il, jl
@@ -1436,7 +1438,7 @@ contains
           map(jl, il) = this%get_local(this%elements(il)%e%pts(jl)%p)
        end do
     end do
-    call this%conn%vrt%init(this%mpts, gnum, this%nelv, nobj, gidx, share, map)
+    call this%conn%vrt%init(gnum, gidx, map)
     deallocate(gidx, share, map)
 
     ! Get face mapping
@@ -1512,8 +1514,7 @@ contains
           call neko_error('Nothing done for quad for conn mapping.')
        end select
     end do
-    call this%conn%fcs%init(this%mfcs, gnum, this%nelv, nobj, gidx, share, &
-         map, algn = algn)
+    call this%conn%fcs%init(gnum, gidx, map, algn = algn)
     deallocate(gidx, share, map, algn)
 
     ! Get edge mapping
@@ -1549,8 +1550,7 @@ contains
              call neko_error('Nothing done for quad for conn mapping.')
           end select
        end do
-       call this%conn%edg%init(this%meds, gnum, this%nelv, nobj, gidx, &
-            share, map, algn = algn)
+       call this%conn%edg%init(gnum, gidx, map, algn = algn)
        deallocate(gidx, share, map, algn)
     end if
 

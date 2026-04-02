@@ -127,32 +127,25 @@ module mesh_conn
 contains
 
   !> Initialise object connectivity information
-  !! @param[in]    lnum       local number of objects
   !! @param[in]    gnum       global number of objects
-  !! @param[in]    nel        local number of elements
-  !! @param[in]    nobj       number of objects per element
   !! @param[in]    gidx       object global id
-  !! @param[in]    lshare     flag indicating sharing with other ranks
   !! @param[in]    map        element to objects mapping
+  !! @param[in]    lmap       Local mapping of object to element component
+  !! @param[in]    lmapoff    Offset in the local mapping
   !! @param[in]    sharelist  List of shared objects (local number)
   !! @param[in]    rank       Number of MPI ranks sharing objects
   !! @param[in]    rankshare  List of shared objects with respect to MPI rank
   !! @param[in]    sharemap   Mapping of shared objects lid to the remote lid
   !! @param[in]    rankoff    Offset in the rankshare and sharemap lists
-  !! @param[in]    lmap       Local mapping of object to element component
-  !! @param[in]    lmapoff    Offset in the local mapping
   !! @param[in]    gmap       Global mapping of object to element component
   !! @param[in]    gmapoff    Offset in the global mapping
   !! @param[in]    algn       object alignment information
   !! @param[in]    hang       object hanging information
-  subroutine mesh_conn_obj_init(this, lnum, gnum, nel, nobj, gidx, lshare, &
-       map, sharelist, rank, rankshare, sharemap, rankoff, lmap, lmapoff, &
-       gmap, gmapoff, algn, hang)
+  subroutine mesh_conn_obj_init(this, gnum, gidx, map, lmap, lmapoff, &
+       sharelist, rank, rankshare, sharemap, rankoff, gmap, gmapoff, algn, hang)
     class(mesh_conn_obj_t), intent(inout) :: this
-    integer(i4), intent(in) :: lnum, nel, nobj
     integer(i8), intent(in) :: gnum
     integer(i8), dimension(:), intent(in) :: gidx
-    logical, dimension(:), intent(in) :: lshare
     integer(i4), dimension(:, :), intent(in) :: map
     integer(i4), dimension(:), optional, intent(in) :: sharelist, rank, &
          rankshare, sharemap, rankoff, lmapoff, gmapoff
@@ -162,35 +155,48 @@ contains
 
     call this%free()
 
-    this%lnum = lnum
     this%gnum = gnum
-    this%nel = nel
-    this%nobj = nobj
 
-    allocate(this%gidx(lnum), this%lshare(lnum), this%map(nobj, nel))
-    ! sanity check
-    if (lnum .ne. size(gidx) .or. lnum .ne. size(lshare) .or. &
-         nel .ne. size(map, 2) .or. nobj .ne. size(map, 1)) &
-         call neko_error('Inconsistent array sizes; conn_obj')
-    this%gidx(:) = gidx(:)
-    this%lshare(:) = lshare(:)
-    this%map(:, :) = map(:, :)
+    this%lnum = size(gidx)
+    this%nel = size(map, 2)
+    this%nobj = size(map, 1)
+    allocate(this%gidx, source = gidx)
+    allocate(this%map, source = map)
+    ! basic sharing info
+    allocate(this%lshare(this%lnum))
+    this%lshare(:) = .false.
+
+    if (present(lmap) .and. present(lmapoff)) then
+       ! sanity check
+       if ((this%lnum + 1) .ne. size(lmapoff) .or. 2 .ne. size(lmap, 1) &
+            .or. (lmapoff(this%lnum + 1) - 1) .ne. size(lmap, 2)) &
+            call neko_error('Inconsistent array sizes; conn_obj%lmap')
+       allocate(this%lmap, source = lmap)
+       allocate(this%lmapoff, source = lmapoff)
+    end if
 
     if (present(sharelist)) then
        this%nshare = size(sharelist)
-       allocate(this%sharelist(this%nshare))
-       this%sharelist(:) = sharelist(:)
+       allocate(this%sharelist, source = sharelist)
+       ! sanity check
+       il = minval(this%sharelist)
+       jl = maxval(this%sharelist)
+       if (il .le. 0 .or. jl .gt. this%lnum) &
+            call neko_error('Shared node id out of range; conn_obj%sharelist')
+       do il = 1, this%nshare
+          this%lshare(this%sharelist(il)) = .true.
+       end do
 
        if (present(gmap) .and. present(gmapoff)) then
           ! sanity check
           if ((this%nshare + 1) .ne. size(gmapoff) .or. 3 .ne. size(gmap, 1) &
                .or. (gmapoff(this%nshare + 1) - 1) .ne. size(gmap, 2)) &
                call neko_error('Inconsistent array sizes; conn_obj%gmap')
-          allocate(this%gmap(3, gmapoff(this%nshare + 1) - 1), &
-               this%gmapoff(this%nshare + 1))
-          this%gmap(:, :) = gmap(:, :)
-          this%gmapoff(:) = gmapoff(:)
+          allocate(this%gmap, source = gmap)
+          allocate(this%gmapoff, source = gmapoff)
        end if
+    else
+       this%nshare = 0
     end if
 
     if (present(rank) .and. present(rankshare) .and. present(sharemap) &
@@ -201,42 +207,28 @@ contains
             (rankoff(this%nrank + 1) - 1) .ne. size(rankshare) .or. &
             (rankoff(this%nrank + 1) - 1) .ne. size(sharemap)) &
             call neko_error('Inconsistent array sizes; conn_obj%rank')
-       allocate(this%rank(this%nrank), this%rankoff(this%nrank + 1), &
-            this%rankshare(rankoff(this%nrank + 1) - 1), &
-            this%sharemap(rankoff(this%nrank + 1) - 1))
-       this%rank(:) = rank(:)
-       this%rankshare(:) = rankshare(:)
-       this%sharemap(:) = sharemap(:)
-       this%rankoff(:) = rankoff(:)
-    end if
-
-    if (present(lmap) .and. present(lmapoff)) then
-       ! sanity check
-       if ((this%lnum + 1) .ne. size(lmapoff) .or. 2 .ne. size(lmap, 1) &
-            .or. (lmapoff(this%lnum + 1) - 1) .ne. size(lmap, 2)) &
-            call neko_error('Inconsistent array sizes; conn_obj%lmap')
-       allocate(this%lmap(2, lmapoff(this%lnum + 1) - 1), &
-            this%lmapoff(this%lnum + 1))
-       this%lmap(:, :) = lmap(:, :)
-       this%lmapoff(:) = lmapoff(:)
+       allocate(this%rank, source = rank)
+       allocate(this%rankshare, source = rankshare)
+       allocate(this%sharemap, source = sharemap)
+       allocate(this%rankoff, source = rankoff)
+    else
+       this%nrank = 0
     end if
 
     if (present(algn)) then
        ! sanity check
-       if (nel .ne. size(algn, 2) .or. nobj .ne. size(algn, 1)) &
+       if (this%nel .ne. size(algn, 2) .or. this%nobj .ne. size(algn, 1)) &
             call neko_error('Inconsistent array sizes; conn_obj%algn')
        this%ifalgn = .true.
-       allocate(this%algn(nobj, nel))
-       this%algn(:, :) = algn(:, :)
+       allocate(this%algn, source = algn)
     end if
 
     if (present(hang)) then
        ! sanity check
-       if (nel .ne. size(hang, 2) .or. nobj .ne. size(hang, 1)) &
+       if (this%nel .ne. size(hang, 2) .or. this%nobj .ne. size(hang, 1)) &
             call neko_error('Inconsistent array sizes; conn_obj%hang')
        this%ifhang_set = .true.
-       allocate(this%hang(nobj, nel))
-       this%hang(:, :) = hang(:, :)
+       allocate(this%hang, source = hang)
        this%ifhang = maxval(hang) .ne. -1
     end if
 
@@ -265,7 +257,6 @@ contains
           end if
        end do
        deallocate(lown)
-
     end if
 
   end subroutine mesh_conn_obj_init

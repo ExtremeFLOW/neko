@@ -156,6 +156,9 @@ module mesh_manager_transfer_p4est
      procedure, pass(this) :: neko_elem_dist_set => p4est_neko_elem_dist_set
      !> Set element distribution for field reconstruction
      procedure, pass(this) :: reconstruct_data_set => p4est_reconstruct_data_set
+     !> Free element distribution for field reconstruction
+     procedure, pass(this) :: reconstruct_data_free => &
+          p4est_reconstruct_data_free
      !> Get refinement/coarsening vector sizes and mappings
      procedure, pass(this) :: vector_map => p4est_vector_map
      !> Free refinement/coarsening vector mappings
@@ -172,28 +175,17 @@ contains
 
     call this%free_base()
     call this%vector_map_free()
+    call this%reconstruct_data_free()
 
     this%nelt_mm = 0
     this%nelt_neko = 0
     this%nelt_old = 0
-    this%same_nr = 0
-    this%refine_nr = 0
-    this%coarsen_nr = 0
-    this%nchildren = 0
 
     if (allocated(this%gidx_mm)) deallocate(this%gidx_mm)
     if (allocated(this%gidx_neko)) deallocate(this%gidx_neko)
     if (allocated(this%fwd_cmm)) deallocate(this%fwd_cmm)
     if (allocated(this%bwd_cmm)) deallocate(this%bwd_cmm)
     if (allocated(this%gidx_old)) deallocate(this%gidx_old)
-    if (allocated(this%same_gidx)) deallocate(this%same_gidx)
-    if (allocated(this%same)) deallocate(this%same)
-    if (allocated(this%refine_gidx)) deallocate(this%refine_gidx)
-    if (allocated(this%refine)) deallocate(this%refine)
-    if (allocated(this%coarsen_gidx)) deallocate(this%coarsen_gidx)
-    if (allocated(this%coarsen)) deallocate(this%coarsen)
-
-    call this%vector_map_free()
 
   end subroutine p4est_free
 
@@ -297,25 +289,66 @@ contains
        refine_nr, refine_gidx, refine, coarsen_nr, coarsen_gidx, coarsen)
     class(mesh_manager_transfer_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: same_nr, refine_nr, coarsen_nr
-    integer(i8), allocatable, dimension(:), intent(inout) :: same_gidx
-    integer(i8), allocatable, dimension(:, :), intent(inout) :: refine_gidx
-    integer(i8), allocatable, dimension(:, :, :), intent(inout) :: coarsen_gidx
-    integer(i4), allocatable, dimension(:, :), intent(inout) :: same, refine
-    integer(i4), allocatable, dimension(:, :, :), intent(inout) :: coarsen
+    integer(i8), allocatable, dimension(:), intent(in) :: same_gidx
+    integer(i8), allocatable, dimension(:, :), intent(in) :: refine_gidx
+    integer(i8), allocatable, dimension(:, :, :), intent(in) :: coarsen_gidx
+    integer(i4), allocatable, dimension(:, :), intent(in) :: same, refine
+    integer(i4), allocatable, dimension(:, :, :), intent(in) :: coarsen
+    integer :: il, iref, icrs
+
+    call this%reconstruct_data_free()
 
     this%same_nr = same_nr
     this%refine_nr = refine_nr
     this%coarsen_nr = coarsen_nr
     this%nchildren = size(coarsen, 2)
 
-    call move_alloc(same_gidx, this%same_gidx)
-    call move_alloc(same, this%same)
-    call move_alloc(refine_gidx, this%refine_gidx)
-    call move_alloc(refine, this%refine)
-    call move_alloc(coarsen_gidx, this%coarsen_gidx)
-    call move_alloc(coarsen, this%coarsen)
+    ! same has never zero size
+    allocate(this%same_gidx, source = same_gidx)
+    allocate(this%same, source = same)
+    if (this%refine_nr .gt. 0) then
+       allocate(this%refine_gidx, source = refine_gidx)
+       allocate(this%refine, source = refine)
+    end if
+    if (this%coarsen_nr .gt. 0) then
+       allocate(this%coarsen_gidx, source = coarsen_gidx)
+       allocate(this%coarsen, source = coarsen)
+    end if
+
+    ! check mapping consistency
+    iref = 0
+    icrs = 0
+    do il = 1, this%nelt_neko
+       if (this%same_gidx(il) .eq. 0) then
+          if (this%same(1, il) .eq. 0) then
+             icrs = icrs + 1
+          else
+             iref = iref + 1
+          end if
+       end if
+    end do
+    if (icrs .ne. this%coarsen_nr .or. iref .ne. this%refine_nr) &
+         call neko_error('Inconsistent number of refined/coarsened elements')
 
   end subroutine p4est_reconstruct_data_set
+
+  !> Free element distribution data for field reconstruction
+  subroutine p4est_reconstruct_data_free(this)
+    class(mesh_manager_transfer_p4est_t), intent(inout) :: this
+
+    this%same_nr = 0
+    this%refine_nr = 0
+    this%coarsen_nr = 0
+    this%nchildren = 0
+
+    if (allocated(this%same_gidx)) deallocate(this%same_gidx)
+    if (allocated(this%same)) deallocate(this%same)
+    if (allocated(this%refine_gidx)) deallocate(this%refine_gidx)
+    if (allocated(this%refine)) deallocate(this%refine)
+    if (allocated(this%coarsen_gidx)) deallocate(this%coarsen_gidx)
+    if (allocated(this%coarsen)) deallocate(this%coarsen)
+
+  end subroutine p4est_reconstruct_data_free
 
   !> Get refinement/coarsening vectors sizes and mappings
   !! @param[out]    nold       old element number
@@ -341,34 +374,31 @@ contains
 
     ! reset communication
     call this%vector_map_free()
-    nchildren = this%nchildren
     ifchange = .false.
 
-    if (allocated(rmap)) deallocate(rmap)
-    if (allocated(cmap)) deallocate(cmap)
-
-    nold = this%nelt_old
-    nnew = this%nelt_neko
-
     ! keep information about relative child position in the parent
-    allocate(cmapl(this%nchildren, this%coarsen_nr))
-    do il = 1, this%coarsen_nr
-       do jl = 1, this%nchildren
-          cmapl(jl, il) = jl - 1
+    if (this%coarsen_nr .gt. 0) then
+       allocate(cmapl(this%nchildren, this%coarsen_nr))
+       do il = 1, this%coarsen_nr
+          do jl = 1, this%nchildren
+             cmapl(jl, il) = jl - 1
+          end do
        end do
-    end do
+    end if
 
     ! partitioned mesh
     if (this%ifpartition) then
        ! forward communication
        ! same_gidx, same, refine_gidx, refine, coarsen_gidx, coarsen, cmapl
 
+       
        call neko_error('Nothing done yet; vector_map')
+       
     end if
 
     ! has the local mesh changed
     ! refinement/coarsening
-    if (this%refine_nr .ne. 0 .or. this%coarsen_nr .ne. 0) ifchange = .true.
+    if (this%refine_nr .gt. 0 .or. this%coarsen_nr .gt. 0) ifchange = .true.
     ! same element shift
     if (.not. ifchange) then
        do il = 1, this%nelt_neko
@@ -379,32 +409,7 @@ contains
        end do
     end if
 
-    ! same distribution
-    nref = this%refine_nr
-    ncrs = this%coarsen_nr
-    allocate(rmap(2, this%refine_nr), cmap(1 + nchildren, this%coarsen_nr))
-    rmap(:, :) = 0
-    cmap(:, :) = 0
-
-    ! fill in map arrays
-    iref = 0
-    icrs = 0
-    do il = 1, this%nelt_neko
-       if (this%same_gidx(il) .eq. 0) then
-          if (this%same(1, il) .eq. 0) then
-             icrs = icrs + 1
-             cmap(1, icrs) = il
-          else
-             iref = iref + 1
-             rmap(1, il) = il
-             rmap(2, il) = this%refine(3, this%same(1, il))
-          end if
-       end if
-    end do
-    if (icrs .ne. this%coarsen_nr .or. iref .ne. this%refine_nr) &
-         call neko_error('Inconsistent number of refined/coarsened elements')
-
-    ! Is communication at this stage needed?
+    ! Is communication with other ranks needed?
     do il = 1, this%nelt_neko
        if (this%same_gidx(il) .ne. 0 .and. &
             this%same(2, il) .ne. pe_rank) then
@@ -412,7 +417,7 @@ contains
           exit
        end if
     end do
-    if (.not. this%ifcomm) then
+    if (.not. this%ifcomm .and. this%refine_nr .gt. 0) then
        do il = 1, this%refine_nr
           if (this%refine(2, il) .ne. pe_rank) then
              this%ifcomm = .true.
@@ -420,9 +425,9 @@ contains
           end if
        end do
     end if
-    if (.not. this%ifcomm) then
+    if (.not. this%ifcomm .and. this%coarsen_nr .gt. 0) then
        element : do il = 1, this%coarsen_nr
-          do jl = 1, nchildren
+          do jl = 1, this%nchildren
              if (this%coarsen(2, jl, il) .ne. pe_rank) then
                 this%ifcomm = .true.
                 exit element
@@ -433,9 +438,43 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE, this%ifcomm, 1, MPI_LOGICAL, MPI_LOR, &
          NEKO_COMM, ierr)
 
+    if (allocated(rmap)) deallocate(rmap)
+    if (allocated(cmap)) deallocate(cmap)
+
+    nold = this%nelt_old
+    nnew = this%nelt_neko
+    nref = this%refine_nr
+    ncrs = this%coarsen_nr
+    nchildren = this%nchildren
+
     ! exchange information between processors
-    if (this%ifcomm) call p4est_vector_map_comm(this, nchildren, cmmsame, &
+    if (this%ifcomm) call p4est_vector_map_comm(this, this%nchildren, cmmsame, &
          cmmref, cmmcrs, cmmapl, bnd)
+
+    ! fill in map arrays
+    if (this%refine_nr .gt. 0) then
+       allocate(rmap(2, this%refine_nr))
+       rmap(:, :) = 0
+       iref = 0
+       do il = 1, this%nelt_neko
+          if (this%same_gidx(il) .eq. 0 .and. this%same(1, il) .ne. 0) then
+             iref = iref + 1
+             rmap(1, il) = il
+             rmap(2, il) = this%refine(3, this%same(1, il))
+          end if
+       end do
+    end if
+    if (this%coarsen_nr .gt. 0) then
+       allocate(cmap(1 + nchildren, this%coarsen_nr))
+       cmap(:, :) = 0
+       icrs = 0
+       do il = 1, this%nelt_neko
+          if (this%same_gidx(il) .eq. 0 .and. this%same(1, il) .eq. 0) then
+             icrs = icrs + 1
+             cmap(1, icrs) = il
+          end if
+       end do
+    end if
 
     ! get element mapping
     allocate(this%same_ref_fill_map(this%nelt_neko))
@@ -495,6 +534,7 @@ contains
           end if
        end if
     end do
+
     ! coarsening elements
     if (this%coarsen_nr .gt. 0) then
        do il = 1, this%coarsen_nr
@@ -512,11 +552,19 @@ contains
        end do
     end if
 
-    ! receive/send buffers size
+    ! receive/send buffers size and sanity check
     nrcv = 0
     nsnd = 0
-    if (this%nrank_rcv .gt. 0) nrcv = this%off_rcv(this%nrank_rcv + 1) - 1
-    if (this%nrank_snd .gt. 0) nsnd = this%off_snd(this%nrank_snd + 1) - 1
+    if (this%nrank_rcv .gt. 0) then
+       nrcv = this%off_rcv(this%nrank_rcv + 1) - 1
+       if (nrcv .eq. 0) &
+            call neko_error('Inconsistent receive rank and offset arrays')
+    end if
+    if (this%nrank_snd .gt. 0) then
+       nsnd = this%off_snd(this%nrank_snd + 1) - 1
+       if (nsnd .eq. 0) &
+            call neko_error('Inconsistent send rank and offset arrays')
+    end if
 
     if (allocated(cmapl)) deallocate(cmapl)
     if (allocated(cmmapl)) deallocate(cmmapl)
@@ -551,10 +599,12 @@ contains
 
     if (allocated(cmmapl)) deallocate(cmmapl)
     if (allocated(ind)) deallocate(ind)
+    cmmsame = 0
+    cmmref = 0
+    cmmcrs = 0
 
     ! build data exchange information
     ! count same elements requiring communication
-    cmmsame = 0
     do il = 1, this%nelt_neko
        if (this%same_gidx(il) .ne. 0 .and. &
             this%same(2, il) .ne. pe_rank) then
@@ -562,21 +612,23 @@ contains
        end if
     end do
     ! count refined elements requiring communication
-    cmmref = 0
-    do il = 1, this%refine_nr
-       if (this%refine(2, il) .ne. pe_rank) then
-          cmmref = cmmref + 1
-       end if
-    end do
-    ! count coarsened elements requiring communication
-    cmmcrs = 0
-    do il = 1, this%coarsen_nr
-       do jl = 1, nchildren
-          if (this%coarsen(2, jl, il) .ne. pe_rank) then
-             cmmcrs = cmmcrs + 1
+    if (this%refine_nr .gt. 0) then
+       do il = 1, this%refine_nr
+          if (this%refine(2, il) .ne. pe_rank) then
+             cmmref = cmmref + 1
           end if
        end do
-    end do
+    end if
+    ! count coarsened elements requiring communication
+    if (this%coarsen_nr .gt. 0) then
+       do il = 1, this%coarsen_nr
+          do jl = 1, nchildren
+             if (this%coarsen(2, jl, il) .ne. pe_rank) then
+                cmmcrs = cmmcrs + 1
+             end if
+          end do
+       end do
+    end if
 
     ! get element list for receive
     itmp = cmmsame + cmmref + cmmcrs
@@ -702,6 +754,8 @@ contains
     end if
     call MPI_Allreduce(MPI_IN_PLACE, bmax, 1, MPI_INTEGER, MPI_MAX, &
          NEKO_COMM, ierr)
+    if (bmax .eq. 0) call neko_error('p4est_vector_map_comm: inconsistent &
+         &communication flag')
     allocate(rbuf(2, bmax), sbuf(2, bmax))
     ! take int account data  amount is doubled
     bmax = bmax * 2
@@ -715,6 +769,7 @@ contains
        ! sort destination neighbours
        call sort(ngh_dst, ind_dst, this%nrank_rcv)
     end if
+
     ! count send requests
     this%nrank_snd = 0
     ! count destinations
@@ -741,6 +796,7 @@ contains
        call MPI_Sendrecv(sbuf, ll, MPI_INTEGER8, dst, 0, &
             rbuf, bmax, MPI_INTEGER8, src, 0, NEKO_COMM, status, ierr)
        call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+
        if (n_recv .gt. 0) then
           n_recv = n_recv / 2
           ! check if the received data is consistent with local one by
@@ -932,14 +988,21 @@ contains
     type(MPI_Request) :: snd_req, rcv_req
 
     ! sanity check
-    il = 0
-    jl = 0
-    if (this%nrank_rcv .gt. 0) il = this%off_rcv(this%nrank_rcv + 1) - 1
-    if (this%nrank_snd .gt. 0) jl = this%off_snd(this%nrank_snd + 1) - 1
-    if (size(vin, 4) .ne. this%nelt_old .or. size(vout, 4) .ne. this%nelt_neko &
-         .or. size(vcrs, 5) .ne. this%coarsen_nr &
-         .or. size(buff_rcv, 4) .ne. il .or. size(buff_snd, 4) .ne. jl) &
-         call neko_error('Inconsistent vector size; vector_constr')
+    if (size(vin, 4) .ne. this%nelt_old .or. &
+         size(vout, 4) .ne. this%nelt_neko) &
+         call neko_error('Inconsistent input/output vector size')
+    if (this%coarsen_nr .gt. 0) then
+       if (size(vcrs, 5) .ne. this%coarsen_nr) &
+            call neko_error('Inconsistent coarsening vector size')
+    end if
+    if (this%nrank_rcv .gt. 0) then
+       if (size(buff_rcv, 4) .ne. this%off_rcv(this%nrank_rcv + 1) - 1) &
+            call neko_error('Inconsistent receive buffer size')
+    end if
+    if (this%nrank_snd .gt. 0) then
+       if (size(buff_snd, 4) .ne. this%off_snd(this%nrank_snd + 1) - 1) &
+            call neko_error('Inconsistent send buffer size')
+    end if
 
     if (this%ifcomm) then
        ! fill send buffer
