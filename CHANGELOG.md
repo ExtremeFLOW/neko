@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Enabled 1D stats files in csv format as a possible input to `average_fields_in_time`.
 - Added the possibility to configure interpolation parameters for `probes`.
 - *BREAKING* Changed the user interface of fluid/scalar initial condition
   to read interpolation parameters from the `interpolation` JSON subdict
