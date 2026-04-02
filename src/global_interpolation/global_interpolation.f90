@@ -33,41 +33,45 @@
 !> Implements global_interpolation given a dofmap.
 !!
 module global_interpolation
-  use num_types, only: rp, dp, xp
+  use num_types, only : rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use space, only: space_t
-  use stack, only: stack_i4_t
-  use dofmap, only: dofmap_t
-  use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error
+  use space, only : space_t
+  use stack, only : stack_i4_t
+  use dofmap, only : dofmap_t
+  use logger, only : neko_log, LOG_SIZE
+  use json_utils, only : json_get_or_lookup_or_default
+  use json_module, only : json_file
+  use utils, only : neko_error
   use local_interpolation, only : local_interpolator_t
-  use device, only: device_free, device_map, device_memcpy, &
+  use device, only : device_free, device_map, device_memcpy, &
        device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr
-  use aabb_pe_finder, only: aabb_pe_finder_t
-  use aabb_el_finder, only: aabb_el_finder_t
-  use cartesian_el_finder, only: cartesian_el_finder_t
-  use cartesian_pe_finder, only: cartesian_pe_finder_t
-  use legendre_rst_finder, only: legendre_rst_finder_t
-  use el_finder, only: el_finder_t
-  use pe_finder, only: pe_finder_t
-  use comm, only: NEKO_COMM
-  use mpi_f08, only: MPI_SUM, MPI_COMM, MPI_Comm_rank, &
+  use aabb_pe_finder, only : aabb_pe_finder_t
+  use aabb_el_finder, only : aabb_el_finder_t
+  use cartesian_el_finder, only : cartesian_el_finder_t
+  use cartesian_pe_finder, only : cartesian_pe_finder_t
+  use legendre_rst_finder, only : legendre_rst_finder_t
+  use el_finder, only : el_finder_t
+  use pe_finder, only : pe_finder_t
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_SUM, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_MIN, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
        MPI_ISend, MPI_IRecv
   use glb_intrp_comm, only : glb_intrp_comm_t
-  use vector, only: vector_t
-  use vector_math, only: vector_masked_gather_copy
-  use matrix, only: matrix_t
-  use math, only: copy, NEKO_EPS
-  use mask, only: mask_t
+  use vector, only : vector_t
+  use vector_math, only : vector_masked_gather_copy
+  use matrix, only : matrix_t
+  use math, only : copy, NEKO_EPS
+  use mask, only : mask_t
   use structs, only : array_ptr_t
-  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
   integer, public, parameter :: GLOB_MAP_SIZE = 4096
+  real(kind=dp), public, parameter :: GLOB_INTERP_TOL = NEKO_EPS*1e3_dp
+  real(kind=dp), public, parameter :: GLOB_INTERP_PAD = 1e-2_dp
 
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
@@ -119,9 +123,9 @@ module global_interpolation
      !> Turns true if points are redistributed to their respective owners
      logical :: all_points_local = .false.
      !> Tolerance for Newton solve to find the correct rst coordinates.
-     real(kind=rp) :: tol = NEKO_EPS*1e3_rp
+     real(kind=dp) :: tolerance = GLOB_INTERP_TOL
      !> Padding
-     real(kind=rp) :: padding = 1e-2_rp
+     real(kind=dp) :: padding = GLOB_INTERP_PAD
 
      !> Mapping of points to ranks.
      !> n_points_pe(pe_rank) = n_points I have at this rank
@@ -139,7 +143,8 @@ module global_interpolation
      class(el_finder_t), allocatable :: el_finder
      !> Object to find rst coordinates
      type(legendre_rst_finder_t) :: rst_finder
-     !> Things for communication operation (sending interpolated values back and forth)
+     !> Things for communication operation (sending interpolated values back
+     !! and forth)
      type(glb_intrp_comm_t) :: glb_intrp_comm
      !> Working vectors for global interpolation
      type(vector_t) :: temp_local, temp
@@ -147,7 +152,16 @@ module global_interpolation
      type(vector_t) :: masked_field
 
    contains
-     !> Initialize the global interpolation object based on a set of spectral elements.
+     !> Initialize the global interpolation object from a JSON subdict
+     !! (xyz version).
+     procedure, pass(this) :: init_json_xyz => &
+          global_interpolation_init_json_xyz
+     !> Initialize the global interpolation object from a JSON subdict
+     !! (dof version).
+     procedure, pass(this) :: init_json_dof => &
+          global_interpolation_init_json_dof
+     !> Initialize the global interpolation object based on a set of spectral
+     !! elements.
      procedure, pass(this) :: init_xyz => global_interpolation_init_xyz
      !> Initialize the global interpolation object based on a dofmap.
      procedure, pass(this) :: init_dof => global_interpolation_init_dof
@@ -155,7 +169,8 @@ module global_interpolation
      procedure, pass(this) :: free => global_interpolation_free
      !> Destructor for arrays related to evaluation points
      procedure, pass(this) :: free_points => global_interpolation_free_points
-     procedure, pass(this) :: free_points_local => global_interpolation_free_points_local
+     procedure, pass(this) :: free_points_local => &
+          global_interpolation_free_points_local
      procedure, pass(this) :: find_points_and_redist => &
           global_interpolation_find_and_redist
      !> Finds the process owner, global element number,
@@ -169,44 +184,98 @@ module global_interpolation
      procedure, pass(this) :: check_points => &
           global_interpolation_check_points
      procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
-     generic :: find_points => find_points_xyz, find_points_coords, find_points_coords1d
+     generic :: find_points => find_points_xyz, find_points_coords, &
+          find_points_coords1d
      !> Evaluate the value of the field in each point.
      procedure, pass(this) :: evaluate => global_interpolation_evaluate
-     procedure, pass(this) :: evaluate_masked => global_interpolation_evaluate_masked
+     procedure, pass(this) :: evaluate_masked => &
+          global_interpolation_evaluate_masked
 
      !> Generic constructor
-     generic :: init => init_dof, init_xyz
+     generic :: init => init_dof, init_xyz, init_json_xyz, init_json_dof
 
   end type global_interpolation_t
 
 contains
 
+  !> Initialize the global interpolation object on a set of coordinates,
+  !! with configuration parameters given in a JSON subdirectory.
+  !! @param x x-coordinates.
+  !! @param y y-coordinates.
+  !! @param z z-coordinates.
+  !! @param gdim Geometric dimension.
+  !! @param nelv Number of elements of the mesh in which to search for the
+  !! points.
+  !! @param Xh Space on which to interpolate.
+  !! @param params_subdict A JSON object containing parameters to use for
+  !! initialization instead of tol and pad.
+  !! @param comm Communicator to use for initialization. If not given,
+  !! NEKO_COMM is used.
+  subroutine global_interpolation_init_json_xyz(this, x, y, z, gdim, nelv, Xh, &
+       params_subdict, comm)
+    class(global_interpolation_t), target, intent(inout) :: this
+    real(kind=rp), intent(in) :: x(:)
+    real(kind=rp), intent(in) :: y(:)
+    real(kind=rp), intent(in) :: z(:)
+    integer, intent(in) :: gdim
+    integer, intent(in) :: nelv
+    type(space_t), intent(in) :: Xh
+    type(json_file), intent(inout) :: params_subdict
+    type(MPI_COMM), intent(in), optional :: comm
+
+    real(kind=dp) :: tol, pad
+
+    call json_get_or_lookup_or_default(params_subdict, 'tolerance', &
+         tol, GLOB_INTERP_TOL)
+    call json_get_or_lookup_or_default(params_subdict, 'padding', &
+         pad, GLOB_INTERP_PAD)
+
+    call this%init_xyz(x, y, z, gdim, nelv, Xh, comm = comm, tol = tol, &
+         pad = pad)
+
+  end subroutine global_interpolation_init_json_xyz
+
+  !> Initialize the global interpolation object on a dofmap.
+  !! @param dof Dofmap on which the interpolation is to be carried out.
+  !! @param params_subdict A JSON object containing parameters to use for
+  !! initialization.
+  !! @param comm Communicator to use for initialization. If not given,
+  !! NEKO_COMM is used.
+  !! @param mask Mask that indicates which portions of the domain to include.
+  subroutine global_interpolation_init_json_dof(this, dof, params_subdict, &
+       comm, mask)
+    class(global_interpolation_t), target, intent(inout) :: this
+    type(dofmap_t) :: dof
+    type(json_file), intent(inout) :: params_subdict
+    type(MPI_COMM), optional, intent(in) :: comm
+    type(mask_t), intent(in), optional :: mask
+
+    real(kind=dp) :: tol, pad
+
+    call json_get_or_lookup_or_default(params_subdict, 'tolerance', &
+         tol, GLOB_INTERP_TOL)
+    call json_get_or_lookup_or_default(params_subdict, 'padding', &
+         pad, GLOB_INTERP_PAD)
+
+    call this%init_dof(dof, comm = comm, tol = tol, pad = pad, mask = mask)
+
+  end subroutine global_interpolation_init_json_dof
+
   !> Initialize the global interpolation object on a dofmap.
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
-  !! @mask  Mask that indicates which portions of the domain to include
+  !! @param mask Mask that indicates which portions of the domain to include
+  !! instead of tol and pad.
   subroutine global_interpolation_init_dof(this, dof, comm, tol, pad, mask)
     class(global_interpolation_t), target, intent(inout) :: this
     type(dofmap_t) :: dof
     type(MPI_COMM), optional, intent(in) :: comm
-    real(kind=rp), optional :: tol
-    real(kind=rp), optional :: pad
+    real(kind=dp), optional :: tol
+    real(kind=dp), optional :: pad
     type(mask_t), intent(in), optional :: mask
-    real(kind=rp) :: padding, tolerance
+
     integer :: temp_nelv
-
-    if (present(pad)) then
-       padding = pad
-    else
-       padding = 1e-2 ! 1% padding of the bounding boxes
-    end if
-
-    if (present(tol)) then
-       tolerance = tol
-    else
-       tolerance = NEKO_EPS*1e3_xp ! 1% padding of the bounding boxes
-    end if
 
     ! Store the number of dofs
     this%n_dof = dof%size()
@@ -215,7 +284,8 @@ contains
     ! to get the right dimension (see global_interpolation_init_xyz).
     if (.not. present(mask)) then
        call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+            dof%msh%gdim, dof%msh%nelv, dof%Xh, comm = comm, &
+            tol = tol, pad = pad)
     else
 
        ! Initialize a helper field with the size of the mask
@@ -223,11 +293,13 @@ contains
        ! Verify that the mask size is compatible with the dofmap
        temp_nelv = mask%size() / (dof%Xh%lx*dof%Xh%ly*dof%Xh%lz)
        if (mod(mask%size(), dof%Xh%lx*dof%Xh%ly*dof%Xh%lz) /= 0) then
-          call neko_error("Mask size must be a multiple of the number of elements in the mesh.")
+          call neko_error("Mask size must be a multiple of the number of" // &
+               " elements in the mesh.")
        end if
        ! Initialize with the masked coordinates
-       call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), dof%z(mask%get(),1,1,1), &
-            dof%msh%gdim, temp_nelv, dof%Xh, comm,tol = tolerance, pad=padding)
+       call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), &
+            dof%z(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
+            comm = comm, tol = tol, pad = pad)
     end if
 
   end subroutine global_interpolation_init_dof
@@ -250,32 +322,43 @@ contains
     real(kind=rp), intent(in) :: z(:)
     integer, intent(in) :: gdim
     integer, intent(in) :: nelv
-    type(MPI_COMM), intent(in), optional :: comm
     type(space_t), intent(in) :: Xh
-    real(kind=rp), intent(in), optional :: tol
-    real(kind=rp), intent(in), optional :: pad
+    type(MPI_COMM), intent(in), optional :: comm
+    real(kind=dp), intent(in), optional :: tol
+    real(kind=dp), intent(in), optional :: pad
+
     integer :: lx, ly, lz, ierr, i, n
     character(len=8000) :: log_buf
-    real(kind=dp) :: padding
+    !real(kind=dp) :: padding ! <-- note that this padding is in dp
     real(kind=rp) :: time1, time_start
     character(len=255) :: mode_str
     integer :: boxdim, envvar_len
 
+    call neko_log%section('Global Interpolation')
+    call neko_log%message('Initializing global interpolation')
+
     call this%free()
 
+    ! Set communicator
     if (present(comm)) then
        this%comm = comm
     else
        this%comm = NEKO_COMM
     end if
 
-    if (present(pad)) then
-       padding = pad
-       this%padding = pad
-    else
-       padding = 1e-2 ! 1% padding of the bounding boxes
-       this%padding = 1e-2
-    end if
+    ! Set point search parameters
+    this%padding = GLOB_INTERP_PAD
+    if (present(pad)) this%padding = pad
+
+    this%tolerance = GLOB_INTERP_TOL
+    if (present(tol)) this%tolerance = tol
+
+    write(log_buf, '(A,E15.7)') &
+         'Tolerance: ', this%tolerance
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,E15.7)') &
+         'Padding  : ', this%padding
+    call neko_log%message(log_buf)
 
     time_start = MPI_Wtime()
     call MPI_Barrier(this%comm)
@@ -285,11 +368,6 @@ contains
 
     this%gdim = gdim
     this%nelv = nelv
-    if (present(tol)) then
-       this%tol = tol
-    else
-       this%tol = NEKO_EPS*1e3_xp
-    end if
 
     call MPI_Allreduce(nelv, this%glb_nelv, 1, MPI_INTEGER, &
          MPI_SUM, this%comm, ierr)
@@ -313,9 +391,7 @@ contains
        this%n_dof = n
     end if
 
-    call neko_log%section('Global Interpolation')
 
-    call neko_log%message('Initializing global interpolation')
     call get_environment_variable("NEKO_GLOBAL_INTERP_EL_FINDER", &
          mode_str, envvar_len)
 
@@ -339,24 +415,24 @@ contains
     if (.not. allocated(this%pe_finder)) then
        allocate(cartesian_pe_finder_t :: this%pe_finder)
     end if
-    select type(el_find => this%el_finder)
+    select type (el_find => this%el_finder)
     type is (aabb_el_finder_t)
        call neko_log%message('Using AABB element finder')
-       call el_find%init(x, y, z, nelv, Xh, padding)
+       call el_find%init(x, y, z, nelv, Xh, this%padding)
     type is (cartesian_el_finder_t)
        call neko_log%message('Using Cartesian element finder')
        boxdim = max(lx*int(real(nelv,xp)**(1.0_xp/3.0_xp)),2)
        boxdim = min(boxdim, 300)
-       call el_find%init(x, y, z, nelv, Xh, boxdim, padding)
+       call el_find%init(x, y, z, nelv, Xh, boxdim, this%padding)
     class default
        call neko_error('Unknown element finder type')
     end select
 
-    select type(pe_find => this%pe_finder)
+    select type (pe_find => this%pe_finder)
     type is (aabb_pe_finder_t)
        call neko_log%message('Using AABB PE finder')
        call pe_find%init(this%x%x, this%y%x, this%z%x, &
-            nelv, Xh, this%comm, padding)
+            nelv, Xh, this%comm, this%padding)
     type is (cartesian_pe_finder_t)
        call neko_log%message('Using Cartesian PE finder')
        boxdim = lx*int(real(this%glb_nelv,xp)**(1.0_xp/3.0_xp))
@@ -364,12 +440,13 @@ contains
        boxdim = min(boxdim, &
             int(8.0_xp*(30000.0_xp*this%pe_size)**(1.0_xp/3.0_xp)))
        call pe_find%init(this%x%x, this%y%x, this%z%x, &
-            nelv, Xh, this%comm, boxdim, padding)
+            nelv, Xh, this%comm, boxdim, this%padding)
     class default
        call neko_error('Unknown PE finder type')
     end select
 
-    call this%rst_finder%init(this%x%x, this%y%x, this%z%x, nelv, Xh, this%tol)
+    call this%rst_finder%init(this%x%x, this%y%x, this%z%x, nelv, Xh, &
+         this%tolerance)
     if (allocated(this%n_points_pe)) deallocate(this%n_points_pe)
     if (allocated(this%n_points_pe_local)) deallocate(this%n_points_pe_local)
     if (allocated(this%n_points_offset_pe_local)) &
@@ -509,7 +586,7 @@ contains
     call recv_pe_find%init()
     call MPI_Barrier(this%comm)
     time_start = MPI_Wtime()
-    write(log_buf,'(A)') 'Global interpolation, finding points'
+    write(log_buf, '(A)') 'Global interpolation, finding points'
     call neko_log%message(log_buf)
     ! Find pe candidates that the points i want may be at
     ! Add number to n_points_pe_local
@@ -520,12 +597,14 @@ contains
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
-         'Found PE candidates time since start of findpts (s):', time1-time_start
+         'Found PE candidates time since start of findpts (s):', &
+         time1 - time_start
     call neko_log%message(log_buf)
 
     !Send number of points I want to candidates
     ! n_points_local -> how many points might be at this rank
-    ! n_points_pe_local -> how many points local on this rank that other pes might want
+    ! n_points_pe_local -> how many points local on this rank that other pes
+    !                      might want
     this%n_points_pe_local = 0
     this%n_points_local = 0
     call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, &
@@ -555,9 +634,12 @@ contains
        if (this%n_points_pe_local(i) .gt. 0) then
           call recv_pe_find%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 1)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 2)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 3)
           end do
        end if
     end do
@@ -593,8 +675,10 @@ contains
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
-         'Sent to points to PE candidates, time since start of find_points (s):', time1-time_start
+         'Sent to points to PE candidates, time since start of ' &
+         // 'find_points (s):', time1 - time_start
     call neko_log%message(log_buf)
+
     !Okay, now we need to find the rst...
     call all_el_candidates%init()
 
@@ -609,7 +693,8 @@ contains
 
     n_point_cand = all_el_candidates%size()
     if (n_point_cand .gt. 1e8) then
-       print *,'Warning, many point candidates on rank', this%pe_rank,'cands:', n_point_cand, &
+       print *,'Warning, many point candidates on rank', this%pe_rank, &
+            'cands:', n_point_cand, &
             'Consider increasing number of ranks'
     end if
     call x_t%init(n_point_cand)
@@ -629,7 +714,8 @@ contains
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
-         'Element candidates found, now time for finding rst,time since start of find_points (s):', time1-time_start
+         'Element candidates found, now time for finding rst,time ' // &
+         'since start of find_points (s):', time1 - time_start
     call neko_log%message(log_buf)
     call rst_local_cand%init(3,n_point_cand)
     call resx%init(n_point_cand)
@@ -670,10 +756,7 @@ contains
          'Found rst with Newton iteration, time (s):', time2-time1
     call neko_log%message(log_buf)
 
-    write(log_buf,'(A,E15.7)') &
-         'Tolerance: ', this%tol
-    call neko_log%message(log_buf)
-    write(log_buf,'(A)') &
+    write(log_buf, '(A)') &
          'Checking validity of points and choosing best candidates.'
     call neko_log%message(log_buf)
     call MPI_Barrier(this%comm,ierr)
@@ -695,7 +778,8 @@ contains
        do j = 1, n_el_cands(i)
           ii = ii + 1
           if (rst_cmp(this%rst_local(:,i), rst_local_cand%x(:,ii),&
-               this%xyz_local(:,i), (/resx%x(ii),resy%x(ii),resz%x(ii)/), this%padding)) then
+               this%xyz_local(:,i), [resx%x(ii),resy%x(ii),resz%x(ii)], &
+               this%padding)) then
              this%rst_local(1,i) = rst_local_cand%x(1,ii)
              this%rst_local(2,i) = rst_local_cand%x(2,ii)
 
@@ -727,7 +811,8 @@ contains
          this%n_points_local*3, n_glb_point_cand*3)
     do i = 1, size(glb_intrp_find_back%send_pe)
        rank = glb_intrp_find_back%send_pe(i)
-       call MPI_Isend(this%el_owner0_local(this%n_points_offset_pe_local(rank)+1),&
+       call MPI_Isend(this%el_owner0_local( &
+            this%n_points_offset_pe_local(rank) + 1), &
             this%n_points_pe_local(rank), &
             MPI_INTEGER, rank, 0, &
             this%comm, glb_intrp_find_back%send_buf(i)%request, ierr)
@@ -757,7 +842,8 @@ contains
              this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
           !  if (this%pe_rank .eq. 0) print *,point_id,  &
-          !this%rst(:,point_ids(j)),res%x(:,point_ids(j)), this%el_owner0(point_ids(j))
+          !this%rst(:,point_ids(j)),res%x(:,point_ids(j)),
+          ! this%el_owner0(point_ids(j))
        end do
     end do
 
@@ -777,12 +863,13 @@ contains
                ' Interpolation will always yield 0.0. Try increase padding.'
        else
           call this%points_at_pe(this%pe_owner(i))%push(stupid_intent)
-          this%n_points_pe(this%pe_owner(i)) = this%n_points_pe(this%pe_owner(i)) + 1
+          this%n_points_pe(this%pe_owner(i)) = &
+               this%n_points_pe(this%pe_owner(i)) + 1
        end if
     end do
-    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, MPI_INTEGER, &
-         MPI_SUM, this%comm, ierr)
-    call MPI_Alltoall(this%n_points_pe, 1, MPI_INTEGER,&
+    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, &
+         MPI_INTEGER, MPI_SUM, this%comm, ierr)
+    call MPI_Alltoall(this%n_points_pe, 1, MPI_INTEGER, &
          this%n_points_pe_local, 1, MPI_INTEGER, this%comm, ierr)
     this%n_points_offset_pe_local(0) = 0
     this%n_points_offset_pe(0) = 0
@@ -804,17 +891,20 @@ contains
           call send_pe_find%push(i)
           point_ids => this%points_at_pe(i)%array()
           do j = 1, this%n_points_pe(i)
-             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
-             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
-             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j)-1)+3)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j) - 1) + 1)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j) - 1) + 2)
+             call glb_intrp_find%send_dof(i)%push(3*(point_ids(j) - 1) + 3)
           end do
        end if
        if (this%n_points_pe_local(i) .gt. 0) then
           call recv_pe_find%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
-             call glb_intrp_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 1)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 2)
+             call glb_intrp_find%recv_dof(i)%push(3*(j + &
+                  this%n_points_offset_pe_local(i) - 1) + 3)
           end do
        end if
     end do
@@ -833,7 +923,7 @@ contains
           ii = ii + 1
           el_owner_results(ii) = this%el_owner0(point_ids(j))
        end do
-       call MPI_Isend(el_owner_results(this%n_points_offset_pe(rank)+1),&
+       call MPI_Isend(el_owner_results(this%n_points_offset_pe(rank) + 1),&
             this%n_points_pe(rank), &
             MPI_INTEGER, rank, 0, &
             this%comm, glb_intrp_find%send_buf(i)%request, ierr)
@@ -841,7 +931,8 @@ contains
     end do
     do i = 1, size(glb_intrp_find%recv_pe)
        rank = glb_intrp_find%recv_pe(i)
-       call MPI_IRecv(this%el_owner0_local(this%n_points_offset_pe_local(rank)+1), &
+       call MPI_IRecv(this%el_owner0_local( &
+            this%n_points_offset_pe_local(rank) + 1), &
             this%n_points_pe_local(rank), &
             MPI_INTEGER, rank, 0, &
             this%comm, glb_intrp_find%recv_buf(i)%request, ierr)
@@ -866,7 +957,8 @@ contains
        if (this%n_points_pe_local(i) .gt. 0) then
           call send_pe%push(i)
           do j = 1, this%n_points_pe_local(i)
-             call this%glb_intrp_comm%send_dof(i)%push(j+this%n_points_offset_pe_local(i))
+             call this%glb_intrp_comm%send_dof(i)%push(j + &
+                  this%n_points_offset_pe_local(i))
           end do
        end if
     end do
@@ -884,7 +976,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%el_owner0, this%el_owner0_d, &
             this%n_points, HOST_TO_DEVICE, sync = .true.)
-       call device_map(this%el_owner0_local, this%el_owner0_local_d, this%n_points_local)
+       call device_map(this%el_owner0_local, this%el_owner0_local_d, &
+            this%n_points_local)
        call device_memcpy(this%el_owner0_local, this%el_owner0_local_d, &
             this%n_points_local, HOST_TO_DEVICE, sync = .true.)
     end if
@@ -913,8 +1006,8 @@ contains
     if (allocated(el_owner_results)) deallocate(el_owner_results)
     call MPI_Barrier(this%comm, ierr)
     time2 = MPI_Wtime()
-    write(log_buf, '(A,E15.7)') 'Global interpolation find points done, time (s):', &
-         time2-time_start
+    write(log_buf, '(A,E15.7)') 'Global interpolation find points ' // &
+         'done, time (s):', time2-time_start
     call neko_log%message(log_buf)
     call neko_log%end_section()
     call neko_log%newline()
@@ -937,10 +1030,10 @@ contains
     call x_check%init(this%n_points)
     call y_check%init(this%n_points)
     call z_check%init(this%n_points)
-    call this%evaluate(x_check%x, x, on_host=.true.)
-    call this%evaluate(y_check%x, y, on_host=.true.)
-    call this%evaluate(z_check%x, z, on_host=.true.)
-    write(log_buf,'(A)') 'Checking validity of points.'
+    call this%evaluate(x_check%x, x, on_host = .true.)
+    call this%evaluate(y_check%x, y, on_host = .true.)
+    call this%evaluate(z_check%x, z, on_host = .true.)
+    write(log_buf, '(A)') 'Checking validity of points.'
     call neko_log%message(log_buf)
     j = 0
     do i = 1 , this%n_points
@@ -949,14 +1042,15 @@ contains
        xdiff = x_check%x(i)-this%xyz(1,i)
        ydiff = y_check%x(i)-this%xyz(2,i)
        zdiff = z_check%x(i)-this%xyz(3,i)
-       isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tol
+       isdiff = norm2(real([xdiff,ydiff,zdiff],xp)) > this%tolerance
        if (isdiff) then
-          write(*,*) 'Point ', i,'at rank ', this%pe_rank, 'with coordinates: ', &
+          write(*,*) 'Point ', i,'at rank ', this%pe_rank, &
+               'with coordinates: ', &
                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
                'Differ from interpolated coords: ', &
                x_check%x(i), y_check%x(i), z_check%x(i), &
                'Actual difference: ', &
-               xdiff, ydiff, zdiff, norm2(real((/xdiff,ydiff,zdiff/),xp)),&
+               xdiff, ydiff, zdiff, norm2(real([xdiff,ydiff,zdiff],xp)),&
                'Process, element: ', &
                this%pe_owner(i), this%el_owner0(i)+1, &
                'Calculated rst: ', &
@@ -1198,7 +1292,7 @@ contains
   function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
     real(kind=rp) :: rst1(3), res1(3)
     real(kind=rp) :: rst2(3), res2(3)
-    real(kind=rp) :: tol
+    real(kind=dp) :: tol
     logical :: rst2_better
     !If rst1 is invalid and rst2 is valid, take rst2
     ! If both invalidl, take smallest residual
