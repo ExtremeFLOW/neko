@@ -41,8 +41,8 @@ module richardson
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
   use json_utils, only : json_get_or_default, json_get
-  use richardson_device, only : richardson_compute_device
   use richardson_cpu, only : richardson_compute_cpu
+  use richardson_device, only : richardson_compute_device
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error, neko_warning
   use logger, only : LOG_SIZE, neko_log
@@ -135,12 +135,12 @@ contains
     if (size(g_tmp) == 3) then
        g = g_tmp
     else
-       call neko_error("MOST WM: The gravity vector should have exactly 3 components")
+       call neko_error("Richardson WM: The gravity vector should have exactly 3 components")
     end if
     deallocate(g_tmp)
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, mu, rho, g, z0, z0h_in, bc_type, bc_value)
+         kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value)
 
     deallocate(bc_type)
     deallocate(scalar_name)
@@ -167,7 +167,7 @@ contains
     if (size(g_tmp) == 3) then
        this%g = g_tmp
     else
-       call neko_error("MOST WM: Gravity vector must have 3 components")
+       call neko_error("Richardson WM: Gravity vector must have 3 components")
     end if
     deallocate(g_tmp)
 
@@ -199,7 +199,7 @@ contains
   !! @param The heat flux at the surface boundary condition.
   !! @param g The gravity vector.
   !! @param bc_type The type of bc set for temperature in the case file.
-  !! @param scalar_name The name of the scalar field (temperature) for MOST.
+  !! @param scalar_name The name of the scalar field (temperature) for Richardson WM.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine richardson_init_from_components(this, scheme_name, scalar_name, coef, msk, &
        facet, h_index, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value)
@@ -233,7 +233,7 @@ contains
     !> Check magnitude of g
     g_mag = sqrt(sum(g**2))
     if (g_mag < 1.0e-6_rp) then
-       call neko_error("MOST WM: Gravity magnitude is zero. Check your input configuration.")
+       call neko_error("MRichardsonOST WM: Gravity magnitude is zero. Check your input configuration.")
     end if
 
     !> Check alignment across all nodes (handling hills/slopes)
@@ -245,14 +245,14 @@ contains
     end do
     max_ang = max_ang * 180.0_rp / (4.0_rp * atan(1.0_rp))
     if (max_ang > 8.0_rp) then
-       write(log_buf, '(A, F6.2, A)') "MOST WM: Significant gravity-normal misalignment (max ", &
+       write(log_buf, '(A, F6.2, A)') "Richardson WM: Significant gravity-normal misalignment (max ", &
             max_ang, " deg). Stability corrections will use projected gravity."
        call neko_warning(trim(log_buf))
     end if
 
     !> Check sampling height
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
-       call neko_error("MOST WM: Sampling height h must be greater than roughness z0.")
+       call neko_error("Richardson WM: Sampling height h must be greater than roughness z0.")
     end if
 
   end subroutine richardson_init_from_components

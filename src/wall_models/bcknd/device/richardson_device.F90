@@ -64,7 +64,7 @@ contains
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d
-    real(kind=rp), intent(in) :: kappa, mu, rho, z0, z0h_in, bc_value
+    real(kind=rp), intent(in) :: kappa, mu, rho, z0, z0h_in, bc_value, Pr
     real(kind=rp) :: g(3)
     character(len=*), intent(in) :: bc_type ! passed as a normal Fortran string
     integer :: bc_type_int

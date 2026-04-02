@@ -85,7 +85,7 @@ contains
   !> Initialises q when the temperature surface bc is dirichlet.
   subroutine assign_bc_value(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h
+    real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h,bc_value
     real(kind=rp), intent(inout) :: q,ts
 
     select case (bc_type)
@@ -104,10 +104,10 @@ contains
   subroutine set_stability_regime(Ri_b,Ri_threshold)
     real(kind=rp), intent(in) :: Ri_b, Ri_threshold
 
-    if (Ri_b(i) > Ri_threshold) then
+    if (Ri_b > Ri_threshold) then
        tau_ptr => tau_stable
        heat_flux_ptr => heat_flux_stable
-    elseif (Ri_b(i) < -Ri_threshold) then
+    elseif (Ri_b < -Ri_threshold) then
        tau_ptr => tau_convective
        heat_flux_ptr => heat_flux_convective
     else
@@ -200,7 +200,7 @@ contains
        tau_x(i) = -utau(i)**2 * ui / magu(i)
        tau_y(i) = -utau(i)**2 * vi / magu(i)
        tau_z(i) = -utau(i)**2 * wi / magu(i)
-       if (abs(Ri_b) <= Ri_threshold) then
+       if (abs(Ri_b(i)) <= Ri_threshold) then
              ! Neutral (L_ob undefined)
              L_ob(i) = 1e10_rp
        else
