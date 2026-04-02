@@ -52,14 +52,14 @@ module most
   !> Wall model based on the Monin-Obukhov Similarity Theory for atmospheric
   !! boundary layer flows. Automatically switches between stable, unstable and
   !! neutral layer formulations based on the Richardson number.
-  !! 
+  !!
   type, public, extends(wall_model_t) :: most_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa
      !> The roughness height
-     real(kind=rp) :: z0 
+     real(kind=rp) :: z0
      !> The thermal roughness height
-     real(kind=rp) :: z0h_in 
+     real(kind=rp) :: z0h_in
      !> The gravity vector
      real(kind=rp) :: g(3)
      !> The fluid density
@@ -139,7 +139,6 @@ contains
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
          kappa, mu_val, rho_val, g, z0, z0h_in, bc_type, bc_value)
-    
     deallocate(bc_type)
     deallocate(scalar_name)
   end subroutine most_init
@@ -157,6 +156,8 @@ contains
     call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
+    call json_get_or_default(json, "mu", this%mu_val, 1e-10_rp)
+    call json_get_or_default(json, "rho_val", this%rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get(json, "scalar_field", this%scalar_name)
     call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
@@ -183,7 +184,7 @@ contains
   end subroutine most_partial_init
 
   !> Finalize the construction using the mask and facet arrays of the bc.
-  !! @param msk The boundary mask. 
+  !! @param msk The boundary mask.
   !! @param facet The boundary facets.
   subroutine most_finalize(this, msk, facet)
     class(most_t), intent(inout) :: this
@@ -237,7 +238,7 @@ contains
     this%bc_type = bc_type
     this%bc_value = bc_value
     this%scalar_name = scalar_name
- 
+
     !> Check magnitude of g
     g_mag = sqrt(sum(g**2))
     if (g_mag < 1.0e-6_rp) then
