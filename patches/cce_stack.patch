@@ -1,0 +1,12 @@
+diff --git a/src/adt/stack.f90 b/src/adt/stack.f90
+index 5193fcff92c..a1a7b4ef916 100644
+--- a/src/adt/stack.f90
++++ b/src/adt/stack.f90
+@@ -258,6 +258,7 @@ contains
+     class(*), intent(in) :: data !< Arbitrary typed data (same type as stack)
+     class(*), allocatable :: tmp(:)
+     integer :: i
++    !DIR$ OPTIMIZE(-hscalar0)
+ 
+     if (this%top_ .eq. this%size_) then
+        this%size_ = ishft(this%size_, 1)
