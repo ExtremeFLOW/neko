@@ -108,7 +108,7 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: kappa, z0, z0h_in, mu, rho, Pr
+    real(kind=rp) :: kappa, z0, z0h_in, mu_val, rho_val, Pr
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
     real(kind=rp) :: bc_value
@@ -128,8 +128,8 @@ contains
     ! If z0h is to specified, assign default value of -0.8,
     ! corresponding to the Zilitinkevich constant value used in Zilitinkevich 1995.
     call json_get_or_default(json, "z0h", z0h_in, -0.8_rp)
-    call json_get_or_default(json, "mu", mu, 1e-10_rp)
-    call json_get_or_default(json, "rho", rho, 1.0_rp)
+    call json_get_or_default(json, "mu", mu_val, 1e-10_rp)
+    call json_get_or_default(json, "rho", rho_val, 1.0_rp)
 
     call json_get(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -140,7 +140,7 @@ contains
     deallocate(g_tmp)
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value)
+         kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
 
     deallocate(bc_type)
     deallocate(scalar_name)
@@ -156,12 +156,14 @@ contains
     real(kind=rp), allocatable :: g_tmp(:)
 
     call this%partial_init_base(coef, json)
-    call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
+    call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
+    call json_get_or_default(json, "mu", this%mu_val, 1e-10_rp)
+    call json_get_or_default(json, "rho", this%rho_val, 1.0_rp)
 
     call json_get(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
