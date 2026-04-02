@@ -160,6 +160,7 @@ contains
     call json_get_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
+    call json_get(json, "scalar_field", this%scalar_name)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
     call json_get_or_default(json, "mu", this%mu_val, 1e-10_rp)
