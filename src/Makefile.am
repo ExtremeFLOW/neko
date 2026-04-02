@@ -418,8 +418,6 @@ neko_fortran_SOURCES = \
 	wall_models/most.f90\
 	wall_models/bcknd/cpu/most_cpu.f90\
 	wall_models/bcknd/device/most_device.F90\
-	wall_models/richardson.f90\
-	wall_models/bcknd/cpu/richardson_cpu.f90\
 	wall_models/wall_model_fctry.f90\
 	neko.f90
 
