@@ -42,7 +42,7 @@ module bc_resolver
   use fld_file, only : fld_file_t
   use hex, only : edge_nodes, edge_faces, node_faces
   use scratch_registry, only : neko_scratch_registry
-  use math, only : cfill_mask, masked_scatter_copy, rzero
+  use math, only : cfill_mask, masked_scatter_copy, rzero, cfill
   use gs_ops, only : GS_OP_MAX, GS_OP_ADD, GS_OP_MIN
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
@@ -335,21 +335,22 @@ contains
     end if
 
     if (.not. present(component)) then
-       call neko_error("Segregated vector BC resolver mark requires " // &
-            "component='x', 'y', or 'z'.")
-    end if
-
-    select case (component)
-    case ('x')
        call this%x%mark_bc(bc)
-    case ('y')
        call this%y%mark_bc(bc)
-    case ('z')
        call this%z%mark_bc(bc)
-    case default
-       call neko_error("Invalid component for segregated vector BC " // &
-            "resolver mark.")
-    end select
+    else
+       select case (component)
+       case ('x')
+          call this%x%mark_bc(bc)
+       case ('y')
+          call this%y%mark_bc(bc)
+       case ('z')
+          call this%z%mark_bc(bc)
+       case default
+          call neko_error("Invalid component for segregated vector BC " // &
+               "resolver mark.")
+       end select
+    end if
   end subroutine segregated_vector_bc_resolver_mark_bc
 
   !> Add the constrained dofs from all vector boundary conditions in a list.
@@ -595,6 +596,8 @@ contains
     real(kind=rp) :: normal(3), t1_vec(3), t2_vec(3), len, prio
     class(bc_t), pointer :: bc
 
+    write(*,*) "Finalizing coupled vector BC resolver with ", this%bcs%size(), &
+         " boundary conditions."
     call this%dirichlet_dof_mask%free()
     call this%mixed_dof_mask%free()
 
@@ -638,6 +641,7 @@ contains
     if (.not. associated(this%dof)) return
     if (this%bcs%size() .eq. 0) return
 
+
     call neko_scratch_registry%request_field(work1, scratch_idx(1), .true.)
     call neko_scratch_registry%request_field(node_class, scratch_idx(2), .true.)
     call neko_scratch_registry%request_field(work3, scratch_idx(3), .true.)
@@ -646,9 +650,12 @@ contains
     dof_size = this%dof%size()
     this%face_class = 5.0_rp
 
-    ! Build a maks of all dofs on the boundary.
+    write(*,*) "Building boundary masks for coupled vector BC resolver."
+    ! Build a mask of all dofs on the boundary.
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
+       write(*,*) "Processing BC ", i, " called ", bc%name, &
+            " and contraints, ", bc%constraints
 
        if (.not. allocated(bc%msk)) then
           call neko_error("Attempting to finalize coupled resolver from an " // &
@@ -674,8 +681,7 @@ contains
     ! 2 -> normally constrained
     ! 0 -> fully constrained
     ! Fill the field to not mess up gather-scatter reduction later.
-    call field_cfill(node_class, 5.0_rp)
-    !call cfill(node_class%x, 5.0_rp, dof_size)
+    call cfill(node_class%x, 5.0_rp, dof_size)
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
 
@@ -721,7 +727,6 @@ contains
 
     ! Propagate constraints to all local dofs via gather-scatter.
     ! Ensures most restrictive constraint is kept across element boundaries.
-    call node_class%copy_from(HOST_TO_DEVICE, sync = .true.)
     call this%coef%gs_h%op(node_class, GS_OP_MIN)
 
     ! Partition the resolved boundary dofs into the fully constrained subset
@@ -739,13 +744,15 @@ contains
        end if
     end do
 
-    if (dirichlet_mask_size .eq. 0 .and. mixed_mask_size .eq. 0) then
-       call neko_scratch_registry%relinquish_field(scratch_idx)
-       return
-    end if
+    write(*,*) "Found ", dirichlet_mask_size, " Dirichlet nodes and ", &
+         mixed_mask_size, " mixed nodes in coupled vector BC resolver."
 
-    if (dirichlet_mask_size .gt. 0) allocate(dirichlet_mask_values(dirichlet_mask_size))
-    if (mixed_mask_size .gt. 0) allocate(mixed_mask_values(mixed_mask_size))
+    if (dirichlet_mask_size .gt. 0) then
+       allocate(dirichlet_mask_values(dirichlet_mask_size))
+    end if
+    if (mixed_mask_size .gt. 0) then
+       allocate(mixed_mask_values(mixed_mask_size))
+    end if
 
     ! We reuse the variables as counters in the loop below, which actually
     ! fills the masks, now that we know the size.
@@ -765,23 +772,11 @@ contains
     end do
 
     if (dirichlet_mask_size .gt. 0) then
-       ! mask_t stores a normal 1-based index array without the bc_t-style
-       ! size prefix. Downstream math kernels should use this mask, not raw
-       ! bc%msk storage.
        call this%dirichlet_dof_mask%init(dirichlet_mask_values, &
             dirichlet_mask_size)
     end if
     if (mixed_mask_size .gt. 0) then
        call this%mixed_dof_mask%init(mixed_mask_values, mixed_mask_size)
-    end if
-
-    ! If there are somehow no mixed nodes, we can quit at this point, since the
-    ! basis is not needed.
-    if (mixed_mask_size .eq. 0) then
-       call neko_scratch_registry%relinquish_field(scratch_idx)
-       if (allocated(dirichlet_mask_values)) deallocate(dirichlet_mask_values)
-       if (allocated(mixed_mask_values)) deallocate(mixed_mask_values)
-       return
     end if
 
     ! Allocate mixed-node constraints and fill them from the reduced class.
@@ -812,6 +807,8 @@ contains
           this%constraint_t2(i) = 0
        end if
     end do
+
+    write(*,*) "Filled mixed node constraints in coupled vector BC resolver."
 
     ! At this point, face_class stores the face-based bc class values, and
     ! node_class stores them node-wise, after propagation with min reduction.
@@ -866,6 +863,8 @@ contains
          end do
       end do
 
+      write(*,*) "Seeded normals at directly marked mixed nodes in coupled vector BC resolver."
+
       ! We now treat the special edges and conrners. Everything is done locally
       ! per element, using reference element address tables found in hex.f90
       ! and inside this type.
@@ -899,6 +898,7 @@ contains
       ! the boundary with an edge or a corner but not a face. Note that we will
       ! only treat the interior nodes of the edge here. The endpoints, i.e.
       ! the corner nodes are handled in the next loop.
+      if (mixed_mask_size .gt. 0) then
       do el = 1, this%coef%msh%nelv
          do edge = 1, size(edge_nodes, 2)
 
@@ -972,6 +972,8 @@ contains
          end do
       end do
 
+      write(*,*) "Finished reconstructing normals at mixed edges in coupled vector BC resolver."
+
       ! Mixed corner node normals are rebuilt from the adjacent faces whose
       ! local face class matches the reduced nodal class at that node.
       do el = 1, this%coef%msh%nelv
@@ -1006,6 +1008,9 @@ contains
             end do
          end do
       end do
+      end if
+
+      write(*,*) "Finished reconstructing normals at mixed corners in coupled vector BC resolver."
 
       ! We are done element-wise. Now we can just sum the normals across nodes
       ! shared by multiple elements.
@@ -1052,6 +1057,8 @@ contains
          end if
       end do
     end associate
+
+    write(*,*) "Finished building local basis for coupled vector BC resolver."
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%constraint_n, this%constraint_n_d, &
