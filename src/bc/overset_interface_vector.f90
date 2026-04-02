@@ -132,7 +132,7 @@ contains
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
 
-    !> This initializes coef, dof, msh, and Xh pointers 
+    !> This initializes coef, dof, msh, and Xh pointers
     call this%init_base(coef)
 
     call this%bc_u%init_from_components(coef, "u")
@@ -207,8 +207,8 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
 
-   call neko_error("overset_interface_vector cannot apply scalar BCs.&
-   & Use overset_interface_vector::apply_vector instead!")
+    call neko_error("overset_interface_vector cannot apply scalar BCs.&
+    & Use overset_interface_vector::apply_vector instead!")
 
   end subroutine overset_interface_vector_apply_scalar
 
@@ -223,8 +223,8 @@ contains
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
 
-   call neko_error("overset_interface_vector cannot apply scalar BCs.&
-   & Use overset_interface_vector::apply_vector instead!")
+    call neko_error("overset_interface_vector cannot apply scalar BCs.&
+    & Use overset_interface_vector::apply_vector instead!")
 
   end subroutine overset_interface_vector_apply_scalar_dev
 
@@ -333,16 +333,16 @@ contains
 
     !> Build heper masks
     call build_masks_(this)
- 
+
     !> Gather the interface boundary points
     call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
     call this%y_interface_dof%init(this%interface_dof_mask%size(), 'y_interface')
     call this%z_interface_dof%init(this%interface_dof_mask%size(), 'z_interface')
     call gather_interface_dofs_(this)
-    
+
     !> Initialize the interpolator and find the points
     call setup_interpolator_(this)
- 
+
     !> Keep a vector list that holds the values of interface fields
     call this%u_interface%init(this%interface_dof_mask%size(), 'u_interface')
     call this%v_interface%init(this%interface_dof_mask%size(), 'v_interface')
@@ -353,37 +353,37 @@ contains
 
   !> Update the values at the interfaces
   subroutine overset_interface_update(this, time)
-   class(overset_interface_vector_t), intent(inout) :: this
-   type(time_state_t), intent(in) :: time
-   type(field_t), pointer :: u, v, w
+    class(overset_interface_vector_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: u, v, w
 
 
-   !> Update in sub-step 1 should be an extrapolation of the boundary values
-   ! not implemented for now
-   ! if (substep .eq. 1) then
-   !   call this%extrapolate()
-   ! end if
+    !> Update in sub-step 1 should be an extrapolation of the boundary values
+    ! not implemented for now
+    ! if (substep .eq. 1) then
+    !   call this%extrapolate()
+    ! end if
 
-   !> At some point check if the coordintes have changed. If so, find points again
-   ! not implemented for now
+    !> At some point check if the coordintes have changed. If so, find points again
+    ! not implemented for now
 
-   !> For more substep than 1, then we just interpolate
-   u => neko_registry%get_field("u")
-   v => neko_registry%get_field("v")
-   w => neko_registry%get_field("w")
+    !> For more substep than 1, then we just interpolate
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
 
-   !> Interpolate the values
-   call this%interface_interpolator%evaluate_masked(this%u_interface%x, u%x, this%domain_element_mask, .false.)
-   call this%interface_interpolator%evaluate_masked(this%v_interface%x, v%x, this%domain_element_mask, .false.)
-   call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
+    !> Interpolate the values
+    call this%interface_interpolator%evaluate_masked(this%u_interface%x, u%x, this%domain_element_mask, .false.)
+    call this%interface_interpolator%evaluate_masked(this%v_interface%x, v%x, this%domain_element_mask, .false.)
+    call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
 
-   !> Scatter them to the bc fields
-   call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), this%u_interface, &
-                                   this%interface_dof_mask, this%bc_u%dof%size())
-   call vector_masked_scatter_copy(this%bc_v%field_bc%x(:,1,1,1), this%v_interface, &
-                                   this%interface_dof_mask, this%bc_v%dof%size())
-   call vector_masked_scatter_copy(this%bc_w%field_bc%x(:,1,1,1), this%w_interface, &
-                                   this%interface_dof_mask, this%bc_w%dof%size())
+    !> Scatter them to the bc fields
+    call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), this%u_interface, &
+         this%interface_dof_mask, this%bc_u%dof%size())
+    call vector_masked_scatter_copy(this%bc_v%field_bc%x(:,1,1,1), this%v_interface, &
+         this%interface_dof_mask, this%bc_v%dof%size())
+    call vector_masked_scatter_copy(this%bc_w%field_bc%x(:,1,1,1), this%w_interface, &
+         this%interface_dof_mask, this%bc_w%dof%size())
 
 
   end subroutine overset_interface_update
@@ -394,29 +394,29 @@ contains
 
   !> Build masks
   subroutine build_masks_(this)
-   class(overset_interface_vector_t), intent(inout) :: this
+    class(overset_interface_vector_t), intent(inout) :: this
     type(mask_t) :: temp_mask
     logical, allocatable :: found(:)
     integer :: i, j, k, e, new_size, nelems
     integer :: lx, ly, lz
     integer :: nonlinear_idx(4), linear_idx
     type(stack_i4_t) :: stack
-   
+
     !> Create a new mask_t based on the 0-mask for the overset boundary points
     call this%interface_dof_mask%init(this%msk(1:this%msk(0)), this%msk(0))
-   
+
     !> Create a mask that marks the full elements
     !! containing overset boundary points
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
     allocate(found(this%msh%nelv))
-    found = .false. 
+    found = .false.
     !! Find sem elements that contain the boundary points
     do i = 1, this%msk(0)
-      linear_idx = this%msk(i)
-      nonlinear_idx = nonlinear_index(linear_idx, lx, ly, lz)
-      found(nonlinear_idx(4)) = .true. 
+       linear_idx = this%msk(i)
+       nonlinear_idx = nonlinear_index(linear_idx, lx, ly, lz)
+       found(nonlinear_idx(4)) = .true.
     end do
     !! fill the stack containing the gll indices
     nelems = 0
@@ -427,7 +427,7 @@ contains
           do k = 1, this%Xh%lz
              do j = 1, this%Xh%ly
                 do i = 1, this%Xh%lx
-                   linear_idx = linear_index(i, j, k, e, lx, ly, lz) 
+                   linear_idx = linear_index(i, j, k, e, lx, ly, lz)
                    call stack%push(linear_idx)
                 end do
              end do
@@ -437,54 +437,54 @@ contains
     deallocate(found)
     call temp_mask%init(stack%array(), stack%size())
     call stack%free()
-    
+
     !> Create a domain mask that exclude the boundary elements.
     call this%domain_element_mask%invert_mask(temp_mask, this%dof%size())
- 
+
     call temp_mask%free()
-    
+
   end subroutine build_masks_
 
   !> Gather interface dofs
   subroutine gather_interface_dofs_(this)
-   class(overset_interface_vector_t), intent(inout) :: this
+    class(overset_interface_vector_t), intent(inout) :: this
 
     !> Gather the coordinates to the vectors
     call vector_masked_gather_copy(this%x_interface_dof, &
-                                   this%dof%x(:,1,1,1), &
-                                   this%interface_dof_mask, &
-                                   this%dof%size()) 
+         this%dof%x(:,1,1,1), &
+         this%interface_dof_mask, &
+         this%dof%size())
     call vector_masked_gather_copy(this%y_interface_dof, &
-                                   this%dof%y(:,1,1,1), &
-                                   this%interface_dof_mask, &
-                                   this%dof%size())
+         this%dof%y(:,1,1,1), &
+         this%interface_dof_mask, &
+         this%dof%size())
     call vector_masked_gather_copy(this%z_interface_dof, &
-                                   this%dof%z(:,1,1,1), &
-                                   this%interface_dof_mask, &
-                                   this%dof%size())
+         this%dof%z(:,1,1,1), &
+         this%interface_dof_mask, &
+         this%dof%size())
     !> synchronize if on device
-    call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.) 
+    call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
     call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
     call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
-   
-   end subroutine gather_interface_dofs_
+
+  end subroutine gather_interface_dofs_
 
 
-   !> Set up the interpolator
-   subroutine setup_interpolator_(this)
+  !> Set up the interpolator
+  subroutine setup_interpolator_(this)
     class(overset_interface_vector_t), intent(inout) :: this
 
     !> Initialize the interpolator with the mask and the dof coords
     call this%interface_interpolator%init(this%dof, &
-                                          NEKO_GLOBAL_COMM, &
-                                          mask=this%domain_element_mask)
+         NEKO_GLOBAL_COMM, &
+         mask=this%domain_element_mask)
 
     !> Find the interface points on the global domain
     call this%interface_interpolator%find_points(this%x_interface_dof%x, &
-                                                 this%y_interface_dof%x, &
-                                                 this%z_interface_dof%x, & 
-                                                 this%x_interface_dof%size())
+         this%y_interface_dof%x, &
+         this%z_interface_dof%x, &
+         this%x_interface_dof%size())
 
-   end subroutine setup_interpolator_
+  end subroutine setup_interpolator_
 
 end module overset_interface_vector

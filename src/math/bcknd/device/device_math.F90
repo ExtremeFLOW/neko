@@ -201,7 +201,7 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_scatter_copy_0
-  
+
   !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
   ! In this case, the mask comes from a mask_t type
   subroutine device_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)

@@ -107,7 +107,7 @@ contains
           obj%update => user%dirichlet_conditions
           call json%add("field_name", scheme%p%name)
        end select
-    
+
     case ("overset_interface")
        allocate(overset_interface_t::object)
        select type (obj => object)

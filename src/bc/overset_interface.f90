@@ -315,7 +315,7 @@ contains
     integer :: i, j, k, e, nelems
     integer :: lx, ly, lz
     integer :: nonlinear_idx(4), linear_idx
-   type(stack_i4_t) :: idx_stack
+    type(stack_i4_t) :: idx_stack
 
     call this%interface_dof_mask%init(this%msk(1:this%msk(0)), this%msk(0))
 
@@ -327,13 +327,13 @@ contains
     found = .false.
 
     do i = 1, this%msk(0)
-      linear_idx = this%msk(i)
-      nonlinear_idx = nonlinear_index(linear_idx, lx, ly, lz)
-      found(nonlinear_idx(4)) = .true.
+       linear_idx = this%msk(i)
+       nonlinear_idx = nonlinear_index(linear_idx, lx, ly, lz)
+       found(nonlinear_idx(4)) = .true.
     end do
 
     nelems = 0
-   call idx_stack%init()
+    call idx_stack%init()
     do e = 1, this%msh%nelv
        if (found(e)) then
           nelems = nelems + 1
@@ -350,8 +350,8 @@ contains
 
     deallocate(found)
 
-   call temp_mask%init(idx_stack%array(), idx_stack%size())
-   call idx_stack%free()
+    call temp_mask%init(idx_stack%array(), idx_stack%size())
+    call idx_stack%free()
 
     call this%domain_element_mask%invert_mask(temp_mask, this%dof%size())
     call temp_mask%free()

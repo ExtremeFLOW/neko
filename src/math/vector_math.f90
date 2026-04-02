@@ -78,7 +78,7 @@ module vector_math
        device_add3s2, device_addcol3, device_addcol4, device_glsum, &
        device_glmax, device_glmin, device_glsc2, device_glsc3, &
        device_masked_gather_copy_0, device_masked_gather_copy_aligned, &
-      device_masked_scatter_copy_0, device_masked_scatter_copy_aligned, &
+       device_masked_scatter_copy_0, device_masked_scatter_copy_aligned, &
        device_glsubnorm, device_invcol3
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
@@ -775,7 +775,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer, dimension(0:n_mask) :: mask
     type(c_ptr) :: mask_d, b_d
-    
+
     if (n .lt. 1 .or. n_mask .lt. 1) return !Avoid getting null pointers
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -828,19 +828,19 @@ contains
     type(vector_t), intent(in) :: b
     integer, dimension(0:n_mask) :: mask
     type(c_ptr) :: mask_d, a_d
-    
+
     if (n .lt. 1 .or. n_mask .lt. 1) return !Avoid getting null pointers
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        a_d = device_get_ptr(a)
-       mask_d = device_get_ptr(mask) 
+       mask_d = device_get_ptr(mask)
        call device_masked_scatter_copy_0(a_d, b%x_d, mask_d, n, n_mask)
     else
        call masked_scatter_copy_0(a, b%x, mask, n, n_mask)
     end if
 
   end subroutine vector_masked_scatter_copy_0
-  
+
   !> Scatter a contigous vector into an array
   !! \f$ a(mask) = b \f$.
   !! @param a Destination vector.
@@ -848,19 +848,19 @@ contains
   !! @param mask mask_t containing mask array and device pointer if needed.`
   !! @param n Size of the vector `a`.
   subroutine vector_masked_scatter_copy(a, b, mask, n)
-    real(kind=rp), dimension(:), intent(inout) :: a 
+    real(kind=rp), dimension(:), intent(inout) :: a
     type(vector_t), intent(in) :: b
     type(mask_t), intent(in) :: mask
     integer, intent(in) :: n
     type(c_ptr) :: mask_d, a_d
-    
+
     if (n .lt. 1 .or. mask%size() .lt. 1) return !Avoid getting null pointers
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        a_d = device_get_ptr(a)
        mask_d = mask%get_d()
        call device_masked_scatter_copy_aligned(a_d, b%x_d, mask_d, n, &
-                                               mask%size())
+            mask%size())
     else
        call masked_scatter_copy(a, b%x, mask%get(), n, mask%size())
     end if
