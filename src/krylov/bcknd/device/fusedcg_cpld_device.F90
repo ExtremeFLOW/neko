@@ -551,12 +551,10 @@ contains
     type(c_ptr) :: fx_d
     type(c_ptr) :: fy_d
     type(c_ptr) :: fz_d
-    type(scalar_bc_resolver_t), pointer :: bc_x, bc_y, bc_z
 
     fx_d = device_get_ptr(fx)
     fy_d = device_get_ptr(fy)
     fz_d = device_get_ptr(fz)
-    call vector_bc_resolver_components(bc_resolver, bc_x, bc_y, bc_z)
 
     if (present(niter)) then
        max_iter = niter
@@ -623,17 +621,18 @@ contains
          call Ax%compute_vector(w1, w2, w3, &
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
 
+
          call rotate_cyc(w1, w2, w3, 1, coef)
          call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
-         call bc_x%apply(w1, n)
          call gs_h%op(w2, n, GS_OP_ADD, this%gs_event2)
          call device_event_sync(this%gs_event2)
-         call bc_y%apply(w2, n)
          call gs_h%op(w3, n, GS_OP_ADD, this%gs_event3)
          call device_event_sync(this%gs_event3)
-         call bc_z%apply(w3, n)
          call rotate_cyc(w1, w2, w3, 0, coef)
+
+         call bc_resolver%apply(w1, w2, w3, n)
+
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &
               p2_d(p_cur), p3_d(p_cur), tmp_d, n)
