@@ -441,6 +441,7 @@ table below.
 | blasius_profile     | A Blasius velocity profile.                                                                                                                            |
 | user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
 | user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
+| overset_interface   | A dirichelt condition that prescribes values from another neko simulation running concurrently.                                                        |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -572,6 +573,27 @@ A more detailed description of each boundary condition is provided below.
   ```json
   {
     "type": "user_pressure",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `overset_interface`, a dirichlet boundary condition that retrieves values
+  from another simulation with an overlapping domain. For this case, it is 
+  recommended that all zone indices that need to be considered as an onverset
+  interface are included in one boundary. This avoids repeated calls to
+  interpolation routines.
+
+  As a note, both meshes must be overlapping with at least one element.
+
+  Since this requires another concurrent simulation, you must execute neko in
+  [multiple-program-multiple-data (MPMD)](#user-file_tips_mpmd) mode. Note that both simulations are otherwise
+  independent, therefore the rest of the user case can be modified as seen fit.
+
+  *Time-step* must be the same between the simulations. variable time-step is not
+  supported at the moment.
+
+  ```json
+  {
+    "type": "overset_interface",
     "zone_indices": [1, 2]
   }
   ```
