@@ -233,7 +233,7 @@ contains
     !> Check magnitude of g
     g_mag = sqrt(sum(g**2))
     if (g_mag < 1.0e-6_rp) then
-       call neko_error("MRichardsonOST WM: Gravity magnitude is zero. Check your input configuration.")
+       call neko_error("Richardson WM: Gravity magnitude is zero. Check your input configuration.")
     end if
 
     !> Check alignment across all nodes (handling hills/slopes)
