@@ -81,7 +81,6 @@ module PDE_filter
      !> Filter Preconditioner
      class(pc_t), allocatable :: pc_filt
      !> Filter boundary conditions (they will all be Neumann, so empty)
-     type(bc_list_t) :: bclst_filt
      type(scalar_bc_resolver_t) :: bc_resolver_filt
 
      ! Inputs from the user
@@ -145,9 +144,6 @@ contains
 
     n = this%coef%dof%size()
 
-    ! init the bc list (all Neuman BCs, will remain empty)
-    call this%bclst_filt%init()
-
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%Ax, full_formulation = .false.)
 
@@ -159,7 +155,7 @@ contains
     call filter_precon_factory(this%pc_filt, this%ksp_filt, &
          this%coef, this%coef%dof, &
          this%coef%gs_h, &
-         this%bclst_filt, this%precon_type_filt)
+         this%bc_resolver_filt, this%precon_type_filt)
 
   end subroutine PDE_filter_init_from_components
 
@@ -190,7 +186,6 @@ contains
     end if
 
     call this%bc_resolver_filt%free()
-    call this%bclst_filt%free()
 
     call this%free_base()
 
@@ -299,14 +294,14 @@ contains
   end subroutine PDE_filter_apply
 
   !> Initialize a Krylov preconditioner
-  subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+  subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bc_resolver, &
        pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs
-    type(bc_list_t), target, intent(inout) :: bclst
+    type(scalar_bc_resolver_t), target, intent(inout) :: bc_resolver
     character(len=*) :: pctype
 
     call precon_factory(pc, pctype)
