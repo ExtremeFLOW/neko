@@ -157,7 +157,10 @@ contains
     call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
+    call json_get_or_default(json, "mu", this%mu, 1e-10_rp)
+    call json_get_or_default(json, "rho", this%rho, 1.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
+    call json_get(json, "scalar_field", this%scalar_name)
     call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
     call json_get_or_default(json, "mu", this%mu_val, 1e-10_rp)
     call json_get_or_default(json, "rho", this%rho_val, 1.0_rp)
@@ -171,10 +174,18 @@ contains
     deallocate(g_tmp)
 
 
+    call json_get(json, "g", g_tmp)
+    if (size(g_tmp) == 3) then
+       this%g = g_tmp
+    else
+       call neko_error("MOST WM: The gravity vector should have exactly 3 components")
+    end if
+    deallocate(g_tmp)
+
   end subroutine most_partial_init
 
   !> Finalize the construction using the mask and facet arrays of the bc.
-  !! @param msk The boundary mask.
+  !! @param msk The boundary mask. 
   !! @param facet The boundary facets.
   subroutine most_finalize(this, msk, facet)
     class(most_t), intent(inout) :: this
