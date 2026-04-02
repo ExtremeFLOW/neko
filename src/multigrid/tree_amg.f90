@@ -457,7 +457,7 @@ contains
     if (lvl-1 .eq. 0) then
        call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
        call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
-       call this%bc_resolver%apply(vec_out, n)
+       call this%bc_resolver%apply(vec_out, this%lvl(lvl)%fine_lvl_dofs)
     end if
   end subroutine tamg_prolongation_operator
 
