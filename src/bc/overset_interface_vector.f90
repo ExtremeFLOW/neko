@@ -84,9 +84,6 @@ module overset_interface_vector
      type(vector_t) :: x_dof, y_dof, z_dof
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      type(vector_t) :: u_interface, v_interface, w_interface
-     !> Function pointer to the user routine performing the update of the values
-     !! of the boundary fields.
-     !procedure(field_dirichlet_update), nopass, pointer :: update_ => null() !adperez: I need to override this to update the values internally
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_vector_init
