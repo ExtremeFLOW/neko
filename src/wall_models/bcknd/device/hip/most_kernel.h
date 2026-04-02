@@ -47,7 +47,6 @@
 * conditions (large z/L), avoiding the numerical decoupling found in older linear (e.g., Webb or Holtslag) functions.
 */
 
-
 template<typename T>
 __device__ T corr_m_stable(T z, T L_ob)
 {
@@ -57,7 +56,7 @@ __device__ T corr_m_stable(T z, T L_ob)
     T c = 5.0;
     T d = 0.35;
     T zeta = z / L_ob;
-
+    
     return -a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d;
 }
 
@@ -70,10 +69,10 @@ __device__ T corr_h_stable(T z, T L_ob)
     T c = 5.0;
     T d = 0.35;
     T zeta = z / L_ob;
-
+    
     return -b*(zeta-c/d)*exp(-d*zeta)
-           -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
-           -b*c/d + 1.0;
+    -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
+    -b*c/d + 1.0;
 }
 
 template<typename T>
@@ -95,7 +94,11 @@ __device__ T slaw_h_stable(T z, T L_ob, T z0h)
 template<typename T>
 __device__ T f_neumann_stable(T Ri_b, T z, T z0, T z0h, T L_ob)
 {
-    return Ri_b - z/L_ob / pow(slaw_m_stable<T>(z,L_ob,z0),3);   
+    return Ri_b - z/L_ob / (
+            slaw_m_stable<T>(z,L_ob,z0)
+            *slaw_m_stable<T>(z,L_ob,z0)
+            *slaw_m_stable<T>(z,L_ob,z0)
+            );   
 }
 
 template<typename T>
@@ -107,10 +110,18 @@ __device__ T dfdl_neumann_stable(T l_upper,
                           T fd_h)
 {
     T up = -z/l_upper /
-           pow(slaw_m_stable<T>(z,l_upper,z0),3);    
+           (
+            slaw_m_stable<T>(z,l_upper,z0)
+           *slaw_m_stable<T>(z,l_upper,z0)
+           *slaw_m_stable<T>(z,l_upper,z0)
+        );    
 
     T low =  z/l_lower /
-             pow(slaw_m_stable<T>(z,l_lower,z0),3);     
+            (
+              slaw_m_stable<T>(z,l_lower,z0)
+            *slaw_m_stable<T>(z,l_lower,z0)
+            *slaw_m_stable<T>(z,l_lower,z0)
+        );     
 
     return (up + low) / (2*fd_h);
 }
@@ -118,7 +129,9 @@ __device__ T dfdl_neumann_stable(T l_upper,
 template<typename T>
 __device__ T f_dirichlet_stable(T Ri_b, T z, T z0, T z0h, T L_ob)
 {
-    return Ri_b - z/L_ob * slaw_h_stable<T>(z,L_ob,z0h) / pow(slaw_m_stable<T>(z,L_ob,z0),2);      
+    return Ri_b - z/L_ob * slaw_h_stable<T>(z,L_ob,z0h) / (
+        slaw_m_stable<T>(z,L_ob,z0)*slaw_m_stable<T>(z,L_ob,z0)
+    );      
 }
 
 template<typename T>
@@ -130,10 +143,14 @@ __device__ T dfdl_dirichlet_stable(T l_upper,
                           T fd_h)
 {
     T up = -z/l_upper *
-           slaw_h_stable<T>(z,l_upper,z0h) / pow(slaw_m_stable<T>(z,l_upper,z0),2);      
+            slaw_h_stable<T>(z,l_upper,z0h) / (
+            slaw_m_stable<T>(z,l_upper,z0)*slaw_m_stable<T>(z,l_upper,z0)
+        );      
 
     T low =  z/l_lower *
-             slaw_h_stable<T>(z,l_lower,z0h) / pow(slaw_m_stable<T>(z,l_lower,z0),2);      
+            slaw_h_stable<T>(z,l_lower,z0h) / (
+            slaw_m_stable<T>(z,l_lower,z0)*slaw_m_stable<T>(z,l_lower,z0)
+        );      
 
     return (up + low) / (2*fd_h);
 }
@@ -187,7 +204,11 @@ __device__ T slaw_h_convective(T z, T L_ob, T z0h)
 template<typename T>
 __device__ T f_neumann_convective(T Ri_b, T z, T z0, T z0h, T L_ob)
 {
-    return Ri_b - z/L_ob / pow(slaw_m_convective<T>(z,L_ob,z0),3);   
+    return Ri_b - z/L_ob / (
+        slaw_m_convective<T>(z,L_ob,z0)
+       *slaw_m_convective<T>(z,L_ob,z0)
+       *slaw_m_convective<T>(z,L_ob,z0)
+    );   
 }
 
 template<typename T>
@@ -199,10 +220,18 @@ __device__ T dfdl_neumann_convective(T l_upper,
                           T fd_h)
 {
     T up = -z/l_upper /
-           pow(slaw_m_convective<T>(z,l_upper,z0),3);    
+           (
+            slaw_m_convective<T>(z,l_upper,z0)
+           *slaw_m_convective<T>(z,l_upper,z0)
+           *slaw_m_convective<T>(z,l_upper,z0)
+        );    
 
     T low =  z/l_lower /
-             pow(slaw_m_convective<T>(z,l_lower,z0),3);     
+             (
+             slaw_m_convective<T>(z,l_lower,z0)
+            *slaw_m_convective<T>(z,l_lower,z0)
+            *slaw_m_convective<T>(z,l_lower,z0)
+        );     
 
     return (up + low) / (2*fd_h);
 }
@@ -210,7 +239,9 @@ __device__ T dfdl_neumann_convective(T l_upper,
 template<typename T>
 __device__ T f_dirichlet_convective(T Ri_b, T z, T z0, T z0h, T L_ob)
 {
-    return Ri_b - z/L_ob * slaw_h_convective<T>(z,L_ob,z0h) / pow(slaw_m_convective<T>(z,L_ob,z0),2);      
+    return Ri_b - z/L_ob * slaw_h_convective<T>(z,L_ob,z0h) / (
+        slaw_m_convective<T>(z,L_ob,z0)*slaw_m_convective<T>(z,L_ob,z0)
+    );      
 }
 
 template<typename T>
@@ -222,10 +253,14 @@ __device__ T dfdl_dirichlet_convective(T l_upper,
                           T fd_h)
 {
     T up = -z/l_upper *
-           slaw_h_convective<T>(z,l_upper,z0h) / pow(slaw_m_convective<T>(z,l_upper,z0),2);      
+           slaw_h_convective<T>(z,l_upper,z0h) / (
+            slaw_m_convective<T>(z,l_upper,z0)*slaw_m_convective<T>(z,l_upper,z0)
+        );      
 
     T low =  z/l_lower *
-             slaw_h_convective<T>(z,l_lower,z0h) / pow(slaw_m_convective<T>(z,l_lower,z0),2);      
+             slaw_h_convective<T>(z,l_lower,z0h) / (
+              slaw_m_convective<T>(z,l_lower,z0)*slaw_m_convective<T>(z,l_lower,z0)
+          );      
 
     return (up + low) / (2*fd_h);
 }
@@ -247,7 +282,7 @@ __device__ T slaw_h_neutral(T z, T z0h)
 }
 
 /*
- * HIP kernel for the most wall model.   
+ * CUDA kernel for the most wall model.   
  */
 template<typename T, int BC_TYPE>  
 __global__ void most_compute(
@@ -308,7 +343,7 @@ __global__ void most_compute(
         T ny = n_y_d[i];
         T nz = n_z_d[i];
         
-        // Get the tangnential component
+        // Get the tangential component
         T normu = ui * nx + vi * ny + wi * nz;
         ui -= normu * nx;
         vi -= normu * ny;
