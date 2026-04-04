@@ -34,7 +34,7 @@
 !! Maintainer: Timofey Mukha.
 module shear_stress
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : mixed_bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
@@ -48,7 +48,7 @@ module shear_stress
   private
 
   !> A shear stress boundary condition.
-  type, public, extends(bc_t) :: shear_stress_t
+  type, public, extends(mixed_bc_t) :: shear_stress_t
      !> Neumann condition for the x direction.
      type(neumann_t) :: neumann_x
      !> Neumann condition for the y direction.
@@ -234,8 +234,6 @@ contains
     call this%neumann_x%set_flux(tau_x, 1)
     call this%neumann_y%set_flux(tau_y, 1)
     call this%neumann_z%set_flux(tau_z, 1)
-
-
   end subroutine shear_stress_set_stress_scalar
 
   !> Set the shear stress components.
@@ -257,7 +255,7 @@ contains
   !> Destructor.
   subroutine shear_stress_free(this)
     class(shear_stress_t), target, intent(inout) :: this
-    call this%free_base
+    call this%free_mixed()
 
     call this%neumann_x%free
     call this%neumann_y%free

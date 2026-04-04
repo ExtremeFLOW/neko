@@ -35,7 +35,7 @@ module symmetry
   use device_symmetry, only : device_symmetry_apply_vector
   use dirichlet, only : dirichlet_t
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : mixed_bc_t
   use tuple, only : tuple_i4_t
   use coefs, only : coef_t
   use json_module, only : json_file
@@ -47,7 +47,7 @@ module symmetry
 
   !> Mixed Dirichlet-Neumann symmetry plane condition.
   !! @warning Only works for axis-aligned plane boundaries.
-  type, public, extends(bc_t) :: symmetry_t
+  type, public, extends(mixed_bc_t) :: symmetry_t
      type(zero_dirichlet_t) :: bc_x
      type(zero_dirichlet_t) :: bc_y
      type(zero_dirichlet_t) :: bc_z
@@ -262,7 +262,7 @@ contains
   subroutine symmetry_free(this)
     class(symmetry_t), target, intent(inout) :: this
 
-    call this%free_base()
+    call this%free_mixed()
     call this%bc_x%free()
     call this%bc_y%free()
     call this%bc_z%free()

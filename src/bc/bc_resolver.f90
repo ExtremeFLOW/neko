@@ -32,7 +32,7 @@
 !
 !> Scaffolding for future global boundary resolution.
 module bc_resolver
-  use bc, only : bc_t
+  use bc, only : bc_t, mixed_bc_t
   use bc_list, only : bc_list_t
   use mask, only : mask_t
   use coefs, only : coef_t
@@ -216,6 +216,26 @@ module bc_resolver
   end interface
 
 contains
+
+  pure function vector_bc_constraint_class(constraints) result(prio)
+    logical, intent(in) :: constraints(3)
+    real(kind=rp) :: prio
+
+    if (all(constraints)) then
+       prio = 0.0_rp
+    else if (constraints(1) .and. (.not. constraints(2)) .and. &
+         (.not. constraints(3))) then
+       prio = 2.0_rp
+    else if ((.not. constraints(1)) .and. constraints(2) .and. &
+         constraints(3)) then
+       prio = 3.0_rp
+    else if ((.not. constraints(1)) .and. (.not. constraints(2)) .and. &
+         (.not. constraints(3))) then
+       prio = 5.0_rp
+    else
+       prio = -1.0_rp
+    end if
+  end function vector_bc_constraint_class
 
 !
 !  ************** scalar_bc_resolver_t TBPs **************
@@ -627,8 +647,10 @@ contains
     integer :: scratch_idx(4)
     integer, allocatable :: dirichlet_mask_values(:)
     integer, allocatable :: mixed_mask_values(:)
+    integer, allocatable :: resolved_mask_values(:)
+    integer, allocatable :: dof_to_mixed_idx(:)
     integer :: i, j, k, dof_size, m
-    integer :: dirichlet_mask_size, mixed_mask_size
+    integer :: dirichlet_mask_size, mixed_mask_size, resolved_mask_size
     integer :: idx(4), facet, el, edge, node, ii, p
     integer :: rst(3), rst1(3), rst2(3), step_rst(3)
     integer :: edge_len, edge_idx, node_idx
@@ -720,20 +742,8 @@ contains
        bc => this%bcs%get(i)
 
 
-       prio = 5.0_rp
-
-       if (all(bc%constraints)) then
-          prio = 0.0_rp
-       else if ((bc%constraints(1)) .and. (.not. bc%constraints(2)) &
-            .and. (.not. bc%constraints(3))) then
-          prio = 2.0_rp
-       else if ((.not. bc%constraints(1)) .and. bc%constraints(2) &
-            .and. bc%constraints(3)) then
-          prio = 3.0_rp
-       else if ((.not. bc%constraints(1)) .and. (.not. bc%constraints(2)) &
-            .and. (.not. bc%constraints(3))) then
-          prio = 5.0_rp
-       else
+       prio = vector_bc_constraint_class(bc%constraints)
+       if (prio .lt. 0.0_rp) then
           call neko_error("Unsupported constraint combination in " // &
                "vector BC resolver.")
        end if
@@ -762,6 +772,50 @@ contains
     ! Propagate constraints to all local dofs via gather-scatter.
     ! Ensures most restrictive constraint is kept across element boundaries.
     call this%coef%gs_h%op(node_class, GS_OP_MIN)
+
+    ! For mixed BCs, build a resolved subset of the original bc%msk support.
+    ! A dof survives in the resolved mask only if the globally reduced class
+    ! still matches the class semantics of that BC. Nodes that were touched by
+    ! the BC originally, but whose meaning changed after shared-node reduction,
+    ! are therefore dropped here.
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+
+       select type (bc)
+       class is (mixed_bc_t)
+          call bc%resolved_msk%free()
+          call bc%n%free()
+          call bc%t1%free()
+          call bc%t2%free()
+
+          prio = vector_bc_constraint_class(bc%constraints)
+          if (prio .lt. 0.0_rp) then
+             call neko_error("Unsupported constraint combination in " // &
+                  "mixed BC resolver mask construction.")
+          end if
+
+          resolved_mask_size = 0
+          do j = 1, bc%msk(0)
+             k = bc%msk(j)
+             if (abs(node_class%x(k,1,1,1) - prio) .lt. 1.0e-6_rp) then
+                resolved_mask_size = resolved_mask_size + 1
+             end if
+          end do
+
+          allocate(resolved_mask_values(resolved_mask_size))
+          resolved_mask_size = 0
+          do j = 1, bc%msk(0)
+             k = bc%msk(j)
+             if (abs(node_class%x(k,1,1,1) - prio) .lt. 1.0e-6_rp) then
+                resolved_mask_size = resolved_mask_size + 1
+                resolved_mask_values(resolved_mask_size) = k
+             end if
+          end do
+
+          call bc%resolved_msk%init(resolved_mask_values, resolved_mask_size)
+          deallocate(resolved_mask_values)
+       end select
+    end do
 
     ! Partition the resolved boundary dofs into the fully constrained subset
     ! and the mixed subset. Only the latter needs a local basis.
@@ -807,6 +861,14 @@ contains
     call this%dirichlet_dof_mask%init(dirichlet_mask_values, &
          dirichlet_mask_size)
     call this%mixed_dof_mask%init(mixed_mask_values, mixed_mask_size)
+
+    ! A mapping between the field linear index of a mixed node into its index
+    ! in the mixed_dof_mask.
+    allocate(dof_to_mixed_idx(dof_size))
+    dof_to_mixed_idx = 0
+    do i = 1, mixed_mask_size
+       dof_to_mixed_idx(mixed_mask_values(i)) = i
+    end do
 
     ! Allocate mixed-node constraints and fill them from the reduced class.
     allocate(this%constraint_n(mixed_mask_size))
@@ -1116,6 +1178,41 @@ contains
             sync = .true.)
     end if
 
+    ! Transfer the final mixed-node basis into each mixed BC on its
+    ! resolved support, so strong application on the physical field can use
+    ! BC-local data rather than the global resolver internals.
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+
+       select type (bc)
+       class is (mixed_bc_t)
+          m = bc%resolved_msk%size()
+          call bc%n%init(3, m)
+          call bc%t1%init(3, m)
+          call bc%t2%init(3, m)
+
+          do j = 1, m
+             k = bc%resolved_msk%get(j)
+             p = dof_to_mixed_idx(k)
+
+             if (p .eq. 0) then
+                call neko_error("Mixed BC resolved_msk entry missing from " // &
+                     "the coupled resolver mixed basis.")
+             end if
+
+             bc%n%x(:,j) = this%n(:,p)
+             bc%t1%x(:,j) = this%t1(:,p)
+             bc%t2%x(:,j) = this%t2(:,p)
+          end do
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call bc%n%copy_from(HOST_TO_DEVICE, .true.)
+             call bc%t1%copy_from(HOST_TO_DEVICE, .true.)
+             call bc%t2%copy_from(HOST_TO_DEVICE, .true.)
+          end if
+       end select
+    end do
+
     block
       use device_math, only : device_cfill, device_cfill_mask
       type(field_list_t) :: basis_fields
@@ -1175,6 +1272,7 @@ contains
 
     if (allocated(dirichlet_mask_values)) deallocate(dirichlet_mask_values)
     if (allocated(mixed_mask_values)) deallocate(mixed_mask_values)
+    if (allocated(dof_to_mixed_idx)) deallocate(dof_to_mixed_idx)
   end subroutine coupled_vector_bc_resolver_finalize
 
   !> Apply the coupled vector boundary constraints in the local basis.

@@ -42,9 +42,11 @@ module bc
   use space, only : space_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
+  use mask, only : mask_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use field, only : field_t
+  use matrix, only : matrix_t
   use gs_ops, only : GS_OP_ADD
   use math, only : relcmp
   use utils, only : neko_error, neko_warning, linear_index, split_string
@@ -140,6 +142,21 @@ module bc
      !> Deferred finalizer.
      procedure(bc_finalize), pass(this), deferred :: finalize
   end type bc_t
+
+  !> Base type for mixed boundary conditions that need resolver-provided
+  !! local-basis data on the physical field.
+  type, public, abstract, extends(bc_t) :: mixed_bc_t
+     !> Resolved subset of local dofs where this mixed bc remains active after
+     !! global boundary-condition resolution.
+     type(mask_t) :: resolved_msk
+     !> Local basis vectors on resolved_msk.
+     type(matrix_t) :: n
+     type(matrix_t) :: t1
+     type(matrix_t) :: t2
+   contains
+     !> Destructor for mixed-bc-specific resolved state.
+     procedure, pass(this) :: free_mixed => mixed_bc_free
+  end type mixed_bc_t
 
   !> Pointer to a @ref `bc_t`.
   type, public :: bc_ptr_t
@@ -317,6 +334,17 @@ contains
     end if
 
   end subroutine bc_free_base
+
+  !> Destructor for the mixed-bc extension state.
+  subroutine mixed_bc_free(this)
+    class(mixed_bc_t), intent(inout) :: this
+
+    call this%free_base()
+    call this%resolved_msk%free()
+    call this%n%free()
+    call this%t1%free()
+    call this%t2%free()
+  end subroutine mixed_bc_free
 
   !> Apply the boundary condition to a vector field. Dispatches to the CPU
   !! or the device version.
