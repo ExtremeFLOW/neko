@@ -32,32 +32,31 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_SYMMETRY_KERNEL__
-#define __BC_SYMMETRY_KERNEL__
+#ifndef __BC_SYMETRY_ALIGNED_KERNEL__
+#define __BC_SYMETRY_ALIGNED_KERNEL__
 
 /**
  * Device kernel for vector apply for a symmetry condition
  */
-template< typename T >
-__global__ void symmetry_apply_vector_kernel(const int * __restrict__ xmsk,
-                                             const int * __restrict__ ymsk,
-                                             const int * __restrict__ zmsk,
-                                             T * __restrict__ x,
-                                             T * __restrict__ y,
-                                             T * __restrict__ z,
-                                             const int m,
-                                             const int n,
-                                             const int l) {
+__kernel void symmetry_aligned_apply_vector_kernel(__global const int *xmsk,
+                                                   __global const int *ymsk,
+                                                   __global const int *zmsk,
+                                                   __global real *x,
+                                                   __global real *y,
+                                                   __global real *z,
+                                                   const int m,
+                                                   const int n,
+                                                   const int l) {
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
 
   for (int i = idx; i < m; i += str) {
     const int k = (xmsk[i+1] - 1);
     x[k] = 0.0;
   }
 
-  for (int i = idx ; i < n; i += str) {
+  for (int i = idx; i < n; i += str) {
     const int k = (ymsk[i+1] - 1);
     y[k] = 0.0;
   }
@@ -69,4 +68,4 @@ __global__ void symmetry_apply_vector_kernel(const int * __restrict__ xmsk,
   
 }
 
-#endif // __BC_SYMMETRY_KERNEL__
+#endif // ___BC_SYMETRY_ALIGNED_KERNEL___

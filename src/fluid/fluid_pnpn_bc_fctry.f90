@@ -41,8 +41,9 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use blasius, only : blasius_t
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
+  use symmetry_aligned, only : symmetry_aligned_t
   use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
+  use non_normal, only : non_normal_aligned_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   implicit none
 
@@ -168,13 +169,17 @@ contains
 
     select case (trim(type))
     case ("symmetry")
-       allocate(symmetry_t::object)
+       if ((scheme%full_stress_formulation)) then
+          allocate(symmetry_t::object)
+       else
+          allocate(symmetry_aligned_t::object)
+       end if
     case ("velocity_value")
        allocate(inflow_t::object)
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
     case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
-       allocate(non_normal_t::object)
+       allocate(non_normal_aligned_t::object)
     case ("blasius_profile")
        allocate(blasius_t::object)
     case ("shear_stress")

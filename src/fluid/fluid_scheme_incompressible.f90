@@ -481,17 +481,17 @@ contains
     call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
 
-    call this%bcs_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
-
-    call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
-    call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
+!    call this%bcs_vel%apply_vector(&
+!         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
+!
+!    call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
+!    call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
+!    call device_event_sync(glb_cmd_event)
+!    call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
+!    call device_event_sync(glb_cmd_event)
+!    call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
+!    call device_event_sync(glb_cmd_event)
+!    call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
     do i = 1, this%bcs_vel%size()
        b => this%bcs_vel%get(i)

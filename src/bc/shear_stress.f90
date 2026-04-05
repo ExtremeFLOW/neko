@@ -35,6 +35,7 @@
 module shear_stress
   use num_types, only : rp
   use bc, only : mixed_bc_t
+  use device_constrain_mixed_bc, only : device_constrain_mixed_bc_zero
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
@@ -43,7 +44,6 @@ module shear_stress
   use json_utils, only : json_get_or_lookup
   use vector, only : vector_t
   use time_state, only : time_state_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   implicit none
   private
 
@@ -105,8 +105,7 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     logical :: strong_
-    integer :: i, m, facet
-    integer :: idx(4)
+    integer :: i, m, k
     real(kind=rp) :: normal(3), u_n
 
     if (present(strong)) then
@@ -115,7 +114,19 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. strong_) then
+    if (strong_) then
+       m = this%resolved_msk%size()
+
+       do i = 1, m
+          k = this%resolved_msk%get(i)
+          normal = this%n%x(:,i)
+          u_n = x(k) * normal(1) + y(k) * normal(2) + z(k) * normal(3)
+
+          x(k) = x(k) - u_n * normal(1)
+          y(k) = y(k) - u_n * normal(2)
+          z(k) = z(k) - u_n * normal(3)
+       end do
+    else
        call this%neumann_x%apply_scalar(x, n, strong = .false.)
        call this%neumann_y%apply_scalar(y, n, strong = .false.)
        call this%neumann_z%apply_scalar(z, n, strong = .false.)
@@ -148,8 +159,7 @@ contains
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
     logical :: strong_
-    integer :: n
-    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: m
 
     if (present(strong)) then
        strong_ = strong
@@ -157,9 +167,13 @@ contains
        strong_ = .true.
     end if
 
-    call neko_error("Device version of shear stress bc is not implemented yet.")
-
     if (strong_) then
+       m = this%resolved_msk%size()
+       if (m .gt. 0) then
+          call device_constrain_mixed_bc_zero(this%resolved_msk%get_d(), &
+               x_d, y_d, z_d, 1, 0, 0, this%n%x_d, this%t1%x_d, &
+               this%t2%x_d, m, strm)
+       end if
     else
        call this%neumann_x%apply_scalar_dev(x_d, strong = .false., strm = strm)
        call this%neumann_y%apply_scalar_dev(y_d, strong = .false., strm = strm)

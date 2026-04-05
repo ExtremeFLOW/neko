@@ -34,6 +34,7 @@
 module non_normal
   use json_module, only : json_file
   use symmetry, only : symmetry_t
+  use symmetry_aligned, only : symmetry_aligned_t
   use num_types, only : rp
   use tuple, only : tuple_i4_t
   use coefs, only : coef_t
@@ -43,16 +44,25 @@ module non_normal
 
   !> Dirichlet condition in non normal direction of a plane.
   !! @warning Only works for axis-aligned plane boundaries.
-  type, public, extends(symmetry_t) :: non_normal_t
+  type, public, extends(symmetry_aligned_t) :: non_normal_aligned_t
    contains
      !> Constructor.
-     procedure, pass(this) :: init => non_normal_init
+     procedure, pass(this) :: init => non_normal_aligned_init
      !> Constructor from components
      procedure, pass(this) :: init_from_components => &
-          non_normal_init_from_components
+          non_normal_aligned_init_from_components
      !> Destructor.
-     procedure, pass(this) :: free => non_normal_free
+     procedure, pass(this) :: free => non_normal_aligned_free
      !> Finalize.
+     procedure, pass(this) :: finalize => non_normal_aligned_finalize
+  end type non_normal_aligned_t
+
+  type, public, extends(symmetry_t) :: non_normal_t
+   contains
+     procedure, pass(this) :: init => non_normal_init
+     procedure, pass(this) :: init_from_components => &
+          non_normal_init_from_components
+     procedure, pass(this) :: free => non_normal_free
      procedure, pass(this) :: finalize => non_normal_finalize
   end type non_normal_t
 
@@ -78,12 +88,41 @@ contains
     call this%free()
     call this%symmetry_t%init_from_components(coef)
     this%constraints = (/ .false., .true., .true. /)
-
   end subroutine non_normal_init_from_components
 
-  !> Finalize
+  !> Finalize generic mixed non-normal bc.
   subroutine non_normal_finalize(this)
     class(non_normal_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine non_normal_finalize
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine non_normal_aligned_init(this, coef, json)
+    class(non_normal_aligned_t), target, intent(inout) :: this
+    type(coef_t), target, intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_from_components(coef)
+  end subroutine non_normal_aligned_init
+
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  subroutine non_normal_aligned_init_from_components(this, coef)
+    class(non_normal_aligned_t), target, intent(inout) :: this
+    type(coef_t), target, intent(in) :: coef
+
+    call this%free()
+    call this%symmetry_aligned_t%init_from_components(coef)
+    this%constraints = (/ .false., .true., .true. /)
+
+  end subroutine non_normal_aligned_init_from_components
+
+  !> Finalize
+  subroutine non_normal_aligned_finalize(this)
+    class(non_normal_aligned_t), target, intent(inout) :: this
     integer :: i, j, k, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx, sy, sz
@@ -121,9 +160,16 @@ contains
     call this%bc_z%finalize()
 
     call this%finalize_base()
-  end subroutine non_normal_finalize
+  end subroutine non_normal_aligned_finalize
 
   !> Destructor
+  subroutine non_normal_aligned_free(this)
+    class(non_normal_aligned_t), target, intent(inout) :: this
+
+    call this%symmetry_aligned_t%free()
+  end subroutine non_normal_aligned_free
+
+  !> Destructor for generic mixed non-normal bc.
   subroutine non_normal_free(this)
     class(non_normal_t), target, intent(inout) :: this
 

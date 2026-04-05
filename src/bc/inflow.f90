@@ -34,7 +34,7 @@
 module inflow
   use device_inflow, only : device_inflow_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
   use coefs, only : coef_t
   use json_module, only : json_file

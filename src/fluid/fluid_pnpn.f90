@@ -34,7 +34,6 @@
 module fluid_pnpn
   use, intrinsic :: iso_fortran_env, only : error_unit
   use coefs, only : coef_t
-  use symmetry, only : symmetry_t
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE
   use num_types, only : rp
@@ -66,7 +65,9 @@ module fluid_pnpn
   use shear_stress, only : shear_stress_t
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
-  use non_normal, only : non_normal_t
+  use non_normal, only : non_normal_aligned_t
+  use symmetry_aligned, only : symmetry_aligned_t
+  use symmetry, only : symmetry_t
   use checkpoint, only : chkp_t
   use mesh, only : mesh_t
   use user_intf, only : user_t
@@ -77,7 +78,7 @@ module fluid_pnpn
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
-  use bc, only : bc_t
+  use bc, only : bc_t, mixed_bc_t
   use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
        segregated_vector_bc_resolver_t, coupled_vector_bc_resolver_t
   use file, only : file_t
@@ -293,11 +294,11 @@ contains
 
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_factory(this%vel_res)
-       
+
        ! Allocate segregated resolver for velocity boundary conditions
        allocate(segregated_vector_bc_resolver_t :: this%bcs_vel_resolver)
     end if
-    
+
     ! Initialize the velocity bc resolver
     call this%bcs_vel_resolver%init(this%c_Xh)
 
@@ -642,7 +643,6 @@ contains
 
     type(file_t) :: dump_file
     class(bc_t), pointer :: bc_i
-    type(non_normal_t), pointer :: bc_j
 
     if (this%freeze) return
 
@@ -725,8 +725,6 @@ contains
       call vlag%update()
       call wlag%update()
 
-      ! This zeroes-out Dirichlet boundary dofs and applies mixed-bc contraints.
-      call this%bcs_vel_resolver%apply(u%x, v%x, w%x, dm_Xh%size())
       ! Apply Dirichlet boundary conditions to the velocity.
       call this%bc_apply_vel(time, strong = .true.)
       ! Apply Dirichlet boundary conditions to the pressure.
@@ -941,45 +939,34 @@ contains
           ! so we check.
           if (associated(bc_i)) then
 
-             ! We need to treat mixed bcs separately because they are by
-             ! convention marked weak and currently contain nested
-             ! bcs, some of which are strong.
              select type (bc_i)
-             type is (symmetry_t)
-                ! For symmetry we have to distinguish between the full and
-                ! simplified stress formulations in order to be able to use
-                ! the old symmetry bc hack of using nested bcs for the
-                ! individual components.
-                if (this%full_stress_formulation) then
-                   ! In this situation, the coupled resolver marks the entire bc
-                   ! and will remove the normal component from velocity on the
-                   ! surface. No reliance on axis alignement.
-                   call this%bcs_vel_resolver%mark(bc_i)
-                else
-                   ! In this case we need to tell the segregated resolver where
-                   ! we have the dirichlet dofs component-wise. This is stored
-                   ! in the nested bcs. Of course, we rely on axis-alignment of
-                   ! the geometry.
-                   call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
-                   call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
-                   call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
-                end if
-                   ! We append it to the list just for structure, the condition
-                   ! itself does nothing on %apply
-                   call this%bcs_vel%append(bc_i)
-
+             type is (symmetry_aligned_t)
+                ! In this case we need to tell the segregated resolver where
+                ! we have the dirichlet dofs component-wise. This is stored
+                ! in the nested bcs. Of course, we rely on axis-alignment of
+                ! the geometry.
+                call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
+                call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
+                call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
+                call this%bcs_vel%append(bc_i)
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
-             type is (non_normal_t)
+             type is (symmetry_t)
+                ! In this case we add the bc itself to the resolver, which
+                ! should be coupled.
+                if (.not. this%full_stress_formulation) then
+                   call neko_error("The symmetry boundary condition " // &
+                        "requires the full stress formulation to be enabled.")
+                end if
+                call this%bcs_vel_resolver%mark(bc_i)
+                call this%bcs_vel%append(bc_i)
+                call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
+             type is (non_normal_aligned_t)
                 ! This is a bc for the residuals and increments, not the
                 ! velocity itself. So, don't append to bcs_vel.
                 ! Otherwise the situation is the same as symmetry.
-                if (this%full_stress_formulation) then
-                   call this%bcs_vel_resolver%mark(bc_i)
-                else
-                   call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
-                   call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
-                   call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
-                end if
+                call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
+                call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
+                call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
              type is (shear_stress_t)
                 if (.not. this%full_stress_formulation) then
                    call neko_error("The shear_stress boundary condition " // &
@@ -1062,6 +1049,15 @@ contains
     call this%bc_prs_surface%finalize()
     call this%bc_sym_surface%finalize()
     call this%bcs_vel_resolver%finalize()
+
+    do i = 1, this%bcs_vel%size()
+       bc_i => this%bcs_vel%get(i)
+       select type (bci => bc_i)
+         class is (mixed_bc_t)
+            call bci%debug_output()
+         class default
+       end select
+    end do
 
     ! If we have no strong pressure bcs, we will demean the pressure
     this%prs_dirichlet = this%bcs_prs_resolver%dof_mask%is_set()
@@ -1164,6 +1160,12 @@ contains
           call bdry_mask%free()
        type is (inflow_t)
           call bdry_mask%init_from_components(this%c_Xh, 2.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+       type is (symmetry_aligned_t)
+          call bdry_mask%init_from_components(this%c_Xh, 4.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())

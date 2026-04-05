@@ -188,6 +188,7 @@ neko_fortran_SOURCES = \
 	bc/field_dirichlet_vector.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
+	bc/symmetry_aligned.f90\
 	bc/non_normal.f90\
 	bc/blasius.f90\
 	bc/wall_model_bc.f90\
@@ -319,7 +320,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_dirichlet.F90\
 	bc/bcknd/device/device_inflow.F90\
 	bc/bcknd/device/device_zero_dirichlet.F90\
-	bc/bcknd/device/device_symmetry.F90\
+	bc/bcknd/device/device_symmetry_aligned.F90\
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_neumann.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
@@ -468,7 +469,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
 	bc/bcknd/device/hip/zero_dirichlet.hip\
-	bc/bcknd/device/hip/symmetry.hip\
+	bc/bcknd/device/hip/symmetry_aligned.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/neumann.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
@@ -529,7 +530,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/zero_dirichlet.cu\
-	bc/bcknd/device/cuda/symmetry.cu\
+	bc/bcknd/device/cuda/symmetry_aligned.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/neumann.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
@@ -591,7 +592,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
 	bc/bcknd/device/opencl/zero_dirichlet.c\
-	bc/bcknd/device/opencl/symmetry.c\
+	bc/bcknd/device/opencl/symmetry_aligned.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
@@ -699,7 +700,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
-	bc/bcknd/device/cuda/symmetry_kernel.h\
+	bc/bcknd/device/cuda/symmetry_aligned_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	bc/bcknd/device/cuda/neumann_kernel.h\
 	bc/bcknd/device/cuda/bc_utils.h\
@@ -750,7 +751,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
-	bc/bcknd/device/hip/symmetry_kernel.h\
+	bc/bcknd/device/hip/symmetry_aligned_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/neumann_kernel.h\
 	bc/bcknd/device/hip/bc_utils.h\
@@ -806,7 +807,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
-	bc/bcknd/device/opencl/symmetry_kernel.cl\
+	bc/bcknd/device/opencl/symmetry_aligned_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/neumann_kernel.cl\
 	bc/bcknd/device/opencl/bc_utils.h\

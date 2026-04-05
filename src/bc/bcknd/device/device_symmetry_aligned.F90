@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_symmetry
+module device_symmetry_aligned
   use num_types
   use utils
   use, intrinsic :: iso_c_binding
@@ -38,56 +38,59 @@ module device_symmetry
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+     subroutine hip_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='hip_symmetry_apply_vector')
+          bind(c, name='hip_symmetry_aligned_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
        type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
-     end subroutine hip_symmetry_apply_vector
+     end subroutine hip_symmetry_aligned_apply_vector
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+     subroutine cuda_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='cuda_symmetry_apply_vector')
+          bind(c, name='cuda_symmetry_aligned_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
        type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
-     end subroutine cuda_symmetry_apply_vector
+     end subroutine cuda_symmetry_aligned_apply_vector
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+     subroutine opencl_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='opencl_symmetry_apply_vector')
+          bind(c, name='opencl_symmetry_aligned_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
        type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
-     end subroutine opencl_symmetry_apply_vector
+     end subroutine opencl_symmetry_aligned_apply_vector
   end interface
 #endif
 
 contains
 
-  subroutine device_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+  subroutine device_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, &
        x, y, z, m, n, l, strm)
     integer, intent(in) :: m, n, l
     type(c_ptr) :: xmsk, ymsk, zmsk, x, y, z, strm
 
 #ifdef HAVE_HIP
-    call hip_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
+    call hip_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, x, y, z, &
+         m, n, l, strm)
 #elif HAVE_CUDA
-    call cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
+    call cuda_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, x, y, z, &
+         m, n, l, strm)
 #elif HAVE_OPENCL
-    call opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
+    call opencl_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, x, y, z, &
+         m, n, l, strm)
 #else
     call neko_error('No device backend configured')
 #endif
 
-  end subroutine device_symmetry_apply_vector
+  end subroutine device_symmetry_aligned_apply_vector
 
-end module device_symmetry
+end module device_symmetry_aligned

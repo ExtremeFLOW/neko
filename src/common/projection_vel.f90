@@ -181,9 +181,9 @@ contains
 
        call device_copy(this%proj_u%xx_d(this%proj_u%m), &
             x_u_d,n) ! Update (X,B)
-       call device_copy(this%proj_v%xx_d(this%proj_u%m), &
+       call device_copy(this%proj_v%xx_d(this%proj_v%m), &
             x_v_d,n) ! Update (X,B)
-       call device_copy(this%proj_w%xx_d(this%proj_u%m), &
+       call device_copy(this%proj_w%xx_d(this%proj_w%m), &
             x_w_d,n) ! Update (X,B)
 
     else

@@ -35,7 +35,7 @@ submodule(fluid_scheme_compressible_euler) euler_bc_fctry
   use dirichlet, only : dirichlet_t
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use symmetry, only : symmetry_t
+  use symmetry_aligned, only : symmetry_aligned_t
   use json_utils, only : json_get_or_lookup
   implicit none
 
@@ -174,7 +174,7 @@ contains
 
     select case (trim(type))
     case ("symmetry")
-       allocate(symmetry_t::object)
+       allocate(symmetry_aligned_t::object)
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
     case ("velocity_value")
