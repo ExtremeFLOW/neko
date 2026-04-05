@@ -109,12 +109,14 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_bdf_hip(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name = 'rhs_maker_bdf_hip')
+          rho, dt, bd2, bd3, bd4, nbd, n, &
+          Blag_d, Blaglag_d) bind(c, name = 'rhs_maker_bdf_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
        type(c_ptr), value :: vlag2_d, wlag1_d, wlag2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d
+       type(c_ptr), value :: Blag_d, Blaglag_d
        reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_hip
@@ -442,13 +444,15 @@ contains
     bfy_d = device_get_ptr(bfy)
     bfz_d = device_get_ptr(bfz)
     B_d = device_get_ptr(B)
-
+    Blag_d = device_get_ptr(Blag)
+    Blaglag_d = device_get_ptr(Blaglag)
 #ifdef HAVE_HIP
     call rhs_maker_bdf_hip(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                            vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
                            wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
                            bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                           B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
+                           B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n, &
+                           Blag_d, Blaglag_d)
 #elif HAVE_CUDA
     call rhs_maker_bdf_cuda(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                             vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
