@@ -438,7 +438,7 @@ contains
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
-    type(c_ptr) :: bfx_d, bfy_d, bfz_d, B_d
+    type(c_ptr) :: bfx_d, bfy_d, bfz_d, B_d, Blag_d, Blaglag_d
 
     bfx_d = device_get_ptr(bfx)
     bfy_d = device_get_ptr(bfy)
