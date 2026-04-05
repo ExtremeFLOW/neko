@@ -360,9 +360,11 @@ contains
           this%config%bodies(i)%osc_amp = 0.0_rp
           this%config%bodies(i)%osc_freq = 0.0_rp
           if (body_sub%valid_path('oscillation')) then
-             call json_get(body_sub, 'oscillation.amplitude', tmp_vec, expected_size = 3)
+             call json_get(body_sub, 'oscillation.amplitude', tmp_vec, &
+                  expected_size = 3)
              this%config%bodies(i)%osc_amp = tmp_vec
-             call json_get(body_sub, 'oscillation.frequency', tmp_vec, expected_size = 3)
+             call json_get(body_sub, 'oscillation.frequency', tmp_vec, &
+                  expected_size = 3)
              this%config%bodies(i)%osc_freq = tmp_vec
           end if
 
@@ -378,18 +380,22 @@ contains
 
              select case (trim(tmp_str))
              case ('harmonic')
-                call json_get(body_sub, 'rotation.amplitude_deg', tmp_vec, expected_size = 3)
+                call json_get(body_sub, 'rotation.amplitude_deg', tmp_vec, &
+                     expected_size = 3)
                 this%config%bodies(i)%rot_amp_degree = tmp_vec
 
-                call json_get(body_sub, 'rotation.freq', tmp_vec, expected_size = 3)
+                call json_get(body_sub, 'rotation.freq', tmp_vec, &
+                     expected_size = 3)
                 this%config%bodies(i)%rot_freq = tmp_vec
 
 
              case ('ramp')
-                call json_get(body_sub, 'rotation.ramp_t0', tmp_vec, expected_size = 3)
+                call json_get(body_sub, 'rotation.ramp_t0', tmp_vec, &
+                     expected_size = 3)
                 this%config%bodies(i)%ramp_t0 = tmp_vec
 
-                call json_get(body_sub, 'rotation.ramp_omega0', tmp_vec, expected_size = 3)
+                call json_get(body_sub, 'rotation.ramp_omega0', tmp_vec, &
+                     expected_size = 3)
                 this%config%bodies(i)%ramp_omega0 = tmp_vec
 
 
@@ -468,7 +474,8 @@ contains
 
              select case (trim(this%config%bodies(i)%stiff_geom%type))
              case ('cylinder', 'sphere')
-                call json_get(body_sub, 'stiff_geom.center', tmp_vec, expected_size = 3)
+                call json_get(body_sub, 'stiff_geom.center', tmp_vec, &
+                     expected_size = 3)
                 this%config%bodies(i)%stiff_geom%center = tmp_vec
 
                 call json_get(body_sub, 'stiff_geom.radius', &
@@ -1075,7 +1082,8 @@ contains
     call profiler_start_region('ALE update mesh')
     do i = 1, this%config%nbodies
        ! Advance Point Trackers attached to this body.
-       ! Can be used for torque calculation (simcomp) at a point distanced from the body
+       ! Can be used for torque calculation (simcomp) at a point distanced
+       ! from the body.
        ! or other purposes like tracking movement (user_check).
        call this%ghost_tracker_coord_step(this%body_kin(i), time, nadv, i)
        ! Update Pivot Location if requested
@@ -1181,7 +1189,8 @@ contains
     if (associated(this%global_pivot_vel_lag)) &
          deallocate(this%global_pivot_vel_lag)
     if (associated(this%global_basis_pos)) deallocate(this%global_basis_pos)
-    if (associated(this%global_basis_vel_lag)) deallocate(this%global_basis_vel_lag)
+    if (associated(this%global_basis_vel_lag)) &
+         deallocate(this%global_basis_vel_lag)
     if (allocated(this%ghost_handles)) deallocate(this%ghost_handles)
     if (allocated(this%body_rot_matrices)) deallocate(this%body_rot_matrices)
     if (allocated(this%trackers)) deallocate(this%trackers)
@@ -1444,7 +1453,7 @@ contains
 
        if (min_jac <= 0.0_rp) then
           write(log_buf, '(A, ES18.11, A, ES23.15)') &
-               "CRITICAL: Negative Jacobian detected (",min_jac, ") at t=", &
+               "Negative Jacobian detected (", min_jac, ") at t = ", &
                t_state%t
           call neko_log%message(log_buf)
 
@@ -1616,7 +1625,8 @@ contains
 
     call neko_log%message(" ")
     call neko_log%message("---------Rotation log---------")
-    call neko_log%message("variable, time step, time, body, x_val, y_val, z_val")
+    call neko_log%message("variable, time step, time, body, " // &
+         "x_val, y_val, z_val")
 
     ! If body_idxs is provided, only log those. Otherwise, log all.
     do i = 1, n_log
@@ -1667,7 +1677,8 @@ contains
 
     call neko_log%message(" ")
     call neko_log%message("----------Pivot Log-----------")
-    call neko_log%message("variable, time step, time, body, x_val, y_val, z_val")
+    call neko_log%message("variable, time step, time, body, " // &
+         "x_val, y_val, z_val")
 
     ! If body_idxs is provided, only log those. Otherwise, log all.
     do i = 1, n_log
@@ -1759,10 +1770,11 @@ contains
     if (allocated(ksp_solver)) deallocate(ksp_solver)
     if (allocated(precon_type)) deallocate(precon_type)
 
-    call json_get_or_default(json, 'case.fluid.ale.solver.type', ksp_solver, 'cg')
+    call json_get_or_default(json, 'case.fluid.ale.solver.type', &
+         ksp_solver, 'cg')
 
-    call json_get_or_default(json, 'case.fluid.ale.solver.preconditioner.type', &
-         precon_type, 'jacobi')
+    call json_get_or_default(json, &
+         'case.fluid.ale.solver.preconditioner.type', precon_type, 'jacobi')
 
     if (json%valid_path('case.fluid.ale.solver.preconditioner')) then
        call json_get(json, 'case.fluid.ale.solver.preconditioner', &

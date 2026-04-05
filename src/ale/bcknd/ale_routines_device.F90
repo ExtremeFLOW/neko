@@ -9,7 +9,10 @@ module ale_routines_device
   use utils, only : neko_error
   use device_math, only : device_add2s2
   use math, only : rzero
-  use ale_rigid_kinematics
+  use ale_rigid_kinematics, only : ale_config_t, pivot_state_t, &
+       point_tracker_t, body_kinematics_t, &
+       init_pivot_state, update_pivot_location, &
+       compute_body_kinematics_built_in, ab_integrate_point_pos
   implicit none
   private
 
@@ -43,7 +46,8 @@ contains
     type(body_kinematics_t), intent(in) :: kinematics
     real(kind=rp), intent(in) :: inital_pivot_loc(3)
     real(kind=rp), intent(in) :: rot_mat(3,3)
-    call neko_error("ALE: add_kinematics_to_mesh_velocity_device not implemented yet")
+    call neko_error("ALE: " // &
+         "add_kinematics_to_mesh_velocity_device not implemented yet")
   end subroutine add_kinematics_to_mesh_velocity_device
 
 

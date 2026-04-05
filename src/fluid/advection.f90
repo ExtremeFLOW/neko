@@ -48,7 +48,8 @@ module advection
      procedure(compute_adv), pass(this), deferred :: compute
      procedure(compute_scalar_adv), pass(this), deferred :: compute_scalar
      procedure(compute_ale_adv), pass(this), deferred :: compute_ale
-     procedure(advection_recompute_metrics), pass(this), deferred :: recompute_metrics
+     procedure(advection_recompute_metrics), pass(this), &
+          deferred :: recompute_metrics
      procedure(advection_free), pass(this), deferred :: free
   end type advection_t
 

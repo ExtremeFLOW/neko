@@ -144,7 +144,8 @@ module user_intf
   !! @param base_shapes Array of fields representing the base shapes.
   !! @param time The time state.
   abstract interface
-     subroutine user_ale_mesh_velocity_intf(wm_x, wm_y, wm_z, coef, x_ref, y_ref, z_ref, base_shapes, time)
+     subroutine user_ale_mesh_velocity_intf(wm_x, wm_y, wm_z, coef, &
+          x_ref, y_ref, z_ref, base_shapes, time)
        import field_t, time_state_t, coef_t
        type(coef_t), intent(in) :: coef
        type(field_t), intent(in) :: x_ref, y_ref, z_ref
@@ -169,7 +170,8 @@ module user_intf
   !! @param vel_trans The translational velocity vector (x, y, z).
   !! @param vel_ang The angular velocity vector (x, y, z).
   abstract interface
-     subroutine user_ale_rigid_kinematics_intf(body_id, time, vel_trans, vel_ang)
+     subroutine user_ale_rigid_kinematics_intf(body_id, time, &
+          vel_trans, vel_ang)
        import rp, time_state_t
        integer, intent(in) :: body_id
        type(time_state_t), intent(in) :: time

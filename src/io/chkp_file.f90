@@ -683,7 +683,8 @@ contains
     end if
     if (this%mesh2mesh) then
        if (read_ale) then
-          call neko_error('ALE does not yet support mesh2mesh interpolation for restart!')
+          call neko_error('ALE does not yet support mesh2mesh ' // &
+               'interpolation for restart!')
        end if
        call dof%init(msh, this%chkp_Xh)
        call this%global_interp%init(dof, NEKO_COMM, tol = tol)

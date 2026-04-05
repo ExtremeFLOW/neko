@@ -500,9 +500,11 @@ contains
 
     associate(c_GL => this%coef_GL)
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call neko_error("ALE advection with dealiasing not implemented yet for device")
+         call neko_error("ALE advection with dealiasing not " // &
+              "implemented yet for device")
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
-         call neko_error("ALE advection with dealiasing not implemented yet for device")
+         call neko_error("ALE advection with dealiasing not " // &
+              "implemented yet for device")
       else
          do e = 1, coef%msh%nelv
             ! Map advecting velocity and mesh velocity onto the higher-order space

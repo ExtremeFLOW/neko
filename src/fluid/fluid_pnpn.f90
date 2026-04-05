@@ -375,7 +375,8 @@ contains
     call neko_log%end_section()
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
-         this%pr_projection_activ_step, this%pr_projection_reorthogonalize_basis)
+         this%pr_projection_activ_step, &
+         this%pr_projection_reorthogonalize_basis)
 
     call this%proj_vel%init(this%dm_Xh%size(), this%vel_projection_dim, &
          this%vel_projection_activ_step)
@@ -438,15 +439,16 @@ contains
 
     ! Add checkpoint data for ALE.
     if (this%ale%active) then
-       call this%chkp%add_ale(this%c_Xh%dof%x, this%c_Xh%dof%y, this%c_Xh%dof%z, &
-           this%c_Xh%Blag, this%c_Xh%Blaglag, &
-           this%ale%wm_x, this%ale%wm_y, this%ale%wm_z, &
-           this%ale%wm_x_lag, this%ale%wm_y_lag, &
-           this%ale%wm_z_lag, &
-           this%ale%global_pivot_pos, &
-           this%ale%global_pivot_vel_lag, &
-           this%ale%global_basis_pos, &
-           this%ale%global_basis_vel_lag)
+       call this%chkp%add_ale(this%c_Xh%dof%x, this%c_Xh%dof%y, &
+            this%c_Xh%dof%z, &
+            this%c_Xh%Blag, this%c_Xh%Blaglag, &
+            this%ale%wm_x, this%ale%wm_y, this%ale%wm_z, &
+            this%ale%wm_x_lag, this%ale%wm_y_lag, &
+            this%ale%wm_z_lag, &
+            this%ale%global_pivot_pos, &
+            this%ale%global_pivot_vel_lag, &
+            this%ale%global_basis_pos, &
+            this%ale%global_basis_vel_lag)
     end if
 
     call neko_log%end_section()

@@ -741,11 +741,13 @@ contains
              if (.not. body_found) then
                 call neko_log%message(' ')
                 write(log_buf, '(A,I0,A)') 'Warning: Zone ', zone_id, &
-                     ' requested "' // trim(center_type) // '" center, but is not'// &
-                     ' registered as an ALE body.'
+                     ' requested "' // trim(center_type) // &
+                     '" center, but is not registered as an ALE body.'
+
                 call neko_log%message(log_buf)
-                call neko_log%message('Reverting to FIXED center'// &
-                     ' using JSON coordinates.')
+
+                call neko_log%message('Reverting to FIXED center ' // &
+                     'using JSON coordinates.')
 
                 this%moving_center = .false.
              end if
@@ -756,12 +758,20 @@ contains
 
     if ((.not. ale_active) .and. (trim(center_type) == 'pivot' .or. &
          trim(center_type) == 'body_attached')) then
+
        call neko_log%message(' ')
+
        write(log_buf, '(A,I0,A)') "Warning: Zone ", zone_id, &
-            " requested '" // trim(center_type) // "' center, but ALE is not active."
+            " requested '" // trim(center_type) // "' center, " // &
+            "but ALE is not active."
        call neko_log%message(log_buf)
-       call neko_log%message("pivot and body_attached work only for ALE simulations.")
-       call neko_log%message("Reverting to 'fixed' center using JSON coordinates.")
+
+       call neko_log%message("pivot and body_attached work " // &
+            "only for ALE simulations.")
+
+       call neko_log%message("Reverting to 'fixed' center " // &
+            "using JSON coordinates.")
+
     end if
 
   end subroutine setup_ale_link
