@@ -35,7 +35,7 @@ module field_dirichlet
   use num_types, only : rp
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use bc_list, only : bc_list_t
   use utils, only : split_string
   use field, only : field_t
@@ -136,6 +136,7 @@ contains
     character(len=*), intent(in) :: field_name
 
     call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
 
     call this%field_bc%init(this%dof, field_name)
     call this%field_list%init(1)

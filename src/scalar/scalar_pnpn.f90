@@ -65,7 +65,7 @@ module scalar_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_step_controller, only : time_step_controller_t
   use time_state, only : time_state_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
@@ -221,7 +221,7 @@ contains
     call this%setup_bcs_(user)
 
     do i = 1, this%bcs%size()
-       if (this%bcs%strong(i)) then
+       if (this%bcs%bc_type(i) .eq. BC_TYPES%DIRICHLET) then
           bc_i => this%bcs%get(i)
           call this%bc_resolver%mark(bc_i)
        end if

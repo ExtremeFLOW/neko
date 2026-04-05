@@ -39,7 +39,7 @@ module facet_normal
        device_masked_scatter_copy_0
   use vector, only : vector_t
   use coefs, only : coef_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use utils, only : neko_error, nonlinear_index
   use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
@@ -94,6 +94,7 @@ contains
     type(coef_t), target, intent(in) :: coef
 
     call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
   end subroutine facet_normal_init_from_components
 
   !> No-op scalar apply

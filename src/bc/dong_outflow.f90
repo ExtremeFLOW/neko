@@ -36,7 +36,7 @@ module dong_outflow
   use dirichlet, only : dirichlet_t
   use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE, device_free
   use num_types, only : rp, c_rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use field, only : field_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -89,6 +89,7 @@ contains
     type(json_file), intent(inout) :: json
     call this%free()
     call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
 
     call json_get_or_default(json, 'delta', this%delta, 0.01_rp)
     call json_get_or_default(json, 'velocity_scale', this%uinf, 1.0_rp)

@@ -32,7 +32,7 @@
 !
 !> Scaffolding for future global boundary resolution.
 module bc_resolver
-  use bc, only : bc_t, mixed_bc_t
+  use bc, only : bc_t, mixed_bc_t, BC_TYPES
   use bc_list, only : bc_list_t
   use mask, only : mask_t
   use coefs, only : coef_t
@@ -216,26 +216,6 @@ module bc_resolver
   end interface
 
 contains
-
-  pure function vector_bc_constraint_class(constraints) result(prio)
-    logical, intent(in) :: constraints(3)
-    real(kind=rp) :: prio
-
-    if (all(constraints)) then
-       prio = 0.0_rp
-    else if (constraints(1) .and. (.not. constraints(2)) .and. &
-         (.not. constraints(3))) then
-       prio = 2.0_rp
-    else if ((.not. constraints(1)) .and. constraints(2) .and. &
-         constraints(3)) then
-       prio = 3.0_rp
-    else if ((.not. constraints(1)) .and. (.not. constraints(2)) .and. &
-         (.not. constraints(3))) then
-       prio = 5.0_rp
-    else
-       prio = -1.0_rp
-    end if
-  end function vector_bc_constraint_class
 
 !
 !  ************** scalar_bc_resolver_t TBPs **************
@@ -742,11 +722,7 @@ contains
        bc => this%bcs%get(i)
 
 
-       prio = vector_bc_constraint_class(bc%constraints)
-       if (prio .lt. 0.0_rp) then
-          call neko_error("Unsupported constraint combination in " // &
-               "vector BC resolver.")
-       end if
+       prio = bc%bc_type
 
        ! Store the class on each boundary face touched by this BC.
        ! This is the compact analogue of Nek's face-resident HFMASK field:
@@ -788,11 +764,7 @@ contains
           call bc%t1%free()
           call bc%t2%free()
 
-          prio = vector_bc_constraint_class(bc%constraints)
-          if (prio .lt. 0.0_rp) then
-             call neko_error("Unsupported constraint combination in " // &
-                  "mixed BC resolver mask construction.")
-          end if
+          prio = bc%bc_type
 
           resolved_mask_size = 0
           do j = 1, bc%msk(0)

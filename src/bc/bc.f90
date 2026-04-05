@@ -65,6 +65,9 @@ module bc
   implicit none
   private
 
+  !> Enumeration of supported boundary condition types.
+  !! The values are set in order of precedence for global resolution. Lower
+  !! values take precedence.
   type, public :: bc_type_t
      integer :: DIRICHLET = 0
      integer :: MIXED_CONSTRAINS_NORMAL = 2
@@ -98,15 +101,11 @@ module bc
      type(c_ptr) :: facet_msk_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
-     !> Wether the bc is strongly enforced. Essentially valid for all Dirichlet
-     !! types of bcs. These need to be masked out for solvers etc, so that
-     !! values are not affected.
-     !! Mixed bcs are, by convention, weak.
-     logical :: strong = .true.
      !> Constraint flags in the local basis.
      !! Components correspond to `(n, t1, t2)`, where `.true.` means
      !! constrained.
      logical :: constraints(3) = [.true., .true., .true.]
+     !> Type of the boundary condition, from BC_TYPES.
      integer :: bc_type
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations

@@ -78,7 +78,7 @@ module fluid_pnpn
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
-  use bc, only : bc_t, mixed_bc_t
+  use bc, only : bc_t, mixed_bc_t, BC_TYPES
   use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
        segregated_vector_bc_resolver_t, coupled_vector_bc_resolver_t
   use file, only : file_t
@@ -984,7 +984,7 @@ contains
              class default
 
                 ! Additionally we mark the special PnPn pressure bc.
-                if (bc_i%strong) then
+                if (bc_i%bc_type .eq. BC_TYPES%DIRICHLET) then
                    call this%bc_prs_surface%mark_labeled_zones( &
                         bc_i%zone_indices)
                    call this%bcs_vel_resolver%mark(bc_i, component='x')
@@ -1024,7 +1024,7 @@ contains
              call this%bcs_prs%append(bc_i)
 
              ! Mark strong pressure bcs in the resolver to force zero change.
-             if (bc_i%strong) then
+             if (bc_i%bc_type .eq. BC_TYPES%DIRICHLET) then
                 call this%bcs_prs_resolver%mark(bc_i)
              end if
 

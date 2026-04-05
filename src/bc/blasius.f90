@@ -42,7 +42,7 @@ module blasius
   use utils, only : neko_error
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_lookup
   use time_state, only : time_state_t
@@ -118,6 +118,7 @@ contains
     character(len=*) :: approximation
 
     call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
 
     this%delta = delta
     this%uinf = uinf

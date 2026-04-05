@@ -71,6 +71,7 @@ contains
     real(kind=rp), allocatable :: x(:)
 
     call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
     call json_get_or_lookup(json, 'value', x)
     this%x = x
   end subroutine inflow_init

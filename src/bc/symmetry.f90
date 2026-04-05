@@ -33,7 +33,7 @@
 !> Generic mixed Dirichlet-Neumann symmetry plane condition.
 module symmetry
   use num_types, only : rp
-  use bc, only : mixed_bc_t
+  use bc, only : mixed_bc_t, BC_TYPES
   use device_constrain_mixed_bc, only : device_constrain_mixed_bc_zero
   use coefs, only : coef_t
   use json_module, only : json_file
@@ -70,10 +70,10 @@ contains
     type(coef_t), target, intent(in) :: coef
 
     call this%free()
-    this%strong = .false.
 
     call this%init_base(coef)
     this%constraints = (/ .true., .false., .false. /)
+    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
   end subroutine symmetry_init_from_components
 
   subroutine symmetry_finalize(this)

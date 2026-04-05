@@ -35,6 +35,7 @@ module non_normal
   use json_module, only : json_file
   use symmetry, only : symmetry_t
   use symmetry_aligned, only : symmetry_aligned_t
+  use bc, only : BC_TYPES
   use num_types, only : rp
   use tuple, only : tuple_i4_t
   use coefs, only : coef_t
@@ -88,6 +89,7 @@ contains
     call this%free()
     call this%symmetry_t%init_from_components(coef)
     this%constraints = (/ .false., .true., .true. /)
+    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
   end subroutine non_normal_init_from_components
 
   !> Finalize generic mixed non-normal bc.
@@ -117,6 +119,7 @@ contains
     call this%free()
     call this%symmetry_aligned_t%init_from_components(coef)
     this%constraints = (/ .false., .true., .true. /)
+    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
 
   end subroutine non_normal_aligned_init_from_components
 

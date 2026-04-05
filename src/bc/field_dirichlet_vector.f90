@@ -35,7 +35,7 @@ module field_dirichlet_vector
   use num_types, only : rp
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use bc_list, only : bc_list_t
   use utils, only : split_string
   use field, only : field_t
@@ -111,6 +111,7 @@ contains
     type(coef_t), intent(in) :: coef
 
     call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
 
     call this%bc_u%init_from_components(coef, "u")
     call this%bc_v%init_from_components(coef, "v")

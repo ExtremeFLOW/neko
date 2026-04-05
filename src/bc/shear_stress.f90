@@ -34,7 +34,7 @@
 !! Maintainer: Timofey Mukha.
 module shear_stress
   use num_types, only : rp
-  use bc, only : mixed_bc_t
+  use bc, only : mixed_bc_t, BC_TYPES
   use device_constrain_mixed_bc, only : device_constrain_mixed_bc_zero
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
@@ -210,8 +210,8 @@ contains
     real(kind=rp), intent(in) :: value(3)
 
     call this%init_base(coef)
-    this%strong = .false.
     this%constraints = (/ .true., .false., .false. /)
+    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
 
     call this%neumann_x%free()
     call this%neumann_y%free()

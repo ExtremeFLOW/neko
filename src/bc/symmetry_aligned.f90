@@ -34,7 +34,7 @@
 module symmetry_aligned
   use device_symmetry_aligned, only : device_symmetry_aligned_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use tuple, only : tuple_i4_t
   use coefs, only : coef_t
   use json_module, only : json_file
@@ -76,10 +76,10 @@ contains
     type(coef_t), target, intent(in) :: coef
 
     call this%free()
-    this%strong = .false.
 
     call this%init_base(coef)
     this%constraints = (/ .true., .false., .false. /)
+    this%bc_type = BC_TYPES%DIRICHLET
     call this%bc_x%init_from_components(this%coef)
     call this%bc_y%init_from_components(this%coef)
     call this%bc_z%init_from_components(this%coef)
