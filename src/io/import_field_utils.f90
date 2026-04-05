@@ -36,20 +36,80 @@
 module import_field_utils
   use fld_file_data, only : fld_file_data_t
   use file, only : file_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use field_list, only : field_list_t
+  use global_interpolation, only : GLOB_INTERP_PAD, GLOB_INTERP_TOL
   use utils, only : neko_error, extract_fld_file_index, &
        filename_chsuffix, NEKO_FNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use device, only : HOST_TO_DEVICE
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_default
   implicit none
   private
 
   public :: import_fields
 
+  interface import_fields
+     module procedure import_fields_from_json, import_fields_from_params
+  end interface import_fields
 
 contains
+
+  !> Imports fields from an fld file, potentially with
+!! interpolation, with parameters provided in a JSON subdict.
+!! @param fname The name of the fld file, e.g. "my_field0.f00019".
+!! @param global_interp_subdict If interpolation is enabled, subdict
+!! containing the interpolation parameters to use.
+  !! @param mesh_fname The name of the fld file containing the spatial
+  !! coordinates, if interpolation is enabled and fname does not already
+  !! contain them.
+  !! @param u The field on which to import the u component of the fld data.
+  !! @param v The field on which to import the v component of the fld data.
+  !! @param w The field on which to import the w component of the fld data.
+  !! @param p The field on which to import the pressure field of the fld data.
+  !! @param t The field on which to import the temperature field of the fld
+  !! data.
+  !! @param s_target_list Field list containing the fields on which to import
+  !! the scalar fields of the fld data. Unless a list of target indices is
+  !! provided in `s_index_list`, assigns field at position `i` in the list
+  !! to scalar `i` in the fld file.
+  !! @param s_index_list The list of scalars indices from which to load the
+  !! fields provided in `s_target_list`. Must have the same size as
+  !! `s_target_list`. For example, s_index_list = (/2,3/) will load scalar #2
+  !! in `s_target_list%items(1)` and scalar #3 in `s_target_list%items(2)`.
+  !! Index  0 corresponds to temperature by default. Therefore using
+  !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`.
+  !! @param interpolate Whether or not to interpolate the fld data.
+  !! @note If interpolation is disabled, space-to-space interpolation is still
+  !! performed within each element to allow for seamless change of polynomial
+  !! order for the same given mesh.
+  !! @note This subroutine also takes care of data movement from host to
+  !! to device when necessary, i.e. only the required fields are copied to
+  !! device.
+  subroutine import_fields_from_json(fname, global_interp_subdict, mesh_fname, &
+       u, v, w, p, t, s_target_list, s_index_list, interpolate)
+    character(len=*), intent(in) :: fname
+    type(json_file), intent(inout) :: global_interp_subdict
+    character(len=*), intent(in), optional :: mesh_fname
+    type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
+    type(field_list_t), intent(inout), optional :: s_target_list
+    integer, intent(in), optional :: s_index_list(:)
+    logical, intent(in), optional :: interpolate
+
+    real(kind=dp) :: tolerance, padding
+
+    call json_get_or_default(global_interp_subdict, "tolerance", &
+         tolerance, GLOB_INTERP_TOL)
+    call json_get_or_default(global_interp_subdict, "padding", &
+         padding, GLOB_INTERP_PAD)
+
+    call import_fields_from_params(fname, mesh_fname, &
+         u, v, w, p, t, s_target_list, s_index_list, &
+         interpolate, tolerance = tolerance, padding = padding)
+
+  end subroutine import_fields_from_json
 
   !> Imports fields from an fld file, potentially with
   !! interpolation.
@@ -75,23 +135,25 @@ contains
   !! `s_index_list = (/0/)` is equivalent to using the argument `t=...`.
   !! @param interpolate Whether or not to interpolate the fld data.
   !! @param tolerance If interpolation is enabled, the tolerance to use for the
-  !! point
-  !! finding.
+  !! point finding.
+  !! @param padding If interpolation is enabled, the tolerance to use for the
+  !! point finding.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
   !! order for the same given mesh.
   !! @note This subroutine also takes care of data movement from host to
   !! to device when necessary, i.e. only the required fields are copied to
   !! device.
-  subroutine import_fields(fname, mesh_fname, u, v, w, p, t, s_target_list, &
-       s_index_list, interpolate, tolerance)
+  subroutine import_fields_from_params(fname, mesh_fname, u, v, w, p, t, &
+       s_target_list, s_index_list, interpolate, tolerance, padding)
     character(len=*), intent(in) :: fname
     character(len=*), intent(in), optional :: mesh_fname
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
     type(field_list_t), intent(inout), optional :: s_target_list
     integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
-    real(kind=rp), intent(in), optional :: tolerance
+    real(kind=dp), intent(in), optional :: tolerance
+    real(kind=dp), intent(in), optional :: padding
 
     character(len=LOG_SIZE) :: log_buf
     integer :: sample_idx, sample_mesh_idx, i
@@ -133,11 +195,6 @@ contains
 
     ! If interpolate, check if we need to read the mesh file
     if (interpolate_) then
-
-       if (present(tolerance)) then
-          write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
-          call neko_log%message(log_buf)
-       end if
 
        ! If no mesh file is specified, use the default file name
        if (mesh_fname_ .eq. "none") then
@@ -219,11 +276,11 @@ contains
 
     ! Call the import of fields
     call fld_data%import_fields(u, v, w, p, t, s_target_list, s_index_list, &
-         interpolate_, tolerance = tolerance)
+         interpolate_, tolerance = tolerance, padding = padding)
 
     call neko_log%end_section()
     call fld_data%free()
 
-  end subroutine import_fields
+  end subroutine import_fields_from_params
 
 end module import_field_utils

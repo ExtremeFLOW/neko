@@ -552,7 +552,7 @@ contains
     integer :: have_ale
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
     logical :: read_ale
-    real(kind=rp) :: tol
+    real(kind=dp) :: tol
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
