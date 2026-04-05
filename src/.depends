@@ -177,7 +177,7 @@ bc/bc.lo : bc/bc.f90 io/file.lo common/time_state.lo common/log.lo common/utils.
 bc/bc_list.lo : bc/bc_list.f90 common/time_state.lo bc/bc.lo common/utils.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
 bc/dirichlet.lo : bc/dirichlet.f90 common/time_state.lo common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
 bc/neumann.lo : bc/neumann.f90 common/time_state.lo bc/bcknd/device/device_neumann.lo device/device.lo math/bcknd/device/device_math.lo config/neko_config.lo math/vector.lo math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
-bc/shear_stress.lo : bc/shear_stress.f90 device/device.lo common/time_state.lo math/vector.lo common/json_utils.lo bc/neumann.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/shear_stress.lo : bc/shear_stress.f90 bc/bcknd/device/device_constrain_mixed_bc.lo common/time_state.lo math/vector.lo common/json_utils.lo bc/neumann.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo
 bc/dong_outflow.lo : bc/dong_outflow.f90 common/time_state.lo common/json_utils.lo registries/registry.lo bc/bcknd/device/device_dong_outflow.lo common/utils.lo sem/coef.lo sem/dofmap.lo field/field.lo bc/bc.lo config/num_types.lo device/device.lo bc/dirichlet.lo config/neko_config.lo 
 bc/zero_dirichlet.lo : bc/zero_dirichlet.f90 common/time_state.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_zero_dirichlet.lo 
 bc/inflow.lo : bc/inflow.f90 common/time_state.lo common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_inflow.lo 
@@ -322,6 +322,7 @@ bc/bcknd/device/device_neumann.lo : bc/bcknd/device/device_neumann.F90 common/ut
 bc/bcknd/device/device_inhom_dirichlet.lo : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.lo config/num_types.lo 
 bc/bcknd/device/device_dong_outflow.lo : bc/bcknd/device/device_dong_outflow.F90 common/utils.lo config/num_types.lo 
 bc/bcknd/device/device_coupled_vector_bc_resolver.lo : bc/bcknd/device/device_coupled_vector_bc_resolver.F90 common/utils.lo
+bc/bcknd/device/device_constrain_mixed_bc.lo : bc/bcknd/device/device_constrain_mixed_bc.F90 device/device.lo common/utils.lo
 scalar/bcknd/device/scalar_residual_device.lo : scalar/bcknd/device/scalar_residual_device.F90 config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo math/bcknd/device/device_math.lo scalar/scalar_residual.lo 
 scalar/scalar_scheme.lo : scalar/scalar_scheme.f90 device/device.lo common/time_state.lo registries/scratch_registry.lo common/time_step_controller.lo config/neko_config.lo math/field_math.lo field/field_series.lo scalar/scalar_source_term.lo common/utils.lo common/user_intf.lo common/json_utils.lo registries/registry.lo common/log.lo time_schemes/time_scheme_controller.lo mesh/mesh.lo krylov/precon.lo bc/bc_list.lo krylov/pc_hsmg.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/cpu/pc_jacobi.lo sem/coef.lo krylov/krylov.lo sem/dofmap.lo sem/space.lo field/field_list.lo field/field.lo config/num_types.lo common/checkpoint.lo gs/gather_scatter.lo 
 scalar/scalar_scheme_fctry.lo : scalar/scalar_scheme_fctry.f90 common/utils.lo scalar/scalar_pnpn.lo scalar/scalar_scheme.lo 
