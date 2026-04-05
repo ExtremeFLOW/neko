@@ -227,8 +227,7 @@ contains
 
     ! Enable B history
     call coef%enable_B_history()
-    call json_get(json, 'case.numerics.time_order', &
-       time_order)
+    call json_get(json, 'case.numerics.time_order', time_order)
 
     ! Stuff for zone_id checks
     n_moving_zones = 0
@@ -243,33 +242,8 @@ contains
     this%wm_y => neko_registry%get_field('wm_y')
     this%wm_z => neko_registry%get_field('wm_z')
 
-    if (allocated(ksp_solver)) deallocate(ksp_solver)
-    if (allocated(precon_type)) deallocate(precon_type)
-
-    call json_get_or_default(json, 'case.fluid.ale.solver.type', ksp_solver, 'cg')
-
-    call json_get_or_default(json, 'case.fluid.ale.solver.preconditioner.type', &
-         precon_type, 'jacobi')
-
-    if (json%valid_path('case.fluid.ale.solver.preconditioner')) then
-       call json_get(json, 'case.fluid.ale.solver.preconditioner', &
-            precon_params)
-    end if
-    call json_get_or_default(json, 'case.fluid.ale.solver.absolute_tolerance', &
-         abstol, 1.0e-10_rp)
-    call json_get_or_default(json, 'case.fluid.ale.solver.monitor', &
-         res_monitor, .false.)
-    call json_get_or_default(json, 'case.fluid.ale.solver.max_iterations', &
-         ksp_max_iter, 10000)
-    if (json%valid_path('case.fluid.ale.solver.output_base_shape')) then
-       call json%get('case.fluid.ale.solver.output_base_shape', tmp_logical)
-       this%config%if_output_phi = tmp_logical
-    end if
-    if (json%valid_path('case.fluid.ale.solver.output_stiffness')) then
-       call json%get('case.fluid.ale.solver.output_stiffness', tmp_logical)
-       this%config%if_output_stiffness = tmp_logical
-    end if
-
+    call get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
+         precon_params, abstol, ksp_max_iter, res_monitor)
 
     ! Mark BCs
     call this%bc_moving%init_from_components(coef)
@@ -1757,8 +1731,8 @@ contains
                 p_vel = kin_object%vel_trans + v_tan
 
                 if (time_s%tstep > 0) then
-                   call ab_integrate_point_pos(this%trackers(t)%pos, this%trackers(t)%vel_lag, &
-                        p_vel, time_s, nadv)
+                   call ab_integrate_point_pos(this%trackers(t)%pos, &
+                        this%trackers(t)%vel_lag, p_vel, time_s, nadv)
                 end if
 
              end if
@@ -1768,4 +1742,56 @@ contains
 
     end if
   end subroutine ghost_tracker_coord_step
+
+  subroutine get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
+       precon_params, abstol, ksp_max_iter, res_monitor)
+    class(ale_manager_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    character(len=:), allocatable, intent(inout) :: ksp_solver
+    character(len=:), allocatable, intent(inout) :: precon_type
+    type(json_file), intent(inout) :: precon_params
+    real(kind=rp), intent(out) :: abstol
+    integer, intent(out) :: ksp_max_iter
+    logical, intent(out) :: res_monitor
+    logical :: tmp_logical
+    character(len=:), allocatable :: tmp_str
+
+    if (allocated(ksp_solver)) deallocate(ksp_solver)
+    if (allocated(precon_type)) deallocate(precon_type)
+
+    call json_get_or_default(json, 'case.fluid.ale.solver.type', ksp_solver, 'cg')
+
+    call json_get_or_default(json, 'case.fluid.ale.solver.preconditioner.type', &
+         precon_type, 'jacobi')
+
+    if (json%valid_path('case.fluid.ale.solver.preconditioner')) then
+       call json_get(json, 'case.fluid.ale.solver.preconditioner', &
+            precon_params)
+    end if
+
+    call json_get_or_default(json, 'case.fluid.ale.solver.absolute_tolerance', &
+         abstol, 1.0e-10_rp)
+    call json_get_or_default(json, 'case.fluid.ale.solver.monitor', &
+         res_monitor, .false.)
+    call json_get_or_default(json, 'case.fluid.ale.solver.max_iterations', &
+         ksp_max_iter, 10000)
+
+    if (json%valid_path('case.fluid.ale.solver.output_base_shape')) then
+       call json%get('case.fluid.ale.solver.output_base_shape', tmp_logical)
+       this%config%if_output_phi = tmp_logical
+    end if
+    if (json%valid_path('case.fluid.ale.solver.output_stiffness')) then
+       call json%get('case.fluid.ale.solver.output_stiffness', tmp_logical)
+       this%config%if_output_stiffness = tmp_logical
+    end if
+
+    ! Mesh Stiffness
+    if (json%valid_path('case.fluid.ale.solver.mesh_stiffness.type')) then
+       call json%get('case.fluid.ale.solver.mesh_stiffness.type', tmp_str)
+       this%config%stiffness_type = tmp_str
+       if (.not. (trim(tmp_str) == 'built-in')) then
+          call neko_error("ALE: stiffness_type must be 'built-in'")
+       end if
+    end if
+  end subroutine get_ale_solver_params_json
 end module ale_manager
