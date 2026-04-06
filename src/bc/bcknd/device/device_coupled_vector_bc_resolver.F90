@@ -32,11 +32,24 @@
 !
 module device_coupled_vector_bc_resolver
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_null_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
 
-#ifdef HAVE_CUDA
+#ifdef HAVE_HIP
+  interface
+     subroutine hip_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
+          bind(c, name='hip_coupled_vector_bc_resolver_apply')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z
+       type(c_ptr), value :: constraint_n, constraint_t1, constraint_t2
+       type(c_ptr), value :: n, t1, t2, strm
+     end subroutine hip_coupled_vector_bc_resolver_apply
+  end interface
+#elif HAVE_CUDA
   interface
      subroutine cuda_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
@@ -48,6 +61,19 @@ module device_coupled_vector_bc_resolver
        type(c_ptr), value :: constraint_n, constraint_t1, constraint_t2
        type(c_ptr), value :: n, t1, t2, strm
      end subroutine cuda_coupled_vector_bc_resolver_apply
+  end interface
+#elif HAVE_OPENCL
+  interface
+     subroutine opencl_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
+          bind(c, name='opencl_coupled_vector_bc_resolver_apply')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z
+       type(c_ptr), value :: constraint_n, constraint_t1, constraint_t2
+       type(c_ptr), value :: n, t1, t2, strm
+     end subroutine opencl_coupled_vector_bc_resolver_apply
   end interface
 #endif
 
@@ -63,11 +89,17 @@ contains
     type(c_ptr), intent(in) :: n, t1, t2
     type(c_ptr), intent(in) :: strm
 
-#ifdef HAVE_CUDA
+#ifdef HAVE_HIP
+    call hip_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
+#elif HAVE_CUDA
     call cuda_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
+#elif HAVE_OPENCL
+    call opencl_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm)
 #else
-    call neko_error('CUDA backend not configured for coupled vector BC apply')
+    call neko_error('No device backend configured for coupled vector BC apply')
 #endif
 
   end subroutine device_coupled_vector_bc_resolver_apply

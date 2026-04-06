@@ -471,6 +471,8 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/hip/inflow.hip\
 	bc/bcknd/device/hip/zero_dirichlet.hip\
 	bc/bcknd/device/hip/symmetry_aligned.hip\
+	bc/bcknd/device/hip/constrain_mixed_bc.hip\
+	bc/bcknd/device/hip/coupled_vector_bc_resolver.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/neumann.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
@@ -594,6 +596,8 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/inflow.c\
 	bc/bcknd/device/opencl/zero_dirichlet.c\
 	bc/bcknd/device/opencl/symmetry_aligned.c\
+	bc/bcknd/device/opencl/constrain_mixed_bc.c\
+	bc/bcknd/device/opencl/coupled_vector_bc_resolver.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
@@ -809,6 +813,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_aligned_kernel.cl\
+	bc/bcknd/device/opencl/constrain_mixed_bc_kernel.cl\
+	bc/bcknd/device/opencl/coupled_vector_bc_resolver_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/neumann_kernel.cl\
 	bc/bcknd/device/opencl/bc_utils.h\

@@ -43,7 +43,44 @@ module device_constrain_mixed_bc
   implicit none
   private
 
-#ifdef HAVE_CUDA
+#ifdef HAVE_HIP
+  interface
+     subroutine hip_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
+          bind(c, name='hip_constrain_mixed_bc_zero')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       integer(c_int) :: constraint_n, constraint_t1, constraint_t2
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z, n, t1, t2, strm
+     end subroutine hip_constrain_mixed_bc_zero
+
+     subroutine hip_constrain_mixed_bc_set(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
+          values_n, values_t1, values_t2, m, strm) &
+          bind(c, name='hip_constrain_mixed_bc_set')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       integer(c_int) :: constraint_n, constraint_t1, constraint_t2
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z, n, t1, t2
+       type(c_ptr), value :: values_n, values_t1, values_t2, strm
+     end subroutine hip_constrain_mixed_bc_set
+
+     subroutine hip_constrain_mixed_bc_set_const(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
+          value_n, value_t1, value_t2, m, strm) &
+          bind(c, name='hip_constrain_mixed_bc_set_const')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       implicit none
+       real(c_rp) :: value_n, value_t1, value_t2
+       integer(c_int) :: constraint_n, constraint_t1, constraint_t2
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z, n, t1, t2, strm
+     end subroutine hip_constrain_mixed_bc_set_const
+  end interface
+#elif HAVE_CUDA
   interface
      subroutine cuda_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
@@ -79,6 +116,43 @@ module device_constrain_mixed_bc
        integer(c_int) :: m
        type(c_ptr), value :: mixed_msk, x, y, z, n, t1, t2, strm
      end subroutine cuda_constrain_mixed_bc_set_const
+  end interface
+#elif HAVE_OPENCL
+  interface
+     subroutine opencl_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
+          bind(c, name='opencl_constrain_mixed_bc_zero')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       integer(c_int) :: constraint_n, constraint_t1, constraint_t2
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z, n, t1, t2, strm
+     end subroutine opencl_constrain_mixed_bc_zero
+
+     subroutine opencl_constrain_mixed_bc_set(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
+          values_n, values_t1, values_t2, m, strm) &
+          bind(c, name='opencl_constrain_mixed_bc_set')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       integer(c_int) :: constraint_n, constraint_t1, constraint_t2
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z, n, t1, t2
+       type(c_ptr), value :: values_n, values_t1, values_t2, strm
+     end subroutine opencl_constrain_mixed_bc_set
+
+     subroutine opencl_constrain_mixed_bc_set_const(mixed_msk, x, y, z, &
+          constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
+          value_n, value_t1, value_t2, m, strm) &
+          bind(c, name='opencl_constrain_mixed_bc_set_const')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       implicit none
+       real(c_rp) :: value_n, value_t1, value_t2
+       integer(c_int) :: constraint_n, constraint_t1, constraint_t2
+       integer(c_int) :: m
+       type(c_ptr), value :: mixed_msk, x, y, z, n, t1, t2, strm
+     end subroutine opencl_constrain_mixed_bc_set_const
   end interface
 #endif
 
@@ -121,11 +195,17 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-#ifdef HAVE_CUDA
+#ifdef HAVE_HIP
+    call hip_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm_)
+#elif HAVE_CUDA
     call cuda_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm_)
+#elif HAVE_OPENCL
+    call opencl_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm_)
 #else
-    call neko_error('CUDA backend not configured for mixed BC constraint')
+    call neko_error('No device backend configured for mixed BC constraint')
 #endif
 
   end subroutine device_constrain_mixed_bc_zero
@@ -171,12 +251,20 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-#ifdef HAVE_CUDA
+#ifdef HAVE_HIP
+    call hip_constrain_mixed_bc_set(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
+         values_n, values_t1, values_t2, m, strm_)
+#elif HAVE_CUDA
     call cuda_constrain_mixed_bc_set(mixed_msk, x, y, z, &
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
          values_n, values_t1, values_t2, m, strm_)
+#elif HAVE_OPENCL
+    call opencl_constrain_mixed_bc_set(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
+         values_n, values_t1, values_t2, m, strm_)
 #else
-    call neko_error('CUDA backend not configured for mixed BC constraint')
+    call neko_error('No device backend configured for mixed BC constraint')
 #endif
 
   end subroutine device_constrain_mixed_bc_set
@@ -219,12 +307,20 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-#ifdef HAVE_CUDA
+#ifdef HAVE_HIP
+    call hip_constrain_mixed_bc_set_const(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
+         value_n, value_t1, value_t2, m, strm_)
+#elif HAVE_CUDA
     call cuda_constrain_mixed_bc_set_const(mixed_msk, x, y, z, &
          constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
          value_n, value_t1, value_t2, m, strm_)
+#elif HAVE_OPENCL
+    call opencl_constrain_mixed_bc_set_const(mixed_msk, x, y, z, &
+         constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
+         value_n, value_t1, value_t2, m, strm_)
 #else
-    call neko_error('CUDA backend not configured for mixed BC constraint')
+    call neko_error('No device backend configured for mixed BC constraint')
 #endif
 
   end subroutine device_constrain_mixed_bc_set_const
