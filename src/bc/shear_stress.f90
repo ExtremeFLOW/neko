@@ -210,7 +210,7 @@ contains
     real(kind=rp), intent(in) :: value(3)
 
     call this%init_base(coef)
-    this%constraints = (/ .true., .false., .false. /)
+    this%constraints = [.true., .false., .false.]
     this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
 
     call this%neumann_x%free()

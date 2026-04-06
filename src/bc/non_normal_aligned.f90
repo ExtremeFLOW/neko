@@ -54,14 +54,17 @@ module non_normal_aligned
    contains
      procedure, pass(this) :: apply_scalar => non_normal_aligned_apply_scalar
      procedure, pass(this) :: apply_vector => non_normal_aligned_apply_vector
-     procedure, pass(this) :: apply_scalar_dev => non_normal_aligned_apply_scalar_dev
-     procedure, pass(this) :: apply_vector_dev => non_normal_aligned_apply_vector_dev
+     procedure, pass(this) :: apply_scalar_dev => &
+          non_normal_aligned_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => &
+          non_normal_aligned_apply_vector_dev
      procedure, pass(this) :: init => non_normal_aligned_init
      procedure, pass(this) :: init_from_components => &
           non_normal_aligned_init_from_components
      procedure, pass(this) :: free => non_normal_aligned_free
      procedure, pass(this) :: finalize => non_normal_aligned_finalize
-     procedure, pass(this) :: get_normal_axis => non_normal_aligned_get_normal_axis
+     procedure, pass(this) :: get_normal_axis => &
+          non_normal_aligned_get_normal_axis
   end type non_normal_aligned_t
 
 contains
@@ -102,7 +105,7 @@ contains
     call this%bc_x%init_from_components(coef, value(1))
     call this%bc_y%init_from_components(coef, value(2))
     call this%bc_z%init_from_components(coef, value(3))
-    this%constraints = (/ .false., .true., .true. /)
+    this%constraints = [.false., .true., .true.]
     this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
   end subroutine non_normal_aligned_init_from_components
 

@@ -279,7 +279,8 @@ contains
        this%unique_mask(htable_data) = this%facet_msk(i)
        facet = this%facet(i)
 
-       idx = nonlinear_index(this%facet_msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       idx = nonlinear_index(this%facet_msk(i), this%Xh%lx, this%Xh%lx, &
+            this%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
        area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
        normal = normal * area !Scale normal by area

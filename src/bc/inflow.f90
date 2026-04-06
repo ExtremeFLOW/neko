@@ -55,7 +55,8 @@ module inflow
      !> Constructor
      procedure, pass(this) :: init => inflow_init
      !> Constructor from components.
-     procedure, pass(this) :: init_from_components => inflow_init_from_components
+     procedure, pass(this) :: init_from_components => &
+          inflow_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => inflow_free
      !> Finalize.

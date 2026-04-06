@@ -303,7 +303,7 @@ contains
     this%coef => coef
     this%Xh => this%dof%Xh
     this%msh => this%dof%msh
-    this%constraints = (/ .true., .true., .true. /)
+    this%constraints = [.true., .true., .true.]
 
     call this%marked_facet%init()
 

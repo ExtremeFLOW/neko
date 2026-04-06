@@ -51,13 +51,16 @@ module symmetry_aligned
    contains
      procedure, pass(this) :: apply_scalar => symmetry_aligned_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_aligned_apply_vector
-     procedure, pass(this) :: apply_scalar_dev => symmetry_aligned_apply_scalar_dev
-     procedure, pass(this) :: apply_vector_dev => symmetry_aligned_apply_vector_dev
+     procedure, pass(this) :: apply_scalar_dev => &
+          symmetry_aligned_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => &
+          symmetry_aligned_apply_vector_dev
      procedure, pass(this) :: init => symmetry_aligned_init
      procedure, pass(this) :: init_from_components => &
           symmetry_aligned_init_from_components
      procedure, pass(this) :: free => symmetry_aligned_free
-     procedure, pass(this) :: get_normal_axis => symmetry_aligned_get_normal_axis
+     procedure, pass(this) :: get_normal_axis => &
+          symmetry_aligned_get_normal_axis
      procedure, pass(this) :: finalize => symmetry_aligned_finalize
   end type symmetry_aligned_t
 
@@ -78,7 +81,7 @@ contains
     call this%free()
 
     call this%init_base(coef)
-    this%constraints = (/ .true., .false., .false. /)
+    this%constraints = [.true., .false., .false.]
     this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
     call this%bc_x%init_from_components(this%coef)
     call this%bc_y%init_from_components(this%coef)

@@ -108,7 +108,7 @@ contains
     logical :: found
 
     call this%init_base(coef)
-    this%constraints = (/ .false., .false., .false. /)
+    this%constraints = [.false., .false., .false.]
 
     ! Try to read array from json
     call json%get("flux", this%init_flux_, found)

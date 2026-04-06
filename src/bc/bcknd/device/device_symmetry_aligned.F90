@@ -31,8 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_symmetry_aligned
-  use num_types
-  use utils
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
 

@@ -473,21 +473,24 @@ contains
     end if
 
     if (allocated(this%constraint_n)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_n_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+            c_associated(this%constraint_n_d)) then
           call device_unmap(this%constraint_n, this%constraint_n_d)
        end if
        deallocate(this%constraint_n)
     end if
 
     if (allocated(this%constraint_t1)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t1_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+            c_associated(this%constraint_t1_d)) then
           call device_unmap(this%constraint_t1, this%constraint_t1_d)
        end if
        deallocate(this%constraint_t1)
     end if
 
     if (allocated(this%constraint_t2)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t2_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+            c_associated(this%constraint_t2_d)) then
           call device_unmap(this%constraint_t2, this%constraint_t2_d)
        end if
        deallocate(this%constraint_t2)
@@ -641,19 +644,22 @@ contains
     call this%mixed_dof_mask%free()
 
     if (allocated(this%constraint_n)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_n_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+            c_associated(this%constraint_n_d)) then
           call device_unmap(this%constraint_n, this%constraint_n_d)
        end if
        deallocate(this%constraint_n)
     end if
     if (allocated(this%constraint_t1)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t1_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+            c_associated(this%constraint_t1_d)) then
           call device_unmap(this%constraint_t1, this%constraint_t1_d)
        end if
        deallocate(this%constraint_t1)
     end if
     if (allocated(this%constraint_t2)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t2_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+            c_associated(this%constraint_t2_d)) then
           call device_unmap(this%constraint_t2, this%constraint_t2_d)
        end if
        deallocate(this%constraint_t2)
@@ -694,7 +700,7 @@ contains
             " and contraints, ", bc%constraints
 
        if (.not. allocated(bc%msk)) then
-          call neko_error("Attempting to finalize coupled resolver from an " // &
+          call neko_error("Attempting to finalize coupled resolver " // &
                "unfinalized BC.")
        end if
 
@@ -938,7 +944,8 @@ contains
          end do
       end do
 
-      write(*,*) "Seeded normals at directly marked mixed nodes in coupled vector BC resolver."
+      write(*,*) "Seeded normals at directly marked mixed nodes in " // &
+           "coupled vector BC resolver."
 
       ! We now treat the special edges and conrners. Everything is done locally
       ! per element, using reference element address tables found in hex.f90
@@ -1028,7 +1035,8 @@ contains
                   facet = edge_faces(ii, edge)
 
                   ! Skip if prio class is not the same.
-                  if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then
+                  if (abs(prio - this%face_class(facet, el)) .gt. &
+                       1.0e-6_rp) then
                      cycle
                   end if
 
@@ -1047,7 +1055,8 @@ contains
             end do
          end do
 
-         write(*,*) "Finished reconstructing normals at mixed edges in coupled vector BC resolver."
+         write(*,*) "Finished reconstructing normals at mixed edges in " // &
+              "coupled vector BC resolver."
 
          ! Mixed corner node normals are rebuilt from the adjacent faces whose
          ! local face class matches the reduced nodal class at that node.
@@ -1071,12 +1080,14 @@ contains
                   facet = node_faces(ii, node)
 
                   ! Check class agreement
-                  if (abs(prio - this%face_class(facet, el)) .gt. 1.0e-6_rp) then
+                  if (abs(prio - this%face_class(facet, el)) .gt. &
+                       1.0e-6_rp) then
                      cycle
                   end if
 
                   ! Add the normal.
-                  normal = this%coef%get_normal(rst(1), rst(2), rst(3), el, facet)
+                  normal = this%coef%get_normal(rst(1), rst(2), rst(3), &
+                       el, facet)
                   nx%x(node_idx,1,1,1) = nx%x(node_idx,1,1,1) + normal(1)
                   ny%x(node_idx,1,1,1) = ny%x(node_idx,1,1,1) + normal(2)
                   nz%x(node_idx,1,1,1) = nz%x(node_idx,1,1,1) + normal(3)
@@ -1085,7 +1096,8 @@ contains
          end do
       end if
 
-      write(*,*) "Finished reconstructing normals at mixed corners in coupled vector BC resolver."
+      write(*,*) "Finished reconstructing normals at mixed corners in " // &
+           "coupled vector BC resolver."
 
       ! We are done element-wise. Now we can just sum the normals across nodes
       ! shared by multiple elements.
@@ -1217,20 +1229,24 @@ contains
          call device_cfill(work1%x_d, 5.0_rp, dof_size)
 
          if (this%dirichlet_dof_mask%is_set()) then
-            call device_cfill_mask(work1%x_d, 1.0_rp, dof_size, this%dirichlet_dof_mask%get_d(), &
+            call device_cfill_mask(work1%x_d, 1.0_rp, dof_size, &
+                 this%dirichlet_dof_mask%get_d(), &
                  this%dirichlet_dof_mask%size())
          end if
 
          if (this%mixed_dof_mask%is_set()) then
-            call device_cfill_mask(work1%x_d, 2.0_rp, dof_size, this%mixed_dof_mask%get_d(), &
+            call device_cfill_mask(work1%x_d, 2.0_rp, dof_size, &
+                 this%mixed_dof_mask%get_d(), &
                  this%mixed_dof_mask%size())
          end if
 
-         call device_memcpy(work1%x, work1%x_d, dof_size, DEVICE_TO_HOST, sync = .true.)
+         call device_memcpy(work1%x, work1%x_d, dof_size, DEVICE_TO_HOST, &
+              sync = .true.)
 
       else
          call cfill(work1%x, 5.0_rp, dof_size)
-         call cfill_mask(work1%x, 1.0_rp, dof_size, this%dirichlet_dof_mask%get(), &
+         call cfill_mask(work1%x, 1.0_rp, dof_size, &
+              this%dirichlet_dof_mask%get(), &
               this%dirichlet_dof_mask%size())
          call cfill_mask(work1%x, 2.0_rp, dof_size, this%mixed_dof_mask%get(), &
               this%mixed_dof_mask%size())
