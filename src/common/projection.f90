@@ -695,7 +695,7 @@ contains
 
       else !New vector is not linearly independent, forget about it
          if (pe_rank .eq. 0) then
-            call neko_warning('New vector not linearly indepependent!')
+            call neko_warning('New vector not linearly independent!')
          end if
          m = m - 1 !Remove column
       end if
@@ -804,7 +804,7 @@ contains
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
          if (pe_rank .eq. 0) then
-            call neko_warning('New vector not linearly indepependent!')
+            call neko_warning('New vector not linearly independent!')
          end if
          m = m - 1 !Remove column
       end if

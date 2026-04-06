@@ -68,10 +68,6 @@ contains
     class(projection_vel_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: L, activ_step
-    integer :: i
-    integer(c_size_t) :: ptr_size
-    type(c_ptr) :: ptr
-    real(c_rp) :: dummy
 
     call this%free()
 
