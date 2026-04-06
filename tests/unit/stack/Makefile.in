@@ -24,7 +24,7 @@ stack_test_TESTS := test_stack_i4.pf\
 		    test_stack_nz.pf\
 		    test_stack_nc.pf\
 		    test_stack_pt.pf
-stack_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
+stack_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,stack_test))
 stack_test.inc: Makefile
 
