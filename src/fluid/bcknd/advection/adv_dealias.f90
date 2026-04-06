@@ -34,15 +34,15 @@
 module adv_dealias
   use advection, only : advection_t
   use num_types, only : rp
-  use math, only : vdot3, sub2
+  use math, only : vdot3, sub2, add2
   use space, only : space_t, GL
   use field, only : field_t
   use coefs, only : coef_t
-  use device_math, only : device_vdot3, device_sub2
+  use device_math, only : device_vdot3, device_sub2, device_col3, device_add2
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
        NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use utils, only : neko_error
-  use operators, only : opgrad
+  use operators, only : opgrad, div
   use interpolation, only : interpolator_t
   use device, only : device_map, device_get_ptr, device_free
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
@@ -457,7 +457,7 @@ contains
   end subroutine compute_scalar_advection_dealias
 
 
-  !!> Add the advection term in ALE framework.
+  !!> Add the advection term in ALE framework using dealiasing.
   !! @param this The object.
   !! @param vx The x component of velocity.
   !! @param vy The y component of velocity.
@@ -478,13 +478,15 @@ contains
   !! Ph.D. thesis, Massachusetts Institute of Technology, 1989.
   !! Note: In Nek5000, dealiasing is not done for this term.
   subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-       fx, fy, fz, Xh, coef, n, dt)
+        fx, fy, fz, Xh, coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z
     type(field_t), intent(inout) :: fx, fy, fz
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
+    integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: wm_x_GL, wm_y_GL, wm_z_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: flux_GL
@@ -492,20 +494,80 @@ contains
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: total_div_GL
     integer :: e, i, idx, nel, n_GL
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: temp_x, temp_y, temp_z
-    integer, intent(in) :: n
-    real(kind=rp), intent(in), optional :: dt
 
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
 
     associate(c_GL => this%coef_GL)
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call neko_error("ALE advection with dealiasing not " // &
-              "implemented yet for device")
-      else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
-         call neko_error("ALE advection with dealiasing not " // &
-              "implemented yet for device")
-      else
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+
+          ! Map mesh velocity (wm) to the GL space
+          ! (wm_x, wm_y, wm_z)@GLL --> (vr, vs, vt)@GL
+          call this%GLL_to_GL%map(this%vr, wm_x%x, nel, this%Xh_GL)
+          call this%GLL_to_GL%map(this%vs, wm_y%x, nel, this%Xh_GL)
+          call this%GLL_to_GL%map(this%vt, wm_z%x, nel, this%Xh_GL)
+
+          ! X-Momentum
+          ! Map vx to GL space (tx)
+          call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+
+          ! u \cdot wm_*
+
+          ! Fz = u * wm_z
+          call device_col3(this%tz_d, this%tx_d, this%vt_d, n_GL) 
+          ! Fy = u * wm_y
+          call device_col3(this%ty_d, this%tx_d, this%vs_d, n_GL) 
+          ! Fx = u * wm_x
+          call device_col3(this%tx_d, this%tx_d, this%vr_d, n_GL) 
+          
+          ! Compute divergence of the flux in GL space
+          call div(this%tbf, this%tx, this%ty, this%tz, c_GL)
+          
+          ! Map back to GLL space and add to RHS
+          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+          call device_add2(fx%x_d, this%temp_d, n)
+
+          ! Y-Momentum 
+          ! Map vy to GL space (tx)
+          call this%GLL_to_GL%map(this%tx, vy%x, nel, this%Xh_GL)
+
+          ! v \cdot wm_*
+
+          ! Fz = v * wm_z
+          call device_col3(this%tz_d, this%tx_d, this%vt_d, n_GL) 
+          ! Fy = v * wm_y
+          call device_col3(this%ty_d, this%tx_d, this%vs_d, n_GL) 
+          ! Fx = v * wm_x
+          call device_col3(this%tx_d, this%tx_d, this%vr_d, n_GL) 
+          
+          ! Compute divergence of the flux in GL space
+          call div(this%tbf, this%tx, this%ty, this%tz, c_GL)
+          
+          ! Map back to GLL space and add to RHS
+          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+          call device_add2(fy%x_d, this%temp_d, n)
+
+          ! Z-Momentum
+          ! Map vz to GL space (tx)
+          call this%GLL_to_GL%map(this%tx, vz%x, nel, this%Xh_GL)
+
+          ! w \cdot wm_*
+          
+          ! Fz = w * wm_z
+          call device_col3(this%tz_d, this%tx_d, this%vt_d, n_GL) 
+          ! Fy = w * wm_y
+          call device_col3(this%ty_d, this%tx_d, this%vs_d, n_GL) 
+          ! Fx = w * wm_x
+          call device_col3(this%tx_d, this%tx_d, this%vr_d, n_GL) 
+          
+          ! Compute divergence of the flux in GL space
+          call div(this%tbf, this%tx, this%ty, this%tz, c_GL)
+          
+          ! Map back to GLL space and add to RHS
+          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+          call device_add2(fz%x_d, this%temp_d, n)
+
+       else
          do e = 1, coef%msh%nelv
             ! Map advecting velocity and mesh velocity onto the higher-order space
             call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
@@ -581,7 +643,6 @@ contains
          end do
       end if
     end associate
-
   end subroutine compute_ale_advection_dealias
 
   subroutine recompute_metrics_dealias(this, coef, moving_boundary)

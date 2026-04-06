@@ -100,7 +100,8 @@ extern "C" {
                           void *bfx, void *bfy, void *bfz,
                           void *u, void *v, void *w, void *B,
                           real *rho, real *dt, real *bd2,
-                          real *bd3, real *bd4, int *nbd, int *n) {
+                          real *bd3, real *bd4, int *nbd, int *n,
+                          void *Blag, void *Blaglag) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -113,7 +114,8 @@ extern "C" {
                                       (real *) bfx, (real *) bfy, (real *) bfz,
                                       (real *) u, (real *) v, (real *) w,
                                       (real *) B, *rho, *dt,
-                                      *bd2, *bd3, *bd4, *nbd,  *n);
+                                      *bd2, *bd3, *bd4, *nbd, *n,
+                                      (real *) Blag, (real *) Blaglag);
     CUDA_CHECK(cudaGetLastError());
   }
 

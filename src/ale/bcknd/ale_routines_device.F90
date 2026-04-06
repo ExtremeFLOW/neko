@@ -13,6 +13,8 @@ module ale_routines_device
        point_tracker_t, body_kinematics_t, &
        init_pivot_state, update_pivot_location, &
        compute_body_kinematics_built_in, ab_integrate_point_pos
+  use iso_c_binding
+
   implicit none
   private
 
@@ -21,14 +23,29 @@ module ale_routines_device
   public :: add_kinematics_to_mesh_velocity_device
   public :: update_ale_mesh_device
 
+  interface
+    subroutine add_kinematics_to_mesh_velocity_hip(wx, wy, wz, &
+        x_ref, y_ref, z_ref, phi, x, y, z, &
+        center, vel_trans, vel_ang, pivot, &
+        rot_mat, n) bind(c, name="add_kinematics_to_mesh_velocity_hip")
+      use, intrinsic :: iso_c_binding
+      type(c_ptr), value :: wx, wy, wz
+      type(c_ptr), value :: x_ref, y_ref, z_ref, phi, x, y, z
+      type(c_ptr), value :: center, vel_trans, vel_ang, pivot, rot_mat
+      type(c_ptr), value :: n
+    end subroutine add_kinematics_to_mesh_velocity_hip
+  end interface
+
 contains
 
+  !> Compute mesh stiffness
   subroutine compute_stiffness_ale_device(coef, params)
     type(coef_t), intent(inout) :: coef
     type(ale_config_t), intent(in) :: params
     call neko_error("ALE: compute_stiffness_ale_device not implemented yet")
   end subroutine compute_stiffness_ale_device
 
+  !> Cheap dist
   subroutine compute_cheap_dist_device(d, coef, msh, zone_indices)
     real(kind=rp), intent(inout), target :: d(:)
     type(coef_t), intent(in) :: coef
@@ -37,22 +54,43 @@ contains
     call neko_error("ALE: compute_cheap_dist_device not implemented yet")
   end subroutine compute_cheap_dist_device
 
+
+  !> Add Kinematics to Mesh Velocity
   subroutine add_kinematics_to_mesh_velocity_device(wx, wy, wz, &
-       x_ref, y_ref, z_ref, phi, coef, kinematics, rot_mat, inital_pivot_loc)
+        x_ref, y_ref, z_ref, phi, coef, kinematics, rot_mat, inital_pivot_loc)
     type(field_t), intent(inout) :: wx, wy, wz
     type(field_t), intent(in) :: x_ref, y_ref, z_ref
     type(field_t), intent(in) :: phi
     type(coef_t), intent(in) :: coef
-    type(body_kinematics_t), intent(in) :: kinematics
-    real(kind=rp), intent(in) :: inital_pivot_loc(3)
-    real(kind=rp), intent(in) :: rot_mat(3,3)
-    call neko_error("ALE: " // &
-         "add_kinematics_to_mesh_velocity_device not implemented yet")
+    type(body_kinematics_t), intent(in), target :: kinematics
+    real(kind=rp), intent(in), target :: inital_pivot_loc(3)
+    real(kind=rp), intent(in), target :: rot_mat(3,3)
+    
+    integer(c_int), target :: n
+
+    n = phi%dof%size()
+
+#ifdef HAVE_HIP
+    call add_kinematics_to_mesh_velocity_hip( &
+         wx%x_d, wy%x_d, wz%x_d, &
+         x_ref%x_d, y_ref%x_d, z_ref%x_d, &
+         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         c_loc(kinematics%center), &
+         c_loc(kinematics%vel_trans), &
+         c_loc(kinematics%vel_ang), &
+         c_loc(inital_pivot_loc), &
+         c_loc(rot_mat), &
+         c_loc(n))
+#else
+    call neko_error("ALE: add_kinematics_to_mesh_velocity_device so far supports only HIP backend")
+#endif
+
   end subroutine add_kinematics_to_mesh_velocity_device
 
 
+  !> Update ALE Mesh
   subroutine update_ale_mesh_device(c_Xh, wm_x, wm_y, wm_z, wm_x_lag, &
-       wm_y_lag, wm_z_lag, time, nadv, scheme_type)
+        wm_y_lag, wm_z_lag, time, nadv, scheme_type)
 
     type(coef_t), intent(inout) :: c_Xh
     type(field_t), intent(in) :: wm_x, wm_y, wm_z
@@ -77,13 +115,10 @@ contains
     n = c_Xh%dof%size()
 
     factor = time%dt * ab_coeffs(1)
-    ! for now we leave it like this. Can be replaced by a single routine
-    ! that does all three components at once
     call device_add2s2(c_Xh%dof%x_d, wm_x%x_d, factor, n)
     call device_add2s2(c_Xh%dof%y_d, wm_y%x_d, factor, n)
     call device_add2s2(c_Xh%dof%z_d, wm_z%x_d, factor, n)
 
-    ! History Terms
     do j = 2, nadv
        factor = time%dt * ab_coeffs(j)
        call device_add2s2(c_Xh%dof%x_d, wm_x_lag%lf(j - 1)%x_d, factor, n)

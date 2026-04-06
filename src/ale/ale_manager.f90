@@ -74,7 +74,8 @@ module ale_manager
   use math, only : glmin, pi
   use field_math, only : field_rzero, field_add2, &
        field_cmult
-
+  use device, only : HOST_TO_DEVICE, device_memcpy, &
+       device_unmap, DEVICE_TO_HOST
   implicit none
   private
 
@@ -204,7 +205,11 @@ contains
        return
     else if (this%active) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error("ALE not currently supported with device backend.")
+#ifdef HAVE_HIP
+          call neko_log%message("Initializing ALE Manager with DEVICE backend (HIP).")
+#else
+          call neko_error("ALE_device currently supported only with HIP backend.")
+#endif
        end if
        if (oifs) then
           call neko_error("ALE not currently supported with OIFS.")
@@ -224,6 +229,13 @@ contains
     this%x_ref%x = coef%dof%x
     this%y_ref%x = coef%dof%y
     this%z_ref%x = coef%dof%z
+
+    ! Sync to device
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%x_ref%x, this%x_ref%x_d, n, HOST_TO_DEVICE, .false.)
+       call device_memcpy(this%y_ref%x, this%y_ref%x_d, n, HOST_TO_DEVICE, .false.)
+       call device_memcpy(this%z_ref%x, this%z_ref%x_d, n, HOST_TO_DEVICE, .true.)
+    end if
 
     ! Set user function pointers.
     this%user_ale_mesh_vel => user%ale_mesh_velocity
@@ -1027,6 +1039,14 @@ contains
     coef%h1 = h1_restore
     coef%h2 = h2_restore
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      do body_idx = 1 , this%config%nbodies
+       call device_memcpy(this%base_shapes(body_idx)%x, &
+            this%base_shapes(body_idx)%x_d, &
+            n, HOST_TO_DEVICE, sync = .true.)
+      end do
+    end if
+
     if (allocated(h1_restore)) deallocate(h1_restore)
     if (allocated(h2_restore)) deallocate(h2_restore)
     if (allocated(Ax)) deallocate(Ax)
@@ -1047,7 +1067,7 @@ contains
     class(ale_manager_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(time_state_t), intent(in) :: time_s
-    integer :: i
+    integer :: i, n
     type(body_kinematics_t) :: kin
     real(kind=rp) :: rot_mat(3,3)
     real(kind=rp) :: rot_center(3)
@@ -1101,7 +1121,15 @@ contains
     if (associated(this%user_ale_mesh_vel)) then
        call this%user_ale_mesh_vel(this%wm_x, this%wm_y, this%wm_z, &
             coef, this%x_ref, this%y_ref, this%z_ref, this%base_shapes, time_s)
-    end if
+       ! Sync user modifications to the device
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          n = coef%dof%size()
+          call device_memcpy(this%wm_x%x, this%wm_x%x_d, n, HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%wm_y%x, this%wm_y%x_d, n, HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%wm_z%x, this%wm_z%x_d, n, HOST_TO_DEVICE, .true.)
+       end if
+    end if    
+    
     call profiler_end_region('ALE add mesh velocity')
 
   end subroutine update_mesh_velocity
@@ -1152,7 +1180,8 @@ contains
     type(coef_t), intent(inout) :: coef
     type(ale_config_t), intent(in) :: params
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compute_stiffness_ale_device(coef, params)
+      ! call compute_stiffness_ale_device(coef, params)
+       call compute_stiffness_ale_cpu(coef, params)
     else
        call compute_stiffness_ale_cpu(coef, params)
     end if

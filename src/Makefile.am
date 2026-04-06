@@ -444,6 +444,7 @@ endif
 
 if ENABLE_HIP
 libneko_la_SOURCES += \
+    ale/bcknd/device/hip/ale_kinematics.hip\
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
@@ -696,6 +697,7 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
+    ale/bcknd/device/hip/ale_kinematics_kernel.h\
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
