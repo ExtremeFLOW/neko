@@ -43,7 +43,8 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use dong_outflow, only : dong_outflow_t
   use symmetry_aligned, only : symmetry_aligned_t
   use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_aligned_t
+  use non_normal_aligned, only : non_normal_aligned_t
+  use non_normal, only : non_normal_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   implicit none
 
@@ -179,7 +180,11 @@ contains
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
     case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
-       allocate(non_normal_aligned_t::object)
+       if ((scheme%full_stress_formulation)) then
+          allocate(non_normal_t::object)
+       else
+          allocate(non_normal_aligned_t::object)
+       end if
     case ("blasius_profile")
        allocate(blasius_t::object)
     case ("shear_stress")
@@ -215,19 +220,15 @@ contains
     call json_get_or_default(json, "name", object%name, default_name)
     call object%finalize()
 
-    ! Exclude these two because they are bcs for the residual, not velocity
-    if (trim(type) .ne. "normal_outflow" .and. &
-         trim(type) .ne. "normal_outflow+dong") then
-       do i = 1, size(zone_indices)
-          do j = 1, scheme%msh%nelv
-             do k = 1, 2 * scheme%msh%gdim
-                if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
-                   scheme%msh%facet_type(k, j) = 2
-                end if
-             end do
+    do i = 1, size(zone_indices)
+       do j = 1, scheme%msh%nelv
+          do k = 1, 2 * scheme%msh%gdim
+             if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
+                scheme%msh%facet_type(k, j) = 2
+             end if
           end do
        end do
-    end if
+    end do
 
     if (allocated(type)) then
        deallocate(type)

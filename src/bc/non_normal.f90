@@ -30,36 +30,26 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Dirichlet condition on axis aligned plane in the non normal direction
+!> Mixed Dirichlet condition in the non-normal direction.
 module non_normal
   use json_module, only : json_file
-  use symmetry, only : symmetry_t
-  use symmetry_aligned, only : symmetry_aligned_t
-  use bc, only : BC_TYPES
+  use bc, only : BC_TYPES, mixed_bc_t
   use num_types, only : rp
-  use tuple, only : tuple_i4_t
   use coefs, only : coef_t
-  use, intrinsic :: iso_c_binding
+  use json_utils, only : json_get_or_lookup
+  use utils, only : neko_error
+  use time_state, only : time_state_t
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
-  !> Dirichlet condition in non normal direction of a plane.
-  !! @warning Only works for axis-aligned plane boundaries.
-  type, public, extends(symmetry_aligned_t) :: non_normal_aligned_t
+  type, public, extends(mixed_bc_t) :: non_normal_t
+     real(kind=rp) :: value(3) = 0.0_rp
    contains
-     !> Constructor.
-     procedure, pass(this) :: init => non_normal_aligned_init
-     !> Constructor from components
-     procedure, pass(this) :: init_from_components => &
-          non_normal_aligned_init_from_components
-     !> Destructor.
-     procedure, pass(this) :: free => non_normal_aligned_free
-     !> Finalize.
-     procedure, pass(this) :: finalize => non_normal_aligned_finalize
-  end type non_normal_aligned_t
-
-  type, public, extends(symmetry_t) :: non_normal_t
-   contains
+     procedure, pass(this) :: apply_scalar => non_normal_apply_scalar
+     procedure, pass(this) :: apply_vector => non_normal_apply_vector
+     procedure, pass(this) :: apply_scalar_dev => non_normal_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => non_normal_apply_vector_dev
      procedure, pass(this) :: init => non_normal_init
      procedure, pass(this) :: init_from_components => &
           non_normal_init_from_components
@@ -76,21 +66,123 @@ contains
     class(non_normal_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
+    real(kind=rp), allocatable :: value(:)
+    real(kind=rp) :: value_3(3)
+    logical :: found
+    integer :: var_type
 
-    call this%init_from_components(coef)
+    value_3 = 0.0_rp
+    call json%info("value", found = found, var_type = var_type)
+    if (found) then
+       call json_get_or_lookup(json, "value", value)
+       if (size(value) .ne. 3) then
+          call neko_error("The non_normal boundary condition requires a " // &
+               "3-component value vector.")
+       end if
+       value_3 = value
+    end if
+
+    call this%init_from_components(coef, value_3)
   end subroutine non_normal_init
 
   !> Constructor from components.
   !! @param[in] coef The SEM coefficients.
-  subroutine non_normal_init_from_components(this, coef)
+  !! @param[in] value The tangential value in global coordinates.
+  subroutine non_normal_init_from_components(this, coef, value)
     class(non_normal_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
+    real(kind=rp), intent(in) :: value(3)
 
     call this%free()
-    call this%symmetry_t%init_from_components(coef)
+    call this%init_base(coef)
     this%constraints = (/ .false., .true., .true. /)
     this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
+    this%value = value
   end subroutine non_normal_init_from_components
+
+  subroutine non_normal_apply_scalar(this, x, n, time, strong)
+    class(non_normal_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: x
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+  end subroutine non_normal_apply_scalar
+
+  !> Strong application preserving the normal component while enforcing the
+  !! tangential projections of the configured global value.
+  subroutine non_normal_apply_vector(this, x, y, z, n, time, strong)
+    class(non_normal_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    logical :: strong_
+    integer :: i, m, k
+    real(kind=rp) :: normal(3), t1(3), t2(3)
+    real(kind=rp) :: u_n, g_t1, g_t2
+
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
+
+    if (.not. strong_) return
+
+    m = this%resolved_msk%size()
+    do i = 1, m
+       k = this%resolved_msk%get(i)
+       normal = this%n%x(:, i)
+       t1 = this%t1%x(:, i)
+       t2 = this%t2%x(:, i)
+
+       ! Normal component, will be reserved
+       u_n = x(k) * normal(1) + y(k) * normal(2) + z(k) * normal(3)
+       ! Project global input onto local tangential directions
+       g_t1 = this%value(1) * t1(1) + this%value(2) * t1(2) + &
+            this%value(3) * t1(3)
+       g_t2 = this%value(1) * t2(1) + this%value(2) * t2(2) + &
+            this%value(3) * t2(3)
+
+       ! Reconstruct in global coordinates
+       x(k) = u_n * normal(1) + g_t1 * t1(1) + g_t2 * t2(1)
+       y(k) = u_n * normal(2) + g_t1 * t1(2) + g_t2 * t2(2)
+       z(k) = u_n * normal(3) + g_t1 * t1(3) + g_t2 * t2(3)
+    end do
+  end subroutine non_normal_apply_vector
+
+  subroutine non_normal_apply_scalar_dev(this, x_d, time, strong, strm)
+    class(non_normal_t), intent(inout), target :: this
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout) :: strm
+  end subroutine non_normal_apply_scalar_dev
+
+  subroutine non_normal_apply_vector_dev(this, x_d, y_d, z_d, time, strong, &
+       strm)
+    class(non_normal_t), intent(inout), target :: this
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout) :: strm
+    logical :: strong_
+
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
+
+    if (strong_) then
+       call neko_error("Device strong apply for non_normal_t is not " // &
+            "implemented yet.")
+    end if
+  end subroutine non_normal_apply_vector_dev
 
   !> Finalize generic mixed non-normal bc.
   subroutine non_normal_finalize(this)
@@ -99,83 +191,11 @@ contains
     call this%finalize_base()
   end subroutine non_normal_finalize
 
-  !> Constructor
-  !! @param[in] coef The SEM coefficients.
-  !! @param[inout] json The JSON object configuring the boundary condition.
-  subroutine non_normal_aligned_init(this, coef, json)
-    class(non_normal_aligned_t), target, intent(inout) :: this
-    type(coef_t), target, intent(in) :: coef
-    type(json_file), intent(inout) ::json
-
-    call this%init_from_components(coef)
-  end subroutine non_normal_aligned_init
-
-  !> Constructor from components.
-  !! @param[in] coef The SEM coefficients.
-  subroutine non_normal_aligned_init_from_components(this, coef)
-    class(non_normal_aligned_t), target, intent(inout) :: this
-    type(coef_t), target, intent(in) :: coef
-
-    call this%free()
-    call this%symmetry_aligned_t%init_from_components(coef)
-    this%constraints = (/ .false., .true., .true. /)
-    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
-
-  end subroutine non_normal_aligned_init_from_components
-
-  !> Finalize
-  subroutine non_normal_aligned_finalize(this)
-    class(non_normal_aligned_t), target, intent(inout) :: this
-    integer :: i, j, k, l
-    type(tuple_i4_t), pointer :: bfp(:)
-    real(kind=rp) :: sx, sy, sz
-    real(kind=rp), parameter :: TOL = 1d-3
-    type(tuple_i4_t) :: bc_facet
-    integer :: facet, el
-
-    associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
-         nz => this%coef%nz)
-      bfp => this%marked_facet%array()
-      do i = 1, this%marked_facet%size()
-         bc_facet = bfp(i)
-         facet = bc_facet%x(1)
-         el = bc_facet%x(2)
-         call this%get_normal_axis(sx, sy, sz, facet, el)
-
-         if (sx .lt. TOL) then
-            call this%bc_y%mark_facet(facet, el)
-            call this%bc_z%mark_facet(facet, el)
-         end if
-
-         if (sy .lt. TOL) then
-            call this%bc_x%mark_facet(facet, el)
-            call this%bc_z%mark_facet(facet, el)
-         end if
-
-         if (sz .lt. TOL) then
-            call this%bc_y%mark_facet(facet, el)
-            call this%bc_x%mark_facet(facet, el)
-         end if
-      end do
-    end associate
-    call this%bc_x%finalize()
-    call this%bc_y%finalize()
-    call this%bc_z%finalize()
-
-    call this%finalize_base()
-  end subroutine non_normal_aligned_finalize
-
-  !> Destructor
-  subroutine non_normal_aligned_free(this)
-    class(non_normal_aligned_t), target, intent(inout) :: this
-
-    call this%symmetry_aligned_t%free()
-  end subroutine non_normal_aligned_free
-
   !> Destructor for generic mixed non-normal bc.
   subroutine non_normal_free(this)
     class(non_normal_t), target, intent(inout) :: this
 
-    call this%symmetry_t%free()
+    call this%free_mixed()
+    call this%free_base()
   end subroutine non_normal_free
 end module non_normal

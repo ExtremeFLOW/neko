@@ -65,7 +65,8 @@ module fluid_pnpn
   use shear_stress, only : shear_stress_t
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
-  use non_normal, only : non_normal_aligned_t
+  use non_normal_aligned, only : non_normal_aligned_t
+  use non_normal, only : non_normal_t
   use symmetry_aligned, only : symmetry_aligned_t
   use symmetry, only : symmetry_t
   use checkpoint, only : chkp_t
@@ -961,12 +962,14 @@ contains
                 call this%bcs_vel%append(bc_i)
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
              type is (non_normal_aligned_t)
-                ! This is a bc for the residuals and increments, not the
-                ! velocity itself. So, don't append to bcs_vel.
-                ! Otherwise the situation is the same as symmetry.
+                ! The situation is the same as symmetry.
                 call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
                 call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
                 call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
+                call this%bcs_vel%append(bc_i)
+             type is (non_normal_t)
+                call this%bcs_vel_resolver%mark(bc_i)
+                call this%bcs_vel%append(bc_i)
              type is (shear_stress_t)
                 if (.not. this%full_stress_formulation) then
                    call neko_error("The shear_stress boundary condition " // &

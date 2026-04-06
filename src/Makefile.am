@@ -189,6 +189,7 @@ neko_fortran_SOURCES = \
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/symmetry_aligned.f90\
+	bc/non_normal_aligned.f90\
 	bc/non_normal.f90\
 	bc/blasius.f90\
 	bc/wall_model_bc.f90\
