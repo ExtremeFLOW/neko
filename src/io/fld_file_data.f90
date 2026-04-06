@@ -212,7 +212,7 @@ contains
                 else
                    ! For scalar fields, require indices in 1:this%n_scalars
                    if (s_index_list(i) < 1 .or. &
-                           s_index_list(i) > this%n_scalars) then
+                        s_index_list(i) > this%n_scalars) then
                       call neko_error("s_index_list entry out of bounds")
                    end if
                    call global_interp%evaluate(s_target_list%x(i), &

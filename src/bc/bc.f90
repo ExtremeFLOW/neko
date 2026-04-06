@@ -73,7 +73,7 @@ module bc
      integer :: MIXED_CONSTRAINS_NORMAL = 2
      integer :: MIXED_CONSTRAINS_TANGENT = 3
      integer :: NEUMANN = 5
-  end type
+  end type bc_type_t
 
   type(bc_type_t), public :: BC_TYPES
 
@@ -739,25 +739,28 @@ contains
     call field_rzero(nz_field)
 
     if (this%resolved_msk%is_set()) then
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_cfill_mask(mask_field%x_d, 1.0_rp, mask_field%size(), &
-              this%resolved_msk%get_d(), this%resolved_msk%size())
-         call mask_field%copy_from(DEVICE_TO_HOST, .true.)
-      else
-         call cfill_mask(mask_field%x, 1.0_rp, mask_field%size(), &
-              this%resolved_msk%get(), this%resolved_msk%size())
-      end if
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_cfill_mask(mask_field%x_d, 1.0_rp, mask_field%size(), &
+               this%resolved_msk%get_d(), this%resolved_msk%size())
+          call mask_field%copy_from(DEVICE_TO_HOST, .true.)
+       else
+          call cfill_mask(mask_field%x, 1.0_rp, mask_field%size(), &
+               this%resolved_msk%get(), this%resolved_msk%size())
+       end if
 
-      if (this%n%size() .gt. 0) then
-         call this%n%copy_from(DEVICE_TO_HOST, .true.)
+       if (this%n%size() .gt. 0) then
+          call this%n%copy_from(DEVICE_TO_HOST, .true.)
 
-         call masked_scatter_copy(nx_field%x(:,1,1,1), this%n%x(1,:), &
-              this%resolved_msk%get(), nx_field%size(), this%resolved_msk%size())
-         call masked_scatter_copy(ny_field%x(:,1,1,1), this%n%x(2,:), &
-              this%resolved_msk%get(), ny_field%size(), this%resolved_msk%size())
-         call masked_scatter_copy(nz_field%x(:,1,1,1), this%n%x(3,:), &
-              this%resolved_msk%get(), nz_field%size(), this%resolved_msk%size())
-      end if
+          call masked_scatter_copy(nx_field%x(:,1,1,1), this%n%x(1,:), &
+               this%resolved_msk%get(), nx_field%size(), &
+               this%resolved_msk%size())
+          call masked_scatter_copy(ny_field%x(:,1,1,1), this%n%x(2,:), &
+               this%resolved_msk%get(), ny_field%size(), &
+               this%resolved_msk%size())
+          call masked_scatter_copy(nz_field%x(:,1,1,1), this%n%x(3,:), &
+               this%resolved_msk%get(), nz_field%size(), &
+               this%resolved_msk%size())
+       end if
     end if
 
     call debug_fields%init(4)
