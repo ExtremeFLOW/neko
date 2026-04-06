@@ -60,7 +60,7 @@ module phmg
        glb_cmd_event
   use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
        device_add2s2, device_invcol2, device_glsc2, device_col2
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -386,7 +386,8 @@ contains
            !  Residual  !
            !------------!
            call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
            call mg(lvl)%bc_resolver%apply(w%x, mg(lvl)%dm_Xh%size())
 
@@ -442,7 +443,8 @@ contains
            !------------!
            call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
            if (NEKO_BCKND_DEVICE .eq. 1) then

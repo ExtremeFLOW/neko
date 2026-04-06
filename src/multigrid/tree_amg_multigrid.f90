@@ -42,17 +42,17 @@
 !>  call amg_solver%solve(x%x, f, n)
 !>
 module tree_amg_multigrid
-  use num_types, only: rp
+  use num_types, only : rp
   use utils, only : neko_error, neko_warning
   use math, only : add2, rzero, glsc2, sub3, col2, copy
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2, device_copy
   use comm
-  use mpi_f08, only: MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
+  use mpi_f08, only : MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
-  use ax_product, only: ax_t
+  use ax_product, only : ax_t
   use bc_resolver, only : scalar_bc_resolver_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
@@ -61,9 +61,9 @@ module tree_amg_multigrid
   use tree_amg_smoother, only : amg_cheby_t
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
+  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
        device_get_ptr
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -159,10 +159,12 @@ contains
 
        if (use_greedy_agg) then
           call print_preagg_info( mlvl, glb_min_target_aggs, 1)
-          call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, nhbr_tmp)
+          call aggregate_greedy(this%amg, mlvl, target_num_aggs, agg_nhbr, &
+               nhbr_tmp)
        else
           call print_preagg_info( mlvl, glb_min_target_aggs, 2)
-          call aggregate_pairs( this%amg, mlvl, target_num_aggs, agg_nhbr, nhbr_tmp)
+          call aggregate_pairs(this%amg, mlvl, target_num_aggs, agg_nhbr, &
+               nhbr_tmp)
        end if
 
        agg_nhbr = nhbr_tmp
@@ -265,7 +267,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
-       ! Zero out the initial guess becuase we do not handle null spaces very well...
+       ! Zero out the initial guess because we do not handle null spaces very
+       ! well.
        call device_rzero(this%wrk(0)%x_d, n)
        call device_copy(this%wrk(0)%b_d, r_d, n)
        zero_initial_guess = .true.
@@ -276,7 +279,8 @@ contains
        end do
        call device_copy(z_d, this%wrk(0)%x_d, n)
     else
-       ! Zero out the initial guess becuase we do not handle null spaces very well...
+       ! Zero out the initial guess because we do not handle null spaces very
+       ! well.
        call rzero(this%wrk(0)%x, n)
        call copy(this%wrk(0)%b, r, n)
        zero_initial_guess = .true.

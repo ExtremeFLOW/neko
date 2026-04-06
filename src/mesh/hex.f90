@@ -90,13 +90,14 @@ module hex
   !!
   !! @endverbatim
   !! @note Local node numbering (points)
-  integer, public, parameter, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
-       2,6,8,4,&
-       1,2,6,5,&
-       3,4,8,7,&
-       1,2,4,3,&
-       5,6,8,7/),&
-       (/4,6/))
+  integer, public, parameter, dimension(4, 6) :: face_nodes = &
+       reshape([1, 5, 7, 3, &
+       2, 6, 8, 4, &
+       1, 2, 6, 5, &
+       3, 4, 8, 7, &
+       1, 2, 4, 3, &
+       5, 6, 8, 7], &
+       [4, 6])
 
   !> Edge node ids
   !! @details
@@ -116,56 +117,57 @@ module hex
   !!           3
   !!
   !! @endverbatim
-  integer, public, parameter, dimension(2, 12) :: edge_nodes = reshape((/1,2,&
-       3,4,&
-       5,6,&
-       7,8,&
-       1,3,&
-       2,4,&
-       5,7,&
-       6,8,&
-       1,5,&
-       2,6,&
-       3,7,&
-       4,8/),&
-       (/2,12/))
+  integer, public, parameter, dimension(2, 12) :: edge_nodes = &
+       reshape([1, 2, &
+       3, 4, &
+       5, 6, &
+       7, 8, &
+       1, 3, &
+       2, 4, &
+       5, 7, &
+       6, 8, &
+       1, 5, &
+       2, 6, &
+       3, 7, &
+       4, 8], &
+       [2, 12])
 
   !> Face ids incident to each node
   integer, public, parameter, dimension(3, 8) :: node_faces = &
-       reshape((/1,3,5,&
-       2,3,5,&
-       1,4,5,&
-       2,4,5,&
-       1,3,6,&
-       2,3,6,&
-       1,4,6,&
-       2,4,6/), (/3,8/))
+       reshape([1, 3, 5, &
+       2, 3, 5, &
+       1, 4, 5, &
+       2, 4, 5, &
+       1, 3, 6, &
+       2, 3, 6, &
+       1, 4, 6, &
+       2, 4, 6], [3, 8])
 
   !> Edge ids incident to each node
   integer, public, parameter, dimension(3, 8) :: node_edges = &
-       reshape((/1,5,9,&
-       1,6,10,&
-       2,5,11,&
-       2,6,12,&
-       3,7,9,&
-       3,8,10,&
-       4,7,11,&
-       4,8,12/), (/3,8/))
+       reshape([1, 5, 9, &
+       1, 6, 10, &
+       2, 5, 11, &
+       2, 6, 12, &
+       3, 7, 9, &
+       3, 8, 10, &
+       4, 7, 11, &
+       4, 8, 12], [3, 8])
 
   !> Face ids incident to each edge
   integer, public, parameter, dimension(2, 12) :: edge_faces = &
-       reshape((/3,5,&
-       4,5,&
-       3,6,&
-       4,6,&
-       1,5,&
-       2,5,&
-       1,6,&
-       2,6,&
-       1,3,&
-       2,3,&
-       1,4,&
-       2,4/), (/2,12/))
+       reshape([3, 5, &
+       4, 5, &
+       3, 6, &
+       4, 6, &
+       1, 5, &
+       2, 5, &
+       1, 6, &
+       2, 6, &
+       1, 3, &
+       2, 3, &
+       1, 4, &
+       2, 4], [2, 12])
 
 contains
 
@@ -194,25 +196,25 @@ contains
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
     integer :: i, j, temp
-    type(point_t), pointer :: p1,p2,p3,p4
+    type(point_t), pointer :: p1, p2, p3, p4
 
     p1 => this%p(face_nodes(1, side))
     p2 => this%p(face_nodes(2, side))
     p3 => this%p(face_nodes(3, side))
     p4 => this%p(face_nodes(4, side))
 
-    select type(t)
-    type is(tuple4_i4_t)
-       t%x = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
+    select type (t)
+    type is (tuple4_i4_t)
+       t%x = [p1%id(), p2%id(), p3%id(), p4%id()]
        do i = 1, 3
-          do j = i+1,4
-             if(t%x(j) .lt. t%x(i)) then
+          do j = i + 1, 4
+             if (t%x(j) .lt. t%x(i)) then
                 temp = t%x(i)
                 t%x(i) = t%x(j)
                 t%x(j) = temp
-             endif
-          enddo
-       enddo
+             end if
+          end do
+       end do
     end select
 
   end subroutine hex_facet_id
@@ -222,16 +224,16 @@ contains
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1,p2,p3,p4
+    type(point_t), pointer :: p1, p2, p3, p4
 
     p1 => this%p(face_nodes(1, side))
     p2 => this%p(face_nodes(2, side))
     p3 => this%p(face_nodes(3, side))
     p4 => this%p(face_nodes(4, side))
 
-    select type(t)
-    type is(tuple4_i4_t)
-       t%x = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
+    select type (t)
+    type is (tuple4_i4_t)
+       t%x = [p1%id(), p2%id(), p3%id(), p4%id()]
     end select
 
   end subroutine hex_facet_order
@@ -242,18 +244,18 @@ contains
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1,p2
+    type(point_t), pointer :: p1, p2
 
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        if (p1%id() .lt. p2%id()) then
-          t%x = (/ p1%id(), p2%id() /)
+          t%x = [p1%id(), p2%id()]
        else
-          t%x = (/ p2%id(), p1%id() /)
-       endif
+          t%x = [p2%id(), p1%id()]
+       end if
 
     end select
 
@@ -324,7 +326,7 @@ contains
     logical :: res
 
     res = .false.
-    select type(other)
+    select type (other)
     type is (hex_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then

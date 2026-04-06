@@ -41,14 +41,14 @@ module tree_amg_smoother
        device_cmult2, device_sub2, device_add2, device_add3s2, &
        device_copy
   use krylov, only : ksp_monitor_t
-  use bc_resolver, only: scalar_bc_resolver_t
+  use bc_resolver, only : scalar_bc_resolver_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
+  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
        device_deassociate
   use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -97,7 +97,8 @@ contains
 
   !> Initialization of chebyshev
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are to be
+  !! applied
   !! @param max_iter The number of iterations (chebyshev degree)
   subroutine amg_cheby_init(this, n, lvl, max_iter)
     class(amg_cheby_t), intent(inout), target :: this
@@ -233,7 +234,8 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w => this%w, r => this%r, d => this%d, bc_resolver => amg%bc_resolver)
+    associate(w => this%w, r => this%r, d => this%d, &
+         bc_resolver => amg%bc_resolver)
       call copy(r, f, n)
       if (.not. zero_initial_guess) then
          call amg%matvec(w, x, this%lvl)
@@ -388,7 +390,8 @@ contains
 
   !> Initialization of Jacobi (this is expensive...)
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are to be
+  !! applied
   !! @param max_iter The number of iterations
   subroutine amg_jacobi_init(this, n, lvl, max_iter)
     class(amg_jacobi_t), intent(inout), target :: this
