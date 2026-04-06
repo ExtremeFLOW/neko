@@ -63,7 +63,8 @@ void opencl_symmetry_aligned_apply_vector(void *xmsk, void *ymsk, void *zmsk,
   cl_int err;
    
   if (symmetry_program == NULL)
-    opencl_kernel_jit(symmetry_kernel, (cl_program *) &symmetry_program);
+    opencl_kernel_jit(symmetry_aligned_kernel,
+                      (cl_program *) &symmetry_program);
   
   cl_kernel kernel = clCreateKernel(symmetry_program,
                                     "symmetry_aligned_apply_vector_kernel", &err);

@@ -757,6 +757,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
 	bc/bcknd/device/hip/symmetry_aligned_kernel.h\
+	bc/bcknd/device/hip/constrain_mixed_bc_kernel.h\
+	bc/bcknd/device/hip/coupled_vector_bc_resolver_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/neumann_kernel.h\
 	bc/bcknd/device/hip/bc_utils.h\
