@@ -206,7 +206,7 @@ contains
     else if (this%active) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (NEKO_BCKND_HIP .eq. 1) then
-             call neko_log%message("Initializing ALE with DEVICE backend (HIP).")
+             call neko_log%message("Initializing ALE Manager with DEVICE backend (HIP).")
           else
              call neko_error("ALE_device currently supported only with HIP backend.")
           end if

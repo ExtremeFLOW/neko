@@ -23,6 +23,7 @@ module ale_routines_device
   public :: add_kinematics_to_mesh_velocity_device
   public :: update_ale_mesh_device
 
+#ifdef HAVE_HIP
   interface
     subroutine add_kinematics_to_mesh_velocity_hip(wx, wy, wz, &
         x_ref, y_ref, z_ref, phi, x, y, z, &
@@ -35,6 +36,7 @@ module ale_routines_device
       type(c_ptr), value :: n
     end subroutine add_kinematics_to_mesh_velocity_hip
   end interface
+#endif
 
 contains
 
