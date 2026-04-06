@@ -94,6 +94,7 @@ EXTRA_DIST = \
 	tet/test_tet.pf\
 	tri/test_tri.pf\
 	bc/test_bc.pf\
+	bc/bc_test\
 	tuple/test_tuple.pf\
 	point/test_point.pf\
 	signal/test_signal.pf\
@@ -158,9 +159,10 @@ EXTRA_DIST = \
 	json_utils/test_json_utils.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
+	bc_resolver/bc_resolver_test\
 	point_interpolation/point_interpolation_test\
-	bc_resolver/test_bc_resolver.pf\
 	boundary_operation/test_boundary_operation.pf\
+	bc_resolver/test_bc_resolver.pf\
 	bc_resolver/test_coupled_bc_resolver.pf\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\

@@ -13,6 +13,8 @@ test-suite.log
 !device_math/device_math_test
 !gather_scatter/gather_scatter_test
 !jobctrl/jobctrl_test
+!bc/bc_test
+!bc_resolver/bc_resolver_test
 !matrix/matrix_test
 !math/math_test
 !mean_field/mean_field_test
@@ -29,7 +31,7 @@ test-suite.log
 **.log
 **.trs
 
-bc/bc_test
+bc/bc_suite
 case_file_utils/case_file_utils_test
 device/device_test
 device_math/device_math_suite
