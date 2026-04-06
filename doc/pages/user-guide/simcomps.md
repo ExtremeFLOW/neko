@@ -236,6 +236,17 @@ Mandatory fields for this simcomp are:
 - `output_file`: Name of the file in which to output the probed fields. Must be
   `.csv`.
 
+Optional arguments:
+- Interpolation parameters can be provided as a JSON sub-dictionary, 
+  `interpolation`. If not provided, default values defined in 
+  the `global_interpolation` module will be used.
+  ~~~~~~~~~~~~~~~{.json}
+  "interpolation": {
+    "tolerance": 1e-8,
+    "padding": 1e-3
+  }
+  ~~~~~~~~~~~~~~~
+
 It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
 
@@ -309,8 +320,8 @@ executed (same behavior as the statistics).
    "type": "probes",
    "name": "probes",
    "compute_control": "simulationtime",
-   "compute_value"    : 1,
-   "fields": ["w","s"],
+   "compute_value"    : 1.0,
+   "fields": ["w", "s"],
    "output_file":  "output.csv",
    "points": [
       {

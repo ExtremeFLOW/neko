@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter, i, j, k, p_cur, p_prev
+    integer :: iter, max_iter, i, j, k, p_cur, p_prev, blk_size
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: beta, pap, norm_fac
 
@@ -206,27 +206,20 @@ contains
          if ((p_cur .eq. CG_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             do i = 0, n, NEKO_BLK_SIZE
-               if (i + NEKO_BLK_SIZE .le. n) then
-                  do k = 1, NEKO_BLK_SIZE
-                     x_plus(k) = 0.0_rp
+               blk_size = min(NEKO_BLK_SIZE, n - i)
+               do concurrent (k = 1:blk_size)
+                  x_plus(k) = 0.0_rp
+               end do
+
+               do j = 1, p_cur
+                  do concurrent (k = 1:blk_size)
+                     x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
                   end do
-                  do j = 1, p_cur
-                     do k = 1, NEKO_BLK_SIZE
-                        x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
-                     end do
-                  end do
-                  do k = 1, NEKO_BLK_SIZE
-                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-                  end do
-               else
-                  do k = 1, n-i
-                     x_plus(1) = 0.0_rp
-                     do j = 1, p_cur
-                        x_plus(1) = x_plus(1) + alpha(j) * p(i+k,j)
-                     end do
-                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-                  end do
-               end if
+               end do
+
+               do concurrent (k = 1:blk_size)
+                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
+               end do
             end do
             p_prev = p_cur
             p_cur = 1
