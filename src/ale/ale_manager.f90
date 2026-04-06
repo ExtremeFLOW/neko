@@ -961,7 +961,9 @@ contains
           call bcloc_zeros_only%append(bc_inactive_body)
 
           call field_rzero(this%base_shapes(body_idx))
-
+          this%base_shapes(body_idx)%x = 0.0_rp
+          rhs_field%x = 0.0_rp
+          corr_field%x = 0.0_rp
           !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           ! phi = phi_corr + phi_lifted!
           ! A*phi_corr = -A*phi_lifted !
@@ -974,15 +976,15 @@ contains
              this%base_shapes(body_idx)%x(k, 1, 1, 1) = 1.0_rp
           end do
 
-          ! Apply Zeros to others.
-          ! This ensures fixed walls and other bodies are 0.0,
-          ! even if they share grid with a moving wall.
-          call bcloc_zeros_only%apply_scalar(this%base_shapes(body_idx)%x, n)
-
           if (NEKO_BCKND_DEVICE .eq. 1) then
              call device_memcpy(this%base_shapes(body_idx)%x, &
                   this%base_shapes(body_idx)%x_d, n, HOST_TO_DEVICE, .true.)
           end if
+
+          ! Apply Zeros to others.
+          ! This ensures fixed walls and other bodies are 0.0,
+          ! even if they share grid with a moving wall.
+          call bcloc_zeros_only%apply_scalar(this%base_shapes(body_idx)%x, n)
 
           ! Compute RHS: RHS = -A * Phi_lifted.
           ! The following is motivated by implementation in Nek5000.
@@ -990,18 +992,9 @@ contains
                coef, coef%msh, coef%Xh)
           call field_cmult(rhs_field, -1.0_rp)
 
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_memcpy(rhs_field%x, rhs_field%x_d, n, DEVICE_TO_HOST, .true.)
-          end if
-
           ! Here we use the FULL list to apply zero Dirichlet BC
           ! on all boundaries.
           call bcloc%apply_scalar(rhs_field%x, n)
-
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_memcpy(rhs_field%x, rhs_field%x_d, n, HOST_TO_DEVICE, .true.)
-          end if
-
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
           ! Solve

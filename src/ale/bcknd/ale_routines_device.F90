@@ -27,13 +27,16 @@ module ale_routines_device
   interface
     subroutine add_kinematics_to_mesh_velocity_hip(wx, wy, wz, &
         x_ref, y_ref, z_ref, phi, x, y, z, &
-        center, vel_trans, vel_ang, pivot, &
-        rot_mat, n) bind(c, name="add_kinematics_to_mesh_velocity_hip")
+        cx, cy, cz, vtx, vty, vtz, vax, vay, vaz, & ! Added Ang Vel
+        px, py, pz, &                             ! Added Pivot
+        r11, r12, r13, r21, r22, r23, r31, r32, r33, & ! Added Matrix
+        n) bind(c, name="add_kinematics_to_mesh_velocity_hip")
       use, intrinsic :: iso_c_binding
-      type(c_ptr), value :: wx, wy, wz
-      type(c_ptr), value :: x_ref, y_ref, z_ref, phi, x, y, z
-      type(c_ptr), value :: center, vel_trans, vel_ang, pivot, rot_mat
-      type(c_ptr), value :: n
+      type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
+      real(kind=rp), value :: cx, cy, cz, vtx, vty, vtz, vax, vay, vaz
+      real(kind=rp), value :: px, py, pz
+      real(kind=rp), value :: r11, r12, r13, r21, r22, r23, r31, r32, r33
+      integer(c_int), value :: n
     end subroutine add_kinematics_to_mesh_velocity_hip
   end interface
 #endif
@@ -77,12 +80,14 @@ contains
          wx%x_d, wy%x_d, wz%x_d, &
          x_ref%x_d, y_ref%x_d, z_ref%x_d, &
          phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
-         c_loc(kinematics%center), &
-         c_loc(kinematics%vel_trans), &
-         c_loc(kinematics%vel_ang), &
-         c_loc(inital_pivot_loc), &
-         c_loc(rot_mat), &
-         c_loc(n))
+         kinematics%center(1), kinematics%center(2), kinematics%center(3), &
+         kinematics%vel_trans(1), kinematics%vel_trans(2), kinematics%vel_trans(3), &
+         kinematics%vel_ang(1), kinematics%vel_ang(2), kinematics%vel_ang(3), &
+         inital_pivot_loc(1), inital_pivot_loc(2), inital_pivot_loc(3), &
+         rot_mat(1,1), rot_mat(1,2), rot_mat(1,3), &
+         rot_mat(2,1), rot_mat(2,2), rot_mat(2,3), &
+         rot_mat(3,1), rot_mat(3,2), rot_mat(3,3), &
+         n)
 #else
     call neko_error("ALE: add_kinematics_to_mesh_velocity_device so far supports only HIP backend")
 #endif
