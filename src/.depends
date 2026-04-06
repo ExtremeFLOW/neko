@@ -318,7 +318,7 @@ math/bcknd/device/device_mathops.lo : math/bcknd/device/device_mathops.F90 commo
 bc/bcknd/device/device_dirichlet.lo : bc/bcknd/device/device_dirichlet.F90 common/utils.lo config/num_types.lo 
 bc/bcknd/device/device_inflow.lo : bc/bcknd/device/device_inflow.F90 common/utils.lo config/num_types.lo 
 bc/bcknd/device/device_zero_dirichlet.lo : bc/bcknd/device/device_zero_dirichlet.F90 common/utils.lo 
-bc/bcknd/device/device_symmetry_aligned.lo : bc/bcknd/device/device_symmetry_aligned.F90 common/utils.lo config/num_types.lo 
+bc/bcknd/device/device_symmetry_aligned.lo : bc/bcknd/device/device_symmetry_aligned.F90 common/utils.lo 
 bc/bcknd/device/device_facet_normal.lo : bc/bcknd/device/device_facet_normal.F90 common/utils.lo 
 bc/bcknd/device/device_neumann.lo : bc/bcknd/device/device_neumann.F90 common/utils.lo 
 bc/bcknd/device/device_inhom_dirichlet.lo : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.lo config/num_types.lo 
