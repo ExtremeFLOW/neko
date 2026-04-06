@@ -1053,14 +1053,14 @@ contains
     call this%bc_sym_surface%finalize()
     call this%bcs_vel_resolver%finalize()
 
-    do i = 1, this%bcs_vel%size()
-       bc_i => this%bcs_vel%get(i)
-       select type (bci => bc_i)
-         class is (mixed_bc_t)
-            call bci%debug_output()
-         class default
-       end select
-    end do
+!    do i = 1, this%bcs_vel%size()
+!       bc_i => this%bcs_vel%get(i)
+!       select type (bci => bc_i)
+!         class is (mixed_bc_t)
+!            call bci%debug_output()
+!         class default
+!       end select
+!    end do
 
     ! If we have no strong pressure bcs, we will demean the pressure
     this%prs_dirichlet = this%bcs_prs_resolver%dof_mask%is_set()

@@ -79,15 +79,12 @@ contains
     integer :: var_type
 
     value_3 = 0.0_rp
-    call json%info("value", found = found, var_type = var_type)
-    if (found) then
-       call json_get_or_lookup(json, "value", value)
-       if (size(value) .ne. 3) then
-          call neko_error("The non_normal boundary condition requires a " // &
-               "3-component value vector.")
-       end if
-       value_3 = value
+    call json_get_or_lookup(json, "value", value)
+    if (size(value) .ne. 3) then
+       call neko_error("The non_normal boundary condition requires a " // &
+            "3-component value vector.")
     end if
+    value_3 = value
 
     call this%init_from_components(coef, value_3)
   end subroutine non_normal_aligned_init

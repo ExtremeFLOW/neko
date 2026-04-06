@@ -35,6 +35,7 @@ module non_normal
   use json_module, only : json_file
   use bc, only : BC_TYPES, mixed_bc_t
   use num_types, only : rp
+  use device_constrain_mixed_bc, only : device_constrain_mixed_bc_set_const
   use coefs, only : coef_t
   use json_utils, only : json_get_or_lookup
   use utils, only : neko_error
@@ -72,16 +73,12 @@ contains
     integer :: var_type
 
     value_3 = 0.0_rp
-    call json%info("value", found = found, var_type = var_type)
-    if (found) then
-       call json_get_or_lookup(json, "value", value)
-       if (size(value) .ne. 3) then
-          call neko_error("The non_normal boundary condition requires a " // &
-               "3-component value vector.")
-       end if
-       value_3 = value
+    call json_get_or_lookup(json, "value", value)
+    if (size(value) .ne. 3) then
+       call neko_error("The non_normal boundary condition requires a " // &
+            "3-component value vector.")
     end if
-
+    value_3 = value
     call this%init_from_components(coef, value_3)
   end subroutine non_normal_init
 
@@ -171,6 +168,7 @@ contains
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
     logical :: strong_
+    integer :: m
 
     if (present(strong)) then
        strong_ = strong
@@ -179,8 +177,13 @@ contains
     end if
 
     if (strong_) then
-       call neko_error("Device strong apply for non_normal_t is not " // &
-            "implemented yet.")
+       m = this%resolved_msk%size()
+       if (m .gt. 0) then
+          call device_constrain_mixed_bc_set_const( &
+               this%resolved_msk%get_d(), x_d, y_d, z_d, 0, 1, 1, &
+               this%n%x_d, this%t1%x_d, this%t2%x_d, this%value(1), &
+               this%value(2), this%value(3), m, strm)
+       end if
     end if
   end subroutine non_normal_apply_vector_dev
 

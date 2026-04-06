@@ -70,8 +70,8 @@ extern "C" {
                                    void *z, int *constraint_n,
                                    int *constraint_t1, int *constraint_t2,
                                    void *n, void *t1, void *t2,
-                                   void *values_1, void *values_2, int *m,
-                                   cudaStream_t strm) {
+                                   void *values_n, void *values_t1,
+                                   void *values_t2, int *m, cudaStream_t strm) {
 
     if (*m <= 0)
       return;
@@ -90,8 +90,41 @@ extern "C" {
                                     (const real *) n,
                                     (const real *) t1,
                                     (const real *) t2,
-                                    (const real *) values_1,
-                                    (const real *) values_2,
+                                    (const real *) values_n,
+                                    (const real *) values_t1,
+                                    (const real *) values_t2,
+                                    *m);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  void cuda_constrain_mixed_bc_set_const(void *mixed_msk, void *x, void *y,
+                                         void *z, int *constraint_n,
+                                         int *constraint_t1,
+                                         int *constraint_t2, void *n,
+                                         void *t1, void *t2, real *value_n,
+                                         real *value_t1, real *value_t2,
+                                         int *m, cudaStream_t strm) {
+
+    if (*m <= 0)
+      return;
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
+
+    constrain_mixed_bc_set_const_kernel<real>
+      <<<nblcks, nthrds, 0, strm>>>((const int *) mixed_msk,
+                                    (real *) x,
+                                    (real *) y,
+                                    (real *) z,
+                                    *constraint_n,
+                                    *constraint_t1,
+                                    *constraint_t2,
+                                    (const real *) n,
+                                    (const real *) t1,
+                                    (const real *) t2,
+                                    *value_n,
+                                    *value_t1,
+                                    *value_t2,
                                     *m);
     CUDA_CHECK(cudaGetLastError());
   }
