@@ -62,7 +62,7 @@ module ale_manager
   use ale_routines_device, only : compute_stiffness_ale_device, &
        add_kinematics_to_mesh_velocity_device, update_ale_mesh_device
   use utils, only : neko_error
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_HIP
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   use comm, only : NEKO_COMM
   use registry, only : neko_registry
@@ -205,11 +205,11 @@ contains
        return
     else if (this%active) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-#ifdef HAVE_HIP
-          call neko_log%message("Initializing ALE Manager with DEVICE backend (HIP).")
-#else
-          call neko_error("ALE_device currently supported only with HIP backend.")
-#endif
+          if (NEKO_BCKND_HIP .eq. 1) then
+             call neko_log%message("Initializing ALE with DEVICE backend (HIP).")
+          else
+             call neko_error("ALE_device currently supported only with HIP backend.")
+          end if
        end if
        if (oifs) then
           call neko_error("ALE not currently supported with OIFS.")
