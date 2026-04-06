@@ -906,6 +906,11 @@ contains
        ! Compute Stiffness
        call compute_stiffness_ale(coef, this%config)
 
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(coef%h1, coef%h1_d, n, HOST_TO_DEVICE, .false.)
+          call device_memcpy(coef%h2, coef%h2_d, n, HOST_TO_DEVICE, .true.)
+       end if
+
        ! Output Stiffness if requested (for diagnostic)
        if (this%config%if_output_stiffness) then
           rhs_field%x = coef%h1
@@ -974,15 +979,29 @@ contains
           ! even if they share grid with a moving wall.
           call bcloc_zeros_only%apply_scalar(this%base_shapes(body_idx)%x, n)
 
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_memcpy(this%base_shapes(body_idx)%x, &
+                  this%base_shapes(body_idx)%x_d, n, HOST_TO_DEVICE, .true.)
+          end if
+
           ! Compute RHS: RHS = -A * Phi_lifted.
           ! The following is motivated by implementation in Nek5000.
           call Ax%compute(rhs_field%x, this%base_shapes(body_idx)%x, &
                coef, coef%msh, coef%Xh)
           call field_cmult(rhs_field, -1.0_rp)
 
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_memcpy(rhs_field%x, rhs_field%x_d, n, DEVICE_TO_HOST, .true.)
+          end if
+
           ! Here we use the FULL list to apply zero Dirichlet BC
           ! on all boundaries.
           call bcloc%apply_scalar(rhs_field%x, n)
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_memcpy(rhs_field%x, rhs_field%x_d, n, HOST_TO_DEVICE, .true.)
+          end if
+
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
           ! Solve
@@ -1015,6 +1034,12 @@ contains
           call bcloc_zeros_only%free()
 
           if (this%config%if_output_phi) then
+
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                call device_memcpy(this%base_shapes(body_idx)%x, &
+                     this%base_shapes(body_idx)%x_d, n, DEVICE_TO_HOST, .true.)
+             end if
+
              call phi_file%init('phi_' // &
                   trim(this%config%bodies(body_idx)%name) // '.fld')
              call phi_file%write(this%base_shapes(body_idx))
@@ -1025,6 +1050,12 @@ contains
        end do
 
        if (this%config%if_output_phi .and. (this%config%nbodies > 1)) then
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_memcpy(this%phi_total%x, this%phi_total%x_d, n, &
+                  DEVICE_TO_HOST, .true.)
+          end if
+
           call neko_log%message("   phi_total.fld saved.")
           call phi_file%init('phi_total.fld')
           call phi_file%write(this%phi_total)
@@ -1039,13 +1070,6 @@ contains
     coef%h1 = h1_restore
     coef%h2 = h2_restore
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-      do body_idx = 1 , this%config%nbodies
-       call device_memcpy(this%base_shapes(body_idx)%x, &
-            this%base_shapes(body_idx)%x_d, &
-            n, HOST_TO_DEVICE, sync = .true.)
-      end do
-    end if
 
     if (allocated(h1_restore)) deallocate(h1_restore)
     if (allocated(h2_restore)) deallocate(h2_restore)
