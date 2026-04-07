@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -186,7 +186,10 @@ contains
     call this%u_interface%free()
     call this%v_interface%free()
     call this%w_interface%free()
-
+    call this%interface_interpolator%free()
+    call this%interface_dof_mask%free()
+    call this%domain_element_mask%free()
+    call this%free_base()
 
     !if (associated(this%update_)) then
     !   nullify(this%update_)
@@ -257,7 +260,8 @@ contains
           this%updated = .true.
        end if
 
-       call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0)) !adperez: change the masks used here
+       !> TODO: Change the mask to mask_t
+       call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy_0(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
     end if

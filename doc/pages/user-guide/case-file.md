@@ -441,7 +441,7 @@ table below.
 | blasius_profile     | A Blasius velocity profile.                                                                                                                            |
 | user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
 | user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
-| overset_interface   | A dirichelt condition that prescribes values from another neko simulation running concurrently.                                                        |
+| overset_interface   | A Dirichelt condition that prescribes values from another neko simulation running concurrently.                                                        |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -578,7 +578,7 @@ A more detailed description of each boundary condition is provided below.
   ```
 * `overset_interface`, a dirichlet boundary condition that retrieves values
   from another simulation with an overlapping domain. For this case, it is 
-  recommended that all zone indices that need to be considered as an onverset
+  recommended that all zone indices that need to be considered as an overset
   interface are included in one boundary. This avoids repeated calls to
   interpolation routines.
 

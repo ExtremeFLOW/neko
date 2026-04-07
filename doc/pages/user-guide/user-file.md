@@ -686,14 +686,14 @@ mpirun -np 4 ./run_inner.sh : -np 4 ./run_outer.sh
 
 Note that the operator `:` is the one that indicates that both processes
 share the same global communicator **this is not the same as running with &**.
-The latter generally runs two independent sessions that do not necesarly talk
+The latter generally runs two independent sessions that do not necessarily talk
 to each other. Check your MPI implementation's way of handling MPMD. 
 If the other program is not neko, then you just need to make sure
 to split the global communicator with a color that is not the same as the id 
 that you gave to neko.
 
 In supercomputers, if `slurm` is used, generally the jobs need to be launched
-with the `--multi-prog` flag acompanied by a `mpmd.conf` file that indicates 
+with the `--multi-prog` flag accompanied by a `mpmd.conf` file that indicates 
 which rank runs which program. An example for running on a GPU cluster, where
 gpus must be selected looks like this:
 
@@ -719,7 +719,7 @@ rm -f ./select_gpu ./mpmd.conf
 ```
 
 Note that here, `mpmd.conf` is generated internally. See that we are running
-with `16` ranks and ranks `0-7`run the inner job while the rest run the outer one.
+with `16` ranks and ranks `0-7` run the inner job while the rest run the outer one.
 
 #### Custom GPU kernels {#user-file_tips_running-on-gpus-custom-kernels}
 

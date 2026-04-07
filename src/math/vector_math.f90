@@ -814,7 +814,7 @@ contains
 
   end subroutine vector_masked_gather_copy
 
-  !> Scatter a contigous vector into an array
+  !> Scatter a contiguous vector into an array
   !! \f$ a(mask) = b \f$.
   !! @param a Destination array.
   !! @param b Source vector of size `n_mask`.
@@ -841,12 +841,12 @@ contains
 
   end subroutine vector_masked_scatter_copy_0
 
-  !> Scatter a contigous vector into an array
+  !> Scatter a contiguous vector into an array
   !! \f$ a(mask) = b \f$.
-  !! @param a Destination vector.
-  !! @param b Source array of size `n_mask`.
+  !! @param a Destination array.
+  !! @param b Source vector of size `n_mask`.
   !! @param mask mask_t containing mask array and device pointer if needed.`
-  !! @param n Size of the vector `a`.
+  !! @param n Size of the array `a`.
   subroutine vector_masked_scatter_copy(a, b, mask, n)
     real(kind=rp), dimension(:), intent(inout) :: a
     type(vector_t), intent(in) :: b

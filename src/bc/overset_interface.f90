@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -163,6 +163,15 @@ contains
     call this%y_interface_dof%free()
     call this%z_interface_dof%free()
     call this%s_interface%free()
+
+    if (allocated(this%field_name)) then  
+       deallocate(this%field_name)  
+    end if 
+
+    call this%interface_interpolator%free()
+
+     call this%interface_dof_mask%free()
+     call this%domain_element_mask%free()
 
     call this%free_base()
   end subroutine overset_interface_free
