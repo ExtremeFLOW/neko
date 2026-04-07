@@ -132,6 +132,8 @@ contains
     call neko_log%message(log_buf)   
     write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
     call neko_log%message(log_buf)
+    write(log_buf, '(A, 3(E15.7,1X))') 'rho : ', this%rho_val
+    call neko_log%message(log_buf)
     call neko_log%end_section()
 
   end subroutine rough_log_law_partial_init

@@ -170,6 +170,29 @@ contains
     end if
     deallocate(g_tmp)
 
+    call neko_log%section('Wall model')
+    write(log_buf, '(A)') 'Model : MOST'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') 'scalar field : ', this%scalar_name
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') 'temp bc : ', this%bc_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'bc value : ', this%bc_value
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
+    call neko_log%message(log_buf)   
+    write(log_buf, '(A, E15.7)') 'z0h : ', this%z0h_in
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'rho : ', this%rho_val
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'mu : ', this%mu_val
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, 3(E15.7,1X))') 'g : ', this%g
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
   end subroutine most_partial_init
 
   !> Finalize the construction using the mask and facet arrays of the bc.
