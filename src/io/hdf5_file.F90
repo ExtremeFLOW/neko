@@ -720,7 +720,7 @@ contains
     integer :: ierr
 
     if (this%active_group_id .ne. -1_hid_t .and. &
-    this%active_group_id .ne. this%file_id) then
+         this%active_group_id .ne. this%file_id) then
        call h5gclose_f(this%active_group_id, ierr)
     end if
     this%active_group_id = -1_hid_t
@@ -775,7 +775,7 @@ contains
        else
           if (this%mode == "r") then
              call neko_error("Group " // trim(group_name(i)) // &
-             " does not exist in file " // trim(file_get_fname(this)))
+                  " does not exist in file " // trim(file_get_fname(this)))
           end if
           call h5gcreate_f(current_id, trim(group_name(i)), group_id, ierr)
        end if
@@ -1189,11 +1189,11 @@ contains
     ! Set up writing the data set
     ! ===========================
     dcount = [int(stride_ax_1, hsize_t), &
-            int(stride_ax_2, hsize_t), &
-             int(stride_ax_3, hsize_t), &
-             int(counts, hsize_t)] ! local size of the tensor
+         int(stride_ax_2, hsize_t), &
+         int(stride_ax_3, hsize_t), &
+         int(counts, hsize_t)] ! local size of the tensor
     doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, &
-            int(offset, hsize_t) + append_offset] ! offset in the global tensor
+         int(offset, hsize_t) + append_offset] ! offset in the global tensor
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
@@ -1284,14 +1284,14 @@ contains
        call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
        if (temprank .ne. 1) then
           call neko_error("Dataset " // trim(data_name) // &
-          " is not a rank 1 vector in file " // trim(file_get_fname(this)))
+               " is not a rank 1 vector in file " // trim(file_get_fname(this)))
        end if
        ! Get the current shape and close the filespace
        call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
        call h5sclose_f(filespace, ierr)
     else
        call neko_error("Dataset " // trim(data_name) // &
-       " does not exist in current group " // trim(file_get_fname(this)))
+            " does not exist in current group " // trim(file_get_fname(this)))
     end if
 
     ! =============================
@@ -1395,14 +1395,14 @@ contains
        call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
        if (temprank .ne. 2) then
           call neko_error("Dataset " // trim(data_name) // &
-          " is not a rank 2 matrix in file " // trim(file_get_fname(this)))
+               " is not a rank 2 matrix in file " // trim(file_get_fname(this)))
        end if
        ! Get the current shape and close the filespace
        call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
        call h5sclose_f(filespace, ierr)
     else
        call neko_error("Dataset " // trim(data_name) &
-       // " does not exist in current group " // trim(file_get_fname(this)))
+            // " does not exist in current group " // trim(file_get_fname(this)))
     end if
 
     ! =============================
