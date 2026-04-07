@@ -364,9 +364,9 @@ contains
        call device_rone(this%h1_d, n)
        call device_rone(this%h2_d, n)
        call device_memcpy(this%h1, this%h1_d, n, &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%h2, this%h2_d, n, &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     else
        call rone(this%h1,n)
        call rone(this%h2,n)
@@ -388,7 +388,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(this%mult_d, n)
        call device_memcpy(this%mult, this%mult_d, n, &
-            DEVICE_TO_HOST, sync=.true.)
+            DEVICE_TO_HOST, sync = .true.)
     else
        call invcol1(this%mult, n)
     end if
@@ -968,12 +968,12 @@ contains
             c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
             c%Xh%lx, c%msh%gdim)
 
-       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync=.true.)
+       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync = .true.)
 
     else
        if (c%msh%gdim .eq. 2) then
@@ -1290,13 +1290,13 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = size(coef%area)
        call device_memcpy(coef%area, coef%area_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(coef%nx, coef%nx_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(coef%ny, coef%ny_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(coef%nz, coef%nz_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine coef_generate_area_and_normal
@@ -1360,11 +1360,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%R11, this%R11_d, ncyc, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%R12, this%R12_d, ncyc, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine coef_generate_cyclic_bc
@@ -1414,9 +1414,9 @@ contains
        call device_map(this%Blaglag, this%Blaglag_d, n)
 
        call device_memcpy(this%Blag, this%Blag_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%Blaglag, this%Blaglag_d, n, &
-            HOST_TO_DEVICE, sync=.true.)
+            HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine coef_enable_lagged_mass
@@ -1443,10 +1443,10 @@ contains
        end if
 
        call device_memcpy(this%Blaglag_d, this%Blag_d, n_bytes, &
-                          DEVICE_TO_DEVICE, sync=.false.)
+            DEVICE_TO_DEVICE, sync = .false.)
 
        call device_memcpy(this%Blag_d, this%B_d, n_bytes, &
-                          DEVICE_TO_DEVICE, sync=.true.)
+            DEVICE_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine coef_update_lagged_mass
