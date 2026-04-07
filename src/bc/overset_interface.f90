@@ -164,14 +164,14 @@ contains
     call this%z_interface_dof%free()
     call this%s_interface%free()
 
-    if (allocated(this%field_name)) then  
-       deallocate(this%field_name)  
-    end if 
+    if (allocated(this%field_name)) then
+       deallocate(this%field_name)
+    end if
 
     call this%interface_interpolator%free()
 
-     call this%interface_dof_mask%free()
-     call this%domain_element_mask%free()
+    call this%interface_dof_mask%free()
+    call this%domain_element_mask%free()
 
     call this%free_base()
   end subroutine overset_interface_free
