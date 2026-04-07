@@ -108,7 +108,7 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: kappa, z0, z0h_in, mu, rho, Pr
+    real(kind=rp) :: kappa, z0, z0h_in, mu_val, rho_val, Pr
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
     real(kind=rp) :: bc_value
@@ -127,9 +127,15 @@ contains
     ! is used, with the specified value acting as -C_Zil.
     ! If z0h is to specified, assign default value of -0.8,
     ! corresponding to the Zilitinkevich constant value used in Zilitinkevich 1995.
+<<<<<<< HEAD
     call json_get_or_lookup_or_default(json, "z0h", z0h_in, -0.8_rp)
     call json_get_or_lookup_or_default(json, "mu", mu, 1e-10_rp)
     call json_get_or_lookup_or_default(json, "rho", rho, 1.0_rp)
+=======
+    call json_get_or_default(json, "z0h", z0h_in, -0.8_rp)
+    call json_get_or_default(json, "mu", mu_val, 1e-10_rp)
+    call json_get_or_default(json, "rho", rho_val, 1.0_rp)
+>>>>>>> 1d300b02ef7ca63d52d1251596fbff3257e0f2ca
 
     call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -140,7 +146,7 @@ contains
     deallocate(g_tmp)
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value)
+         kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
 
     deallocate(bc_type)
     deallocate(scalar_name)
@@ -156,12 +162,24 @@ contains
     real(kind=rp), allocatable :: g_tmp(:)
 
     call this%partial_init_base(coef, json)
+<<<<<<< HEAD
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.41_rp)
     call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_lookup_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get_or_lookup(json, "type_of_temp_bc", this%bc_type)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
+=======
+    call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
+    call json_get_or_default(json, "Pr", this%Pr, 1.0_rp)
+    call json_get_or_default(json, "z0", this%z0, 0.1_rp)
+    call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
+    call json_get(json, "scalar_field", this%scalar_name)
+    call json_get(json, "type_of_temp_bc", this%bc_type)
+    call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
+    call json_get_or_default(json, "mu", this%mu_val, 1e-10_rp)
+    call json_get_or_default(json, "rho", this%rho_val, 1.0_rp)
+>>>>>>> 1d300b02ef7ca63d52d1251596fbff3257e0f2ca
 
     call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -202,7 +220,7 @@ contains
   !! @param scalar_name The name of the scalar field (temperature) for Richardson WM.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine richardson_init_from_components(this, scheme_name, scalar_name, coef, msk, &
-       facet, h_index, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value)
+       facet, h_index, kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
     class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -212,7 +230,7 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value
-    real(kind=rp), intent(in) :: kappa, mu, rho, Pr
+    real(kind=rp), intent(in) :: kappa, mu_val, rho_val, Pr
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
     character(len=LOG_SIZE) :: log_buf
@@ -224,8 +242,8 @@ contains
     this%Pr = Pr
     this%z0 = z0
     this%z0h_in = z0h_in
-    this%mu_val = mu
-    this%rho_val = rho
+    this%mu_val = mu_val
+    this%rho_val = rho_val
     this%bc_type = bc_type
     this%bc_value = bc_value
     this%scalar_name = scalar_name

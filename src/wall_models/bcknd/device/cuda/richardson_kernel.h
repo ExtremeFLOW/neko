@@ -208,6 +208,7 @@ __global__ void richardson_compute(
         // Initialize variables based on Boundary Condition
         if constexpr (BC_TYPE == 0) { // Neumann
             q = bc_value;
+            ts = ti - (q * Pr * log(hi/z0h)) / (fmax(utau, (T)1e-6) * kappa)
         } else {                      // Dirichlet
             ts = bc_value;
             q  = kappa * utau * (ts - ti) / log(hi/z0h);

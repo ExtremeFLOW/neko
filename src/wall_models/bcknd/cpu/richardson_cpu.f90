@@ -184,10 +184,9 @@ contains
        utau(i) = sqrt(tau_ptr(magu(i), Ri_b(i), hi, z0, l, kappa))
        select case (bc_type)
        case ("neumann")
-       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       ! Todo: Compute ts from q here !
-       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       q(i) = q(i)
+          !!! TEMPORARY: neutral log-law approximation
+          ts(i) = ti(i) - (q(i) * Pr * log(hi/z0h)) / (max(utau(i), 1e-6_rp) * kappa)
+          q(i) = q(i)
        case ("dirichlet")
           ! Compute q
           q(i) = heat_flux_ptr(ti(i), ts(i), Ri_b(i), hi, magu(i), z0h, Pr, l, utau(i), kappa)
@@ -240,7 +239,7 @@ contains
     glsum(ts, n_nodes) / n_nodes, &
     glmin(ts, n_nodes), glmax(ts, n_nodes)
     call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7)') 'hi: ', &
+    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'hi: ', &
     glsum(h, n_nodes) / n_nodes, &
     glmin(h, n_nodes), glmax(h, n_nodes)
     call neko_log%message(trim(log_buf))
