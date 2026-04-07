@@ -15,7 +15,7 @@ module test_coupled_bc_resolver
   use scratch_registry, only : neko_scratch_registry
   use dirichlet, only : dirichlet_t
   use bc_list, only : bc_list_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use bc_resolver, only : coupled_vector_bc_resolver_t
   implicit none
 
@@ -104,11 +104,13 @@ contains
        @assertEqual(zone_idx, bc_ptr%zone_indices(1))
     end do
 
-    ! We can directly manipulate the bc constraints to test the resolver.
-    ! It does not look at the bc type. We reset all constraints first.
+    ! Keep constraints and bc_type aligned. The resolver classifies faces and
+    ! nodes by bc_type, while the mixed BC application uses the local-basis
+    ! constraints stored on the BC object.
     do zone_idx = 1, 6
        bc_ptr => bclst%get_by_zone_index(zone_idx)
        bc_ptr%constraints = .true.
+       bc_ptr%bc_type = BC_TYPES%DIRICHLET
     end do
 
     ! Init and mark but not finalize
@@ -120,6 +122,7 @@ contains
     ! The rest are class zero as full dirichlet.
     bc_ptr%constraints(2) = .false.
     bc_ptr%constraints(3) = .false.
+    bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
 
     call bc_resolver%finalize()
 
@@ -164,6 +167,7 @@ contains
     bc_ptr%constraints(1) = .false.
     bc_ptr%constraints(2) = .true.
     bc_ptr%constraints(3) = .true.
+    bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
 
     call bc_resolver%init(coef)
     call bc_resolver%mark(bclst)
@@ -209,6 +213,7 @@ contains
        bc_ptr%constraints(1) = .true.
        bc_ptr%constraints(2) = .false.
        bc_ptr%constraints(3) = .false.
+       bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
     end do
 
     call bc_resolver%init(coef)
