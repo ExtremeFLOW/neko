@@ -193,9 +193,10 @@ contains
     class(amr_reconstruct_lx_t), intent(inout) :: this
     integer, intent(in) :: nrcv, nsnd, ncrs
 
-    allocate(this%buff_rcv(this%lx, this%lx, this%lx, nrcv), &
-         this%buff_snd(this%lx, this%lx, this%lx, nsnd), &
-         this%vcrs(this%lx, this%lx, this%lx, amr_nchildren, ncrs))
+    if (nrcv .gt. 0) allocate(this%buff_rcv(this%lx, this%lx, this%lx, nrcv))
+    if (nsnd .gt. 0) allocate(this%buff_snd(this%lx, this%lx, this%lx, nsnd))
+    if (ncrs .gt. 0) allocate(this%vcrs(this%lx, this%lx, this%lx, &
+         amr_nchildren, ncrs))
 
   end subroutine amr_reconstruct_lx_buff_get
 

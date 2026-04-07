@@ -294,7 +294,7 @@ contains
     integer(i8), allocatable, dimension(:, :, :), intent(in) :: coarsen_gidx
     integer(i4), allocatable, dimension(:, :), intent(in) :: same, refine
     integer(i4), allocatable, dimension(:, :, :), intent(in) :: coarsen
-    integer :: il, iref, icrs
+    integer :: il, isame, iref, icrs
 
     call this%reconstruct_data_free()
 
@@ -316,6 +316,7 @@ contains
     end if
 
     ! check mapping consistency
+    isame = 0
     iref = 0
     icrs = 0
     do il = 1, this%nelt_neko
@@ -325,10 +326,13 @@ contains
           else
              iref = iref + 1
           end if
+       else
+          isame = isame + 1
        end if
     end do
-    if (icrs .ne. this%coarsen_nr .or. iref .ne. this%refine_nr) &
-         call neko_error('Inconsistent number of refined/coarsened elements')
+    if (icrs .ne. this%coarsen_nr .or. iref .ne. this%refine_nr .or. &
+         isame .ne. this%same_nr) call neko_error('Inconsistent number of &
+         &same/refined/coarsened elements')
 
   end subroutine p4est_reconstruct_data_set
 
@@ -448,6 +452,9 @@ contains
     nchildren = this%nchildren
 
     ! exchange information between processors
+    cmmsame = 0
+    cmmref = 0
+    cmmcrs = 0
     if (this%ifcomm) call p4est_vector_map_comm(this, this%nchildren, cmmsame, &
          cmmref, cmmcrs, cmmapl, bnd)
 
@@ -459,8 +466,8 @@ contains
        do il = 1, this%nelt_neko
           if (this%same_gidx(il) .eq. 0 .and. this%same(1, il) .ne. 0) then
              iref = iref + 1
-             rmap(1, il) = il
-             rmap(2, il) = this%refine(3, this%same(1, il))
+             rmap(1, iref) = il
+             rmap(2, iref) = this%refine(3, this%same(1, il))
           end if
        end do
     end if
@@ -493,11 +500,15 @@ contains
           kl = 0
           do il = 1, itmp2
              if (bnd(il) .ne. 0) kl = kl + 1
-             if (cmmapl(3 ,il) .le. itmp1) then
-                ! same and refine elements
+             if (cmmapl(3 ,il) .le. cmmsame) then
+                ! same elements; cmmapl points directly to the element
                 this%same_ref_fill_map(cmmapl(4, il)) = - kl
+             else if (cmmapl(3 ,il) .le. itmp1) then
+                ! refine elements; cmmapl points to refine position
+                ml = rmap(1, cmmapl(4, il))
+                this%same_ref_fill_map(ml) = - kl
              else if (cmmapl(3 ,il) .le. itmp2) then
-                ! coarsening elements
+                ! coarsening elements; cmmapl points to coarsen position
                 this%crs_fill_map(cmmapl(5, il), cmmapl(4, il)) = - kl
              else
                 call neko_error('Wrong storage position')
@@ -644,7 +655,7 @@ contains
                 cmmapl(1, cmmsame) = this%same(2, il) ! MPI rank
                 cmmapl(2, cmmsame) = this%same(1, il) ! old loc. id
                 cmmapl(3, cmmsame) = cmmsame ! storage position
-                cmmapl(4, cmmsame) = il ! position in rmap array
+                cmmapl(4, cmmsame) = il ! position in same array
                 cmmapl(5, cmmsame) = 0
                 cmmgidxl(cmmsame) = this%same_gidx(il) ! old gl. id
              end if
