@@ -588,30 +588,30 @@ contains
 
        !> This is always on cpus.
        if (this%append_out) then
-          call this%fout%set_overwrite(.false.)
+          call ft%set_overwrite(.false.)
        else
-          call this%fout%set_overwrite(.true.)
+          call ft%set_overwrite(.true.)
        end if
        call mat_coords%init(3, this%n_local_probes, "coordinates")
        call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
 
        !> Set up output
-       call this%fout%open("w")
-       call this%fout%set_active_group([character(len=1000) :: "probes"])
+       call ft%open("w")
+       call ft%set_active_group([character(len=1000) :: "probes"])
 
        ! Check if the NSteps attribute already exists
-       call this%fout%read_attribute("NSteps", out_int, attr_exist)
+       call ft%read_attribute("NSteps", out_int, attr_exist)
        if (attr_exist) then
           ! If the attribute exists,
           ! do not write the coordinates but register the executions
           this%output_controller%nexecutions = out_int
        else
           ! Write out the mesh
-          call this%fout%write_dataset(mat_coords)
+          call ft%write_dataset(mat_coords)
           out_int = this%n_global_probes
-          call this%fout%write_attribute("NProbes", out_int)
+          call ft%write_attribute("NProbes", out_int)
        end if
-       call this%fout%close()
+       call ft%close()
 
        !> Set up the output matrix
        this%seq_io = .false.
@@ -804,16 +804,16 @@ contains
              ! Append output format
              if (this%append_out) then
 
-                call this%fout%open("w")
-                call this%fout%set_active_group([character(len=1000) :: "probes"])
+                call ft%open("w")
+                call ft%set_active_group([character(len=1000) :: "probes"])
                 ! Write Nsteps in root
                 out_int = this%output_controller%nexecutions + 1
-                call this%fout%write_attribute("NSteps", out_int)
+                call ft%write_attribute("NSteps", out_int)
                 ! Write out the data
                 do i = 1, this%n_fields
                    call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
                    this%vec_out%name = trim(this%which_fields(i))
-                   call this%fout%write_dataset(this%vec_out)
+                   call ft%write_dataset(this%vec_out)
                 end do
 
                 ! Write the time by hacking the vector write
@@ -823,9 +823,9 @@ contains
                 else
                    call vec_time%init(0, "time")
                 end if
-                call this%fout%write_dataset(vec_time)
+                call ft%write_dataset(vec_time)
                 call vec_time%free()
-                call this%fout%close()
+                call ft%close()
 
                 ! Write data in different steps
              else
@@ -833,21 +833,21 @@ contains
                 out_int = this%output_controller%nexecutions + 1
                 ! Set up the name
                 write(group_name, '(A,I0)') "Step_", out_int
-                call this%fout%open("w")
-                call this%fout%set_active_group([character(len=1000) :: "probes"])
+                call ft%open("w")
+                call ft%set_active_group([character(len=1000) :: "probes"])
                 ! Write Nsteps in root
-                call this%fout%write_attribute("NSteps", out_int)
+                call ft%write_attribute("NSteps", out_int)
                 ! Write out the data
-                call this%fout%set_active_group([character(len=1000) :: "probes", trim(group_name)])
+                call ft%set_active_group([character(len=1000) :: "probes", trim(group_name)])
                 do i = 1, this%n_fields
                    call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
                    this%vec_out%name = trim(this%which_fields(i))
-                   call this%fout%write_dataset(this%vec_out)
+                   call ft%write_dataset(this%vec_out)
                 end do
                 ! Write the time as an attribute
                 time_ = time%t
-                call this%fout%write_attribute("time", time_)
-                call this%fout%close()
+                call ft%write_attribute("time", time_)
+                call ft%close()
              end if
 
           end if
@@ -882,10 +882,10 @@ contains
        call read_xyz_from_csv(xyz, n_local_probes, n_global_probes, ft)
        this%seq_io = .true.
     type is (hdf5_file_t)
-       call file_in%open("r")
-       call file_in%set_active_group() ! Empty sets it to the root group "/"
-       call file_in%read_dataset("xyz", mat_in, "rank_0")
-       call file_in%close()
+       call ft%open("r")
+       call ft%set_active_group() ! Empty sets it to the root group "/"
+       call ft%read_dataset("xyz", mat_in, "rank_0")
+       call ft%close()
 
        ! Copy the data to the xyz location
        n_local_probes = mat_in%get_ncols()
