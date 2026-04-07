@@ -154,6 +154,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: g_tmp(:)
+    character(len=LOG_SIZE) :: log_buf
 
     call this%partial_init_base(coef, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.41_rp)
@@ -172,6 +173,31 @@ contains
        call neko_error("Richardson WM: Gravity vector must have 3 components")
     end if
     deallocate(g_tmp)
+
+    call neko_log%section('Wall model')
+    write(log_buf, '(A)') 'Model : Richardson'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') 'scalar field : ', this%scalar_name
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') 'temp bc : ', this%bc_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'bc value : ', this%bc_value
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
+    call neko_log%message(log_buf)   
+    write(log_buf, '(A, E15.7)') 'z0h : ', this%z0h_in
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'Pr : ', this%Pr
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'rho : ', this%rho_val
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'mu : ', this%mu_val
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, 3(E15.7,1X))') 'g : ', this%g
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
   end subroutine richardson_partial_init
 
