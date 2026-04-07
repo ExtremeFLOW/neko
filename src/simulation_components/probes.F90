@@ -617,7 +617,7 @@ contains
        !> Set up the output matrix
        this%seq_io = .false.
        call this%vec_out%init(this%n_local_probes, "interpolated_fields_trsp")
-       
+
        ! Free temporaries
        call mat_coords%free()
 
