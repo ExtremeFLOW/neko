@@ -187,7 +187,7 @@ contains
     character(len=:), allocatable :: tmp_str
     character(len=:), allocatable :: ksp_solver
     character(len=:), allocatable :: precon_type
-    logical :: tmp_logical
+    logical :: tmp_logical, oifs
     logical :: moving_
     logical :: found_zone
     logical :: has_user_kin, has_user_mesh
@@ -197,6 +197,7 @@ contains
     if (json%valid_path('case.fluid.ale')) then
        call json_get(json, 'case.fluid.ale.enabled', this%active)
     end if
+    call json_get_or_default(json, 'case.numerics.oifs', oifs, .false.)
 
     if (.not. this%active) then
        neko_ale => null()
@@ -205,6 +206,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error("ALE not currently supported with device backend.")
        end if
+       if (oifs) then
+          call neko_error("ALE not currently supported with OIFS.")
+       end if
        neko_ale => this
     end if
 
@@ -212,6 +216,11 @@ contains
 
     tmp_logical = .false.
     n = coef%dof%size()
+
+    call this%x_ref%init(coef%dof, "x_ref")
+    call this%y_ref%init(coef%dof, "y_ref")
+    call this%z_ref%init(coef%dof, "z_ref")
+
     this%x_ref%x = coef%dof%x
     this%y_ref%x = coef%dof%y
     this%z_ref%x = coef%dof%z
@@ -225,7 +234,7 @@ contains
     has_user_kin = associated(this%user_ale_rigid_kinematics)
     has_user_mesh = associated(this%user_ale_mesh_vel)
 
-    ! Enable B history
+    ! Enable B history (Blag, Blaglag)
     call coef%enable_B_history()
     call json_get(json, 'case.numerics.time_order', time_order)
 
@@ -372,7 +381,8 @@ contains
           if (body_sub%valid_path('rotation')) then
              ! Check if pivot exists.
              if (.not. body_sub%valid_path('pivot')) then
-                call neko_error("ale.bodies.pivot is missing from the case file.")
+                call neko_error("ale.bodies.pivot is missing " // &
+                     "from the case file.")
              end if
 
              call json_get(body_sub, 'rotation.type', tmp_str)
@@ -434,7 +444,8 @@ contains
 
           ! Rotation Center
           if (body_sub%valid_path('pivot')) then
-             call json_get_or_default(body_sub, 'pivot.type', tmp_str, 'relative')
+             call json_get_or_default(body_sub, 'pivot.type', tmp_str, &
+                  'relative')
              this%config%bodies(i)%rotation_center_type = tmp_str
 
              call json_get(body_sub, 'pivot.value', tmp_vec, expected_size = 3)
@@ -596,13 +607,14 @@ contains
                 is_rot_active = any(abs(this%config%bodies(i)%ramp_omega0) &
                    > 0.0_rp)
              case ('smooth_step')
-                is_rot_active = (abs(this%config%bodies(i)%target_rot_angle_deg) &
-                   > 0.0_rp)
+                is_rot_active = &
+                     (abs(this%config%bodies(i)%target_rot_angle_deg) > 0.0_rp)
              end select
 
              if (is_rot_active) then
                 ! Harmonic
-                if (trim(this%config%bodies(i)%rotation_type) == 'harmonic') then
+                if (trim(this%config%bodies(i)%rotation_type) &
+                     == 'harmonic') then
                    if (has_user_kin .or. has_user_mesh) then
                       call neko_log%message('   Rotation     : ' // &
                            'Theta(t) = Amp*sin(2*pi*Freq*t) + User')
@@ -618,7 +630,8 @@ contains
                    call neko_log%message(log_buf)
 
                    ! Ramp
-                elseif (trim(this%config%bodies(i)%rotation_type) == 'ramp') then
+                elseif (trim(this%config%bodies(i)%rotation_type) &
+                     == 'ramp') then
                    if (has_user_kin .or. has_user_mesh) then
                       call neko_log%message('   Rotation     : ' // &
                            'Omega(t) = Omega0*(1 - exp(-4.6*t/t0)) + User')
@@ -646,7 +659,8 @@ contains
                    write(log_buf, '(A,I10)') '    Rotation Axis    :', &
                         this%config%bodies(i)%rotation_axis
                    call neko_log%message(log_buf)
-                   write(log_buf, '(A,ES18.11)') '    Target Rot Angle (deg)  :', &
+                   write(log_buf, '(A,ES18.11)') '    Target Rot ' // &
+                        'Angle (deg)  :', &
                         this%config%bodies(i)%target_rot_angle_deg
                    call neko_log%message(log_buf)
                    write(log_buf, '(A,4(ES18.11,1X))') &
@@ -1177,10 +1191,15 @@ contains
        end do
        deallocate(this%base_shapes)
     end if
-    call this%phi_total%free()
+    if (this%config%nbodies > 1) then
+       call this%phi_total%free()
+    end if
     call this%wm_x_lag%free()
     call this%wm_y_lag%free()
     call this%wm_z_lag%free()
+    call this%x_ref%free()
+    call this%y_ref%free()
+    call this%z_ref%free()
 
     if (allocated(this%ale_pivot)) deallocate(this%ale_pivot)
     if (allocated(this%config%bodies)) deallocate(this%config%bodies)
