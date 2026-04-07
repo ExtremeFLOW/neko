@@ -40,7 +40,8 @@ module most
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use most_device, only : most_compute_device
   use most_cpu, only : most_compute_cpu
   use scratch_registry, only : neko_scratch_registry
@@ -125,8 +126,8 @@ contains
     call json_get_or_lookup_or_default(json, "z0h", z0h_in, -0.8_rp)
     call json_get_or_lookup_or_default(json, "mu", mu_val, 1e-10_rp)
     call json_get_or_lookup_or_default(json, "rho", rho_val, 1.0_rp)
-    call json_get_or_lookup(json, "type_of_temp_bc", bc_type)
-    call json_get_or_lookup(json, "scalar_field", scalar_name)
+    call json_get(json, "type_of_temp_bc", bc_type)
+    call json_get(json, "scalar_field", scalar_name)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
 
     call json_get_or_lookup(json, "g", g_tmp)
@@ -159,8 +160,8 @@ contains
     call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get_or_lookup_or_default(json, "mu", this%mu_val, 1e-10_rp)
     call json_get_or_lookup_or_default(json, "rho", this%rho_val, 1.0_rp)
-    call json_get_or_lookup(json, "type_of_temp_bc", this%bc_type)
-    call json_get_or_lookup(json, "scalar_field", this%scalar_name)
+    call json_get(json, "type_of_temp_bc", this%bc_type)
+    call json_get(json, "scalar_field", this%scalar_name)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
 
     call json_get_or_lookup(json, "g", g_tmp)

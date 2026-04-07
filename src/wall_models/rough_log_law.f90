@@ -161,7 +161,7 @@ contains
   !! @param B The log-law intercept.
   !! @param z0 The roughness height.
   subroutine rough_log_law_init_from_components(this, scheme_name, coef, msk, &
-       facet, h_index, kappa, B, z0)
+       facet, h_index, kappa, rho_val, B, z0)
     class(rough_log_law_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
