@@ -231,6 +231,7 @@ contains
     type(user_t), intent(in) :: user
     type(time_state_t), intent(in) :: time
     integer :: il
+    character(len=LOG_SIZE) :: log_buf
 
     ! update restart counter
     this%counter = this%counter + 1
@@ -250,7 +251,10 @@ contains
          time%tstep)
 
     ! let user reconstruct fields
+    write(log_buf, '(a)') 'Restarting user space'
+    call neko_log%section(log_buf)
     call user%amr_reconstruct(this%reconstruct, this%counter, time%tstep)
+    call neko_log%end_section()
 
   end subroutine amr_restart
 

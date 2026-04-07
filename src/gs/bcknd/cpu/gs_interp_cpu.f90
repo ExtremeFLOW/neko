@@ -63,10 +63,6 @@ contains
     integer, intent(in) :: lx
     type(mesh_conn_t), target, intent(in) :: conn
 
-    
-    write(*, *) 'TESTinterpINIT'
-     
-
     call this%free()
 
     call this%init_base(lx, conn)
@@ -94,10 +90,6 @@ contains
     if (this%counter .eq. counter) return
 
     this%counter = counter
-
-    
-    write(*, *) 'TESTinterpRESTART'
-     
 
     call this%amr_restart_base()
 
