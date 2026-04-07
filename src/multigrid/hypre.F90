@@ -35,6 +35,7 @@ module hypre
   end interface
 
   type, public :: hypre_solver_t
+     private
      ! pointer for HYPRE_Solver
      type(c_ptr) :: solver = C_NULL_PTR
      ! Matrix A
@@ -63,8 +64,7 @@ module hypre
      procedure, pass(this) :: set_vector
   end type hypre_solver_t
 
-  public :: hypre_init, hypre_fin, hypre_matrix_assemble_from_neko
-  public :: hypre_dofs_workaround
+  public :: hypre_init, hypre_fin
 
 contains
 
@@ -119,11 +119,20 @@ contains
   end subroutine set_vector
 
   !> Setup the hypre solver object
-  subroutine hypre_solver_setup(this)
+  subroutine hypre_solver_setup(this, coef)
     class(hypre_solver_t), intent(inout) :: this
+    type(coef_t), intent(in), target :: coef
+
+    ! workaround to have dofs as i4 instead of i8
+    call hypre_dofs_workaround(this, coef)
+
+    ! Asseble the linear system
+    call hypre_matrix_assemble_from_neko(coef, this%A, this%b, this%x)
+
     call hypre_matrix_get_object(this%A, this%parcsr_A)
     call hypre_vector_get_object(this%b, this%par_b)
     call hypre_vector_get_object(this%x, this%par_x)
+
     ! Setup BoomerAMG
     call boomeramg_setup(this%solver, this%parcsr_A, this%par_b, this%par_x)
   end subroutine hypre_solver_setup
@@ -132,51 +141,47 @@ contains
   !! @param x Approximated solution. Fortran array on host.
   !! @param f Right hand side. Fortran array on host.
   !! @param n Size of vectors
-  !! @param dof Array of global DoFs on rank. Fortran array on host.
-  subroutine hypre_solve(this, x, f, n, dof)
+  subroutine hypre_solve(this, x, f, n)
     class(hypre_solver_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp), dimension(n), intent(in) :: f
-    integer, dimension(n), intent(in) :: dof
     ! Copy to hypre vector
     ! (copy to x may be unneeded if zero initial guess is always used)
-    call hypre_copy_to_vector(this%x, n, dof, x)
+    call hypre_copy_to_vector(this%x, n, this%dofs, x)
     call hypre_vector_assemble(this%x)
-    call hypre_copy_to_vector(this%b, n, dof, f)
+    call hypre_copy_to_vector(this%b, n, this%dofs, f)
     call hypre_vector_assemble(this%b)
     ! Solve
     call boomeramg_solve(this%solver, this%parcsr_A, this%par_b, this%par_x)
     ! Copy from hypre vector
-    call hypre_copy_from_vector(this%x, n, dof, x)
+    call hypre_copy_from_vector(this%x, n, this%dofs, x)
   end subroutine hypre_solve
 
   !> Solve system for right hand side f
   !! @param x Approximated solution. c_ptr on device.
   !! @param f Right hand side. c_ptr on device.
   !! @param n Size of vectors
-  !! @param dof Array of global DoFs on rank. c_ptr on device.
-  subroutine hypre_device_solve(this, x, f, n, dof)
+  subroutine hypre_device_solve(this, x, f, n)
     class(hypre_solver_t), intent(inout) :: this
     integer, intent(in) :: n
     type(c_ptr), intent(in) :: x
     type(c_ptr), intent(in) :: f
-    type(c_ptr), intent(in) :: dof
     ! Copy to hypre vector
     ! (copy to x may be unneeded if zero initial guess is always used)
     call profiler_start_region("neko_to_hypre_X")
-    call hypre_device_copy_to_vector(this%x, n, dof, x)
+    call hypre_device_copy_to_vector(this%x, n, this%dofs_d, x)
     call hypre_vector_assemble(this%x)
     call profiler_end_region()
     call profiler_start_region("neko_to_hypre_B")
-    call hypre_device_copy_to_vector(this%b, n, dof, f)
+    call hypre_device_copy_to_vector(this%b, n, this%dofs_d, f)
     call hypre_vector_assemble(this%b)
     call profiler_end_region()
     ! Solve
     call boomeramg_solve(this%solver, this%parcsr_A, this%par_b, this%par_x)
     ! Copy from hypre vector
     call profiler_start_region("hypre_to_neko_X")
-    call hypre_device_copy_from_vector(this%x, n, dof, x)
+    call hypre_device_copy_from_vector(this%x, n, this%dofs_d, x)
     call profiler_end_region()
   end subroutine hypre_device_solve
 
@@ -321,21 +326,6 @@ contains
        call device_memcpy( vals, tmp_vals_d, idof, HOST_TO_DEVICE, .true.)
        call device_memcpy( ncols, ncol_d, nrows, HOST_TO_DEVICE, .true.)
        call hypre_device_matrix_update(A, nrows, ncol_d, tmp_rows_d, tmp_cols_d, tmp_vals_d)
-!       call device_map(tmp_rows, tmp_rows_d, 1)
-!       call device_map(tmp_cols, tmp_cols_d, 1)
-!       call device_map(tmp_vals, tmp_vals_d, 1)
-!       call device_map(ncol, ncol_d, 1)
-!       do i = 1, nnz
-!         ncol(1) = 1
-!         tmp_rows(1) = A_rows(i)
-!         tmp_cols(1) = A_cols(i)
-!         tmp_vals(1) = A_vals(i)
-!         call device_memcpy( tmp_rows, tmp_rows_d, 1, HOST_TO_DEVICE, .true.)
-!         call device_memcpy( tmp_cols, tmp_cols_d, 1, HOST_TO_DEVICE, .true.)
-!         call device_memcpy( tmp_vals, tmp_vals_d, 1, HOST_TO_DEVICE, .true.)
-!         call device_memcpy( ncol, ncol_d, 1, HOST_TO_DEVICE, .true.)
-!         call hypre_device_matrix_update(A, 1, ncol_d, tmp_rows_d, tmp_cols_d, tmp_vals_d)
-!       end do
     else
        do i = 1, nnz
           ncol(1) = 1

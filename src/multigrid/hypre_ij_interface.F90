@@ -234,9 +234,9 @@ contains
   !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_matrix_fill(A, nrows, ncols, rows, cols, values)
      type(c_ptr), intent(in) :: A
-     integer, intent(in) :: nrows, ncols(:)
-     integer, intent(in) :: rows(:), cols(:)
-     double precision, intent(in) :: values(:)
+     integer, target, intent(in) :: nrows, ncols(:)
+     integer, target, intent(in) :: rows(:), cols(:)
+     double precision, target, intent(in) :: values(:)
      integer :: ierr
      ! Fill the matrix with values.
      ierr = HYPRE_IJMatrixSetValues(A, nrows, c_loc(ncols), &
@@ -254,9 +254,9 @@ contains
   !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_matrix_update(A, nrows, ncols, rows, cols, values)
      type(c_ptr), intent(in) :: A
-     integer, intent(in) :: nrows, ncols(:)
-     integer, intent(in) :: rows(:), cols(:)
-     double precision, intent(in) :: values(:)
+     integer, target, intent(in) :: nrows, ncols(:)
+     integer, target, intent(in) :: rows(:), cols(:)
+     double precision, target, intent(in) :: values(:)
      integer :: ierr
      ! Fill the matrix with values.
      ierr = HYPRE_IJMatrixAddToValues(A, nrows, c_loc(ncols), &
@@ -336,8 +336,8 @@ contains
   subroutine hypre_vector_fill(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
-    integer, intent(in) :: indices(:)
-    double precision, intent(in) :: values(:)
+    integer, target, intent(in) :: indices(:)
+    double precision, target, intent(in) :: values(:)
     integer :: ierr
     ! Set vector values
     ierr = HYPRE_IJVectorSetValues(v, nvalues, c_loc(indices), c_loc(values))
@@ -369,8 +369,8 @@ contains
   subroutine hypre_copy_to_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
-    integer, intent(in) :: indices(nvalues)
-    double precision, intent(in) :: values(nvalues)
+    integer, target, intent(in) :: indices(nvalues)
+    double precision, target, intent(in) :: values(nvalues)
     integer :: ierr
     ! re-initialize vector
     ierr = HYPRE_IJVectorInitialize(v)
@@ -407,8 +407,8 @@ contains
   subroutine hypre_copy_from_vector(v, nvalues, indices, values)
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
-    integer, intent(in) :: indices(nvalues)
-    double precision, intent(inout) :: values(nvalues)
+    integer, target, intent(in) :: indices(nvalues)
+    double precision, target, intent(inout) :: values(nvalues)
     integer :: ierr
     ! Get vector values
     ierr = HYPRE_IJVectorGetValues(v, nvalues, c_loc(indices), c_loc(values))
