@@ -605,12 +605,13 @@ file documentation.
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
-   | Name             | Description                                                                                        | Admissible values            | Default value |
-   | ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
-   | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
-   | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
-   | `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
-   | `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`   |
+   | Name             | Description                                                                                        | Admissible values            | Default value  |
+   | ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | -------------- |
+   | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -              |
+   | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`        |
+   | `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`    |
+   | `interpolation.tolerance`| Tolerance for the point search.                                                            | Positive real.               | `NEKO_EPS*1e3` |
+   | `interpolation.padding`  | Padding for the point search.                                                              | Positive real.               | `1e-2`         |
 
    @attention Interpolating a field from the same mesh but different
    polynomial order is performed implicitly and does not require to enable
@@ -905,8 +906,7 @@ The reference velocity field, or `baseflow` can be set from three methods:
              "method": "field",
              "file_name": "my_field0.f00016",
              "mesh_file_name": "my_field0.f00000",
-             "interpolate": true,
-             "tolerance": 1e-6
+             "interpolate": true
          }
       }
    ]

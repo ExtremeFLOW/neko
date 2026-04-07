@@ -1,13 +1,13 @@
-module test_stack_i4t4
+module test_stack_nz
 contains
 @test
-subroutine test_stack_i4t4_init
+subroutine test_stack_nz_init
   use pfunit
   use stack
   use math, only : NEKO_M_LN2
   use num_types, only : rp
   implicit none
-  type(stack_i4t4_t) :: s1, s2, s3
+  type(stack_nz_t) :: s1, s2, s3
   integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
 
   call s1%init()
@@ -37,14 +37,14 @@ subroutine test_stack_i4t4_init
   @assertTrue(s3%is_empty())
   @assertLessThan(s3%size(), size(s3%array()))
 
-end subroutine test_stack_i4t4_init
+end subroutine test_stack_nz_init
 
 @test
-subroutine test_stack_i4t4_free
+subroutine test_stack_nz_free
   use pfunit
   use stack
   implicit none
-  type(stack_i4t4_t) :: s
+  type(stack_nz_t) :: s
 
   call s%init()
   call s%free()
@@ -53,23 +53,28 @@ subroutine test_stack_i4t4_free
   @assertEqual(s%top_, 0)
   @assertEqual(s%size(), 0)
   @assertTrue(s%is_empty())
-  
-end subroutine test_stack_i4t4_free
+
+end subroutine test_stack_nz_free
 
 @test
-subroutine test_stack_i4t4_push
+subroutine test_stack_nz_push
   use pfunit
   use stack
-  use tuple
+  use nmsh
   implicit none
-  type(stack_i4t4_t) :: s
+  type(stack_nz_t) :: s
   integer :: i
-  type(tuple4_i4_t) :: data
-  type(tuple4_i4_t), pointer :: dp(:)
+  type(nmsh_zone_t) :: data
+  type(nmsh_zone_t), pointer :: zone_ptr(:)
 
-  call s%init()  
+  call s%init()
   do i = 1, 64
-     data = (/i , -i, i, -i/)
+     data%e = i
+     data%f = i + 1
+     data%p_e = i + 2
+     data%p_f = i + 3
+     data%glb_pt_ids = (/i, i + 1, i + 2, i + 3/)
+     data%type = modulo(i, 4)
      call s%push(data)
   end do
   ! Pushing data should make the stack non-empty without reallocating early.
@@ -78,62 +83,81 @@ subroutine test_stack_i4t4_push
   @assertFalse(s%is_empty())
 
   do i = 1, 2
-     data = (/i + 64, -(i + 64), i + 64, -(i + 64)/)
+     data%e = i + 64
+     data%f = i + 65
+     data%p_e = i + 66
+     data%p_f = i + 67
+     data%glb_pt_ids = (/i + 64, i + 65, i + 66, i + 67/)
+     data%type = modulo(i + 64, 4)
      call s%push(data)
   end do
   ! Crossing the initial capacity should resize once and preserve order.
   @assertEqual(s%size_, 128, message='Unnecessary reallocation')
-  @assertEqual(s%top_, (64 + 2), message='Corrupt size')
+  @assertEqual(s%top_, 66, message='Corrupt size')
 
-  dp => s%array()
+  zone_ptr => s%array()
   do i = 1, 66
-     data = (/i, -i, i, -i/)
-     @assertTrue(dp(i) .eq. data)
+     @assertEqual(zone_ptr(i)%e, i)
+     @assertEqual(zone_ptr(i)%f, i + 1)
+     @assertEqual(zone_ptr(i)%p_e, i + 2)
+     @assertEqual(zone_ptr(i)%p_f, i + 3)
+     @assertEqual(zone_ptr(i)%glb_pt_ids, (/i, i + 1, i + 2, i + 3/))
+     @assertEqual(zone_ptr(i)%type, modulo(i, 4))
   end do
- 
-end subroutine test_stack_i4t4_push
+
+end subroutine test_stack_nz_push
 
 @test
-subroutine test_stack_i4t4_pop
+subroutine test_stack_nz_pop
   use pfunit
   use stack
-  use tuple
+  use nmsh
   implicit none
-  type(stack_i4t4_t) :: s
+  type(stack_nz_t) :: s
   integer :: i
-  type(tuple4_i4_t) :: data
+  type(nmsh_zone_t) :: data
 
   call s%init()
   do i = 1, 66
-     data = (/i, -i, i, -i/)
+     data%e = i
+     data%f = i + 1
+     data%p_e = i + 2
+     data%p_f = i + 3
+     data%glb_pt_ids = (/i, i + 1, i + 2, i + 3/)
+     data%type = modulo(i, 4)
      call s%push(data)
   end do
 
   do i = 66, 1, -1
-     data = (/i, -i, i, -i/)
-     @assertTrue(s%pop() .eq. data)
+     data = s%pop()
+     @assertEqual(data%e, i)
+     @assertEqual(data%f, i + 1)
+     @assertEqual(data%p_e, i + 2)
+     @assertEqual(data%p_f, i + 3)
+     @assertEqual(data%glb_pt_ids, (/i, i + 1, i + 2, i + 3/))
+     @assertEqual(data%type, modulo(i, 4))
   end do
 
   ! Popping all entries should restore the empty-state markers.
   @assertEqual(s%top_, 0, message='Leftover data')
   @assertEqual(s%size_, 128, message='Corrupt size')
   @assertTrue(s%is_empty())
-  
-end subroutine test_stack_i4t4_pop
 
-@test 
-subroutine test_stack_i4t4_clear
+end subroutine test_stack_nz_pop
+
+@test
+subroutine test_stack_nz_clear
   use pfunit
   use stack
-  use tuple
+  use nmsh
   implicit none
-  type(stack_i4t4_t) :: s
+  type(stack_nz_t) :: s
   integer :: i
-  type(tuple4_i4_t) :: data
+  type(nmsh_zone_t) :: data
 
   call s%init()
   do i = 1, 66
-     data = (/i, -i, i, -i/)
+     data%e = i
      call s%push(data)
   end do
   call s%clear()
@@ -142,6 +166,6 @@ subroutine test_stack_i4t4_clear
   @assertEqual(s%top_, 0, message='Corrupt top marker')
   @assertTrue(s%is_empty())
 
-end subroutine test_stack_i4t4_clear
+end subroutine test_stack_nz_clear
 
-end module test_stack_i4t4
+end module test_stack_nz

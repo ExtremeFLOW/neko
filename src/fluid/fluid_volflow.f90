@@ -380,19 +380,19 @@ contains
       ifcomp = 0.0_rp
 
       if ((.not. abscmp(dt, this%dtlag)) .or. &
-           (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) then
+           (.not. abscmp(ext_bdf%diffusion_coeffs%x(1), this%bdlag))) then
          ifcomp = 1.0_rp
       end if
 
       this%dtlag = dt
-      this%bdlag = ext_bdf%diffusion_coeffs(1)
+      this%bdlag = ext_bdf%diffusion_coeffs%x(1)
 
       call MPI_Allreduce(MPI_IN_PLACE, ifcomp, 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
-              ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &
+              ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs%x(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
               Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
               vel_max_iter)

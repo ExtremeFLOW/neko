@@ -70,7 +70,7 @@ contains
     type(space_t), target, intent(in) :: Xh
     integer, intent(in) :: nelv
     real(kind=rp), intent(in), dimension(nelv*Xh%lxyz) :: x, y, z
-    real(kind=rp), intent(in), optional :: tol
+    real(kind=dp), intent(in), optional :: tol
     integer, intent(in), optional :: max_iter
 
     call this%free()

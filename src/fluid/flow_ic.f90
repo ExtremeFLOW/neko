@@ -49,7 +49,8 @@ module flow_ic
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, &
-       json_get_or_lookup_or_default, json_get_or_lookup
+       json_get_or_lookup_or_default, json_get_or_lookup, &
+       json_get_subdict_or_empty
   use point_zone, only : point_zone_t
   use point_zone_registry, only : neko_point_zone_registry
   use fld_file_data, only : fld_file_data_t
@@ -82,12 +83,10 @@ contains
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
-    real(kind=rp) :: delta, tol
+    real(kind=rp) :: delta
     real(kind=rp), allocatable :: uinf(:)
     real(kind=rp), allocatable :: zone_value(:)
     character(len=:), allocatable :: read_str
-    character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
-    logical :: interpolate
 
 
     !
@@ -125,16 +124,25 @@ contains
        !
     else if (trim(type) .eq. 'field') then
 
-       call json_get(params, 'file_name', read_str)
-       fname = trim(read_str)
-       call json_get_or_default(params, 'interpolate', interpolate, &
-            .false.)
-       call json_get_or_lookup_or_default(params, 'tolerance', tol, &
-            0.000001_rp)
-       call json_get_or_default(params, 'mesh_file_name', read_str, "none")
-       mesh_fname = trim(read_str)
+       block
+         character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
+         logical :: interpolate
+         type(json_file) :: interp_subdict
 
-       call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, mesh_fname)
+         call json_get(params, 'file_name', read_str)
+         fname = trim(read_str)
+
+         call json_get_or_default(params, 'interpolate', interpolate, &
+              .false.)
+
+         call json_get_or_default(params, 'mesh_file_name', read_str, "none")
+         mesh_fname = trim(read_str)
+
+         call json_get_subdict_or_empty(params, "interpolation", &
+              interp_subdict)
+         call set_flow_ic_fld(u, v, w, p, fname, interpolate, &
+              mesh_fname, interp_subdict)
+       end block
 
     else
        call neko_error('Invalid initial condition')
@@ -401,24 +409,22 @@ contains
   !! @param w The z-component of the velocity field.
   !! @param p The pressure field.
   !! @param file_name The name of the "fld" file series.
-  !! @param sample_idx index of the field file .f000* to read, default is
-  !! -1.
   !! @param interpolate Flag to indicate wether or not to interpolate the
   !! values onto the current mesh.
-  !! @param tolerance If interpolation is enabled, tolerance for finding the
-  !! points in the mesh.
-  !! @param sample_mesh_idx If interpolation is enabled, index of the field
-  !! file where the mesh coordinates are located.
+  !! @param file_name If interpolation is enabled the name of the "fld" file
+  !! containing the mesh coordinates (if they are not in `file_name`).
+  !! @param global_interp_subdict If interpolation is enabled, subdict
+  !! containing the interpolation parameters to use.
   subroutine set_flow_ic_fld(u, v, w, p, file_name, &
-       interpolate, tolerance, mesh_file_name)
+       interpolate, mesh_file_name, global_interp_subdict)
     type(field_t), target, intent(inout) :: u
     type(field_t), target, intent(inout) :: v
     type(field_t), target, intent(inout) :: w
     type(field_t), target, intent(inout) :: p
     character(len=*), intent(inout) :: file_name
     logical, intent(in) :: interpolate
-    real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    type(json_file), intent(inout) :: global_interp_subdict
 
     type(field_t), pointer :: us, vs, ws, ps
 
@@ -427,9 +433,9 @@ contains
     ws => w
     ps => p
 
-    call import_fields(file_name, mesh_file_name, &
+    call import_fields(file_name, global_interp_subdict, mesh_file_name, &
          u = us, v = vs, w = ws, p = ps, &
-         interpolate = interpolate, tolerance = tolerance)
+         interpolate = interpolate)
 
     nullify(us, vs, ws, ps)
 
