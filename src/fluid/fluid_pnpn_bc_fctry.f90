@@ -122,7 +122,7 @@ contains
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
 
-    write(buf,'("pressure_bc_",I0)') zone_indices(1)
+    write(buf, '("pressure_bc_", I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
     object%zone_indices = zone_indices

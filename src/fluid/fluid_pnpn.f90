@@ -720,7 +720,8 @@ contains
 
       if (this%ale%active) then
          if (oifs) then
-            call neko_error("ALE is not yet supported with OIFS time integration.")
+            call neko_error("ALE is not yet supported " // &
+                 "with OIFS time integration.")
          end if
          !> adds div.(u_i*wm) to RHS
          call this%adv%compute_ale(u, v, w, &
@@ -1110,7 +1111,7 @@ contains
        if (this%ale%active .and. (.not. this%ale%has_moving_boundary)) then
           call neko_error("Case file error: ALE is active, &
           &but no moving wall was found. " // &
-                  "Use type='no_slip' with 'moving': true in case file.")
+                  "Use type = 'no_slip' with 'moving': true in case file.")
        end if
 
        ! Make sure all labeled zones with non-zero size have been marked

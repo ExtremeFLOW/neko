@@ -165,7 +165,7 @@ contains
     if (allocated(center)) this%center = center
 
     call this%init_common(name, fluid_name, zone_id, zone_name, this%center, &
-         scale, case%fluid%c_xh, long_print, center_type=center_type)
+         scale, case%fluid%c_xh, long_print, center_type = center_type)
   end subroutine force_torque_init_from_json
 
   !> Constructor from components, passing controllers.
@@ -703,7 +703,8 @@ contains
                    nindices = size(neko_ale%config%bodies(i)%zone_indices)
                    j = 1
                    do while (j <= nindices .and. .not. body_found)
-                      if (neko_ale%config%bodies(i)%zone_indices(j) == zone_id) then
+                      if (neko_ale%config%bodies(i)%zone_indices(j) &
+                           == zone_id) then
 
                          ! Body found
                          this%moving_center = .true.
