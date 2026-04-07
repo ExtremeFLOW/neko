@@ -109,6 +109,7 @@ contains
 
     call json_get(json, "field_name", field_name)
     call this%init_from_components(coef, field_name)
+    if (allocated(field_name)) deallocate(field_name)
 
   end subroutine overset_interface_init
 
