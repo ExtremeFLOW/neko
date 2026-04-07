@@ -40,7 +40,7 @@ module richardson
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get_or_default, json_get, json_get_or_lookup_or_default
   use richardson_cpu, only : richardson_compute_cpu
   use richardson_device, only : richardson_compute_device
   use scratch_registry, only : neko_scratch_registry
@@ -115,23 +115,23 @@ contains
     real(kind=rp), allocatable :: g_tmp(:)
     real(kind=rp) :: g(3)
 
-    call json_get_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get(json, "type_of_temp_bc", bc_type)
-    call json_get(json, "scalar_field", scalar_name)
-    call json_get_or_default(json, "Pr", Pr, 1.0_rp)
-    call json_get(json, "bottom_bc_flux_or_temp", bc_value)
-    call json_get_or_default(json, "z0", z0, 0.1_rp)
+    call json_get_or_lookup_or_default(json, "kappa", kappa, 0.41_rp)
+    call json_get_or_lookup(json, "type_of_temp_bc", bc_type)
+    call json_get_or_lookup(json, "scalar_field", scalar_name)
+    call json_get_or_lookup_or_default(json, "Pr", Pr, 1.0_rp)
+    call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
+    call json_get_or_lookup_or_defaultt(json, "z0", z0, 0.1_rp)
     ! If z0h is specified and positive, z0h will be constant and equal to
     ! what's specified in the case file.
     ! If z0h is specified and negative, the Zilitinkevich 1995 formulation
     ! is used, with the specified value acting as -C_Zil.
     ! If z0h is to specified, assign default value of -0.8,
     ! corresponding to the Zilitinkevich constant value used in Zilitinkevich 1995.
-    call json_get_or_default(json, "z0h", z0h_in, -0.8_rp)
-    call json_get_or_default(json, "mu", mu, 1e-10_rp)
-    call json_get_or_default(json, "rho", rho, 1.0_rp)
+    call json_get_or_lookup_or_default(json, "z0h", z0h_in, -0.8_rp)
+    call json_get_or_lookup_or_default(json, "mu", mu, 1e-10_rp)
+    call json_get_or_lookup_or_default(json, "rho", rho, 1.0_rp)
 
-    call json_get(json, "g", g_tmp)
+    call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
        g = g_tmp
     else
@@ -156,14 +156,14 @@ contains
     real(kind=rp), allocatable :: g_tmp(:)
 
     call this%partial_init_base(coef, json)
-    call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
-    call json_get_or_default(json, "Pr", this%Pr, 1.0_rp)
-    call json_get_or_default(json, "z0", this%z0, 0.1_rp)
-    call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
-    call json_get(json, "type_of_temp_bc", this%bc_type)
-    call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
+    call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.41_rp)
+    call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
+    call json_get_or_lookup_or_default(json, "z0", this%z0, 0.1_rp)
+    call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, -0.8_rp)
+    call json_get_or_lookup(json, "type_of_temp_bc", this%bc_type)
+    call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
 
-    call json_get(json, "g", g_tmp)
+    call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
        this%g = g_tmp
     else
