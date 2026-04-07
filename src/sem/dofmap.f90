@@ -1259,6 +1259,10 @@ contains
 
   end subroutine compute_h
 
+  !> Generate/Initialize a new dofmap object based on a mask
+  !! @note Assumes that all points in an element are marked in by the mask.
+  !! @param other The new dofmap to be initialized.
+  !! @param mask the mask type defining the elements to be included.
   subroutine dofmap_subset_by_mask(this, other, mask)
     class(dofmap_t), intent(inout) :: this
     class(dofmap_t), intent(inout) :: other
@@ -1266,6 +1270,12 @@ contains
     integer :: i
 
     ! Initialize the mesh subset_mesh in this
+    ! Deallocate any previously allocated mesh subset
+    if (allocated(this%msh_subset)) then
+       call this%msh_subset%free()
+       deallocate(this%msh_subset)
+    end if
+
     allocate(this%msh_subset)
     call this%msh%subset_by_mask(this%msh_subset, mask, &
          this%Xh%lx, this%Xh%ly, this%Xh%lz)
@@ -1287,11 +1297,11 @@ contains
             this%size(), mask%size())
 
        ! Sync with host
-       call device_memcpy(this%x, this%x_d, this%ntot, &
+       call device_memcpy(other%x, other%x_d, other%ntot, &
             DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(this%y, this%y_d, this%ntot, &
+       call device_memcpy(other%y, other%y_d, other%ntot, &
             DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(this%z, this%z_d, this%ntot, &
+       call device_memcpy(other%z, other%z_d, other%ntot, &
             DEVICE_TO_HOST, sync =.true.)
 
     else

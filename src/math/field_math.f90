@@ -65,7 +65,7 @@ module field_math
   use device, only : device_get_ptr
   use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, add2, &
        add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, &
-       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glamx, glmin &
+       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glmax, glmin, &
        glsc2, glsc3, masked_gather_copy, masked_gather_copy_0, &
        masked_scatter_copy_0, glsubnorm, invcol3, pwmax2, pwmax3, cpwmax2, &
        cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3
@@ -763,7 +763,7 @@ contains
 
   end function field_glsubnorm
 
-  !> Gather a field to reduced contigous array
+  !> Gather a field to reduced contiguous array
   !! \f$ a = b(mask) \f$.
   !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
@@ -788,7 +788,7 @@ contains
 
   end subroutine field_masked_gather_copy_0
 
-  !> Gather a field to reduced contigous array
+  !> Gather a field to reduced contiguous array
   !! \f$ a = b(mask) \f$.
   !! @param a Destination field of size `n_mask`.
   !! @param b Source array of size `n`.
@@ -812,7 +812,7 @@ contains
 
   end subroutine field_masked_gather_copy
 
-  !> Gather a contigous array into a field
+  !> Gather a contiguous array into a field
   !! \f$ a(mask) = b \f$.
   !! @param a Destination field.
   !! @param b Source array of size `n_mask`.
