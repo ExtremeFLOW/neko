@@ -250,9 +250,9 @@ __global__ void richardson_compute(
         }
 
         // Apply spatial distribution
-        tau_x_d[i] = -tau_mag * ui / magu;
-        tau_y_d[i] = -tau_mag * vi / magu;
-        tau_z_d[i] = -tau_mag * wi / magu;
+        tau_x_d[i] = -rho*tau_mag * ui / magu;
+        tau_y_d[i] = -rho*tau_mag * vi / magu;
+        tau_z_d[i] = -rho*tau_mag * wi / magu;
         
         // Note: L_ob calculation is omitted from the kernel as it is a pure
         // diagnostic variable and writing it to global memory would require 

@@ -196,9 +196,9 @@ contains
 
        ! Distribute according to the velocity vector and bound magu to avoid 0 division
        magu(i) = max(magu(i), 1.0e-6_rp)
-       tau_x(i) = -utau(i)**2 * ui / magu(i)
-       tau_y(i) = -utau(i)**2 * vi / magu(i)
-       tau_z(i) = -utau(i)**2 * wi / magu(i)
+       tau_x(i) = -rho*utau(i)**2 * ui / magu(i)
+       tau_y(i) = -rho*utau(i)**2 * vi / magu(i)
+       tau_z(i) = -rho*utau(i)**2 * wi / magu(i)
        if (abs(Ri_b(i)) <= Ri_threshold) then
              ! Neutral (L_ob undefined)
              L_ob(i) = 1e10_rp
