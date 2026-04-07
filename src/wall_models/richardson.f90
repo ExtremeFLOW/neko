@@ -41,7 +41,7 @@ module richardson
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
   use json_utils, only : json_get, json_get_or_default, &
-       json_get_or_lookup, json_get_or_lookup_or_default  
+       json_get_or_lookup, json_get_or_lookup_or_default
   use richardson_cpu, only : richardson_compute_cpu
   use richardson_device, only : richardson_compute_device
   use scratch_registry, only : neko_scratch_registry
@@ -55,11 +55,11 @@ module richardson
   !! computing the Richardson number directly (Mauritsen, 2007)
   type, public, extends(wall_model_t) :: richardson_t
      !> The von Karman coefficient.
-     real(kind=rp) :: kappa 
+     real(kind=rp) :: kappa
      !> The roughness height
-     real(kind=rp) :: z0 
+     real(kind=rp) :: z0
      !> The thermal roughness height
-     real(kind=rp) :: z0h_in 
+     real(kind=rp) :: z0h_in
      !> The gravity vector
      real(kind=rp) :: g(3)
      !> The turbulent Prandtl number
@@ -72,7 +72,7 @@ module richardson
      character(len=:), allocatable :: bc_type
      !> The heat flux or temperature value set in the case file
      real(kind=rp) :: bc_value
-     !> The name of the temperature variable  
+     !> The name of the temperature variable
      character(len=:), allocatable :: scalar_name
    contains
      !> Constructor from JSON.
@@ -187,7 +187,7 @@ contains
     write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
-    call neko_log%message(log_buf)   
+    call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'z0h : ', this%z0h_in
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'Pr : ', this%Pr
@@ -291,11 +291,11 @@ contains
     class(richardson_t), intent(inout) :: this
 
     if (allocated(this%bc_type)) then
-      deallocate(this%bc_type)
+       deallocate(this%bc_type)
     end if
 
     if (allocated(this%scalar_name)) then
-      deallocate(this%scalar_name)
+       deallocate(this%scalar_name)
     end if
 
     call this%free_base()
@@ -320,14 +320,14 @@ contains
     temp => neko_registry%get_field(this%scalar_name)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call richardson_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
+       call richardson_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
             this%ind_s_d, this%ind_t_d, this%ind_e_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
             this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, this%bc_value, tstep)
     else
-        call richardson_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
+       call richardson_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
