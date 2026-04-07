@@ -127,15 +127,9 @@ contains
     ! is used, with the specified value acting as -C_Zil.
     ! If z0h is to specified, assign default value of -0.8,
     ! corresponding to the Zilitinkevich constant value used in Zilitinkevich 1995.
-<<<<<<< HEAD
     call json_get_or_lookup_or_default(json, "z0h", z0h_in, -0.8_rp)
-    call json_get_or_lookup_or_default(json, "mu", mu, 1e-10_rp)
-    call json_get_or_lookup_or_default(json, "rho", rho, 1.0_rp)
-=======
-    call json_get_or_default(json, "z0h", z0h_in, -0.8_rp)
-    call json_get_or_default(json, "mu", mu_val, 1e-10_rp)
-    call json_get_or_default(json, "rho", rho_val, 1.0_rp)
->>>>>>> 1d300b02ef7ca63d52d1251596fbff3257e0f2ca
+    call json_get_or_lookup_or_default(json, "mu", mu_val, 1e-10_rp)
+    call json_get_or_lookup_or_default(json, "rho", rho_val, 1.0_rp)
 
     call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -162,24 +156,14 @@ contains
     real(kind=rp), allocatable :: g_tmp(:)
 
     call this%partial_init_base(coef, json)
-<<<<<<< HEAD
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.41_rp)
     call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_lookup_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get_or_lookup(json, "type_of_temp_bc", this%bc_type)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
-=======
-    call json_get_or_default(json, "kappa", this%kappa, 0.4_rp)
-    call json_get_or_default(json, "Pr", this%Pr, 1.0_rp)
-    call json_get_or_default(json, "z0", this%z0, 0.1_rp)
-    call json_get_or_default(json, "z0h", this%z0h_in, -0.8_rp)
-    call json_get(json, "scalar_field", this%scalar_name)
-    call json_get(json, "type_of_temp_bc", this%bc_type)
-    call json_get(json, "bottom_bc_flux_or_temp", this%bc_value)
     call json_get_or_default(json, "mu", this%mu_val, 1e-10_rp)
     call json_get_or_default(json, "rho", this%rho_val, 1.0_rp)
->>>>>>> 1d300b02ef7ca63d52d1251596fbff3257e0f2ca
 
     call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
