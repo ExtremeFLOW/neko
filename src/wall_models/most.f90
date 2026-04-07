@@ -151,6 +151,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: g_tmp(:)
+    character(len=LOG_SIZE) :: log_buf
 
     call this%partial_init_base(coef, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
