@@ -81,7 +81,6 @@ module hdf5_file
      procedure :: close => hdf5_file_close
      procedure :: set_active_group => hdf5_file_set_group
      procedure :: set_precision => hdf5_file_set_precision
-     procedure :: get_fname => file_get_fname
      procedure, pass(this) :: write_vector => hdf5_file_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_write_matrix
      procedure, pass(this) :: write_field => hdf5_file_write_field
@@ -686,7 +685,7 @@ contains
        this%precision = rp
     end if
 
-    fname = trim(this%get_fname())
+    fname = trim(file_get_fname(this))
     counter = this%get_counter() - this%get_start_counter()
 
     ! Set the configuration for MPI IO
@@ -709,9 +708,9 @@ contains
     ! Set the active group to the root of the file
     call this%set_active_group()
 
-    if (pe_rank .eq.0) then
-       write(*,*) "Opened HDF5 file: ", trim(fname), " with counter: ", counter
-    end if
+    !if (pe_rank .eq.0) then
+    !   write(*,*) "Opened HDF5 file: ", trim(fname), " with counter: ", counter
+    !end if
 
   end subroutine hdf5_file_open
 
@@ -720,7 +719,8 @@ contains
     class(hdf5_file_t), intent(inout) :: this
     integer :: ierr
 
-    if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. this%file_id) then
+    if (this%active_group_id .ne. -1_hid_t .and. &
+    this%active_group_id .ne. this%file_id) then
        call h5gclose_f(this%active_group_id, ierr)
     end if
     this%active_group_id = -1_hid_t
@@ -731,9 +731,9 @@ contains
     this%file_id = -1_hid_t
     call h5close_f(ierr)
 
-    if (pe_rank .eq.0) then
-       write(*,*) "Closed HDF5 file: ", trim(this%get_fname())
-    end if
+    !if (pe_rank .eq.0) then
+    !   write(*,*) "Closed HDF5 file: ", trim(this%get_fname())
+    !end if
 
   end subroutine hdf5_file_close
 
@@ -774,7 +774,8 @@ contains
           call h5gopen_f(current_id, trim(group_name(i)), group_id, ierr)
        else
           if (this%mode == "r") then
-             call neko_error("Group " // trim(group_name(i)) // " does not exist in file " // trim(this%get_fname()))
+             call neko_error("Group " // trim(group_name(i)) // &
+             " does not exist in file " // trim(file_get_fname(this)))
           end if
           call h5gcreate_f(current_id, trim(group_name(i)), group_id, ierr)
        end if
@@ -1030,10 +1031,11 @@ contains
     if (dset_exists) then
        if (this%overwrite) then
           ! retrieve the dset id for the existing data set
-          if (pe_rank .eq. 0) then
-             write(*,*) "Dataset ", trim(mat%name), " already exists in file ", trim(this%get_fname()), " and will be overwritten."
-             write(*,*) "This only works if the global shape is the same"
-          end if
+          !if (pe_rank .eq. 0) then
+          !   write(*,*) "Dataset ", trim(mat%name), " already exists in file ", &
+          !   trim(file_get_fname(this)), " and will be overwritten."
+          !   write(*,*) "This only works if the global shape is the same"
+          !end if
           call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
        else
           call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
@@ -1186,8 +1188,12 @@ contains
     ! ===========================
     ! Set up writing the data set
     ! ===========================
-    dcount = [int(stride_ax_1, hsize_t), int(stride_ax_2, hsize_t), int(stride_ax_3, hsize_t), int(counts, hsize_t)] ! local size of the tensor
-    doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, int(offset, hsize_t) + append_offset] ! offset for this rank in the global tensor
+    dcount = [int(stride_ax_1, hsize_t), &
+            int(stride_ax_2, hsize_t), &
+             int(stride_ax_3, hsize_t), &
+             int(counts, hsize_t)] ! local size of the tensor
+    doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, &
+            int(offset, hsize_t) + append_offset] ! offset in the global tensor
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
@@ -1277,13 +1283,15 @@ contains
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
        if (temprank .ne. 1) then
-          call neko_error("Dataset " // trim(data_name) // " is not a rank 1 vector in file " // trim(this%get_fname()))
+          call neko_error("Dataset " // trim(data_name) // &
+          " is not a rank 1 vector in file " // trim(file_get_fname(this)))
        end if
        ! Get the current shape and close the filespace
        call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
        call h5sclose_f(filespace, ierr)
     else
-       call neko_error("Dataset " // trim(data_name) // " does not exist in current group " // trim(this%get_fname()))
+       call neko_error("Dataset " // trim(data_name) // &
+       " does not exist in current group " // trim(file_get_fname(this)))
     end if
 
     ! =============================
@@ -1386,13 +1394,15 @@ contains
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
        if (temprank .ne. 2) then
-          call neko_error("Dataset " // trim(data_name) // " is not a rank 2 matrix in file " // trim(this%get_fname()))
+          call neko_error("Dataset " // trim(data_name) // &
+          " is not a rank 2 matrix in file " // trim(file_get_fname(this)))
        end if
        ! Get the current shape and close the filespace
        call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
        call h5sclose_f(filespace, ierr)
     else
-       call neko_error("Dataset " // trim(data_name) // " does not exist in current group " // trim(this%get_fname()))
+       call neko_error("Dataset " // trim(data_name) &
+       // " does not exist in current group " // trim(file_get_fname(this)))
     end if
 
     ! =============================
@@ -1419,8 +1429,8 @@ contains
     ! Set up reading the data set
     ! ===========================
     dset_rank = 2 ! rank 2 array, i.e. a matrix
-    dcount = [int(tempddims(1), hsize_t), int(counts, hsize_t)] ! local size of the matrix
-    doffset = [0_hsize_t, int(offset, hsize_t)] ! offset for this rank in the global matrix
+    dcount = [int(tempddims(1), hsize_t), int(counts, hsize_t)] ! local size
+    doffset = [0_hsize_t, int(offset, hsize_t)] ! offset in the global matrix
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank reads
