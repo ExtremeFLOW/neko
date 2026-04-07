@@ -67,13 +67,13 @@ contains
     call hip_rough_log_law_compute(u_d, v_d, w_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
-         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, & 
+         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
          kappa, rho, B, z0, tstep)
 #elif HAVE_CUDA
     call cuda_rough_log_law_compute(u_d, v_d, w_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
-         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, & 
+         tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
          kappa, rho, B, z0, tstep)
 #elif HAVE_OPENCL
     call neko_error("OPENCL is not implemented for the rough log-law model")

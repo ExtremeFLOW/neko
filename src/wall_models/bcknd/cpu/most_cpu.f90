@@ -102,17 +102,17 @@ contains
     real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h, bc_value
     real(kind=rp), intent(inout) :: q,ts
     select case (bc_type)
-      case ("neumann")
+    case ("neumann")
        ! ts not used
        q = bc_value
        f_ptr => f_neumann
        dfdl_ptr => dfdl_neumann
-      case ("dirichlet")
+    case ("dirichlet")
        ts = bc_value
        q = kappa*utau*(ts - ti)/log(hi/z0h)
        f_ptr => f_dirichlet
        dfdl_ptr => dfdl_dirichlet
-      case default
+    case default
        call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
     end select
   end subroutine select_bc_operators
@@ -120,16 +120,16 @@ contains
   !> Computes the Richardson number.
   subroutine compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Ri_b)
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(in) :: hi, ti, ts 
+    real(kind=rp), intent(in) :: hi, ti, ts
     real(kind=rp), intent(in) :: magu, kappa, g_dot_n
     real(kind=rp), intent(inout) :: q, Ri_b
 
     select case (bc_type)
-      case ("neumann")
+    case ("neumann")
        Ri_b = - g_dot_n*hi / ti*q / (magu**3*kappa**2)
-      case ("dirichlet")
+    case ("dirichlet")
        Ri_b = g_dot_n*hi/ti*(ti - ts)/magu**2
-      case default
+    case default
        call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
     end select
   end subroutine compute_Ri_b
@@ -181,112 +181,112 @@ contains
     real(kind=rp), dimension(n_nodes) :: utau, Ri_b, L_ob, magu, q, ti, ts
 
     do i=1, n_nodes
-      ! Sample the variables
-      ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-      vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-      wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-      ti(i) = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-      hi = h(i)
- 
-      ! Project on horizontal directions
-      normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)
-      ui = ui - normu * n_x(i)
-      vi = vi - normu * n_y(i)
-      wi = wi - normu * n_z(i)
- 
-      ! Compute velocity magnitude
-      magu(i) = sqrt(ui**2 + vi**2 + wi**2)
-      magu(i) = max(magu(i), 1.0e-6_rp)
-      utau(i) = magu(i)*kappa / log(hi/z0)
+       ! Sample the variables
+       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ti(i) = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       hi = h(i)
 
-      ! Compute thermal roughness length from Zilitinkevich, 1995
-      if (z0h_in < 0) then
-        ! z0h_in is interpreted as -C_Zil (Zilitinkevich constant) for z0h
-        z0h = z0 * exp(z0h_in*sqrt((utau(i)*z0)/(mu/rho)))
-      else
-        z0h = z0h_in
-      end if
+       ! Project on horizontal directions
+       normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)
+       ui = ui - normu * n_x(i)
+       vi = vi - normu * n_y(i)
+       wi = wi - normu * n_z(i)
 
-      ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
-      ! Maybe redundant, but needed to initialise Rib
-      call select_bc_operators(bc_type,bc_value,q(i),ts(i),ti(i),kappa,utau(i),z0h,hi)
+       ! Compute velocity magnitude
+       magu(i) = sqrt(ui**2 + vi**2 + wi**2)
+       magu(i) = max(magu(i), 1.0e-6_rp)
+       utau(i) = magu(i)*kappa / log(hi/z0)
 
-      ! Compute g along the normal (generalisation for hills and similar)
-      g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i)) 
+       ! Compute thermal roughness length from Zilitinkevich, 1995
+       if (z0h_in < 0) then
+          ! z0h_in is interpreted as -C_Zil (Zilitinkevich constant) for z0h
+          z0h = z0 * exp(z0h_in*sqrt((utau(i)*z0)/(mu/rho)))
+       else
+          z0h = z0h_in
+       end if
 
-      ! Compute Richardson and set stability accordingly
-      call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts(i), magu(i), kappa, q(i), Ri_b(i))
-      call set_stability_regime(Ri_b(i), Ri_threshold)
+       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
+       ! Maybe redundant, but needed to initialise Rib
+       call select_bc_operators(bc_type,bc_value,q(i),ts(i),ti(i),kappa,utau(i),z0h,hi)
 
-      if (abs((Ri_b(i))) <= Ri_threshold) then
-        ! Neutral (L_ob undefined)
-        L_ob(i) = 0.0_rp
-      else
-        ! Determine target regime sign
-        if ((Ri_b(i)) > 0.0_rp) then
-            L_ob(i) = hi / max(Ri_b(i), Ri_threshold) ! Stable guess
-            L_sign = 1.0_rp
-        else
-            L_ob(i) = hi / min(Ri_b(i), -Ri_threshold) ! Convective guess
-            L_sign = -1.0_rp
-        end if
+       ! Compute g along the normal (generalisation for hills and similar)
+       g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i))
 
-        L_old = 1.0e10_rp
-        count = 0
+       ! Compute Richardson and set stability accordingly
+       call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts(i), magu(i), kappa, q(i), Ri_b(i))
+       call set_stability_regime(Ri_b(i), Ri_threshold)
 
-        ! Find Obukhov length
-        do while ((abs(L_old - L_ob(i))/abs(L_ob(i)) > tol) .and. (count < max_count))
-            ! Switch between stable and convective based on bulk Richardson (Ri_b)
-            L_old = L_ob(i)
-            count = count + 1
-            fd_h = NR_step*L_ob(i)
-            L_upper = L_ob(i) + fd_h
-            L_lower = L_ob(i) - fd_h
+       if (abs((Ri_b(i))) <= Ri_threshold) then
+          ! Neutral (L_ob undefined)
+          L_ob(i) = 0.0_rp
+       else
+          ! Determine target regime sign
+          if ((Ri_b(i)) > 0.0_rp) then
+             L_ob(i) = hi / max(Ri_b(i), Ri_threshold) ! Stable guess
+             L_sign = 1.0_rp
+          else
+             L_ob(i) = hi / min(Ri_b(i), -Ri_threshold) ! Convective guess
+             L_sign = -1.0_rp
+          end if
 
-            ! Compute L_ob based on stability and bc_type
-            f = f_ptr(Ri_b(i), hi, z0, z0h, L_ob(i), slaw_m_ptr, slaw_h_ptr)
-            dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob(i), slaw_m_ptr, slaw_h_ptr, fd_h)
-            if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
-            L_new = L_ob(i) - f/dfdl
-            ! Avoid regime crossing during Newton iter (otherwise crash)
-            if (L_new*L_sign <= 0.0_rp) then
-              ! "damp update" (stay on same side)
-              L_new = 0.5_rp * L_ob(i)
-            end if
-            ! Bound L_ob
-            L_ob(i) = sign(max(abs(L_new), 1.0e-8_rp), L_sign)
-            L_ob(i) = sign(min(abs(L_ob(i)), 1.0e8_rp), L_sign)
-        end do
+          L_old = 1.0e10_rp
+          count = 0
 
-        if (abs(L_ob(i)) > 5e5_rp .or. abs(L_ob(i)) < 1e-6_rp) then
-            count = max_count
-            call neko_warning("Obukhov length did not converge (MOST wall model)")
-        end if
+          ! Find Obukhov length
+          do while ((abs(L_old - L_ob(i))/abs(L_ob(i)) > tol) .and. (count < max_count))
+             ! Switch between stable and convective based on bulk Richardson (Ri_b)
+             L_old = L_ob(i)
+             count = count + 1
+             fd_h = NR_step*L_ob(i)
+             L_upper = L_ob(i) + fd_h
+             L_lower = L_ob(i) - fd_h
 
-        if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
-          call neko_error("Unassociated pointer for f or dfdl")
-        end if
-      end if
+             ! Compute L_ob based on stability and bc_type
+             f = f_ptr(Ri_b(i), hi, z0, z0h, L_ob(i), slaw_m_ptr, slaw_h_ptr)
+             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob(i), slaw_m_ptr, slaw_h_ptr, fd_h)
+             if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
+             L_new = L_ob(i) - f/dfdl
+             ! Avoid regime crossing during Newton iter (otherwise crash)
+             if (L_new*L_sign <= 0.0_rp) then
+                ! "damp update" (stay on same side)
+                L_new = 0.5_rp * L_ob(i)
+             end if
+             ! Bound L_ob
+             L_ob(i) = sign(max(abs(L_new), 1.0e-8_rp), L_sign)
+             L_ob(i) = sign(min(abs(L_ob(i)), 1.0e8_rp), L_sign)
+          end do
 
-      ! Based on stability and bc_type, compute utau/q
-      select case (bc_type)
-        case ("neumann")
-        ! Compute u* with the new Obukhov length
-        utau(i) = kappa*magu(i)/slaw_m_ptr(hi, L_ob(i), z0)
-        case ("dirichlet")
-        ! Compute u* with the new Obukhov length
-        utau(i) = kappa*magu(i)/slaw_m_ptr(hi, L_ob(i), z0)
-        ! and compute q from here
-        q(i) = kappa*utau(i)*(ts(i) - ti(i))/slaw_h_ptr(hi, L_ob(i), z0h)
-        case default
-        call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
-      end select
+          if (abs(L_ob(i)) > 5e5_rp .or. abs(L_ob(i)) < 1e-6_rp) then
+             count = max_count
+             call neko_warning("Obukhov length did not converge (MOST wall model)")
+          end if
 
-      ! Distribute according to the velocity vector and bound magu to avoid 0 division
-      magu(i) = max(magu(i), 1.0e-6_rp)
-      tau_x(i) = -rho * utau(i)**2 * ui / magu(i)
-      tau_y(i) = -rho * utau(i)**2 * vi / magu(i)
-      tau_z(i) = -rho * utau(i)**2 * wi / magu(i)
+          if (.not. associated(f_ptr) .or. .not. associated(dfdl_ptr)) then
+             call neko_error("Unassociated pointer for f or dfdl")
+          end if
+       end if
+
+       ! Based on stability and bc_type, compute utau/q
+       select case (bc_type)
+       case ("neumann")
+          ! Compute u* with the new Obukhov length
+          utau(i) = kappa*magu(i)/slaw_m_ptr(hi, L_ob(i), z0)
+       case ("dirichlet")
+          ! Compute u* with the new Obukhov length
+          utau(i) = kappa*magu(i)/slaw_m_ptr(hi, L_ob(i), z0)
+          ! and compute q from here
+          q(i) = kappa*utau(i)*(ts(i) - ti(i))/slaw_h_ptr(hi, L_ob(i), z0h)
+       case default
+          call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+       end select
+
+       ! Distribute according to the velocity vector and bound magu to avoid 0 division
+       magu(i) = max(magu(i), 1.0e-6_rp)
+       tau_x(i) = -rho * utau(i)**2 * ui / magu(i)
+       tau_y(i) = -rho * utau(i)**2 * vi / magu(i)
+       tau_z(i) = -rho * utau(i)**2 * wi / magu(i)
     end do
 
     ! Print diagnostics
@@ -294,42 +294,42 @@ contains
     write(log_buf, '(A,E15.7)') 'mean min max'
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Ri_b: ', &
-    glsum(Ri_b, n_nodes) / n_nodes, &
-    glmin(Ri_b, n_nodes), glmax(Ri_b, n_nodes)
+         glsum(Ri_b, n_nodes) / n_nodes, &
+         glmin(Ri_b, n_nodes), glmax(Ri_b, n_nodes)
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'L_ob: ', &
-    glsum(L_ob, n_nodes) / n_nodes, &
-    glmin(L_ob, n_nodes), glmax(L_ob, n_nodes)
+         glsum(L_ob, n_nodes) / n_nodes, &
+         glmin(L_ob, n_nodes), glmax(L_ob, n_nodes)
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'utau: ', &
-    glsum(utau, n_nodes) / n_nodes, &
-    glmin(utau, n_nodes), glmax(utau, n_nodes)
+         glsum(utau, n_nodes) / n_nodes, &
+         glmin(utau, n_nodes), glmax(utau, n_nodes)
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'magu: ', &
-    glsum(magu, n_nodes) / n_nodes, &
-    glmin(magu, n_nodes), glmax(magu, n_nodes)
+         glsum(magu, n_nodes) / n_nodes, &
+         glmin(magu, n_nodes), glmax(magu, n_nodes)
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ti: ', &
-    glsum(ti, n_nodes) / n_nodes, &
-    glmin(ti, n_nodes), glmax(ti, n_nodes)
+         glsum(ti, n_nodes) / n_nodes, &
+         glmin(ti, n_nodes), glmax(ti, n_nodes)
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ts: ', &
-    glsum(ts, n_nodes) / n_nodes, &
-    glmin(ts, n_nodes), glmax(ts, n_nodes)
+         glsum(ts, n_nodes) / n_nodes, &
+         glmin(ts, n_nodes), glmax(ts, n_nodes)
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'q: ', &
-    glsum(q, n_nodes) / n_nodes, &
-    glmin(q, n_nodes), glmax(q, n_nodes)
+         glsum(q, n_nodes) / n_nodes, &
+         glmin(q, n_nodes), glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'hi: ', &
-    glsum(h, n_nodes) / n_nodes, &
-    glmin(h, n_nodes), glmax(h, n_nodes)
+         glsum(h, n_nodes) / n_nodes, &
+         glmin(h, n_nodes), glmax(h, n_nodes)
     call neko_log%message(trim(log_buf))
     call neko_log%end_section()
 
   end subroutine most_compute_cpu
 
 !> Similarity laws and corrections for the STABLE regime:
-  !> REFERENCE: Cheng, Y., and W. Brutsaert (2005), Flux-profile relationships for wind speed 
+  !> REFERENCE: Cheng, Y., and W. Brutsaert (2005), Flux-profile relationships for wind speed
   !> and temperature in the stable atmospheric boundary layer, Bound.-Layer Meteorol., 3, 519-538.
   !> NOTE: This formulation is chosen for its superior behavior in very stable conditions (large z/L),
   !> avoiding the numerical decoupling found in older linear (e.g., Webb or Holtslag) functions.
@@ -378,7 +378,7 @@ contains
 
   !> Similarity laws and corrections for the UNSTABLE (convective) regime:
   !> REFERENCE: Dyer, A. J. (1974), A review of flux-profile relationships, Bound.-Layer Meteorol., 7, 363-372.
-  !> INTEGRATION: Paulson, C. A. (1970), The mathematical representation of wind speed and 
+  !> INTEGRATION: Paulson, C. A. (1970), The mathematical representation of wind speed and
   !> temperature profiles in the unstable atmospheric surface layer, J. Appl. Meteorol., 9, 857-861.
   function slaw_m_convective(z,L_ob,z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0

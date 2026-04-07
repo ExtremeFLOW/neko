@@ -56,13 +56,13 @@ module rough_log_law
   type, public, extends(wall_model_t) :: rough_log_law_t
 
      !> The von Karman coefficient.
-     real(kind=rp) :: kappa 
+     real(kind=rp) :: kappa
      !> The log-law intercept
-     real(kind=rp) :: B 
+     real(kind=rp) :: B
      !> The roughness height
-     real(kind=rp) :: z0 
+     real(kind=rp) :: z0
      !> The fluid density
-     real(kind=rp) :: rho_val 
+     real(kind=rp) :: rho_val
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
@@ -129,7 +129,7 @@ contains
     write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'B : ', this%B
-    call neko_log%message(log_buf)   
+    call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
     call neko_log%message(log_buf)
     write(log_buf, '(A, 3(E15.7,1X))') 'rho : ', this%rho_val
@@ -180,7 +180,7 @@ contains
     ! Check that the sampling height is above the roughness length
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
        call neko_error("Roughlog WM: Sampling height h must be greater than roughness z0. " // &
-                       "Increase h_index or decrease z0.")
+            "Increase h_index or decrease z0.")
     end if
 
   end subroutine rough_log_law_init_from_components

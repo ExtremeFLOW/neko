@@ -184,7 +184,7 @@ contains
     write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
-    call neko_log%message(log_buf)   
+    call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'z0h : ', this%z0h_in
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'rho : ', this%rho_val
@@ -285,11 +285,11 @@ contains
     class(most_t), intent(inout) :: this
 
     if (allocated(this%bc_type)) then
-      deallocate(this%bc_type)
+       deallocate(this%bc_type)
     end if
 
     if (allocated(this%scalar_name)) then
-      deallocate(this%scalar_name)
+       deallocate(this%scalar_name)
     end if
 
     call this%free_base()

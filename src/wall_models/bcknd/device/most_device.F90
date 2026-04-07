@@ -69,14 +69,14 @@ contains
     character(len=*), intent(in) :: bc_type ! passed as a normal Fortran string
     integer :: bc_type_int
 
-    ! convert bc_type to integer to avoid cross-language passing of strings    
-    select case (trim(adjustl(bc_type))) ! (trimmed, lowercase-consistent) 
+    ! convert bc_type to integer to avoid cross-language passing of strings
+    select case (trim(adjustl(bc_type))) ! (trimmed, lowercase-consistent)
     case ("neumann")
-        bc_type_int = 0
+       bc_type_int = 0
     case ("dirichlet")
-        bc_type_int = 1
+       bc_type_int = 1
     case default
-      call neko_error("Neumann/Dirichlet bc not specified correctly (most_device)")
+       call neko_error("Neumann/Dirichlet bc not specified correctly (most_device)")
     end select
 
 #if HAVE_HIP
