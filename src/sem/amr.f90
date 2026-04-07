@@ -277,6 +277,8 @@ contains
 
     ! get refinement information
     allocate(ref_mark(nelt))
+    ref_mark(:) = 0
+    ifrefine = .false.
     call user%amr_refine_flag(time, ref_mark, ifrefine)
 
     if (ifrefine) then

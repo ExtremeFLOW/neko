@@ -146,8 +146,8 @@ module user_intf
      subroutine user_amr_refine_flag(time, ref_mark, ifrefine)
        import time_state_t
        type(time_state_t), intent(in) :: time
-       integer, dimension(:), intent(out) :: ref_mark
-       logical, intent(out) :: ifrefine
+       integer, dimension(:), intent(inout) :: ref_mark
+       logical, intent(inout) :: ifrefine
      end subroutine user_amr_refine_flag
   end interface
 
@@ -400,8 +400,8 @@ contains
 
   subroutine dummy_user_amr_refine_flag(time, ref_mark, ifrefine)
     type(time_state_t), intent(in) :: time
-    integer, dimension(:), intent(out) :: ref_mark
-    logical, intent(out) :: ifrefine
+    integer, dimension(:), intent(inout) :: ref_mark
+    logical, intent(inout) :: ifrefine
     ifrefine = .false.
   end subroutine dummy_user_amr_refine_flag
 
