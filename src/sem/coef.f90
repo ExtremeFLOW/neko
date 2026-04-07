@@ -1357,18 +1357,12 @@ contains
   subroutine coef_enable_lagged_mass(this)
     class(coef_t), intent(inout), target :: this
     integer :: n
-    integer(c_size_t) :: n_bytes
 
     ! Return if already allocated distinctly
     if (.not. associated(this%Blag, this%B)) return
 
     n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
 
-    if (rp .eq. REAL32) then
-       n_bytes = int(n, c_size_t) * 4_c_size_t
-    else
-       n_bytes = int(n, c_size_t) * 8_c_size_t
-    end if
 
     nullify(this%Blag)
     nullify(this%Blaglag)
@@ -1380,8 +1374,12 @@ contains
     this%Blaglag = this%B
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_alloc(this%Blag_d, n_bytes)
-       call device_alloc(this%Blaglag_d, n_bytes)
+
+       this%Blag_d = C_NULL_PTR
+       this%Blaglag_d = C_NULL_PTR
+
+       call device_map(this%Blag, this%Blag_d, n)
+       call device_map(this%Blaglag, this%Blaglag_d, n)
 
        call device_memcpy(this%Blag, this%Blag_d, n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%Blaglag, this%Blaglag_d, n, HOST_TO_DEVICE, sync=.true.)
