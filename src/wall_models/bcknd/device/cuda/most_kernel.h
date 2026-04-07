@@ -437,9 +437,9 @@ __global__ void most_compute(
                 if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_convective<T>(hi, L_ob, z0h);
             }
         }
-        tau_x_d[i] = -utau*utau*ui/magu;
-        tau_y_d[i] = -utau*utau*vi/magu;
-        tau_z_d[i] = -utau*utau*wi/magu;
+        tau_x_d[i] = -rho*utau*utau*ui/magu;
+        tau_y_d[i] = -rho*utau*utau*vi/magu;
+        tau_z_d[i] = -rho*utau*utau*wi/magu;
     }
 }
 

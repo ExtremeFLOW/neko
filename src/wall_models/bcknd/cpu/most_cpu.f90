@@ -284,9 +284,9 @@ contains
 
       ! Distribute according to the velocity vector and bound magu to avoid 0 division
       magu(i) = max(magu(i), 1.0e-6_rp)
-      tau_x(i) = -utau(i)**2 * ui / magu(i)
-      tau_y(i) = -utau(i)**2 * vi / magu(i)
-      tau_z(i) = -utau(i)**2 * wi / magu(i)
+      tau_x(i) = -rho * tau(i)**2 * ui / magu(i)
+      tau_y(i) = -rho * tau(i)**2 * vi / magu(i)
+      tau_z(i) = -rho * tau(i)**2 * wi / magu(i)
     end do
 
     ! Print diagnostics
