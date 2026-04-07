@@ -781,11 +781,13 @@ contains
          ! Advance Mesh (Moves points, updates B history, updates wm_lags)
          call this%ale%advance_mesh(c_Xh, time, ext_bdf%nadv)
 
+         call profiler_start_region('ALE recompute metrics')
          ! Update Metrics
          call c_Xh%recompute_metrics()
          ! Update the metrics used by the adv operator for delaiasing (coef_GL)
          ! Maps the updated coef_GLL to coef_GL.
          call this%adv%recompute_metrics(c_Xh, .true.)
+         call profiler_end_region('ALE recompute metrics')
       end if
 
       call ulag%update()
@@ -827,7 +829,8 @@ contains
       call profiler_end_region('Pressure_residual', 18)
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%bclst_dp, string='Pressure')
+           Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
+           string = 'Pressure')
 
       call this%pc_prs%update()
 
