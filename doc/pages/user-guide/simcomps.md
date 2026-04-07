@@ -231,7 +231,9 @@ executed (same behavior as the statistics).
    x_N, y_N, z_N
    ~~~~~~~~~~~~~~~
    The points are assumed to be in the same units as the simulation.
-   It is also possible to read the probes from a `hdf5` file. The probes need to be in the same format as csv and must be saved in the root directory of the file under the `xyz` keyword.
+   It is also possible to read the probes from a `hdf5` file. The probes 
+   need to be in the same format as csv and must be saved in the root directory
+   of the file under the `xyz` keyword.
 - `points`: Reads a list of points from a JSON file. The points are specified
   based in the `coordinates` keyword and should be a list of x,y,z values.
   The file should have the following format:
@@ -323,7 +325,9 @@ time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1
 time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
 ~~~~~~~~~~~~~~~
 
-The `append_output` keyword only works for `hdf5` files. It sets the behaviour of the written probes. If `true` they are written in one group and each sample appends its data.
+The `append_output` keyword only works for `hdf5` files. 
+It sets the behaviour of the written probes. 
+If `true` they are written in one group and each sample appends its data.
 
 ### field_writer {#simcomp_field_writer}
 Outputs registered 3D fields to a file. Requires a list of field names

@@ -44,8 +44,6 @@ module hdf5_file
   use logger, only : neko_log
   use vector, only : vector_t
   use matrix, only : matrix_t
-  use field, only : field_t
-  use device, only : DEVICE_TO_HOST
   use datadist, only : linear_dist_t
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &

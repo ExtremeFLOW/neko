@@ -44,7 +44,7 @@ module matrix
 
   type, public :: matrix_t
      real(kind=rp), allocatable :: x(:,:) !< Matrix entries.
-     character(len=80) :: name = "" !< Name of the vector
+     character(len=80) :: name = "" !< Name of the matrix
      type(c_ptr) :: x_d = C_NULL_PTR !< Device pointer.
      integer, private :: nrows = 0 !< Number of matrix rows.
      integer, private :: ncols = 0 !< Number of matrix columns.
