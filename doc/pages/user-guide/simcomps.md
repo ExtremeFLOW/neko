@@ -48,7 +48,9 @@ in Neko. The list will be updated as new simcomps are added.
 - Fluid SGS statistics simcomp, "fluid_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
 - Scalar statistics simcomp, "scalar_stats", for more details see the
-  [statistics guide](@ref statistics-guide)
+  [statistics guide](@ref statistics-guide). If a `field` is specified in the
+  case file without `name` being specified, the field name is appended to the 
+  default simcomp name as `scalar_stats_{field}`.
 - Scalar SGS statistics simcomp, "scalar_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
 - User statistics simcomp, "user_stats" \ref user_stats
@@ -203,6 +205,17 @@ Mandatory fields for this simcomp are:
 - `output_file`: Name of the file in which to output the probed fields. Must be
   `.csv` or `.hdf5`.
 
+Optional arguments:
+- Interpolation parameters can be provided as a JSON sub-dictionary, 
+  `interpolation`. If not provided, default values defined in 
+  the `global_interpolation` module will be used.
+  ~~~~~~~~~~~~~~~{.json}
+  "interpolation": {
+    "tolerance": 1e-8,
+    "padding": 1e-3
+  }
+  ~~~~~~~~~~~~~~~
+
 It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
 
@@ -277,8 +290,8 @@ executed (same behavior as the statistics).
    "type": "probes",
    "name": "probes",
    "compute_control": "simulationtime",
-   "compute_value"    : 1,
-   "fields": ["w","s"],
+   "compute_value"    : 1.0,
+   "fields": ["w", "s"],
    "output_file":  "output.csv",
    "append_output" : false,
    "points": [

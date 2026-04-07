@@ -712,6 +712,19 @@ __inline__ __device__ T reduce_max_warp(T val) {
 }
 
 /**
+ * Warp shuffle reduction of minimisation
+ */
+template< typename T>
+__inline__ __device__ T reduce_min_warp(T val) {
+  val = min(val, __shfl_down_sync(0xffffffff, val, 16));
+  val = min(val, __shfl_down_sync(0xffffffff, val, 8));
+  val = min(val, __shfl_down_sync(0xffffffff, val, 4));
+  val = min(val, __shfl_down_sync(0xffffffff, val, 2));
+  val = min(val, __shfl_down_sync(0xffffffff, val, 1));
+  return val;
+}
+
+/**
  * Vector reduction kernel
  */
 template< typename T >
@@ -771,6 +784,37 @@ __global__ void reduce_max_kernel(T * bufred, const T ninf, const int n) {
 
   if (threadIdx.x == 0)
     bufred[blockIdx.x] = max_val;
+}
+
+/**
+ * Vector reduction minimisation kernel
+ */
+template< typename T >
+__global__ void reduce_min_kernel(T * bufred, const T pinf, const int n) {
+
+  T min_val = pinf;
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  for (int i = idx; i<n ; i += str)
+  {
+    min_val = min(min_val, bufred[i]);
+  }
+
+  __shared__ T shared[32];
+  unsigned int lane = threadIdx.x % warpSize;
+  unsigned int wid = threadIdx.x / warpSize;
+
+  min_val = reduce_min_warp<T>(min_val);
+  if (lane == 0)
+    shared[wid] = min_val;
+  __syncthreads();
+
+  min_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : pinf;
+  if (wid == 0)
+    min_val = reduce_min_warp<T>(min_val);
+
+  if (threadIdx.x == 0)
+    bufred[blockIdx.x] = min_val;
 }
 
 /**
@@ -1023,6 +1067,42 @@ __global__ void glmax_kernel(const T * a,
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = max_val;
+
+}
+
+/**
+ * Device kernel for glmin
+ */
+template< typename T >
+__global__ void glmin_kernel(const T * a,
+                             const T pinf,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[32];
+  T min_val = pinf;
+  for (int i = idx; i<n ; i += str)
+  {
+    min_val = min(min_val, a[i]);
+  }
+
+  min_val = reduce_min_warp<T>(min_val);
+  if (lane == 0)
+    shared[wid] = min_val;
+  __syncthreads();
+
+  min_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : pinf;
+  if (wid == 0)
+    min_val = reduce_min_warp<T>(min_val);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = min_val;
 
 }
 

@@ -35,7 +35,7 @@
 !! `findpts`, and `findpts_eval`. A full description of these subroutines can
 !! be found at https://github.com/Nek5000/gslib/blob/master/src/findpts.c
 module probes
-  use num_types, only: rp
+  use num_types, only: rp, dp
   use matrix, only: matrix_t
   use vector, only: vector_t
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
@@ -44,14 +44,15 @@ module probes
   use time_state, only : time_state_t
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
-  use dofmap, only: dofmap_t
+  use dofmap, only : dofmap_t
   use json_module, only : json_file, json_value, json_core
   use json_utils, only : json_get, json_extract_item, json_get_or_default, &
-       json_get_or_lookup, json_get_or_lookup_or_default
-  use global_interpolation, only: global_interpolation_t
-  use tensor, only: trsp
-  use point_zone, only: point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
+       json_get_or_lookup, json_get_or_lookup_or_default, &
+       json_get_subdict_or_empty
+  use global_interpolation, only : global_interpolation_t
+  use tensor, only : trsp
+  use point_zone, only : point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
   use file, only : file_t, file_free
   use csv_file, only : csv_file_t
   use hdf5_file, only : hdf5_file_t
@@ -100,11 +101,13 @@ module probes
      type(vector_t) :: vec_out
      logical :: append_out = .false.
    contains
-     !> Initialize from json
+     !> Initialize from json.
      procedure, pass(this) :: init => probes_init_from_json
-     ! Actual constructor
+     !> Initialize from parameters.
      procedure, pass(this) :: init_from_components => &
           probes_init_from_components
+     !> Common constructor.
+     procedure, private, pass(this) :: init_common => probes_init_common
      !> Destructor
      procedure, pass(this) :: free => probes_free
      !> Setup offset for I/O when using sequential write/read from rank 0
@@ -187,43 +190,82 @@ contains
             this%n_global_probes, input_file)
     end if
 
-    ! Go through the points list and construct the probe list
-    call json%get('points', json_point_list)
-    call json%info('points', n_children = n_point_children)
+    if (json%valid_path('points')) then
 
-    do idx = 1, n_point_children
-       call json_extract_item(core, json_point_list, idx, json_point)
+       ! Go through the points list and construct the probe list
+       call json%get('points', json_point_list)
+       call json%info('points', n_children = n_point_children)
 
-       call json_get_or_default(json_point, 'type', point_type, 'none')
-       select case (point_type)
+       do idx = 1, n_point_children
+          call json_extract_item(core, json_point_list, idx, json_point)
 
-       case ('file')
-          call this%read_file(json_point)
-       case ('points')
-          call this%read_point(json_point)
-       case ('line')
-          call this%read_line(json_point)
-       case ('plane')
-          call neko_error('Plane probes not implemented yet.')
-       case ('circle')
-          call this%read_circle(json_point)
-       case ('point_zone')
-          call this%read_point_zone(json_point, case%fluid%dm_Xh)
-       case ('none')
-          call json_point%print()
-          call neko_error('No point type specified.')
-       case default
-          call neko_error('Unknown region type ' // point_type)
-       end select
-    end do
+          call json_get_or_default(json_point, 'type', point_type, 'none')
+          select case (point_type)
+
+          case ('file')
+             call this%read_file(json_point)
+          case ('points')
+             call this%read_point(json_point)
+          case ('line')
+             call this%read_line(json_point)
+          case ('plane')
+             call neko_error('Plane probes not implemented yet.')
+          case ('circle')
+             call this%read_circle(json_point)
+          case ('point_zone')
+             call this%read_point_zone(json_point, case%fluid%dm_Xh)
+          case ('none')
+             call json_point%print()
+             call neko_error('No point type specified.')
+          case default
+             call neko_error('Unknown region type ' // point_type)
+          end select
+       end do
+
+    end if
 
     call MPI_Allreduce(this%n_local_probes, this%n_global_probes, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_components(case%fluid%dm_Xh, output_file, name)
+
+    ! Get interpolation parameters from json
+    block
+      type(json_file) :: interp_subdict
+      call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
+      call this%global_interp%init(case%fluid%dm_Xh, &
+           params_subdict = interp_subdict)
+
+      call this%init_common(case%fluid%dm_Xh, output_file, name)
+
+    end block
 
   end subroutine probes_init_from_json
+
+  !> Initialize based on individual parameters.
+  !! @param dof Dofmap to probe
+  !! @param output_file Name of output file, current must be CSV
+  !! @param name Name of the probes simcomp.
+  !! @param tolerance Tolerance for finding the probe coordinates.
+  !! @param padding Padding for finding the probe coordinates.
+  subroutine probes_init_from_components(this, dof, output_file, name, &
+       tolerance, padding)
+    class(probes_t), intent(inout) :: this
+    type(dofmap_t), intent(in) :: dof
+    character(len=:), allocatable, intent(inout) :: output_file
+    character(len=*), intent(in) :: name
+    real(kind=dp), intent(in), optional :: tolerance, padding
+
+    character(len=1024) :: header_line
+    real(kind=rp), allocatable :: global_output_coords(:,:)
+    integer :: i, ierr
+    type(matrix_t) :: mat_coords
+
+    call this%global_interp%init(dof, tol = tolerance, pad = padding)
+
+    call this%init_common(dof, output_file, name)
+
+  end subroutine probes_init_from_components
 
   ! ========================================================================== !
   ! Readers for different point types
@@ -468,10 +510,11 @@ contains
   ! ========================================================================== !
   ! General initialization routine
 
-  !> Initialize without json things
+  !> Common constructor.
   !! @param dof Dofmap to probe
-  !! @output_file Name of output file, current must be CSV
-  subroutine probes_init_from_components(this, dof, output_file, name)
+  !! @param output_file Name of output file, current must be CSV
+  !! @param name Name of the probes simcomp.
+  subroutine probes_init_common(this, dof, output_file, name)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
@@ -484,9 +527,6 @@ contains
     logical :: attr_exist = .false.
 
     this%name = name
-
-    !> Init interpolator
-    call this%global_interp%init(dof)
 
     !> find probes and redistribute them
     call this%global_interp%find_points_and_redist(this%xyz, &
@@ -581,7 +621,7 @@ contains
        call neko_error("Invalid data. Expected csv_file_t or hdf5_file_t.")
     end select
 
-  end subroutine probes_init_from_components
+  end subroutine probes_init_common
 
   !> Destructor
   subroutine probes_free(this)

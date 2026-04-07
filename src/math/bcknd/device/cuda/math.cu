@@ -711,6 +711,43 @@ extern "C" {
 #endif
   }
 
+  /**
+   * Global minimise reduction
+   */
+  void cuda_global_reduce_min(real * bufred, void * bufred_d,
+                              int n, const cudaStream_t stream) {
+
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+                          DEVICE_NCCL_MIN, stream);
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real)*n,
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real) == sizeof(float)) {
+      nvshmemx_float_min_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (float *) bufred_d,
+                                           (float *) bufred_d, n, stream);
+    }
+    else if (sizeof(real) == sizeof(double)) {
+      nvshmemx_double_min_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) bufred_d,
+                                           (double *) bufred_d, n, stream);
+
+    }
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d,
+                               sizeof(real)*n, cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_MIN);
+#else
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#endif
+  }
+
 
   /**
    * Fortran wrapper vlsc3
@@ -908,6 +945,34 @@ extern "C" {
     }
 
     cuda_global_reduce_max(bufred, bufred_d, 1, stream);
+
+    return bufred[0];
+  }
+
+  /**
+   * Fortran wrapper glmin
+   * Take the minimum a vector of length n
+   */
+  real cuda_glmin(void *a, real *pinf, int *n, cudaStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+
+    cuda_redbuf_check_alloc(nb);
+    if ( *n > 0) {
+      glmin_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>((real *) a, *pinf,
+                                        (real *) bufred_d, *n);
+      CUDA_CHECK(cudaGetLastError());
+      reduce_min_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d,
+                                                        *pinf, nb);
+      CUDA_CHECK(cudaGetLastError());
+    }
+    else {
+      cuda_rzero(bufred_d, &red_s, stream);
+    }
+
+    cuda_global_reduce_min(bufred, bufred_d, 1, stream);
 
     return bufred[0];
   }

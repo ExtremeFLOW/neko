@@ -39,6 +39,11 @@ information that is not directly related to the usage of the code.
   - [Neko API](@ref api) explains how to use the C-based API of Neko.
   - [Performance guidelines](@ref performance) Best practices guideline
     on how to achieve good performance with Neko
+  - [Global interpolation](@ref global-interpolation) Gives an overview of 
+    interpolation/point searching capabilities in Neko and how to use them.
+  - [Filters](@ref filter) Explains how to use PDE and element-wise filtering 
+    tools.
+  - [Programming examples](@ref programming-examples) Demonstrates various aspects of programming with Neko.
 - \subpage developer-guide
   - [Contributing](@ref contributing) presents basic instructions to add
     your contributions to Neko.

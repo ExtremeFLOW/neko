@@ -47,10 +47,28 @@ module vtkhdf_file
   use device, only : DEVICE_TO_HOST
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier
-  use vtk, only: vtk_ordering
+       MPI_Barrier, MPI_LOGICAL
+  use vtk, only : vtk_ordering
 #ifdef HAVE_HDF5
-  use hdf5
+  use hdf5, only : &
+       hid_t, hsize_t, &
+       h5open_f, h5close_f, &
+       h5fcreate_f, h5fopen_f, h5fclose_f, &
+       h5gcreate_f, h5gopen_f, h5gclose_f, &
+       h5acreate_f, h5aopen_f, h5awrite_f, h5aclose_f, h5aexists_f, &
+       h5dcreate_f, h5dopen_f, h5dwrite_f, h5dclose_f, &
+       h5tcopy_f, h5tclose_f, h5tset_strpad_f, h5tset_size_f, &
+       h5screate_f, h5screate_simple_f, h5sclose_f, &
+       h5sselect_hyperslab_f, h5sselect_all_f, h5sget_simple_extent_dims_f, &
+       h5dget_space_f, h5dset_extent_f, &
+       h5pcreate_f, h5pclose_f, h5pset_fapl_mpio_f, h5pset_dxpl_mpio_f, &
+       h5lexists_f, h5ldelete_f, &
+       H5P_FILE_ACCESS_F, H5P_DATASET_XFER_F, H5P_DATASET_CREATE_F, &
+       H5F_ACC_TRUNC_F, H5F_ACC_RDWR_F, h5pset_chunk_f, &
+       H5T_STD_U8LE, H5T_NATIVE_INTEGER, H5T_FORTRAN_S1, H5T_STR_NULLTERM_F, &
+       h5kind_to_type, H5_REAL_KIND, H5_INTEGER_KIND, h5pset_virtual_f, &
+       H5S_SCALAR_F, H5S_SELECT_SET_F, H5FD_MPIO_COLLECTIVE_F, h5p_default_f, &
+       H5S_UNLIMITED_F
 #endif
   implicit none
   private
@@ -138,7 +156,7 @@ contains
     type(field_ptr_t), allocatable :: fp(:)
     integer :: ierr, mpi_info, mpi_comm, i, n_fields
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
-    integer(hid_t) :: filespace, memspace
+    integer(hid_t) :: filespace, H5T_NEKO_STRING
     integer(hsize_t), dimension(1) :: vdims
     integer :: lx, ly, lz
     integer :: local_points, local_cells, local_conn
@@ -148,7 +166,7 @@ contains
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16) :: type_str
-    logical :: link_exists
+    logical :: exists
     integer :: counter
 
     ! Determine mesh and field data
@@ -214,8 +232,8 @@ contains
     end if
 
     ! Create/open VTKHDF root group with vtkhdf_version and type attributes
-    call h5lexists_f(file_id, "VTKHDF", link_exists, ierr)
-    if (link_exists) then
+    call h5lexists_f(file_id, "VTKHDF", exists, ierr)
+    if (exists) then
        call h5gopen_f(file_id, "VTKHDF", vtkhdf_grp, ierr)
     else
        call h5gcreate_f(file_id, "VTKHDF", vtkhdf_grp, ierr)
@@ -234,15 +252,15 @@ contains
        vdims = 1
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
 
-       call h5tcopy_f(H5T_FORTRAN_S1, memspace, ierr)
-       call h5tset_size_f(memspace, int(len_trim(type_str), kind=hsize_t), ierr)
-       call h5tset_strpad_f(memspace, H5T_STR_NULLTERM_F, ierr)
+       call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
+       call h5tset_size_f(H5T_NEKO_STRING, int(len_trim(type_str), kind=hsize_t), ierr)
+       call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
 
-       call h5acreate_f(vtkhdf_grp, "Type", memspace, filespace, attr_id, ierr)
-       call h5awrite_f(attr_id, memspace, [type_str], vdims, ierr)
+       call h5acreate_f(vtkhdf_grp, "Type", H5T_NEKO_STRING, filespace, attr_id, ierr)
+       call h5awrite_f(attr_id, H5T_NEKO_STRING, [type_str], vdims, ierr)
        call h5aclose_f(attr_id, ierr)
 
-       call h5tclose_f(memspace, ierr)
+       call h5tclose_f(H5T_NEKO_STRING, ierr)
        call h5sclose_f(filespace, ierr)
     end if
 
@@ -269,57 +287,6 @@ contains
     if (allocated(fp)) deallocate(fp)
 
   end subroutine vtkhdf_file_write
-
-  !> Build local connectivity for VTK cells from a spectral element
-  !! tensor-product grid. For linear types (12, 9) subdivides each spectral
-  !! element into linear sub-cells. For Lagrange types (72, 70) writes one
-  !! high-order cell per element with VTK node ordering.
-  !! @param conn Output connectivity array (pre-allocated)
-  !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD,
-  !!        72 = VTK_LAGRANGE_HEXAHEDRON, 70 = VTK_LAGRANGE_QUADRILATERAL
-  !! @param msh Mesh object containing element information
-  !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral
-  !!            element grid
-  !! @param subdivide Logical flag indicating whether to subdivide to linear
-  !!        elements
-  subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof, subdivide)
-    integer, intent(out) :: conn(:)
-    integer(kind=1), intent(in) :: vtk_type
-    type(mesh_t), intent(in) :: msh
-    type(dofmap_t), intent(in) :: dof
-    logical, intent(in) :: subdivide
-    integer :: lx, ly, lz, nelv
-    integer :: ie, ii, n_pts_per_cell, n_conn_per_elem
-    integer, allocatable :: node_order(:)
-
-    nelv = msh%nelv
-    lx = dof%Xh%lx
-    ly = dof%Xh%ly
-    lz = dof%Xh%lz
-    n_pts_per_cell = lx * ly * lz
-
-    if (subdivide .and. vtk_type .eq. 12) then
-       node_order = subdivide_to_hex_ordering(lx, ly, lz)
-    else if (subdivide .and. vtk_type .eq. 9) then
-       node_order = subdivide_to_quad_ordering(lx, ly)
-    else
-       node_order = vtk_ordering(vtk_type, lx, ly, lz)
-    end if
-
-    n_conn_per_elem = size(node_order)
-
-    do concurrent (ie = 1:nelv, ii = 1:n_conn_per_elem)
-       block
-         integer :: idx, base
-         idx = (ie - 1) * n_conn_per_elem
-         base = (ie - 1) * n_pts_per_cell
-         conn(idx + ii) = base + node_order(ii)
-       end block
-    end do
-
-    deallocate(node_order)
-
-  end subroutine vtkhdf_build_connectivity
 
   !> Write mesh geometry datasets to the VTKHDF group.
   !! Writes NumberOfPoints, NumberOfCells, NumberOfConnectivityIds,
@@ -353,7 +320,7 @@ contains
     integer(hsize_t), dimension(1) :: dcount, vdims, maxdims, doffset, chunkdims
     integer(hsize_t), dimension(2) :: dcount2, vdims2, maxdims2, doffset2
     integer(kind=i8) :: i8_value
-    logical :: link_exists
+    logical :: exists
     integer, dimension(3) :: component_sizes
     integer, dimension(3) :: component_offsets
     integer, dimension(3) :: component_max_sizes
@@ -361,7 +328,6 @@ contains
     lx = dof%Xh%lx
     ly = dof%Xh%ly
     lz = dof%Xh%lz
-    npts_per_cell = lx * ly * lz
 
     if (subdivide .and. msh%gdim .eq. 3) then
        VTK_cell_type = 12 ! VTK_HEXAHEDRON
@@ -380,7 +346,6 @@ contains
        cells_per_element = 1
        nodes_per_cell = lx * ly
     end if
-
 
     ! --- Build the number of cells and the connectivity
     local_points = dof%size()
@@ -449,8 +414,8 @@ contains
     end block
 
     ! --- Points dataset (global coordinates) ---
-    call h5lexists_f(vtkhdf_grp, "Points", link_exists, ierr)
-    if (.not. link_exists) then
+    call h5lexists_f(vtkhdf_grp, "Points", exists, ierr)
+    if (.not. exists) then
 
        vdims2 = [3_hsize_t, int(total_points, hsize_t)]
        maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
@@ -459,12 +424,13 @@ contains
        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
        H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
 
-       call h5screate_simple_f(2, vdims2, filespace, ierr, maxdims2)
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       call h5screate_simple_f(2, dcount2, memspace, ierr)
+       call h5screate_simple_f(2, vdims2, filespace, ierr, maxdims2)
+
        call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
        call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_DOUBLE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5screate_simple_f(2, dcount2, memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             doffset2, dcount2, ierr)
 
@@ -488,15 +454,15 @@ contains
          deallocate(coords)
        end block
 
-       call h5sclose_f(memspace, ierr)
        call h5dclose_f(dset_id, ierr)
-       call h5pclose_f(dcpl_id, ierr)
        call h5sclose_f(filespace, ierr)
+       call h5sclose_f(memspace, ierr)
+       call h5pclose_f(dcpl_id, ierr)
     end if
 
     ! --- Connectivity dataset ---
-    call h5lexists_f(vtkhdf_grp, "Connectivity", link_exists, ierr)
-    if (link_exists) call h5ldelete_f(vtkhdf_grp, "Connectivity", ierr)
+    call h5lexists_f(vtkhdf_grp, "Connectivity", exists, ierr)
+    if (exists) call h5ldelete_f(vtkhdf_grp, "Connectivity", ierr)
 
     vdims = int(total_conn, hsize_t)
     maxdims = H5S_UNLIMITED_F
@@ -504,12 +470,13 @@ contains
     dcount = int(local_conn, hsize_t)
     doffset = int(conn_offset, hsize_t)
 
-    call h5screate_simple_f(1, vdims, filespace, ierr, maxdims)
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5screate_simple_f(1, vdims, filespace, ierr, maxdims)
+
     call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
     call h5dcreate_f(vtkhdf_grp, "Connectivity", H5T_NATIVE_INTEGER, &
          filespace, dset_id, ierr, dcpl_id = dcpl_id)
-    call h5screate_simple_f(1, dcount, memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset, dcount, ierr)
 
@@ -519,20 +486,20 @@ contains
       allocate(connectivity(local_conn))
       call vtkhdf_build_connectivity(connectivity, VTK_cell_type, msh, dof, &
            subdivide)
-      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount(1:1), &
+      call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, connectivity, dcount, &
            ierr, file_space_id = filespace, mem_space_id = memspace, &
            xfer_prp = xf_id)
       deallocate(connectivity)
     end block
 
-    call h5sclose_f(memspace, ierr)
     call h5dclose_f(dset_id, ierr)
-    call h5pclose_f(dcpl_id, ierr)
     call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+    call h5pclose_f(dcpl_id, ierr)
 
     ! --- Offsets dataset ---
-    call h5lexists_f(vtkhdf_grp, "Offsets", link_exists, ierr)
-    if (link_exists) call h5ldelete_f(vtkhdf_grp, "Offsets", ierr)
+    call h5lexists_f(vtkhdf_grp, "Offsets", exists, ierr)
+    if (exists) call h5ldelete_f(vtkhdf_grp, "Offsets", ierr)
 
     vdims = int(total_offsets, hsize_t)
     maxdims = H5S_UNLIMITED_F
@@ -540,12 +507,13 @@ contains
     dcount = int(local_cells + 1, hsize_t)
     doffset = int(offsets_offset, hsize_t)
 
-    call h5screate_simple_f(1, vdims, filespace, ierr, maxdims)
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5screate_simple_f(1, vdims, filespace, ierr, maxdims)
+
     call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
     call h5dcreate_f(vtkhdf_grp, "Offsets", H5T_NATIVE_INTEGER, &
          filespace, dset_id, ierr, dcpl_id = dcpl_id)
-    call h5screate_simple_f(1, dcount, memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset, dcount, ierr)
 
@@ -562,14 +530,14 @@ contains
       deallocate(offsets)
     end block
 
-    call h5sclose_f(memspace, ierr)
     call h5dclose_f(dset_id, ierr)
-    call h5pclose_f(dcpl_id, ierr)
     call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+    call h5pclose_f(dcpl_id, ierr)
 
     ! --- Types dataset (VTK cell types) ---
-    call h5lexists_f(vtkhdf_grp, "Types", link_exists, ierr)
-    if (link_exists) call h5ldelete_f(vtkhdf_grp, "Types", ierr)
+    call h5lexists_f(vtkhdf_grp, "Types", exists, ierr)
+    if (exists) call h5ldelete_f(vtkhdf_grp, "Types", ierr)
 
     vdims = int(total_cells, hsize_t)
     maxdims = H5S_UNLIMITED_F
@@ -577,12 +545,13 @@ contains
     dcount = int(local_cells, hsize_t)
     doffset = int(cell_offset, hsize_t)
 
-    call h5screate_simple_f(1, vdims, filespace, ierr, maxdims)
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+    call h5screate_simple_f(1, dcount, memspace, ierr)
+    call h5screate_simple_f(1, vdims, filespace, ierr, maxdims)
+
     call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
     call h5dcreate_f(vtkhdf_grp, "Types", H5T_STD_U8LE, &
          filespace, dset_id, ierr, dcpl_id = dcpl_id)
-    call h5screate_simple_f(1, dcount, memspace, ierr)
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset, dcount, ierr)
 
@@ -594,10 +563,10 @@ contains
       deallocate(cell_types)
     end block
 
-    call h5sclose_f(memspace, ierr)
     call h5dclose_f(dset_id, ierr)
-    call h5pclose_f(dcpl_id, ierr)
     call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+    call h5pclose_f(dcpl_id, ierr)
 
     if (present(t)) then
        ! Open Steps group
@@ -639,59 +608,6 @@ contains
 
   end subroutine vtkhdf_write_mesh
 
-  !> Create-or-extend a 1D NumberOf* dataset, then write one entry.
-  !! On step 0 the dataset is created with unlimited max extent.
-  !! On subsequent steps it is extended to (counter+1)*nPieces.
-  !! @param grp        Parent HDF5 group (VTKHDF root)
-  !! @param dset_name  Dataset name, e.g. "NumberOfPoints"
-  !! @param value      The integer value to write for this rank
-  !! @param offset     1-element array: counter*pe_size + pe_rank
-  !! @param cnt        1-element array, always [1]
-  !! @param dcpl       Dataset creation property list (chunked)
-  !! @param counter    Current timestep counter (0-based)
-  !! @param xf_id      Collective transfer property list
-  !! @param ierr       HDF5 error code (output)
-  subroutine vtkhdf_write_numberof(grp, dset_name, value, offset, cnt, &
-       dcpl, counter, xf_id, ierr)
-    integer(hid_t), intent(in) :: grp, dcpl, xf_id
-    character(len=*), intent(in) :: dset_name
-    integer(kind=i8), intent(in) :: value
-    integer, intent(in):: counter
-    integer(hsize_t), dimension(1), intent(in) :: offset, cnt
-    integer, intent(out) :: ierr
-
-    integer(hid_t) :: dset_id, fspace, mspace
-    integer(hsize_t), dimension(1) :: dims, maxdims
-    integer(hid_t) :: H5T_NEKO_INTEGER
-    logical :: link_exists
-
-    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
-
-    call h5lexists_f(grp, dset_name, link_exists, ierr)
-    if (link_exists) then
-       call h5dopen_f(grp, dset_name, dset_id, ierr)
-       dims(1) = (int(counter, hsize_t) + 1_hsize_t) &
-            * int(pe_size, hsize_t)
-       call h5dset_extent_f(dset_id, dims, ierr)
-    else
-       dims(1) = int(pe_size, hsize_t)
-       maxdims(1) = H5S_UNLIMITED_F
-       call h5screate_simple_f(1, dims, fspace, ierr, maxdims)
-       call h5dcreate_f(grp, dset_name, H5T_NEKO_INTEGER, &
-            fspace, dset_id, ierr, dcpl_id = dcpl)
-       call h5sclose_f(fspace, ierr)
-    end if
-
-    call h5dget_space_f(dset_id, fspace, ierr)
-    call h5sselect_hyperslab_f(fspace, H5S_SELECT_SET_F, offset, cnt, ierr)
-    call h5screate_simple_f(1, cnt, mspace, ierr)
-    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, value, cnt, ierr, &
-         file_space_id = fspace, mem_space_id = mspace, xfer_prp = xf_id)
-    call h5sclose_f(mspace, ierr)
-    call h5sclose_f(fspace, ierr)
-    call h5dclose_f(dset_id, ierr)
-  end subroutine vtkhdf_write_numberof
-
   !> Write temporal Steps group metadata to the VTKHDF group.
   !! Writes Values, NumberOfParts, PartOffsets, PointOffsets,
   !! CellOffsets, ConnectivityIdOffsets datasets, and NSteps attribute.
@@ -710,7 +626,7 @@ contains
     integer(hsize_t), dimension(1) :: step_count, step_offset, chunkdims, ddim
     real(kind=dp), dimension(1) :: time_value
     integer(kind=i8) :: i8_value
-    logical :: link_exists, attr_exists
+    logical :: exists, attr_exists
 
     ! Create collective transfer property list
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
@@ -718,16 +634,16 @@ contains
     H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
 
     ! Create or open Steps group
-    call h5lexists_f(vtkhdf_grp, "Steps", link_exists, ierr)
-    if (link_exists) then
+    call h5lexists_f(vtkhdf_grp, "Steps", exists, ierr)
+    if (exists) then
        call h5gopen_f(vtkhdf_grp, "Steps", grp_id, ierr)
     else
        call h5gcreate_f(vtkhdf_grp, "Steps", grp_id, ierr)
     end if
 
     ! --- Values dataset (time values, real type) ---
-    call h5lexists_f(grp_id, "Values", link_exists, ierr)
-    if (link_exists) then
+    call h5lexists_f(grp_id, "Values", exists, ierr)
+    if (exists) then
        call h5dopen_f(grp_id, "Values", dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sget_simple_extent_dims_f(filespace, step_dims, step_maxdims, &
@@ -791,76 +707,6 @@ contains
 
   end subroutine vtkhdf_write_steps
 
-  !> Append an integer scalar to a 1D chunked HDF5 dataset.
-  !! Opens the dataset if it exists, or creates a new empty chunked dataset.
-  !! Extends by 1 element and writes the value at the end.
-  !! @param grp_id HDF5 group containing the dataset
-  !! @param name Dataset name
-  !! @param value Value to append
-  !! @param counter Position to write to
-  subroutine vtkhdf_write_i8_at(grp_id, name, value, counter)
-    integer(hid_t), intent(in) :: grp_id
-    character(len=*), intent(in) :: name
-    integer(kind=i8), intent(in) :: value
-    integer, intent(in) :: counter
-
-    integer :: ierr
-    integer(hid_t) :: dset_id, dcpl_id, xf_id, filespace, memspace
-    integer(hsize_t), dimension(1) :: dims, maxdims, cnt, off, chunkdims
-    integer, dimension(1) :: buf
-    integer(hid_t) :: H5T_NEKO_INTEGER
-    logical :: link_exists
-
-    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
-
-    ! Create collective transfer property list
-    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
-
-    call h5lexists_f(grp_id, name, link_exists, ierr)
-    if (link_exists) then
-       call h5dopen_f(grp_id, name, dset_id, ierr)
-       call h5dget_space_f(dset_id, filespace, ierr)
-       call h5sget_simple_extent_dims_f(filespace, dims, maxdims, ierr)
-       call h5sclose_f(filespace, ierr)
-
-       if (counter .eq. dims(1)) then
-          dims(1) = int(counter + 1, hsize_t)
-          call h5dset_extent_f(dset_id, dims, ierr)
-       else if (counter .gt. dims(1)) then
-          call neko_error("VTKHDF: Values written out of order.")
-       end if
-    else
-       dims(1) = 1_hsize_t
-       maxdims(1) = H5S_UNLIMITED_F
-       chunkdims(1) = 1_hsize_t
-
-       call h5screate_simple_f(1, dims, filespace, ierr, maxdims)
-       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
-       call h5dcreate_f(grp_id, name, H5T_NEKO_INTEGER, &
-            filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5sclose_f(filespace, ierr)
-       call h5pclose_f(dcpl_id, ierr)
-    end if
-
-    cnt(1) = 1_hsize_t
-    off(1) = int(counter, hsize_t)
-    buf(1) = value
-
-    call h5dget_space_f(dset_id, filespace, ierr)
-    call h5screate_simple_f(1, cnt, memspace, ierr)
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, off, cnt, ierr)
-    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, buf, cnt, ierr, &
-         file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
-
-    call h5sclose_f(memspace, ierr)
-    call h5sclose_f(filespace, ierr)
-    call h5dclose_f(dset_id, ierr)
-    call h5pclose_f(xf_id, ierr)
-
-  end subroutine vtkhdf_write_i8_at
-
   !> Write field data into the VTKHDF PointData group.
   !! Groups u, v, w fields into a 3-component Velocity vector dataset.
   !! All other fields are written as scalar datasets.
@@ -895,15 +741,14 @@ contains
     integer(hsize_t), dimension(2) :: pd_dims2, pd_maxdims2
     type(field_t), pointer :: fld, u, v, w
     character(len=128) :: field_name
-    logical :: link_exists, is_vector
+    logical :: exists, is_vector
 
     ! VDS and per-timestep external file variables
     character(len=1024) :: ext_fname, ext_path, src_pattern
     character(len=1024) :: main_path, main_name, main_suffix
     integer(hid_t) :: ext_file_id, ext_plist_id, vds_src_space
-    integer(hid_t) :: write_target
+    integer(hid_t) :: write_target, attr_id, H5T_NEKO_STRING
     integer :: mpi_info, mpi_comm
-    logical :: ext_file_exists
 
     ! Collected field info for VDS phase
     integer :: fields_written
@@ -933,12 +778,11 @@ contains
     allocate(name_list(n_fields))
     allocate(vector_list(n_fields))
 
-    ! Create or open PointData group
-    call h5lexists_f(vtkhdf_grp, "PointData", link_exists, ierr)
-    if (link_exists) then
-       call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
-    else
+    ! Create PointData group if missing
+    call h5lexists_f(vtkhdf_grp, "PointData", exists, ierr)
+    if (.not. exists) then
        call h5gcreate_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
+       call h5gclose_f(pointdata_grp, ierr)
     end if
 
     ! ------------------------------------------------------------------------ !
@@ -952,24 +796,24 @@ contains
        write(ext_fname, '(A,I0,".h5")') trim(ext_path), counter
        write(src_pattern, '(A,".data/%b.h5")') trim(main_name)
 
-       if (pe_rank == 0) then
-          inquire(file = trim(ext_path), exist = ext_file_exists)
-          if (.not. ext_file_exists) then
+       if (pe_rank .eq. 0) inquire(file = trim(ext_path), exist = exists)
+       call MPI_Bcast(exists, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
+       if (.not. exists) then
+          if (pe_rank .eq. 0) then
              call execute_command_line("mkdir -p '" // trim(ext_path) // "'")
           end if
+          call MPI_Barrier(NEKO_COMM, ierr)
        end if
-       call MPI_Barrier(NEKO_COMM, ierr)
 
        call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
        call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
-       call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, ext_file_id, ierr, &
+       call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, write_target, ierr, &
             access_prp = ext_plist_id)
        call h5pclose_f(ext_plist_id, ierr)
 
-       write_target = ext_file_id
     else
        ! Non-temporal: write directly into the main file's PointData group
-       write_target = pointdata_grp
+       call h5gopen_f(vtkhdf_grp, "PointData", write_target, ierr)
     end if
 
     ! ------------------------------------------------------------------------ !
@@ -1007,25 +851,21 @@ contains
 
        ! Skip duplicate fields (e.g. fluid_rho added by both fluid output
        ! and field_writer when sharing the same output file)
-       link_exists = .false.
+       exists = .false.
        do j = 1, fields_written
           if (trim(name_list(j)) .eq. trim(field_name)) then
-             link_exists = .true.
+             exists = .true.
              exit
           end if
        end do
 
        ! Skip duplicate fields
-       if (link_exists) cycle
+       if (exists) cycle
 
        ! Track unique field names for VDS phase
        fields_written = fields_written + 1
        name_list(fields_written) = field_name
        vector_list(fields_written) = is_vector
-
-       ! Remove existing dataset in the write target if present
-       call h5lexists_f(write_target, trim(field_name), link_exists, ierr)
-       if (link_exists) call h5ldelete_f(write_target, trim(field_name), ierr)
 
        ! Write field data to the target
        if (is_vector) then
@@ -1037,20 +877,25 @@ contains
        end if
     end do
 
+    ! Close write target
+    if (present(t)) then
+       call h5fclose_f(write_target, ierr)
+    else
+       call h5gclose_f(write_target, ierr)
+    end if
+
     ! ------------------------------------------------------------------------ !
     ! Manage temporal datasets through VDS
 
     if (present(t)) then
-       ! Close per-timestep file before VDS operations
-       call h5fclose_f(ext_file_id, ierr)
 
        ! Temporal: set up per-timestep external file as write target
        call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
        time_offset = int(counter, kind=i8) * int(total_points, kind=i8)
 
        ! Write PointDataOffsets under Steps for each unique field
-       call h5lexists_f(step_grp_id, "PointDataOffsets", link_exists, ierr)
-       if (link_exists) then
+       call h5lexists_f(step_grp_id, "PointDataOffsets", exists, ierr)
+       if (exists) then
           call h5gopen_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
        else
           call h5gcreate_f(step_grp_id, "PointDataOffsets", grp_id, ierr)
@@ -1060,19 +905,18 @@ contains
                time_offset, counter)
        end do
        call h5gclose_f(grp_id, ierr)
+       call h5gclose_f(step_grp_id, ierr)
 
        ! ===== Create or extend VDS in main file =====
+       call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
 
        do i = 1, fields_written
           field_name = name_list(i)
           is_vector = vector_list(i)
 
-          call h5lexists_f(pointdata_grp, trim(field_name), link_exists, ierr)
-
-          if (.not. link_exists) then
+          if (counter .eq. 0) then
              ! First write: create VDS with pattern-based mapping
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-
              precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
 
              if (is_vector) then
@@ -1145,13 +989,52 @@ contains
           end if
        end do
 
-       call h5gclose_f(step_grp_id, ierr)
+       call h5gclose_f(pointdata_grp, ierr)
     end if
 
     ! ------------------------------------------------------------------------ !
-    ! Cleanup before returning
+    ! Add attributes to the PointData
 
-    call h5gclose_f(pointdata_grp, ierr)
+    do i = 1, fields_written
+       field_name = name_list(i)
+       is_vector = vector_list(i)
+       pd_dims1 = 1_hsize_t
+
+       call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
+       call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
+
+       call h5aexists_f(dset_id, "Attribute", exists, ierr)
+       if (exists) then
+          call h5dclose_f(dset_id, ierr)
+          call h5gclose_f(pointdata_grp, ierr)
+          cycle
+       end if
+
+       ! Write the attribute what this PointData represents
+       call h5screate_f(H5S_SCALAR_F, filespace, ierr)
+
+       call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
+       call h5tset_size_f(H5T_NEKO_STRING, 6_hsize_t, ierr)
+       call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
+
+       call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
+            attr_id, ierr)
+       if (is_vector) then
+          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vector"], pd_dims1, ierr)
+       else
+          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalar"], pd_dims1, ierr)
+       end if
+
+       call h5aclose_f(attr_id, ierr)
+       call h5tclose_f(H5T_NEKO_STRING, ierr)
+       call h5sclose_f(filespace, ierr)
+       call h5dclose_f(dset_id, ierr)
+       call h5gclose_f(pointdata_grp, ierr)
+
+    end do
+
+    ! ------------------------------------------------------------------------ !
+    ! Cleanup before returning
 
     deallocate(name_list)
     deallocate(vector_list)
@@ -1160,6 +1043,179 @@ contains
 
   ! -------------------------------------------------------------------------- !
   ! Helper functions and routines
+
+  !> Build local connectivity for VTK cells from a spectral element
+  !! tensor-product grid. For linear types (12, 9) subdivides each spectral
+  !! element into linear sub-cells. For Lagrange types (72, 70) writes one
+  !! high-order cell per element with VTK node ordering.
+  !! @param conn Output connectivity array (pre-allocated)
+  !! @param vtk_type VTK cell type: 12 = VTK_HEXAHEDRON, 9 = VTK_QUAD,
+  !!        72 = VTK_LAGRANGE_HEXAHEDRON, 70 = VTK_LAGRANGE_QUADRILATERAL
+  !! @param msh Mesh object containing element information
+  !! @param dof Dofmap containing the lx, ly, lz dimensions of the spectral
+  !!            element grid
+  !! @param subdivide Logical flag indicating whether to subdivide to linear
+  !!        elements
+  subroutine vtkhdf_build_connectivity(conn, vtk_type, msh, dof, subdivide)
+    integer, intent(inout) :: conn(:)
+    integer(kind=1), intent(in) :: vtk_type
+    type(mesh_t), intent(in) :: msh
+    type(dofmap_t), intent(in) :: dof
+    logical, intent(in) :: subdivide
+    integer :: lx, ly, lz, nelv
+    integer :: ie, ii, n_pts_per_elem, n_conn_per_elem
+    integer, allocatable :: node_order(:)
+
+    nelv = msh%nelv
+    lx = dof%Xh%lx
+    ly = dof%Xh%ly
+    lz = dof%Xh%lz
+    n_pts_per_elem = lx * ly * lz
+
+    if (subdivide .and. vtk_type .eq. 12) then
+       node_order = subdivide_to_hex_ordering(lx, ly, lz)
+    else if (subdivide .and. vtk_type .eq. 9) then
+       node_order = subdivide_to_quad_ordering(lx, ly)
+    else
+       node_order = vtk_ordering(vtk_type, lx, ly, lz)
+    end if
+
+    n_conn_per_elem = size(node_order)
+
+    do concurrent (ie = 1:nelv, ii = 1:n_conn_per_elem)
+       block
+         integer :: idx, base
+         idx = (ie - 1) * n_conn_per_elem
+         base = (ie - 1) * n_pts_per_elem
+         conn(idx + ii) = base + node_order(ii)
+       end block
+    end do
+
+    deallocate(node_order)
+
+  end subroutine vtkhdf_build_connectivity
+
+  !> Create-or-extend a 1D NumberOf* dataset, then write one entry.
+  !! On step 0 the dataset is created with unlimited max extent.
+  !! On subsequent steps it is extended to (counter+1)*nPieces.
+  !! @param grp        Parent HDF5 group (VTKHDF root)
+  !! @param dset_name  Dataset name, e.g. "NumberOfPoints"
+  !! @param value      The integer value to write for this rank
+  !! @param offset     1-element array: counter*pe_size + pe_rank
+  !! @param cnt        1-element array, always [1]
+  !! @param dcpl       Dataset creation property list (chunked)
+  !! @param index      Current timestep index (0-based)
+  !! @param xf_id      Collective transfer property list
+  !! @param ierr       HDF5 error code (output)
+  subroutine vtkhdf_write_numberof(grp, dset_name, value, offset, cnt, &
+       dcpl, index, xf_id, ierr)
+    integer(hid_t), intent(in) :: grp, dcpl, xf_id
+    character(len=*), intent(in) :: dset_name
+    integer(kind=i8), intent(in) :: value
+    integer, intent(in):: index
+    integer(hsize_t), dimension(1), intent(in) :: offset, cnt
+    integer, intent(out) :: ierr
+
+    integer(hid_t) :: dset_id, fspace, mspace
+    integer(hsize_t), dimension(1) :: dims, maxdims
+    integer(hid_t) :: H5T_NEKO_INTEGER
+    logical :: exists
+
+    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
+
+    call h5lexists_f(grp, dset_name, exists, ierr)
+    if (exists) then
+       call h5dopen_f(grp, dset_name, dset_id, ierr)
+       dims(1) = int(index + 1, hsize_t) * int(pe_size, hsize_t)
+       call h5dset_extent_f(dset_id, dims, ierr)
+    else
+       dims(1) = int(pe_size, hsize_t)
+       maxdims(1) = H5S_UNLIMITED_F
+       call h5screate_simple_f(1, dims, fspace, ierr, maxdims)
+       call h5dcreate_f(grp, dset_name, H5T_NEKO_INTEGER, &
+            fspace, dset_id, ierr, dcpl_id = dcpl)
+       call h5sclose_f(fspace, ierr)
+    end if
+
+    call h5dget_space_f(dset_id, fspace, ierr)
+    call h5screate_simple_f(1, cnt, mspace, ierr)
+    call h5sselect_hyperslab_f(fspace, H5S_SELECT_SET_F, offset, cnt, ierr)
+
+    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, value, cnt, ierr, &
+         file_space_id = fspace, mem_space_id = mspace, xfer_prp = xf_id)
+
+    call h5sclose_f(mspace, ierr)
+    call h5sclose_f(fspace, ierr)
+    call h5dclose_f(dset_id, ierr)
+  end subroutine vtkhdf_write_numberof
+
+  !> Append an integer scalar to a 1D chunked HDF5 dataset.
+  !! Opens the dataset if it exists, or creates a new empty chunked dataset.
+  !! Extends by 1 element and writes the value at the end.
+  !! @param grp_id HDF5 group containing the dataset
+  !! @param name Dataset name
+  !! @param value Value to append
+  !! @param index Position to write to
+  subroutine vtkhdf_write_i8_at(grp_id, name, value, index)
+    integer(hid_t), intent(in) :: grp_id
+    character(len=*), intent(in) :: name
+    integer(kind=i8), intent(in) :: value
+    integer, intent(in) :: index
+
+    integer :: ierr
+    integer(hid_t) :: dset_id, dcpl_id, xf_id, filespace, memspace
+    integer(hsize_t), dimension(1) :: dims, maxdims, count, offset, chunkdims
+    integer(hid_t) :: H5T_NEKO_INTEGER
+    logical :: exists
+
+    H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
+
+    ! Create collective transfer property list
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+
+    call h5lexists_f(grp_id, name, exists, ierr)
+    if (exists) then
+       call h5dopen_f(grp_id, name, dset_id, ierr)
+       call h5dget_space_f(dset_id, filespace, ierr)
+       call h5sget_simple_extent_dims_f(filespace, dims, maxdims, ierr)
+       call h5sclose_f(filespace, ierr)
+
+       if (index .eq. dims(1)) then
+          dims(1) = int(index + 1, hsize_t)
+          call h5dset_extent_f(dset_id, dims, ierr)
+       else if (index .gt. dims(1)) then
+          call neko_error("VTKHDF: Values written out of order.")
+       end if
+    else
+       dims = 1_hsize_t
+       maxdims = H5S_UNLIMITED_F
+       chunkdims = 1_hsize_t
+
+       call h5screate_simple_f(1, dims, filespace, ierr, maxdims)
+       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+       call h5pset_chunk_f(dcpl_id, 1, chunkdims, ierr)
+       call h5dcreate_f(grp_id, name, H5T_NEKO_INTEGER, &
+            filespace, dset_id, ierr, dcpl_id = dcpl_id)
+       call h5sclose_f(filespace, ierr)
+       call h5pclose_f(dcpl_id, ierr)
+    end if
+
+    count = 1_hsize_t
+    offset = int(index, hsize_t)
+
+    call h5dget_space_f(dset_id, filespace, ierr)
+    call h5screate_simple_f(1, count, memspace, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, count, ierr)
+    call h5dwrite_f(dset_id, H5T_NEKO_INTEGER, value, count, ierr, &
+         file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
+
+    call h5sclose_f(memspace, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5dclose_f(dset_id, ierr)
+    call h5pclose_f(xf_id, ierr)
+
+  end subroutine vtkhdf_write_i8_at
 
   !> @brief Write a scalar field as a 1D dataset.
   !! @details
@@ -1344,8 +1400,8 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset, dcount, ierr)
 
-    call h5dcreate_f(hdf_root, trim(name), precision_hdf, &
-         filespace, dset_id, ierr)
+    call h5dcreate_f(hdf_root, trim(name), precision_hdf, filespace, dset_id, &
+         ierr)
 
     if (precision_local .eq. sp) then
        block
