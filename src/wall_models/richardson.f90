@@ -40,7 +40,8 @@ module richardson
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_default, json_get, json_get_or_lookup_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup, json_get_or_lookup_or_default  
   use richardson_cpu, only : richardson_compute_cpu
   use richardson_device, only : richardson_compute_device
   use scratch_registry, only : neko_scratch_registry
@@ -49,10 +50,9 @@ module richardson
   implicit none
   private
 
-  !> Wall model based on the Monin-Obukhov Similarity Theory for atmospheric
-  !! boundary layer flows. Automatically switches between stable, unstable and n
-  !! neutral layer formulations based on the Richardson number.
-  !!
+  !> Wall model similar to the Monin-Obukhov Similarity Theory for atmospheric
+  !! boundary layer flows, but which avoids the iterative computation of the Obukhov length,
+  !! computing the Richardson number directly (Mauritsen, 2007)
   type, public, extends(wall_model_t) :: richardson_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa 
@@ -116,11 +116,11 @@ contains
     real(kind=rp) :: g(3)
 
     call json_get_or_lookup_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get_or_lookup(json, "type_of_temp_bc", bc_type)
-    call json_get_or_lookup(json, "scalar_field", scalar_name)
+    call json_get(json, "type_of_temp_bc", bc_type)
+    call json_get(json, "scalar_field", scalar_name)
     call json_get_or_lookup_or_default(json, "Pr", Pr, 1.0_rp)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
-    call json_get_or_lookup_or_defaultt(json, "z0", z0, 0.1_rp)
+    call json_get_or_lookup_or_default(json, "z0", z0, 0.1_rp)
     ! If z0h is specified and positive, z0h will be constant and equal to
     ! what's specified in the case file.
     ! If z0h is specified and negative, the Zilitinkevich 1995 formulation
@@ -159,9 +159,10 @@ contains
     call this%partial_init_base(coef, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.41_rp)
     call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
+    call json_get(json, "scalar_field", this%scalar_name)
     call json_get_or_lookup_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, -0.8_rp)
-    call json_get_or_lookup(json, "type_of_temp_bc", this%bc_type)
+    call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
     call json_get_or_default(json, "mu", this%mu_val, 1e-10_rp)
     call json_get_or_default(json, "rho", this%rho_val, 1.0_rp)
