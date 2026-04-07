@@ -164,6 +164,7 @@ contains
     call this%z_interface_dof%free()
     call this%s_interface%free()
 
+    call this%free_base()
   end subroutine overset_interface_free
 
   !> Apply scalar.
