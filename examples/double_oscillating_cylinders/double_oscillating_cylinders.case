@@ -7,9 +7,6 @@
         "output_checkpoints": true,
         "checkpoint_control": "tsteps",
         "checkpoint_value": 5000,
-        "runtime_statistics":{
-            "enabled": true
-        },
         "time": {
             "end_time": 200.0,
             "variable_timestep": false,

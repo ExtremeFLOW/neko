@@ -27,8 +27,10 @@ contains
     select case (body_id)
 
     case (2) ! second registered body in ALE section in case file.
-       vel_trans(1) = vel_trans(1) -0.25_rp * 2 * pi * 0.1_rp * cos(2 * pi * 0.1_rp * t)
-       vel_ang(3) = vel_ang(3) + (3.0_rp * pi / 180.0_rp) * 2 * pi * 0.1_rp * cos(2 * pi * 0.1_rp * t)
+       vel_trans(1) = vel_trans(1) - &
+            0.25_rp * 2 * pi * 0.1_rp * cos(2*pi*0.1_rp*t)
+       vel_ang(3) = vel_ang(3) + &
+            (3.0_rp * pi / 180.0_rp) * 2 * pi * 0.1_rp * cos(2*pi*0.1_rp*t)
     end select
 
   end subroutine user_rigid_kinematics
@@ -39,7 +41,7 @@ contains
 
     ! Can be used to log the rotation angle and pivot info of bodies.
     ! Here we only log the second registered body.
-    ! If the following optional input is not passed, logging will be for all ALE bodies.
+    ! If the following optional argument is not present, logging will be for all ALE bodies.
 
     ids_to_log = [2]
 
