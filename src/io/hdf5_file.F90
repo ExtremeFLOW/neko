@@ -735,7 +735,7 @@ contains
 
   end subroutine hdf5_file_close
 
- 
+
   !> Set the active group for HDF5 files from an input string
   !! @param this The HDF5 file object
   !! @param An string indicating the path to the group to create or open.
@@ -768,9 +768,9 @@ contains
     ! Count how many groups
     num_groups = 1 ! There is at least one group if this was passed
     do i = 1, name_len
-      if (group_name_path .eq. "/") then 
-         num_groups = num_groups + 1
-      end if
+       if (group_name_path .eq. "/") then
+          num_groups = num_groups + 1
+       end if
     end do
 
     ! Allocate the group array and populate it
@@ -778,14 +778,14 @@ contains
     j = 1
     group_loc = 1
     do i = 1, name_len
-      if (group_name_path .eq. "/") then
-         group_name(group_loc) = group_name_path(j:i-1)
-         group_loc = group_loc + 1
-         j = i + 1
-      end if
+       if (group_name_path .eq. "/") then
+          group_name(group_loc) = group_name_path(j:i-1)
+          group_loc = group_loc + 1
+          j = i + 1
+       end if
     end do
     if (j .ne. name_len) then
-     group_name(group_loc) = group_name_path(j:name_len) 
+       group_name(group_loc) = group_name_path(j:name_len)
     end if
 
     ! Iterate over the groups in the path
