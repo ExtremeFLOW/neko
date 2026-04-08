@@ -257,13 +257,13 @@ contains
           kinematics%vel_ang(body_conf%rotation_axis) = current_omega
        end if
 
-    ! ramp motion based on Benton, S. I., and M. R. Visbal.
-    ! "The onset of dynamic stall at a high, transitional Reynolds number."
-    ! Journal of Fluid Mechanics 861 (2019): 860-885.
-    ! and
-    ! Visbal, Miguel R., and J. S. Shang.
-    ! "Investigation of the flow structure around a rapidly pitching airfoil."
-    ! AIAA journal 27.8 (1989): 1044-1051.
+       ! ramp motion based on Benton, S. I., and M. R. Visbal.
+       ! "The onset of dynamic stall at a high, transitional Reynolds number."
+       ! Journal of Fluid Mechanics 861 (2019): 860-885.
+       ! and
+       ! Visbal, Miguel R., and J. S. Shang.
+       ! "Investigation of the flow structure around a rapidly pitching airfoil."
+       ! AIAA journal 27.8 (1989): 1044-1051.
     case ('ramp')
        do i = 1, 3
           if (body_conf%ramp_t0(i) > 0.0_rp .and. &
