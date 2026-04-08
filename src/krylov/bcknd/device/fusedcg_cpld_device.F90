@@ -39,7 +39,8 @@ module fusedcg_cpld_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use vector_bc_resolver, only : vector_bc_resolver_t, &
        vector_bc_resolver_components
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2

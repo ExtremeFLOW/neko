@@ -41,7 +41,8 @@ module cheby_device
   use mesh, only : mesh_t
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use vector_bc_resolver, only : vector_bc_resolver_t, &
        vector_bc_resolver_components
   use schwarz, only : schwarz_t
   use device_math, only : device_cmult2, device_sub2, &

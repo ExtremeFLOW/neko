@@ -69,7 +69,7 @@ module hsmg
   use interpolation, only : interpolator_t
   use bc, only: bc_t
   use bc_list, only : bc_list_t
-  use bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use jacobi, only : jacobi_t

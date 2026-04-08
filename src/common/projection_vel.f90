@@ -37,7 +37,7 @@ module projection_vel
   use math, only : add2, copy
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use bc_resolver, only : vector_bc_resolver_t
+  use vector_bc_resolver, only : vector_bc_resolver_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_get_ptr

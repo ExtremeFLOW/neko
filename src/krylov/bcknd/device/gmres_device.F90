@@ -40,7 +40,8 @@ module gmres_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use vector_bc_resolver, only : vector_bc_resolver_t, &
        vector_bc_resolver_components
   use device_identity, only : device_ident_t
   use math, only : rone, rzero, abscmp

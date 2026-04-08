@@ -75,7 +75,7 @@ module schwarz
        device_event_record, device_event_sync, device_stream_wait_event, &
        device_event_destroy, device_free
   use neko_config, only : NEKO_BCKND_DEVICE
-  use bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, &
        c_associated
   !$ use omp_lib

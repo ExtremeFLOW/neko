@@ -40,7 +40,7 @@ module scalar_pnpn
   use scalar_scheme, only : scalar_scheme_t
   use checkpoint, only : chkp_t
   use field, only : field_t
-  use bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &

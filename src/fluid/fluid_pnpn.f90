@@ -80,7 +80,8 @@ module fluid_pnpn
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t, mixed_bc_t, BC_TYPES
-  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use vector_bc_resolver, only : vector_bc_resolver_t, &
        segregated_vector_bc_resolver_t, coupled_vector_bc_resolver_t
   use file, only : file_t
   use operators, only : ortho, rotate_cyc

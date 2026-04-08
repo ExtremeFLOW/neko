@@ -78,7 +78,8 @@ module fluid_volflow
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use scratch_registry, only : neko_scratch_registry
-  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use vector_bc_resolver, only : vector_bc_resolver_t
   use ax_product, only : ax_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM

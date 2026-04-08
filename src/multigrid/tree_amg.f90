@@ -42,7 +42,7 @@ module tree_amg
   use mesh, only : mesh_t
   use space, only : space_t
   use ax_product, only : ax_t
-  use bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use device, only : device_map, device_free, device_deassociate, &
        device_stream_wait_event, glb_cmd_queue, glb_cmd_event

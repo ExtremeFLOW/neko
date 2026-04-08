@@ -42,7 +42,7 @@ module phmg
   use mesh, only : mesh_t
   use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use dirichlet, only : dirichlet_t
   use utils, only : neko_error
   use cheby, only : cheby_t

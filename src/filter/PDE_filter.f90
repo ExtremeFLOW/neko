@@ -44,7 +44,7 @@ module PDE_filter
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
   use precon, only : pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
-  use bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use neumann, only : neumann_t
   use profiler, only : profiler_start_region, profiler_end_region
   use gather_scatter, only : gs_t, GS_OP_ADD

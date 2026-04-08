@@ -16,7 +16,7 @@ module test_coupled_bc_resolver
   use dirichlet, only : dirichlet_t
   use bc_list, only : bc_list_t
   use bc, only : bc_t, BC_TYPES
-  use bc_resolver, only : coupled_vector_bc_resolver_t
+  use vector_bc_resolver, only : coupled_vector_bc_resolver_t
   implicit none
 
   @TestCase

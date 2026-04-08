@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Scaffolding for future global boundary resolution.
-module bc_resolver
-  use bc, only : bc_t, mixed_bc_t, BC_TYPES
+!> Vector boundary-condition resolvers.
+module vector_bc_resolver
+  use bc, only : bc_t, mixed_bc_t
   use bc_list, only : bc_list_t
   use mask, only : mask_t
   use coefs, only : coef_t
@@ -43,7 +43,7 @@ module bc_resolver
   use hex, only : edge_nodes, edge_faces, node_faces
   use scratch_registry, only : neko_scratch_registry
   use math, only : cfill_mask, masked_scatter_copy, rzero, cfill
-  use gs_ops, only : GS_OP_MAX, GS_OP_ADD, GS_OP_MIN
+  use gs_ops, only : GS_OP_ADD, GS_OP_MIN
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use tuple, only : tuple_i4_t
@@ -53,45 +53,23 @@ module bc_resolver
   use device_math, only : device_cfill_mask
   use device_coupled_vector_bc_resolver, only : &
        device_coupled_vector_bc_resolver_apply
-  use field_math, only : field_cfill
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
   implicit none
   private
-  public :: vector_bc_resolver_components
-
-  type, public :: scalar_bc_resolver_t
-     type(mask_t) :: dof_mask
-   contains
-     !> Destructor.
-     procedure, pass(this) :: free => scalar_bc_resolver_free
-     !> Mark a single boundary condition.
-     procedure, pass(this) :: mark_bc => scalar_bc_resolver_mark_bc
-     !> Mark all boundary conditions in a list.
-     procedure, pass(this) :: mark_bc_list => scalar_bc_resolver_mark_bc_list
-     !> Generic interface for marking boundary conditions.
-     generic :: mark => mark_bc, mark_bc_list
-     !> Zero out constrained degrees of freedom.
-     procedure, pass(this) :: apply => scalar_bc_resolver_apply
-     !> Write a field showing the resolved scalar mask.
-     procedure, pass(this) :: debug_output => scalar_bc_resolver_debug_output
-  end type scalar_bc_resolver_t
+  public :: vector_bc_resolver_t, segregated_vector_bc_resolver_t
+  public :: coupled_vector_bc_resolver_t, vector_bc_resolver_components
 
   !> Abstract type for resolving vector boundary conditions.
   type, public, abstract :: vector_bc_resolver_t
    contains
-     !> Constructor.
      procedure(vector_bc_resolver_init_intrf), pass(this), deferred :: init
-     !> Destructor.
      procedure(vector_bc_resolver_free_intrf), pass(this), deferred :: free
-     !> Finalize by building masks and other data structures.
      procedure(vector_bc_resolver_finalize_intrf), pass(this), deferred :: &
           finalize
-     !> Constrain the given vector according to the marked boundary conditions.
      procedure(vector_bc_resolver_apply_intrf), pass(this), deferred :: apply
-     !> Mark a single boundary condition.
      procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: &
           mark_bc
-     !> Mark a list of boundary conditions.
      procedure(vector_bc_resolver_mark_bc_list_intrf), pass(this), deferred :: &
           mark_bc_list
      generic :: mark => mark_bc, mark_bc_list
@@ -99,25 +77,16 @@ module bc_resolver
 
   !> A resolver for vector fields that acts component-wise.
   type, public, extends(vector_bc_resolver_t) :: segregated_vector_bc_resolver_t
-     !> Resolver for the x component.
      type(scalar_bc_resolver_t) :: x
-     !> Resolver for the y component.
      type(scalar_bc_resolver_t) :: y
-     !> Resolver for the z component.
      type(scalar_bc_resolver_t) :: z
    contains
-     !> Constructor.
      procedure, pass(this) :: init => segregated_vector_bc_resolver_init
-     !> Destructor.
      procedure, pass(this) :: free => segregated_vector_bc_resolver_free
-     !> Does nothing here because the masks are constructed at mark time.
      procedure, pass(this) :: finalize => segregated_vector_bc_resolver_finalize
-     !> Mark a single boundary condition.
      procedure, pass(this) :: mark_bc => segregated_vector_bc_resolver_mark_bc
-     !> Mark a list of boundary conditions.
      procedure, pass(this) :: mark_bc_list => &
           segregated_vector_bc_resolver_mark_bc_list
-     ! Constrain each component by apply the respective scalar resolver.
      procedure, pass(this) :: apply => segregated_vector_bc_resolver_apply
   end type segregated_vector_bc_resolver_t
 
@@ -129,20 +98,13 @@ module bc_resolver
      type(bc_list_t), private :: bcs
      type(coef_t), pointer, private :: coef => null()
      type(dofmap_t), pointer, private :: dof => null()
-     !> Reference-node volume indices [(i,j,k), node].
      integer, allocatable :: node_rst(:,:)
-     !> Representative midpoint volume indices [(i,j,k), edge].
      integer, allocatable :: edge_mid_rst(:,:)
-     ! Flattened volume-array indices for the 8 reference nodes.
      integer, allocatable :: node_linear_idx(:)
-     !> Resolved class for each local face. The first dimension is the local
-     ! facet id and the second is the local element id.
      real(kind=rp), allocatable :: face_class(:,:)
-     !> Mixed-node constraint flags. Zero means free, one means constrained.
      integer, allocatable :: constraint_n(:)
      integer, allocatable :: constraint_t1(:)
      integer, allocatable :: constraint_t2(:)
-     !> Normal and tangent vectors for each mixed node.
      real(kind=rp), allocatable :: n(:,:)
      real(kind=rp), allocatable :: t1(:,:)
      real(kind=rp), allocatable :: t2(:,:)
@@ -217,151 +179,22 @@ module bc_resolver
 
 contains
 
-!
-!  ************** scalar_bc_resolver_t TBPs **************
-!
-
-  !> Free a scalar boundary resolver.
-  subroutine scalar_bc_resolver_free(this)
-    class(scalar_bc_resolver_t), intent(inout) :: this
-
-    call this%dof_mask%free()
-  end subroutine scalar_bc_resolver_free
-
-  !> Add the constrained dofs from a scalar boundary condition.
-  subroutine scalar_bc_resolver_mark_bc(this, bc)
-    class(scalar_bc_resolver_t), intent(inout) :: this
-    class(bc_t), intent(in) :: bc
-
-    integer, pointer :: current_mask(:)
-    integer, allocatable :: merged_mask(:)
-    integer :: current_size
-    integer :: incoming_size
-    integer :: merged_size
-    integer :: i
-
-    if (.not. allocated(bc%msk)) then
-       call neko_error("Attempting to mark resolver from an unfinalized BC.")
-    end if
-
-    incoming_size = bc%msk(0)
-    if (incoming_size .eq. 0) return
-
-    if (.not. this%dof_mask%is_set()) then
-       call this%dof_mask%init(bc%msk(1:incoming_size), incoming_size)
-       return
-    end if
-
-    current_size = this%dof_mask%size()
-    current_mask => this%dof_mask%get()
-    allocate(merged_mask(current_size + incoming_size))
-
-    merged_mask(1:current_size) = current_mask(1:current_size)
-    merged_size = current_size
-
-    ! TODO: avoid O(n^2)
-    do i = 1, incoming_size
-       if (.not. any(merged_mask(1:merged_size) .eq. bc%msk(i))) then
-          merged_size = merged_size + 1
-          merged_mask(merged_size) = bc%msk(i)
-       end if
-    end do
-
-    call this%dof_mask%set(merged_mask(1:merged_size), merged_size)
-  end subroutine scalar_bc_resolver_mark_bc
-
-  !> Add the constrained dofs from all boundary conditions in a list.
-  subroutine scalar_bc_resolver_mark_bc_list(this, bclst)
-    class(scalar_bc_resolver_t), intent(inout) :: this
-    type(bc_list_t), intent(in) :: bclst
-
-    integer :: i
-
-    do i = 1, bclst%size()
-       call this%mark_bc(bclst%get(i))
-    end do
-  end subroutine scalar_bc_resolver_mark_bc_list
-
-  !> Apply the scalar boundary constraints by zeroing constrained dofs.
-  subroutine scalar_bc_resolver_apply(this, x, n, strm)
-    class(scalar_bc_resolver_t), intent(in) :: this
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: x(n)
-    type(c_ptr), intent(inout), optional :: strm
-    type(c_ptr) :: x_d
-
-    if (.not. this%dof_mask%is_set()) return
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       x_d = device_get_ptr(x)
-       call device_cfill_mask(x_d, 0.0_rp, n, this%dof_mask%get_d(), &
-            this%dof_mask%size(), strm = strm)
-    else
-       call cfill_mask(x, 0.0_rp, n, this%dof_mask%get(), this%dof_mask%size())
-    end if
-  end subroutine scalar_bc_resolver_apply
-
-  !> Write a field showing the resolved scalar BC mask.
-  !! @param[in] field_name Optional base name for the output file. The .fld is
-  !! appended automatically.
-  subroutine scalar_bc_resolver_debug_output(this, field_name)
-    class(scalar_bc_resolver_t), intent(inout) :: this
-    character(len=*), intent(in), optional :: field_name
-    type(field_t), pointer :: mask_field
-    type(fld_file_t) :: mask_file
-    integer :: scratch_idx
-    character(len=:), allocatable :: field_name_
-
-    if (present(field_name)) then
-       field_name_ = trim(field_name)
-    else
-       field_name_ = 'scalar_bc_resolver_mask'
-    end if
-
-    call neko_scratch_registry%request_field(mask_field, scratch_idx, .true.)
-
-    if (this%dof_mask%is_set()) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_cfill_mask(mask_field%x_d, 1.0_rp, mask_field%size(), &
-               this%dof_mask%get_d(), this%dof_mask%size())
-          call mask_field%copy_from(DEVICE_TO_HOST, .true.)
-       else
-          call cfill_mask(mask_field%x, 1.0_rp, mask_field%size(), &
-               this%dof_mask%get(), this%dof_mask%size())
-       end if
-    end if
-
-    call mask_file%init(field_name_ // '.fld')
-    call mask_file%write(mask_field)
-    call neko_scratch_registry%relinquish_field(scratch_idx)
-  end subroutine scalar_bc_resolver_debug_output
-
-!
-!  ********** segregated_vector_bc_resolver_t TBPs **********
-!
-
-  !> Free a segregated vector boundary resolver.
   subroutine segregated_vector_bc_resolver_free(this)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
-
     call this%x%free()
     call this%y%free()
     call this%z%free()
   end subroutine segregated_vector_bc_resolver_free
 
-  !> Initialize a segregated vector boundary resolver.
   subroutine segregated_vector_bc_resolver_init(this, coef)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
-
   end subroutine segregated_vector_bc_resolver_init
 
-  !> Finalize a segregated vector boundary resolver.
   subroutine segregated_vector_bc_resolver_finalize(this)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
   end subroutine segregated_vector_bc_resolver_finalize
 
-  !> Add the constrained dofs from a vector boundary condition.
   subroutine segregated_vector_bc_resolver_mark_bc(this, bc, component)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
@@ -373,25 +206,24 @@ contains
     end if
 
     if (.not. present(component)) then
-       call this%x%mark_bc(bc)
-       call this%y%mark_bc(bc)
-       call this%z%mark_bc(bc)
+      call this%x%mark_bc(bc)
+      call this%y%mark_bc(bc)
+      call this%z%mark_bc(bc)
     else
-       select case (component)
-       case ('x')
-          call this%x%mark_bc(bc)
-       case ('y')
-          call this%y%mark_bc(bc)
-       case ('z')
-          call this%z%mark_bc(bc)
-       case default
-          call neko_error("Invalid component for segregated vector BC " // &
-               "resolver mark.")
-       end select
+      select case (component)
+      case ('x')
+         call this%x%mark_bc(bc)
+      case ('y')
+         call this%y%mark_bc(bc)
+      case ('z')
+         call this%z%mark_bc(bc)
+      case default
+         call neko_error("Invalid component for segregated vector BC " // &
+              "resolver mark.")
+      end select
     end if
   end subroutine segregated_vector_bc_resolver_mark_bc
 
-  !> Add the constrained dofs from all vector boundary conditions in a list.
   subroutine segregated_vector_bc_resolver_mark_bc_list(this, bclst, component)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
@@ -405,7 +237,6 @@ contains
     end do
   end subroutine segregated_vector_bc_resolver_mark_bc_list
 
-  !> Apply the vector boundary constraints component-wise.
   subroutine segregated_vector_bc_resolver_apply(this, x, y, z, n, strm)
     class(segregated_vector_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
@@ -419,11 +250,6 @@ contains
     call this%z%apply(z, n, strm = strm)
   end subroutine segregated_vector_bc_resolver_apply
 
-!
-!  ************** vector_bc_resolver_t helpers **************
-!
-
-  !> Return scalar component resolvers for a segregated vector resolver.
   subroutine vector_bc_resolver_components(this, x, y, z)
     class(vector_bc_resolver_t), target, intent(inout) :: this
     type(scalar_bc_resolver_t), pointer, intent(inout) :: x
@@ -443,11 +269,6 @@ contains
     end select
   end subroutine vector_bc_resolver_components
 
-!
-!  *********** coupled_vector_bc_resolver_t TBPs ***********
-!
-
-  !> Free a coupled vector boundary resolver.
   subroutine coupled_vector_bc_resolver_free(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
 
@@ -455,61 +276,41 @@ contains
     call this%mixed_dof_mask%free()
     call this%bcs%free()
 
-
-    if (allocated(this%node_rst)) then
-       deallocate(this%node_rst)
-    end if
-
-    if (allocated(this%edge_mid_rst)) then
-       deallocate(this%edge_mid_rst)
-    end if
-
-    if (allocated(this%node_linear_idx)) then
-       deallocate(this%node_linear_idx)
-    end if
-
-    if (allocated(this%face_class)) then
-       deallocate(this%face_class)
-    end if
+    if (allocated(this%node_rst)) deallocate(this%node_rst)
+    if (allocated(this%edge_mid_rst)) deallocate(this%edge_mid_rst)
+    if (allocated(this%node_linear_idx)) deallocate(this%node_linear_idx)
+    if (allocated(this%face_class)) deallocate(this%face_class)
 
     if (allocated(this%constraint_n)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
-            c_associated(this%constraint_n_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_n_d)) then
           call device_unmap(this%constraint_n, this%constraint_n_d)
        end if
        deallocate(this%constraint_n)
     end if
-
     if (allocated(this%constraint_t1)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
-            c_associated(this%constraint_t1_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t1_d)) then
           call device_unmap(this%constraint_t1, this%constraint_t1_d)
        end if
        deallocate(this%constraint_t1)
     end if
-
     if (allocated(this%constraint_t2)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. &
-            c_associated(this%constraint_t2_d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t2_d)) then
           call device_unmap(this%constraint_t2, this%constraint_t2_d)
        end if
        deallocate(this%constraint_t2)
     end if
-
     if (allocated(this%n)) then
        if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%n_d)) then
           call device_unmap(this%n, this%n_d)
        end if
        deallocate(this%n)
     end if
-
     if (allocated(this%t1)) then
        if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%t1_d)) then
           call device_unmap(this%t1, this%t1_d)
        end if
        deallocate(this%t1)
     end if
-
     if (allocated(this%t2)) then
        if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%t2_d)) then
           call device_unmap(this%t2, this%t2_d)
@@ -527,7 +328,6 @@ contains
     nullify(this%dof)
   end subroutine coupled_vector_bc_resolver_free
 
-  !> Initialize a coupled vector boundary resolver.
   subroutine coupled_vector_bc_resolver_init(this, coef)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
@@ -541,7 +341,6 @@ contains
     this%coef => coef
     this%dof => coef%dof
 
-    ! Build polynomial order dependent lookup tables for a single element.
     lx = coef%Xh%lx
     ly = coef%Xh%ly
     lz = coef%Xh%lz
@@ -588,7 +387,6 @@ contains
     this%node_linear_idx(8) = linear_index(lx, ly, lz, 1, lx, ly, lz)
   end subroutine coupled_vector_bc_resolver_init
 
-  !> Add a boundary condition to the coupled resolver.
   subroutine coupled_vector_bc_resolver_mark_bc(this, bc, component)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
@@ -602,7 +400,6 @@ contains
     call this%bcs%append(bc)
   end subroutine coupled_vector_bc_resolver_mark_bc
 
-  !> Add all boundary conditions in a list to the coupled resolver.
   subroutine coupled_vector_bc_resolver_mark_bc_list(this, bclst, component)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
@@ -615,7 +412,6 @@ contains
        call this%mark_bc(bc_i, component)
     end do
   end subroutine coupled_vector_bc_resolver_mark_bc_list
-
   !> Finalize the coupled resolver by resolving the accumulated BC list.
   !! @details This routine builds the dof masks for Dirichlet and mixed nodes,
   !! and computes the local basis for the mixed ones.
@@ -1353,4 +1149,4 @@ contains
     end if
   end subroutine coupled_vector_bc_resolver_apply
 
-end module bc_resolver
+end module vector_bc_resolver

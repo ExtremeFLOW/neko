@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Mixed Dirichlet condition in the non-normal direction.
+!> Mixed Dirichlet condition constraining the tangential vector components.
 module non_normal
   use json_module, only : json_file
   use bc, only : BC_TYPES, mixed_bc_t
@@ -44,6 +44,7 @@ module non_normal
   implicit none
   private
 
+!> Mixed Dirichlet condition constraining the tangential vector components.
   type, public, extends(mixed_bc_t) :: non_normal_t
      real(kind=rp) :: value(3) = 0.0_rp
    contains

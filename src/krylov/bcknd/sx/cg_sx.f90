@@ -39,7 +39,8 @@ module cg_sx
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_resolver, only : scalar_bc_resolver_t, vector_bc_resolver_t, &
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use vector_bc_resolver, only : vector_bc_resolver_t, &
        vector_bc_resolver_components
   use math, only : glsc3, add2s1, abscmp
   implicit none

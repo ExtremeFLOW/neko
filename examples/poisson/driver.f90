@@ -1,7 +1,7 @@
 program poisson
   use neko
   use ax_poisson
-  use bc_resolver, only : scalar_bc_resolver_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use mpi_f08
   implicit none
 
@@ -141,4 +141,3 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n, ksp_mon)
   endif
 
 end subroutine set_timer_flop_cnt
-
