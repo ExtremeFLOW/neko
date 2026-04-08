@@ -158,7 +158,7 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, mu, rho, g_vec, z0, z0h_in, bc_type, bc_value, tstep)
+       kappa, mu, rho, g_vec, z0, z0h_in, bc_type, bc_value, tstep, Ri_b_diagn)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -178,14 +178,15 @@ contains
     real(kind=rp), parameter :: NR_step = 0.001_rp
     real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp), dimension(n_nodes) :: utau, Ri_b, L_ob, magu, q, ti, ts
+    real(kind=rp) :: utau, Ri_b, L_ob, magu, q, ti, ts
+    real(kind=rp), dimension(n_nodes), intent(inout) :: Ri_b_diagn
 
     do i=1, n_nodes
        ! Sample the variables
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       ti(i) = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        hi = h(i)
 
        ! Project on horizontal directions
@@ -195,39 +196,39 @@ contains
        wi = wi - normu * n_z(i)
 
        ! Compute velocity magnitude
-       magu(i) = sqrt(ui**2 + vi**2 + wi**2)
-       magu(i) = max(magu(i), 1.0e-6_rp)
-       utau(i) = magu(i)*kappa / log(hi/z0)
+       magu = sqrt(ui**2 + vi**2 + wi**2)
+       magu = max(magu, 1.0e-6_rp)
+       utau = magu*kappa / log(hi/z0)
 
        ! Compute thermal roughness length from Zilitinkevich, 1995
        if (z0h_in < 0) then
           ! z0h_in is interpreted as -C_Zil (Zilitinkevich constant) for z0h
-          z0h = z0 * exp(z0h_in*sqrt((utau(i)*z0)/(mu/rho)))
+          z0h = z0 * exp(z0h_in*sqrt((utau*z0)/(mu/rho)))
        else
           z0h = z0h_in
        end if
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
        ! Maybe redundant, but needed to initialise Rib
-       call select_bc_operators(bc_type,bc_value,q(i),ts(i),ti(i),kappa,utau(i),z0h,hi)
+       call select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
 
        ! Compute g along the normal (generalisation for hills and similar)
        g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i))
 
        ! Compute Richardson and set stability accordingly
-       call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts(i), magu(i), kappa, q(i), Ri_b(i))
-       call set_stability_regime(Ri_b(i), Ri_threshold)
+       call compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Ri_b)
+       call set_stability_regime(Ri_b, Ri_threshold)
 
-       if (abs((Ri_b(i))) <= Ri_threshold) then
+       if (abs((Ri_b)) <= Ri_threshold) then
           ! Neutral (L_ob undefined)
-          L_ob(i) = 0.0_rp
+          L_ob = 0.0_rp
        else
           ! Determine target regime sign
-          if ((Ri_b(i)) > 0.0_rp) then
-             L_ob(i) = hi / max(Ri_b(i), Ri_threshold) ! Stable guess
+          if ((Ri_b) > 0.0_rp) then
+             L_ob = hi / max(Ri_b, Ri_threshold) ! Stable guess
              L_sign = 1.0_rp
           else
-             L_ob(i) = hi / min(Ri_b(i), -Ri_threshold) ! Convective guess
+             L_ob = hi / min(Ri_b, -Ri_threshold) ! Convective guess
              L_sign = -1.0_rp
           end if
 
@@ -235,30 +236,30 @@ contains
           count = 0
 
           ! Find Obukhov length
-          do while ((abs(L_old - L_ob(i))/abs(L_ob(i)) > tol) .and. (count < max_count))
+          do while ((abs(L_old - L_ob)/abs(L_ob) > tol) .and. (count < max_count))
              ! Switch between stable and convective based on bulk Richardson (Ri_b)
-             L_old = L_ob(i)
+             L_old = L_ob
              count = count + 1
-             fd_h = NR_step*L_ob(i)
-             L_upper = L_ob(i) + fd_h
-             L_lower = L_ob(i) - fd_h
+             fd_h = NR_step*L_ob
+             L_upper = L_ob + fd_h
+             L_lower = L_ob - fd_h
 
              ! Compute L_ob based on stability and bc_type
-             f = f_ptr(Ri_b(i), hi, z0, z0h, L_ob(i), slaw_m_ptr, slaw_h_ptr)
-             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob(i), slaw_m_ptr, slaw_h_ptr, fd_h)
+             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
+             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
              if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
-             L_new = L_ob(i) - f/dfdl
+             L_new = L_ob - f/dfdl
              ! Avoid regime crossing during Newton iter (otherwise crash)
              if (L_new*L_sign <= 0.0_rp) then
                 ! "damp update" (stay on same side)
-                L_new = 0.5_rp * L_ob(i)
+                L_new = 0.5_rp * L_ob
              end if
              ! Bound L_ob
-             L_ob(i) = sign(max(abs(L_new), 1.0e-8_rp), L_sign)
-             L_ob(i) = sign(min(abs(L_ob(i)), 1.0e8_rp), L_sign)
+             L_ob = sign(max(abs(L_new), 1.0e-8_rp), L_sign)
+             L_ob = sign(min(abs(L_ob), 1.0e8_rp), L_sign)
           end do
 
-          if (abs(L_ob(i)) > 5e5_rp .or. abs(L_ob(i)) < 1e-6_rp) then
+          if (abs(L_ob) > 5e5_rp .or. abs(L_ob) < 1e-6_rp) then
              count = max_count
              call neko_warning("Obukhov length did not converge (MOST wall model)")
           end if
@@ -272,21 +273,23 @@ contains
        select case (bc_type)
        case ("neumann")
           ! Compute u* with the new Obukhov length
-          utau(i) = kappa*magu(i)/slaw_m_ptr(hi, L_ob(i), z0)
+          utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
        case ("dirichlet")
           ! Compute u* with the new Obukhov length
-          utau(i) = kappa*magu(i)/slaw_m_ptr(hi, L_ob(i), z0)
+          utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
           ! and compute q from here
-          q(i) = kappa*utau(i)*(ts(i) - ti(i))/slaw_h_ptr(hi, L_ob(i), z0h)
+          q = kappa*utau*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
        case default
           call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
        end select
 
        ! Distribute according to the velocity vector and bound magu to avoid 0 division
-       magu(i) = max(magu(i), 1.0e-6_rp)
-       tau_x(i) = -rho * utau(i)**2 * ui / magu(i)
-       tau_y(i) = -rho * utau(i)**2 * vi / magu(i)
-       tau_z(i) = -rho * utau(i)**2 * wi / magu(i)
+       magu = max(magu, 1.0e-6_rp)
+       tau_x(i) = -rho * utau**2 * ui / magu
+       tau_y(i) = -rho * utau**2 * vi / magu
+       tau_z(i) = -rho * utau**2 * wi / magu
+
+       Ri_b_diagn(i) = Ri_b
     end do
 
     ! Print diagnostics
@@ -294,35 +297,8 @@ contains
     write(log_buf, '(A,E15.7)') 'mean min max'
     call neko_log%message(trim(log_buf))
     write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Ri_b: ', &
-         glsum(Ri_b, n_nodes) / n_nodes, &
-         glmin(Ri_b, n_nodes), glmax(Ri_b, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'L_ob: ', &
-         glsum(L_ob, n_nodes) / n_nodes, &
-         glmin(L_ob, n_nodes), glmax(L_ob, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'utau: ', &
-         glsum(utau, n_nodes) / n_nodes, &
-         glmin(utau, n_nodes), glmax(utau, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'magu: ', &
-         glsum(magu, n_nodes) / n_nodes, &
-         glmin(magu, n_nodes), glmax(magu, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ti: ', &
-         glsum(ti, n_nodes) / n_nodes, &
-         glmin(ti, n_nodes), glmax(ti, n_nodes)
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ts: ', &
-         glsum(ts, n_nodes) / n_nodes, &
-         glmin(ts, n_nodes), glmax(ts, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'q: ', &
-         glsum(q, n_nodes) / n_nodes, &
-         glmin(q, n_nodes), glmax(q, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'hi: ', &
-         glsum(h, n_nodes) / n_nodes, &
-         glmin(h, n_nodes), glmax(h, n_nodes)
+         glsum(Ri_b_diagn, n_nodes) / n_nodes, &
+         glmin(Ri_b_diagn, n_nodes), glmax(Ri_b_diagn, n_nodes)
     call neko_log%message(trim(log_buf))
     call neko_log%end_section()
 

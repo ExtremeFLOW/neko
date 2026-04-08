@@ -42,8 +42,9 @@ extern "C" {
           void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
           void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
-          int *n_nodes, int *lx, real *kappa, real *mu, real *rho, real *g, 
-          real *z0, real *z0h_in, int *bc_type, real *bc_value, int *tstep) {
+          int *n_nodes, int *lx, real *kappa, real *mu, real *rho, real *g,
+          real *z0, real *z0h_in, int *bc_type, real *bc_value, int *tstep,
+          void *Ri_b_diagn) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
@@ -59,7 +60,7 @@ extern "C" {
                                           (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
                                           (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
                                           *n_nodes, *lx, *kappa, *mu, *rho, g1, g2, g3,
-                                          *z0, *z0h_in, *bc_value);
+                                          *z0, *z0h_in, *bc_value, (real*) Ri_b_diagn);
         } else if (*bc_type == 1) {   /* Dirichlet */
           hipLaunchKernelGGL(HIP_KERNEL_NAME(most_compute<real,1>),
                                           nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
@@ -68,7 +69,7 @@ extern "C" {
                                           (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
                                           (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
                                           *n_nodes, *lx, *kappa, *mu, *rho, g1, g2, g3,
-                                          *z0, *z0h_in, *bc_value);
+                                          *z0, *z0h_in, *bc_value, (real*) Ri_b_diagn);
                                         }
         HIP_CHECK(hipGetLastError());
     }

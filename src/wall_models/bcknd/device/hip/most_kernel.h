@@ -41,7 +41,7 @@
 /*
 * Similarity laws and corrections for the STABLE regime:
 * REFERENCE: Cheng, Y., and W. Brutsaert (2005), Flux-profile relationships
-* for wind speed and temperature in the stable atmospheric boundary layer,  
+* for wind speed and temperature in the stable atmospheric boundary layer,
 * Bound.-Layer Meteorol., 3, 519-538.
 * NOTE: This formulation is chosen for its superior behavior in very stable
 * conditions (large z/L), avoiding the numerical decoupling found in older linear (e.g., Webb or Holtslag) functions.
@@ -56,7 +56,7 @@ __device__ T corr_m_stable(T z, T L_ob)
     T c = 5.0;
     T d = 0.35;
     T zeta = z / L_ob;
-    
+
     return -a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d;
 }
 
@@ -69,7 +69,7 @@ __device__ T corr_h_stable(T z, T L_ob)
     T c = 5.0;
     T d = 0.35;
     T zeta = z / L_ob;
-    
+
     return -b*(zeta-c/d)*exp(-d*zeta)
     -pow(1.0 + 2.0/3.0*a*zeta, 1.5)
     -b*c/d + 1.0;
@@ -98,7 +98,7 @@ __device__ T f_neumann_stable(T Ri_b, T z, T z0, T z0h, T L_ob)
             slaw_m_stable<T>(z,L_ob,z0)
             *slaw_m_stable<T>(z,L_ob,z0)
             *slaw_m_stable<T>(z,L_ob,z0)
-            );   
+            );
 }
 
 template<typename T>
@@ -114,14 +114,14 @@ __device__ T dfdl_neumann_stable(T l_upper,
             slaw_m_stable<T>(z,l_upper,z0)
            *slaw_m_stable<T>(z,l_upper,z0)
            *slaw_m_stable<T>(z,l_upper,z0)
-        );    
+        );
 
     T low =  z/l_lower /
             (
               slaw_m_stable<T>(z,l_lower,z0)
             *slaw_m_stable<T>(z,l_lower,z0)
             *slaw_m_stable<T>(z,l_lower,z0)
-        );     
+        );
 
     return (up + low) / (2*fd_h);
 }
@@ -131,7 +131,7 @@ __device__ T f_dirichlet_stable(T Ri_b, T z, T z0, T z0h, T L_ob)
 {
     return Ri_b - z/L_ob * slaw_h_stable<T>(z,L_ob,z0h) / (
         slaw_m_stable<T>(z,L_ob,z0)*slaw_m_stable<T>(z,L_ob,z0)
-    );      
+    );
 }
 
 template<typename T>
@@ -145,12 +145,12 @@ __device__ T dfdl_dirichlet_stable(T l_upper,
     T up = -z/l_upper *
             slaw_h_stable<T>(z,l_upper,z0h) / (
             slaw_m_stable<T>(z,l_upper,z0)*slaw_m_stable<T>(z,l_upper,z0)
-        );      
+        );
 
     T low =  z/l_lower *
             slaw_h_stable<T>(z,l_lower,z0h) / (
             slaw_m_stable<T>(z,l_lower,z0)*slaw_m_stable<T>(z,l_lower,z0)
-        );      
+        );
 
     return (up + low) / (2*fd_h);
 }
@@ -160,7 +160,7 @@ __device__ T dfdl_dirichlet_stable(T l_upper,
 * REFERENCE: Dyer, A. J. (1974), A review of flux-profile relationships,
 * Bound.-Layer Meteorol., 7, 363-372.
 * INTEGRATION: Paulson, C. A. (1970), The mathematical representation
-* of wind speed and temperature profiles in the unstable atmospheric 
+* of wind speed and temperature profiles in the unstable atmospheric
 * surface layer, J. Appl. Meteorol., 9, 857-861.
 */
 
@@ -208,7 +208,7 @@ __device__ T f_neumann_convective(T Ri_b, T z, T z0, T z0h, T L_ob)
         slaw_m_convective<T>(z,L_ob,z0)
        *slaw_m_convective<T>(z,L_ob,z0)
        *slaw_m_convective<T>(z,L_ob,z0)
-    );   
+    );
 }
 
 template<typename T>
@@ -224,14 +224,14 @@ __device__ T dfdl_neumann_convective(T l_upper,
             slaw_m_convective<T>(z,l_upper,z0)
            *slaw_m_convective<T>(z,l_upper,z0)
            *slaw_m_convective<T>(z,l_upper,z0)
-        );    
+        );
 
     T low =  z/l_lower /
              (
              slaw_m_convective<T>(z,l_lower,z0)
             *slaw_m_convective<T>(z,l_lower,z0)
             *slaw_m_convective<T>(z,l_lower,z0)
-        );     
+        );
 
     return (up + low) / (2*fd_h);
 }
@@ -241,7 +241,7 @@ __device__ T f_dirichlet_convective(T Ri_b, T z, T z0, T z0h, T L_ob)
 {
     return Ri_b - z/L_ob * slaw_h_convective<T>(z,L_ob,z0h) / (
         slaw_m_convective<T>(z,L_ob,z0)*slaw_m_convective<T>(z,L_ob,z0)
-    );      
+    );
 }
 
 template<typename T>
@@ -255,12 +255,12 @@ __device__ T dfdl_dirichlet_convective(T l_upper,
     T up = -z/l_upper *
            slaw_h_convective<T>(z,l_upper,z0h) / (
             slaw_m_convective<T>(z,l_upper,z0)*slaw_m_convective<T>(z,l_upper,z0)
-        );      
+        );
 
     T low =  z/l_lower *
              slaw_h_convective<T>(z,l_lower,z0h) / (
               slaw_m_convective<T>(z,l_lower,z0)*slaw_m_convective<T>(z,l_lower,z0)
-          );      
+          );
 
     return (up + low) / (2*fd_h);
 }
@@ -282,36 +282,37 @@ __device__ T slaw_h_neutral(T z, T z0h)
 }
 
 /*
- * CUDA kernel for the most wall model.   
+ * CUDA kernel for the most wall model.
  */
-template<typename T, int BC_TYPE>  
+template<typename T, int BC_TYPE>
 __global__ void most_compute(
-    const T* __restrict__ u_d,     
+    const T* __restrict__ u_d,
     const T* __restrict__ v_d,
     const T* __restrict__ w_d,
     const T* __restrict__ temp_d,
-    const T* __restrict__ h_d,     
-    const T* __restrict__ n_x_d,  
+    const T* __restrict__ h_d,
+    const T* __restrict__ n_x_d,
     const T* __restrict__ n_y_d,
     const T* __restrict__ n_z_d,
     const int* __restrict__ ind_r_d,
     const int* __restrict__ ind_s_d,
     const int* __restrict__ ind_t_d,
     const int* __restrict__ ind_e_d,
-    T* __restrict__ tau_x_d,       
+    T* __restrict__ tau_x_d,
     T* __restrict__ tau_y_d,
     T* __restrict__ tau_z_d,
     int n_nodes,
-    int lx,                     
+    int lx,
     T kappa,
     T mu,
-    T rho, 
+    T rho,
     T g1,
     T g2,
     T g3,
     T z0,
     T z0h_in,
-    T bc_value
+    T bc_value,
+    T* __restrict__ Ri_b_diagn
 ) {
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
@@ -342,7 +343,7 @@ __global__ void most_compute(
         T nx = n_x_d[i];
         T ny = n_y_d[i];
         T nz = n_z_d[i];
-        
+
         // Get the tangential component
         T normu = ui * nx + vi * ny + wi * nz;
         ui -= normu * nx;
@@ -385,13 +386,13 @@ __global__ void most_compute(
         T L_ob = 1e10;   // neutral default
 
         const T L_sign = (Ri_b > 0) ? 1.0 : -1.0;
-    
-        // Stability branching localy 
+
+        // Stability branching localy
         if (fabs(Ri_b) <= Ri_threshold) {
             // NEUTRAL CASe
             utau = kappa * magu / slaw_m_neutral<T>(hi, z0);
             if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_neutral<T>(hi, z0h);
-        } 
+        }
         else {
             // STABLE or CONVECTIVE (NR)
             // Initial guess based on stability
@@ -399,7 +400,7 @@ __global__ void most_compute(
                 L_ob = hi / fmax(Ri_b, Ri_threshold);
             else
                 L_ob = hi / fmin(Ri_b, -Ri_threshold);
-            
+
             T L_old;
             for (int it = 0; it < max_iter; ++it) {
                 L_old = L_ob;
@@ -409,7 +410,7 @@ __global__ void most_compute(
                 T L_lower = L_ob - fd_h;
 
                 // Use the appropriate simlarity law based on stability and b.c. type
-                if (Ri_b > 0) { // Stable 
+                if (Ri_b > 0) { // Stable
                     if constexpr (BC_TYPE == 0) {
                         f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h, L_ob);
                         dfdl = dfdl_neumann_stable<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
@@ -417,17 +418,17 @@ __global__ void most_compute(
                         f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h, L_ob);
                         dfdl = dfdl_dirichlet_stable<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
                     }
-                } else { // Convective 
+                } else { // Convective
                     if constexpr (BC_TYPE == 0) {
                         f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_neumann_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h);  
+                        dfdl = dfdl_neumann_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
                     } else {
                         f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L_ob);
                         dfdl = dfdl_dirichlet_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
                     }
                 }
 
-                if (fabs(dfdl) < (T)1e-12) break; 
+                if (fabs(dfdl) < (T)1e-12) break;
                 L_ob -= f_val / dfdl;
                 if (L_ob * L_sign <= 0) L_ob = 0.5 * L_old;
                 L_ob = L_sign * fmax(fmin(fabs(L_ob), (T)1e8), (T)1e-8);
@@ -446,6 +447,8 @@ __global__ void most_compute(
         tau_x_d[i] = -rho*utau*utau*ui/magu;
         tau_y_d[i] = -rho*utau*utau*vi/magu;
         tau_z_d[i] = -rho*utau*utau*wi/magu;
+
+        Ri_b_diagn[i] = Ri_b;
     }
 }
 

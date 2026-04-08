@@ -47,6 +47,8 @@ module most
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error, neko_warning
   use logger, only : LOG_SIZE, neko_log
+  use vector, only : vector_t
+  use vector_math, only : vector_glsum, vector_glmin, vector_glmax
   implicit none
   private
 
@@ -73,6 +75,8 @@ module most
      real(kind=rp) :: bc_value
      !> The name of the temperature variable
      character(len=:), allocatable :: scalar_name
+     !> Diagnostics
+     type(vector_t) :: Ri_b
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => most_init
@@ -207,6 +211,8 @@ contains
 
     call this%finalize_base(msk, facet)
 
+    call this%Ri_b%init(this%n_nodes)
+
   end subroutine most_finalize
 
   !> Constructor from components.
@@ -294,6 +300,8 @@ contains
 
     call this%free_base()
 
+    call this%Ri_b%free()
+
   end subroutine most_free
 
   !> Compute the wall shear stress.
@@ -320,16 +328,37 @@ contains
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
             this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, this%bc_type, &
-            this%bc_value, tstep)
+            this%bc_value, tstep, this%Ri_b%x_d)
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
             this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, this%bc_type, &
-            this%bc_value, tstep)
+            this%bc_value, tstep, this%Ri_b%x)
     end if
 
+    call most_log_diagnostics(this%Ri_b, this%n_nodes)
+
   end subroutine most_compute
+
+  subroutine most_log_diagnostics(Ri_b, n_nodes)
+    use logger, only : neko_log, LOG_SIZE
+    use math, only : glsum, glmin, glmax
+    character(len=LOG_SIZE) :: log_buf
+    integer, intent(in) :: n_nodes
+    type(vector_t), intent(in) :: Ri_b
+
+    call neko_log%section("Wall model diagnostics (MOST)")
+    write(log_buf, '(A)') 'mean min max'
+    write(log_buf,'(A,3E15.7)') "Ri_b: ",&
+    vector_glsum(Ri_b, n_nodes) / n_nodes, &
+    vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    call neko_log%end_section()
+
+end subroutine most_log_diagnostics
+
 
 end module most
