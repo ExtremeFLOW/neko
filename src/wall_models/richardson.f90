@@ -357,6 +357,52 @@ contains
             this%utau%x, this%magu%x, this%ti%x, this%q%x)
     end if
 
+    call richardson_log_diagnostics(this%Ri_b, this%L_ob, &
+            this%utau, this%magu, this%ti, this%q, this%n_nodes)
+
   end subroutine richardson_compute
 
+
+  subroutine richardson_log_diagnostics(Ri_b, L_ob, utau, magu, ti, q, n_nodes)
+    character(len=LOG_SIZE) :: log_buf
+    integer, intent(in) :: n_nodes
+    type(vector_t), intent(in) :: Ri_b, L_ob, utau
+    type(vector_t), intent(in) :: magu, ti, q
+
+    call neko_log%section("Wall model diagnostics (Richardson)")
+    write(log_buf, '(A)') 'mean min max'
+    call neko_log%message(trim(log_buf))
+    write(log_buf,'(A,3E15.7)') "Ri_b: ",&
+    vector_glsum(Ri_b, n_nodes) / n_nodes, &
+    vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "L_ob: ", &
+    vector_glsum(L_ob, n_nodes) / n_nodes, &
+    vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "utau: ", &
+    vector_glsum(utau, n_nodes) / n_nodes, &
+    vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "magu: ", &
+    vector_glsum(magu, n_nodes) / n_nodes, &
+    vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "ti: ", &
+    vector_glsum(ti, n_nodes) / n_nodes, &
+    vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "q: ", &
+    vector_glsum(q, n_nodes) / n_nodes, &
+    vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    call neko_log%end_section()
+
+    end subroutine richardson_log_diagnostics
 end module richardson
