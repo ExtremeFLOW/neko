@@ -526,15 +526,17 @@ contains
 
       ! allocate and fill arrays
       ! local
-      allocate(gs%local_dof_gs(gs%nlocal), gs%local_gs_dof(gs%nlocal), &
-           gs%local_gs(gs%nlocal), gs%local_blk_len(gs%nlocal_blks), &
-           gs%local_blk_off(gs%nlocal_blks))
-      call gs_fill_arrays(lx, nvrt_loc, nedg_loc, nfcs_loc, nlfcs_ncon, &
-           vrt_mult, edg_mult, fcs_mult, vrt_loc, edg_loc, fcs_loc, vrt%lmap, &
-           vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, fcs%lmap, &
-           fcs%lmapoff, fcs%algn, gs%local_blk_len, gs%local_blk_off, &
-           gs%local_dof_gs, gs%local_gs_dof, gs%nlocal_blks, &
-           gs%local_facet_offset)
+      if (gs%nlocal .gt. 0) then
+         allocate(gs%local_dof_gs(gs%nlocal), gs%local_gs_dof(gs%nlocal), &
+              gs%local_gs(gs%nlocal), gs%local_blk_len(gs%nlocal_blks), &
+              gs%local_blk_off(gs%nlocal_blks))
+         call gs_fill_arrays(lx, nvrt_loc, nedg_loc, nfcs_loc, nlfcs_ncon, &
+              vrt_mult, edg_mult, fcs_mult, vrt_loc, edg_loc, fcs_loc, &
+              vrt%lmap, vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, &
+              fcs%lmap, fcs%lmapoff, fcs%algn, gs%local_blk_len, &
+              gs%local_blk_off, gs%local_dof_gs, gs%local_gs_dof, &
+              gs%nlocal_blks, gs%local_facet_offset)
+      end if
 
       ! shared
       if (gs%nshared .gt. 0) then
@@ -827,17 +829,21 @@ contains
        end do
     end do
 
-    ! offset
-    blk_off(1) = 0
-    do il = 2, itmp
-       blk_off(il) = blk_off(il - 1) + blk_len(il - 1)
-    end do
-
     ! sanity checks
     if (itmp .ne. nblks) &
          call neko_error('gs_fill_arrays: inconsistent block number')
-    if (blk_off(itmp) + blk_len(itmp) .ne. cfcs_off - 1) &
-         call neko_error('gs_fill_arrays: inconsistent facet offset')
+
+    ! offset
+    if (itmp .gt. 0) then
+       blk_off(1) = 0
+       do il = 2, itmp
+          blk_off(il) = blk_off(il - 1) + blk_len(il - 1)
+       end do
+
+       ! sanity checks
+       if (blk_off(itmp) + blk_len(itmp) .ne. cfcs_off - 1) &
+            call neko_error('gs_fill_arrays: inconsistent facet offset')
+    end if
 
     ! mappings
     itmp = 0
@@ -1160,14 +1166,17 @@ contains
     end if
 
     ! Gather-scatter local dofs
-    call profiler_start_region("gs_local", 12)
-    call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
-         op, .false.)
-    call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
-         .false., C_NULL_PTR)
-    call profiler_end_region("gs_local", 12)
+    if (m .gt. 0) then
+       call profiler_start_region("gs_local", 12)
+       call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
+            gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+            gs%local_blk_off, op, .false.)
+       call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
+            gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+            gs%local_blk_off, .false., C_NULL_PTR)
+       call profiler_end_region("gs_local", 12)
+    end if
+
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbwait", 7)
@@ -1224,8 +1233,10 @@ contains
          call this%dofmap%amr_restart(reconstruct, counter, tstep)
 
     ! clear space
-    deallocate(this%local_dof_gs, this%local_gs_dof, this%local_blk_len, &
-         this%local_blk_off, this%local_gs)
+    if (this%nlocal .gt. 0) then
+       deallocate(this%local_dof_gs, this%local_gs_dof, this%local_blk_len, &
+            this%local_blk_off, this%local_gs)
+    end if
     if (this%nshared .gt. 0) then
        deallocate(this%shared_dof_gs, this%shared_gs_dof, this%shared_blk_len, &
             this%shared_blk_off, this%shared_gs)
