@@ -220,15 +220,22 @@ contains
     call json_get_or_default(json, "name", object%name, default_name)
     call object%finalize()
 
-    do i = 1, size(zone_indices)
-       do j = 1, scheme%msh%nelv
-          do k = 1, 2 * scheme%msh%gdim
-             if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
-                scheme%msh%facet_type(k, j) = 2
-             end if
+    ! Some bcs are marked in the pressure factory routine, and we should ignore
+    ! then here. This currently appears to only be the norma_outflow type and
+    ! its variants.
+    if (trim(type) .ne. "normal_outflow" .and. &
+         trim(type) .ne. "normal_outflow+dong" .and. &
+         trim(type) .ne. "normal_outflow+user") then
+       do i = 1, size(zone_indices)
+          do j = 1, scheme%msh%nelv
+             do k = 1, 2 * scheme%msh%gdim
+                if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
+                   scheme%msh%facet_type(k, j) = 2
+                end if
+             end do
           end do
        end do
-    end do
+    end if
 
     if (allocated(type)) then
        deallocate(type)
