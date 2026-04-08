@@ -35,12 +35,12 @@
 !! `findpts`, and `findpts_eval`. A full description of these subroutines can
 !! be found at https://github.com/Nek5000/gslib/blob/master/src/findpts.c
 module probes
-  use num_types, only: rp, dp
-  use matrix, only: matrix_t
-  use vector, only: vector_t
-  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use utils, only: neko_error, nonlinear_index
-  use field_list, only: field_list_t
+  use num_types, only : rp, dp
+  use matrix, only : matrix_t
+  use vector, only : vector_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use utils, only : neko_error, nonlinear_index
+  use field_list, only : field_list_t
   use time_state, only : time_state_t
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
@@ -888,7 +888,6 @@ contains
        this%seq_io = .true.
     type is (hdf5_file_t)
        call ft%open("r")
-       call ft%set_active_group() ! Empty sets it to the root group "/"
        call ft%read_dataset("xyz", mat_in, "rank_0")
        call ft%close()
 
