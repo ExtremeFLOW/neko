@@ -76,7 +76,7 @@ module most
      !> The name of the temperature variable
      character(len=:), allocatable :: scalar_name
      !> Diagnostics
-     type(vector_t) :: Ri_b
+     type(vector_t) :: Ri_b, L_ob, utau, magu, ti, q
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => most_init
@@ -212,6 +212,11 @@ contains
     call this%finalize_base(msk, facet)
 
     call this%Ri_b%init(this%n_nodes)
+    call this%L_ob%init(this%n_nodes)
+    call this%utau%init(this%n_nodes)
+    call this%magu%init(this%n_nodes)
+    call this%ti%init(this%n_nodes)
+    call this%q%init(this%n_nodes)
 
   end subroutine most_finalize
 
@@ -301,6 +306,11 @@ contains
     call this%free_base()
 
     call this%Ri_b%free()
+    call this%L_ob%free()
+    call this%utau%free()
+    call this%magu%free()
+    call this%ti%free()
+    call this%q%free()
 
   end subroutine most_free
 
@@ -322,38 +332,67 @@ contains
     temp => neko_registry%get_field(this%scalar_name)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, this%ind_r_d, &
-            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
-            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
+       call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, &
+            this%ind_r_d, this%ind_s_d, this%ind_t_d, &
+            this%ind_e_d, this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, this%bc_type, &
-            this%bc_value, tstep, this%Ri_b%x_d)
+            this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, &
+            this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
+            this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
+            this%q%x_d)
     else
-       call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
-            this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
-            this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
-            this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, this%bc_type, &
-            this%bc_value, tstep, this%Ri_b%x)
+       call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
+            this%ind_s, this%ind_t, this%ind_e, this%n_x%x, &
+            this%n_y%x, this%n_z%x, this%h%x, this%tau_x%x, &
+            this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, &
+            u%msh%nelv, this%kappa, this%mu_val, this%rho_val, &
+            this%g, this%z0, this%z0h_in, this%bc_type, &
+            this%bc_value, tstep, this%Ri_b%x, this%L_ob%x, &
+            this%utau%x, this%magu%x, this%ti%x, this%q%x)
     end if
 
-    call most_log_diagnostics(this%Ri_b, this%n_nodes)
+    call most_log_diagnostics(this%Ri_b, this%L_ob, &
+            this%utau, this%magu, this%ti, this%q, this%n_nodes)
 
   end subroutine most_compute
 
-  subroutine most_log_diagnostics(Ri_b, n_nodes)
-    use logger, only : neko_log, LOG_SIZE
-    use math, only : glsum, glmin, glmax
+  subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, q, n_nodes)
     character(len=LOG_SIZE) :: log_buf
     integer, intent(in) :: n_nodes
-    type(vector_t), intent(in) :: Ri_b
+    type(vector_t), intent(in) :: Ri_b, L_ob, utau
+    type(vector_t), intent(in) :: magu, ti, q
 
     call neko_log%section("Wall model diagnostics (MOST)")
     write(log_buf, '(A)') 'mean min max'
     write(log_buf,'(A,3E15.7)') "Ri_b: ",&
     vector_glsum(Ri_b, n_nodes) / n_nodes, &
     vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "L_ob: ", &
+    vector_glsum(L_ob, n_nodes) / n_nodes, &
+    vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "utau: ", &
+    vector_glsum(utau, n_nodes) / n_nodes, &
+    vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "magu: ", &
+    vector_glsum(magu, n_nodes) / n_nodes, &
+    vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "ti: ", &
+    vector_glsum(ti, n_nodes) / n_nodes, &
+    vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "q: ", &
+    vector_glsum(q, n_nodes) / n_nodes, &
+    vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
 
     call neko_log%end_section()

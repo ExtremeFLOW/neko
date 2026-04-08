@@ -158,7 +158,8 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, mu, rho, g_vec, z0, z0h_in, bc_type, bc_value, tstep, Ri_b_diagn)
+       kappa, mu, rho, g_vec, z0, z0h_in, bc_type, bc_value, tstep, &
+       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -179,7 +180,9 @@ contains
     real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: utau, Ri_b, L_ob, magu, q, ti, ts
-    real(kind=rp), dimension(n_nodes), intent(inout) :: Ri_b_diagn
+    real(kind=rp), dimension(n_nodes), intent(inout) :: Ri_b_diagn, L_ob_diagn
+    real(kind=rp), dimension(n_nodes), intent(inout) :: utau_diagn, magu_diagn
+    real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, q_diagn
 
     do i=1, n_nodes
        ! Sample the variables
@@ -290,18 +293,12 @@ contains
        tau_z(i) = -rho * utau**2 * wi / magu
 
        Ri_b_diagn(i) = Ri_b
+       L_ob_diagn(i) = L_ob
+       utau_diagn(i) = utau
+       magu_diagn(i) = magu
+       ti_diagn(i) = ti
+       q_diagn(i) = q
     end do
-
-    ! Print diagnostics
-    call neko_log%section('Wall model diagnostics')
-    write(log_buf, '(A,E15.7)') 'mean min max'
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Ri_b: ', &
-         glsum(Ri_b_diagn, n_nodes) / n_nodes, &
-         glmin(Ri_b_diagn, n_nodes), glmax(Ri_b_diagn, n_nodes)
-    call neko_log%message(trim(log_buf))
-    call neko_log%end_section()
-
   end subroutine most_compute_cpu
 
 !> Similarity laws and corrections for the STABLE regime:
