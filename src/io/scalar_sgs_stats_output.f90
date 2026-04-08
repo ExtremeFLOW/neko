@@ -41,6 +41,7 @@ module scalar_sgs_stats_output
   use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use matrix, only : matrix_t
+  use fld_file, only : fld_file_t
   implicit none
   private
 
@@ -117,6 +118,13 @@ contains
     end if
 
     call this%init_base(fname)
+    select type (ft => this%file_%file_type)
+    type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
+    end select
+
     this%stats => stats
     this%T_begin = T_begin
   end subroutine scalar_sgs_stats_output_init
