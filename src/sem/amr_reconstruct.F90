@@ -44,6 +44,11 @@ module amr_reconstruct
   implicit none
   private
 
+  ! refinement/coarsening flags shared with C code
+#include "sem/amr.h"
+  integer, public, parameter :: amr_flg_none = AMR_RM_NONE, &
+       amr_flg_h_ref = AMR_RM_H_REF, amr_flg_h_crs = AMR_RM_H_CRS
+
   !> Type for field reconstruction for given lx
   type :: amr_reconstruct_lx_t
      !> Initialisation flag

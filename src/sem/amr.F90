@@ -51,6 +51,8 @@ module amr
   implicit none
   private
 
+#include "sem/amr.h"
+
   !> Component entrance
   type, public :: amr_component_pointer_t
      class(amr_restart_component_t), pointer :: cmp
@@ -280,7 +282,7 @@ contains
 
     ! get refinement information
     allocate(ref_mark(nelt))
-    ref_mark(:) = 0
+    ref_mark(:) = AMR_RM_NONE
     ifrefine = .false.
     call user%amr_refine_flag(time, ref_mark, ifrefine)
 

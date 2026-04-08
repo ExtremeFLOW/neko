@@ -52,7 +52,7 @@
 #include "mesh/mesh_manager/p8est_lnodes_edge.h"
 #endif
 
-#include "mesh/mesh_manager/amr.h"
+#include "sem/amr.h"
 #include "mesh/mesh_manager/p4est_wrapper.h"
 
 /* Global variables

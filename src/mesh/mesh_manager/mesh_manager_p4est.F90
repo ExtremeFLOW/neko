@@ -68,7 +68,7 @@ module mesh_manager_p4est
 #define P4_TO_P8
 #endif
   ! refinement flag definition
-#include "mesh/mesh_manager/amr.h"
+#include "sem/amr.h"
 
   !> p4est mesh manager
   type, public, extends(mesh_manager_t) :: mesh_manager_p4est_t

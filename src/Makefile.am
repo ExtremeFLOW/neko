@@ -42,9 +42,9 @@ neko_fortran_SOURCES = \
 	sem/coef.f90\
 	sem/cpr.f90\
 	sem/amr_interpolate.f90\
-	sem/amr_reconstruct.f90\
+	sem/amr_reconstruct.F90\
 	sem/amr_restart_component.f90\
-	sem/amr.f90\
+	sem/amr.F90\
 	common/time_interpolator.f90\
 	sem/interpolation.f90\
 	sem/point_interpolator.f90\
@@ -873,14 +873,14 @@ EXTRA_DIST = \
 	device/cuda/check.h\
 	comm/comm_nccl.h\
 	comm/comm.h\
-	common/neko_log.h
+	common/neko_log.h\
+	sem/amr.h
 
 
 if ENABLE_P4EST
 EXTRA_DIST += \
 	mesh/mesh_manager/p4est_wrapper.h\
-	mesh/mesh_manager/p8est_lnodes_edge.h\
-	mesh/mesh_manager/amr.h
+	mesh/mesh_manager/p8est_lnodes_edge.h
 endif
 
 # Expose the listed headers in the package
