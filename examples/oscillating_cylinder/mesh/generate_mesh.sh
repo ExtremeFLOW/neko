@@ -1,15 +1,24 @@
 #!/bin/bash
 
-gmsh cylinder.geo -
+# Set the paths to your executables here
 
-gmsh2nek <<EOF
+GMSH_PATH="/Gmsh-Path/bin/gmsh"
+GMSH2NEK_PATH="/Neko-Path/contrib/gmsh2nek/gmsh2nek"
+REA2NBIN_PATH="/Neko-Path/bin/rea2nbin"
+
+"$GMSH_PATH" cylinder.geo -
+
+"$GMSH2NEK_PATH" <<EOF
 3
 3D_ext_cyl
-0
 1
 3 4
-cylinder
+0.0 0.0 -0.50
+3D_ext_cyl
 EOF
 
-rea2nbin cylinder.re2 oscillating_cylinder.nmsh
+"$REA2NBIN_PATH" 3D_ext_cyl.re2 oscillating_cylinder.nmsh
 cp oscillating_cylinder.nmsh ../
+
+echo "Process completed successfully."
+

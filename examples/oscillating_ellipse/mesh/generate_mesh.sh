@@ -1,15 +1,23 @@
 #!/bin/bash
 
-gmsh ellipse.geo -
+# Set the paths to your executables here
 
-gmsh2nek <<EOF
+GMSH_PATH="/Gmsh-Path/bin/gmsh"
+GMSH2NEK_PATH="/Neko-Path/contrib/gmsh2nek/gmsh2nek"
+REA2NBIN_PATH="/Neko-Path/bin/rea2nbin"
+
+"$GMSH_PATH" ellipse.geo -
+
+"$GMSH2NEK_PATH" <<EOF
 3
 inclined_ellipse_3D
-0
 1
 6 7
-ellipse
+0.0 0.0 0.50
+inclined_ellipse_3D
 EOF
 
-rea2nbin ellipse.re2 oscillating_ellipse.nmsh
+"$REA2NBIN_PATH" inclined_ellipse_3D.re2 oscillating_ellipse.nmsh
 cp oscillating_ellipse.nmsh ../
+
+echo "Process completed successfully."
