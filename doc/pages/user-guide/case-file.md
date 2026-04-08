@@ -1263,7 +1263,7 @@ If the body undergoes rotational motion, the `"rotation"` sub-object can be conf
 | :--- | :--- | :--- | :--- |
 | `rotation.type` | The type of rotational kinematics applied | `"harmonic"`, `"ramp"`, `"smooth_step"` | - |
 | `rotation.amplitude_deg` | Rotational amplitude in **degrees** <i>(only for </i>`harmonic`<i>)</i> | Array of 3 reals | - |
-| `rotation.freq` | Rotational frequency <i>(only for </i>`harmonic`<i>)</i> | Array of 3 reals | - |
+| `rotation.frequency` | Rotational frequency <i>(only for </i>`harmonic`<i>)</i> | Array of 3 reals | - |
 | `rotation.ramp_omega0` | Target angular velocity <i>(only for </i>`ramp`<i>)</i> | Array of 3 reals | - |
 | `rotation.ramp_t0` | Time constant for the ramp <i>(only for </i>`ramp`<i>)</i> | Array of 3 reals | - |
 | `rotation.axis` | Axis of rotation <i>(only for </i>`smooth_step`<i>)</i> | `1` (x), `2` (y), `3` (z) | `3` |
@@ -1284,7 +1284,7 @@ Applies a simple harmonic oscillation to the angular velocity and position for e
  \theta_i(t) &=& A_{rad,i} \sin(2\pi f_i t),
 \f}
 
-where \f$ A_{rad,i} \f$ is the `amplitude_deg` converted to radians, and \f$ f_i \f$ is the `freq`.
+where \f$ A_{rad,i} \f$ is the `amplitude_deg` converted to radians, and \f$ f_i \f$ is the `frequency`.
 
 **2. Ramp Rotation** (`"ramp"`)
 Gradually ramps up the angular velocity to a target value for each axis \f$ i \in \{x, y, z\} \f$:

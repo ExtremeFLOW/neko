@@ -394,7 +394,7 @@ contains
                      expected_size = 3)
                 this%config%bodies(i)%rot_amp_degree = tmp_vec
 
-                call json_get(body_sub, 'rotation.freq', tmp_vec, &
+                call json_get(body_sub, 'rotation.frequency', tmp_vec, &
                      expected_size = 3)
                 this%config%bodies(i)%rot_freq = tmp_vec
 

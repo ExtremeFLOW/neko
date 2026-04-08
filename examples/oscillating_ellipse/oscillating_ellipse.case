@@ -45,7 +45,8 @@
           "preconditioner": { "type": "jacobi" },
           "absolute_tolerance": 1.0e-10,
           "max_iterations": 10000,
-          "output_base_shape": true
+          "output_base_shape": true,
+          "monitor": true
         },
         "mesh_preview": {
           "enabled": false,
@@ -55,7 +56,6 @@
           "dt": 0.001
         },
         "bodies": [
-
           {
             "name": "ellipse",
             "zone_indices": [1],
@@ -65,15 +65,15 @@
               "frequency":[0.1, 0.2, 0.0]
                        },
 
-              "pivot": {
-                "type": "relative",
-                "value": [0.0, 0.0, 0.0]
-                        },
+            "pivot": {
+              "type": "relative",
+              "value": [0.0, 0.0, 0.0]
+                      },
 
             "rotation": {
-		"type": "harmonic",
-	        "amplitude_deg": [0.0, 0.0, 10.0],
-                "freq": [0.0, 0.0, 0.1]
+	      "type": "harmonic",
+              "amplitude_deg": [0.0, 0.0, 10.0],
+              "frequency": [0.0, 0.0, 0.1]
                         },
 
             "stiff_geom": {
@@ -97,7 +97,6 @@
       "output_control": "tsteps",
       "output_value": 100
     },
-
 
         "simulation_components":
         [
