@@ -598,7 +598,7 @@ contains
 
        !> Set up output
        call ft%open("w")
-       call ft%set_active_group([character(len=1000) :: "probes"])
+       call ft%set_active_group("probes")
 
        ! Check if the NSteps attribute already exists
        call ft%read_attribute("NSteps", out_int, attr_exist)
@@ -810,7 +810,7 @@ contains
              if (this%append_out) then
 
                 call ft%open("w")
-                call ft%set_active_group([character(len=1000) :: "probes"])
+                call ft%set_active_group("probes")
                 ! Write Nsteps in root
                 out_int = this%output_controller%nexecutions + 1
                 call ft%write_attribute("NSteps", out_int)
@@ -837,13 +837,13 @@ contains
 
                 out_int = this%output_controller%nexecutions + 1
                 ! Set up the name
-                write(group_name, '(A,I0)') "Step_", out_int
+                write(group_name, '(A,I0)') "probes/Step_", out_int
                 call ft%open("w")
-                call ft%set_active_group([character(len=1000) :: "probes"])
+                call ft%set_active_group("probes")
                 ! Write Nsteps in root
                 call ft%write_attribute("NSteps", out_int)
                 ! Write out the data
-                call ft%set_active_group([character(len=1000) :: "probes", trim(group_name)])
+                call ft%set_active_group(trim(group_name))
                 do i = 1, this%n_fields
                    call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
                    this%vec_out%name = trim(this%which_fields(i))

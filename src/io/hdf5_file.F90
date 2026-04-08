@@ -77,7 +77,7 @@ module hdf5_file
      ! Granular methods for dealing with HDF5 files
      procedure :: open => hdf5_file_open
      procedure :: close => hdf5_file_close
-     procedure :: set_active_group => hdf5_file_set_group
+     procedure :: set_active_group => hdf5_file_set_group_from_path
      procedure :: set_precision => hdf5_file_set_precision
      procedure, pass(this) :: write_vector => hdf5_file_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_write_matrix
@@ -788,6 +788,84 @@ contains
 
     this%active_group_id = current_id
   end subroutine hdf5_file_set_group
+  
+  !> Set the active group for HDF5 files from an input string
+  !! @param this The HDF5 file object
+  !! @param An string indicating the path to the group to create or open.
+  subroutine hdf5_file_set_group_from_path(this, group_name_path)
+    class(hdf5_file_t), intent(inout) :: this
+    character(len=*), intent(in), optional :: group_name_path
+    character(len=1000), allocatable :: group_name(:)
+
+    integer(hid_t) :: current_id, group_id
+    integer :: ierr, i, j, num_groups, name_len, group_loc
+    logical :: group_exists
+
+
+    ! Close previous active group if one is open
+    if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. this%file_id) then
+       call h5gclose_f(this%active_group_id, ierr)
+    end if
+    this%active_group_id = -1_hid_t
+
+    ! Start from root location = file
+    current_id = this%file_id
+    ! Return the root directory if no group name is given
+    if (.not. present(group_name_path)) then
+       this%active_group_id = current_id
+       return
+    end if
+
+    ! Split the input string into group names using "/" as a delimiter
+    name_len = len(trim(group_name_path))
+    ! Count how many groups
+    num_groups = 1 ! There is at least one group if this was passed
+    do i = 1, name_len
+      if (group_name_path .eq. "/") then 
+         num_groups = num_groups + 1
+      end if
+    end do
+
+    ! Allocate the group array and populate it
+    allocate(group_name(num_groups))
+    j = 1
+    group_loc = 1
+    do i = 1, name_len
+      if (group_name_path .eq. "/") then
+         group_name(group_loc) = group_name_path(j:i-1)
+         group_loc = group_loc + 1
+         j = i + 1
+      end if
+    end do
+    if (j .ne. name_len) then
+     group_name(group_loc) = group_name_path(j:name_len) 
+    end if
+
+    ! Iterate over the groups in the path
+    do i = 1, num_groups
+       call h5lexists_f(current_id, trim(group_name(i)), group_exists, ierr)
+
+       ! Only create groups if they dont exist and we are in write mode "w"
+       if (group_exists) then
+          call h5gopen_f(current_id, trim(group_name(i)), group_id, ierr)
+       else
+          if (this%mode == "r") then
+             call neko_error("Group " // trim(group_name(i)) // &
+                  " does not exist in file " // trim(file_get_fname(this)))
+          end if
+          call h5gcreate_f(current_id, trim(group_name(i)), group_id, ierr)
+       end if
+
+       ! Close previous location only if it was an opened group, not the file
+       if (i > 1) then
+          call h5gclose_f(current_id, ierr)
+       end if
+
+       current_id = group_id
+    end do
+
+    this%active_group_id = current_id
+  end subroutine hdf5_file_set_group_from_path
 
 
   subroutine hdf5_file_write_dataset(this, data)
