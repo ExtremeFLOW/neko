@@ -158,6 +158,17 @@ module hypre_boomeramg
   end interface
 
   interface
+     integer (c_int) function HYPRE_BoomerAMGSetCycleNumSweeps(solver, num_sweeps, k) &
+          bind(c, name='HYPRE_BoomerAMGSetCycleNumSweeps')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: solver
+       integer(c_int), value :: num_sweeps
+       integer(c_int), value :: k
+     end function HYPRE_BoomerAMGSetCycleNumSweeps
+  end interface
+
+  interface
      integer (c_int) function HYPRE_BoomerAMGSetCycleType(solver, cycle_type) &
           bind(c, name='HYPRE_BoomerAMGSetCycleType')
        use, intrinsic :: iso_c_binding
@@ -226,6 +237,16 @@ module hypre_boomeramg
        type(c_ptr), value :: solver
        integer(c_int), value :: keepTranspose
      end function HYPRE_BoomerAMGSetKeepTranspose
+  end interface
+
+  interface
+     integer (c_int) function HYPRE_BoomerAMGSetChebyOrder(solver, order) &
+          bind(c, name='HYPRE_BoomerAMGSetChebyOrder')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: solver
+       integer(c_int), value :: order
+     end function HYPRE_BoomerAMGSetChebyOrder
   end interface
 
   public :: boomeramg_init, boomeramg_setup, boomeramg_solve, boomeramg_destroy
