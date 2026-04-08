@@ -34,7 +34,8 @@
 !! Maintainer: Timofey Mukha.
 module shear_stress
   use num_types, only : rp
-  use bc, only : mixed_bc_t, BC_TYPES
+  use bc, only : BC_TYPES
+  use mixed_bc, only : mixed_bc_t
   use device_constrain_mixed_bc, only : device_constrain_mixed_bc_zero
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index

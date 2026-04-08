@@ -32,8 +32,9 @@
 !
 !> Vector boundary-condition resolvers.
 module vector_bc_resolver
-  use bc, only : bc_t, mixed_bc_t
+  use bc, only : bc_t
   use bc_list, only : bc_list_t
+  use mixed_bc, only : mixed_bc_t
   use mask, only : mask_t
   use coefs, only : coef_t
   use dofmap, only : dofmap_t

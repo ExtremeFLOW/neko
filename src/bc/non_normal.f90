@@ -33,7 +33,8 @@
 !> Mixed Dirichlet condition constraining the tangential vector components.
 module non_normal
   use json_module, only : json_file
-  use bc, only : BC_TYPES, mixed_bc_t
+  use bc, only : BC_TYPES
+  use mixed_bc, only : mixed_bc_t
   use num_types, only : rp
   use device_constrain_mixed_bc, only : device_constrain_mixed_bc_set_const
   use coefs, only : coef_t

@@ -46,10 +46,9 @@ module bc
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use field, only : field_t
-  use matrix, only : matrix_t
   use gs_ops, only : GS_OP_ADD
-  use math, only : relcmp, cfill_mask, masked_scatter_copy, rzero
-  use device_math, only : device_cfill, device_cfill_mask
+  use math, only : relcmp, rzero
+  use device_math, only : device_cfill
   use utils, only : neko_error, neko_warning, linear_index, split_string
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
@@ -57,10 +56,6 @@ module bc
   use time_state, only : time_state_t
   use field, only : field_t
   use file, only : file_t
-  use field_list, only : field_list_t
-  use fld_file, only : fld_file_t
-  use scratch_registry, only : neko_scratch_registry
-  use field_math, only : field_rzero
 
   implicit none
   private
@@ -156,23 +151,6 @@ module bc
      !> Deferred finalizer.
      procedure(bc_finalize), pass(this), deferred :: finalize
   end type bc_t
-
-  !> Base type for mixed boundary conditions that need resolver-provided
-  !! local-basis data on the physical field.
-  type, public, abstract, extends(bc_t) :: mixed_bc_t
-     !> Resolved subset of local dofs where this mixed bc remains active after
-     !! global boundary-condition resolution.
-     type(mask_t) :: resolved_msk
-     !> Local basis vectors on resolved_msk.
-     type(matrix_t) :: n
-     type(matrix_t) :: t1
-     type(matrix_t) :: t2
-   contains
-     !> Destructor for mixed-bc-specific resolved state.
-     procedure, pass(this) :: free_mixed => mixed_bc_free
-     !> Write debug fields for the resolved support and normals.
-     procedure, pass(this) :: debug_output => mixed_bc_debug_output
-  end type mixed_bc_t
 
   !> Pointer to a @ref `bc_t`.
   type, public :: bc_ptr_t
@@ -350,17 +328,6 @@ contains
     end if
 
   end subroutine bc_free_base
-
-  !> Destructor for the mixed-bc extension state.
-  subroutine mixed_bc_free(this)
-    class(mixed_bc_t), intent(inout) :: this
-
-    call this%free_base()
-    call this%resolved_msk%free()
-    call this%n%free()
-    call this%t1%free()
-    call this%t2%free()
-  end subroutine mixed_bc_free
 
   !> Apply the boundary condition to a vector field. Dispatches to the CPU
   !! or the device version.
@@ -707,72 +674,4 @@ contains
 
   end subroutine bc_debug_mask
 
-  !> Write debug fields for a mixed bc.
-  !! @details Writes one field list with the resolved mask marked by `1`
-  !! and the three components of the resolved normals.
-  !! @param[in] field_name Base name for the output files.
-  subroutine mixed_bc_debug_output(this, field_name)
-    class(mixed_bc_t), intent(inout) :: this
-    character(len=*), intent(in), optional :: field_name
-    type(field_t), pointer :: mask_field, nx_field, ny_field, nz_field
-    type(field_list_t) :: debug_fields
-    type(fld_file_t) :: dump_file
-    integer :: scratch_idx(4)
-    character(len=:), allocatable :: field_name_
-
-    if (present(field_name)) then
-       field_name_ = trim(field_name)
-    else if (allocated(this%name) .and. len_trim(this%name) .gt. 0) then
-       field_name_ = trim(this%name)
-    else
-       field_name_ = 'mixed_bc'
-    end if
-
-    call neko_scratch_registry%request_field(mask_field, scratch_idx(1), .true.)
-    call neko_scratch_registry%request_field(nx_field, scratch_idx(2), .true.)
-    call neko_scratch_registry%request_field(ny_field, scratch_idx(3), .true.)
-    call neko_scratch_registry%request_field(nz_field, scratch_idx(4), .true.)
-
-    call field_rzero(mask_field)
-    call field_rzero(nx_field)
-    call field_rzero(ny_field)
-    call field_rzero(nz_field)
-
-    if (this%resolved_msk%is_set()) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_cfill_mask(mask_field%x_d, 1.0_rp, mask_field%size(), &
-               this%resolved_msk%get_d(), this%resolved_msk%size())
-          call mask_field%copy_from(DEVICE_TO_HOST, .true.)
-       else
-          call cfill_mask(mask_field%x, 1.0_rp, mask_field%size(), &
-               this%resolved_msk%get(), this%resolved_msk%size())
-       end if
-
-       if (this%n%size() .gt. 0) then
-          call this%n%copy_from(DEVICE_TO_HOST, .true.)
-
-          call masked_scatter_copy(nx_field%x(:,1,1,1), this%n%x(1,:), &
-               this%resolved_msk%get(), nx_field%size(), &
-               this%resolved_msk%size())
-          call masked_scatter_copy(ny_field%x(:,1,1,1), this%n%x(2,:), &
-               this%resolved_msk%get(), ny_field%size(), &
-               this%resolved_msk%size())
-          call masked_scatter_copy(nz_field%x(:,1,1,1), this%n%x(3,:), &
-               this%resolved_msk%get(), nz_field%size(), &
-               this%resolved_msk%size())
-       end if
-    end if
-
-    call debug_fields%init(4)
-    call debug_fields%assign(1, mask_field)
-    call debug_fields%assign(2, nx_field)
-    call debug_fields%assign(3, ny_field)
-    call debug_fields%assign(4, nz_field)
-
-    call dump_file%init(field_name_ // '.fld')
-    call dump_file%write(debug_fields)
-    call debug_fields%free()
-
-    call neko_scratch_registry%relinquish_field(scratch_idx)
-  end subroutine mixed_bc_debug_output
 end module bc

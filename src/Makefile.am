@@ -178,6 +178,7 @@ neko_fortran_SOURCES = \
 	bc/scalar_bc_resolver.f90\
 	bc/vector_bc_resolver.f90\
 	bc/bc.f90\
+	bc/mixed_bc.f90\
 	bc/bc_list.f90\
 	bc/dirichlet.f90\
 	bc/neumann.f90\

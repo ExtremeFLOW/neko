@@ -33,7 +33,8 @@
 !> Generic mixed Dirichlet-Neumann symmetry plane condition.
 module symmetry
   use num_types, only : rp
-  use bc, only : mixed_bc_t, BC_TYPES
+  use bc, only : BC_TYPES
+  use mixed_bc, only : mixed_bc_t
   use device_constrain_mixed_bc, only : device_constrain_mixed_bc_zero
   use coefs, only : coef_t
   use json_module, only : json_file
