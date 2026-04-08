@@ -1133,6 +1133,7 @@ To run an ALE simulation, the framework must be set up as follows:
 * **Body Registration:** There must be a strict mapping between moving boundaries and ALE bodies:
   * Any `"no_slip"` boundary marked as `"moving": true` **must** be registered as an ALE body under the `"bodies"` object.
   * Conversely, any boundary registered as an ALE body **must** be defined as a `"no_slip"` boundary with `"moving": true`.
+  * A single boundary zone can only be assigned to a maximum of one ALE body.
   * If any of these rules are violated, Neko will not start the simulation loop and will print an informative error message.
 
 In the following, the main blocks of `"ale"` object are explained.
@@ -1232,7 +1233,7 @@ Each individual body object accepts the following general keywords and base kine
 
 @attention The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
 
-@note Although `bodies.zone_indices` accepts an array of integers, it is strongly recommended to register each moving boundary as a separate ALE body if multiple moving boundaries are present in the simulation.
+@note If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
 
 ##### Oscillation
 

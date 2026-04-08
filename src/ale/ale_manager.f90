@@ -178,7 +178,7 @@ contains
     integer :: n_moving_zones
     integer :: z, tmp_int, ksp_max_iter
     integer, allocatable :: moving_zone_ids(:)
-    integer :: i, j, n_bcs, n, n_bodies
+    integer :: i, j, k, n_bcs, n, n_bodies
     real(kind=rp), allocatable :: tmp_vec(:)
     real(kind=rp) :: tmp_val, abstol
     character(len=128) :: log_buf
@@ -736,6 +736,29 @@ contains
                    "but the BC is not no_slip with moving: true."
                 call neko_error(trim(log_buf_l))
              end if
+          end do
+       end if
+    end do
+
+    ! Check no zone ID is assigned to more than one ALE body.
+    do j = 1, this%config%nbodies
+       if (allocated(this%config%bodies(j)%zone_indices)) then
+          do i = 1, size(this%config%bodies(j)%zone_indices)
+             z = this%config%bodies(j)%zone_indices(i)
+
+             do k = j + 1, this%config%nbodies
+                if (allocated(this%config%bodies(k)%zone_indices)) then
+                   if (any(this%config%bodies(k)%zone_indices == z)) then
+                      write(log_buf_l, '(A,I0,A,A,A,A,A)') &
+                           "ALE: zone index ", z, &
+                           " is assigned to multiple bodies ('", &
+                           trim(this%config%bodies(j)%name), "' and '", &
+                           trim(this%config%bodies(k)%name), "')."
+                      call neko_error(trim(log_buf_l))
+                   end if
+                end if
+             end do
+
           end do
        end if
     end do
