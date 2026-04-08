@@ -12,6 +12,7 @@ var dofmap_8f90 =
     [ "dofmap_number_faces", "d3/d71/dofmap_8f90.html#ae20a989ae35a240199117fd84e0b1615", null ],
     [ "dofmap_number_points", "d3/d71/dofmap_8f90.html#ac44b210b1453c5a79aaafeca1b41bb39", null ],
     [ "dofmap_size", "d3/d71/dofmap_8f90.html#ad46cb05c1d6d66575710bcc14f96a00c", null ],
+    [ "dofmap_subset_by_mask", "d3/d71/dofmap_8f90.html#a929a67b52e819fcc73a0a4ad6e8e631d", null ],
     [ "dofmap_xyzlin", "d3/d71/dofmap_8f90.html#a971e44364f26c18dcc5aeaa06ab7d50d", null ],
     [ "dofmap_xyzquad", "d3/d71/dofmap_8f90.html#adb78d2dd3cc039858605775479de13ca", null ],
     [ "gh_face_extend_2d", "d3/d71/dofmap_8f90.html#a1036efd4469d06921a6eacca861cad39", null ],

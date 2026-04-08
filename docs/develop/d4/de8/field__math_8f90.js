@@ -29,6 +29,7 @@ var field__math_8f90 =
     [ "field_invcol1", "d4/de8/field__math_8f90.html#a2f1bfc4eecdf82bcbff85a9e93780f48", null ],
     [ "field_invcol2", "d4/de8/field__math_8f90.html#a12f1479ed1ea155ca55ec23c2ddc997b", null ],
     [ "field_invcol3", "d4/de8/field__math_8f90.html#a824ad7301f69975233a67c12ba5d2398", null ],
+    [ "field_masked_gather_copy", "d4/de8/field__math_8f90.html#a50bd16112741cd8862376d6b844db998", null ],
     [ "field_masked_gather_copy_0", "d4/de8/field__math_8f90.html#af7251846973bd60c4cd510a41c0939bd", null ],
     [ "field_masked_scatter_copy_0", "d4/de8/field__math_8f90.html#af057757f2838f6f4d061543b9b561094", null ],
     [ "field_pwmax2", "d4/de8/field__math_8f90.html#a978fc2b6f0ad5b6c281a17a8db6a3c15", null ],
