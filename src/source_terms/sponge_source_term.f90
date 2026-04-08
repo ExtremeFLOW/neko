@@ -532,7 +532,6 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
 !    character(len=LOG_SIZE) :: log_buf
-    integer :: il
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return

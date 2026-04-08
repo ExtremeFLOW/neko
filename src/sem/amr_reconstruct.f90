@@ -482,8 +482,6 @@ contains
     real(rp), dimension(:, :, :, :), allocatable, intent(inout) :: vec
     integer, intent(in) :: lx
     type(c_ptr), optional, intent(inout) :: vec_d
-    integer :: il, jl, itmp
-    integer, dimension(3) :: ch_pos
 
     if (lx .lt. 2 .or. lx .gt. this%int_lx) &
          call neko_error('Polynomial order outside the assumed range')

@@ -371,7 +371,7 @@ contains
     integer, intent(out) :: nold, nnew, nref, ncrs, nchildren, nrcv, nsnd
     integer, dimension(:, :), allocatable, intent(inout) :: rmap, cmap
     logical, intent(out) :: ifchange
-    integer :: il, jl, kl, ml, ll, itmp1, itmp2, ierr, iref, icrs, cmmsame, &
+    integer :: il, jl, kl, ml, itmp1, itmp2, ierr, iref, icrs, cmmsame, &
          cmmref, cmmcrs
     integer, dimension(:, :), allocatable :: cmapl, cmmapl
     integer, dimension(:), allocatable :: bnd

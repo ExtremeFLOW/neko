@@ -1446,7 +1446,7 @@ contains
     integer, dimension(nkey), intent(in)  :: key
 
     ! local variables
-    integer :: il, jl, kl, ll, ir, ii
+    integer :: il, jl, ll, ir, ii
 
     do concurrent(il = 1: nn)
        ind(il) = il
@@ -1533,7 +1533,7 @@ contains
     integer, dimension(nkey), intent(in)  :: key
 
     ! local variables
-    integer :: il, jl, kl, ll, ir, ii
+    integer :: il, jl, ll, ir, ii
 
     do concurrent(il = 1: nn)
        ind(il) = il

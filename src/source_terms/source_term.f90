@@ -252,8 +252,6 @@ contains
     class(source_term_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
-!    character(len=LOG_SIZE) :: log_buf
-    integer :: il
 
     ! No counter checking
 

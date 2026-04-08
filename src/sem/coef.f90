@@ -179,7 +179,6 @@ contains
     class(coef_t), intent(inout) :: this
     type(space_t), intent(inout), target :: Xh
     type(mesh_t), intent(inout), target :: msh
-    integer :: n
     call this%free()
     this%msh => msh
     this%Xh => Xh
@@ -240,7 +239,6 @@ contains
   subroutine coef_init_all(this, gs_h)
     class(coef_t), intent(inout) :: this
     type(gs_t), intent(inout), target :: gs_h
-    integer :: n
 
     call this%free()
 

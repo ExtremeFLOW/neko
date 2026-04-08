@@ -432,7 +432,7 @@ contains
          nsvrt_dof, nsfcs_dof, nsedg_dof, nlfcs_ncon, nsfcs_ncon, &
          nlfcs_ncon_dof, nsfcs_ncon_dof
     integer, dimension(:), allocatable :: vrt_mult, fcs_mult, edg_mult, &
-         fcs_mult_glb, vrt_shr, fcs_shr, edg_shr, vrt_loc, fcs_loc, edg_loc, ind
+         fcs_mult_glb, vrt_shr, fcs_shr, edg_shr, vrt_loc, fcs_loc, edg_loc
     integer :: il ,jl, kl, ll, ml, id
     integer, allocatable, dimension(:, :) :: ngh_src, ngh_dst
     integer, parameter :: lda1 = 2 ! tuple length
@@ -533,7 +533,7 @@ contains
            vrt_mult, edg_mult, fcs_mult, vrt_loc, edg_loc, fcs_loc, vrt%lmap, &
            vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, fcs%lmap, &
            fcs%lmapoff, fcs%algn, gs%local_blk_len, gs%local_blk_off, &
-           gs%local_dof_gs, gs%local_gs_dof, gs%nlocal, gs%nlocal_blks, &
+           gs%local_dof_gs, gs%local_gs_dof, gs%nlocal_blks, &
            gs%local_facet_offset)
 
       ! shared
@@ -546,7 +546,7 @@ contains
               fcs_shr, vrt%lmap, vrt%lmapoff, edg%lmap, edg%lmapoff, edg%algn, &
               fcs%lmap, fcs%lmapoff, fcs%algn, gs%shared_blk_len, &
               gs%shared_blk_off, gs%shared_dof_gs, gs%shared_gs_dof, &
-              gs%nshared, gs%nshared_blks, gs%shared_facet_offset)
+              gs%nshared_blks, gs%shared_facet_offset)
 
          ! sanity check; gs%shared_dof_gs should be sorted inside the sections
          ! 1 : gs%shared_facet_offset - 1, and
@@ -783,14 +783,12 @@ contains
   !! @param[out]   blk_off   block offset
   !! @param[out]   mdg       dof to gs mapping
   !! @param[out]   mgd       gs to dof mapping
-  !! @param[in]    ndof      number of dof
   !! @param[in]    nblks     number of blocks
   !! @param[in]    cfcs_off  conforming facet offset
   subroutine gs_fill_arrays(lx, nvrt, nedg, nfcs, nfcsn, vrt_mult, edg_mult, &
        fcs_mult, vrt, edg, fcs, vrt_map, vrt_off, edg_map, edg_off, edg_algn, &
-       fcs_map, fcs_off, fcs_algn, blk_len, blk_off, mdg, mgd, ndof, nblks, &
-       cfcs_off)
-    integer, intent(in) :: lx, nvrt, nedg, nfcs, nfcsn, ndof, nblks, cfcs_off
+       fcs_map, fcs_off, fcs_algn, blk_len, blk_off, mdg, mgd, nblks, cfcs_off)
+    integer, intent(in) :: lx, nvrt, nedg, nfcs, nfcsn, nblks, cfcs_off
     integer, dimension(:), intent(in) :: vrt_mult, edg_mult, fcs_mult, &
          vrt, edg, fcs, vrt_off, edg_off, fcs_off
     integer, dimension(:, :), intent(in) :: vrt_map, edg_map, edg_algn, &

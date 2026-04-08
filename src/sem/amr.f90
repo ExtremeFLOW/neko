@@ -110,7 +110,6 @@ contains
   !> Free amr type
   subroutine amr_free(this)
     class(amr_t), intent(inout) :: this
-    integer :: il
 
     call this%reconstruct%free()
     if (allocated(this%components)) deallocate(this%components)
@@ -176,7 +175,7 @@ contains
     class(amr_t), intent(inout) :: this
     class(amr_restart_component_t), target, intent(inout) :: component
     class(amr_component_pointer_t), allocatable, dimension(:) :: tmp
-    integer :: il, itmp
+    integer :: il
 
     if (component%listed) then
        if (allocated(this%components)) then
