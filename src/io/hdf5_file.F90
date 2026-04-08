@@ -77,7 +77,7 @@ module hdf5_file
      ! Granular methods for dealing with HDF5 files
      procedure :: open => hdf5_file_open
      procedure :: close => hdf5_file_close
-     procedure :: set_active_group => hdf5_file_set_group_from_path
+     procedure :: set_active_group => hdf5_file_set_group
      procedure :: set_precision => hdf5_file_set_precision
      procedure, pass(this) :: write_vector => hdf5_file_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_write_matrix
@@ -735,64 +735,11 @@ contains
 
   end subroutine hdf5_file_close
 
-  !> Set the active group for HDF5 files
-  !! @param this The HDF5 file object
-  !! @param An array of strings that show the path to the group to create or open.
-  subroutine hdf5_file_set_group(this, group_name)
-    class(hdf5_file_t), intent(inout) :: this
-    character(len=*), intent(in), optional :: group_name(:)
-
-    integer(hid_t) :: current_id, group_id
-    integer :: ierr, i, num_groups
-    logical :: group_exists
-
-
-    ! Close previous active group if one is open
-    if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. this%file_id) then
-       call h5gclose_f(this%active_group_id, ierr)
-    end if
-    this%active_group_id = -1_hid_t
-
-    ! Start from root location = file
-    current_id = this%file_id
-    ! Return the root directory if no group name is given
-    if (.not. present(group_name)) then
-       this%active_group_id = current_id
-       return
-    end if
-
-    ! Iterate through the group names
-    num_groups = size(group_name)
-
-    do i = 1, num_groups
-       call h5lexists_f(current_id, trim(group_name(i)), group_exists, ierr)
-
-       ! Only create groups if they dont exist and we are in write mode "w"
-       if (group_exists) then
-          call h5gopen_f(current_id, trim(group_name(i)), group_id, ierr)
-       else
-          if (this%mode == "r") then
-             call neko_error("Group " // trim(group_name(i)) // &
-                  " does not exist in file " // trim(file_get_fname(this)))
-          end if
-          call h5gcreate_f(current_id, trim(group_name(i)), group_id, ierr)
-       end if
-
-       ! Close previous location only if it was an opened group, not the file
-       if (i > 1) then
-          call h5gclose_f(current_id, ierr)
-       end if
-
-       current_id = group_id
-    end do
-
-    this%active_group_id = current_id
-  end subroutine hdf5_file_set_group
-  
+ 
   !> Set the active group for HDF5 files from an input string
   !! @param this The HDF5 file object
   !! @param An string indicating the path to the group to create or open.
-  subroutine hdf5_file_set_group_from_path(this, group_name_path)
+  subroutine hdf5_file_set_group(this, group_name_path)
     class(hdf5_file_t), intent(inout) :: this
     character(len=*), intent(in), optional :: group_name_path
     character(len=1000), allocatable :: group_name(:)
@@ -865,7 +812,7 @@ contains
     end do
 
     this%active_group_id = current_id
-  end subroutine hdf5_file_set_group_from_path
+  end subroutine hdf5_file_set_group
 
 
   subroutine hdf5_file_write_dataset(this, data)
@@ -1703,9 +1650,9 @@ contains
   end subroutine hdf5_file_close
 
   !> Set the active group for HDF5 files
-  subroutine hdf5_file_set_group(this, group_name)
+  subroutine hdf5_file_set_group(this, group_name_path)
     class(hdf5_file_t), intent(inout) :: this
-    character(len=*), intent(in), optional :: group_name(:)
+    character(len=*), intent(in), optional :: group_name_path
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_set_group
 
