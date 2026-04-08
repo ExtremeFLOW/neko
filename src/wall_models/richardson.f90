@@ -47,6 +47,8 @@ module richardson
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error, neko_warning
   use logger, only : LOG_SIZE, neko_log
+  use vector, only : vector_t
+  use vector_math, only : vector_glsum, vector_glmin, vector_glmax
   implicit none
   private
 
@@ -74,6 +76,8 @@ module richardson
      real(kind=rp) :: bc_value
      !> The name of the temperature variable
      character(len=:), allocatable :: scalar_name
+     !> Diagnostics
+     type(vector_t) :: Ri_b, L_ob, utau, magu, ti, q
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => richardson_init
@@ -212,6 +216,13 @@ contains
 
     call this%finalize_base(msk, facet)
 
+    call this%Ri_b%init(this%n_nodes)
+    call this%L_ob%init(this%n_nodes)
+    call this%utau%init(this%n_nodes)
+    call this%magu%init(this%n_nodes)
+    call this%ti%init(this%n_nodes)
+    call this%q%init(this%n_nodes)
+
   end subroutine richardson_finalize
 
   !> Constructor from components.
@@ -300,6 +311,13 @@ contains
 
     call this%free_base()
 
+    call this%Ri_b%free()
+    call this%L_ob%free()
+    call this%utau%free()
+    call this%magu%free()
+    call this%ti%free()
+    call this%q%free()
+
   end subroutine richardson_free
 
   !> Compute the wall shear stress.
@@ -325,13 +343,18 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, this%bc_value, tstep)
+            this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, &
+            this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
+            this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
+            this%q%x_d)
     else
        call richardson_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, this%bc_value, tstep)
+            this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, &
+            this%bc_type, this%bc_value, tstep, this%Ri_b%x, this%L_ob%x, &
+            this%utau%x, this%magu%x, this%ti%x, this%q%x)
     end if
 
   end subroutine richardson_compute

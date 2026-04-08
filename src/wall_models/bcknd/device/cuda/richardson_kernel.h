@@ -92,7 +92,7 @@ __device__ T tau_convective(T magu, T Ri_b, T h, T z0, T kappa)
     T a = kappa / log(h / z0);
     T b = 2.0;
     T c = 7.4 * (a * a) * b * sqrt(h / z0);
-    
+
     return (a * a) * (magu * magu) * f_tau_convective<T>(Ri_b, c);
 }
 
@@ -102,7 +102,7 @@ __device__ T heat_flux_convective(T ti, T ts, T Ri_b, T h, T magu, T z0h, T kapp
     T a = kappa / log(h / z0h);
     T b = 2.0;
     T c = 5.3 * (a * a) * b * sqrt(h / z0h);
-    
+
     return -(a * a) / 0.74 * magu * (ti - ts) * f_theta_convective<T>(Ri_b, c);
 }
 
@@ -124,37 +124,43 @@ __device__ T heat_flux_neutral(T ti, T ts, T h, T z0h, T utau, T kappa)
 }
 
 /*
- * CUDA kernel for the Richardson wall model.   
+ * CUDA kernel for the Richardson wall model.
  */
-template<typename T, int BC_TYPE>  
+template<typename T, int BC_TYPE>
 __global__ void richardson_compute(
-    const T* __restrict__ u_d,     
+    const T* __restrict__ u_d,
     const T* __restrict__ v_d,
     const T* __restrict__ w_d,
     const T* __restrict__ temp_d,
-    const T* __restrict__ h_d,     
-    const T* __restrict__ n_x_d,  
+    const T* __restrict__ h_d,
+    const T* __restrict__ n_x_d,
     const T* __restrict__ n_y_d,
     const T* __restrict__ n_z_d,
     const int* __restrict__ ind_r_d,
     const int* __restrict__ ind_s_d,
     const int* __restrict__ ind_t_d,
     const int* __restrict__ ind_e_d,
-    T* __restrict__ tau_x_d,       
+    T* __restrict__ tau_x_d,
     T* __restrict__ tau_y_d,
     T* __restrict__ tau_z_d,
     int n_nodes,
-    int lx,                     
+    int lx,
     T kappa,
     T mu,
-    T rho, 
+    T rho,
     T g1,
     T g2,
     T g3,
     T Pr,
     T z0,
     T z0h_in,
-    T bc_value
+    T bc_value,
+    T* __restrict__ Ri_b_diagn,
+    T* __restrict__ L_ob_diagn,
+    T* __restrict__ utau_diagn,
+    T* __restrict__ magu_diagn,
+    T* __restrict__ ti_diagn,
+    T* __restrict__ q_diagn
 ) {
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
@@ -162,7 +168,7 @@ __global__ void richardson_compute(
 
     const T Ri_threshold = 1e-4;
 
-    // Use 64-bit integer to prevent overflow for large polynomial order / element counts        
+    // Use 64-bit integer to prevent overflow for large polynomial order / element counts
     for (int i = idx; i < n_nodes; i += str) {
         const int index = (ind_e_d[i] - 1) * lx * lx * lx +
                           (ind_t_d[i] - 1) * lx * lx +
@@ -180,7 +186,7 @@ __global__ void richardson_compute(
         T nx = n_x_d[i];
         T ny = n_y_d[i];
         T nz = n_z_d[i];
-        
+
         // Get the tangential component
         T normu = ui * nx + vi * ny + wi * nz;
         ui -= normu * nx;
@@ -195,9 +201,9 @@ __global__ void richardson_compute(
         // Zilitinkevich 1995 correlation for thermal roughness
         T z0h;
         if (z0h_in < 0.0) {
-            // Note that this uses previous timestep's utau, hence 
+            // Note that this uses previous timestep's utau, hence
             // lags behind by one dt. usually very negligible
-            z0h = z0 * exp(z0h_in * sqrt((utau*z0)/(mu/rho)));  
+            z0h = z0 * exp(z0h_in * sqrt((utau*z0)/(mu/rho)));
         } else {
             z0h = z0h_in;
         }
@@ -233,14 +239,14 @@ __global__ void richardson_compute(
             if constexpr (BC_TYPE == 1) {
                 q = heat_flux_stable<T>(ti, ts, Ri_b, hi, z0h, utau, kappa, Pr);
             }
-        } 
+        }
         else if (Ri_b < -Ri_threshold) { // Convective
             tau_mag = tau_convective<T>(magu, Ri_b, hi, z0, kappa);
             utau = sqrt(tau_mag);
             if constexpr (BC_TYPE == 1) {
                 q = heat_flux_convective<T>(ti, ts, Ri_b, hi, magu, z0h, kappa);
             }
-        } 
+        }
         else { // Neutral
             tau_mag = tau_neutral<T>(magu, hi, z0, kappa);
             utau = sqrt(tau_mag);
@@ -253,10 +259,17 @@ __global__ void richardson_compute(
         tau_x_d[i] = -rho*tau_mag * ui / magu;
         tau_y_d[i] = -rho*tau_mag * vi / magu;
         tau_z_d[i] = -rho*tau_mag * wi / magu;
-        
+
         // Note: L_ob calculation is omitted from the kernel as it is a pure
-        // diagnostic variable and writing it to global memory would require 
+        // diagnostic variable and writing it to global memory would require
         // passing an extra L_ob_d array pointer if GPU diagnostics are needed.
+
+        Ri_b_diagn[i] = Ri_b;
+        L_ob_diagn[i] = 9999;
+        utau_diagn[i] = utau;
+        magu_diagn[i] = magu;
+        ti_diagn[i] = ti;
+        q_diagn[i] = q;
     }
 }
 

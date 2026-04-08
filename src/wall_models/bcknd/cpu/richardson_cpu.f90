@@ -120,7 +120,8 @@ contains
   !! @param tstep The current time-step
   subroutine richardson_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, mu, rho, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep)
+       kappa, mu, rho, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
+       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -138,14 +139,17 @@ contains
     real(kind=rp), parameter :: NR_step = 0.001_rp
     real(kind=rp), parameter :: Ri_threshold = 0.0001_rp
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp), dimension(n_nodes) :: utau, Ri_b, L_ob, magu, q, ti, ts
+    real(kind=rp) :: utau, Ri_b, L_ob, magu, q, ti, ts
+    real(kind=rp), dimension(n_nodes), intent(inout) :: Ri_b_diagn, L_ob_diagn
+    real(kind=rp), dimension(n_nodes), intent(inout) :: utau_diagn, magu_diagn
+    real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, q_diagn
 
     do i=1, n_nodes
        ! Sample the variables
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       ti(i) = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        hi = h(i)
 
        ! Project on horizontal directions
@@ -155,95 +159,64 @@ contains
        wi = wi - normu * n_z(i)
 
        ! Compute velocity magnitude
-       magu(i) = sqrt(ui**2 + vi**2 + wi**2)
-       magu(i) = max(magu(i), 1.0e-6_rp)
-       utau(i) = magu(i)*kappa / log(hi/z0)
+       magu = sqrt(ui**2 + vi**2 + wi**2)
+       magu = max(magu, 1.0e-6_rp)
+       utau = magu*kappa / log(hi/z0)
 
        ! Compute thermal roughness length from Zilitinkevich, 1995
        if (z0h_in < 0) then
           ! z0h_in is interpreted as -C_Zil (Zilitinkevich constant) for z0h
-          z0h = z0 * exp(z0h_in*sqrt((utau(i)*z0)/(mu/rho)))
+          z0h = z0 * exp(z0h_in*sqrt((utau*z0)/(mu/rho)))
        else
           z0h = z0h_in
        end if
 
        ! Get q, ts based on bc_type
        ! Maybe redundant, but needed to initialise Rib
-       call assign_bc_value(bc_type,bc_value,q(i),ts(i),ti(i),kappa,utau(i),z0h,hi)
+       call assign_bc_value(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
 
        ! Compute g along the normal (generalisation for hills and similar)
        g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i))
 
        ! Compute Richardson and set stability accordingly
-       call compute_Ri_b(bc_type, g_dot_n, hi, ti(i), ts(i), magu(i), kappa, q(i), Ri_b(i))
-       call set_stability_regime(Ri_b(i), Ri_threshold)
+       call compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Ri_b)
+       call set_stability_regime(Ri_b, Ri_threshold)
 
        ! Set length scale
        l = kappa * hi
        ! Compute u*
-       utau(i) = sqrt(tau_ptr(magu(i), Ri_b(i), hi, z0, l, kappa))
+       utau = sqrt(tau_ptr(magu, Ri_b, hi, z0, l, kappa))
        select case (bc_type)
        case ("neumann")
           !!! TEMPORARY: neutral log-law approximation
-          ts(i) = ti(i) - (q(i) * Pr * log(hi/z0h)) / (max(utau(i), 1e-6_rp) * kappa)
-          q(i) = q(i)
+          ts = ti - (q * Pr * log(hi/z0h)) / (max(utau, 1e-6_rp) * kappa)
+          q = q
        case ("dirichlet")
           ! Compute q
-          q(i) = heat_flux_ptr(ti(i), ts(i), Ri_b(i), hi, magu(i), z0h, Pr, l, utau(i), kappa)
+          q = heat_flux_ptr(ti, ts, Ri_b, hi, magu, z0h, Pr, l, utau, kappa)
        case default
           call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
        end select
 
        ! Distribute according to the velocity vector and bound magu to avoid 0 division
-       magu(i) = max(magu(i), 1.0e-6_rp)
-       tau_x(i) = -rho*utau(i)**2 * ui / magu(i)
-       tau_y(i) = -rho*utau(i)**2 * vi / magu(i)
-       tau_z(i) = -rho*utau(i)**2 * wi / magu(i)
-       if (abs(Ri_b(i)) <= Ri_threshold) then
+       magu = max(magu, 1.0e-6_rp)
+       tau_x(i) = -rho*utau**2 * ui / magu
+       tau_y(i) = -rho*utau**2 * vi / magu
+       tau_z(i) = -rho*utau**2 * wi / magu
+       if (abs(Ri_b) <= Ri_threshold) then
           ! Neutral (L_ob undefined)
-          L_ob(i) = 1e10_rp
+          L_ob = 1e10_rp
        else
-          L_ob(i) = -(ts(i)*utau(i)**3)/(kappa*g_dot_n*q(i))
+          L_ob = -(ts*utau**3)/(kappa*g_dot_n*q)
        end if
-    end do
 
-    ! Print diagnostics
-    call neko_log%section('Wall model diagnostics')
-    write(log_buf, '(A,E15.7)') 'mean min max'
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Ri_b: ', &
-         glsum(Ri_b, n_nodes) / n_nodes, &
-         glmin(Ri_b, n_nodes), glmax(Ri_b, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'L_ob: ', &
-         glsum(L_ob, n_nodes) / n_nodes, &
-         glmin(L_ob, n_nodes), glmax(L_ob, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'utau: ', &
-         glsum(utau, n_nodes) / n_nodes, &
-         glmin(utau, n_nodes), glmax(utau, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'magu: ', &
-         glsum(magu, n_nodes) / n_nodes, &
-         glmin(magu, n_nodes), glmax(magu, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ti: ', &
-         glsum(ti, n_nodes) / n_nodes, &
-         glmin(ti, n_nodes), glmax(ti, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'q: ', &
-         glsum(q, n_nodes) / n_nodes, &
-         glmin(q, n_nodes), glmax(q, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'ts: ', &
-         glsum(ts, n_nodes) / n_nodes, &
-         glmin(ts, n_nodes), glmax(ts, n_nodes)
-    call neko_log%message(trim(log_buf))
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'hi: ', &
-         glsum(h, n_nodes) / n_nodes, &
-         glmin(h, n_nodes), glmax(h, n_nodes)
-    call neko_log%message(trim(log_buf))
-    call neko_log%end_section()
+       Ri_b_diagn(i) = Ri_b
+       L_ob_diagn(i) = L_ob
+       utau_diagn(i) = utau
+       magu_diagn(i) = magu
+       ti_diagn(i) = ti
+       q_diagn(i) = q
+    end do
 
   end subroutine richardson_compute_cpu
 
