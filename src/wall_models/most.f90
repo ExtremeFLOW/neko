@@ -365,6 +365,7 @@ contains
 
     call neko_log%section("Wall model diagnostics (MOST)")
     write(log_buf, '(A)') 'mean min max'
+    call neko_log%message(trim(log_buf))
     write(log_buf,'(A,3E15.7)') "Ri_b: ",&
     vector_glsum(Ri_b, n_nodes) / n_nodes, &
     vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
