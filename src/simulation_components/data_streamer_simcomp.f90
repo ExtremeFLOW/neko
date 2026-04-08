@@ -35,7 +35,8 @@
 module data_streamer_simcomp
   use num_types, only : rp
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default, json_get, json_get_or_lookup_or_default
+  use json_utils, only : json_get_or_default, json_get, &
+       json_get_or_lookup_or_default
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
   use field, only : field_t
@@ -44,7 +45,7 @@ module data_streamer_simcomp
   use case, only : case_t
   use point_zone, only : point_zone_t
   use time_state, only : time_state_t
-  use data_streamer, only: data_streamer_t
+  use data_streamer, only : data_streamer_t
   use time_based_controller, only : time_based_controller_t
   use device
   implicit none
@@ -52,24 +53,24 @@ module data_streamer_simcomp
 
   type, public, extends(simulation_component_t) :: data_streamer_simcomp_t
 
-      !> Name of the fields to be streamed (must exist in the registry). 
-      character(len=20), allocatable :: field_names(:)
+     !> Name of the fields to be streamed (must exist in the registry).
+     character(len=20), allocatable :: field_names(:)
 
-      !> Time after which to start streaming. 
-      real(kind=rp) :: start_time
+     !> Time after which to start streaming.
+     real(kind=rp) :: start_time
 
-      !> List of fields pointing to the fields to stream
-      type(field_list_t) :: sampled_fields
+     !> List of fields pointing to the fields to stream
+     type(field_list_t) :: sampled_fields
 
-      !> Data streamer instance
-      type(data_streamer_t) :: dstream
+     !> Data streamer instance
+     type(data_streamer_t) :: dstream
 
-      !> Array of fields to be streamed, in case they need to be subsampled by
-      !! point zone.
-      !type(field_array_t) :: subsampled_fields
+     !> Array of fields to be streamed, in case they need to be subsampled by
+     !! point zone.
+     !type(field_array_t) :: subsampled_fields
 
-      !> Point zone to use for subsampling
-      !class(point_zone_t), pointer :: point_zone => null()
+     !> Point zone to use for subsampling
+     !class(point_zone_t), pointer :: point_zone => null()
 
    contains
      !> Constructor from json.
@@ -107,31 +108,31 @@ contains
 
   !> Common part of constructors.
   !! @param name The unique name of the simcomp
-  subroutine data_streamer_simcomp_init_from_components(this, name, which_fields, &
-    start_time)
-      class(data_streamer_simcomp_t), intent(inout) :: this
-      character(len=*), intent(in) :: name
-      character(len=20), intent(in) :: which_fields(:)  
-      real(kind=rp), intent(in) :: start_time
+  subroutine data_streamer_simcomp_init_from_components(this, name, &
+    which_fields, start_time)
+    class(data_streamer_simcomp_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    character(len=20), intent(in) :: which_fields(:)
+    real(kind=rp), intent(in) :: start_time
 
-      this%name = name
-      this%field_names = which_fields
-      this%start_time = start_time
+    this%name = name
+    this%field_names = which_fields
+    this%start_time = start_time
 
-      ! Allocate the field list with the number of fields to sample
-      call this%sampled_fields%init(size(which_fields))
+    ! Allocate the field list with the number of fields to sample
+    call this%sampled_fields%init(size(which_fields))
 
-      ! Assign fields from the registry
-      block
-        integer :: i
-        do i = 1, size(which_fields)
-          call this%sampled_fields%assign_to_field(i, &
+    ! Assign fields from the registry
+    block
+      integer :: i
+      do i = 1, size(which_fields)
+         call this%sampled_fields%assign_to_field(i, &
               neko_registry%get_field(which_fields(i)))
-        end do  
-      end block
+      end do
+    end block
 
-      ! Initialize the data streamer
-      call this%dstream%init(this%case%fluid%c_Xh) 
+    ! Initialize the data streamer
+    call this%dstream%init(this%case%fluid%c_Xh)
 
   end subroutine data_streamer_simcomp_init_from_components
 
@@ -144,7 +145,7 @@ contains
     this%start_time = -1.0_rp
 
     call this%sampled_fields%free()
-    
+
     call this%dstream%free()
 
   end subroutine data_streamer_simcomp_free
@@ -161,8 +162,9 @@ contains
        do i = 1, this%sampled_fields%size()
 
           ! Sync from GPU to CPU
-          call this%sampled_fields%items(i)%ptr%copy_from(DEVICE_TO_HOST, .true.)
-          
+          call this%sampled_fields%items(i)%ptr%copy_from(DEVICE_TO_HOST, &
+          .true.)
+
           call this%dstream%stream(this%sampled_fields%x(i))
        end do
     end if
