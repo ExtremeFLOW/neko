@@ -363,8 +363,8 @@ contains
     type(vector_t), intent(in) :: Ri_b, L_ob, utau
     type(vector_t), intent(in) :: magu, ti, q
 
-    call neko_log%section("Wall model diagnostics (MOST)")
-    write(log_buf, '(A)') 'mean min max'
+    call neko_log%section("Wall model diagnostics")
+    write(log_buf, '(A)') '--- mean min max ---'
     call neko_log%message(trim(log_buf))
     write(log_buf,'(A,3E15.7)') "Ri_b: ",&
     vector_glsum(Ri_b, n_nodes) / n_nodes, &
