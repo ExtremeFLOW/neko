@@ -329,6 +329,39 @@ The `append_output` keyword only works for `hdf5` files.
 It sets the behaviour of the written probes. 
 If `true` they are written in one group and each sample appends its data.
 
+As an example, the file structure for a simulation where we sample "u", "v",
+and "w" is the following when `append_output=false`:
+~~~~~~~~~~~~~~~{.bash}
+/                        Group
+/probes                  Group
+/probes/Step_1           Group
+/probes/Step_1/u         Dataset {200/Inf}
+/probes/Step_1/v         Dataset {200/Inf}
+/probes/Step_1/w         Dataset {200/Inf}
+/probes/Step_2           Group
+/probes/Step_2/u         Dataset {200/Inf}
+/probes/Step_2/v         Dataset {200/Inf}
+/probes/Step_2/w         Dataset {200/Inf}
+/probes/coordinates      Dataset {200/Inf, 3}
+~~~~~~~~~~~~~~~
+
+Note that every sampled field is saved under the `probes/Step_i` group. Where
+`i` is the sample number. In this case, the sampled time is saved as an attribute
+of the `Step_i` group and accessed by the `time` keyword.
+
+The default behaviour is `append_output=true`. This mode behaves as the `.csv`
+output, where each new sample is appended directly under the `probes` group:
+~~~~~~~~~~~~~~~{bash}
+/                        Group
+/probes                  Group
+/probes/coordinates      Dataset {200/Inf, 3}
+/probes/time             Dataset {2/Inf}
+/probes/u                Dataset {400/Inf}
+/probes/v                Dataset {400/Inf}
+/probes/w                Dataset {400/Inf}
+~~~~~~~~~~~~~~~
+
+Note that here the sample time is stored as a dedicated variable.
 ### field_writer {#simcomp_field_writer}
 Outputs registered 3D fields to a file. Requires a list of field names
 in the `fields` keyword. Primarily to be used for outputting new fields defined

@@ -1333,9 +1333,8 @@ contains
        end if
        offset = 0
     end if
-    call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
+    call MPI_Exscan(counts, offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
-    offset = offset - counts ! Not using exclusive scan
 
     ! ===========================
     ! Set up reading the data set
