@@ -40,6 +40,9 @@ module field_writer
   use time_state, only : time_state_t
   use registry, only : neko_registry
   use case, only : case_t
+  use point_zone_registry, only : neko_point_zone_registry
+  use fld_file, only : fld_file_t
+  use point_zone, only : point_zone_t
   use field_output, only : field_output_t
   use json_utils, only : json_get, json_get_or_default
   use time_based_controller, only : time_based_controller_t
@@ -94,6 +97,7 @@ contains
     character(len=:), allocatable :: name
     character(len=:), allocatable :: precision
     character(len=:), allocatable :: format
+    character(len=:), allocatable :: point_zone_name
     character(len=20), allocatable :: fields(:)
     integer :: precision_value
     logical :: subdivide
@@ -119,8 +123,15 @@ contains
     call json_get_or_default(json, "output_subdivide", subdivide, &
          this%default_subdivide)
 
-    call this%init_common(name, fields, filename, precision_value, format, &
+   if (json%valid_path('point_zone')) then
+      call json_get(json, 'point_zone', point_zone_name)
+      call this%init_common(name, fields, filename, precision_value, format, &
+           subdivide, neko_point_zone_registry%get_point_zone(point_zone_name))
+   else
+      call this%init_common(name, fields, filename, precision_value, format, &
          subdivide)
+   end if
+
   end subroutine field_writer_init_from_json
 
   !> Constructor from components, passing controllers.
@@ -141,7 +152,7 @@ contains
   !! sub-cells. Optional, defaults to `.false.`.
   subroutine field_writer_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       fields, filename, precision, format, subdivide)
+       fields, filename, precision, format, subdivide, point_zone)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -154,10 +165,12 @@ contains
     integer, intent(in), optional :: precision
     character(len=20), intent(in), optional :: format
     logical, intent(in), optional :: subdivide
+    class(point_zone_t), intent(inout), optional :: point_zone
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%init_common(name, fields, filename, precision, format, subdivide)
+    call this%init_common(name, fields, filename, precision, format, &
+            subdivide)
 
   end subroutine field_writer_init_from_controllers
 
@@ -184,7 +197,7 @@ contains
   subroutine field_writer_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, fields, filename, &
-       precision, format, subdivide)
+       precision, format, subdivide, point_zone)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -200,11 +213,13 @@ contains
     integer, intent(in), optional :: precision
     character(len=*), intent(in), optional :: format
     logical, intent(in), optional :: subdivide
+    class(point_zone_t), intent(inout), optional :: point_zone
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%init_common(name, fields, filename, precision, format, subdivide)
+    call this%init_common(name, fields, filename, precision, format, &
+            subdivide, point_zone)
 
   end subroutine field_writer_init_from_controllers_properties
 
@@ -220,7 +235,7 @@ contains
   !! @param subdivide Whether to subdivide spectral elements into linear
   !! sub-cells. Optional, defaults to `.false.`.
   subroutine field_writer_init_common(this, name, fields, filename, precision, &
-       format, subdivide)
+       format, subdivide, point_zone)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=20), intent(in) :: fields(:)
@@ -228,6 +243,8 @@ contains
     integer, intent(in), optional :: precision
     character(len=*), intent(in), optional :: format
     logical, intent(in), optional :: subdivide
+    class(point_zone_t), intent(inout), optional :: point_zone
+
     character(len=20) :: fieldi
     logical :: filename_provided
     character(len=120) :: message
@@ -271,6 +288,16 @@ contains
           call this%case%f_out%fluid%append( &
                neko_registry%get_field(fieldi))
        end do
+    end if
+
+    if (present(point_zone)) then
+       select type(ft => this%output%file_%file_type)
+       class is (fld_file_t)
+          call ft%set_mask() ! this frees any preexisting mask in fld_file_t
+          call ft%set_mask(point_zone%mask)
+       class default
+          call neko_error("point_zone can only be used with nek5000/fld file")
+       end select
     end if
 
   end subroutine field_writer_init_common
