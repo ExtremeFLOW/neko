@@ -436,10 +436,11 @@ contains
        write(start_field, "(I5,A7)") this%get_start_counter(), '.adios2'
        open(newunit = file_unit, &
             file = trim(base_fname(1:suffix_pos - 1)) &
-            // trim(adjustl(start_field)), status='replace')
+            // trim(adjustl(start_field)), status = 'replace')
        write(file_unit, fmt = '(A,A,A)') 'filetemplate:         ', &
-            base_fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
-       write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', this%get_start_counter()
+            base_fname(tslash_pos+1:suffix_pos-1), '%01d.%05d.bp'
+       write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', &
+            this%get_start_counter()
        write(file_unit, fmt = '(A,i5)') 'numtimesteps: ', &
             (this%get_counter() + 1) - this%get_start_counter()
        write(file_unit, fmt = '(A)') 'type: adios2-bp'
@@ -479,7 +480,7 @@ contains
        base_fname = this%get_base_fname()
        suffix_pos = filename_suffix_pos(base_fname)
        meta_fname = trim(base_fname(1:suffix_pos-1))
-       call filename_chsuffix(meta_fname, meta_fname,'adios2')
+       call filename_chsuffix(meta_fname, meta_fname, 'adios2')
 
        !> @ todo debug and check if correct strings and filenames are extracted
        inquire(file = trim(meta_fname), exist = meta_file)
@@ -508,13 +509,15 @@ contains
                NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, &
                NEKO_COMM, ierr)
-          if (this%get_counter() .eq. 0) call this%set_counter(data%meta_start_counter)
+          if (this%get_counter() .eq. 0) &
+               call this%set_counter(data%meta_start_counter)
        end if
 
        if (meta_file) then
           write(id_str, '(i5.5,a)') this%get_counter(), '.bp'
           fname = trim(data%fld_series_fname) // '.' // id_str
-          if (this%get_counter() .ge. data%meta_nsamples+data%meta_start_counter) then
+          if (this%get_counter() .ge. data%meta_nsamples + &
+               data%meta_start_counter) then
              call neko_error('Trying to read more bp files than exist')
           end if
        else

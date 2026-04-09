@@ -32,10 +32,10 @@
 !
 !> Implements type data_streamer_t.
 module data_streamer
-  use num_types, only: rp, c_rp
-  use field, only: field_t
-  use coefs, only: coef_t
-  use utils, only: neko_warning
+  use num_types, only : rp, c_rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use utils, only : neko_warning
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_COMM
   use, intrinsic :: iso_c_binding
@@ -167,7 +167,7 @@ contains
        !! const double *zml, const int *if_asynchronous,
        !! const int *comm_int)
        subroutine c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
-                                      comm) bind(C,name="adios2_initialize_")
+            comm) bind(C, name = "adios2_initialize_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
@@ -191,7 +191,7 @@ contains
 
     interface
        !> C-definition is: void adios2_finalize_()
-       subroutine c_adios2_finalize() bind(C,name="adios2_finalize_")
+       subroutine c_adios2_finalize() bind(C, name = "adios2_finalize_")
          use, intrinsic :: ISO_C_BINDING
          implicit none
        end subroutine c_adios2_finalize
@@ -213,7 +213,7 @@ contains
     interface
        !> C-definition is: void adios2_stream_(const double *fld)
        subroutine c_adios2_stream(fld) &
-                                  bind(C,name="adios2_stream_")
+            bind(C, name = "adios2_stream_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
@@ -237,7 +237,7 @@ contains
     interface
        !> C-definition is: void adios2_stream_(const double *fld)
        subroutine c_adios2_recieve(fld) &
-                                  bind(C,name="adios2_recieve_")
+            bind(C, name = "adios2_recieve_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
