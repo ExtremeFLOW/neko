@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Scalar boundary-condition resolver.
+!> Implements `scalar_resolver_t`.
 module scalar_bc_resolver
   use bc, only : bc_t
   use bc_list, only : bc_list_t
@@ -38,7 +38,7 @@ module scalar_bc_resolver
   use field, only : field_t
   use fld_file, only : fld_file_t
   use scratch_registry, only : neko_scratch_registry
-  use math, only : cfill_mask
+  use math, only : cfill_mask, sort
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device, only : device_get_ptr, DEVICE_TO_HOST
@@ -48,20 +48,33 @@ module scalar_bc_resolver
   implicit none
   private
 
+  !> Resolver for scalar boundary conditions.
+  !! @details Collects the constrained scalar degrees of freedom from one or
+  !! more boundary conditions and applies them as a zeroing mask. For the scalar
+  !! case this is it, i.e. there no actual resolution being done. Neumann
+  !! conditions should simply never be marked at all. This type is therefore
+  !! used purely for constraining the dirichlet boundary values to 0 in KSP
+  !! solvers, the residual, etc.
   type, public :: scalar_bc_resolver_t
+     !> Union of constrained scalar degrees of freedom.
      type(mask_t) :: dof_mask
    contains
+     !> Free the scalar boundary-condition resolver.
      procedure, pass(this) :: free => scalar_bc_resolver_free
+     !> Add the constrained dofs from a scalar boundary condition.
      procedure, pass(this) :: mark_bc => scalar_bc_resolver_mark_bc
+     !> Add the constrained dofs from all boundary conditions in a list.
      procedure, pass(this) :: mark_bc_list => scalar_bc_resolver_mark_bc_list
      generic :: mark => mark_bc, mark_bc_list
+     !> Apply the scalar boundary constraints by zeroing constrained dofs.
      procedure, pass(this) :: apply => scalar_bc_resolver_apply
+     !> Write a field showing the resolved scalar BC mask.
      procedure, pass(this) :: debug_output => scalar_bc_resolver_debug_output
   end type scalar_bc_resolver_t
 
 contains
 
-  !> Free a scalar boundary resolver.
+  !> Free the scalar boundary-condition resolver.
   subroutine scalar_bc_resolver_free(this)
     class(scalar_bc_resolver_t), intent(inout) :: this
 
@@ -69,12 +82,17 @@ contains
   end subroutine scalar_bc_resolver_free
 
   !> Add the constrained dofs from a scalar boundary condition.
+  !! @details Appends the bc mask to `this%dof_masks`, sorts, and takes the
+  !! unique set.
+  !! @param[in] bc Finalized scalar boundary condition contributing dofs to the
+  !! resolver mask.
   subroutine scalar_bc_resolver_mark_bc(this, bc)
     class(scalar_bc_resolver_t), intent(inout) :: this
     class(bc_t), intent(in) :: bc
 
     integer, pointer :: current_mask(:)
     integer, allocatable :: merged_mask(:)
+    integer, allocatable :: perm(:)
     integer :: current_size
     integer :: incoming_size
     integer :: merged_size
@@ -87,23 +105,43 @@ contains
     incoming_size = bc%msk(0)
     if (incoming_size .eq. 0) return
 
+    ! If this is the first bc to be marked
     if (.not. this%dof_mask%is_set()) then
-       call this%dof_mask%init(bc%msk(1:incoming_size), incoming_size)
+       allocate(merged_mask(incoming_size), perm(incoming_size))
+       merged_mask = bc%msk(1:incoming_size)
+       call sort(merged_mask, perm, incoming_size)
+
+       merged_size = 1
+       do i = 2, incoming_size
+          if (merged_mask(i) .ne. merged_mask(merged_size)) then
+             merged_size = merged_size + 1
+             merged_mask(merged_size) = merged_mask(i)
+          end if
+       end do
+
+       call this%dof_mask%init(merged_mask(1:merged_size), merged_size)
        return
     end if
 
+    ! Append the incoming mask to the current mask
     current_size = this%dof_mask%size()
     current_mask => this%dof_mask%get()
     allocate(merged_mask(current_size + incoming_size))
+    allocate(perm(current_size + incoming_size))
 
     merged_mask(1:current_size) = current_mask(1:current_size)
-    merged_size = current_size
+    merged_mask(current_size + 1:current_size + incoming_size) = &
+         bc%msk(1:incoming_size)
 
-    ! TODO: avoid O(n^2)
-    do i = 1, incoming_size
-       if (.not. any(merged_mask(1:merged_size) .eq. bc%msk(i))) then
+    ! Sort the merged mask
+    call sort(merged_mask, perm, current_size + incoming_size)
+
+    ! Take out unique elements
+    merged_size = 1
+    do i = 2, current_size + incoming_size
+       if (merged_mask(i) .ne. merged_mask(merged_size)) then
           merged_size = merged_size + 1
-          merged_mask(merged_size) = bc%msk(i)
+          merged_mask(merged_size) = merged_mask(i)
        end if
     end do
 
@@ -111,6 +149,8 @@ contains
   end subroutine scalar_bc_resolver_mark_bc
 
   !> Add the constrained dofs from all boundary conditions in a list.
+  !! @param[in] bclst List of scalar boundary conditions to merge into the
+  !! resolver mask.
   subroutine scalar_bc_resolver_mark_bc_list(this, bclst)
     class(scalar_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
@@ -122,6 +162,9 @@ contains
   end subroutine scalar_bc_resolver_mark_bc_list
 
   !> Apply the scalar boundary constraints by zeroing constrained dofs.
+  !! @param[inout] x Scalar field values.
+  !! @param[in] n Number of entries in `x`.
+  !! @param[inout] strm Optional backend stream/queue used on device backends.
   subroutine scalar_bc_resolver_apply(this, x, n, strm)
     class(scalar_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
