@@ -35,7 +35,7 @@ math/fast3d.lo : math/fast3d.f90 math/math.lo sem/speclib.lo config/num_types.lo
 sem/space.lo : sem/space.f90 math/math.lo math/mxm_wrapper.lo math/tensor.lo math/fast3d.lo common/utils.lo math/matrix.lo device/device.lo sem/speclib.lo config/num_types.lo config/neko_config.lo 
 sem/map_1d.lo : sem/map_1d.f90 math/math.lo common/utils.lo math/vector.lo math/matrix.lo field/field_list.lo sem/coef.lo comm/comm.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo config/num_types.lo config/neko_config.lo 
 sem/map_2d.lo : sem/map_2d.f90 io/fld_file_data.lo comm/comm.lo device/device.lo field/field.lo math/math.lo common/utils.lo math/vector.lo sem/coef.lo field/field_list.lo mesh/mesh.lo gs/gather_scatter.lo sem/map_1d.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo 
-sem/dofmap.lo : sem/dofmap.f90 mesh/hex.lo mesh/quad.lo mesh/element.lo math/math.lo device/device.lo math/tensor.lo math/fast3d.lo common/utils.lo config/num_types.lo adt/tuple.lo sem/space.lo mesh/mesh.lo config/neko_config.lo 
+sem/dofmap.lo : sem/dofmap.f90 mesh/hex.lo mesh/quad.lo mesh/element.lo math/bcknd/device/device_math.lo math/math.lo device/device.lo math/tensor.lo math/fast3d.lo common/utils.lo config/num_types.lo adt/tuple.lo sem/space.lo common/mask.lo mesh/mesh.lo config/neko_config.lo 
 sem/coef.lo : sem/coef.f90 comm/comm.lo common/utils.lo device/device.lo math/mxm_wrapper.lo sem/bcknd/device/device_coef.lo math/bcknd/device/device_math.lo mesh/mesh.lo math/math.lo sem/space.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo gs/gs_ops.lo gs/gather_scatter.lo 
 sem/cpr.lo : sem/cpr.f90 math/mxm_wrapper.lo sem/dofmap.lo common/log.lo sem/coef.lo mesh/mesh.lo math/tensor.lo math/math.lo sem/space.lo field/field.lo config/num_types.lo 
 common/time_interpolator.lo : common/time_interpolator.f90 math/fast3d.lo common/utils.lo math/math.lo math/bcknd/device/device_math.lo config/neko_config.lo field/field_series.lo field/field.lo config/num_types.lo 
@@ -74,7 +74,7 @@ mesh/point_zones/cylinder_point_zone.lo : mesh/point_zones/cylinder_point_zone.f
 mesh/point_zones/combine_point_zone.lo : mesh/point_zones/combine_point_zone.f90 common/log.lo common/utils.lo common/json_utils.lo config/num_types.lo mesh/point_zones/cylinder_point_zone.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo 
 mesh/point_zone_fctry.lo : mesh/point_zone_fctry.f90 common/utils.lo common/json_utils.lo mesh/point_zones/cylinder_point_zone.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo 
 mesh/point_zone_registry.lo : mesh/point_zone_registry.f90 common/json_utils.lo common/utils.lo sem/space.lo mesh/mesh.lo sem/dofmap.lo mesh/point_zones/combine_point_zone.lo mesh/point_zone.lo 
-mesh/mesh.lo : mesh/mesh.f90 common/log.lo mesh/curve.lo adt/uset.lo math/math.lo mesh/facet_zone.lo comm/comm.lo common/distdata.lo common/datadist.lo adt/htable.lo adt/tuple.lo adt/stack.lo common/utils.lo mesh/quad.lo mesh/hex.lo mesh/element.lo mesh/point.lo config/num_types.lo 
+mesh/mesh.lo : mesh/mesh.f90 common/log.lo mesh/curve.lo adt/uset.lo math/math.lo mesh/facet_zone.lo comm/comm.lo common/distdata.lo common/datadist.lo adt/htable.lo adt/tuple.lo adt/stack.lo common/mask.lo common/utils.lo mesh/quad.lo mesh/hex.lo mesh/element.lo mesh/point.lo config/num_types.lo 
 mesh/octree.lo : mesh/octree.f90 common/utils.lo mesh/point.lo config/num_types.lo 
 mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 common/utils.lo mesh/tet_mesh.lo mesh/tri_mesh.lo mesh/mesh.lo mesh/hex.lo mesh/tet.lo mesh/quad.lo mesh/tri.lo mesh/point.lo mesh/element.lo config/num_types.lo 
 mesh/aabb_tree.lo : mesh/aabb_tree.f90 common/utils.lo adt/stack.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo 
@@ -305,7 +305,7 @@ device/hip/roctx.lo : device/hip/roctx.F90
 device/opencl_intf.lo : device/opencl_intf.F90 common/utils.lo config/num_types.lo 
 device/opencl/prgm_lib.lo : device/opencl/prgm_lib.F90 common/utils.lo device/opencl_intf.lo 
 device/device.lo : device/device.F90 device/opencl/prgm_lib.lo common/utils.lo adt/htable.lo config/neko_config.lo device/hip_intf.lo device/cuda_intf.lo device/opencl_intf.lo config/num_types.lo 
-math/field_math.lo : math/field_math.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
+math/field_math.lo : math/field_math.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo common/mask.lo field/field.lo config/num_types.lo config/neko_config.lo 
 math/bcknd/device/device_math.lo : math/bcknd/device/device_math.F90 math/bcknd/device/opencl/opencl_math.lo math/bcknd/device/cuda/cuda_math.lo math/bcknd/device/hip/hip_math.lo device/device.lo comm/comm.lo common/utils.lo config/num_types.lo 
 math/bcknd/device/hip/hip_math.lo : math/bcknd/device/hip/hip_math.f90 config/num_types.lo 
 math/bcknd/device/cuda/cuda_math.lo : math/bcknd/device/cuda/cuda_math.f90 config/num_types.lo 
