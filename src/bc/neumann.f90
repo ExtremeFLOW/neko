@@ -182,7 +182,8 @@ contains
 
     m = this%msk(0)
     if (.not. strong_) then
-       do i = 1, m
+       !$omp parallel do private(k, facet, idx)
+       do i = 1,m
           k = this%msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
@@ -202,6 +203,7 @@ contains
                   this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
+       !$omp end parallel do
     end if
   end subroutine neumann_apply_scalar
 
@@ -228,6 +230,7 @@ contains
 
     m = this%msk(0)
     if (.not. strong_) then
+       !$omp parallel do private(k, facet, idx)
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
@@ -266,6 +269,7 @@ contains
                   this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
+       !$omp end parallel do
     end if
   end subroutine neumann_apply_vector
 

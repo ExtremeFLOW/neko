@@ -61,19 +61,23 @@ module field_math
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use field, only : field_t
+  use mask, only : mask_t
   use device, only : device_get_ptr
   use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, add2, &
        add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, &
-       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, glsc3, &
-       masked_gather_copy_0, masked_scatter_copy_0, glsubnorm, invcol3, &
-       pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3
+       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glmax, glmin, &
+       glsc2, glsc3, masked_gather_copy, masked_gather_copy_0, &
+       masked_scatter_copy_0, glsubnorm, invcol3, pwmax2, pwmax3, cpwmax2, &
+       cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3
   use device_math, only : device_rzero, device_rone, device_copy, device_cmult, &
        device_cadd, device_cfill, device_invcol1, device_vdot3, device_add2, &
        device_add3, device_add4, device_sub2, device_sub3, device_add2s1, &
        device_add2s2, device_addsqr2s2, device_cmult2, device_invcol2, &
        device_col2, device_col3, device_subcol3, device_add3s2, &
        device_addcol3, device_addcol4, device_glsum, device_glsc2, &
+       device_glmax, device_glmin, &
        device_glsc3, device_masked_gather_copy_0, device_masked_scatter_copy_0,&
+       device_masked_gather_copy_aligned, &
        device_glsubnorm, device_invcol3, device_pwmax2, device_pwmax3, &
        device_cpwmax2, device_cpwmax3, device_pwmin2, device_pwmin3, &
        device_cpwmin2, device_cpwmin3
@@ -87,7 +91,9 @@ module field_math
        field_add2s2, field_addsqr2s2, field_cmult2, &
        field_invcol2, field_col2, field_col3, field_subcol3, &
        field_add3s2, field_addcol3, field_addcol4, field_glsum, &
+       field_glmax, field_glmin, &
        field_glsc2, field_glsc3, field_add3, field_masked_gather_copy_0, &
+       field_masked_gather_copy, &
        field_masked_scatter_copy_0, field_glsubnorm, field_pwmax2, &
        field_pwmax3, field_cpwmax2, field_cpwmax3, field_pwmin2, &
        field_pwmin3, field_cpwmin2, field_cpwmin3
@@ -655,6 +661,48 @@ contains
 
   end function field_glsum
 
+  !> Global maximum of all elements in a field \f$ max = \max_i a_i \f$
+  function field_glmax(a, n) result(val)
+    integer, intent(in), optional :: n
+    type(field_t), intent(in) :: a
+    real(kind=rp) :: val
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       val = device_glmax(a%x_d, size)
+    else
+       val = glmax(a%x, size)
+    end if
+
+  end function field_glmax
+
+  !> Global minimum of all elements in a field \f$ min = \min_i a_i \f$
+  function field_glmin(a, n) result(val)
+    integer, intent(in), optional :: n
+    type(field_t), intent(in) :: a
+    real(kind=rp) :: val
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       val = device_glmin(a%x_d, size)
+    else
+       val = glmin(a%x, size)
+    end if
+
+  end function field_glmin
+
   function field_glsc2(a, b, n) result(norm)
     integer, intent(in), optional :: n
     type(field_t), intent(in) :: a, b
@@ -715,7 +763,7 @@ contains
 
   end function field_glsubnorm
 
-  !> Gather a field to reduced contigous array
+  !> Gather a field to reduced contiguous array
   !! \f$ a = b(mask) \f$.
   !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
@@ -740,7 +788,31 @@ contains
 
   end subroutine field_masked_gather_copy_0
 
-  !> Gather a contigous array into a field
+  !> Gather a field to reduced contiguous array
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination field of size `n_mask`.
+  !! @param b Source array of size `n`.
+  !! @param mask mask_t containing mask array and device pointer
+  !! @param n Size of the field `b`.
+  subroutine field_masked_gather_copy(a, b, mask, n)
+    type(field_t), intent(inout) :: a
+    real(kind=rp), dimension(:), intent(inout) :: b
+    type(mask_t), intent(in) :: mask
+    integer, intent(in) :: n
+    type(c_ptr) :: mask_d, b_d
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       mask_d = mask%get_d()
+       b_d = device_get_ptr(b)
+       call device_masked_gather_copy_aligned(a%x_d, b_d, mask_d, n, &
+            mask%size())
+    else
+       call masked_gather_copy(a%x, b, mask%get(), n, mask%size())
+    end if
+
+  end subroutine field_masked_gather_copy
+
+  !> Gather a contiguous array into a field
   !! \f$ a(mask) = b \f$.
   !! @param a Destination field.
   !! @param b Source array of size `n_mask`.

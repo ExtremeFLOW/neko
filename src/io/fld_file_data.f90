@@ -6,7 +6,7 @@
 !! file.
 !! Martin Karp 1/2-2023
 module fld_file_data
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use math, only : cmult, add2
   use vector, only : vector_t, vector_ptr_t
   use interpolation, only : interpolator_t
@@ -15,8 +15,11 @@ module fld_file_data
   use logger, only : neko_log, LOG_SIZE
   use device, only : HOST_TO_DEVICE
   use dofmap, only : dofmap_t
+  use json_utils, only : json_get_or_default
+  use json_module, only : json_file
   use space, only : space_t, GLL
-  use global_interpolation, only : global_interpolation_t
+  use global_interpolation, only : global_interpolation_t, &
+       GLOB_INTERP_PAD, GLOB_INTERP_TOL
   use utils, only : neko_error, NEKO_FNAME_LEN, extract_fld_file_index
   use mesh, only : mesh_t
   implicit none
@@ -90,6 +93,10 @@ contains
   !! @param interpolate Whether or not to interpolate the fld data.
   !! @param tolerance If interpolation is enabled, the tolerance to use for the
   !! point finding.
+  !! @param padding If interpolation is enabled, the padding to use for the
+  !! point search
+  !! @param params_subdict A JSON object containing parameters to use for
+  !! initialization.
   !! @note If interpolation is disabled, space-to-space interpolation is still
   !! performed within each element to allow for seamless change of polynomial
   !! order for the same given mesh.
@@ -97,13 +104,16 @@ contains
   !! subroutine. The required data must be copied manually beforehand (see
   !! import_field_utils.f90).
   subroutine fld_file_data_import_fields(this, u, v, w, p, t, &
-       s_target_list, s_index_list, interpolate, tolerance)
+       s_target_list, s_index_list, interpolate, tolerance, padding, &
+       global_interp_subdict)
     class(fld_file_data_t), intent(inout) :: this
     type(field_t), pointer, intent(inout), optional :: u,v,w,p,t
     type(field_list_t), intent(inout), optional :: s_target_list
     integer, intent(in), optional :: s_index_list(:)
     logical, intent(in), optional :: interpolate
-    real(kind=rp), intent(in), optional :: tolerance
+    real(kind=dp), intent(in), optional :: tolerance
+    real(kind=dp), intent(in), optional :: padding
+    type(json_file), intent(inout), optional :: global_interp_subdict
 
     integer :: i
 
@@ -186,8 +196,11 @@ contains
        end if
 
        ! Generates an interpolator object and performs the point search
+       ! NOTE: optional arguments are managed in the subroutine, but if both
+       ! are provided the JSON subdict takes precedence
        call this%generate_interpolator(global_interp, dof, msh, &
-            tolerance = tolerance)
+            tolerance = tolerance, padding = padding, &
+            global_interp_subdict = global_interp_subdict)
 
        ! Evaluate all the fields
        if (present(u)) call global_interp%evaluate(u%x(:,1,1,1), this%u%x, &
@@ -212,7 +225,7 @@ contains
                 else
                    ! For scalar fields, require indices in 1:this%n_scalars
                    if (s_index_list(i) < 1 .or. &
-                           s_index_list(i) > this%n_scalars) then
+                        s_index_list(i) > this%n_scalars) then
                       call neko_error("s_index_list entry out of bounds")
                    end if
                    call global_interp%evaluate(s_target_list%x(i), &
@@ -481,13 +494,19 @@ contains
   !! @param to_dof Dofmap on which to interpolate.
   !! @param to_msh Mesh on which to interpolate.
   !! @param tolerance Tolerance for the newton iterations.
+  !! @param padding If interpolation is enabled, the padding to use for the
+  !! point search.
+  !! @param params_subdict A JSON object containing parameters to use for
+  !! initialization.
   subroutine fld_file_data_generate_interpolator(this, global_interp, to_dof, &
-       to_msh, tolerance)
+       to_msh, tolerance, padding, global_interp_subdict)
     class(fld_file_data_t), intent(in) :: this
     type(global_interpolation_t), intent(inout) :: global_interp
     type(dofmap_t), intent(in), target :: to_dof
     type(mesh_t), intent(in), target :: to_msh
-    real(kind=rp), intent(in) :: tolerance
+    real(kind=dp), intent(in), optional :: tolerance
+    real(kind=dp), intent(in), optional :: padding
+    type(json_file), intent(inout), optional :: global_interp_subdict
 
     ! --- variables for interpolation
     type(space_t) :: fld_Xh
@@ -495,6 +514,7 @@ contains
          z_coords(:,:,:,:)
     real(kind=rp) :: center_x, center_y, center_z
     integer :: e, i
+    real(kind=rp) :: tol_ = GLOB_INTERP_TOL
     ! ---
 
     type(space_t), pointer :: to_Xh
@@ -515,6 +535,18 @@ contains
     allocate(y_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
     allocate(z_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
 
+    ! JSON subdict takes precedence over dummy argument, but if neither is
+    ! provided throw an error
+    if (present(global_interp_subdict)) then
+       call json_get_or_default(global_interp_subdict, "tolerance", tol_, &
+            tol_)
+    else if (present(tolerance)) then
+       tol_ = tolerance
+    else
+       call neko_error("No tolerance provided for interpolation! " // &
+            "Please provide a tolerance or a subdict with a tolerance entry.")
+    end if
+
     !> To ensure that each point is within an element
     !! Remedies issue with points on the boundary
     !! Technically gives each point a slightly different value
@@ -533,18 +565,26 @@ contains
        center_z = center_z / to_Xh%lxyz
        do i = 1, to_Xh%lxyz
           x_coords(i, 1, 1, e) = to_dof%x(i, 1, 1, e) - &
-               tolerance * (to_dof%x(i, 1, 1, e) - center_x)
+               tol_ * (to_dof%x(i, 1, 1, e) - center_x)
           y_coords(i, 1, 1, e) = to_dof%y(i, 1, 1, e) - &
-               tolerance * (to_dof%y(i, 1, 1, e) - center_y)
+               tol_ * (to_dof%y(i, 1, 1, e) - center_y)
           z_coords(i, 1, 1, e) = to_dof%z(i, 1, 1, e) - &
-               tolerance * (to_dof%z(i, 1, 1, e) - center_z)
+               tol_ * (to_dof%z(i, 1, 1, e) - center_z)
        end do
     end do
 
     ! The initialization is done based on the variables created from
-    ! fld data
-    call global_interp%init(this%x%x, this%y%x, this%z%x, this%gdim, &
-         this%nelv, fld_Xh, tol = tolerance)
+    ! fld data.
+    if (present(global_interp_subdict)) then
+       call global_interp%init(this%x%x, this%y%x, this%z%x, &
+            this%gdim, this%nelv, fld_Xh, &
+            global_interp_subdict)
+    else
+       call global_interp%init(this%x%x, this%y%x, this%z%x, &
+            this%gdim, this%nelv, fld_Xh, &
+            tol = tolerance, pad = padding)
+    end if
+
     call global_interp%find_points(x_coords, y_coords, z_coords, &
          to_dof%size())
 
