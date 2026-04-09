@@ -737,10 +737,10 @@ contains
           jl = shr_list(il)
           gidx(il) = obj%gidx(jl)
        end do
-       !! Nicals is not happy with using these routines; TO DO BEGIN!!!!
+       !
        call sort(gidx, ind, obj%nshare)
        call swap(shr_list, ind, obj%nshare)
-       !! Nicals is not happy with using these routines; TO DO END!!!!
+       !
        deallocate(gidx, ind)
        ! all shared objects must be included
        do il = 1, obj%nshare

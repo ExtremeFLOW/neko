@@ -659,30 +659,16 @@ contains
   subroutine p4est_import_data(mesh_new, ifcomplete)
     type(manager_mesh_p4est_t), intent(inout) :: mesh_new
     logical, intent(in) :: ifcomplete
+    integer(i4) :: nvert, nface, ierr, gdim, nelt, nelv, ngrp, maxl, maxg
+    integer(i4), allocatable, target, dimension(:) :: itmp4v1, itmp4v2
+    integer(i4), allocatable, target, dimension(:, :) :: itmp4v21, itmp4v22, &
+         itmp4v23
+    integer(i8) :: gnelt, gnelto
+    integer(i8), allocatable, target, dimension(:) :: itmp8v1
+    integer(i8), allocatable, target, dimension(:, :) :: itmp8v21
     character(len=LOG_SIZE) :: log_buf
     character(len=*), parameter :: frmt1="('mesh: element number =', i10,&
          &', max ref. lev. = ',i2)"
-    character(len=*), parameter :: frmt2="('geometry: dim = ', i1, ';&
-         & independent node number=', i10)"
-    character(len=*), parameter :: frmt3="('connectivity: dim = ', i1)"
-    character(len=*), parameter :: frmt4="('number of: vrt = ', i10, ', &
-         &fcs = ', i10, ', edg = ', i10)"
-    integer(i4) :: nvert, nface, nedge, ierr, gdim, nelt, nelv, ngrp, maxl, &
-         maxg, ndep, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh, nrank, &
-         nshare, nindp, nfhngp, nehngp
-    integer(i8) :: itmp8, gnelt, gnelto, goff, gnum
-    integer(i8), dimension(3) :: itmp8lv
-    integer(i8), allocatable, target, dimension(:) :: itmp8v1, itmp8v2
-    integer(i8), allocatable, target, dimension(:, :) :: itmp8v21
-    integer(i4), allocatable, target, dimension(:) :: itmp4v1, itmp4v2, &
-         itmp4v3, hngei, ind_map, fhng_map, ehng_map
-    logical, allocatable, target, dimension(:) :: hngel
-    integer(i4), allocatable, target, dimension(:, :) :: itmp4v21, itmp4v22, &
-         itmp4v23, hngfc, hnged, vmap, fmap, emap, ealgn
-    real(dp), allocatable, target, dimension(:, :) :: rtmpv1, ind_coord, &
-         fhng_coord, ehng_coord
-    real(dp), allocatable, target, dimension(:, :, :) :: vcoord
-    real(dp), parameter :: tol = 1.0D-10
 
     call profiler_start_region("p4est import", 32)
 
@@ -698,7 +684,6 @@ contains
     ! object number
     nvert = 2**gdim
     nface = 2 * gdim
-    nedge = 12 * (gdim - 2)
 
     ! get max refinement level across all ranks
     call MPI_Allreduce(maxl, maxg, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
@@ -711,6 +696,61 @@ contains
 !    end if
 
     ! get geometry info
+    call p4est_import_geometry_data(mesh_new, ifcomplete, gdim, nelt)
+
+    ! get element data
+    allocate(itmp8v1(nelt), itmp4v1(nelt), itmp4v2(nelt), &
+         & itmp4v21(nface, nelt), itmp4v22(nface, nelt), &
+         & itmp4v23(nface, nelt))
+    call wp4est_elm_get_dat(c_loc(itmp8v1), c_loc(itmp4v1), &
+         & c_loc(itmp4v2), c_loc(itmp4v21), c_loc(itmp4v22), &
+         & c_loc(itmp4v23))
+
+    ! get connectivity info
+    call p4est_import_connectivity_data(mesh_new, gdim, nelt, itmp4v23)
+
+    ! element family
+    call p4est_family_get(itmp8v21, nelt, nvert, gnelto)
+
+    ! import element general information saving already imported data
+    call mesh_new%init_data(nelt, nelv, gnelt, gnelto, maxg, gdim, itmp8v1, &
+         itmp4v1, itmp4v2, itmp4v21, itmp4v22, itmp8v21, ifcomplete, .true.)
+
+    ! Get global numbering of hanging and periodic nodes including reordering
+    ! of faces with respect of multiplicity
+    if (ifcomplete) call p4est_hng_periodic_gnum_get(mesh_new)
+
+    ! destroy p4est ghost cells
+    call wp4est_ghost_del()
+
+    call profiler_end_region("p4est import", 32)
+
+  end subroutine p4est_import_data
+
+  !> Import geometry data from p4est
+  subroutine p4est_import_geometry_data(mesh_new, ifcomplete, gdim, nelt)
+    type(manager_mesh_p4est_t), intent(inout) :: mesh_new
+    logical, intent(in) :: ifcomplete
+    integer, intent(in) :: gdim, nelt
+    integer(i4) :: nvert, ierr, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh, &
+         nindp, nfhngp, nehngp, ndep
+    integer(i8) :: itmp8, gnum
+    integer(i4), allocatable, target, dimension(:) :: ind_map, fhng_map, &
+         ehng_map
+    integer(i4), allocatable, target, dimension(:) :: itmp4v1
+    integer(i4), allocatable, target, dimension(:, :) :: itmp4v21
+    integer(i8), allocatable, target, dimension(:) :: itmp8v1, itmp8v2
+    real(dp), allocatable, target, dimension(:, :) :: ind_coord, fhng_coord, &
+         ehng_coord, rtmpv1
+    real(dp), allocatable, target, dimension(:, :, :) :: vcoord
+    real(dp), parameter :: tol = 1.0D-10
+    character(len=LOG_SIZE) :: log_buf
+    character(len=*), parameter :: frmt="('geometry: dim = ', i1, ';&
+         & independent node number=', i10)"
+
+    ! object number
+    nvert = 2**gdim
+
     select type (geom => mesh_new%geom)
     type is (manager_geom_p4est_t)
 
@@ -724,7 +764,7 @@ contains
           itmp8 = lown
           call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
                ierr)
-          write(log_buf, frmt2) gdim, gnum
+          write(log_buf, frmt) gdim, gnum
           call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
           ! get element vertex mapping to nodes and identify periodic ones
@@ -797,7 +837,29 @@ contains
        end if
     end select
 
-    ! get connectivity info
+  end subroutine p4est_import_geometry_data
+
+  !> Import connectivity data from p4est
+  subroutine p4est_import_connectivity_data(mesh_new, gdim, nelt, falgn)
+    type(manager_mesh_p4est_t), intent(inout) :: mesh_new
+    integer, intent(in) :: gdim, nelt
+    integer(i4), allocatable, dimension(:, :), intent(inout) :: falgn
+    integer(i4) :: nvert, nface, nedge
+    integer(i4), allocatable, target, dimension(:) :: hngei
+    integer(i4), allocatable, target, dimension(:, :) :: hngfc, hnged, vmap, &
+         fmap, emap, ealgn
+    integer(i8), dimension(3) :: itmp8lv
+    logical, allocatable, target, dimension(:) :: hngel
+    character(len=LOG_SIZE) :: log_buf
+    character(len=*), parameter :: frmt1="('connectivity: dim = ', i1)"
+    character(len=*), parameter :: frmt2="('number of: vrt = ', i10, ', &
+         &fcs = ', i10, ', edg = ', i10)"
+
+    ! object number
+    nvert = 2**gdim
+    nface = 2 * gdim
+    nedge = 12 * (gdim - 2)
+
     select type (conn => mesh_new%conn)
     type is (manager_conn_p4est_t)
 
@@ -812,110 +874,73 @@ contains
        deallocate(hngei)
 
        ! vertex connectivity
-       allocate(vmap(nvert, nelt))
-       call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(vmap))
-       call wp4est_sharers_get_size(nrank, nshare)
-       allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
-            itmp4v3(nshare))
-       call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
-            c_loc(itmp4v2), c_loc(itmp4v3))
-       itmp8 = lown
-       call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
-            ierr)
-       itmp8lv(1) = gnum ! for stamping log
        select type (vrt => conn%vrt)
        type is (manager_conn_obj_p4est_t)
-          call vrt%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
-               itmp8v1, itmp4v1, itmp4v3, itmp4v2, nvert, nelt, vmap)
+          call p4est_import_connectivity_obj_data(nvert, nelt, itmp8lv(1), &
+               vmap, vrt)
        end select
-
        call wp4est_lnodes_del()
 
-       ! faces
+       ! faces connectivity
        call wp4est_lnodes_new(-1)
-
-       ! face connectivity
-       allocate(fmap(nface, nelt))
-       call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(fmap))
-       call wp4est_sharers_get_size(nrank, nshare)
-       allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
-            itmp4v3(nshare))
-       call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
-            c_loc(itmp4v2), c_loc(itmp4v3))
-       itmp8 = lown
-       call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
-            ierr)
-       itmp8lv(2) = gnum ! for stamping log
        select type (fcs => conn%fcs)
        type is (manager_conn_obj_p4est_t)
-          call fcs%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
-               itmp8v1, itmp4v1, itmp4v3, itmp4v2, nface, nelt, fmap)
+          call p4est_import_connectivity_obj_data(nface, nelt, itmp8lv(2), &
+               fmap, fcs)
        end select
-
        call wp4est_lnodes_del()
 
-       ! edges
+       ! edges connectivity
        call wp4est_lnodes_edge(1)
-
-       ! edge connectivity
-       allocate(emap(nedge, nelt))
-       call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(emap))
-       call wp4est_sharers_get_size(nrank, nshare)
-       allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
-            itmp4v3(nshare))
-       call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
-            c_loc(itmp4v2), c_loc(itmp4v3))
-       itmp8 = lown
-       call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
-            ierr)
-       itmp8lv(3) = gnum ! for stamping log
        select type (edg => conn%edg)
        type is (manager_conn_obj_p4est_t)
-          call edg%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
-               itmp8v1, itmp4v1, itmp4v3, itmp4v2, nedge, nelt, emap)
+          call p4est_import_connectivity_obj_data(nedge, nelt, itmp8lv(3), &
+               emap, edg)
        end select
-
-       write(log_buf, frmt3) gdim
-       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-       write(log_buf, frmt4) itmp8lv
-       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-
        call wp4est_lnodes_del()
 
-       ! get element data
-       allocate(itmp8v1(nelt), itmp4v1(nelt), itmp4v2(nelt), &
-            & itmp4v21(nface, nelt), itmp4v22(nface, nelt), &
-            & itmp4v23(nface, nelt))
-       call wp4est_elm_get_dat(c_loc(itmp8v1), c_loc(itmp4v1), &
-            & c_loc(itmp4v2), c_loc(itmp4v21), c_loc(itmp4v22), &
-            & c_loc(itmp4v23))
+       write(log_buf, frmt1) gdim
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+       write(log_buf, frmt2) itmp8lv
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
        ! get edge alignment
        call p4est_edge_alignment_get(ealgn, nelt, nedge)
 
        ! element connectivity mappings saving already imported data
-       call conn%init_data(gdim, nelt, vmap, fmap, itmp4v23, emap, ealgn, &
+       call conn%init_data(gdim, nelt, vmap, fmap, falgn, emap, ealgn, &
             hngel, hngfc, hnged, .true.)
 
     end select
 
-    ! element family
-    call p4est_family_get(itmp8v21, nelt, nvert, gnelto)
+  end subroutine p4est_import_connectivity_data
 
-    ! import element general information saving already imported data
-    call mesh_new%init_data(nelt, nelv, gnelt, gnelto, maxg, gdim, itmp8v1, &
-         itmp4v1, itmp4v2, itmp4v21, itmp4v22, itmp8v21, ifcomplete, .true.)
+  !> Get connectivity information for a given object class
+  subroutine p4est_import_connectivity_obj_data(nobj, nelt, gnum, map, obj_cnn)
+    integer, intent(in) :: nobj, nelt
+    integer(i8), intent(out) :: gnum
+    integer(i4), allocatable, target, dimension(:, :), intent(inout) :: map
+    type(manager_conn_obj_p4est_t), intent(inout) :: obj_cnn
+    integer(i4) :: ierr, lnum_in, lown, nrank, nshare
+    integer(i4), allocatable, target, dimension(:) :: itmp4v1, itmp4v2, itmp4v3
+    integer(i8) :: itmp8, goff
+    integer(i8), allocatable, target, dimension(:) :: itmp8v1
 
-    ! Get global numbering of hanging and periodic nodes including reordering
-    ! of faces with respect of multiplicity
-    call p4est_hng_periodic_gnum_get(mesh_new)
+    if (allocated(map)) deallocate(map)
+    allocate(map(nobj, nelt))
+    call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(map))
+    call wp4est_sharers_get_size(nrank, nshare)
+    allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
+         itmp4v3(nshare))
+    call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
+         c_loc(itmp4v2), c_loc(itmp4v3))
+    itmp8 = lown
+    call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
+         ierr)
+    call obj_cnn%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
+         itmp8v1, itmp4v1, itmp4v3, itmp4v2, nobj, nelt, map)
 
-    ! do not destroy p4est ghost cells here, as they could be needed
-!    call wp4est_ghost_del()
-
-    call profiler_end_region("p4est import", 32)
-
-  end subroutine p4est_import_data
+  end subroutine p4est_import_connectivity_obj_data
 
   !> Get periodic nodes and correct vertex mapping
   !! @details p4est is a connectivity code, so it does not distinguish between
@@ -1149,7 +1174,7 @@ contains
     type(manager_mesh_p4est_t), intent(inout) :: mesh_new
 
     ! This is not finished yet
-    !call neko_error('Nodes global numbering not finalised yet')
+    call neko_error('Nodes global numbering not finalised yet')
 
     ! periodic node numbering
     ! hanging node numbering
@@ -1207,11 +1232,10 @@ contains
             c_loc(crv), c_loc(bc))
 
        ! check if applied boundary conditions are consistent with tree structure
-       ! the ghost mesh was not destroyed at the end of data import, so no need
-       ! to set it here
-!       call wp4est_ghost_new()
+       ! this operation requires p4est ghost cells
+       call wp4est_ghost_new()
        call wp4est_bc_check()
-!       call wp4est_ghost_del()
+       call wp4est_ghost_del()
 
        deallocate(gidx, imsh, igrp, crv, bc)
     end select
@@ -1320,9 +1344,6 @@ contains
        call transfer%neko_elem_dist_set(pel_gnum, pel_lnum, pel_nid)
        call wp4est_egmap_put(c_loc(pel_gnum), c_loc(pel_lnum), c_loc(pel_nid))
 
-       ! destroy p4est ghost cells
-       call wp4est_ghost_del()
-
        ! perform local refine/coarsen/balance on p4est side
        call wp4est_tree_compare_copy(p4est_compare)
        call wp4est_refine(this%ref_level_max)
@@ -1360,8 +1381,6 @@ contains
                rfn_gidx, rfn, crs_nr, crs_gidx, crs)
           deallocate(map_gidx, map, rfn_gidx, rfn, crs_gidx, crs)
        else
-          ! regenerate the ghost layer
-          call wp4est_ghost_new()
           write(log_buf, '(a)') 'p4est refinement/coarsening; mesh not changed'
           call neko_log%message(log_buf, NEKO_LOG_INFO)
        end if
@@ -1370,7 +1389,6 @@ contains
     class default
        call neko_error('Wrong data redistribution type')
     end select
-
 
     call profiler_end_region("p4est refine/coarsen", 31)
 
