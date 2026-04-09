@@ -115,7 +115,7 @@ contains
 
     !> Store the interpolation settings
     call json_get_subdict_or_empty(json, "interpolation", &
-            this%interpolation_settings)
+         this%interpolation_settings)
 
 
   end subroutine overset_interface_init
