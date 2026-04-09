@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Axis-aligned mixed Dirichlet-Neumann symmetry plane.
+!> Implements `symmetry_aligned_t`.
 module symmetry_aligned
   use device_symmetry_aligned, only : device_symmetry_aligned_apply_vector
   use num_types, only : rp
@@ -44,28 +44,45 @@ module symmetry_aligned
   implicit none
   private
 
+  !> Axis-aligned symmetry boundary condition.
+  !! @warning Only works for axis-aligned plane boundaries.
+  !! @details This variant uses nested `zero_dirichlet_t` boundary conditions to
+  !! constrain the single global component normal to each marked facet.
   type, public, extends(bc_t) :: symmetry_aligned_t
+     !> Nested zero-Dirichlet boundary conditions for each component.
      type(zero_dirichlet_t) :: bc_x
      type(zero_dirichlet_t) :: bc_y
      type(zero_dirichlet_t) :: bc_z
    contains
+     !> No-op scalar application.
      procedure, pass(this) :: apply_scalar => symmetry_aligned_apply_scalar
+     !> Remove the normal component on the CPU.
      procedure, pass(this) :: apply_vector => symmetry_aligned_apply_vector
+     !> No-op scalar application on the device.
      procedure, pass(this) :: apply_scalar_dev => &
           symmetry_aligned_apply_scalar_dev
+     !> Remove the normal component on the device.
      procedure, pass(this) :: apply_vector_dev => &
           symmetry_aligned_apply_vector_dev
+     !> Construct the boundary condition from JSON.
      procedure, pass(this) :: init => symmetry_aligned_init
+     !> Construct the boundary condition from its components.
      procedure, pass(this) :: init_from_components => &
           symmetry_aligned_init_from_components
+     !> Free the boundary condition and its nested storage.
      procedure, pass(this) :: free => symmetry_aligned_free
+     !> Estimate which global axis is normal to a marked facet.
      procedure, pass(this) :: get_normal_axis => &
           symmetry_aligned_get_normal_axis
+     !> Finalize the boundary condition.
      procedure, pass(this) :: finalize => symmetry_aligned_finalize
   end type symmetry_aligned_t
 
 contains
 
+  !> Construct the boundary condition from JSON.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine symmetry_aligned_init(this, coef, json)
     class(symmetry_aligned_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
@@ -74,6 +91,8 @@ contains
     call this%init_from_components(coef)
   end subroutine symmetry_aligned_init
 
+  !> Construct the boundary condition from its components.
+  !! @param[in] coef The SEM coefficients.
   subroutine symmetry_aligned_init_from_components(this, coef)
     class(symmetry_aligned_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
@@ -88,6 +107,9 @@ contains
     call this%bc_z%init_from_components(this%coef)
   end subroutine symmetry_aligned_init_from_components
 
+  !> Finalize the boundary condition.
+  !! @details Detects the normal axis of each marked facet and marks the
+  !! corresponding nested zero-Dirichlet component boundary condition.
   subroutine symmetry_aligned_finalize(this)
     class(symmetry_aligned_t), target, intent(inout) :: this
     integer :: i, facet, el
@@ -117,6 +139,12 @@ contains
     call this%bc_z%finalize()
   end subroutine symmetry_aligned_finalize
 
+  !> Estimate which global axis is normal to a marked facet.
+  !! @param[out] sx Deviation from an x-aligned normal.
+  !! @param[out] sy Deviation from a y-aligned normal.
+  !! @param[out] sz Deviation from a z-aligned normal.
+  !! @param[in] facet Facet id on the reference hex.
+  !! @param[in] el Element id.
   subroutine symmetry_aligned_get_normal_axis(this, sx, sy, sz, facet, el)
     class(symmetry_aligned_t), target, intent(inout) :: this
     real(kind=rp), intent(out) :: sx, sy, sz
@@ -161,6 +189,11 @@ contains
     end associate
   end subroutine symmetry_aligned_get_normal_axis
 
+  !> No-op scalar application.
+  !! @param x Scalar field values.
+  !! @param n Number of entries in `x`.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
   subroutine symmetry_aligned_apply_scalar(this, x, n, time, strong)
     class(symmetry_aligned_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -169,6 +202,15 @@ contains
     logical, intent(in), optional :: strong
   end subroutine symmetry_aligned_apply_scalar
 
+  !> Remove the normal component on the CPU.
+  !! @details For axis-aligned facets this reduces to applying the nested
+  !! zero-Dirichlet condition to the corresponding global component.
+  !! @param x x-component of the field.
+  !! @param y y-component of the field.
+  !! @param z z-component of the field.
+  !! @param n Number of entries in each component array.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
   subroutine symmetry_aligned_apply_vector(this, x, y, z, n, time, strong)
     class(symmetry_aligned_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -192,6 +234,11 @@ contains
     end if
   end subroutine symmetry_aligned_apply_vector
 
+  !> No-op scalar application on the device.
+  !! @param x_d Device pointer to the scalar field.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  !! @param strm Device stream.
   subroutine symmetry_aligned_apply_scalar_dev(this, x_d, time, strong, strm)
     class(symmetry_aligned_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
@@ -200,6 +247,15 @@ contains
     type(c_ptr), intent(inout) :: strm
   end subroutine symmetry_aligned_apply_scalar_dev
 
+  !> Remove the normal component on the device.
+  !! @details Uses the component masks of the nested zero-Dirichlet boundary
+  !! conditions corresponding to the axis-aligned facet normals.
+  !! @param x_d Device pointer to the x-component.
+  !! @param y_d Device pointer to the y-component.
+  !! @param z_d Device pointer to the z-component.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  !! @param strm Device stream.
   subroutine symmetry_aligned_apply_vector_dev(this, x_d, y_d, z_d, &
        time, strong, strm)
     class(symmetry_aligned_t), intent(inout), target :: this
@@ -224,6 +280,7 @@ contains
     end if
   end subroutine symmetry_aligned_apply_vector_dev
 
+  !> Free the boundary condition and its nested storage.
   subroutine symmetry_aligned_free(this)
     class(symmetry_aligned_t), target, intent(inout) :: this
 

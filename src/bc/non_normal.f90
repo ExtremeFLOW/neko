@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Mixed Dirichlet condition constraining the tangential vector components.
+!> Implements `non_normal_t`.
 module non_normal
   use json_module, only : json_file
   use bc, only : BC_TYPES
@@ -45,24 +45,37 @@ module non_normal
   implicit none
   private
 
-!> Mixed Dirichlet condition constraining the tangential vector components.
+  !> Mixed Dirichlet condition constraining the tangential vector components.
+  !! @details This variant uses resolver-provided local basis vectors on the
+  !! resolved mixed support stored in `mixed_bc_t`. The prescribed value is a
+  !! single global vector whose tangential projection is enforced at every
+  !! resolved mixed node.
   type, public, extends(mixed_bc_t) :: non_normal_t
+     !> Uniform prescribed value in global coordinates.
      real(kind=rp) :: value(3) = 0.0_rp
    contains
+     !> No-op scalar application.
      procedure, pass(this) :: apply_scalar => non_normal_apply_scalar
+     !> Apply the tangential components of the prescribed vector on the CPU.
      procedure, pass(this) :: apply_vector => non_normal_apply_vector
+     !> No-op scalar application on the device.
      procedure, pass(this) :: apply_scalar_dev => non_normal_apply_scalar_dev
+     !> Apply the tangential components of the prescribed vector on the device.
      procedure, pass(this) :: apply_vector_dev => non_normal_apply_vector_dev
+     !> Construct the boundary condition from JSON.
      procedure, pass(this) :: init => non_normal_init
+     !> Construct the boundary condition from a uniform global vector.
      procedure, pass(this) :: init_from_components => &
           non_normal_init_from_components
+     !> Free the boundary condition and its mixed-bc storage.
      procedure, pass(this) :: free => non_normal_free
+     !> Finalize the boundary condition.
      procedure, pass(this) :: finalize => non_normal_finalize
   end type non_normal_t
 
 contains
 
-  !> Constructor
+  !> Construct the boundary condition from JSON.
   !! @param[in] coef The SEM coefficients.
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine non_normal_init(this, coef, json)
@@ -84,9 +97,9 @@ contains
     call this%init_from_components(coef, value_3)
   end subroutine non_normal_init
 
-  !> Constructor from components.
+  !> Construct the boundary condition from a uniform global vector.
   !! @param[in] coef The SEM coefficients.
-  !! @param[in] value The tangential value in global coordinates.
+  !! @param[in] value Global vector whose tangential components are enforced.
   subroutine non_normal_init_from_components(this, coef, value)
     class(non_normal_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
@@ -99,6 +112,11 @@ contains
     this%value = value
   end subroutine non_normal_init_from_components
 
+  !> No-op scalar application.
+  !! @param x Scalar field values.
+  !! @param n Number of entries in `x`.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
   subroutine non_normal_apply_scalar(this, x, n, time, strong)
     class(non_normal_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -109,6 +127,12 @@ contains
 
   !> Strong application preserving the normal component while enforcing the
   !! tangential projections of the configured global value.
+  !! @param x x-component of the field.
+  !! @param y y-component of the field.
+  !! @param z z-component of the field.
+  !! @param n Number of entries in each component array.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
   subroutine non_normal_apply_vector(this, x, y, z, n, time, strong)
     class(non_normal_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -152,6 +176,11 @@ contains
     end do
   end subroutine non_normal_apply_vector
 
+  !> No-op scalar application on the device.
+  !! @param x_d Device pointer to the scalar field.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  !! @param strm Device stream.
   subroutine non_normal_apply_scalar_dev(this, x_d, time, strong, strm)
     class(non_normal_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
@@ -160,6 +189,15 @@ contains
     type(c_ptr), intent(inout) :: strm
   end subroutine non_normal_apply_scalar_dev
 
+  !> Apply the tangential components of the prescribed vector on the device.
+  !! @details Uses the resolved mixed-node mask together with the local basis
+  !! vectors provided by the coupled vector BC resolver.
+  !! @param x_d Device pointer to the x-component.
+  !! @param y_d Device pointer to the y-component.
+  !! @param z_d Device pointer to the z-component.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  !! @param strm Device stream.
   subroutine non_normal_apply_vector_dev(this, x_d, y_d, z_d, time, strong, &
        strm)
     class(non_normal_t), intent(inout), target :: this
@@ -189,14 +227,14 @@ contains
     end if
   end subroutine non_normal_apply_vector_dev
 
-  !> Finalize generic mixed non-normal bc.
+  !> Finalize the boundary condition.
   subroutine non_normal_finalize(this)
     class(non_normal_t), target, intent(inout) :: this
 
     call this%finalize_base()
   end subroutine non_normal_finalize
 
-  !> Destructor for generic mixed non-normal bc.
+  !> Free the boundary condition and its mixed-bc storage.
   subroutine non_normal_free(this)
     class(non_normal_t), target, intent(inout) :: this
 

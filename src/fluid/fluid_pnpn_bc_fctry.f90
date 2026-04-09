@@ -221,7 +221,7 @@ contains
     call object%finalize()
 
     ! Some bcs are marked in the pressure factory routine, and we should ignore
-    ! then here. This currently appears to only be the norma_outflow type and
+    ! then here. This currently appears to only be the normal_outflow type and
     ! its variants.
     if (trim(type) .ne. "normal_outflow" .and. &
          trim(type) .ne. "normal_outflow+dong" .and. &

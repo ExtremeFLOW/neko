@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Generic mixed Dirichlet-Neumann symmetry plane condition.
+!> Implements `symmetry_t`.
 module symmetry
   use num_types, only : rp
   use bc, only : BC_TYPES
@@ -43,21 +43,36 @@ module symmetry
   implicit none
   private
 
+  !> Symmetry boundary condition constraining the normal vector component.
+  !! @details This variant uses resolver-provided local basis vectors on the
+  !! resolved mixed support stored in `mixed_bc_t`. The normal component is
+  !! removed while the tangential components are preserved.
   type, public, extends(mixed_bc_t) :: symmetry_t
    contains
+     !> No-op scalar application.
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
+     !> Remove the normal component on the CPU.
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
+     !> No-op scalar application on the device.
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
+     !> Remove the normal component on the device.
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
+     !> Construct the boundary condition from JSON.
      procedure, pass(this) :: init => symmetry_init
+     !> Construct the boundary condition from its components.
      procedure, pass(this) :: init_from_components => &
           symmetry_init_from_components
+     !> Free the boundary condition and its mixed-bc storage.
      procedure, pass(this) :: free => symmetry_free
+     !> Finalize the boundary condition.
      procedure, pass(this) :: finalize => symmetry_finalize
   end type symmetry_t
 
 contains
 
+  !> Construct the boundary condition from JSON.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine symmetry_init(this, coef, json)
     class(symmetry_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
@@ -66,6 +81,8 @@ contains
     call this%init_from_components(coef)
   end subroutine symmetry_init
 
+  !> Construct the boundary condition from its components.
+  !! @param[in] coef The SEM coefficients.
   subroutine symmetry_init_from_components(this, coef)
     class(symmetry_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
@@ -77,12 +94,18 @@ contains
     this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
   end subroutine symmetry_init_from_components
 
+  !> Finalize the boundary condition.
   subroutine symmetry_finalize(this)
     class(symmetry_t), target, intent(inout) :: this
 
     call this%finalize_base()
   end subroutine symmetry_finalize
 
+  !> No-op scalar application.
+  !! @param x Scalar field values.
+  !! @param n Number of entries in `x`.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
   subroutine symmetry_apply_scalar(this, x, n, time, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -91,6 +114,15 @@ contains
     logical, intent(in), optional :: strong
   end subroutine symmetry_apply_scalar
 
+  !> Remove the normal component on the CPU.
+  !! @details Uses the resolved mixed-node mask together with the local normal
+  !! vector provided by the coupled vector BC resolver.
+  !! @param x x-component of the field.
+  !! @param y y-component of the field.
+  !! @param z z-component of the field.
+  !! @param n Number of entries in each component array.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
   subroutine symmetry_apply_vector(this, x, y, z, n, time, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -124,6 +156,11 @@ contains
     end if
   end subroutine symmetry_apply_vector
 
+  !> No-op scalar application on the device.
+  !! @param x_d Device pointer to the scalar field.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  !! @param strm Device stream.
   subroutine symmetry_apply_scalar_dev(this, x_d, time, strong, strm)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
@@ -132,6 +169,15 @@ contains
     type(c_ptr), intent(inout) :: strm
   end subroutine symmetry_apply_scalar_dev
 
+  !> Remove the normal component on the device.
+  !! @details Uses the resolved mixed-node mask together with the local basis
+  !! vectors provided by the coupled vector BC resolver.
+  !! @param x_d Device pointer to the x-component.
+  !! @param y_d Device pointer to the y-component.
+  !! @param z_d Device pointer to the z-component.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  !! @param strm Device stream.
   subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr), intent(inout) :: x_d
@@ -159,6 +205,7 @@ contains
     end if
   end subroutine symmetry_apply_vector_dev
 
+  !> Free the boundary condition and its mixed-bc storage.
   subroutine symmetry_free(this)
     class(symmetry_t), target, intent(inout) :: this
 
