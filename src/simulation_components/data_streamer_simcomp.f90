@@ -109,7 +109,7 @@ contains
   !> Common part of constructors.
   !! @param name The unique name of the simcomp
   subroutine data_streamer_simcomp_init_from_components(this, name, &
-    which_fields, start_time)
+       which_fields, start_time)
     class(data_streamer_simcomp_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=20), intent(in) :: which_fields(:)
@@ -163,7 +163,7 @@ contains
 
           ! Sync from GPU to CPU
           call this%sampled_fields%items(i)%ptr%copy_from(DEVICE_TO_HOST, &
-          .true.)
+               .true.)
 
           call this%dstream%stream(this%sampled_fields%x(i))
        end do

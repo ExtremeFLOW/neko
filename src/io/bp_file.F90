@@ -34,6 +34,7 @@
 !! @details this module defines the interface to write ADIOS2 files
 !! to use compression
 module bp_file
+  use utils, only : filename_chsuffix, filename_suffix_pos, filename_tslash_pos
   use num_types, only : dp, sp, i8, rp
   use generic_file, only : generic_file_t
   use field_list, only : field_list_t
@@ -127,20 +128,20 @@ contains
     select type (data)
     type is (fld_file_data_t)
        npar = data%size()
-       if (data%x%n .gt. 0) x%ptr => data%x%x
-       if (data%y%n .gt. 0) y%ptr => data%y%x
-       if (data%z%n .gt. 0) z%ptr => data%z%x
-       if (data%u%n .gt. 0) then
+       if (data%x%size() .gt. 0) x%ptr => data%x%x
+       if (data%y%size() .gt. 0) y%ptr => data%y%x
+       if (data%z%size() .gt. 0) z%ptr => data%z%x
+       if (data%u%size() .gt. 0) then
           u%ptr => data%u%x
           write_velocity = .true.
        end if
-       if (data%v%n .gt. 0) v%ptr => data%v%x
-       if (data%w%n .gt. 0) w%ptr => data%w%x
-       if (data%p%n .gt. 0) then
+       if (data%v%size() .gt. 0) v%ptr => data%v%x
+       if (data%w%size() .gt. 0) w%ptr => data%w%x
+       if (data%p%size() .gt. 0) then
           p%ptr => data%p%x
           write_pressure = .true.
        end if
-       if (data%t%n .gt. 0) then
+       if (data%t%size() .gt. 0) then
           write_temperature = .true.
           tem%ptr => data%t%x
        end if
@@ -281,7 +282,7 @@ contains
     ! Create fld header for NEKTON's multifile output
     !
 
-    write_mesh = (this%counter .eq. this%start_counter)
+    write_mesh = (this%get_counter() .eq. this%get_start_counter())
 
     ! Build rdcode note that for field_t, we only support scalar
     ! fields at the moment
@@ -314,7 +315,7 @@ contains
 
     ! Create binary header information
     write(hdr, 1) adios2_type, lx, ly, lz, this%layout, glb_nelv, &
-         time, this%counter, npar, (rdcode(i), i = 1, 10)
+         time, this%get_counter(), npar, (rdcode(i), i = 1, 10)
 1   format('#std',1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, 1x, &
          e20.13, 1x, i9, 1x, i6, 1x, 10a)
 
@@ -323,7 +324,7 @@ contains
     !> @todo write into function because of code duplication
     base_fname = this%get_base_fname()
     suffix_pos = filename_suffix_pos(base_fname)
-    write(id_str, '(i5.5,a)') this%counter, '.bp'
+    write(id_str, '(i5.5,a)') this%get_counter(), '.bp'
     fname = trim(base_fname(1:suffix_pos-1)) // "0." // id_str
 
     if (.not. adios%valid) then
@@ -432,20 +433,20 @@ contains
     ! Write metadata file
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(base_fname)
-       write(start_field, "(I5,A7)") this%start_counter, '.adios2'
-       open(unit = newunit(file_unit), &
+       write(start_field, "(I5,A7)") this%get_start_counter(), '.adios2'
+       open(newunit = file_unit, &
             file = trim(base_fname(1:suffix_pos - 1)) &
             // trim(adjustl(start_field)), status='replace')
        write(file_unit, fmt = '(A,A,A)') 'filetemplate:         ', &
             base_fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
-       write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
+       write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', this%get_start_counter()
        write(file_unit, fmt = '(A,i5)') 'numtimesteps: ', &
-            (this%counter + 1) - this%start_counter
+            (this%get_counter() + 1) - this%get_start_counter()
        write(file_unit, fmt = '(A)') 'type: adios2-bp'
        close(file_unit)
     end if
 
-    this%counter = this%counter + 1
+    call this%increment_counter()
 
     if (allocated(outbuf_points)) deallocate(outbuf_points)
     if (allocated(outbuf_npar)) deallocate(outbuf_npar)
@@ -484,7 +485,7 @@ contains
        inquire(file = trim(meta_fname), exist = meta_file)
        if (meta_file .and. data%meta_nsamples .eq. 0) then
           if (pe_rank .eq. 0) then
-             open(unit = newunit(file_unit), file = trim(meta_fname))
+             open(newunit = file_unit, file = trim(meta_fname))
              read(file_unit, fmt = '(A)') string
              read(string(14:), fmt = '(A)') string
              string = trim(string)
@@ -507,19 +508,19 @@ contains
                NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, &
                NEKO_COMM, ierr)
-          if (this%counter .eq. 0) this%counter = data%meta_start_counter
+          if (this%get_counter() .eq. 0) call this%set_counter(data%meta_start_counter)
        end if
 
        if (meta_file) then
-          write(id_str, '(i5.5,a)') this%counter, '.bp'
+          write(id_str, '(i5.5,a)') this%get_counter(), '.bp'
           fname = trim(data%fld_series_fname) // '.' // id_str
-          if (this%counter .ge. data%meta_nsamples+data%meta_start_counter) then
+          if (this%get_counter() .ge. data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more bp files than exist')
           end if
        else
           ! @todo write into function because of code duplication
           !suffix_pos = filename_suffix_pos(base_fname)
-          !write(id_str, '(i5.5,a)') this%counter, '.bp'
+          !write(id_str, '(i5.5,a)') this%get_counter(), '.bp'
           !fname = trim(base_fname(1:suffix_pos-1))//'.'//id_str
           fname = base_fname
        end if
@@ -609,26 +610,26 @@ contains
        read_temp = .false.
        if (rdcode(i) .eq. 'X') then
           read_mesh = .true.
-          if (data%x%n .ne. n) call data%x%init(n)
-          if (data%y%n .ne. n) call data%y%init(n)
-          if (data%z%n .ne. n) call data%z%init(n)
+          if (data%x%size() .ne. n) call data%x%init(n)
+          if (data%y%size() .ne. n) call data%y%init(n)
+          if (data%z%size() .ne. n) call data%z%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'U') then
           read_velocity = .true.
-          if (data%u%n .ne. n) call data%u%init(n)
-          if (data%v%n .ne. n) call data%v%init(n)
-          if (data%w%n .ne. n) call data%w%init(n)
+          if (data%u%size() .ne. n) call data%u%init(n)
+          if (data%v%size() .ne. n) call data%v%init(n)
+          if (data%w%size() .ne. n) call data%w%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'P') then
           read_pressure = .true.
-          if (data%p%n .ne. n) call data%p%init(n)
+          if (data%p%size() .ne. n) call data%p%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'T') then
           read_temp = .true.
-          if (data%t%n .ne. n) call data%t%init(n)
+          if (data%t%size() .ne. n) call data%t%init(n)
           i = i + 1
        end if
        n_scalars = 0
@@ -744,7 +745,7 @@ contains
        call adios2_end_step(bpReader, ierr)
        call adios2_close(bpReader, ierr)
 
-       this%counter = this%counter + 1
+       call this%increment_counter()
 
        if (allocated(inpbuf_points)) deallocate(inpbuf_points)
        if (allocated(inpbuf)) deallocate(inpbuf)
