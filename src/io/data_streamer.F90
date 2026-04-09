@@ -89,9 +89,9 @@ contains
     nelb = coef%msh%offset_el
     gdim = coef%msh%gdim
     if (present(timeout_seconds)) then
-        timeout = timeout_seconds
+       timeout = timeout_seconds
     else
-        timeout = 300
+       timeout = 300
     end if
 
 
@@ -162,8 +162,8 @@ contains
   !! @param gdim dimension (2d or 3d)
   !! @param comm simulation communicator
   !! @param timeout timeout in seconds
-  subroutine fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, & 
-                                                        comm, timeout)
+  subroutine fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
+       comm, timeout)
     use, intrinsic :: ISO_C_BINDING
     implicit none
     integer, intent(in) :: npts, nelv, nelb, nelgv, gdim
@@ -177,7 +177,7 @@ contains
        !! const double *zml, const int *if_asynchronous,
        !! const int *comm_int)
        subroutine c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
-                              comm, timeout) bind(C,name="adios2_initialize_")
+            comm, timeout) bind(C,name="adios2_initialize_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
@@ -224,7 +224,7 @@ contains
     interface
        !> C-definition is: void adios2_stream_(const double *fld)
        subroutine c_adios2_stream(fld) &
-                                  bind(C,name="adios2_stream_")
+            bind(C,name="adios2_stream_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
@@ -248,7 +248,7 @@ contains
     interface
        !> C-definition is: void adios2_stream_(const double *fld)
        subroutine c_adios2_recieve(fld) &
-                                  bind(C,name="adios2_recieve_")
+            bind(C,name="adios2_recieve_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
