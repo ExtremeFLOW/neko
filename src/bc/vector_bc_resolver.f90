@@ -58,8 +58,8 @@ module vector_bc_resolver
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
   implicit none
   private
-  public :: vector_bc_resolver_t, segregated_vector_bc_resolver_t
-  public :: coupled_vector_bc_resolver_t, vector_bc_resolver_components
+
+  public ::  vector_bc_resolver_components
 
   !> Abstract type for resolving vector boundary conditions.
   type, public, abstract :: vector_bc_resolver_t
@@ -207,21 +207,21 @@ contains
     end if
 
     if (.not. present(component)) then
-      call this%x%mark_bc(bc)
-      call this%y%mark_bc(bc)
-      call this%z%mark_bc(bc)
+       call this%x%mark_bc(bc)
+       call this%y%mark_bc(bc)
+       call this%z%mark_bc(bc)
     else
-      select case (component)
-      case ('x')
-         call this%x%mark_bc(bc)
-      case ('y')
-         call this%y%mark_bc(bc)
-      case ('z')
-         call this%z%mark_bc(bc)
-      case default
-         call neko_error("Invalid component for segregated vector BC " // &
-              "resolver mark.")
-      end select
+       select case (component)
+       case ('x')
+          call this%x%mark_bc(bc)
+       case ('y')
+          call this%y%mark_bc(bc)
+       case ('z')
+          call this%z%mark_bc(bc)
+       case default
+          call neko_error("Invalid component for segregated vector BC " // &
+               "resolver mark.")
+       end select
     end if
   end subroutine segregated_vector_bc_resolver_mark_bc
 
@@ -269,6 +269,11 @@ contains
             "configuration.")
     end select
   end subroutine vector_bc_resolver_components
+
+
+  !
+  ! Coupled resolver TBPs
+  !
 
   subroutine coupled_vector_bc_resolver_free(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this

@@ -68,7 +68,7 @@ module neko
   use mixed_bc, only : mixed_bc_t
   use scalar_bc_resolver, only : scalar_bc_resolver_t
   use vector_bc_resolver, only : segregated_vector_bc_resolver_t, &
-      coupled_vector_bc_resolver_t
+       coupled_vector_bc_resolver_t
   use zero_dirichlet, only : zero_dirichlet_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t

@@ -423,33 +423,33 @@ contains
     call this%value_z%init(this%bc_z%msk(0), 'non_normal_aligned_z')
 
     if (this%use_constant_value) then
-      this%value_x = this%constant_value(1)
-      this%value_y = this%constant_value(2)
-      this%value_z = this%constant_value(3)
+       this%value_x = this%constant_value(1)
+       this%value_y = this%constant_value(2)
+       this%value_z = this%constant_value(3)
     else if (this%read_values_from_field) then
-      call neko_scratch_registry%request_field(value_x_field, scratch_idx(1), &
-           .true.)
-      call neko_scratch_registry%request_field(value_y_field, scratch_idx(2), &
-           .true.)
-      call neko_scratch_registry%request_field(value_z_field, scratch_idx(3), &
-           .true.)
+       call neko_scratch_registry%request_field(value_x_field, scratch_idx(1), &
+            .true.)
+       call neko_scratch_registry%request_field(value_y_field, scratch_idx(2), &
+            .true.)
+       call neko_scratch_registry%request_field(value_z_field, scratch_idx(3), &
+            .true.)
 
-      call import_fields(this%field_file_name, this%field_mesh_file_name, &
-           u = value_x_field, v = value_y_field, w = value_z_field, &
-           interpolate = this%field_interpolate, &
-           tolerance = this%field_interp_tolerance, &
-           padding = this%field_interp_padding)
+       call import_fields(this%field_file_name, this%field_mesh_file_name, &
+            u = value_x_field, v = value_y_field, w = value_z_field, &
+            interpolate = this%field_interpolate, &
+            tolerance = this%field_interp_tolerance, &
+            padding = this%field_interp_padding)
 
-      call vector_masked_gather_copy_0(this%value_x, &
-           value_x_field%x(:,1,1,1), this%bc_x%msk, value_x_field%size(), &
-           this%bc_x%msk(0))
-      call vector_masked_gather_copy_0(this%value_y, &
-           value_y_field%x(:,1,1,1), this%bc_y%msk, value_y_field%size(), &
-           this%bc_y%msk(0))
-      call vector_masked_gather_copy_0(this%value_z, &
-           value_z_field%x(:,1,1,1), this%bc_z%msk, value_z_field%size(), &
-           this%bc_z%msk(0))
-      call neko_scratch_registry%relinquish_field(scratch_idx)
+       call vector_masked_gather_copy_0(this%value_x, &
+            value_x_field%x(:,1,1,1), this%bc_x%msk, value_x_field%size(), &
+            this%bc_x%msk(0))
+       call vector_masked_gather_copy_0(this%value_y, &
+            value_y_field%x(:,1,1,1), this%bc_y%msk, value_y_field%size(), &
+            this%bc_y%msk(0))
+       call vector_masked_gather_copy_0(this%value_z, &
+            value_z_field%x(:,1,1,1), this%bc_z%msk, value_z_field%size(), &
+            this%bc_z%msk(0))
+       call neko_scratch_registry%relinquish_field(scratch_idx)
     end if
 
     call this%finalize_base()
