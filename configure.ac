@@ -334,7 +334,7 @@ fi
 
 
 # JSON-Fortran
-PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
+PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
 NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $JSON_Fortran_CFLAGS"
 

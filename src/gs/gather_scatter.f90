@@ -1149,7 +1149,7 @@ contains
 
     call profiler_start_region("gather_scatter", 5)
     ! Gather shared dofs
-    if (pe_size .gt. 1) then
+    if (pe_size .gt. 1 .and. n .gt. 0) then
        call profiler_start_region("gs_nbrecv", 13)
        call gs%comm%nbrecv()
        call profiler_end_region("gs_nbrecv", 13)
@@ -1178,7 +1178,7 @@ contains
     end if
 
     ! Scatter shared dofs
-    if (pe_size .gt. 1) then
+    if (pe_size .gt. 1 .and. n .gt. 0) then
        call profiler_start_region("gs_nbwait", 7)
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region("gs_nbwait", 7)

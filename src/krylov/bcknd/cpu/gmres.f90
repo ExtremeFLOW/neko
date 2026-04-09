@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -241,21 +241,12 @@ contains
             end do
 
             do i = 0, n, NEKO_BLK_SIZE
-               if (i + NEKO_BLK_SIZE .le. n) then
-                  do l = 1, j
-                     do k = 1, NEKO_BLK_SIZE
-                        h(l,j) = h(l,j) + &
-                             w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
-                     end do
+               do l = 1, j
+                  do k = 1, min(NEKO_BLK_SIZE, n - i)
+                     h(l,j) = h(l,j) + &
+                          w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                   end do
-               else
-                  do k = 1, n-i
-                     do l = 1, j
-                        h(l,j) = h(l,j) + &
-                             w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
-                     end do
-                  end do
-               end if
+               end do
             end do
 
             call MPI_Allreduce(MPI_IN_PLACE, h(1,j), j, &
@@ -263,29 +254,18 @@ contains
 
             alpha2 = 0.0_rp
             do i = 0, n, NEKO_BLK_SIZE
-               if (i + NEKO_BLK_SIZE .le. n) then
-                  do k = 1, NEKO_BLK_SIZE
-                     w_plus(k) = 0.0_rp
+               do k = 1, min(NEKO_BLK_SIZE, n - i)
+                  w_plus(k) = 0.0_rp
+               end do
+               do l = 1, j
+                  do k = 1, min(NEKO_BLK_SIZE, n - i)
+                     w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
                   end do
-                  do l = 1,j
-                     do k = 1, NEKO_BLK_SIZE
-                        w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
-                     end do
-                  end do
-                  do k = 1, NEKO_BLK_SIZE
-                     w(i+k) = w(i+k) + w_plus(k)
-                     alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
-                  end do
-               else
-                  do k = 1, n-i
-                     w_plus(1) = 0.0_rp
-                     do l = 1, j
-                        w_plus(1) = w_plus(1) - h(l,j) * v(i+k,l)
-                     end do
-                     w(i+k) = w(i+k) + w_plus(1)
-                     alpha2 = alpha2 + (w(i+k)**2) * coef%mult(i+k,1,1,1)
-                  end do
-               end if
+               end do
+               do k = 1, min(NEKO_BLK_SIZE, n - i)
+                  w(i+k) = w(i+k) + w_plus(k)
+                  alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
+               end do
             end do
 
             call MPI_Allreduce(MPI_IN_PLACE,alpha2, 1, &
@@ -336,27 +316,17 @@ contains
          end do
 
          do i = 0, n, NEKO_BLK_SIZE
-            if (i + NEKO_BLK_SIZE .le. n) then
-               do k = 1, NEKO_BLK_SIZE
-                  x_plus(k) = 0.0_rp
+            do k = 1, min(NEKO_BLK_SIZE, n - i)
+               x_plus(k) = 0.0_rp
+            end do
+            do l = 1,j
+               do k = 1, min(NEKO_BLK_SIZE, n - i)
+                  x_plus(k) = x_plus(k) + c(l) * z(i+k,l)
                end do
-               do l = 1,j
-                  do k = 1, NEKO_BLK_SIZE
-                     x_plus(k) = x_plus(k) + c(l) * z(i+k,l)
-                  end do
-               end do
-               do k = 1, NEKO_BLK_SIZE
-                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-               end do
-            else
-               do k = 1, n-i
-                  x_plus(1) = 0.0_rp
-                  do l = 1, j
-                     x_plus(1) = x_plus(1) + c(l) * z(i+k,l)
-                  end do
-                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-               end do
-            end if
+            end do
+            do k = 1, min(NEKO_BLK_SIZE, n - i)
+               x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
+            end do
          end do
       end do
 

@@ -32,7 +32,7 @@
 !
 !> Simulation driver
 module simulation
-  use mpi_f08, only: MPI_Wtime
+  use mpi_f08, only : MPI_Wtime
   use case, only : case_t
   use checkpoint, only : chkp_t
   use num_types, only : rp, dp
@@ -255,7 +255,7 @@ contains
        call previous_meshf%read(C%chkp%previous_mesh)
 
        call json_get_or_default(C%params, 'case.mesh2mesh_tolerance', &
-            C%chkp%mesh2mesh_tol, 1e-6_rp)
+            C%chkp%mesh2mesh_tol, 1e-6_dp)
     end if
 
     call neko_log%section('Restarting from checkpoint')

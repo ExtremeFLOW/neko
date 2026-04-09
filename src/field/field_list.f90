@@ -7,7 +7,6 @@ module field_list
   use mesh, only : mesh_t
   use utils, only : neko_error
   use comm, only : pe_rank
-  use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
@@ -69,15 +68,21 @@ contains
     integer, intent(in) :: size
 
     call this%free()
-
     allocate(this%items(size))
+
   end subroutine field_list_init
 
   !> Get number of items in the list.
   pure function field_list_size(this) result(n)
     class(field_list_t), intent(in) :: this
     integer :: n
-    n = size(this%items)
+
+    if (allocated(this%items)) then
+       n = size(this%items)
+    else
+       n = 0
+    end if
+
   end function field_list_size
 
   !> Get an item pointer by array index

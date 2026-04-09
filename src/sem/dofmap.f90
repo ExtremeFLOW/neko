@@ -35,13 +35,15 @@
 module dofmap
   use neko_config, only : NEKO_BCKND_DEVICE
   use mesh, only : mesh_t
+  use mask, only : mask_t
   use space, only : space_t, GLL
   use num_types, only : i4, i8, rp, xp
   use utils, only : neko_error, neko_warning
   use fast3d, only : fd_weights_full
   use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
   use device
-  use math, only : add3, copy, rone, rzero
+  use math, only : add3, copy, rone, rzero, masked_gather_copy
+  use device_math, only : device_masked_gather_copy_aligned
   use element, only : element_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
@@ -60,6 +62,7 @@ module dofmap
      integer, private :: ntot !< Local number of dofs
 
      type(mesh_t), pointer :: msh
+     type(mesh_t), allocatable :: msh_subset
      type(space_t), pointer :: Xh
 
      !
@@ -76,6 +79,8 @@ module dofmap
      procedure, pass(this) :: free => dofmap_free
      !> Return the local number of degrees of freedom, lx*ly*lz*nelv
      procedure, pass(this) :: size => dofmap_size
+     !> Initialize a new dofmap based on a mask
+     procedure, pass(this) :: subset_by_mask => dofmap_subset_by_mask
      !> Return the global number of degrees of freedom, lx*ly*lz*glb_nelv
      procedure, pass(this) :: global_size => dofmap_global_size
      !> AMR restart
@@ -180,6 +185,11 @@ contains
 
     nullify(this%msh)
     nullify(this%Xh)
+
+    if (allocated(this%msh_subset)) then
+       call this%msh_subset%free()
+       deallocate(this%msh_subset)
+    end if
 
     !
     ! Cleanup the device (if present)
@@ -1067,5 +1077,61 @@ contains
     end if
 
   end subroutine compute_h
+
+  !> Generate/Initialize a new dofmap object based on a mask
+  !! @note Assumes that all points in an element are marked in by the mask.
+  !! @param other The new dofmap to be initialized.
+  !! @param mask the mask type defining the elements to be included.
+  subroutine dofmap_subset_by_mask(this, other, mask)
+    class(dofmap_t), intent(inout) :: this
+    class(dofmap_t), intent(inout) :: other
+    type(mask_t), intent(in) :: mask
+    integer :: i
+
+    ! Initialize the mesh subset_mesh in this
+    ! Deallocate any previously allocated mesh subset
+    if (allocated(this%msh_subset)) then
+       call this%msh_subset%free()
+       deallocate(this%msh_subset)
+    end if
+
+    allocate(this%msh_subset)
+    call this%msh%subset_by_mask(this%msh_subset, mask, &
+         this%Xh%lx, this%Xh%ly, this%Xh%lz)
+
+    ! Initialize the other dofmap
+    call other%init(this%msh_subset, this%Xh)
+
+    ! Overwrite dofmap in case it has been updated and
+    ! the mesh has not.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_masked_gather_copy_aligned(other%x_d, &
+            this%x_d, mask%get_d(), &
+            this%size(), mask%size())
+       call device_masked_gather_copy_aligned(other%y_d, &
+            this%y_d, mask%get_d(), &
+            this%size(), mask%size())
+       call device_masked_gather_copy_aligned(other%z_d, &
+            this%z_d, mask%get_d(), &
+            this%size(), mask%size())
+
+       ! Sync with host
+       call device_memcpy(other%x, other%x_d, other%ntot, &
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(other%y, other%y_d, other%ntot, &
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(other%z, other%z_d, other%ntot, &
+            DEVICE_TO_HOST, sync =.true.)
+
+    else
+       call masked_gather_copy(other%x, this%x, mask%get(), &
+            this%size(), mask%size())
+       call masked_gather_copy(other%y, this%y, mask%get(), &
+            this%size(), mask%size())
+       call masked_gather_copy(other%z, this%z, mask%get(), &
+            this%size(), mask%size())
+    end if
+
+  end subroutine dofmap_subset_by_mask
 
 end module dofmap

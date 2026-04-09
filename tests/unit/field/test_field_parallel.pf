@@ -8,10 +8,12 @@ module test_field_parallel
   use dofmap
   use num_types
   use device
+  use math, only : NEKO_EPS
+  use field_math
   use space
   use mesh
   use dofmap
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
   use neko_config
   implicit none
 
@@ -29,6 +31,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
+    call comm_init
   end subroutine setUp
 
   subroutine tearDown(this)
@@ -252,5 +255,37 @@ contains
     @assertEqual(maxval(f%x), 42.0_rp + 17.0_rp)
 
   end subroutine test_field_add_field
+
+  @test(npes=[1])
+  subroutine test_field_glminmax(this)
+    class (test_field), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    integer :: ierr
+    integer :: n
+    type(field_t) :: f
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call test_field_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call f%init(msh, Xh, 'test')
+
+    n = f%size()
+    f = 1.0_rp
+    f%x(1, 1, 1, 1) = -3.0_rp
+    f%x(lx, lx, lx, msh%nelv) = 7.0_rp
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(f%x, f%x_d, n, HOST_TO_DEVICE, sync=.true.)
+    end if
+
+    @assertEqual(7.0_rp, field_glmax(f))
+    @assertEqual(-3.0_rp, field_glmin(f))
+    @assertEqual(1.0_rp, field_glmax(f, n - 1))
+    @assertEqual(-3.0_rp, field_glmin(f, n - 1))
+
+  end subroutine test_field_glminmax
 
 end module test_field_parallel
