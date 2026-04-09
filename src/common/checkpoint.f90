@@ -442,9 +442,8 @@ contains
 
   !> Add mesh velocity and other required variables to checkpointing for ALE
   subroutine chkp_add_ale(this, x, y, z, Blag, Blaglag, wm_x, wm_y, wm_z, &
-                          wm_x_lag, wm_y_lag, wm_z_lag, &
-                          pivot_pos, pivot_vel_lag, basis_pos, &
-                          basis_vel_lag)
+       wm_x_lag, wm_y_lag, wm_z_lag, pivot_pos, pivot_vel_lag, basis_pos, &
+       basis_vel_lag)
     class(chkp_t), intent(inout) :: this
     type(field_t), target, intent(in) :: wm_x, wm_y, wm_z
     real(kind=rp), intent(in), pointer :: pivot_pos(:), pivot_vel_lag(:,:)
