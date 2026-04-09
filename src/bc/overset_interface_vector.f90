@@ -58,6 +58,7 @@ module overset_interface_vector
   use utils, only : neko_error, nonlinear_index, linear_index
   use stack, only: stack_i4_t
   use json_module, only : json_file
+  use json_utils, only : json_get_subdict_or_empty
   use field_list, only : field_list_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   use time_state, only : time_state_t
@@ -84,6 +85,8 @@ module overset_interface_vector
      type(vector_t) :: x_dof, y_dof, z_dof
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      type(vector_t) :: u_interface, v_interface, w_interface
+     !> Interpolation settings.
+     type(json_file) :: interpolation_settings
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_vector_init
@@ -120,6 +123,10 @@ contains
     type(json_file), intent(inout) ::json
 
     call this%init_from_components(coef)
+
+    !> Store the interpolation settings
+    call json_get_subdict_or_empty(json, "interpolation", &
+             this%interpolation_settings)
 
   end subroutine overset_interface_vector_init
 
@@ -476,7 +483,7 @@ contains
     class(overset_interface_vector_t), intent(inout) :: this
 
     !> Initialize the interpolator with the mask and the dof coords
-    call this%interface_interpolator%init(this%dof, &
+    call this%interface_interpolator%init(this%dof, this%interpolation_settings, &
          NEKO_GLOBAL_COMM, &
          mask=this%domain_element_mask)
 

@@ -50,7 +50,7 @@ module overset_interface
   use utils, only : neko_error, nonlinear_index, linear_index
   use stack, only : stack_i4_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_subdict_or_empty
   use field, only : field_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
@@ -75,6 +75,8 @@ module overset_interface
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      !> Interpolated scalar values on the interface.
      type(vector_t) :: s_interface
+     !> Interpolation settings.
+     type(json_file) :: interpolation_settings
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_init
@@ -110,6 +112,11 @@ contains
     call json_get(json, "field_name", field_name)
     call this%init_from_components(coef, field_name)
     if (allocated(field_name)) deallocate(field_name)
+
+    !> Store the interpolation settings
+    call json_get_subdict_or_empty(json, "interpolation", &
+            this%interpolation_settings)
+
 
   end subroutine overset_interface_init
 
@@ -390,7 +397,8 @@ contains
   subroutine setup_interpolator_(this)
     class(overset_interface_t), intent(inout) :: this
 
-    call this%interface_interpolator%init(this%dof, NEKO_GLOBAL_COMM, &
+    call this%interface_interpolator%init(this%dof, this%interpolation_settings, &
+         NEKO_GLOBAL_COMM, &
          mask = this%domain_element_mask)
 
     call this%interface_interpolator%find_points(this%x_interface_dof%x, &
