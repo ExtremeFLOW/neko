@@ -38,15 +38,12 @@ module data_streamer_simcomp
   use json_utils, only : json_get_or_default, json_get, &
        json_get_or_lookup_or_default
   use simulation_component, only : simulation_component_t
-  use registry, only : neko_registry
   use field, only : field_t
-  !use field_array, only : field_array_t
-  use field_list, only : field_list_t
   use case, only : case_t
-  use point_zone, only : point_zone_t
   use time_state, only : time_state_t
   use data_streamer, only : data_streamer_t
   use time_based_controller, only : time_based_controller_t
+  use registry, only : neko_registry
   use device
   implicit none
   private
@@ -59,18 +56,8 @@ module data_streamer_simcomp
      !> Time after which to start streaming.
      real(kind=rp) :: start_time
 
-     !> List of fields pointing to the fields to stream
-     type(field_list_t) :: sampled_fields
-
      !> Data streamer instance
      type(data_streamer_t) :: dstream
-
-     !> Array of fields to be streamed, in case they need to be subsampled by
-     !! point zone.
-     !type(field_array_t) :: subsampled_fields
-
-     !> Point zone to use for subsampling
-     !class(point_zone_t), pointer :: point_zone => null()
 
    contains
      !> Constructor from json.
@@ -107,7 +94,9 @@ contains
   end subroutine data_streamer_simcomp_init_from_json
 
   !> Common part of constructors.
-  !! @param name The unique name of the simcomp
+  !! @param name The unique name of the simcomp.
+  !! @param which_fields The names of the fields to be streamed.
+  !! @param start_time Time after which to start streaming.
   subroutine data_streamer_simcomp_init_from_components(this, name, &
        which_fields, start_time)
     class(data_streamer_simcomp_t), intent(inout) :: this
@@ -119,19 +108,6 @@ contains
     this%field_names = which_fields
     this%start_time = start_time
 
-    ! Allocate the field list with the number of fields to sample
-    call this%sampled_fields%init(size(which_fields))
-
-    ! Assign fields from the registry
-    block
-      integer :: i
-      do i = 1, size(which_fields)
-         call this%sampled_fields%assign_to_field(i, &
-              neko_registry%get_field(which_fields(i)))
-      end do
-    end block
-
-    ! Initialize the data streamer
     call this%dstream%init(this%case%fluid%c_Xh)
 
   end subroutine data_streamer_simcomp_init_from_components
@@ -143,9 +119,6 @@ contains
 
     if (allocated(this%field_names)) deallocate(this%field_names)
     this%start_time = -1.0_rp
-
-    call this%sampled_fields%free()
-
     call this%dstream%free()
 
   end subroutine data_streamer_simcomp_free
@@ -157,15 +130,17 @@ contains
     type(time_state_t), intent(in) :: time
 
     integer :: i
+    type(field_t), pointer :: f
 
     if (time%t >= this%start_time) then
-       do i = 1, this%sampled_fields%size()
+       do i = 1, size(this%field_names)
 
           ! Sync from GPU to CPU
-          call this%sampled_fields%items(i)%ptr%copy_from(DEVICE_TO_HOST, &
-               .true.)
+          f => neko_registry%get_field_by_name(this%field_names(i))
+          call f%copy_from(DEVICE_TO_HOST, .true.)
 
-          call this%dstream%stream(this%sampled_fields%x(i))
+          ! Stream the field
+          call this%dstream%stream(f%x)
        end do
     end if
 
