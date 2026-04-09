@@ -30,7 +30,10 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Vector boundary-condition resolvers.
+!> Implements boundary condition resolvers for vector fields. Two types concrete
+!! types are provided: `segregated_vector_bc_resolver_t` for simple
+!! component-wise resolution, and `coupled_vector_bc_resolver_t` for resolving
+!! mixed boundary conditions.
 module vector_bc_resolver
   use bc, only : bc_t
   use bc_list, only : bc_list_t
@@ -64,30 +67,50 @@ module vector_bc_resolver
   !> Abstract type for resolving vector boundary conditions.
   type, public, abstract :: vector_bc_resolver_t
    contains
+     !> Constructor.
      procedure(vector_bc_resolver_init_intrf), pass(this), deferred :: init
+     !> Destructor.
      procedure(vector_bc_resolver_free_intrf), pass(this), deferred :: free
+     !> Finalize the vector boundary-condition resolver.
      procedure(vector_bc_resolver_finalize_intrf), pass(this), deferred :: &
           finalize
+     !> Apply homogeneous resolved vector boundary constraints.
      procedure(vector_bc_resolver_apply_intrf), pass(this), deferred :: apply
+     !> Mark a boundary condition in the vector boundary-condition resolver.
      procedure(vector_bc_resolver_mark_bc_intrf), pass(this), deferred :: &
           mark_bc
+     !> Mark a list of boundary conditions in the resolver.
      procedure(vector_bc_resolver_mark_bc_list_intrf), pass(this), deferred :: &
           mark_bc_list
      generic :: mark => mark_bc, mark_bc_list
   end type vector_bc_resolver_t
 
   !> A resolver for vector fields that acts component-wise.
+  !! @details Stores one `scalar_bc_resolver_t` per global component and applies
+  !! vector boundary conditions independently to `x`, `y` and `z`. This is
+  !! suitable only for fully component-wise constraints. Like the underlying
+  !! scalar resolvers, this does not perform any real global resolution, we just
+  !! feed it the Dirichlet dofs component-wise. Therefore, `finalize` is no-op.
   type, public, extends(vector_bc_resolver_t) :: segregated_vector_bc_resolver_t
+     !> Resolver for the x-component.
      type(scalar_bc_resolver_t) :: x
+     !> Resolver for the y-component.
      type(scalar_bc_resolver_t) :: y
+     !> Resolver for the z-component.
      type(scalar_bc_resolver_t) :: z
    contains
+     !> Constructor, no-op.
      procedure, pass(this) :: init => segregated_vector_bc_resolver_init
+     !> Destructor.
      procedure, pass(this) :: free => segregated_vector_bc_resolver_free
+     !> No-op finalize routine.
      procedure, pass(this) :: finalize => segregated_vector_bc_resolver_finalize
+     !> Mark a boundary condition.
      procedure, pass(this) :: mark_bc => segregated_vector_bc_resolver_mark_bc
+     !> Mark a list of boundary conditions.
      procedure, pass(this) :: mark_bc_list => &
           segregated_vector_bc_resolver_mark_bc_list
+     !> Zero-out constrained dofs using the underlying component resolvers.
      procedure, pass(this) :: apply => segregated_vector_bc_resolver_apply
   end type segregated_vector_bc_resolver_t
 
@@ -127,6 +150,7 @@ module vector_bc_resolver
   end type coupled_vector_bc_resolver_t
 
   abstract interface
+     !> Free the vector boundary-condition resolver.
      subroutine vector_bc_resolver_free_intrf(this)
        import :: vector_bc_resolver_t
        class(vector_bc_resolver_t), intent(inout) :: this
@@ -134,6 +158,8 @@ module vector_bc_resolver
   end interface
 
   abstract interface
+     !> Initialize the vector boundary-condition resolver.
+     !! @param[in] coef SEM coefficients defining the dof layout.
      subroutine vector_bc_resolver_init_intrf(this, coef)
        import :: vector_bc_resolver_t, coef_t
        class(vector_bc_resolver_t), intent(inout) :: this
@@ -142,6 +168,7 @@ module vector_bc_resolver
   end interface
 
   abstract interface
+     !> Finalize the vector boundary-condition resolver.
      subroutine vector_bc_resolver_finalize_intrf(this)
        import :: vector_bc_resolver_t
        class(vector_bc_resolver_t), intent(inout) :: this
@@ -149,6 +176,12 @@ module vector_bc_resolver
   end interface
 
   abstract interface
+     !> Apply the resolved vector boundary constraints.
+     !! @param[inout] x x-component field values.
+     !! @param[inout] y y-component field values.
+     !! @param[inout] z z-component field values.
+     !! @param[in] n Number of entries in each component array.
+     !! @param[inout] strm Optional backend stream used on device backends.
      subroutine vector_bc_resolver_apply_intrf(this, x, y, z, n, strm)
        import :: vector_bc_resolver_t, rp, c_ptr
        class(vector_bc_resolver_t), intent(in) :: this
@@ -161,6 +194,10 @@ module vector_bc_resolver
   end interface
 
   abstract interface
+     !> Mark a boundary condition in the vector boundary-condition resolver.
+     !! @param[inout] bc Boundary condition to register.
+     !! @param[in] component Optional component selector, for the segregated
+     !! resolver.
      subroutine vector_bc_resolver_mark_bc_intrf(this, bc, component)
        import :: vector_bc_resolver_t, bc_t
        class(vector_bc_resolver_t), intent(inout) :: this
@@ -170,6 +207,10 @@ module vector_bc_resolver
   end interface
 
   abstract interface
+     !> Mark a list of boundary conditions in the resolver.
+     !! @param[in] bclst Boundary-condition list to register.
+     !! @param[in] component Optional component selector for the segregated
+     !! resolver.
      subroutine vector_bc_resolver_mark_bc_list_intrf(this, bclst, component)
        import :: vector_bc_resolver_t, bc_list_t
        class(vector_bc_resolver_t), intent(inout) :: this
@@ -180,6 +221,7 @@ module vector_bc_resolver
 
 contains
 
+  !> Destructor
   subroutine segregated_vector_bc_resolver_free(this)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     call this%x%free()
@@ -187,15 +229,23 @@ contains
     call this%z%free()
   end subroutine segregated_vector_bc_resolver_free
 
+  !> Constructor, no-op.
+  !! @param[in] coef SEM coefficients defining the dof layout.
   subroutine segregated_vector_bc_resolver_init(this, coef)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
   end subroutine segregated_vector_bc_resolver_init
 
+  !> Finalize the segregated vector boundary-condition resolver.
   subroutine segregated_vector_bc_resolver_finalize(this)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
   end subroutine segregated_vector_bc_resolver_finalize
 
+  !> Mark a boundary condition in the segregated resolver.
+  !! @details Fully constrained vector boundary conditions are either applied to
+  !! all three component resolvers or to one selected component.
+  !! @param[inout] bc Boundary condition to register.
+  !! @param[in] component Optional component selector.
   subroutine segregated_vector_bc_resolver_mark_bc(this, bc, component)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
@@ -225,6 +275,9 @@ contains
     end if
   end subroutine segregated_vector_bc_resolver_mark_bc
 
+  !> Mark a list of boundary conditions in the segregated resolver.
+  !! @param[in] bclst Boundary-condition list to register.
+  !! @param[in] component Optional component selector.
   subroutine segregated_vector_bc_resolver_mark_bc_list(this, bclst, component)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
@@ -238,6 +291,12 @@ contains
     end do
   end subroutine segregated_vector_bc_resolver_mark_bc_list
 
+  !> Apply the segregated vector boundary constraints.
+  !! @param[inout] x x-component field values.
+  !! @param[inout] y y-component field values.
+  !! @param[inout] z z-component field values.
+  !! @param[in] n Number of entries in each component array.
+  !! @param[inout] strm Optional backend stream/queue used on device backends.
   subroutine segregated_vector_bc_resolver_apply(this, x, y, z, n, strm)
     class(segregated_vector_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
@@ -251,6 +310,10 @@ contains
     call this%z%apply(z, n, strm = strm)
   end subroutine segregated_vector_bc_resolver_apply
 
+  !> Access the component scalar resolvers from a segregated vector resolver.
+  !! @param[inout] x Pointer to the x-component scalar resolver.
+  !! @param[inout] y Pointer to the y-component scalar resolver.
+  !! @param[inout] z Pointer to the z-component scalar resolver.
   subroutine vector_bc_resolver_components(this, x, y, z)
     class(vector_bc_resolver_t), target, intent(inout) :: this
     type(scalar_bc_resolver_t), pointer, intent(inout) :: x

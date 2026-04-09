@@ -59,7 +59,7 @@ module scalar_bc_resolver
      !> Union of constrained scalar degrees of freedom.
      type(mask_t) :: dof_mask
    contains
-     !> Free the scalar boundary-condition resolver.
+     !> Destructor.
      procedure, pass(this) :: free => scalar_bc_resolver_free
      !> Add the constrained dofs from a scalar boundary condition.
      procedure, pass(this) :: mark_bc => scalar_bc_resolver_mark_bc
@@ -74,7 +74,7 @@ module scalar_bc_resolver
 
 contains
 
-  !> Free the scalar boundary-condition resolver.
+  !> Destructor.
   subroutine scalar_bc_resolver_free(this)
     class(scalar_bc_resolver_t), intent(inout) :: this
 
