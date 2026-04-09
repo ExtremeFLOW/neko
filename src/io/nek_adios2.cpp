@@ -21,7 +21,8 @@ extern "C" void adios2_initialize_(
     const int *offset_el,
     const int *glb_nelv,
     const int *gdim,
-    const int *comm_int
+    const int *comm_int,
+    const int timeout_seconds
 ){
     MPI_Comm comm = MPI_Comm_f2c(*comm_int);
     adios = adios2::ADIOS(comm);
@@ -30,6 +31,7 @@ extern "C" void adios2_initialize_(
     // Asynchronous IO.
     io_asynchronous = adios.DeclareIO("streamIO");
     io_asynchronous.SetEngine("SST");
+    io_asynchronous.SetParameters({{"OpenTimeoutSecs", std::to_string(timeout_seconds)}});
 
     // Number of elements in my rank.
     unsigned int nel = static_cast<unsigned int>((*nelv));
