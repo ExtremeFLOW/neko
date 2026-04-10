@@ -1233,11 +1233,11 @@ contains
          call this%dofmap%amr_restart(reconstruct, counter, tstep)
 
     ! clear space
-    if (this%nlocal .gt. 0) then
+    if (allocated(this%local_dof_gs)) then
        deallocate(this%local_dof_gs, this%local_gs_dof, this%local_blk_len, &
             this%local_blk_off, this%local_gs)
     end if
-    if (this%nshared .gt. 0) then
+    if (allocated(this%shared_dof_gs)) then
        deallocate(this%shared_dof_gs, this%shared_gs_dof, this%shared_blk_len, &
             this%shared_blk_off, this%shared_gs)
     end if
