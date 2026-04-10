@@ -258,6 +258,15 @@ contains
             ignore_existing = .true.)
     end do
 
+    ! Throw an error if no output filename is provided to avoid dumping masked 
+    ! fields in the default fluid output.
+    if (present(point_zone) .and. &
+         (.not. present(filename) .or. len_trim(filename) .eq. 0 ) ) then
+       call neko_error("Please provide a filename for the " // &
+            "field_writer when using a point_zone with the key " // &
+            "'output_filename'.")
+    end if
+
     filename_provided = .false.
     if (present(filename)) then
        if (len_trim(filename) .ne. 0) then
