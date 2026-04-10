@@ -291,7 +291,7 @@ contains
     end if
 
     if (present(point_zone)) then
-       select type(ft => this%output%file_%file_type)
+       select type (ft => this%output%file_%file_type)
        class is (fld_file_t)
           call ft%set_mask() ! this frees any preexisting mask in fld_file_t
           call ft%set_mask(point_zone%mask)
