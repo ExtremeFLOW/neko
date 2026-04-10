@@ -170,7 +170,7 @@ contains
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%init_common(name, fields, filename, precision, format, &
-         subdivide)
+         subdivide, point_zone)
 
   end subroutine field_writer_init_from_controllers
 
