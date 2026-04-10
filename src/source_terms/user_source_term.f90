@@ -43,6 +43,7 @@ module user_source_term
   use dofmap, only : dofmap_t
   use user_intf, only : user_source_term_intf
   use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -74,6 +75,8 @@ module user_source_term
      procedure, pass(this) :: free => user_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute_ => user_source_term_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => user_source_term_amr_restart
   end type user_source_term_t
 
 contains
@@ -159,5 +162,31 @@ contains
        end do
     end if
   end subroutine user_source_term_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine user_source_term_amr_restart(this, reconstruct, counter, tstep)
+    class(user_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, tstep)
+
+    ! reconstruct dof; No problem, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+         counter, tstep)
+
+    ! reallocate fields
+    call this%user_fields%amr_reallocate(reconstruct, counter, tstep)
+
+  end subroutine user_source_term_amr_restart
 
 end module user_source_term

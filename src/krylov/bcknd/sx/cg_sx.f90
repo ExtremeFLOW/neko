@@ -41,6 +41,8 @@ module cg_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, add2s1, abscmp
+  use utils, only : neko_error ! added for amr
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -55,6 +57,8 @@ module cg_sx
      procedure, pass(this) :: free => sx_cg_free
      procedure, pass(this) :: solve => sx_cg_solve
      procedure, pass(this) :: solve_coupled => sx_cg_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => sx_cg_amr_restart
   end type sx_cg_t
 
 contains
@@ -123,6 +127,8 @@ contains
     end if
 
     nullify(this%M)
+
+    call this%free_amr_base()
 
   end subroutine sx_cg_free
 
@@ -231,6 +237,22 @@ contains
 
   end function sx_cg_solve_coupled
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine sx_cg_amr_restart(this, reconstruct, counter, tstep)
+    class(sx_cg_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('CG_SX: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine sx_cg_amr_restart
+
 end module cg_sx
-
-

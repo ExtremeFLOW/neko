@@ -58,7 +58,7 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module math
-  use num_types, only : rp, dp, sp, qp, i4, xp
+  use num_types, only : rp, dp, sp, qp, i4, i8, xp
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_Allreduce
@@ -79,16 +79,28 @@ module math
   end interface abscmp
 
   interface sort
-     module procedure sortrp, sorti4
+     module procedure sortrp, sorti4, sorti8
   end interface sort
 
   interface swap
-     module procedure swapdp, swapi4
+     module procedure swapdp, swapi4, swapi8
   end interface swap
 
   interface reord
-     module procedure reorddp, reordi4
+     module procedure reorddp, reordi4, reordi8
   end interface reord
+
+  interface sort_tuple
+     module procedure sort_tuplei4, sort_tuplei8
+  end interface sort_tuple
+
+  interface swap_tuple
+     module procedure swap_tuplei4, swap_tuplei8
+  end interface swap_tuple
+
+  interface reord_tuple
+     module procedure reord_tuplei4, reord_tuplei8
+  end interface reord_tuple
 
   interface flipv
      module procedure flipvdp, flipvi4
@@ -103,11 +115,11 @@ module math
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, add4s3, add5s4, subcol4, addcol3, addcol4, addcol3s2, ascol5, &
-       p_update, x_update, glsc2, glsc3, glsc4, sort, masked_copy_0, &
-       cfill_mask, relcmp, glimax, glimin, swap, reord, flipv, cadd2, &
-       masked_gather_copy_0, absval, matinv3, matinv39, &
-       pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
-       masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
+       p_update, x_update, glsc2, glsc3, glsc4, masked_copy_0, cfill_mask, &
+       relcmp, glimax, glimin, sort, swap, reord, sort_tuple, swap_tuple, &
+       reord_tuple, flipv, cadd2, masked_gather_copy_0, absval, matinv3, &
+       matinv39, pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, &
+       cpwmin3, masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
        masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp
 
 contains
@@ -1239,6 +1251,63 @@ contains
     end do
   end subroutine sorti4
 
+  !> Heap Sort for double integer arrays
+  !! @details Following p 231 Num. Rec., 1st Ed.
+  !! @param[inout]   a     vector to be sorted
+  !! @param[out]     ind   permutation array
+  !! @param[in]      n     array size
+  subroutine sorti8(a, ind, n)
+    integer, intent(in) :: n
+    integer(i8), intent(inout) :: a(n)
+    integer, intent(out) :: ind(n)
+    integer(i8) :: aa
+    integer :: j, ir, i, ii, l
+
+    do j = 1, n
+       ind(j) = j
+    end do
+
+    if (n .le. 1) return
+
+    l = n/2+1
+    ir = n
+    do while (.true.)
+       if (l .gt. 1) then
+          l = l - 1
+          aa = a (l)
+          ii = ind(l)
+       else
+          aa = a(ir)
+          ii = ind(ir)
+          a(ir) = a( 1)
+          ind(ir) = ind( 1)
+          ir = ir - 1
+          if (ir .eq. 1) then
+             a(1) = aa
+             ind(1) = ii
+             return
+          end if
+       end if
+       i = l
+       j = l + l
+       do while (j .le. ir)
+          if (j .lt. ir) then
+             if ( a(j) .lt. a(j + 1) ) j = j + 1
+          end if
+          if (aa .lt. a(j)) then
+             a(i) = a(j)
+             ind(i) = ind(j)
+             i = j
+             j = j + j
+          else
+             j = ir + 1
+          end if
+       end do
+       a(i) = aa
+       ind(i) = ii
+    end do
+  end subroutine sorti8
+
   !> sort double precision array acording to ind vector
   !! @param[inout]   b     vector to be reordered
   !! @param[in]      ind   permutation array
@@ -1279,6 +1348,26 @@ contains
     end do
   end subroutine swapi4
 
+  !> sort double integer array acording to ind vector
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      n     array size
+  subroutine swapi8(b, ind, n)
+    integer, intent(in) :: n
+    integer(i8), intent(inout) :: b(n)
+    integer, intent(in) :: ind(n)
+    integer(i8) :: temp(n)
+    integer :: i, jj
+
+    do i = 1, n
+       temp(i) = b(i)
+    end do
+    do i = 1, n
+       jj = ind(i)
+       b(i) = temp(jj)
+    end do
+  end subroutine swapi8
+
   !> reorder double precision array - inverse of swap
   !! @param[inout]   b     vector to be reordered
   !! @param[in]      ind   permutation array
@@ -1318,6 +1407,284 @@ contains
        b(jj) = temp(i)
     end do
   end subroutine reordi4
+
+  !> reorder double integer array - inverse of swap
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      n     array size
+  subroutine reordi8(b, ind, n)
+    integer, intent(in) :: n
+    integer(i8), intent(inout) :: b(n)
+    integer, intent(in) :: ind(n)
+    integer(i8) :: temp(n)
+    integer :: i, jj
+
+    do i = 1, n
+       temp(i) = b(i)
+    end do
+    do i = 1, n
+       jj = ind(i)
+       b(jj) = temp(i)
+    end do
+  end subroutine reordi8
+
+  !> Heap Sort for single integer tuple arrays
+  !! @details Following p 231 Num. Rec., 1st Ed.
+  !! @param[inout]    a        array to sort
+  !! @param[in]       lda      tuple length
+  !! @param[in]       nn       array lenth
+  !! @param[in]       key      list of positions to sort
+  !! @param[in]       nkey     number of keys
+  !! @param[out]      ind      permutation
+  !! @param[inout]    aa       work array
+  pure subroutine sort_tuplei4(a, lda, nn, key, nkey, ind, aa)
+    implicit none
+    integer, intent(in)  :: lda, nn, nkey
+    integer(i4), dimension(lda, nn), intent(inout)  :: a
+    integer(i4), dimension(lda), intent(inout)  :: aa
+    integer, dimension(nn), intent(out)  ::  ind
+    integer, dimension(nkey), intent(in)  :: key
+
+    ! local variables
+    integer :: il, jl, ll, ir, ii
+
+    do concurrent(il = 1: nn)
+       ind(il) = il
+    end do
+    if (nn .le. 1) return
+    ll = nn / 2 + 1
+    ir = nn
+    do
+       if (ll .gt. 1) then
+          ll = ll - 1
+          aa(:) = a(:, ll)
+          ii  = ind(ll)
+       else
+          aa(:) = a(:, ir)
+          ii = ind(ir)
+          a(:, ir) = a(:, 1)
+          ind(ir) = ind(1)
+          ir = ir - 1
+          if (ir .eq. 1) then
+             a(:, 1) = aa(:)
+             ind(1) = ii
+             return
+          endif
+       endif
+       il=ll
+       jl=ll + ll
+       if (jl .le. ir) then
+          do
+             if (jl .lt. ir) then
+                if (iftuple_altbi4(a(:,jl), a(:,jl+1), lda, key, nkey)) &
+                     jl = jl + 1
+             endif
+             if (iftuple_altbi4(aa, a(:,jl),lda, key, nkey)) then
+                a(:, il) = a(:, jl)
+                ind(il) = ind(jl)
+                il = jl
+                jl = jl + jl
+             else
+                jl = ir + 1
+             endif
+             if(jl .gt. ir) exit
+          enddo
+       endif
+       a(:, il) = aa(:)
+       ind(il) = ii
+    end do
+  end subroutine sort_tuplei4
+
+  pure function iftuple_altbi4(a, b, lda, key, nkey)   result(iftuple)
+    integer, intent(in) :: lda, nkey
+    integer(i4), dimension(lda), intent(in)  :: a, b
+    integer, dimension(nkey), intent(in)  :: key
+    logical iftuple
+    integer :: il, kl
+
+    do il = 1, nkey
+       kl = key(il)
+       if (a(kl) .lt. b(kl)) then
+          iftuple = .true.
+          return
+       elseif (a(kl).gt. b(kl)) then
+          iftuple = .false.
+          return
+       endif
+    enddo
+    iftuple = .false.
+  end function iftuple_altbi4
+
+  !> Heap Sort for double integer tuple arrays
+  !! @details Following p 231 Num. Rec., 1st Ed.
+  !! @param[inout]    a        array to sort
+  !! @param[in]       lda      tuple length
+  !! @param[in]       nn       array lenth
+  !! @param[in]       key      list of positions to sort
+  !! @param[in]       nkey     number of keys
+  !! @param[out]      ind      permutation
+  !! @param[inout]    aa       work array
+  pure subroutine sort_tuplei8(a, lda, nn, key, nkey, ind, aa)
+    implicit none
+    integer, intent(in)  :: lda, nn, nkey
+    integer(i8), dimension(lda, nn), intent(inout)  :: a
+    integer(i8), dimension(lda), intent(inout)  :: aa
+    integer, dimension(nn), intent(out)  ::  ind
+    integer, dimension(nkey), intent(in)  :: key
+
+    ! local variables
+    integer :: il, jl, ll, ir, ii
+
+    do concurrent(il = 1: nn)
+       ind(il) = il
+    end do
+    if (nn .le. 1) return
+    ll = nn / 2 + 1
+    ir = nn
+    do
+       if (ll .gt. 1) then
+          ll = ll - 1
+          aa(:) = a(:, ll)
+          ii  = ind(ll)
+       else
+          aa(:) = a(:, ir)
+          ii = ind(ir)
+          a(:, ir) = a(:, 1)
+          ind(ir) = ind(1)
+          ir = ir - 1
+          if (ir .eq. 1) then
+             a(:, 1) = aa(:)
+             ind(1) = ii
+             return
+          endif
+       endif
+       il=ll
+       jl=ll + ll
+       if (jl .le. ir) then
+          do
+             if (jl .lt. ir) then
+                if (iftuple_altbi8(a(:,jl), a(:,jl+1), lda, key, nkey)) &
+                     jl = jl + 1
+             endif
+             if (iftuple_altbi8(aa, a(:,jl),lda, key, nkey)) then
+                a(:, il) = a(:, jl)
+                ind(il) = ind(jl)
+                il = jl
+                jl = jl + jl
+             else
+                jl = ir + 1
+             endif
+             if(jl .gt. ir) exit
+          enddo
+       endif
+       a(:, il) = aa(:)
+       ind(il) = ii
+    end do
+  end subroutine sort_tuplei8
+
+  pure function iftuple_altbi8(a, b, lda, key, nkey)   result(iftuple)
+    integer, intent(in) :: lda, nkey
+    integer(i8), dimension(lda), intent(in)  :: a, b
+    integer, dimension(nkey), intent(in)  :: key
+    logical iftuple
+    integer :: il, kl
+
+    do il = 1, nkey
+       kl = key(il)
+       if (a(kl) .lt. b(kl)) then
+          iftuple = .true.
+          return
+       elseif (a(kl).gt. b(kl)) then
+          iftuple = .false.
+          return
+       endif
+    enddo
+    iftuple = .false.
+  end function iftuple_altbi8
+
+  !> sort single integer tuple array acording to ind vector
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      lda   tuple length
+  !! @param[in]      n     array size
+  subroutine swap_tuplei4(b, ind, lda, n)
+    integer, intent(in) :: lda, n
+    integer(i4), intent(inout) :: b(lda, n)
+    integer, intent(in) :: ind(n)
+    integer(i4) :: temp(lda, n)
+    integer :: i, j, jj
+
+    do concurrent(i = 1:n, j = 1:lda)
+       temp(j, i) = b(j, i)
+    end do
+    do i = 1, n
+       jj = ind(i)
+       b(:, i) = temp(:, jj)
+    end do
+  end subroutine swap_tuplei4
+
+  !> sort double integer tuple array acording to ind vector
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      lda   tuple length
+  !! @param[in]      n     array size
+  subroutine swap_tuplei8(b, ind, lda, n)
+    integer, intent(in) :: lda, n
+    integer(i8), intent(inout) :: b(lda, n)
+    integer, intent(in) :: ind(n)
+    integer(i8) :: temp(lda, n)
+    integer :: i, j, jj
+
+    do concurrent(i = 1:n, j = 1:lda)
+       temp(j, i) = b(j, i)
+    end do
+    do i = 1, n
+       jj = ind(i)
+       b(:, i) = temp(:, jj)
+    end do
+  end subroutine swap_tuplei8
+
+  !> reord single integer tuple array acording to ind vector
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      lda   tuple length
+  !! @param[in]      n     array size
+  subroutine reord_tuplei4(b, ind, lda, n)
+    integer, intent(in) :: lda, n
+    integer(i4), intent(inout) :: b(lda, n)
+    integer, intent(in) :: ind(n)
+    integer(i4) :: temp(lda, n)
+    integer :: i, j, jj
+
+    do concurrent(i = 1:n, j = 1:lda)
+       temp(j, i) = b(j, i)
+    end do
+    do i = 1, n
+       jj = ind(i)
+       b(:, jj) = temp(:, i)
+    end do
+  end subroutine reord_tuplei4
+
+  !> reord double integer tuple array acording to ind vector
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      lda   tuple length
+  !! @param[in]      n     array size
+  subroutine reord_tuplei8(b, ind, lda, n)
+    integer, intent(in) :: lda, n
+    integer(i8), intent(inout) :: b(lda, n)
+    integer, intent(in) :: ind(n)
+    integer(i8) :: temp(lda, n)
+    integer :: i, j, jj
+
+    do concurrent(i = 1:n, j = 1:lda)
+       temp(j, i) = b(j, i)
+    end do
+    do i = 1, n
+       jj = ind(i)
+       b(:, jj) = temp(:, i)
+    end do
+  end subroutine reord_tuplei8
 
   !> Flip double precision vector b and ind
   !! @param[inout]   b     vector to be reordered

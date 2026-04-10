@@ -41,6 +41,10 @@ module dirichlet
   use json_utils, only : json_get_or_lookup
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -63,6 +67,8 @@ module dirichlet
      procedure, pass(this) :: free => dirichlet_free
      !> Finalize.
      procedure, pass(this) :: finalize => dirichlet_finalize
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => dirichlet_amr_restart
   end type dirichlet_t
 
 contains
@@ -215,6 +221,8 @@ contains
 
     call this%free_base
 
+    call this%free_amr_base()
+
   end subroutine dirichlet_free
 
   !> Finalize
@@ -226,10 +234,101 @@ contains
     if (present(only_facets)) then
        only_facets_ = only_facets
     else
-       only_facets_ = .false.
+       only_facets_ = this%only_facets
     end if
 
     call this%finalize_base(only_facets_)
   end subroutine dirichlet_finalize
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine dirichlet_amr_restart(this, reconstruct, counter, tstep)
+    class(dirichlet_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! For defined zone indices perform full reconstruction including
+    ! finalisation. If zones are missing just prepare for collecting
+    ! facets. Do not forget to finalise those bc later.
+    if (allocated(this%zone_indices)) then
+       if (allocated(this%type)) then
+          log_buf = 'Reconstruct Dirichlet: '//trim(this%type)
+       else
+          log_buf = 'Reconstruct Dirichlet'
+       end if
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Dirichlet:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       this%iffinalised = .false.
+
+       ! get zones
+       do il = 1, size(this%zone_indices)
+          call this%mark_zone(this%coef%msh%labeled_zones(&
+               this%zone_indices(il)))
+       end do
+       call this%finalize()
+    else
+       if (allocated(this%type)) then
+          log_buf = 'Clean Dirichlet: '//trim(this%type)
+       else
+          log_buf = 'Clean Dirichlet'
+       end if
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Dirichlet:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       this%iffinalised = .false.
+
+    end if
+
+  end subroutine dirichlet_amr_restart
 
 end module dirichlet

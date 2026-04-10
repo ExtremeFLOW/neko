@@ -43,6 +43,8 @@ module les_simcomp
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -62,6 +64,8 @@ module les_simcomp
      procedure, pass(this) :: preprocess_ => les_simcomp_compute
      !> Compute the les_simcomp field when restart.
      procedure, pass(this) :: restart_ => les_simcomp_restart
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => les_simcomp_amr_restart
   end type les_simcomp_t
 
 contains
@@ -106,6 +110,9 @@ contains
        call this%les_model%free()
        deallocate(this%les_model)
     end if
+
+    call this%free_amr_base()
+
   end subroutine les_simcomp_free
 
   !> Compute the les_simcomp field.
@@ -125,5 +132,29 @@ contains
 
     call this%les_model%compute(time%t, 0)
   end subroutine les_simcomp_restart
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine les_simcomp_amr_restart(this, reconstruct, counter, tstep)
+    class(les_simcomp_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Les simcomp'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine les_simcomp_amr_restart
 
 end module les_simcomp

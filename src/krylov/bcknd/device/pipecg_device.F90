@@ -48,6 +48,7 @@ module pipecg_device
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Iallreduce, MPI_Status, &
        MPI_SUM, MPI_IN_PLACE, MPI_Request, MPI_Wait
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
@@ -86,6 +87,8 @@ module pipecg_device
      procedure, pass(this) :: free => pipecg_device_free
      procedure, pass(this) :: solve => pipecg_device_solve
      procedure, pass(this) :: solve_coupled => pipecg_device_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => pipecg_device_amr_restart
   end type pipecg_device_t
 
 #ifdef HAVE_CUDA
@@ -336,6 +339,8 @@ contains
        call device_event_destroy(this%gs_event)
     end if
 
+    call this%free_amr_base()
+
   end subroutine pipecg_device_free
 
   !> Pipelined PCG solve
@@ -506,5 +511,23 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function pipecg_device_solve_coupled
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine pipecg_device_amr_restart(this, reconstruct, counter, tstep)
+    class(pipecg_device_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('PIPECG_DEV: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine pipecg_device_amr_restart
 
 end module pipecg_device

@@ -33,11 +33,12 @@
 !> Krylov preconditioner
 module precon
   use num_types, only : rp
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
   !> Defines a canonical Krylov preconditioner
-  type, public, abstract :: pc_t
+  type, public, abstract, extends(amr_restart_component_t) :: pc_t
    contains
      procedure(pc_solve), pass(this), deferred :: solve
      procedure(pc_update), pass(this), deferred :: update
@@ -79,5 +80,5 @@ module precon
   end interface
 
   public :: precon_factory, precon_destroy
-  
+
 end module precon

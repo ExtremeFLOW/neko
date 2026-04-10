@@ -76,13 +76,16 @@ module schwarz
        device_event_destroy, device_free
   use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, &
        c_associated
   !$ use omp_lib
   implicit none
   private
 
-  type, public :: schwarz_t
+  type, public, extends(amr_restart_component_t) :: schwarz_t
      real(kind=rp), allocatable :: work1(:)
      real(kind=rp), allocatable :: work2(:)
      real(kind=rp), allocatable :: wt(:,:,:,:,:)
@@ -105,6 +108,8 @@ module schwarz
      procedure, pass(this) :: init => schwarz_init
      procedure, pass(this) :: free => schwarz_free
      procedure, pass(this) :: compute => schwarz_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => schwarz_amr_restart
   end type schwarz_t
 
 contains
@@ -210,6 +215,9 @@ contains
     if (c_associated(this%event)) then
        call device_event_destroy(this%event)
     end if
+
+    call this%free_amr_base()
+
   end subroutine schwarz_free
   !> setup weights
   subroutine schwarz_setup_wt(this)
@@ -565,4 +573,62 @@ contains
     end do
     !$omp end parallel do
   end subroutine schwarz_wt3d
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine schwarz_amr_restart(this, reconstruct, counter, tstep)
+    class(schwarz_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Schwarz'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! dof and bclst should be already reconstructed
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
+
+    ! Reconstruct dofmap and communicator
+    call this%dm_schwarz%amr_restart(reconstruct, counter, tstep)
+    call this%gs_schwarz%amr_restart(reconstruct, counter, tstep)
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%work1)) deallocate(this%work1)
+       if (allocated(this%work2)) deallocate(this%work2)
+       if (allocated(this%wt)) deallocate(this%wt)
+       allocate(this%work1(this%dm_schwarz%size()))
+       allocate(this%work2(this%dm_schwarz%size()))
+       allocate(this%wt(this%Xh%lx, this%Xh%lx, 4, this%msh%gdim, &
+            this%msh%nelv))
+    end if
+
+    ! Restart fast diagonalization method
+    call this%fdm%amr_restart(reconstruct, counter, tstep)
+
+    ! reconstruct gs; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    ! it has to be done here, as gs_h may be local
+    call this%gs_h%amr_restart(reconstruct, counter, tstep)
+
+    call schwarz_setup_wt(this)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('Schwarz reconstruct:: Nothing done for device.')
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine schwarz_amr_restart
+
 end module schwarz

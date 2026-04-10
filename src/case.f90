@@ -47,6 +47,8 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
+  use mesh_manager, only : mesh_manager_t, mesh_manager_factory
+  use amr, only : amr_t
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -72,6 +74,8 @@ module case
 
   type, public :: case_t
      type(mesh_t) :: msh
+     class(mesh_manager_t), allocatable :: mesh_manager
+     type(amr_t) :: amr
      type(json_file) :: params
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
@@ -157,7 +161,7 @@ contains
     character(len = :), allocatable :: string_val, name, file_format
     integer :: output_dir_len
     integer :: precision, layout
-    type(json_file) :: scalar_params, numerics_params
+    type(json_file) :: scalar_params, numerics_params, meshmng_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
 
@@ -211,7 +215,7 @@ contains
     end if
 
     !
-    ! Load mesh
+    ! Load mesh and start mesh manager
     !
     call json_get_or_default(this%params, 'case.mesh_file', string_val, &
          'no mesh')
@@ -220,26 +224,64 @@ contains
             'case file. Often caused by incorrectly formatted json.')
     end if
     call msh_file%init(string_val)
-    call msh_file%read(this%msh)
 
-    !
-    ! Load Balancing
-    !
-    call json_get_or_default(this%params, 'case.load_balancing', logical_val,&
-         .false.)
+    ! Check if there is a specified mesh manager
+    if (this%params%valid_path('case.mesh_manager')) then
+       call json_get(this%params, 'case.mesh_manager', meshmng_params)
+       call neko_log%section("Mesh manager")
+       ! Check load balancing flag
+       call json_get_or_default(this%params, 'case.load_balancing', &
+            logical_val, .false.)
+       ! allocate mesh manager
+       call mesh_manager_factory(this%mesh_manager, meshmng_params, logical_val)
+       ! start 3rd-party code
+       call this%mesh_manager%start(meshmng_params, i)
+       ! initialise type
+       call this%mesh_manager%init(meshmng_params)
+       ! initial import of mesh data; simple data set
+       call this%mesh_manager%import(.false.)
+       ! Get raw data from the mesh file sticking to element distribution
+       ! from mesh manager. This would work if element ordering in mesh manager
+       ! and mesh file are the same.
+       call this%mesh_manager%elm_dst_copy()
+       call msh_file%read(this%mesh_manager%nmsh_mesh)
+       ! apply data read from the mesh file to mesh manager structures
+       call this%mesh_manager%mesh_file_apply()
+       ! construct neko mesh based on mesh manager data and mesh file input
+       call this%mesh_manager%mesh_construct(this%msh, .true.)
 
-    if (pe_size .gt. 1 .and. logical_val) then
-       call neko_log%section('Load Balancing')
-       call parmetis_partmeshkway(this%msh, parts)
-       call redist_mesh(this%msh, parts)
-
-       ! store the balanced mesh (for e.g. restarts)
-       string_val = trim(string_val(1:scan(trim(string_val), &
-            '.', back = .true.) - 1)) // '_lb.nmsh'
-       call msh_file%init(string_val)
-       call msh_file%write(this%msh)
-
+       ! initialise adaptive mesh refinement
+       call json_get(this%params, 'case.numerics.polynomial_order', lx)
+       lx = lx + 1 ! add 1 to get number of gll points
+       call this%amr%init(this%mesh_manager%transfer, this%mesh_manager%isamr, &
+            this%mesh_manager%mesh%tdim, lx)
        call neko_log%end_section()
+    else
+
+       call msh_file%read(this%msh)
+
+       !
+       ! Load Balancing
+       !
+       call json_get_or_default(this%params, 'case.load_balancing', &
+            logical_val, .false.)
+
+       if (pe_size .gt. 1 .and. logical_val) then
+          call neko_log%section('Load Balancing')
+          call parmetis_partmeshkway(this%msh, parts)
+          call redist_mesh(this%msh, parts)
+
+          ! store the balanced mesh (for e.g. restarts)
+          string_val = trim(string_val(1:scan(trim(string_val), &
+               '.', back = .true.) - 1)) // '_lb.nmsh'
+          call msh_file%init(string_val)
+          call msh_file%write(this%msh)
+
+          ! make sure no AMR operation would be executed
+          call this%amr%free()
+
+          call neko_log%end_section()
+       end if
     end if
 
     ! Run user mesh motion routine
@@ -269,7 +311,9 @@ contains
     this%chkp%tlag => this%time%tlag
     this%chkp%dtlag => this%time%dtlag
     call this%fluid%init(this%msh, lx, this%params, this%user, this%chkp)
-
+    if (this%amr%ifamr()) then
+       call this%amr%comp_add(this%fluid, 'fluid')
+    end if
 
     !
     ! Setup scratch registry
@@ -310,6 +354,9 @@ contains
                this%fluid%gs_Xh, json_subdict, numerics_params, this%user, &
                this%chkp, this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
                this%fluid%ext_bdf, this%fluid%rho)
+       end if
+       if (this%amr%ifamr()) then
+          call this%amr%comp_add(this%scalars, 'scalar')
        end if
     end if
 
@@ -596,6 +643,13 @@ contains
     if (allocated(this%scalars)) then
        call this%scalars%free()
        deallocate(this%scalars)
+    end if
+
+    call this%amr%free()
+    if (allocated(this%mesh_manager)) then
+       call this%mesh_manager%free()
+       call this%mesh_manager%stop()
+       deallocate(this%mesh_manager)
     end if
 
     call this%msh%free()

@@ -49,6 +49,9 @@ module field_dirichlet
   use json_utils, only : json_get
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   use time_state, only : time_state_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -91,7 +94,8 @@ module field_dirichlet
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => &
           field_dirichlet_apply_scalar_dev
-
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_dirichlet_amr_restart
   end type field_dirichlet_t
 
   !> Abstract interface defining a dirichlet condition on a list of fields.
@@ -154,6 +158,8 @@ contains
     if (associated(this%update)) then
        this%update => null()
     end if
+
+    call this%free_amr_base()
 
   end subroutine field_dirichlet_free
 
@@ -268,9 +274,105 @@ contains
     if (present(only_facets)) then
        only_facets_ = only_facets
     else
-       only_facets_ = .false.
+       only_facets_ = this%only_facets
     end if
 
     call this%finalize_base(only_facets_)
   end subroutine field_dirichlet_finalize
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine field_dirichlet_amr_restart(this, reconstruct, counter, tstep)
+    class(field_dirichlet_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! For defined zone indices perform full reconstruction including
+    ! finalisation. If zones are missing just prepare for collecting
+    ! facets. Do not forget to finalise those bc later.
+    if (allocated(this%zone_indices)) then
+       if (allocated(this%type)) then
+          log_buf = 'Reconstruct Field Dirichlet: '//trim(this%type)
+       else
+          log_buf = 'Reconstruct Field Dirichlet'
+       end if
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Field Dirichlet:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       call this%field_bc%amr_reallocate(reconstruct, counter, tstep)
+
+       this%iffinalised = .false.
+
+       ! get zones
+       do il = 1, size(this%zone_indices)
+          call this%mark_zone(this%coef%msh%labeled_zones(&
+               this%zone_indices(il)))
+       end do
+       call this%finalize()
+    else
+       if (allocated(this%type)) then
+          log_buf = 'Clean Field Dirichlet: '//trim(this%type)
+       else
+          log_buf = 'Clean Field Dirichlet'
+       end if
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Field Dirichlet:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       call this%field_bc%amr_reallocate(reconstruct, counter, tstep)
+
+       this%iffinalised = .false.
+
+    end if
+
+  end subroutine field_dirichlet_amr_restart
+
 end module field_dirichlet

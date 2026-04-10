@@ -40,11 +40,15 @@ module field
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use utils, only : neko_error !! temporary
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  type, public :: field_t
+  type, public, extends(amr_restart_component_t) :: field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
 
      type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
@@ -76,6 +80,10 @@ module field
      !! @note We don't overload operator(+), to avoid
      !! the extra assignemnt operator
      generic :: add => add_field, add_scalar
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_amr_restart
+     !> AMR reallocate
+     procedure, pass(this) :: amr_reallocate => field_amr_reallocate
   end type field_t
 
   !> field_ptr_t, To easily obtain a pointer to a field
@@ -208,6 +216,8 @@ contains
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%dof)
+
+    call this%free_amr_base()
 
   end subroutine field_free
 
@@ -394,5 +404,71 @@ contains
     end if
 
   end subroutine field_wrapper_free
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine field_amr_restart(this, reconstruct, counter, tstep)
+    class(field_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reconstructing Field: '//trim(this%name)
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct dofmap; No need to check internal_dofmap flag, as AMR
+    ! restart prevents recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
+
+    ! reconstruct field data
+    call reconstruct%refine_coarsen(this%x, this%dof%Xh%lx, this%x_d)
+
+  end subroutine field_amr_restart
+
+  !> AMR reallocate; used for arrays not containing valuable data
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine field_amr_reallocate(this, reconstruct, counter, tstep)
+    class(field_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reallocating Field: '//trim(this%name)
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct dofmap; No need to check internal_dofmap flag, as AMR
+    ! restart prevents recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%x)) then
+          deallocate(this%x)
+          allocate(this%x(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+          this%x(:, :, :, :) = 0.0_rp
+       end if
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Field reallocate:: Nothing done for device.')
+       end if
+    end if
+
+  end subroutine field_amr_reallocate
 
 end module field

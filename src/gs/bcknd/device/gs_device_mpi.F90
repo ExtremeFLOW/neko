@@ -43,6 +43,7 @@ module gs_device_mpi
        device_stream_destroy, device_free, device_memset, &
        STRM_HIGH_PRIO, HOST_TO_DEVICE
   use utils, only : neko_error
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
@@ -76,6 +77,8 @@ module gs_device_mpi
      procedure, pass(this) :: nbsend => gs_device_mpi_nbsend
      procedure, pass(this) :: nbrecv => gs_device_mpi_nbrecv
      procedure, pass(this) :: nbwait => gs_device_mpi_nbwait
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gs_device_mpi_amr_restart
   end type gs_device_mpi_t
 
 #ifdef HAVE_HIP
@@ -329,6 +332,8 @@ contains
     end if
 #endif
 
+    call this%free_amr_base()
+
   end subroutine gs_device_mpi_free
 
   !> Post non-blocking send operations
@@ -489,5 +494,23 @@ contains
     end if
 
   end subroutine gs_device_mpi_nbwait
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine gs_device_mpi_amr_restart(this, reconstruct, counter, tstep)
+    class(gs_device_mpi_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('device_mpi; Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine gs_device_mpi_amr_restart
 
 end module gs_device_mpi

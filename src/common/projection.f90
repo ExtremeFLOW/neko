@@ -76,11 +76,13 @@ module projection
        device_glsc3_many
   use device_projection, only : device_proj_on, device_project_ortho
   use profiler, only : profiler_start_region, profiler_end_region
-  use logger, only : LOG_SIZE, neko_log
-  use utils, only : neko_warning
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use utils, only : neko_warning, neko_error ! added for amr
   use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
   use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wtime
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
        c_sizeof, C_NULL_PTR, c_loc, c_associated
@@ -88,7 +90,7 @@ module projection
   private
   public :: proj_ortho
 
-  type, public :: projection_t
+  type, public, extends(amr_restart_component_t) :: projection_t
      real(kind=rp), allocatable :: xx(:,:)
      real(kind=rp), allocatable :: bb(:,:)
      real(kind=rp), allocatable :: xbar(:)
@@ -104,6 +106,7 @@ module projection
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
      integer :: activ_step ! steps to activate projection
+     integer :: activ_init ! initial activation step; for AMR
      logical :: prj_reorthogonalize_basis = .false.
    contains
      procedure, pass(this) :: clear => bcknd_clear
@@ -115,6 +118,8 @@ module projection
      procedure, pass(this) :: pre_solving => projection_pre_solving
      procedure, pass(this) :: post_solving => projection_post_solving
      procedure, pass(this) :: reortho_basis => bcknd_reorthogonalize_basis
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => projection_amr_restart
   end type projection_t
 
 contains
@@ -139,6 +144,7 @@ contains
     else
        this%activ_step = 5
     end if
+    this%activ_init = this%activ_step
 
     if (present(reorthogonalize_basis)) then
        this%prj_reorthogonalize_basis = reorthogonalize_basis
@@ -251,7 +257,7 @@ contains
           ! the time step at which dt is changed
           if (dt_controller%dt_last_change .eq. 0) then
              call this%clear(n)
-          else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
+          else if (dt_controller%dt_last_change .gt. this%activ_init - 1) then
              ! Re-orthogonalize basis if requested
              if (this%prj_reorthogonalize_basis .and. present(gs_h) &
                   .and. present(Ax) .and.present(bclst)) then
@@ -293,7 +299,7 @@ contains
 
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (.not.(dt_controller%is_variable_dt) .or. &
-            (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
+            (dt_controller%dt_last_change .gt. this%activ_init - 1)) then
           call this%project_back(x, Ax, coef, bclst, gs_h, n)
        end if
     end if
@@ -854,5 +860,57 @@ contains
     end do
 
   end subroutine bcknd_clear
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine projection_amr_restart(this, reconstruct, counter, tstep)
+    class(projection_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il, ntot
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    if (this%L .le. 0) return ! no projection
+
+    log_buf = 'Reallocating projection'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! postpone activation and reset projection
+    this%activ_step = tstep + this%activ_init
+    this%m = 0
+    this%proj_m = 0
+    ntot = reconstruct%nnew * reconstruct%lxyz
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%xx)) deallocate(this%xx)
+       if (allocated(this%bb)) deallocate(this%bb)
+       if (allocated(this%xbar)) deallocate(this%xbar)
+
+       allocate(this%xx(ntot, this%L))
+       allocate(this%bb(ntot, this%L))
+       allocate(this%xbar(ntot))
+       call rzero(this%xbar, ntot)
+       do il = 1, this%L
+          call rzero(this%xx(1, il), ntot)
+          call rzero(this%bb(1, il), ntot)
+       end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added neko_error; could be removed
+          call neko_error('Projection:: Nothing done for device.')
+       end if
+    else
+       call this%clear(ntot)
+    end if
+
+  end subroutine projection_amr_restart
 
 end module projection

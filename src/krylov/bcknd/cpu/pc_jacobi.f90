@@ -38,6 +38,8 @@ module jacobi
   use num_types, only : rp
   use dofmap, only : dofmap_t
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -52,6 +54,8 @@ module jacobi
      procedure, pass(this) :: free => jacobi_free
      procedure, pass(this) :: solve => jacobi_solve
      procedure, pass(this) :: update => jacobi_update
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => jacobi_amr_restart
   end type jacobi_t
 
 contains
@@ -79,6 +83,9 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%coef)
+
+    call this%free_amr_base()
+
   end subroutine jacobi_free
 
   !> The jacobi preconditioner \f$ J z = r \f$
@@ -1380,5 +1387,50 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx2
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine jacobi_amr_restart(this, reconstruct, counter, tstep)
+    class(jacobi_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reallocating PC Jacobi'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart
+    ! prevents recursive reconstructions
+    if (associated(this%dof)) &
+         call this%dof%amr_restart(reconstruct, counter, tstep)
+
+    ! reconstruct gather-scatter; It is safe to call it here, as AMR restart
+    ! prevents recursive reconstructions
+    if (associated(this%gs_h)) &
+         call this%gs_h%amr_restart(reconstruct, counter, tstep)
+
+    ! reconstruct geometrical coeff.; It is safe to call it here, as AMR restart
+    ! prevents recursive reconstructions
+    if (associated(this%coef)) &
+         call this%coef%amr_restart(reconstruct, counter, tstep)
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%d)) deallocate(this%d)
+
+       allocate(this%d(this%dof%Xh%lx, this%dof%Xh%ly, this%dof%Xh%lz, &
+            this%dof%msh%nelv))
+    end if
+
+    call jacobi_update(this)
+
+  end subroutine jacobi_amr_restart
 
 end module jacobi

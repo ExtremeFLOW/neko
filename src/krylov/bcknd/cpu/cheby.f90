@@ -45,6 +45,8 @@ module cheby
   use schwarz, only : schwarz_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2, &
        add2s1, add2s2, sub3, cmult, add2
+  use utils, only : neko_error ! added for amr
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -63,6 +65,8 @@ module cheby
      procedure, pass(this) :: free => cheby_free
      procedure, pass(this) :: solve => cheby_impl
      procedure, pass(this) :: solve_coupled => cheby_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => cheby_amr_restart
   end type cheby_t
 
 contains
@@ -119,6 +123,9 @@ contains
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
+
+    call this%free_amr_base()
+
   end subroutine cheby_free
 
   subroutine cheby_power(this, Ax, x, n, coef, blst, gs_h)
@@ -374,5 +381,23 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cheby_solve_coupled
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine cheby_amr_restart(this, reconstruct, counter, tstep)
+    class(cheby_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('CHEBY: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine cheby_amr_restart
 
 end module cheby

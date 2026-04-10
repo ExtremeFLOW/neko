@@ -38,10 +38,12 @@ module gs_mpi
   use stack, only : stack_i4_t
   use mpi_f08, only : MPI_Test, MPI_STATUS_IGNORE, MPI_Status, &
        MPI_Request, MPI_Isend, MPI_IRecv
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
-  use, intrinsic :: iso_c_binding
+  use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use utils, only : neko_error
   !$ use omp_lib
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -71,6 +73,8 @@ module gs_mpi
      procedure, pass(this) :: nbsend => gs_nbsend_mpi
      procedure, pass(this) :: nbrecv => gs_nbrecv_mpi
      procedure, pass(this) :: nbwait => gs_nbwait_mpi
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gs_mpi_amr_restart
   end type gs_mpi_t
 
 contains
@@ -127,6 +131,8 @@ contains
 
     call this%free_order()
     call this%free_dofs()
+
+    call this%free_amr_base()
 
   end subroutine gs_mpi_free
 
@@ -256,5 +262,53 @@ contains
     end do
 
   end subroutine gs_nbwait_mpi
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine gs_mpi_amr_restart(this, reconstruct, counter, tstep)
+    class(gs_mpi_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! Just clearing stacks and deallocating arrays, as gs_schedule calls
+    ! comm%init
+
+    ! clearing stacks
+    do il = 0, pe_size - 1
+       call this%send_dof(il)%clear()
+    end do
+    do il = 0, pe_size - 1
+       call this%recv_dof(il)%clear()
+    end do
+
+    call this%free_order()
+
+    if (allocated(this%send_buf)) then
+       do il = 1, size(this%send_buf)
+          if (allocated(this%send_buf(il)%data)) then
+             deallocate(this%send_buf(il)%data)
+          end if
+       end do
+       deallocate(this%send_buf)
+    end if
+
+    if (allocated(this%recv_buf)) then
+       do il = 1, size(this%recv_buf)
+          if (allocated(this%recv_buf(il)%data)) then
+             deallocate(this%recv_buf(il)%data)
+          end if
+       end do
+       deallocate(this%recv_buf)
+    end if
+
+  end subroutine gs_mpi_amr_restart
 
 end module gs_mpi

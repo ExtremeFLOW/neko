@@ -37,7 +37,7 @@
 module probes
   use num_types, only : rp, dp
   use matrix, only : matrix_t
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG, NEKO_LOG_VERBOSE
   use utils, only : neko_error, nonlinear_index
   use field_list, only : field_list_t
   use time_state, only : time_state_t
@@ -59,6 +59,7 @@ module probes
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, DEVICE_TO_HOST, device_map, device_free
+  use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, &
        MPI_DOUBLE_PRECISION, MPI_Gatherv, MPI_Gather, MPI_Exscan
   implicit none
@@ -125,6 +126,8 @@ module probes
 
      !> Append a new list of points to the exsiting list.
      procedure, private, pass(this) :: add_points
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => probes_amr_restart
   end type probes_t
 
 contains
@@ -629,6 +632,8 @@ contains
     call this%global_interp%free()
     call this%mat_out%free()
 
+    call this%free_amr_base()
+
   end subroutine probes_free
 
   !> Print current probe status, with number of probes and coordinates
@@ -811,4 +816,29 @@ contains
     end if
 
   end subroutine read_xyz_from_csv
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine probes_amr_restart(this, reconstruct, counter, tstep)
+    class(probes_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Probes'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine probes_amr_restart
+
 end module probes

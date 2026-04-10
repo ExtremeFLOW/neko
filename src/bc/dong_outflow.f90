@@ -49,6 +49,8 @@ module dong_outflow
   use json_utils, only : json_get, json_get_or_default
   use utils, only : neko_error
   use time_state, only : time_state_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -77,6 +79,8 @@ module dong_outflow
      procedure, pass(this) :: free => dong_outflow_free
      !> Finalize.
      procedure, pass(this) :: finalize => dong_outflow_finalize
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => dong_outflow_amr_restart
   end type dong_outflow_t
 
 contains
@@ -215,6 +219,8 @@ contains
        this%normal_z_d = c_null_ptr
     end if
 
+    call this%free_amr_base()
+
   end subroutine dong_outflow_free
 
   !> Finalize
@@ -268,5 +274,31 @@ contains
        deallocate( temp_x, temp_y, temp_z)
     end if
   end subroutine dong_outflow_finalize
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine dong_outflow_amr_restart(this, reconstruct, counter, tstep)
+    class(dong_outflow_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    write(*,*) 'TESTdongOUTFLOW'
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Dong outflow'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine dong_outflow_amr_restart
 
 end module dong_outflow

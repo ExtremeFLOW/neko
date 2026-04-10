@@ -36,6 +36,7 @@ module device_identity
   use device_math
   use precon, only : pc_t
   use num_types, only : rp
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -45,6 +46,8 @@ module device_identity
    contains
      procedure, pass(this) :: solve => device_ident_solve
      procedure, pass(this) :: update => device_ident_update
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => device_ident_amr_restart
   end type device_ident_t
 
 contains
@@ -68,5 +71,21 @@ contains
   subroutine device_ident_update(this)
     class(device_ident_t), intent(inout) :: this
   end subroutine device_ident_update
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine device_ident_amr_restart(this, reconstruct, counter, tstep)
+    class(device_ident_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine device_ident_amr_restart
 
 end module device_identity

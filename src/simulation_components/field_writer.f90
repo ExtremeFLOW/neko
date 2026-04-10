@@ -43,8 +43,10 @@ module field_writer
   use field_output, only : field_output_t
   use json_utils, only : json_get, json_get_or_default
   use time_based_controller, only : time_based_controller_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use utils, only : neko_error
-  use logger, only : neko_log
+  use amr_reconstruct, only : amr_reconstruct_t
+
   implicit none
   private
 
@@ -79,6 +81,8 @@ module field_writer
      procedure, pass(this) :: free => field_writer_free
      !> Here to compy with the interface, does nothing.
      procedure, pass(this) :: compute_ => field_writer_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_writer_amr_restart
   end type field_writer_t
 
 contains
@@ -279,7 +283,11 @@ contains
   subroutine field_writer_free(this)
     class(field_writer_t), intent(inout) :: this
     call this%free_base()
+
     call this%output%free()
+
+    call this%free_amr_base()
+
   end subroutine field_writer_free
 
   !> Here to comply with the interface, does nothing.
@@ -288,5 +296,29 @@ contains
     type(time_state_t), intent(in) :: time
 
   end subroutine field_writer_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine field_writer_amr_restart(this, reconstruct, counter, tstep)
+    class(field_writer_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Field writer'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine field_writer_amr_restart
 
 end module field_writer

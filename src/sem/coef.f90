@@ -50,15 +50,17 @@ module coefs
   use utils, only : index_is_on_facet, linear_index, &
        neko_error
   use comm, only : NEKO_COMM
-  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
   !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple.
   !! Arrays use indices (i,j,k,e): element e, local coordinate (i,j,k).
-  type, public :: coef_t
+  type, public, extends(amr_restart_component_t) :: coef_t
      !> Geometric factors \f$ G_{11} \f$
      real(kind=rp), allocatable :: G11(:,:,:,:)
      !> Geometric factors \f$ G_{22} \f$
@@ -166,6 +168,8 @@ module coefs
      procedure, pass(this) :: get_area => coef_get_area
      procedure, pass(this) :: generate_cyclic_bc => coef_generate_cyclic_bc
      generic :: init => init_empty, init_all
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => coef_amr_restart
   end type coef_t
 
 contains
@@ -175,10 +179,23 @@ contains
     class(coef_t), intent(inout) :: this
     type(space_t), intent(inout), target :: Xh
     type(mesh_t), intent(inout), target :: msh
-    integer :: n
     call this%free()
     this%msh => msh
     this%Xh => Xh
+
+    call coef_allocate_empty(this)
+
+    !
+    ! Setup device memory (if present)
+    !
+
+    call coef_device_empty(this)
+
+  end subroutine coef_init_empty
+
+  !> Allocate selected arrays
+  subroutine coef_allocate_empty(this)
+    type(coef_t), intent(inout) :: this
 
     allocate(this%drdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%dsdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
@@ -192,35 +209,37 @@ contains
     allocate(this%dsdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%dtdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
+  end subroutine coef_allocate_empty
 
-    !
-    ! Setup device memory (if present)
-    !
+  !> Setup device for selected arrays
+  subroutine coef_device_empty(this)
+    type(coef_t), intent(inout) :: this
+    integer :: ntot
 
-    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+    ntot = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call device_map(this%drdx, this%drdx_d, n)
-       call device_map(this%drdy, this%drdy_d, n)
-       call device_map(this%drdz, this%drdz_d, n)
+       call device_map(this%drdx, this%drdx_d, ntot)
+       call device_map(this%drdy, this%drdy_d, ntot)
+       call device_map(this%drdz, this%drdz_d, ntot)
 
-       call device_map(this%dsdx, this%dsdx_d, n)
-       call device_map(this%dsdy, this%dsdy_d, n)
-       call device_map(this%dsdz, this%dsdz_d, n)
+       call device_map(this%dsdx, this%dsdx_d, ntot)
+       call device_map(this%dsdy, this%dsdy_d, ntot)
+       call device_map(this%dsdz, this%dsdz_d, ntot)
 
-       call device_map(this%dtdx, this%dtdx_d, n)
-       call device_map(this%dtdy, this%dtdy_d, n)
-       call device_map(this%dtdz, this%dtdz_d, n)
+       call device_map(this%dtdx, this%dtdx_d, ntot)
+       call device_map(this%dtdy, this%dtdy_d, ntot)
+       call device_map(this%dtdz, this%dtdz_d, ntot)
 
     end if
 
-  end subroutine coef_init_empty
+  end subroutine coef_device_empty
 
   !> Initialize coefficients
   subroutine coef_init_all(this, gs_h)
     class(coef_t), intent(inout) :: this
     type(gs_t), intent(inout), target :: gs_h
-    integer :: n, m, ncyc
+
     call this%free()
 
     this%msh => gs_h%dofmap%msh
@@ -231,6 +250,23 @@ contains
     !
     ! Allocate arrays for geometric data
     !
+    call coef_allocate_all(this)
+
+    !
+    ! Setup device memory (if present)
+    !
+    call coef_device_all(this)
+
+    ! Fill all data
+    call coef_fill_all(this)
+
+  end subroutine coef_init_all
+
+  !> Allocate all arrays
+  subroutine coef_allocate_all(this)
+    type(coef_t), intent(inout) :: this
+    integer :: ncyc
+
     !>@todo Be clever and try to avoid allocating zeroed geom. factors
     allocate(this%G11(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%G22(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
@@ -279,13 +315,23 @@ contains
 
     allocate(this%mult(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
+    ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
+    allocate(this%cyc_msk(0:ncyc))
+    if (ncyc .gt. 0) then
+       allocate(this%R11(ncyc))
+       allocate(this%R12(ncyc))
+    end if
 
-    !
-    ! Setup device memory (if present)
-    !
+  end subroutine coef_allocate_all
 
-    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+  !> Setup device memory for all arrays
+  subroutine coef_device_all(this)
+    type(coef_t), intent(inout) :: this
+    integer :: n, m, ncyc
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+
        call device_map(this%G11, this%G11_d, n)
        call device_map(this%G22, this%G22_d, n)
        call device_map(this%G33, this%G33_d, n)
@@ -333,7 +379,22 @@ contains
        call device_map(this%ny, this%ny_d, m)
        call device_map(this%nz, this%nz_d, m)
 
+       ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
+
+       call device_map(this%cyc_msk, this%cyc_msk_d, ncyc+1)
+       if (ncyc .gt. 0) then
+          call device_map(this%R11, this%R11_d, ncyc)
+          call device_map(this%R12, this%R12_d, ncyc)
+       end if
+
     end if
+
+  end subroutine coef_device_all
+
+  !> Calculate all geometrical coefficients
+  subroutine coef_fill_all(this)
+    type(coef_t), intent(inout) :: this
+    integer :: n, ncyc
 
     call coef_generate_dxyzdrst(this)
 
@@ -343,7 +404,7 @@ contains
 
     call coef_generate_mass(this)
 
-
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
     ! This is a placeholder, just for now
     ! We can probably find a prettier solution
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -369,7 +430,7 @@ contains
        call rone(this%mult, n)
     end if
 
-    call gs_h%op(this%mult, n, GS_OP_ADD)
+    call this%gs_h%op(this%mult, n, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(this%mult_d, n)
@@ -380,32 +441,48 @@ contains
     end if
 
     ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
-    allocate(this%cyc_msk(0:ncyc))
     this%cyc_msk(0) = ncyc + 1
     if (ncyc .gt. 0) then
-       allocate(this%R11(ncyc))
-       allocate(this%R12(ncyc))
-
        !>Default values correspond to no rotation
        call rone(this%R11, ncyc)
        call rzero(this%R12, ncyc)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(this%cyc_msk, this%cyc_msk_d, ncyc+1)
-          call device_map(this%R11, this%R11_d, ncyc)
-          call device_map(this%R12, this%R12_d, ncyc)
-
-          call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(this%R11, this%R11_d, ncyc, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(this%R12, this%R12_d, ncyc, HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
+               HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(this%R11, this%R11_d, ncyc, HOST_TO_DEVICE, &
+               sync=.false.)
+          call device_memcpy(this%R12, this%R12_d, ncyc, HOST_TO_DEVICE, &
+               sync=.false.)
        end if
-
     end if
-  end subroutine coef_init_all
+
+  end subroutine coef_fill_all
 
   !> Deallocate coefficients
   subroutine coef_free(this)
     class(coef_t), intent(inout) :: this
+
+    nullify(this%msh)
+    nullify(this%Xh)
+    nullify(this%dof)
+    nullify(this%gs_h)
+
+    ! Deallocate arrays
+    call coef_deallocate_all(this)
+
+    !
+    ! Cleanup the device (if present)
+    !
+    call coef_device_free_all(this)
+
+    call this%free_amr_base()
+
+  end subroutine coef_free
+
+  !> Allocate arrays
+  subroutine coef_deallocate_all(this)
+    type(coef_t), intent(inout) :: this
 
     if (allocated(this%G11)) then
        deallocate(this%G11)
@@ -559,15 +636,11 @@ contains
        deallocate(this%R12)
     end if
 
+  end subroutine coef_deallocate_all
 
-    nullify(this%msh)
-    nullify(this%Xh)
-    nullify(this%dof)
-    nullify(this%gs_h)
-
-    !
-    ! Cleanup the device (if present)
-    !
+  !> Free device memory
+  subroutine coef_device_free_all(this)
+    type(coef_t), intent(inout) :: this
 
     if (c_associated(this%G11_d)) then
        call device_free(this%G11_d)
@@ -721,8 +794,7 @@ contains
        call device_free(this%R12_d)
     end if
 
-
-  end subroutine coef_free
+  end subroutine coef_device_free_all
 
   subroutine coef_generate_dxyzdrst(c)
     type(coef_t), intent(inout) :: c
@@ -1302,5 +1374,91 @@ contains
     end if
 
   end subroutine coef_generate_cyclic_bc
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine coef_amr_restart(this, reconstruct, counter, tstep)
+    class(coef_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    if (associated(this%dof)) then
+       ! standard initialisation of coef with space
+       if (this%dof%Xh%lx .lt. 1e1) then
+          write(log_buf, '(A,I2)') 'Reconstructing Coefs; lx =  ', &
+               this%dof%Xh%lx
+       else if (this%dof%Xh%lx .lt. 1e2) then
+          write(log_buf, '(A,I2)') 'Reconstructing Coefs; lx =  ', &
+               this%dof%Xh%lx
+       end if
+    else
+       ! advection initialises coef without space
+       log_buf = 'Reconstructing Coefs; advection'
+    end if
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         tstep)
+
+    ! reconstruct gs; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%gs_h)) call this%gs_h%amr_restart(reconstruct, &
+         counter, tstep)
+
+    ! There are two ways of initialisation and I distinguish them by checking
+    ! association of dofmap
+    if (associated(this%dof)) then
+       ! reconstruct all
+       ! mapping of degrees of freedom
+       if (reconstruct%nold .ne. reconstruct%nnew) then
+          ! Reallocate all arrays
+          call coef_deallocate_all(this)
+          call coef_allocate_all(this)
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             ! added in utils module; could be removed
+             call neko_error('Coef reconstruct:: Nothing done for device.')
+
+             call coef_device_free_all(this)
+             call coef_device_all(this)
+          end if
+       end if
+
+       ! Fill all data
+       call coef_fill_all(this)
+       ! Cyclic is generated separately in fluid_pnpn, but it should be safe
+       ! to restart it here
+       ! RIGHT NOW I'M NOT 100% SURE I FOLLOW ALL CHANGES
+       call this%generate_cyclic_bc()
+    else
+       ! reallocate some of the arrays
+       if (reconstruct%nold .ne. reconstruct%nnew) then
+          ! Reallocate all arrays
+          call coef_deallocate_all(this)
+          call coef_allocate_empty(this)
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             ! added in utils module; could be removed
+             call neko_error('Coef reconstruct:: Nothing done for device.')
+
+             call coef_device_free_all(this)
+             call coef_device_empty(this)
+          end if
+       end if
+
+       ! no filling data this time
+    end if
+
+  end subroutine coef_amr_restart
 
 end module coefs

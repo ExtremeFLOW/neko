@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
@@ -40,6 +39,8 @@ module scalar_source_term
   use field_list, only : field_list_t
   use coefs, only : coef_t
   use user_intf, only : user_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -54,7 +55,8 @@ module scalar_source_term
      procedure, pass(this) :: init => scalar_source_term_init
      !> Initialize the user source term.
      procedure, nopass :: init_user_source => scalar_init_user_source
-
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => scalar_source_term_amr_restart
   end type scalar_source_term_t
 
 contains
@@ -98,5 +100,35 @@ contains
             user%source_term, scheme_name)
     end select
   end subroutine scalar_init_user_source
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine scalar_source_term_amr_restart(this, reconstruct, counter, tstep)
+    class(scalar_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+!    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reconstruct scalar source terms'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    block
+      use utils, only : neko_error
+      call neko_error('Nothing done yet')
+    end block
+
+
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine scalar_source_term_amr_restart
 
 end module scalar_source_term

@@ -91,8 +91,12 @@ contains
     write(buf,'("density_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
-    object%zone_indices = zone_indices
     call object%finalize()
+
+    ! keep zone indices and type for possible mesh restarts
+    call move_alloc(zone_indices, object%zone_indices)
+    call move_alloc(type, object%type)
+
   end subroutine density_bc_factory
 
   !> Factory routine for pressure boundary conditions.
@@ -138,7 +142,6 @@ contains
     write(buf,'("pressure_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
-    object%zone_indices = zone_indices
     call object%finalize()
 
     ! All pressure bcs are currently strong, so for all of them we
@@ -152,6 +155,11 @@ contains
           end do
        end do
     end do
+
+    ! keep zone indices and type for possible mesh restarts
+    call move_alloc(zone_indices, object%zone_indices)
+    call move_alloc(type, object%type)
+
   end subroutine pressure_bc_factory
 
   !> Factory routine for velocity boundary conditions.
@@ -198,8 +206,11 @@ contains
     write(buf,'("velocity_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
-    object%zone_indices = zone_indices
     call object%finalize()
+
+    ! keep zone indices and type for possible mesh restarts
+    call move_alloc(zone_indices, object%zone_indices)
+    call move_alloc(type, object%type)
 
   end subroutine velocity_bc_factory
 

@@ -38,6 +38,8 @@ module sx_jacobi
   use dofmap, only : dofmap_t
   use num_types, only : rp
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use utils, only : neko_error ! added for amr
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -52,6 +54,8 @@ module sx_jacobi
      procedure, pass(this) :: free => sx_jacobi_free
      procedure, pass(this) :: solve => sx_jacobi_solve
      procedure, pass(this) :: update => sx_jacobi_update
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => sx_jacobi_amr_restart
   end type sx_jacobi_t
 
 contains
@@ -79,6 +83,9 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%coef)
+
+    call this%free_amr_base()
+
   end subroutine sx_jacobi_free
 
   !> The jacobi preconditioner \f$ J z = r \f$
@@ -1257,5 +1264,22 @@ contains
 
   end subroutine sx_update_lx2
 
-end module sx_jacobi
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine sx_jacobi_amr_restart(this, reconstruct, counter, tstep)
+    class(sx_jacobi_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
 
+    call neko_error('JACOBI_SX: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine sx_jacobi_amr_restart
+
+end module sx_jacobi

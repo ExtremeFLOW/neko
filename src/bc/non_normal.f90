@@ -37,6 +37,10 @@ module non_normal
   use num_types, only : rp
   use tuple, only : tuple_i4_t
   use coefs, only : coef_t
+  use utils, only : neko_error
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -54,6 +58,8 @@ module non_normal
      procedure, pass(this) :: free => non_normal_free
      !> Finalize.
      procedure, pass(this) :: finalize => non_normal_finalize
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => non_normal_amr_restart
   end type non_normal_t
 
 contains
@@ -95,7 +101,7 @@ contains
     if (present(only_facets)) then
        only_facets_ = only_facets
     else
-       only_facets_ = .false.
+       only_facets_ = this%only_facets
     end if
 
     associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
@@ -136,4 +142,119 @@ contains
 
     call this%symmetry_t%free()
   end subroutine non_normal_free
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine non_normal_amr_restart(this, reconstruct, counter, tstep)
+    class(non_normal_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! For defined zone indices perform full reconstruction including
+    ! finalisation. If zones are missing just prepare for collecting
+    ! facets. Do not forget to finalise those bc later.
+    if (allocated(this%zone_indices)) then
+       if (allocated(this%type)) then
+          log_buf = 'Reconstruct Non Normal: '//trim(this%type)
+       else
+          log_buf = 'Reconstruct Non Normal'
+       end if
+       call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Non normal:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       ! Clean all bc components
+       ! there should be no allocated zones
+       if (allocated(this%bc_x%zone_indices) .or. &
+            allocated(this%bc_y%zone_indices) .or. &
+            allocated(this%bc_z%zone_indices)) &
+            call neko_error('Non normal:: component zone_indices allocated')
+       call this%bc_x%amr_restart(reconstruct, counter, tstep)
+       call this%bc_y%amr_restart(reconstruct, counter, tstep)
+       call this%bc_z%amr_restart(reconstruct, counter, tstep)
+
+       this%iffinalised = .false.
+
+       ! get zones
+       do il = 1, size(this%zone_indices)
+          call this%mark_zone(this%coef%msh%labeled_zones(&
+               this%zone_indices(il)))
+       end do
+       call this%finalize()
+
+       call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    else
+       if (allocated(this%type)) then
+          log_buf = 'Clean Non Normal: '//trim(this%type)
+       else
+          log_buf = 'Clean Non Normal'
+       end if
+       call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Non normal:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       ! Clean all bc components
+       ! there should be no allocated zones
+       if (allocated(this%bc_x%zone_indices) .or. &
+            allocated(this%bc_y%zone_indices) .or. &
+            allocated(this%bc_z%zone_indices)) &
+            call neko_error('Non normal:: component zone_indices allocated')
+       call this%bc_x%amr_restart(reconstruct, counter, tstep)
+       call this%bc_y%amr_restart(reconstruct, counter, tstep)
+       call this%bc_z%amr_restart(reconstruct, counter, tstep)
+
+       this%iffinalised = .false.
+
+       call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    end if
+
+  end subroutine non_normal_amr_restart
+
 end module non_normal

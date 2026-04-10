@@ -43,6 +43,7 @@ module const_source_term
   use const_source_term_cpu, only : const_source_term_compute_cpu
   use const_source_term_device, only : const_source_term_compute_device
   use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -62,6 +63,8 @@ module const_source_term
      procedure, pass(this) :: free => const_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute_ => const_source_term_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => const_source_term_amr_restart
   end type const_source_term_t
 
 contains
@@ -143,5 +146,25 @@ contains
        call const_source_term_compute_cpu(this%fields, this%values)
     end if
   end subroutine const_source_term_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine const_source_term_amr_restart(this, reconstruct, counter, tstep)
+    class(const_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+!    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, tstep)
+
+  end subroutine const_source_term_amr_restart
 
 end module const_source_term

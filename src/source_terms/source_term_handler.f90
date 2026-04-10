@@ -47,6 +47,7 @@ module source_term_handler
   use math, only : col2
   use device_math, only : device_col2
   use time_state, only : time_state_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
@@ -60,7 +61,8 @@ module source_term_handler
   !! In general, a derived class should implement the `init_user_source` method
   !! to handle user-defined source terms and should manually implement an
   !! initializer which calls `this%init_base`.
-  type, abstract, public :: source_term_handler_t
+  type, abstract, public, extends(amr_restart_component_t) :: &
+       source_term_handler_t
      !> Array of ordinary source terms.
      class(source_term_wrapper_t), allocatable :: source_terms(:)
      !> The right-hand side.
@@ -146,6 +148,8 @@ contains
     if (allocated(this%scheme_name)) then
        deallocate(this%scheme_name)
     end if
+
+    call this%free_amr_base()
 
   end subroutine source_term_handler_free
 

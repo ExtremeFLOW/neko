@@ -46,6 +46,8 @@ module derivative_simcomp
   use field_writer, only : field_writer_t
   use utils, only : neko_error
   use time_based_controller, only : time_based_controller_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -84,6 +86,8 @@ module derivative_simcomp
      procedure, pass(this) :: free => derivative_free
      !> Compute the derivative field.
      procedure, pass(this) :: compute_ => derivative_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => derivative_amr_restart
   end type derivative_t
 
 contains
@@ -258,6 +262,9 @@ contains
     nullify(this%dr)
     nullify(this%ds)
     nullify(this%dt)
+
+    call this%free_amr_base()
+
   end subroutine derivative_free
 
   !> Compute the derivative field.
@@ -269,5 +276,29 @@ contains
     call dudxyz(this%du%x, this%u%x, this%dr, this%ds, this%dt,&
          this%case%fluid%c_Xh)
   end subroutine derivative_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine derivative_amr_restart(this, reconstruct, counter, tstep)
+    class(derivative_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Derivative'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine derivative_amr_restart
 
 end module derivative_simcomp

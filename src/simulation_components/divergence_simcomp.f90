@@ -46,6 +46,8 @@ module divergence_simcomp
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t
   use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -85,6 +87,8 @@ module divergence_simcomp
      procedure, pass(this) :: free => divergence_free
      !> Compute the divergence field.
      procedure, pass(this) :: compute_ => divergence_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => divergence_amr_restart
   end type divergence_t
 
 contains
@@ -239,6 +243,9 @@ contains
     nullify(this%v)
     nullify(this%w)
     nullify(this%divergence)
+
+    call this%free_amr_base()
+
   end subroutine divergence_free
 
   !> Compute the divergence field.
@@ -250,5 +257,29 @@ contains
          this%case%fluid%c_Xh)
 
   end subroutine divergence_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine divergence_amr_restart(this, reconstruct, counter, tstep)
+    class(divergence_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Divergence'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine divergence_amr_restart
 
 end module divergence_simcomp

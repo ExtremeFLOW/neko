@@ -45,6 +45,8 @@ module pipecg
   use comm, only : MPI_REAL_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Iallreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wait, &
        MPI_Request, MPI_Status
+  use utils, only : neko_error ! added for amr
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -70,6 +72,8 @@ module pipecg
      procedure, pass(this) :: solve => pipecg_solve
      !> Solve the coupled linear system.
      procedure, pass(this) :: solve_coupled => pipecg_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => pipecg_amr_restart
   end type pipecg_t
 
 contains
@@ -155,6 +159,7 @@ contains
 
     nullify(this%M)
 
+    call this%free_amr_base()
 
   end subroutine pipecg_free
 
@@ -358,5 +363,23 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function pipecg_solve_coupled
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine pipecg_amr_restart(this, reconstruct, counter, tstep)
+    class(pipecg_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('PIPECG: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine pipecg_amr_restart
 
 end module pipecg

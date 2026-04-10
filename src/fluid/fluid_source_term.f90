@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2023, The Neko Authors
 ! All rights reserved.
 !
@@ -40,6 +39,8 @@ module fluid_source_term
   use field_list, only : field_list_t
   use coefs, only : coef_t
   use user_intf, only : user_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -54,7 +55,8 @@ module fluid_source_term
      procedure, pass(this) :: init => fluid_source_term_init
      !> Initialize the user source term.
      procedure, nopass :: init_user_source => fluid_init_user_source
-
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => fluid_source_term_amr_restart
   end type fluid_source_term_t
 
 contains
@@ -101,5 +103,48 @@ contains
             user%source_term, scheme_name)
     end select
   end subroutine fluid_init_user_source
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine fluid_source_term_amr_restart(this, reconstruct, counter, tstep)
+    class(fluid_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reconstruct fluid source'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct coef; No problem, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+         counter, tstep)
+
+    ! reconstruct right-hand side fields; No problem, as AMR restart prevents
+    ! recursive reconstructions
+    call this%rhs_fields%amr_restart(reconstruct, counter, tstep)
+
+    ! Reconstruct source terms
+    ! Most of the fluid source terms do not require restart, as rhs are already
+    ! reconstructed, and most of the fields seem to be taken from registries.
+    ! However, some seem to have internal fields
+    if (allocated(this%source_terms)) then
+       do il = 1, size(this%source_terms)
+          call this%source_terms(il)%source_term%amr_restart(reconstruct, &
+               counter, tstep)
+       end do
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine fluid_source_term_amr_restart
 
 end module fluid_source_term

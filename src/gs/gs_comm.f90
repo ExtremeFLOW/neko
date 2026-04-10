@@ -35,6 +35,7 @@ module gs_comm
   use num_types, only : rp
   use comm, only : pe_size
   use stack, only : stack_i4_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -43,7 +44,7 @@ module gs_comm
        GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4
 
   !> Gather-scatter communication method
-  type, public, abstract :: gs_comm_t
+  type, public, abstract, extends(amr_restart_component_t) :: gs_comm_t
      !> A list of stacks of dof indices local to this process to send to rank_i
      type(stack_i4_t), allocatable :: send_dof(:)
      !> recv_dof(rank_i) is a stack of dof indices local to this process to

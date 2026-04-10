@@ -37,6 +37,7 @@ module adv_dummy
   use space, only : space_t
   use field, only : field_t
   use coefs, only : coef_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -54,6 +55,8 @@ module adv_dummy
      !! the RHS.
      procedure, pass(this) :: compute_scalar => &
           compute_scalar_adv_dummy
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => adv_dummy_amr_restart
   end type adv_dummy_t
 
 contains
@@ -69,6 +72,8 @@ contains
   !> Destructor.
   subroutine free_adv_dummy(this)
     class(adv_dummy_t), intent(inout) :: this
+
+    call this%free_amr_base()
 
   end subroutine free_adv_dummy
 
@@ -122,5 +127,16 @@ contains
     real(kind=rp), intent(in), optional :: dt
 
   end subroutine compute_scalar_adv_dummy
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine adv_dummy_amr_restart(this, reconstruct, counter, tstep)
+    class(adv_dummy_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+  end subroutine adv_dummy_amr_restart
 
 end module adv_dummy

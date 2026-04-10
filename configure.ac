@@ -187,6 +187,9 @@ AX_ADIOS2_FORTRAN
 # Checks for gslib
 ##AX_GSLIB
 
+# Check for p4est
+AX_P4EST
+
 # Select Working precision of REAL
 if test "x$enable_real" = xssp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
@@ -336,6 +339,7 @@ LIBS="$JSON_Fortran_LIBS $LIBS"
 NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $JSON_Fortran_CFLAGS"
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
+AM_CONDITIONAL([ENABLE_P4EST], [test "x${have_p4est}" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2_FORTRAN], [test "x${have_adios2_fortran}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])

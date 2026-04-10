@@ -47,6 +47,8 @@ module cheby_device
        device_add2s1, device_add2s2, device_glsc3, device_copy, &
        device_sub3, device_cmult, device_add2
   use device
+  use utils, only : neko_error ! added for amr
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, &
        C_NULL_PTR, c_associated
   implicit none
@@ -71,6 +73,8 @@ module cheby_device
      procedure, pass(this) :: free => cheby_device_free
      procedure, pass(this) :: solve => cheby_device_impl
      procedure, pass(this) :: solve_coupled => cheby_device_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => cheby_device_amr_restart
   end type cheby_device_t
 
 #ifdef HAVE_HIP
@@ -234,6 +238,8 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
+
+    call this%free_amr_base()
 
   end subroutine cheby_device_free
 
@@ -500,5 +506,23 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cheby_device_solve_coupled
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine cheby_device_amr_restart(this, reconstruct, counter, tstep)
+    class(cheby_device_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('CHEBY_DEV: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine cheby_device_amr_restart
 
 end module cheby_device

@@ -40,11 +40,14 @@ module registry
   use dofmap, only : dofmap_t
   use utils, only : neko_error
   use json_module, only : json_file
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
+
   implicit none
   private
 
-  type, public :: registry_t
+  type, public, extends(amr_restart_component_t) :: registry_t
      !> List of entries stored.
      type(registry_entry_t), private, allocatable :: entries(:)
      !> List of aliases to entries stored.
@@ -138,6 +141,9 @@ module registry
      procedure, pass(this) :: get_expansion_size => registry_get_expansion_size
      !> Print registry contents optionally filtered by type.
      procedure, pass(this) :: print_contents => registry_print_contents
+
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => registry_amr_restart
   end type registry_t
 
   !> Global field registry
@@ -196,6 +202,9 @@ contains
     this%n_entries_ = 0
     this%n_aliases_ = 0
     this%expansion_size_ = 5
+
+    call this%free_amr_base()
+
   end subroutine registry_free
 
   !> Expand the fields array so as to accommodate more fields.
@@ -890,5 +899,39 @@ contains
        call neko_log%message("    <none>")
     end if
   end subroutine registry_print_section
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine registry_amr_restart(this, reconstruct, counter, tstep)
+    class(registry_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+    type(field_t), pointer :: fld
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Registry'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct fields
+    do il = 1, this%n_entries()
+       if (this%entries(il)%get_type() .eq. 'field') then
+          fld => this%entries(il)%get_field()
+          call fld%amr_restart(reconstruct, counter, tstep)
+       end if
+    end do
+
+    ! For now not clear what to do with matrix and vector
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine registry_amr_restart
 
 end module registry

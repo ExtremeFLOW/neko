@@ -99,6 +99,9 @@ contains
     ! Initialize
     call object%init(json, case)
 
+    ! Add to AMR component list
+    call case%amr%comp_add(object, object%name)
+
   end subroutine simulation_component_factory
 
   !> Simulation component allocator.

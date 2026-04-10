@@ -49,6 +49,8 @@ module curl_simcomp
   use scratch_registry, only : neko_scratch_registry
   use time_based_controller, only : time_based_controller_t
   use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -92,6 +94,8 @@ module curl_simcomp
      procedure, pass(this) :: free => curl_free
      !> Compute the curl field.
      procedure, pass(this) :: compute_ => curl_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => curl_amr_restart
   end type curl_t
 
 contains
@@ -261,6 +265,9 @@ contains
     nullify(this%curl_x)
     nullify(this%curl_y)
     nullify(this%curl_z)
+
+    call this%free_amr_base()
+
   end subroutine curl_free
 
   !> Compute the curl field.
@@ -279,5 +286,44 @@ contains
 
     call neko_scratch_registry%relinquish_field(tmp_idx)
   end subroutine curl_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine curl_amr_restart(this, reconstruct, counter, tstep)
+    class(curl_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = trim(this%name)
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! These should be already restarted, but AMR restart prevents
+    ! recursive restarting, so it is safe to call it here
+    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, tstep)
+
+    ! These I reallocate here assuming former values do not matter???
+    if (associated(this%curl_x)) &
+         call this%curl_x%amr_reallocate(reconstruct, counter, tstep)
+    if (associated(this%curl_y)) &
+         call this%curl_y%amr_reallocate(reconstruct, counter, tstep)
+    if (associated(this%curl_z)) &
+         call this%curl_z%amr_reallocate(reconstruct, counter, tstep)
+
+    ! Writer does not seem to be used????
+    ! call this%writer%amr_restart(reconstruct, counter, tstep)
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine curl_amr_restart
 
 end module curl_simcomp

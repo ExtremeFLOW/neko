@@ -42,6 +42,10 @@ module symmetry
   use zero_dirichlet, only : zero_dirichlet_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
+  use utils, only : neko_error
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -67,6 +71,8 @@ module symmetry
      procedure, pass(this) :: get_normal_axis => symmetry_get_normal_axis
      !> Finalize.
      procedure, pass(this) :: finalize => symmetry_finalize
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => symmetry_amr_restart
   end type symmetry_t
 
 contains
@@ -115,7 +121,7 @@ contains
     if (present(only_facets)) then
        only_facets_ = only_facets
     else
-       only_facets_ = .false.
+       only_facets_ = this%only_facets
     end if
 
     call this%finalize_base(only_facets_)
@@ -293,5 +299,122 @@ contains
     call this%bc_y%free()
     call this%bc_z%free()
 
+    call this%free_amr_base()
+
   end subroutine symmetry_free
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine symmetry_amr_restart(this, reconstruct, counter, tstep)
+    class(symmetry_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! For defined zone indices perform full reconstruction including
+    ! finalisation. If zones are missing just prepare for collecting
+    ! facets. Do not forget to finalise those bc later.
+    if (allocated(this%zone_indices)) then
+       if (allocated(this%type)) then
+          log_buf = 'Reconstruct Symmetry: '//trim(this%type)
+       else
+          log_buf = 'Reconstruct Symmetry'
+       end if
+       call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Symmetry:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       ! Clean all bc components
+       ! there should be no allocated zones
+       if (allocated(this%bc_x%zone_indices) .or. &
+            allocated(this%bc_y%zone_indices) .or. &
+            allocated(this%bc_z%zone_indices)) &
+            call neko_error('Symmetry:: component zone_indices allocated')
+       call this%bc_x%amr_restart(reconstruct, counter, tstep)
+       call this%bc_y%amr_restart(reconstruct, counter, tstep)
+       call this%bc_z%amr_restart(reconstruct, counter, tstep)
+
+       this%iffinalised = .false.
+
+       ! get zones
+       do il = 1, size(this%zone_indices)
+          call this%mark_zone(this%coef%msh%labeled_zones(&
+               this%zone_indices(il)))
+       end do
+       call this%finalize()
+
+       call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    else
+       if (allocated(this%type)) then
+          log_buf = 'Clean Symmetry: '//trim(this%type)
+       else
+          log_buf = 'Clean Symmetry'
+       end if
+       call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+       ! reconstruct dofmap; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
+            counter, tstep)
+       ! reconstruct coef; No problem, as AMR restart prevents recursive
+       ! reconstructions
+       if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+            counter, tstep)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          ! added utils module; could be removed
+          call neko_error('Symmetry:: Nothing done for device.')
+       end if
+
+       ! free space
+       if (allocated(this%msk)) deallocate(this%msk)
+       if (allocated(this%facet)) deallocate(this%facet)
+!       call this%marked_facet%free()
+!       call this%marked_facet%init()
+       call this%marked_facet%clear()
+
+       ! Clean all bc components
+       ! there should be no allocated zones
+       if (allocated(this%bc_x%zone_indices) .or. &
+            allocated(this%bc_y%zone_indices) .or. &
+            allocated(this%bc_z%zone_indices)) &
+            call neko_error('Symmetry:: component zone_indices allocated')
+       call this%bc_x%amr_restart(reconstruct, counter, tstep)
+       call this%bc_y%amr_restart(reconstruct, counter, tstep)
+       call this%bc_z%amr_restart(reconstruct, counter, tstep)
+
+       this%iffinalised = .false.
+
+       call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    end if
+
+  end subroutine symmetry_amr_restart
+
 end module symmetry

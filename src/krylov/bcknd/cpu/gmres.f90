@@ -44,6 +44,8 @@ module gmres
   use neko_config, only : NEKO_BLK_SIZE
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -64,6 +66,8 @@ module gmres
      procedure, pass(this) :: free => gmres_free
      procedure, pass(this) :: solve => gmres_solve
      procedure, pass(this) :: solve_coupled => gmres_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gmres_amr_restart
   end type gmres_t
 
 contains
@@ -156,6 +160,8 @@ contains
     end if
 
     nullify(this%M)
+
+    call this%free_amr_base()
 
   end subroutine gmres_free
 
@@ -357,5 +363,40 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function gmres_solve_coupled
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine gmres_amr_restart(this, reconstruct, counter, tstep)
+    class(gmres_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: ntot
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reallocating GMRES'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%w)) deallocate(this%w)
+       if (allocated(this%r)) deallocate(this%r)
+       if (allocated(this%z)) deallocate(this%z)
+       if (allocated(this%v)) deallocate(this%v)
+
+       ntot = reconstruct%nnew * reconstruct%lxyz
+       allocate(this%w(ntot))
+       allocate(this%r(ntot))
+       allocate(this%z(ntot, this%lgmres))
+       allocate(this%v(ntot, this%lgmres))
+    end if
+
+  end subroutine gmres_amr_restart
 
 end module gmres

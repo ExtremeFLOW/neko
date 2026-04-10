@@ -44,6 +44,8 @@ module cg
   use math, only : glsc3, rzero, copy, abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -61,6 +63,8 @@ module cg
      procedure, pass(this) :: free => cg_free
      procedure, pass(this) :: solve => cg_solve
      procedure, pass(this) :: solve_coupled => cg_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => cg_amr_restart
   end type cg_t
 
 contains
@@ -133,6 +137,8 @@ contains
     end if
 
     nullify(this%M)
+
+    call this%free_amr_base()
 
   end subroutine cg_free
 
@@ -278,5 +284,40 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cg_solve_coupled
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine cg_amr_restart(this, reconstruct, counter, tstep)
+    class(cg_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: ntot
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reallocating Conjugate Gradient'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%w)) deallocate(this%w)
+       if (allocated(this%r)) deallocate(this%r)
+       if (allocated(this%p)) deallocate(this%p)
+       if (allocated(this%z)) deallocate(this%z)
+
+       ntot = reconstruct%nnew * reconstruct%lxyz
+       allocate(this%w(ntot))
+       allocate(this%r(ntot))
+       allocate(this%p(ntot, CG_P_SPACE))
+       allocate(this%z(ntot))
+    end if
+
+  end subroutine cg_amr_restart
 
 end module cg

@@ -88,13 +88,14 @@ module hsmg
        krylov_solver_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
   implicit none
   private
 
-  !Struct to arrange our multigridlevels
+  !Struct to arrange our multigrid levels
   type, private :: multigrid_t
      type(dofmap_t), pointer :: dof => null()
      type(gs_t), pointer :: gs_h => null()
@@ -106,7 +107,10 @@ module hsmg
   end type multigrid_t
 
   type, public, extends(pc_t) :: hsmg_t
+     !> Mesh pointer
      type(mesh_t), pointer :: msh => null()
+     !> External boundary list
+     type(bc_list_t), pointer :: bclst_ext => null()
      integer :: nlvls !< Number of levels in the multigrid
      type(multigrid_t), allocatable :: grids(:) !< array for multigrids
      type(gs_t) :: gs_crs, gs_mg !< gather scatter for lower levels
@@ -138,6 +142,8 @@ module hsmg
      procedure, pass(this) :: free => hsmg_free
      procedure, pass(this) :: solve => hsmg_solve
      procedure, pass(this) :: update => hsmg_set_h
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => hsmg_amr_restart
   end type hsmg_t
 
 contains
@@ -279,6 +285,8 @@ contains
 
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
+
+    this%bclst_ext => bclst
 
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
@@ -469,6 +477,11 @@ contains
     call this%Xh_crs%free()
     call this%Xh_mg%free()
 
+    this%msh => null()
+    this%bclst_ext => null()
+
+    call this%free_amr_base()
+
   end subroutine hsmg_free
 
   !> The h1mg preconditioner from Nek5000.
@@ -619,4 +632,112 @@ contains
     end if
     call profiler_end_region('HSMG_solve', 8)
   end subroutine hsmg_solve
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine hsmg_amr_restart(this, reconstruct, counter, tstep)
+    class(hsmg_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il, ntot
+    class(bc_t), pointer :: bc_i
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'hybrid-Schwarz multigrid'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ntot = reconstruct%nnew * reconstruct%lxyz
+
+    ! reallocate arrays
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%w)) deallocate(this%w)
+       if (allocated(this%r)) deallocate(this%r)
+       allocate(this%w(ntot), this%r(ntot))
+    end if
+
+    ! Compute all elements as if they are deformed
+    call this%msh%all_deformed()
+
+    ! Reallocate solve and work fields?????????????????????????????
+    call this%e%amr_reallocate(reconstruct, counter, tstep)
+    call this%wf%amr_reallocate(reconstruct, counter, tstep)
+
+    ! one could reach dofmap, gs and coef for fine grid through grids
+
+    ! reconstruct coarse levels; dofmap, gs, coef, field
+    call this%dm_crs%amr_restart(reconstruct, counter, tstep)
+    call this%gs_crs%amr_restart(reconstruct, counter, tstep)
+    call this%c_crs%amr_restart(reconstruct, counter, tstep)
+    call this%e_crs%amr_restart(reconstruct, counter, tstep)
+
+    call this%dm_mg%amr_restart(reconstruct, counter, tstep)
+    call this%gs_mg%amr_restart(reconstruct, counter, tstep)
+    call this%c_mg%amr_restart(reconstruct, counter, tstep)
+    call this%e_mg%amr_restart(reconstruct, counter, tstep)
+
+    ! ax does not require restarting
+
+    ! boundary conditions
+    if (this%bclst_ext%size() .gt. 0) then
+       ! clean local boundary lists
+       call this%bc_crs%amr_restart(reconstruct, counter, tstep)
+       call this%bc_mg%amr_restart(reconstruct, counter, tstep)
+       call this%bc_reg%amr_restart(reconstruct, counter, tstep)
+
+       do il = 1, this%bclst_ext%size()
+          bc_i => this%bclst_ext%get(il)
+          call this%bc_reg%mark_facets(bc_i%marked_facet)
+          bc_i => this%bclst_ext%get(il)
+          call this%bc_crs%mark_facets(bc_i%marked_facet)
+          bc_i => this%bclst_ext%get(il)
+          call this%bc_mg%mark_facets(bc_i%marked_facet)
+       end do
+
+       if (.not. this%bc_reg%iffinalised) then
+          call this%bc_reg%finalize()
+       else
+          call neko_error('HSMG reg bc; already finalised')
+       end if
+       if (.not. this%bc_crs%iffinalised) then
+          call this%bc_crs%finalize()
+       else
+          call neko_error('HSMG crs bc; already finalised')
+       end if
+       if (.not. this%bc_mg%iffinalised) then
+          call this%bc_mg%finalize()
+       else
+          call neko_error('HSMG mg bc; already finalised')
+       end if
+    end if
+
+    ! reconstruct Schwarz; schwarz_crs is never initialised
+    call this%schwarz%amr_restart(reconstruct, counter, tstep)
+    call this%schwarz_mg%amr_restart(reconstruct, counter, tstep)
+    ! schwarz_crs is never initialised
+
+    ! interpolator does not require restarting
+
+    ! Krylov solver
+    if (allocated(this%amg_solver)) then
+       call neko_error('Hsmg reconstruct:: nothing done for tamg solver.')
+    else
+       call this%crs_solver%amr_restart(reconstruct, counter, tstep)
+       call this%pc_crs%amr_restart(reconstruct, counter, tstep)
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('Hsmg reconstruct:: Nothing done for device.')
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine hsmg_amr_restart
+
 end module hsmg

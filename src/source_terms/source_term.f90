@@ -37,11 +37,13 @@ module source_term
   use field_list, only : field_list_t
   use json_module, only : json_file
   use time_state, only : time_state_t
+  use amr_restart_component, only : amr_restart_component_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
   !> Base abstract type for source terms.
-  type, abstract, public :: source_term_t
+  type, abstract, public, extends(amr_restart_component_t) :: source_term_t
      !> The fields to be updated with the source term values
      type(field_list_t) :: fields
      !> Coefficients for the SEM.
@@ -63,6 +65,8 @@ module source_term
      procedure(source_term_free), pass(this), deferred :: free
      !> Computes the source term and adds the result to `fields`.
      procedure(source_term_compute), pass(this), deferred :: compute_
+     !> AMR restart
+     procedure, pass(this) :: amr_restart_base => source_term_amr_restart_base
   end type source_term_t
 
 
@@ -213,6 +217,8 @@ contains
 
     call this%fields%free()
     nullify(this%coef)
+    call this%free_amr_base()
+
   end subroutine source_term_free_base
 
   !> Destructor for the `source_term_wrapper_t` type.
@@ -237,4 +243,27 @@ contains
     end if
 
   end subroutine source_term_compute_wrapper
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine source_term_amr_restart_base(this, reconstruct, counter, tstep)
+    class(source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    ! No counter checking
+
+    ! reconstruct coef; No problem, as AMR restart prevents recursive
+    ! reconstructions
+    if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
+         counter, tstep)
+
+    ! reconstruct right-hand side fields; No problem, as AMR restart prevents
+    ! recursive reconstructions
+    call this%fields%amr_restart(reconstruct, counter, tstep)
+
+  end subroutine source_term_amr_restart_base
+
 end module source_term

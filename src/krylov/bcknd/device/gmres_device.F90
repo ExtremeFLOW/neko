@@ -51,6 +51,7 @@ module gmres_device
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_SUM, MPI_Allreduce
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
        c_associated, c_int, c_size_t, c_sizeof
   implicit none
@@ -82,6 +83,8 @@ module gmres_device
      procedure, pass(this) :: free => gmres_device_free
      procedure, pass(this) :: solve => gmres_device_solve
      procedure, pass(this) :: solve_coupled => gmres_device_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gmres_device_amr_restart
   end type gmres_device_t
 
 #ifdef HAVE_HIP
@@ -282,8 +285,6 @@ contains
        end do
     end if
 
-
-
     if (c_associated(this%gam_d)) then
        call device_free(this%gam_d)
     end if
@@ -314,6 +315,8 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
+
+    call this%free_amr_base()
 
   end subroutine gmres_device_free
 
@@ -513,5 +516,23 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function gmres_device_solve_coupled
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine gmres_device_amr_restart(this, reconstruct, counter, tstep)
+    class(gmres_device_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('GMRES_DEV: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine gmres_device_amr_restart
 
 end module gmres_device

@@ -44,6 +44,8 @@ module shear_stress
   use json_utils, only : json_get_or_lookup
   use vector, only : vector_t
   use time_state, only : time_state_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -81,6 +83,8 @@ module shear_stress
      procedure, pass(this) :: free => shear_stress_free
      !> Finalize the construction.
      procedure, pass(this) :: finalize => shear_stress_finalize
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => shear_stress_amr_restart
   end type shear_stress_t
 
 contains
@@ -222,7 +226,7 @@ contains
     if (present(only_facets)) then
        only_facets_ = only_facets
     else
-       only_facets_ = .false.
+       only_facets_ = this%only_facets
     end if
 
     call this%finalize_base(only_facets_)
@@ -282,5 +286,34 @@ contains
     call this%neumann_y%free
     call this%neumann_z%free
 
+    call this%free_amr_base()
+
   end subroutine shear_stress_free
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine shear_stress_amr_restart(this, reconstruct, counter, tstep)
+    class(shear_stress_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+
+    write(*,*) 'TESTshearSTRESS'
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Shear stress'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine shear_stress_amr_restart
+
 end module shear_stress

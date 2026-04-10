@@ -48,6 +48,7 @@ module centrifugal_source_term
   use field, only : field_t
   use registry, only : neko_registry
   use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -74,6 +75,8 @@ module centrifugal_source_term
      procedure, pass(this) :: free => centrifugal_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute_ => centrifugal_source_term_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => centrifugal_source_term_amr_restart
   end type centrifugal_source_term_t
 
 contains
@@ -164,5 +167,26 @@ contains
             this%fields)
     end if
   end subroutine centrifugal_source_term_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine centrifugal_source_term_amr_restart(this, reconstruct, counter, &
+       tstep)
+    class(centrifugal_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+!    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, tstep)
+
+  end subroutine centrifugal_source_term_amr_restart
 
 end module centrifugal_source_term

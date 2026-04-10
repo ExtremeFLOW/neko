@@ -57,6 +57,7 @@ module sponge_source_term
   use scratch_registry, only : neko_scratch_registry
   use comm, only : pe_rank
   use fld_file_output, only : fld_file_output_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -109,6 +110,8 @@ module sponge_source_term
      procedure, pass(this) :: free => sponge_free
      !> Compute the sponge field.
      procedure, pass(this) :: compute_ => sponge_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => sponge_source_term_amr_restart
   end type sponge_source_term_t
 
 contains
@@ -524,5 +527,29 @@ contains
     call neko_scratch_registry%relinquish_field(tmp_index)
 
   end subroutine sponge_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine sponge_source_term_amr_restart(this, reconstruct, counter, tstep)
+    class(sponge_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+!    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, tstep)
+
+    block
+      use utils, only : neko_error
+      call neko_error('Nothing done yet')
+    end block
+
+  end subroutine sponge_source_term_amr_restart
 
 end module sponge_source_term

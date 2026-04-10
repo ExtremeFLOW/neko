@@ -42,7 +42,7 @@ module tri_mesh
      type(tri_t), allocatable :: el(:)       !< Tetrahedron elements
      type(point_t), allocatable :: points(:) !< List of points
      integer :: nelv
-     integer :: mpts
+     integer :: gpts !< Number of geometrical points
    contains
      procedure, pass(this) :: init => tri_mesh_init
      procedure, pass(this) :: free => tri_mesh_free
@@ -62,7 +62,7 @@ contains
     allocate(this%el(this%nelv))
     allocate(this%points(nelv * NEKO_TRI_NPTS))
 
-    this%mpts = 0
+    this%gpts = 0
     this%nelv = 0
 
   end subroutine tri_mesh_init
@@ -86,16 +86,16 @@ contains
     class(tri_mesh_t), intent(inout) :: this
     type(point_t), target, intent(inout) :: p1, p2, p3
 
-    this%points(this%mpts + 1) = p1
-    this%points(this%mpts + 2) = p2
-    this%points(this%mpts + 3) = p3
+    this%points(this%gpts + 1) = p1
+    this%points(this%gpts + 2) = p2
+    this%points(this%gpts + 3) = p3
 
     this%nelv = this%nelv + 1
     call this%el(this%nelv)%init(this%nelv, &
-         this%points(this%mpts + 1), &
-         this%points(this%mpts + 2), &
-         this%points(this%mpts + 3))
-    this%mpts = this%mpts + 3
+         this%points(this%gpts + 1), &
+         this%points(this%gpts + 2), &
+         this%points(this%gpts + 3))
+    this%gpts = this%gpts + 3
 
   end subroutine tri_mesh_add_element
 

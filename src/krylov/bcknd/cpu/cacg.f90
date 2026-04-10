@@ -42,10 +42,11 @@ module cacg
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, x_update, abscmp
-  use utils, only : neko_warning
+  use utils, only : neko_warning, neko_error ! added for amr
   use comm, only : pe_rank, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_SUM
   use mxm_wrapper
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -60,6 +61,8 @@ module cacg
      procedure, pass(this) :: free => cacg_free
      procedure, pass(this) :: solve => cacg_solve
      procedure, pass(this) :: solve_coupled => cacg_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => cacg_amr_restart
   end type cacg_t
 
 contains
@@ -127,6 +130,7 @@ contains
 
     nullify(this%M)
 
+    call this%free_amr_base()
 
   end subroutine cacg_free
 
@@ -373,6 +377,22 @@ contains
 
   end function cacg_solve_coupled
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine cacg_amr_restart(this, reconstruct, counter, tstep)
+    class(cacg_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+
+    call neko_error('CACG: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine cacg_amr_restart
+
 end module cacg
-
-
