@@ -39,7 +39,7 @@ module overset_interface_vector
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use global_interpolation, only : global_interpolation_t, &
-                              global_interpolation_settings_t
+       global_interpolation_settings_t
   use mask, only : mask_t
   use dofmap, only : dofmap_t
   use bc, only : bc_t
@@ -118,7 +118,7 @@ module overset_interface_vector
      procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
      !> Set up the interpolator.
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
-   
+
   end type overset_interface_vector_t
 
 contains
@@ -131,7 +131,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
     real(kind=rp) :: tol, pad
-    
+
     !> Parse the interpolation settings
     call json_get_or_default(json, "interpolation.tolerance", &
          tol, -1.0_rp)
@@ -154,12 +154,12 @@ contains
 
     !> Set the interpolation settings
     if (present(tol)) then
-    if (tol .gt. 0.0_rp) this%interpolation_settings%tolerance = tol
-    end if 
-   if (present(pad)) then
-    if (pad .gt. 0.0_rp) this%interpolation_settings%padding = pad
-   end if
-      
+       if (tol .gt. 0.0_rp) this%interpolation_settings%tolerance = tol
+    end if
+    if (present(pad)) then
+       if (pad .gt. 0.0_rp) this%interpolation_settings%padding = pad
+    end if
+
     call this%bc_u%init_from_components(coef, "u")
     call this%bc_v%init_from_components(coef, "v")
     call this%bc_w%init_from_components(coef, "w")

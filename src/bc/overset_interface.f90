@@ -38,7 +38,7 @@ module overset_interface
   use num_types, only : rp
   use coefs, only : coef_t
   use global_interpolation, only : global_interpolation_t, &
-     global_interpolation_settings_t
+       global_interpolation_settings_t
   use mask, only : mask_t
   use bc, only : bc_t
   use field_list, only : field_list_t
@@ -51,7 +51,7 @@ module overset_interface
   use utils, only : neko_error, nonlinear_index, linear_index
   use stack, only : stack_i4_t
   use json_module, only : json_file
-   use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default
   use field, only : field_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
@@ -77,7 +77,7 @@ module overset_interface
      !> Interpolated scalar values on the interface.
      type(vector_t) :: s_interface
      !> Interpolation settings.
-   type(global_interpolation_settings_t) :: interpolation_settings
+     type(global_interpolation_settings_t) :: interpolation_settings
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_init
@@ -97,7 +97,7 @@ module overset_interface
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => overset_interface_apply_scalar_dev
      procedure, pass(this) :: update => overset_interface_update
-     
+
      !> Build domain masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
      !> Gather the dofs at the interface.
@@ -116,12 +116,12 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: field_name
-      real(kind=rp) :: tol, pad
+    real(kind=rp) :: tol, pad
 
     call json_get(json, "field_name", field_name)
-      call json_get_or_default(json, "interpolation.tolerance", tol, -1.0_rp)
-      call json_get_or_default(json, "interpolation.padding", pad, -1.0_rp)
-      call this%init_from_components(coef, field_name, tol, pad)
+    call json_get_or_default(json, "interpolation.tolerance", tol, -1.0_rp)
+    call json_get_or_default(json, "interpolation.padding", pad, -1.0_rp)
+    call this%init_from_components(coef, field_name, tol, pad)
     if (allocated(field_name)) deallocate(field_name)
 
   end subroutine overset_interface_init
@@ -417,10 +417,10 @@ contains
     class(overset_interface_t), intent(inout) :: this
 
     call this%interface_interpolator%init(this%dof, &
-       comm = NEKO_GLOBAL_COMM, &
-       tol = this%interpolation_settings%tolerance, &
-       pad = this%interpolation_settings%padding, &
-       mask = this%domain_element_mask)
+         comm = NEKO_GLOBAL_COMM, &
+         tol = this%interpolation_settings%tolerance, &
+         pad = this%interpolation_settings%padding, &
+         mask = this%domain_element_mask)
 
     call this%interface_interpolator%find_points(this%x_interface_dof%x, &
          this%y_interface_dof%x, this%z_interface_dof%x, &
