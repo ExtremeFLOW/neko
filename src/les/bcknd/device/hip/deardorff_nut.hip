@@ -52,7 +52,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     hipLaunchKernelGGL(HIP_KERNEL_NAME(deardorff_nut_compute<real>),
                     nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                    (real *) TKE, (real *) dTdz, (real *) dTdx, (real *) dTdy,
+                    (real *) TKE, (real *) dTdx, (real *) dTdy, (real *) dTdz,
                     (real *) a11, (real *) a12, (real *) a13,
                     (real *) a21, (real *) a22, (real *) a23,
                     (real *) a31, (real *) a32, (real *) a33,
