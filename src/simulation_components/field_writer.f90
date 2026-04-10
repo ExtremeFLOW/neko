@@ -123,14 +123,14 @@ contains
     call json_get_or_default(json, "output_subdivide", subdivide, &
          this%default_subdivide)
 
-   if (json%valid_path('point_zone')) then
-      call json_get(json, 'point_zone', point_zone_name)
-      call this%init_common(name, fields, filename, precision_value, format, &
-           subdivide, neko_point_zone_registry%get_point_zone(point_zone_name))
-   else
-      call this%init_common(name, fields, filename, precision_value, format, &
-         subdivide)
-   end if
+    if (json%valid_path('point_zone')) then
+       call json_get(json, 'point_zone', point_zone_name)
+       call this%init_common(name, fields, filename, precision_value, format, &
+            subdivide, neko_point_zone_registry%get_point_zone(point_zone_name))
+    else
+       call this%init_common(name, fields, filename, precision_value, format, &
+            subdivide)
+    end if
 
   end subroutine field_writer_init_from_json
 
@@ -170,7 +170,7 @@ contains
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%init_common(name, fields, filename, precision, format, &
-            subdivide)
+         subdivide)
 
   end subroutine field_writer_init_from_controllers
 
@@ -219,7 +219,7 @@ contains
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
     call this%init_common(name, fields, filename, precision, format, &
-            subdivide, point_zone)
+         subdivide, point_zone)
 
   end subroutine field_writer_init_from_controllers_properties
 
