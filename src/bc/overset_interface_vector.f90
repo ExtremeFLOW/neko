@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2026, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ module overset_interface_vector
   implicit none
   private
 
-  !> Extension of the user defined dirichlet condition `field_dirichlet`
+  !> Extension of the user defined dirichlet condition `overset_interface`
   ! for the application on a vector field.
   type, public, extends(bc_t) :: overset_interface_vector_t
      ! The bc for the first compoent.
@@ -110,6 +110,14 @@ module overset_interface_vector
      procedure, pass(this) :: apply_scalar_dev => &
           overset_interface_vector_apply_scalar_dev
      procedure, pass(this) :: update => overset_interface_update
+
+     !> Build the masks for the overset interface.
+     procedure, pass(this), private :: build_masks_ => build_masks_
+     !> Gather the dofs at the interface.
+     procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
+     !> Set up the interpolator.
+     procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
+   
   end type overset_interface_vector_t
 
 contains
@@ -340,16 +348,16 @@ contains
     call this%bc_w%finalize(only_facets_)
 
     !> Build heper masks
-    call build_masks_(this)
+    call this%build_masks_()
 
     !> Gather the interface boundary points
     call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
     call this%y_interface_dof%init(this%interface_dof_mask%size(), 'y_interface')
     call this%z_interface_dof%init(this%interface_dof_mask%size(), 'z_interface')
-    call gather_interface_dofs_(this)
+    call this%gather_interface_dofs_()
 
     !> Initialize the interpolator and find the points
-    call setup_interpolator_(this)
+    call this%setup_interpolator_()
 
     !> Keep a vector list that holds the values of interface fields
     call this%u_interface%init(this%interface_dof_mask%size(), 'u_interface')

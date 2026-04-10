@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2026, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -96,6 +96,13 @@ module overset_interface
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => overset_interface_apply_scalar_dev
      procedure, pass(this) :: update => overset_interface_update
+     
+     !> Build domain masks for the overset interface.
+     procedure, pass(this), private :: build_masks_ => build_masks_
+     !> Gather the dofs at the interface.
+     procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
+     !> Set up the interpolator.
+     procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
   end type overset_interface_t
 
 contains
@@ -292,14 +299,14 @@ contains
     call this%bc_s%mark_facets(this%marked_facet)
     call this%bc_s%finalize(only_facets_)
 
-    call build_masks_(this)
+    call this%build_masks_()
 
     call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
     call this%y_interface_dof%init(this%interface_dof_mask%size(), 'y_interface')
     call this%z_interface_dof%init(this%interface_dof_mask%size(), 'z_interface')
-    call gather_interface_dofs_(this)
+    call this%gather_interface_dofs_()
 
-    call setup_interpolator_(this)
+    call this%setup_interpolator_()
 
     call this%s_interface%init(this%interface_dof_mask%size(), 's_interface')
 

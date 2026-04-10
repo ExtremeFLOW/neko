@@ -658,7 +658,7 @@ use `sync = .true.` as a starting point.
 Finally, observe that we use the flag `NEKO_BCKND_DEVICE` to check if we are
 indeed running on GPUs. In that case, `NEKO_BCKND_DEVICE` would be equal to 1.
 
-### Running on multiple program multiple data (MPMD) mode {#user-file_tips_mpmd}
+### Running in multiple program multiple data (MPMD) mode {#user-file_tips_mpmd}
 
 Neko can run along other programs concurrently and communicate data between them
 through the `COMM_WORLD` communicator. This works to process data `in-situ` and
@@ -692,10 +692,10 @@ If the other program is not neko, then you just need to make sure
 to split the global communicator with a color that is not the same as the id 
 that you gave to neko.
 
-In supercomputers, if `slurm` is used, generally the jobs need to be launched
+On supercomputers, if `slurm` is used, generally the jobs need to be launched
 with the `--multi-prog` flag accompanied by a `mpmd.conf` file that indicates 
 which rank runs which program. An example for running on a GPU cluster, where
-gpus must be selected looks like this:
+GPUs must be selected looks like this:
 
 ```bash
 export MPICH_GPU_SUPPORT_ENABLED=1

@@ -576,7 +576,7 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
-* `overset_interface`, a dirichlet boundary condition that retrieves values
+* `overset_interface`, a Dirichlet boundary condition that retrieves values
   from another simulation with an overlapping domain. For this case, it is 
   recommended that all zone indices that need to be considered as an overset
   interface are included in one boundary. This avoids repeated calls to
@@ -588,7 +588,7 @@ A more detailed description of each boundary condition is provided below.
   [multiple-program-multiple-data (MPMD)](#user-file_tips_mpmd) mode. Note that both simulations are otherwise
   independent, therefore the rest of the user case can be modified as seen fit.
 
-  *Time-step* must be the same between the simulations. variable time-step is not
+  The *time-step* must be the same between the simulations. A variable time-step is not
   supported at the moment.
 
   ```json
