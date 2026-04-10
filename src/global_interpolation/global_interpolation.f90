@@ -73,6 +73,16 @@ module global_interpolation
   real(kind=dp), public, parameter :: GLOB_INTERP_TOL = NEKO_EPS*1e3_dp
   real(kind=dp), public, parameter :: GLOB_INTERP_PAD = 1e-2_dp
 
+  !> Implements the settings helper data container for global interpolation.
+  type, public :: global_interpolation_settings_t
+     !> Global map size
+     integer :: glob_map_size = GLOB_MAP_SIZE
+     !> Tolerance for Newton iterations.
+     real(kind=dp) :: tolerance = GLOB_INTERP_TOL
+     !> Padding of the bounding boxes.
+     real(kind=dp) :: padding = GLOB_INTERP_PAD
+  end type global_interpolation_settings_t
+
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.

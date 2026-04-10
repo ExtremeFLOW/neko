@@ -38,7 +38,8 @@ module overset_interface_vector
   use num_types, only : rp
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
-  use global_interpolation, only : global_interpolation_t
+  use global_interpolation, only : global_interpolation_t, &
+                              global_interpolation_settings_t
   use mask, only : mask_t
   use dofmap, only : dofmap_t
   use bc, only : bc_t
@@ -58,7 +59,7 @@ module overset_interface_vector
   use utils, only : neko_error, nonlinear_index, linear_index
   use stack, only: stack_i4_t
   use json_module, only : json_file
-  use json_utils, only : json_get_subdict_or_empty
+  use json_utils, only : json_get_or_default
   use field_list, only : field_list_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   use time_state, only : time_state_t
@@ -86,7 +87,7 @@ module overset_interface_vector
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      type(vector_t) :: u_interface, v_interface, w_interface
      !> Interpolation settings.
-     type(json_file) :: interpolation_settings
+     type(global_interpolation_settings_t) :: interpolation_settings
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_vector_init
@@ -129,24 +130,36 @@ contains
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
+    real(kind=rp) :: tol, pad
+    
+    !> Parse the interpolation settings
+    call json_get_or_default(json, "interpolation.tolerance", &
+         tol, -1.0_rp)
+    call json_get_or_default(json, "interpolation.padding", &
+         pad, -1.0_rp)
 
-    call this%init_from_components(coef)
-
-    !> Store the interpolation settings
-    call json_get_subdict_or_empty(json, "interpolation", &
-         this%interpolation_settings)
+    call this%init_from_components(coef, tol, pad)
 
   end subroutine overset_interface_vector_init
 
   !> Constructor from components
   !! @param[in] coef The SEM coefficients.
-  subroutine overset_interface_vector_init_from_components(this, coef)
+  subroutine overset_interface_vector_init_from_components(this, coef, tol, pad)
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(in), optional :: tol, pad
 
     !> This initializes coef, dof, msh, and Xh pointers
     call this%init_base(coef)
 
+    !> Set the interpolation settings
+    if (present(tol)) then
+    if (tol .gt. 0.0_rp) this%interpolation_settings%tolerance = tol
+    end if 
+   if (present(pad)) then
+    if (pad .gt. 0.0_rp) this%interpolation_settings%padding = pad
+   end if
+      
     call this%bc_u%init_from_components(coef, "u")
     call this%bc_v%init_from_components(coef, "v")
     call this%bc_w%init_from_components(coef, "w")
@@ -491,8 +504,10 @@ contains
     class(overset_interface_vector_t), intent(inout) :: this
 
     !> Initialize the interpolator with the mask and the dof coords
-    call this%interface_interpolator%init(this%dof, this%interpolation_settings, &
-         NEKO_GLOBAL_COMM, &
+    call this%interface_interpolator%init(this%dof, &
+         comm=NEKO_GLOBAL_COMM, &
+         tol=this%interpolation_settings%tolerance, &
+         pad=this%interpolation_settings%padding, &
          mask=this%domain_element_mask)
 
     !> Find the interface points on the global domain
