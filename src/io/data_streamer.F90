@@ -32,10 +32,10 @@
 !
 !> Implements type data_streamer_t.
 module data_streamer
-  use num_types, only : rp, c_rp
-  use field, only : field_t
-  use coefs, only : coef_t
-  use utils, only : neko_warning
+  use num_types, only: rp, c_rp
+  use field, only: field_t
+  use coefs, only: coef_t
+  use utils, only: neko_warning
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_COMM
   use, intrinsic :: iso_c_binding
@@ -76,11 +76,10 @@ contains
   !! on the case.
   !! @param if_asynch Controls whether the asyncrhonous executions
   !! is to be enabled.
-  subroutine data_streamer_init(this, coef, timeout_seconds)
+  subroutine data_streamer_init(this, coef)
     class(data_streamer_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
-    integer, intent(in), optional :: timeout_seconds
-    integer :: nelb, nelv, nelgv, npts, gdim, timeout
+    integer :: nelb, nelv, nelgv, npts, gdim
 
     !Assign the set up parameters
     nelv = coef%msh%nelv
@@ -88,20 +87,9 @@ contains
     nelgv = coef%msh%glb_nelv
     nelb = coef%msh%offset_el
     gdim = coef%msh%gdim
-    if (present(timeout_seconds)) then
-       timeout = timeout_seconds
-    else
-       timeout = 300
-    end if
 
-
-<<<<<<< HEAD
-#ifdef HAVE_ADIOS2_FORTRAN
-    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM)
-=======
 #ifdef HAVE_ADIOS2
-    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM, timeout)
->>>>>>> dc8b562a7d32fe35f4b6f172e7ae45798eb2e764
+    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')
@@ -115,7 +103,7 @@ contains
   subroutine data_streamer_free(this)
     class(data_streamer_t), intent(inout) :: this
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
     call fortran_adios2_finalize()
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
@@ -130,7 +118,7 @@ contains
     class(data_streamer_t), intent(inout) :: this
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: fld
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
     call fortran_adios2_stream(fld)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
@@ -145,7 +133,7 @@ contains
     class(data_streamer_t), intent(inout) :: this
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: fld
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
     call fortran_adios2_recieve(fld)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
@@ -155,7 +143,7 @@ contains
   end subroutine data_streamer_recieve
 
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
 
   !> Interface to adios2_initialize in c++.
   !! @details This routine interfaces with c++ routine that set up adios2
@@ -166,13 +154,10 @@ contains
   !! @param nelgv total number of elements in velocity mesh
   !! @param gdim dimension (2d or 3d)
   !! @param comm simulation communicator
-  !! @param timeout timeout in seconds
-  subroutine fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
-       comm, timeout)
+  subroutine fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, comm)
     use, intrinsic :: ISO_C_BINDING
     implicit none
     integer, intent(in) :: npts, nelv, nelb, nelgv, gdim
-    integer, intent(in) :: timeout
     type(MPI_COMM) :: comm
 
     interface
@@ -182,11 +167,7 @@ contains
        !! const double *zml, const int *if_asynchronous,
        !! const int *comm_int)
        subroutine c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
-<<<<<<< HEAD
-            comm) bind(C, name = "adios2_initialize_")
-=======
-            comm, timeout) bind(C,name="adios2_initialize_")
->>>>>>> dc8b562a7d32fe35f4b6f172e7ae45798eb2e764
+                                      comm) bind(C,name="adios2_initialize_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
@@ -196,11 +177,10 @@ contains
          integer(kind=C_INT) :: nelgv
          integer(kind=C_INT) :: gdim
          type(*) :: comm
-         integer(kind=C_INT) :: timeout
        end subroutine c_adios2_initialize
     end interface
 
-    call c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, comm, timeout)
+    call c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, comm)
   end subroutine fortran_adios2_initialize
 
   !> Interface to adios2_finalize in c++.
@@ -211,7 +191,7 @@ contains
 
     interface
        !> C-definition is: void adios2_finalize_()
-       subroutine c_adios2_finalize() bind(C, name = "adios2_finalize_")
+       subroutine c_adios2_finalize() bind(C,name="adios2_finalize_")
          use, intrinsic :: ISO_C_BINDING
          implicit none
        end subroutine c_adios2_finalize
@@ -233,11 +213,7 @@ contains
     interface
        !> C-definition is: void adios2_stream_(const double *fld)
        subroutine c_adios2_stream(fld) &
-<<<<<<< HEAD
-            bind(C, name = "adios2_stream_")
-=======
-            bind(C,name="adios2_stream_")
->>>>>>> dc8b562a7d32fe35f4b6f172e7ae45798eb2e764
+                                  bind(C,name="adios2_stream_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
@@ -261,11 +237,7 @@ contains
     interface
        !> C-definition is: void adios2_stream_(const double *fld)
        subroutine c_adios2_recieve(fld) &
-<<<<<<< HEAD
-            bind(C, name = "adios2_recieve_")
-=======
-            bind(C,name="adios2_recieve_")
->>>>>>> dc8b562a7d32fe35f4b6f172e7ae45798eb2e764
+                                  bind(C,name="adios2_recieve_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
