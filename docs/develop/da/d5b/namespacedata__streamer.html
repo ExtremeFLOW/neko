@@ -116,9 +116,9 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:abb4826f60d303253383ba8f20137f652" id="r_abb4826f60d303253383ba8f20137f652"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d5b/namespacedata__streamer.html#abb4826f60d303253383ba8f20137f652">data_streamer_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef)</td></tr>
-<tr class="memdesc:abb4826f60d303253383ba8f20137f652"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor Wraps the adios2 set-up.  <br /></td></tr>
-<tr class="separator:abb4826f60d303253383ba8f20137f652"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a50d5fed4709fd9201b7736b4e2043f" id="r_a1a50d5fed4709fd9201b7736b4e2043f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d5b/namespacedata__streamer.html#a1a50d5fed4709fd9201b7736b4e2043f">data_streamer_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">timeout_seconds</a>)</td></tr>
+<tr class="memdesc:a1a50d5fed4709fd9201b7736b4e2043f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor Wraps the adios2 set-up.  <br /></td></tr>
+<tr class="separator:a1a50d5fed4709fd9201b7736b4e2043f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af48fb46251b09f987f2fddf675d164e8" id="r_af48fb46251b09f987f2fddf675d164e8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d5b/namespacedata__streamer.html#af48fb46251b09f987f2fddf675d164e8">data_streamer_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:af48fb46251b09f987f2fddf675d164e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor wraps the adios2 finalize routine. Closes insitu writer.  <br /></td></tr>
 <tr class="separator:af48fb46251b09f987f2fddf675d164e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,7 +154,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d3c/data__streamer_8F90_source.html#l00103">103</a> of file <a class="el" href="../../df/d3c/data__streamer_8F90_source.html">data_streamer.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d3c/data__streamer_8F90_source.html#l00110">110</a> of file <a class="el" href="../../df/d3c/data__streamer_8F90_source.html">data_streamer.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -168,8 +168,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="abb4826f60d303253383ba8f20137f652" name="abb4826f60d303253383ba8f20137f652"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abb4826f60d303253383ba8f20137f652">&#9670;&#160;</a></span>data_streamer_init()</h2>
+<a id="a1a50d5fed4709fd9201b7736b4e2043f" name="a1a50d5fed4709fd9201b7736b4e2043f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a50d5fed4709fd9201b7736b4e2043f">&#9670;&#160;</a></span>data_streamer_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -184,7 +184,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>coef</em>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>timeout_seconds</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -205,8 +211,8 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../da/d5b/namespacedata__streamer_abb4826f60d303253383ba8f20137f652_cgraph.png" border="0" usemap="#ada/d5b/namespacedata__streamer_abb4826f60d303253383ba8f20137f652_cgraph" alt=""/></div>
-<map name="ada/d5b/namespacedata__streamer_abb4826f60d303253383ba8f20137f652_cgraph" id="ada/d5b/namespacedata__streamer_abb4826f60d303253383ba8f20137f652_cgraph">
+<div class="center"><img src="../../da/d5b/namespacedata__streamer_a1a50d5fed4709fd9201b7736b4e2043f_cgraph.png" border="0" usemap="#ada/d5b/namespacedata__streamer_a1a50d5fed4709fd9201b7736b4e2043f_cgraph" alt=""/></div>
+<map name="ada/d5b/namespacedata__streamer_a1a50d5fed4709fd9201b7736b4e2043f_cgraph" id="ada/d5b/namespacedata__streamer_a1a50d5fed4709fd9201b7736b4e2043f_cgraph">
 <area shape="rect" title="Constructor Wraps the adios2 set&#45;up." alt="" coords="5,5,160,45"/>
 <area shape="rect" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="208,13,356,38"/>
 <area shape="poly" title=" " alt="" coords="160,23,194,23,194,28,160,28"/>
@@ -255,7 +261,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d3c/data__streamer_8F90_source.html#l00132">132</a> of file <a class="el" href="../../df/d3c/data__streamer_8F90_source.html">data_streamer.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d3c/data__streamer_8F90_source.html#l00139">139</a> of file <a class="el" href="../../df/d3c/data__streamer_8F90_source.html">data_streamer.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -309,7 +315,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d3c/data__streamer_8F90_source.html#l00117">117</a> of file <a class="el" href="../../df/d3c/data__streamer_8F90_source.html">data_streamer.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d3c/data__streamer_8F90_source.html#l00124">124</a> of file <a class="el" href="../../df/d3c/data__streamer_8F90_source.html">data_streamer.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -329,7 +335,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/d5b/namespacedata__streamer.html">data_streamer</a></li>
-    <li class="footer">Generated on Thu Apr 9 2026 04:20:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Apr 10 2026 04:31:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

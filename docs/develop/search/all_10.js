@@ -113,7 +113,7 @@ var searchData=
   ['math_2ecu_110',['math.cu',['../de/d1e/math_8cu.html',1,'']]],
   ['math_2ef90_111',['math.f90',['../d6/ddb/math_8f90.html',1,'']]],
   ['math_2ehip_112',['math.hip',['../de/d9b/math_8hip.html',1,'']]],
-  ['math_5fkernel_2eh_113',['math_kernel.h',['../d8/d17/hip_2math__kernel_8h.html',1,'(Global Namespace)'],['../d9/d50/cuda_2math__kernel_8h.html',1,'(Global Namespace)']]],
+  ['math_5fkernel_2eh_113',['math_kernel.h',['../d9/d50/cuda_2math__kernel_8h.html',1,'(Global Namespace)'],['../d8/d17/hip_2math__kernel_8h.html',1,'(Global Namespace)']]],
   ['math_5fprogram_114',['math_program',['../d1/df7/prgm__lib_8h.html#a3adb5e5b4b4d1d5a553b5a5a49ea887e',1,'math_program:&#160;prgm_lib.h'],['../d0/dc0/namespaceopencl__prgm__lib.html#a0a62a41aa3d26bf4667f4b2559d54807',1,'opencl_prgm_lib::math_program']]],
   ['mathops_115',['mathops',['../d2/dd4/namespacemathops.html',1,'']]],
   ['mathops_2ec_116',['mathops.c',['../d5/d69/mathops_8c.html',1,'']]],

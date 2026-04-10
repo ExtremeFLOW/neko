@@ -28,7 +28,7 @@ var searchData=
   ['gs_5fdevice_5fmpi_2ef90_25',['gs_device_mpi.F90',['../d3/d6c/gs__device__mpi_8F90.html',1,'']]],
   ['gs_5fdevice_5fnccl_2ef90_26',['gs_device_nccl.F90',['../d8/da1/gs__device__nccl_8F90.html',1,'']]],
   ['gs_5fdevice_5fshmem_2ef90_27',['gs_device_shmem.F90',['../da/d8d/gs__device__shmem_8F90.html',1,'']]],
-  ['gs_5fkernels_2eh_28',['gs_kernels.h',['../d0/dc4/cuda_2gs__kernels_8h.html',1,'(Global Namespace)'],['../d7/de4/hip_2gs__kernels_8h.html',1,'(Global Namespace)']]],
+  ['gs_5fkernels_2eh_28',['gs_kernels.h',['../d7/de4/hip_2gs__kernels_8h.html',1,'(Global Namespace)'],['../d0/dc4/cuda_2gs__kernels_8h.html',1,'(Global Namespace)']]],
   ['gs_5fmpi_2ef90_29',['gs_mpi.f90',['../d6/ddf/gs__mpi_8f90.html',1,'']]],
   ['gs_5fnvshmem_2ecu_30',['gs_nvshmem.cu',['../d3/de2/gs__nvshmem_8cu.html',1,'']]],
   ['gs_5fnvshmem_5fkernels_2eh_31',['gs_nvshmem_kernels.h',['../de/df0/gs__nvshmem__kernels_8h.html',1,'']]],

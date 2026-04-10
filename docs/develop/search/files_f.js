@@ -5,7 +5,7 @@ var searchData=
   ['opencl_5fmappings_2ef90_2',['opencl_mappings.f90',['../d3/d9d/opencl__mappings_8f90.html',1,'']]],
   ['opencl_5fmath_2ef90_3',['opencl_math.f90',['../d1/d96/opencl__math_8f90.html',1,'']]],
   ['operators_2ef90_4',['operators.f90',['../dd/dbf/operators_8f90.html',1,'']]],
-  ['opgrad_5fkernel_2eh_5',['opgrad_kernel.h',['../dd/d9e/hip_2opgrad__kernel_8h.html',1,'(Global Namespace)'],['../da/da7/cuda_2opgrad__kernel_8h.html',1,'(Global Namespace)']]],
+  ['opgrad_5fkernel_2eh_5',['opgrad_kernel.h',['../da/da7/cuda_2opgrad__kernel_8h.html',1,'(Global Namespace)'],['../dd/d9e/hip_2opgrad__kernel_8h.html',1,'(Global Namespace)']]],
   ['opr_5fcdtp_2ec_6',['opr_cdtp.c',['../d6/d10/opr__cdtp_8c.html',1,'']]],
   ['opr_5fcdtp_2ecu_7',['opr_cdtp.cu',['../df/d14/opr__cdtp_8cu.html',1,'']]],
   ['opr_5fcdtp_2ehip_8',['opr_cdtp.hip',['../d9/d63/opr__cdtp_8hip.html',1,'']]],

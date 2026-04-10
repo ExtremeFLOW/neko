@@ -3,7 +3,7 @@ var searchData=
   ['dabscmp_0',['dabscmp',['../dd/d47/namespacemath.html#a16d5ca46363fc149ebcd66c27ada506a',1,'math::dabscmp()'],['../de/d34/interfacemath_1_1abscmp.html#ad248ad6b50990748a98427315a756900',1,'math::abscmp::dabscmp()']]],
   ['data_1',['data',['../d1/dec/structhtable_1_1htable__iter__t.html#a765e2082e8fd1f471b0e2bd265c5d93c',1,'htable::htable_iter_t']]],
   ['data_5fstreamer_5ffree_2',['data_streamer_free',['../da/d5b/namespacedata__streamer.html#af48fb46251b09f987f2fddf675d164e8',1,'data_streamer']]],
-  ['data_5fstreamer_5finit_3',['data_streamer_init',['../da/d5b/namespacedata__streamer.html#abb4826f60d303253383ba8f20137f652',1,'data_streamer']]],
+  ['data_5fstreamer_5finit_3',['data_streamer_init',['../da/d5b/namespacedata__streamer.html#a1a50d5fed4709fd9201b7736b4e2043f',1,'data_streamer']]],
   ['data_5fstreamer_5frecieve_4',['data_streamer_recieve',['../da/d5b/namespacedata__streamer.html#a2eb246eb8ee0440e2285c22a515bccd3',1,'data_streamer']]],
   ['data_5fstreamer_5fstream_5',['data_streamer_stream',['../da/d5b/namespacedata__streamer.html#ad186943c2468e4600fe8e11734afa62c',1,'data_streamer']]],
   ['deallocate_5fnode_6',['deallocate_node',['../d9/d87/structaabb__tree_1_1aabb__tree__t.html#a3f6fd254d79c457a5496ea47c4c98a9e',1,'aabb_tree::aabb_tree_t']]],

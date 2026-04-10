@@ -47,7 +47,7 @@ var searchData=
   ['dirichlet_2ecu_44',['dirichlet.cu',['../d4/d09/dirichlet_8cu.html',1,'']]],
   ['dirichlet_2ef90_45',['dirichlet.f90',['../d8/d69/dirichlet_8f90.html',1,'']]],
   ['dirichlet_2ehip_46',['dirichlet.hip',['../de/d49/dirichlet_8hip.html',1,'']]],
-  ['dirichlet_5fkernel_2eh_47',['dirichlet_kernel.h',['../db/d11/cuda_2dirichlet__kernel_8h.html',1,'(Global Namespace)'],['../db/dd7/hip_2dirichlet__kernel_8h.html',1,'(Global Namespace)']]],
+  ['dirichlet_5fkernel_2eh_47',['dirichlet_kernel.h',['../db/dd7/hip_2dirichlet__kernel_8h.html',1,'(Global Namespace)'],['../db/d11/cuda_2dirichlet__kernel_8h.html',1,'(Global Namespace)']]],
   ['distdata_2ef90_48',['distdata.f90',['../d1/d1e/distdata_8f90.html',1,'']]],
   ['divergence_5fsimcomp_2ef90_49',['divergence_simcomp.f90',['../df/d45/divergence__simcomp_8f90.html',1,'']]],
   ['dofmap_2ef90_50',['dofmap.f90',['../d3/d71/dofmap_8f90.html',1,'']]],
@@ -58,11 +58,11 @@ var searchData=
   ['dong_5foutflow_5fkernel_2eh_55',['dong_outflow_kernel.h',['../dd/de7/hip_2dong__outflow__kernel_8h.html',1,'(Global Namespace)'],['../d0/d02/cuda_2dong__outflow__kernel_8h.html',1,'(Global Namespace)']]],
   ['drag_5ftorque_2ef90_56',['drag_torque.f90',['../d9/df1/drag__torque_8f90.html',1,'']]],
   ['driver_2ef90_57',['driver.f90',['../d0/dd9/driver_8f90.html',1,'']]],
-  ['dudxyz_5fkernel_2eh_58',['dudxyz_kernel.h',['../dc/dd2/cuda_2dudxyz__kernel_8h.html',1,'(Global Namespace)'],['../dd/dd4/hip_2dudxyz__kernel_8h.html',1,'(Global Namespace)']]],
+  ['dudxyz_5fkernel_2eh_58',['dudxyz_kernel.h',['../dd/dd4/hip_2dudxyz__kernel_8h.html',1,'(Global Namespace)'],['../dc/dd2/cuda_2dudxyz__kernel_8h.html',1,'(Global Namespace)']]],
   ['dynamic_5fsmagorinsky_2ef90_59',['dynamic_smagorinsky.f90',['../db/d7b/dynamic__smagorinsky_8f90.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fcpu_2ef90_60',['dynamic_smagorinsky_cpu.f90',['../d2/d0e/dynamic__smagorinsky__cpu_8f90.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fdevice_2ef90_61',['dynamic_smagorinsky_device.f90',['../de/d95/dynamic__smagorinsky__device_8f90.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fnut_2ecu_62',['dynamic_smagorinsky_nut.cu',['../d7/d91/dynamic__smagorinsky__nut_8cu.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fnut_2ehip_63',['dynamic_smagorinsky_nut.hip',['../d3/d45/dynamic__smagorinsky__nut_8hip.html',1,'']]],
-  ['dynamic_5fsmagorinsky_5fnut_5fkernel_2eh_64',['dynamic_smagorinsky_nut_kernel.h',['../d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)'],['../d1/d4e/hip_2dynamic__smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)']]]
+  ['dynamic_5fsmagorinsky_5fnut_5fkernel_2eh_64',['dynamic_smagorinsky_nut_kernel.h',['../d1/d4e/hip_2dynamic__smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)'],['../d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)']]]
 ];
