@@ -290,13 +290,16 @@ contains
        end do
     end if
 
+    !
+    ! Set the mask for subsampling is a point zone is provided. Only supported
+    ! for fld/nek5000 files
+    !
     if (present(point_zone)) then
        select type (ft => this%output%file_%file_type)
        class is (fld_file_t)
-          call ft%set_mask() ! this frees any preexisting mask in fld_file_t
           call ft%set_mask(point_zone%mask)
        class default
-          call neko_error("point_zone can only be used with nek5000/fld file")
+          call neko_error("point_zone can only be used with nek5000/fld files")
        end select
     end if
 
