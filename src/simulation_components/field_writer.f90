@@ -258,7 +258,7 @@ contains
             ignore_existing = .true.)
     end do
 
-    ! Throw an error if no output filename is provided to avoid dumping masked 
+    ! Throw an error if no output filename is provided to avoid dumping masked
     ! fields in the default fluid output.
     if (present(point_zone) .and. &
          (.not. present(filename) .or. len_trim(filename) .eq. 0 ) ) then
