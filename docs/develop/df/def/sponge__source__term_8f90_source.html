@@ -279,7 +279,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>       <span class="comment">! Constant base flow</span></div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&quot;constant&quot;</span>)</div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(baseflow_subdict, <span class="stringliteral">&quot;value&quot;</span>, constant_value)</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../da/d05/interfacejson__utils_1_1json__get__or__lookup.html">json_get_or_lookup</a>(baseflow_subdict, <span class="stringliteral">&quot;value&quot;</span>, constant_value)</div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>       <span class="keywordflow">if</span> (<span class="keyword">size</span>(constant_value) .lt. 3) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;(SPONGE) Expected 3 elements for &#39;value&#39;&quot;</span>)</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="keywordflow">       end if</span></div>
@@ -680,7 +680,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_5333ab263fff069c320f5b66c5911c96.html">source_terms</a></li><li class="navelem"><a class="el" href="../../df/def/sponge__source__term_8f90.html">sponge_source_term.f90</a></li>
-    <li class="footer">Generated on Fri Apr 10 2026 04:31:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Apr 11 2026 04:18:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
