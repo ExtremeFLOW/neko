@@ -196,6 +196,15 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_add2s2
 
+     subroutine hip_add2s2_3v(ax_d, bx_d, ay_d, by_d, az_d, bz_d, &
+          cx, cy, cz, n, strm) bind(c, name = 'hip_add2s2_3v')
+        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+        import c_rp
+        type(c_ptr), value :: ax_d, bx_d, ay_d, by_d, az_d, bz_d, strm
+        real(c_rp) :: cx, cy, cz
+        integer(c_int) :: n
+      end subroutine hip_add2s2_3v
+
      subroutine hip_addsqr2s2(a_d, b_d, c1, n, strm) &
           bind(c, name = 'hip_addsqr2s2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int

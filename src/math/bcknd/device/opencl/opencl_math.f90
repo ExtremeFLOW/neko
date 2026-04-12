@@ -208,6 +208,16 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_add2s2
 
+     subroutine opencl_add2s2_3v(ax_d, bx_d, ay_d, by_d, az_d, bz_d, &
+          cx, cy, cz, n, strm) bind(c, name = 'opencl_add2s2_3v')
+        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+        import c_rp
+        implicit none
+        type(c_ptr), value :: ax_d, bx_d, ay_d, by_d, az_d, bz_d, strm
+        real(c_rp) :: cx, cy, cz
+        integer(c_int) :: n
+      end subroutine opencl_add2s2_3v
+
      subroutine opencl_add2s2_many(y_d, x_d_d, a_d, j, n, strm) &
           bind(c, name = 'opencl_add2s2_many')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int

@@ -568,6 +568,43 @@ void opencl_add2s2(void *a, void *b, real *c1, int *n,
 }
 
 /**
+ * Fortran wrapper for add2s2_3v
+ * Vector addition with scalar multiplication \f$ ax = ax + cx bx, ay = ay + cy by, az = az + cz bz \f$
+ * (multiplication on bx, by, bz)
+ */
+void opencl_add2s2_3v(void *ax, void *bx, void *ay, void *by,
+                      void *az, void *bz, real *cx, real *cy,
+                      real *cz, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "add2s2_3v_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &ax));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &bx));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &ay));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &by));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &az));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &bz));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(real), cx));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(real), cy));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(real), cz));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/**
  * Fortran wrapper for add2s2
  * Vector addition with scalar multiplication
  * \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$

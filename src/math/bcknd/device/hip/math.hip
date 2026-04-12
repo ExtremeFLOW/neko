@@ -339,6 +339,26 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for add2s2_3v
+   * Vector addition with scalar multiplication \f$ ax = ax + cx bx, ay = ay + cy by, az = az + cz bz \f$
+   * (multiplication on bx, by, bz)
+   */
+  void hip_add2s2_3v(void *ax, void *bx, void *ay, void *by, void *az, void *bz,
+            real *cx, real *cy, real *cz, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add2s2_3v_kernel<real>),
+                       nblcks, nthrds, 0, strm,
+                       (real *) ax, (real *) bx,
+                       (real *) ay, (real *) by,
+                       (real *) az, (real *) bz,
+                       *cx, *cy, *cz, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /**
    * Fortran wrapper for add2s2
    * Vector addition with scalar multiplication
    * \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$

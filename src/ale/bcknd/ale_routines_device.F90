@@ -7,7 +7,7 @@ module ale_routines_device
   use ab_time_scheme, only : ab_time_scheme_t
   use mesh, only : mesh_t
   use utils, only : neko_error
-  use device_math, only : device_add2s2
+  use device_math, only : device_add2s2_3v
   use math, only : rzero
   use ale_rigid_kinematics, only : ale_config_t, pivot_state_t, &
        point_tracker_t, body_kinematics_t, &
@@ -121,18 +121,21 @@ contains
 
     n = c_Xh%dof%size()
 
+    ! Current timestep update
     factor = time%dt * ab_coeffs(1)
-    call device_add2s2(c_Xh%dof%x_d, wm_x%x_d, factor, n)
-    call device_add2s2(c_Xh%dof%y_d, wm_y%x_d, factor, n)
-    call device_add2s2(c_Xh%dof%z_d, wm_z%x_d, factor, n)
+    call device_add2s2_3v(c_Xh%dof%x_d, wm_x%x_d, &
+                          c_Xh%dof%y_d, wm_y%x_d, &
+                          c_Xh%dof%z_d, wm_z%x_d, &
+                          factor, factor, factor, n)
 
+    ! Lagged timesteps update
     do j = 2, nadv
        factor = time%dt * ab_coeffs(j)
-       call device_add2s2(c_Xh%dof%x_d, wm_x_lag%lf(j - 1)%x_d, factor, n)
-       call device_add2s2(c_Xh%dof%y_d, wm_y_lag%lf(j - 1)%x_d, factor, n)
-       call device_add2s2(c_Xh%dof%z_d, wm_z_lag%lf(j - 1)%x_d, factor, n)
+       call device_add2s2_3v(c_Xh%dof%x_d, wm_x_lag%lf(j - 1)%x_d, &
+                             c_Xh%dof%y_d, wm_y_lag%lf(j - 1)%x_d, &
+                             c_Xh%dof%z_d, wm_z_lag%lf(j - 1)%x_d, &
+                             factor, factor, factor, n)
     end do
-
   end subroutine update_ale_mesh_device
 
 end module ale_routines_device

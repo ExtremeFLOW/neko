@@ -283,6 +283,26 @@ __kernel void add2s2_kernel(__global real* __restrict__ a,
   for (int i = idx; i < n; i += str) { a[i] = a[i] + c1 * b[i]; }
 }
 
+__kernel void add2s2_3v_kernel(__global real* __restrict__ ax,
+                               __global const real* __restrict__ bx,
+                               __global real* __restrict__ ay,
+                               __global const real* __restrict__ by,
+                               __global real* __restrict__ az,
+                               __global const real* __restrict__ bz,
+                               const real cx, const real cy, const real cz,
+                               const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    ax[i] = ax[i] + cx * bx[i];
+    ay[i] = ay[i] + cy * by[i];
+    az[i] = az[i] + cz * bz[i];
+  }
+}
+
+
 /**
  * Device kernel for add2s2 many
  */

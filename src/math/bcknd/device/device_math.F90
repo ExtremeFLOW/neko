@@ -54,9 +54,9 @@ module device_math
   public :: device_copy, device_rzero, device_rone, device_cmult, &
        device_cmult2, device_cadd, device_cadd2, device_cfill, device_add2, &
        device_add3, device_add4, device_add2s1, device_add2s2, &
-       device_addsqr2s2, device_add3s2, device_add4s3, device_add5s4, &
-       device_invcol1, device_invcol2, device_col2, device_col3, &
-       device_subcol3, device_sub2, device_sub3, device_addcol3, &
+       device_add2s2_3v, device_addsqr2s2, device_add3s2, device_add4s3, &
+       device_add5s4, device_invcol1, device_invcol2, device_col2, &
+       device_col3, device_subcol3, device_sub2, device_sub3, device_addcol3, &
        device_addcol4, device_addcol3s2, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
        device_glsum, device_masked_copy_0, device_cfill_mask, &
@@ -595,6 +595,39 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2
+
+  !> Fused 3-vector addition with independent scalar multiplication
+  !! Evaluates $a_x = a_x + c_x b_x$, $a_y = a_y + c_y b_y$, and $a_z = a_z + c_z b_z$
+  !! (multiplications on bx, by, bz)
+  subroutine device_add2s2_3v(ax_d, bx_d, ay_d, by_d, az_d, bz_d, &
+       cx, cy, cz, n, strm)
+    type(c_ptr) :: ax_d, bx_d, ay_d, by_d, az_d, bz_d
+    real(kind=rp) :: cx, cy, cz
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_add2s2_3v(ax_d, bx_d, ay_d, by_d, az_d, bz_d, &
+         cx, cy, cz, n, strm_)
+#elif HAVE_CUDA
+    call cuda_add2s2_3v(ax_d, bx_d, ay_d, by_d, az_d, bz_d, &
+         cx, cy, cz, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_add2s2_3v(ax_d, bx_d, ay_d, by_d, az_d, bz_d, &
+         cx, cy, cz, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_add2s2_3v
 
   !> Returns \f$ a = a + c1 * (b * b )\f$
   subroutine device_addsqr2s2(a_d, b_d, c1, n, strm)
