@@ -631,8 +631,8 @@ The header of the user function is given in the code snippet below.
 ```fortran
   subroutine neumann_update(fields, bc, time)
     type(field_list_t), intent(inout) :: fields
-    type(field_neumann_t), intent(inout) :: bc
-    type(time_state_t) :: time
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
 ```
 
 The arguments and their purpose are as follows:
