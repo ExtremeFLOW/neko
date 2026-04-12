@@ -45,9 +45,8 @@ extern "C" {
             int lx, int ly, int lz, int nel, 
             int local_iters, void *nchange_d) {
 
-    // Map 1 thread = 1 element
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks((nel + 1024 - 1) / 1024, 1, 1);
+    const dim3 nthrds(256, 1, 1);
+    const dim3 nblcks((nel + 256 - 1) / 256, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(compute_cheap_dist_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t)glb_cmd_queue, 

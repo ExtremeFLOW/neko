@@ -131,12 +131,8 @@ contains
        call neko_error("ALE: compute_cheap_dist_device supports only HIP backend currently")
 #endif
 
-       ! Fetch change flag back to the host array
        call device_memcpy(change_vec, nchange_d, 1, DEVICE_TO_HOST, .true.)
-
-       call device_memcpy(d, d_d, n, DEVICE_TO_HOST, .true.)
        call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
-       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, .true.)
 
        if (glimax(change_vec, 1) == 0) done = .true.
        ipass = ipass + 1
