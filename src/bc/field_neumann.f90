@@ -125,6 +125,7 @@ contains
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: field_name
 
+    call this%free()
     call this%init_base(coef)
     this%strong = .false.
 

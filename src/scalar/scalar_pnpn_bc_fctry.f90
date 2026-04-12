@@ -92,7 +92,6 @@ contains
        allocate(field_neumann_t::object)
        select type (obj => object)
        type is (field_neumann_t)
-          obj%update => user%neumann_conditions
           ! Add the name of the dummy field in the bc, matching the scalar
           ! solved for.
           call json%add("field_name", scheme%s%name)
@@ -106,6 +105,14 @@ contains
 
     call json_get(json, "zone_indices", zone_indices)
     call object%init(coef, json)
+
+    ! Set the update pointer after init (init calls free internally, which
+    ! nullifies the update pointer).
+    select type (obj => object)
+    type is (field_neumann_t)
+       obj%update => user%neumann_conditions
+    end select
+
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
