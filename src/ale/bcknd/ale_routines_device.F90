@@ -115,7 +115,7 @@ contains
 
     call device_map(d, d_d, n)
     call device_map(change_vec, nchange_d, 1) 
-
+    call device_memcpy(d, d_d, n, HOST_TO_DEVICE, .true.)
     ipass = 1
     done = .false.
     do while (ipass <= max_pass .and. .not. done)
