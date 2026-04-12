@@ -110,6 +110,7 @@ contains
     character(len=:), allocatable :: field_name
 
     call json_get(json, "field_name", field_name)
+write(*,*) field_name
     call this%init_from_components(coef, field_name)
 
   end subroutine field_neumann_init
