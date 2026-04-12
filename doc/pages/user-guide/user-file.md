@@ -577,7 +577,7 @@ for the velocity components and presure. The scalar is applied a function
 `s(y,z) = sin(y)*sin(z)` to demonstrate the usage of boundary masks.
 
 @attention The notation `u = 1.0_rp` is only possible because of the overloading
-of the assignement operator `=` in `field_t`. In general, a field's array should
+of the assignment operator `=` in `field_t`. In general, a field's array should
 be accessed and modified with `u%x`.
 
 Note that we are only applying our boundary values at the first timestep, which
