@@ -41,6 +41,8 @@ module field_neumann
   use utils, only : neko_error, nonlinear_index
   use json_module, only : json_file
   use json_utils, only : json_get
+  use math, only : masked_gather_copy_0 
+  use device_math, only : device_masked_gather_copy_0
   use device_neumann, only : device_neumann_apply_scalar
   use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr
@@ -150,14 +152,14 @@ contains
     integer :: i
     integer :: idx(4)
 
-    do i = 1, this%msk(0)
-       idx = nonlinear_index(this%msk(i), this%coef%Xh%lx, this%coef%Xh%lx, &
-            this%coef%Xh%lx)
-       this%flux%x(i) = this%field_bc%x(idx(1), idx(2), idx(3), idx(4))
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. this%msk(0) .gt. 0) then
-         call this%flux%copy_from(1, .true.)
+    if (this%msk(0) .gt. 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_masked_gather_copy_0(this%flux%x_d, this%field_bc%x_d, &
+               this%msk_d, this%field_bc%dof%size(), this%msk(0))
+       else
+          call masked_gather_copy_0(this%flux%x, this%field_bc%x, &
+               this%msk, this%field_bc%dof%size(), this%msk(0))
+       end if
     end if
 
   end subroutine field_neumann_gather_flux
