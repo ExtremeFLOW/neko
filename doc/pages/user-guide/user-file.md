@@ -279,8 +279,8 @@ user functions are:
 | ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------|
 | Initial conditions            | [initial_conditions](@ref user-file_user-ic)                    | `case.fluid.initial_condition` or `case.scalar.initial_condition` |
 | Source terms                  | [source_term](@ref user-file_user-f)                            | `case.fluid.source_terms` or  `case.scalar.source_terms`          |
-| Dirichlet boundary conditions | [dirichlet_conditions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_types` or `case.scalar.boundary_types`       |
-| Neumann boundary conditions   | [neumann_conditions](@ref user-file_field-neumann-update)       | `case.scalar.boundary_types`                                      |
+| Dirichlet boundary conditions | [dirichlet_conditions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_conditions` or `case.scalar.boundary_conditions` |
+| Neumann boundary conditions   | [neumann_conditions](@ref user-file_field-neumann-update)       | `case.scalar.boundary_conditions`                                 |
 
 @note For the sake of simplicity, we refer to the setup with one scalar, i.e.
 `case.scalar` in the JSON. For multiple scalars, the same things apply, but the
@@ -629,7 +629,7 @@ the flux to be `sin(t)` and `-sin(t)` for the scalar on boundaries 1 and 2.
 The header of the user function is given in the code snippet below.
 
 ```fortran
-  subroutine neumann_update(fields, bc, time)
+  subroutine neumann_conditions(fields, bc, time)
     type(field_list_t), intent(inout) :: fields
     type(field_neumann_t), intent(in) :: bc
     type(time_state_t), intent(in) :: time
