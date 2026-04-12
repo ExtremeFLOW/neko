@@ -8,12 +8,18 @@ module ale_routines_device
   use mesh, only : mesh_t
   use utils, only : neko_error
   use device_math, only : device_add2s2_3v
-  use math, only : rzero
+  use zero_dirichlet, only : zero_dirichlet_t
+  use math, only : rzero, glimax
+  use gather_scatter, only : GS_OP_MIN
   use ale_rigid_kinematics, only : ale_config_t, pivot_state_t, &
        point_tracker_t, body_kinematics_t, &
        init_pivot_state, update_pivot_location, &
        compute_body_kinematics_built_in, ab_integrate_point_pos
-  use iso_c_binding
+  use device, only : device_map, device_memcpy, device_unmap, &
+       HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue, device_alloc
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, c_sizeof, c_loc
+  use logger, only : neko_log
 
   implicit none
   private
@@ -27,9 +33,11 @@ module ale_routines_device
   interface
     subroutine add_kinematics_to_mesh_velocity_hip(wx, wy, wz, &
         x_ref, y_ref, z_ref, phi, x, y, z, &
-        cx, cy, cz, vtx, vty, vtz, vax, vay, vaz, & ! Added Ang Vel
-        px, py, pz, &                             ! Added Pivot
-        r11, r12, r13, r21, r22, r23, r31, r32, r33, & ! Added Matrix
+        cx, cy, cz, & ! Center of Rotation
+        vtx, vty, vtz, & ! translaal Vel
+        vax, vay, vaz, & ! Ang Vel
+        px, py, pz, & ! Pivot
+        r11, r12, r13, r21, r22, r23, r31, r32, r33, & ! Rotation Matrix
         n) bind(c, name="add_kinematics_to_mesh_velocity_hip")
       use, intrinsic :: iso_c_binding
       type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
@@ -38,6 +46,13 @@ module ale_routines_device
       real(c_double), value :: r11, r12, r13, r21, r22, r23, r31, r32, r33
       integer(c_int), value :: n
     end subroutine add_kinematics_to_mesh_velocity_hip
+
+    subroutine compute_cheap_dist_hip(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
+         local_iters, nchange_d) bind(c, name="compute_cheap_dist_hip")
+      use, intrinsic :: iso_c_binding
+      type(c_ptr), value :: d_d, x_d, y_d, z_d, nchange_d
+      integer(c_int), value :: lx, ly, lz, nel, local_iters
+    end subroutine compute_cheap_dist_hip
   end interface
 #endif
 
@@ -50,13 +65,91 @@ contains
     call neko_error("ALE: compute_stiffness_ale_device not implemented yet")
   end subroutine compute_stiffness_ale_device
 
-  !> Cheap dist
+!> Cheap dist device implementation
+!> Cheap dist device implementation
   subroutine compute_cheap_dist_device(d, coef, msh, zone_indices)
     real(kind=rp), intent(inout), target :: d(:)
     type(coef_t), intent(in) :: coef
     type(mesh_t), intent(in) :: msh
+    type(zero_dirichlet_t) :: bc_wall
     integer, intent(in) :: zone_indices(:)
-    call neko_error("ALE: compute_cheap_dist_device not implemented yet")
+    integer :: i, k, n, m, idx
+    integer :: ipass, max_pass, local_iters
+    integer :: lx, ly, lz, nel, z_idx
+    integer, target :: change_vec(1) ! <-- We use this array for everything tracking-related
+    logical :: done
+    character(len=128) :: log_buf
+    type(c_ptr) :: d_d, nchange_d
+
+    d_d = C_NULL_PTR
+    nchange_d = C_NULL_PTR
+
+    lx = coef%dof%Xh%lx
+    ly = coef%dof%Xh%ly
+    lz = coef%dof%Xh%lz
+    nel = msh%nelv
+    n = size(d)
+    max_pass = 10000
+
+    ! Limit for worst case scenario such that all nodes can propagate
+    ! their values across the element before triggering an MPI call.
+    local_iters = lx + ly + lz
+
+    ! Initialize array on host
+    call cfill(d, huge(0.0_rp), n)
+
+    if (size(zone_indices) > 0) then
+       call bc_wall%init_from_components(coef)
+       do k = 1, size(zone_indices)
+          z_idx = zone_indices(k)
+          call bc_wall%mark_zone(msh%labeled_zones(z_idx))
+       end do
+       call bc_wall%finalize()
+       m = bc_wall%msk(0)
+       do i = 1, m
+          idx = bc_wall%msk(i)
+          d(idx) = 0.0_rp
+       end do
+       call bc_wall%free()
+    end if
+
+    call device_map(d, d_d, n)
+    call device_map(change_vec, nchange_d, 1) 
+
+    ipass = 1
+    done = .false.
+    do while (ipass <= max_pass .and. .not. done)
+       
+       ! Reset tracking array on host and push to device (1 element)
+       change_vec(1) = 0
+       call device_memcpy(change_vec, nchange_d, 1, HOST_TO_DEVICE, .true.)
+
+#ifdef HAVE_HIP
+       call compute_cheap_dist_hip(d_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+            lx, ly, lz, nel, local_iters, nchange_d)
+#else
+       call neko_error("ALE: compute_cheap_dist_device supports only HIP backend currently")
+#endif
+
+       ! Fetch change flag back to the host array
+       call device_memcpy(change_vec, nchange_d, 1, DEVICE_TO_HOST, .true.)
+
+       ! Vector backend handles mapped memory automatically, no sync needed beforehand
+       call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
+
+       if (glimax(change_vec, 1) == 0) done = .true.
+       ipass = ipass + 1
+    end do
+
+    ! Sync the whole distance array back to the host at the very end
+    call device_memcpy(d, d_d, n, DEVICE_TO_HOST, .true.)
+
+    ! Clean up maps instead of using device_free
+    call device_unmap(change_vec, nchange_d)
+    call device_unmap(d, d_d)
+         
+    write(log_buf, '(A, I0, A)') "   converged in: ", ipass, " passes"
+    call neko_log%message(log_buf)
   end subroutine compute_cheap_dist_device
 
 
@@ -124,17 +217,17 @@ contains
     ! Current timestep update
     factor = time%dt * ab_coeffs(1)
     call device_add2s2_3v(c_Xh%dof%x_d, wm_x%x_d, &
-                          c_Xh%dof%y_d, wm_y%x_d, &
-                          c_Xh%dof%z_d, wm_z%x_d, &
-                          factor, factor, factor, n)
+         c_Xh%dof%y_d, wm_y%x_d, &
+         c_Xh%dof%z_d, wm_z%x_d, &
+         factor, factor, factor, n)
 
     ! Lagged timesteps update
     do j = 2, nadv
        factor = time%dt * ab_coeffs(j)
        call device_add2s2_3v(c_Xh%dof%x_d, wm_x_lag%lf(j - 1)%x_d, &
-                             c_Xh%dof%y_d, wm_y_lag%lf(j - 1)%x_d, &
-                             c_Xh%dof%z_d, wm_z_lag%lf(j - 1)%x_d, &
-                             factor, factor, factor, n)
+            c_Xh%dof%y_d, wm_y_lag%lf(j - 1)%x_d, &
+            c_Xh%dof%z_d, wm_z_lag%lf(j - 1)%x_d, &
+            factor, factor, factor, n)
     end do
   end subroutine update_ale_mesh_device
 

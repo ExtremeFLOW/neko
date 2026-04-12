@@ -59,4 +59,86 @@ __global__ void ale_add_kinematics_kernel(const int n,
     wz[i] += (vtz + v_tan_z) * p_val;
   }
 }
+
+template <typename T>
+__global__ void compute_cheap_dist_kernel(
+    T* __restrict__ d,
+    const T* __restrict__ x,
+    const T* __restrict__ y,
+    const T* __restrict__ z,
+    const int lx, const int ly, const int lz,
+    const int nel, const int local_iters,
+    int* __restrict__ nchange)
+{
+    // Thread maps to a single element
+    int e = blockIdx.x * blockDim.x + threadIdx.x;
+    if (e >= nel) return;
+
+    int iter = 1;
+    bool element_changed_ever = false;
+    bool changed_local = true;
+
+    // Strides for Fortran 1D flat-array indexing (column-major)
+    const int lxy = lx * ly;
+    const int lxyz = lx * ly * lz;
+    const int e_offset = e * lxyz;
+
+    while (changed_local && iter <= local_iters) {
+        changed_local = false;
+
+        // Loop over GLL nodes in this element
+        for (int k = 0; k < lz; ++k) {
+            for (int j = 0; j < ly; ++j) {
+                for (int i = 0; i < lx; ++i) {
+                    int idx1 = i + j * lx + k * lxy + e_offset;
+                    T x1 = x[idx1];
+                    T y1 = y[idx1];
+                    T z1 = z[idx1];
+                    T d1 = d[idx1];
+
+                    int i0 = max(0, i - 1);
+                    int i1 = min(lx - 1, i + 1);
+                    int j0 = max(0, j - 1);
+                    int j1 = min(ly - 1, j + 1);
+                    int k0 = max(0, k - 1);
+                    int k1 = min(lz - 1, k + 1);
+
+                    // Neighbor check
+                    for (int kk = k0; kk <= k1; ++kk) {
+                        for (int jj = j0; jj <= j1; ++jj) {
+                            for (int ii = i0; ii <= i1; ++ii) {
+                                if (ii == i && jj == j && kk == k) continue;
+
+                                int idx2 = ii + jj * lx + kk * lxy + e_offset;
+                                T x2 = x[idx2];
+                                T y2 = y[idx2];
+                                T z2 = z[idx2];
+                                T d2 = d[idx2];
+
+                                T dist = sqrt((x1 - x2)*(x1 - x2) +
+                                              (y1 - y2)*(y1 - y2) +
+                                              (z1 - z2)*(z1 - z2));
+                                T dtmp = d2 + dist;
+
+                                if (dtmp < d1) {
+                                    d1 = dtmp;
+                                    d[idx1] = d1; // Update locally
+                                    changed_local = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (changed_local) element_changed_ever = true;
+        iter++;
+    }
+
+    // Atomically increment the global change counter if this element updated
+    if (element_changed_ever) {
+        atomicAdd(nchange, 1);
+    }
+}
+
 #endif // __COMMON_ALE_KINEMATICS_KERNEL_H__

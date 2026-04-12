@@ -47,6 +47,7 @@ module ale_routines_cpu
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   use logger, only : neko_log
   use ale_rigid_kinematics, only : ale_config_t, body_kinematics_t
+  use ale_routines_device, only : compute_cheap_dist_device
   use device, only : device_map, device_memcpy, device_unmap, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -105,12 +106,19 @@ contains
 
              ! Compute into the specific slot for this body
 
-             ! Nek5000 algorithm
-             ! call compute_cheap_dist_cpu(dist_fields(:, map_idx), coef, &
-             !     coef%msh, params%bodies(b)%zone_indices)
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                call compute_cheap_dist_device(dist_fields(:, map_idx), coef, &
+                     coef%msh, params%bodies(b)%zone_indices)
+             else
 
-             call compute_cheap_dist_v2_cpu(dist_fields(:, map_idx), coef, &
-                  coef%msh, params%bodies(b)%zone_indices)
+                ! Nek5000 algorithm
+                ! call compute_cheap_dist_cpu(dist_fields(:, map_idx), coef, &
+                !     coef%msh, params%bodies(b)%zone_indices)
+               
+                call compute_cheap_dist_v2_cpu(dist_fields(:, map_idx), coef, &
+                     coef%msh, params%bodies(b)%zone_indices)
+             end if
+
 
              call MPI_Barrier(NEKO_COMM, ierr)
              sample_end_time = MPI_WTIME()
