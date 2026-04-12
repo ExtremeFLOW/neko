@@ -125,7 +125,7 @@ module vector_bc_resolver
      type(coef_t), pointer, private :: coef => null()
      type(dofmap_t), pointer, private :: dof => null()
      integer, allocatable :: boundary_dof(:)
-     real(kind=rp), allocatable :: node_class(:)
+     real(kind=rp), allocatable :: node_type(:)
      type(htable_i4_t) :: boundary_idx
      integer, allocatable :: node_rst(:,:)
      integer, allocatable :: edge_mid_rst(:,:)
@@ -354,7 +354,7 @@ contains
     call this%bcs%free()
 
     if (allocated(this%boundary_dof)) deallocate(this%boundary_dof)
-    if (allocated(this%node_class)) deallocate(this%node_class)
+    if (allocated(this%node_type)) deallocate(this%node_type)
     call this%boundary_idx%free()
     if (allocated(this%node_rst)) deallocate(this%node_rst)
     if (allocated(this%edge_mid_rst)) deallocate(this%edge_mid_rst)
@@ -484,7 +484,7 @@ contains
     call this%dirichlet_dof_mask%free()
     call this%mixed_dof_mask%free()
     if (allocated(this%boundary_dof)) deallocate(this%boundary_dof)
-    if (allocated(this%node_class)) deallocate(this%node_class)
+    if (allocated(this%node_type)) deallocate(this%node_type)
     call this%boundary_idx%free()
 
     if (allocated(this%constraint_n)) then
@@ -523,7 +523,7 @@ contains
   subroutine coupled_vector_bc_resolver_rebuild_masks(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(field_t), pointer :: boundary_mask_field
-    type(field_t), pointer :: node_class_field
+    type(field_t), pointer :: node_type_field
     type(tuple_i4_t), pointer :: marked_faces(:)
     type(tuple_i4_t) :: marked_face
     integer, allocatable :: dirichlet_mask_values(:)
@@ -531,7 +531,7 @@ contains
     integer, allocatable :: resolved_mask_values(:)
     integer :: scratch_idx(2)
     integer :: boundary_size
-    integer :: compact_node_class_idx
+    integer :: compact_node_type_idx
     integer :: boundary_dof_key
     integer :: i, j, k, dof_size, m
     integer :: dirichlet_mask_size, mixed_mask_size, resolved_mask_size
@@ -541,7 +541,7 @@ contains
 
     call neko_scratch_registry%request_field(boundary_mask_field, &
          scratch_idx(1), .true.)
-    call neko_scratch_registry%request_field(node_class_field, &
+    call neko_scratch_registry%request_field(node_type_field, &
          scratch_idx(2), .true.)
 
     dof_size = this%dof%size()
@@ -569,8 +569,8 @@ contains
             bc%msk(0))
     end do
 
-    ! Set priority values (class) for constraint assignment. Mimics the
-    ! procedure in Nek5000 directly.
+    ! Set priority values (type, see bc_type_t) for constraint assignment.
+    ! Mimics the procedure in Nek5000 directly.
     ! The values are chosen in a way that a min reduction applies the most
     ! restrictive constraint.
     ! 5 -> unconstrained
@@ -579,15 +579,15 @@ contains
     ! 0 -> fully constrained
 
     ! Fill the field to not mess up gather-scatter reduction later.
-    call cfill(node_class_field%x, 5.0_rp, dof_size)
+    call cfill(node_type_field%x, 5.0_rp, dof_size)
 
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
        bc_type = bc%bc_type
 
-       ! Store the class on each boundary face touched by this BC.
+       ! Store the type on each boundary face touched by this BC.
        ! This is the compact analogue of Nek's face-resident HFMASK field:
-       ! one scalar class value per local (facet, element) pair.
+       ! one scalar type value per local (facet, element) pair.
        marked_faces => bc%marked_facet%array()
        do j = 1, bc%marked_facet%size()
           marked_face = marked_faces(j)
@@ -602,15 +602,15 @@ contains
           m = bc%facet_msk(j)
           ! The min here ensures that the most restricive constraint is kept
           ! within a single element.
-          node_class_field%x(m,1,1,1) = min(bc_type, node_class_field%x(m,1,1,1))
+          node_type_field%x(m,1,1,1) = min(bc_type, node_type_field%x(m,1,1,1))
        end do
     end do
 
     ! Propagate constraints to all local dofs via gather-scatter.
     ! Ensures most restrictive constraint is kept across element boundaries.
-    call this%coef%gs_h%op(node_class_field, GS_OP_MIN)
+    call this%coef%gs_h%op(node_type_field, GS_OP_MIN)
 
-    ! Build compact nodal classification cache for all boundary dofs.
+    ! Build compact nodal type cache for all boundary dofs.
     ! First pass to count the size of the boundary dof set.
     boundary_size = 0
     do i = 1, dof_size
@@ -622,9 +622,9 @@ contains
     ! Linear indices of boundary dofs
     allocate(this%boundary_dof(boundary_size))
     ! Node BC type per boundary dof
-    allocate(this%node_class(boundary_size))
-    ! Mapping from global dof index to compact boundary dof index and class.
-    call this%boundary_idx%init(boundary_size, compact_node_class_idx)
+    allocate(this%node_type(boundary_size))
+    ! Mapping from global dof index to compact boundary dof index and type.
+    call this%boundary_idx%init(boundary_size, compact_node_type_idx)
 
     boundary_size = 0
     do i = 1, dof_size
@@ -632,15 +632,15 @@ contains
 
        boundary_size = boundary_size + 1
        this%boundary_dof(boundary_size) = i
-       this%node_class(boundary_size) = node_class_field%x(i,1,1,1)
+       this%node_type(boundary_size) = node_type_field%x(i,1,1,1)
        boundary_dof_key = i
-       compact_node_class_idx = boundary_size
-       call this%boundary_idx%set(boundary_dof_key, compact_node_class_idx)
+       compact_node_type_idx = boundary_size
+       call this%boundary_idx%set(boundary_dof_key, compact_node_type_idx)
     end do
 
     ! For mixed BCs, build a resolved subset of the original bc%msk support.
-    ! A dof survives in the resolved mask only if the globally reduced class
-    ! still matches the class semantics of that BC. Nodes that were touched by
+    ! A dof survives in the resolved mask only if the globally reduced type
+    ! still matches the type semantics of that BC. Nodes that were touched by
     ! the BC originally, but whose meaning changed after shared-node reduction,
     ! are therefore dropped here.
     do i = 1, this%bcs%size()
@@ -660,7 +660,7 @@ contains
           do j = 1, bc%msk(0)
              k = bc%msk(j)
              ! Compare face and node bc type
-             if (abs(node_class_field%x(k,1,1,1) - bc_type) .lt. 1.0e-6_rp) then
+             if (abs(node_type_field%x(k,1,1,1) - bc_type) .lt. 1.0e-6_rp) then
                 resolved_mask_size = resolved_mask_size + 1
              end if
           end do
@@ -671,7 +671,7 @@ contains
           resolved_mask_size = 0
           do j = 1, bc%msk(0)
              k = bc%msk(j)
-             if (abs(node_class_field%x(k,1,1,1) - bc_type) .lt. 1.0e-6_rp) then
+             if (abs(node_type_field%x(k,1,1,1) - bc_type) .lt. 1.0e-6_rp) then
                 resolved_mask_size = resolved_mask_size + 1
                 resolved_mask_values(resolved_mask_size) = k
              end if
@@ -690,10 +690,10 @@ contains
        ! Internal node
        if (boundary_mask_field%x(i,1,1,1) .lt. 0.5_rp) cycle
 
-       if (node_class_field%x(i,1,1,1) .lt. 1.9_rp) then
+       if (node_type_field%x(i,1,1,1) .lt. 1.9_rp) then
           dirichlet_mask_size = dirichlet_mask_size + 1
-       else if (node_class_field%x(i,1,1,1) .gt. 1.9_rp .and. &
-            node_class_field%x(i,1,1,1) .lt. 3.9_rp) then
+       else if (node_type_field%x(i,1,1,1) .gt. 1.9_rp .and. &
+            node_type_field%x(i,1,1,1) .lt. 3.9_rp) then
           mixed_mask_size = mixed_mask_size + 1
        end if
     end do
@@ -712,11 +712,11 @@ contains
     do i = 1, dof_size
        if (boundary_mask_field%x(i,1,1,1) .lt. 0.5_rp) cycle
 
-       if (node_class_field%x(i,1,1,1) .lt. 1.9_rp) then
+       if (node_type_field%x(i,1,1,1) .lt. 1.9_rp) then
           dirichlet_mask_size = dirichlet_mask_size + 1
           dirichlet_mask_values(dirichlet_mask_size) = i
-       else if (node_class_field%x(i,1,1,1) .gt. 1.9_rp .and. &
-            node_class_field%x(i,1,1,1) .lt. 3.9_rp) then
+       else if (node_type_field%x(i,1,1,1) .gt. 1.9_rp .and. &
+            node_type_field%x(i,1,1,1) .lt. 3.9_rp) then
           mixed_mask_size = mixed_mask_size + 1
           mixed_mask_values(mixed_mask_size) = i
        end if
@@ -728,7 +728,7 @@ contains
          dirichlet_mask_size)
     call this%mixed_dof_mask%init(mixed_mask_values, mixed_mask_size)
 
-    ! Allocate mixed-node constraints and fill them from the reduced class.
+    ! Allocate mixed-node constraints and fill them from the reduced type.
     allocate(this%constraint_n(mixed_mask_size))
     allocate(this%constraint_t1(mixed_mask_size))
     allocate(this%constraint_t2(mixed_mask_size))
@@ -747,21 +747,21 @@ contains
     do i = 1, mixed_mask_size
        j = mixed_mask_values(i)
 
-       if (node_class_field%x(j,1,1,1) .lt. 1.9_rp) then
+       if (node_type_field%x(j,1,1,1) .lt. 1.9_rp) then
           this%constraint_n(i) = 1
           this%constraint_t1(i) = 1
           this%constraint_t2(i) = 1
-       else if (node_class_field%x(j,1,1,1) .gt. 1.9_rp .and. &
-            node_class_field%x(j,1,1,1) .lt. 2.9_rp) then
+       else if (node_type_field%x(j,1,1,1) .gt. 1.9_rp .and. &
+            node_type_field%x(j,1,1,1) .lt. 2.9_rp) then
           this%constraint_n(i) = 1
           this%constraint_t1(i) = 0
           this%constraint_t2(i) = 0
-       else if (node_class_field%x(j,1,1,1) .gt. 2.9_rp .and. &
-            node_class_field%x(j,1,1,1) .lt. 3.9_rp) then
+       else if (node_type_field%x(j,1,1,1) .gt. 2.9_rp .and. &
+            node_type_field%x(j,1,1,1) .lt. 3.9_rp) then
           this%constraint_n(i) = 0
           this%constraint_t1(i) = 1
           this%constraint_t2(i) = 1
-       else if (node_class_field%x(j,1,1,1) .gt. 3.9_rp) then
+       else if (node_type_field%x(j,1,1,1) .gt. 3.9_rp) then
           this%constraint_n(i) = 0
           this%constraint_t1(i) = 0
           this%constraint_t2(i) = 0
@@ -784,7 +784,7 @@ contains
     integer, pointer :: mixed_dof_values(:)
     integer, allocatable :: dof_to_mixed_idx(:)
     integer :: scratch_idx(3)
-    integer :: node_class_lookup_status, compact_node_class_idx
+    integer :: node_type_lookup_status, compact_node_type_idx
     integer :: i, j, k, dof_size, m
     integer :: idx(4), facet, el, edge, node, ii, p
     integer :: rst(3), rst1(3), rst2(3), step_rst(3)
@@ -810,15 +810,15 @@ contains
        dof_to_mixed_idx(mixed_dof_values(i)) = i
     end do
 
-    ! this%face_type stores the face-based bc_type values, and this%node_class
+    ! this%face_type stores the face-based bc_type values, and this%node_type
     ! stores them node-wise, after propagation with min reduction.
     ! Note that the propagation means that some nodes may have a different,
     ! more restrictive class than owning face!
     ! The algorithm for constructing normals below will make use of both
     ! classifications when looking at edges and corners. We will really only
-    ! care about classes 2 and 3, i.e. mixed bcs. The key question will be
+    ! care about types 2 and 3, i.e. mixed bcs. The key question will be
     ! whether a given face should contribute its normal to the edge and corner
-    ! dofs. The idea is that the face only contributes its normal if its bc_type
+    ! dofs. The idea is that the face only contributes its normal if its type
     ! is the same as that of the node.
 
     ! Set normals at unambiguous boundary dofs based on face normals.
@@ -866,15 +866,15 @@ contains
     ! and inside this type.
 
     ! Mixed edge interiors are rebuilt from the normals of the adjacent
-    ! faces whose local face class matches the reduced nodal class.
-    ! This is the central point: if the adjacent face is a different class,
-    ! which by construction can only be a less restrictive class, then it
+    ! faces whose local face type matches the reduced nodal type.
+    ! This is the central point: if the adjacent face is a different type,
+    ! which by construction can only be a less restrictive type, then it
     ! should not contribute its normal.
     !
     ! Consider the following 2D example. In 2D an edge becomes a node in the
     ! corner of the element. Look at the node marked with X. After the nodal
-    ! class is propagated, it will have class 2---the most restrictive of the
-    ! adjacent. So, only the face with class 2 in El 2 will contribute to the
+    ! type is propagated, it will have type 2---the most restrictive of the
+    ! adjacent. So, only the face with type 2 in El 2 will contribute to the
     ! normal. This is a rather extreme example, but it illustrates well what
     ! can happen.
     !
@@ -905,10 +905,13 @@ contains
                   this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
 
              ! Get the BC type.
-             node_class_lookup_status = this%boundary_idx%get( &
-                  edge_idx, compact_node_class_idx)
-             if (node_class_lookup_status .ne. 0) cycle
-             bc_type = abs(this%node_class(compact_node_class_idx))
+             node_type_lookup_status = this%boundary_idx%get( &
+                  edge_idx, compact_node_type_idx)
+
+             ! If we did not find the node in the lookup, it means it is not
+             ! a boundary node and we can skip.
+             if (node_type_lookup_status .ne. 0) cycle
+             bc_type = abs(this%node_type(compact_node_type_idx))
 
              ! If this is not a mixed bc edge, just leave it alone.
              if (bc_type .lt. 1.9_rp .or. bc_type .gt. 3.1_rp) cycle
@@ -978,17 +981,17 @@ contains
             "coupled vector BC resolver."
 
        ! Mixed corner node normals are rebuilt from the adjacent faces whose
-       ! local face type matches the reduced nodal class at that node.
+       ! local face type matches the reduced nodal type at that node.
        do el = 1, this%coef%msh%nelv
           do node = 1, size(this%node_linear_idx)
              rst = this%node_rst(:, node)
              node_idx = linear_index(rst(1), rst(2), rst(3), el, &
                   this%coef%Xh%lx, this%coef%Xh%ly, this%coef%Xh%lz)
 
-             node_class_lookup_status = this%boundary_idx%get( &
-                  node_idx, compact_node_class_idx)
-             if (node_class_lookup_status .ne. 0) cycle
-             bc_type = abs(this%node_class(compact_node_class_idx))
+             node_type_lookup_status = this%boundary_idx%get( &
+                  node_idx, compact_node_type_idx)
+             if (node_type_lookup_status .ne. 0) cycle
+             bc_type = abs(this%node_type(compact_node_type_idx))
 
              ! Ignore if the BC type is not a mixed one.
              if (bc_type .lt. 1.9_rp .or. bc_type .gt. 3.1_rp) cycle
@@ -1002,7 +1005,7 @@ contains
              do ii = 1, this%coef%msh%gdim
                 facet = node_faces(ii, node)
 
-                ! Check class agreement
+                ! Check type agreement
                 if (abs(bc_type - this%face_type(facet, el)) .gt. 1.0e-6_rp) then
                    cycle
                 end if
@@ -1030,6 +1033,8 @@ contains
     call this%coef%gs_h%op(normal_y_field, GS_OP_ADD)
     call this%coef%gs_h%op(normal_z_field, GS_OP_ADD)
 
+    ! Normalize normals and build tangential directions for all mixed nodes.
+    ! Populate this into the basis components in the type.
     do i = 1, m
        j = mixed_dof_values(i)
 
