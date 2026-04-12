@@ -590,8 +590,8 @@ would add overhead if executed at every time step.
 user-file_tips_running-on-gpus) apply when working on field arrays. Use
 `device_memcpy` to make sure the device arrays are also updated.
 
-### Neumann boundary conditions {#user-file_field-dirichlet-update}
-This user function can be used to specify Dirichlet boundary values for 
+### Neumann boundary conditions {#user-file_field-neumann-update}
+This user function can be used to specify Neumann boundary values for 
 the scalar(s). This type of boundary condition allows for time-dependent 
 scalar flux over the surface.
 
