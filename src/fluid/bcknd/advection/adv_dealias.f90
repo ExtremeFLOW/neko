@@ -499,73 +499,81 @@ contains
     n_GL = nel * this%Xh_GL%lxyz
 
     associate(c_GL => this%coef_GL)
-       if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
 
-          ! Map mesh velocity (wm) to the GL space
-          ! (wm_x, wm_y, wm_z)@GLL --> (vr, vs, vt)@GL
-          call this%GLL_to_GL%map(this%vr, wm_x%x, nel, this%Xh_GL)
-          call this%GLL_to_GL%map(this%vs, wm_y%x, nel, this%Xh_GL)
-          call this%GLL_to_GL%map(this%vt, wm_z%x, nel, this%Xh_GL)
+         ! Map mesh velocity (wm) to the GL space
+         call this%GLL_to_GL%map(this%vr, wm_x%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%vs, wm_y%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%vt, wm_z%x, nel, this%Xh_GL)
 
-          ! X-Momentum
-          ! Map vx to GL space (tx)
-          call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+         ! --- X-Momentum ---
+         ! Fx = vx * wm_x
+         call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
+         ! opgrad outputs: X-deriv to tz, Y-deriv to tx, Z-deriv to ty
+         call opgrad(this%tz, this%tx, this%ty, this%temp, c_GL)
 
-          ! u \cdot wm_*
+         ! Fy = vx * wm_y
+         call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vs_d, n_GL)
+         ! opgrad outputs: X-deriv to tx, Y-deriv to tbf, Z-deriv to ty
+         call opgrad(this%tx, this%tbf, this%ty, this%temp, c_GL)
+         ! Accumulate Y-deriv (tbf) into total divergence (tz)
+         call device_add2(this%tz_d, this%tbf_d, n_GL)
 
-          ! Fz = u * wm_z
-          call device_col3(this%tz_d, this%tx_d, this%vt_d, n_GL) 
-          ! Fy = u * wm_y
-          call device_col3(this%ty_d, this%tx_d, this%vs_d, n_GL) 
-          ! Fx = u * wm_x
-          call device_col3(this%tx_d, this%tx_d, this%vr_d, n_GL) 
-          
-          ! Compute divergence of the flux in GL space
-          call div(this%tbf, this%tx, this%ty, this%tz, c_GL)
-          
-          ! Map back to GLL space and add to RHS
-          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-          call device_add2(fx%x_d, this%temp_d, n)
+         ! Fz = vx * wm_z
+         call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vt_d, n_GL)
+         ! opgrad outputs: X-deriv to tx, Y-deriv to ty, Z-deriv to tbf
+         call opgrad(this%tx, this%ty, this%tbf, this%temp, c_GL)
+         ! Accumulate Z-deriv (tbf) into total divergence (tz)
+         call device_add2(this%tz_d, this%tbf_d, n_GL)
 
-          ! Y-Momentum 
-          ! Map vy to GL space (tx)
-          call this%GLL_to_GL%map(this%tx, vy%x, nel, this%Xh_GL)
+         ! Map strong divergence (tz) back to GLL space and add to RHS
+         call this%GLL_to_GL%map(this%temp, this%tz, nel, this%Xh_GLL)
+         call device_add2(fx%x_d, this%temp_d, n)
 
-          ! v \cdot wm_*
+         ! --- Y-Momentum ---
+         ! Fx = vy * wm_x
+         call this%GLL_to_GL%map(this%temp, vy%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
+         call opgrad(this%tz, this%tx, this%ty, this%temp, c_GL)
 
-          ! Fz = v * wm_z
-          call device_col3(this%tz_d, this%tx_d, this%vt_d, n_GL) 
-          ! Fy = v * wm_y
-          call device_col3(this%ty_d, this%tx_d, this%vs_d, n_GL) 
-          ! Fx = v * wm_x
-          call device_col3(this%tx_d, this%tx_d, this%vr_d, n_GL) 
-          
-          ! Compute divergence of the flux in GL space
-          call div(this%tbf, this%tx, this%ty, this%tz, c_GL)
-          
-          ! Map back to GLL space and add to RHS
-          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-          call device_add2(fy%x_d, this%temp_d, n)
+         ! Fy = vy * wm_y
+         call this%GLL_to_GL%map(this%temp, vy%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vs_d, n_GL)
+         call opgrad(this%tx, this%tbf, this%ty, this%temp, c_GL)
+         call device_add2(this%tz_d, this%tbf_d, n_GL)
 
-          ! Z-Momentum
-          ! Map vz to GL space (tx)
-          call this%GLL_to_GL%map(this%tx, vz%x, nel, this%Xh_GL)
+         ! Fz = vy * wm_z
+         call this%GLL_to_GL%map(this%temp, vy%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vt_d, n_GL)
+         call opgrad(this%tx, this%ty, this%tbf, this%temp, c_GL)
+         call device_add2(this%tz_d, this%tbf_d, n_GL)
 
-          ! w \cdot wm_*
-          
-          ! Fz = w * wm_z
-          call device_col3(this%tz_d, this%tx_d, this%vt_d, n_GL) 
-          ! Fy = w * wm_y
-          call device_col3(this%ty_d, this%tx_d, this%vs_d, n_GL) 
-          ! Fx = w * wm_x
-          call device_col3(this%tx_d, this%tx_d, this%vr_d, n_GL) 
-          
-          ! Compute divergence of the flux in GL space
-          call div(this%tbf, this%tx, this%ty, this%tz, c_GL)
-          
-          ! Map back to GLL space and add to RHS
-          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-          call device_add2(fz%x_d, this%temp_d, n)
+         call this%GLL_to_GL%map(this%temp, this%tz, nel, this%Xh_GLL)
+         call device_add2(fy%x_d, this%temp_d, n)
+
+         ! --- Z-Momentum ---
+         ! Fx = wz * wm_x
+         call this%GLL_to_GL%map(this%temp, vz%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
+         call opgrad(this%tz, this%tx, this%ty, this%temp, c_GL)
+
+         ! Fy = wz * wm_y
+         call this%GLL_to_GL%map(this%temp, vz%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vs_d, n_GL)
+         call opgrad(this%tx, this%tbf, this%ty, this%temp, c_GL)
+         call device_add2(this%tz_d, this%tbf_d, n_GL)
+
+         ! Fz = wz * wm_z
+         call this%GLL_to_GL%map(this%temp, vz%x, nel, this%Xh_GL)
+         call device_col3(this%temp_d, this%temp_d, this%vt_d, n_GL)
+         call opgrad(this%tx, this%ty, this%tbf, this%temp, c_GL)
+         call device_add2(this%tz_d, this%tbf_d, n_GL)
+
+         call this%GLL_to_GL%map(this%temp, this%tz, nel, this%Xh_GLL)
+         call device_add2(fz%x_d, this%temp_d, n)
 
        else
          do e = 1, coef%msh%nelv

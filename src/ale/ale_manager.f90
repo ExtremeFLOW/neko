@@ -71,7 +71,7 @@ module ale_manager
   use fld_file, only : fld_file_t
   use user_intf, only : user_t, user_ale_mesh_velocity_intf, &
        user_ale_base_shapes_intf, user_ale_rigid_kinematics_intf
-  use math, only : glmin, pi
+  use math, only : glmin, pi, copy
   use field_math, only : field_rzero, field_add2, &
        field_cmult
   use device, only : HOST_TO_DEVICE, device_memcpy, &
@@ -226,15 +226,18 @@ contains
     call this%y_ref%init(coef%dof, "y_ref")
     call this%z_ref%init(coef%dof, "z_ref")
 
-    this%x_ref%x = coef%dof%x
-    this%y_ref%x = coef%dof%y
-    this%z_ref%x = coef%dof%z
+    call copy(this%x_ref%x, coef%dof%x, n)
+    call copy(this%y_ref%x, coef%dof%y, n)
+    call copy(this%z_ref%x, coef%dof%z, n)   
 
     ! Sync to device
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%x_ref%x, this%x_ref%x_d, n, HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%y_ref%x, this%y_ref%x_d, n, HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%z_ref%x, this%z_ref%x_d, n, HOST_TO_DEVICE, .true.)
+       call device_memcpy(this%x_ref%x, this%x_ref%x_d, n, &
+            HOST_TO_DEVICE, .false.)
+       call device_memcpy(this%y_ref%x, this%y_ref%x_d, n, &
+            HOST_TO_DEVICE, .false.)
+       call device_memcpy(this%z_ref%x, this%z_ref%x_d, n, &
+            HOST_TO_DEVICE, .true.)
     end if
 
     ! Set user function pointers.
@@ -857,6 +860,8 @@ contains
          coef%gs_h, this%bc_list, precon_type, precon_params)
 
     ! Save original h1/h2
+
+    ! Save values
     h1_restore = coef%h1
     h2_restore = coef%h2
 
@@ -1060,9 +1065,12 @@ contains
     call corr_field%free()
 
     ! Restore h1/h2 to what they were before
-    coef%h1 = h1_restore
-    coef%h2 = h2_restore
-
+    coef%h1(:,:,:,:) = h1_restore(:,:,:,:)
+    coef%h2(:,:,:,:) = h2_restore(:,:,:,:)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(coef%h1, coef%h1_d, n, HOST_TO_DEVICE, .false.)
+       call device_memcpy(coef%h2, coef%h2_d, n, HOST_TO_DEVICE, .true.)
+    end if
 
     if (allocated(h1_restore)) deallocate(h1_restore)
     if (allocated(h2_restore)) deallocate(h2_restore)
