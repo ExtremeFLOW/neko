@@ -552,12 +552,7 @@ contains
        call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
        call device_col2( vec_out_d, this%coef%mult_d, m)
-       if (lvl-1 .eq. 0) then
-          call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
-          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-          call device_col2( vec_out_d, this%coef%mult_d, m)
-          call this%bc_resolver%apply( vec_out, m)
-       end if
+       call this%bc_resolver%apply(vec_out, m)
     end if
   end subroutine tamg_device_prolongation_operator
 
