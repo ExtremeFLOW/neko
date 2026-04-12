@@ -657,7 +657,7 @@ contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`.
 The user function should be registered in `user_setup` with the following line:
 
 ```fortran
-u%neumann_conditions => neumann_update
+u%neumann_conditions => neumann_conditions
 ```
 
 A very simple example illustrating the above is shown below.
