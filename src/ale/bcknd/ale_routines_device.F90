@@ -134,8 +134,9 @@ contains
        ! Fetch change flag back to the host array
        call device_memcpy(change_vec, nchange_d, 1, DEVICE_TO_HOST, .true.)
 
-       ! Vector backend handles mapped memory automatically, no sync needed beforehand
+       call device_memcpy(d, d_d, n, DEVICE_TO_HOST, .true.)
        call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
+       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, .true.)
 
        if (glimax(change_vec, 1) == 0) done = .true.
        ipass = ipass + 1
