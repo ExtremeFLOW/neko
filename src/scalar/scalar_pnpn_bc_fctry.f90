@@ -38,7 +38,7 @@ submodule(scalar_pnpn) scalar_pnpn_bc_fctry
   use user_intf, only : user_t
   use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
-   use field_neumann, only : field_neumann_t
+  use field_neumann, only : field_neumann_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories

@@ -41,7 +41,7 @@ module field_neumann
   use utils, only : neko_error, nonlinear_index
   use json_module, only : json_file
   use json_utils, only : json_get
-  use math, only : masked_gather_copy_0 
+  use math, only : masked_gather_copy_0
   use device_math, only : device_masked_gather_copy_0
   use device_neumann, only : device_neumann_apply_scalar
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -110,7 +110,7 @@ contains
     character(len=:), allocatable :: field_name
 
     call json_get(json, "field_name", field_name)
-write(*,*) field_name
+    write(*,*) field_name
     call this%init_from_components(coef, field_name)
 
   end subroutine field_neumann_init

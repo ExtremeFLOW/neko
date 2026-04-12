@@ -356,11 +356,11 @@ contains
     type(time_state_t), intent(in) :: time
   end subroutine dirichlet_do_nothing
 
-   subroutine neumann_do_nothing(fields, bc, time)
-      type(field_list_t), intent(inout) :: fields
-      type(field_neumann_t), intent(in) :: bc
-      type(time_state_t), intent(in) :: time
-   end subroutine neumann_do_nothing
+  subroutine neumann_do_nothing(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+  end subroutine neumann_do_nothing
 
   subroutine dummy_user_material_properties(scheme_name, properties, time)
     character(len=*), intent(in) :: scheme_name
