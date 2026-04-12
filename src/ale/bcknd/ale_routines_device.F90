@@ -9,7 +9,7 @@ module ale_routines_device
   use utils, only : neko_error
   use device_math, only : device_add2s2_3v
   use zero_dirichlet, only : zero_dirichlet_t
-  use math, only : rzero, glimax
+  use math, only : rzero, glimax, cfill
   use gather_scatter, only : GS_OP_MIN
   use ale_rigid_kinematics, only : ale_config_t, pivot_state_t, &
        point_tracker_t, body_kinematics_t, &
