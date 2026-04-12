@@ -595,7 +595,7 @@ This user function can be used to specify Neumann boundary values for
 the scalar(s). This type of boundary condition allows for time-dependent 
 scalar flux over the surface.
 
-The user routine is called by the `user` boundary condtition for the scalar.
+The user routine is called by the `user` boundary condition for the scalar.
 Once the appropriate boundaries have been identified, the user function
 `neumann_conditions` should be used to compute and apply the desired values to
 our scalar field(s).
