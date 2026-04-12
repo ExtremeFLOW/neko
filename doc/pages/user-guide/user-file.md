@@ -640,12 +640,12 @@ The arguments and their purpose are as follows:
 * `fields` is the list of the fields that can be edited. It is a list of
 `field_t` objects.
   * The field `i` contained in `fields` is accessed using
-  `fields%%items(i)%%ptr` and will refer to a `field_t` object. Alternatively,
+  `fields%items(i)%ptr` and will refer to a `field_t` object. Alternatively,
   one can use the `get` method to retrieve a field by name or index, as done in
   the examples above for other routines.
 * `bc` contains a `field_neumann_t` object to help access the boundary indices
   through the boundary mask, `msk`.
-  * The boundary mask of the `bc `object is accessed via `bc%%msk`. It contains
+  * The boundary mask of the `bc `object is accessed via `bc%msk`. It contains
   the linear indices of each GLL point on the boundary facets. @note
   `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
 * `time`, is a simple structure that contains various info on time stepping,
