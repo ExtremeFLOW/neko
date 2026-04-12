@@ -150,8 +150,6 @@ contains
   !> Gather field-defined values into compact boundary flux storage.
   subroutine field_neumann_gather_flux(this)
     class(field_neumann_t), intent(inout) :: this
-    integer :: i
-    integer :: idx(4)
 
     if (this%msk(0) .gt. 0) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
