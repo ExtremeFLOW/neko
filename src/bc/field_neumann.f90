@@ -286,6 +286,12 @@ contains
     class(field_neumann_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
 
+    if (present(only_facets)) then
+       if (.not. only_facets) then
+          call neko_error("For field_neumann_t, only_facets has to be true.")
+       end if
+    end if
+
     call this%finalize_base(.true.)
     call this%flux%init(this%msk(0))
 
