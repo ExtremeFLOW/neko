@@ -159,7 +159,8 @@ contains
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
        kappa, mu, rho, g_vec, z0, z0h_in, bc_type, bc_value, tstep, &
-       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn)
+       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn, &
+       h_x_idx, h_y_idx, h_z_idx)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
@@ -182,7 +183,11 @@ contains
     real(kind=rp) :: utau, Ri_b, L_ob, magu, q, ti, ts
     real(kind=rp), dimension(n_nodes), intent(inout) :: Ri_b_diagn, L_ob_diagn
     real(kind=rp), dimension(n_nodes), intent(inout) :: utau_diagn, magu_diagn
-    real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, q_diagn
+    real(kind=rp), dimension(n_nodes), intent(inout) :: ti_diagn, ts_diagn
+    real(kind=rp), dimension(n_nodes), intent(inout) :: q_diagn
+    integer, dimension(n_nodes), intent(in) :: h_x_idx
+    integer, dimension(n_nodes), intent(in) :: h_y_idx
+    integer, dimension(n_nodes), intent(in) :: h_z_idx
 
     do i=1, n_nodes
        ! Sample the variables
@@ -297,6 +302,7 @@ contains
        utau_diagn(i) = utau
        magu_diagn(i) = magu
        ti_diagn(i) = ti
+       ts_diagn(i) = temp(ind_r(i)+h_x_idx(i), ind_s(i)+h_y_idx(i), ind_t(i)+h_z_idx(i), ind_e(i))
        q_diagn(i) = q
     end do
   end subroutine most_compute_cpu

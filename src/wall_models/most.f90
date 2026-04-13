@@ -45,7 +45,7 @@ module most
   use most_device, only : most_compute_device
   use most_cpu, only : most_compute_cpu
   use scratch_registry, only : neko_scratch_registry
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error, neko_warning, nonlinear_index
   use logger, only : LOG_SIZE, neko_log
   use vector, only : vector_t
   use vector_math, only : vector_glsum, vector_glmin, vector_glmax
@@ -76,7 +76,11 @@ module most
      !> The name of the temperature variable
      character(len=:), allocatable :: scalar_name
      !> Diagnostics
-     type(vector_t) :: Ri_b, L_ob, utau, magu, ti, q
+     type(vector_t) :: Ri_b, L_ob, utau, magu, ti, ts, q
+   !   integer :: idx(4)
+     integer :: h_x_idx(this%n_nodes)
+     integer :: h_y_idx(this%n_nodes)
+     integer :: h_z_idx(this%n_nodes)
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => most_init
@@ -221,6 +225,9 @@ contains
     class(most_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    integer :: h_x_idx(this%n_nodes)
+    integer :: h_y_idx(this%n_nodes)
+    integer :: h_z_idx(this%n_nodes)
 
     call this%finalize_base(msk, facet)
 
@@ -229,7 +236,45 @@ contains
     call this%utau%init(this%n_nodes)
     call this%magu%init(this%n_nodes)
     call this%ti%init(this%n_nodes)
+    call this%ts%init(this%n_nodes)
     call this%q%init(this%n_nodes)
+
+    do i = 1, this%n_nodes
+      ! linear = this%msk(i)
+      ! idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%ly,&
+      ! this%coef%Xh%lz)
+      fid = this%facet(i)
+      select case (fid)
+      case (1)
+         h_x_idx(i) = this%h_index
+         h_y_idx(i) = 0
+         h_z_idx(i) = 0
+      case (2)
+         h_x_idx(i) = - this%h_index
+         h_y_idx(i) = 0
+         h_z_idx(i) = 0
+      case (3)
+         h_x_idx(i) = 0
+         h_y_idx(i) = this%h_index
+         h_z_idx(i) = 0
+      case (4)
+         h_x_idx(i) = 0
+         h_y_idx(i) = - this%h_index
+         h_z_idx(i) = 0
+      case (5)
+         h_x_idx(i) = 0
+         h_y_idx(i) = 0
+         h_z_idx(i) = this%h_index
+      case (6)
+         h_x_idx(i) = 0
+         h_y_idx(i) = 0
+         h_z_idx(i) = - this%h_index
+      case default
+         call neko_error("The face index is not correct (most.f90)")
+      end select
+      this%h_idx = h_idx
+
+    end do
 
   end subroutine most_finalize
 
@@ -323,6 +368,7 @@ contains
     call this%utau%free()
     call this%magu%free()
     call this%ti%free()
+    call this%ts%free()
     call this%q%free()
 
   end subroutine most_free
@@ -357,7 +403,7 @@ contains
             this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
             this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
-            this%q%x_d)
+            this%ti%x_d, this%q%x_d)
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
             this%ind_s, this%ind_t, this%ind_e, this%n_x%x, &
@@ -366,21 +412,22 @@ contains
             u%msh%nelv, this%kappa, this%mu_val, this%rho_val, &
             this%g, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep, this%Ri_b%x, this%L_ob%x, &
-            this%utau%x, this%magu%x, this%ti%x, this%q%x)
+            this%utau%x, this%magu%x, this%ti%x, this%ts%x, &
+            this%q%x, this%h_x_idx, this%h_y_idx, this%h_z_idx)
     end if
 
     call most_log_diagnostics(this%Ri_b, this%L_ob, &
-            this%utau, this%magu, this%ti, this%q, &
+            this%utau, this%magu, this%ti, this%ts, this%q, &
             this%n_nodes, this%bc_value)
   end subroutine most_compute
 
-  subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, q, &
+  subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, ts, q, &
    n_nodes, bc_value)
     character(len=LOG_SIZE) :: log_buf
     integer, intent(in) :: n_nodes
     real(kind=rp), intent(in) :: bc_value
     type(vector_t), intent(in) :: Ri_b, L_ob, utau
-    type(vector_t), intent(in) :: magu, ti, q
+    type(vector_t), intent(in) :: magu, ti, ts, q
 
     call neko_log%section("Wall model diagnostics")
     write(log_buf, '(A)') '--- sum min max ---'
@@ -408,6 +455,11 @@ contains
     write(log_buf,'(A,3E15.7)') "ti: ", &
     vector_glsum(ti, n_nodes), &
     vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,3E15.7)') "ts: ", &
+    vector_glsum(ts, n_nodes), &
+    vector_glmin(ts, n_nodes), vector_glmax(ts, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "q: ", &
