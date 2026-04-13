@@ -88,7 +88,7 @@ contains
     nelb = coef%msh%offset_el
     gdim = coef%msh%gdim
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
     call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
@@ -103,7 +103,7 @@ contains
   subroutine data_streamer_free(this)
     class(data_streamer_t), intent(inout) :: this
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
     call fortran_adios2_finalize()
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
@@ -118,7 +118,7 @@ contains
     class(data_streamer_t), intent(inout) :: this
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: fld
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
     call fortran_adios2_stream(fld)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
@@ -133,7 +133,7 @@ contains
     class(data_streamer_t), intent(inout) :: this
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: fld
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
     call fortran_adios2_recieve(fld)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
@@ -143,7 +143,7 @@ contains
   end subroutine data_streamer_recieve
 
 
-#ifdef HAVE_ADIOS2_FORTRAN
+#ifdef HAVE_ADIOS2
 
   !> Interface to adios2_initialize in c++.
   !! @details This routine interfaces with c++ routine that set up adios2
