@@ -117,7 +117,7 @@ contains
     real(kind=rp) :: kappa, z0, z0h_in, Pr
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
-    real(kind=rp) :: bc_value
+    real(kind=rp), pointer :: bc_value
     real(kind=rp), allocatable :: g_tmp(:)
     real(kind=rp) :: g(3)
 
@@ -135,7 +135,13 @@ contains
     call json_get_or_lookup_or_default(json, "rho", rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
-    call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
+   !  call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
+
+    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
+
+    bc_value => neko_const_registry%get_real_scalar("bc_value")
+
+    this%bc_value = bc_value
 
     call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -160,6 +166,7 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: g_tmp(:)
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp), pointer :: bc_value
 
     call this%partial_init_base(coef, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
@@ -171,6 +178,12 @@ contains
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get(json, "scalar_field", this%scalar_name)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
+
+    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
+
+    bc_value => neko_const_registry%get_real_scalar("bc_value")
+
+    this%bc_value = bc_value
 
     call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -338,11 +351,15 @@ contains
     type(field_t), pointer :: v
     type(field_t), pointer :: w
     type(field_t), pointer :: temp
+    real(kind=rp), pointer :: bc_value
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
     temp => neko_registry%get_field(this%scalar_name)
+
+    bc_value => neko_const_registry%get_real_scalar("bc_value")
+    this%bc_value = bc_value
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, &
@@ -366,13 +383,15 @@ contains
     end if
 
     call most_log_diagnostics(this%Ri_b, this%L_ob, &
-            this%utau, this%magu, this%ti, this%q, this%n_nodes)
-
+            this%utau, this%magu, this%ti, this%q, &
+            this%n_nodes, this%bc_value)
   end subroutine most_compute
 
-  subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, q, n_nodes)
+  subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, q, &
+   n_nodes, bc_value)
     character(len=LOG_SIZE) :: log_buf
     integer, intent(in) :: n_nodes
+    real(kind=rp), intent(in) :: bc_value
     type(vector_t), intent(in) :: Ri_b, L_ob, utau
     type(vector_t), intent(in) :: magu, ti, q
 
@@ -407,6 +426,9 @@ contains
     write(log_buf,'(A,3E15.7)') "q: ", &
     vector_glsum(q, n_nodes), &
     vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,E15.7)') "bc_value: ", bc_value
     call neko_log%message(trim(log_buf))
 
     call neko_log%end_section()
