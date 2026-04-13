@@ -670,12 +670,15 @@ contains
 
     ! Build compact nodal type cache for all boundary dofs.
     ! First pass to count the size of the boundary dof set.
+
     boundary_size = 0
+    !$omp parallel do reduction(+:boundary_size)
     do i = 1, dof_size
        if (boundary_mask_field%x(i,1,1,1) .gt. 0.5_rp) then
           boundary_size = boundary_size + 1
        end if
     end do
+    !$omp end parallel do
 
     ! Linear indices of boundary dofs
     allocate(this%boundary_dof(boundary_size))
@@ -744,6 +747,8 @@ contains
     ! and the mixed subset. Only the latter needs a local basis.
     dirichlet_mask_size = 0
     mixed_mask_size = 0
+
+    !$omp parallel do reduction(+:dirichlet_mask_size,mixed_mask_size)
     do i = 1, dof_size
        ! Internal node
        if (boundary_mask_field%x(i,1,1,1) .lt. 0.5_rp) cycle
@@ -755,6 +760,7 @@ contains
           mixed_mask_size = mixed_mask_size + 1
        end if
     end do
+    !$omp end parallel do
 
     if (dirichlet_mask_size .gt. 0) then
        allocate(dirichlet_mask_values(dirichlet_mask_size))
@@ -799,7 +805,7 @@ contains
             size(this%constraint_t2))
     end if
 
-    do i = 1, mixed_mask_size
+    do concurrent (i = 1, mixed_mask_size)
        j = mixed_mask_values(i)
 
        if (node_type_field%x(j,1,1,1) .lt. 1.9_rp) then
@@ -873,7 +879,7 @@ contains
     ! in the mixed_dof_mask.
     allocate(dof_to_mixed_idx(dof_size))
     dof_to_mixed_idx = 0
-    do i = 1, m
+    do concurrent (i = 1, m)
        dof_to_mixed_idx(mixed_dof_values(i)) = i
     end do
 
@@ -1102,7 +1108,7 @@ contains
 
     ! Normalize normals and build tangential directions for all mixed nodes.
     ! Populate this into the basis components in the type.
-    do i = 1, m
+    do concurrent (i = 1, m)
        j = mixed_dof_values(i)
 
        ! Normalize the normal
@@ -1168,7 +1174,7 @@ contains
           call bc%t1%init(3, m)
           call bc%t2%init(3, m)
 
-          do j = 1, m
+          do concurrent (j = 1, m)
              k = bc%resolved_msk%get(j)
              p = dof_to_mixed_idx(k)
 
