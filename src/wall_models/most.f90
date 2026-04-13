@@ -173,9 +173,9 @@ contains
     call json_get_or_lookup_or_default(json, "rho", this%rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get(json, "scalar_field", this%scalar_name)
-   !  call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
+    call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
 
-   call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
+    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
 
     bc_value => neko_const_registry%get_real_scalar("bc_value")
 
@@ -370,47 +370,52 @@ contains
     end if
 
     call most_log_diagnostics(this%Ri_b, this%L_ob, &
-            this%utau, this%magu, this%ti, this%q, this%n_nodes)
-
+            this%utau, this%magu, this%ti, this%q, &
+            this%n_nodes, this%bc_value)
   end subroutine most_compute
 
-  subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, q, n_nodes)
+  subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, q, &
+   n_nodes, bc_value)
     character(len=LOG_SIZE) :: log_buf
     integer, intent(in) :: n_nodes
+    real(kind=rp), intent(in) :: bc_value
     type(vector_t), intent(in) :: Ri_b, L_ob, utau
     type(vector_t), intent(in) :: magu, ti, q
 
     call neko_log%section("Wall model diagnostics")
-    write(log_buf, '(A)') '--- mean min max ---'
+    write(log_buf, '(A)') '--- sum min max ---'
     call neko_log%message(trim(log_buf))
     write(log_buf,'(A,3E15.7)') "Ri_b: ",&
-    vector_glsum(Ri_b, n_nodes) / n_nodes, &
+    vector_glsum(Ri_b, n_nodes), &
     vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "L_ob: ", &
-    vector_glsum(L_ob, n_nodes) / n_nodes, &
+    vector_glsum(L_ob, n_nodes), &
     vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "utau: ", &
-    vector_glsum(utau, n_nodes) / n_nodes, &
+    vector_glsum(utau, n_nodes), &
     vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "magu: ", &
-    vector_glsum(magu, n_nodes) / n_nodes, &
+    vector_glsum(magu, n_nodes), &
     vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "ti: ", &
-    vector_glsum(ti, n_nodes) / n_nodes, &
+    vector_glsum(ti, n_nodes), &
     vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "q: ", &
-    vector_glsum(q, n_nodes) / n_nodes, &
+    vector_glsum(q, n_nodes), &
     vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
+    call neko_log%message(trim(log_buf))
+
+    write(log_buf,'(A,E15.7)') "bc_value: ", bc_value
     call neko_log%message(trim(log_buf))
 
     call neko_log%end_section()
