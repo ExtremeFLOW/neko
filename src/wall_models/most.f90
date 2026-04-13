@@ -39,7 +39,7 @@ module most
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
-  use registry, only : neko_registry
+  use registry, only : neko_registry, neko_const_registry
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup, json_get_or_lookup_or_default
   use most_device, only : most_compute_device
@@ -363,36 +363,36 @@ contains
     type(vector_t), intent(in) :: Ri_b, L_ob, utau
     type(vector_t), intent(in) :: magu, ti, q
 
-    call neko_log%section("Wall model diagnostics (MOST)")
-    write(log_buf, '(A)') 'mean min max'
+    call neko_log%section("Wall model diagnostics")
+    write(log_buf, '(A)') '--- sum min max ---'
     call neko_log%message(trim(log_buf))
     write(log_buf,'(A,3E15.7)') "Ri_b: ",&
-    vector_glsum(Ri_b, n_nodes) / n_nodes, &
+    vector_glsum(Ri_b, n_nodes), &
     vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "L_ob: ", &
-    vector_glsum(L_ob, n_nodes) / n_nodes, &
+    vector_glsum(L_ob, n_nodes), &
     vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "utau: ", &
-    vector_glsum(utau, n_nodes) / n_nodes, &
+    vector_glsum(utau, n_nodes), &
     vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "magu: ", &
-    vector_glsum(magu, n_nodes) / n_nodes, &
+    vector_glsum(magu, n_nodes), &
     vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "ti: ", &
-    vector_glsum(ti, n_nodes) / n_nodes, &
+    vector_glsum(ti, n_nodes), &
     vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "q: ", &
-    vector_glsum(q, n_nodes) / n_nodes, &
+    vector_glsum(q, n_nodes), &
     vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
 
