@@ -113,7 +113,6 @@ contains
     this%name = name
     this%field_names = which_fields
     this%start_time = start_time
-    this%stream_mesh = stream_mesh
 
     call this%dstream%init(this%case%fluid%c_Xh)
 
