@@ -274,8 +274,6 @@ contains
        call C%free()
     end if
 
-    call neko_simcomps%free()
-
     call neko_registry%free()
     call neko_user_access%free()
     call neko_log%free()
