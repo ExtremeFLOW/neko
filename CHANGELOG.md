@@ -1,7 +1,9 @@
 # Changelog
 
 ## Develop
-
+- Added the user-defined Neumann boundary conditions for the scalar solver.
+- *BREAKING* Changed the user-defined scalar Dirichlet boundary conditions
+  keyword from `user` to `user_dirichlet`.
 - Enabled 1D stats files in csv format as a possible input to `average_fields_in_time`.
 - Added the possibility to configure interpolation parameters for `probes`.
 - *BREAKING* Changed the user interface of fluid/scalar initial condition
