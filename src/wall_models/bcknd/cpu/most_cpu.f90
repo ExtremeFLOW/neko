@@ -302,7 +302,7 @@ contains
        utau_diagn(i) = utau
        magu_diagn(i) = magu
        ti_diagn(i) = ti
-       ts_diagn(i) = temp(ind_r(i)+h_x_idx(i), ind_s(i)+h_y_idx(i), ind_t(i)+h_z_idx(i), ind_e(i))
+       ts_diagn(i) = temp(ind_r(i)-h_x_idx(i), ind_s(i)-h_y_idx(i), ind_t(i)-h_z_idx(i), ind_e(i))
        q_diagn(i) = q
     end do
   end subroutine most_compute_cpu

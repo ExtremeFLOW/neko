@@ -80,9 +80,7 @@ module most
      !> Diagnostics
      type(vector_t) :: Ri_b, L_ob, utau, magu, ti, ts, q
    !   integer :: idx(4)
-     integer :: h_x_idx(this%n_nodes)
-     integer :: h_y_idx(this%n_nodes)
-     integer :: h_z_idx(this%n_nodes)
+     integer, allocatable :: h_x_idx(:), h_y_idx(:), h_z_idx(:)
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => most_init
@@ -231,9 +229,8 @@ contains
     class(most_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer :: h_x_idx(this%n_nodes)
-    integer :: h_y_idx(this%n_nodes)
-    integer :: h_z_idx(this%n_nodes)
+    integer :: i, fid
+
 
     call this%finalize_base(msk, facet)
 
@@ -245,6 +242,10 @@ contains
     call this%ts%init(this%n_nodes)
     call this%q%init(this%n_nodes)
 
+    allocate(this%h_x_idx(this%n_nodes))
+    allocate(this%h_y_idx(this%n_nodes))
+    allocate(this%h_z_idx(this%n_nodes))
+
     do i = 1, this%n_nodes
       ! linear = this%msk(i)
       ! idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%ly,&
@@ -252,33 +253,32 @@ contains
       fid = this%facet(i)
       select case (fid)
       case (1)
-         h_x_idx(i) = this%h_index
-         h_y_idx(i) = 0
-         h_z_idx(i) = 0
+         this%h_x_idx(i) = this%h_index
+         this%h_y_idx(i) = 0
+         this%h_z_idx(i) = 0
       case (2)
-         h_x_idx(i) = - this%h_index
-         h_y_idx(i) = 0
-         h_z_idx(i) = 0
+         this%h_x_idx(i) = - this%h_index
+         this%h_y_idx(i) = 0
+         this%h_z_idx(i) = 0
       case (3)
-         h_x_idx(i) = 0
-         h_y_idx(i) = this%h_index
-         h_z_idx(i) = 0
+         this%h_x_idx(i) = 0
+         this%h_y_idx(i) = this%h_index
+         this%h_z_idx(i) = 0
       case (4)
-         h_x_idx(i) = 0
-         h_y_idx(i) = - this%h_index
-         h_z_idx(i) = 0
+         this%h_x_idx(i) = 0
+         this%h_y_idx(i) = - this%h_index
+         this%h_z_idx(i) = 0
       case (5)
-         h_x_idx(i) = 0
-         h_y_idx(i) = 0
-         h_z_idx(i) = this%h_index
+         this%h_x_idx(i) = 0
+         this%h_y_idx(i) = 0
+         this%h_z_idx(i) = this%h_index
       case (6)
-         h_x_idx(i) = 0
-         h_y_idx(i) = 0
-         h_z_idx(i) = - this%h_index
+         this%h_x_idx(i) = 0
+         this%h_y_idx(i) = 0
+         this%h_z_idx(i) = - this%h_index
       case default
          call neko_error("The face index is not correct (most.f90)")
       end select
-      this%h_idx = h_idx
 
     end do
 
@@ -354,9 +354,9 @@ contains
        call neko_error("MOST WM: Sampling height h must be greater than roughness z0.")
     else if ( (this%z0h_in .gt. 0.0_rp) .and. (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
        call neko_error("MOST WM: Sampling height h must be greater than thermal roughness z0h.")
-    else if (this%z0 .eq. 0.0_rp) then 
+    else if (this%z0 .eq. 0.0_rp) then
        call neko_error("MOST WM: Roughness z0 must be greater than 0.")
-    else if (this%z0h_in .eq. 0.0_rp) then 
+    else if (this%z0h_in .eq. 0.0_rp) then
        call neko_error("MOST WM: Thermal roughness z0h must be greater than 0.")
     end if
 
@@ -416,7 +416,7 @@ contains
             this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
             this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
-            this%ti%x_d, this%q%x_d)
+            this%q%x_d)
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
             this%ind_s, this%ind_t, this%ind_e, this%n_x%x, &
