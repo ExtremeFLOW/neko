@@ -126,7 +126,7 @@ module scalar_scheme
      !> Total diffusivity.
      type(field_t), pointer :: lambda_tot => null()
      !> Turbulent Prandtl number.
-     real(kind=rp) :: urb
+     real(kind=rp) :: pr_turb
      !> Field list with cp and lambda
      type(field_list_t) :: material_properties
      procedure(user_material_properties_intf), nopass, pointer :: &
