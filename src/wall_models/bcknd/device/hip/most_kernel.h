@@ -397,6 +397,7 @@ __global__ void most_compute(
             // NEUTRAL CASe
             utau = kappa * magu / slaw_m_neutral<T>(hi, z0);
             if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_neutral<T>(hi, z0h);
+            L_ob = 0.0;
         }
         else {
             // STABLE or CONVECTIVE (NR)
