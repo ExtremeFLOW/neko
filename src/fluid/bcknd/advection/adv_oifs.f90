@@ -108,6 +108,11 @@ module adv_oifs
      procedure, pass(this) :: set_conv_velocity_fst
      !> Destructor
      procedure, pass(this) :: free => adv_oifs_free
+     !> add the advection term for ALE, i.e. \f$(u - w_m) \cdot \nabla s \f$, to
+     !> the RHS
+     procedure, pass(this) :: compute_ale => adv_oifs_compute_ale
+     !> Update any metrics needed for the advection computation in ALE.
+     procedure, pass(this) :: recompute_metrics => recompute_metrics_oifs
   end type adv_oifs_t
 
 contains
@@ -623,5 +628,24 @@ contains
     end associate
 
   end subroutine adv_oifs_compute_scalar
+  subroutine recompute_metrics_oifs(this, coef, moving_boundary)
+    class(adv_oifs_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    logical, intent(in) :: moving_boundary
+    ! no-op
+  end subroutine recompute_metrics_oifs
 
+
+  subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+                                           fx, fy, fz, Xh, coef, n, dt)
+    class(adv_oifs_t), intent(inout) :: this
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(field_t), intent(inout) :: fx, fy, fz
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
+    ! no-op
+  end subroutine adv_oifs_compute_ale
 end module adv_oifs

@@ -160,6 +160,7 @@ contains
     type(json_file) :: scalar_params, numerics_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
+    logical :: tmp_feature
 
     !
     ! Setup user defined functions
@@ -499,6 +500,13 @@ contains
     call json_get_or_default(this%params, &
          'case.fluid.output_mesh_in_all_files', &
          logical_val, .false.)
+
+    ! Kind of hacky for the moment to ensure we don't miss
+    ! saving the mesh for ALE.
+    call json_get_or_default(this%params, 'case.fluid.ale.enabled', &
+         tmp_feature, .false.)
+    if (tmp_feature) logical_val = .true.
+
     call this%output_controller%init(this%time%end_time)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
