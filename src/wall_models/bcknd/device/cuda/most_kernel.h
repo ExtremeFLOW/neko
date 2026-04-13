@@ -393,7 +393,7 @@ __global__ void most_compute(
         else
             Ri_b =  g_dot_n*hi/ti*(ti-ts)/(magu*magu);
 
-        T L_ob = 1e10;   // neutral default
+        T L_ob = 0.0;   // neutral default
 
         const T L_sign = (Ri_b > 0) ? 1.0 : -1.0;
 
