@@ -95,3 +95,6 @@ install
 
 # Mac
 .DS_Store
+
+# Codex
+.codex

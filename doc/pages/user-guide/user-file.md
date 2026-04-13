@@ -279,7 +279,8 @@ user functions are:
 | ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------|
 | Initial conditions            | [initial_conditions](@ref user-file_user-ic)                    | `case.fluid.initial_condition` or `case.scalar.initial_condition` |
 | Source terms                  | [source_term](@ref user-file_user-f)                            | `case.fluid.source_terms` or  `case.scalar.source_terms`          |
-| Dirichlet boundary conditions | [dirichlet_conditions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_types` or `case.scalar.boundary_types`       |
+| Dirichlet boundary conditions | [dirichlet_conditions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_conditions` or `case.scalar.boundary_conditions` |
+| Neumann boundary conditions   | [neumann_conditions](@ref user-file_field-neumann-update)       | `case.scalar.boundary_conditions`                                 |
 
 @note For the sake of simplicity, we refer to the setup with one scalar, i.e.
 `case.scalar` in the JSON. For multiple scalars, the same things apply, but the
@@ -576,11 +577,11 @@ for the velocity components and presure. The scalar is applied a function
 `s(y,z) = sin(y)*sin(z)` to demonstrate the usage of boundary masks.
 
 @attention The notation `u = 1.0_rp` is only possible because of the overloading
-of the assignement operator `=` in `field_t`. In general, a field's array should
+of the assignment operator `=` in `field_t`. In general, a field's array should
 be accessed and modified with `u%%x`.
 
 Note that we are only applying our boundary values at the first timestep, which
-is done simply with the line `if (time%tstep .ne. 1) return`. This is a trick
+is done simply with the line `if (time%%tstep .ne. 1) return`. This is a trick
 that can be used for time-independent boundary profiles that require some kind
 of time consuming operation like interpolation or reading from a file, which
 would add overhead if executed at every time step.
@@ -588,6 +589,107 @@ would add overhead if executed at every time step.
 @attention All the rules for [Running on GPUs](@ref
 user-file_tips_running-on-gpus) apply when working on field arrays. Use
 `device_memcpy` to make sure the device arrays are also updated.
+
+### Neumann boundary conditions {#user-file_field-neumann-update}
+This user function can be used to specify Neumann boundary values for 
+the scalar(s). This type of boundary condition allows for time-dependent 
+scalar flux over the surface.
+
+The user routine is called by the `user` boundary condition for the scalar.
+Once the appropriate boundaries have been identified, the user function
+`neumann_conditions` should be used to compute and apply the desired values to
+our scalar field(s).
+
+The structure of the interface is very similar to e.g. the initial conditions.
+One gets a list of solution fields, the contents of which depends on which 
+scalar owns the boundary condition. 
+A single field with the same name as the solution field for
+the scalar (`s` by default).
+
+It is crucial to understand that all boundary conditions will call the same
+routine! So, if one has, for example, both `user` for two scalars, 
+it is necessary to have an `if` statement in the user
+routine to distinguish between the two cases. The convenient way to do that is
+to check the names of the fields inside.
+For example, if there is one field and it is called `s0`, one executes the code
+setting the boundary values for the scalar `s0`.
+
+Note that the fields that one manipulates in the user routine are not the actual
+scalar fields. Instead, the code does a masked copy from the dummy fields
+manipulated in the user routine to the actual fields of unknowns, with the mask
+corresponding to the boundary faces. So, even if you somehow manipulate the
+fields elsewhere in the domain inside the user routine, that will not affect the
+solution. For the Neumann boundary conditions, in particular, the field that one
+manipulates is actually the flux on the boundaries, which means all internal
+points should be dummy. 
+
+In the following example, we indicate in `case.scalar.boundary_conditions`, 
+the flux to be `sin(t)` and `-sin(t)` for the scalar on boundaries 1 and 2.
+
+The header of the user function is given in the code snippet below.
+
+```fortran
+  subroutine neumann_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+```
+
+The arguments and their purpose are as follows:
+
+* `fields` is the list of the fields that can be edited. It is a list of
+`field_t` objects.
+  * The field `i` contained in `fields` is accessed using
+  `fields%%items(i)%%ptr` and will refer to a `field_t` object. Alternatively,
+  one can use the `get` method to retrieve a field by name or index, as done in
+  the examples above for other routines.
+* `bc` contains a `field_neumann_t` object to help access the boundary indices
+  through the boundary mask, `msk`.
+  * The boundary mask of the `bc `object is accessed via `bc%%msk`. It contains
+  the linear indices of each GLL point on the boundary facets. @note
+  `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
+* `time`, is a simple structure that contains various info on time stepping,
+  notably, the current time iteration and time value.
+
+Links to the documentation to learn more about what the types mentioned above
+contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`.
+
+The user function should be registered in `user_setup` with the following line:
+
+```fortran
+u%neumann_conditions => neumann_conditions
+```
+
+A very simple example illustrating the above is shown below.
+```fortran
+  subroutine neumann_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+
+    type(field_t), pointer :: s_flux
+    integer :: i
+    real(kind=rp) :: t
+
+    s_flux => fields%get_by_name("s")
+    t = time%t
+    if (bc%zone_indices(1) == 1) then
+       do i = 1, bc%msk(0)
+          s_flux%x(bc%msk(i), 1, 1, 1) = sin(t)
+       end do
+    else if (bc%zone_indices(1) == 2) then
+       do i = 1, bc%msk(0)
+          s_flux%x(bc%msk(i), 1, 1, 1) = -sin(t)
+       end do
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(s_flux%x, s_flux%x_d, s_flux%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+
+  end subroutine neumann_conditions
+```
 
 ## Additional remarks and tips
 
