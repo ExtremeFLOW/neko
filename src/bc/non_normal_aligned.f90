@@ -144,7 +144,6 @@ contains
             this%field_interp_padding, GLOB_INTERP_PAD)
        this%read_values_from_field = .true.
        this%use_constant_value = .false.
-       this%constraints = [.false., .true., .true.]
        this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
     else
        value_3 = 0.0_rp
@@ -174,7 +173,6 @@ contains
     call this%bc_z%init_from_components(coef, 0.0_rp)
     this%constant_value = value
     this%use_constant_value = .true.
-    this%constraints = [.false., .true., .true.]
     this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
   end subroutine non_normal_aligned_init_from_components
 

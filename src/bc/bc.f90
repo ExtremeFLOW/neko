@@ -96,10 +96,6 @@ module bc
      type(c_ptr) :: facet_msk_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
-     !> Constraint flags in the local basis.
-     !! Components correspond to `(n, t1, t2)`, where `.true.` means
-     !! constrained.
-     logical :: constraints(3) = [.true., .true., .true.]
      !> Type of the boundary condition, from BC_TYPES.
      integer :: bc_type
      !> Indicates wether the bc has been updated, for those BCs that need
@@ -281,7 +277,6 @@ contains
     this%coef => coef
     this%Xh => this%dof%Xh
     this%msh => this%dof%msh
-    this%constraints = [.true., .true., .true.]
 
     call this%marked_facet%init()
 

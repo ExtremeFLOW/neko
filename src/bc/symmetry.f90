@@ -90,7 +90,6 @@ contains
     call this%free()
 
     call this%init_base(coef)
-    this%constraints = [.true., .false., .false.]
     this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
   end subroutine symmetry_init_from_components
 

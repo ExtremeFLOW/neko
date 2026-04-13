@@ -107,7 +107,6 @@ contains
 
     call this%free()
     call this%init_base(coef)
-    this%constraints = [.false., .true., .true.]
     this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
     this%value = value
   end subroutine non_normal_init_from_components
