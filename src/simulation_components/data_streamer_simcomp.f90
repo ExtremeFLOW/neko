@@ -122,15 +122,15 @@ contains
        ! in case%fluid in case the fields we are streaming are masked.
        f => neko_registry%get_field_by_name(which_fields(1))
        call neko_log%message("Using field " // trim(f%name) // &
-            " for streaming mesh", lvl=NEKO_LOG_DEBUG)
+            " for streaming mesh", lvl = NEKO_LOG_DEBUG)
        call neko_log%message("Streaming mesh: x-coordinates", &
-            lvl=NEKO_LOG_DEBUG)
+            lvl = NEKO_LOG_DEBUG)
        call this%dstream%stream(f%dof%x)
        call neko_log%message("Streaming mesh: y-coordinates", &
-            lvl=NEKO_LOG_DEBUG)
+            lvl = NEKO_LOG_DEBUG)
        call this%dstream%stream(f%dof%y)
        call neko_log%message("Streaming mesh: z-coordinates", &
-            lvl=NEKO_LOG_DEBUG)
+            lvl = NEKO_LOG_DEBUG)
        call this%dstream%stream(f%dof%z)
     end if
 
@@ -164,7 +164,7 @@ contains
           call f%copy_from(DEVICE_TO_HOST, .true.)
 
           call neko_log%message("Streaming field: " // this%field_names(i), &
-               lvl=NEKO_LOG_DEBUG)
+               lvl = NEKO_LOG_DEBUG)
 
           ! Stream the field
           call this%dstream%stream(f%x)
