@@ -18,6 +18,7 @@ contains
     user%finalize => finalize
     user%source_term => source_term
     user%dirichlet_conditions => dirichlet_conditions
+    user%neumann_conditions => neumann_conditions
     user%material_properties => material_properties
 
   end subroutine user_setup
@@ -66,6 +67,13 @@ contains
     type(time_state_t), intent(in) :: time
 
   end subroutine dirichlet_conditions
+
+  subroutine neumann_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+
+  end subroutine neumann_conditions
 
   subroutine material_properties(scheme_name, properties, time)
     character(len=*), intent(in) :: scheme_name
