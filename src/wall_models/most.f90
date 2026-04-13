@@ -287,6 +287,12 @@ contains
     !> Check sampling height
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
        call neko_error("MOST WM: Sampling height h must be greater than roughness z0.")
+    else if ( (this%z0h_in .gt. 0.0_rp) .and. (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
+       call neko_error("MOST WM: Sampling height h must be greater than thermal roughness z0h.")
+    else if (this%z0 .eq. 0.0_rp) then 
+       call neko_error("MOST WM: Roughness z0 must be greater than 0.")
+    else if (this%z0h_in .eq. 0.0_rp) then 
+       call neko_error("MOST WM: Thermal roughness z0h must be greater than 0.")
     end if
 
   end subroutine most_init_from_components
