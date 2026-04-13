@@ -5,7 +5,7 @@
         "output_at_end": true,
         "output_boundary": true,
         "output_checkpoints": true,
-        "output_directory": "results",
+        "output_directory": "results_insitu",
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50.0,
         "time": {
@@ -23,7 +23,8 @@
             "scheme": "pnpn",
             "Re": 200.0,
             "initial_condition": {
-                "type": "uniform",
+                "type": "field",
+                "file_name": "transient/field0.f00034",
                 "value": [ 1.0, 0.0, 0.0 ]
             },
             "velocity_solver": {
@@ -72,6 +73,13 @@
         },
         "simulation_components":
         [
+            {
+                "type": "data_streamer", 
+                "fields": ["u","v","w"],
+                "stream_mesh": true,
+                "compute_control": "tsteps",
+                "compute_value": 25
+            },
             {
                 "comment": "Stored in the temperature field, check docs for more details on sim_comps",
                 "type": "lambda2",
