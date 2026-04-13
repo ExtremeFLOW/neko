@@ -126,7 +126,7 @@ module scalar_scheme
      !> Total diffusivity.
      type(field_t), pointer :: lambda_tot => null()
      !> Turbulent Prandtl number.
-     real(kind=rp) :: pr_turb
+     real(kind=rp) :: urb
      !> Field list with cp and lambda
      type(field_list_t) :: material_properties
      procedure(user_material_properties_intf), nopass, pointer :: &
@@ -417,7 +417,7 @@ contains
        call json_get(this%params, 'alphat', json_subdict)
        call json_get(json_subdict, 'nut_dependency', nut_dependency)
        if (nut_dependency) then
-          call json_get(json_subdict, 'Pr_t', this%pr_turb)
+          call json_get_or_lookup(json_subdict, 'Pr_t', this%pr_turb)
           call json_get(json_subdict, 'nut_field', this%nut_field_name)
        else
           call json_get(json_subdict, 'alphat_field', this%alphat_field_name)
