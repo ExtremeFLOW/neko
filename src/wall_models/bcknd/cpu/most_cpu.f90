@@ -159,8 +159,8 @@ contains
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
        kappa, mu, rho, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
-       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn, &
-       h_x_idx, h_y_idx, h_z_idx)
+       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, ts_diagn,&
+       q_diagn, h_x_idx, h_y_idx, h_z_idx)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
