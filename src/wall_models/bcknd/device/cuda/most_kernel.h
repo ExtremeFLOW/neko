@@ -92,9 +92,9 @@ __device__ T slaw_h_stable(T z, T L_ob, T z0h)
 }
 
 template<typename T>
-__device__ T f_neumann_stable(T Ri_b, T z, T z0, T z0h, T L_ob)
+__device__ T f_neumann_stable(T Ri_b, T z, T z0, T z0h, T L_ob, T Pr)
 {
-    return Ri_b - z/L_ob / (
+    return Ri_b - Pr*z/L_ob / (
             slaw_m_stable<T>(z,L_ob,z0)
             *slaw_m_stable<T>(z,L_ob,z0)
             *slaw_m_stable<T>(z,L_ob,z0)
@@ -107,7 +107,8 @@ __device__ T dfdl_neumann_stable(T l_upper,
                           T z,
                           T z0,
                           T z0h,
-                          T fd_h)
+                          T fd_h,
+                          T Pr)
 {
     T up = -z/l_upper /
            (
@@ -123,13 +124,15 @@ __device__ T dfdl_neumann_stable(T l_upper,
             *slaw_m_stable<T>(z,l_lower,z0)
         );
 
-    return (up + low) / (2*fd_h);
+    return Pr*(up + low) / (2*fd_h);
 }
 
 template<typename T>
-__device__ T f_dirichlet_stable(T Ri_b, T z, T z0, T z0h, T L_ob)
+__device__ T f_dirichlet_stable(T Ri_b, T z, T z0, T z0h, T L_ob, T Pr)
 {
-    return Ri_b - z/L_ob * slaw_h_stable<T>(z,L_ob,z0h) / (slaw_m_stable<T>(z,L_ob,z0)*slaw_m_stable<T>(z,L_ob,z0));
+    return Ri_b - Pr*z/L_ob * slaw_h_stable<T>(z,L_ob,z0h) / (
+        slaw_m_stable<T>(z,L_ob,z0)*slaw_m_stable<T>(z,L_ob,z0)
+    );
 }
 
 template<typename T>
@@ -138,15 +141,20 @@ __device__ T dfdl_dirichlet_stable(T l_upper,
                           T z,
                           T z0,
                           T z0h,
-                          T fd_h)
+                          T fd_h,
+                          T Pr)
 {
     T up = -z/l_upper *
-           slaw_h_stable<T>(z,l_upper,z0h) / (slaw_m_stable<T>(z,l_upper,z0)*slaw_m_stable<T>(z,l_upper,z0));
+            slaw_h_stable<T>(z,l_upper,z0h) / (
+            slaw_m_stable<T>(z,l_upper,z0)*slaw_m_stable<T>(z,l_upper,z0)
+        );
 
     T low =  z/l_lower *
-             slaw_h_stable<T>(z,l_lower,z0h) / (slaw_m_stable<T>(z,l_lower,z0)*slaw_m_stable<T>(z,l_lower,z0));
+            slaw_h_stable<T>(z,l_lower,z0h) / (
+            slaw_m_stable<T>(z,l_lower,z0)*slaw_m_stable<T>(z,l_lower,z0)
+        );
 
-    return (up + low) / (2*fd_h);
+    return Pr*(up + low) / (2*fd_h);
 }
 
 /*
@@ -196,9 +204,9 @@ __device__ T slaw_h_convective(T z, T L_ob, T z0h)
 }
 
 template<typename T>
-__device__ T f_neumann_convective(T Ri_b, T z, T z0, T z0h, T L_ob)
+__device__ T f_neumann_convective(T Ri_b, T z, T z0, T z0h, T L_ob, T Pr)
 {
-    return Ri_b - z/L_ob / (
+    return Ri_b - Pr*z/L_ob / (
         slaw_m_convective<T>(z,L_ob,z0)
        *slaw_m_convective<T>(z,L_ob,z0)
        *slaw_m_convective<T>(z,L_ob,z0)
@@ -211,7 +219,8 @@ __device__ T dfdl_neumann_convective(T l_upper,
                           T z,
                           T z0,
                           T z0h,
-                          T fd_h)
+                          T fd_h,
+                          T Pr)
 {
     T up = -z/l_upper /
            (
@@ -227,13 +236,13 @@ __device__ T dfdl_neumann_convective(T l_upper,
             *slaw_m_convective<T>(z,l_lower,z0)
         );
 
-    return (up + low) / (2*fd_h);
+    return Pr*(up + low) / (2*fd_h);
 }
 
 template<typename T>
-__device__ T f_dirichlet_convective(T Ri_b, T z, T z0, T z0h, T L_ob)
+__device__ T f_dirichlet_convective(T Ri_b, T z, T z0, T z0h, T L_ob, T Pr)
 {
-    return Ri_b - z/L_ob * slaw_h_convective<T>(z,L_ob,z0h) / (
+    return Ri_b - Pr*z/L_ob * slaw_h_convective<T>(z,L_ob,z0h) / (
         slaw_m_convective<T>(z,L_ob,z0)*slaw_m_convective<T>(z,L_ob,z0)
     );
 }
@@ -244,7 +253,8 @@ __device__ T dfdl_dirichlet_convective(T l_upper,
                           T z,
                           T z0,
                           T z0h,
-                          T fd_h)
+                          T fd_h,
+                          T Pr)
 {
     T up = -z/l_upper *
            slaw_h_convective<T>(z,l_upper,z0h) / (
@@ -256,7 +266,7 @@ __device__ T dfdl_dirichlet_convective(T l_upper,
               slaw_m_convective<T>(z,l_lower,z0)*slaw_m_convective<T>(z,l_lower,z0)
           );
 
-    return (up + low) / (2*fd_h);
+    return Pr*(up + low) / (2*fd_h);
 }
 
 /*
@@ -303,6 +313,7 @@ __global__ void most_compute(
     T g1,
     T g2,
     T g3,
+    T Pr,
     T z0,
     T z0h_in,
     T bc_value,
@@ -372,17 +383,17 @@ __global__ void most_compute(
         else                             // Dirichlet
         {
             ts = bc_value;
-            q  = kappa*utau*(ts-ti)/log(hi/z0h);
+            q  = kappa/Pr*utau*(ts-ti)/log(hi/z0h);
         }
 
         T Ri_b;
         T g_dot_n = fabs(g1*nx + g2*ny + g3*nz);
         if constexpr (BC_TYPE == 0)
-            Ri_b = -g_dot_n*hi/ti*q/(magu*magu*magu*kappa*kappa);
+            Ri_b = -g_dot_n*hi/ti*q*Pr/(magu*magu*magu*kappa*kappa);
         else
             Ri_b =  g_dot_n*hi/ti*(ti-ts)/(magu*magu);
 
-        T L_ob = 1e10;   // neutral default
+        T L_ob = 0.0;   // neutral default
 
         const T L_sign = (Ri_b > 0) ? 1.0 : -1.0;
 
@@ -390,7 +401,7 @@ __global__ void most_compute(
         if (fabs(Ri_b) <= Ri_threshold) {
             // NEUTRAL CASe
             utau = kappa * magu / slaw_m_neutral<T>(hi, z0);
-            if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_neutral<T>(hi, z0h);
+            if constexpr (BC_TYPE == 1) q = kappa/Pr * utau * (ts - ti) / slaw_h_neutral<T>(hi, z0h);
         }
         else {
             // STABLE or CONVECTIVE (NR)
@@ -411,19 +422,19 @@ __global__ void most_compute(
                 // Use the appropriate simlarity law based on stability and b.c. type
                 if (Ri_b > 0) { // Stable
                     if constexpr (BC_TYPE == 0) {
-                        f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_neumann_stable<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
+                        f_val = f_neumann_stable<T>(Ri_b, hi, z0, z0h, L_ob, Pr);
+                        dfdl = dfdl_neumann_stable<T>(L_upper, L_lower, hi, z0, z0h, fd_h, Pr);
                     } else {
-                        f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_dirichlet_stable<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
+                        f_val = f_dirichlet_stable<T>(Ri_b, hi, z0, z0h, L_ob, Pr);
+                        dfdl = dfdl_dirichlet_stable<T>(L_upper, L_lower, hi, z0, z0h, fd_h, Pr);
                     }
                 } else { // Convective
                     if constexpr (BC_TYPE == 0) {
-                        f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_neumann_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
+                        f_val = f_neumann_convective<T>(Ri_b, hi, z0, z0h, L_ob, Pr);
+                        dfdl = dfdl_neumann_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h, Pr);
                     } else {
-                        f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L_ob);
-                        dfdl = dfdl_dirichlet_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h);
+                        f_val = f_dirichlet_convective<T>(Ri_b, hi, z0, z0h, L_ob, Pr);
+                        dfdl = dfdl_dirichlet_convective<T>(L_upper, L_lower, hi, z0, z0h, fd_h, Pr);
                     }
                 }
 
@@ -437,10 +448,10 @@ __global__ void most_compute(
             // Final local variables update
             if (Ri_b > 0) {
                 utau = kappa * magu / slaw_m_stable<T>(hi, L_ob, z0);
-                if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_stable<T>(hi, L_ob, z0h);
+                if constexpr (BC_TYPE == 1) q = kappa/Pr * utau * (ts - ti) / slaw_h_stable<T>(hi, L_ob, z0h);
             } else {
                 utau = kappa * magu / slaw_m_convective<T>(hi, L_ob, z0);
-                if constexpr (BC_TYPE == 1) q = kappa * utau * (ts - ti) / slaw_h_convective<T>(hi, L_ob, z0h);
+                if constexpr (BC_TYPE == 1) q = kappa/Pr * utau * (ts - ti) / slaw_h_convective<T>(hi, L_ob, z0h);
             }
         }
         tau_x_d[i] = -rho*utau*utau*ui/magu;

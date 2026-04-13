@@ -59,6 +59,8 @@ module most
   type, public, extends(wall_model_t) :: most_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa
+     !> The turbulent Prandtl number
+     real(kind=rp) :: Pr
      !> The roughness height
      real(kind=rp) :: z0
      !> The thermal roughness height
@@ -116,7 +118,7 @@ contains
     integer, intent(in) :: h_index
     real(kind=rp) :: mu_val, rho_val
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: kappa, z0, z0h_in
+    real(kind=rp) :: kappa, z0, z0h_in, Pr
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
     real(kind=rp), pointer :: bc_value
@@ -124,6 +126,7 @@ contains
     real(kind=rp) :: g(3)
 
     call json_get_or_lookup_or_default(json, "kappa", kappa, 0.4_rp)
+    call json_get_or_lookup_or_default(json, "Pr", Pr, 1.0_rp)
     call json_get_or_lookup_or_default(json, "z0", z0, 0.1_rp)
     ! If z0h is specified and positive, z0h will be constant and equal to
     ! what's specified in the case file.
@@ -153,7 +156,7 @@ contains
     deallocate(g_tmp)
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, mu_val, rho_val, g, z0, z0h_in, bc_type, bc_value)
+         kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
     deallocate(bc_type)
     deallocate(scalar_name)
   end subroutine most_init
@@ -171,6 +174,7 @@ contains
 
     call this%partial_init_base(coef, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
+    call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_lookup_or_default(json, "z0", this%z0, 0.1_rp)
     call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, -0.8_rp)
     call json_get_or_lookup_or_default(json, "mu", this%mu_val, 1e-10_rp)
@@ -207,6 +211,8 @@ contains
     write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'z0h : ', this%z0h_in
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'Pr : ', this%Pr
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'rho : ', this%rho_val
     call neko_log%message(log_buf)
@@ -294,7 +300,7 @@ contains
   !! @param scalar_name The name of the scalar field (temperature) for MOST.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine most_init_from_components(this, scheme_name, scalar_name, coef, msk, &
-       facet, h_index, kappa, mu_val, rho_val, g, z0, z0h_in, bc_type, bc_value)
+       facet, h_index, kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -307,13 +313,14 @@ contains
     real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
     integer :: i
     real(kind=rp), intent(in) :: kappa, mu_val, rho_val
-    real(kind=rp), intent(in) :: z0, z0h_in, bc_value
+    real(kind=rp), intent(in) :: z0, z0h_in, bc_value, Pr
     character(len=LOG_SIZE) :: log_buf
 
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
     this%g = g
+    this%Pr = Pr
     this%mu_val = mu_val
     this%rho_val = rho_val
     this%z0 = z0
@@ -345,6 +352,12 @@ contains
     !> Check sampling height
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
        call neko_error("MOST WM: Sampling height h must be greater than roughness z0.")
+    else if ( (this%z0h_in .gt. 0.0_rp) .and. (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
+       call neko_error("MOST WM: Sampling height h must be greater than thermal roughness z0h.")
+    else if (this%z0 .eq. 0.0_rp) then 
+       call neko_error("MOST WM: Roughness z0 must be greater than 0.")
+    else if (this%z0h_in .eq. 0.0_rp) then 
+       call neko_error("MOST WM: Thermal roughness z0h must be greater than 0.")
     end if
 
   end subroutine most_init_from_components
@@ -400,7 +413,7 @@ contains
             this%ind_e_d, this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu_val, this%rho_val, this%g, this%z0, this%z0h_in, &
+            this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
             this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
             this%ti%x_d, this%q%x_d)
@@ -410,7 +423,7 @@ contains
             this%n_y%x, this%n_z%x, this%h%x, this%tau_x%x, &
             this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, &
             u%msh%nelv, this%kappa, this%mu_val, this%rho_val, &
-            this%g, this%z0, this%z0h_in, this%bc_type, &
+            this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep, this%Ri_b%x, this%L_ob%x, &
             this%utau%x, this%magu%x, this%ti%x, this%ts%x, &
             this%q%x, this%h_x_idx, this%h_y_idx, this%h_z_idx)

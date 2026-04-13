@@ -66,17 +66,17 @@ module most_cpu
        real(kind=rp) :: corr
      end function corr_h_interface
 
-     function f_interface(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
+     function f_interface(Ri_b, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h) result(f)
        import rp, slaw_m_interface, slaw_h_interface
-       real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
+       real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob, Pr
        real(kind=rp) :: f
        procedure(slaw_m_interface) :: slaw_m
        procedure(slaw_h_interface) :: slaw_h
      end function f_interface
 
-     function dfdl_interface(l_upper, l_lower, z, z0, z0h, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+     function dfdl_interface(l_upper, l_lower, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
        import rp, slaw_m_interface, slaw_h_interface
-       real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
+       real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h, Pr
        real(kind=rp) :: dfdl
        procedure(slaw_m_interface) :: slaw_m
        procedure(slaw_h_interface) :: slaw_h
@@ -97,9 +97,9 @@ contains
 
   !> Selects different expressions for the similarity functions in  MOST
   !> based on the type of bottom boundary condition for temperature.
-  subroutine select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
+  subroutine select_bc_operators(bc_type, bc_value, q, ts, ti, kappa, utau, z0h, hi, Pr)
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h, bc_value
+    real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h, bc_value, Pr
     real(kind=rp), intent(inout) :: q,ts
     select case (bc_type)
     case ("neumann")
@@ -109,7 +109,7 @@ contains
        dfdl_ptr => dfdl_neumann
     case ("dirichlet")
        ts = bc_value
-       q = kappa*utau*(ts - ti)/log(hi/z0h)
+       q = (kappa/Pr)*utau*(ts - ti)/log(hi/z0h)
        f_ptr => f_dirichlet
        dfdl_ptr => dfdl_dirichlet
     case default
@@ -118,15 +118,15 @@ contains
   end subroutine select_bc_operators
 
   !> Computes the Richardson number.
-  subroutine compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Ri_b)
+  subroutine compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Pr, Ri_b)
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(in) :: hi, ti, ts
+    real(kind=rp), intent(in) :: hi, ti, ts, Pr
     real(kind=rp), intent(in) :: magu, kappa, g_dot_n
     real(kind=rp), intent(inout) :: q, Ri_b
 
     select case (bc_type)
     case ("neumann")
-       Ri_b = - g_dot_n*hi / ti*q / (magu**3*kappa**2)
+       Ri_b = - g_dot_n*hi / ti*q*Pr / (magu**3*kappa**2)
     case ("dirichlet")
        Ri_b = g_dot_n*hi/ti*(ti - ts)/magu**2
     case default
@@ -158,14 +158,14 @@ contains
   !! @param tstep The current time-step
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, mu, rho, g_vec, z0, z0h_in, bc_type, bc_value, tstep, &
+       kappa, mu, rho, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
        Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn, &
        h_x_idx, h_y_idx, h_z_idx)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, mu, rho
+    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, mu, rho, Pr
     real(kind=rp), dimension(3), intent(in) :: g_vec
     real(kind=rp) :: g_dot_n
     character(len=*), intent(in) :: bc_type
@@ -218,13 +218,13 @@ contains
 
        ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type
        ! Maybe redundant, but needed to initialise Rib
-       call select_bc_operators(bc_type,bc_value,q,ts,ti,kappa,utau,z0h,hi)
+       call select_bc_operators(bc_type, bc_value, q, ts, ti, kappa, utau, z0h, hi, Pr)
 
        ! Compute g along the normal (generalisation for hills and similar)
        g_dot_n = abs(g_vec(1)*n_x(i) + g_vec(2)*n_y(i) + g_vec(3)*n_z(i))
 
        ! Compute Richardson and set stability accordingly
-       call compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Ri_b)
+       call compute_Ri_b(bc_type, g_dot_n, hi, ti, ts, magu, kappa, q, Pr, Ri_b)
        call set_stability_regime(Ri_b, Ri_threshold)
 
        if (abs((Ri_b)) <= Ri_threshold) then
@@ -253,8 +253,8 @@ contains
              L_lower = L_ob - fd_h
 
              ! Compute L_ob based on stability and bc_type
-             f = f_ptr(Ri_b, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr)
-             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
+             f = f_ptr(Ri_b, hi, z0, z0h, Pr, L_ob, slaw_m_ptr, slaw_h_ptr)
+             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, Pr, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
              if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
              L_new = L_ob - f/dfdl
              ! Avoid regime crossing during Newton iter (otherwise crash)
@@ -286,7 +286,7 @@ contains
           ! Compute u* with the new Obukhov length
           utau = kappa*magu/slaw_m_ptr(hi, L_ob, z0)
           ! and compute q from here
-          q = kappa*utau*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
+          q = kappa/Pr*utau*(ts - ti)/slaw_h_ptr(hi, L_ob, z0h)
        case default
           call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
        end select
@@ -413,44 +413,44 @@ contains
   end function slaw_h_neutral
 
   !> Simialrity laws (different for neumann and dirichlet bc's)
-  function f_neumann(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
-    real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
+  function f_neumann(Ri_b, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h) result(f)
+    real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob, Pr
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: f
 
-    f = (Ri_b - z/L_ob/slaw_m(z, L_ob, z0)**3)
+    f = (Ri_b - Pr*z/L_ob/slaw_m(z, L_ob, z0)**3)
   end function f_neumann
 
-  function dfdl_neumann(l_upper, l_lower, z, z0, z0h, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-    real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
+  function dfdl_neumann(l_upper, l_lower, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+    real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h, Pr
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: dfdl
 
     dfdl = (-z/l_upper/slaw_m(z, l_upper, z0)**3) ! conv
     dfdl = dfdl + (z/l_lower/slaw_m(z, l_lower, z0)**3) ! conv
-    dfdl = dfdl/(2*fd_h)
+    dfdl = Pr*dfdl/(2*fd_h)
   end function dfdl_neumann
 
-  function f_dirichlet(Ri_b, z, z0, z0h, L_ob, slaw_m, slaw_h) result(f)
-    real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob
+  function f_dirichlet(Ri_b, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h) result(f)
+    real(kind=rp), intent(in) :: Ri_b, z, z0, z0h, L_ob, Pr
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: f
 
-    f = (Ri_b - z/L_ob*slaw_h(z, L_ob, z0h)/slaw_m(z, L_ob, z0)**2) ! conv
+    f = (Ri_b - Pr*z/L_ob*slaw_h(z, L_ob, z0h)/slaw_m(z, L_ob, z0)**2) ! conv
   end function f_dirichlet
 
-  function dfdl_dirichlet(l_upper, l_lower, z, z0, z0h, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-    real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h
+  function dfdl_dirichlet(l_upper, l_lower, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+    real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h, Pr
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: dfdl
 
     dfdl = (-z/l_upper*slaw_h(z, l_upper, z0h)/slaw_m(z, l_upper, z0)**2) ! conv
     dfdl = dfdl + (z/l_lower*slaw_h(z, l_lower, z0h)/slaw_m(z, l_lower, z0)**2) ! conv
-    dfdl = dfdl/(2*fd_h)
+    dfdl = Pr*dfdl/(2*fd_h)
   end function dfdl_dirichlet
 
 
