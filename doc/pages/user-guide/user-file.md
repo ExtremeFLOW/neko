@@ -644,13 +644,13 @@ The arguments and their purpose are as follows:
   one can use the `get` method to retrieve a field by name or index, as done in
   the examples above for other routines.
 * `bc` contains a `field_neumann_t` object to help access the boundary indices
-  through the boundary mask, `face_msk`.
-  * The boundary mask of the `bc `object is accessed via `bc%%face_msk`. It
+  through the boundary mask, `facet_msk`.
+  * The boundary mask of the `bc `object is accessed via `bc%%facet_msk`. It
   contains the linear indices of each GLL point on the boundary facets. @note
-  `face_msk(0)` contains the size of the array. The first boundary index is
-  `face_msk(1)`. Note that `face_mask` is the relevant component and not `msk`.
-  It is the former that only contains the indices that are on faces that lie on
-  the boundary.
+  `facet_msk(0)` contains the size of the array. The first boundary index is
+  `facet_msk(1)`. Note that `facet_mask` is the relevant component and not
+  `msk`. It is the former that only contains the indices that are on faces that
+  lie on the boundary.
 * `time`, is a simple structure that contains various info on time stepping,
   notably, the current time iteration and time value.
 
@@ -677,12 +677,12 @@ A very simple example illustrating the above is shown below.
     s_flux => fields%get_by_name("s")
     t = time%t
     if (bc%zone_indices(1) == 1) then
-       do i = 1, bc%face_msk(0)
-          s_flux%x(bc%face_msk(i), 1, 1, 1) = sin(t)
+       do i = 1, bc%facet_msk(0)
+          s_flux%x(bc%facet_msk(i), 1, 1, 1) = sin(t)
        end do
     else if (bc%zone_indices(1) == 2) then
-       do i = 1, bc%face_msk(0)
-          s_flux%x(bc%face_msk(i), 1, 1, 1) = -sin(t)
+       do i = 1, bc%facet_msk(0)
+          s_flux%x(bc%facet_msk(i), 1, 1, 1) = -sin(t)
        end do
     end if
 
