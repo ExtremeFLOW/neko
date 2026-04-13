@@ -223,7 +223,7 @@ of the boundary as follows.
 
 | Boundary Condition              | Key |
 | ------------------------------- | --- |
-| no_slip                         | 1   |
+| no_slip (stationary wall)                        | 1   |
 | velocity_value                  | 2   |
 | outflow, normal_outflow (+dong) | 3   |
 | symmetry                        | 4   |
@@ -233,6 +233,7 @@ of the boundary as follows.
 | shear_stress                    | 9   |
 | wall_model                      | 10  |
 | blasius_profile                 | 11  |
+| no_slip (moving wall)           | 12  |
 
 For a description of the boundary conditions themselves, see below.
 
@@ -429,7 +430,7 @@ table below.
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | symmetry            | A symmetry plane. Must be axis-aligned.                                                                                                                |
 | velocity_value      | A Dirichlet condition for velocity.                                                                                                                    |
-| no_slip             | A no-slip wall.                                                                                                                                        |
+| no_slip             | A no-slip wall. It can be stationary or moving.                                                                                                                                         |
 | outflow             | A pressure outlet.                                                                                                                                     |
 | normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
 | outflow+user        | Same as `outflow` but with user-specified pressure.                                                                                                    |
@@ -464,12 +465,12 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
-* `no_slip`. A standard no-slip wall, which sets velocity to zero. Requires no
-  additional keywords.
+* `no_slip`. A standard no-slip wall, which sets velocity to zero relative to the wall. For moving walls, setting the optional argument `"moving": true` is required. This also requires setting up the ALE module separately. further details can be found in [ALE user guide](#case-file_fluid-ale). For stationary walls, no additional keyword is needed.
   ```json
   {
     "type": "no_slip",
-    "zone_indices": [1, 2]
+    "zone_indices": [1, 2],
+    "moving": false
   }
   ```
 * `outflow`. A standard pressure outlet condition. Requires no additional
@@ -1090,6 +1091,342 @@ The parameters for the sponge source term are summarized in the table below:
 | `baseflow_registry_prefix` | Prefix of the base flow fields in `neko_registry`                       | String                            | `"sponge_bf"`     |
 | `dump_fields`              | If `true`, dumps the fringe and baseflow fields for visualization       | Boolean                           | `false`           |
 | `dump_file_name`           | Name of the `fld` file in which to dump the base flow and fringe fields | String ending with `fld`          | `spng_fields.fld` |
+
+
+### Arbitrary Lagrangian-Eulerian Framework {#case-file_fluid-ale}
+Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies. 
+
+@note Currently, only the CPU backend of the ALE framework is supported. GPU acceleration for ALE computations will be available in future updates.
+
+The `"ale"` block in case file is part of the `"fluid"` object, and has the following high-level structure:
+
+~~~~~~~~~~{.json}
+{
+  "fluid": {
+
+    "ale": {
+      "enabled": true,
+
+      "solver": {
+        // Linear solver configuration to obtain the base shape for smooth blending function used for mesh deformation
+      },
+
+      "mesh_preview": {
+        // Settings to preview mesh motion prior to full simulation
+      },
+
+      "bodies": [
+        // Array of registered moving bodies
+      ]
+    },
+  },
+  
+}
+~~~~~~~~~~
+To run an ALE simulation, the framework must be set up as follows:
+
+* **Boundary Conditions:** Under the `"boundary_condition"` block, any moving wall must be set to `"no_slip"` with `"moving": true`.
+* **Enable ALE:** Under the `"ale"` block, the keyword `"enabled"` must be set to `true`. 
+
+@attention If the `"ale"` block is present, the `"enabled"` keyword is mandatory.
+
+* **Body Registration:** There must be a strict mapping between moving boundaries and ALE bodies:
+  * Any `"no_slip"` boundary marked as `"moving": true` **must** be registered as an ALE body under the `"bodies"` object.
+  * Conversely, any boundary registered as an ALE body **must** be defined as a `"no_slip"` boundary with `"moving": true`.
+  * A single boundary zone can only be assigned to a maximum of one ALE body.
+  * If any of these rules are violated, Neko will not start the simulation loop and will print an informative error message.
+
+In the following, the main blocks of `"ale"` object are explained.
+
+#### Solver {#case-file_fluid-ale-solver}
+
+To smoothly move the mesh during an ALE simulation, we use a global smooth blending function, \f$ \phi_{total} \f$. This function is found by solving the following variable stiffness Laplace equation:
+
+\f{eqnarray*}{
+ \nabla \cdot (h(\mathbf{x}) \nabla \phi_{total}) = 0,
+\f}
+
+where \f$ h(\mathbf{x}) \f$ is the spatial mesh stiffness. Due to the linearity of the Laplace operator, the total blending function can be decomposed into the sum of individual base shapes \f$ \phi_i \f$ associated with each registered body \f$ i \f$:
+
+\f{eqnarray*}{
+ \phi_{total}(\mathbf{x}) = \sum_{i} \phi_i(\mathbf{x}).
+\f}
+
+Consequently, the problem reduces to solving a separate Laplace equation for each individual body:
+
+\f{eqnarray*}{
+ \nabla \cdot (h(\mathbf{x}) \nabla \phi_i) = 0.
+\f}
+
+Currently, the base shapes \f$ \phi_i \f$ are computed only once during initialization, and these same blending functions are used throughout the entire simulation.
+
+During the simulation, the mesh velocity \f$ \mathbf{w}_{mesh}(\mathbf{x}, t) \f$ at any given grid point \f$ \mathbf{x} \f$ is calculated by multiplying the prescribed velocity \f$ \mathbf{v}_i(\mathbf{x}, t) \f$ of each body by its local base shape value \f$ \phi_i(\mathbf{x}) \f$, and summing the contributions across all registered bodies:
+
+\f{eqnarray*}{
+ \mathbf{w}_{mesh}(\mathbf{x}, t) = \sum_{i} \phi_i(\mathbf{x}) \mathbf{v}_i(\mathbf{x}, t)
+\f}
+
+@note A separate Laplace equation is solved for each registered body. During the solve for body \f$ i \f$, the Dirichlet boundary conditions are set such that \f$ \phi_i = 1 \f$ on its own moving boundary, and \f$ \phi_i = 0 \f$ on all other boundaries (including fixed walls and other moving bodies), with the exception of periodic boundaries. This guarantees that body \f$ i \f$ deforms or moves as intended, while other ALE bodies remain unaffected by this motion, and all other boundaries which define the simulation domain remain fixed. The value of \f$ \phi_i \f$ on periodic boundaries is determined naturally by solving the Laplace equation.
+
+Details regarding the configuration of the mesh stiffness \f$ h(\mathbf{x}) \f$ can be found in the [Mesh Stiffness](#case-file_fluid_ale_stiff_geom) section.
+
+Within the `"solver"` block, the parameters of the linear solver used to solve the Laplace equation are set. This block accepts the following keywords:
+
+| Name | Description | Admissible values | Default value |
+| :--- | :--- | :--- | :--- |
+| `type` | Type of linear solver for the Laplace equation |  `"cg"`, `"gmres"` | `"cg"` |
+| `preconditioner.type` | Type of preconditioner to use |  `"jacobi"`, `"hsmg"`, `"phmg"` | `"jacobi"` |
+| `absolute_tolerance` | Absolute tolerance for solver convergence | Positive real | `1.0e-10` |
+| `max_iterations` | Maximum number of linear solver iterations | Positive integer | `10000` |
+| `monitor` | Monitor residuals in the linear solver | `true` or `false` | `false` |
+| `output_base_shape` | Enables output of the base shape field \f$ \phi \f$ | `true` or `false` | `true` |
+| `output_stiffness` | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false` | `false` |
+
+##### Output Files and Diagnostics
+If the output flags are enabled, Neko will generate `.fld` files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:
+
+* `phi_<body_name>0.f00000`: Generated if `"output_base_shape": true`. Contains the computed base shape \f$ \phi_i \f$ for a specific body.
+* `phi_total0.f00000`: Generated if `"output_base_shape": true` **and** there is more than one body registered. Contains the sum of all base shapes (\f$ \phi_{total} = \sum \phi_i \f$).
+* `stiffness0.f00000`: Generated if `"output_stiffness": true`. Contains the global spatial mesh stiffness field \f$ h(\mathbf{x}) \f$.
+
+@attention Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately. 
+
+
+@note It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
+
+
+#### Mesh preview
+
+One of the available features in the Neko ALE module is the Mesh Preview. This allows users to investigate mesh quality over time **without** running an expensive full fluid simulation. The preview applies the exact same prescribed motion configured by the user, ensuring the visualized mesh motion perfectly mirrors what will happen during the actual simulation. Enabling this feature generates `.fld` files named `mesh_preview0.f*****`, which contain the deformed mesh and the mass matrix.
+
+The `"mesh_preview"` block accepts the following keywords:
+
+| Name | Description | Admissible values | Default value |
+| :--- | :--- | :--- | :--- |
+| `enabled` | Toggles the mesh preview feature on or off | `true` or `false` | `false` |
+| `start_time` | Start time for the mesh preview simulation | Positive real | 0.0 |
+| `end_time` | End time for the mesh preview simulation | Positive real | - |
+| `output_freq` | Number of timesteps between each generated output file | Positive integer | - |
+| `dt` | Constant time step size used for the mesh preview | Positive real | - |
+
+
+@attention The `"mesh_preview"` feature is strictly a pre-processing step. Once the preview completes, whether successfully or due to a failure, the Neko run will terminate and output a corresponding success or failure message. To proceed with the actual fluid simulation, the user **must** set `"mesh_preview.enabled: false"` in order for the actual simulation to run. Additionally, if the solver detects an inverted mesh element during the preview phase, it will save the exact time step at which the Jacobian becomes negative to assist with debugging.
+
+@note The `"mesh_preview"` feature uses the same time integration order as defined in `"case.numerics.time_order"`. However, the `start_time`, `end_time`, constant `dt`, and `output_freq` parameters must be explicitly defined within the `"mesh_preview"` block itself.
+
+@attention When the ALE module is `enabled`, Neko will **always** save the mesh in the `.fld` files at every output step.
+
+#### Bodies
+
+The `"bodies"` block defines an array of objects, where each object represents an individually controlled ALE body. Each body must map to corresponding physical boundary zone using `"bodies.zone_indices"`.
+
+Each individual body object accepts the following general keywords and base kinematics:
+
+| Name | Description | Admissible values | Default value |
+| :--- | :--- | :--- | :--- |
+| `name` | The name identifier of the body | String | `"body_<body_ID>"`  |
+| `zone_indices` | The physical boundary zones associated with this body | Array of positive integers | -  |
+| `oscillation` | Sub-object defining the translational oscillation kinematics | JSON object | - |
+| `rotation` | Sub-object defining the rotational kinematics applied to the body | JSON object | - |
+| `pivot` | Sub-object defining the center point for rotational kinematics | JSON object | - |
+| `stiff_geom` | Sub-object defining the mesh stiffness region | JSON object | - |
+
+@attention The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
+
+@note If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+
+##### Oscillation
+
+The `"oscillation"` sub-object defines the harmonic translational motion of the body. It takes the following mandatory keywords:
+
+| Name | Description | Admissible values | Default value |
+| :--- | :--- | :--- | :--- |
+| `oscillation.amplitude` | Amplitude of translational oscillation in \f$ [x, y, z] \f$ | Array of 3 reals | - |
+| `oscillation.frequency` | Frequency of translational oscillation in \f$ [x, y, z] \f$ | Array of 3 reals | - |
+
+@warning If the `"oscillation"` block is included in the case file, both `"amplitude"` and `"frequency"` become **mandatory**.
+
+When translational oscillation is configured, the displacement \f$ x_i(t) \f$ and velocity \f$ v_i(t) \f$ of the body follow a simple harmonic motion for each active directional component \f$ i \in \{x, y, z\} \f$:
+
+\f{eqnarray*}{
+  x_i(t) &=& A_i \sin(2\pi f_i t), \\
+  v_i(t) &=& 2\pi f_i A_i \cos(2\pi f_i t),
+\f}
+
+where \f$ A_i \f$ is the `oscillation.amplitude` and \f$ f_i \f$ is the `oscillation.frequency` for that specific direction.
+
+
+##### Rotation
+
+If the body undergoes rotational motion, the `"rotation"` sub-object can be configured. Depending on the `rotation.type`, different parameters become applicable:
+
+| Name | Description | Admissible values | Default value |
+| :--- | :--- | :--- | :--- |
+| `rotation.type` | The type of rotational kinematics applied | `"harmonic"`, `"ramp"`, `"smooth_step"` | - |
+| `rotation.amplitude_deg` | Rotational amplitude in **degrees** <i>(only for </i>`harmonic`<i>)</i> | Array of 3 reals | - |
+| `rotation.frequency` | Rotational frequency <i>(only for </i>`harmonic`<i>)</i> | Array of 3 reals | - |
+| `rotation.ramp_omega0` | Target angular velocity <i>(only for </i>`ramp`<i>)</i> | Array of 3 reals | - |
+| `rotation.ramp_t0` | Time constant for the ramp <i>(only for </i>`ramp`<i>)</i> | Array of 3 reals | - |
+| `rotation.axis` | Axis of rotation <i>(only for </i>`smooth_step`<i>)</i> | `1` (x), `2` (y), `3` (z) | `3` |
+| `rotation.target_angle_deg`| Target rotation angle in **degrees** <i>(only for </i>`smooth_step`<i>)</i> | Real | - |
+| `rotation.step_control_times`| Control times \f$ [t_0, t_1, t_2, t_3] \f$ <i>(only for </i>`smooth_step`<i>)</i>| Array of 4 reals | - |
+
+@warning If the `"rotation"` block is included in the case file, a valid `"pivot"` block to specify the center of rotation must be defined. The `"pivot"` object is explained [here](#case-file_fluid-ale-pivot). Additionally, the specific parameters corresponding to the chosen `rotation.type` become **mandatory**. 
+
+@attention Positive rotation is defined counter-clockwise in a right-handed coordinate system.
+
+The angular velocity vector \f$ \mathbf{\omega}(t) \f$ and angular position vector \f$ \mathbf{\theta}(t) \f$ are computed based on the selected `rotation.type` as follows:
+
+**1. Harmonic Rotation** (`"harmonic"`)
+Applies a simple harmonic oscillation to the angular velocity and position for each axis \f$ i \in \{x, y, z\} \f$:
+
+\f{eqnarray*}{
+ \omega_i(t) &=& A_{rad,i} (2\pi f_i) \cos(2\pi f_i t), \\
+ \theta_i(t) &=& A_{rad,i} \sin(2\pi f_i t),
+\f}
+
+where \f$ A_{rad,i} \f$ is the `amplitude_deg` converted to radians, and \f$ f_i \f$ is the `frequency`.
+
+**2. Ramp Rotation** (`"ramp"`)
+Gradually ramps up the angular velocity to a target value for each axis \f$ i \in \{x, y, z\} \f$:
+
+\f{eqnarray*}{
+ \omega_i(t) &=& \Omega_{0,i} \left( 1 - \exp\left(-4.6 \frac{t}{t_{0,i}}\right) \right), \\
+ \theta_i(t) &=& \Omega_{0,i} \left[ t - \frac{t_{0,i}}{4.6} \left( 1 - \exp\left(-4.6 \frac{t}{t_{0,i}}\right) \right) \right],
+\f}
+
+where \f$ \Omega_{0,i} \f$ is the target angular velocity (`ramp_omega0`) and \f$ t_{0,i}\f$  is the time constant (`ramp_t0`). The factor of 4.6 ensures the velocity reaches approximately 99% of its target at \f$ t = t_{0,i} \f$. At times beyond the ramp parameter (\f$ t \gt t_{0,i} \f$), the body achieves a steady rotation rate \f$ \Omega_{0,i} \f$.
+
+**3. Smooth Step Rotation** (`"smooth_step"`)
+Applies a smooth rotation around a single specified `axis` using a derivative step function, \f$ \text{dstep}(\tau) \f$, to reach a target angle and return to zero. The motion along the chosen axis is divided into four phases defined by `step_control_times` \f$ [t_0, t_1, t_2, t_3] \f$, prescribing both the angular velocity \f$ \omega(t) \f$ and angular position \f$ \theta(t) \f$:
+
+- **Rise Phase** (\f$ t_0 \le t < t_1 \f$):
+
+    \f{eqnarray*}{
+     \omega(t) &=& \frac{\theta_{rad}}{t_1 - t_0} \text{dstep}\left(\frac{t - t_0}{t_1 - t_0}\right), \\
+     \theta(t) &=& \theta_{rad} \, S\left(\frac{t - t_0}{t_1 - t_0}\right)
+    \f}
+
+- **Hold Phase** (\f$ t_1 \le t < t_2 \f$): 
+
+    \f{eqnarray*}{
+     \omega(t) &=& 0, \\
+     \theta(t) &=& \theta_{rad}
+    \f}
+
+- **Fall Phase** (\f$ t_2 \le t < t_3 \f$): 
+
+    \f{eqnarray*}{
+     \omega(t) &=& -\frac{\theta_{rad}}{t_3 - t_2} \text{dstep}\left(\frac{t - t_2}{t_3 - t_2}\right), \\
+     \theta(t) &=& \theta_{rad} \left[ 1 - S\left(\frac{t - t_2}{t_3 - t_2}\right) \right]
+    \f}
+
+- **Rest Phase** (\f$ t < t_0\f$  or \f$ t \ge t_3 \f$):
+    \f{eqnarray*}{
+     \omega(t) &= 0, \\
+     \theta(t) &= 0,
+    \f}
+where \f$ \theta_{rad} \f$ is the `target_angle_deg` converted to radians. 
+
+The base smooth step function \f$ S(\tau) \f$ and its analytical derivative \f$ \text{dstep}(\tau) \f$ are defined for \f$ \tau \in (0, 1) \f$ as:
+
+\f{eqnarray*}{
+ S(\tau) &=& \frac{1}{1 + \exp(g(\tau))}, \quad \text{where} \quad g(\tau) = \frac{1}{\tau - 1} + \frac{1}{\tau}, \\
+ \text{dstep}(\tau) &=& -S(\tau)(1 - S(\tau))g'(\tau), \quad \text{where} \quad g'(\tau) = -\frac{1}{(\tau - 1)^2} - \frac{1}{\tau^2}.
+\f}
+
+For bounds where \f$ \tau \le 0 \f$, \f$ S(\tau) = 0 \f$ and \f$ \text{dstep}(\tau) = 0 \f$. 
+For bounds where \f$ \tau \ge 1 \f$, \f$ S(\tau) = 1 \f$ and \f$ \text{dstep}(\tau) = 0 \f$.
+
+@attention Within the case file, both translational oscillation and rotational motion can be applied simultaneously to a body. However, only one rotation mode can be active at a time.
+
+@note A custom motion logic can always be applied to a body via custom `user_ale_rigid_kinematics` or `user_ale_mesh_velocity` subroutines in the user file (see [here](#user-file_ale-rigid_motion) for more information). The example `"Double_ocyl_cylinder"` shows an example for this usage. More details regarding the supported ALE interfaces and subroutines can be found [here](#user-file_ale).
+
+@attention There are several ways to calculate torque on a moving ALE body. The user is referred to [this part of the documentation](#simcomp_force_torque) for more information.
+
+##### Pivot {#case-file_fluid-ale-pivot}
+
+The `"pivot"` sub-object defines the center point around which the body rotates.
+
+| Name | Description | Admissible values | Default value |
+| :--- | :--- | :--- | :--- |
+| `pivot.type` | Type of pivot definition | `"relative"` | `"relative"` |
+| `pivot.value` | The spatial coordinates of the rotation center \f$ [x, y, z] \f$ | Array of 3 reals | - |
+
+
+@note The rotation center (i.e., the `"pivot"`) moves rigidly with the body. This means that if a body undergoes both translational oscillation and rotation, `"pivot.value"` defines the initial position of the rotation center. Throughout the simulation, the location of the pivot point is numerically updated using the translational velocity of the body, even if a custom rigid motion is applied using a `user_ale_rigid_kinematics` subroutine (see [here](#user-file_ale-rigid_motion) for more information).
+
+##### Mesh Stiffness {#case-file_fluid_ale_stiff_geom}
+
+The `"stiff_geom"` sub-object defines a local geometric region where the mesh is kept highly rigid to maintain the original mesh quality in regions of interest, e.g., within the boundary layer.
+
+The global mesh stiffness field \f$ h(\mathbf{x}) \f$ is constructed by taking a base stiffness of \f$ 1.0 \f$ and adding the maximum local stiffness contribution from all registered bodies:
+
+\f{eqnarray*}{
+ h(\mathbf{x}) = 1.0 + \max_{b \in \text{bodies}} (\text{Stiffness}_b(\mathbf{x})).
+\f}
+
+@attention A valid `"stiff_geom"` definition is **mandatory** for every registered body.
+
+| Name | Description | Admissible values | Default value |
+| :--- | :--- | :--- | :--- |
+| `stiff_geom.type` | The shape of the stiffness region | `"cylinder"`, `"sphere"`, `"cheap_dist"` | -  |
+| `stiff_geom.decay_profile`| How the stiffness decays away from the body | `"gaussian"`, `"tanh"` | -  |
+| `stiff_geom.gain` | The gain multiplier for the stiffness field | Positive real | - |
+| `stiff_geom.cutoff_coef` | Controls the steepness of the spatial decay | Positive real | `9.0` (gaussian), `3.5` (tanh) |
+| `stiff_geom.center` | Center coordinates \f$ [x, y, z] \f$ <i>(only for </i>`cylinder`<i>, </i>`sphere`<i>)</i>| Array of 3 reals | - |
+| `stiff_geom.radius` | Radius of the geometry <i>(only for </i>`cylinder`<i>, </i>`sphere`<i>)</i> | Positive real | - |
+| `stiff_geom.stiff_dist` | Distance to maintain stiffness <i>(only for </i>`cheap_dist`<i>)</i> | Positive real | - |
+
+###### Local stiffness
+The local stiffness contribution from a body, \f$ \text{Stiffness}_b(\mathbf{x}) \f$, is evaluated based on the chosen `decay_profile`. These profiles depend on a raw distance \f$ r \f$ (detailed in the next section) and a characteristic decay length \f$ d \f$, which is defined as:
+
+- \f$ d \f$ = `"radius"` if `"type"` is `"cylinder"` or `"sphere"`.
+- \f$ d \f$ = `"stiff_dist"` if `"type"` is `"cheap_dist"`.
+
+Based on the `decay_profile`, the stiffness is calculated as follows:
+
+**1. Gaussian Profile** (`"gaussian"`)
+Applies an exponential decay based on the squared normalized distance:
+
+\f{eqnarray*}{
+ \text{Stiffness}_b(\mathbf{x}) = \text{gain} \cdot \exp\left( -\left(\frac{r}{d}\right)^2 \cdot \text{cutoff_coef} \right).
+\f}
+
+**2. Tanh Profile** (`"tanh"`)
+Applies a smooth hyperbolic tangent transition:
+
+\f{eqnarray*}{
+ \text{Stiffness}_b(\mathbf{x}) = \text{gain} \cdot \left[ 1 - \tanh\left( \frac{r}{d} \cdot \text{cutoff_coef} \right) \right].
+\f}
+
+###### Distance Calculation
+For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f$ used in the stiffness formulas above is calculated based on the selected `stiff_geom.type` and the body's stiffness center \f$ C = (c_x, c_y, c_z) \f$:
+
+* **Sphere** (`"sphere"`):
+ 
+  \f{eqnarray*}{
+   r = \sqrt{(x - c_x)^2 + (y - c_y)^2 + (z - c_z)^2}.
+  \f}
+* **Cylinder** (`"cylinder"`): 
+  Calculates the distance to the Z-axis passing through the center \f$ (c_x, c_y) \f$.
+
+  \f{eqnarray*}{
+   r = \sqrt{(x - c_x)^2 + (y - c_y)^2}.
+  \f}
+
+* **Wall Distance** (`"cheap_dist"`): 
+  \f$ r \f$ is assigned from a precomputed pseudo distance field based on the boundary `zone_indices`.
+
+@attention Within the region defined by `radius` (from the center) or `stiff_dist` (from the boundary), the mesh stiffness is at its highest. If the `gain` parameter is set large enough, the mesh within this region moves rigidly with the body, preserving its original element quality without deformation. Users are encouraged to check the `ocyl_cylinder3D`, `ocyl_ellipse3D`, and `Double_ocyl_cylinder` examples to get a better idea of how these parameters are configured in practice.
+
+@note Setting a very large value for `gain` (e.g., `1.0e6`) is recommended if the mesh immediately surrounding the body is intended to be fully rigid (i.e., \f$ \phi_i \approx 1 \f$). Conversely, if two moving objects are in close proximity, the `gain` should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated `phi_total0.f00000` file, and checking the mesh quality using `mesh_preview` are highly recommended.
+
+#### Restarting ALE simulations
+
+Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving `.chkp` files.
+
+@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to

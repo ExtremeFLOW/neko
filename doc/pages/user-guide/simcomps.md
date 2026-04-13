@@ -385,6 +385,7 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
    "type": "force_torque",
    "name": "force_torque",
    "zone_id": 1,
+   "center_type": "fixed",
    "center": [0.0, 0.0, 0.0],
    "zone_name": "some chosen name, optional",
    "scale": 1.0
@@ -394,6 +395,22 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
  }
  ~~~~~~~~~~~~~~~
 
+#### Torque calculation for moving bodies
+
+When an object undergoes translational or rotational movement, it is often necessary to calculate the torque around its dynamic center of rotation, or around another specific reference point that moves rigidly with the body. The `center_type` parameter enables accurate torque computation for these scenarios by dictating how the tracking point behaves:
+
+* `"fixed"` <i>(Default):</i> The torque is calculated around the static coordinates provided in the `center` array, regardless of how the body moves.
+* `"pivot"` <i>(ALE only):</i> The torque is calculated directly around the ALE body's dynamic pivot point. If this is selected, the `center` array in the JSON is ignored, and the pivot coordinate at each time step is used automatically.
+* `"body_attached"` <i>(ALE only):</i> The torque is calculated around a custom point that translates and rotates *with* the rigid movement of the ALE body. The initial position of this point is defined by the `center` array.
+  > <i>Example use case:</i> If you are simulating a pitching and heaving airfoil, you might want to calculate the torque acting on a trailing-edge flap. By using `"body_attached"`, you simply define the initial coordinates of the hinge in the `center` array, and the code will automatically track its dynamic position as the main airfoil moves.
+
+@attention For static simulations, the `center_type` parameter is completely optional. If omitted from the case file, the code will automatically default to `"fixed"`.
+
+@note If `center_type` is set to `"pivot"` or `"body_attached"` but the specified `zone_id` is not registered as an ALE body (or ALE is globally inactive), the code will print a warning and automatically revert back to `"fixed"` using the provided `"center"` in the case file.
+
+@attention For ALE simulations, the wall normal vectors are re-calculated at every time step to account for body movement and deformation. If the ALE module is not enabled, this calculation is performed only once during initialization.
+
+@note **Restarting Simulations:** When restarting an ALE simulation, the code automatically calculates the correct current position of the torque center at the restart time. Therefore, if the intended torque calculation point remains the same, the `center` array in the JSON file should **not** be modified between restarts. If you wish to calculate torque around a *new* point upon restart, the `center` array must specify the coordinates of that new point in the **original, undeformed mesh** (at \f$ t=0 \f$), not its current spatial location.
 
 ### les_model {#simcomp_les_model}
 Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp

@@ -37,7 +37,7 @@ module coefs
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use dofmap, only : dofmap_t
-  use space, only: space_t
+  use space, only : space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
        chsign, rzero, invers2, glsum, NEKO_EPS
   use mesh, only : mesh_t
@@ -52,6 +52,7 @@ module coefs
   use comm, only : NEKO_COMM
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -95,7 +96,8 @@ module coefs
      real(kind=rp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
      real(kind=rp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
      real(kind=rp), allocatable :: Binv(:,:,:,:) !< Inverted Mass matrix/volume matrix
-
+     real(kind=rp), pointer :: Blag(:,:,:,:) => null() !< Lagged Mass matrix/volume matrix
+     real(kind=rp), pointer :: Blaglag(:,:,:,:) => null() !< lag-lagged Mass matrix/volume matrix
      real(kind=rp), allocatable :: area(:,:,:,:) !< Facet area
      real(kind=rp), allocatable :: nx(:,:,:,:) !< x-direction of facet normal
      real(kind=rp), allocatable :: ny(:,:,:,:) !< y-direction of facet normal
@@ -147,6 +149,8 @@ module coefs
      type(c_ptr) :: jac_d = C_NULL_PTR
      type(c_ptr) :: jacinv_d = C_NULL_PTR
      type(c_ptr) :: B_d = C_NULL_PTR
+     type(c_ptr) :: Blag_d = C_NULL_PTR
+     type(c_ptr) :: Blaglag_d = C_NULL_PTR
      type(c_ptr) :: Binv_d = C_NULL_PTR
      type(c_ptr) :: area_d = C_NULL_PTR
      type(c_ptr) :: nx_d = C_NULL_PTR
@@ -165,6 +169,9 @@ module coefs
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
      procedure, pass(this) :: generate_cyclic_bc => coef_generate_cyclic_bc
+     procedure, pass(this) :: recompute_metrics => coef_recompute_metrics
+     procedure, pass(this) :: enable_B_history => coef_enable_lagged_mass
+     procedure, pass(this) :: update_B_history => coef_update_lagged_mass
      generic :: init => init_empty, init_all
   end type coef_t
 
@@ -218,7 +225,7 @@ contains
 
   !> Initialize coefficients
   subroutine coef_init_all(this, gs_h)
-    class(coef_t), intent(inout) :: this
+    class(coef_t), intent(inout), target :: this
     type(gs_t), intent(inout), target :: gs_h
     integer :: n, m, ncyc
     call this%free()
@@ -274,6 +281,10 @@ contains
     allocate(this%B(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%Binv(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
+    ! We do this so in a static simulation we don't allocate extra memory
+    this%Blag => this%B
+    this%Blaglag => this%B
+
     allocate(this%h1(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%h2(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
@@ -326,6 +337,9 @@ contains
        call device_map(this%B, this%B_d, n)
        call device_map(this%Binv, this%Binv_d, n)
 
+       this%Blag_d = this%B_d
+       this%Blaglag_d = this%B_d
+
        m = this%Xh%lx * this%Xh%ly * 6 * this%msh%nelv
 
        call device_map(this%area, this%area_d, m)
@@ -350,9 +364,9 @@ contains
        call device_rone(this%h1_d, n)
        call device_rone(this%h2_d, n)
        call device_memcpy(this%h1, this%h1_d, n, &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%h2, this%h2_d, n, &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     else
        call rone(this%h1,n)
        call rone(this%h2,n)
@@ -374,7 +388,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(this%mult_d, n)
        call device_memcpy(this%mult, this%mult_d, n, &
-            DEVICE_TO_HOST, sync=.true.)
+            DEVICE_TO_HOST, sync = .true.)
     else
        call invcol1(this%mult, n)
     end if
@@ -395,9 +409,12 @@ contains
           call device_map(this%R11, this%R11_d, ncyc)
           call device_map(this%R12, this%R12_d, ncyc)
 
-          call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(this%R11, this%R11_d, ncyc, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(this%R12, this%R12_d, ncyc, HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%R11, this%R11_d, ncyc, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%R12, this%R12_d, ncyc, &
+               HOST_TO_DEVICE, sync = .false.)
        end if
 
     end if
@@ -405,7 +422,7 @@ contains
 
   !> Deallocate coefficients
   subroutine coef_free(this)
-    class(coef_t), intent(inout) :: this
+    class(coef_t), intent(inout), target :: this
 
     if (allocated(this%G11)) then
        deallocate(this%G11)
@@ -435,6 +452,18 @@ contains
        deallocate(this%mult)
     end if
 
+    if (associated(this%Blag) .and. &
+         .not. associated(this%Blag, this%B)) then
+       deallocate(this%Blag)
+    end if
+    nullify(this%Blag)
+
+    if (associated(this%Blaglag) .and. &
+         .not. associated(this%Blaglag, this%B)) then
+       deallocate(this%Blaglag)
+    end if
+    nullify(this%Blaglag)
+
     if (allocated(this%B)) then
        deallocate(this%B)
     end if
@@ -443,91 +472,91 @@ contains
        deallocate(this%Binv)
     end if
 
-    if(allocated(this%dxdr)) then
+    if (allocated(this%dxdr)) then
        deallocate(this%dxdr)
     end if
 
-    if(allocated(this%dxds)) then
+    if (allocated(this%dxds)) then
        deallocate(this%dxds)
     end if
 
-    if(allocated(this%dxdt)) then
+    if (allocated(this%dxdt)) then
        deallocate(this%dxdt)
     end if
 
-    if(allocated(this%dydr)) then
+    if (allocated(this%dydr)) then
        deallocate(this%dydr)
     end if
 
-    if(allocated(this%dyds)) then
+    if (allocated(this%dyds)) then
        deallocate(this%dyds)
     end if
 
-    if(allocated(this%dydt)) then
+    if (allocated(this%dydt)) then
        deallocate(this%dydt)
     end if
 
-    if(allocated(this%dzdr)) then
+    if (allocated(this%dzdr)) then
        deallocate(this%dzdr)
     end if
 
-    if(allocated(this%dzds)) then
+    if (allocated(this%dzds)) then
        deallocate(this%dzds)
     end if
 
-    if(allocated(this%dzdt)) then
+    if (allocated(this%dzdt)) then
        deallocate(this%dzdt)
     end if
 
-    if(allocated(this%drdx)) then
+    if (allocated(this%drdx)) then
        deallocate(this%drdx)
     end if
 
-    if(allocated(this%dsdx)) then
+    if (allocated(this%dsdx)) then
        deallocate(this%dsdx)
     end if
 
-    if(allocated(this%dtdx)) then
+    if (allocated(this%dtdx)) then
        deallocate(this%dtdx)
     end if
 
-    if(allocated(this%drdy)) then
+    if (allocated(this%drdy)) then
        deallocate(this%drdy)
     end if
 
-    if(allocated(this%dsdy)) then
+    if (allocated(this%dsdy)) then
        deallocate(this%dsdy)
     end if
 
-    if(allocated(this%dtdy)) then
+    if (allocated(this%dtdy)) then
        deallocate(this%dtdy)
     end if
 
-    if(allocated(this%drdz)) then
+    if (allocated(this%drdz)) then
        deallocate(this%drdz)
     end if
 
-    if(allocated(this%dsdz)) then
+    if (allocated(this%dsdz)) then
        deallocate(this%dsdz)
     end if
 
-    if(allocated(this%dtdz)) then
+    if (allocated(this%dtdz)) then
        deallocate(this%dtdz)
     end if
 
-    if(allocated(this%jac)) then
+    if (allocated(this%jac)) then
        deallocate(this%jac)
     end if
 
-    if(allocated(this%jacinv)) then
+    if (allocated(this%jacinv)) then
        deallocate(this%jacinv)
     end if
 
-    if(allocated(this%h1)) then
+    if (allocated(this%h1)) then
        deallocate(this%h1)
     end if
 
-    if(allocated(this%h2)) then
+    if (allocated(this%h2)) then
        deallocate(this%h2)
     end if
 
@@ -685,6 +714,18 @@ contains
        call device_free(this%jacinv_d)
     end if
 
+    if (c_associated(this%Blag_d) .and. &
+         .not. c_associated(this%Blag_d, this%B_d)) then
+       call device_free(this%Blag_d)
+    end if
+    this%Blag_d = C_NULL_PTR
+
+    if (c_associated(this%Blaglag_d) .and. &
+         .not. c_associated(this%Blaglag_d, this%B_d)) then
+       call device_free(this%Blaglag_d)
+    end if
+    this%Blaglag_d = C_NULL_PTR
+
     if (c_associated(this%B_d)) then
        call device_free(this%B_d)
     end if
@@ -726,10 +767,10 @@ contains
 
   subroutine coef_generate_dxyzdrst(c)
     type(coef_t), intent(inout) :: c
-    integer :: e,i,lxy,lyz,ntot
+    integer :: e, i, lxy, lyz, ntot
 
-    lxy=c%Xh%lx*c%Xh%ly
-    lyz=c%Xh%ly*c%Xh%lz
+    lxy = c%Xh%lx*c%Xh%ly
+    lyz = c%Xh%ly*c%Xh%lz
     ntot = c%dof%size()
 
     associate(drdx => c%drdx, drdy => c%drdy, drdz => c%drdz, &
@@ -753,27 +794,46 @@ contains
               c%dof%x_d, c%dof%y_d, c%dof%z_d, c%jacinv_d, c%jac_d, &
               c%Xh%lx, c%msh%nelv)
 
-         call device_memcpy(dxdr, c%dxdr_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dydr, c%dydr_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dzdr, c%dzdr_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dxds, c%dxds_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dyds, c%dyds_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dzds, c%dzds_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dxdt, c%dxdt_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dydt, c%dydt_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dzdt, c%dzdt_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(drdx, c%drdx_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(drdy, c%drdy_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(drdz, c%drdz_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dsdx, c%dsdx_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dsdy, c%dsdy_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dsdz, c%dsdz_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dtdx, c%dtdx_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dtdy, c%dtdy_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dtdz, c%dtdz_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(jac, c%jac_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(jacinv, c%jacinv_d, ntot, &
-              DEVICE_TO_HOST, sync=.true.)
+         call device_memcpy(dxdr, c%dxdr_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dydr, c%dydr_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dzdr, c%dzdr_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dxds, c%dxds_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dyds, c%dyds_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dzds, c%dzds_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dxdt, c%dxdt_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dydt, c%dydt_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dzdt, c%dzdt_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(drdx, c%drdx_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(drdy, c%drdy_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(drdz, c%drdz_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dsdx, c%dsdx_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dsdy, c%dsdy_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dsdz, c%dsdz_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dtdx, c%dtdx_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dtdy, c%dtdy_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(dtdz, c%dtdz_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(jac, c%jac_d, ntot, DEVICE_TO_HOST, &
+              sync = .false.)
+         call device_memcpy(jacinv, c%jacinv_d, ntot, DEVICE_TO_HOST, &
+              sync = .true.)
 
       else
          !$omp parallel do private(i)
@@ -789,7 +849,7 @@ contains
             end do
 
             ! We actually take 2d into account, wow, need to do that for the rest.
-            if(c%msh%gdim .eq. 3) then
+            if (c%msh%gdim .eq. 3) then
                call mxm(x(1,1,1,e), lxy, dzt, lz, dxdt(1,1,1,e), lz)
                call mxm(y(1,1,1,e), lxy, dzt, lz, dydt(1,1,1,e), lz)
                call mxm(z(1,1,1,e), lxy, dzt, lz, dzdt(1,1,1,e), lz)
@@ -908,15 +968,15 @@ contains
             c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
             c%Xh%lx, c%msh%gdim)
 
-       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync=.true.)
+       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync = .true.)
 
     else
-       if(c%msh%gdim .eq. 2) then
+       if (c%msh%gdim .eq. 2) then
 
           do i = 1, ntot
              c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
@@ -1030,15 +1090,18 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE, &
+            sync = .false.)
     end if
 
     call c%gs_h%op(c%Binv, ntot, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(c%Binv_d, ntot)
-       call device_memcpy(c%Binv, c%Binv_d, ntot, DEVICE_TO_HOST, sync=.true.)
+       call device_memcpy(c%Binv, c%Binv_d, ntot, DEVICE_TO_HOST, &
+            sync = .true.)
     else
        call invcol1(c%Binv, ntot)
     end if
@@ -1227,13 +1290,13 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = size(coef%area)
        call device_memcpy(coef%area, coef%area_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(coef%nx, coef%nx_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(coef%ny, coef%ny_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(coef%nz, coef%nz_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine coef_generate_area_and_normal
@@ -1296,11 +1359,96 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%R11, this%R11_d, ncyc, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%R12, this%R12_d, ncyc, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%R11, this%R11_d, ncyc, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%R12, this%R12_d, ncyc, &
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine coef_generate_cyclic_bc
+
+
+  !> Recompute and update geometric factors (ALE)
+  subroutine coef_recompute_metrics(this)
+    class(coef_t), intent(inout) :: this
+
+    call coef_generate_dxyzdrst(this)
+    call coef_generate_geo(this)
+    call coef_generate_area_and_normal(this)
+    call coef_generate_mass(this)
+    if (this%cyclic) then
+       call coef_generate_cyclic_bc(this)
+    end if
+  end subroutine coef_recompute_metrics
+
+
+  !> Enable separate memory for lagged B matrices if needed.
+  !> For eg. when mesh moves.
+  subroutine coef_enable_lagged_mass(this)
+    class(coef_t), intent(inout), target :: this
+    integer :: n
+
+    ! Return if already allocated distinctly
+    if (.not. associated(this%Blag, this%B)) return
+
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+
+
+    nullify(this%Blag)
+    nullify(this%Blaglag)
+
+    allocate(this%Blag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%Blaglag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+
+    this%Blag = this%B
+    this%Blaglag = this%B
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       this%Blag_d = C_NULL_PTR
+       this%Blaglag_d = C_NULL_PTR
+
+       call device_map(this%Blag, this%Blag_d, n)
+       call device_map(this%Blaglag, this%Blaglag_d, n)
+
+       call device_memcpy(this%Blag, this%Blag_d, n, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%Blaglag, this%Blaglag_d, n, &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine coef_enable_lagged_mass
+
+
+  !> Update history: Blaglag = Blag, Blag = B
+  subroutine coef_update_lagged_mass(this)
+    class(coef_t), intent(inout), target :: this
+    integer :: n
+    integer(c_size_t) :: n_bytes
+
+    ! If this%Blag does not have separate memory, we don't need to update it.
+    if (associated(this%Blag, this%B)) return
+
+    this%Blaglag = this%Blag
+    this%Blag = this%B
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+       if (rp .eq. REAL32) then
+          n_bytes = int(n, c_size_t) * 4_c_size_t
+       else
+          n_bytes = int(n, c_size_t) * 8_c_size_t
+       end if
+
+       call device_memcpy(this%Blaglag_d, this%Blag_d, n_bytes, &
+            DEVICE_TO_DEVICE, sync = .false.)
+
+       call device_memcpy(this%Blag_d, this%B_d, n_bytes, &
+            DEVICE_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine coef_update_lagged_mass
 
 end module coefs
