@@ -177,7 +177,7 @@ contains
        !! const double *zml, const int *if_asynchronous,
        !! const int *comm_int)
        subroutine c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
-            comm) bind(C, name = "adios2_initialize_")
+            comm, timeout) bind(C, name = "adios2_initialize_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none

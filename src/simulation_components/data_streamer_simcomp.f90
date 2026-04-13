@@ -42,6 +42,7 @@ module data_streamer_simcomp
   use case, only : case_t
   use time_state, only : time_state_t
   use data_streamer, only : data_streamer_t
+  use logger, only : neko_log, NEKO_LOG_DEBUG
   use time_based_controller, only : time_based_controller_t
   use registry, only : neko_registry
   use device
@@ -81,15 +82,18 @@ contains
     character(len=20), allocatable :: which_fields(:)
     character(len=:), allocatable :: name
     real(kind=rp) :: start_time
+    logical :: stream_mesh
 
     call json_get_or_default(json, "name", name, "data_streamer_simcomp")
     call json_get(json, 'fields', which_fields)
 
     call json_get_or_lookup_or_default(json, 'start_time', start_time, &
          -1.0_rp)
+    
+    call json_get_or_default(json, 'stream_mesh', stream_mesh, .false.)
 
     call this%init_base(json, case)
-    call this%init_from_components(name, which_fields, start_time)
+    call this%init_from_components(name, which_fields, start_time, stream_mesh)
 
   end subroutine data_streamer_simcomp_init_from_json
 
@@ -98,17 +102,38 @@ contains
   !! @param which_fields The names of the fields to be streamed.
   !! @param start_time Time after which to start streaming.
   subroutine data_streamer_simcomp_init_from_components(this, name, &
-       which_fields, start_time)
+       which_fields, start_time, stream_mesh)
     class(data_streamer_simcomp_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=20), intent(in) :: which_fields(:)
     real(kind=rp), intent(in) :: start_time
+    logical, intent(in) :: stream_mesh
+    type(field_t), pointer :: f
 
     this%name = name
     this%field_names = which_fields
     this%start_time = start_time
+    this%stream_mesh = stream_mesh
 
     call this%dstream%init(this%case%fluid%c_Xh)
+
+    if (stream_mesh) then
+       ! Stream the mesh coordinates of the first field in which_fields. We
+       ! assume that all fields share the same mesh. We don't use the dofmap
+       ! in case%fluid in case the fields we are streaming are masked.
+       f => neko_registry%get_field_by_name(which_fields(1))
+       call neko_log%message("Using field" // f%name // "for streaming mesh", &
+            lvl=NEKO_LOG_DEBUG)
+       call neko_log%message("Streaming mesh: x-coordinates", &
+            lvl=NEKO_LOG_DEBUG)
+       call this%dstream%stream(f%dof%x)
+       call neko_log%message("Streaming mesh: y-coordinates", &
+            lvl=NEKO_LOG_DEBUG)
+       call this%dstream%stream(f%dof%y)
+       call neko_log%message("Streaming mesh: z-coordinates", &
+            lvl=NEKO_LOG_DEBUG)
+       call this%dstream%stream(f%dof%z)
+    end if
 
   end subroutine data_streamer_simcomp_init_from_components
 
@@ -138,6 +163,9 @@ contains
           ! Sync from GPU to CPU
           f => neko_registry%get_field_by_name(this%field_names(i))
           call f%copy_from(DEVICE_TO_HOST, .true.)
+
+          call neko_log%message("Streaming field: " // this%field_names(i), &
+               lvl=NEKO_LOG_DEBUG)
 
           ! Stream the field
           call this%dstream%stream(f%x)
