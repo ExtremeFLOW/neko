@@ -56,7 +56,7 @@ in Neko. The list will be updated as new simcomps are added.
 - User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
 
-## Controling execution and file output
+## Controlling execution and file output
 Each simulation component is, by default, executed once per time step to perform
 associated computations and output. However, this can be modified by using the
 `compute_control` and `compute_value` parameters for the computation and the
@@ -329,12 +329,11 @@ are expected to be updated in the user file, or, perhaps, by other simcomps.
 Since this simcomp does not compute anything, `compute_` configuration is
 irrelevant.
 
-The output format is controlled by the `output_format` keyword, which can be
-set to `nek5000` (default), `vtkhdf`, or `adios2`. The `output_precision`
-keyword controls the precision of the written data and can be set to `single`
-(default) or `double`.
-
-When using the `vtkhdf` format, the `output_subdivide` keyword can be set to
+- The output format is controlled by the `output_format` keyword, which can be
+  set to `nek5000` (default), `vtkhdf`, or `adios2`. 
+- The `output_precision` keyword controls the precision of the written data 
+  and can be set to `single` (default) or `double`.
+- When using the `vtkhdf` format, the `output_subdivide` keyword can be set to
 `true` to subdivide spectral elements into linear sub-cells instead of
 writing high-order Lagrange cells. See the [cell representation](@ref
 vtkhdf-cell-representation) section for more details.
@@ -353,6 +352,25 @@ vtkhdf-cell-representation) section for more details.
  }
  ~~~~~~~~~~~~~~~
 
+
+The `field_writer` may be used in conjunction with a `point_zone` to sample
+the corresponding subsection of the domain. At the moment, this capability
+can only be used with `nek5000` files.
+@attention When using `point_zone` with the `nek5000` format, an 
+`output_filename` must be provided.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "field_writer",
+   "name": "field_writer",
+   "fields": ["my_field1", "my_field2"],
+   "output_format": "nek5000",
+   "output_control" : "simulationtime",
+   "output_value" : 1.0,
+   "output_filename": "my_point_zone_field",
+   "point_zone": "my_point_zone"
+ }
+ ~~~~~~~~~~~~~~~
 
 ### force_torque {#simcomp_force_torque}
 Computes the force on a specified zone and the corresponding torque around a
