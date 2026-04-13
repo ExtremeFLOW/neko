@@ -96,7 +96,8 @@ contains
 
 
 #ifdef HAVE_ADIOS2
-    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM, timeout)
+    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM, &
+         timeout)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')

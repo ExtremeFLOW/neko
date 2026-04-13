@@ -89,7 +89,7 @@ contains
 
     call json_get_or_lookup_or_default(json, 'start_time', start_time, &
          -1.0_rp)
-    
+
     call json_get_or_default(json, 'stream_mesh', stream_mesh, .false.)
 
     call this%init_base(json, case)
