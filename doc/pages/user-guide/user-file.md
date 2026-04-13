@@ -591,8 +591,8 @@ user-file_tips_running-on-gpus) apply when working on field arrays. Use
 `device_memcpy` to make sure the device arrays are also updated.
 
 ### Neumann boundary conditions {#user-file_field-neumann-update}
-This user function can be used to specify Neumann boundary values for 
-the scalar(s). This type of boundary condition allows for time-dependent 
+This user function can be used to specify Neumann boundary values for
+the scalar(s). This type of boundary condition allows for time-dependent
 scalar flux over the surface.
 
 The user routine is called by the `user` boundary condition for the scalar.
@@ -601,13 +601,13 @@ Once the appropriate boundaries have been identified, the user function
 our scalar field(s).
 
 The structure of the interface is very similar to e.g. the initial conditions.
-One gets a list of solution fields, the contents of which depends on which 
-scalar owns the boundary condition. 
+One gets a list of solution fields, the contents of which depends on which
+scalar owns the boundary condition.
 A single field with the same name as the solution field for
 the scalar (`s` by default).
 
 It is crucial to understand that all boundary conditions will call the same
-routine! So, if one has, for example, both `user` for two scalars, 
+routine! So, if one has, for example, both `user` for two scalars,
 it is necessary to have an `if` statement in the user
 routine to distinguish between the two cases. The convenient way to do that is
 to check the names of the fields inside.
@@ -621,9 +621,9 @@ corresponding to the boundary faces. So, even if you somehow manipulate the
 fields elsewhere in the domain inside the user routine, that will not affect the
 solution. For the Neumann boundary conditions, in particular, the field that one
 manipulates is actually the flux on the boundaries, which means all internal
-points should be dummy. 
+points should be dummy.
 
-In the following example, we indicate in `case.scalar.boundary_conditions`, 
+In the following example, we indicate in `case.scalar.boundary_conditions`,
 the flux to be `sin(t)` and `-sin(t)` for the scalar on boundaries 1 and 2.
 
 The header of the user function is given in the code snippet below.
@@ -644,10 +644,13 @@ The arguments and their purpose are as follows:
   one can use the `get` method to retrieve a field by name or index, as done in
   the examples above for other routines.
 * `bc` contains a `field_neumann_t` object to help access the boundary indices
-  through the boundary mask, `msk`.
-  * The boundary mask of the `bc `object is accessed via `bc%%msk`. It contains
-  the linear indices of each GLL point on the boundary facets. @note
-  `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
+  through the boundary mask, `face_msk`.
+  * The boundary mask of the `bc `object is accessed via `bc%%face_msk`. It
+  contains the linear indices of each GLL point on the boundary facets. @note
+  `face_msk(0)` contains the size of the array. The first boundary index is
+  `face_msk(1)`. Note that `face_mask` is the relevant component and not `msk`.
+  It is the former that only contains the indices that are on faces that lie on
+  the boundary.
 * `time`, is a simple structure that contains various info on time stepping,
   notably, the current time iteration and time value.
 
@@ -674,12 +677,12 @@ A very simple example illustrating the above is shown below.
     s_flux => fields%get_by_name("s")
     t = time%t
     if (bc%zone_indices(1) == 1) then
-       do i = 1, bc%msk(0)
-          s_flux%x(bc%msk(i), 1, 1, 1) = sin(t)
+       do i = 1, bc%face_msk(0)
+          s_flux%x(bc%face_msk(i), 1, 1, 1) = sin(t)
        end do
     else if (bc%zone_indices(1) == 2) then
-       do i = 1, bc%msk(0)
-          s_flux%x(bc%msk(i), 1, 1, 1) = -sin(t)
+       do i = 1, bc%face_msk(0)
+          s_flux%x(bc%face_msk(i), 1, 1, 1) = -sin(t)
        end do
     end if
 

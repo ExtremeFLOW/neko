@@ -35,7 +35,7 @@
 !! component-wise resolution, and `coupled_vector_bc_resolver_t` for resolving
 !! mixed boundary conditions.
 module vector_bc_resolver
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use bc_list, only : bc_list_t
   use mixed_bc, only : mixed_bc_t
   use mask, only : mask_t
@@ -308,9 +308,9 @@ contains
     class(bc_t), intent(inout), target :: bc
     character(len=1), optional, intent(in) :: component
 
-    if (.not. all(bc%constraints)) then
+    if (bc%bc_type .ne. BC_TYPES%DIRICHLET) then
        call neko_error("Segregated vector BC resolver only accepts " // &
-            "BCs with constraints = (.true., .true., .true.).")
+            "Dirichlet boundary conditions.")
     end if
 
     if (.not. present(component)) then
@@ -608,8 +608,6 @@ contains
     ! Build a mask of all dofs on the boundary.
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
-       write(*,*) "Processing BC ", i, " called ", bc%name, &
-            " and contraints, ", bc%constraints
 
        if (.not. allocated(bc%msk)) then
           call neko_error("Attempting to finalize coupled resolver " // &
@@ -805,7 +803,7 @@ contains
             size(this%constraint_t2))
     end if
 
-    do concurrent (i = 1, mixed_mask_size)
+    do concurrent (i = 1:mixed_mask_size)
        j = mixed_mask_values(i)
 
        if (node_type_field%x(j,1,1,1) .lt. 1.9_rp) then
@@ -879,7 +877,7 @@ contains
     ! in the mixed_dof_mask.
     allocate(dof_to_mixed_idx(dof_size))
     dof_to_mixed_idx = 0
-    do concurrent (i = 1, m)
+    do concurrent (i = 1:m)
        dof_to_mixed_idx(mixed_dof_values(i)) = i
     end do
 
@@ -1108,7 +1106,7 @@ contains
 
     ! Normalize normals and build tangential directions for all mixed nodes.
     ! Populate this into the basis components in the type.
-    do concurrent (i = 1, m)
+    do concurrent (i = 1:m)
        j = mixed_dof_values(i)
 
        ! Normalize the normal
@@ -1174,7 +1172,7 @@ contains
           call bc%t1%init(3, m)
           call bc%t2%init(3, m)
 
-          do concurrent (j = 1, m)
+          do j = 1, m
              k = bc%resolved_msk%get(j)
              p = dof_to_mixed_idx(k)
 
