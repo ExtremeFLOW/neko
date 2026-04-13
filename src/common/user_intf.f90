@@ -38,6 +38,7 @@ module user_intf
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
   use field_dirichlet, only : field_dirichlet_update
+  use field_neumann, only : field_neumann_update
   use num_types, only : rp
   use json_module, only : json_file
   use json_utils, only : json_extract_item, json_get, json_get_or_default
@@ -45,6 +46,7 @@ module user_intf
   use logger, only : neko_log
   use bc, only : bc_t
   use field_dirichlet, only : field_dirichlet_t
+  use field_neumann, only : field_neumann_t
   use time_state, only : time_state_t
   implicit none
   private
@@ -215,6 +217,9 @@ module user_intf
      !! (much more powerful than pointwise in terms of what can be done).
      procedure(field_dirichlet_update), nopass, pointer :: &
           dirichlet_conditions => null()
+     !> User neumann condition for scalar problems, field interface.
+     procedure(field_neumann_update), nopass, pointer :: &
+          neumann_conditions => null()
      !> Routine to set material properties.
      procedure(user_material_properties_intf), nopass, pointer :: &
           material_properties => null()
@@ -281,6 +286,14 @@ contains
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- Dirichlet boundary condition'
+    end if
+
+    if (.not. associated(this%neumann_conditions)) then
+       this%neumann_conditions => neumann_do_nothing
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Neumann boundary condition'
     end if
 
     if (.not. associated(this%mesh_setup)) then
@@ -412,6 +425,12 @@ contains
     type(field_dirichlet_t), intent(in) :: bc
     type(time_state_t), intent(in) :: time
   end subroutine dirichlet_do_nothing
+
+  subroutine neumann_do_nothing(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+  end subroutine neumann_do_nothing
 
   subroutine dummy_user_material_properties(scheme_name, properties, time)
     character(len=*), intent(in) :: scheme_name

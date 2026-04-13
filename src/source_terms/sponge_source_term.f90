@@ -190,7 +190,7 @@ contains
        ! Constant base flow
     case ("constant")
 
-       call json_get(baseflow_subdict, "value", constant_value)
+       call json_get_or_lookup(baseflow_subdict, "value", constant_value)
        if (size(constant_value) .lt. 3) then
           call neko_error("(SPONGE) Expected 3 elements for 'value'")
        end if

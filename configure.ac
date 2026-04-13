@@ -25,7 +25,7 @@ AC_ARG_ENABLE(real,
 
 AC_ARG_ENABLE(blk_size,
               AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
-              [blk_size=${enableval}], [blk_size="10000"])
+              [blk_size=${enableval}], [blk_size="1024"])
 
 AC_ARG_ENABLE(device-mpi,
           AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
