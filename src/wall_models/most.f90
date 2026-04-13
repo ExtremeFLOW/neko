@@ -49,6 +49,8 @@ module most
   use logger, only : LOG_SIZE, neko_log
   use vector, only : vector_t
   use vector_math, only : vector_glsum, vector_glmin, vector_glmax
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
   implicit none
   private
 
@@ -81,6 +83,9 @@ module most
      type(vector_t) :: Ri_b, L_ob, utau, magu, ti, ts, q
    !   integer :: idx(4)
      integer, allocatable :: h_x_idx(:), h_y_idx(:), h_z_idx(:)
+     type(c_ptr) :: h_x_idx_d = C_NULL_PTR
+     type(c_ptr) :: h_y_idx_d = C_NULL_PTR
+     type(c_ptr) :: h_z_idx_d = C_NULL_PTR
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => most_init
@@ -246,6 +251,10 @@ contains
     allocate(this%h_y_idx(this%n_nodes))
     allocate(this%h_z_idx(this%n_nodes))
 
+    call device_map(this%h_x_idx, this%h_x_idx_d, this%n_nodes)
+    call device_map(this%h_y_idx, this%h_y_idx_d, this%n_nodes)
+    call device_map(this%h_z_idx, this%h_z_idx_d, this%n_nodes)
+
     do i = 1, this%n_nodes
       ! linear = this%msk(i)
       ! idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%ly,&
@@ -279,6 +288,13 @@ contains
       case default
          call neko_error("The face index is not correct (most.f90)")
       end select
+
+      call device_memcpy(this%h_x_idx, this%h_x_idx_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+      call device_memcpy(this%h_y_idx, this%h_y_idx_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+      call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
 
     end do
 
@@ -384,6 +400,27 @@ contains
     call this%ts%free()
     call this%q%free()
 
+    if (allocated(this%h_x_idx)) then
+       deallocate(this%h_x_idx)
+    end if
+    if (c_associated(this%h_x_idx_d)) then
+       call device_free(this%h_x_idx_d)
+    end if
+
+    if (allocated(this%h_y_idx)) then
+       deallocate(this%h_y_idx)
+    end if
+    if (c_associated(this%h_y_idx_d)) then
+       call device_free(this%h_y_idx_d)
+    end if
+
+    if (allocated(this%h_z_idx)) then
+       deallocate(this%h_z_idx)
+    end if
+    if (c_associated(this%h_z_idx_d)) then
+       call device_free(this%h_z_idx_d)
+    end if
+
   end subroutine most_free
 
   !> Compute the wall shear stress.
@@ -415,8 +452,8 @@ contains
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
             this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
-            this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
-            this%q%x_d)
+            this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, this%ts%x_d,&
+            this%q%x_d, this%h_x_idx_d, this%h_y_idx_d, this%h_z_idx_d)
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
             this%ind_s, this%ind_t, this%ind_e, this%n_x%x, &

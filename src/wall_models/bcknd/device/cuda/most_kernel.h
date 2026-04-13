@@ -322,7 +322,11 @@ __global__ void most_compute(
     T* __restrict__ utau_diagn,
     T* __restrict__ magu_diagn,
     T* __restrict__ ti_diagn,
-    T* __restrict__ q_diagn
+    T* __restrict__ ts_diagn,
+    T* __restrict__ q_diagn,
+    const int* __restrict__ h_x_idx,
+    const int* __restrict__ h_y_idx,
+    const int* __restrict__ h_z_idx
 ) {
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
@@ -458,11 +462,16 @@ __global__ void most_compute(
         tau_y_d[i] = -rho*utau*utau*vi/magu;
         tau_z_d[i] = -rho*utau*utau*wi/magu;
 
+        const int index_ts = (ind_e_d[i] - 1) * lx * lx * lx +
+                    (ind_t_d[i] - 1 - h_z_idx[i]) * lx * lx +
+                    (ind_s_d[i] - 1 - h_y_idx[i]) * lx +
+                    (ind_r_d[i] - 1 - h_x_idx[i]);
         Ri_b_diagn[i] = Ri_b;
         L_ob_diagn[i] = L_ob;
         utau_diagn[i] = utau;
         magu_diagn[i] = magu;
         ti_diagn[i] = ti;
+        ts_diagn[i] = temp_d[index_ts];
         q_diagn[i] = q;
     }
 }

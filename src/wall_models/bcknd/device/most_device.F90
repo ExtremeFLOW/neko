@@ -14,7 +14,8 @@ module most_device
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
           kappa, mu, rho, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep, &
-          Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn) &
+          Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+          ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx) &
           bind(c, name = 'hip_most_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -28,7 +29,8 @@ module most_device
        integer(c_int) :: n_nodes, lx, tstep, bc_type_int
        type(c_ptr), value :: Ri_b_diagn, L_ob_diagn
        type(c_ptr), value :: utau_diagn, magu_diagn
-       type(c_ptr), value :: ti_diagn, q_diagn
+       type(c_ptr), value :: ti_diagn, ts_diagn, q_diagn
+       type(c_ptr), value :: h_x_idx, h_y_idx, h_z_idx
      end subroutine hip_most_compute
   end interface
 #elif HAVE_CUDA
@@ -38,7 +40,8 @@ module most_device
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
           kappa, mu, rho, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep, &
-          Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn) &
+          Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+          ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx) &
           bind(c, name = 'cuda_most_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -52,7 +55,8 @@ module most_device
        integer(c_int) :: n_nodes, lx, tstep, bc_type_int
        type(c_ptr), value :: Ri_b_diagn, L_ob_diagn
        type(c_ptr), value :: utau_diagn, magu_diagn
-       type(c_ptr), value :: ti_diagn, q_diagn
+       type(c_ptr), value :: ti_diagn, ts_diagn, q_diagn
+       type(c_ptr), value :: h_x_idx, h_y_idx, h_z_idx
      end subroutine cuda_most_compute
   end interface
 #elif HAVE_OPENCL
@@ -67,7 +71,8 @@ contains
        ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
        n_x_d, n_y_d, n_z_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
        n_nodes, lx, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
-       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn)
+       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+       ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx)
     integer, intent(in) :: n_nodes, lx, tstep
     type(c_ptr), intent(in) :: u_d, v_d, w_d, temp_d
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
@@ -79,7 +84,8 @@ contains
     integer :: bc_type_int
     type(c_ptr), value :: Ri_b_diagn, L_ob_diagn
     type(c_ptr), value :: utau_diagn, magu_diagn
-    type(c_ptr), value :: ti_diagn, q_diagn
+    type(c_ptr), value :: ti_diagn, ts_diagn, q_diagn
+    type(c_ptr), value :: h_x_idx, h_y_idx, h_z_idx
 
     ! convert bc_type to integer to avoid cross-language passing of strings
     select case (trim(adjustl(bc_type))) ! (trimmed, lowercase-consistent)
@@ -98,7 +104,8 @@ contains
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
          lx, kappa, mu, rho, g, Pr, z0, z0h_in, &
          bc_type_int, bc_value, tstep, Ri_b_diagn, &
-         L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn)
+         L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+         ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx)
 #elif HAVE_CUDA
     call cuda_most_compute(u_d, v_d, w_d,temp_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
@@ -106,7 +113,8 @@ contains
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
          lx, kappa, mu, rho, g, Pr, z0, z0h_in, &
          bc_type_int, bc_value, tstep, Ri_b_diagn, &
-         L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, q_diagn)
+         L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+         ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx)
 #elif HAVE_OPENCL
     call neko_error("OPENCL is not implemented for the MOST wall model")
 #else
