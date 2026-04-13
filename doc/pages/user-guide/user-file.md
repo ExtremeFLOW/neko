@@ -578,10 +578,10 @@ for the velocity components and presure. The scalar is applied a function
 
 @attention The notation `u = 1.0_rp` is only possible because of the overloading
 of the assignment operator `=` in `field_t`. In general, a field's array should
-be accessed and modified with `u%x`.
+be accessed and modified with `u%%x`.
 
 Note that we are only applying our boundary values at the first timestep, which
-is done simply with the line `if (time%tstep .ne. 1) return`. This is a trick
+is done simply with the line `if (time%%tstep .ne. 1) return`. This is a trick
 that can be used for time-independent boundary profiles that require some kind
 of time consuming operation like interpolation or reading from a file, which
 would add overhead if executed at every time step.
@@ -640,12 +640,12 @@ The arguments and their purpose are as follows:
 * `fields` is the list of the fields that can be edited. It is a list of
 `field_t` objects.
   * The field `i` contained in `fields` is accessed using
-  `fields%items(i)%ptr` and will refer to a `field_t` object. Alternatively,
+  `fields%%items(i)%%ptr` and will refer to a `field_t` object. Alternatively,
   one can use the `get` method to retrieve a field by name or index, as done in
   the examples above for other routines.
 * `bc` contains a `field_neumann_t` object to help access the boundary indices
   through the boundary mask, `msk`.
-  * The boundary mask of the `bc `object is accessed via `bc%msk`. It contains
+  * The boundary mask of the `bc `object is accessed via `bc%%msk`. It contains
   the linear indices of each GLL point on the boundary facets. @note
   `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
 * `time`, is a simple structure that contains various info on time stepping,
