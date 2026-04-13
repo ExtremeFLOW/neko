@@ -21,9 +21,6 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((n + 1024 - 1) / 1024, 1, 1);
 
-    // We no longer need to manually extract cx, vtx, etc. from pointers!
-    // They are already local variables on the C++ stack.
-
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(ale_add_kinematics_kernel<real>),
         nblcks, nthrds, 0, (hipStream_t)glb_cmd_queue,
@@ -38,8 +35,8 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-/**
-   * Fortran wrapper for compute_cheap_dist_hip
+  /**
+   * Fortran wrapper for compute_cheap_dist
    */
   void compute_cheap_dist_hip(void *d_d, void *x_d, void *y_d, void *z_d, 
             int lx, int ly, int lz, int nel, 
