@@ -121,8 +121,8 @@ contains
        ! assume that all fields share the same mesh. We don't use the dofmap
        ! in case%fluid in case the fields we are streaming are masked.
        f => neko_registry%get_field_by_name(which_fields(1))
-       call neko_log%message("Using field" // f%name // "for streaming mesh", &
-            lvl=NEKO_LOG_DEBUG)
+       call neko_log%message("Using field " // trim(f%name) // &
+            " for streaming mesh", lvl=NEKO_LOG_DEBUG)
        call neko_log%message("Streaming mesh: x-coordinates", &
             lvl=NEKO_LOG_DEBUG)
        call this%dstream%stream(f%dof%x)
