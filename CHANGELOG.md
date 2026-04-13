@@ -1,6 +1,9 @@
 # Changelog
 
 ## Develop
+
+- Added masked I/O capabilities for the field_writer via the optional 
+  `point_zone` JSON keyword.
 - Added the user-defined Neumann boundary conditions for the scalar solver.
 - *BREAKING* Changed the user-defined scalar Dirichlet boundary conditions
   keyword from `user` to `user_dirichlet`.
