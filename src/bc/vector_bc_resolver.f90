@@ -118,41 +118,90 @@ module vector_bc_resolver
 
   !> A coupled resolver for vector fields, suitable for mixed boundary
   !! conditions.
+  !! @details This resolver first accumulates the marked vector boundary
+  !! conditions, then resolves them onto the global velocity dofs in
+  !! `finalize()`. The resolved support is split into two disjoint parts:
+  !! plain Dirichlet nodes, stored in `dirichlet_dof_mask`, and genuinely
+  !! mixed nodes, stored in `mixed_dof_mask`. For the mixed nodes, the resolver
+  !! also builds a local orthonormal basis `(n, t1, t2)` together with the
+  !! resolved local constraint flags `constraint_n`, `constraint_t1`, and
+  !! `constraint_t2`. The `apply()` routine then projects the vector field to
+  !! this local basis, zeroes the constrained components, and reconstructs the
+  !! Cartesian vector.
+  !! Additionally, the resolver propagates the mixed masks and basis data to
+  !! the boundary conditions of class `mixed_bc_t`, which is necessary for them
+  !! to work correctly.
   type, public, extends(vector_bc_resolver_t) :: coupled_vector_bc_resolver_t
+     !> DOFs that are fully constrained in Cartesian space.
      type(mask_t) :: dirichlet_dof_mask
+     !> DOFs that require basis-aware mixed treatment.
      type(mask_t) :: mixed_dof_mask
+     !> Boundary conditions queued for resolution during `finalize()`.
      type(bc_list_t), private :: bcs
+     !> SEM coefficients.
      type(coef_t), pointer, private :: coef => null()
+     !> Degree-of-freedom map.
      type(dofmap_t), pointer, private :: dof => null()
-     integer, allocatable :: boundary_dof(:)
+     !> Per-boundary-DOF node classification according to `bc_type_t`.
      real(kind=rp), allocatable :: node_type(:)
-     type(htable_i4_t) :: boundary_idx
-     integer, allocatable :: node_rst(:,:)
-     integer, allocatable :: edge_mid_rst(:,:)
-     integer, allocatable :: node_linear_idx(:)
+     !> Per-boundary-face classification according to `bc_type_t`.
      real(kind=rp), allocatable :: face_type(:,:)
+     !> Linear indices of boundary DOFs.
+     integer, allocatable :: boundary_dof(:)
+     !> Hash table from a linear DOF index to `boundary_dof`.
+     type(htable_i4_t) :: boundary_idx
+     !> Reference-space coordinates of the element corner nodes.
+     integer, allocatable :: node_rst(:,:)
+     !> Reference-space coordinates of the edge-midpoint nodes.
+     integer, allocatable :: edge_mid_rst(:,:)
+     !> Linear indices of the element corner nodes.
+     integer, allocatable :: node_linear_idx(:)
+     !> Local normal-component constraint flags on `mixed_dof_mask`.
      integer, allocatable :: constraint_n(:)
+     !> Local first-tangent constraint flags on `mixed_dof_mask`.
      integer, allocatable :: constraint_t1(:)
+     !> Local second-tangent constraint flags on `mixed_dof_mask`.
      integer, allocatable :: constraint_t2(:)
+     !> Local normal basis vectors for the mixed-node support.
      type(matrix_t) :: n
+     !> Local first tangential basis vectors for the mixed-node support.
      type(matrix_t) :: t1
+     !> Local second tangential basis vectors for the mixed-node support.
      type(matrix_t) :: t2
 
+     !> Device mirror of `constraint_n`.
      type(c_ptr) :: constraint_n_d = c_null_ptr
+     !> Device mirror of `constraint_t1`.
      type(c_ptr) :: constraint_t1_d = c_null_ptr
+     !> Device mirror of `constraint_t2`.
      type(c_ptr) :: constraint_t2_d = c_null_ptr
    contains
-     procedure, pass(this) :: free => coupled_vector_bc_resolver_free
+     !> Constructor.
      procedure, pass(this) :: init => coupled_vector_bc_resolver_init
+     !> Destructor.
+     procedure, pass(this) :: free => coupled_vector_bc_resolver_free
+     !> Mark a boundary condition for later resolution.
      procedure, pass(this) :: mark_bc => coupled_vector_bc_resolver_mark_bc
+     !> Mark a list of boundary conditions for later resolution.
      procedure, pass(this) :: mark_bc_list => &
           coupled_vector_bc_resolver_mark_bc_list
+     !> Resolve the queued boundary conditions into masks and basis data.
      procedure, pass(this) :: finalize => coupled_vector_bc_resolver_finalize
+     !> Apply the resolved homogeneous mixed constraints to a vector field.
      procedure, pass(this) :: apply => coupled_vector_bc_resolver_apply
+     !> Write diagnostic output for the resolved masks and basis.
      procedure, pass(this) :: debug_output => &
           coupled_vector_bc_resolver_debug_output
+     !> Clear the resolved mask-side state.
+     procedure, pass(this), private :: clear_masks => &
+          coupled_vector_bc_resolver_clear_masks
+     !> Rebuild the Dirichlet and mixed-node masks from the queued BCs.
      procedure, pass(this), private :: rebuild_masks => &
           coupled_vector_bc_resolver_rebuild_masks
+     !> Clear the resolved basis-side state.
+     procedure, pass(this), private :: clear_basis => &
+          coupled_vector_bc_resolver_clear_basis
+     !> Rebuild the local basis on the resolved mixed-node support.
      procedure, pass(this), private :: rebuild_basis => &
           coupled_vector_bc_resolver_rebuild_basis
   end type coupled_vector_bc_resolver_t
@@ -346,44 +395,16 @@ contains
   ! Coupled resolver TBPs
   !
 
+  !> Destructor.
   subroutine coupled_vector_bc_resolver_free(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
 
-    call this%dirichlet_dof_mask%free()
-    call this%mixed_dof_mask%free()
     call this%bcs%free()
-
-    if (allocated(this%boundary_dof)) deallocate(this%boundary_dof)
-    if (allocated(this%node_type)) deallocate(this%node_type)
-    call this%boundary_idx%free()
     if (allocated(this%node_rst)) deallocate(this%node_rst)
     if (allocated(this%edge_mid_rst)) deallocate(this%edge_mid_rst)
     if (allocated(this%node_linear_idx)) deallocate(this%node_linear_idx)
     if (allocated(this%face_type)) deallocate(this%face_type)
-
-    if (allocated(this%constraint_n)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_n_d)) then
-          call device_unmap(this%constraint_n, this%constraint_n_d)
-       end if
-       deallocate(this%constraint_n)
-    end if
-    if (allocated(this%constraint_t1)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t1_d)) then
-          call device_unmap(this%constraint_t1, this%constraint_t1_d)
-       end if
-       deallocate(this%constraint_t1)
-    end if
-    if (allocated(this%constraint_t2)) then
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%constraint_t2_d)) then
-          call device_unmap(this%constraint_t2, this%constraint_t2_d)
-       end if
-       deallocate(this%constraint_t2)
-    end if
-
-    call this%n%free()
-    call this%t1%free()
-    call this%t2%free()
-
+    call this%clear_masks()
     this%constraint_n_d = c_null_ptr
     this%constraint_t1_d = c_null_ptr
     this%constraint_t2_d = c_null_ptr
@@ -391,6 +412,11 @@ contains
     nullify(this%dof)
   end subroutine coupled_vector_bc_resolver_free
 
+  !> Constructor.
+  !! @param[in] coef SEM coefficients.
+  !! @details This resets any previous resolved state, stores pointers to the
+  !! coefficient and dofmap objects, and precomputes reference-element lookup
+  !! tables used later to reconstruct mixed-node normals on edges and corners.
   subroutine coupled_vector_bc_resolver_init(this, coef)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
@@ -450,6 +476,10 @@ contains
     this%node_linear_idx(8) = linear_index(lx, ly, lz, 1, lx, ly, lz)
   end subroutine coupled_vector_bc_resolver_init
 
+  !> Register one vector boundary condition in the coupled resolver.
+  !! @param[inout] bc Boundary condition to queue for resolution.
+  !! @param[in] component Ignored optional component selector, present only to
+  !! satisfy the abstract resolver interface shared with the segregated path.
   subroutine coupled_vector_bc_resolver_mark_bc(this, bc, component)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
@@ -463,6 +493,9 @@ contains
     call this%bcs%append(bc)
   end subroutine coupled_vector_bc_resolver_mark_bc
 
+  !> Register a list of vector boundary conditions in the coupled resolver.
+  !! @param[in] bclst Boundary-condition list to queue.
+  !! @param[in] component Ignored optional component selector.
   subroutine coupled_vector_bc_resolver_mark_bc_list(this, bclst, component)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(bc_list_t), intent(in) :: bclst
@@ -472,15 +505,17 @@ contains
 
     do i = 1, bclst%size()
        bc_i => bclst%get(i)
-       call this%mark_bc(bc_i, component)
+      call this%mark_bc(bc_i, component)
     end do
   end subroutine coupled_vector_bc_resolver_mark_bc_list
 
-  !> Finalize the coupled resolver by resolving the accumulated BC list.
-  !! @details This routine builds the dof masks for Dirichlet and mixed nodes,
-  !! and computes the local basis for the mixed ones.
-  subroutine coupled_vector_bc_resolver_finalize(this)
+  !> Clear the resolved mask-side state of the coupled resolver.
+  !! @details Releases the resolved Dirichlet and mixed masks, compact
+  !! boundary-node caches, and the per-mixed-node constraint flags together
+  !! with their device mirrors.
+  subroutine coupled_vector_bc_resolver_clear_masks(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
+
     call this%dirichlet_dof_mask%free()
     call this%mixed_dof_mask%free()
     if (allocated(this%boundary_dof)) deallocate(this%boundary_dof)
@@ -508,10 +543,25 @@ contains
        end if
        deallocate(this%constraint_t2)
     end if
+    this%constraint_n_d = c_null_ptr
+    this%constraint_t1_d = c_null_ptr
+    this%constraint_t2_d = c_null_ptr
+  end subroutine coupled_vector_bc_resolver_clear_masks
+
+  !> Clear the resolved basis-side state of the coupled resolver.
+  subroutine coupled_vector_bc_resolver_clear_basis(this)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+
     call this%n%free()
     call this%t1%free()
     call this%t2%free()
+  end subroutine coupled_vector_bc_resolver_clear_basis
 
+  !> Finalize the coupled resolver by resolving the accumulated BC list.
+  !! @details This routine builds the dof masks for Dirichlet and mixed nodes,
+  !! and computes the local basis for the mixed ones.
+  subroutine coupled_vector_bc_resolver_finalize(this)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
     if (this%bcs%size() .eq. 0) return
 
     call this%rebuild_masks()
@@ -520,6 +570,12 @@ contains
     call this%debug_output()
   end subroutine coupled_vector_bc_resolver_finalize
 
+  !> Rebuild the resolved masks and local constraint flags.
+  !! @details This routine reduces the queued boundary conditions to a nodal
+  !! classification, constructs the global Dirichlet and mixed-node masks,
+  !! computes BC-local resolved supports for `mixed_bc_t` instances, and fills
+  !! the local constraint flags `constraint_n`, `constraint_t1`, and
+  !! `constraint_t2` on the mixed-node mask.
   subroutine coupled_vector_bc_resolver_rebuild_masks(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(field_t), pointer :: boundary_mask_field
@@ -538,6 +594,8 @@ contains
     integer :: facet, el
     real(kind=rp) :: bc_type
     class(bc_t), pointer :: bc
+
+    call this%clear_masks()
 
     call neko_scratch_registry%request_field(boundary_mask_field, &
          scratch_idx(1), .true.)
@@ -732,9 +790,6 @@ contains
     allocate(this%constraint_n(mixed_mask_size))
     allocate(this%constraint_t1(mixed_mask_size))
     allocate(this%constraint_t2(mixed_mask_size))
-    call this%n%init(3, mixed_mask_size)
-    call this%t1%init(3, mixed_mask_size)
-    call this%t2%init(3, mixed_mask_size)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%constraint_n, this%constraint_n_d, &
             size(this%constraint_n))
@@ -775,6 +830,12 @@ contains
     call neko_scratch_registry%relinquish_field(scratch_idx)
   end subroutine coupled_vector_bc_resolver_rebuild_masks
 
+  !> Rebuild the local mixed-node basis.
+  !! @details Using the resolved mixed-node mask and constraint metadata built
+  !! by `rebuild_masks()`, this routine reconstructs consistent normals on
+  !! face, edge, and corner nodes and then builds an orthonormal local basis
+  !! `(n, t1, t2)` for each mixed node. It then propagates the basis data to
+  !! all marked mixed boundary conditions.
   subroutine coupled_vector_bc_resolver_rebuild_basis(this)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
     type(field_t), pointer :: normal_x_field
@@ -791,6 +852,8 @@ contains
     integer :: edge_len, edge_idx, node_idx
     real(kind=rp) :: normal(3), t1_vec(3), t2_vec(3), len, bc_type
 
+    call this%clear_basis()
+
     call neko_scratch_registry%request_field(normal_x_field, scratch_idx(1), &
          .true.)
     call neko_scratch_registry%request_field(normal_y_field, scratch_idx(2), &
@@ -801,6 +864,10 @@ contains
     dof_size = this%dof%size()
     m = this%mixed_dof_mask%size()
     mixed_dof_values => this%mixed_dof_mask%get()
+
+    call this%n%init(3, m)
+    call this%t1%init(3, m)
+    call this%t2%init(3, m)
 
     ! A mapping between the field linear index of a mixed node into its index
     ! in the mixed_dof_mask.
@@ -1126,7 +1193,12 @@ contains
     if (allocated(dof_to_mixed_idx)) deallocate(dof_to_mixed_idx)
   end subroutine coupled_vector_bc_resolver_rebuild_basis
 
-  !> Apply the coupled vector boundary constraints in the local basis.
+  !> Apply homogeneous boundary constraints in the local basis.
+  !! @param[inout] x x-component field values.
+  !! @param[inout] y y-component field values.
+  !! @param[inout] z z-component field values.
+  !! @param[in] n Number of entries in each component array.
+  !! @param[inout] strm Optional backend stream/queue used on device backends.
   subroutine coupled_vector_bc_resolver_apply(this, x, y, z, n, strm)
     class(coupled_vector_bc_resolver_t), intent(in) :: this
     integer, intent(in) :: n
