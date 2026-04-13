@@ -64,7 +64,7 @@ module vector_bc_resolver
   implicit none
   private
 
-  public ::  vector_bc_resolver_components
+  public :: vector_bc_resolver_components
 
   !> Abstract type for resolving vector boundary conditions.
   type, public, abstract :: vector_bc_resolver_t
@@ -505,7 +505,7 @@ contains
 
     do i = 1, bclst%size()
        bc_i => bclst%get(i)
-      call this%mark_bc(bc_i, component)
+       call this%mark_bc(bc_i, component)
     end do
   end subroutine coupled_vector_bc_resolver_mark_bc_list
 
@@ -1330,13 +1330,13 @@ contains
     call rzero(nz_field%x, dof_size)
 
     if (this%mixed_dof_mask%is_set()) then
-      mixed_mask_values => this%mixed_dof_mask%get()
-      call masked_scatter_copy(nx_field%x(:,1,1,1), this%n%x(1,:), &
-           mixed_mask_values, dof_size, mixed_mask_size)
-      call masked_scatter_copy(ny_field%x(:,1,1,1), this%n%x(2,:), &
-           mixed_mask_values, dof_size, mixed_mask_size)
-      call masked_scatter_copy(nz_field%x(:,1,1,1), this%n%x(3,:), &
-           mixed_mask_values, dof_size, mixed_mask_size)
+       mixed_mask_values => this%mixed_dof_mask%get()
+       call masked_scatter_copy(nx_field%x(:,1,1,1), this%n%x(1,:), &
+            mixed_mask_values, dof_size, mixed_mask_size)
+       call masked_scatter_copy(ny_field%x(:,1,1,1), this%n%x(2,:), &
+            mixed_mask_values, dof_size, mixed_mask_size)
+       call masked_scatter_copy(nz_field%x(:,1,1,1), this%n%x(3,:), &
+            mixed_mask_values, dof_size, mixed_mask_size)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
