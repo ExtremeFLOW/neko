@@ -1,37 +1,5 @@
-! Copyright (c) 2022-2024, The Neko Authors
-! All rights reserved.
-!
-! Redistribution and use in source and binary forms, with or without
-! modification, are permitted provided that the following conditions
-! are met:
-!
-!   * Redistributions of source code must retain the above copyright
-!     notice, this list of conditions and the following disclaimer.
-!
-!   * Redistributions in binary form must reproduce the above
-!     copyright notice, this list of conditions and the following
-!     disclaimer in the documentation and/or other materials provided
-!     with the distribution.
-!
-!   * Neither the name of the authors nor the names of its
-!     contributors may be used to endorse or promote products derived
-!     from this software without specific prior written permission.
-!
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-! POSSIBILITY OF SUCH DAMAGE.
-!
 module device_coef
-  use num_types, only : rp
+  use num_types, only : rp, c_rp
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
@@ -40,6 +8,7 @@ module device_coef
   public :: device_coef_generate_geo
   public :: device_coef_generate_dxydrst
   public :: device_coef_generate_mass
+  public :: device_coef_generate_area_and_normal
 
 #ifdef HAVE_HIP
   interface
@@ -86,6 +55,25 @@ module device_coef
        integer(c_int) :: lxyz, nel
      end subroutine hip_coef_generate_mass
   end interface
+
+  interface
+     subroutine hip_coef_generate_area_and_normal(area, nx, ny, nz, &
+          dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
+          wx, wy, wz, lx, nel, eps) &
+          bind(c, name='hip_coef_generate_area_and_normal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: area, nx, ny, nz
+       type(c_ptr), value :: dxdr, dydr, dzdr
+       type(c_ptr), value :: dxds, dyds, dzds
+       type(c_ptr), value :: dxdt, dydt, dzdt
+       type(c_ptr), value :: wx, wy, wz
+       integer(c_int) :: lx, nel
+       real(kind=c_rp), value :: eps
+     end subroutine hip_coef_generate_area_and_normal
+  end interface
+
 #elif HAVE_CUDA
   interface
      subroutine cuda_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
@@ -121,6 +109,7 @@ module device_coef
        integer(c_int) :: lx, nel
      end subroutine cuda_coef_generate_dxyzdrst
   end interface
+
   interface
      subroutine cuda_coef_generate_mass(B, Binv, jac, w3, lxyz, nel) &
           bind(c, name='cuda_coef_generate_mass')
@@ -130,6 +119,25 @@ module device_coef
        integer(c_int) :: lxyz, nel
      end subroutine cuda_coef_generate_mass
   end interface
+
+  interface
+     subroutine cuda_coef_generate_area_and_normal(area, nx, ny, nz, &
+          dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
+          wx, wy, wz, lx, nel, eps) &
+          bind(c, name='cuda_coef_generate_area_and_normal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: area, nx, ny, nz
+       type(c_ptr), value :: dxdr, dydr, dzdr
+       type(c_ptr), value :: dxds, dyds, dzds
+       type(c_ptr), value :: dxdt, dydt, dzdt
+       type(c_ptr), value :: wx, wy, wz
+       integer(c_int) :: lx, nel
+       real(kind=c_rp), value :: eps
+     end subroutine cuda_coef_generate_area_and_normal
+  end interface
+
 #elif HAVE_OPENCL
   interface
      subroutine opencl_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
@@ -174,6 +182,24 @@ module device_coef
        type(c_ptr), value :: B, Binv, jac, w3
        integer(c_int) :: lxyz, nel
      end subroutine opencl_coef_generate_mass
+  end interface
+
+  interface
+     subroutine opencl_coef_generate_area_and_normal(area, nx, ny, nz, &
+          dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
+          wx, wy, wz, lx, nel, eps) &
+          bind(c, name='opencl_coef_generate_area_and_normal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: area, nx, ny, nz
+       type(c_ptr), value :: dxdr, dydr, dzdr
+       type(c_ptr), value :: dxds, dyds, dzds
+       type(c_ptr), value :: dxdt, dydt, dzdt
+       type(c_ptr), value :: wx, wy, wz
+       integer(c_int) :: lx, nel
+       real(kind=c_rp), value :: eps
+     end subroutine opencl_coef_generate_area_and_normal
   end interface
 #endif
 
@@ -255,5 +281,33 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_coef_generate_mass
+
+  subroutine device_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
+       dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
+       wx_d, wy_d, wz_d, lx, nel, eps)
+    type(c_ptr) :: area_d, nx_d, ny_d, nz_d
+    type(c_ptr) :: dxdr_d, dydr_d, dzdr_d
+    type(c_ptr) :: dxds_d, dyds_d, dzds_d
+    type(c_ptr) :: dxdt_d, dydt_d, dzdt_d
+    type(c_ptr) :: wx_d, wy_d, wz_d
+    integer :: lx, nel
+    real(kind=c_rp) :: eps
+
+#ifdef HAVE_HIP
+    call hip_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
+         dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
+         wx_d, wy_d, wz_d, lx, nel, eps)
+#elif HAVE_CUDA
+    call cuda_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
+         dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
+         wx_d, wy_d, wz_d, lx, nel, eps)
+#elif HAVE_OPENCL
+    call opencl_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
+         dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
+         wx_d, wy_d, wz_d, lx, nel, eps)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_coef_generate_area_and_normal
 
 end module device_coef
