@@ -44,7 +44,7 @@ module coefs
   use device_math, only : device_rone, device_invcol1, &
        device_glsum
   use device_coef, only : device_coef_generate_geo, &
-       device_coef_generate_dxydrst
+       device_coef_generate_dxydrst, device_coef_generate_mass
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index, &
@@ -1080,28 +1080,23 @@ contains
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     ntot = c%dof%size()
 
-    !> @todo rewrite this nest into a device kernel
-    do concurrent (e = 1:c%msh%nelv)
-       ! Here we need to handle things differently for axis symmetric elements
-       do concurrent (i = 1:lxyz)
-          c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
-          c%Binv(i,1,1,e) = c%B(i,1,1,e)
-       end do
-    end do
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE, &
-            sync = .false.)
+       call device_coef_generate_mass(c%B_d, c%Binv_d, c%jac_d, c%Xh%w3_d, &
+            lxyz, c%msh%nelv)
+    else
+       do concurrent (e = 1:c%msh%nelv)
+          ! Here we need to handle things differently for axis symmetric elements
+          do concurrent (i = 1:lxyz)
+             c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
+             c%Binv(i,1,1,e) = c%B(i,1,1,e)
+          end do
+       end do
     end if
 
     call c%gs_h%op(c%Binv, ntot, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(c%Binv_d, ntot)
-       call device_memcpy(c%Binv, c%Binv_d, ntot, DEVICE_TO_HOST, &
-            sync = .true.)
     else
        call invcol1(c%Binv, ntot)
     end if

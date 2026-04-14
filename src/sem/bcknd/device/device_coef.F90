@@ -37,7 +37,9 @@ module device_coef
   implicit none
   private
 
-  public :: device_coef_generate_geo, device_coef_generate_dxydrst
+  public :: device_coef_generate_geo
+  public :: device_coef_generate_dxydrst
+  public :: device_coef_generate_mass
 
 #ifdef HAVE_HIP
   interface
