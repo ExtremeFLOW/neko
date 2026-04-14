@@ -72,6 +72,7 @@ module ale_manager
   use user_intf, only : user_t, user_ale_mesh_velocity_intf, &
        user_ale_base_shapes_intf, user_ale_rigid_kinematics_intf
   use math, only : glmin, pi, copy
+  use device_math, only : device_glmin
   use field_math, only : field_rzero, field_add2, &
        field_cmult
   use device, only : HOST_TO_DEVICE, device_memcpy, &
@@ -1533,7 +1534,11 @@ contains
     n = coef%dof%size()
     file_index = -2
 
-    min_jac = glmin(coef%jac, n)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       min_jac = device_glmin(coef%jac_d, n)
+    else
+       min_jac = glmin(coef%jac, n)
+    end if
     call save_mesh_preview_step(coef, dummy_field, out_file, t_state, step, &
          file_index)
     write(log_buf, '(A,I0, A,ES23.15, A,ES18.11)') &
@@ -1551,7 +1556,12 @@ contains
        call this%advance_mesh(coef, t_state, nadv)
        call coef%recompute_metrics()
 
-       min_jac = glmin(coef%jac, n)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          min_jac = device_glmin(coef%jac_d, n)
+       else
+          min_jac = glmin(coef%jac, n)
+       end if
 
        if (min_jac <= 0.0_rp) then
           write(log_buf, '(A, ES18.11, A, ES23.15)') &
@@ -1600,9 +1610,16 @@ contains
     type(time_state_t), intent(in) :: t_state
     integer, intent(in) :: step
     integer, intent(inout) :: file_index
+    integer :: n
 
+    n = coef%dof%size()
     file_index = file_index + 1
-    dummy_field%x = coef%B
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(coef%B, coef%B_d, n, DEVICE_TO_HOST, .true.)
+    else
+       call copy(dummy_field%x, coef%B, n)
+    end if
+    
 
     call out_file%init("mesh_preview.fld")
     select type (ft => out_file%file_type)
