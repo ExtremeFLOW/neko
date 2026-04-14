@@ -85,6 +85,7 @@ module brinkman_source_term
      type(field_t), pointer :: brinkman
      !> Filter
      class(filter_t), allocatable :: filter
+
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => &
@@ -96,8 +97,11 @@ module brinkman_source_term
 
      ! ----------------------------------------------------------------------- !
      ! Private methods
+
      procedure, pass(this) :: init_boundary_mesh
      procedure, pass(this) :: init_point_zone
+     procedure, pass(this) :: init_from_file
+     procedure, pass(this) :: init_from_field
 
   end type brinkman_source_term_t
 
@@ -178,6 +182,10 @@ contains
           call this%init_boundary_mesh(object_settings)
        case ('point_zone')
           call this%init_point_zone(object_settings)
+       case ('field')
+          call this%init_from_field(object_settings)
+       case ('file')
+          call this%init_from_file(object_settings)
 
        case ('none')
           call object_settings%print()
@@ -521,5 +529,51 @@ contains
 
     call neko_scratch_registry%relinquish(temp_idx)
   end subroutine init_point_zone
+
+  !> Initializes the source term from a file.
+  subroutine init_from_file(this, json)
+    class(brinkman_source_term_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    type(file_t) :: file
+    character(len=:), allocatable :: file_name, field_name
+    type(field_t) :: temp_field
+    integer :: file_idx, temp_idx
+
+    call json_get(json, 'file_name', file_name)
+    call json_get_or_default(json, 'field_name', field_name, &
+         'brinkman_indicator')
+    call json_get_or_default(json, 'file_index', file_idx, 0)
+
+    call temp_field%init(this%coef%dof, field_name)
+    call file%init(file_name)
+    call file%set_counter(file_idx)
+    call file%read(temp_field)
+
+    ! Update the global indicator field by max operator
+    call field_pwmax2(this%indicator, temp_field)
+
+    call temp_field%free()
+    call file%free()
+
+  end subroutine init_from_file
+
+  !> Initializes the source term from a field.
+  subroutine init_from_field(this, json)
+    class(brinkman_source_term_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: field_name
+    type(field_t), pointer :: temp_field
+
+    ! Read the field name
+    call json_get(json, 'name', field_name)
+    temp_field => neko_registry%get_field(field_name)
+
+    ! Update the global indicator field by max operator
+    call field_pwmax2(this%indicator, temp_field)
+
+    if (associated(temp_field)) nullify(temp_field)
+
+  end subroutine init_from_field
 
 end module brinkman_source_term

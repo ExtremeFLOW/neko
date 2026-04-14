@@ -47,7 +47,7 @@ module vtkhdf_file
   use device, only : DEVICE_TO_HOST
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier, MPI_LOGICAL
+       MPI_Barrier, MPI_Bcast, MPI_LOGICAL
   use vtk, only : vtk_ordering
 #ifdef HAVE_HDF5
   use hdf5, only : &
@@ -56,7 +56,7 @@ module vtkhdf_file
        h5fcreate_f, h5fopen_f, h5fclose_f, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
        h5acreate_f, h5aopen_f, h5awrite_f, h5aclose_f, h5aexists_f, &
-       h5dcreate_f, h5dopen_f, h5dwrite_f, h5dclose_f, &
+       h5dcreate_f, h5dopen_f, h5dwrite_f, h5dread_f, h5dclose_f, &
        h5tcopy_f, h5tclose_f, h5tset_strpad_f, h5tset_size_f, &
        h5screate_f, h5screate_simple_f, h5sclose_f, &
        h5sselect_hyperslab_f, h5sselect_all_f, h5sget_simple_extent_dims_f, &
@@ -64,7 +64,7 @@ module vtkhdf_file
        h5pcreate_f, h5pclose_f, h5pset_fapl_mpio_f, h5pset_dxpl_mpio_f, &
        h5lexists_f, h5ldelete_f, &
        H5P_FILE_ACCESS_F, H5P_DATASET_XFER_F, H5P_DATASET_CREATE_F, &
-       H5F_ACC_TRUNC_F, H5F_ACC_RDWR_F, h5pset_chunk_f, &
+       H5F_ACC_TRUNC_F, H5F_ACC_RDWR_F, H5F_ACC_RDONLY_F, h5pset_chunk_f, &
        H5T_STD_U8LE, H5T_NATIVE_INTEGER, H5T_FORTRAN_S1, H5T_STR_NULLTERM_F, &
        h5kind_to_type, H5_REAL_KIND, H5_INTEGER_KIND, h5pset_virtual_f, &
        H5S_SCALAR_F, H5S_SELECT_SET_F, H5FD_MPIO_COLLECTIVE_F, h5p_default_f, &
@@ -287,6 +287,9 @@ contains
     if (allocated(fp)) deallocate(fp)
 
   end subroutine vtkhdf_file_write
+
+  ! -------------------------------------------------------------------------- !
+  ! Internal helper subroutines for VTKHDF writing
 
   !> Write mesh geometry datasets to the VTKHDF group.
   !! Writes NumberOfPoints, NumberOfCells, NumberOfConnectivityIds,
@@ -1468,10 +1471,183 @@ contains
   subroutine vtkhdf_file_read(this, data)
     class(vtkhdf_file_t) :: this
     class(*), target, intent(inout) :: data
+    integer(hid_t) :: plist_id, file_id, vtkhdf_grp
+    integer :: ierr, mpi_info, mpi_comm, counter
+    character(len=1024) :: fname
+    type(field_t), pointer :: fld
 
-    call neko_error('VTKHDF file reading is not yet implemented')
+    ! Open the file
+    fname = trim(this%get_vtkhdf_fname())
+    counter = this%get_counter() - this%get_start_counter()
+    if (counter .lt. 0) counter = 0
+
+    mpi_info = MPI_INFO_NULL%mpi_val
+    mpi_comm = NEKO_COMM%mpi_val
+
+    call h5open_f(ierr)
+    call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
+    call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
+
+    call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, ierr, access_prp = plist_id)
+    call h5gopen_f(file_id, "VTKHDF", vtkhdf_grp, ierr)
+
+    select type (data)
+    type is (field_t)
+       fld => data
+       call vtkhdf_read_field(vtkhdf_grp, fname, counter, trim(fld%name), fld)
+    class default
+       call neko_error("Unsupported data type in vtkhdf_file_read")
+    end select
+
+    call h5gclose_f(vtkhdf_grp, ierr)
+    call h5fclose_f(file_id, ierr)
+    call h5pclose_f(plist_id, ierr)
+    call h5close_f(ierr)
 
   end subroutine vtkhdf_file_read
+
+  !> Read one field from VTKHDF/PointData.
+  !! The PointData dataset name is expected to match @a field_name.
+  !! For compatibility with the writer, this routine also supports:
+  !! - p -> Pressure
+  !! - u/v/w -> Velocity component 1/2/3
+  !!
+  !! For temporal output (Steps group exists), the main file contains Virtual
+  !! Datasets (VDS). HDF5 does not support parallel reads on VDS, so we read
+  !! directly from the external source file: <basename>.data/<counter>.h5
+  subroutine vtkhdf_read_field(vtkhdf_grp, fname, counter, field_name, fld)
+    integer(hid_t), intent(in) :: vtkhdf_grp
+    character(len=*), intent(in) :: fname
+    integer, intent(in) :: counter
+    character(len=*), intent(in) :: field_name
+    type(field_t), intent(inout) :: fld
+
+    integer :: ierr, local_points, total_points, point_offset, component
+    integer(hid_t) :: read_target, dset_id, filespace, memspace, xf_id
+    integer(hid_t) :: H5T_NEKO_REAL, ext_plist_id
+    integer(hsize_t), dimension(1) :: dcount1, doffset1
+    integer(hsize_t), dimension(2) :: dcount2, doffset2
+    character(len=128) :: dset_name
+    character(len=1024) :: ext_fname, main_path, main_name, main_suffix
+    logical :: exists, is_temporal
+    real(kind=rp), allocatable :: vec_component(:,:)
+    integer :: mpi_info, mpi_comm
+
+    mpi_info = MPI_INFO_NULL%mpi_val
+    mpi_comm = NEKO_COMM%mpi_val
+
+    local_points = fld%dof%size()
+    total_points = fld%dof%global_size()
+    point_offset = 0
+    call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+
+    H5T_NEKO_REAL = h5kind_to_type(rp, H5_REAL_KIND)
+
+    ! Check if this is temporal data (Steps group exists -> VDS in PointData)
+    call h5lexists_f(vtkhdf_grp, "Steps", is_temporal, ierr)
+
+    if (is_temporal) then
+       ! Temporal: VDS not readable in parallel, open the external source file
+       call filename_split(fname, main_path, main_name, main_suffix)
+       write(ext_fname, '(A,A,".data/",I0,".h5")') &
+            trim(main_path), trim(main_name), counter
+
+       call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
+       call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
+       call h5fopen_f(trim(ext_fname), H5F_ACC_RDONLY_F, read_target, ierr, &
+            access_prp = ext_plist_id)
+       call h5pclose_f(ext_plist_id, ierr)
+
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot open external file: ' // &
+               trim(ext_fname))
+       end if
+    else
+       ! Non-temporal: read directly from PointData group (no VDS)
+       call h5gopen_f(vtkhdf_grp, "PointData", read_target, ierr)
+    end if
+
+    dset_name = trim(field_name)
+    if (trim(dset_name) .eq. 'p') dset_name = 'Pressure'
+
+    component = -1
+    call h5lexists_f(read_target, trim(dset_name), exists, ierr)
+
+    if (.not. exists) then
+       if (trim(field_name) .eq. 'u' .or. trim(field_name) .eq. 'v' .or. &
+            trim(field_name) .eq. 'w') then
+          call h5lexists_f(read_target, "Velocity", exists, ierr)
+          if (exists) then
+             dset_name = 'Velocity'
+             select case (trim(field_name))
+             case ('u')
+                component = 0
+             case ('v')
+                component = 1
+             case ('w')
+                component = 2
+             end select
+          end if
+       end if
+    end if
+
+    if (.not. exists) then
+       if (is_temporal) then
+          call h5fclose_f(read_target, ierr)
+       else
+          call h5gclose_f(read_target, ierr)
+       end if
+       call neko_error('VTKHDF PointData field not found: ' // trim(dset_name))
+    end if
+
+    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
+    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+
+    call h5dopen_f(read_target, trim(dset_name), dset_id, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
+
+    if (trim(dset_name) .eq. 'Velocity' .and. component .ge. 0) then
+       ! Velocity is stored as (3, n_points), read one component
+       dcount2 = [1_hsize_t, int(local_points, hsize_t)]
+       doffset2 = [int(component, hsize_t), int(point_offset, hsize_t)]
+
+       call h5screate_simple_f(2, dcount2, memspace, ierr)
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            doffset2, dcount2, ierr)
+
+       allocate(vec_component(1, local_points))
+       call h5dread_f(dset_id, H5T_NEKO_REAL, vec_component, dcount2, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       fld%x = reshape(vec_component, shape(fld%x))
+       deallocate(vec_component)
+    else
+       ! Scalar field: 1D array
+       dcount1 = int(local_points, hsize_t)
+       doffset1 = int(point_offset, hsize_t)
+
+       call h5screate_simple_f(1, dcount1, memspace, ierr)
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            doffset1, dcount1, ierr)
+
+       call h5dread_f(dset_id, H5T_NEKO_REAL, fld%x(1,1,1,1), dcount1, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+    end if
+
+    call h5sclose_f(memspace, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5dclose_f(dset_id, ierr)
+    call h5pclose_f(xf_id, ierr)
+
+    if (is_temporal) then
+       call h5fclose_f(read_target, ierr)
+    else
+       call h5gclose_f(read_target, ierr)
+    end if
+
+  end subroutine vtkhdf_read_field
 
 #else
   ! -------------------------------------------------------------------------- !
