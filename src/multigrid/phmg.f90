@@ -54,7 +54,7 @@ module phmg
   use interpolation, only : interpolator_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get
-  use math, only : copy, col2, add2, sub3, add2s2
+  use math, only : copy, col2, add2, add2s2
   use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
        glb_cmd_event
   use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
@@ -489,7 +489,7 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(field_t), intent(inout) :: z, r, w
     integer, intent(in) :: n, lvl
-    integer :: i, iblk, ni, niblk
+    integer :: i, j, iblk, ni, niblk
 
     ni = mg%smoother_itrs
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -509,7 +509,9 @@ contains
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
           call mg%gs_h%op(w%x, n, GS_OP_ADD)
           call mg%bclst%apply_scalar(w%x, n)
-          call sub3(w%x, r%x, w%x, n)
+          do concurrent (j = 1:n)
+             w%x(i,1,1,1) = r%x(i,1,1,1) - w%x(i,1,1,1)
+          end do
 
           call mg%jacobi%solve(w%x, w%x, n)
 

@@ -44,7 +44,7 @@
 module tree_amg_multigrid
   use num_types, only: rp
   use utils, only : neko_error, neko_warning
-  use math, only : add2, rzero, glsc2, sub3, col2, copy
+  use math, only : add2, rzero, glsc2, col2, copy
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2, device_copy
   use comm
@@ -452,7 +452,9 @@ contains
     integer, intent(in) :: lvl
     integer :: i
     call amg%matvec(r, x, lvl)
-    call sub3(r, b, r, n)
+    do concurrent (i = 1:n)
+       r(i) = b(i) - r(i)
+    end do
   end subroutine calc_resid
 
 
