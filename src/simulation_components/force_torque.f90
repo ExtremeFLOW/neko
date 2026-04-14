@@ -491,31 +491,42 @@ contains
        call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
             this%n1%x, this%n2%x, this%n3%x, n_pts)
 
-       call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
-            this%u%size(), n_pts)
-       call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
-            this%u%size(), n_pts)
-       call masked_gather_copy_0(this%r3%x, this%coef%dof%z, this%bc%msk, &
-            this%u%size(), n_pts)
+       if ((NEKO_BCKND_DEVICE .eq. 1) .and. (n_pts .gt. 0)) then
+          call device_masked_gather_copy_0(this%r1%x_d, this%coef%dof%x_d, &
+               this%bc%msk_d, this%u%size(), n_pts)
+          call device_masked_gather_copy_0(this%r2%x_d, this%coef%dof%y_d, &
+               this%bc%msk_d, this%u%size(), n_pts)
+          call device_masked_gather_copy_0(this%r3%x_d, this%coef%dof%z_d, &
+               this%bc%msk_d, this%u%size(), n_pts) 
 
-       call cadd(this%r1%x, -this%center(1), n_pts)
-       call cadd(this%r2%x, -this%center(2), n_pts)
-       call cadd(this%r3%x, -this%center(3), n_pts)
+          call device_cadd(this%r1%x_d, -this%center(1), n_pts)
+          call device_cadd(this%r2%x_d, -this%center(2), n_pts)
+          call device_cadd(this%r3%x_d, -this%center(3), n_pts)
 
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
+          ! Once coef_t is fully on the device, we can remove the need to copy these back and forth
           call device_memcpy(this%n1%x, this%n1%x_d, n_pts, &
                HOST_TO_DEVICE, .false.)
           call device_memcpy(this%n2%x, this%n2%x_d, n_pts, &
                HOST_TO_DEVICE, .false.)
           call device_memcpy(this%n3%x, this%n3%x_d, n_pts, &
                HOST_TO_DEVICE, .true.)
-          call device_memcpy(this%r1%x, this%r1%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%r2%x, this%r2%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%r3%x, this%r3%x_d, n_pts, &
-               HOST_TO_DEVICE, .true.)
+
+       else
+          
+          call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
+               this%u%size(), n_pts)
+          call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
+               this%u%size(), n_pts)
+          call masked_gather_copy_0(this%r3%x, this%coef%dof%z, this%bc%msk, &
+               this%u%size(), n_pts)
+
+          call cadd(this%r1%x, -this%center(1), n_pts)
+          call cadd(this%r2%x, -this%center(2), n_pts)
+          call cadd(this%r3%x, -this%center(3), n_pts)
        end if
+
+
+
     end if
 
     call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
