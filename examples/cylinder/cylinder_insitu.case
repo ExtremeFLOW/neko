@@ -70,10 +70,17 @@
             "output_control": "simulationtime",
             "output_value": 2.0
         },
+        "constants": 
+        [
+          {
+            "name": "strm_update_freq",
+            "value": 25
+            } 
+          ],
         "simulation_components":
         [
             {
-                "comment": "Stored in the temperature field, check docs for more details on sim_comps",
+                "comment": "Stored in the temperature field, check docs for more details",
                 "type": "lambda2",
                 "compute_control": "fluid_output"
             },
@@ -81,7 +88,8 @@
                 "comment": "Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2",
                 "type": "curl",
                 "fields": [ "u", "v", "w" ],
-                "compute_control": "fluid_output"
+                "compute_control": "tsteps",
+                "compute_value": "strm_update_freq"
             },
             {
                 "type": "force_torque",
@@ -97,17 +105,17 @@
                 "output_value": 10.0,
                 "start_time": 50.0,
                 "compute_control": "tsteps",
-                "compute_value": 10,
+                "compute_value": "strm_update_freq",
                 "avg_direction": "z",
                 "set_of_stats": "basic"
             },
             {
                 "type": "data_streamer", 
-                "fields": ["u", "curl_z", "fluid_stats/mean_u"],
+                "fields": ["u", "omega_z", "fluid_stats/mean_u"],
                 "stream_mesh": true,
                 "compute_control": "tsteps",
-                "compute_value": 50
-            },
+                "compute_value": "strm_update_freq"
+            }
         ]
     }
 }
