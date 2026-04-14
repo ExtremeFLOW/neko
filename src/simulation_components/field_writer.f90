@@ -101,6 +101,7 @@ contains
     character(len=20), allocatable :: fields(:)
     integer :: precision_value
     logical :: subdivide
+    class(point_zone_t), pointer :: point_zone
 
     call this%init_base(json, case)
     call json_get(json, "fields", fields)
@@ -125,8 +126,9 @@ contains
 
     if (json%valid_path('point_zone')) then
        call json_get(json, 'point_zone', point_zone_name)
+       point_zone => neko_point_zone_registry%get_point_zone(point_zone_name)
        call this%init_common(name, fields, filename, precision_value, format, &
-            subdivide, neko_point_zone_registry%get_point_zone(point_zone_name))
+            subdivide, point_zone)
     else
        call this%init_common(name, fields, filename, precision_value, format, &
             subdivide)
