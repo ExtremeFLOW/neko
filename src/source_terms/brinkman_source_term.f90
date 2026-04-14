@@ -41,6 +41,7 @@ module brinkman_source_term
   use device_math, only : device_cfill_mask, device_pwmax2
   use field_math, only : field_pwmax2, field_subcol3, field_copy
   use registry, only : neko_registry
+  use scratch_registry, only : neko_scratch_registry
   use mappings, only : smooth_step_field, step_function_field, &
        permeability_field
   use file, only : file_t
@@ -309,9 +310,9 @@ contains
     logical :: keep_aspect_ratio
     real(kind=dp), dimension(3) :: scaling
     real(kind=dp), dimension(3) :: translation
-    type(field_t) :: temp_field
+    type(field_t), pointer :: temp_field
     type(aabb_t) :: mesh_box, target_box
-    integer :: idx_p
+    integer :: idx_p, temp_idx
     character(len=LOG_SIZE) :: log_msg
 
     ! ------------------------------------------------------------------------ !
@@ -446,7 +447,7 @@ contains
     ! compute the signed distance function. This should be replaced with a
     ! more efficient method, such as a tree search.
 
-    call temp_field%init(this%coef%dof)
+    call neko_scratch_registry%request_field(temp_field, temp_idx, .true.)
 
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
@@ -481,7 +482,7 @@ contains
     ! Update the global indicator field by max operator
     call field_pwmax2(this%indicator, temp_field)
 
-    call temp_field%free()
+    call neko_scratch_registry%relinquish(temp_idx)
 
   end subroutine init_boundary_mesh
 
@@ -493,9 +494,9 @@ contains
     ! Options
     character(len=:), allocatable :: zone_name
 
-    type(field_t) :: temp_field
+    type(field_t), pointer :: temp_field
     class(point_zone_t), pointer :: zone
-    integer :: i
+    integer :: i, temp_idx
 
     ! ------------------------------------------------------------------------ !
     ! Read the options for the point zone
@@ -503,7 +504,7 @@ contains
     call json_get(json, 'name', zone_name)
 
     ! Compute the indicator field
-    call temp_field%init(this%coef%dof)
+    call neko_scratch_registry%request_field(temp_field, temp_idx, .true.)
 
     zone => neko_point_zone_registry%get_point_zone(zone_name)
 
@@ -518,6 +519,7 @@ contains
     ! Update the global indicator field by max operator
     call field_pwmax2(this%indicator, temp_field)
 
+    call neko_scratch_registry%relinquish(temp_idx)
   end subroutine init_point_zone
 
 end module brinkman_source_term
