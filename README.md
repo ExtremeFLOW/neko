@@ -94,10 +94,8 @@ When using Neko in a scientific publication, please add a citation to the follow
 ### Flow physics
 * Massaro, D., Karp, M., Jansson, N., Markidis, S., Schlatter, P., 2024. *Direct numerical simulation of the turbulent flow around a Flettner rotor*. Nature Scientific Reports 14, 3004. [https://doi.org/10.1038/s41598-024-53194-x](https://doi.org/10.1038/s41598-024-53194-x)
 * Baconnet, V., Karp, M., Hanifi, A., Lengani, D., Simoni, D., & Henningson, D.S., 2025. *Investigation of the Dynamics of Secondary Flow Vortex Systems in Low-Pressure Turbines Using Direct Numerical Simulation*. Proceedings of the ASME Turbo Expo 2025: Turbomachinery Technical Conference and Exposition. Volume 12. Memphis, Tennessee, USA. June 16–20, 2025. V012T36A005. ASME. [https://doi.org/10.1115/GT2025-151623](https://doi.org/10.1115/GT2025-151623)
-* Stanly, R., Bagheri, E., Mukha, T., Schlatter, P., 2026. *Influence of
-  turbulence inflow conditions on aeroacoustics of wall-bounded flows*.
-  International Journal of Heat and Fluid Flow, 118, 110216.
-  [https://doi.org/10.1016/j.ijheatfluidflow.2025.110216](https://doi.org/10.1016/j.ijheatfluidflow.2025.110216)
+* Baconnet, V., 2025. *Numerical Investigations of Secondary Flows in Low-Pressure Turbines*, Licentiate dissertation, KTH Royal Institute of Technology, Stockholm, Sweden.
+* Stanly, R., Bagheri, E., Mukha, T., Schlatter, P., 2026. *Influence of turbulence inflow conditions on aeroacoustics of wall-bounded flows*. International Journal of Heat and Fluid Flow, 118, 110216. https://doi.org/10.1016/j.ijheatfluidflow.2025.110216](https://doi.org/10.1016/j.ijheatfluidflow.2025.110216)
 * Du, S., Münsch, M., Jansson, N., Schlatter, P., 2026. *Assessment of the gradient jump penalisation in large-eddy simulations of turbulence*. Acta Mechanica. [https://doi.org/10.1007/s00707-025-04607-z] (https://doi.org/10.1007/s00707-025-04607-z)
 
 ## Acknowledgments
