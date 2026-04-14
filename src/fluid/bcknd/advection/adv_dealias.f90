@@ -583,7 +583,7 @@ contains
                fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) + temp_z(i+1)
             end do
          end do
-        !$omp end parallel do
+         !$omp end parallel do
       end if
     end associate
 
