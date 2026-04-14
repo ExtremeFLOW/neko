@@ -3,15 +3,6 @@
 #include <device/hip/check.h>
 #include "ale_kinematics_kernel.h"
 
-typedef struct {
-    real cx, cy, cz;
-    real vtx, vty, vtz;
-    real vax, vay, vaz;
-    real px, py, pz;
-    real r11, r12, r13;
-    real r21, r22, r23;
-    real r31, r32, r33;
-} kinematics_params_t;
 
 extern "C" {
   void add_kinematics_to_mesh_velocity_hip(
