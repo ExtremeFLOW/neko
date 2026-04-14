@@ -99,7 +99,7 @@ module probes
      type(file_t) :: fout
      type(matrix_t) :: mat_out
      type(vector_t) :: vec_out
-     logical :: append_out = .false.
+     logical :: append_out = .true.
    contains
      !> Initialize from json.
      procedure, pass(this) :: init => probes_init_from_json

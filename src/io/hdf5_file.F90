@@ -738,7 +738,7 @@ contains
 
   !> Set the active group for HDF5 files from an input string
   !! @param this The HDF5 file object
-  !! @param An string indicating the path to the group to create or open.
+  !! @param A string indicating the path to the group to create or open.
   subroutine hdf5_file_set_group(this, group_name_path)
     class(hdf5_file_t), intent(inout) :: this
     character(len=*), intent(in), optional :: group_name_path
