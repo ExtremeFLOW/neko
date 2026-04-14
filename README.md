@@ -89,6 +89,7 @@ When using Neko in a scientific publication, please add a citation to the follow
   scale-resolving numerical simulations of turbulence*. Journal of Computational
   Physics, 510, 114600.
   [https://doi.org/10.1016/j.jcp.2025.114600](https://doi.org/10.1016/j.jcp.2025.114600)
+* Ohm P., Harper G., and Jansson N., 2026. *A Matrix-Free Algebraic hp-Multigrid Method for Computational Fluid Dynamics Applications. In Proceedings of the Supercomputing Asia and International Conference on High Performance Computing in Asia Pacific Region (SCA/HPCAsia '26)*. https://doi.org/10.1145/3773656.3773686
 
 
 ### Flow physics
