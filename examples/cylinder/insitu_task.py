@@ -28,6 +28,8 @@ size = comm.Get_size()
 # general functionality
 import numpy as np
 from os.path import join
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 
 # external
 import adios2.bindings as adios2
@@ -37,9 +39,6 @@ from pysemtools.io.adios2.stream import DataStreamer
 from pysemtools.io.utils import get_fld_from_ndarray
 from pysemtools.datatypes.msh import Mesh
 from pysemtools.interpolation.probes import Probes
-
-# For plotting
-import matplotlib.pyplot as plt
 
 import json
 
@@ -69,6 +68,41 @@ def get_output_directory(fname):
         data = json.load(f)
 
     return data["case"]["output_directory"]
+
+def init_plot(save_output_path):
+    fig, axs = plt.subplots(nrows = 3, figsize = (10,12), sharex = True)
+
+    axs[-1].set_xlabel("x")
+    for ax in axs:
+        ax.set_aspect('equal')
+        ax.set_ylabel("y")
+    
+    # Set colorbar for x-velocity
+    norm = colors.Normalize(vmin=-0.4, vmax=1.4)
+    cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap='viridis'),
+                         ax = axs[0])
+    cbar.set_label("x-velocity")
+    
+    # Set colorbar for z-vorticity
+    norm = colors.Normalize(vmin=-4.0, vmax=4.0)
+    cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap='bwr'),
+                        ax = axs[1])
+    cbar.set_label("z-vorticity")
+
+    # Set colorbar for averaged x-velocity
+    norm = colors.Normalize(vmin=-0.4, vmax=1.0)
+    cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap='viridis'),
+                         ax = axs[2])
+    cbar.set_label("avg. x-velocity")
+
+    fig.suptitle("Waiting to receive data from neko...")
+    fname = join(save_output_path, "cylinder_insitu_00000.png")
+    fig.savefig(fname, dpi = 200)
+    fname = "cylinder_insitu_latest.png"
+    fig.savefig(fname, dpi = 100)
+    log("Initializing probes... done")
+
+    return fig, axs
 
 #=========================================
 # Define some variables/parameters
@@ -112,6 +146,8 @@ log("Initializing mesh... done")
 #=========================================
 
 if comm.Get_rank() == 0:
+
+    # Generate a 30x30 grid in the x-y plane at a given z.
     N = 30
     xbounds = [0.6, 4.0]
     ybounds = [-1.0, 1.0]
@@ -122,6 +158,7 @@ if comm.Get_rank() == 0:
     X, Y = np.meshgrid(x,y)
     del x,y
 
+    # This is the required format for pysemtools
     xyz = z*np.ones((N*N,3))
     xyz[:,0] = X.flatten()
     xyz[:,1] = Y.flatten()
@@ -132,13 +169,12 @@ else:
 log("Initializing probes...")
 pb = Probes(comm, msh=msh, write_coords=False, probes = xyz)
 
-plt.figure(figsize = (6,4))
-plt.xlabel("x")
-plt.ylabel("y")
-plt.title("Waiting to receive data from neko...")
-plt.savefig(join(output_path, "probes.png"), dpi = 150)
-plt.tight_layout()
-log("Initializing probes... done")
+#=========================================
+# Initialize plots
+#=========================================
+
+if comm.Get_rank() == 0:
+    fig, axs = init_plot(output_path)
 
 #=========================================
 # Start streaming data
@@ -151,8 +187,8 @@ while stream_data:
     log("Waiting for data from Neko...")
     # Get the data
     u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-    v = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-    w = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
+    curl_z = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
+    avg_u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
     log("Data received")
 
     # Check if data was recieved or if the stream ended
@@ -165,22 +201,29 @@ while stream_data:
     # Interpolate and reshape into a structured grid for plotting
     pb.interpolate_from_field_list(
         j,
-        [u,v,w], 
+        [u,curl_z,avg_u], 
         comm, 
         write_data=False
         )
 
     if comm.Get_rank() == 0:
         u_probe = pb.interpolated_fields[:,1].reshape((N,N,1)).squeeze()
-        v_probe = pb.interpolated_fields[:,2].reshape((N,N,1)).squeeze()
-        w_probe = pb.interpolated_fields[:,3].reshape((N,N,1)).squeeze()
-        mag = np.sqrt(u_probe**2 + v_probe**2 + w_probe**2)
+        curl_probe = pb.interpolated_fields[:,2].reshape((N,N,1)).squeeze()
+        avg_probe = pb.interpolated_fields[:,3].reshape((N,N,1)).squeeze()
 
-        plt.title(f"Velocity magnitude (time step {j})")
+        fig.suptitle(f"time step {j}")
         log("Plotting probes...")
-        plt.contourf(X, Y, mag, levels = 40)
+        axs[0].contourf(X, Y, u_probe, levels = 40, norm=colors.Normalize(vmin=-0.4, vmax=1.4))
+        axs[1].contourf(X, Y, curl_probe, levels = 40, cmap = "bwr", norm=colors.Normalize(vmin=-4.0, vmax=4.0))
+        axs[2].contourf(X, Y, avg_probe, levels = 40, norm=colors.Normalize(vmin=-0.4, vmax=1.0))
+        if j == 0: 
+            fig.tight_layout()
+
         log("Saving probes...")
-        plt.savefig(join(output_path, f"probes_{j:05d}.png"), dpi = 150)
+        fname = join(output_path, f"cylinder_insitu_{j:05d}.png")
+        fig.savefig(fname, dpi = 200)
+        fname = "cylinder_insitu_latest.png"
+        fig.savefig(fname, dpi = 100)
         log("Saving probes... done")
 
     j += 1
