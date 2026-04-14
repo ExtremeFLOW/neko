@@ -74,6 +74,7 @@ module ale_manager
   use math, only : glmin, pi
   use field_math, only : field_rzero, field_add2, &
        field_cmult
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
 
   implicit none
   private
@@ -826,8 +827,8 @@ contains
     real(kind=rp), allocatable :: h2_restore(:, :, :, :)
     type(zero_dirichlet_t) :: bc_active_body
     type(zero_dirichlet_t) :: bc_inactive_body
-    type(bc_list_t) :: bcloc
-    type(bc_list_t) :: bcloc_zeros_only
+    type(scalar_bc_resolver_t) :: bc_resolver
+    type(scalar_bc_resolver_t) :: bc_resolver_zeros_only
 
 
     if (.not. this%active) return
@@ -933,15 +934,13 @@ contains
           call bc_inactive_body%finalize()
 
           ! The Full list for the solver (Freeze everything to 0 correction)
-          call bcloc%init()
-          call bcloc%append(this%bc_fixed)
-          call bcloc%append(bc_active_body)
-          call bcloc%append(bc_inactive_body)
+          call bc_resolver%mark(this%bc_fixed)
+          call bc_resolver%mark(bc_active_body)
+          call bc_resolver%mark(bc_inactive_body)
 
           ! The "Zeros Only" list for the field (Reset other boundaries)
-          call bcloc_zeros_only%init()
-          call bcloc_zeros_only%append(this%bc_fixed)
-          call bcloc_zeros_only%append(bc_inactive_body)
+          call bc_resolver_zeros_only%mark(this%bc_fixed)
+          call bc_resolver_zeros_only%mark(bc_inactive_body)
 
           call field_rzero(this%base_shapes(body_idx))
 
@@ -960,7 +959,7 @@ contains
           ! Apply Zeros to others.
           ! This ensures fixed walls and other bodies are 0.0,
           ! even if they share grid with a moving wall.
-          call bcloc_zeros_only%apply_scalar(this%base_shapes(body_idx)%x, n)
+          call bc_resolver_zeros_only%apply(this%base_shapes(body_idx)%x, n)
 
           ! Compute RHS: RHS = -A * Phi_lifted.
           ! The following is motivated by implementation in Nek5000.
@@ -970,14 +969,14 @@ contains
 
           ! Here we use the FULL list to apply zero Dirichlet BC
           ! on all boundaries.
-          call bcloc%apply_scalar(rhs_field%x, n)
+          call bc_resolver%apply(rhs_field%x, n)
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
           ! Solve
           call field_rzero(corr_field)
           call pc%update()
           monitor(1) = ksp%solve(Ax, corr_field, &
-               rhs_field%x, n, coef, bcloc, coef%gs_h)
+               rhs_field%x, n, coef, bc_resolver, coef%gs_h)
 
           ! phi = phi_lifted + phi_corr
           call field_add2(this%base_shapes(body_idx), corr_field, n)
@@ -999,8 +998,8 @@ contains
 
           call bc_active_body%free()
           call bc_inactive_body%free()
-          call bcloc%free()
-          call bcloc_zeros_only%free()
+          call bc_resolver%free()
+          call bc_resolver_zeros_only%free()
 
           if (this%config%if_output_phi) then
              call phi_file%init('phi_' // &
