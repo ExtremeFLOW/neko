@@ -56,8 +56,7 @@ module gather_scatter
        MPI_STATUS_IGNORE, MPI_Get_Count
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types, only : rp, dp, i2, i8
-  use htable, only : htable_i8_t, htable_iter_i8_t
+  use num_types, only : rp, dp, i8
   use stack, only : stack_i4_t
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
@@ -91,8 +90,6 @@ module gather_scatter
      class(gs_bcknd_t), allocatable :: bcknd !< Gather-scatter backend
      class(gs_comm_t), allocatable :: comm !< Comm. method
      class(gs_interp_t), allocatable :: interp !< Face/edge interpolation
-     ! no longer needed for AMR version
-     type(htable_i8_t) :: shared_dofs !< Htable of shared dofs
    contains
      procedure, private, pass(gs) :: gs_op_fld
      procedure, private, pass(gs) :: gs_op_r4
@@ -112,7 +109,6 @@ module gather_scatter
 
   ! Expose available gather-scatter comm. backends
   public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM
-
 
 contains
 
@@ -403,8 +399,6 @@ contains
     gs%nlocal_blks = 0
     gs%nshared_blks = 0
 
-    call gs%shared_dofs%free()
-
     if (allocated(gs%bcknd)) then
        call gs%bcknd%free()
        deallocate(gs%bcknd)
@@ -437,9 +431,10 @@ contains
     integer, allocatable, dimension(:, :) :: ngh_src, ngh_dst
     integer, parameter :: lda1 = 2 ! tuple length
     integer, dimension(lda1) :: aa1 ! tmp array for sorting
-    integer, dimension(:), allocatable :: ind_src, ind_dst
+    integer, dimension(:), allocatable :: fcs_hng_sort, ind_src, ind_dst
     integer, parameter :: nkey = 1 ! max. number of keys
     integer, dimension(nkey) :: key
+    logical, allocatable, dimension(:) :: iffcs_hang
     type(stack_i4_t) :: send_pe, recv_pe
 
     ! Number of degrees of freedom; assumption lx=ly=lz
@@ -501,22 +496,91 @@ contains
       do il = 1, nfcs_loc
          id = max(id, fcs_mult(fcs_loc(il)))
       end do
+
       if (id .gt. 2) then
-         ! local
-!         call neko_error('gs_init_mapping_schedule: not done yet')
-            
+         ! count and mark local faces with multiplicity bigger than 2
+         allocate(iffcs_hang(nfcs_loc), fcs_hng_sort(nfcs_loc))
+         iffcs_hang(:) = .false.
+         do il = 1, nfcs_loc
+            if (fcs_mult(fcs_loc(il)) .gt. 2) then
+               iffcs_hang(il) = .true.
+               ! object count
+               nlfcs_ncon = nlfcs_ncon +1
+               ! object count with multiplicity
+               nlfcs_ncon_dof = nlfcs_ncon_dof + fcs_mult(fcs_loc(il))
+            end if
+         end do
+
+         ! sort faces
+         jl = 0
+         kl = nlfcs_ncon
+         do il = 1, nfcs_loc
+            if (iffcs_hang(il)) then
+               jl = jl + 1
+               fcs_hng_sort(jl) = fcs_loc(il)
+            else
+               kl = kl + 1
+               fcs_hng_sort(kl) = fcs_loc(il)
+            end if
+         end do
+         ! sanity check
+         if (jl .ne. nlfcs_ncon .or. kl .ne. nfcs_loc) &
+              call neko_error('gs_init_mapping_schedule: inconsitent local &
+              &hanging faces number')
+         fcs_loc(:) = fcs_hng_sort(:)
+
+         deallocate(iffcs_hang, fcs_hng_sort)
 
          gs%local_facet_offset = gs%local_facet_offset + nlfcs_ncon_dof * &
               (lx - 2) * (lx - 2)
          gs%nlocal_blks = gs%nlocal_blks + nlfcs_ncon * (lx - 2) * (lx - 2)
       end if
+
       ! shared
       ! For shared dof it is necessary to use global information not to
       ! destroy unique communication order.
       if (fcs%nshare .gt. 0) then
-         if (maxval(fcs_mult_glb) .gt. 2) then
-!            call neko_error('gs_init_mapping_schedule: not done yet')
-            
+         ! find max multiplicity for local nodes
+         id = 0
+         do il = 1, fcs%nshare
+            ! global multiplicity
+            id = max(id, fcs_mult_glb(fcs_shr(il)))
+         end do
+
+         if (id .gt. 2) then
+            ! count and mark shared faces with multiplicity bigger than 2
+            allocate(iffcs_hang(fcs%nshare), fcs_hng_sort(fcs%nshare))
+            iffcs_hang(:) = .false.
+            do il = 1, fcs%nshare
+               ! global multiplicity
+               if (fcs_mult_glb(fcs_shr(il)) .gt. 2) then
+                  iffcs_hang(il) = .true.
+                  ! object count
+                  nsfcs_ncon = nsfcs_ncon +1
+                  ! object count with multiplicity; local
+                  nsfcs_ncon_dof = nsfcs_ncon_dof + fcs_mult(fcs_shr(il))
+               end if
+            end do
+
+            ! sort faces
+            jl = 0
+            kl = nsfcs_ncon
+            do il = 1, fcs%nshare
+               if (iffcs_hang(il)) then
+                  jl = jl + 1
+                  fcs_hng_sort(jl) = fcs_shr(il)
+               else
+                  kl = kl + 1
+                  fcs_hng_sort(kl) = fcs_shr(il)
+               end if
+            end do
+            ! sanity check
+            if (jl .ne. nsfcs_ncon .or. kl .ne. fcs%nshare) &
+                 call neko_error('gs_init_mapping_schedule: inconsistent &
+                 &shared hanging faces number')
+            fcs_shr(:) = fcs_hng_sort(:)
+
+            deallocate(iffcs_hang, fcs_hng_sort)
 
             gs%shared_facet_offset = gs%shared_facet_offset + nsfcs_ncon_dof * &
                  (lx - 2) * (lx - 2)
