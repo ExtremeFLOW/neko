@@ -417,7 +417,7 @@ contains
        call json_get(this%params, 'alphat', json_subdict)
        call json_get(json_subdict, 'nut_dependency', nut_dependency)
        if (nut_dependency) then
-          call json_get(json_subdict, 'Pr_t', this%pr_turb)
+          call json_get_or_lookup(json_subdict, 'Pr_t', this%pr_turb)
           call json_get(json_subdict, 'nut_field', this%nut_field_name)
        else
           call json_get(json_subdict, 'alphat_field', this%alphat_field_name)

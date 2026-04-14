@@ -88,6 +88,22 @@ module checkpoint
      type(space_t) :: previous_Xh
      real(kind=dp) :: mesh2mesh_tol = GLOB_INTERP_TOL
 
+     !> ALE fields
+     type(field_t), pointer :: wm_x => null()
+     type(field_t), pointer :: wm_y => null()
+     type(field_t), pointer :: wm_z => null()
+     type(field_series_t), pointer :: wm_x_lag => null()
+     type(field_series_t), pointer :: wm_y_lag => null()
+     type(field_series_t), pointer :: wm_z_lag => null()
+     real(kind=rp), pointer :: msh_x(:,:,:,:) => null()
+     real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
+     real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
+     real(kind=rp), pointer :: pivot_pos(:) => null()
+     real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
+     real(kind=rp), pointer :: Blag(:,:,:,:) => null()
+     real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
+     real(kind=rp), pointer :: basis_pos(:) => null()
+     real(kind=rp), pointer :: basis_vel_lag(:,:) => null()
    contains
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
@@ -95,6 +111,7 @@ module checkpoint
      procedure, pass(this) :: add_fluid => chkp_add_fluid
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
+     procedure, pass(this) :: add_ale => chkp_add_ale
      procedure, pass(this) :: restart_time => chkp_restart_time
      procedure, pass(this) :: free => chkp_free
   end type chkp_t
@@ -127,6 +144,23 @@ contains
 
     if (associated(this%tlag)) nullify(this%tlag)
     if (associated(this%dtlag)) nullify(this%dtlag)
+
+    ! ALE cleanup
+    if (associated(this%wm_x)) nullify(this%wm_x)
+    if (associated(this%wm_y)) nullify(this%wm_y)
+    if (associated(this%wm_z)) nullify(this%wm_z)
+    if (associated(this%wm_x_lag)) nullify(this%wm_x_lag)
+    if (associated(this%wm_y_lag)) nullify(this%wm_y_lag)
+    if (associated(this%wm_z_lag)) nullify(this%wm_z_lag)
+    if (associated(this%basis_vel_lag)) nullify(this%basis_vel_lag)
+    if (associated(this%msh_x)) nullify(this%msh_x)
+    if (associated(this%msh_y)) nullify(this%msh_y)
+    if (associated(this%msh_z)) nullify(this%msh_z)
+    if (associated(this%pivot_pos)) nullify(this%pivot_pos)
+    if (associated(this%pivot_vel_lag)) nullify(this%pivot_vel_lag)
+    if (associated(this%Blag)) nullify(this%Blag)
+    if (associated(this%Blaglag)) nullify(this%Blaglag)
+    if (associated(this%basis_pos)) nullify(this%basis_pos)
 
     if (associated(this%abx1)) nullify(this%abx1)
     if (associated(this%abx2)) nullify(this%abx2)
@@ -199,6 +233,33 @@ contains
             call this%abs2%copy_from(DEVICE_TO_HOST, sync = .false.)
          end if
 
+         ! ALE field synchronization
+         if (associated(this%wm_x) .and. associated(this%wm_y) .and. &
+              associated(this%wm_z)) then
+            call this%wm_x%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%wm_y%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%wm_z%copy_from(DEVICE_TO_HOST, sync = .false.)
+
+            if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) &
+                 .and. associated(this%wm_z_lag)) then
+
+               call this%wm_x_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_x_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+
+               call this%wm_y_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_y_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+
+               call this%wm_z_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_z_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+            end if
+         end if
+
          ! Multi-scalar lag field synchronization
          do i = 1, this%scalar_lags%size()
             block
@@ -264,6 +325,31 @@ contains
             call this%slag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%abs1%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%abs2%copy_from(HOST_TO_DEVICE, sync = .false.)
+         end if
+
+         ! ALE field synchronization
+         if (associated(this%wm_x) .and. associated(this%wm_y) .and. &
+              associated(this%wm_z)) then
+            call this%wm_x%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%wm_y%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%wm_z%copy_from(HOST_TO_DEVICE, sync = .false.)
+            if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) .and. &
+                associated(this%wm_z_lag)) then
+               call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+
+               call this%wm_y_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_y_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+
+               call this%wm_z_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_z_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+            end if
          end if
 
          ! Multi-scalar lag field synchronization
@@ -354,6 +440,35 @@ contains
 
   end subroutine chkp_add_scalar
 
+  !> Add mesh velocity and other required variables to checkpointing for ALE
+  subroutine chkp_add_ale(this, x, y, z, Blag, Blaglag, wm_x, wm_y, wm_z, &
+       wm_x_lag, wm_y_lag, wm_z_lag, pivot_pos, pivot_vel_lag, basis_pos, &
+       basis_vel_lag)
+    class(chkp_t), intent(inout) :: this
+    type(field_t), target, intent(in) :: wm_x, wm_y, wm_z
+    real(kind=rp), intent(in), pointer :: pivot_pos(:), pivot_vel_lag(:,:)
+    type(field_series_t), target, intent(in) :: wm_x_lag, wm_y_lag, wm_z_lag
+    real(kind=rp), intent(in), pointer :: x(:,:,:,:), y(:,:,:,:), z(:,:,:,:)
+    real(kind=rp), pointer, intent(in) :: Blag(:,:,:,:), Blaglag(:,:,:,:)
+    real(kind=rp), intent(in), pointer :: basis_pos(:)
+    real(kind=rp), intent(in), pointer :: basis_vel_lag(:,:)
+
+    this%msh_x => x
+    this%msh_y => y
+    this%msh_z => z
+    this%wm_x => wm_x
+    this%wm_y => wm_y
+    this%wm_z => wm_z
+    this%wm_x_lag => wm_x_lag
+    this%wm_y_lag => wm_y_lag
+    this%wm_z_lag => wm_z_lag
+    this%Blag => Blag
+    this%Blaglag => Blaglag
+    this%pivot_pos => pivot_pos
+    this%pivot_vel_lag => pivot_vel_lag
+    this%basis_pos => basis_pos
+    this%basis_vel_lag => basis_vel_lag
+  end subroutine chkp_add_ale
 
   !> Return restart time from a loaded checkpoint
   pure function chkp_restart_time(this) result(rtime)

@@ -43,7 +43,9 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
+  use no_slip, only : no_slip_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+
   implicit none
 
   ! List of all possible types created by the boundary condition factories
@@ -120,7 +122,7 @@ contains
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
 
-    write(buf,'("pressure_bc_",I0)') zone_indices(1)
+    write(buf, '("pressure_bc_", I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
     object%zone_indices = zone_indices
@@ -173,7 +175,7 @@ contains
     case ("velocity_value")
        allocate(inflow_t::object)
     case ("no_slip")
-       allocate(zero_dirichlet_t::object)
+       allocate(no_slip_t::object)
     case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
        allocate(non_normal_t::object)
     case ("blasius_profile")

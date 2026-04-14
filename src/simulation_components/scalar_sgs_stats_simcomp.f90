@@ -45,7 +45,8 @@ module scalar_sgs_stats_simcomp
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
   use logger, only : LOG_SIZE, neko_log
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+     json_get_or_lookup_or_default, json_get_or_lookup
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
@@ -113,7 +114,7 @@ contains
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
-    call json_get_or_default(json, 'start_time', &
+    call json_get_or_lookup_or_default(json, 'start_time', &
          start_time, 0.0_rp)
     call json_get_or_default(json, 'field', &
          sname, 's')
@@ -121,7 +122,7 @@ contains
     call json_get(json, 'alphat', json_subdict)
     call json_get(json_subdict, 'nut_dependency', nut_dependency)
     if (nut_dependency) then
-       call json_get(json_subdict, 'Pr_t', pr_turb)
+       call json_get_or_lookup(json_subdict, 'Pr_t', pr_turb)
        call json_get(json_subdict, 'nut_field', nut_field)
     else
        call json_get(json_subdict, 'alphat_field', alphat_field)

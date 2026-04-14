@@ -457,7 +457,7 @@ contains
     if (lvl-1 .eq. 0) then
        call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
        call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
-       call this%blst%apply(vec_out, n)
+       call this%blst%apply(vec_out, this%lvl(lvl)%fine_lvl_dofs)
     end if
   end subroutine tamg_prolongation_operator
 
@@ -534,7 +534,7 @@ contains
        call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
        call device_col2( vec_out_d, this%coef%mult_d, m)
-       call this%blst%apply( vec_out, n)
+       call this%blst%apply( vec_out, m)
     end if
   end subroutine tamg_device_prolongation_operator
 
