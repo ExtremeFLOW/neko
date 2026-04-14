@@ -159,4 +159,23 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
+
+  /** 
+   * Fortran wrapper for generating mass matrix
+   */
+  void hip_coef_generate_mass(void *B, void *Binv, void *jac, 
+				  void *w3, int *lxyz, int *nel)  {
+
+    int n = (*lxyz) * (*nel);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((n) + 1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(coef_generate_mass_kernel<real>),
+		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+		       (real *) B, (real *) Binv, (real *) jac, (real *) w3,
+		       *lxyz, *nel);
+           
+    HIP_CHECK(hipGetLastError());
+
+  }
 }
