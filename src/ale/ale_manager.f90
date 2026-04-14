@@ -860,8 +860,6 @@ contains
          coef%gs_h, this%bc_list, precon_type, precon_params)
 
     ! Save original h1/h2
-
-    ! Save values
     h1_restore = coef%h1
     h2_restore = coef%h2
 
@@ -1146,7 +1144,10 @@ contains
     if (associated(this%user_ale_mesh_vel)) then
        call this%user_ale_mesh_vel(this%wm_x, this%wm_y, this%wm_z, &
             coef, this%x_ref, this%y_ref, this%z_ref, this%base_shapes, time_s)
+
        ! Sync user modifications to the device
+       ! This probably is better NOT TO BE DONE HERE, and directly in the user function, and directry on device.
+       ! I will leave it here so I won't forget about it, but it needs to be revisited.
        if (NEKO_BCKND_DEVICE .eq. 1) then
           n = coef%dof%size()
           call device_memcpy(this%wm_x%x, this%wm_x%x_d, n, HOST_TO_DEVICE, .false.)

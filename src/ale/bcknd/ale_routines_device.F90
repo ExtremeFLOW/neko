@@ -66,7 +66,6 @@ contains
   end subroutine compute_stiffness_ale_device
 
 !> Cheap dist device implementation
-!> Cheap dist device implementation
   subroutine compute_cheap_dist_device(d, coef, msh, zone_indices)
     real(kind=rp), intent(inout), target :: d(:)
     type(coef_t), intent(in) :: coef
@@ -76,7 +75,7 @@ contains
     integer :: i, k, n, m, idx
     integer :: ipass, max_pass, local_iters
     integer :: lx, ly, lz, nel, z_idx
-    integer, target :: change_vec(1) ! <-- We use this array for everything tracking-related
+    integer, target :: change_vec(1) 
     logical :: done
     character(len=128) :: log_buf
     type(c_ptr) :: d_d, nchange_d
@@ -120,7 +119,6 @@ contains
     done = .false.
     do while (ipass <= max_pass .and. .not. done)
        
-       ! Reset tracking array on host and push to device (1 element)
        change_vec(1) = 0
        call device_memcpy(change_vec, nchange_d, 1, HOST_TO_DEVICE, .true.)
 
@@ -138,10 +136,8 @@ contains
        ipass = ipass + 1
     end do
 
-    ! Sync the whole distance array back to the host at the very end
     call device_memcpy(d, d_d, n, DEVICE_TO_HOST, .true.)
 
-    ! Clean up maps instead of using device_free
     call device_unmap(change_vec, nchange_d)
     call device_unmap(d, d_d)
          
@@ -170,9 +166,15 @@ contains
           wx%x_d, wy%x_d, wz%x_d, &
           x_ref%x_d, y_ref%x_d, z_ref%x_d, &
           phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, & 
-          kinematics%center(1), kinematics%center(2), kinematics%center(3), &
-          kinematics%vel_trans(1), kinematics%vel_trans(2), kinematics%vel_trans(3), &
-          kinematics%vel_ang(1), kinematics%vel_ang(2), kinematics%vel_ang(3), &
+          kinematics%center(1), &
+          kinematics%center(2), &
+          kinematics%center(3), &
+          kinematics%vel_trans(1), &
+          kinematics%vel_trans(2), &
+          kinematics%vel_trans(3), &
+          kinematics%vel_ang(1), &
+          kinematics%vel_ang(2), &
+          kinematics%vel_ang(3), &
           inital_pivot_loc(1), inital_pivot_loc(2), inital_pivot_loc(3), &
           rot_mat(1,1), rot_mat(1,2), rot_mat(1,3), &
           rot_mat(2,1), rot_mat(2,2), rot_mat(2,3), &
