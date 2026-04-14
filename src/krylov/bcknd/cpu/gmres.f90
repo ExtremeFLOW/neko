@@ -176,6 +176,7 @@ contains
     integer :: i, j, k, l, ierr
     real(kind=xp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
     real(kind=xp) :: alpha, lr, alpha2, norm_fac
+    real(kind=xp) :: hl_priv(this%lgmres)
     real(kind=rp) :: temp, rnorm
     logical :: conv
 
@@ -231,37 +232,50 @@ contains
             call blst%apply(w, n)
 
             do l = 1, j
-               h(l,j) = 0.0_rp
+               h(l,j) = 0.0_xp
             end do
 
+            !$omp parallel private(k, l, hl_priv)
+            do l = 1, j
+               hl_priv(l) = 0.0_xp
+            end do
+            !$omp do
             do i = 0, n, NEKO_BLK_SIZE
                do l = 1, j
-                  do k = 1, min(NEKO_BLK_SIZE, n - i)
-                     h(l,j) = h(l,j) + &
+                  do concurrent (k = 1:min(NEKO_BLK_SIZE, n - i))
+                     hl_priv(l) = hl_priv(l) + &
                           w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                   end do
                end do
             end do
+            !$omp end do
 
+            do l = 1, j
+               !$omp atomic
+               h(l,j) = h(l,j) + hl_priv(l)
+            end do
+
+            !$omp end parallel
             call MPI_Allreduce(MPI_IN_PLACE, h(1,j), j, &
                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
             alpha2 = 0.0_rp
+            !$omp parallel do private(k, l, w_plus) reduction(+:alpha2)
             do i = 0, n, NEKO_BLK_SIZE
-               do k = 1, min(NEKO_BLK_SIZE, n - i)
+               do concurrent (k = 1:min(NEKO_BLK_SIZE, n - i))
                   w_plus(k) = 0.0_rp
                end do
                do l = 1, j
-                  do k = 1, min(NEKO_BLK_SIZE, n - i)
+                  do concurrent (k = 1:min(NEKO_BLK_SIZE, n - i))
                      w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
                   end do
                end do
-               do k = 1, min(NEKO_BLK_SIZE, n - i)
+               do concurrent (k = 1:min(NEKO_BLK_SIZE, n - i))
                   w(i+k) = w(i+k) + w_plus(k)
                   alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
                end do
             end do
-
+            !$omp end parallel do
             call MPI_Allreduce(MPI_IN_PLACE,alpha2, 1, &
                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
             alpha = sqrt(alpha2)
@@ -309,6 +323,7 @@ contains
             c(k) = temp / h(k,k)
          end do
 
+         !$omp parallel do private(k, l, x_plus)
          do i = 0, n, NEKO_BLK_SIZE
             do k = 1, min(NEKO_BLK_SIZE, n - i)
                x_plus(k) = 0.0_rp
@@ -322,6 +337,7 @@ contains
                x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
             end do
          end do
+         !$omp end parallel do
       end do
 
     end associate

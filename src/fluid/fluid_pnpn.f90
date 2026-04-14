@@ -1109,9 +1109,9 @@ contains
        end do
 
        if (this%ale%active .and. (.not. this%ale%has_moving_boundary)) then
-          call neko_error("Case file error: ALE is active, &
-          &but no moving wall was found. " // &
-                  "Use type = 'no_slip' with 'moving': true in case file.")
+          call neko_error("Case file error: ALE is active, " // &
+               "but no moving wall was found. " // &
+               "Use type = 'no_slip' with 'moving': true in case file.")
        end if
 
        ! Make sure all labeled zones with non-zero size have been marked
