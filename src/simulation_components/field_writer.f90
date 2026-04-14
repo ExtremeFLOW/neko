@@ -101,7 +101,7 @@ contains
     character(len=20), allocatable :: fields(:)
     integer :: precision_value
     logical :: subdivide
-    class (point_zone_t), pointer :: point_zone
+    class(point_zone_t), pointer :: point_zone
 
     call this%init_base(json, case)
     call json_get(json, "fields", fields)
