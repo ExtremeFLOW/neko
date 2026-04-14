@@ -4,6 +4,19 @@
 #include <cmath>
 #include <algorithm>
 
+#ifndef KINEMATICS_PARAMS_T_DEFINED
+#define KINEMATICS_PARAMS_T_DEFINED
+typedef struct {
+    real cx, cy, cz;
+    real vtx, vty, vtz;
+    real vax, vay, vaz;
+    real px, py, pz;
+    real r11, r12, r13;
+    real r21, r22, r23;
+    real r31, r32, r33;
+} kinematics_params_t;
+#endif
+
 template< typename T >
 __global__ void ale_add_kinematics_kernel(const int n, 
                 T * __restrict__ wx, 
@@ -16,13 +29,7 @@ __global__ void ale_add_kinematics_kernel(const int n,
                 const T * __restrict__ x, 
                 const T * __restrict__ y, 
                 const T * __restrict__ z,
-                const T cx, const T cy, const T cz,
-                const T vtx, const T vty, const T vtz,
-                const T vax, const T vay, const T vaz,
-                const T px, const T py, const T pz,
-                const T r11, const T r12, const T r13,
-                const T r21, const T r22, const T r23,
-                const T r31, const T r32, const T r33) {
+                const kinematics_params_t kin_params) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -32,31 +39,39 @@ __global__ void ale_add_kinematics_kernel(const int n,
     T v_tan_x, v_tan_y, v_tan_z;
 
     if (abs(p_val - 1.0) < 1e-6) {
-      const T rx = x[i] - cx;
-      const T ry = y[i] - cy;
-      const T rz = z[i] - cz;
+      const T rx = x[i] - kin_params.cx;
+      const T ry = y[i] - kin_params.cy;
+      const T rz = z[i] - kin_params.cz;
 
-      v_tan_x = vay * rz - vaz * ry;
-      v_tan_y = vaz * rx - vax * rz;
-      v_tan_z = vax * ry - vay * rx;
+      v_tan_x = kin_params.vay * rz - kin_params.vaz * ry;
+      v_tan_y = kin_params.vaz * rx - kin_params.vax * rz;
+      v_tan_z = kin_params.vax * ry - kin_params.vay * rx;
     } 
     else {
-      const T dx_ref = x_ref[i] - px;
-      const T dy_ref = y_ref[i] - py;
-      const T dz_ref = z_ref[i] - pz;
+      const T dx_ref = x_ref[i] - kin_params.px;
+      const T dy_ref = y_ref[i] - kin_params.py;
+      const T dz_ref = z_ref[i] - kin_params.pz;
 
-      const T rx_target = r11*dx_ref + r12*dy_ref + r13*dz_ref;
-      const T ry_target = r21*dx_ref + r22*dy_ref + r23*dz_ref;
-      const T rz_target = r31*dx_ref + r32*dy_ref + r33*dz_ref;
+      const T rx_target = kin_params.r11*dx_ref + 
+                          kin_params.r12*dy_ref + 
+                          kin_params.r13*dz_ref;
 
-      v_tan_x = vay * rz_target - vaz * ry_target;
-      v_tan_y = vaz * rx_target - vax * rz_target;
-      v_tan_z = vax * ry_target - vay * rx_target;
+      const T ry_target = kin_params.r21*dx_ref + 
+                          kin_params.r22*dy_ref + 
+                          kin_params.r23*dz_ref;
+
+      const T rz_target = kin_params.r31*dx_ref + 
+                          kin_params.r32*dy_ref + 
+                          kin_params.r33*dz_ref;
+
+      v_tan_x = kin_params.vay * rz_target - kin_params.vaz * ry_target;
+      v_tan_y = kin_params.vaz * rx_target - kin_params.vax * rz_target;
+      v_tan_z = kin_params.vax * ry_target - kin_params.vay * rx_target;
     }
 
-    wx[i] += (vtx + v_tan_x) * p_val;
-    wy[i] += (vty + v_tan_y) * p_val;
-    wz[i] += (vtz + v_tan_z) * p_val;
+    wx[i] += (kin_params.vtx + v_tan_x) * p_val;
+    wy[i] += (kin_params.vty + v_tan_y) * p_val;
+    wz[i] += (kin_params.vtz + v_tan_z) * p_val;
   }
 }
 

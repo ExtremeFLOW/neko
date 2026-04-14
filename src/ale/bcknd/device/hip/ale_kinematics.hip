@@ -3,21 +3,24 @@
 #include <device/hip/check.h>
 #include "ale_kinematics_kernel.h"
 
+typedef struct {
+    real cx, cy, cz;
+    real vtx, vty, vtz;
+    real vax, vay, vaz;
+    real px, py, pz;
+    real r11, r12, r13;
+    real r21, r22, r23;
+    real r31, r32, r33;
+} kinematics_params_t;
+
 extern "C" {
   void add_kinematics_to_mesh_velocity_hip(
       void *wx, void *wy, void *wz,
       void *x_ref, void *y_ref, void *z_ref,
       void *phi, void *x, void *y, void *z,
-      real cx, real cy, real cz,           
-      real vtx, real vty, real vtz,        
-      real vax, real vay, real vaz,        
-      real px, real py, real pz,         
-      real r11, real r12, real r13,        
-      real r21, real r22, real r23, 
-      real r31, real r32, real r33,
+      kinematics_params_t kin_params, 
       int n)                              
   {
-    // Threads and blocks calculation using the value of n
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((n + 1024 - 1) / 1024, 1, 1);
 
@@ -28,9 +31,7 @@ extern "C" {
         (real*)wx, (real*)wy, (real*)wz,
         (real*)x_ref, (real*)y_ref, (real*)z_ref,
         (real*)phi, (real*)x, (real*)y, (real*)z,
-        cx, cy, cz, vtx, vty, vtz, vax, vay, vaz, px, py, pz,
-        r11, r12, r13, r21, r22, r23, r31, r32, r33
-    );
+        kin_params);
 
     HIP_CHECK(hipGetLastError());
   }
