@@ -226,9 +226,10 @@ module vector_bc_resolver
 
   abstract interface
      !> Finalize the vector boundary-condition resolver.
-     subroutine vector_bc_resolver_finalize_intrf(this)
+     subroutine vector_bc_resolver_finalize_intrf(this, rebuild_mask)
        import :: vector_bc_resolver_t
        class(vector_bc_resolver_t), intent(inout) :: this
+       logical, intent(in) :: rebuild_mask
      end subroutine vector_bc_resolver_finalize_intrf
   end interface
 
@@ -294,8 +295,9 @@ contains
   end subroutine segregated_vector_bc_resolver_init
 
   !> Finalize the segregated vector boundary-condition resolver.
-  subroutine segregated_vector_bc_resolver_finalize(this)
+  subroutine segregated_vector_bc_resolver_finalize(this, rebuild_mask)
     class(segregated_vector_bc_resolver_t), intent(inout) :: this
+    logical, intent(in) :: rebuild_mask
   end subroutine segregated_vector_bc_resolver_finalize
 
   !> Mark a boundary condition in the segregated resolver.
@@ -560,11 +562,15 @@ contains
   !> Finalize the coupled resolver by resolving the accumulated BC list.
   !! @details This routine builds the dof masks for Dirichlet and mixed nodes,
   !! and computes the local basis for the mixed ones.
-  subroutine coupled_vector_bc_resolver_finalize(this)
+  subroutine coupled_vector_bc_resolver_finalize(this, rebuild_mask)
     class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    logical, intent(in) :: rebuild_mask
     if (this%bcs%size() .eq. 0) return
 
-    call this%rebuild_masks()
+    if (rebuild_mask) then
+       call this%rebuild_masks()
+    end if
+
     call this%rebuild_basis()
 
     call this%debug_output()
@@ -827,7 +833,7 @@ contains
        end if
     end do
 
-    write(*,*) "Filled mixed node constraints in coupled vector BC resolver."
+    !write(*,*) "Filled mixed node constraints in coupled vector BC resolver."
 
     if (allocated(dirichlet_mask_values)) deallocate(dirichlet_mask_values)
     if (allocated(mixed_mask_values)) deallocate(mixed_mask_values)
@@ -929,8 +935,8 @@ contains
        end do
     end do
 
-    write(*,*) "Seeded normals at directly marked mixed nodes in " // &
-         "coupled vector BC resolver."
+    !write(*,*) "Seeded normals at directly marked mixed nodes in " // &
+    !     "coupled vector BC resolver."
 
     ! We now treat the special edges and conrners. Everything is done locally
     ! per element, using reference element address tables found in hex.f90
@@ -1048,8 +1054,8 @@ contains
           end do
        end do
 
-       write(*,*) "Finished reconstructing normals at mixed edges in " // &
-            "coupled vector BC resolver."
+       !write(*,*) "Finished reconstructing normals at mixed edges in " // &
+       !     "coupled vector BC resolver."
 
        ! Mixed corner node normals are rebuilt from the adjacent faces whose
        ! local face type matches the reduced nodal type at that node.
@@ -1095,8 +1101,8 @@ contains
        end do
     end if
 
-    write(*,*) "Finished reconstructing normals at mixed corners in " // &
-         "coupled vector BC resolver."
+    !write(*,*) "Finished reconstructing normals at mixed corners in " // &
+    !     "coupled vector BC resolver."
 
     ! We are done element-wise. Now we can just sum the normals across nodes
     ! shared by multiple elements.
@@ -1145,7 +1151,7 @@ contains
        end if
     end do
 
-    write(*,*) "Finished building local basis for coupled vector BC resolver."
+    !write(*,*) "Finished building local basis for coupled vector BC resolver."
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%constraint_n, this%constraint_n_d, &

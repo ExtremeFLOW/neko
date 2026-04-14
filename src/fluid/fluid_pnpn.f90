@@ -1139,7 +1139,7 @@ contains
 
     call this%bc_prs_surface%finalize()
     call this%bc_sym_surface%finalize()
-    call this%bcs_vel_resolver%finalize()
+    call this%bcs_vel_resolver%finalize(rebuild_mask = .true.)
 
 !    do i = 1, this%bcs_vel%size()
 !       bc_i => this%bcs_vel%get(i)
