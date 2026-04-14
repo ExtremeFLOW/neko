@@ -51,7 +51,7 @@ extern "C" void adios2_initialize_(
     f2py_field = io_asynchronous.DefineVariable<double>("f2py_field", {gn}, {start}, {n});
     
     // If asyncrhonous execution, open the global array
-    std::cout << "create global array" << std::endl;
+    std::cout << "(ADIOS2) Creating global arrays" << std::endl;
     writer_st = io_asynchronous.Open("globalArray_f2py", adios2::Mode::Write);
     reader_st = io_asynchronous.Open("globalArray_py2f", adios2::Mode::Read);
 
@@ -70,7 +70,7 @@ extern "C" void adios2_initialize_(
 }
 
 extern "C" void adios2_finalize_(){
-    std::cout << "Close global arrays" << std::endl;
+    std::cout << "(ADIOS2) Closing global arrays" << std::endl;
     writer_st.Close();
     reader_st.Close();
 
@@ -79,6 +79,7 @@ extern "C" void adios2_finalize_(){
 extern "C" void adios2_stream_(
     const double *field
 ){
+    std::cout << "(ADIOS2) Streaming field" << std::endl;
     writer_st.BeginStep();
     writer_st.Put<double>(f2py_field, field);
     writer_st.EndStep();
@@ -87,6 +88,7 @@ extern "C" void adios2_stream_(
 extern "C" void adios2_recieve_(
     double *field
 ){
+    std::cout << "(ADIOS2) Receiving field" << std::endl;
     reader_st.BeginStep();
     py2f_field = io_asynchronous.InquireVariable<double>("py2f_field");
     py2f_field.SetSelection({{reader_start}, {reader_count}});
