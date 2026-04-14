@@ -217,7 +217,7 @@ contains
     end if
 
     call neko_log%section("ALE Initialization")
-    call neko_log%section(" ")
+    call neko_log%message(" ")
 
     if (NEKO_BCKND_HIP .eq. 1) then
        call neko_log%message("Initializing ALE Manager with DEVICE backend (HIP).")
