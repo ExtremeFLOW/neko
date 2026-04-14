@@ -56,6 +56,7 @@ module overset_interface_vector
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
+  use overset_interface, only : morph_overset_interface
   use utils, only : neko_error, nonlinear_index, linear_index
   use stack, only: stack_i4_t
   use json_module, only : json_file
@@ -125,15 +126,6 @@ module overset_interface_vector
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
 
   end type overset_interface_vector_t
-
-  abstract interface
-     subroutine morph_overset_interface(time)
-       import time_state_t
-       type(time_state_t), intent(in) :: time
-     end subroutine morph_overset_interface
-  end interface
-
-  public :: morph_overset_interface
 
 contains
 

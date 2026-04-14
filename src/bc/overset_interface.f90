@@ -78,6 +78,11 @@ module overset_interface
      type(vector_t) :: s_interface
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
+
+     !> Function pointer to the user routine performing the update of the values
+     !! of the boundary fields.
+     procedure(morph_overset_interface), nopass, pointer :: morph_interface => null()
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_init
@@ -105,6 +110,15 @@ module overset_interface
      !> Set up the interpolator.
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
   end type overset_interface_t
+
+    abstract interface
+     subroutine morph_overset_interface(time)
+       import time_state_t
+       type(time_state_t), intent(in) :: time
+     end subroutine morph_overset_interface
+  end interface
+
+  public :: morph_overset_interface
 
 contains
 
@@ -329,6 +343,9 @@ contains
     class(overset_interface_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: s
+    
+    !> Change the coordinates of the interface if set up by the user
+    call this%morph_interface(time)
 
     s => neko_registry%get_field(trim(this%field_name))
 

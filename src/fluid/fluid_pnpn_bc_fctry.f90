@@ -114,6 +114,7 @@ contains
        select type (obj => object)
        type is (overset_interface_t)
           call json%add("field_name", scheme%p%name)
+          obj%morph_interface => user%morph_interface
        end select
 
     case default

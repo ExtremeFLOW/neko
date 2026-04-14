@@ -37,7 +37,7 @@ module user_intf
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
-  use overset_interface_vector, only : morph_overset_interface
+  use overset_interface, only : morph_overset_interface
   use field_dirichlet, only : field_dirichlet_update
   use field_neumann, only : field_neumann_update
   use num_types, only : rp
