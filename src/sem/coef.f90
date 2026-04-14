@@ -44,7 +44,8 @@ module coefs
   use device_math, only : device_rone, device_invcol1, &
        device_glsum
   use device_coef, only : device_coef_generate_geo, &
-       device_coef_generate_dxydrst, device_coef_generate_mass
+       device_coef_generate_dxydrst, device_coef_generate_mass, &
+       device_coef_generate_area_and_normal
   use mxm_wrapper, only : mxm
   use device
   use utils, only : index_is_on_facet, linear_index, &
