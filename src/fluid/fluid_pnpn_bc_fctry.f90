@@ -205,6 +205,10 @@ contains
 
     case ("overset_interface")
        allocate(overset_interface_vector_t::object)
+       select type (obj => object)
+       type is (overset_interface_vector_t)
+          obj%morph_interface => user%morph_interface
+       end select
 
     case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)

@@ -88,6 +88,11 @@ module overset_interface_vector
      type(vector_t) :: u_interface, v_interface, w_interface
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
+     
+     !> Function pointer to the user routine performing the update of the values
+     !! of the boundary fields.
+     procedure(morph_overset_interface), nopass, pointer :: morph_interface => null()
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_vector_init
@@ -120,6 +125,15 @@ module overset_interface_vector
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
 
   end type overset_interface_vector_t
+
+  abstract interface
+     subroutine morph_overset_interface(time)
+       import time_state_t
+       type(time_state_t), intent(in) :: time
+     end subroutine morph_overset_interface
+  end interface
+
+  public :: morph_overset_interface
 
 contains
 
@@ -386,6 +400,9 @@ contains
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w
 
+
+    !> Change the coordinates of the interface if set up by the user
+    call this%morph_interface(time)
 
     !> Update in sub-step 1 should be an extrapolation of the boundary values
     ! not implemented for now

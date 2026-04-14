@@ -37,6 +37,7 @@ module user_intf
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
+  use overset_interface_vector, only : morph_overset_interface
   use field_dirichlet, only : field_dirichlet_update
   use field_neumann, only : field_neumann_update
   use num_types, only : rp
@@ -229,6 +230,9 @@ module user_intf
           ale_rigid_kinematics => null()
      procedure(user_ale_base_shapes_intf), nopass, pointer :: &
           ale_base_shapes => null()
+     !> User routine to morph the overset interface
+     procedure(morph_overset_interface), nopass, pointer :: &
+          morph_interface => null()
    contains
      !> Constructor that points non-associated routines to dummy ones.
      !! Calling a dummy routine causes an error in most cases, but sometimes
@@ -245,7 +249,7 @@ module user_intf
        user_material_properties_intf, user_finalize_intf, &
        user_startup_intf, user_source_term_intf, &
        user_ale_mesh_velocity_intf, user_ale_base_shapes_intf, &
-       user_ale_rigid_kinematics_intf
+       user_ale_rigid_kinematics_intf, morph_overset_interface
 contains
 
   !> Constructor.
@@ -361,6 +365,14 @@ contains
        n = n + 1
        write(extensions(n), '(A)') '- ALE base shapes'
     end if
+    
+    if (.not. associated(this%morph_interface)) then
+       this%morph_interface => dummy_morph_overset_interface
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Morph overset interface'
+    end if
 
     if (user_extended) then
        call neko_log%section('User defined extensions')
@@ -437,5 +449,9 @@ contains
     type(field_list_t), intent(inout) :: properties
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_material_properties
+  
+  subroutine dummy_morph_overset_interface(time)
+    type(time_state_t), intent(in) :: time
+  end subroutine dummy_morph_overset_interface
 
 end module user_intf
