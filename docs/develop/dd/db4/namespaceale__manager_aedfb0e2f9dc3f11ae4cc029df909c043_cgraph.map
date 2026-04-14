@@ -1,0 +1,7 @@
+<map id="ale_manager::ghost_tracker_coord_step" name="ale_manager::ghost_tracker_coord_step">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,157,45"/>
+<area shape="rect" id="Node000002" href="$d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c" title="Advance a single point position (x,y,z) from the point&#39;s velocity using AB time&#45;integration." alt="" coords="205,5,388,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,23,192,23,192,28,158,28"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="436,13,533,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,23,422,23,422,28,388,28"/>
+</map>

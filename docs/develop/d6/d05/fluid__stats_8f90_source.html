@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
   <div class="headertitle"><div class="title">fluid_stats.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d6/d05/fluid__stats_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2022-2024, The Neko Authors</span></div>
+<a href="../../d6/d05/fluid__stats_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2022-2026, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -143,7 +143,7 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/d73/namespacedevice__math.html">device_math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23">device_col3</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1">device_col2</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>, &amp;</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>       <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#ab9770f6ba59346cb52b53de1897526d2">device_invcol2</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a2b8d4f8b84ce7cc369cadc71c01dc207">device_addcol3</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f">invers2</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">col2</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">addcol3</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f">subcol3</a></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">col2</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">addcol3</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f">subcol3</a></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
@@ -798,201 +798,203 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div class="foldopen" id="foldopen00720" data-start="" data-end="">
 <div class="line"><a id="l00720" name="l00720"></a><span class="lineno"><a class="line" href="../../d9/d7d/namespacefluid__stats.html#a47e0b4a1488deeafbb5984bb92c43be6">  720</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d7d/namespacefluid__stats.html#a47e0b4a1488deeafbb5984bb92c43be6">fluid_stats_make_strong_grad</a>(this)</div>
 <div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../da/d8a/structfluid__stats_1_1fluid__stats__t.html">fluid_stats_t</a>) :: this</div>
-<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>    <span class="keywordtype">integer</span> :: n</div>
-<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span> </div>
-<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>    <span class="keywordflow">if</span> (this%n_stats .eq. 11) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span> </div>
-<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>    n = <span class="keyword">size</span>(this%coef%B)</div>
-<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span> </div>
-<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>       <span class="keyword">call </span>device_cfill(this%stats_work%x_d, 1.0_rp, n)</div>
-<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>       <span class="keyword">call </span>device_invcol2(this%stats_work%x_d, this%coef%B_d, n)</div>
-<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span>       <span class="keyword">call </span>device_col2(this%pdudx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span>       <span class="keyword">call </span>device_col2(this%pdudy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>       <span class="keyword">call </span>device_col2(this%pdudz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>       <span class="keyword">call </span>device_col2(this%pdvdx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>       <span class="keyword">call </span>device_col2(this%pdvdy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>       <span class="keyword">call </span>device_col2(this%pdvdz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>       <span class="keyword">call </span>device_col2(this%pdwdx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>       <span class="keyword">call </span>device_col2(this%pdwdy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span>       <span class="keyword">call </span>device_col2(this%pdwdz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span> </div>
-<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span>       <span class="keyword">call </span>device_col2(this%stats_work%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span>       <span class="keyword">call </span>device_col2(this%e11%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>       <span class="keyword">call </span>device_col2(this%e22%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span>       <span class="keyword">call </span>device_col2(this%e33%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>       <span class="keyword">call </span>device_col2(this%e12%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span>       <span class="keyword">call </span>device_col2(this%e13%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span>       <span class="keyword">call </span>device_col2(this%e23%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span> </div>
+<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>    <span class="keywordtype">integer</span> :: n, i</div>
+<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span><span class="keywordtype">    real</span>(kind=rp) :: wrk, wrk_sqr</div>
+<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span> </div>
+<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>    <span class="keywordflow">if</span> (this%n_stats .eq. 11) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span> </div>
+<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>    n = <span class="keyword">size</span>(this%coef%B)</div>
+<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span> </div>
+<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>       <span class="keyword">call </span>device_cfill(this%stats_work%x_d, 1.0_rp, n)</div>
+<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span>       <span class="keyword">call </span>device_invcol2(this%stats_work%x_d, this%coef%B_d, n)</div>
+<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span>       <span class="keyword">call </span>device_col2(this%pdudx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>       <span class="keyword">call </span>device_col2(this%pdudy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>       <span class="keyword">call </span>device_col2(this%pdudz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>       <span class="keyword">call </span>device_col2(this%pdvdx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>       <span class="keyword">call </span>device_col2(this%pdvdy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>       <span class="keyword">call </span>device_col2(this%pdvdz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>       <span class="keyword">call </span>device_col2(this%pdwdx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span>       <span class="keyword">call </span>device_col2(this%pdwdy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span>       <span class="keyword">call </span>device_col2(this%pdwdz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span> </div>
+<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span>       <span class="keyword">call </span>device_col2(this%stats_work%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>       <span class="keyword">call </span>device_col2(this%e11%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span>       <span class="keyword">call </span>device_col2(this%e22%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>       <span class="keyword">call </span>device_col2(this%e33%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span>       <span class="keyword">call </span>device_col2(this%e12%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span>       <span class="keyword">call </span>device_col2(this%e13%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>       <span class="keyword">call </span>device_col2(this%e23%mf%x_d, this%stats_work%x_d, n)</div>
 <div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span> </div>
-<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>       <span class="keyword">call </span>invers2(this%stats_work%x, this%coef%B, n)</div>
-<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>       <span class="keyword">call </span>col2(this%pdudx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>       <span class="keyword">call </span>col2(this%pdudy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>       <span class="keyword">call </span>col2(this%pdudz%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>       <span class="keyword">call </span>col2(this%pdvdx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>       <span class="keyword">call </span>col2(this%pdvdy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>       <span class="keyword">call </span>col2(this%pdvdz%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>       <span class="keyword">call </span>col2(this%pdwdx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span>       <span class="keyword">call </span>col2(this%pdwdy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span>       <span class="keyword">call </span>col2(this%pdwdz%mf%x, this%stats_work%x, n)</div>
+<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span> </div>
+<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>          wrk = 1.0_rp / this%coef%B(i,1,1,1)</div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>          this%pdudx%mf%x(i,1,1,1) = this%pdudx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>          this%pdudy%mf%x(i,1,1,1) = this%pdudy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>          this%pdudz%mf%x(i,1,1,1) = this%pdudz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span> </div>
+<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>          this%pdvdx%mf%x(i,1,1,1) = this%pdvdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span>          this%pdvdy%mf%x(i,1,1,1) = this%pdvdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span>          this%pdvdz%mf%x(i,1,1,1) = this%pdvdz%mf%x(i,1,1,1) * wrk</div>
 <div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span> </div>
-<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span>       <span class="keyword">call </span>col2(this%stats_work%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span>       <span class="keyword">call </span>col2(this%e11%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>       <span class="keyword">call </span>col2(this%e22%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>       <span class="keyword">call </span>col2(this%e33%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>       <span class="keyword">call </span>col2(this%e12%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span>       <span class="keyword">call </span>col2(this%e13%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span>       <span class="keyword">call </span>col2(this%e23%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span> </div>
-<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span> </div>
+<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span>          this%pdwdx%mf%x(i,1,1,1) = this%pdwdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span>          this%pdwdy%mf%x(i,1,1,1) = this%pdwdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>          this%pdwdz%mf%x(i,1,1,1) = this%pdwdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span> </div>
+<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>          wrk_sqr = wrk * wrk</div>
+<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span>          this%e11%mf%x(i,1,1,1) = this%e11%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span>          this%e22%mf%x(i,1,1,1) = this%e22%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span>          this%e33%mf%x(i,1,1,1) = this%e33%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span> </div>
+<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span>          this%e12%mf%x(i,1,1,1) = this%e12%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span>          this%e13%mf%x(i,1,1,1) = this%e13%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span>          this%e23%mf%x(i,1,1,1) = this%e23%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span> </div>
 </div>
-<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d7d/namespacefluid__stats.html#a47e0b4a1488deeafbb5984bb92c43be6">fluid_stats_make_strong_grad</a></div>
-<div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span> </div>
-<div class="foldopen" id="foldopen00776" data-start="" data-end="">
-<div class="line"><a id="l00776" name="l00776"></a><span class="lineno"><a class="line" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">  776</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">fluid_stats_post_process</a>(this, mean, reynolds, pressure_flatness,&amp;</div>
-<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span>       pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)</div>
-<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../da/d8a/structfluid__stats_1_1fluid__stats__t.html">fluid_stats_t</a>) :: this</div>
-<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: mean</div>
-<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: reynolds</div>
-<div class="line"><a id="l00781" name="l00781"></a><span class="lineno">  781</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: pressure_skewness</div>
-<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: pressure_flatness</div>
-<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: skewness_tensor</div>
-<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: mean_vel_grad</div>
-<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: dissipation_tensor</div>
-<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span>    <span class="keywordtype">integer</span> :: n</div>
-<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span> </div>
-<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(mean)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span>       n = mean%item_size(1)</div>
-<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span>       <span class="keyword">call </span>copy(mean%items(1)%ptr%x, this%u_mean%mf%x, n)</div>
-<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>       <span class="keyword">call </span>copy(mean%items(2)%ptr%x, this%v_mean%mf%x, n)</div>
-<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span>       <span class="keyword">call </span>copy(mean%items(3)%ptr%x, this%w_mean%mf%x, n)</div>
-<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span>       <span class="keyword">call </span>copy(mean%items(4)%ptr%x, this%p_mean%mf%x, n)</div>
-<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span> </div>
-<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(reynolds)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span>       n = reynolds%item_size(1)</div>
-<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span>       <span class="keyword">call </span>copy(reynolds%items(1)%ptr%x, this%pp%mf%x, n)</div>
-<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>       <span class="keyword">call </span>subcol3(reynolds%items(1)%ptr%x, this%p_mean%mf%x, &amp;</div>
-<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span>            this%p_mean%mf%x, n)</div>
+<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d7d/namespacefluid__stats.html#a47e0b4a1488deeafbb5984bb92c43be6">fluid_stats_make_strong_grad</a></div>
+<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span> </div>
+<div class="foldopen" id="foldopen00781" data-start="" data-end="">
+<div class="line"><a id="l00781" name="l00781"></a><span class="lineno"><a class="line" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">  781</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">fluid_stats_post_process</a>(this, mean, reynolds, pressure_flatness,&amp;</div>
+<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>       pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)</div>
+<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../da/d8a/structfluid__stats_1_1fluid__stats__t.html">fluid_stats_t</a>) :: this</div>
+<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: mean</div>
+<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: reynolds</div>
+<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: pressure_skewness</div>
+<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: pressure_flatness</div>
+<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: skewness_tensor</div>
+<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: mean_vel_grad</div>
+<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span>    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: dissipation_tensor</div>
+<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>    <span class="keywordtype">integer</span> :: n, i</div>
+<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span><span class="keywordtype">    real</span>(kind=rp) :: wrk</div>
+<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span> </div>
+<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(mean)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>       n = mean%item_size(1)</div>
+<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>       <span class="keyword">call </span>copy(mean%items(1)%ptr%x, this%u_mean%mf%x, n)</div>
+<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span>       <span class="keyword">call </span>copy(mean%items(2)%ptr%x, this%v_mean%mf%x, n)</div>
+<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span>       <span class="keyword">call </span>copy(mean%items(3)%ptr%x, this%w_mean%mf%x, n)</div>
+<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>       <span class="keyword">call </span>copy(mean%items(4)%ptr%x, this%p_mean%mf%x, n)</div>
+<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span> </div>
-<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span>       <span class="keyword">call </span>copy(reynolds%items(2)%ptr%x, this%uu%mf%x, n)</div>
-<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span>       <span class="keyword">call </span>subcol3(reynolds%items(2)%ptr%x, this%u_mean%mf%x, &amp;</div>
-<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span>            this%u_mean%mf%x, n)</div>
-<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span> </div>
-<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>       <span class="keyword">call </span>copy(reynolds%items(3)%ptr%x, this%vv%mf%x, n)</div>
-<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>       <span class="keyword">call </span>subcol3(reynolds%items(3)%ptr%x, this%v_mean%mf%x, &amp;</div>
-<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>            this%v_mean%mf%x,n)</div>
-<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span> </div>
-<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>       <span class="keyword">call </span>copy(reynolds%items(4)%ptr%x, this%ww%mf%x, n)</div>
-<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>       <span class="keyword">call </span>subcol3(reynolds%items(4)%ptr%x, this%w_mean%mf%x, &amp;</div>
-<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>            this%w_mean%mf%x,n)</div>
-<div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span> </div>
-<div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span>       <span class="keyword">call </span>copy(reynolds%items(5)%ptr%x, this%uv%mf%x, n)</div>
-<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span>       <span class="keyword">call </span>subcol3(reynolds%items(5)%ptr%x, this%u_mean%mf%x, &amp;</div>
-<div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span>            this%v_mean%mf%x, n)</div>
-<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span> </div>
-<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>       <span class="keyword">call </span>copy(reynolds%items(6)%ptr%x, this%uw%mf%x, n)</div>
-<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>       <span class="keyword">call </span>subcol3(reynolds%items(6)%ptr%x, this%u_mean%mf%x, &amp;</div>
-<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>            this%w_mean%mf%x, n)</div>
-<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span> </div>
-<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span>       <span class="keyword">call </span>copy(reynolds%items(7)%ptr%x, this%vw%mf%x, n)</div>
-<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>       <span class="keyword">call </span>subcol3(reynolds%items(7)%ptr%x, this%v_mean%mf%x, &amp;</div>
-<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>            this%w_mean%mf%x, n)</div>
-<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(pressure_skewness)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(reynolds)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span>       n = reynolds%item_size(1)</div>
+<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span>       <span class="keyword">call </span>copy(reynolds%items(1)%ptr%x, this%pp%mf%x, n)</div>
+<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span>       <span class="keyword">call </span>subcol3(reynolds%items(1)%ptr%x, this%p_mean%mf%x, &amp;</div>
+<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>            this%p_mean%mf%x, n)</div>
+<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span> </div>
+<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>       <span class="keyword">call </span>copy(reynolds%items(2)%ptr%x, this%uu%mf%x, n)</div>
+<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>       <span class="keyword">call </span>subcol3(reynolds%items(2)%ptr%x, this%u_mean%mf%x, &amp;</div>
+<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>            this%u_mean%mf%x, n)</div>
+<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span> </div>
+<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>       <span class="keyword">call </span>copy(reynolds%items(3)%ptr%x, this%vv%mf%x, n)</div>
+<div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span>       <span class="keyword">call </span>subcol3(reynolds%items(3)%ptr%x, this%v_mean%mf%x, &amp;</div>
+<div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span>            this%v_mean%mf%x,n)</div>
+<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span> </div>
+<div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span>       <span class="keyword">call </span>copy(reynolds%items(4)%ptr%x, this%ww%mf%x, n)</div>
+<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>       <span class="keyword">call </span>subcol3(reynolds%items(4)%ptr%x, this%w_mean%mf%x, &amp;</div>
+<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>            this%w_mean%mf%x,n)</div>
+<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span> </div>
+<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>       <span class="keyword">call </span>copy(reynolds%items(5)%ptr%x, this%uv%mf%x, n)</div>
+<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>       <span class="keyword">call </span>subcol3(reynolds%items(5)%ptr%x, this%u_mean%mf%x, &amp;</div>
+<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span>            this%v_mean%mf%x, n)</div>
+<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span> </div>
+<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>       <span class="keyword">call </span>copy(reynolds%items(6)%ptr%x, this%uw%mf%x, n)</div>
+<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>       <span class="keyword">call </span>subcol3(reynolds%items(6)%ptr%x, this%u_mean%mf%x, &amp;</div>
+<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span>            this%w_mean%mf%x, n)</div>
 <div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span> </div>
-<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>       <span class="keyword">call </span>neko_warning(<span class="stringliteral">&#39;Presssure skewness stat not implemented&#39;</span>// &amp;</div>
-<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>            <span class="stringliteral">&#39; in fluid_stats, process stats in python instead&#39;</span>)</div>
-<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span> </div>
+<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>       <span class="keyword">call </span>copy(reynolds%items(7)%ptr%x, this%vw%mf%x, n)</div>
+<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>       <span class="keyword">call </span>subcol3(reynolds%items(7)%ptr%x, this%v_mean%mf%x, &amp;</div>
+<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span>            this%w_mean%mf%x, n)</div>
 <div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span> </div>
-<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(pressure_flatness)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span>       <span class="keyword">call </span>neko_warning(<span class="stringliteral">&#39;Presssure flatness stat not implemented&#39;</span>// &amp;</div>
+<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(pressure_skewness)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span> </div>
+<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span>       <span class="keyword">call </span>neko_warning(<span class="stringliteral">&#39;Presssure skewness stat not implemented&#39;</span>// &amp;</div>
 <div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span>            <span class="stringliteral">&#39; in fluid_stats, process stats in python instead&#39;</span>)</div>
 <div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span> </div>
 <div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span> </div>
-<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(skewness_tensor)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span>       <span class="keyword">call </span>neko_warning(<span class="stringliteral">&#39;Skewness tensor stat not implemented&#39;</span>// &amp;</div>
+<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(pressure_flatness)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span>       <span class="keyword">call </span>neko_warning(<span class="stringliteral">&#39;Presssure flatness stat not implemented&#39;</span>// &amp;</div>
 <div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span>            <span class="stringliteral">&#39; in fluid_stats, process stats in python instead&#39;</span>)</div>
-<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span> </div>
-<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(mean_vel_grad)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span>       <span class="comment">!Compute gradient of mean flow</span></div>
-<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span>       n = mean_vel_grad%item_size(1)</div>
-<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span>          <span class="keyword">call </span>device_memcpy(this%u_mean%mf%x, this%u_mean%mf%x_d, n, &amp;</div>
-<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span>               host_to_device, sync = .false.)</div>
-<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>          <span class="keyword">call </span>device_memcpy(this%v_mean%mf%x, this%v_mean%mf%x_d, n, &amp;</div>
-<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span>               host_to_device, sync = .false.)</div>
-<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>          <span class="keyword">call </span>device_memcpy(this%w_mean%mf%x, this%w_mean%mf%x_d, n, &amp;</div>
-<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span>               host_to_device, sync = .false.)</div>
-<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>          <span class="keyword">call </span>opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &amp;</div>
-<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>               this%u_mean%mf%x, this%coef)</div>
-<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span>          <span class="keyword">call </span>opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &amp;</div>
-<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>               this%v_mean%mf%x, this%coef)</div>
-<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span>          <span class="keyword">call </span>opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &amp;</div>
-<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span>               this%w_mean%mf%x, this%coef)</div>
-<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span>          <span class="keyword">call </span>device_memcpy(this%dudx%x, this%dudx%x_d, n, &amp;</div>
-<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span>               device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>          <span class="keyword">call </span>device_memcpy(this%dvdx%x, this%dvdx%x_d, n, &amp;</div>
-<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span>               device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>          <span class="keyword">call </span>device_memcpy(this%dwdx%x, this%dwdx%x_d, n, &amp;</div>
-<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>               device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>          <span class="keyword">call </span>device_memcpy(this%dudy%x, this%dudy%x_d, n, &amp;</div>
+<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span> </div>
+<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span> </div>
+<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(skewness_tensor)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span>       <span class="keyword">call </span>neko_warning(<span class="stringliteral">&#39;Skewness tensor stat not implemented&#39;</span>// &amp;</div>
+<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>            <span class="stringliteral">&#39; in fluid_stats, process stats in python instead&#39;</span>)</div>
+<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span> </div>
+<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(mean_vel_grad)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span>       <span class="comment">!Compute gradient of mean flow</span></div>
+<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>       n = mean_vel_grad%item_size(1)</div>
+<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>          <span class="keyword">call </span>device_memcpy(this%u_mean%mf%x, this%u_mean%mf%x_d, n, &amp;</div>
+<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>               host_to_device, sync = .false.)</div>
+<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span>          <span class="keyword">call </span>device_memcpy(this%v_mean%mf%x, this%v_mean%mf%x_d, n, &amp;</div>
+<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>               host_to_device, sync = .false.)</div>
+<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span>          <span class="keyword">call </span>device_memcpy(this%w_mean%mf%x, this%w_mean%mf%x_d, n, &amp;</div>
+<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span>               host_to_device, sync = .false.)</div>
+<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span>          <span class="keyword">call </span>opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &amp;</div>
+<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span>               this%u_mean%mf%x, this%coef)</div>
+<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>          <span class="keyword">call </span>opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &amp;</div>
+<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span>               this%v_mean%mf%x, this%coef)</div>
+<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>          <span class="keyword">call </span>opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &amp;</div>
+<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>               this%w_mean%mf%x, this%coef)</div>
+<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>          <span class="keyword">call </span>device_memcpy(this%dudx%x, this%dudx%x_d, n, &amp;</div>
 <div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>               device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>          <span class="keyword">call </span>device_memcpy(this%dvdy%x, this%dvdy%x_d, n, &amp;</div>
+<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>          <span class="keyword">call </span>device_memcpy(this%dvdx%x, this%dvdx%x_d, n, &amp;</div>
 <div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>               device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>          <span class="keyword">call </span>device_memcpy(this%dwdy%x, this%dwdy%x_d, n, &amp;</div>
+<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>          <span class="keyword">call </span>device_memcpy(this%dwdx%x, this%dwdx%x_d, n, &amp;</div>
 <div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>               device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>          <span class="keyword">call </span>device_memcpy(this%dudz%x, this%dudz%x_d, n, &amp;</div>
+<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>          <span class="keyword">call </span>device_memcpy(this%dudy%x, this%dudy%x_d, n, &amp;</div>
 <div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span>               device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>          <span class="keyword">call </span>device_memcpy(this%dvdz%x, this%dvdz%x_d, n, &amp;</div>
+<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>          <span class="keyword">call </span>device_memcpy(this%dvdy%x, this%dvdy%x_d, n, &amp;</div>
 <div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span>               device_to_host, sync = .false.)</div>
-<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>          <span class="keyword">call </span>device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &amp;</div>
-<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span>               device_to_host, sync = .true.)</div>
-<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>          <span class="keyword">call </span>opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &amp;</div>
-<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>               this%u_mean%mf%x, this%coef)</div>
-<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>          <span class="keyword">call </span>opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &amp;</div>
-<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span>               this%v_mean%mf%x, this%coef)</div>
-<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>          <span class="keyword">call </span>opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &amp;</div>
-<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span>               this%w_mean%mf%x, this%coef)</div>
-<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>       <span class="keyword">call </span>invers2(this%stats_work%x, this%coef%B,n)</div>
-<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, &amp;</div>
-<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(2)%ptr%x, this%dudy%x, &amp;</div>
-<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(3)%ptr%x, this%dudz%x, &amp;</div>
-<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(4)%ptr%x, this%dvdx%x, &amp;</div>
-<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(5)%ptr%x, this%dvdy%x, &amp;</div>
-<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(6)%ptr%x, this%dvdz%x, &amp;</div>
-<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(7)%ptr%x, this%dwdx%x, &amp;</div>
-<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(8)%ptr%x, this%dwdy%x, &amp;</div>
-<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>       <span class="keyword">call </span>col3(mean_vel_grad%items(9)%ptr%x, this%dwdz%x, &amp;</div>
-<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>            this%stats_work%x, n)</div>
-<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span> </div>
-<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>          <span class="keyword">call </span>device_memcpy(this%dwdy%x, this%dwdy%x_d, n, &amp;</div>
+<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span>               device_to_host, sync = .false.)</div>
+<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>          <span class="keyword">call </span>device_memcpy(this%dudz%x, this%dudz%x_d, n, &amp;</div>
+<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>               device_to_host, sync = .false.)</div>
+<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>          <span class="keyword">call </span>device_memcpy(this%dvdz%x, this%dvdz%x_d, n, &amp;</div>
+<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>               device_to_host, sync = .false.)</div>
+<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span>          <span class="keyword">call </span>device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &amp;</div>
+<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>               device_to_host, sync = .true.)</div>
+<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>          <span class="keyword">call </span>opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &amp;</div>
+<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>               this%u_mean%mf%x, this%coef)</div>
+<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>          <span class="keyword">call </span>opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &amp;</div>
+<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>               this%v_mean%mf%x, this%coef)</div>
+<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span>          <span class="keyword">call </span>opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &amp;</div>
+<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>               this%w_mean%mf%x, this%coef)</div>
+<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span> </div>
+<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>          wrk = 1.0_rp / this%coef%B(i,1,1,1)</div>
+<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>          mean_vel_grad%items(1)%ptr%x(i,1,1,1) = this%dudx%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>          mean_vel_grad%items(2)%ptr%x(i,1,1,1) = this%dudy%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>          mean_vel_grad%items(3)%ptr%x(i,1,1,1) = this%dudz%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span> </div>
+<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>          mean_vel_grad%items(4)%ptr%x(i,1,1,1) = this%dvdx%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span>          mean_vel_grad%items(5)%ptr%x(i,1,1,1) = this%dvdy%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>          mean_vel_grad%items(6)%ptr%x(i,1,1,1) = this%dvdz%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span> </div>
+<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>          mean_vel_grad%items(7)%ptr%x(i,1,1,1) = this%dwdx%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>          mean_vel_grad%items(8)%ptr%x(i,1,1,1) = this%dwdy%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>          mean_vel_grad%items(9)%ptr%x(i,1,1,1) = this%dwdz%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span> </div>
-<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(dissipation_tensor)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>       <span class="keyword">call </span>neko_warning(<span class="stringliteral">&#39;Dissipation tensor stat not implemented&#39;</span>// &amp;</div>
-<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>            <span class="stringliteral">&#39; in fluid_stats, process stats in python instead&#39;</span>)</div>
-<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span> </div>
-</div>
-<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">fluid_stats_post_process</a></div>
+<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span> </div>
+<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(dissipation_tensor)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>       <span class="keyword">call </span>neko_warning(<span class="stringliteral">&#39;Dissipation tensor stat not implemented&#39;</span>// &amp;</div>
+<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>            <span class="stringliteral">&#39; in fluid_stats, process stats in python instead&#39;</span>)</div>
+<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span> </div>
-<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d9/d7d/namespacefluid__stats.html">fluid_stats</a></div>
+</div>
+<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">fluid_stats_post_process</a></div>
+<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span> </div>
+<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d9/d7d/namespacefluid__stats.html">fluid_stats</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html">device_math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00033">device_math.F90:33</a></div></div>
@@ -1011,15 +1013,14 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div class="ttc" id="anamespacefluid__stats_html_a47e0b4a1488deeafbb5984bb92c43be6"><div class="ttname"><a href="../../d9/d7d/namespacefluid__stats.html#a47e0b4a1488deeafbb5984bb92c43be6">fluid_stats::fluid_stats_make_strong_grad</a></div><div class="ttdeci">subroutine fluid_stats_make_strong_grad(this)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d05/fluid__stats_8f90_source.html#l00720">fluid_stats.f90:721</a></div></div>
 <div class="ttc" id="anamespacefluid__stats_html_a4f4f6b67d4aaee16ce1a646a3d23e844"><div class="ttname"><a href="../../d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844">fluid_stats::fluid_stats_update</a></div><div class="ttdeci">subroutine fluid_stats_update(this, k)</div><div class="ttdoc">Updates all fields with a new sample.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d05/fluid__stats_8f90_source.html#l00323">fluid_stats.f90:324</a></div></div>
 <div class="ttc" id="anamespacefluid__stats_html_a6543045ed1c527f9f273d57feaff9ff0"><div class="ttname"><a href="../../d9/d7d/namespacefluid__stats.html#a6543045ed1c527f9f273d57feaff9ff0">fluid_stats::fluid_stats_free</a></div><div class="ttdeci">subroutine fluid_stats_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d05/fluid__stats_8f90_source.html#l00582">fluid_stats.f90:583</a></div></div>
-<div class="ttc" id="anamespacefluid__stats_html_a6585cba645b70a78f8ad2f630aeb35e1"><div class="ttname"><a href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">fluid_stats::fluid_stats_post_process</a></div><div class="ttdeci">subroutine fluid_stats_post_process(this, mean, reynolds, pressure_flatness, pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)</div><div class="ttdoc">Compute certain physical statistical quantities based on existing mean fields.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d05/fluid__stats_8f90_source.html#l00776">fluid_stats.f90:778</a></div></div>
+<div class="ttc" id="anamespacefluid__stats_html_a6585cba645b70a78f8ad2f630aeb35e1"><div class="ttname"><a href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">fluid_stats::fluid_stats_post_process</a></div><div class="ttdeci">subroutine fluid_stats_post_process(this, mean, reynolds, pressure_flatness, pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)</div><div class="ttdoc">Compute certain physical statistical quantities based on existing mean fields.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d05/fluid__stats_8f90_source.html#l00781">fluid_stats.f90:783</a></div></div>
 <div class="ttc" id="anamespacefluid__stats_html_adab54503649ea105c5f59518ce968d10"><div class="ttname"><a href="../../d9/d7d/namespacefluid__stats.html#adab54503649ea105c5f59518ce968d10">fluid_stats::fluid_stats_init</a></div><div class="ttdeci">subroutine fluid_stats_init(this, coef, u, v, w, p, set, name)</div><div class="ttdoc">Constructor. Initialize the fields associated with fluid_stats.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d05/fluid__stats_8f90_source.html#l00167">fluid_stats.f90:168</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
-<div class="ttc" id="anamespacemath_html_a3789b839284889e98200fa663a5e040f"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f">math::invers2</a></div><div class="ttdeci">subroutine, public invers2(a, b, n)</div><div class="ttdoc">Compute inverted vector .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00638">math.f90:639</a></div></div>
-<div class="ttc" id="anamespacemath_html_a690b20ca46eb975541f8e6787f04043f"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f">math::subcol3</a></div><div class="ttdeci">subroutine, public subcol3(a, b, c, n)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00880">math.f90:881</a></div></div>
-<div class="ttc" id="anamespacemath_html_a9ae93ef16c85e8de722f56c281f444e6"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">math::addcol3</a></div><div class="ttdeci">subroutine, public addcol3(a, b, c, n)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00957">math.f90:958</a></div></div>
-<div class="ttc" id="anamespacemath_html_aa4aff8f68518460c91d81c9f905b2e2b"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">math::col2</a></div><div class="ttdeci">subroutine, public col2(a, b, n)</div><div class="ttdoc">Vector multiplication .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00853">math.f90:854</a></div></div>
-<div class="ttc" id="anamespacemath_html_aaa9e139d5611c1df894a7e88d240f602"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">math::copy</a></div><div class="ttdeci">subroutine, public copy(a, b, n)</div><div class="ttdoc">Copy a vector .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00248">math.f90:249</a></div></div>
-<div class="ttc" id="anamespacemath_html_abc0115641cb7f4581bfcbb773169004c"><div class="ttname"><a href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">math::col3</a></div><div class="ttdeci">subroutine, public col3(a, b, c, n)</div><div class="ttdoc">Vector multiplication with 3 vectors .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00866">math.f90:867</a></div></div>
+<div class="ttc" id="anamespacemath_html_a690b20ca46eb975541f8e6787f04043f"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f">math::subcol3</a></div><div class="ttdeci">subroutine, public subcol3(a, b, c, n)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00881">math.f90:882</a></div></div>
+<div class="ttc" id="anamespacemath_html_a9ae93ef16c85e8de722f56c281f444e6"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">math::addcol3</a></div><div class="ttdeci">subroutine, public addcol3(a, b, c, n)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00958">math.f90:959</a></div></div>
+<div class="ttc" id="anamespacemath_html_aa4aff8f68518460c91d81c9f905b2e2b"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">math::col2</a></div><div class="ttdeci">subroutine, public col2(a, b, n)</div><div class="ttdoc">Vector multiplication .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00854">math.f90:855</a></div></div>
+<div class="ttc" id="anamespacemath_html_aaa9e139d5611c1df894a7e88d240f602"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">math::copy</a></div><div class="ttdeci">subroutine, public copy(a, b, n)</div><div class="ttdoc">Copy a vector .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00249">math.f90:250</a></div></div>
+<div class="ttc" id="anamespacemath_html_abc0115641cb7f4581bfcbb773169004c"><div class="ttname"><a href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">math::col3</a></div><div class="ttdeci">subroutine, public col3(a, b, c, n)</div><div class="ttdoc">Vector multiplication with 3 vectors .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00867">math.f90:868</a></div></div>
 <div class="ttc" id="anamespacemean__field_html"><div class="ttname"><a href="../../d1/d26/namespacemean__field.html">mean_field</a></div><div class="ttdoc">Implements mean_field_t.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d09/mean__field_8f90_source.html#l00035">mean_field.f90:35</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html_ac196ccb4b3efd94171f0cfbfedaa7b9d"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_config::neko_bcknd_device</a></div><div class="ttdeci">integer, parameter neko_bcknd_device</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00044">neko_config.f90:44</a></div></div>
@@ -1030,7 +1031,7 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div class="ttc" id="anamespacestats__quant_html"><div class="ttname"><a href="../../dc/d65/namespacestats__quant.html">stats_quant</a></div><div class="ttdoc">Defines a statistical quantity.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d9b/stats__quant_8f90_source.html#l00034">stats_quant.f90:34</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
 <div class="ttc" id="anamespaceutils_html_a8de91e60607d8bf98d265d9e9a90f88f"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">utils::neko_warning</a></div><div class="ttdeci">subroutine, public neko_warning(warning_msg)</div><div class="ttdoc">Reports a warning to standard output.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00345">utils.f90:346</a></div></div>
-<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00061">coef.f90:61</a></div></div>
+<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00062">coef.f90:62</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00047">field.f90:47</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00015">field_list.f90:15</a></div></div>
 <div class="ttc" id="astructfluid__stats_1_1fluid__stats__t_html"><div class="ttname"><a href="../../da/d8a/structfluid__stats_1_1fluid__stats__t.html">fluid_stats::fluid_stats_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d05/fluid__stats_8f90_source.html#l00053">fluid_stats.f90:53</a></div></div>
@@ -1042,7 +1043,7 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d6/d05/fluid__stats_8f90.html">fluid_stats.f90</a></li>
-    <li class="footer">Generated on Mon Apr 13 2026 04:35:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 14 2026 04:31:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

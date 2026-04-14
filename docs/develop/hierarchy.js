@@ -5,12 +5,16 @@ var hierarchy =
     [ "aabb_tree::aabb_tree_t", "d9/d87/structaabb__tree_1_1aabb__tree__t.html", null ],
     [ "math::abscmp", "de/d34/interfacemath_1_1abscmp.html", null ],
     [ "advection::advection_free", "d1/d0e/interfaceadvection_1_1advection__free.html", null ],
+    [ "advection::advection_recompute_metrics", "d6/db0/interfaceadvection_1_1advection__recompute__metrics.html", null ],
     [ "advection::advection_t", "d4/d2a/structadvection_1_1advection__t.html", [
       [ "adv_dealias::adv_dealias_t", "db/dde/structadv__dealias_1_1adv__dealias__t.html", null ],
       [ "adv_dummy::adv_dummy_t", "dd/dc4/structadv__dummy_1_1adv__dummy__t.html", null ],
       [ "adv_no_dealias::adv_no_dealias_t", "d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html", null ],
       [ "adv_oifs::adv_oifs_t", "d0/d27/structadv__oifs_1_1adv__oifs__t.html", null ]
     ] ],
+    [ "ale_rigid_kinematics::ale_body_t", "da/d9d/structale__rigid__kinematics_1_1ale__body__t.html", null ],
+    [ "ale_rigid_kinematics::ale_config_t", "d1/d1b/structale__rigid__kinematics_1_1ale__config__t.html", null ],
+    [ "ale_manager::ale_manager_t", "dd/d75/structale__manager_1_1ale__manager__t.html", null ],
     [ "les_model::allocator_entry", "d2/ddc/structles__model_1_1allocator__entry.html", null ],
     [ "point_zone::allocator_entry", "d0/d86/structpoint__zone_1_1allocator__entry.html", null ],
     [ "simulation_component::allocator_entry", "d9/df3/structsimulation__component_1_1allocator__entry.html", null ],
@@ -56,6 +60,7 @@ var hierarchy =
       [ "facet_normal::facet_normal_t", "d1/d1e/structfacet__normal_1_1facet__normal__t.html", null ],
       [ "field_dirichlet::field_dirichlet_t", "d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html", null ],
       [ "field_dirichlet_vector::field_dirichlet_vector_t", "da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html", null ],
+      [ "field_neumann::field_neumann_t", "df/dd4/structfield__neumann_1_1field__neumann__t.html", null ],
       [ "inflow::inflow_t", "d5/d8a/structinflow_1_1inflow__t.html", null ],
       [ "neumann::neumann_t", "d5/d84/structneumann_1_1neumann__t.html", null ],
       [ "shear_stress::shear_stress_t", "df/d63/structshear__stress_1_1shear__stress__t.html", [
@@ -64,9 +69,12 @@ var hierarchy =
       [ "symmetry::symmetry_t", "d1/d83/structsymmetry_1_1symmetry__t.html", [
         [ "non_normal::non_normal_t", "da/d18/structnon__normal_1_1non__normal__t.html", null ]
       ] ],
-      [ "zero_dirichlet::zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", null ]
+      [ "zero_dirichlet::zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", [
+        [ "no_slip::no_slip_t", "dc/d90/structno__slip_1_1no__slip__t.html", null ]
+      ] ]
     ] ],
     [ "flow_profile::blasius_profile", "dd/d19/interfaceflow__profile_1_1blasius__profile.html", null ],
+    [ "ale_rigid_kinematics::body_kinematics_t", "de/da9/structale__rigid__kinematics_1_1body__kinematics__t.html", null ],
     [ "buffer::buffer_t", "d2/d35/structbuffer_1_1buffer__t.html", [
       [ "buffer_1d::buffer_1d_t", "d8/db0/structbuffer__1d_1_1buffer__1d__t.html", null ],
       [ "buffer_4d::buffer_4d_t", "d8/dce/structbuffer__4d_1_1buffer__4d__t.html", null ],
@@ -101,6 +109,7 @@ var hierarchy =
     [ "opencl_intf::clwaitforevents", "db/d99/interfaceopencl__intf_1_1clwaitforevents.html", null ],
     [ "coefs::coef_t", "d0/dea/structcoefs_1_1coef__t.html", null ],
     [ "advection::compute_adv", "d5/d12/interfaceadvection_1_1compute__adv.html", null ],
+    [ "advection::compute_ale_adv", "d2/d5d/interfaceadvection_1_1compute__ale__adv.html", null ],
     [ "time_scheme::compute_coeffs", "db/d60/interfacetime__scheme_1_1compute__coeffs.html", null ],
     [ "advection::compute_scalar_adv", "dc/d64/interfaceadvection_1_1compute__scalar__adv.html", null ],
     [ "cpr::cpr_init", "d0/d6c/interfacecpr_1_1cpr__init.html", null ],
@@ -262,6 +271,7 @@ var hierarchy =
     [ "field_array::field_array_t", "d3/db5/structfield__array_1_1field__array__t.html", null ],
     [ "field_dirichlet::field_dirichlet_update", "db/d6a/interfacefield__dirichlet_1_1field__dirichlet__update.html", null ],
     [ "field_list::field_list_t", "d3/d90/structfield__list_1_1field__list__t.html", null ],
+    [ "field_neumann::field_neumann_update", "df/d81/interfacefield__neumann_1_1field__neumann__update.html", null ],
     [ "field::field_ptr_t", "dc/dd8/structfield_1_1field__ptr__t.html", null ],
     [ "field_series_list::field_series_list_t", "dd/db6/structfield__series__list_1_1field__series__list__t.html", null ],
     [ "field_series::field_series_ptr_t", "de/db3/structfield__series_1_1field__series__ptr__t.html", null ],
@@ -699,6 +709,7 @@ var hierarchy =
     ] ],
     [ "phmg::phmg_hrchy_t", "da/dde/structphmg_1_1phmg__hrchy__t.html", null ],
     [ "phmg::phmg_lvl_t", "d5/dec/structphmg_1_1phmg__lvl__t.html", null ],
+    [ "ale_rigid_kinematics::pivot_state_t", "d6/ddf/structale__rigid__kinematics_1_1pivot__state__t.html", null ],
     [ "pnpn_res_device::pnpn_prs_res_part1_hip", "d9/d08/interfacepnpn__res__device_1_1pnpn__prs__res__part1__hip.html", null ],
     [ "pnpn_res_device::pnpn_prs_res_part2_hip", "d6/df7/interfacepnpn__res__device_1_1pnpn__prs__res__part2__hip.html", null ],
     [ "pnpn_res_stress_device::pnpn_prs_res_part2_hip", "d5/d4c/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part2__hip.html", null ],
@@ -723,6 +734,7 @@ var hierarchy =
     [ "pnpn_res_stress_device::pnpn_vel_res_update_hip", "d3/d91/interfacepnpn__res__stress__device_1_1pnpn__vel__res__update__hip.html", null ],
     [ "point_interpolator::point_interpolator_t", "d6/d23/structpoint__interpolator_1_1point__interpolator__t.html", null ],
     [ "point::point_ptr", "d7/d33/structpoint_1_1point__ptr.html", null ],
+    [ "ale_rigid_kinematics::point_tracker_t", "db/dcf/structale__rigid__kinematics_1_1point__tracker__t.html", null ],
     [ "point_zone::point_zone_allocate", "db/dcd/interfacepoint__zone_1_1point__zone__allocate.html", null ],
     [ "point_zone::point_zone_criterion", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html", null ],
     [ "point_zone::point_zone_free", "dc/d4e/interfacepoint__zone_1_1point__zone__free.html", null ],
@@ -902,6 +914,7 @@ var hierarchy =
     ] ],
     [ "stats_quant::stats_quant_update", "de/d54/interfacestats__quant_1_1stats__quant__update.html", null ],
     [ "stats::stats_t", "d5/dff/structstats_1_1stats__t.html", null ],
+    [ "ale_rigid_kinematics::stiffness_geometry_t", "d2/d2c/structale__rigid__kinematics_1_1stiffness__geometry__t.html", null ],
     [ "stl::stl_hdr_t", "d9/d79/structstl_1_1stl__hdr__t.html", null ],
     [ "stl::stl_triangle_t", "df/daa/structstl_1_1stl__triangle__t.html", null ],
     [ "structs::struct_curve_t", "d0/d10/structstructs_1_1struct__curve__t.html", null ],
@@ -941,6 +954,9 @@ var hierarchy =
     ] ],
     [ "fluid_scheme_base::update_material_properties", "db/dfd/interfacefluid__scheme__base_1_1update__material__properties.html", null ],
     [ "user_access_singleton::user_access_t", "db/d04/structuser__access__singleton_1_1user__access__t.html", null ],
+    [ "user_intf::user_ale_base_shapes_intf", "d7/d9e/interfaceuser__intf_1_1user__ale__base__shapes__intf.html", null ],
+    [ "user_intf::user_ale_mesh_velocity_intf", "dc/df9/interfaceuser__intf_1_1user__ale__mesh__velocity__intf.html", null ],
+    [ "user_intf::user_ale_rigid_kinematics_intf", "d6/d04/interfaceuser__intf_1_1user__ale__rigid__kinematics__intf.html", null ],
     [ "user_intf::user_compute_intf", "de/db4/interfaceuser__intf_1_1user__compute__intf.html", null ],
     [ "user_intf::user_finalize_intf", "dc/dc2/interfaceuser__intf_1_1user__finalize__intf.html", null ],
     [ "user_intf::user_initial_conditions_intf", "d3/d86/interfaceuser__intf_1_1user__initial__conditions__intf.html", null ],

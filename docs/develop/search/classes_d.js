@@ -15,5 +15,6 @@ var searchData=
   ['nmsh_5ft_12',['nmsh_t',['../dc/d5a/structnmsh_1_1nmsh__t.html',1,'nmsh']]],
   ['nmsh_5fvertex_5ft_13',['nmsh_vertex_t',['../d2/d94/structnmsh_1_1nmsh__vertex__t.html',1,'nmsh']]],
   ['nmsh_5fzone_5ft_14',['nmsh_zone_t',['../d5/d6a/structnmsh_1_1nmsh__zone__t.html',1,'nmsh']]],
-  ['non_5fnormal_5ft_15',['non_normal_t',['../da/d18/structnon__normal_1_1non__normal__t.html',1,'non_normal']]]
+  ['no_5fslip_5ft_15',['no_slip_t',['../dc/d90/structno__slip_1_1no__slip__t.html',1,'no_slip']]],
+  ['non_5fnormal_5ft_16',['non_normal_t',['../da/d18/structnon__normal_1_1non__normal__t.html',1,'non_normal']]]
 ];

@@ -10,6 +10,21 @@ var namespaces_dup =
     [ "adv_no_dealias", "d9/de3/namespaceadv__no__dealias.html", "d9/de3/namespaceadv__no__dealias" ],
     [ "adv_oifs", "dd/d97/namespaceadv__oifs.html", "dd/d97/namespaceadv__oifs" ],
     [ "advection", "d3/d69/namespaceadvection.html", "d3/d69/namespaceadvection" ],
+    [ "ale_manager", "dd/db4/namespaceale__manager.html", "dd/db4/namespaceale__manager" ],
+    [ "ale_rigid_kinematics", "d1/d65/namespaceale__rigid__kinematics.html", "d1/d65/namespaceale__rigid__kinematics" ],
+    [ "ale_routines_cpu", "d3/d1b/namespaceale__routines__cpu.html", [
+      [ "add_kinematics_to_mesh_velocity_cpu", "d3/d1b/namespaceale__routines__cpu.html#a1d6164a67d88ef87354b43be6fb4f812", null ],
+      [ "compute_cheap_dist_cpu", "d3/d1b/namespaceale__routines__cpu.html#a1ed25c9746da32ed29a3a1adc93069bc", null ],
+      [ "compute_cheap_dist_v2_cpu", "d3/d1b/namespaceale__routines__cpu.html#ac8f5eb4a1b2a0fb46de7146395427108", null ],
+      [ "compute_stiffness_ale_cpu", "d3/d1b/namespaceale__routines__cpu.html#a26eab9fe752cf281db787307eb26e3c0", null ],
+      [ "update_ale_mesh_cpu", "d3/d1b/namespaceale__routines__cpu.html#afeaabcb60c806c7d3bdf2b6cb2c788b8", null ]
+    ] ],
+    [ "ale_routines_device", "d4/d50/namespaceale__routines__device.html", [
+      [ "add_kinematics_to_mesh_velocity_device", "d4/d50/namespaceale__routines__device.html#a2f216f9dcefe2d488516f4a5943cd3a1", null ],
+      [ "compute_cheap_dist_device", "d4/d50/namespaceale__routines__device.html#a2830c50019caed608b4cb87f0276429d", null ],
+      [ "compute_stiffness_ale_device", "d4/d50/namespaceale__routines__device.html#a9b1ac38e047b54f3126324ba95c8981f", null ],
+      [ "update_ale_mesh_device", "d4/d50/namespaceale__routines__device.html#a66f122c51f57f4ff2edf95cb0d091599", null ]
+    ] ],
     [ "ax_helm", "d0/d35/namespaceax__helm.html", "d0/d35/namespaceax__helm" ],
     [ "ax_helm_cpu", "d5/de3/namespaceax__helm__cpu.html", "d5/de3/namespaceax__helm__cpu" ],
     [ "ax_helm_device", "d7/d82/namespaceax__helm__device.html", "d7/d82/namespaceax__helm__device" ],
@@ -260,6 +275,7 @@ var namespaces_dup =
       [ "field_subcol3", "d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605", null ],
       [ "field_vdot3", "d5/de6/namespacefield__math.html#aec3d5a9d2e66f8b6d1200f02d5169c35", null ]
     ] ],
+    [ "field_neumann", "d6/d93/namespacefield__neumann.html", "d6/d93/namespacefield__neumann" ],
     [ "field_output", "d4/d0e/namespacefield__output.html", "d4/d0e/namespacefield__output" ],
     [ "field_series", "d6/d32/namespacefield__series.html", "d6/d32/namespacefield__series" ],
     [ "field_series_list", "d5/d67/namespacefield__series__list.html", "d5/d67/namespacefield__series__list" ],
@@ -512,6 +528,7 @@ var namespaces_dup =
     [ "neumann", "d9/d75/namespaceneumann.html", "d9/d75/namespaceneumann" ],
     [ "nmsh", "d7/d48/namespacenmsh.html", "d7/d48/namespacenmsh" ],
     [ "nmsh_file", "da/dd2/namespacenmsh__file.html", "da/dd2/namespacenmsh__file" ],
+    [ "no_slip", "d1/da7/namespaceno__slip.html", "d1/da7/namespaceno__slip" ],
     [ "non_normal", "d8/d74/namespacenon__normal.html", "d8/d74/namespacenon__normal" ],
     [ "num_types", "df/d48/namespacenum__types.html", [
       [ "c_rp", "df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1", null ],
@@ -840,8 +857,12 @@ var namespaces_dup =
       [ "initialize", "dc/d44/namespaceuser.html#a2fd9b995e523d56e60c506dcc796a7c1", null ],
       [ "material_properties", "dc/d44/namespaceuser.html#a7a0eecae5ecbb72a981ea5c699fb5ec5", null ],
       [ "mesh_setup", "dc/d44/namespaceuser.html#a1eddeb63328611862403607e997916b6", null ],
+      [ "neumann_conditions", "dc/d44/namespaceuser.html#aa1152c406e73f8576ff4ea9bb892144c", null ],
       [ "source_term", "dc/d44/namespaceuser.html#a1268712eeaf2414d51ed8d5abbb9789c", null ],
       [ "startup", "dc/d44/namespaceuser.html#a96b5ab432049f8df75005b125ae570c9", null ],
+      [ "user_ale_base_shapes", "dc/d44/namespaceuser.html#a88f90778030667f67ff1283b043c4662", null ],
+      [ "user_ale_mesh_motion", "dc/d44/namespaceuser.html#ab63269cf02351ebe93d6e3c262af3a5d", null ],
+      [ "user_rigid_kinematics", "dc/d44/namespaceuser.html#a2534b9857c4c2e8afa47df68068ee79d", null ],
       [ "user_setup", "dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d", null ],
       [ "case_params", "dc/d44/namespaceuser.html#a6c45828f5df5d6202da7110688440d8f", null ],
       [ "my_field", "dc/d44/namespaceuser.html#acfd208d970fbfb53d1c238504de51c01", null ],

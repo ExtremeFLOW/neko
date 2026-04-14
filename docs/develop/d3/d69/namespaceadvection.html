@@ -112,11 +112,17 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d0e/interfaceadvection_1_1advection__free.html">advection_free</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d1/d0e/interfaceadvection_1_1advection__free.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db0/interfaceadvection_1_1advection__recompute__metrics.html">advection_recompute_metrics</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update any geometry/metric data inside the advection object. For eg., in ALE, maps the coef_GLL to coef_GL at each iteration for dealiasing.  <a href="../../d6/db0/interfaceadvection_1_1advection__recompute__metrics.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d2a/structadvection_1_1advection__t.html">advection_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base abstract type for computing the advection operator.  <a href="../../d4/d2a/structadvection_1_1advection__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d12/interfaceadvection_1_1compute__adv.html">compute_adv</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A factory for <a class="el" href="../../d4/d2a/structadvection_1_1advection__t.html">advection_t</a> decendants. Both creates and initializes the object.  <a href="../../d5/d12/interfaceadvection_1_1compute__adv.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d5d/interfaceadvection_1_1compute__ale__adv.html">compute_ale_adv</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add advection operator to the right-hand-side for moving mesh.  <a href="../../d2/d5d/interfaceadvection_1_1compute__ale__adv.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d64/interfaceadvection_1_1compute__scalar__adv.html">compute_scalar_adv</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add advection operator to the right-hand-side for a scalar.  <a href="../../dc/d64/interfaceadvection_1_1compute__scalar__adv.html#details">More...</a><br /></td></tr>
@@ -128,7 +134,7 @@ Data Types</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d69/namespaceadvection.html">advection</a></li>
-    <li class="footer">Generated on Mon Apr 13 2026 04:35:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 14 2026 04:31:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

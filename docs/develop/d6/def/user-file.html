@@ -102,20 +102,26 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md188">Compiling and running</a></li>
-<li class="level1"><a href="#autotoc_md189">High-level structure</a></li>
-<li class="level1"><a href="#autotoc_md190">Default user functions</a><ul><li class="level2"><a href="#user-file_init-and-final">Initializing and finalizing</a></li>
+<ul><li class="level1"><a href="#autotoc_md195">Compiling and running</a></li>
+<li class="level1"><a href="#autotoc_md196">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md197">Default user functions</a><ul><li class="level2"><a href="#user-file_init-and-final">Initializing and finalizing</a></li>
 <li class="level2"><a href="#user-file_user-check">Computing at every time step</a></li>
 <li class="level2"><a href="#user-file_mat-prop">Setting material properties</a></li>
 <li class="level2"><a href="#user-file_user-mesh-setup">Runtime mesh deformation</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md191">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
+<li class="level1"><a href="#autotoc_md198">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
 <li class="level2"><a href="#user-file_user-f">Fluid and scalar source terms</a></li>
 <li class="level2"><a href="#user-file_field-dirichlet-update">Dirichlet boundary conditions</a></li>
+<li class="level2"><a href="#user-file_field-neumann-update">Neumann boundary conditions</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md192">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a><ul><li class="level3"><a href="#user-file_tips_running-on-gpus-custom-kernels">Custom GPU kernels</a></li>
+<li class="level1"><a href="#user-file_ale">Arbitrary Lagrangian-Eulerian (ALE) user functions</a><ul><li class="level2"><a href="#user-file_ale-rigid_motion">Custom rigid body motion</a></li>
+<li class="level2"><a href="#user-file_ale-mesh-velocity">Mesh Velocity</a></li>
+<li class="level2"><a href="#user-file_ale-base-shapes">Custom Base Shapes</a></li>
+</ul>
+</li>
+<li class="level1"><a href="#autotoc_md199">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a><ul><li class="level3"><a href="#user-file_tips_running-on-gpus-custom-kernels">Custom GPU kernels</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#user-file_tips_registries">Registries</a></li>
@@ -126,7 +132,7 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 </div>
 <div class="textblock"><p>The user file is a fortran file where the user can implement their own functions to extend the capabilities of the default Neko executable. The user file can be used for setting advanced initial/boundary conditions, source terms, I/O operations, and interactions with the Neko framework.</p>
 <p>This section will provide a written explanation of the user file, its structure, and how to compile and run it. For a more hands-on approach, see the <a class="el" href="../../d5/db5/programming-examples.html">examples</a> section, which contains several user file examples that demonstrate various aspects of programming with Neko.</p>
-<h1><a class="anchor" id="autotoc_md188"></a>
+<h1><a class="anchor" id="autotoc_md195"></a>
 Compiling and running</h1>
 <p>The user file is a regular Fortran <code>.f90</code> file that needs to be compiled with <code>makeneko</code>, located in the <code>bin</code> folder of your neko installation. To compile a user file <code>user.f90</code>, run:</p>
 <div class="fragment"><div class="line">makeneko user.f90</div>
@@ -142,7 +148,7 @@ Compiling and running</h1>
 <div class="fragment"><div class="line">./neko user.case</div>
 </div><!-- fragment --><p>Or in parallel using MPI:</p>
 <div class="fragment"><div class="line">mpirun -n 8 ./neko user.case</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md189"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md196"></a>
 High-level structure</h1>
 <p>The current high-level structure of the user file is shown below.</p>
 <div class="fragment"><div class="line"><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
@@ -164,7 +170,7 @@ High-level structure</h1>
 <div class="ttc" id="anamespaceuser_html_a34728c151f0dbb7521a84b18b09cbd9d"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user::user_setup</a></div><div class="ttdeci">subroutine user_setup(user)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00034">fields_vectors_math.f90:35</a></div></div>
 </div><!-- fragment --><p>The user file implements the <code>user</code> module. This modules contains a subroutine named <code>user_setup</code>, which we use to interface the internal procedures defined in <code><a class="el" href="../../d7/d30/user__intf_8f90.html">src/common/user_intf.f90</a></code> with the subroutines that you will implement in your user file. Each user subroutine should be implemented under the <code>contains</code> statement, below <code>user_setup</code>.</p>
 <dl class="section note"><dt>Note</dt><dd>The above code snippet is the most basic code structure for the user file. Compiling it and running it would be equivalent to running the "vanilla" neko executable <code>bin/neko</code> in your local neko installation folder.</dd></dl>
-<h1><a class="anchor" id="autotoc_md190"></a>
+<h1><a class="anchor" id="autotoc_md197"></a>
 Default user functions</h1>
 <p>The following user functions, if defined in the user file, will always be executed, regardless of what is set in the case file:</p>
 <ul>
@@ -269,7 +275,7 @@ Runtime mesh deformation</h2>
 <div class="line"><span class="keyword">end subroutine </span>user_mesh_scale</div>
 </div><!-- fragment --><p>The registering of the above function in <code>user_setup</code> should then be done as follows:</p>
 <div class="fragment"><div class="line">u%mesh_setup =&gt; user_mesh_scale</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md191"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md198"></a>
 Case-specific user functions</h1>
 <p>As explained in the <a class="el" href="../../d1/d79/case-file_8md.html">case file</a> page, certain components of the simulation can be set to be user defined. These components and their associated user functions are:</p>
 <table class="markdownTable">
@@ -280,7 +286,9 @@ Case-specific user functions</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">Source terms   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_user-f">source_term</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.source_terms</code> or <code>case.scalar.source_terms</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Dirichlet boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">dirichlet_conditions</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.boundary_types</code> or <code>case.scalar.boundary_types</code>   </td></tr>
+<td class="markdownTableBodyNone">Dirichlet boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">dirichlet_conditions</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.boundary_conditions</code> or <code>case.scalar.boundary_conditions</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Neumann boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_field-neumann-update">neumann_conditions</a>   </td><td class="markdownTableBodyNone"><code>case.scalar.boundary_conditions</code>   </td></tr>
 </table>
 <dl class="section note"><dt>Note</dt><dd>For the sake of simplicity, we refer to the setup with one scalar, i.e. <code>case.scalar</code> in the JSON. For multiple scalars, the same things apply, but the configuration is inside each individual element of <code>case.scalars</code>. In the case of multiple scalars, users should use <code>"checkpoint_format": "hdf5"</code> when enabling checkpointing.</dd></dl>
 <h2><a class="anchor" id="user-file_user-ic"></a>
@@ -463,10 +471,223 @@ Dirichlet boundary conditions</h2>
 <div class="line"><span class="keyword">end subroutine </span>dirichlet_update</div>
 <div class="ttc" id="anamespacebc_html"><div class="ttname"><a href="../../d0/dc0/namespacebc.html">bc</a></div><div class="ttdoc">Defines a boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00034">bc.f90:34</a></div></div>
 </div><!-- fragment --><p>This example is applying constant dirichlet values at the selected boundaries for the velocity components and presure. The scalar is applied a function <code>s(y,z) = sin(y)*sin(z)</code> to demonstrate the usage of boundary masks.</p>
-<dl class="section attention"><dt>Attention</dt><dd>The notation <code>u = 1.0_rp</code> is only possible because of the overloading of the assignement operator <code>=</code> in <code>field_t</code>. In general, a field's array should be accessed and modified with <code>u%x</code>.</dd></dl>
-<p>Note that we are only applying our boundary values at the first timestep, which is done simply with the line <code>if (timetstep .ne. 1) return</code>. This is a trick that can be used for time-independent boundary profiles that require some kind of time consuming operation like interpolation or reading from a file, which would add overhead if executed at every time step.</p>
+<dl class="section attention"><dt>Attention</dt><dd>The notation <code>u = 1.0_rp</code> is only possible because of the overloading of the assignment operator <code>=</code> in <code>field_t</code>. In general, a field's array should be accessed and modified with <code>u%x</code>.</dd></dl>
+<p>Note that we are only applying our boundary values at the first timestep, which is done simply with the line <code>if (time%tstep .ne. 1) return</code>. This is a trick that can be used for time-independent boundary profiles that require some kind of time consuming operation like interpolation or reading from a file, which would add overhead if executed at every time step.</p>
 <dl class="section attention"><dt>Attention</dt><dd>All the rules for [Running on GPUs](<a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a>) apply when working on field arrays. Use <code>device_memcpy</code> to make sure the device arrays are also updated.</dd></dl>
-<h1><a class="anchor" id="autotoc_md192"></a>
+<h2><a class="anchor" id="user-file_field-neumann-update"></a>
+Neumann boundary conditions</h2>
+<p>This user function can be used to specify Neumann boundary values for the scalar(s). This type of boundary condition allows for time-dependent scalar flux over the surface.</p>
+<p>The user routine is called by the <code>user</code> boundary condition for the scalar. Once the appropriate boundaries have been identified, the user function <code>neumann_conditions</code> should be used to compute and apply the desired values to our scalar field(s).</p>
+<p>The structure of the interface is very similar to e.g. the initial conditions. One gets a list of solution fields, the contents of which depends on which scalar owns the boundary condition. A single field with the same name as the solution field for the scalar (<code>s</code> by default).</p>
+<p>It is crucial to understand that all boundary conditions will call the same routine! So, if one has, for example, both <code>user</code> for two scalars, it is necessary to have an <code>if</code> statement in the user routine to distinguish between the two cases. The convenient way to do that is to check the names of the fields inside. For example, if there is one field and it is called <code>s0</code>, one executes the code setting the boundary values for the scalar <code>s0</code>.</p>
+<p>Note that the fields that one manipulates in the user routine are not the actual scalar fields. Instead, the code does a masked copy from the dummy fields manipulated in the user routine to the actual fields of unknowns, with the mask corresponding to the boundary faces. So, even if you somehow manipulate the fields elsewhere in the domain inside the user routine, that will not affect the solution. For the Neumann boundary conditions, in particular, the field that one manipulates is actually the flux on the boundaries, which means all internal points should be dummy.</p>
+<p>In the following example, we indicate in <code>case.scalar.boundary_conditions</code>, the flux to be <code>sin(t)</code> and <code>-sin(t)</code> for the scalar on boundaries 1 and 2.</p>
+<p>The header of the user function is given in the code snippet below.</p>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>neumann_conditions(fields, bc, time)</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: fields</div>
+<div class="line">  <span class="keywordtype">type</span>(field_neumann_t), <span class="keywordtype">intent(in)</span> :: bc</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+</div><!-- fragment --><p>The arguments and their purpose are as follows:</p>
+<ul>
+<li><code>fields</code> is the list of the fields that can be edited. It is a list of <code>field_t</code> objects.<ul>
+<li>The field <code>i</code> contained in <code>fields</code> is accessed using <code>fields%items(i)%ptr</code> and will refer to a <code>field_t</code> object. Alternatively, one can use the <code>get</code> method to retrieve a field by name or index, as done in the examples above for other routines.</li>
+</ul>
+</li>
+<li><code>bc</code> contains a <code>field_neumann_t</code> object to help access the boundary indices through the boundary mask, <code>msk</code>.<ul>
+<li>The boundary mask of the <code>bc</code>object is accessed via <code>bc%msk</code>. It contains the linear indices of each GLL point on the boundary facets. <dl class="section note"><dt>Note</dt><dd><code>msk(0)</code> contains the size of the array. The first boundary index is <code>msk(1)</code>.</dd></dl>
+</li>
+</ul>
+</li>
+<li><code>time</code>, is a simple structure that contains various info on time stepping, notably, the current time iteration and time value.</li>
+</ul>
+<p>Links to the documentation to learn more about what the types mentioned above contain and how to use them: <code><a class="el" href="../../d3/dc1/field_8f90.html">src/field/field.f90</a></code>, <code><a class="el" href="../../df/df6/bc_8f90.html">src/bc/bc.f90</a></code>.</p>
+<p>The user function should be registered in <code>user_setup</code> with the following line:</p>
+<div class="fragment"><div class="line">u%neumann_conditions =&gt; neumann_conditions</div>
+</div><!-- fragment --><p>A very simple example illustrating the above is shown below. </p><div class="fragment"><div class="line"><span class="keyword">subroutine </span>neumann_conditions(fields, bc, time)</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: fields</div>
+<div class="line">  <span class="keywordtype">type</span>(field_neumann_t), <span class="keywordtype">intent(in)</span> :: bc</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">pointer</span> :: s_flux</div>
+<div class="line">  <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: t</div>
+<div class="line"> </div>
+<div class="line">  s_flux =&gt; fields%get_by_name(<span class="stringliteral">&quot;s&quot;</span>)</div>
+<div class="line">  t = time%t</div>
+<div class="line">  <span class="keywordflow">if</span> (<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%zone_indices(1) == 1) <span class="keywordflow">then</span></div>
+<div class="line">     <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0)</div>
+<div class="line">        s_flux%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1) = sin(t)</div>
+<div class="line"><span class="keywordflow">     end do</span></div>
+<div class="line">  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%zone_indices(1) == 2) <span class="keywordflow">then</span></div>
+<div class="line">     <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0)</div>
+<div class="line">        s_flux%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1) = -sin(t)</div>
+<div class="line"><span class="keywordflow">     end do</span></div>
+<div class="line"><span class="keywordflow">  end if</span></div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line">     <span class="keyword">call </span>device_memcpy(s_flux%x, s_flux%x_d, s_flux%size(), &amp;</div>
+<div class="line">                        host_to_device, sync=.false.)</div>
+<div class="line"><span class="keywordflow">  end if</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">end subroutine </span>neumann_conditions</div>
+</div><!-- fragment --><h1><a class="anchor" id="user-file_ale"></a>
+Arbitrary Lagrangian-Eulerian (ALE) user functions</h1>
+<p>When using the Arbitrary Lagrangian-Eulerian (ALE) framework for simulating moving meshes and boundaries, Neko allows users to explicitly define custom mesh velocities, base shapes, and rigid body kinematics.</p>
+<p>These functions must be registered inside your <code>user_setup</code> subroutine in exactly the same way as the standard functions described above:</p>
+<div class="fragment"><div class="line"><span class="comment">! Register ALE user functions</span></div>
+<div class="line"><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%ale_rigid_kinematics =&gt; user_ale_rigid_kinematics</div>
+<div class="line"><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%ale_mesh_velocity =&gt; user_ale_mesh_velocity</div>
+<div class="line"><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%ale_base_shapes =&gt; user_ale_base_shapes</div>
+</div><!-- fragment --><h2><a class="anchor" id="user-file_ale-rigid_motion"></a>
+Custom rigid body motion</h2>
+<p>The interface <code><a class="el" href="../../d1/d65/namespaceale__rigid__kinematics.html" title="Defines data structures and algorithms for configuring, calculating, and time-integrating the rigid-b...">ale_rigid_kinematics</a></code> allows you to implement a custom time-dependent <b>rigid body motion</b> amplitude for a particular body. The <code>Double_ocyl_cylinder</code> example shows the usage of this interface.</p>
+<dl class="section note"><dt>Note</dt><dd>This user subroutine is called after applying the rigid body motions defined in the case file. This means the subroutine can be used for both superimposing or overriding the kinematics set from the case file. The following examples illustrate this point.</dd></dl>
+<blockquote class="doxtable">
+<p>&zwj;<b>Example</b> (Superimpose): </p>
+</blockquote>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>user_rigid_kinematics(body_id, time, vel_trans, vel_ang)</div>
+<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: body_id</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vel_trans(3)</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vel_ang(3)</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: t</div>
+<div class="line"> </div>
+<div class="line">  t = time%t</div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">select case</span> (body_id)</div>
+<div class="line">  <span class="keywordflow">case</span> (1) <span class="comment">! First registered body in ALE section in case file.</span></div>
+<div class="line"> </div>
+<div class="line">     <span class="comment">! Amplitude for x motion</span></div>
+<div class="line">     vel_trans(1) = vel_trans(1) + your_custom_translational_motion</div>
+<div class="line"> </div>
+<div class="line">     <span class="comment">! Amplitude for rotation around z</span></div>
+<div class="line">     vel_ang(3) = vel_ang(3) + your_custom_rotational_motion</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordflow">  end select</span></div>
+<div class="line"><span class="keyword">end subroutine </span>user_rigid_kinematics</div>
+</div><!-- fragment --><blockquote class="doxtable">
+<p>&zwj;<b>Example</b> (Override): </p>
+</blockquote>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>user_rigid_kinematics(body_id, time, vel_trans, vel_ang)</div>
+<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: body_id</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vel_trans(3)</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vel_ang(3)</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: t</div>
+<div class="line"> </div>
+<div class="line">  t = time%t</div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">select case</span> (body_id)</div>
+<div class="line">  <span class="keywordflow">case</span> (1) <span class="comment">! First registered body in ALE section in case file.</span></div>
+<div class="line"> </div>
+<div class="line">     <span class="comment">! Amplitude for x motion</span></div>
+<div class="line">     vel_trans(1) = your_custom_translational_motion</div>
+<div class="line"> </div>
+<div class="line">     <span class="comment">! Amplitude for rotation around z</span></div>
+<div class="line">     vel_ang(3) = your_custom_rotational_motion</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordflow">  end select</span></div>
+<div class="line"><span class="keyword">end subroutine </span>user_rigid_kinematics</div>
+</div><!-- fragment --><p>Any motion defined based on <code>vel_trans</code> will be applied as an amplitude of translational velocity, whereas any motion defined by <code>vel_ang</code> will be the amplitude of angular velocity for that body. In the second example above (override), any motion set in the case file will be completely overridden by the custom motions.</p>
+<dl class="section attention"><dt>Attention</dt><dd><code>body_id</code> is defined based on the order in which the bodies are registered in the <code>"ale.bodies"</code> array in the case file.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The <code><a class="el" href="../../d1/d65/namespaceale__rigid__kinematics.html" title="Defines data structures and algorithms for configuring, calculating, and time-integrating the rigid-b...">ale_rigid_kinematics</a></code> interface does not require the <code>base_shape</code> fields (see <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ale-solver">here</a> to read more about <code>base_shape</code> in Neko). The code will automatically apply the correct base shape fields to the motion based on the <code>body_id</code>.</dd></dl>
+<h2><a class="anchor" id="user-file_ale-mesh-velocity"></a>
+Mesh Velocity</h2>
+<p>The interface <code>ale_mesh_velocity</code> allows you to implement a custom subroutine to directly manipulate the mesh velocity fields (<code>wm_x</code>, <code>wm_y</code>, <code>wm_z</code>). This is the only way to create custom surface deformation, e.g., time-dependent surface indentation.</p>
+<p>The following example illustrates how to apply a time-dependent surface indentation for a channel flow.</p>
+<div class="fragment"><div class="line"><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
+<div class="line">  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d62/namespaceneko.html">neko</a></div>
+<div class="line">  <span class="keywordtype">implicit none</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">contains</span></div>
+<div class="line">  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user_setup</a>(user)</div>
+<div class="line">    <span class="keywordtype">type</span>(user_t), <span class="keywordtype">intent(inout)</span> :: user</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">! Register ALE mesh velocity </span></div>
+<div class="line">    <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%ale_mesh_velocity =&gt; user_indentation_motion</div>
+<div class="line"> </div>
+<div class="line">  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user_setup</a></div>
+<div class="line"> </div>
+<div class="line">  <span class="keyword">subroutine </span>user_indentation_motion(wm_x, wm_y, wm_z, coef, &amp;</div>
+<div class="line">       x_ref, y_ref, z_ref, base_shapes, time)</div>
+<div class="line">    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line">    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: wm_x, wm_y, wm_z</div>
+<div class="line">    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(in)</span> :: x_ref, y_ref, z_ref</div>
+<div class="line">    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(in)</span> :: base_shapes(:)</div>
+<div class="line">    <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line">      </div>
+<div class="line">    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: t, x_dist, half_width</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: omega_ind</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: h_t, arg, u_tanh, uy</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: phi_top, phi_bot</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">! freq</span></div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: indent_freq   = 0.05_rp </div>
+<div class="line">    <span class="comment">! The middle point of the indentation on x-axis</span></div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: indent_center = 20.0_rp </div>
+<div class="line">    <span class="comment">! The total width of the indentation</span></div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: indent_width  = 4.0_rp </div>
+<div class="line">    <span class="comment">! Amplitude of the indentation</span></div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: indent_height = 0.25_rp</div>
+<div class="line">    <span class="comment">! Sharpness of the edge</span></div>
+<div class="line">    <span class="comment">! Higher = square box, Lower = smooth hill</span></div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: sharpness     = 4.0_rp </div>
+<div class="line">      </div>
+<div class="line">    t = time%t</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">! omega</span></div>
+<div class="line">    omega_ind = indent_freq * 2.0_rp * pi</div>
+<div class="line"> </div>
+<div class="line">    h_t = indent_height * omega_ind * cos(omega_ind * t)</div>
+<div class="line">     </div>
+<div class="line">    half_width = 0.5_rp * indent_width</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">do</span> i = 1, coef%dof%size()</div>
+<div class="line">               </div>
+<div class="line">       <span class="comment">! Calculate Distance based on INITIAL mesh coordinates</span></div>
+<div class="line">       x_dist = abs(x_ref%x(i,1,1,1)  - indent_center)</div>
+<div class="line"> </div>
+<div class="line">       <span class="comment">! If distance &gt; half_width, arg becomes positive and tanh goes to 1 -&gt; u_tanh goes to 0</span></div>
+<div class="line">       arg  = sharpness * (x_dist - half_width)</div>
+<div class="line">       u_tanh = 0.5_rp * (1.0_rp - tanh(arg))</div>
+<div class="line">        </div>
+<div class="line">       uy  = h_t * u_tanh</div>
+<div class="line"> </div>
+<div class="line">       <span class="comment">! phi for bottom surface. body_ID = 1, since it&#39;s the first body registered in ale.bodies</span></div>
+<div class="line">       phi_bot = base_shapes(1)%x(i,1,1,1)</div>
+<div class="line"> </div>
+<div class="line">       <span class="comment">! phi for top surface. body_ID = 2</span></div>
+<div class="line">       phi_top = base_shapes(2)%x(i,1,1,1)</div>
+<div class="line"> </div>
+<div class="line">       wm_y%x(i,1,1,1) = wm_y%x(i,1,1,1) - ((0.5_rp*uy) * phi_top) + (uy * phi_bot)</div>
+<div class="line">     </div>
+<div class="line"><span class="keywordflow">    end do</span></div>
+<div class="line">      </div>
+<div class="line">  <span class="keyword">end subroutine </span>user_indentation_motion</div>
+<div class="line"><span class="keyword">end module </span>user</div>
+</div><!-- fragment --> <dl class="section warning"><dt>Warning</dt><dd>This user subroutine is called at the very end of the mesh velocity calculation. This means that any modification to the mesh velocity in this subroutine will affect all motions applied earlier. <code>wm_y%x(i,1,1,1) = wm_y%x(i,1,1,1) + Your_Custom_Mesh_velocity</code> will superimpose on <b>all</b> previously set mesh motions, whereas <code>wm_y%x(i,1,1,1) = Your_Custom_Mesh_velocity</code> will completely override any motion set earlier.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>Even though it is logically possible to apply rigid body motion to an object using a custom <code>ale_mesh_velocity</code> subroutine, it <b>should not</b> be used for this purpose. Doing so bypasses several internal steps, causing computations regarding the pivot (see <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ale-pivot">this section</a>) and consequently rigid body calculations to be wrong. Always use the <code><a class="el" href="../../d1/d65/namespaceale__rigid__kinematics.html" title="Defines data structures and algorithms for configuring, calculating, and time-integrating the rigid-b...">ale_rigid_kinematics</a></code> interface for rigid body motion.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Since <code>user_indentation_motion</code> subroutine directly manipulates the global mesh velocity fields, the computed mesh velocity should be multiplied by the corresponding <code>base_shape</code> for that body (see the example above).</dd></dl>
+<h2><a class="anchor" id="user-file_ale-base-shapes"></a>
+Custom Base Shapes</h2>
+<p>The interface <code>ale_base_shapes</code> allows you to implement a user subroutine to define your own custom base shape fields for ALE mesh movements.</p>
+<blockquote class="doxtable">
+<p>&zwj;<b>Example:</b> </p>
+</blockquote>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>user_base_shapes(base_shapes)</div>
+<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: base_shapes(:)</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">! Fix the motion of the first ALE body (body_id = 1)</span></div>
+<div class="line">  base_shapes(1) = 0.0_rp</div>
+<div class="line">  </div>
+<div class="line">  <span class="comment">! Apply the motion of the second ALE body (body_id = 2) to the entire domain</span></div>
+<div class="line">  base_shapes(2) = 1.0_rp </div>
+<div class="line">    </div>
+<div class="line"><span class="keyword">end subroutine </span>user_base_shapes</div>
+</div><!-- fragment --><p>The example above will suppress the mesh deformation associated with the first ALE body and apply the rigid body motion of ALE body 2 to the entire domain (including the inlet, outlet, and any other boundaries).</p>
+<dl class="section note"><dt>Note</dt><dd>If this user subroutine is utilized, it is the user's responsibility to verify that the total base shape field ( \( \phi_{total} \)) remains strictly bounded between 0.0 and 1.0.</dd></dl>
+<h1><a class="anchor" id="autotoc_md199"></a>
 Additional remarks and tips</h1>
 <h2><a class="anchor" id="user-file_tips_running-on-gpus"></a>
 Running on GPUs</h2>
@@ -573,7 +794,7 @@ User access to solver internals</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Apr 13 2026 04:35:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 14 2026 04:31:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

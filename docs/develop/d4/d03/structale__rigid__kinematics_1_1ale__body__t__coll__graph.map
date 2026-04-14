@@ -1,0 +1,5 @@
+<map id="ale_rigid_kinematics::ale_body_t" name="ale_rigid_kinematics::ale_body_t">
+<area shape="rect" id="Node000001" title="Configuration for a single moving body." alt="" coords="10,108,167,148"/>
+<area shape="rect" id="Node000002" href="$d2/d2c/structale__rigid__kinematics_1_1stiffness__geometry__t.html" title="Stiff Geometry." alt="" coords="5,5,172,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,59,91,108,86,108,86,59"/>
+</map>

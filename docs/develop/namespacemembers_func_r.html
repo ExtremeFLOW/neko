@@ -120,6 +120,10 @@ $(document).ready(function(){initNavTree('namespacemembers_func_r.html',''); ini
 <li>read_point_zone()&#160;:&#160;<a class="el" href="d2/d4d/namespaceprobes.html#a17fff5ea69318976ece449713d8110c8">probes</a></li>
 <li>read_probe_locations()&#160;:&#160;<a class="el" href="d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">probes</a></li>
 <li>read_xyz_from_csv()&#160;:&#160;<a class="el" href="d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">probes</a></li>
+<li>recompute_metrics_dealias()&#160;:&#160;<a class="el" href="d9/df7/namespaceadv__dealias.html#aa8585b98ef95a7a8b9d24ef1179da679">adv_dealias</a></li>
+<li>recompute_metrics_dummy_noop()&#160;:&#160;<a class="el" href="d9/d9b/namespaceadv__dummy.html#af8fd7c53d44ca4e00811cf0d57a17c48">adv_dummy</a></li>
+<li>recompute_metrics_no_dealias()&#160;:&#160;<a class="el" href="d9/de3/namespaceadv__no__dealias.html#ac9200c3d5787160982015cf5676a8cca">adv_no_dealias</a></li>
+<li>recompute_metrics_oifs()&#160;:&#160;<a class="el" href="dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">adv_oifs</a></li>
 <li>redist_curve()&#160;:&#160;<a class="el" href="db/dbb/namespaceredist.html#ae07ae81a5fb1331996356b54d531fa72">redist</a></li>
 <li>redist_mesh()&#160;:&#160;<a class="el" href="db/dbb/namespaceredist.html#a0495227a7bc72edb4553026a816d7ebf">redist</a></li>
 <li>redist_zone()&#160;:&#160;<a class="el" href="db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700">redist</a></li>
@@ -170,11 +174,12 @@ $(document).ready(function(){initNavTree('namespacemembers_func_r.html',''); ini
 <li>reordi4()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#af9feeaa7f010049caa25da1f7ea1d569">math</a></li>
 <li>request_field()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#a3323d64c81fd680132b725888d8d8d16">scratch_registry</a></li>
 <li>request_matrix()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#ab56e8bccbcc5ed446b6a1c0fab6979bb">scratch_registry</a></li>
+<li>request_tracker()&#160;:&#160;<a class="el" href="dd/db4/namespaceale__manager.html#ad5057e6966e8ca8ebfe50c7c586fde44">ale_manager</a></li>
 <li>request_vector()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#abb82d6f812046c663d7068b900e88998">scratch_registry</a></li>
 <li>restart_()&#160;:&#160;<a class="el" href="d2/def/namespacesimulation__component.html#a448aa3b2279d9471ff436d609bff60bf">simulation_component</a></li>
-<li>rhs_maker_bdf_cpu()&#160;:&#160;<a class="el" href="db/dd7/namespacerhs__maker__cpu.html#a658a2ef1d1743f5330d27c0bbc3027e2">rhs_maker_cpu</a></li>
-<li>rhs_maker_bdf_device()&#160;:&#160;<a class="el" href="d1/d29/namespacerhs__maker__device.html#ada5a18b1f69faf43850b7418649bc01d">rhs_maker_device</a></li>
-<li>rhs_maker_bdf_sx()&#160;:&#160;<a class="el" href="db/d7a/namespacerhs__maker__sx.html#a5b45caef0e2e64b754ceb7b4b1e96810">rhs_maker_sx</a></li>
+<li>rhs_maker_bdf_cpu()&#160;:&#160;<a class="el" href="db/dd7/namespacerhs__maker__cpu.html#a5133461f724f70a9a75eab0bc2e64fd9">rhs_maker_cpu</a></li>
+<li>rhs_maker_bdf_device()&#160;:&#160;<a class="el" href="d1/d29/namespacerhs__maker__device.html#a531788e02aeb589bde223ea1e93b9f11">rhs_maker_device</a></li>
+<li>rhs_maker_bdf_sx()&#160;:&#160;<a class="el" href="db/d7a/namespacerhs__maker__sx.html#ad25c69b937720c7413a2964ffd05032d">rhs_maker_sx</a></li>
 <li>rhs_maker_ext_cpu()&#160;:&#160;<a class="el" href="db/dd7/namespacerhs__maker__cpu.html#afea79337d03455b3113007bdb0a7329e">rhs_maker_cpu</a></li>
 <li>rhs_maker_ext_device()&#160;:&#160;<a class="el" href="d1/d29/namespacerhs__maker__device.html#ac1263f64319e0bda5966fac0e67f3f3f">rhs_maker_device</a></li>
 <li>rhs_maker_ext_sx()&#160;:&#160;<a class="el" href="db/d7a/namespacerhs__maker__sx.html#a9775283b1aef33f4adfbe9e0a0bc23d0">rhs_maker_sx</a></li>
@@ -213,7 +218,7 @@ $(document).ready(function(){initNavTree('namespacemembers_func_r.html',''); ini
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon Apr 13 2026 04:35:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 14 2026 04:31:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

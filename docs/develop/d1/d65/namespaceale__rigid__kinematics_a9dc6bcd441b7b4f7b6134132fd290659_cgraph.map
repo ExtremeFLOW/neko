@@ -1,0 +1,7 @@
+<map id="ale_rigid_kinematics::update_pivot_location" name="ale_rigid_kinematics::update_pivot_location">
+<area shape="rect" id="Node000001" title="Updates pivot location." alt="" coords="5,5,180,45"/>
+<area shape="rect" id="Node000002" href="$d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c" title="Advance a single point position (x,y,z) from the point&#39;s velocity using AB time&#45;integration." alt="" coords="228,5,411,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,23,214,23,214,28,181,28"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="459,13,556,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,23,445,23,445,28,411,28"/>
+</map>

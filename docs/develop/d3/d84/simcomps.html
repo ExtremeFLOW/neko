@@ -102,10 +102,10 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md172">What are simulation components?</a></li>
-<li class="level1"><a href="#autotoc_md173">Adding simulation components to the case</a></li>
-<li class="level1"><a href="#autotoc_md174">List of simulation components</a></li>
-<li class="level1"><a href="#autotoc_md175">Controling execution and file output</a><ul><li class="level2"><a href="#autotoc_md176">Differential operators</a><ul><li class="level3"><a href="#simcomp_derivative">derivative</a></li>
+<ul><li class="level1"><a href="#autotoc_md178">What are simulation components?</a></li>
+<li class="level1"><a href="#autotoc_md179">Adding simulation components to the case</a></li>
+<li class="level1"><a href="#autotoc_md180">List of simulation components</a></li>
+<li class="level1"><a href="#autotoc_md181">Controlling execution and file output</a><ul><li class="level2"><a href="#autotoc_md182">Differential operators</a><ul><li class="level3"><a href="#simcomp_derivative">derivative</a></li>
 <li class="level3"><a href="#simcomp_curl">curl</a></li>
 <li class="level3"><a href="#simcomp_divergence">divergence</a></li>
 </ul>
@@ -113,12 +113,14 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 <li class="level2"><a href="#simcomp_gradient">gradient</a></li>
 <li class="level2"><a href="#simcomp_weak_gradient">weak_gradient</a></li>
 <li class="level2"><a href="#simcomp_lambda2">lambda2</a></li>
-<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md177">Supported types</a></li>
-<li class="level3"><a href="#autotoc_md178">Example usage</a></li>
+<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md183">Supported types</a></li>
+<li class="level3"><a href="#autotoc_md184">Example usage</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#simcomp_field_writer">field_writer</a></li>
-<li class="level2"><a href="#simcomp_force_torque">force_torque</a></li>
+<li class="level2"><a href="#simcomp_force_torque">force_torque</a><ul><li class="level3"><a href="#autotoc_md185">Torque calculation for moving bodies</a></li>
+</ul>
+</li>
 <li class="level2"><a href="#simcomp_les_model">les_model</a></li>
 <li class="level2"><a href="#user_stats">User statistics</a></li>
 <li class="level2"><a href="#simcomp_speri">Spectral error indicator</a></li>
@@ -126,15 +128,15 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </li>
 </ul>
 </div>
-<div class="textblock"><h1><a class="anchor" id="autotoc_md172"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md178"></a>
 What are simulation components?</h1>
 <p>Simulation components, or simcomps for short, encapsulate additional functionalities that may be useful for certain cases but not necessary to run the solver. This can include computation and output of additional fields, in-situ post-processing operations, data sampling, etc.</p>
 <p>By design, simulation components can tap into every aspect of the simulation, so they can be quite powerful. As the code grows, we expect to add more and more simcomps to the code.</p>
-<h1><a class="anchor" id="autotoc_md173"></a>
+<h1><a class="anchor" id="autotoc_md179"></a>
 Adding simulation components to the case</h1>
 <p>Each simcomp is defined as a single JSON object at are added to an array of objects called <code>simulation_components</code>, which resides directly under the <code>case</code> object.</p>
 <p>All simcomps support a <code>name</code> keyword in their JSON object. When ommitted, a default <code>name</code>, which as a rule coincided with its <code>type</code>. For completness, these default names are provided for each simcomp in the documentation below. However, each simcomp's name must be unique, so if two or more simcomps of the same type are present in case, a unique <code>name</code> for each must be provided manually.</p>
-<h1><a class="anchor" id="autotoc_md174"></a>
+<h1><a class="anchor" id="autotoc_md180"></a>
 List of simulation components</h1>
 <p>The following is a list of simulation components that are currently available in Neko. The list will be updated as new simcomps are added.</p>
 <ul>
@@ -159,8 +161,8 @@ List of simulation components</h1>
 <li>User statistics simcomp, "user_stats" <a class="el" href="../../d3/d84/simcomps.html#user_stats">User statistics</a></li>
 <li>Computation of the spectral error indicator <a class="el" href="../../d3/d84/simcomps.html#simcomp_speri">Spectral error indicator</a></li>
 </ul>
-<h1><a class="anchor" id="autotoc_md175"></a>
-Controling execution and file output</h1>
+<h1><a class="anchor" id="autotoc_md181"></a>
+Controlling execution and file output</h1>
 <p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control</code> and <code>output_value</code> for the output to disk. The parameters for the <code>_control</code> values are the same as for the fluid and checkpointing. Additionally, one can set <code>output_control</code> to <code>global</code> and <code>never</code>. The former will sync the <code>output_</code> parameter to that of the fluid. Choosing <code>never</code> will suppress output all together. If no parameters for the <code>output_</code> parameters are provided, they are set to be the same as for <code>compute_</code>. In order to simplify the configuration, the <code>compute_control</code> can be set to <code><a class="el" href="../../d6/d60/namespacefluid__output.html" title="Defines an output for a fluid.">fluid_output</a></code> to sync the computation to the fluid output. All <code>_value</code> keywords can also be strings pointing to an entry under <code>constants.scalars</code>.</p>
 <p>For simcomps that compute 3D fields, the output can be either added to the main <code>.fld</code> file, containing velocity and pressure, or saved to a separate file. For the latter, the <code>output_filename</code> keyword should be provided. One can additionally provide the <code>precision</code> keyword, which can be set to either <code>single</code> or <code>double</code> to control the precision of the written data.</p>
 <p>For example, in the <code>tgv</code> example case the <code>curl</code> component is executed once per 50 time steps. The <code>output_</code> parameters are synced to that, and the vorticity fields will be added to the main <code>.fld</code> file. </p><div class="fragment"><div class="line">{</div>
@@ -171,7 +173,7 @@ Controling execution and file output</h1>
 <div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot;: 50</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md176"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md182"></a>
 Differential operators</h2>
 <p>There is a set of simcomps that allow one to apply various differential operators on registered fields. They share common configuration traits. The field or fields that the operators is applied to us controlled, respectively, by the <code>field</code> or <code>feilds</code> keyword. The produced fields are also added to the registry, and each operator provides a default name. However, it can be overriden using the <code>computed_field</code> keyword. Operators that output a vector field will register three fields, adding <code>_x</code>, <code>_y</code>, and <code>_z</code> to the base of the name.</p>
 <p>All of these simcomps also support saving the result to <code>.fld</code> files. The <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a> simcomp is used for that under the hood, so the associated JSON keywords can be found in its documentation (<code>output_filename</code>, <code>precision</code>).</p>
@@ -241,7 +243,7 @@ probes</h2>
 </div><!-- fragment --></li>
 </ul>
 <p>It is also possible to set a <code>start_time</code> before which the probes will not be executed (same behavior as the statistics).</p>
-<h3><a class="anchor" id="autotoc_md177"></a>
+<h3><a class="anchor" id="autotoc_md183"></a>
 Supported types</h3>
 <ul>
 <li><code>file</code>: Reads a list of points from a CSV file. The name of the file is provided with the <code>file_name</code> keyword. The CSV file should have the following format: <div class="fragment"><div class="line">x_0, y_0, z_0</div>
@@ -281,7 +283,7 @@ Supported types</h3>
 <div class="line">0.0, -1.0, 0.0</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md178"></a>
+<h3><a class="anchor" id="autotoc_md184"></a>
 Example usage</h3>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
@@ -315,8 +317,10 @@ Example usage</h3>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_field_writer"></a>
 field_writer</h2>
 <p>Outputs registered 3D fields to a file. Requires a list of field names in the <code>fields</code> keyword. Primarily to be used for outputting new fields defined in the user file. The fields are added to the <code>neko_registry</code> object and are expected to be updated in the user file, or, perhaps, by other simcomps. Since this simcomp does not compute anything, <code>compute_</code> configuration is irrelevant.</p>
-<p>The output format is controlled by the <code>output_format</code> keyword, which can be set to <code>nek5000</code> (default), <code>vtkhdf</code>, or <code>adios2</code>. The <code>output_precision</code> keyword controls the precision of the written data and can be set to <code>single</code> (default) or <code>double</code>.</p>
-<p>When using the <code>vtkhdf</code> format, the <code>output_subdivide</code> keyword can be set to <code>true</code> to subdivide spectral elements into linear sub-cells instead of writing high-order Lagrange cells. See the [cell representation](<a class="el" href="../../d7/d7f/io.html#vtkhdf-cell-representation">Cell representation</a>) section for more details.</p>
+<ul>
+<li>The output format is controlled by the <code>output_format</code> keyword, which can be set to <code>nek5000</code> (default), <code>vtkhdf</code>, or <code>adios2</code>.</li>
+<li>The <code>output_precision</code> keyword controls the precision of the written data and can be set to <code>single</code> (default) or <code>double</code>.</li>
+<li><p class="startli">When using the <code>vtkhdf</code> format, the <code>output_subdivide</code> keyword can be set to <code>true</code> to subdivide spectral elements into linear sub-cells instead of writing high-order Lagrange cells. See the [cell representation](<a class="el" href="../../d7/d7f/io.html#vtkhdf-cell-representation">Cell representation</a>) section for more details.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;field_writer&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;field_writer&quot;,</div>
@@ -328,6 +332,19 @@ field_writer</h2>
 <div class="line">  &quot;output_control&quot; : &quot;simulationtime&quot;,</div>
 <div class="line">  &quot;output_value&quot; : 1.0</div>
 <div class="line">}</div>
+</div><!-- fragment --></li>
+</ul>
+<p>The <code><a class="el" href="../../d9/dde/namespacefield__writer.html" title="Implements the field_writer_t type.">field_writer</a></code> may be used in conjunction with a <code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> to sample the corresponding subsection of the domain. At the moment, this capability can only be used with <code>nek5000</code> files. </p><dl class="section attention"><dt>Attention</dt><dd>When using <code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> with the <code>nek5000</code> format, an <code>output_filename</code> must be provided.</dd></dl>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;field_writer&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;field_writer&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;my_field1&quot;, &quot;my_field2&quot;],</div>
+<div class="line">  &quot;output_format&quot;: &quot;nek5000&quot;,</div>
+<div class="line">  &quot;output_control&quot; : &quot;simulationtime&quot;,</div>
+<div class="line">  &quot;output_value&quot; : 1.0,</div>
+<div class="line">  &quot;output_filename&quot;: &quot;my_point_zone_field&quot;,</div>
+<div class="line">  &quot;point_zone&quot;: &quot;my_point_zone&quot;</div>
+<div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_force_torque"></a>
 force_torque</h2>
 <p>Computes the force on a specified zone and the corresponding torque around a center point. The compute control specifies how often they are computed and printed into the log. Scale specifies a scale for the computed force/torque. Conventient if one wants to scale with the area or similar. long_print is default false and can be set to true to print all digits in the calculation. Subroutines used in the simcomp can be found in <a class="el" href="../../d9/df1/drag__torque_8f90.html">src/qoi/drag_torque.f90</a></p>
@@ -335,6 +352,7 @@ force_torque</h2>
 <div class="line">  &quot;type&quot;: &quot;force_torque&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;force_torque&quot;,</div>
 <div class="line">  &quot;zone_id&quot;: 1,</div>
+<div class="line">  &quot;center_type&quot;: &quot;fixed&quot;,</div>
 <div class="line">  &quot;center&quot;: [0.0, 0.0, 0.0],</div>
 <div class="line">  &quot;zone_name&quot;: &quot;some chosen name, optional&quot;,</div>
 <div class="line">  &quot;scale&quot;: 1.0</div>
@@ -342,7 +360,22 @@ force_torque</h2>
 <div class="line">  &quot;compute_control&quot; : &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot; : 10</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="simcomp_les_model"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md185"></a>
+Torque calculation for moving bodies</h3>
+<p>When an object undergoes translational or rotational movement, it is often necessary to calculate the torque around its dynamic center of rotation, or around another specific reference point that moves rigidly with the body. The <code>center_type</code> parameter enables accurate torque computation for these scenarios by dictating how the tracking point behaves:</p>
+<ul>
+<li><code>"fixed"</code> <em>(Default):</em> The torque is calculated around the static coordinates provided in the <code>center</code> array, regardless of how the body moves.</li>
+<li><code>"pivot"</code> <em>(ALE only):</em> The torque is calculated directly around the ALE body's dynamic pivot point. If this is selected, the <code>center</code> array in the JSON is ignored, and the pivot coordinate at each time step is used automatically.</li>
+<li><code>"body_attached"</code> <em>(ALE only):</em> The torque is calculated around a custom point that translates and rotates <em>with</em> the rigid movement of the ALE body. The initial position of this point is defined by the <code>center</code> array. <blockquote class="doxtable">
+<p>&zwj;<em>Example use case:</em> If you are simulating a pitching and heaving airfoil, you might want to calculate the torque acting on a trailing-edge flap. By using <code>"body_attached"</code>, you simply define the initial coordinates of the hinge in the <code>center</code> array, and the code will automatically track its dynamic position as the main airfoil moves. </p>
+</blockquote>
+<dl class="section attention"><dt>Attention</dt><dd>For static simulations, the <code>center_type</code> parameter is completely optional. If omitted from the case file, the code will automatically default to <code>"fixed"</code>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If <code>center_type</code> is set to <code>"pivot"</code> or <code>"body_attached"</code> but the specified <code>zone_id</code> is not registered as an ALE body (or ALE is globally inactive), the code will print a warning and automatically revert back to <code>"fixed"</code> using the provided <code>"center"</code> in the case file.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>For ALE simulations, the wall normal vectors are re-calculated at every time step to account for body movement and deformation. If the ALE module is not enabled, this calculation is performed only once during initialization.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd><b>Restarting Simulations:</b> When restarting an ALE simulation, the code automatically calculates the correct current position of the torque center at the restart time. Therefore, if the intended torque calculation point remains the same, the <code>center</code> array in the JSON file should <b>not</b> be modified between restarts. If you wish to calculate torque around a <em>new</em> point upon restart, the <code>center</code> array must specify the coordinates of that new point in the <b>original, undeformed mesh</b> (at \( t=0 \)), not its current spatial location.</dd></dl>
+</li>
+</ul>
+<h2><a class="anchor" id="simcomp_les_model"></a>
 les_model</h2>
 <p>Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp <em>only</em> computes the eddy viscosity field. You have to select the corresponding <code>nut_field</code> in the fluid and/or scalar JSON object to actually enable LES, see corresponding documentation. The simcomp is controlled by the following keywords:</p>
 <ul>
@@ -449,7 +482,7 @@ Spectral error indicator</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Apr 13 2026 04:35:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 14 2026 04:31:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

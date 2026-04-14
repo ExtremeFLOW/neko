@@ -1,0 +1,42 @@
+<map id="coefs::coef_recompute_metrics" name="coefs::coef_recompute_metrics">
+<area shape="rect" id="Node000001" title="Recompute and update geometric factors (ALE)" alt="" coords="5,211,176,251"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484" title="Generate facet area and surface normals." alt="" coords="245,83,403,123"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,209,162,171,223,133,238,126,240,131,225,138,165,175,116,213"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa" title=" " alt="" coords="245,147,403,187"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="164,209,237,188,238,194,165,214"/>
+<area shape="rect" id="Node000004" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="245,211,403,251"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="177,229,231,229,231,234,177,234"/>
+<area shape="rect" id="Node000018" href="$d6/dbe/namespacecoefs.html#a1b615b359ab35faee3c6522857bdac33" title="Generate geometric data for the given mesh." alt="" coords="229,276,419,301"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="173,249,259,270,258,275,172,254"/>
+<area shape="rect" id="Node000019" href="$d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462" title="Generate mass matrix B for the given mesh and space." alt="" coords="224,325,424,351"/>
+<area shape="poly" id="edge21_Node000001_Node000019" title=" " alt="" coords="120,249,168,281,225,312,246,319,244,324,223,316,165,286,117,254"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="504,5,619,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="402,212,422,197,436,178,443,159,445,120,447,80,455,60,470,40,489,27,492,31,474,44,459,63,452,81,450,120,448,160,441,181,426,201,405,216"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504" title="Change sign of vector ." alt="" coords="508,55,615,80"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="402,211,422,197,433,185,440,172,445,144,451,117,458,103,470,89,493,76,496,80,474,93,462,106,456,119,450,145,445,173,438,187,426,201,405,215"/>
+<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="514,104,609,129"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="401,209,422,197,437,183,446,169,455,154,471,140,500,126,502,131,473,144,459,158,450,172,441,187,426,201,404,214"/>
+<area shape="rect" id="Node000008" href="$df/d80/namespacedevice__coef.html#a6bf9ddbe771387016c5f4cd71fe51256" title=" " alt="" coords="472,154,651,194"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="403,210,464,195,465,200,404,215"/>
+<area shape="rect" id="Node000013" href="$dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f" title="Compute inverted vector ." alt="" coords="505,219,617,244"/>
+<area shape="poly" id="edge15_Node000004_Node000013" title=" " alt="" coords="403,229,492,229,492,234,403,234"/>
+<area shape="rect" id="Node000014" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="482,268,641,293"/>
+<area shape="poly" id="edge16_Node000004_Node000014" title=" " alt="" coords="404,245,487,263,486,268,403,250"/>
+<area shape="rect" id="Node000015" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="515,317,608,343"/>
+<area shape="poly" id="edge17_Node000004_Node000015" title=" " alt="" coords="397,249,425,262,440,273,450,284,459,294,473,304,502,315,500,320,471,308,456,298,446,287,437,277,423,267,395,254"/>
+<area shape="rect" id="Node000016" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="513,367,610,392"/>
+<area shape="poly" id="edge18_Node000004_Node000016" title=" " alt="" coords="405,249,426,263,444,286,450,310,457,332,474,353,500,367,498,372,470,357,452,335,445,311,439,288,422,267,402,254"/>
+<area shape="rect" id="Node000017" href="$dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f" title="Returns ." alt="" coords="504,416,619,441"/>
+<area shape="poly" id="edge19_Node000004_Node000017" title=" " alt="" coords="405,248,426,263,440,281,447,299,450,335,453,370,460,386,474,403,492,415,489,419,470,407,456,389,448,371,445,335,442,300,435,283,422,267,402,252"/>
+<area shape="rect" id="Node000009" href="$d4/d95/coef_8cu.html#ae353b24ed06280c0189697af736a6b7d" title=" " alt="" coords="912,126,1065,166"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="651,166,898,149,898,155,651,171"/>
+<area shape="rect" id="Node000011" href="$d6/da9/coef_8c.html#aafbd283d930483605855d2397a10ab8d" title=" " alt="" coords="699,183,864,223"/>
+<area shape="poly" id="edge11_Node000008_Node000011" title=" " alt="" coords="651,183,685,188,684,193,651,189"/>
+<area shape="rect" id="Node000010" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1113,183,1277,223"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="1062,163,1110,177,1109,182,1061,169"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="1157,184,1154,174,1161,165,1174,159,1195,157,1219,160,1233,167,1230,172,1218,165,1195,162,1176,164,1164,169,1160,175,1162,182"/>
+<area shape="poly" id="edge12_Node000011_Node000010" title=" " alt="" coords="864,201,1100,201,1100,206,864,206"/>
+<area shape="rect" id="Node000012" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="923,241,1055,267"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="864,221,923,235,922,241,863,226"/>
+<area shape="poly" id="edge14_Node000012_Node000010" title=" " alt="" coords="1041,239,1099,224,1101,229,1042,244"/>
+</map>

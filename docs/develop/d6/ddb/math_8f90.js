@@ -60,6 +60,8 @@ var math_8f90 =
     [ "masked_gather_copy_0", "d6/ddb/math_8f90.html#a93ebdef19d8a165651d852f29d2bf5b7", null ],
     [ "masked_scatter_copy", "d6/ddb/math_8f90.html#a330e394dc6220fdd80603e904283424d", null ],
     [ "masked_scatter_copy_0", "d6/ddb/math_8f90.html#a68db4675e69e6626e8d7ed8fb9d3346d", null ],
+    [ "math_dstepf", "d6/ddb/math_8f90.html#abefc115c94206a01926e8f91d989be53", null ],
+    [ "math_stepf", "d6/ddb/math_8f90.html#a5988dbdbc49591fc69aa4e3f1fcc15de", null ],
     [ "matinv3", "d6/ddb/math_8f90.html#a85aae15001ebab74ab24940d98b0c701", null ],
     [ "matinv39", "d6/ddb/math_8f90.html#a3febc8c0f61710eb0359fb2afd291bfa", null ],
     [ "p_update", "d6/ddb/math_8f90.html#afa191599ec08553ac175650544c1e901", null ],

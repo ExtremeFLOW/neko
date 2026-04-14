@@ -1,0 +1,7 @@
+<map id="ale_rigid_kinematics::compute_body_kinematics_built_in" name="ale_rigid_kinematics::compute_body_kinematics_built_in">
+<area shape="rect" id="Node000001" title="Compute built&#45;in kinematics for a body. Uses inputs from JSON. CPU&#45;only." alt="" coords="228,30,433,85"/>
+<area shape="rect" id="Node000002" href="$dd/db4/namespaceale__manager.html#aac167b897bea579bf09e978a4c525069" title=" " alt="" coords="5,5,180,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,44,180,40,180,34,215,39"/>
+<area shape="rect" id="Node000003" href="$dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46" title="Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodi..." alt="" coords="13,69,173,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,76,173,81,172,76,214,70"/>
+</map>

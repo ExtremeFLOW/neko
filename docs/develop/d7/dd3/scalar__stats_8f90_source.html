@@ -143,7 +143,7 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/d73/namespacedevice__math.html">device_math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23">device_col3</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1">device_col2</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>, &amp;</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>       <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#ab9770f6ba59346cb52b53de1897526d2">device_invcol2</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a2b8d4f8b84ce7cc369cadc71c01dc207">device_addcol3</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f">invers2</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">col2</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">addcol3</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">addcol3</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
@@ -860,88 +860,93 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div class="foldopen" id="foldopen00772" data-start="" data-end="">
 <div class="line"><a id="l00772" name="l00772"></a><span class="lineno"><a class="line" href="../../dc/d5e/namespacescalar__stats.html#a9f16421452c96ff7f4097483c68d25e9">  772</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d5e/namespacescalar__stats.html#a9f16421452c96ff7f4097483c68d25e9">scalar_stats_make_strong_grad</a>(this)</div>
 <div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dad/structscalar__stats_1_1scalar__stats__t.html">scalar_stats_t</a>) :: this</div>
-<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span>    <span class="keywordtype">integer</span> :: n</div>
-<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span> </div>
-<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span>    <span class="keywordflow">if</span> (this%n_stats .eq. 5) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span> </div>
-<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span>    n = <span class="keyword">size</span>(this%coef%B)</div>
-<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span> </div>
-<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00781" name="l00781"></a><span class="lineno">  781</span>       <span class="keyword">call </span>device_cfill(this%stats_work%x_d, 1.0_rp, n)</div>
-<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>       <span class="keyword">call </span>device_invcol2(this%stats_work%x_d, this%coef%B_d, n)</div>
-<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span> </div>
-<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span>       <span class="keyword">call </span>device_col2(this%pdsdx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span>       <span class="keyword">call </span>device_col2(this%pdsdy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span>       <span class="keyword">call </span>device_col2(this%pdsdz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span> </div>
-<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span>       <span class="keyword">call </span>device_col2(this%udsdx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span>       <span class="keyword">call </span>device_col2(this%udsdy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span>       <span class="keyword">call </span>device_col2(this%udsdz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>       <span class="keyword">call </span>device_col2(this%vdsdx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span>       <span class="keyword">call </span>device_col2(this%vdsdy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span>       <span class="keyword">call </span>device_col2(this%vdsdz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>       <span class="keyword">call </span>device_col2(this%wdsdx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>       <span class="keyword">call </span>device_col2(this%wdsdy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>       <span class="keyword">call </span>device_col2(this%wdsdz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span> </div>
-<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span>       <span class="keyword">call </span>device_col2(this%sdudx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>       <span class="keyword">call </span>device_col2(this%sdudy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span>       <span class="keyword">call </span>device_col2(this%sdudz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span>       <span class="keyword">call </span>device_col2(this%sdvdx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span>       <span class="keyword">call </span>device_col2(this%sdvdy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span>       <span class="keyword">call </span>device_col2(this%sdvdz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span>       <span class="keyword">call </span>device_col2(this%sdwdx%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span>       <span class="keyword">call </span>device_col2(this%sdwdy%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>       <span class="keyword">call </span>device_col2(this%sdwdz%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span> </div>
-<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>       <span class="keyword">call </span>device_col2(this%stats_work%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span> </div>
-<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>       <span class="keyword">call </span>device_col2(this%ess%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>       <span class="keyword">call </span>device_col2(this%eus%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>       <span class="keyword">call </span>device_col2(this%evs%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span>       <span class="keyword">call </span>device_col2(this%ews%mf%x_d, this%stats_work%x_d, n)</div>
-<div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span> </div>
-<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span> </div>
-<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>       <span class="keyword">call </span>invers2(this%stats_work%x, this%coef%B, n)</div>
-<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span> </div>
-<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>       <span class="keyword">call </span>col2(this%pdsdx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>       <span class="keyword">call </span>col2(this%pdsdy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>       <span class="keyword">call </span>col2(this%pdsdz%mf%x, this%stats_work%x, n)</div>
+<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span>    <span class="keywordtype">integer</span> :: n, i</div>
+<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span><span class="keywordtype">    real</span>(kind=rp) :: wrk, wrk_sqr</div>
+<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span> </div>
+<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span>    <span class="keywordflow">if</span> (this%n_stats .eq. 5) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span> </div>
+<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span>    n = <span class="keyword">size</span>(this%coef%B)</div>
+<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span> </div>
+<div class="line"><a id="l00781" name="l00781"></a><span class="lineno">  781</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>       <span class="keyword">call </span>device_cfill(this%stats_work%x_d, 1.0_rp, n)</div>
+<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span>       <span class="keyword">call </span>device_invcol2(this%stats_work%x_d, this%coef%B_d, n)</div>
+<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span> </div>
+<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span>       <span class="keyword">call </span>device_col2(this%pdsdx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span>       <span class="keyword">call </span>device_col2(this%pdsdy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span>       <span class="keyword">call </span>device_col2(this%pdsdz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span> </div>
+<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span>       <span class="keyword">call </span>device_col2(this%udsdx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span>       <span class="keyword">call </span>device_col2(this%udsdy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>       <span class="keyword">call </span>device_col2(this%udsdz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span>       <span class="keyword">call </span>device_col2(this%vdsdx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span>       <span class="keyword">call </span>device_col2(this%vdsdy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>       <span class="keyword">call </span>device_col2(this%vdsdz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>       <span class="keyword">call </span>device_col2(this%wdsdx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>       <span class="keyword">call </span>device_col2(this%wdsdy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span>       <span class="keyword">call </span>device_col2(this%wdsdz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span> </div>
+<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>       <span class="keyword">call </span>device_col2(this%sdudx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span>       <span class="keyword">call </span>device_col2(this%sdudy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span>       <span class="keyword">call </span>device_col2(this%sdudz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span>       <span class="keyword">call </span>device_col2(this%sdvdx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span>       <span class="keyword">call </span>device_col2(this%sdvdy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span>       <span class="keyword">call </span>device_col2(this%sdvdz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span>       <span class="keyword">call </span>device_col2(this%sdwdx%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>       <span class="keyword">call </span>device_col2(this%sdwdy%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>       <span class="keyword">call </span>device_col2(this%sdwdz%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span> </div>
+<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>       <span class="keyword">call </span>device_col2(this%stats_work%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span> </div>
+<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>       <span class="keyword">call </span>device_col2(this%ess%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>       <span class="keyword">call </span>device_col2(this%eus%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span>       <span class="keyword">call </span>device_col2(this%evs%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span>       <span class="keyword">call </span>device_col2(this%ews%mf%x_d, this%stats_work%x_d, n)</div>
+<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span> </div>
+<div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>          wrk = 1.0_rp / this%coef%B(i,1,1,1)</div>
+<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>          this%pdsdx%mf%x(i,1,1,1) = this%pdsdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>          this%pdsdy%mf%x(i,1,1,1) = this%pdsdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>          this%pdsdz%mf%x(i,1,1,1) = this%pdsdz%mf%x(i,1,1,1) * wrk</div>
 <div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span> </div>
-<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>       <span class="keyword">call </span>col2(this%udsdx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>       <span class="keyword">call </span>col2(this%udsdy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>       <span class="keyword">call </span>col2(this%udsdz%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span>       <span class="keyword">call </span>col2(this%vdsdx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span>       <span class="keyword">call </span>col2(this%vdsdy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>       <span class="keyword">call </span>col2(this%vdsdz%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>       <span class="keyword">call </span>col2(this%wdsdx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span>       <span class="keyword">call </span>col2(this%wdsdy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span>       <span class="keyword">call </span>col2(this%wdsdz%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span> </div>
-<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span>       <span class="keyword">call </span>col2(this%sdudx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span>       <span class="keyword">call </span>col2(this%sdudy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span>       <span class="keyword">call </span>col2(this%sdudz%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span>       <span class="keyword">call </span>col2(this%sdvdx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span>       <span class="keyword">call </span>col2(this%sdvdy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span>       <span class="keyword">call </span>col2(this%sdvdz%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span>       <span class="keyword">call </span>col2(this%sdwdx%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span>       <span class="keyword">call </span>col2(this%sdwdy%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span>       <span class="keyword">call </span>col2(this%sdwdz%mf%x, this%stats_work%x, n)</div>
+<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>          this%udsdx%mf%x(i,1,1,1) = this%udsdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>          this%udsdy%mf%x(i,1,1,1) = this%udsdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>          this%udsdz%mf%x(i,1,1,1) = this%udsdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span> </div>
+<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span>          this%vdsdx%mf%x(i,1,1,1) = this%vdsdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>          this%vdsdy%mf%x(i,1,1,1) = this%vdsdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>          this%vdsdz%mf%x(i,1,1,1) = this%vdsdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span> </div>
+<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span>          this%wdsdx%mf%x(i,1,1,1) = this%wdsdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span>          this%wdsdy%mf%x(i,1,1,1) = this%wdsdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span>          this%wdsdz%mf%x(i,1,1,1) = this%wdsdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span> </div>
+<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span>          this%sdudx%mf%x(i,1,1,1) = this%sdudx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span>          this%sdudy%mf%x(i,1,1,1) = this%sdudy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span>          this%sdudz%mf%x(i,1,1,1) = this%sdudz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span> </div>
+<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span>          this%sdvdx%mf%x(i,1,1,1) = this%sdvdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span>          this%sdvdy%mf%x(i,1,1,1) = this%sdvdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span>          this%sdvdz%mf%x(i,1,1,1) = this%sdvdz%mf%x(i,1,1,1) * wrk</div>
 <div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span> </div>
-<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span>       <span class="keyword">call </span>col2(this%stats_work%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span> </div>
-<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span>       <span class="keyword">call </span>col2(this%ess%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span>       <span class="keyword">call </span>col2(this%eus%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>       <span class="keyword">call </span>col2(this%evs%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span>       <span class="keyword">call </span>col2(this%ews%mf%x, this%stats_work%x, n)</div>
-<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span> </div>
-<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span> </div>
+<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span>          this%sdwdx%mf%x(i,1,1,1) = this%sdwdx%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span>          this%sdwdy%mf%x(i,1,1,1) = this%sdwdy%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span>          this%sdwdz%mf%x(i,1,1,1) = this%sdwdz%mf%x(i,1,1,1) * wrk</div>
+<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span> </div>
+<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>          wrk_sqr = wrk * wrk</div>
+<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span> </div>
+<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span>          this%ess%mf%x(i,1,1,1) = this%ess%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>          this%eus%mf%x(i,1,1,1) = this%eus%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span>          this%evs%mf%x(i,1,1,1) = this%evs%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>          this%ews%mf%x(i,1,1,1) = this%ews%mf%x(i,1,1,1) * wrk_sqr</div>
+<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span> </div>
+<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span> </div>
 </div>
-<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5e/namespacescalar__stats.html#a9f16421452c96ff7f4097483c68d25e9">scalar_stats_make_strong_grad</a></div>
-<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span> </div>
-<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d5e/namespacescalar__stats.html">scalar_stats</a></div>
+<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5e/namespacescalar__stats.html#a9f16421452c96ff7f4097483c68d25e9">scalar_stats_make_strong_grad</a></div>
+<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span> </div>
+<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d5e/namespacescalar__stats.html">scalar_stats</a></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html">device_math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00033">device_math.F90:33</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html_a2b8d4f8b84ce7cc369cadc71c01dc207"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html#a2b8d4f8b84ce7cc369cadc71c01dc207">device_math::device_addcol3</a></div><div class="ttdeci">subroutine, public device_addcol3(a_d, b_d, c_d, n, strm)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00940">device_math.F90:941</a></div></div>
@@ -952,10 +957,8 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div class="ttc" id="anamespacefield__list_html"><div class="ttname"><a href="../../df/d2b/namespacefield__list.html">field_list</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00001">field_list.f90:1</a></div></div>
 <div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
-<div class="ttc" id="anamespacemath_html_a3789b839284889e98200fa663a5e040f"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f">math::invers2</a></div><div class="ttdeci">subroutine, public invers2(a, b, n)</div><div class="ttdoc">Compute inverted vector .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00638">math.f90:639</a></div></div>
-<div class="ttc" id="anamespacemath_html_a9ae93ef16c85e8de722f56c281f444e6"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">math::addcol3</a></div><div class="ttdeci">subroutine, public addcol3(a, b, c, n)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00957">math.f90:958</a></div></div>
-<div class="ttc" id="anamespacemath_html_aa4aff8f68518460c91d81c9f905b2e2b"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">math::col2</a></div><div class="ttdeci">subroutine, public col2(a, b, n)</div><div class="ttdoc">Vector multiplication .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00853">math.f90:854</a></div></div>
-<div class="ttc" id="anamespacemath_html_abc0115641cb7f4581bfcbb773169004c"><div class="ttname"><a href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">math::col3</a></div><div class="ttdeci">subroutine, public col3(a, b, c, n)</div><div class="ttdoc">Vector multiplication with 3 vectors .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00866">math.f90:867</a></div></div>
+<div class="ttc" id="anamespacemath_html_a9ae93ef16c85e8de722f56c281f444e6"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">math::addcol3</a></div><div class="ttdeci">subroutine, public addcol3(a, b, c, n)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00958">math.f90:959</a></div></div>
+<div class="ttc" id="anamespacemath_html_abc0115641cb7f4581bfcbb773169004c"><div class="ttname"><a href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">math::col3</a></div><div class="ttdeci">subroutine, public col3(a, b, c, n)</div><div class="ttdoc">Vector multiplication with 3 vectors .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00867">math.f90:868</a></div></div>
 <div class="ttc" id="anamespacemean__field_html"><div class="ttname"><a href="../../d1/d26/namespacemean__field.html">mean_field</a></div><div class="ttdoc">Implements mean_field_t.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d09/mean__field_8f90_source.html#l00035">mean_field.f90:35</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html_ac196ccb4b3efd94171f0cfbfedaa7b9d"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_config::neko_bcknd_device</a></div><div class="ttdeci">integer, parameter neko_bcknd_device</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00044">neko_config.f90:44</a></div></div>
@@ -970,7 +973,7 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div class="ttc" id="anamespacescalar__stats_html_aa5566a78671c59995c5eeb1d7fd19c5a"><div class="ttname"><a href="../../dc/d5e/namespacescalar__stats.html#aa5566a78671c59995c5eeb1d7fd19c5a">scalar_stats::scalar_stats_update</a></div><div class="ttdeci">subroutine scalar_stats_update(this, k)</div><div class="ttdoc">Updates all fields with a new sample.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd3/scalar__stats_8f90_source.html#l00336">scalar_stats.f90:337</a></div></div>
 <div class="ttc" id="anamespacescalar__stats_html_aea3f472640330a29d0adbc37048c6cc3"><div class="ttname"><a href="../../dc/d5e/namespacescalar__stats.html#aea3f472640330a29d0adbc37048c6cc3">scalar_stats::scalar_stats_reset</a></div><div class="ttdeci">subroutine scalar_stats_reset(this)</div><div class="ttdoc">Resets all the computed means values and sampling times to zero.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd3/scalar__stats_8f90_source.html#l00711">scalar_stats.f90:712</a></div></div>
 <div class="ttc" id="anamespacestats__quant_html"><div class="ttname"><a href="../../dc/d65/namespacestats__quant.html">stats_quant</a></div><div class="ttdoc">Defines a statistical quantity.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d9b/stats__quant_8f90_source.html#l00034">stats_quant.f90:34</a></div></div>
-<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00061">coef.f90:61</a></div></div>
+<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00062">coef.f90:62</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00047">field.f90:47</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00015">field_list.f90:15</a></div></div>
 <div class="ttc" id="astructmean__field_1_1mean__field__t_html"><div class="ttname"><a href="../../dc/d4a/structmean__field_1_1mean__field__t.html">mean_field::mean_field_t</a></div><div class="ttdoc">Computes the temporal mean of a field.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d09/mean__field_8f90_source.html#l00046">mean_field.f90:46</a></div></div>
@@ -982,7 +985,7 @@ $(document).ready(function(){initNavTree('d7/dd3/scalar__stats_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../d7/dd3/scalar__stats_8f90.html">scalar_stats.f90</a></li>
-    <li class="footer">Generated on Mon Apr 13 2026 04:35:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 14 2026 04:31:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

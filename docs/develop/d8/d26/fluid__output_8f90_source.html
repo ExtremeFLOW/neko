@@ -295,32 +295,31 @@ $(document).ready(function(){initNavTree('d8/d26/fluid__output_8f90_source.html'
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d0d/structfluid__output_1_1fluid__output__t.html">fluid_output_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>       associate(fields =&gt; this%fluid%items)</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>         <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(fields)</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>            <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(fields(i)%ptr%x, fields(i)%ptr%x_d, &amp;</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>                 fields(i)%ptr%dof%size(), <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, &amp;</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>                 sync = (i .eq. <span class="keyword">size</span>(fields))) <span class="comment">! Sync on the last field</span></div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordflow">select type</span> (ft =&gt; this%file_%file_type)</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>       <span class="comment">! Only fld files have the option to write the mesh at command</span></div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>)</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>       ft%write_mesh = this%always_write_mesh</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>       <span class="keyword">call </span>ft%write(this%fluid, t)</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="keywordflow">    class default</span></div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       <span class="keyword">call </span>ft%write(this%fluid, t)</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="keywordflow">    end select</span></div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>       associate(fields =&gt; this%fluid%items)</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>         <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(fields)</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>            <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(fields(i)%ptr%x, fields(i)%ptr%x_d, &amp;</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>                 fields(i)%ptr%dof%size(), <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, &amp;</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>                 sync = (i .eq. <span class="keyword">size</span>(fields))) <span class="comment">! Sync on the last field</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>       <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <span class="keywordflow">select type</span> (ft =&gt; this%file_%file_type)</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>       <span class="comment">! Only fld files have the option to write the mesh at command</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>)</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>       ft%write_mesh = this%always_write_mesh</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>       <span class="keyword">call </span>ft%write(this%fluid, t)</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="keywordflow">    class default</span></div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>       <span class="keyword">call </span>ft%write(this%fluid, t)</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
 </div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d60/namespacefluid__output.html#a10137ddfba1f49ba0128e15845220ea1">fluid_output_sample</a></div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/d60/namespacefluid__output.html">fluid_output</a></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d60/namespacefluid__output.html#a10137ddfba1f49ba0128e15845220ea1">fluid_output_sample</a></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span> </div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/d60/namespacefluid__output.html">fluid_output</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a7c3556984ffad14469de7accab5bc84b"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device::device_to_host</a></div><div class="ttdeci">integer, parameter, public device_to_host</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
@@ -359,7 +358,7 @@ $(document).ready(function(){initNavTree('d8/d26/fluid__output_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../d8/d26/fluid__output_8f90.html">fluid_output.f90</a></li>
-    <li class="footer">Generated on Mon Apr 13 2026 04:35:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 14 2026 04:31:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
