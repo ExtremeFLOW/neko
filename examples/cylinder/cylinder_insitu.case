@@ -4,7 +4,7 @@
         "mesh_file": "cylinder.nmsh",
         "output_at_end": true,
         "output_boundary": true,
-        "output_checkpoints": true,
+        "output_checkpoints": false,
         "output_directory": "results_insitu",
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50.0,
@@ -23,8 +23,7 @@
             "scheme": "pnpn",
             "Re": 200.0,
             "initial_condition": {
-                "type": "field",
-                "file_name": "results/field0.f00050",
+                "type": "uniform",
                 "value": [ 1.0, 0.0, 0.0 ]
             },
             "velocity_solver": {
@@ -74,13 +73,6 @@
         "simulation_components":
         [
             {
-                "type": "data_streamer", 
-                "fields": ["u","v","w"],
-                "stream_mesh": true,
-                "compute_control": "tsteps",
-                "compute_value": 25
-            },
-            {
                 "comment": "Stored in the temperature field, check docs for more details on sim_comps",
                 "type": "lambda2",
                 "compute_control": "fluid_output"
@@ -108,7 +100,14 @@
                 "compute_value": 10,
                 "avg_direction": "z",
                 "set_of_stats": "basic"
-            }
+            },
+            {
+                "type": "data_streamer", 
+                "fields": ["u", "curl_z", "fluid_stats/mean_u"],
+                "stream_mesh": true,
+                "compute_control": "tsteps",
+                "compute_value": 50
+            },
         ]
     }
 }

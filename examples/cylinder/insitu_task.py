@@ -180,7 +180,7 @@ while stream_data:
         log("Plotting probes...")
         plt.contourf(X, Y, mag, levels = 40)
         log("Saving probes...")
-        plt.savefig(join(output_path, "probes.png"), dpi = 150)
+        plt.savefig(join(output_path, f"probes_{j:05d}.png"), dpi = 150)
         log("Saving probes... done")
 
     j += 1
