@@ -1431,9 +1431,6 @@ contains
     ! If this%Blag does not have separate memory, we don't need to update it.
     if (associated(this%Blag, this%B)) return
 
-    this%Blaglag = this%Blag
-    this%Blag = this%B
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
        if (rp .eq. REAL32) then
@@ -1447,6 +1444,9 @@ contains
 
        call device_memcpy(this%Blag_d, this%B_d, n_bytes, &
             DEVICE_TO_DEVICE, sync = .true.)
+      else
+         this%Blaglag = this%Blag
+         this%Blag = this%B
     end if
 
   end subroutine coef_update_lagged_mass
