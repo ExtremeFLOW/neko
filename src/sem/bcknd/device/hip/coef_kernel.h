@@ -283,4 +283,27 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
 
 }
 
+/**
+ * Device kernel for coef_generate_mass
+ */
+template <typename T>
+__global__ void coef_generate_mass_kernel(T * __restrict__ B, 
+                T * __restrict__ Binv, 
+                const T * __restrict__ jac, 
+                const T * __restrict__ w3, 
+                int lxyz, int nel) {
+
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int n = lxyz * nel;
+
+    if (idx < n) {
+        int local_idx = idx % lxyz;
+
+        T mass_val = jac[idx] * w3[local_idx];
+
+        B[idx] = mass_val;
+        Binv[idx] = mass_val;
+    }
+}
+
 #endif // __SEM_COEF_KERNEL_H__
