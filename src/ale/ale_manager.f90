@@ -206,8 +206,10 @@ contains
        return
     else if (this%active) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (.not. (NEKO_BCKND_HIP .eq. 1)) then
-             call neko_error("ALE_device currently supported only with HIP backend.")
+          if ((.not. (NEKO_BCKND_HIP .eq. 1)) .and. &
+               (.not. (NEKO_BCKND_CUDA .eq. 1))) then
+             call neko_error("ALE_device currently " // &
+                  "supported only with HIP or CUDA backend.")
           end if
        end if
        if (oifs) then
@@ -220,7 +222,11 @@ contains
     call neko_log%message(" ")
 
     if (NEKO_BCKND_HIP .eq. 1) then
-       call neko_log%message("Initializing ALE Manager with DEVICE backend (HIP).")
+       call neko_log%message("Initializing ALE Manager " // &
+            "with DEVICE backend (HIP).")
+    else if (NEKO_BCKND_CUDA .eq. 1) then
+       call neko_log%message("Initializing ALE Manager " // &
+            "with DEVICE backend (CUDA).")
     else
        call neko_log%message("Initializing ALE Manager with CPU backend.")
     end if
