@@ -99,7 +99,7 @@ contains
   !> Selects different expressions for the similarity functions in  MOST
   !> based on the type of bottom boundary condition for temperature.
   subroutine select_bc_operators(bc_type, bc_value, q, ts, ti, kappa, &
-        utau, z0h, hi, Pr)
+       utau, z0h, hi, Pr)
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h, bc_value, Pr
     real(kind=rp), intent(inout) :: q,ts
@@ -257,7 +257,7 @@ contains
              ! Compute L_ob based on stability and bc_type
              f = f_ptr(Ri_b, hi, z0, z0h, Pr, L_ob, slaw_m_ptr, slaw_h_ptr)
              dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, Pr, L_ob, &
-                             slaw_m_ptr, slaw_h_ptr, fd_h)
+                  slaw_m_ptr, slaw_h_ptr, fd_h)
              if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
              L_new = L_ob - f/dfdl
              ! Avoid regime crossing during Newton iter (otherwise crash)
@@ -426,7 +426,7 @@ contains
   end function f_neumann
 
   function dfdl_neumann(l_upper, l_lower, z, z0, z0h, Pr, L_ob, &
-        slaw_m, slaw_h, fd_h) result(dfdl)
+       slaw_m, slaw_h, fd_h) result(dfdl)
     real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h, Pr
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
@@ -447,7 +447,7 @@ contains
   end function f_dirichlet
 
   function dfdl_dirichlet(l_upper, l_lower, z, z0, z0h, Pr, L_ob, &
-        slaw_m, slaw_h, fd_h) result(dfdl)
+       slaw_m, slaw_h, fd_h) result(dfdl)
     real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h, Pr
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
