@@ -163,8 +163,7 @@ contains
           f => neko_registry%get_field_by_name(this%field_names(i))
           call f%copy_from(DEVICE_TO_HOST, .true.)
 
-          call neko_log%message("Streaming field: " // this%field_names(i), &
-               lvl = NEKO_LOG_DEBUG)
+          call neko_log%message("Streaming field: " // this%field_names(i))
 
           ! Stream the field
           call this%dstream%stream(f%x)

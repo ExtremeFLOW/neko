@@ -38,6 +38,7 @@ module data_streamer
   use utils, only : neko_warning
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_COMM
+  use logger, only : neko_log, NEKO_LOG_DEBUG
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -74,8 +75,8 @@ contains
   !! Wraps the adios2 set-up.
   !! @param coef Type that contains geometrical information
   !! on the case.
-  !! @param if_asynch Controls whether the asyncrhonous executions
-  !! is to be enabled.
+  !! @param timeout_seconds Time in seconds after which the streaming should
+  !! time out. Default is 300 seconds.
   subroutine data_streamer_init(this, coef, timeout_seconds)
     class(data_streamer_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
@@ -94,10 +95,11 @@ contains
        timeout = 300
     end if
 
-
 #ifdef HAVE_ADIOS2
+    call neko_log%message("Initializing ADIOS2", lvl = NEKO_LOG_DEBUG)
     call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM, &
          timeout)
+    call neko_log%message("Done initializing ADIOS2", lvl = NEKO_LOG_DEBUG)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')
@@ -112,7 +114,9 @@ contains
     class(data_streamer_t), intent(inout) :: this
 
 #ifdef HAVE_ADIOS2
+    call neko_log%message("Finalizing ADIOS2", lvl = NEKO_LOG_DEBUG)
     call fortran_adios2_finalize()
+    call neko_log%message("Done finalizing ADIOS2", lvl = NEKO_LOG_DEBUG)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')
@@ -127,7 +131,9 @@ contains
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: fld
 
 #ifdef HAVE_ADIOS2
+    call neko_log%message("Streaming data", lvl = NEKO_LOG_DEBUG)
     call fortran_adios2_stream(fld)
+    call neko_log%message("Done streaming data", lvl = NEKO_LOG_DEBUG)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')
@@ -142,7 +148,9 @@ contains
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: fld
 
 #ifdef HAVE_ADIOS2
+    call neko_log%message("Receiving data", lvl = NEKO_LOG_DEBUG)
     call fortran_adios2_recieve(fld)
+    call neko_log%message("Done receiving data", lvl = NEKO_LOG_DEBUG)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')
