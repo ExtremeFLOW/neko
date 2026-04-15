@@ -55,7 +55,7 @@ module vtkhdf_file
        h5open_f, h5close_f, &
        h5fcreate_f, h5fopen_f, h5fclose_f, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
-       h5acreate_f, h5aopen_f, h5awrite_f, h5aclose_f, h5aexists_f, &
+       h5acreate_f, h5aopen_f, h5awrite_f, h5aread_f, h5aclose_f, h5aexists_f, &
        h5dcreate_f, h5dopen_f, h5dwrite_f, h5dread_f, h5dclose_f, &
        h5dget_create_plist_f, &
        h5tcopy_f, h5tclose_f, h5tset_strpad_f, h5tset_size_f, &
@@ -1473,10 +1473,12 @@ contains
   subroutine vtkhdf_file_read(this, data)
     class(vtkhdf_file_t) :: this
     class(*), target, intent(inout) :: data
-    integer(hid_t) :: plist_id, file_id, vtkhdf_grp
-    integer :: ierr, mpi_info, mpi_comm, counter
+    integer(hid_t) :: plist_id, file_id, vtkhdf_grp, steps_grp, attr_id
+    integer :: ierr, mpi_info, mpi_comm, counter, nsteps
     character(len=1024) :: fname
+    character(len=128) :: errmsg
     type(field_t), pointer :: fld
+    logical :: steps_exists
 
     ! Open the file
     fname = trim(this%get_vtkhdf_fname())
@@ -1492,6 +1494,20 @@ contains
 
     call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, ierr, access_prp = plist_id)
     call h5gopen_f(file_id, "VTKHDF", vtkhdf_grp, ierr)
+
+    ! Validate counter against file's NSteps if temporal data exists
+    call h5lexists_f(vtkhdf_grp, "Steps", steps_exists, ierr)
+    if (steps_exists) then
+       call h5aopen_f(vtkhdf_grp, "Steps/NSteps", attr_id, ierr)
+       call h5aread_f(attr_id, H5T_NATIVE_INTEGER, nsteps, [1_hsize_t], ierr)
+       call h5aclose_f(attr_id, ierr)
+
+       if (counter .ge. nsteps) then
+          write(errmsg, '(A,I0,A,I0)') &
+               'VTKHDF read: counter ', counter, ' >= NSteps ', nsteps
+          call neko_error(trim(errmsg))
+       end if
+    end if
 
     select type (data)
     type is (field_t)
@@ -1614,7 +1630,6 @@ contains
        call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
        call h5fopen_f(trim(ext_fname), H5F_ACC_RDONLY_F, ext_file_id, ierr, &
             access_prp = ext_plist_id)
-       call h5pclose_f(ext_plist_id, ierr)
 
        if (ierr .ne. 0) then
           call neko_error('VTKHDF: Cannot open VDS source file: ' // &
@@ -1623,6 +1638,8 @@ contains
 
        ! Open the dataset from the external file
        call h5dopen_f(ext_file_id, trim(dset_name), dset_id, ierr)
+
+       call h5pclose_f(ext_plist_id, ierr)
     else
        call h5pclose_f(dcpl_id, ierr)
        ext_file_id = -1
