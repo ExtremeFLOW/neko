@@ -62,7 +62,7 @@ module ale_manager
   use ale_routines_device, only : compute_stiffness_ale_device, &
        add_kinematics_to_mesh_velocity_device, update_ale_mesh_device
   use utils, only : neko_error
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_HIP
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_HIP, NEKO_BCKND_CUDA
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   use comm, only : NEKO_COMM
   use registry, only : neko_registry
