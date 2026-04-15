@@ -570,9 +570,11 @@ Enables data streaming of a set of given `fields` with the `ADIOS2` library.
 The simcomp is controlled by the following
 keywords:
 - `"fields"`: A list of field names corresponding to the fields to stream 
-  (must exist in the registry).
+  (must exist in the registry). The fields will be streamed in the order
+  given in the list.
 - `"stream_mesh"`: Whether or not to stream mesh coordinates, in the order
-  `x`, `y`, `z`.
+  `x`, `y`, `z`. The mesh coordinates will always be streamed first, in
+  that exact order, before the fields in `"fields"`.
 
 See the `cylinder` or `turb_pipe` examples for more details on how this 
 simcomp cam be coupled to Python scripts for in-situ data processing.
