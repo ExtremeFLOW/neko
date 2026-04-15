@@ -135,8 +135,7 @@ contains
     ! what's specified in the case file.
     ! If z0h is specified and negative, the Zilitinkevich 1995 formulation
     ! is used, with the specified value acting as -C_Zil.
-    ! If z0h is not specified, assign default value of -0.8,
-    ! corresponding to the Zilitinkevich constant value used in Zilitinkevich 1995.
+    ! If z0h is not specified, assign to have the same value as z0.
     call json_get_or_lookup_or_default(json, "z0h", z0h_in, z0)
     call json_get_or_lookup_or_default(json, "mu", mu_val, 1e-10_rp)
     call json_get_or_lookup_or_default(json, "rho", rho_val, 1.0_rp)
