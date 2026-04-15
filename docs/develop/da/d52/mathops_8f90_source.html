@@ -173,7 +173,7 @@ $(document).ready(function(){initNavTree('da/d52/mathops_8f90_source.html','../.
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d2/dd4/namespacemathops.html#a68d977f87ad1cddedd66c62cb1f749d1">opchsign</a>, <a class="code hl_function" href="../../d2/dd4/namespacemathops.html#a2f4fd77e04e2fdec101dae9afe9caa58">opcolv</a>, <a class="code hl_function" href="../../d2/dd4/namespacemathops.html#aa2f2a0acced4e41f59ab479b7ba1bfe0">opcolv3c</a>, <a class="code hl_function" href="../../d2/dd4/namespacemathops.html#a84b6bac8aefd25c9f6eca96ed0c17aff">opadd2cm</a>, <a class="code hl_function" href="../../d2/dd4/namespacemathops.html#a54d25dcf4afc8a4e651a70a37f3e607d">opadd2col</a></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keyword">contains</span></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
 <div class="foldopen" id="foldopen00075" data-start="" data-end="">
@@ -183,13 +183,13 @@ $(document).ready(function(){initNavTree('da/d52/mathops_8f90_source.html','../.
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>          a1(i) = -a1(i)</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>          a2(i) = -a2(i)</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>          a3(i) = -a3(i)</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>          a1(i) = -a1(i)</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>          a2(i) = -a2(i)</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="keywordflow">       end do</span></div>
@@ -206,13 +206,13 @@ $(document).ready(function(){initNavTree('da/d52/mathops_8f90_source.html','../.
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>          a1(i) = a1(i)*c(i)</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>          a2(i) = a2(i)*c(i)</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>          a3(i) = a3(i)*c(i)</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>          a1(i) = a1(i)*c(i)</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>          a2(i) = a2(i)*c(i)</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="keywordflow">       end do</span></div>
@@ -230,15 +230,15 @@ $(document).ready(function(){initNavTree('da/d52/mathops_8f90_source.html','../.
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>          a1(i) = b1(i)*c(i)*d</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>          a2(i) = b2(i)*c(i)*d</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>          a3(i) = b3(i)*c(i)*d</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>       <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>          a1(i) =  b1(i)*c(i)*d</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>          a2(i) =  b2(i)*c(i)*d</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>          a1(i) = b1(i)*c(i)*d</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>          a2(i) = b2(i)*c(i)*d</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span> </div>
@@ -254,13 +254,13 @@ $(document).ready(function(){initNavTree('da/d52/mathops_8f90_source.html','../.
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span> </div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>          a1(i) = a1(i) + b1(i)*c</div>
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>          a2(i) = a2(i) + b2(i)*c</div>
 <div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>          a3(i) = a3(i) + b3(i)*c</div>
 <div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>          a1(i) = a1(i) + b1(i)*c</div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>          a2(i) = a2(i) + b2(i)*c</div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span><span class="keywordflow">       end do</span></div>
@@ -278,13 +278,13 @@ $(document).ready(function(){initNavTree('da/d52/mathops_8f90_source.html','../.
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>          a1(i) = a1(i) + b1(i)*c(i)</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>          a2(i) = a2(i) + b2(i)*c(i)</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>          a3(i) = a3(i) + b3(i)*c(i)</div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>       <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>          a1(i) = a1(i) + b1(i)*c(i)</div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>          a2(i) = a2(i) + b2(i)*c(i)</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="keywordflow">       end do</span></div>
@@ -308,7 +308,7 @@ $(document).ready(function(){initNavTree('da/d52/mathops_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../da/d52/mathops_8f90.html">mathops.f90</a></li>
-    <li class="footer">Generated on Tue Apr 14 2026 04:31:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 15 2026 04:31:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

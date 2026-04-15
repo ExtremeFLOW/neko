@@ -314,86 +314,90 @@ $(document).ready(function(){initNavTree('d5/d60/cg_8f90_source.html','../../');
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span> </div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>         <span class="keywordflow">if</span> ((p_cur .eq. <a class="code hl_variable" href="../../d9/df6/namespacecg.html#a423b5aa8a58e413dc99f719b065ee8a8">cg_p_space</a>) .or. &amp;</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>            <span class="keywordflow">do</span> i = 0, n, <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a21e46b319abce9385450e6fe6557aadb">neko_blk_size</a></div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>               blk_size = min(<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a21e46b319abce9385450e6fe6557aadb">neko_blk_size</a>, n - i)</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>               <span class="keywordflow">do</span> concurrent(k = 1:blk_size)</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>                  x_plus(k) = 0.0_rp</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keywordflow">               end do</span></div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>               <span class="keywordflow">do</span> j = 1, p_cur</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>                  <span class="keywordflow">do</span> concurrent(k = 1:blk_size)</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>                     x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keywordflow">                  end do</span></div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keywordflow">               end do</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>               <span class="keywordflow">do</span> concurrent(k = 1:blk_size)</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="keywordflow">               end do</span></div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="keywordflow">            end do</span></div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>            p_prev = p_cur</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>            p_cur = 1</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>            <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol) <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>         <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>            p_prev = p_cur</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>            p_cur = p_cur + 1</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keyword">call </span>this%monitor_stop()</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    ksp_results%res_final = rnorm</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    ksp_results%iter = iter</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    ksp_results%converged = this%is_converged(iter, rnorm)</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>            <span class="comment">!$omp parallel do private(blk_size, j, k, x_plus)</span></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>            <span class="keywordflow">do</span> i = 0, n, <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a21e46b319abce9385450e6fe6557aadb">neko_blk_size</a></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>               blk_size = min(<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a21e46b319abce9385450e6fe6557aadb">neko_blk_size</a>, n - i)</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>               <span class="keywordflow">do</span> concurrent(k = 1:blk_size)</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>                  x_plus(k) = 0.0_rp</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="keywordflow">               end do</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>               <span class="keywordflow">do</span> j = 1, p_cur</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>                  <span class="keywordflow">do</span> concurrent(k = 1:blk_size)</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>                     x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keywordflow">                  end do</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="keywordflow">               end do</span></div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>               <span class="keywordflow">do</span> concurrent(k = 1:blk_size)</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="keywordflow">               end do</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="keywordflow">            end do</span></div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>            <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>            p_prev = p_cur</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>            p_cur = 1</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>            <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol) <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>         <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>            p_prev = p_cur</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>            p_cur = p_cur + 1</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keyword">call </span>this%monitor_stop()</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    ksp_results%res_final = rnorm</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    ksp_results%iter = iter</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    ksp_results%converged = this%is_converged(iter, rnorm)</div>
 </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c">cg_solve</a></div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
-<div class="foldopen" id="foldopen00238" data-start="" data-end="">
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno"><a class="line" href="../../d9/df6/namespacecg.html#ae7c2184419738c9ad50dcf394a039d18">  238</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#ae7c2184419738c9ad50dcf394a039d18">second_cg_part</a>(rtr, r, mult, w, alpha, n)</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: r(n), rtr</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keywordtype">    real</span>(kind=xp) :: tmp</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> ::mult(n), w(n), alpha</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordtype">integer</span> :: i, ierr</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    tmp = 0.0_xp</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>       r(i) = r(i) - alpha*w(i)</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>       tmp = tmp + r(i) * r(i) * mult(i)</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keyword">call </span>mpi_allreduce(mpi_in_place, tmp, 1, &amp;</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>         mpi_extra_precision, mpi_sum, neko_comm, ierr)</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    rtr = tmp</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c">cg_solve</a></div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
+<div class="foldopen" id="foldopen00240" data-start="" data-end="">
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno"><a class="line" href="../../d9/df6/namespacecg.html#ae7c2184419738c9ad50dcf394a039d18">  240</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#ae7c2184419738c9ad50dcf394a039d18">second_cg_part</a>(rtr, r, mult, w, alpha, n)</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: r(n), rtr</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="keywordtype">    real</span>(kind=xp) :: tmp</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> ::mult(n), w(n), alpha</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keywordtype">integer</span> :: i, ierr</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    tmp = 0.0_xp</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="comment">!$omp parallel do simd reduction(+:tmp)</span></div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>       r(i) = r(i) - alpha*w(i)</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>       tmp = tmp + r(i) * r(i) * mult(i)</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="comment">!$omp end parallel do simd</span></div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keyword">call </span>mpi_allreduce(mpi_in_place, tmp, 1, &amp;</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>         mpi_extra_precision, mpi_sum, neko_comm, ierr)</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    rtr = tmp</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span> </div>
 </div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#ae7c2184419738c9ad50dcf394a039d18">second_cg_part</a></div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
-<div class="foldopen" id="foldopen00257" data-start="" data-end="">
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno"><a class="line" href="../../d9/df6/namespacecg.html#a8a315962732b198c8e2030965d42812c">  257</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#a8a315962732b198c8e2030965d42812c">cg_solve_coupled</a>(this, Ax, x, y, z, fx, fy, fz, &amp;</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>       n, coef, blstx, blsty, blstz, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d98/structcg_1_1cg__t.html">cg_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: ax</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: y</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: z</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fx</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fy</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fz</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstx</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blsty</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstz</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordtype">type</span>(ksp_monitor_t), <span class="keywordtype">dimension(3)</span> :: ksp_results</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    ksp_results(1) = this%solve(ax, x, fx, n, coef, blstx, gs_h, niter)</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    ksp_results(2) = this%solve(ax, y, fy, n, coef, blsty, gs_h, niter)</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    ksp_results(3) = this%solve(ax, z, fz, n, coef, blstz, gs_h, niter)</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#ae7c2184419738c9ad50dcf394a039d18">second_cg_part</a></div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
+<div class="foldopen" id="foldopen00261" data-start="" data-end="">
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno"><a class="line" href="../../d9/df6/namespacecg.html#a8a315962732b198c8e2030965d42812c">  261</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#a8a315962732b198c8e2030965d42812c">cg_solve_coupled</a>(this, Ax, x, y, z, fx, fy, fz, &amp;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>       n, coef, blstx, blsty, blstz, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d98/structcg_1_1cg__t.html">cg_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: ax</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: y</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: z</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fx</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fy</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fz</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstx</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blsty</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstz</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <span class="keywordtype">type</span>(ksp_monitor_t), <span class="keywordtype">dimension(3)</span> :: ksp_results</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    ksp_results(1) = this%solve(ax, x, fx, n, coef, blstx, gs_h, niter)</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    ksp_results(2) = this%solve(ax, y, fy, n, coef, blsty, gs_h, niter)</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    ksp_results(3) = this%solve(ax, z, fz, n, coef, blstz, gs_h, niter)</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
 </div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#a8a315962732b198c8e2030965d42812c">cg_solve_coupled</a></div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d9/df6/namespacecg.html">cg</a></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d9/df6/namespacecg.html#a8a315962732b198c8e2030965d42812c">cg_solve_coupled</a></div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d9/df6/namespacecg.html">cg</a></div>
 <div class="ttc" id="acuda_2spalding__kernel_8h_html_a54a3eb1a5c6e2b00e208c5c32948b133"><div class="ttname"><a href="../../d1/dca/cuda_2spalding__kernel_8h.html#a54a3eb1a5c6e2b00e208c5c32948b133">solve</a></div><div class="ttdeci">__device__ T solve(const T u, const T y, const T guess, const T nu, const T kappa, const T B)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/dca/cuda_2spalding__kernel_8h_source.html#l00124">spalding_kernel.h:124</a></div></div>
 <div class="ttc" id="ainterfacemath_1_1abscmp_html"><div class="ttname"><a href="../../de/d34/interfacemath_1_1abscmp.html">math::abscmp</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00077">math.f90:77</a></div></div>
 <div class="ttc" id="anamespaceax__product_html"><div class="ttname"><a href="../../d2/dd1/namespaceax__product.html">ax_product</a></div><div class="ttdoc">Defines a Matrix-vector product.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/dd6/ax_8f90_source.html#l00034">ax.f90:34</a></div></div>
@@ -401,9 +405,9 @@ $(document).ready(function(){initNavTree('d5/d60/cg_8f90_source.html','../../');
 <div class="ttc" id="anamespacecg_html"><div class="ttname"><a href="../../d9/df6/namespacecg.html">cg</a></div><div class="ttdoc">Defines various Conjugate Gradient methods.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00034">cg.f90:34</a></div></div>
 <div class="ttc" id="anamespacecg_html_a18a1aac672f595e71b89e2a255cecb77"><div class="ttname"><a href="../../d9/df6/namespacecg.html#a18a1aac672f595e71b89e2a255cecb77">cg::cg_free</a></div><div class="ttdeci">subroutine cg_free(this)</div><div class="ttdoc">Deallocate a standard PCG solver.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00110">cg.f90:111</a></div></div>
 <div class="ttc" id="anamespacecg_html_a423b5aa8a58e413dc99f719b065ee8a8"><div class="ttname"><a href="../../d9/df6/namespacecg.html#a423b5aa8a58e413dc99f719b065ee8a8">cg::cg_p_space</a></div><div class="ttdeci">integer, parameter cg_p_space</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00050">cg.f90:50</a></div></div>
-<div class="ttc" id="anamespacecg_html_a8a315962732b198c8e2030965d42812c"><div class="ttname"><a href="../../d9/df6/namespacecg.html#a8a315962732b198c8e2030965d42812c">cg::cg_solve_coupled</a></div><div class="ttdeci">type(ksp_monitor_t) function, dimension(3) cg_solve_coupled(this, ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</div><div class="ttdoc">Standard PCG coupled solve.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00257">cg.f90:259</a></div></div>
+<div class="ttc" id="anamespacecg_html_a8a315962732b198c8e2030965d42812c"><div class="ttname"><a href="../../d9/df6/namespacecg.html#a8a315962732b198c8e2030965d42812c">cg::cg_solve_coupled</a></div><div class="ttdeci">type(ksp_monitor_t) function, dimension(3) cg_solve_coupled(this, ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</div><div class="ttdoc">Standard PCG coupled solve.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00261">cg.f90:263</a></div></div>
 <div class="ttc" id="anamespacecg_html_a9960eaba47d6eef6fe7919488e8964f0"><div class="ttname"><a href="../../d9/df6/namespacecg.html#a9960eaba47d6eef6fe7919488e8964f0">cg::cg_init</a></div><div class="ttdeci">subroutine cg_init(this, n, max_iter, m, rel_tol, abs_tol, monitor)</div><div class="ttdoc">Initialise a standard PCG solver.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00069">cg.f90:70</a></div></div>
-<div class="ttc" id="anamespacecg_html_ae7c2184419738c9ad50dcf394a039d18"><div class="ttname"><a href="../../d9/df6/namespacecg.html#ae7c2184419738c9ad50dcf394a039d18">cg::second_cg_part</a></div><div class="ttdeci">subroutine second_cg_part(rtr, r, mult, w, alpha, n)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00238">cg.f90:239</a></div></div>
+<div class="ttc" id="anamespacecg_html_ae7c2184419738c9ad50dcf394a039d18"><div class="ttname"><a href="../../d9/df6/namespacecg.html#ae7c2184419738c9ad50dcf394a039d18">cg::second_cg_part</a></div><div class="ttdeci">subroutine second_cg_part(rtr, r, mult, w, alpha, n)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00240">cg.f90:241</a></div></div>
 <div class="ttc" id="anamespacecg_html_afe68d7c999414cfcf6cac0282e91a18c"><div class="ttname"><a href="../../d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c">cg::cg_solve</a></div><div class="ttdeci">type(ksp_monitor_t) function cg_solve(this, ax, x, f, n, coef, blst, gs_h, niter)</div><div class="ttdoc">Standard PCG solve.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d60/cg_8f90_source.html#l00140">cg.f90:141</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
@@ -438,7 +442,7 @@ $(document).ready(function(){initNavTree('d5/d60/cg_8f90_source.html','../../');
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_902813e86b127dbb0dcb2952584e8a67.html">cpu</a></li><li class="navelem"><a class="el" href="../../d5/d60/cg_8f90.html">cg.f90</a></li>
-    <li class="footer">Generated on Tue Apr 14 2026 04:31:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 15 2026 04:31:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

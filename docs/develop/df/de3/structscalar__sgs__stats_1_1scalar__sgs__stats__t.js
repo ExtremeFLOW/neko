@@ -1,10 +1,10 @@
 var structscalar__sgs__stats_1_1scalar__sgs__stats__t =
 [
     [ "free", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#adae55b81f35e1a951c21589af3e3bf4b", null ],
-    [ "init", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#ad55cd373010661046412d8526da8575c", null ],
-    [ "init", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#afe88c8403e6a67c3fa960b6d89575cb1", null ],
-    [ "init_alphat", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a39ba9c68a8c8b5dd9bdbaeab14463a5b", null ],
-    [ "init_nut", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a7fb4d287a1aa7f78584eb56b335996a8", null ],
+    [ "init", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a2e8afc8c7437b20c85491b22eab6c411", null ],
+    [ "init", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a51cd75ea4405d8f933b4e1e9fee3a462", null ],
+    [ "init_alphat", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a4690c93dac424c6239bf2b08b1f2fb30", null ],
+    [ "init_nut", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#aa8a67aebbf437ca5c8577311682a3fd8", null ],
     [ "reset", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a458dd3d74fbf2cfe1cc4d627e702b9d8", null ],
     [ "update", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a81e4215c85045782c3b9a91855b21a5e", null ],
     [ "update", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a6481590caa11b9e1418dae51ad666cb0", null ],

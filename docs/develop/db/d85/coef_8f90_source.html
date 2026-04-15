@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
   <div class="headertitle"><div class="title">coef.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../db/d85/coef_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2020-2024, The Neko Authors</span></div>
+<a href="../../db/d85/coef_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2020-2026, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -971,12 +971,12 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4">rone</a> (dtdz, ntot)</div>
 <div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span>         <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>            <span class="comment">!$omp parallel private(i)</span></div>
-<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>            <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>            <span class="comment">!$omp do simd</span></div>
 <div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>            <span class="keywordflow">do</span> i = 1, ntot</div>
 <div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>               c%jac(i, 1, 1, 1) = 0.0_rp</div>
 <div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span><span class="keywordflow">            end do</span></div>
-<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>            <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span>            <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>            <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span>            <span class="comment">!$omp do simd</span></div>
 <div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>            <span class="keywordflow">do</span> i = 1, ntot</div>
 <div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdr(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>                    * c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )</div>
@@ -987,8 +987,8 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxds(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>                    * c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )</div>
 <div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span><span class="keywordflow">            end do</span></div>
-<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>            <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>            <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>            <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>            <span class="comment">!$omp do simd</span></div>
 <div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>            <span class="keywordflow">do</span> i = 1, ntot</div>
 <div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdr(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>                    * c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )</div>
@@ -999,8 +999,8 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdt(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>                    * c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )</div>
 <div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span><span class="keywordflow">            end do</span></div>
-<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span>            <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>            <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span>            <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>            <span class="comment">!$omp do simd</span></div>
 <div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>            <span class="keywordflow">do</span> i = 1, ntot</div>
 <div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>               c%drdx(i, 1, 1, 1) = c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>                    - c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)</div>
@@ -1011,8 +1011,8 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>               c%drdz(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dydt(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>                    - c%dxdt(i, 1, 1, 1) * c%dyds(i, 1, 1, 1)</div>
 <div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span><span class="keywordflow">            end do</span></div>
-<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>            <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>            <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>            <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>            <span class="comment">!$omp do simd</span></div>
 <div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>            <span class="keywordflow">do</span> i = 1, ntot</div>
 <div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>               c%dsdx(i, 1, 1, 1) = c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>                    - c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)</div>
@@ -1023,8 +1023,8 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span>               c%dsdz(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dydr(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span>                    - c%dxdr(i, 1, 1, 1) * c%dydt(i, 1, 1, 1)</div>
 <div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span><span class="keywordflow">            end do</span></div>
-<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>            <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>            <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>            <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>            <span class="comment">!$omp do simd</span></div>
 <div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>            <span class="keywordflow">do</span> i = 1, ntot</div>
 <div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span>               c%dtdx(i, 1, 1, 1) = c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>                    - c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)</div>
@@ -1035,7 +1035,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l00940" name="l00940"></a><span class="lineno">  940</span>               c%dtdz(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dyds(i, 1, 1, 1) &amp;</div>
 <div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>                    - c%dxds(i, 1, 1, 1) * c%dydr(i, 1, 1, 1)</div>
 <div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span><span class="keywordflow">            end do</span></div>
-<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span>            <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span>            <span class="comment">!$omp end do simd</span></div>
 <div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span>            <span class="comment">!$omp end parallel</span></div>
 <div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span><span class="keywordflow">         end if</span></div>
 <div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span>         <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f">invers2</a>(jacinv, jac, ntot)</div>
@@ -1267,309 +1267,324 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a id="l01169" name="l01169"></a><span class="lineno"> 1169</span>    <span class="keyword">allocate</span>(c(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))</div>
 <div class="line"><a id="l01170" name="l01170"></a><span class="lineno"> 1170</span>    <span class="keyword">allocate</span>(dot(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))</div>
 <div class="line"><a id="l01171" name="l01171"></a><span class="lineno"> 1171</span> </div>
-<div class="line"><a id="l01172" name="l01172"></a><span class="lineno"> 1172</span>    <span class="comment">! ds x dt</span></div>
-<div class="line"><a id="l01173" name="l01173"></a><span class="lineno"> 1173</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l01174" name="l01174"></a><span class="lineno"> 1174</span>       a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01175" name="l01175"></a><span class="lineno"> 1175</span>            - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)</div>
-<div class="line"><a id="l01176" name="l01176"></a><span class="lineno"> 1176</span> </div>
-<div class="line"><a id="l01177" name="l01177"></a><span class="lineno"> 1177</span>       b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01178" name="l01178"></a><span class="lineno"> 1178</span>            - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)</div>
+<div class="line"><a id="l01172" name="l01172"></a><span class="lineno"> 1172</span>    <span class="comment">!$omp parallel private (e, i, j, k, weight, len)</span></div>
+<div class="line"><a id="l01173" name="l01173"></a><span class="lineno"> 1173</span> </div>
+<div class="line"><a id="l01174" name="l01174"></a><span class="lineno"> 1174</span>    <span class="comment">! ds x dt</span></div>
+<div class="line"><a id="l01175" name="l01175"></a><span class="lineno"> 1175</span>    <span class="comment">!$omp do simd</span></div>
+<div class="line"><a id="l01176" name="l01176"></a><span class="lineno"> 1176</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l01177" name="l01177"></a><span class="lineno"> 1177</span>       a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01178" name="l01178"></a><span class="lineno"> 1178</span>            - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)</div>
 <div class="line"><a id="l01179" name="l01179"></a><span class="lineno"> 1179</span> </div>
-<div class="line"><a id="l01180" name="l01180"></a><span class="lineno"> 1180</span>       c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01181" name="l01181"></a><span class="lineno"> 1181</span>            - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)</div>
-<div class="line"><a id="l01182" name="l01182"></a><span class="lineno"> 1182</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01183" name="l01183"></a><span class="lineno"> 1183</span> </div>
-<div class="line"><a id="l01184" name="l01184"></a><span class="lineno"> 1184</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l01185" name="l01185"></a><span class="lineno"> 1185</span>       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01186" name="l01186"></a><span class="lineno"> 1186</span>            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01187" name="l01187"></a><span class="lineno"> 1187</span>            + c(i, 1, 1, 1) * c(i, 1, 1, 1)</div>
-<div class="line"><a id="l01188" name="l01188"></a><span class="lineno"> 1188</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01189" name="l01189"></a><span class="lineno"> 1189</span> </div>
-<div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span>    <span class="keywordflow">do</span> concurrent(e = 1:coef%msh%nelv)</div>
-<div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span>       <span class="keywordflow">do</span> concurrent(k = 1:coef%Xh%lx)</div>
-<div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span>          <span class="keywordflow">do</span> concurrent(j = 1:coef%Xh%lx)</div>
-<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>             weight = coef%Xh%wy(j) * coef%Xh%wz(k)</div>
-<div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span>             coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight</div>
-<div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span>             coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight</div>
-<div class="line"><a id="l01196" name="l01196"></a><span class="lineno"> 1196</span>             coef%nx(j,k, 1, e) = -a(1, j, k, e)</div>
-<div class="line"><a id="l01197" name="l01197"></a><span class="lineno"> 1197</span>             coef%nx(j,k, 2, e) = a(lx, j, k, e)</div>
-<div class="line"><a id="l01198" name="l01198"></a><span class="lineno"> 1198</span>             coef%ny(j,k, 1, e) = -b(1, j, k, e)</div>
-<div class="line"><a id="l01199" name="l01199"></a><span class="lineno"> 1199</span>             coef%ny(j,k, 2, e) = b(lx, j, k, e)</div>
-<div class="line"><a id="l01200" name="l01200"></a><span class="lineno"> 1200</span>             coef%nz(j,k, 1, e) = -c(1, j, k, e)</div>
-<div class="line"><a id="l01201" name="l01201"></a><span class="lineno"> 1201</span>             coef%nz(j,k, 2, e) = c(lx, j, k, e)</div>
-<div class="line"><a id="l01202" name="l01202"></a><span class="lineno"> 1202</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01203" name="l01203"></a><span class="lineno"> 1203</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01205" name="l01205"></a><span class="lineno"> 1205</span> </div>
-<div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span>    <span class="comment">! dr x dt</span></div>
-<div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span>       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span>            - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)</div>
-<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span> </div>
-<div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span>       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>            - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)</div>
-<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span> </div>
-<div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span>            - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)</div>
-<div class="line"><a id="l01216" name="l01216"></a><span class="lineno"> 1216</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01180" name="l01180"></a><span class="lineno"> 1180</span>       b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01181" name="l01181"></a><span class="lineno"> 1181</span>            - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)</div>
+<div class="line"><a id="l01182" name="l01182"></a><span class="lineno"> 1182</span> </div>
+<div class="line"><a id="l01183" name="l01183"></a><span class="lineno"> 1183</span>       c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01184" name="l01184"></a><span class="lineno"> 1184</span>            - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)</div>
+<div class="line"><a id="l01185" name="l01185"></a><span class="lineno"> 1185</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01186" name="l01186"></a><span class="lineno"> 1186</span>    <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l01187" name="l01187"></a><span class="lineno"> 1187</span>    <span class="comment">!$omp do simd</span></div>
+<div class="line"><a id="l01188" name="l01188"></a><span class="lineno"> 1188</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l01189" name="l01189"></a><span class="lineno"> 1189</span>       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span>            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span>            + c(i, 1, 1, 1) * c(i, 1, 1, 1)</div>
+<div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>    <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span>    <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span>    <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
+<div class="line"><a id="l01196" name="l01196"></a><span class="lineno"> 1196</span>       <span class="keywordflow">do</span> concurrent(k = 1:coef%Xh%lx)</div>
+<div class="line"><a id="l01197" name="l01197"></a><span class="lineno"> 1197</span>          <span class="keywordflow">do</span> concurrent(j = 1:coef%Xh%lx)</div>
+<div class="line"><a id="l01198" name="l01198"></a><span class="lineno"> 1198</span>             weight = coef%Xh%wy(j) * coef%Xh%wz(k)</div>
+<div class="line"><a id="l01199" name="l01199"></a><span class="lineno"> 1199</span>             coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight</div>
+<div class="line"><a id="l01200" name="l01200"></a><span class="lineno"> 1200</span>             coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight</div>
+<div class="line"><a id="l01201" name="l01201"></a><span class="lineno"> 1201</span>             coef%nx(j,k, 1, e) = -a(1, j, k, e)</div>
+<div class="line"><a id="l01202" name="l01202"></a><span class="lineno"> 1202</span>             coef%nx(j,k, 2, e) = a(lx, j, k, e)</div>
+<div class="line"><a id="l01203" name="l01203"></a><span class="lineno"> 1203</span>             coef%ny(j,k, 1, e) = -b(1, j, k, e)</div>
+<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span>             coef%ny(j,k, 2, e) = b(lx, j, k, e)</div>
+<div class="line"><a id="l01205" name="l01205"></a><span class="lineno"> 1205</span>             coef%nz(j,k, 1, e) = -c(1, j, k, e)</div>
+<div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span>             coef%nz(j,k, 2, e) = c(lx, j, k, e)</div>
+<div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span>    <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span> </div>
+<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>    <span class="comment">! dr x dt</span></div>
+<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>    <span class="comment">!$omp do simd</span></div>
+<div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span>       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01216" name="l01216"></a><span class="lineno"> 1216</span>            - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)</div>
 <div class="line"><a id="l01217" name="l01217"></a><span class="lineno"> 1217</span> </div>
-<div class="line"><a id="l01218" name="l01218"></a><span class="lineno"> 1218</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l01219" name="l01219"></a><span class="lineno"> 1219</span>       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01220" name="l01220"></a><span class="lineno"> 1220</span>            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01221" name="l01221"></a><span class="lineno"> 1221</span>            + c(i, 1, 1, 1) * c(i, 1, 1, 1)</div>
-<div class="line"><a id="l01222" name="l01222"></a><span class="lineno"> 1222</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01223" name="l01223"></a><span class="lineno"> 1223</span> </div>
-<div class="line"><a id="l01224" name="l01224"></a><span class="lineno"> 1224</span>    <span class="keywordflow">do</span> concurrent(e = 1:coef%msh%nelv)</div>
-<div class="line"><a id="l01225" name="l01225"></a><span class="lineno"> 1225</span>       <span class="keywordflow">do</span> concurrent(k = 1:coef%Xh%lx)</div>
-<div class="line"><a id="l01226" name="l01226"></a><span class="lineno"> 1226</span>          <span class="keywordflow">do</span> concurrent(j = 1:coef%Xh%lx)</div>
-<div class="line"><a id="l01227" name="l01227"></a><span class="lineno"> 1227</span>             weight = coef%Xh%wx(j) * coef%Xh%wz(k)</div>
-<div class="line"><a id="l01228" name="l01228"></a><span class="lineno"> 1228</span>             coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight</div>
-<div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span>             coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight</div>
-<div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span>             coef%nx(j,k, 3, e) = a(j, 1, k, e)</div>
-<div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span>             coef%nx(j,k, 4, e) = -a(j, lx, k, e)</div>
-<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>             coef%ny(j,k, 3, e) = b(j, 1, k, e)</div>
-<div class="line"><a id="l01233" name="l01233"></a><span class="lineno"> 1233</span>             coef%ny(j,k, 4, e) = -b(j, lx, k, e)</div>
-<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>             coef%nz(j,k, 3, e) = c(j, 1, k, e)</div>
-<div class="line"><a id="l01235" name="l01235"></a><span class="lineno"> 1235</span>             coef%nz(j,k, 4, e) = -c(j, lx, k, e)</div>
-<div class="line"><a id="l01236" name="l01236"></a><span class="lineno"> 1236</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01237" name="l01237"></a><span class="lineno"> 1237</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01238" name="l01238"></a><span class="lineno"> 1238</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01239" name="l01239"></a><span class="lineno"> 1239</span> </div>
-<div class="line"><a id="l01240" name="l01240"></a><span class="lineno"> 1240</span>    <span class="comment">! dr x ds</span></div>
-<div class="line"><a id="l01241" name="l01241"></a><span class="lineno"> 1241</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l01242" name="l01242"></a><span class="lineno"> 1242</span>       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01243" name="l01243"></a><span class="lineno"> 1243</span>            - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)</div>
-<div class="line"><a id="l01244" name="l01244"></a><span class="lineno"> 1244</span> </div>
-<div class="line"><a id="l01245" name="l01245"></a><span class="lineno"> 1245</span>       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01246" name="l01246"></a><span class="lineno"> 1246</span>            - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)</div>
-<div class="line"><a id="l01247" name="l01247"></a><span class="lineno"> 1247</span> </div>
-<div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span>       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span>            - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)</div>
-<div class="line"><a id="l01250" name="l01250"></a><span class="lineno"> 1250</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span> </div>
-<div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span>       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span>            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &amp;</div>
-<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span>            + c(i, 1, 1, 1) * c(i, 1, 1, 1)</div>
-<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01218" name="l01218"></a><span class="lineno"> 1218</span>       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01219" name="l01219"></a><span class="lineno"> 1219</span>            - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)</div>
+<div class="line"><a id="l01220" name="l01220"></a><span class="lineno"> 1220</span> </div>
+<div class="line"><a id="l01221" name="l01221"></a><span class="lineno"> 1221</span>       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01222" name="l01222"></a><span class="lineno"> 1222</span>            - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)</div>
+<div class="line"><a id="l01223" name="l01223"></a><span class="lineno"> 1223</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01224" name="l01224"></a><span class="lineno"> 1224</span>    <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l01225" name="l01225"></a><span class="lineno"> 1225</span>    <span class="comment">!$omp do simd</span></div>
+<div class="line"><a id="l01226" name="l01226"></a><span class="lineno"> 1226</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l01227" name="l01227"></a><span class="lineno"> 1227</span>       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01228" name="l01228"></a><span class="lineno"> 1228</span>            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span>            + c(i, 1, 1, 1) * c(i, 1, 1, 1)</div>
+<div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span>    <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>    <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l01233" name="l01233"></a><span class="lineno"> 1233</span>    <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
+<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>       <span class="keywordflow">do</span> concurrent(k = 1:coef%Xh%lx)</div>
+<div class="line"><a id="l01235" name="l01235"></a><span class="lineno"> 1235</span>          <span class="keywordflow">do</span> concurrent(j = 1:coef%Xh%lx)</div>
+<div class="line"><a id="l01236" name="l01236"></a><span class="lineno"> 1236</span>             weight = coef%Xh%wx(j) * coef%Xh%wz(k)</div>
+<div class="line"><a id="l01237" name="l01237"></a><span class="lineno"> 1237</span>             coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight</div>
+<div class="line"><a id="l01238" name="l01238"></a><span class="lineno"> 1238</span>             coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight</div>
+<div class="line"><a id="l01239" name="l01239"></a><span class="lineno"> 1239</span>             coef%nx(j,k, 3, e) = a(j, 1, k, e)</div>
+<div class="line"><a id="l01240" name="l01240"></a><span class="lineno"> 1240</span>             coef%nx(j,k, 4, e) = -a(j, lx, k, e)</div>
+<div class="line"><a id="l01241" name="l01241"></a><span class="lineno"> 1241</span>             coef%ny(j,k, 3, e) = b(j, 1, k, e)</div>
+<div class="line"><a id="l01242" name="l01242"></a><span class="lineno"> 1242</span>             coef%ny(j,k, 4, e) = -b(j, lx, k, e)</div>
+<div class="line"><a id="l01243" name="l01243"></a><span class="lineno"> 1243</span>             coef%nz(j,k, 3, e) = c(j, 1, k, e)</div>
+<div class="line"><a id="l01244" name="l01244"></a><span class="lineno"> 1244</span>             coef%nz(j,k, 4, e) = -c(j, lx, k, e)</div>
+<div class="line"><a id="l01245" name="l01245"></a><span class="lineno"> 1245</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01246" name="l01246"></a><span class="lineno"> 1246</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01247" name="l01247"></a><span class="lineno"> 1247</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span>    <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span>    <span class="comment">! dr x ds</span></div>
+<div class="line"><a id="l01250" name="l01250"></a><span class="lineno"> 1250</span>    <span class="comment">!$omp do simd</span></div>
+<div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span>            - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)</div>
+<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span> </div>
+<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span>       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span>            - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)</div>
 <div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span> </div>
-<div class="line"><a id="l01258" name="l01258"></a><span class="lineno"> 1258</span>    <span class="keywordflow">do</span> concurrent(e = 1:coef%msh%nelv)</div>
-<div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>       <span class="keywordflow">do</span> concurrent(k = 1:coef%Xh%lx)</div>
-<div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span>          <span class="keywordflow">do</span> concurrent(j = 1:coef%Xh%lx)</div>
-<div class="line"><a id="l01261" name="l01261"></a><span class="lineno"> 1261</span>             weight = coef%Xh%wx(j) * coef%Xh%wy(k)</div>
-<div class="line"><a id="l01262" name="l01262"></a><span class="lineno"> 1262</span>             coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight</div>
-<div class="line"><a id="l01263" name="l01263"></a><span class="lineno"> 1263</span>             coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight</div>
-<div class="line"><a id="l01264" name="l01264"></a><span class="lineno"> 1264</span>             coef%nx(j,k, 5, e) = -a(j, k, 1, e)</div>
-<div class="line"><a id="l01265" name="l01265"></a><span class="lineno"> 1265</span>             coef%nx(j,k, 6, e) = a(j, k, lx, e)</div>
-<div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span>             coef%ny(j,k, 5, e) = -b(j, k, 1, e)</div>
-<div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span>             coef%ny(j,k, 6, e) = b(j, k, lx, e)</div>
-<div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>             coef%nz(j,k, 5, e) = -c(j, k, 1, e)</div>
-<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>             coef%nz(j,k, 6, e) = c(j, k, lx, e)</div>
-<div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01273" name="l01273"></a><span class="lineno"> 1273</span> </div>
-<div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span>    <span class="comment">! Normalize</span></div>
-<div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span>    <span class="keywordflow">do</span> j = 1, <span class="keyword">size</span>(coef%nz)</div>
-<div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span>       len = sqrt(coef%nx(j,1,1,1)**2 + &amp;</div>
-<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>            coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)</div>
-<div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span>       <span class="keywordflow">if</span> (len .gt. neko_eps) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>          coef%nx(j,1,1,1) = coef%nx(j,1,1,1) / len</div>
-<div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>          coef%ny(j,1,1,1) = coef%ny(j,1,1,1) / len</div>
-<div class="line"><a id="l01281" name="l01281"></a><span class="lineno"> 1281</span>          coef%nz(j,1,1,1) = coef%nz(j,1,1,1) / len</div>
-<div class="line"><a id="l01282" name="l01282"></a><span class="lineno"> 1282</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01283" name="l01283"></a><span class="lineno"> 1283</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01284" name="l01284"></a><span class="lineno"> 1284</span> </div>
-<div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>    <span class="keyword">deallocate</span>(dot)</div>
-<div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>    <span class="keyword">deallocate</span>(c)</div>
-<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>    <span class="keyword">deallocate</span>(b)</div>
-<div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span>    <span class="keyword">deallocate</span>(a)</div>
-<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01291" name="l01291"></a><span class="lineno"> 1291</span>       n = <span class="keyword">size</span>(coef%area)</div>
-<div class="line"><a id="l01292" name="l01292"></a><span class="lineno"> 1292</span>       <span class="keyword">call </span>device_memcpy(coef%area, coef%area_d, n, &amp;</div>
-<div class="line"><a id="l01293" name="l01293"></a><span class="lineno"> 1293</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l01294" name="l01294"></a><span class="lineno"> 1294</span>       <span class="keyword">call </span>device_memcpy(coef%nx, coef%nx_d, n, &amp;</div>
-<div class="line"><a id="l01295" name="l01295"></a><span class="lineno"> 1295</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l01296" name="l01296"></a><span class="lineno"> 1296</span>       <span class="keyword">call </span>device_memcpy(coef%ny, coef%ny_d, n, &amp;</div>
-<div class="line"><a id="l01297" name="l01297"></a><span class="lineno"> 1297</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l01298" name="l01298"></a><span class="lineno"> 1298</span>       <span class="keyword">call </span>device_memcpy(coef%nz, coef%nz_d, n, &amp;</div>
-<div class="line"><a id="l01299" name="l01299"></a><span class="lineno"> 1299</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l01300" name="l01300"></a><span class="lineno"> 1300</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01301" name="l01301"></a><span class="lineno"> 1301</span> </div>
+<div class="line"><a id="l01258" name="l01258"></a><span class="lineno"> 1258</span>       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>            - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)</div>
+<div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01261" name="l01261"></a><span class="lineno"> 1261</span>    <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l01262" name="l01262"></a><span class="lineno"> 1262</span>    <span class="comment">!$omp do simd</span></div>
+<div class="line"><a id="l01263" name="l01263"></a><span class="lineno"> 1263</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l01264" name="l01264"></a><span class="lineno"> 1264</span>       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01265" name="l01265"></a><span class="lineno"> 1265</span>            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &amp;</div>
+<div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span>            + c(i, 1, 1, 1) * c(i, 1, 1, 1)</div>
+<div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>    <span class="comment">!$omp end do simd</span></div>
+<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>    <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span>    <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
+<div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span>       <span class="keywordflow">do</span> concurrent(k = 1:coef%Xh%lx)</div>
+<div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span>          <span class="keywordflow">do</span> concurrent(j = 1:coef%Xh%lx)</div>
+<div class="line"><a id="l01273" name="l01273"></a><span class="lineno"> 1273</span>             weight = coef%Xh%wx(j) * coef%Xh%wy(k)</div>
+<div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span>             coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight</div>
+<div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span>             coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight</div>
+<div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span>             coef%nx(j,k, 5, e) = -a(j, k, 1, e)</div>
+<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>             coef%nx(j,k, 6, e) = a(j, k, lx, e)</div>
+<div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span>             coef%ny(j,k, 5, e) = -b(j, k, 1, e)</div>
+<div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>             coef%ny(j,k, 6, e) = b(j, k, lx, e)</div>
+<div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>             coef%nz(j,k, 5, e) = -c(j, k, 1, e)</div>
+<div class="line"><a id="l01281" name="l01281"></a><span class="lineno"> 1281</span>             coef%nz(j,k, 6, e) = c(j, k, lx, e)</div>
+<div class="line"><a id="l01282" name="l01282"></a><span class="lineno"> 1282</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01283" name="l01283"></a><span class="lineno"> 1283</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01284" name="l01284"></a><span class="lineno"> 1284</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>    <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>    <span class="comment">! Normalize</span></div>
+<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>    <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span>    <span class="keywordflow">do</span> j = 1, <span class="keyword">size</span>(coef%nz)</div>
+<div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span>       len = sqrt(coef%nx(j,1,1,1)**2 + &amp;</div>
+<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>            coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)</div>
+<div class="line"><a id="l01291" name="l01291"></a><span class="lineno"> 1291</span>       <span class="keywordflow">if</span> (len .gt. neko_eps) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01292" name="l01292"></a><span class="lineno"> 1292</span>          coef%nx(j,1,1,1) = coef%nx(j,1,1,1) / len</div>
+<div class="line"><a id="l01293" name="l01293"></a><span class="lineno"> 1293</span>          coef%ny(j,1,1,1) = coef%ny(j,1,1,1) / len</div>
+<div class="line"><a id="l01294" name="l01294"></a><span class="lineno"> 1294</span>          coef%nz(j,1,1,1) = coef%nz(j,1,1,1) / len</div>
+<div class="line"><a id="l01295" name="l01295"></a><span class="lineno"> 1295</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01296" name="l01296"></a><span class="lineno"> 1296</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01297" name="l01297"></a><span class="lineno"> 1297</span>    <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l01298" name="l01298"></a><span class="lineno"> 1298</span>    <span class="comment">!$omp end parallel</span></div>
+<div class="line"><a id="l01299" name="l01299"></a><span class="lineno"> 1299</span> </div>
+<div class="line"><a id="l01300" name="l01300"></a><span class="lineno"> 1300</span>    <span class="keyword">deallocate</span>(dot)</div>
+<div class="line"><a id="l01301" name="l01301"></a><span class="lineno"> 1301</span>    <span class="keyword">deallocate</span>(c)</div>
+<div class="line"><a id="l01302" name="l01302"></a><span class="lineno"> 1302</span>    <span class="keyword">deallocate</span>(b)</div>
+<div class="line"><a id="l01303" name="l01303"></a><span class="lineno"> 1303</span>    <span class="keyword">deallocate</span>(a)</div>
+<div class="line"><a id="l01305" name="l01305"></a><span class="lineno"> 1305</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01306" name="l01306"></a><span class="lineno"> 1306</span>       n = <span class="keyword">size</span>(coef%area)</div>
+<div class="line"><a id="l01307" name="l01307"></a><span class="lineno"> 1307</span>       <span class="keyword">call </span>device_memcpy(coef%area, coef%area_d, n, &amp;</div>
+<div class="line"><a id="l01308" name="l01308"></a><span class="lineno"> 1308</span>            host_to_device, sync = .false.)</div>
+<div class="line"><a id="l01309" name="l01309"></a><span class="lineno"> 1309</span>       <span class="keyword">call </span>device_memcpy(coef%nx, coef%nx_d, n, &amp;</div>
+<div class="line"><a id="l01310" name="l01310"></a><span class="lineno"> 1310</span>            host_to_device, sync = .false.)</div>
+<div class="line"><a id="l01311" name="l01311"></a><span class="lineno"> 1311</span>       <span class="keyword">call </span>device_memcpy(coef%ny, coef%ny_d, n, &amp;</div>
+<div class="line"><a id="l01312" name="l01312"></a><span class="lineno"> 1312</span>            host_to_device, sync = .false.)</div>
+<div class="line"><a id="l01313" name="l01313"></a><span class="lineno"> 1313</span>       <span class="keyword">call </span>device_memcpy(coef%nz, coef%nz_d, n, &amp;</div>
+<div class="line"><a id="l01314" name="l01314"></a><span class="lineno"> 1314</span>            host_to_device, sync = .false.)</div>
+<div class="line"><a id="l01315" name="l01315"></a><span class="lineno"> 1315</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01316" name="l01316"></a><span class="lineno"> 1316</span> </div>
 </div>
-<div class="line"><a id="l01302" name="l01302"></a><span class="lineno"> 1302</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484">coef_generate_area_and_normal</a></div>
-<div class="line"><a id="l01303" name="l01303"></a><span class="lineno"> 1303</span> </div>
-<div class="foldopen" id="foldopen01304" data-start="" data-end="">
-<div class="line"><a id="l01304" name="l01304"></a><span class="lineno"><a class="line" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa"> 1304</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coef_generate_cyclic_bc</a>(this)</div>
-<div class="line"><a id="l01305" name="l01305"></a><span class="lineno"> 1305</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01306" name="l01306"></a><span class="lineno"> 1306</span><span class="keywordtype">    real</span>(kind=rp) :: un(3), len, d</div>
-<div class="line"><a id="l01307" name="l01307"></a><span class="lineno"> 1307</span>    <span class="keywordtype">integer</span> :: lx, ly, lz, np, np_glb, ierr</div>
-<div class="line"><a id="l01308" name="l01308"></a><span class="lineno"> 1308</span>    <span class="keywordtype">integer</span> :: i, j, k, pf, pe, n, nc, ncyc</div>
-<div class="line"><a id="l01309" name="l01309"></a><span class="lineno"> 1309</span> </div>
-<div class="line"><a id="l01310" name="l01310"></a><span class="lineno"> 1310</span>    <span class="keywordflow">if</span> (.not. this%cyclic) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l01311" name="l01311"></a><span class="lineno"> 1311</span> </div>
-<div class="line"><a id="l01312" name="l01312"></a><span class="lineno"> 1312</span>    np = this%msh%periodic%size</div>
-<div class="line"><a id="l01313" name="l01313"></a><span class="lineno"> 1313</span>    <span class="keyword">call </span>mpi_allreduce(np, np_glb, 1, &amp;</div>
-<div class="line"><a id="l01314" name="l01314"></a><span class="lineno"> 1314</span>         mpi_integer, mpi_sum, neko_comm, ierr)</div>
-<div class="line"><a id="l01315" name="l01315"></a><span class="lineno"> 1315</span> </div>
-<div class="line"><a id="l01316" name="l01316"></a><span class="lineno"> 1316</span>    <span class="keywordflow">if</span> (np_glb .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01317" name="l01317"></a><span class="lineno"> 1317</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;There are no periodic boundaries. &quot;</span> // &amp;</div>
-<div class="line"><a id="l01318" name="l01318"></a><span class="lineno"> 1318</span>            <span class="stringliteral">&quot;Switch cyclic off in the case file.&quot;</span>)</div>
-<div class="line"><a id="l01319" name="l01319"></a><span class="lineno"> 1319</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01320" name="l01320"></a><span class="lineno"> 1320</span> </div>
-<div class="line"><a id="l01321" name="l01321"></a><span class="lineno"> 1321</span>    <span class="keywordflow">if</span> (np .eq. 0) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l01322" name="l01322"></a><span class="lineno"> 1322</span> </div>
-<div class="line"><a id="l01323" name="l01323"></a><span class="lineno"> 1323</span>    lx = this%Xh%lx</div>
-<div class="line"><a id="l01324" name="l01324"></a><span class="lineno"> 1324</span>    ly = this%Xh%ly</div>
-<div class="line"><a id="l01325" name="l01325"></a><span class="lineno"> 1325</span>    lz = this%Xh%lz</div>
-<div class="line"><a id="l01326" name="l01326"></a><span class="lineno"> 1326</span>    ncyc = this%cyc_msk(0) - 1</div>
-<div class="line"><a id="l01327" name="l01327"></a><span class="lineno"> 1327</span>    nc = 1</div>
-<div class="line"><a id="l01328" name="l01328"></a><span class="lineno"> 1328</span>    <span class="keywordflow">do</span> n = 1, np</div>
-<div class="line"><a id="l01329" name="l01329"></a><span class="lineno"> 1329</span>       pf = this%msh%periodic%facet_el(n)%x(1)</div>
-<div class="line"><a id="l01330" name="l01330"></a><span class="lineno"> 1330</span>       pe = this%msh%periodic%facet_el(n)%x(2)</div>
-<div class="line"><a id="l01331" name="l01331"></a><span class="lineno"> 1331</span>       <span class="keywordflow">do</span> k = 1, lz</div>
-<div class="line"><a id="l01332" name="l01332"></a><span class="lineno"> 1332</span>          <span class="keywordflow">do</span> j = 1, ly</div>
-<div class="line"><a id="l01333" name="l01333"></a><span class="lineno"> 1333</span>             <span class="keywordflow">do</span> i = 1, lx</div>
-<div class="line"><a id="l01334" name="l01334"></a><span class="lineno"> 1334</span>                <span class="keywordflow">if</span> (index_is_on_facet(i, j, k, lx, ly, lz, pf)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01335" name="l01335"></a><span class="lineno"> 1335</span>                   un = this%get_normal(i, j, k, pe, pf)</div>
-<div class="line"><a id="l01336" name="l01336"></a><span class="lineno"> 1336</span>                   len = sqrt(un(1) * un(1) + un(2) * un(2))</div>
-<div class="line"><a id="l01337" name="l01337"></a><span class="lineno"> 1337</span>                   <span class="keywordflow">if</span> (len .gt. neko_eps) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01338" name="l01338"></a><span class="lineno"> 1338</span>                      d = this%dof%y(i, j, k, pe) * un(1) &amp;</div>
-<div class="line"><a id="l01339" name="l01339"></a><span class="lineno"> 1339</span>                           - this%dof%x(i, j, k, pe) * un(2)</div>
-<div class="line"><a id="l01340" name="l01340"></a><span class="lineno"> 1340</span> </div>
-<div class="line"><a id="l01341" name="l01341"></a><span class="lineno"> 1341</span>                      this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)</div>
-<div class="line"><a id="l01342" name="l01342"></a><span class="lineno"> 1342</span>                      this%R11(nc) = un(1) / len * sign(1.0_rp, d)</div>
-<div class="line"><a id="l01343" name="l01343"></a><span class="lineno"> 1343</span>                      this%R12(nc) = un(2) / len * sign(1.0_rp, d)</div>
-<div class="line"><a id="l01344" name="l01344"></a><span class="lineno"> 1344</span>                      nc = nc + 1</div>
-<div class="line"><a id="l01345" name="l01345"></a><span class="lineno"> 1345</span>                   <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01346" name="l01346"></a><span class="lineno"> 1346</span>                      <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;x and y components of surface &quot;</span> // &amp;</div>
-<div class="line"><a id="l01347" name="l01347"></a><span class="lineno"> 1347</span>                           <span class="stringliteral">&quot;normals are zero. Cyclic rotations must be &quot;</span> // &amp;</div>
-<div class="line"><a id="l01348" name="l01348"></a><span class="lineno"> 1348</span>                           <span class="stringliteral">&quot;around z-axis.&quot;</span>)</div>
-<div class="line"><a id="l01349" name="l01349"></a><span class="lineno"> 1349</span><span class="keywordflow">                   end if</span></div>
-<div class="line"><a id="l01350" name="l01350"></a><span class="lineno"> 1350</span><span class="keywordflow">                end if</span></div>
-<div class="line"><a id="l01351" name="l01351"></a><span class="lineno"> 1351</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l01352" name="l01352"></a><span class="lineno"> 1352</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01353" name="l01353"></a><span class="lineno"> 1353</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01354" name="l01354"></a><span class="lineno"> 1354</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01317" name="l01317"></a><span class="lineno"> 1317</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484">coef_generate_area_and_normal</a></div>
+<div class="line"><a id="l01318" name="l01318"></a><span class="lineno"> 1318</span> </div>
+<div class="foldopen" id="foldopen01319" data-start="" data-end="">
+<div class="line"><a id="l01319" name="l01319"></a><span class="lineno"><a class="line" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa"> 1319</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coef_generate_cyclic_bc</a>(this)</div>
+<div class="line"><a id="l01320" name="l01320"></a><span class="lineno"> 1320</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01321" name="l01321"></a><span class="lineno"> 1321</span><span class="keywordtype">    real</span>(kind=rp) :: un(3), len, d</div>
+<div class="line"><a id="l01322" name="l01322"></a><span class="lineno"> 1322</span>    <span class="keywordtype">integer</span> :: lx, ly, lz, np, np_glb, ierr</div>
+<div class="line"><a id="l01323" name="l01323"></a><span class="lineno"> 1323</span>    <span class="keywordtype">integer</span> :: i, j, k, pf, pe, n, nc, ncyc</div>
+<div class="line"><a id="l01324" name="l01324"></a><span class="lineno"> 1324</span> </div>
+<div class="line"><a id="l01325" name="l01325"></a><span class="lineno"> 1325</span>    <span class="keywordflow">if</span> (.not. this%cyclic) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l01326" name="l01326"></a><span class="lineno"> 1326</span> </div>
+<div class="line"><a id="l01327" name="l01327"></a><span class="lineno"> 1327</span>    np = this%msh%periodic%size</div>
+<div class="line"><a id="l01328" name="l01328"></a><span class="lineno"> 1328</span>    <span class="keyword">call </span>mpi_allreduce(np, np_glb, 1, &amp;</div>
+<div class="line"><a id="l01329" name="l01329"></a><span class="lineno"> 1329</span>         mpi_integer, mpi_sum, neko_comm, ierr)</div>
+<div class="line"><a id="l01330" name="l01330"></a><span class="lineno"> 1330</span> </div>
+<div class="line"><a id="l01331" name="l01331"></a><span class="lineno"> 1331</span>    <span class="keywordflow">if</span> (np_glb .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01332" name="l01332"></a><span class="lineno"> 1332</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;There are no periodic boundaries. &quot;</span> // &amp;</div>
+<div class="line"><a id="l01333" name="l01333"></a><span class="lineno"> 1333</span>            <span class="stringliteral">&quot;Switch cyclic off in the case file.&quot;</span>)</div>
+<div class="line"><a id="l01334" name="l01334"></a><span class="lineno"> 1334</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01335" name="l01335"></a><span class="lineno"> 1335</span> </div>
+<div class="line"><a id="l01336" name="l01336"></a><span class="lineno"> 1336</span>    <span class="keywordflow">if</span> (np .eq. 0) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l01337" name="l01337"></a><span class="lineno"> 1337</span> </div>
+<div class="line"><a id="l01338" name="l01338"></a><span class="lineno"> 1338</span>    lx = this%Xh%lx</div>
+<div class="line"><a id="l01339" name="l01339"></a><span class="lineno"> 1339</span>    ly = this%Xh%ly</div>
+<div class="line"><a id="l01340" name="l01340"></a><span class="lineno"> 1340</span>    lz = this%Xh%lz</div>
+<div class="line"><a id="l01341" name="l01341"></a><span class="lineno"> 1341</span>    ncyc = this%cyc_msk(0) - 1</div>
+<div class="line"><a id="l01342" name="l01342"></a><span class="lineno"> 1342</span>    nc = 1</div>
+<div class="line"><a id="l01343" name="l01343"></a><span class="lineno"> 1343</span>    <span class="keywordflow">do</span> n = 1, np</div>
+<div class="line"><a id="l01344" name="l01344"></a><span class="lineno"> 1344</span>       pf = this%msh%periodic%facet_el(n)%x(1)</div>
+<div class="line"><a id="l01345" name="l01345"></a><span class="lineno"> 1345</span>       pe = this%msh%periodic%facet_el(n)%x(2)</div>
+<div class="line"><a id="l01346" name="l01346"></a><span class="lineno"> 1346</span>       <span class="keywordflow">do</span> k = 1, lz</div>
+<div class="line"><a id="l01347" name="l01347"></a><span class="lineno"> 1347</span>          <span class="keywordflow">do</span> j = 1, ly</div>
+<div class="line"><a id="l01348" name="l01348"></a><span class="lineno"> 1348</span>             <span class="keywordflow">do</span> i = 1, lx</div>
+<div class="line"><a id="l01349" name="l01349"></a><span class="lineno"> 1349</span>                <span class="keywordflow">if</span> (index_is_on_facet(i, j, k, lx, ly, lz, pf)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01350" name="l01350"></a><span class="lineno"> 1350</span>                   un = this%get_normal(i, j, k, pe, pf)</div>
+<div class="line"><a id="l01351" name="l01351"></a><span class="lineno"> 1351</span>                   len = sqrt(un(1) * un(1) + un(2) * un(2))</div>
+<div class="line"><a id="l01352" name="l01352"></a><span class="lineno"> 1352</span>                   <span class="keywordflow">if</span> (len .gt. neko_eps) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01353" name="l01353"></a><span class="lineno"> 1353</span>                      d = this%dof%y(i, j, k, pe) * un(1) &amp;</div>
+<div class="line"><a id="l01354" name="l01354"></a><span class="lineno"> 1354</span>                           - this%dof%x(i, j, k, pe) * un(2)</div>
 <div class="line"><a id="l01355" name="l01355"></a><span class="lineno"> 1355</span> </div>
-<div class="line"><a id="l01356" name="l01356"></a><span class="lineno"> 1356</span>    <span class="keywordflow">if</span> (nc - 1 /= ncyc) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01357" name="l01357"></a><span class="lineno"> 1357</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;The number of cyclic GLL points were &quot;</span> // &amp;</div>
-<div class="line"><a id="l01358" name="l01358"></a><span class="lineno"> 1358</span>            <span class="stringliteral">&quot;not estimated correctly.&quot;</span>)</div>
-<div class="line"><a id="l01359" name="l01359"></a><span class="lineno"> 1359</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01360" name="l01360"></a><span class="lineno"> 1360</span> </div>
-<div class="line"><a id="l01361" name="l01361"></a><span class="lineno"> 1361</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01362" name="l01362"></a><span class="lineno"> 1362</span>       <span class="keyword">call </span>device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &amp;</div>
-<div class="line"><a id="l01363" name="l01363"></a><span class="lineno"> 1363</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l01364" name="l01364"></a><span class="lineno"> 1364</span>       <span class="keyword">call </span>device_memcpy(this%R11, this%R11_d, ncyc, &amp;</div>
-<div class="line"><a id="l01365" name="l01365"></a><span class="lineno"> 1365</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l01366" name="l01366"></a><span class="lineno"> 1366</span>       <span class="keyword">call </span>device_memcpy(this%R12, this%R12_d, ncyc, &amp;</div>
-<div class="line"><a id="l01367" name="l01367"></a><span class="lineno"> 1367</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l01368" name="l01368"></a><span class="lineno"> 1368</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01369" name="l01369"></a><span class="lineno"> 1369</span> </div>
-</div>
-<div class="line"><a id="l01370" name="l01370"></a><span class="lineno"> 1370</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coef_generate_cyclic_bc</a></div>
-<div class="line"><a id="l01371" name="l01371"></a><span class="lineno"> 1371</span> </div>
-<div class="line"><a id="l01372" name="l01372"></a><span class="lineno"> 1372</span> </div>
-<div class="foldopen" id="foldopen01374" data-start="" data-end="">
-<div class="line"><a id="l01374" name="l01374"></a><span class="lineno"><a class="line" href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2"> 1374</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2">coef_recompute_metrics</a>(this)</div>
-<div class="line"><a id="l01375" name="l01375"></a><span class="lineno"> 1375</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01376" name="l01376"></a><span class="lineno"> 1376</span> </div>
-<div class="line"><a id="l01377" name="l01377"></a><span class="lineno"> 1377</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e">coef_generate_dxyzdrst</a>(this)</div>
-<div class="line"><a id="l01378" name="l01378"></a><span class="lineno"> 1378</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a1b615b359ab35faee3c6522857bdac33">coef_generate_geo</a>(this)</div>
-<div class="line"><a id="l01379" name="l01379"></a><span class="lineno"> 1379</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484">coef_generate_area_and_normal</a>(this)</div>
-<div class="line"><a id="l01380" name="l01380"></a><span class="lineno"> 1380</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462">coef_generate_mass</a>(this)</div>
-<div class="line"><a id="l01381" name="l01381"></a><span class="lineno"> 1381</span>    <span class="keywordflow">if</span> (this%cyclic) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01382" name="l01382"></a><span class="lineno"> 1382</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coef_generate_cyclic_bc</a>(this)</div>
+<div class="line"><a id="l01356" name="l01356"></a><span class="lineno"> 1356</span>                      this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)</div>
+<div class="line"><a id="l01357" name="l01357"></a><span class="lineno"> 1357</span>                      this%R11(nc) = un(1) / len * sign(1.0_rp, d)</div>
+<div class="line"><a id="l01358" name="l01358"></a><span class="lineno"> 1358</span>                      this%R12(nc) = un(2) / len * sign(1.0_rp, d)</div>
+<div class="line"><a id="l01359" name="l01359"></a><span class="lineno"> 1359</span>                      nc = nc + 1</div>
+<div class="line"><a id="l01360" name="l01360"></a><span class="lineno"> 1360</span>                   <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01361" name="l01361"></a><span class="lineno"> 1361</span>                      <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;x and y components of surface &quot;</span> // &amp;</div>
+<div class="line"><a id="l01362" name="l01362"></a><span class="lineno"> 1362</span>                           <span class="stringliteral">&quot;normals are zero. Cyclic rotations must be &quot;</span> // &amp;</div>
+<div class="line"><a id="l01363" name="l01363"></a><span class="lineno"> 1363</span>                           <span class="stringliteral">&quot;around z-axis.&quot;</span>)</div>
+<div class="line"><a id="l01364" name="l01364"></a><span class="lineno"> 1364</span><span class="keywordflow">                   end if</span></div>
+<div class="line"><a id="l01365" name="l01365"></a><span class="lineno"> 1365</span><span class="keywordflow">                end if</span></div>
+<div class="line"><a id="l01366" name="l01366"></a><span class="lineno"> 1366</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l01367" name="l01367"></a><span class="lineno"> 1367</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01368" name="l01368"></a><span class="lineno"> 1368</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01369" name="l01369"></a><span class="lineno"> 1369</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01370" name="l01370"></a><span class="lineno"> 1370</span> </div>
+<div class="line"><a id="l01371" name="l01371"></a><span class="lineno"> 1371</span>    <span class="keywordflow">if</span> (nc - 1 /= ncyc) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01372" name="l01372"></a><span class="lineno"> 1372</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;The number of cyclic GLL points were &quot;</span> // &amp;</div>
+<div class="line"><a id="l01373" name="l01373"></a><span class="lineno"> 1373</span>            <span class="stringliteral">&quot;not estimated correctly.&quot;</span>)</div>
+<div class="line"><a id="l01374" name="l01374"></a><span class="lineno"> 1374</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01375" name="l01375"></a><span class="lineno"> 1375</span> </div>
+<div class="line"><a id="l01376" name="l01376"></a><span class="lineno"> 1376</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01377" name="l01377"></a><span class="lineno"> 1377</span>       <span class="keyword">call </span>device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &amp;</div>
+<div class="line"><a id="l01378" name="l01378"></a><span class="lineno"> 1378</span>            host_to_device, sync = .false.)</div>
+<div class="line"><a id="l01379" name="l01379"></a><span class="lineno"> 1379</span>       <span class="keyword">call </span>device_memcpy(this%R11, this%R11_d, ncyc, &amp;</div>
+<div class="line"><a id="l01380" name="l01380"></a><span class="lineno"> 1380</span>            host_to_device, sync = .false.)</div>
+<div class="line"><a id="l01381" name="l01381"></a><span class="lineno"> 1381</span>       <span class="keyword">call </span>device_memcpy(this%R12, this%R12_d, ncyc, &amp;</div>
+<div class="line"><a id="l01382" name="l01382"></a><span class="lineno"> 1382</span>            host_to_device, sync = .false.)</div>
 <div class="line"><a id="l01383" name="l01383"></a><span class="lineno"> 1383</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01384" name="l01384"></a><span class="lineno"> 1384</span> </div>
 </div>
-<div class="line"><a id="l01384" name="l01384"></a><span class="lineno"> 1384</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2">coef_recompute_metrics</a></div>
-<div class="line"><a id="l01385" name="l01385"></a><span class="lineno"> 1385</span> </div>
+<div class="line"><a id="l01385" name="l01385"></a><span class="lineno"> 1385</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coef_generate_cyclic_bc</a></div>
 <div class="line"><a id="l01386" name="l01386"></a><span class="lineno"> 1386</span> </div>
+<div class="line"><a id="l01387" name="l01387"></a><span class="lineno"> 1387</span> </div>
 <div class="foldopen" id="foldopen01389" data-start="" data-end="">
-<div class="line"><a id="l01389" name="l01389"></a><span class="lineno"><a class="line" href="../../d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21"> 1389</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21">coef_enable_lagged_mass</a>(this)</div>
-<div class="line"><a id="l01390" name="l01390"></a><span class="lineno"> 1390</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l01391" name="l01391"></a><span class="lineno"> 1391</span>    <span class="keywordtype">integer</span> :: n</div>
-<div class="line"><a id="l01392" name="l01392"></a><span class="lineno"> 1392</span> </div>
-<div class="line"><a id="l01393" name="l01393"></a><span class="lineno"> 1393</span>    <span class="comment">! Return if already allocated distinctly</span></div>
-<div class="line"><a id="l01394" name="l01394"></a><span class="lineno"> 1394</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(this%Blag, this%B)) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l01395" name="l01395"></a><span class="lineno"> 1395</span> </div>
-<div class="line"><a id="l01396" name="l01396"></a><span class="lineno"> 1396</span>    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv</div>
-<div class="line"><a id="l01397" name="l01397"></a><span class="lineno"> 1397</span> </div>
-<div class="line"><a id="l01398" name="l01398"></a><span class="lineno"> 1398</span> </div>
-<div class="line"><a id="l01399" name="l01399"></a><span class="lineno"> 1399</span>    <span class="keyword">nullify</span>(this%Blag)</div>
-<div class="line"><a id="l01400" name="l01400"></a><span class="lineno"> 1400</span>    <span class="keyword">nullify</span>(this%Blaglag)</div>
+<div class="line"><a id="l01389" name="l01389"></a><span class="lineno"><a class="line" href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2"> 1389</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2">coef_recompute_metrics</a>(this)</div>
+<div class="line"><a id="l01390" name="l01390"></a><span class="lineno"> 1390</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01391" name="l01391"></a><span class="lineno"> 1391</span> </div>
+<div class="line"><a id="l01392" name="l01392"></a><span class="lineno"> 1392</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e">coef_generate_dxyzdrst</a>(this)</div>
+<div class="line"><a id="l01393" name="l01393"></a><span class="lineno"> 1393</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a1b615b359ab35faee3c6522857bdac33">coef_generate_geo</a>(this)</div>
+<div class="line"><a id="l01394" name="l01394"></a><span class="lineno"> 1394</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484">coef_generate_area_and_normal</a>(this)</div>
+<div class="line"><a id="l01395" name="l01395"></a><span class="lineno"> 1395</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462">coef_generate_mass</a>(this)</div>
+<div class="line"><a id="l01396" name="l01396"></a><span class="lineno"> 1396</span>    <span class="keywordflow">if</span> (this%cyclic) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01397" name="l01397"></a><span class="lineno"> 1397</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coef_generate_cyclic_bc</a>(this)</div>
+<div class="line"><a id="l01398" name="l01398"></a><span class="lineno"> 1398</span><span class="keywordflow">    end if</span></div>
+</div>
+<div class="line"><a id="l01399" name="l01399"></a><span class="lineno"> 1399</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2">coef_recompute_metrics</a></div>
+<div class="line"><a id="l01400" name="l01400"></a><span class="lineno"> 1400</span> </div>
 <div class="line"><a id="l01401" name="l01401"></a><span class="lineno"> 1401</span> </div>
-<div class="line"><a id="l01402" name="l01402"></a><span class="lineno"> 1402</span>    <span class="keyword">allocate</span>(this%Blag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))</div>
-<div class="line"><a id="l01403" name="l01403"></a><span class="lineno"> 1403</span>    <span class="keyword">allocate</span>(this%Blaglag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))</div>
-<div class="line"><a id="l01404" name="l01404"></a><span class="lineno"> 1404</span> </div>
-<div class="line"><a id="l01405" name="l01405"></a><span class="lineno"> 1405</span>    this%Blag = this%B</div>
-<div class="line"><a id="l01406" name="l01406"></a><span class="lineno"> 1406</span>    this%Blaglag = this%B</div>
+<div class="foldopen" id="foldopen01404" data-start="" data-end="">
+<div class="line"><a id="l01404" name="l01404"></a><span class="lineno"><a class="line" href="../../d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21"> 1404</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21">coef_enable_lagged_mass</a>(this)</div>
+<div class="line"><a id="l01405" name="l01405"></a><span class="lineno"> 1405</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l01406" name="l01406"></a><span class="lineno"> 1406</span>    <span class="keywordtype">integer</span> :: n</div>
 <div class="line"><a id="l01407" name="l01407"></a><span class="lineno"> 1407</span> </div>
-<div class="line"><a id="l01408" name="l01408"></a><span class="lineno"> 1408</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01409" name="l01409"></a><span class="lineno"> 1409</span> </div>
-<div class="line"><a id="l01410" name="l01410"></a><span class="lineno"> 1410</span>       this%Blag_d = c_null_ptr</div>
-<div class="line"><a id="l01411" name="l01411"></a><span class="lineno"> 1411</span>       this%Blaglag_d = c_null_ptr</div>
+<div class="line"><a id="l01408" name="l01408"></a><span class="lineno"> 1408</span>    <span class="comment">! Return if already allocated distinctly</span></div>
+<div class="line"><a id="l01409" name="l01409"></a><span class="lineno"> 1409</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(this%Blag, this%B)) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l01410" name="l01410"></a><span class="lineno"> 1410</span> </div>
+<div class="line"><a id="l01411" name="l01411"></a><span class="lineno"> 1411</span>    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv</div>
 <div class="line"><a id="l01412" name="l01412"></a><span class="lineno"> 1412</span> </div>
-<div class="line"><a id="l01413" name="l01413"></a><span class="lineno"> 1413</span>       <span class="keyword">call </span>device_map(this%Blag, this%Blag_d, n)</div>
-<div class="line"><a id="l01414" name="l01414"></a><span class="lineno"> 1414</span>       <span class="keyword">call </span>device_map(this%Blaglag, this%Blaglag_d, n)</div>
-<div class="line"><a id="l01415" name="l01415"></a><span class="lineno"> 1415</span> </div>
-<div class="line"><a id="l01416" name="l01416"></a><span class="lineno"> 1416</span>       <span class="keyword">call </span>device_memcpy(this%Blag, this%Blag_d, n, &amp;</div>
-<div class="line"><a id="l01417" name="l01417"></a><span class="lineno"> 1417</span>            host_to_device, sync = .false.)</div>
-<div class="line"><a id="l01418" name="l01418"></a><span class="lineno"> 1418</span>       <span class="keyword">call </span>device_memcpy(this%Blaglag, this%Blaglag_d, n, &amp;</div>
-<div class="line"><a id="l01419" name="l01419"></a><span class="lineno"> 1419</span>            host_to_device, sync = .true.)</div>
-<div class="line"><a id="l01420" name="l01420"></a><span class="lineno"> 1420</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01421" name="l01421"></a><span class="lineno"> 1421</span> </div>
-</div>
-<div class="line"><a id="l01422" name="l01422"></a><span class="lineno"> 1422</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21">coef_enable_lagged_mass</a></div>
-<div class="line"><a id="l01423" name="l01423"></a><span class="lineno"> 1423</span> </div>
+<div class="line"><a id="l01413" name="l01413"></a><span class="lineno"> 1413</span> </div>
+<div class="line"><a id="l01414" name="l01414"></a><span class="lineno"> 1414</span>    <span class="keyword">nullify</span>(this%Blag)</div>
+<div class="line"><a id="l01415" name="l01415"></a><span class="lineno"> 1415</span>    <span class="keyword">nullify</span>(this%Blaglag)</div>
+<div class="line"><a id="l01416" name="l01416"></a><span class="lineno"> 1416</span> </div>
+<div class="line"><a id="l01417" name="l01417"></a><span class="lineno"> 1417</span>    <span class="keyword">allocate</span>(this%Blag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))</div>
+<div class="line"><a id="l01418" name="l01418"></a><span class="lineno"> 1418</span>    <span class="keyword">allocate</span>(this%Blaglag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))</div>
+<div class="line"><a id="l01419" name="l01419"></a><span class="lineno"> 1419</span> </div>
+<div class="line"><a id="l01420" name="l01420"></a><span class="lineno"> 1420</span>    this%Blag = this%B</div>
+<div class="line"><a id="l01421" name="l01421"></a><span class="lineno"> 1421</span>    this%Blaglag = this%B</div>
+<div class="line"><a id="l01422" name="l01422"></a><span class="lineno"> 1422</span> </div>
+<div class="line"><a id="l01423" name="l01423"></a><span class="lineno"> 1423</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l01424" name="l01424"></a><span class="lineno"> 1424</span> </div>
-<div class="foldopen" id="foldopen01426" data-start="" data-end="">
-<div class="line"><a id="l01426" name="l01426"></a><span class="lineno"><a class="line" href="../../d6/dbe/namespacecoefs.html#a5a2d17b84e74e75b4c2228464a6a5850"> 1426</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a5a2d17b84e74e75b4c2228464a6a5850">coef_update_lagged_mass</a>(this)</div>
-<div class="line"><a id="l01427" name="l01427"></a><span class="lineno"> 1427</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span>    <span class="keywordtype">integer</span> :: n</div>
-<div class="line"><a id="l01429" name="l01429"></a><span class="lineno"> 1429</span>    <span class="keywordtype">integer(c_size_t)</span> :: n_bytes</div>
+<div class="line"><a id="l01425" name="l01425"></a><span class="lineno"> 1425</span>       this%Blag_d = c_null_ptr</div>
+<div class="line"><a id="l01426" name="l01426"></a><span class="lineno"> 1426</span>       this%Blaglag_d = c_null_ptr</div>
+<div class="line"><a id="l01427" name="l01427"></a><span class="lineno"> 1427</span> </div>
+<div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span>       <span class="keyword">call </span>device_map(this%Blag, this%Blag_d, n)</div>
+<div class="line"><a id="l01429" name="l01429"></a><span class="lineno"> 1429</span>       <span class="keyword">call </span>device_map(this%Blaglag, this%Blaglag_d, n)</div>
 <div class="line"><a id="l01430" name="l01430"></a><span class="lineno"> 1430</span> </div>
-<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>    <span class="comment">! If this%Blag does not have separate memory, we don&#39;t need to update it.</span></div>
-<div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(this%Blag, this%B)) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span> </div>
-<div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span>    this%Blaglag = this%Blag</div>
-<div class="line"><a id="l01435" name="l01435"></a><span class="lineno"> 1435</span>    this%Blag = this%B</div>
+<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>       <span class="keyword">call </span>device_memcpy(this%Blag, this%Blag_d, n, &amp;</div>
+<div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>            host_to_device, sync = .false.)</div>
+<div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span>       <span class="keyword">call </span>device_memcpy(this%Blaglag, this%Blaglag_d, n, &amp;</div>
+<div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span>            host_to_device, sync = .true.)</div>
+<div class="line"><a id="l01435" name="l01435"></a><span class="lineno"> 1435</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l01436" name="l01436"></a><span class="lineno"> 1436</span> </div>
-<div class="line"><a id="l01437" name="l01437"></a><span class="lineno"> 1437</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01438" name="l01438"></a><span class="lineno"> 1438</span>       n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv</div>
-<div class="line"><a id="l01439" name="l01439"></a><span class="lineno"> 1439</span>       <span class="keywordflow">if</span> (rp .eq. real32) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01440" name="l01440"></a><span class="lineno"> 1440</span>          n_bytes = int(n, c_size_t) * 4_c_size_t</div>
-<div class="line"><a id="l01441" name="l01441"></a><span class="lineno"> 1441</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01442" name="l01442"></a><span class="lineno"> 1442</span>          n_bytes = int(n, c_size_t) * 8_c_size_t</div>
-<div class="line"><a id="l01443" name="l01443"></a><span class="lineno"> 1443</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01444" name="l01444"></a><span class="lineno"> 1444</span> </div>
-<div class="line"><a id="l01445" name="l01445"></a><span class="lineno"> 1445</span>       <span class="keyword">call </span>device_memcpy(this%Blaglag_d, this%Blag_d, n_bytes, &amp;</div>
-<div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span>            device_to_device, sync = .false.)</div>
-<div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span> </div>
-<div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span>       <span class="keyword">call </span>device_memcpy(this%Blag_d, this%B_d, n_bytes, &amp;</div>
-<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>            device_to_device, sync = .true.)</div>
-<div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span> </div>
 </div>
-<div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a5a2d17b84e74e75b4c2228464a6a5850">coef_update_lagged_mass</a></div>
-<div class="line"><a id="l01453" name="l01453"></a><span class="lineno"> 1453</span> </div>
-<div class="line"><a id="l01454" name="l01454"></a><span class="lineno"> 1454</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a></div>
+<div class="line"><a id="l01437" name="l01437"></a><span class="lineno"> 1437</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21">coef_enable_lagged_mass</a></div>
+<div class="line"><a id="l01438" name="l01438"></a><span class="lineno"> 1438</span> </div>
+<div class="line"><a id="l01439" name="l01439"></a><span class="lineno"> 1439</span> </div>
+<div class="foldopen" id="foldopen01441" data-start="" data-end="">
+<div class="line"><a id="l01441" name="l01441"></a><span class="lineno"><a class="line" href="../../d6/dbe/namespacecoefs.html#a5a2d17b84e74e75b4c2228464a6a5850"> 1441</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a5a2d17b84e74e75b4c2228464a6a5850">coef_update_lagged_mass</a>(this)</div>
+<div class="line"><a id="l01442" name="l01442"></a><span class="lineno"> 1442</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l01443" name="l01443"></a><span class="lineno"> 1443</span>    <span class="keywordtype">integer</span> :: n</div>
+<div class="line"><a id="l01444" name="l01444"></a><span class="lineno"> 1444</span>    <span class="keywordtype">integer(c_size_t)</span> :: n_bytes</div>
+<div class="line"><a id="l01445" name="l01445"></a><span class="lineno"> 1445</span> </div>
+<div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span>    <span class="comment">! If this%Blag does not have separate memory, we don&#39;t need to update it.</span></div>
+<div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span>    <span class="keywordflow">if</span> (<span class="keyword">associated</span>(this%Blag, this%B)) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span> </div>
+<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>    this%Blaglag = this%Blag</div>
+<div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span>    this%Blag = this%B</div>
+<div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span> </div>
+<div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span>    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01453" name="l01453"></a><span class="lineno"> 1453</span>       n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv</div>
+<div class="line"><a id="l01454" name="l01454"></a><span class="lineno"> 1454</span>       <span class="keywordflow">if</span> (rp .eq. real32) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01455" name="l01455"></a><span class="lineno"> 1455</span>          n_bytes = int(n, c_size_t) * 4_c_size_t</div>
+<div class="line"><a id="l01456" name="l01456"></a><span class="lineno"> 1456</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01457" name="l01457"></a><span class="lineno"> 1457</span>          n_bytes = int(n, c_size_t) * 8_c_size_t</div>
+<div class="line"><a id="l01458" name="l01458"></a><span class="lineno"> 1458</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01459" name="l01459"></a><span class="lineno"> 1459</span> </div>
+<div class="line"><a id="l01460" name="l01460"></a><span class="lineno"> 1460</span>       <span class="keyword">call </span>device_memcpy(this%Blaglag_d, this%Blag_d, n_bytes, &amp;</div>
+<div class="line"><a id="l01461" name="l01461"></a><span class="lineno"> 1461</span>            device_to_device, sync = .false.)</div>
+<div class="line"><a id="l01462" name="l01462"></a><span class="lineno"> 1462</span> </div>
+<div class="line"><a id="l01463" name="l01463"></a><span class="lineno"> 1463</span>       <span class="keyword">call </span>device_memcpy(this%Blag_d, this%B_d, n_bytes, &amp;</div>
+<div class="line"><a id="l01464" name="l01464"></a><span class="lineno"> 1464</span>            device_to_device, sync = .true.)</div>
+<div class="line"><a id="l01465" name="l01465"></a><span class="lineno"> 1465</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span> </div>
+</div>
+<div class="line"><a id="l01467" name="l01467"></a><span class="lineno"> 1467</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dbe/namespacecoefs.html#a5a2d17b84e74e75b4c2228464a6a5850">coef_update_lagged_mass</a></div>
+<div class="line"><a id="l01468" name="l01468"></a><span class="lineno"> 1468</span> </div>
+<div class="line"><a id="l01469" name="l01469"></a><span class="lineno"> 1469</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00077">device.F90:77</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_a1b615b359ab35faee3c6522857bdac33"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a1b615b359ab35faee3c6522857bdac33">coefs::coef_generate_geo</a></div><div class="ttdeci">subroutine coef_generate_geo(c)</div><div class="ttdoc">Generate geometric data for the given mesh.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00954">coef.f90:955</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_a20a95815e8ab1a9d5e513b959db5c3e7"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a20a95815e8ab1a9d5e513b959db5c3e7">coefs::coef_free</a></div><div class="ttdeci">subroutine coef_free(this)</div><div class="ttdoc">Deallocate coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00424">coef.f90:425</a></div></div>
-<div class="ttc" id="anamespacecoefs_html_a3c508acdffbb2d6dbcc566f978e990f2"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2">coefs::coef_recompute_metrics</a></div><div class="ttdeci">subroutine coef_recompute_metrics(this)</div><div class="ttdoc">Recompute and update geometric factors (ALE)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01374">coef.f90:1375</a></div></div>
+<div class="ttc" id="anamespacecoefs_html_a3c508acdffbb2d6dbcc566f978e990f2"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2">coefs::coef_recompute_metrics</a></div><div class="ttdeci">subroutine coef_recompute_metrics(this)</div><div class="ttdoc">Recompute and update geometric factors (ALE)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01389">coef.f90:1390</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_a3f7f96b151a2f17e768db3d5ad5b12c0"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a3f7f96b151a2f17e768db3d5ad5b12c0">coefs::coef_get_area</a></div><div class="ttdeci">pure real(kind=rp) function coef_get_area(this, i, j, k, e, facet)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01139">coef.f90:1140</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_a4d34532e89acebdb72fddd6f72f8090d"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a4d34532e89acebdb72fddd6f72f8090d">coefs::coef_get_normal</a></div><div class="ttdeci">pure real(kind=rp) function, dimension(3) coef_get_normal(this, i, j, k, e, facet)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01118">coef.f90:1119</a></div></div>
-<div class="ttc" id="anamespacecoefs_html_a5a2d17b84e74e75b4c2228464a6a5850"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a5a2d17b84e74e75b4c2228464a6a5850">coefs::coef_update_lagged_mass</a></div><div class="ttdeci">subroutine coef_update_lagged_mass(this)</div><div class="ttdoc">Update history: Blaglag = Blag, Blag = B.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01426">coef.f90:1427</a></div></div>
+<div class="ttc" id="anamespacecoefs_html_a5a2d17b84e74e75b4c2228464a6a5850"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a5a2d17b84e74e75b4c2228464a6a5850">coefs::coef_update_lagged_mass</a></div><div class="ttdeci">subroutine coef_update_lagged_mass(this)</div><div class="ttdoc">Update history: Blaglag = Blag, Blag = B.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01441">coef.f90:1442</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_a7109166ad05f1f18a62a9b96be52900e"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e">coefs::coef_generate_dxyzdrst</a></div><div class="ttdeci">subroutine coef_generate_dxyzdrst(c)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00768">coef.f90:769</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_aa8326a68db87fc07727e473a8e2dc484"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484">coefs::coef_generate_area_and_normal</a></div><div class="ttdeci">subroutine coef_generate_area_and_normal(coef)</div><div class="ttdoc">Generate facet area and surface normals.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01156">coef.f90:1157</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_ab1645d4837b6a1c84037ca83009d57a2"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#ab1645d4837b6a1c84037ca83009d57a2">coefs::coef_init_empty</a></div><div class="ttdeci">subroutine coef_init_empty(this, xh, msh)</div><div class="ttdoc">Initialize empty coefs for a space and a mesh.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00181">coef.f90:182</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_ab2b9f8dad2fece2b466e7459e04111f8"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8">coefs::coef_init_all</a></div><div class="ttdeci">subroutine coef_init_all(this, gs_h)</div><div class="ttdoc">Initialize coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00227">coef.f90:228</a></div></div>
-<div class="ttc" id="anamespacecoefs_html_abea20332c1a728c0f7a81bbb14aaad21"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21">coefs::coef_enable_lagged_mass</a></div><div class="ttdeci">subroutine coef_enable_lagged_mass(this)</div><div class="ttdoc">Enable separate memory for lagged B matrices if needed. For eg. when mesh moves.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01389">coef.f90:1390</a></div></div>
-<div class="ttc" id="anamespacecoefs_html_ae7ebaa7ea8090c9d2e235ed4fd8e34fa"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coefs::coef_generate_cyclic_bc</a></div><div class="ttdeci">subroutine coef_generate_cyclic_bc(this)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01304">coef.f90:1305</a></div></div>
+<div class="ttc" id="anamespacecoefs_html_abea20332c1a728c0f7a81bbb14aaad21"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21">coefs::coef_enable_lagged_mass</a></div><div class="ttdeci">subroutine coef_enable_lagged_mass(this)</div><div class="ttdoc">Enable separate memory for lagged B matrices if needed. For eg. when mesh moves.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01404">coef.f90:1405</a></div></div>
+<div class="ttc" id="anamespacecoefs_html_ae7ebaa7ea8090c9d2e235ed4fd8e34fa"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa">coefs::coef_generate_cyclic_bc</a></div><div class="ttdeci">subroutine coef_generate_cyclic_bc(this)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01319">coef.f90:1320</a></div></div>
 <div class="ttc" id="anamespacecoefs_html_af4bc052c7d759da9d20f84872216f462"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462">coefs::coef_generate_mass</a></div><div class="ttdeci">subroutine coef_generate_mass(c)</div><div class="ttdoc">Generate mass matrix B for the given mesh and space.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l01076">coef.f90:1077</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a7c785ed9ced1166fa0d1591e62ad5d3d"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">comm::neko_comm</a></div><div class="ttdeci">type(mpi_comm), public neko_comm</div><div class="ttdoc">MPI communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00043">comm.F90:43</a></div></div>
@@ -1621,7 +1636,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../db/d85/coef_8f90.html">coef.f90</a></li>
-    <li class="footer">Generated on Tue Apr 14 2026 04:31:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 15 2026 04:31:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
