@@ -69,13 +69,6 @@
             "output_control": "simulationtime",
             "output_value": 2.0
         },
-        "constants": 
-        [
-          {
-            "name": "strm_update_freq",
-            "value": 25
-            } 
-          ],
         "simulation_components":
         [
             {
