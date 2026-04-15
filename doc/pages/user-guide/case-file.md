@@ -598,8 +598,8 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
  - `z0h`: The characteristic roughness length for heat. If a negative value is given, the roughness length for heat is computed using the formula of Zilitinkevich 1995, with the provided value acting as the constant \f$-A_0\f$ in the Zilitinkevich formula. Defaults to be the same as `z0`.
  - `mu`: The molecular viscosity, defaults to 1e-10.
  - `rho`: The density, defaults to 1.0.
- - `type_of_temp_bc`: Neumann or Dirichlet. If `neumann`, the provided value of `bottom_bc_flux_or_temp` is used directly as the surface heat flux in the computation of the wall stress. If `dirichlet`, the value of `bottom_bc_flux_or_temp` is interpreted as a surface temperature, which is then used to compute a heat flux using the MOST relationship.
- - `bottom_bc_flux_or_temp`: Value of the surface heat flux if `type_of_temp_bc` is `neumann`, or vaue of the surface temperature if `type_of_temp_bc` is `dirichlet`.
+ - `type_of_temp_bc`: Accepted values are the lowercase strings `neumann` or `dirichlet`. If `neumann`, the provided value of `bottom_bc_flux_or_temp` is used directly as the surface heat flux in the computation of the wall stress. If `dirichlet`, the value of `bottom_bc_flux_or_temp` is interpreted as a surface temperature, which is then used to compute a heat flux using the MOST relationship.
+ - `bottom_bc_flux_or_temp`: Value of the surface heat flux if `type_of_temp_bc` is `neumann`, or value of the surface temperature if `type_of_temp_bc` is `dirichlet`.
  - `scalar_field`: The name of the scalar field to be used as the potential temperature in the equations.
  - `time_dependent_temp_bc`: Boolean. If `false` the value of `bottom_bc_flux_or_temp` will be kept constant throughout the simulation. If `true`, the wall model will look for `bc_value` in `neko_const_registry` and assign that value at each time step. The value of `bc_value` can then be updated in the user file, for example in `user_check`.
  <details>
@@ -647,7 +647,7 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
 
 </details>
 
- @attention This wall model uses a Neumann or Dirichlet value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see [Boundary conditions](#boundary-conditions)).
+ @attention This wall model uses a `neumann` or `dirichlet` value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see [Boundary conditions](#boundary-conditions)).
 
   <details>
   <summary><b><u>Example code snippet</u></b></summary>

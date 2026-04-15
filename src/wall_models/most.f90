@@ -295,8 +295,15 @@ contains
          call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
                HOST_TO_DEVICE, sync = .false.)
        end if
+
     end do
 
+    call device_memcpy(this%h_x_idx, this%h_x_idx_d, this%n_nodes, &
+         HOST_TO_DEVICE, sync = .false.)
+    call device_memcpy(this%h_y_idx, this%h_y_idx_d, this%n_nodes, &
+         HOST_TO_DEVICE, sync = .false.)
+    call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
+         HOST_TO_DEVICE, sync = .true.)
   end subroutine most_finalize
 
   !> Constructor from components.
