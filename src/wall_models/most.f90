@@ -123,7 +123,7 @@ contains
     real(kind=rp) :: kappa, z0, z0h_in, Pr
     character(len=:), allocatable :: bc_type
     character(len=:), allocatable :: scalar_name
-    real(kind=rp), pointer :: bc_value
+    real(kind=rp) :: bc_value
     real(kind=rp), allocatable :: g_tmp(:)
     real(kind=rp) :: g(3)
     logical :: if_time_dependent
@@ -148,8 +148,6 @@ contains
 
     if (if_time_dependent) then
       call neko_const_registry%add_real_scalar(bc_value, "bc_value")
-      bc_value => neko_const_registry%get_real_scalar("bc_value")
-      this%bc_value = bc_value
     end if
 
     call json_get_or_lookup(json, "g", g_tmp)
@@ -175,7 +173,6 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: g_tmp(:)
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp), pointer :: bc_value
     logical :: if_time_dependent
 
     call this%partial_init_base(coef, json)
@@ -192,9 +189,7 @@ contains
                              if_time_dependent, .false.)
 
     if (if_time_dependent) then
-      call neko_const_registry%add_real_scalar(bc_value, "bc_value")
-      bc_value => neko_const_registry%get_real_scalar("bc_value")
-      this%bc_value = bc_value
+      call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
     end if
 
 
@@ -438,7 +433,7 @@ contains
     type(field_t), pointer :: v
     type(field_t), pointer :: w
     type(field_t), pointer :: temp
-    real(kind=rp), pointer :: bc_value
+    real(kind=rp), pointer :: updated_bc_value
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
@@ -446,8 +441,8 @@ contains
     temp => neko_registry%get_field(this%scalar_name)
 
     if (neko_const_registry%real_scalar_exists("bc_value")) then
-      bc_value => neko_const_registry%get_real_scalar("bc_value")
-      this%bc_value = bc_value
+      updated_bc_value => neko_const_registry%get_real_scalar("bc_value")
+      this%bc_value = updated_bc_value
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
