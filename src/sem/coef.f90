@@ -969,12 +969,12 @@ contains
             c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
             c%Xh%lx, c%msh%gdim)
 
-!       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync = .false.)
-!       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync = .false.)
-!       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, sync = .false.)
-!       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, sync = .false.)
-!       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, sync = .false.)
-!       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync = .true.)
+       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, sync = .false.)
+        call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync = .true.)
 
     else
        if (c%msh%gdim .eq. 2) then
