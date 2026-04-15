@@ -810,7 +810,6 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    if (s .eq. 0) return
     call device_associate(x, x_d)
 
   end subroutine device_map_r1
@@ -840,7 +839,6 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    if (s .eq. 0) return
     call device_associate(x, x_d)
 
   end subroutine device_map_r2
@@ -870,7 +868,6 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    if (s .eq. 0) return
     call device_associate(x, x_d)
 
   end subroutine device_map_r3
@@ -900,7 +897,6 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    if (s .eq. 0) return
     call device_associate(x, x_d)
 
   end subroutine device_map_r4
