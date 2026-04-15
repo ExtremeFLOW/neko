@@ -56,6 +56,7 @@ module vtkhdf_file
        h5fcreate_f, h5fopen_f, h5fclose_f, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
        h5acreate_f, h5aopen_f, h5awrite_f, h5aread_f, h5aclose_f, h5aexists_f, &
+       h5aopen_by_name_f, &
        h5dcreate_f, h5dopen_f, h5dwrite_f, h5dread_f, h5dclose_f, &
        h5dget_create_plist_f, &
        h5tcopy_f, h5tclose_f, h5tset_strpad_f, h5tset_size_f, &
@@ -1476,7 +1477,6 @@ contains
     integer(hid_t) :: plist_id, file_id, vtkhdf_grp, steps_grp, attr_id
     integer :: ierr, mpi_info, mpi_comm, counter, nsteps
     character(len=1024) :: fname
-    character(len=128) :: errmsg
     type(field_t), pointer :: fld
     logical :: steps_exists
 
@@ -1494,20 +1494,6 @@ contains
 
     call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, ierr, access_prp = plist_id)
     call h5gopen_f(file_id, "VTKHDF", vtkhdf_grp, ierr)
-
-    ! Validate counter against file's NSteps if temporal data exists
-    call h5lexists_f(vtkhdf_grp, "Steps", steps_exists, ierr)
-    if (steps_exists) then
-       call h5aopen_f(vtkhdf_grp, "Steps/NSteps", attr_id, ierr)
-       call h5aread_f(attr_id, H5T_NATIVE_INTEGER, nsteps, [1_hsize_t], ierr)
-       call h5aclose_f(attr_id, ierr)
-
-       if (counter .ge. nsteps) then
-          write(errmsg, '(A,I0,A,I0)') &
-               'VTKHDF read: counter ', counter, ' >= NSteps ', nsteps
-          call neko_error(trim(errmsg))
-       end if
-    end if
 
     select type (data)
     type is (field_t)
@@ -1553,6 +1539,21 @@ contains
     logical :: exists, is_vds
     real(kind=rp), allocatable :: vec_component(:,:)
     integer :: mpi_info, mpi_comm, pct_pos
+    character(len=:), allocatable :: error_message
+
+    ! Validate counter against file's NSteps if temporal data exists
+    call h5lexists_f(vtkhdf_grp, "Steps", steps_exists, ierr)
+    if (steps_exists) then
+       call h5aopen_by_name_f(vtkhdf_grp, "Steps", "NSteps", attr_id, ierr)
+       call h5aread_f(attr_id, H5T_NATIVE_INTEGER, nsteps, [1_hsize_t], ierr)
+       call h5aclose_f(attr_id, ierr)
+
+       if (counter .ge. nsteps) then
+          write(error_message, '(A,I0,A,I0)') &
+               'VTKHDF read: counter ', counter, ' >= NSteps ', nsteps
+          call neko_error(trim(error_message))
+       end if
+    end if
 
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
