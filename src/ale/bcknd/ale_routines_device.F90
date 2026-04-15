@@ -1,5 +1,39 @@
+/*
+ Copyright (c) 2026, The Neko Authors
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+   * Redistributions in binary form must reproduce the above
+     copyright notice, this list of conditions and the following
+     disclaimer in the documentation and/or other materials provided
+     with the distribution.
+
+   * Neither the name of the authors nor the names of its
+     contributors may be used to endorse or promote products derived
+     from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+*/
+
 module ale_routines_device
-  use num_types, only : rp
+  use num_types, only : rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use field_series, only : field_series_t
@@ -28,7 +62,7 @@ module ale_routines_device
   public :: compute_cheap_dist_device
   public :: add_kinematics_to_mesh_velocity_device
   public :: update_ale_mesh_device
-
+  ! DONT FORGET TO CHANGE AND CHECK C_RP INSTEAD OF C_DOUBLE
   type, bind(c) :: kinematics_params_t
     real(c_double) :: cx, cy, cz
     real(c_double) :: vtx, vty, vtz
@@ -58,6 +92,26 @@ module ale_routines_device
       integer(c_int), value :: lx, ly, lz, nel, local_iters
     end subroutine compute_cheap_dist_hip
   end interface
+#elif defined(HAVE_CUDA)
+  interface
+    subroutine add_kinematics_to_mesh_velocity_cuda(wx, wy, wz, &
+         x_ref, y_ref, z_ref, phi, x, y, z, &
+         kin_params, n) bind(c, name="add_kinematics_to_mesh_velocity_cuda")
+      use, intrinsic :: iso_c_binding
+      import :: kinematics_params_t
+      type(c_ptr), value :: wx, wy, wz, x_ref, y_ref, z_ref, phi, x, y, z
+      type(kinematics_params_t), value :: kin_params
+      integer(c_int), value :: n
+    end subroutine add_kinematics_to_mesh_velocity_hip
+  interface
+    subroutine compute_cheap_dist_cuda(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
+         local_iters, nchange_d) bind(c, name="compute_cheap_dist_cuda")
+      use, intrinsic :: iso_c_binding
+      type(c_ptr), value :: d_d, x_d, y_d, z_d, nchange_d
+      integer(c_int), value :: lx, ly, lz, nel, local_iters
+    end subroutine compute_cheap_dist_cuda
+  end interface
+
 #endif
 
 contains
@@ -129,8 +183,11 @@ contains
 #ifdef HAVE_HIP
        call compute_cheap_dist_hip(d_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
             lx, ly, lz, nel, local_iters, nchange_d)
+#elif HAVE_CUDA
+       call compute_cheap_dist_cuda(d_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+            lx, ly, lz, nel, local_iters, nchange_d)
 #else
-       call neko_error("ALE: compute_cheap_dist_device supports only HIP backend currently")
+      call neko_error("ALE: compute_cheap_dist_device supports only HIP or CUDA backends currently")
 #endif
 
        call device_memcpy(change_vec, nchange_d, 1, DEVICE_TO_HOST, .true.)
@@ -194,8 +251,15 @@ contains
          x_ref%x_d, y_ref%x_d, z_ref%x_d, &
          phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, & 
          kin_params, n)
+#elif HAVE_CUDA
+    call add_kinematics_to_mesh_velocity_cuda( &
+         wx%x_d, wy%x_d, wz%x_d, &
+         x_ref%x_d, y_ref%x_d, z_ref%x_d, &
+         phi%x_d, coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, & 
+         kin_params, n)
 #else
-    call neko_error("ALE: add_kinematics_to_mesh_velocity_device so far supports only HIP backend")
+    call neko_error("ALE: add_kinematics_to_mesh_velocity_device " // &
+         "supports only HIP or CUDA backends")
 #endif
 
   end subroutine add_kinematics_to_mesh_velocity_device
