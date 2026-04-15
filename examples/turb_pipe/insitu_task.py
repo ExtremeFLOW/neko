@@ -70,7 +70,7 @@ start_time = MPI.Wtime()
 
 plt.figure("singular_values", figsize = (10,6))
 plt.xlabel("Mode number", fontsize = 14)
-plt.ylabel("Singular values", fontsize = 14)
+plt.ylabel("Singular values (normalized)", fontsize = 14)
 plt.title("Waiting for data from neko...")
 plt.savefig("singular_values.png", dpi = 300)
 plt.title("")
@@ -150,7 +150,10 @@ while stream_data:
     
         if (comm.Get_rank() == 0):
             n = min(pod_keep_modes, len(pod.d_1t)-1)
-            plt.loglog(np.arange(1, n+1), pod.d_1t[1:pod_keep_modes], marker = "o", markerfacecolor="white")
+            plt.loglog(
+                np.arange(1, n+1),
+                pod.d_1t[1:pod_keep_modes] / np.sum(pod.d_1t),
+                marker = "o", markerfacecolor="white")
             plt.savefig("singular_values.png", dpi = 300)
 
 #=========================================
@@ -186,15 +189,12 @@ for j in range(0, pod_write_modes):
 
         ## Split the snapshots into the proper fields
         field_list1d = ioh.split_narray_to_1dfields(pod.u_1t[:,j])
-        u_mode = get_fld_from_ndarray(field_list1d[0], msh.lx, msh.ly, msh.lz, msh.nelv) 
-        v_mode = get_fld_from_ndarray(field_list1d[1], msh.lx, msh.ly, msh.lz, msh.nelv) 
-        w_mode = get_fld_from_ndarray(field_list1d[2], msh.lx, msh.ly, msh.lz, msh.nelv) 
+        fld = FieldRegistry(comm)  
 
-        # write the data
-        fld = FieldRegistry(comm)        
-        fld.add_field(comm, field_name = "u", field = u_mode, dtype = dtype)
-        fld.add_field(comm, field_name = "v", field = v_mode, dtype = dtype)
-        fld.add_field(comm, field_name = "w", field = w_mode, dtype = dtype)
+        for nf in range(number_of_pod_fields):
+            mode = get_fld_from_ndarray(field_list1d[nf], msh.lx, msh.ly, msh.lz, msh.nelv)
+            fld.add_field(comm, field = mode, dtype = dtype)
+
         pynekwrite(f"./modes0.f{str(j).zfill(5)}", comm=comm, msh=msh, fld=fld, wdsz=4, istep = j) 
         
 #=========================================
