@@ -39,7 +39,7 @@
 #include <algorithm>
 
 /**
- * HIP kernel for the rough log-law wall model.
+ * CUDA kernel for the rough log-law wall model.
  */
 template<typename T>
 __global__ void rough_log_law_compute(const T* __restrict__ u_d,
