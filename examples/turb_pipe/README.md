@@ -57,7 +57,6 @@ the user would first need to run a simulation with the standard provided files u
 state is reached. Thereafter, the `insitu` files can be executed.
 
 The files related to insitu execution are:
-- `insitu_turb_pipe.f90` is a new user file that includes the data streaming in the user module.
 - `insitu_turb_pipe_source.case` includes the `data_streamer` simulation 
   component that takes care of streaming the velocity fields.
 - `insitu_task.py` is the python script that performs the insitu POD.
