@@ -599,7 +599,7 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
  - `mu`: The molecular viscosity, defaults to 1e-10.
  - `rho`: The density, defaults to 1.0.
  - `type_of_temp_bc`: Accepted values are the lowercase strings `neumann` or `dirichlet`. If `neumann`, the provided value of `bottom_bc_flux_or_temp` is used directly as the surface heat flux in the computation of the wall stress. If `dirichlet`, the value of `bottom_bc_flux_or_temp` is interpreted as a surface temperature, which is then used to compute a heat flux using the MOST relationship.
- - `bottom_bc_flux_or_temp`: Value of the surface heat flux if `type_of_temp_bc` is `neumann`, or vaue of the surface temperature if `type_of_temp_bc` is `dirichlet`.
+ - `bottom_bc_flux_or_temp`: Value of the surface heat flux if `type_of_temp_bc` is `neumann`, or value of the surface temperature if `type_of_temp_bc` is `dirichlet`.
  - `scalar_field`: The name of the scalar field to be used as the potential temperature in the equations.
 
  @attention This wall model uses a `neumann` or `dirichlet` value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see [Boundary conditions](#boundary-conditions)).
