@@ -80,6 +80,7 @@ module vtkhdf_file
   type, public, extends(generic_file_t) :: vtkhdf_file_t
      logical :: amr_enabled = .false.
      logical :: subdivide = .false.
+     logical :: enable_VDS = .false.
      integer :: precision = -1
    contains
      procedure :: get_vtkhdf_fname => vtkhdf_file_get_fname
