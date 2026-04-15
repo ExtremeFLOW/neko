@@ -51,6 +51,7 @@ module overset_interface_vector
   use device_math, only : device_masked_copy_0, device_copy
   use dofmap, only : dofmap_t
   use vector, only : vector_t
+  use vector_list, only : vector_list_t
   use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
@@ -87,6 +88,7 @@ module overset_interface_vector
      type(vector_t) :: x_dof, y_dof, z_dof
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      type(vector_t) :: u_interface, v_interface, w_interface
+     type(vector_list_t) :: interface_dof, field_interface
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
      
@@ -209,6 +211,8 @@ contains
     call this%bc_w%free()
 
     call this%field_list%free()
+    call this%interface_dof%free()
+    call this%field_interface%free()
 
     call this%x_dof%free()
     call this%y_dof%free()
@@ -382,6 +386,17 @@ contains
     call this%u_interface%init(this%interface_dof_mask%size(), 'u_interface')
     call this%v_interface%init(this%interface_dof_mask%size(), 'v_interface')
     call this%w_interface%init(this%interface_dof_mask%size(), 'w_interface')
+
+    !> Fill the vector lists
+    call this%interface_dof%init(3)
+    call this%interface_dof%assign_to_vector(1, this%x_interface_dof)
+    call this%interface_dof%assign_to_vector(2, this%y_interface_dof)
+    call this%interface_dof%assign_to_vector(3, this%z_interface_dof)
+
+    call this%field_interface%init(3)
+    call this%field_interface%assign_to_vector(1, this%u_interface)
+    call this%field_interface%assign_to_vector(2, this%v_interface)
+    call this%field_interface%assign_to_vector(3, this%w_interface)
 
 
   end subroutine overset_interface_vector_finalize
