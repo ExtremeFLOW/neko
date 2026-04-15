@@ -54,11 +54,11 @@ module phmg
   use interpolation, only : interpolator_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get
-  use math, only : copy, col2, add2, add2s2
+  use math, only : copy, col2, add2, add2s2, add2s1
   use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
        glb_cmd_event
-  use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
-       device_add2s2, device_invcol2, device_glsc2, device_col2
+  use device_math, only : device_rzero, device_copy, device_add2, &
+       device_add2s2, device_invcol2, device_glsc2, device_col2, device_add2s1
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
@@ -384,7 +384,7 @@ contains
            call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
-              call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+              call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg(lvl)%dm_Xh%size())
            else
               w%x = r%x - w%x
            end if
@@ -498,7 +498,7 @@ contains
           call mg%gs_h%op(w%x, n, GS_OP_ADD, glb_cmd_event)
           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
           call mg%bclst%apply_scalar(w%x, n)
-          call device_sub3(w%x_d, r%x_d, w%x_d, n)
+          call device_add2s1(w%x_d, r%x_d, -1.0_rp, n)
 
           call mg%device_jacobi%solve(w%x, w%x, n)
 
@@ -509,9 +509,7 @@ contains
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
           call mg%gs_h%op(w%x, n, GS_OP_ADD)
           call mg%bclst%apply_scalar(w%x, n)
-          do concurrent (j = 1:n)
-             w%x(j,1,1,1) = r%x(j,1,1,1) - w%x(j,1,1,1)
-          end do
+          call add2s1(w%x, r%x, -1.0_rp, n)
 
           call mg%jacobi%solve(w%x, w%x, n)
 
@@ -532,7 +530,7 @@ contains
     call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
     call mg%gs_h%op(w%x, mg%dm_Xh%size(), GS_OP_ADD)
     call mg%bclst%apply_scalar(w%x, mg%dm_Xh%size())
-    call device_sub3(w%x_d, r%x_d, w%x_d, mg%dm_Xh%size())
+    call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg%dm_Xh%size())
     val = device_glsc2(w%x_d, w%x_d, mg%dm_Xh%size())
     if (typ .eq. 1) then
        write(log_buf, '(A15,I4,F12.6)') 'PRESMOO - PRE', lvl, val
