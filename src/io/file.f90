@@ -133,7 +133,7 @@ contains
     case ("vtkhdf")
        allocate(vtkhdf_file_t::this%file_type)
     case default
-       call neko_error('Unknown file format')
+       call neko_error('Unknown file format: "' // trim(suffix) // '"')
     end select
 
     call this%file_type%init(fname)
