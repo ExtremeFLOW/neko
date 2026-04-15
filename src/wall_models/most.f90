@@ -126,6 +126,7 @@ contains
     real(kind=rp), pointer :: bc_value
     real(kind=rp), allocatable :: g_tmp(:)
     real(kind=rp) :: g(3)
+    logical :: if_time_dependent
 
     call json_get_or_lookup_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_lookup_or_default(json, "Pr", Pr, 1.0_rp)
@@ -142,12 +143,14 @@ contains
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
+    call json_get_or_default(json, "time_dependent_temp_bc", &
+                             if_time_dependent, .false.)
 
-    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
-
-    bc_value => neko_const_registry%get_real_scalar("bc_value")
-
-    this%bc_value = bc_value
+    if (if_time_dependent) then
+      call neko_const_registry%add_real_scalar(bc_value, "bc_value")
+      bc_value => neko_const_registry%get_real_scalar("bc_value")
+      this%bc_value = bc_value
+    end if
 
     call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -173,6 +176,7 @@ contains
     real(kind=rp), allocatable :: g_tmp(:)
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), pointer :: bc_value
+    logical :: if_time_dependent
 
     call this%partial_init_base(coef, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
@@ -184,12 +188,15 @@ contains
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get(json, "scalar_field", this%scalar_name)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
+    call json_get_or_default(json, "time_dependent_temp_bc", &
+                             if_time_dependent, .false.)
 
-    call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
+    if (if_time_dependent) then
+      call neko_const_registry%add_real_scalar(bc_value, "bc_value")
+      bc_value => neko_const_registry%get_real_scalar("bc_value")
+      this%bc_value = bc_value
+    end if
 
-    bc_value => neko_const_registry%get_real_scalar("bc_value")
-
-    this%bc_value = bc_value
 
     call json_get_or_lookup(json, "g", g_tmp)
     if (size(g_tmp) == 3) then
@@ -438,8 +445,10 @@ contains
     w => neko_registry%get_field("w")
     temp => neko_registry%get_field(this%scalar_name)
 
-    bc_value => neko_const_registry%get_real_scalar("bc_value")
-    this%bc_value = bc_value
+    if (neko_const_registry%real_scalar_exists("bc_value")) then
+      bc_value => neko_const_registry%get_real_scalar("bc_value")
+      this%bc_value = bc_value
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, &

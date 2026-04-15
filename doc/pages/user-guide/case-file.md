@@ -601,6 +601,51 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
  - `type_of_temp_bc`: Neumann or Dirichlet. If `neumann`, the provided value of `bottom_bc_flux_or_temp` is used directly as the surface heat flux in the computation of the wall stress. If `dirichlet`, the value of `bottom_bc_flux_or_temp` is interpreted as a surface temperature, which is then used to compute a heat flux using the MOST relationship.
  - `bottom_bc_flux_or_temp`: Value of the surface heat flux if `type_of_temp_bc` is `neumann`, or vaue of the surface temperature if `type_of_temp_bc` is `dirichlet`.
  - `scalar_field`: The name of the scalar field to be used as the potential temperature in the equations.
+ - `time_dependent_temp_bc`: Boolean. If `false` the value of `bottom_bc_flux_or_temp` will be kept constant throughout the simulation. If `true`, the wall model will look for `bc_value` in `neko_const_registry` and assign that value at each time step. The value of `bc_value` can then be updated in the user file, for example in `user_check`.
+ <details>
+  <summary><b><u>Example of user file implementation</u></b></summary>
+
+```fortran
+   subroutine user_check(time)
+      type(time_state_t), intent(in) :: time
+      real(kind=rp), pointer :: bc_value
+
+      bc_value => neko_const_registry%get_real_scalar("bc_value")
+
+      bc_value = scalar_bc
+
+   end subroutine user_check
+
+  subroutine dirichlet_update(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+    integer i
+
+      if (fields%items(1)%ptr%name .eq. "temperature") then
+
+       associate(s => fields%items(1)%ptr)
+            do i = 1, bc%msk(0)
+               s%x(bc%msk(i), 1, 1, 1) = scalar_bc(time)
+            end do
+            if (neko_bcknd_device .eq. 1) then
+               call device_memcpy(s%x, s%x_d, s%size(), &
+                     host_to_device, sync=.false.)
+            end if
+         end associate
+      end if
+   end subroutine dirichlet_update
+
+   function scalar_bc(time) result(bc)
+      type(time_state_t), intent(in) :: time
+      real(kind=rp) :: bc
+
+      bc = 265.0_rp - 0.25_rp/3600.0_rp*time%t
+
+   end function scalar_bc
+```
+
+</details>
 
  @attention This wall model uses a Neumann or Dirichlet value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see [Boundary conditions](#boundary-conditions)).
 
@@ -620,6 +665,7 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
     "type_of_temp_bc": "neumann",
     "bottom_bc_flux_or_temp": 0.05,
     "scalar_field": "temperature",
+    "time_dependent_temp_bc": "false",
     "zone_indices": [5],
     "h_index": 1
   }
