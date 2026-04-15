@@ -51,7 +51,7 @@ module brinkman_source_term
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use tri_mesh, only : tri_mesh_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp, dp
+  use num_types, only : rp, dp, sp
   use point_zone, only : point_zone_t
   use point_zone_registry, only : neko_point_zone_registry
   use profiler, only : profiler_start_region, profiler_end_region
@@ -60,9 +60,9 @@ module brinkman_source_term
   use utils, only : neko_error
   use filter, only : filter_t
   use PDE_filter, only : PDE_filter_t
+  use field_output, only : field_output_t
   use fld_file_output, only : fld_file_output_t
   use fld_file_data, only : fld_file_data_t
-  use num_types, only : sp, dp
   use time_state, only : time_state_t
 
   use global_interpolation, only: global_interpolation_t
@@ -78,7 +78,7 @@ module brinkman_source_term
      private
 
      !> The unfiltered indicator field
-     type(field_t), pointer :: indicator_unfiltered
+     type(field_t), pointer :: unfiltered
      !> The value of the source term.
      type(field_t), pointer :: indicator
      !> Brinkman permeability field.
@@ -96,12 +96,13 @@ module brinkman_source_term
      procedure, public, pass(this) :: compute_ => brinkman_source_term_compute
 
      ! ----------------------------------------------------------------------- !
-     ! Private methods
+     ! Internal subroutines for adding a given object type to the Brinkman
+     ! source term
 
-     procedure, pass(this) :: init_boundary_mesh
-     procedure, pass(this) :: init_point_zone
-     procedure, pass(this) :: init_from_file
-     procedure, pass(this) :: init_from_field
+     procedure, pass(this) :: add_boundary_mesh
+     procedure, pass(this) :: add_point_zone
+     procedure, pass(this) :: add_file
+     procedure, pass(this) :: add_field
 
   end type brinkman_source_term_t
 
@@ -136,16 +137,30 @@ contains
     type(json_file) :: object_settings
     integer :: n_regions
     integer :: i
-    type(fld_file_output_t) :: output
+    type(field_output_t) :: output
 
+    logical :: output_enable
+    character(len=:), allocatable :: output_path, output_format, output_precision
+    integer :: precision
+
+    ! ------------------------------------------------------------------------ !
+    ! Read the general options for the Brinkman source term
+
+    call neko_log%section('Brinkman source term')
+
+    ! Read the options for the permeability field
+    call json_get_or_lookup(json, 'limits', brinkman_limits)
+    call json_get_or_lookup(json, 'penalty', brinkman_penalty)
 
     ! Mandatory fields for the general source term
     call json_get_or_lookup_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_lookup_or_default(json, "end_time", end_time, huge(0.0_rp))
 
-    ! Read the options for the permeability field
-    call json_get_or_lookup(json, 'brinkman.limits', brinkman_limits)
-    call json_get_or_lookup(json, 'brinkman.penalty', brinkman_penalty)
+    ! Output settings
+    call json_get_or_default(json, 'output.enable', output_enable, .false.)
+    call json_get_or_default(json, 'output.precision', output_precision, 'sp')
+    call json_get_or_default(json, 'output.path', output_path, './')
+    call json_get_or_default(json, 'output.format', output_format, 'fld')
 
     if (size(brinkman_limits) .ne. 2) then
        call neko_error('brinkman_limits must be a 2 element array of reals')
@@ -158,14 +173,9 @@ contains
     ! Allocate the permeability and indicator field
 
     call neko_registry%add_field(coef%dof, 'brinkman_indicator', .true.)
-    call neko_registry%add_field(coef%dof, 'brinkman_indicator_unfiltered', &
-         .true.)
-    call neko_registry%add_field(coef%dof, 'brinkman_permeability', &
-         .true.)
+    call neko_registry%add_field(coef%dof, 'brinkman_permeability', .true.)
 
     this%indicator => neko_registry%get_field('brinkman_indicator')
-    this%indicator_unfiltered => &
-         neko_registry%get_field('brinkman_indicator_unfiltered')
     this%brinkman => neko_registry%get_field('brinkman_permeability')
 
     ! ------------------------------------------------------------------------ !
@@ -179,13 +189,13 @@ contains
 
        select case (object_type)
        case ('boundary_mesh')
-          call this%init_boundary_mesh(object_settings)
+          call this%add_boundary_mesh(object_settings)
        case ('point_zone')
-          call this%init_point_zone(object_settings)
+          call this%add_point_zone(object_settings)
        case ('field')
-          call this%init_from_field(object_settings)
+          call this%add_field(object_settings)
        case ('file')
-          call this%init_from_file(object_settings)
+          call this%add_file(object_settings)
 
        case ('none')
           call object_settings%print()
@@ -202,33 +212,19 @@ contains
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
     select case (filter_type)
     case ('PDE')
-       ! Initialize the unfiltered design field
-       call this%indicator_unfiltered%init(coef%dof)
+
+       ! Copy the current indicator to unfiltered (essentially a rename)
+       call neko_registry%add_field(coef%dof, 'brinkman_unfiltered', .true.)
+       this%unfiltered => neko_registry%get_field('brinkman_unfiltered')
+       call field_copy(this%unfiltered, this%indicator)
 
        ! Allocate a PDE filter
        allocate(PDE_filter_t::this%filter)
-
-       ! Initialize the filter
        call this%filter%init(json, coef)
-
-       ! Copy the current indicator to unfiltered (essentially a rename)
-       call field_copy(this%indicator_unfiltered, this%indicator)
-
-       ! Apply the filter
-       call this%filter%apply(this%indicator, this%indicator_unfiltered)
-
-       ! Set up sampler to include the unfiltered and filtered fields
-       call output%init(sp, 'brinkman', 3)
-       call output%fields%assign_to_field(1, this%indicator_unfiltered)
-       call output%fields%assign_to_field(2, this%indicator)
-       call output%fields%assign_to_field(3, this%brinkman)
+       call this%filter%apply(this%indicator, this%unfiltered)
 
     case ('none')
-       ! Set up sampler to include the unfiltered field
-       call output%init(sp, 'brinkman', 2)
-       call output%fields%assign_to_field(1, this%indicator)
-       call output%fields%assign_to_field(2, this%brinkman)
-
+       ! Do nothing
     case default
        call neko_error('Brinkman source term unknown filter type')
     end select
@@ -240,18 +236,48 @@ contains
     call permeability_field(this%brinkman, &
          brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
 
-    ! Sample the Brinkman field
-    call output%sample(0.0_rp)
+    ! ------------------------------------------------------------------------ !
+    ! Set up output the brinkman fields if enabled
 
+    if (output_enable) then
+       select case (trim(output_precision))
+       case ('sp', 'single')
+          precision = sp
+       case ('dp', 'double')
+          precision = dp
+       case default
+          call neko_error('Unknown output precision')
+       end select
+
+       if (associated(this%unfiltered)) then
+          call output%init('brinkman', 3, precision, output_path, output_format)
+       else
+          call output%init('brinkman', 2, precision, output_path, output_format)
+       end if
+       call output%fields%assign_to_field(1, this%indicator)
+       call output%fields%assign_to_field(2, this%brinkman)
+
+       call neko_log%message('Brinkman output')
+       call neko_log%message('  1: Indicator')
+       call neko_log%message('  2: Permeability')
+       if (associated(this%unfiltered)) then
+          call output%fields%assign_to_field(3, this%unfiltered)
+          call neko_log%message('  3: Unfiltered Indicator')
+       end if
+       call output%sample()
+       call output%free()
+    end if
+
+    call neko_log%end_section()
   end subroutine brinkman_source_term_init_from_json
 
   !> Destructor.
   subroutine brinkman_source_term_free(this)
     class(brinkman_source_term_t), intent(inout) :: this
 
-    nullify(this%indicator)
-    nullify(this%indicator_unfiltered)
-    nullify(this%brinkman)
+    if (associated(this%indicator)) nullify(this%indicator)
+    if (associated(this%unfiltered)) nullify(this%unfiltered)
+    if (associated(this%brinkman)) nullify(this%brinkman)
 
     if (allocated(this%filter)) then
        call this%filter%free()
@@ -289,7 +315,7 @@ contains
   ! Private methods
 
   !> Initializes the source term from a boundary mesh.
-  subroutine init_boundary_mesh(this, json)
+  subroutine add_boundary_mesh(this, json)
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
 
@@ -492,10 +518,10 @@ contains
 
     call neko_scratch_registry%relinquish(temp_idx)
 
-  end subroutine init_boundary_mesh
+  end subroutine add_boundary_mesh
 
   !> Initializes the source term from a point zone.
-  subroutine init_point_zone(this, json)
+  subroutine add_point_zone(this, json)
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
 
@@ -528,10 +554,10 @@ contains
     call field_pwmax2(this%indicator, temp_field)
 
     call neko_scratch_registry%relinquish(temp_idx)
-  end subroutine init_point_zone
+  end subroutine add_point_zone
 
   !> Initializes the source term from a file.
-  subroutine init_from_file(this, json)
+  subroutine add_file(this, json)
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
 
@@ -556,10 +582,10 @@ contains
     call temp_field%free()
     call file%free()
 
-  end subroutine init_from_file
+  end subroutine add_file
 
   !> Initializes the source term from a field.
-  subroutine init_from_field(this, json)
+  subroutine add_field(this, json)
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: field_name
@@ -574,6 +600,6 @@ contains
 
     if (associated(temp_field)) nullify(temp_field)
 
-  end subroutine init_from_field
+  end subroutine add_field
 
 end module brinkman_source_term
