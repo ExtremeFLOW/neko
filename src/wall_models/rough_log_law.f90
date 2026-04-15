@@ -181,7 +181,7 @@ contains
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
        call neko_error("Roughlog WM: Sampling height h must be greater than roughness z0. " // &
             "Increase h_index or decrease z0.")
-    else if (this%z0 .eq. 0.0_rp) then 
+    else if (this%z0 .eq. 0.0_rp) then
        call neko_error("Roughlog WM: Roughness z0 must be greater than 0.")
     end if
 

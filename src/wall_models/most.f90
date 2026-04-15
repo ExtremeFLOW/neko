@@ -81,7 +81,6 @@ module most
      character(len=:), allocatable :: scalar_name
      !> Diagnostics
      type(vector_t) :: Ri_b, L_ob, utau, magu, ti, ts, q
-   !   integer :: idx(4)
      integer, allocatable :: h_x_idx(:), h_y_idx(:), h_z_idx(:)
      type(c_ptr) :: h_x_idx_d = C_NULL_PTR
      type(c_ptr) :: h_y_idx_d = C_NULL_PTR
@@ -142,7 +141,7 @@ contains
     call json_get_or_lookup_or_default(json, "rho", rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
-   !  call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
+     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
 
     call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
 
@@ -256,44 +255,41 @@ contains
     call device_map(this%h_z_idx, this%h_z_idx_d, this%n_nodes)
 
     do i = 1, this%n_nodes
-      ! linear = this%msk(i)
-      ! idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%ly,&
-      ! this%coef%Xh%lz)
-      fid = this%facet(i)
-      select case (fid)
-      case (1)
-         this%h_x_idx(i) = this%h_index
-         this%h_y_idx(i) = 0
-         this%h_z_idx(i) = 0
-      case (2)
-         this%h_x_idx(i) = - this%h_index
-         this%h_y_idx(i) = 0
-         this%h_z_idx(i) = 0
-      case (3)
-         this%h_x_idx(i) = 0
-         this%h_y_idx(i) = this%h_index
-         this%h_z_idx(i) = 0
-      case (4)
-         this%h_x_idx(i) = 0
-         this%h_y_idx(i) = - this%h_index
-         this%h_z_idx(i) = 0
-      case (5)
-         this%h_x_idx(i) = 0
-         this%h_y_idx(i) = 0
-         this%h_z_idx(i) = this%h_index
-      case (6)
-         this%h_x_idx(i) = 0
-         this%h_y_idx(i) = 0
-         this%h_z_idx(i) = - this%h_index
-      case default
-         call neko_error("The face index is not correct (most.f90)")
-      end select
+       fid = this%facet(i)
+       select case (fid)
+       case (1)
+          this%h_x_idx(i) = this%h_index
+          this%h_y_idx(i) = 0
+          this%h_z_idx(i) = 0
+       case (2)
+          this%h_x_idx(i) = - this%h_index
+          this%h_y_idx(i) = 0
+          this%h_z_idx(i) = 0
+       case (3)
+          this%h_x_idx(i) = 0
+          this%h_y_idx(i) = this%h_index
+          this%h_z_idx(i) = 0
+       case (4)
+          this%h_x_idx(i) = 0
+          this%h_y_idx(i) = - this%h_index
+          this%h_z_idx(i) = 0
+       case (5)
+          this%h_x_idx(i) = 0
+          this%h_y_idx(i) = 0
+          this%h_z_idx(i) = this%h_index
+       case (6)
+          this%h_x_idx(i) = 0
+          this%h_y_idx(i) = 0
+          this%h_z_idx(i) = - this%h_index
+       case default
+          call neko_error("The face index is not correct (most.f90)")
+       end select
 
-      call device_memcpy(this%h_x_idx, this%h_x_idx_d, this%n_nodes, &
+       call device_memcpy(this%h_x_idx, this%h_x_idx_d, this%n_nodes, &
             HOST_TO_DEVICE, sync = .false.)
-      call device_memcpy(this%h_y_idx, this%h_y_idx_d, this%n_nodes, &
+       call device_memcpy(this%h_y_idx, this%h_y_idx_d, this%n_nodes, &
             HOST_TO_DEVICE, sync = .false.)
-      call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
+       call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
             HOST_TO_DEVICE, sync = .false.)
 
     end do
@@ -467,12 +463,12 @@ contains
     end if
 
     call most_log_diagnostics(this%Ri_b, this%L_ob, &
-            this%utau, this%magu, this%ti, this%ts, this%q, &
-            this%n_nodes, this%bc_value)
+         this%utau, this%magu, this%ti, this%ts, this%q, &
+         this%n_nodes, this%bc_value)
   end subroutine most_compute
 
   subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, ts, q, &
-   n_nodes, bc_value)
+       n_nodes, bc_value)
     character(len=LOG_SIZE) :: log_buf
     integer, intent(in) :: n_nodes
     real(kind=rp), intent(in) :: bc_value
@@ -483,38 +479,38 @@ contains
     write(log_buf, '(A)') '--- sum --- ' !min max ---'
     call neko_log%message(trim(log_buf))
     write(log_buf,'(A,3E15.7)') "Ri_b: ",&
-    vector_glsum(Ri_b, n_nodes) !, &
-   !  vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
+         vector_glsum(Ri_b, n_nodes) !, &
+    !  vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "L_ob: ", &
-    vector_glsum(L_ob, n_nodes)!, &
-   !  vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
+         vector_glsum(L_ob, n_nodes)!, &
+    !  vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "utau: ", &
-    vector_glsum(utau, n_nodes)!, &
-   !  vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
+         vector_glsum(utau, n_nodes)!, &
+    !  vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "magu: ", &
-    vector_glsum(magu, n_nodes)!, &
-   !  vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
+         vector_glsum(magu, n_nodes)!, &
+    !  vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "ti: ", &
-    vector_glsum(ti, n_nodes)!, &
-   !  vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
+         vector_glsum(ti, n_nodes)!, &
+    !  vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "ts: ", &
-    vector_glsum(ts, n_nodes)!, &
-   !  vector_glmin(ts, n_nodes), vector_glmax(ts, n_nodes)
+         vector_glsum(ts, n_nodes)!, &
+    !  vector_glmin(ts, n_nodes), vector_glmax(ts, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "q: ", &
-    vector_glsum(q, n_nodes)!, &
-   !  vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
+         vector_glsum(q, n_nodes)!, &
+    !  vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,E15.7)') "bc_value: ", bc_value
@@ -522,7 +518,7 @@ contains
 
     call neko_log%end_section()
 
-end subroutine most_log_diagnostics
+  end subroutine most_log_diagnostics
 
 
 end module most
