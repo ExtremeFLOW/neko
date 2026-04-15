@@ -283,4 +283,154 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
 
 }
 
+/**
+ * Device kernel for coef_generate_mass
+ */
+template <typename T>
+__global__ void coef_generate_mass_kernel(T * __restrict__ B,
+                T * __restrict__ Binv,
+                const T * __restrict__ jac,
+                const T * __restrict__ w3,
+                int lxyz, int nel) {
+
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int n = lxyz * nel;
+
+    if (idx < n) {
+        int local_idx = idx % lxyz;
+
+        T mass_val = jac[idx] * w3[local_idx];
+
+        B[idx] = mass_val;
+        Binv[idx] = mass_val;
+    }
+}
+
+/**
+ * Device kernel for coef_generate_area_and_normal
+ */
+template< typename T, const int LX >
+__global__ void coef_generate_area_and_normal_kernel(
+           T* __restrict__ area,
+           T* __restrict__ nx,
+           T* __restrict__ ny,
+           T* __restrict__ nz,
+           const T* __restrict__ dxdr,
+           const T* __restrict__ dydr,
+           const T* __restrict__ dzdr,
+           const T* __restrict__ dxds,
+           const T* __restrict__ dyds,
+           const T* __restrict__ dzds,
+           const T* __restrict__ dxdt,
+           const T* __restrict__ dydt,
+           const T* __restrict__ dzdt,
+           const T* __restrict__ wx,
+           const T* __restrict__ wy,
+           const T* __restrict__ wz,
+           const T eps) {
+
+  int i, j, k;
+  int f, out_idx;
+  T tx, ty, tz, dot, weight, length, sgn;
+
+  const int e = blockIdx.x;
+  const int iii = threadIdx.x;
+
+  const int lxyz = LX * LX * LX;
+  const int lxy = LX * LX;
+
+  for (int ijk = iii; ijk < lxyz; ijk += blockDim.x) {
+
+    const int jk = ijk / LX;
+    i = ijk - jk * LX;
+    k = jk / LX;
+    j = jk - k * LX;
+
+    const int offset = ijk + (e * lxyz);
+    const int face_offset = e * lxy * 6;
+
+    // ds x dt
+    if (i == 0 || i == LX - 1) {
+      tx = dyds[offset] * dzdt[offset] - dzds[offset] * dydt[offset];
+      ty = dzds[offset] * dxdt[offset] - dxds[offset] * dzdt[offset];
+      tz = dxds[offset] * dydt[offset] - dyds[offset] * dxdt[offset];
+
+      dot = tx*tx + ty*ty + tz*tz;
+      length = sqrt(dot);
+      weight = wy[j] * wz[k];
+
+      f = (i == 0) ? 0 : 1;
+      out_idx = j + (k * LX) + (f * lxy) + face_offset;
+      sgn = (i == 0) ? -1.0 : 1.0;
+
+      area[out_idx] = length * weight;
+
+      if (length > eps) {
+        nx[out_idx] = (tx / length) * sgn;
+        ny[out_idx] = (ty / length) * sgn;
+        nz[out_idx] = (tz / length) * sgn;
+      } else {
+        nx[out_idx] = tx * sgn;
+        ny[out_idx] = ty * sgn;
+        nz[out_idx] = tz * sgn;
+      }
+    }
+
+    // dr x dt
+    if (j == 0 || j == LX - 1) {
+      tx = dydr[offset] * dzdt[offset] - dzdr[offset] * dydt[offset];
+      ty = dzdr[offset] * dxdt[offset] - dxdr[offset] * dzdt[offset];
+      tz = dxdr[offset] * dydt[offset] - dydr[offset] * dxdt[offset];
+
+      dot = tx*tx + ty*ty + tz*tz;
+      length = sqrt(dot);
+      weight = wx[i] * wz[k];
+
+      f = (j == 0) ? 2 : 3;
+      out_idx = i + (k * LX) + (f * lxy) + face_offset;
+      sgn = (j == 0) ? 1.0 : -1.0;
+
+      area[out_idx] = length * weight;
+
+      if (length > eps) {
+        nx[out_idx] = (tx / length) * sgn;
+        ny[out_idx] = (ty / length) * sgn;
+        nz[out_idx] = (tz / length) * sgn;
+      } else {
+        nx[out_idx] = tx * sgn;
+        ny[out_idx] = ty * sgn;
+        nz[out_idx] = tz * sgn;
+      }
+    }
+
+    // dr x ds
+    if (k == 0 || k == LX - 1) {
+      tx = dydr[offset] * dzds[offset] - dzdr[offset] * dyds[offset];
+      ty = dzdr[offset] * dxds[offset] - dxdr[offset] * dzds[offset];
+      tz = dxdr[offset] * dyds[offset] - dydr[offset] * dxds[offset];
+
+      dot = tx*tx + ty*ty + tz*tz;
+      length = sqrt(dot);
+      weight = wx[i] * wy[j];
+
+      f = (k == 0) ? 4 : 5;
+      out_idx = i + (j * LX) + (f * lxy) + face_offset;
+      sgn = (k == 0) ? -1.0 : 1.0;
+
+      area[out_idx] = length * weight;
+
+      if (length > eps) {
+        nx[out_idx] = (tx / length) * sgn;
+        ny[out_idx] = (ty / length) * sgn;
+        nz[out_idx] = (tz / length) * sgn;
+      } else {
+        nx[out_idx] = tx * sgn;
+        ny[out_idx] = ty * sgn;
+        nz[out_idx] = tz * sgn;
+      }
+    }
+  }
+}
+
+
 #endif // __SEM_COEF_KERNEL_H__
