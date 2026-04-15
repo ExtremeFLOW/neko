@@ -9,7 +9,7 @@
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50.0,
         "time": {
-            "end_time": 200.0,
+            "end_time": 100.0,
             "variable_timestep": true,
             "target_cfl": 0.5,
             "max_timestep": 1e-1
@@ -74,7 +74,7 @@
         [
           {
             "name": "strm_update_freq",
-            "value": 25
+            "value": 50
             } 
           ],
         "simulation_components":
@@ -101,9 +101,9 @@
             },
             {
                 "type": "fluid_stats",
-                "output_control": "simulationtime",
+                "output_control": "never",
                 "output_value": 10.0,
-                "start_time": 50.0,
+                "start_time": 20.0,
                 "compute_control": "tsteps",
                 "compute_value": "strm_update_freq",
                 "avg_direction": "z",

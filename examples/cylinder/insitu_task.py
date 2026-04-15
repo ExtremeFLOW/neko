@@ -39,29 +39,14 @@ from pysemtools.io.adios2.stream import DataStreamer
 from pysemtools.io.utils import get_fld_from_ndarray
 from pysemtools.datatypes.msh import Mesh
 from pysemtools.interpolation.probes import Probes
+from pysemtools.monitoring.logger import Logger
+log = Logger(comm=comm, module_name="cylinder_insitu_task")
 
 import json
 
 #=========================================
 # Define some helper functions
 #=========================================
-
-def init_mesh_from_adios2(x, y, z, ds: DataStreamer):
-    """
-    Initialize a Mesh object from coordinates and 
-    """
-    msh = Mesh(comm, x = x, y = y, z = z)
-    msh.lx = ds.lx
-    msh.ly = ds.ly
-    msh.lz = ds.lz
-    msh.gdim = ds.gdim 
-    msh.nelv = ds.nelv
-    msh.glb_nelv = ds.glb_nelv
-    return msh
-
-def log(msg):
-    if comm.Get_rank() == 0:
-        print("[INFO]", msg)
 
 def get_output_directory(fname):
     with open(fname, 'r') as f:
@@ -90,7 +75,7 @@ def init_plot(save_output_path):
     cbar.set_label("z-vorticity")
 
     # Set colorbar for averaged x-velocity
-    norm = colors.Normalize(vmin=-0.4, vmax=1.0)
+    norm = colors.Normalize(vmin=-0.2, vmax=1.0)
     cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap='viridis'),
                          ax = axs[2])
     cbar.set_label("avg. x-velocity")
@@ -98,9 +83,6 @@ def init_plot(save_output_path):
     fig.suptitle("Waiting to receive data from neko...")
     fname = join(save_output_path, "cylinder_insitu_00000.png")
     fig.savefig(fname, dpi = 200)
-    fname = "cylinder_insitu_latest.png"
-    fig.savefig(fname, dpi = 100)
-    log("Initializing probes... done")
 
     return fig, axs
 
@@ -108,7 +90,7 @@ def init_plot(save_output_path):
 # Define some variables/parameters
 #=========================================
 
-log("Python - insitu - reading inputs")
+log.write("info", "Starting insitu task")
 
 dtype_string = "double"
 backend = "numpy"
@@ -118,28 +100,28 @@ else:
     dtype = np.float64
 
 output_path = get_output_directory("cylinder_insitu.case")
-log(f"Outputting insitu snapshots to folder {output_path}")
+log.write("info", f"Outputting insitu snapshots to folder {output_path}")
 
 #=========================================
 # Initialize the streamer
 #=========================================
 
-log("Python - insitu - Initializing streamer")
+log.write("info", "Initializing streamer")
 ds = DataStreamer(comm)
 
 #=========================================
 # Stream the mesh coordinates to build interpolators
 #=========================================
 
-log("Receiving mesh...")
+log.write("info", "Receiving mesh...")
 x = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
 y = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
 z = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-log("Data received")
+log.write("info", "Data received")
 
-log("Initializing mesh...")
-msh = init_mesh_from_adios2(x, y, z, ds)
-log("Initializing mesh... done")
+log.write("info", "Initializing mesh...")
+msh = Mesh(comm, x = x, y = y, z = z)
+log.write("info", "Initializing mesh... done")
 
 #=========================================
 # Initialize the structured probes data
@@ -166,7 +148,7 @@ if comm.Get_rank() == 0:
 else:
     xyz = None
 
-log("Initializing probes...")
+log.write("info", "Initializing probes...")
 pb = Probes(comm, msh=msh, write_coords=False, probes = xyz)
 
 #=========================================
@@ -184,12 +166,12 @@ stream_data = True
 j = 0
 while stream_data:
 
-    log("Waiting for data from Neko...")
+    log.write("info", "Waiting for data from Neko...")
     # Get the data
     u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
     curl_z = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
     avg_u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-    log("Data received")
+    log.write("info", "Data received")
 
     # Check if data was recieved or if the stream ended
     if ds.step_status == adios2.StepStatus.OK:
@@ -212,26 +194,23 @@ while stream_data:
         avg_probe = pb.interpolated_fields[:,3].reshape((N,N,1)).squeeze()
 
         fig.suptitle(f"time step {j}")
-        log("Plotting probes...")
+        log.write("info", "Plotting fields")
         axs[0].contourf(X, Y, u_probe, levels = 40, norm=colors.Normalize(vmin=-0.4, vmax=1.4))
         axs[1].contourf(X, Y, curl_probe, levels = 40, cmap = "bwr", norm=colors.Normalize(vmin=-4.0, vmax=4.0))
-        axs[2].contourf(X, Y, avg_probe, levels = 40, norm=colors.Normalize(vmin=-0.4, vmax=1.0))
+        axs[2].contourf(X, Y, avg_probe, levels = 40, norm=colors.Normalize(vmin=-0.2, vmax=1.0))
         if j == 0: 
             fig.tight_layout()
 
-        log("Saving probes...")
         fname = join(output_path, f"cylinder_insitu_{j:05d}.png")
+        log.write("info", f"Saving snapshot to {fname}")
         fig.savefig(fname, dpi = 200)
-        fname = "cylinder_insitu_latest.png"
-        fig.savefig(fname, dpi = 100)
-        log("Saving probes... done")
 
     j += 1
 
 
-log("Detected stream ended")
+log.write("info", "Detected stream ended")
 
 # Finalize the streamer
-log("Finalizing streamer...")
+log.write("info", "Finalizing streamer")
 ds.finalize()
-log("Done...")
+log.write("info", "Done!")
