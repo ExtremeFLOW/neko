@@ -480,41 +480,41 @@ contains
     type(vector_t), intent(in) :: magu, ti, ts, q
 
     call neko_log%section("Wall model diagnostics")
-    write(log_buf, '(A)') '--- sum min max ---'
+    write(log_buf, '(A)') '--- sum --- ' !min max ---'
     call neko_log%message(trim(log_buf))
     write(log_buf,'(A,3E15.7)') "Ri_b: ",&
-    vector_glsum(Ri_b, n_nodes), &
-    vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
+    vector_glsum(Ri_b, n_nodes) !, &
+   !  vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "L_ob: ", &
-    vector_glsum(L_ob, n_nodes), &
-    vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
+    vector_glsum(L_ob, n_nodes)!, &
+   !  vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "utau: ", &
-    vector_glsum(utau, n_nodes), &
-    vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
+    vector_glsum(utau, n_nodes)!, &
+   !  vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "magu: ", &
-    vector_glsum(magu, n_nodes), &
-    vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
+    vector_glsum(magu, n_nodes)!, &
+   !  vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "ti: ", &
-    vector_glsum(ti, n_nodes), &
-    vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
+    vector_glsum(ti, n_nodes)!, &
+   !  vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "ts: ", &
-    vector_glsum(ts, n_nodes), &
-    vector_glmin(ts, n_nodes), vector_glmax(ts, n_nodes)
+    vector_glsum(ts, n_nodes)!, &
+   !  vector_glmin(ts, n_nodes), vector_glmax(ts, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,3E15.7)') "q: ", &
-    vector_glsum(q, n_nodes), &
-    vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
+    vector_glsum(q, n_nodes)!, &
+   !  vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
 
     write(log_buf,'(A,E15.7)') "bc_value: ", bc_value
