@@ -156,7 +156,7 @@ contains
     integer :: i
     type(field_t), pointer :: f
 
-    if (time%t >= this%start_time) then
+    if (time%t .ge. this%start_time) then
        do i = 1, size(this%field_names)
 
           ! Sync from GPU to CPU
