@@ -130,14 +130,14 @@ contains
 
     call json_get_or_lookup_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_lookup_or_default(json, "Pr", Pr, 1.0_rp)
-    call json_get_or_lookup_or_default(json, "z0", z0, 0.1_rp)
+    call json_get_or_lookup(json, "z0", z0)
     ! If z0h is specified and positive, z0h will be constant and equal to
     ! what's specified in the case file.
     ! If z0h is specified and negative, the Zilitinkevich 1995 formulation
     ! is used, with the specified value acting as -C_Zil.
-    ! If z0h is to specified, assign default value of -0.8,
+    ! If z0h is not specified, assign default value of -0.8,
     ! corresponding to the Zilitinkevich constant value used in Zilitinkevich 1995.
-    call json_get_or_lookup_or_default(json, "z0h", z0h_in, -0.8_rp)
+    call json_get_or_lookup_or_default(json, "z0h", z0h_in, z0)
     call json_get_or_lookup_or_default(json, "mu", mu_val, 1e-10_rp)
     call json_get_or_lookup_or_default(json, "rho", rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
@@ -178,8 +178,8 @@ contains
     call this%partial_init_base(coef, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
-    call json_get_or_lookup_or_default(json, "z0", this%z0, 0.1_rp)
-    call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, -0.8_rp)
+    call json_get_or_lookup(json, "z0", this%z0)
+    call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, this%z0)
     call json_get_or_lookup_or_default(json, "mu", this%mu_val, 1e-10_rp)
     call json_get_or_lookup_or_default(json, "rho", this%rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
