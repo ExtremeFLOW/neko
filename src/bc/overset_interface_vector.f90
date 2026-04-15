@@ -88,7 +88,7 @@ module overset_interface_vector
      type(vector_t) :: x_dof, y_dof, z_dof
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      type(vector_t) :: u_interface, v_interface, w_interface
-     type(vector_list_t) :: interface_dof, field_interface
+     type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
      
@@ -212,7 +212,7 @@ contains
 
     call this%field_list%free()
     call this%interface_dof%free()
-    call this%field_interface%free()
+    call this%interface_field%free()
 
     call this%x_dof%free()
     call this%y_dof%free()
@@ -393,10 +393,10 @@ contains
     call this%interface_dof%assign_to_vector(2, this%y_interface_dof)
     call this%interface_dof%assign_to_vector(3, this%z_interface_dof)
 
-    call this%field_interface%init(3)
-    call this%field_interface%assign_to_vector(1, this%u_interface)
-    call this%field_interface%assign_to_vector(2, this%v_interface)
-    call this%field_interface%assign_to_vector(3, this%w_interface)
+    call this%interface_field%init(3)
+    call this%interface_field%assign_to_vector(1, this%u_interface)
+    call this%interface_field%assign_to_vector(2, this%v_interface)
+    call this%interface_field%assign_to_vector(3, this%w_interface)
 
 
   end subroutine overset_interface_vector_finalize
@@ -409,7 +409,10 @@ contains
 
 
     !> Change the coordinates of the interface if set up by the user
-    call this%morph_interface(time)
+    call this%morph_interface(this%interface_dof, this%interface_field, this%interface_dof_mask, time, this%name)
+    if (this%y_interface_dof%size() .gt. 0) then
+      write(*,*) "the new coord is: ", this%y_interface_dof%x(1)
+    end if
 
     !> Update in sub-step 1 should be an extrapolation of the boundary values
     ! not implemented for now

@@ -77,7 +77,7 @@ module overset_interface
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      !> Interpolated scalar values on the interface.
      type(vector_t) :: s_interface
-     type(vector_list_t) :: interface_dof, field_interface
+     type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
 
@@ -114,9 +114,14 @@ module overset_interface
   end type overset_interface_t
 
     abstract interface
-     subroutine morph_overset_interface(time)
-       import time_state_t
+     subroutine morph_overset_interface(interface_dof, interface_field, &
+                                                      interface_mask, time, bc_name)
+       import vector_list_t, mask_t, time_state_t
+       type(vector_list_t), intent(inout) :: interface_dof
+       type(vector_list_t), intent(inout) :: interface_field
+       type(mask_t), intent(in) :: interface_mask
        type(time_state_t), intent(in) :: time
+       character(len=*), intent(in) :: bc_name
      end subroutine morph_overset_interface
   end interface
 
@@ -197,7 +202,7 @@ contains
     call this%bc_s%free()
     call this%field_list%free()
     call this%interface_dof%free()
-    call this%field_interface%free()
+    call this%interface_field%free()
 
     call this%x_dof%free()
     call this%y_dof%free()
@@ -345,8 +350,8 @@ contains
     call this%interface_dof%assign_to_vector(2, this%y_interface_dof)
     call this%interface_dof%assign_to_vector(3, this%z_interface_dof)
 
-    call this%field_interface%init(1)
-    call this%field_interface%assign_to_vector(1, this%s_interface)
+    call this%interface_field%init(1)
+    call this%interface_field%assign_to_vector(1, this%s_interface)
 
   end subroutine overset_interface_finalize
 
@@ -357,7 +362,7 @@ contains
     type(field_t), pointer :: s
     
     !> Change the coordinates of the interface if set up by the user
-    call this%morph_interface(time)
+    call this%morph_interface(this%interface_dof, this%interface_field, this%interface_dof_mask, time, this%name)
 
     s => neko_registry%get_field(trim(this%field_name))
 

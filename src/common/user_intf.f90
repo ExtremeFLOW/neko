@@ -34,6 +34,8 @@
 module user_intf
   use field, only : field_t
   use field_list, only : field_list_t
+  use vector_list, only : vector_list_t
+  use mask, only : mask_t
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
@@ -450,8 +452,13 @@ contains
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_material_properties
   
-  subroutine dummy_morph_overset_interface(time)
+  subroutine dummy_morph_overset_interface(interface_dof, interface_field, &
+                                                   interface_mask, time, bc_name)
+    type(vector_list_t), intent(inout) :: interface_dof
+    type(vector_list_t), intent(inout) :: interface_field
+    type(mask_t), intent(in) :: interface_mask
     type(time_state_t), intent(in) :: time
+    character(len=*), intent(in) :: bc_name
   end subroutine dummy_morph_overset_interface
 
 end module user_intf
