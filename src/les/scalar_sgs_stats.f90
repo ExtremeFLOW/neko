@@ -93,18 +93,18 @@ contains
   !> Constructor. Initialize the fields associated with scalar_sgs_stats.
   !> This version uses alphat directly.
   !! @param coef SEM coefficients. Optional.
-  !! @param s The scalar.
+  !! @param s_name The name of the scalar field.
   !! @param alphat_field Specifies the name of the alphat field.
-  subroutine scalar_sgs_stats_init_alphat(this, coef, s, alphat_field)
+  subroutine scalar_sgs_stats_init_alphat(this, coef, s_name, alphat_field)
     class(scalar_sgs_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
-    type(field_t), target, intent(in) :: s
+    character(len=*), intent(in) :: s_name
     character(len=*), intent(in) :: alphat_field
 
     call this%free()
     this%coef => coef
 
-    this%s => s
+    this%s => neko_registry%get_field(s_name)
     this%alphat => neko_registry%get_field(alphat_field)
     this%nut_dependency = .false.
 
@@ -114,9 +114,9 @@ contains
     ! Initialize mean fields
     call this%alphat_mean%init(this%alphat)
 
-    call this%alphatdsdx%init(this%stats_work, 'alphatdsdx')
-    call this%alphatdsdy%init(this%stats_work, 'alphatdsdy')
-    call this%alphatdsdz%init(this%stats_work, 'alphatdsdz')
+    call this%alphatdsdx%init(this%stats_work, trim(s_name) // 'alphatdsdx')
+    call this%alphatdsdy%init(this%stats_work, trim(s_name) // 'alphatdsdy')
+    call this%alphatdsdz%init(this%stats_work, trim(s_name) // 'alphatdsdz')
 
     allocate(this%stat_fields%items(this%n_stats))
 
@@ -130,26 +130,26 @@ contains
   !> Constructor. Initialize the fields associated with scalar_sgs_stats.
   !> This version uses nut field and turbulent Prandtl number.
   !! @param coef SEM coefficients. Optional.
-  !! @param s The scalar.
+  !! @param s_name The name of the scalar field.
   !! @param nut_field Specifies the name of the nut field.
   !! @param pr_turb Turbulent Prandtl number.
-  subroutine scalar_sgs_stats_init_nut(this, coef, s, nut_field, pr_turb)
+  subroutine scalar_sgs_stats_init_nut(this, coef, s_name, nut_field, pr_turb)
     class(scalar_sgs_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
-    type(field_t), target, intent(in) :: s
+    character(len=*), intent(in) :: s_name
     character(len=*), intent(in) :: nut_field
     real(kind=rp), intent(in) :: pr_turb
 
     call this%free()
     this%coef => coef
 
-    this%s => s
+    this%s => neko_registry%get_field(s_name)
     this%nut => neko_registry%get_field(nut_field)
     this%pr_turb = pr_turb
     this%nut_dependency = .true.
 
     allocate(this%alphat)
-    call this%alphat%init(this%nut%dof, 'alphat_temp')
+    call this%alphat%init(this%nut%dof, trim(s_name) // 'alphat_temp')
 
     ! Initialize work fields
     call this%stats_work%init(this%s%dof, 'stats')
@@ -157,9 +157,9 @@ contains
     ! Initialize mean fields
     call this%alphat_mean%init(this%alphat)
 
-    call this%alphatdsdx%init(this%stats_work, 'alphatdsdx')
-    call this%alphatdsdy%init(this%stats_work, 'alphatdsdy')
-    call this%alphatdsdz%init(this%stats_work, 'alphatdsdz')
+    call this%alphatdsdx%init(this%stats_work, trim(s_name) // 'alphatdsdx')
+    call this%alphatdsdy%init(this%stats_work, trim(s_name) // 'alphatdsdy')
+    call this%alphatdsdz%init(this%stats_work, trim(s_name) // 'alphatdsdz')
 
     allocate(this%stat_fields%items(this%n_stats))
 

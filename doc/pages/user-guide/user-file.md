@@ -279,7 +279,8 @@ user functions are:
 | ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------|
 | Initial conditions            | [initial_conditions](@ref user-file_user-ic)                    | `case.fluid.initial_condition` or `case.scalar.initial_condition` |
 | Source terms                  | [source_term](@ref user-file_user-f)                            | `case.fluid.source_terms` or  `case.scalar.source_terms`          |
-| Dirichlet boundary conditions | [dirichlet_conditions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_types` or `case.scalar.boundary_types`       |
+| Dirichlet boundary conditions | [dirichlet_conditions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_conditions` or `case.scalar.boundary_conditions` |
+| Neumann boundary conditions   | [neumann_conditions](@ref user-file_field-neumann-update)       | `case.scalar.boundary_conditions`                                 |
 
 @note For the sake of simplicity, we refer to the setup with one scalar, i.e.
 `case.scalar` in the JSON. For multiple scalars, the same things apply, but the
@@ -576,11 +577,11 @@ for the velocity components and presure. The scalar is applied a function
 `s(y,z) = sin(y)*sin(z)` to demonstrate the usage of boundary masks.
 
 @attention The notation `u = 1.0_rp` is only possible because of the overloading
-of the assignement operator `=` in `field_t`. In general, a field's array should
+of the assignment operator `=` in `field_t`. In general, a field's array should
 be accessed and modified with `u%%x`.
 
 Note that we are only applying our boundary values at the first timestep, which
-is done simply with the line `if (time%tstep .ne. 1) return`. This is a trick
+is done simply with the line `if (time%%tstep .ne. 1) return`. This is a trick
 that can be used for time-independent boundary profiles that require some kind
 of time consuming operation like interpolation or reading from a file, which
 would add overhead if executed at every time step.
@@ -588,6 +589,289 @@ would add overhead if executed at every time step.
 @attention All the rules for [Running on GPUs](@ref
 user-file_tips_running-on-gpus) apply when working on field arrays. Use
 `device_memcpy` to make sure the device arrays are also updated.
+
+### Neumann boundary conditions {#user-file_field-neumann-update}
+This user function can be used to specify Neumann boundary values for 
+the scalar(s). This type of boundary condition allows for time-dependent 
+scalar flux over the surface.
+
+The user routine is called by the `user` boundary condition for the scalar.
+Once the appropriate boundaries have been identified, the user function
+`neumann_conditions` should be used to compute and apply the desired values to
+our scalar field(s).
+
+The structure of the interface is very similar to e.g. the initial conditions.
+One gets a list of solution fields, the contents of which depends on which 
+scalar owns the boundary condition. 
+A single field with the same name as the solution field for
+the scalar (`s` by default).
+
+It is crucial to understand that all boundary conditions will call the same
+routine! So, if one has, for example, both `user` for two scalars, 
+it is necessary to have an `if` statement in the user
+routine to distinguish between the two cases. The convenient way to do that is
+to check the names of the fields inside.
+For example, if there is one field and it is called `s0`, one executes the code
+setting the boundary values for the scalar `s0`.
+
+Note that the fields that one manipulates in the user routine are not the actual
+scalar fields. Instead, the code does a masked copy from the dummy fields
+manipulated in the user routine to the actual fields of unknowns, with the mask
+corresponding to the boundary faces. So, even if you somehow manipulate the
+fields elsewhere in the domain inside the user routine, that will not affect the
+solution. For the Neumann boundary conditions, in particular, the field that one
+manipulates is actually the flux on the boundaries, which means all internal
+points should be dummy. 
+
+In the following example, we indicate in `case.scalar.boundary_conditions`, 
+the flux to be `sin(t)` and `-sin(t)` for the scalar on boundaries 1 and 2.
+
+The header of the user function is given in the code snippet below.
+
+```fortran
+  subroutine neumann_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+```
+
+The arguments and their purpose are as follows:
+
+* `fields` is the list of the fields that can be edited. It is a list of
+`field_t` objects.
+  * The field `i` contained in `fields` is accessed using
+  `fields%%items(i)%%ptr` and will refer to a `field_t` object. Alternatively,
+  one can use the `get` method to retrieve a field by name or index, as done in
+  the examples above for other routines.
+* `bc` contains a `field_neumann_t` object to help access the boundary indices
+  through the boundary mask, `msk`.
+  * The boundary mask of the `bc `object is accessed via `bc%%msk`. It contains
+  the linear indices of each GLL point on the boundary facets. @note
+  `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
+* `time`, is a simple structure that contains various info on time stepping,
+  notably, the current time iteration and time value.
+
+Links to the documentation to learn more about what the types mentioned above
+contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`.
+
+The user function should be registered in `user_setup` with the following line:
+
+```fortran
+u%neumann_conditions => neumann_conditions
+```
+
+A very simple example illustrating the above is shown below.
+```fortran
+  subroutine neumann_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+
+    type(field_t), pointer :: s_flux
+    integer :: i
+    real(kind=rp) :: t
+
+    s_flux => fields%get_by_name("s")
+    t = time%t
+    if (bc%zone_indices(1) == 1) then
+       do i = 1, bc%msk(0)
+          s_flux%x(bc%msk(i), 1, 1, 1) = sin(t)
+       end do
+    else if (bc%zone_indices(1) == 2) then
+       do i = 1, bc%msk(0)
+          s_flux%x(bc%msk(i), 1, 1, 1) = -sin(t)
+       end do
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(s_flux%x, s_flux%x_d, s_flux%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+
+  end subroutine neumann_conditions
+```
+
+## Arbitrary Lagrangian-Eulerian (ALE) user functions {#user-file_ale}
+
+When using the Arbitrary Lagrangian-Eulerian (ALE) framework for simulating moving meshes and boundaries, Neko allows users to explicitly define custom mesh velocities, base shapes, and rigid body kinematics. 
+
+These functions must be registered inside your `user_setup` subroutine in exactly the same way as the standard functions described above:
+
+```fortran
+  ! Register ALE user functions
+  user%ale_rigid_kinematics => user_ale_rigid_kinematics
+  user%ale_mesh_velocity => user_ale_mesh_velocity
+  user%ale_base_shapes => user_ale_base_shapes
+```
+
+### Custom rigid body motion {#user-file_ale-rigid_motion}
+
+The interface `ale_rigid_kinematics` allows you to implement a custom time-dependent **rigid body motion** amplitude for a particular body. The `Double_ocyl_cylinder` example shows the usage of this interface.
+
+@note This user subroutine is called after applying the rigid body motions defined in the case file. This means the subroutine can be used for both superimposing or overriding the kinematics set from the case file. The following examples illustrate this point.
+
+> **Example** (Superimpose):
+```fortran
+ subroutine user_rigid_kinematics(body_id, time, vel_trans, vel_ang)
+   integer, intent(in) :: body_id
+   type(time_state_t), intent(in) :: time
+   real(kind=rp), intent(inout) :: vel_trans(3)
+   real(kind=rp), intent(inout) :: vel_ang(3)
+   real(kind=rp) :: t
+
+   t = time%t
+
+   select case (body_id)
+   case (1) ! First registered body in ALE section in case file.
+
+      ! Amplitude for x motion
+      vel_trans(1) = vel_trans(1) + Your_custom_Translational_Motion
+
+      ! Amplitude for rotation around z
+      vel_ang(3) = vel_ang(3) + Your_custom_Rotational_Motion
+
+   end select
+ end subroutine user_rigid_kinematics
+```
+
+> **Example** (Override):
+```fortran
+ subroutine user_rigid_kinematics(body_id, time, vel_trans, vel_ang)
+   integer, intent(in) :: body_id
+   type(time_state_t), intent(in) :: time
+   real(kind=rp), intent(inout) :: vel_trans(3)
+   real(kind=rp), intent(inout) :: vel_ang(3)
+   real(kind=rp) :: t
+
+   t = time%t
+
+   select case (body_id)
+   case (1) ! First registered body in ALE section in case file.
+
+      ! Amplitude for x motion
+      vel_trans(1) = Your_custom_Translational_Motion
+
+      ! Amplitude for rotation around z
+      vel_ang(3) = Your_custom_Rotational_Motion
+
+   end select
+ end subroutine user_rigid_kinematics
+```
+
+Any motion defined based on `vel_trans` will be applied as an amplitude of translational velocity, whereas any motion defined by `vel_ang` will be the amplitude of angular velocity for that body. In the second example above (override), any motion set in the case file will be completely overridden by the custom motions.
+
+@attention `body_id` is defined based on the order in which the bodies are registered in the `"ale.bodies"` array in the case file.
+
+@note The `ale_rigid_kinematics` interface does not require the `base_shape` fields (see [here](#case-file_fluid-ale-solver) to read more about `base_shape` in Neko). The code will automatically apply the correct base shape fields to the motion based on the `body_id`.
+
+
+### Mesh Velocity {#user-file_ale-mesh-velocity}
+
+The interface `ale_mesh_velocity` allows you to implement a custom subroutine to directly manipulate the mesh velocity fields (`wm_x`, `wm_y`, `wm_z`). This is the only way to create custom surface deformation, e.g., time-dependent surface indentation.
+
+The following example illustrates how to apply a time-dependent surface indentation for a channel flow.
+
+```fortran
+module user
+  use neko
+  implicit none
+
+contains
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+
+    ! Register ALE mesh velocity 
+    user%ale_mesh_velocity => user_indentation_motion
+
+  end subroutine user_setup
+
+  subroutine user_indentation_motion(wm_x, wm_y, wm_z, coef, &
+       x_ref, y_ref, z_ref, base_shapes, time)
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(field_t), intent(in) :: x_ref, y_ref, z_ref
+    type(field_t), intent(in) :: base_shapes(:)
+    type(time_state_t), intent(in) :: time
+      
+    integer :: i
+    real(kind=rp) :: t, x_dist, half_width
+    real(kind=rp) :: omega_ind
+    real(kind=rp) :: h_t, arg, u_tanh, uy
+    real(kind=rp) :: phi_top, phi_bot
+
+    ! freq
+    real(kind=rp) :: indent_freq   = 0.05_rp 
+    ! The middle point of the indentation on x-axis
+    real(kind=rp) :: indent_center = 20.0_rp 
+    ! The total width of the indentation
+    real(kind=rp) :: indent_width  = 4.0_rp 
+    ! Amplitude of the indentation
+    real(kind=rp) :: indent_height = 0.25_rp
+    ! Sharpness of the edge
+    ! Higher = square box, Lower = smooth hill
+    real(kind=rp) :: sharpness     = 4.0_rp 
+      
+    t = time%t
+
+    ! omega
+    omega_ind = indent_freq * 2.0_rp * pi
+
+    h_t = indent_height * omega_ind * cos(omega_ind * t)
+     
+    half_width = 0.5_rp * indent_width
+
+    do i = 1, coef%dof%size()
+               
+       ! Calculate Distance based on INITIAL mesh coordinates
+       x_dist = abs(x_ref%x(i,1,1,1)  - indent_center)
+
+       ! If distance > half_width, arg becomes positive and tanh goes to 1 -> u_tanh goes to 0
+       arg  = sharpness * (x_dist - half_width)
+       u_tanh = 0.5_rp * (1.0_rp - tanh(arg))
+        
+       uy  = h_t * u_tanh
+
+       ! phi for bottom surface. body_ID = 1, since it's the first body registered in ale.bodies
+       phi_bot = base_shapes(1)%x(i,1,1,1)
+
+       ! phi for top surface. body_ID = 2
+       phi_top = base_shapes(2)%x(i,1,1,1)
+
+       wm_y%x(i,1,1,1) = wm_y%x(i,1,1,1) - ((0.5_rp*uy) * phi_top) + (uy * phi_bot)
+     
+    end do
+      
+  end subroutine user_indentation_motion
+end module user
+```
+@warning This user subroutine is called at the very end of the mesh velocity calculation. This means that any modification to the mesh velocity in this subroutine will affect all motions applied earlier. `wm_y%%x(i,1,1,1) = wm_y%%x(i,1,1,1) + Your_Custom_Mesh_velocity` will superimpose on **all** previously set mesh motions, whereas `wm_y%%x(i,1,1,1) = Your_Custom_Mesh_velocity` will completely override any motion set earlier.
+
+@attention Even though it is logically possible to apply rigid body motion to an object using a custom `ale_mesh_velocity` subroutine, it **should not** be used for this purpose. Doing so bypasses several internal steps, causing computations regarding the pivot (see [this section](#case-file_fluid-ale-pivot)) and consequently rigid body calculations to be wrong. Always use the `ale_rigid_kinematics` interface for rigid body motion.
+
+@note Since `user_indentation_motion` subroutine directly manipulates the global mesh velocity fields, the computed mesh velocity should be multiplied by the corresponding `base_shape` for that body (see the example above).
+
+### Custom Base Shapes {#user-file_ale-base-shapes}
+
+The interface `ale_base_shapes` allows you to implement a user subroutine to define your own custom base shape fields for ALE mesh movements.
+
+> **Example:**
+```fortran
+  subroutine user_base_shapes(base_shapes)
+    type(field_t), intent(inout) :: base_shapes(:)
+
+    ! Fix the motion of the first ALE body (body_id = 1)
+    base_shapes(1) = 0.0_rp
+    
+    ! Apply the motion of the second ALE body (body_id = 2) to the entire domain
+    base_shapes(2) = 1.0_rp 
+      
+  end subroutine user_base_shapes
+```
+
+The example above will suppress the mesh deformation associated with the first ALE body and apply the rigid body motion of ALE body 2 to the entire domain (including the inlet, outlet, and any other boundaries).
+
+@note If this user subroutine is utilized, it is the user's responsibility to verify that the total base shape field (\f$ \phi_{total} \f$) remains strictly bounded between 0.0 and 1.0.
+
 
 ## Additional remarks and tips
 

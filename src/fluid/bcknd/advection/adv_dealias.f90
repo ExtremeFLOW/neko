@@ -41,6 +41,7 @@ module adv_dealias
   use device_math, only : device_vdot3, device_sub2
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
        NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
+  use utils, only : neko_error
   use operators, only : opgrad
   use interpolation, only : interpolator_t
   use device, only : device_map, device_get_ptr, device_free
@@ -88,6 +89,10 @@ module adv_dealias
      !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
      !! the RHS.
      procedure, pass(this) :: compute_scalar => compute_scalar_advection_dealias
+     !> Add the advection term in ALE framework.
+     procedure, pass(this) :: compute_ale => compute_ale_advection_dealias
+     !> Update any metrics needed for the advection computation in ALE.
+     procedure, pass(this) :: recompute_metrics => recompute_metrics_dealias
      !> Constructor
      procedure, pass(this) :: init => init_dealias
      !> Destructor
@@ -305,7 +310,7 @@ contains
          call sub2(fz%x, this%temp, n)
 
       else
-
+         !$omp parallel do private(e, i, idx)
          do e = 1, coef%msh%nelv
             call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
@@ -337,6 +342,7 @@ contains
                fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) - tempz(i+1)
             end do
          end do
+         !$omp end parallel do
       end if
     end associate
 
@@ -422,6 +428,7 @@ contains
          call sub2(fs%x, this%temp, n)
 
       else
+         !$omp parallel do private (e, i, idx)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity onto the higher-order space
             call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
@@ -446,9 +453,164 @@ contains
 
             call sub2(fs%x(idx, 1, 1, 1), temp, this%Xh_GLL%lxyz)
          end do
+         !$omp end parallel do
       end if
     end associate
 
   end subroutine compute_scalar_advection_dealias
+
+
+  !!> Add the advection term in ALE framework.
+  !! @param this The object.
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param wm_x The x component of mesh velocity.
+  !! @param wm_y The y component of mesh velocity.
+  !! @param wm_z The z component of mesh velocity.
+  !! @param fx The x component of source term.
+  !! @param fy The y component of source term.
+  !! @param fz The z component of source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  !! @param dt Current time-step, not required for this method.
+  !! Here, we compute: - div ( u_i * wm ).
+  !! Based on Ho, L.W. A Legendre spectral element method for simulation of incompressible
+  !! unsteady viscous free-surface flows.
+  !! Ph.D. thesis, Massachusetts Institute of Technology, 1989.
+  !! Note: In Nek5000, dealiasing is not done for this term.
+  subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+       fx, fy, fz, Xh, coef, n, dt)
+    class(adv_dealias_t), intent(inout) :: this
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(field_t), intent(inout) :: fx, fy, fz
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: wm_x_GL, wm_y_GL, wm_z_GL
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: flux_GL
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: grad_x, grad_y, grad_z
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: total_div_GL
+    integer :: e, i, idx, nel, n_GL
+    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: temp_x, temp_y, temp_z
+    integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
+
+    nel = coef%msh%nelv
+    n_GL = nel * this%Xh_GL%lxyz
+
+    associate(c_GL => this%coef_GL)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call neko_error("ALE advection with dealiasing not " // &
+              "implemented yet for device")
+      else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
+         call neko_error("ALE advection with dealiasing not " // &
+              "implemented yet for device")
+      else
+         !$omp parallel do private(e, i, flux_GL, total_div_GL, idx)
+         do e = 1, coef%msh%nelv
+            ! Map advecting velocity and mesh velocity onto the higher-order space
+            call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(wm_x_GL, wm_x%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(wm_y_GL, wm_y%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(wm_z_GL, wm_z%x(1,1,1,e), 1, this%Xh_GL)
+
+            ! x-momentum
+            total_div_GL = 0.0_rp
+            ! I think below can be written more efficiently. Will fix it later.
+            ! This works for now.
+
+            ! div(u * wm_*) = d/dx (u * wm_x) + d/dy (u * wm_y) + d/dz (u * wm_z)
+
+            flux_GL = vx_GL * wm_x_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_x
+            flux_GL = vx_GL * wm_y_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_y
+            flux_GL = vx_GL * wm_z_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_z
+
+            ! Map back the contructed operator to the original space
+            call this%GLL_to_GL%map(temp_x, total_div_GL, 1, this%Xh_GLL)
+
+            ! y-momentum
+            total_div_GL = 0.0_rp
+            ! div(v * wm_*) = d/dx (v * wm_x) + d/dy (v * wm_y) + d/dz (v * wm_z)
+
+            flux_GL = vy_GL * wm_x_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_x
+            flux_GL = vy_GL * wm_y_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_y
+            flux_GL = vy_GL * wm_z_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_z
+
+            ! Map back the contructed operator to the original space
+            call this%GLL_to_GL%map(temp_y, total_div_GL, 1, this%Xh_GLL)
+
+            ! z-momentum
+            total_div_GL = 0.0_rp
+            ! div(w * wm_*) = d/dx (w * wm_x) + d/dy (w * wm_y) + d/dz (w * wm_z)
+
+            flux_GL = vz_GL * wm_x_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_x
+            flux_GL = vz_GL * wm_y_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_y
+            flux_GL = vz_GL * wm_z_GL
+            call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
+            total_div_GL = total_div_GL + grad_z
+
+            ! Map back the contructed operator to the original space
+            call this%GLL_to_GL%map(temp_z, total_div_GL, 1, this%Xh_GLL)
+
+            ! Note we add (+) here since the ALE advection term is
+            ! - div(u * wm) on the LHS. So on the RHS it will be + div(u * wm)
+
+            idx = (e-1)*this%Xh_GLL%lxyz+1
+            do concurrent (i = 0:this%Xh_GLL%lxyz-1)
+               fx%x(i+idx,1,1,1) = fx%x(i+idx,1,1,1) + temp_x(i+1)
+               fy%x(i+idx,1,1,1) = fy%x(i+idx,1,1,1) + temp_y(i+1)
+               fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) + temp_z(i+1)
+            end do
+         end do
+         !$omp end parallel do
+      end if
+    end associate
+
+  end subroutine compute_ale_advection_dealias
+
+  subroutine recompute_metrics_dealias(this, coef, moving_boundary)
+    class(adv_dealias_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    logical, intent(in) :: moving_boundary
+    integer :: nel
+
+    if (.not. moving_boundary) return
+
+    nel = coef%msh%nelv
+    call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
+
+    call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
+
+    call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+
+  end subroutine recompute_metrics_dealias
+
 
 end module adv_dealias

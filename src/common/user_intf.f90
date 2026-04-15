@@ -38,6 +38,7 @@ module user_intf
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
   use field_dirichlet, only : field_dirichlet_update
+  use field_neumann, only : field_neumann_update
   use num_types, only : rp
   use json_module, only : json_file
   use json_utils, only : json_extract_item, json_get, json_get_or_default
@@ -45,6 +46,7 @@ module user_intf
   use logger, only : neko_log
   use bc, only : bc_t
   use field_dirichlet, only : field_dirichlet_t
+  use field_neumann, only : field_neumann_t
   use time_state, only : time_state_t
   implicit none
   private
@@ -137,6 +139,50 @@ module user_intf
      end subroutine user_material_properties_intf
   end interface
 
+  !> Abstract interface for user defined ALE mesh velocity.
+  !! @param wm_x, wm_y, wm_z The mesh velocity components in x, y, and z.
+  !! @param x_ref, y_ref, z_ref The reference grid point coordinates in x, y, and z.
+  !! @param coef Coef object.
+  !! @param base_shapes Array of fields representing the base shapes.
+  !! @param time The time state.
+  abstract interface
+     subroutine user_ale_mesh_velocity_intf(wm_x, wm_y, wm_z, coef, &
+          x_ref, y_ref, z_ref, base_shapes, time)
+       import field_t, time_state_t, coef_t
+       type(coef_t), intent(in) :: coef
+       type(field_t), intent(in) :: x_ref, y_ref, z_ref
+       type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+       type(field_t), intent(in) :: base_shapes(:)
+       type(time_state_t), intent(in) :: time
+     end subroutine user_ale_mesh_velocity_intf
+  end interface
+
+  !> Abstract interface for user defined ALE base shapes.
+  !! @param base_shapes Array of fields to be populated with user-defined base shape.
+  abstract interface
+     subroutine user_ale_base_shapes_intf(base_shapes)
+       import field_t
+       type(field_t), intent(inout) :: base_shapes(:)
+     end subroutine user_ale_base_shapes_intf
+  end interface
+
+  !> Abstract interface for user defined ALE rigid body kinematics.
+  !! @param body_id The unique ALE body_ID for the rigid body.
+  !! @param time The time state.
+  !! @param vel_trans The translational velocity vector (x, y, z).
+  !! @param vel_ang The angular velocity vector (x, y, z).
+  abstract interface
+     subroutine user_ale_rigid_kinematics_intf(body_id, time, &
+          vel_trans, vel_ang)
+       import rp, time_state_t
+       integer, intent(in) :: body_id
+       type(time_state_t), intent(in) :: time
+       real(kind=rp), intent(inout) :: vel_trans(3)
+       real(kind=rp), intent(inout) :: vel_ang(3)
+     end subroutine user_ale_rigid_kinematics_intf
+  end interface
+
+
   !> A type collecting all the overridable user routines and flag to suppress
   !! type injection from custom modules.
   type, public :: user_t
@@ -171,9 +217,18 @@ module user_intf
      !! (much more powerful than pointwise in terms of what can be done).
      procedure(field_dirichlet_update), nopass, pointer :: &
           dirichlet_conditions => null()
+     !> User neumann condition for scalar problems, field interface.
+     procedure(field_neumann_update), nopass, pointer :: &
+          neumann_conditions => null()
      !> Routine to set material properties.
      procedure(user_material_properties_intf), nopass, pointer :: &
           material_properties => null()
+     procedure(user_ale_mesh_velocity_intf), nopass, pointer :: &
+          ale_mesh_velocity => null()
+     procedure(user_ale_rigid_kinematics_intf), nopass, pointer :: &
+          ale_rigid_kinematics => null()
+     procedure(user_ale_base_shapes_intf), nopass, pointer :: &
+          ale_base_shapes => null()
    contains
      !> Constructor that points non-associated routines to dummy ones.
      !! Calling a dummy routine causes an error in most cases, but sometimes
@@ -188,7 +243,9 @@ module user_intf
   public :: user_initial_conditions_intf, user_initialize_intf, &
        user_mesh_setup_intf, dummy_user_material_properties, &
        user_material_properties_intf, user_finalize_intf, &
-       user_startup_intf, user_source_term_intf
+       user_startup_intf, user_source_term_intf, &
+       user_ale_mesh_velocity_intf, user_ale_base_shapes_intf, &
+       user_ale_rigid_kinematics_intf
 contains
 
   !> Constructor.
@@ -229,6 +286,14 @@ contains
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- Dirichlet boundary condition'
+    end if
+
+    if (.not. associated(this%neumann_conditions)) then
+       this%neumann_conditions => neumann_do_nothing
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Neumann boundary condition'
     end if
 
     if (.not. associated(this%mesh_setup)) then
@@ -277,6 +342,24 @@ contains
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- Material properties'
+    end if
+
+    if (associated(this%ale_mesh_velocity)) then
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- ALE mesh velocity'
+    end if
+
+    if (associated(this%ale_rigid_kinematics)) then
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- ALE kinematics'
+    end if
+
+    if (associated(this%ale_base_shapes)) then
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- ALE base shapes'
     end if
 
     if (user_extended) then
@@ -343,11 +426,16 @@ contains
     type(time_state_t), intent(in) :: time
   end subroutine dirichlet_do_nothing
 
+  subroutine neumann_do_nothing(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_neumann_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+  end subroutine neumann_do_nothing
+
   subroutine dummy_user_material_properties(scheme_name, properties, time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: properties
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_material_properties
-
 
 end module user_intf
