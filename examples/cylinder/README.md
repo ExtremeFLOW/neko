@@ -31,7 +31,7 @@ There are some dependencies for this to work:
 - PySEMTools must be installed, as the python script relies heavily on it.
 - `numpy`, `matplotlib`
 
-A successful execution of this example should will generate a set of `png`
+A successful execution of this example will generate a set of `png`
 images (total size ~38MB) in the `output_directory`, currently set to 
 `"results_insitu"`. Below is a visualization of the snapshots compiled with
 `ffmpeg`. 
