@@ -1529,21 +1529,22 @@ contains
 
     integer :: ierr, local_points, total_points, point_offset, component
     integer(hid_t) :: pointdata_grp, dset_id, filespace, memspace, xf_id
-    integer(hid_t) :: dcpl_id, ext_file_id, ext_plist_id
+    integer(hid_t) :: dcpl_id, ext_file_id, ext_plist_id, attr_id
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(1) :: dcount1, doffset1
     integer(hsize_t), dimension(2) :: dcount2, doffset2
+
     integer(size_t) :: vds_count
     character(len=128) :: dset_name
     character(len=1024) :: vds_src_file, ext_fname, main_path, main_name, main_suffix
     logical :: exists, is_vds
     real(kind=rp), allocatable :: vec_component(:,:)
-    integer :: mpi_info, mpi_comm, pct_pos
+    integer :: mpi_info, mpi_comm, pct_pos, nsteps
     character(len=:), allocatable :: error_message
 
     ! Validate counter against file's NSteps if temporal data exists
-    call h5lexists_f(vtkhdf_grp, "Steps", steps_exists, ierr)
-    if (steps_exists) then
+    call h5lexists_f(vtkhdf_grp, "Steps", exists, ierr)
+    if (exists) then
        call h5aopen_by_name_f(vtkhdf_grp, "Steps", "NSteps", attr_id, ierr)
        call h5aread_f(attr_id, H5T_NATIVE_INTEGER, nsteps, [1_hsize_t], ierr)
        call h5aclose_f(attr_id, ierr)
