@@ -977,10 +977,10 @@ contains
 
              if (is_vector) then
                 pd_dims2 = [3_hsize_t, &
-                     int((counter + 1) * total_points, hsize_t)]
+                     int(counter + 1, hsize_t) * int(total_points, hsize_t)]
                 call h5dset_extent_f(dset_id, pd_dims2, ierr)
              else
-                pd_dims1 = int((counter + 1) * total_points, hsize_t)
+                pd_dims1 = int(counter + 1, hsize_t) * int(total_points, hsize_t)
                 call h5dset_extent_f(dset_id, pd_dims1, ierr)
              end if
 
