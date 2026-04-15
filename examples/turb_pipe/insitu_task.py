@@ -172,6 +172,14 @@ else:
     ioh.log.write("warning","Data must be updated now to not lose anything,  Performing an update with data in buffer ")
     pod.update(comm, buff = ioh.buff[:,:(ioh.buffer_index)])
 
+    if (comm.Get_rank() == 0):
+        n = min(pod_keep_modes, len(pod.d_1t)-1)
+        plt.loglog(
+            np.arange(1, n+1),
+            pod.d_1t[1:pod_keep_modes] / np.sum(pod.d_1t),
+            marker = "o", markerfacecolor="white")
+        plt.savefig("singular_values.png", dpi = 300)
+
 # Scale back the modes
 pod.scale_modes(comm, bm1sqrt = ioh.bm1sqrt, op = "div")
 
@@ -182,6 +190,7 @@ pod.rotate_local_modes_to_global(comm)
 # Write out the modes
 #=========================================
 
+field_names = ["u", "v", "w"]
 # Write the data out
 for j in range(0, pod_write_modes):
 
@@ -193,7 +202,10 @@ for j in range(0, pod_write_modes):
 
         for nf in range(number_of_pod_fields):
             mode = get_fld_from_ndarray(field_list1d[nf], msh.lx, msh.ly, msh.lz, msh.nelv)
-            fld.add_field(comm, field = mode, dtype = dtype)
+            fld.add_field(comm,
+                          field = mode,
+                          dtype = dtype,
+                          field_name=field_names[nf])
 
         pynekwrite(f"./modes0.f{str(j).zfill(5)}", comm=comm, msh=msh, fld=fld, wdsz=4, istep = j) 
         
