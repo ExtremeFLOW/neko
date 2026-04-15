@@ -510,7 +510,7 @@ contains
           call mg%gs_h%op(w%x, n, GS_OP_ADD)
           call mg%bclst%apply_scalar(w%x, n)
           do concurrent (j = 1:n)
-             w%x(i,1,1,1) = r%x(i,1,1,1) - w%x(i,1,1,1)
+             w%x(j,1,1,1) = r%x(j,1,1,1) - w%x(j,1,1,1)
           end do
 
           call mg%jacobi%solve(w%x, w%x, n)
