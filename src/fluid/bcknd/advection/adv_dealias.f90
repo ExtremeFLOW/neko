@@ -509,34 +509,29 @@ contains
          call this%GLL_to_GL%map(this%vs, wm_y%x, nel, this%Xh_GL)
          call this%GLL_to_GL%map(this%vt, wm_z%x, nel, this%Xh_GL)
 
-         ! --- X-Momentum ---
+         ! --------------------- X-Momentum
          ! Fx = vx * wm_x
          call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
-         ! opgrad outputs: X-deriv to tz, Y-deriv to tx, Z-deriv to ty
          call opgrad(this%tz, this%tx, this%ty, this%temp, c_GL)
 
          ! Fy = vx * wm_y
          call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vs_d, n_GL)
-         ! opgrad outputs: X-deriv to tx, Y-deriv to tbf, Z-deriv to ty
          call opgrad(this%tx, this%tbf, this%ty, this%temp, c_GL)
-         ! Accumulate Y-deriv (tbf) into total divergence (tz)
          call device_add2(this%tz_d, this%tbf_d, n_GL)
 
          ! Fz = vx * wm_z
          call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vt_d, n_GL)
-         ! opgrad outputs: X-deriv to tx, Y-deriv to ty, Z-deriv to tbf
          call opgrad(this%tx, this%ty, this%tbf, this%temp, c_GL)
-         ! Accumulate Z-deriv (tbf) into total divergence (tz)
          call device_add2(this%tz_d, this%tbf_d, n_GL)
 
          ! Map strong divergence (tz) back to GLL space and add to RHS
          call this%GLL_to_GL%map(this%temp, this%tz, nel, this%Xh_GLL)
          call device_add2(fx%x_d, this%temp_d, n)
 
-         ! --- Y-Momentum ---
+         ! --------------------- Y-Momentum
          ! Fx = vy * wm_x
          call this%GLL_to_GL%map(this%temp, vy%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
@@ -557,7 +552,7 @@ contains
          call this%GLL_to_GL%map(this%temp, this%tz, nel, this%Xh_GLL)
          call device_add2(fy%x_d, this%temp_d, n)
 
-         ! --- Z-Momentum ---
+         ! --------------------- Z-Momentum
          ! Fx = wz * wm_x
          call this%GLL_to_GL%map(this%temp, vz%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
@@ -589,11 +584,10 @@ contains
             call this%GLL_to_GL%map(wm_y_GL, wm_y%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(wm_z_GL, wm_z%x(1,1,1,e), 1, this%Xh_GL)
 
-            ! x-momentum
-            total_div_GL = 0.0_rp
             ! I think below can be written more efficiently. Will fix it later.
             ! This works for now.
-
+            ! --------------------- X-Momentum
+            total_div_GL = 0.0_rp
             ! div(u * wm_*) = d/dx (u * wm_x) + d/dy (u * wm_y) + d/dz (u * wm_z)
 
             flux_GL = vx_GL * wm_x_GL
@@ -606,10 +600,10 @@ contains
             call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
             total_div_GL = total_div_GL + grad_z
 
-            ! Map back the contructed operator to the original space
+            ! Map back the constructed operator to the original space
             call this%GLL_to_GL%map(temp_x, total_div_GL, 1, this%Xh_GLL)
 
-            ! y-momentum
+            ! --------------------- Y-Momentum
             total_div_GL = 0.0_rp
             ! div(v * wm_*) = d/dx (v * wm_x) + d/dy (v * wm_y) + d/dz (v * wm_z)
 
@@ -623,10 +617,10 @@ contains
             call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
             total_div_GL = total_div_GL + grad_z
 
-            ! Map back the contructed operator to the original space
+            ! Map back the constructed operator to the original space
             call this%GLL_to_GL%map(temp_y, total_div_GL, 1, this%Xh_GLL)
 
-            ! z-momentum
+            ! --------------------- Z-Momentum
             total_div_GL = 0.0_rp
             ! div(w * wm_*) = d/dx (w * wm_x) + d/dy (w * wm_y) + d/dz (w * wm_z)
 
@@ -640,7 +634,7 @@ contains
             call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
             total_div_GL = total_div_GL + grad_z
 
-            ! Map back the contructed operator to the original space
+            ! Map back the constructed operator to the original space
             call this%GLL_to_GL%map(temp_z, total_div_GL, 1, this%Xh_GLL)
 
             ! Note we add (+) here since the ALE advection term is
