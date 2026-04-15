@@ -310,7 +310,7 @@ contains
          call sub2(fz%x, this%temp, n)
 
       else
-
+         !$omp parallel do private(e, i, idx)
          do e = 1, coef%msh%nelv
             call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
@@ -342,6 +342,7 @@ contains
                fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) - tempz(i+1)
             end do
          end do
+         !$omp end parallel do
       end if
     end associate
 
@@ -427,6 +428,7 @@ contains
          call sub2(fs%x, this%temp, n)
 
       else
+         !$omp parallel do private (e, i, idx)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity onto the higher-order space
             call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
@@ -451,6 +453,7 @@ contains
 
             call sub2(fs%x(idx, 1, 1, 1), temp, this%Xh_GLL%lxyz)
          end do
+         !$omp end parallel do
       end if
     end associate
 
@@ -506,6 +509,7 @@ contains
          call neko_error("ALE advection with dealiasing not " // &
               "implemented yet for device")
       else
+         !$omp parallel do private(e, i, flux_GL, total_div_GL, idx)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity and mesh velocity onto the higher-order space
             call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
@@ -579,6 +583,7 @@ contains
                fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) + temp_z(i+1)
             end do
          end do
+         !$omp end parallel do
       end if
     end associate
 
