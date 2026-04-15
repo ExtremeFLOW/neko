@@ -6,6 +6,7 @@ module hypre
   use hypre_boomeramg
   use hypre_ij_interface
   use coefs, only : coef_t
+  use comm, only: pe_rank
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -247,6 +248,9 @@ contains
             do j = 1, lx
                do i = 1, lx
 
+                 ! Hacky if statement to support 2 mpi ranks (more not supported).
+                 ! NOTE: Periodic BC not supported on 2 mpi ranks.
+                 if((pe_rank .eq. 0).or.(.not. coef%dof%shared_dof(i,j,k,e))) then
                   do s = 1, lx
                      tmp2 = 0.0_rp
                      do l = 1, lx
@@ -282,19 +286,26 @@ contains
                      A_cols(idof) = coef%dof%dof(i,j,s,e)
                      idof = idof + 1
                   end do
+                 end if
+
                end do
             end do
          end do
       end do ! e = 1, n
     end associate
+    ! Update nnz based on how many nonzeros were filled (counting duplicates)
+    nnz = idof - 1
     ! Get index range of dofs on current rank
     ! TODO: For MPI parallelism, duplicated dofs need to be assigned
     !       to a single "owning" rank, which is currently not supported
     !       by the current neko dofmap
-    ilower = minval(A_rows)
-    iupper = maxval(A_rows)
-    jlower = minval(A_cols)
-    jupper = maxval(A_cols)
+    ilower = minval(A_rows(1:nnz))
+    iupper = maxval(A_rows(1:nnz))
+    jlower = ilower
+    jupper = iupper
+    !jlower = minval(A_cols(1:nnz))
+    !jupper = maxval(A_cols(1:nnz))
+    print *, "RANK", pe_rank, "ilower", ilower, "iupper", iupper, "jlower", jlower, "jupper", jupper
 
     ! Initialize matrix
     call hypre_matrix_init(1, ilower, iupper, jlower, jupper, A)
@@ -319,11 +330,11 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(rows, tmp_rows_d, nrows)
        call device_map(ncols,  ncol_d, nrows)
-       call device_map(cols, tmp_cols_d, idof)
-       call device_map(vals, tmp_vals_d, idof)
+       call device_map(cols, tmp_cols_d, nnz)
+       call device_map(vals, tmp_vals_d, nnz)
        call device_memcpy( rows, tmp_rows_d, nrows, HOST_TO_DEVICE, .true.)
-       call device_memcpy( cols, tmp_cols_d, idof, HOST_TO_DEVICE, .true.)
-       call device_memcpy( vals, tmp_vals_d, idof, HOST_TO_DEVICE, .true.)
+       call device_memcpy( cols, tmp_cols_d, nnz, HOST_TO_DEVICE, .true.)
+       call device_memcpy( vals, tmp_vals_d, nnz, HOST_TO_DEVICE, .true.)
        call device_memcpy( ncols, ncol_d, nrows, HOST_TO_DEVICE, .true.)
        call hypre_device_matrix_update(A, nrows, ncol_d, tmp_rows_d, tmp_cols_d, tmp_vals_d)
     else
