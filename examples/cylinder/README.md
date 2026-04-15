@@ -9,32 +9,44 @@ Included files:
 - neko .nmsh file (converted from gmsh-re2-nmsh)
 - case file
 
-## Insitu data processing
+# In-situ data processing
 
-For this example, we have also added some files, named `insitu_*` that can be used
-for insitu data processing, i.e., treat the data while the simulation runs.
+For this example, we also show how to perform in-situ data processing, i.e., 
+manipulating data sent from the Neko simulation while it is running.
 
-In this particular case we perform proper orthogonal decomposition (POD). For this purpose,
-the user would first need to run a simulation with the standard provided files until the steady
-state is reached. Thereafter, the `insitu` files can be executed.
+In this particular case, three different fields are streamed and interpolated
+on a 2D structured grid for visualization using `matplotlib`. The files related to insitu execution are:
+- `cylinder_insitu.case` includes the `data_streamer` simulation component, 
+  as well as a constant `strm_data_freq` constant which dictates how 
+  frequently data should be sent. Not that other relevant simcomps use this
+  parameter such that they are only computed when required.
+- `insitu_task.py` is the python script that performs the in-situ
+  data processing.
 
-The files related to insitu execution are:
-- `insitu_turb_pipe.f90` is a new user file that includes the data streaming in the user module.
-- `turb_pipe.case` includes a parameter `istream` that controls the data-stream frequency.
-- `insitu_task.py` is the python script that performs the insitu POD.
-
-There are some dependecies for this to work:
-- Neko must be installed with `Adios2` support such that data can be transferred to python.
+There are some dependencies for this to work:
+- Neko must be installed with `Adios2` support (`--with-adios2=DIR`) such 
+  that data can be transferred to python.
+  @note pySEMTools provides installation wrappers for `adios2` and `mpi4py` 
+  as third party libraries. 
 - PySEMTools must be installed, as the python script relies heavily on it.
+- `numpy`, `matplotlib`
 
-### Executing neko in mpmd
-The insitu run can be performed by executing neko and python in multiple program multiple data (mpmd) mode.
+A successful execution of this example should will generate a set of `png`
+images (total size ~38MB) in the `output_directory`, currently set to 
+`"results_insitu"`. Below is a visualization of the snapshots compiled with
+`ffmpeg`. 
+
+![Animation of the generated in-situ snapshots](cylinder_insitu.gif)
+
+## Executing neko in MPMD
+The insitu run can be performed by executing neko and python in Multiple Program Multiple Data (mpmd) mode.
 
 On personal computers with mpi, one can execute, for example:
 ```bash
-mpirun -n 1 ./neko insitu_turb_pipe.case : -n 4 python3 insitu_task.py
+mpirun -n 1 neko cylinder_insitu.case : -n 4 python3 insitu_task.py
 ```
-provided that the visible devices are set up correctly.
+which will run the neko simulation on 1 rank and the python processing script 
+on 4 ranks.
 
 On supercomputers, for the particular case of slurm, one can run in mpmd mode by executing a comand such as:
 ```bash
@@ -45,7 +57,7 @@ generated, for example, as:
 
 ```bash
 cat > mpmd.conf << 'EOF'
-0 ./select_gpu ./neko turb_pipe.case
+0 ./select_gpu ./neko cylinder_insitu.case
 1 python3 insitu_task.py
 2 python3 insitu_task.py
 3 python3 insitu_task.py
@@ -53,5 +65,4 @@ cat > mpmd.conf << 'EOF'
 EOF
 ```
 
-This example has been succesfully executed on supercomputers such as lumi, leveraging the typically idling
-CPUs on a GPU compute node, to execute POD while the simulation runs on GPUs.
+This example has been succesfully executed on supercomputers such as lumi, leveraging the typically idling CPUs on a GPU compute node.
