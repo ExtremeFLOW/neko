@@ -877,12 +877,12 @@ contains
             call rone (dtdz, ntot)
          else
             !$omp parallel private(i)
-            !$omp do
+            !$omp do simd
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = 0.0_rp
             end do
-            !$omp end do
-            !$omp do
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdr(i, 1, 1, 1) &
                     * c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
@@ -893,8 +893,8 @@ contains
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxds(i, 1, 1, 1) &
                     * c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
-            !$omp end do
-            !$omp do
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdr(i, 1, 1, 1) &
                     * c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
@@ -905,8 +905,8 @@ contains
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdt(i, 1, 1, 1) &
                     * c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
-            !$omp end do
-            !$omp do
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%drdx(i, 1, 1, 1) = c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
                     - c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
@@ -917,8 +917,8 @@ contains
                c%drdz(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dydt(i, 1, 1, 1) &
                     - c%dxdt(i, 1, 1, 1) * c%dyds(i, 1, 1, 1)
             end do
-            !$omp end do
-            !$omp do
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%dsdx(i, 1, 1, 1) = c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
                     - c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
@@ -929,8 +929,8 @@ contains
                c%dsdz(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dydr(i, 1, 1, 1) &
                     - c%dxdr(i, 1, 1, 1) * c%dydt(i, 1, 1, 1)
             end do
-            !$omp end do
-            !$omp do
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%dtdx(i, 1, 1, 1) = c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
                     - c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
@@ -941,7 +941,7 @@ contains
                c%dtdz(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dyds(i, 1, 1, 1) &
                     - c%dxds(i, 1, 1, 1) * c%dydr(i, 1, 1, 1)
             end do
-            !$omp end do
+            !$omp end do simd
             !$omp end parallel
          end if
          call invers2(jacinv, jac, ntot)
@@ -1182,123 +1182,138 @@ contains
 
     else
 
-       allocate(a(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
-       allocate(b(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
-       allocate(c(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
-       allocate(dot(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+    allocate(a(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+    allocate(b(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+    allocate(c(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+    allocate(dot(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
 
-       ! ds x dt
-       do i = 1, n
-          a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
-               - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+    !$omp parallel private (e, i, j, k, weight, len)
+
+    ! ds x dt
+    !$omp do simd
+    do i = 1, n
+       a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
+            - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
 
           b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
                - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
-          c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
-               - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
-       end do
-
-       do i = 1, n
-          dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
-       end do
-
-       do concurrent (e = 1:coef%msh%nelv)
-          do concurrent (k = 1:coef%Xh%lx)
-             do concurrent (j = 1:coef%Xh%lx)
-                weight = coef%Xh%wy(j) * coef%Xh%wz(k)
-                coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
-                coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
-                coef%nx(j,k, 1, e) = -A(1, j, k, e)
-                coef%nx(j,k, 2, e) = A(lx, j, k, e)
-                coef%ny(j,k, 1, e) = -B(1, j, k, e)
-                coef%ny(j,k, 2, e) = B(lx, j, k, e)
-                coef%nz(j,k, 1, e) = -C(1, j, k, e)
-                coef%nz(j,k, 2, e) = C(lx, j, k, e)
-             end do
+       c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
+            - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+    end do
+    !$omp end do simd
+    !$omp do simd
+    do i = 1, n
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
+    !$omp end do simd
+    !$omp do
+    do e = 1, coef%msh%nelv
+       do concurrent (k = 1:coef%Xh%lx)
+          do concurrent (j = 1:coef%Xh%lx)
+             weight = coef%Xh%wy(j) * coef%Xh%wz(k)
+             coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
+             coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
+             coef%nx(j,k, 1, e) = -A(1, j, k, e)
+             coef%nx(j,k, 2, e) = A(lx, j, k, e)
+             coef%ny(j,k, 1, e) = -B(1, j, k, e)
+             coef%ny(j,k, 2, e) = B(lx, j, k, e)
+             coef%nz(j,k, 1, e) = -C(1, j, k, e)
+             coef%nz(j,k, 2, e) = C(lx, j, k, e)
           end do
        end do
+    end do
+    !$omp end do
 
-       ! dr x dt
-       do i = 1, n
-          a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
-               - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+    ! dr x dt
+    !$omp do simd
+    do i = 1, n
+       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
+            - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
 
           b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
                - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
-          c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
-               - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
-       end do
-
-       do i = 1, n
-          dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
-       end do
-
-       do concurrent (e = 1:coef%msh%nelv)
-          do concurrent (k = 1:coef%Xh%lx)
-             do concurrent (j = 1:coef%Xh%lx)
-                weight = coef%Xh%wx(j) * coef%Xh%wz(k)
-                coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
-                coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
-                coef%nx(j,k, 3, e) = A(j, 1, k, e)
-                coef%nx(j,k, 4, e) = -A(j, lx, k, e)
-                coef%ny(j,k, 3, e) = B(j, 1, k, e)
-                coef%ny(j,k, 4, e) = -B(j, lx, k, e)
-                coef%nz(j,k, 3, e) = C(j, 1, k, e)
-                coef%nz(j,k, 4, e) = -C(j, lx, k, e)
-             end do
+       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
+            - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+    end do
+    !$omp end do simd
+    !$omp do simd
+    do i = 1, n
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
+    !$omp end do simd
+    !$omp do
+    do e = 1, coef%msh%nelv
+       do concurrent (k = 1:coef%Xh%lx)
+          do concurrent (j = 1:coef%Xh%lx)
+             weight = coef%Xh%wx(j) * coef%Xh%wz(k)
+             coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
+             coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
+             coef%nx(j,k, 3, e) = A(j, 1, k, e)
+             coef%nx(j,k, 4, e) = -A(j, lx, k, e)
+             coef%ny(j,k, 3, e) = B(j, 1, k, e)
+             coef%ny(j,k, 4, e) = -B(j, lx, k, e)
+             coef%nz(j,k, 3, e) = C(j, 1, k, e)
+             coef%nz(j,k, 4, e) = -C(j, lx, k, e)
           end do
        end do
-
-       ! dr x ds
-       do i = 1, n
-          a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &
-               - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
+    end do
+    !$omp end do
+    ! dr x ds
+    !$omp do simd
+    do i = 1, n
+       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &
+            - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
 
           b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &
                - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)
 
-          c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &
-               - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
-       end do
-
-       do i = 1, n
-          dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
-       end do
-
-       do concurrent (e = 1:coef%msh%nelv)
-          do concurrent (k = 1:coef%Xh%lx)
-             do concurrent (j = 1:coef%Xh%lx)
-                weight = coef%Xh%wx(j) * coef%Xh%wy(k)
-                coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
-                coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight
-                coef%nx(j,k, 5, e) = -A(j, k, 1, e)
-                coef%nx(j,k, 6, e) = A(j, k, lx, e)
-                coef%ny(j,k, 5, e) = -B(j, k, 1, e)
-                coef%ny(j,k, 6, e) = B(j, k, lx, e)
-                coef%nz(j,k, 5, e) = -C(j, k, 1, e)
-                coef%nz(j,k, 6, e) = C(j, k, lx, e)
-             end do
+       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &
+            - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
+    end do
+    !$omp end do simd
+    !$omp do simd
+    do i = 1, n
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
+    !$omp end do simd
+    !$omp do
+    do e = 1, coef%msh%nelv
+       do concurrent (k = 1:coef%Xh%lx)
+          do concurrent (j = 1:coef%Xh%lx)
+             weight = coef%Xh%wx(j) * coef%Xh%wy(k)
+             coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
+             coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight
+             coef%nx(j,k, 5, e) = -A(j, k, 1, e)
+             coef%nx(j,k, 6, e) = A(j, k, lx, e)
+             coef%ny(j,k, 5, e) = -B(j, k, 1, e)
+             coef%ny(j,k, 6, e) = B(j, k, lx, e)
+             coef%nz(j,k, 5, e) = -C(j, k, 1, e)
+             coef%nz(j,k, 6, e) = C(j, k, lx, e)
           end do
        end do
-
-       ! Normalize
-       do j = 1, size(coef%nz)
-          len = sqrt(coef%nx(j,1,1,1)**2 + &
-               coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
-          if (len .gt. NEKO_EPS) then
-             coef%nx(j,1,1,1) = coef%nx(j,1,1,1) / len
-             coef%ny(j,1,1,1) = coef%ny(j,1,1,1) / len
-             coef%nz(j,1,1,1) = coef%nz(j,1,1,1) / len
-          end if
-       end do
+    end do
+    !$omp end do
+    ! Normalize
+    !$omp do
+    do j = 1, size(coef%nz)
+       len = sqrt(coef%nx(j,1,1,1)**2 + &
+            coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
+       if (len .gt. NEKO_EPS) then
+          coef%nx(j,1,1,1) = coef%nx(j,1,1,1) / len
+          coef%ny(j,1,1,1) = coef%ny(j,1,1,1) / len
+          coef%nz(j,1,1,1) = coef%nz(j,1,1,1) / len
+       end if
+    end do
+    !$omp end do
+    !$omp end parallel
 
        deallocate(dot)
        deallocate(c)
