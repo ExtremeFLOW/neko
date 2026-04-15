@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
 - Added ALE framework.
 - Added masked I/O capabilities for the field_writer via the optional 
   `point_zone` JSON keyword.
