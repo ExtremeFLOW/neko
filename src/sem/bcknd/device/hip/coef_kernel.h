@@ -311,11 +311,22 @@ __global__ void coef_generate_mass_kernel(T * __restrict__ B,
  */
 template< typename T, const int LX >
 __global__ void coef_generate_area_and_normal_kernel(
-           T* __restrict__ area, T* __restrict__ nx, T* __restrict__ ny, T* __restrict__ nz,
-           const T* __restrict__ dxdr, const T* __restrict__ dydr, const T* __restrict__ dzdr,
-           const T* __restrict__ dxds, const T* __restrict__ dyds, const T* __restrict__ dzds,
-           const T* __restrict__ dxdt, const T* __restrict__ dydt, const T* __restrict__ dzdt,
-           const T* __restrict__ wx, const T* __restrict__ wy, const T* __restrict__ wz,
+           T* __restrict__ area,
+           T* __restrict__ nx,
+           T* __restrict__ ny,
+           T* __restrict__ nz,
+           const T* __restrict__ dxdr,
+           const T* __restrict__ dydr,
+           const T* __restrict__ dzdr,
+           const T* __restrict__ dxds,
+           const T* __restrict__ dyds,
+           const T* __restrict__ dzds,
+           const T* __restrict__ dxdt,
+           const T* __restrict__ dydt,
+           const T* __restrict__ dzdt,
+           const T* __restrict__ wx,
+           const T* __restrict__ wy,
+           const T* __restrict__ wz,
            const T eps) {
 
   int i, j, k;
