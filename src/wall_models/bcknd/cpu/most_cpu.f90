@@ -42,25 +42,25 @@ module most_cpu
   public :: most_compute_cpu
 
   abstract interface
-     function slaw_m_interface(z,L_ob,z0) result(slaw)
+     function slaw_m_interface(z, L_ob, z0) result(slaw)
        import rp
        real(kind=rp), intent(in) :: z, L_ob, z0
        real(kind=rp) :: slaw
      end function slaw_m_interface
 
-     function slaw_h_interface(z,L_ob,z0h) result(slaw)
+     function slaw_h_interface(z, L_ob, z0h) result(slaw)
        import rp
        real(kind=rp), intent(in) :: z, L_ob, z0h
        real(kind=rp) :: slaw
      end function slaw_h_interface
 
-     function corr_m_interface(z,L_ob) result(corr)
+     function corr_m_interface(z, L_ob) result(corr)
        import rp
        real(kind=rp), intent(in) :: z, L_ob
        real(kind=rp) :: corr
      end function corr_m_interface
 
-     function corr_h_interface(z,L_ob) result(corr)
+     function corr_h_interface(z, L_ob) result(corr)
        import rp
        real(kind=rp), intent(in) :: z, L_ob
        real(kind=rp) :: corr
@@ -74,7 +74,8 @@ module most_cpu
        procedure(slaw_h_interface) :: slaw_h
      end function f_interface
 
-     function dfdl_interface(l_upper, l_lower, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+     function dfdl_interface(l_upper, l_lower, z, z0, z0h, Pr, L_ob,&
+          slaw_m, slaw_h, fd_h) result(dfdl)
        import rp, slaw_m_interface, slaw_h_interface
        real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h, Pr
        real(kind=rp) :: dfdl
@@ -97,7 +98,8 @@ contains
 
   !> Selects different expressions for the similarity functions in  MOST
   !> based on the type of bottom boundary condition for temperature.
-  subroutine select_bc_operators(bc_type, bc_value, q, ts, ti, kappa, utau, z0h, hi, Pr)
+  subroutine select_bc_operators(bc_type, bc_value, q, ts, ti, kappa, &
+        utau, z0h, hi, Pr)
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(in) :: hi, ti, kappa, utau, z0h, bc_value, Pr
     real(kind=rp), intent(inout) :: q,ts
@@ -135,7 +137,7 @@ contains
   end subroutine compute_Ri_b
 
   !> Sets the stability regime based on the Richardson number value (quite arbitrary).
-  subroutine set_stability_regime(Ri_b,Ri_threshold)
+  subroutine set_stability_regime(Ri_b, Ri_threshold)
     real(kind=rp), intent(in) :: Ri_b, Ri_threshold
 
     if (Ri_b > Ri_threshold) then
@@ -254,7 +256,8 @@ contains
 
              ! Compute L_ob based on stability and bc_type
              f = f_ptr(Ri_b, hi, z0, z0h, Pr, L_ob, slaw_m_ptr, slaw_h_ptr)
-             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, Pr, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
+             dfdl = dfdl_ptr(l_upper, l_lower, hi, z0, z0h, Pr, L_ob, &
+                             slaw_m_ptr, slaw_h_ptr, fd_h)
              if (abs(dfdl) < 1.0e-12_rp) call neko_error("Division by zero in dfdl")
              L_new = L_ob - f/dfdl
              ! Avoid regime crossing during Newton iter (otherwise crash)
@@ -312,8 +315,8 @@ contains
   !> and temperature in the stable atmospheric boundary layer, Bound.-Layer Meteorol., 3, 519-538.
   !> NOTE: This formulation is chosen for its superior behavior in very stable conditions (large z/L),
   !> avoiding the numerical decoupling found in older linear (e.g., Webb or Holtslag) functions.
-  function slaw_m_stable(z,L_ob,z0) result(slaw)
-    real(kind=rp), intent(in) :: z,L_ob,z0
+  function slaw_m_stable(z, L_ob, z0) result(slaw)
+    real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
 
     slaw = log(z/z0)-corr_m_stable(z,L_ob)+corr_m_stable(z0,L_ob)
@@ -326,8 +329,8 @@ contains
     slaw = log(z/z0h)-corr_h_stable(z,L_ob)+corr_h_stable(z0h,L_ob)
   end function slaw_h_stable
 
-  function corr_m_stable(z,L_ob) result(corr)
-    real(kind=rp), intent(in) :: z,L_ob
+  function corr_m_stable(z, L_ob) result(corr)
+    real(kind=rp), intent(in) :: z, L_ob
     real(kind=rp) :: corr
     real(kind=rp) :: a, b, c, d
     real(kind=rp) :: zeta
@@ -340,8 +343,8 @@ contains
     corr = - a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d
   end function corr_m_stable
 
-  function corr_h_stable(z,L_ob) result(corr)
-    real(kind=rp), intent(in) :: z,L_ob
+  function corr_h_stable(z, L_ob) result(corr)
+    real(kind=rp), intent(in) :: z, L_ob
     real(kind=rp) :: corr
     real(kind=rp) :: a, b, c, d
     real(kind=rp) :: zeta
@@ -359,21 +362,21 @@ contains
   !> REFERENCE: Dyer, A. J. (1974), A review of flux-profile relationships, Bound.-Layer Meteorol., 7, 363-372.
   !> INTEGRATION: Paulson, C. A. (1970), The mathematical representation of wind speed and
   !> temperature profiles in the unstable atmospheric surface layer, J. Appl. Meteorol., 9, 857-861.
-  function slaw_m_convective(z,L_ob,z0) result(slaw)
+  function slaw_m_convective(z, L_ob, z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
 
     slaw = log(z/z0) - corr_m_convective(z, L_ob) + corr_m_convective(z0, L_ob)
   end function slaw_m_convective
 
-  function slaw_h_convective(z,L_ob,z0h) result(slaw)
+  function slaw_h_convective(z, L_ob, z0h) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0h
     real(kind=rp) :: slaw
 
     slaw = log(z/z0h) - corr_h_convective(z, L_ob) + corr_h_convective(z0h, L_ob)
   end function slaw_h_convective
 
-  function corr_m_convective(z,L_ob) result(corr)
+  function corr_m_convective(z, L_ob) result(corr)
     real(kind=rp), intent(in) :: z, L_ob
     real(kind=rp) :: xi, pi, zeta
     real(kind=rp) :: corr
@@ -385,7 +388,7 @@ contains
     corr = 2*log(0.5_rp*(1 + xi)) + log(0.5_rp*(1 + xi**2)) - 2*atan(xi) + pi/2
   end function corr_m_convective
 
-  function corr_h_convective(z,L_ob) result(corr)
+  function corr_h_convective(z, L_ob) result(corr)
     real(kind=rp), intent(in) :: z, L_ob
     real(kind=rp) :: zeta, pi, xi
     real(kind=rp) :: corr
@@ -398,14 +401,14 @@ contains
   end function corr_h_convective
 
   !> Similarity laws and corrections for the NEUTRAL regime:
-  function slaw_m_neutral(z,L_ob,z0) result(slaw)
+  function slaw_m_neutral(z, L_ob, z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
 
     slaw = log(z/z0)
   end function slaw_m_neutral
 
-  function slaw_h_neutral(z,L_ob,z0h) result(slaw)
+  function slaw_h_neutral(z, L_ob, z0h) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0h
     real(kind=rp) :: slaw
 
@@ -422,7 +425,8 @@ contains
     f = (Ri_b - Pr*z/L_ob/slaw_m(z, L_ob, z0)**3)
   end function f_neumann
 
-  function dfdl_neumann(l_upper, l_lower, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+  function dfdl_neumann(l_upper, l_lower, z, z0, z0h, Pr, L_ob, &
+        slaw_m, slaw_h, fd_h) result(dfdl)
     real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h, Pr
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
@@ -442,7 +446,8 @@ contains
     f = (Ri_b - Pr*z/L_ob*slaw_h(z, L_ob, z0h)/slaw_m(z, L_ob, z0)**2) ! conv
   end function f_dirichlet
 
-  function dfdl_dirichlet(l_upper, l_lower, z, z0, z0h, Pr, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+  function dfdl_dirichlet(l_upper, l_lower, z, z0, z0h, Pr, L_ob, &
+        slaw_m, slaw_h, fd_h) result(dfdl)
     real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0h, L_ob, fd_h, Pr
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h

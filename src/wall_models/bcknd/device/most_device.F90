@@ -70,9 +70,10 @@ contains
   subroutine most_compute_device(u_d, v_d, w_d, temp_d, &
        ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
        n_x_d, n_y_d, n_z_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
-       n_nodes, lx, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
-       Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
-       ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx)
+       n_nodes, lx, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, &
+       bc_value, tstep, Ri_b_diagn, L_ob_diagn, utau_diagn, &
+       magu_diagn, ti_diagn, ts_diagn, q_diagn, &
+       h_x_idx, h_y_idx, h_z_idx)
     integer, intent(in) :: n_nodes, lx, tstep
     type(c_ptr), intent(in) :: u_d, v_d, w_d, temp_d
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d

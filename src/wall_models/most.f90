@@ -33,7 +33,7 @@
 !
 !> Implements `most_t`.
 module most
-  use field, only: field_t
+  use field, only : field_t
   use num_types, only : rp
   use json_module, only : json_file
   use coefs, only : coef_t
@@ -141,7 +141,7 @@ contains
     call json_get_or_lookup_or_default(json, "rho", rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
-     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
+    call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
 
     call neko_const_registry%add_real_scalar(this%bc_value, "bc_value")
 
@@ -311,8 +311,9 @@ contains
   !! @param bc_type The type of bc set for temperature in the case file.
   !! @param scalar_name The name of the scalar field (temperature) for MOST.
   !! @param bc_value The heat flux at the surface boundary condition.
-  subroutine most_init_from_components(this, scheme_name, scalar_name, coef, msk, &
-       facet, h_index, kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
+  subroutine most_init_from_components(this, scheme_name, scalar_name, &
+       coef, msk, facet, h_index, kappa, mu_val, rho_val, g, Pr, z0, &
+       z0h_in, bc_type, bc_value)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
