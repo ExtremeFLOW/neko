@@ -158,9 +158,9 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
   }
-}
 
-/** * Fortran wrapper for generating mass matrix
+  /**
+   * Fortran wrapper for generating mass matrix
    */
   void cuda_coef_generate_mass(void *B, void *Binv, void *jac, 
                                void *w3, int *lxyz, int *nel)  {
@@ -230,4 +230,4 @@ extern "C" {
     }
   }
 
-
+}
