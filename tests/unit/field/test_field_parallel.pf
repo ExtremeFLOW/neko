@@ -13,7 +13,7 @@ module test_field_parallel
   use space
   use mesh
   use dofmap
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
   use neko_config
   implicit none
 
@@ -31,6 +31,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
+    call comm_init
   end subroutine setUp
 
   subroutine tearDown(this)

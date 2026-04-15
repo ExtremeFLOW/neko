@@ -47,7 +47,7 @@ module vtkhdf_file
   use device, only : DEVICE_TO_HOST
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier
+       MPI_Barrier, MPI_LOGICAL
   use vtk, only : vtk_ordering
 #ifdef HAVE_HDF5
   use hdf5, only : &
@@ -156,7 +156,7 @@ contains
     type(field_ptr_t), allocatable :: fp(:)
     integer :: ierr, mpi_info, mpi_comm, i, n_fields
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
-    integer(hid_t) :: filespace, memspace
+    integer(hid_t) :: filespace, H5T_NEKO_STRING
     integer(hsize_t), dimension(1) :: vdims
     integer :: lx, ly, lz
     integer :: local_points, local_cells, local_conn
@@ -252,15 +252,15 @@ contains
        vdims = 1
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
 
-       call h5tcopy_f(H5T_FORTRAN_S1, memspace, ierr)
-       call h5tset_size_f(memspace, int(len_trim(type_str), kind=hsize_t), ierr)
-       call h5tset_strpad_f(memspace, H5T_STR_NULLTERM_F, ierr)
+       call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
+       call h5tset_size_f(H5T_NEKO_STRING, int(len_trim(type_str), kind=hsize_t), ierr)
+       call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
 
-       call h5acreate_f(vtkhdf_grp, "Type", memspace, filespace, attr_id, ierr)
-       call h5awrite_f(attr_id, memspace, [type_str], vdims, ierr)
+       call h5acreate_f(vtkhdf_grp, "Type", H5T_NEKO_STRING, filespace, attr_id, ierr)
+       call h5awrite_f(attr_id, H5T_NEKO_STRING, [type_str], vdims, ierr)
        call h5aclose_f(attr_id, ierr)
 
-       call h5tclose_f(memspace, ierr)
+       call h5tclose_f(H5T_NEKO_STRING, ierr)
        call h5sclose_f(filespace, ierr)
     end if
 
@@ -747,7 +747,7 @@ contains
     character(len=1024) :: ext_fname, ext_path, src_pattern
     character(len=1024) :: main_path, main_name, main_suffix
     integer(hid_t) :: ext_file_id, ext_plist_id, vds_src_space
-    integer(hid_t) :: write_target
+    integer(hid_t) :: write_target, attr_id, H5T_NEKO_STRING
     integer :: mpi_info, mpi_comm
 
     ! Collected field info for VDS phase
@@ -796,13 +796,14 @@ contains
        write(ext_fname, '(A,I0,".h5")') trim(ext_path), counter
        write(src_pattern, '(A,".data/%b.h5")') trim(main_name)
 
-       if (pe_rank == 0) then
-          inquire(file = trim(ext_path), exist = exists)
-          if (.not. exists) then
+       if (pe_rank .eq. 0) inquire(file = trim(ext_path), exist = exists)
+       call MPI_Bcast(exists, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
+       if (.not. exists) then
+          if (pe_rank .eq. 0) then
              call execute_command_line("mkdir -p '" // trim(ext_path) // "'")
           end if
+          call MPI_Barrier(NEKO_COMM, ierr)
        end if
-       call MPI_Barrier(NEKO_COMM, ierr)
 
        call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
        call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
@@ -990,6 +991,47 @@ contains
 
        call h5gclose_f(pointdata_grp, ierr)
     end if
+
+    ! ------------------------------------------------------------------------ !
+    ! Add attributes to the PointData
+
+    do i = 1, fields_written
+       field_name = name_list(i)
+       is_vector = vector_list(i)
+       pd_dims1 = 1_hsize_t
+
+       call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
+       call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
+
+       call h5aexists_f(dset_id, "Attribute", exists, ierr)
+       if (exists) then
+          call h5dclose_f(dset_id, ierr)
+          call h5gclose_f(pointdata_grp, ierr)
+          cycle
+       end if
+
+       ! Write the attribute what this PointData represents
+       call h5screate_f(H5S_SCALAR_F, filespace, ierr)
+
+       call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
+       call h5tset_size_f(H5T_NEKO_STRING, 6_hsize_t, ierr)
+       call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
+
+       call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
+            attr_id, ierr)
+       if (is_vector) then
+          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vector"], pd_dims1, ierr)
+       else
+          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalar"], pd_dims1, ierr)
+       end if
+
+       call h5aclose_f(attr_id, ierr)
+       call h5tclose_f(H5T_NEKO_STRING, ierr)
+       call h5sclose_f(filespace, ierr)
+       call h5dclose_f(dset_id, ierr)
+       call h5gclose_f(pointdata_grp, ierr)
+
+    end do
 
     ! ------------------------------------------------------------------------ !
     ! Cleanup before returning
@@ -1358,8 +1400,8 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          doffset, dcount, ierr)
 
-    call h5dcreate_f(hdf_root, trim(name), precision_hdf, &
-         filespace, dset_id, ierr)
+    call h5dcreate_f(hdf_root, trim(name), precision_hdf, filespace, dset_id, &
+         ierr)
 
     if (precision_local .eq. sp) then
        block

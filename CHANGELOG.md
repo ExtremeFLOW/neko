@@ -2,6 +2,27 @@
 
 ## Develop
 
+- Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
+- Added ALE framework.
+- Added masked I/O capabilities for the field_writer via the optional 
+  `point_zone` JSON keyword.
+- Added the user-defined Neumann boundary conditions for the scalar solver.
+- *BREAKING* Changed the user-defined scalar Dirichlet boundary conditions
+  keyword from `user` to `user_dirichlet`.
+- Add possibility to create mesh and dofmap objects from masked entries.
+- Enabled 1D stats files in csv format as a possible input to `average_fields_in_time`.
+- Added the possibility to configure interpolation parameters for `probes`.
+- *BREAKING* Changed the user interface of fluid/scalar initial condition
+  to read interpolation parameters from the `interpolation` JSON subdict
+  instead of individual parameters.
+- Added public variables `GLOBAL_INTERP_PAD` and `GLOBAL_INTERP_TOL`
+  in `global_interpolation` as default values for `tolerance` and 
+  `padding` parameters.
+- Added the possibility to initialize `global_interpolation` from a JSON subdict.
+- Added the `json_get_subdict_or_empty` which seeks a JSON subdict and returns
+  an empty object if not found.
+- If the "field" is provided for `scalar_stats` in the case file, append this
+  name to the `scalar_stats` registry prefix and the default output filename.
 - Added a script to add new unit tests under `contrib/add_unit_test`. Added
   templates for serial and parallel unit tests.
 - Added optional log output from the flow_rate_force, controlled by the `log`
