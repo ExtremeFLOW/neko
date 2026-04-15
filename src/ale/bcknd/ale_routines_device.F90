@@ -92,7 +92,7 @@ module ale_routines_device
       integer(c_int), value :: lx, ly, lz, nel, local_iters
     end subroutine compute_cheap_dist_hip
   end interface
-#elif defined(HAVE_CUDA)
+#elif HAVE_CUDA
   interface
     subroutine add_kinematics_to_mesh_velocity_cuda(wx, wy, wz, &
          x_ref, y_ref, z_ref, phi, x, y, z, &
@@ -103,7 +103,7 @@ module ale_routines_device
       type(kinematics_params_t), value :: kin_params
       integer(c_int), value :: n
     end subroutine add_kinematics_to_mesh_velocity_hip
-  interface
+
     subroutine compute_cheap_dist_cuda(d_d, x_d, y_d, z_d, lx, ly, lz, nel, &
          local_iters, nchange_d) bind(c, name="compute_cheap_dist_cuda")
       use, intrinsic :: iso_c_binding
