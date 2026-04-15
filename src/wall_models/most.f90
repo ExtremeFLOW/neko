@@ -250,10 +250,11 @@ contains
     allocate(this%h_x_idx(this%n_nodes))
     allocate(this%h_y_idx(this%n_nodes))
     allocate(this%h_z_idx(this%n_nodes))
-
-    call device_map(this%h_x_idx, this%h_x_idx_d, this%n_nodes)
-    call device_map(this%h_y_idx, this%h_y_idx_d, this%n_nodes)
-    call device_map(this%h_z_idx, this%h_z_idx_d, this%n_nodes)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_map(this%h_x_idx, this%h_x_idx_d, this%n_nodes)
+      call device_map(this%h_y_idx, this%h_y_idx_d, this%n_nodes)
+      call device_map(this%h_z_idx, this%h_z_idx_d, this%n_nodes)
+    end if
 
     do i = 1, this%n_nodes
        fid = this%facet(i)
@@ -286,13 +287,14 @@ contains
           call neko_error("The face index is not correct (most.f90)")
        end select
 
-       call device_memcpy(this%h_x_idx, this%h_x_idx_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%h_y_idx, this%h_y_idx_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
-
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_memcpy(this%h_x_idx, this%h_x_idx_d, this%n_nodes, &
+               HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(this%h_y_idx, this%h_y_idx_d, this%n_nodes, &
+               HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
+               HOST_TO_DEVICE, sync = .false.)
+       end if
     end do
 
   end subroutine most_finalize
