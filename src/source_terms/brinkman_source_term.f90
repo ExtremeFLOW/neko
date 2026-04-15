@@ -124,23 +124,21 @@ contains
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
+    character(len=LOG_SIZE) :: error_msg
 
     character(len=:), allocatable :: filter_type
-    real(kind=rp) :: filter_radius
     real(kind=rp), dimension(:), allocatable :: brinkman_limits
     real(kind=rp) :: brinkman_penalty
 
-    type(json_value), pointer :: json_object_list
-    type(json_core) :: core
-
     character(len=:), allocatable :: object_type
-    type(json_file) :: object_settings
-    integer :: n_regions
-    integer :: i
-    type(field_output_t) :: output
+    type(json_file) :: object_settings, filter_settings
+    integer :: n_objects, i
 
+    type(file_t) :: output
+    type(field_list_t) :: output_fields
     logical :: output_enable
-    character(len=:), allocatable :: output_path, output_format, output_precision
+    character(len=:), allocatable :: output_path, output_format, &
+         output_precision, fname, suffix
     integer :: precision
 
     ! ------------------------------------------------------------------------ !
@@ -181,11 +179,11 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Select which constructor should be called
 
-    call json%info('objects', n_children = n_regions)
+    call json%info('objects', n_children = n_objects)
 
-    do i = 1, n_regions
+    do i = 1, n_objects
        call json_extract_item(json, "objects", i, object_settings)
-       call json_get_or_default(object_settings, 'type', object_type, 'none')
+       call json_get(object_settings, 'type', object_type)
 
        select case (object_type)
        case ('boundary_mesh')
@@ -197,11 +195,10 @@ contains
        case ('file')
           call this%add_file(object_settings)
 
-       case ('none')
-          call object_settings%print()
-          call neko_error('Brinkman source term objects require a region type')
        case default
-          call neko_error('Brinkman source term unknown region type')
+          write(error_msg, '(A,I0,A,A)') 'Brinkman object: ', i, &
+               ' unknown type: ', trim(object_type)
+          call neko_error(trim(error_msg))
        end select
 
     end do
@@ -220,7 +217,8 @@ contains
 
        ! Allocate a PDE filter
        allocate(PDE_filter_t::this%filter)
-       call this%filter%init(json, coef)
+       call json_get(json, 'filter', filter_settings)
+       call this%filter%init(filter_settings, coef)
        call this%filter%apply(this%indicator, this%unfiltered)
 
     case ('none')
@@ -240,6 +238,19 @@ contains
     ! Set up output the brinkman fields if enabled
 
     if (output_enable) then
+       fname = trim(output_path) // 'brinkman'
+       select case (trim(output_format))
+       case ('nek5000')
+          suffix = '.fld'
+       case ('adios2')
+          suffix = '.bp'
+       case ('hdf5')
+          suffix = '.h5'
+       case default
+          suffix = '.' // trim(output_format)
+       end select
+       fname = trim(fname) // trim(suffix)
+
        select case (trim(output_precision))
        case ('sp', 'single')
           precision = sp
@@ -249,23 +260,24 @@ contains
           call neko_error('Unknown output precision')
        end select
 
-       if (associated(this%unfiltered)) then
-          call output%init('brinkman', 3, precision, output_path, output_format)
-       else
-          call output%init('brinkman', 2, precision, output_path, output_format)
-       end if
-       call output%fields%assign_to_field(1, this%indicator)
-       call output%fields%assign_to_field(2, this%brinkman)
+       call output%init(fname, precision = precision)
+
+       call output_fields%init(2)
+       call output_fields%assign_to_field(1, this%indicator)
+       call output_fields%assign_to_field(2, this%brinkman)
 
        call neko_log%message('Brinkman output')
        call neko_log%message('  1: Indicator')
        call neko_log%message('  2: Permeability')
        if (associated(this%unfiltered)) then
-          call output%fields%assign_to_field(3, this%unfiltered)
+          call output_fields%append(this%unfiltered)
           call neko_log%message('  3: Unfiltered Indicator')
        end if
-       call output%sample()
+
+       call output%write(output_fields)
+
        call output%free()
+       call output_fields%free()
     end if
 
     call neko_log%end_section()
@@ -560,10 +572,9 @@ contains
   subroutine add_file(this, json)
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-
     type(file_t) :: file
-    character(len=:), allocatable :: file_name, field_name
-    type(field_t) :: temp_field
+    type(field_t), pointer :: temp_field
+    character(len=:), allocatable :: file_name, field_name, tmp_str
     integer :: file_idx, temp_idx
 
     call json_get(json, 'file_name', file_name)
@@ -571,7 +582,10 @@ contains
          'brinkman_indicator')
     call json_get_or_default(json, 'file_index', file_idx, 0)
 
-    call temp_field%init(this%coef%dof, field_name)
+    call neko_scratch_registry%request_field(temp_field, temp_idx, .true.)
+    tmp_str = trim(temp_field%name)
+    temp_field%name = trim(field_name)
+
     call file%init(file_name)
     call file%set_counter(file_idx)
     call file%read(temp_field)
@@ -579,7 +593,8 @@ contains
     ! Update the global indicator field by max operator
     call field_pwmax2(this%indicator, temp_field)
 
-    call temp_field%free()
+    temp_field%name = trim(tmp_str)
+    call neko_scratch_registry%relinquish(temp_idx)
     call file%free()
 
   end subroutine add_file
