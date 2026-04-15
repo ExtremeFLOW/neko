@@ -17,7 +17,7 @@ manipulating data sent from the Neko simulation while it is running.
 In this particular case, three different fields are streamed and interpolated
 on a 2D structured grid for visualization using `matplotlib`. The files related to insitu execution are:
 - `cylinder_insitu.case` includes the `data_streamer` simulation component, 
-  as well as a constant `strm_data_freq` constant which dictates how 
+  as well as a constant `strm_update_freq` constant which dictates how 
   frequently data should be sent. Not that other relevant simcomps use this
   parameter such that they are only computed when required.
 - `insitu_task.py` is the python script that performs the in-situ
