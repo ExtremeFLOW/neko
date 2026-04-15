@@ -121,7 +121,7 @@ contains
     call json_get_or_lookup(json, "kappa", this%kappa)
     call json_get_or_lookup(json, "B", this%B)
     call json_get_or_lookup(json, "z0", this%z0)
-    call json_get_or_lookup(json, "rho", this%rho_val)
+    call json_get_or_lookup_or_default(json, "rho", this%rho_val, 1.0_rp)
 
     call neko_log%section('Wall model')
     write(log_buf, '(A)') 'Model : Rough log law'

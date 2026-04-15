@@ -535,8 +535,8 @@ A more detailed description of each boundary condition is provided below.
      log-law constants. This model is suitable for smooth walls.
 
    * The `rough_log_law` model requires specifying `kappa` and `B`, which are
-     the log-law constants, and `z0`, which is the characteristic roughness
-     height.
+     the log-law constants, `z0`, which is the characteristic roughness
+     height, and `rho`, which is the density (defaults to 1.0).
 
    * The `most` model is a version of the `rough_log_law` adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given [below](#most-wall-model)
 
