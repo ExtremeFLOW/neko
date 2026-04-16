@@ -112,14 +112,17 @@ contains
     type(space_t) :: Xh
     type(dofmap_t) :: dof
     type(gs_t) :: gs
-    type(coef_t) :: coef
     type(boundary_operation_t) :: simcomp
     type(case_t), target :: test_case
     type(field_t), pointer :: reg_field
     integer :: zone_indices(2)
     character(len=16) :: operations(2)
 
-    call build_single_hex_fixture(msh, Xh, dof, gs, coef)
+    allocate(fluid_pnpn_t :: test_case%fluid)
+    select type(fluid => test_case%fluid)
+    type is (fluid_pnpn_t)
+       call build_single_hex_fixture(msh, Xh, dof, gs, fluid%c_Xh)
+    end select
     call label_x_faces(msh)
 
     call neko_registry%init()
@@ -128,11 +131,6 @@ contains
     reg_field%x = dof%x
 
     call test_case%time%init(0.0_rp, 1.0_rp, 0.1_rp)
-    allocate(fluid_pnpn_t :: test_case%fluid)
-    select type(fluid => test_case%fluid)
-    type is (fluid_pnpn_t)
-       fluid%c_Xh = coef
-    end select
 
     zone_indices = [1, 2]
     operations = [character(len=16) :: "integral", "max"]
@@ -165,7 +163,6 @@ contains
     end select
     deallocate(test_case%fluid)
     call neko_registry%free()
-    call coef%free()
     call gs%free()
     call dof%free()
     call Xh%free()
