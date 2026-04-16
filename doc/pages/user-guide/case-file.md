@@ -936,8 +936,8 @@ The reference velocity field, or `baseflow` can be set from three methods:
 
 Finally, the fringe function field must be filled by the user. This must be
 done through the user file by adding the fringe field to the
-`neko_registry` in either `user_init_modules` or `fluid_user_ic` (more
-specifically, before the first call to compute the sponge source term). Note that `fluid_user_ic` is not called when doing a restart from a checkpoint file, so if restarts will be done the sponge should be implemented in `user_init_modules`.
+`neko_registry` in either `initialize` or `initial_conditions` (more
+specifically, before the first call to compute the sponge source term). Note that `initial_conditions` is not called when doing a restart from a checkpoint file, so if restarts will be done the sponge should be implemented in `user_init_modules`.
 
 The fringe field must be set by adding a field to the `neko_registry`
 under a specific name that can be retrieved internally. By default, Neko will
