@@ -311,7 +311,9 @@ contains
   end subroutine most_compute_cpu
 
 !> Similarity laws and corrections for the STABLE regime:
-  !> REFERENCE: Holtslag, A. A. M., & De Bruin, H. A. R. (1988). Applied Modeling of the Nighttime Surface Energy Balance over Land. Journal of Applied Meteorology, 27(6), 689–704.
+  !> REFERENCE: Holtslag, A. A. M., & De Bruin, H. A. R. (1988).
+  !> Applied Modeling of the Nighttime Surface Energy Balance over Land.
+  !> Journal of Applied Meteorology, 27(6), 689–704.
   !> NOTE: This formulation is chosen for its superior behavior in very stable conditions (large z/L),
   !> avoiding the numerical decoupling found in older linear functions (e.g., Dyer).
   function slaw_m_stable(z, L_ob, z0) result(slaw)
@@ -358,7 +360,8 @@ contains
   end function corr_h_stable
 
   !> Similarity laws and corrections for the UNSTABLE (convective) regime:
-  !> REFERENCE: Dyer, A. J. (1974), A review of flux-profile relationships, Bound.-Layer Meteorol., 7, 363-372.
+  !> REFERENCE: Dyer, A. J. (1974), A review of flux-profile relationships,
+  !> Bound.-Layer Meteorol., 7, 363-372.
   !> INTEGRATION: Paulson, C. A. (1970), The mathematical representation of wind speed and
   !> temperature profiles in the unstable atmospheric surface layer, J. Appl. Meteorol., 9, 857-861.
   function slaw_m_convective(z, L_ob, z0) result(slaw)
