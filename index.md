@@ -1,6 +1,6 @@
 ---
 layout: default
-title: High-Fidelity CFD
+title: Home
 ---
 
 <section class="hero">
