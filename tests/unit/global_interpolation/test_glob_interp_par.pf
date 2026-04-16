@@ -69,7 +69,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call glob_interp%init(dof)
-    test_tol = glob_interp%tol
+    test_tol = glob_interp%tolerance
      
     
     call test_field%init(dof)
@@ -121,7 +121,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call glob_interp%init(dof)
-    test_tol = glob_interp%tol
+    test_tol = glob_interp%tolerance
      
     
     call test_field%init(dof)
@@ -192,7 +192,7 @@ contains
        call glob_interp%init(dof)
        call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
     end if
-    test_tol = glob_interp%tol
+    test_tol = glob_interp%tolerance
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
     if (pe_rank .ne. 0) then
        do i = 1, dof%size()
@@ -251,7 +251,7 @@ contains
     call Xh2%init(GLL, lx2, lx2, lx2)
     call dof2%init(msh, Xh2)
     call glob_interp%init(dof)
-    test_tol = glob_interp%tol
+    test_tol = glob_interp%tolerance
     call test_field%init(dof2)
     call glob_interp%find_points(dof2%x, dof2%y, dof2%z, dof2%size())
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
@@ -301,8 +301,8 @@ contains
     call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
-    call glob_interp%init(dof,tol=NEKO_EPS*1e3)
-    test_tol = max(glob_interp%tol,1e-9)
+    call glob_interp%init(dof)
+    test_tol = max(glob_interp%tolerance, 1e-9_rp)
     
     call sinefield%init(dof)
     nphi = 5
@@ -385,7 +385,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call glob_interp%init(dof)
-    test_tol = glob_interp%tol
+    test_tol = glob_interp%tolerance
      
     
     call test%init(2)

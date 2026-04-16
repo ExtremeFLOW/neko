@@ -1,0 +1,137 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "double_oscillating_cylinders.nmsh",
+        "output_at_end": true,
+        "output_boundary": true,
+        "output_checkpoints": true,
+        "checkpoint_control": "tsteps",
+        "checkpoint_value": 5000,
+        "time": {
+            "end_time": 200.0,
+            "variable_timestep": false,
+            "timestep": 0.001
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 100.0,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [ 1.0, 0.0, 0.0 ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": { "type": "jacobi" },
+                "absolute_tolerance": 1e-8,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": { "type": "hsmg" },
+                "projection_space_size": 10,
+                "projection_reorthogonalize_basis": true,
+                "absolute_tolerance": 1e-7,
+                "max_iterations": 1000
+            },
+            "ale": {
+                "enabled": true,
+
+                "solver": {
+                    "type": "cg",
+                    "preconditioner": { "type": "jacobi" },
+                    "absolute_tolerance": 1.0e-10,
+                    "max_iterations": 10000,
+                    "output_base_shape": true,
+                    "output_stiffness": true
+                },
+
+                "mesh_preview": {
+                    "enabled": false,
+                    "start_time": 0.0,
+                    "end_time": 200.0,
+                    "output_freq": 250,
+                    "dt": 0.001
+                },
+                "bodies": [
+                    {
+                        "name": "left_cylinder",
+                        "zone_indices": [ 6 ],
+
+                        "oscillation": {
+                            "amplitude": [ 0.0, 0.4, 0.0 ],
+                            "frequency": [ 0.0, 0.2, 0.0 ]
+                       },
+
+                        "pivot":{
+                          "value": [0.0, 0.0, 0.0]
+                        },
+
+                        "stiff_geom": {
+                            "type": "cheap_dist",
+                            "stiff_dist": 0.5,
+                            "decay_profile": "tanh",
+                            "gain": 1000.0
+                        }
+                        
+                    },
+                    {
+                        "name": "right_cylinder",
+                        "zone_indices": [ 7 ],
+
+                        "pivot":{
+                          "value": [4.5, 0.0, 0.0]
+                        },
+
+                        "stiff_geom": {
+                            "type": "cheap_dist",
+                            "gain": 1000.0,
+                            "stiff_dist": 0.4,
+                            "decay_profile": "gaussian"
+                        }
+                    }
+                ]
+            },
+            "boundary_conditions": [
+                { "type": "velocity_value", "value": [ 1.0, 0.0, 0.0 ], "zone_indices": [ 2 ] },
+                { "type": "outflow", "zone_indices": [ 3 ] },
+                { "type": "symmetry", "zone_indices": [ 4 ] },
+                { "type": "symmetry", "zone_indices": [ 5 ] },
+                { "type": "no_slip", "zone_indices": [ 6 ], "moving": true },
+                { "type": "no_slip", "zone_indices": [ 7 ], "moving": true }
+            ],
+            "output_control": "tsteps",
+            "output_value": 100
+        },
+
+        "simulation_components":
+        [
+            {
+                "type": "force_torque",
+                "compute_control": "tsteps",
+                "compute_value": 1,
+                "zone_id": 6,
+                "name": "left_cyl",
+                "zone_name": "left_cylinder_fixed",
+                "center_type": "fixed",
+                "center": [0.0, 0.0, 0.0]
+            },
+
+            {
+                "type": "force_torque",
+                "compute_control": "tsteps",
+                "compute_value": 1,
+                "zone_id": 7,
+                "name": "right_cyl",
+                "zone_name": "right_cylinder_pivot",
+                "center": [ 4.5, 0.0, 0.0 ],
+                "center_type": "pivot"
+            }
+
+        ]
+    }
+}
