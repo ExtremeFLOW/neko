@@ -38,20 +38,20 @@ module vtkhdf_file
   use utils, only : neko_error, neko_warning, filename_split, &
        nonlinear_index, linear_index
   use mesh, only : mesh_t
-  use field, only : field_t, field_ptr_t
+  use field, only : field_t
   use field_list, only : field_list_t
   use field_series, only : field_series_t, field_series_ptr_t
   use dofmap, only : dofmap_t
   use logger, only : neko_log
   use comm, only : pe_rank, pe_size, NEKO_COMM
-  use device, only : DEVICE_TO_HOST
+  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier, MPI_LOGICAL
+       MPI_Barrier, MPI_Bcast, MPI_LOGICAL
   use vtk, only : vtk_ordering
 #ifdef HAVE_HDF5
   use hdf5, only : &
-       hid_t, hsize_t, &
+       hid_t, hsize_t, size_t, &
        h5open_f, h5close_f, &
        h5fcreate_f, h5fopen_f, h5fclose_f, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
@@ -153,11 +153,12 @@ contains
     real(kind=rp), intent(in), optional :: t
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
-    type(field_ptr_t), allocatable :: fp(:)
+    type(field_list_t) :: fields
     integer :: ierr, mpi_info, mpi_comm, i, n_fields
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, H5T_NEKO_STRING
     integer(hsize_t), dimension(1) :: vdims
+    integer(size_t) :: type_len
     integer :: lx, ly, lz
     integer :: local_points, local_cells, local_conn
     integer :: total_points, total_cells, total_conn
@@ -175,16 +176,12 @@ contains
        msh => data%msh
        dof => data%dof
        n_fields = 1
-       allocate(fp(1))
-       fp(1)%ptr => data
+       call fields%init(1)
+       call fields%assign(1, data)
     type is (field_list_t)
        msh => data%msh(1)
        dof => data%dof(1)
-       n_fields = data%size()
-       allocate(fp(n_fields))
-       do i = 1, n_fields
-          fp(i)%ptr => data%items(i)%ptr
-       end do
+       call fields%assign(data)
     class default
        call neko_error('Invalid data type for vtkhdf_file_write')
     end select
@@ -193,10 +190,10 @@ contains
     if (.not. associated(msh)) then
        call neko_error('Mesh must be associated for vtkhdf_file_write')
     end if
-    if (dof%Xh%lx < 2 .or. dof%Xh%ly < 2) then
+    if (dof%Xh%lx .lt. 2 .or. dof%Xh%ly .lt. 2) then
        call neko_error('VTKHDF linear output requires lx, ly >= 2')
     end if
-    if (msh%gdim .eq. 3 .and. dof%Xh%lz < 2) then
+    if (msh%gdim .eq. 3 .and. dof%Xh%lz .lt. 2) then
        call neko_error('VTKHDF linear output requires lz >= 2 in 3D')
     end if
     if (msh%gdim .lt. 2 .or. msh%gdim .gt. 3) then
@@ -239,7 +236,7 @@ contains
        call h5gcreate_f(file_id, "VTKHDF", vtkhdf_grp, ierr)
 
        ! Write Version attribute
-       vdims = 2
+       vdims = 2_hsize_t
        call h5screate_simple_f(1, vdims, filespace, ierr)
        call h5acreate_f(vtkhdf_grp, "Version", H5T_NATIVE_INTEGER, filespace, &
             attr_id, ierr)
@@ -249,14 +246,16 @@ contains
 
        ! Write Type attribute "UnstructuredGrid" as a fixed-length string
        type_str = "UnstructuredGrid"
-       vdims = 1
+       type_len = int(len_trim(type_str), kind=size_t)
+       vdims = 1_hsize_t
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
 
        call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
-       call h5tset_size_f(H5T_NEKO_STRING, int(len_trim(type_str), kind=hsize_t), ierr)
+       call h5tset_size_f(H5T_NEKO_STRING, type_len, ierr)
        call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
 
-       call h5acreate_f(vtkhdf_grp, "Type", H5T_NEKO_STRING, filespace, attr_id, ierr)
+       call h5acreate_f(vtkhdf_grp, "Type", H5T_NEKO_STRING, filespace, &
+            attr_id, ierr)
        call h5awrite_f(attr_id, H5T_NEKO_STRING, [type_str], vdims, ierr)
        call h5aclose_f(attr_id, ierr)
 
@@ -274,9 +273,9 @@ contains
     end if
 
     ! Write field data in PointData group
-    if (n_fields > 0) then
-       call vtkhdf_write_pointdata(vtkhdf_grp, fp, this%precision, counter, &
-            fname, t)
+    if (fields%size() .gt. 0) then
+       call vtkhdf_write_pointdata(vtkhdf_grp, fields, this%precision, &
+            counter, fname, t)
     end if
 
     call h5gclose_f(vtkhdf_grp, ierr)
@@ -284,9 +283,12 @@ contains
     call h5fclose_f(file_id, ierr)
     call h5close_f(ierr)
 
-    if (allocated(fp)) deallocate(fp)
+    call fields%free()
 
   end subroutine vtkhdf_file_write
+
+  ! -------------------------------------------------------------------------- !
+  ! Internal helper subroutines for VTKHDF writing
 
   !> Write mesh geometry datasets to the VTKHDF group.
   !! Writes NumberOfPoints, NumberOfCells, NumberOfConnectivityIds,
@@ -297,8 +299,7 @@ contains
   !! @param amr AMR flag to determine if mesh should be rewritten at every time
   !!            step
   !! @param t Optional time value for time-dependent mesh output (e.g. for AMR)
-  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, amr, &
-       counter, subdivide, t)
+  subroutine vtkhdf_write_mesh(vtkhdf_grp, dof, msh, amr, counter, subdivide, t)
     type(dofmap_t), intent(in) :: dof
     type(mesh_t), intent(in) :: msh
     integer(hid_t), intent(in) :: vtkhdf_grp
@@ -330,19 +331,19 @@ contains
     lz = dof%Xh%lz
 
     if (subdivide .and. msh%gdim .eq. 3) then
-       VTK_cell_type = 12 ! VTK_HEXAHEDRON
+       VTK_cell_type = int(12, kind=1) ! VTK_HEXAHEDRON
        cells_per_element = (lx - 1) * (ly - 1) * (lz - 1)
        nodes_per_cell = 8
     else if (subdivide .and. msh%gdim .eq. 2) then
-       VTK_cell_type = 9 ! VTK_QUAD
+       VTK_cell_type = int(9, kind=1) ! VTK_QUAD
        cells_per_element = (lx - 1) * (ly - 1)
        nodes_per_cell = 4
     else if (msh%gdim .eq. 3) then
-       VTK_cell_type = 72 ! VTK_LAGRANGE_HEXAHEDRON
+       VTK_cell_type = int(72, kind=1) ! VTK_LAGRANGE_HEXAHEDRON
        cells_per_element = 1
        nodes_per_cell = lx * ly * lz
     else if (msh%gdim .eq. 2) then
-       VTK_cell_type = 70 ! VTK_LAGRANGE_QUADRILATERAL
+       VTK_cell_type = int(70, kind=1) ! VTK_LAGRANGE_QUADRILATERAL
        cells_per_element = 1
        nodes_per_cell = lx * ly
     end if
@@ -441,11 +442,16 @@ contains
          do concurrent (local_idx = 1:local_points)
             block
               integer :: idx(4)
+              real(kind=dp) :: x, y, z
               idx = nonlinear_index(local_idx, lx, ly, lz)
 
-              coords(1, local_idx) = dof%x(idx(1), idx(2), idx(3), idx(4))
-              coords(2, local_idx) = dof%y(idx(1), idx(2), idx(3), idx(4))
-              coords(3, local_idx) = dof%z(idx(1), idx(2), idx(3), idx(4))
+              x = real(dof%x(idx(1), idx(2), idx(3), idx(4)), dp)
+              y = real(dof%y(idx(1), idx(2), idx(3), idx(4)), dp)
+              z = real(dof%z(idx(1), idx(2), idx(3), idx(4)), dp)
+
+              coords(1, local_idx) = x
+              coords(2, local_idx) = y
+              coords(3, local_idx) = z
             end block
          end do
          call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, coords, dcount2, ierr, &
@@ -577,7 +583,7 @@ contains
             counter)
 
        ! --- PartOffsets ---
-       i8_value = 0
+       i8_value = 0_i8
        if (amr) then
           i8_value = int(counter - 1, kind=i8) * int(pe_size, kind=i8)
           call vtkhdf_write_i8_at(grp_id, "PartOffsets", i8_value, counter)
@@ -651,10 +657,10 @@ contains
        call h5sclose_f(filespace, ierr)
 
        ! We have not written this timestep yet, expand the array
-       if (step_dims(1) .eq. counter) then
+       if (step_dims(1) .eq. int(counter, hsize_t)) then
           step_dims(1) = int(counter + 1, hsize_t)
           call h5dset_extent_f(dset_id, step_dims, ierr)
-       else if (step_dims(1) .lt. counter) then
+       else if (step_dims(1) .lt. int(counter, hsize_t)) then
           call neko_error("VTKHDF: Time steps written out of order.")
        end if
     else
@@ -716,15 +722,15 @@ contains
   !! For non-temporal output (when t is absent), fields are written directly
   !! into the main file's PointData group as regular datasets.
   !! @param vtkhdf_grp Root VTKHDF group
-  !! @param fp Array of field pointers to write
+  !! @param fields Field list containing the fields to write.
   !! @param precision Output precision
   !! @param counter Current timestep counter
   !! @param fname Main VTKHDF file path (used to derive external file names)
   !! @param t Current simulation time (optional, for temporal output)
-  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fp, precision, counter, &
+  subroutine vtkhdf_write_pointdata(vtkhdf_grp, fields, precision, counter, &
        fname, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
-    type(field_ptr_t), intent(in) :: fp(:)
+    type(field_list_t), intent(inout) :: fields
     integer, intent(in) :: precision
     integer, intent(in) :: counter
     character(len=*), intent(in) :: fname
@@ -739,7 +745,7 @@ contains
     integer(hid_t) :: dset_id, dcpl_id, filespace
     integer(hsize_t), dimension(1) :: pd_dims1, pd_maxdims1
     integer(hsize_t), dimension(2) :: pd_dims2, pd_maxdims2
-    type(field_t), pointer :: fld, u, v, w
+    type(field_t), pointer :: u, v, w
     character(len=128) :: field_name
     logical :: exists, is_vector
 
@@ -758,19 +764,19 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    n_fields = size(fp)
+    n_fields = fields%size()
 
     ! Compute local/global point counts and MPI offsets
-    local_points = fp(1)%ptr%dof%size()
-    total_points = fp(1)%ptr%dof%global_size()
+    local_points = fields%item_size(1)
+    total_points = fields%items(1)%ptr%dof%global_size()
     point_offset = 0
     call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, &
          MPI_SUM, NEKO_COMM, ierr)
 
     ! Sync all the fields
     do i = 1, n_fields
-       if (associated(fp(i)%ptr)) then
-          call fp(i)%ptr%copy_from(DEVICE_TO_HOST, sync = i .eq. n_fields)
+       if (associated(fields%items(i)%ptr)) then
+          call fields%items(i)%ptr%copy_from(DEVICE_TO_HOST, sync = i .eq. n_fields)
        end if
     end do
 
@@ -820,26 +826,24 @@ contains
     ! Write field data
 
     do i = 1, n_fields
-       fld => fp(i)%ptr
-       field_name = fld%name
+       field_name = fields%name(i)
        if (field_name .eq. 'p') field_name = 'Pressure'
 
        ! Determine if this is a velocity component to group as a vector
        is_vector = .false.
-       if (field_name .eq. 'u' .or. &
-            field_name .eq. 'v' .or. &
+       if (field_name .eq. 'u' .or. field_name .eq. 'v' .or. &
             field_name .eq. 'w') then
           u => null()
           v => null()
           w => null()
           do j = 1, n_fields
-             select case (fp(j)%ptr%name)
+             select case (trim(fields%name(j)))
              case ('u')
-                u => fp(j)%ptr
+                u => fields%get(j)
              case ('v')
-                v => fp(j)%ptr
+                v => fields%get(j)
              case ('w')
-                w => fp(j)%ptr
+                w => fields%get(j)
              end select
           end do
 
@@ -872,7 +876,7 @@ contains
           call write_vector_field(write_target, field_name, u%x, v%x, w%x, &
                local_points, precision, total_points, point_offset)
        else
-          call write_scalar_field(write_target, field_name, fld%x, &
+          call write_scalar_field(write_target, field_name, fields%x(i), &
                local_points, precision, total_points, point_offset)
        end if
     end do
@@ -1014,7 +1018,7 @@ contains
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
 
        call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
-       call h5tset_size_f(H5T_NEKO_STRING, 6_hsize_t, ierr)
+       call h5tset_size_f(H5T_NEKO_STRING, int(6, size_t), ierr)
        call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
 
        call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
@@ -1072,9 +1076,9 @@ contains
     lz = dof%Xh%lz
     n_pts_per_elem = lx * ly * lz
 
-    if (subdivide .and. vtk_type .eq. 12) then
+    if (subdivide .and. vtk_type .eq. int(12, kind=1)) then
        node_order = subdivide_to_hex_ordering(lx, ly, lz)
-    else if (subdivide .and. vtk_type .eq. 9) then
+    else if (subdivide .and. vtk_type .eq. int(9, kind=1)) then
        node_order = subdivide_to_quad_ordering(lx, ly)
     else
        node_order = vtk_ordering(vtk_type, lx, ly, lz)
@@ -1181,10 +1185,10 @@ contains
        call h5sget_simple_extent_dims_f(filespace, dims, maxdims, ierr)
        call h5sclose_f(filespace, ierr)
 
-       if (index .eq. dims(1)) then
+       if (int(index, hsize_t) .eq. dims(1)) then
           dims(1) = int(index + 1, hsize_t)
           call h5dset_extent_f(dset_id, dims, ierr)
-       else if (index .gt. dims(1)) then
+       else if (int(index, hsize_t) .gt. dims(1)) then
           call neko_error("VTKHDF: Values written out of order.")
        end if
     else
