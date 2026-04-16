@@ -47,8 +47,6 @@ module ale_routines_cpu
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   use logger, only : neko_log
   use ale_rigid_kinematics, only : ale_config_t, body_kinematics_t
-  use device, only : device_map, device_memcpy, device_unmap, &
-       HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
   use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
@@ -322,9 +320,7 @@ contains
     integer :: change_vec(1)
     logical :: done, changed_local, element_changed_ever
     character(len=128) :: log_buf
-    type(c_ptr) :: d_d
 
-    d_d = C_NULL_PTR
     lx = coef%dof%Xh%lx
     ly = coef%dof%Xh%ly
     lz = coef%dof%Xh%lz
@@ -352,10 +348,6 @@ contains
           d(idx) = 0.0_rp
        end do
        call bc_wall%free()
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(d, d_d, n)
     end if
 
     ipass = 1
@@ -413,25 +405,13 @@ contains
           if (element_changed_ever) nchange = nchange + 1
        end do
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(d, d_d, n, HOST_TO_DEVICE, .true.)
-       end if
-
        call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(d, d_d, n, DEVICE_TO_HOST, .true.)
-       end if
 
        change_vec(1) = nchange
 
        if (glimax(change_vec, 1) == 0) done = .true.
        ipass = ipass + 1
     end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_unmap(d, d_d)
-    end if
          
     write(log_buf, '(A, I0, A)') "   converged in: ", ipass, " passes"
     call neko_log%message(log_buf)

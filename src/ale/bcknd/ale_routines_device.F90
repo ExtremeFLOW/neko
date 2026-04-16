@@ -63,6 +63,7 @@ module ale_routines_device
   public :: compute_stiffness_ale_device
   public :: add_kinematics_to_mesh_velocity_device
   public :: update_ale_mesh_device
+
   ! DONT FORGET TO CHANGE AND CHECK C_RP INSTEAD OF C_DOUBLE
   type, bind(c) :: kinematics_params_t
     real(c_double) :: cx, cy, cz
