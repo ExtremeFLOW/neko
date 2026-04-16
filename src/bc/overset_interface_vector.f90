@@ -91,6 +91,8 @@ module overset_interface_vector
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
+     logical :: find_interface = .false.
+     logical :: setup = .false.
      
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
@@ -409,7 +411,9 @@ contains
 
 
     !> Change the coordinates of the interface if set up by the user
-    call this%morph_interface(this%interface_dof, this%interface_field, this%interface_dof_mask, time, this%name)
+    call this%morph_interface(this%interface_dof, this%interface_field, &
+                              this%interface_dof_mask, time, this%name, &
+                                          this%find_interface)
 
     !> Update in sub-step 1 should be an extrapolation of the boundary values
     ! not implemented for now
@@ -417,8 +421,13 @@ contains
     !   call this%extrapolate()
     ! end if
 
-    !> At some point check if the coordintes have changed. If so, find points again
-    ! not implemented for now
+    !> Find points if needed - later make sure only in first substep
+    if (this%find_interface) then
+      call this%interface_interpolator%find_points(this%x_interface_dof%x, &
+         this%y_interface_dof%x, this%z_interface_dof%x, &
+         this%x_interface_dof%size())
+      this%find_interface = .false.
+    end if
 
     !> For more substep than 1, then we just interpolate
     u => neko_registry%get_field("u")
