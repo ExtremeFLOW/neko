@@ -47,8 +47,6 @@ module ale_routines_cpu
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   use logger, only : neko_log
   use ale_rigid_kinematics, only : ale_config_t, body_kinematics_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -103,13 +101,12 @@ contains
 
              ! Compute into the specific slot for this body
 
-            ! Nek5000 algorithm
-            ! call compute_cheap_dist_cpu(dist_fields(:, map_idx), coef, &
-            !     coef%msh, params%bodies(b)%zone_indices)
+             ! Nek5000 algorithm
+             ! call compute_cheap_dist_cpu(dist_fields(:, map_idx), coef, &
+             !     coef%msh, params%bodies(b)%zone_indices)
 
-            call compute_cheap_dist_v2_cpu(dist_fields(:, map_idx), coef, &
-                 coef%msh, params%bodies(b)%zone_indices)
-
+             call compute_cheap_dist_v2_cpu(dist_fields(:, map_idx), coef, &
+                  coef%msh, params%bodies(b)%zone_indices)
 
              call MPI_Barrier(NEKO_COMM, ierr)
              sample_end_time = MPI_WTIME()
@@ -406,13 +403,12 @@ contains
        end do
 
        call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
-
        change_vec(1) = nchange
 
        if (glimax(change_vec, 1) == 0) done = .true.
        ipass = ipass + 1
     end do
-         
+
     write(log_buf, '(A, I0, A)') "   converged in: ", ipass, " passes"
     call neko_log%message(log_buf)
   end subroutine compute_cheap_dist_v2_cpu
