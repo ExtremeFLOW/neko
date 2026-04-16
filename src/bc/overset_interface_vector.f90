@@ -423,10 +423,17 @@ contains
 
     !> Find points if needed - later make sure only in first substep
     if (this%find_interface) then
+      
+      ! sync
+      this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+      this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+      this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
+      
       call this%interface_interpolator%find_points(this%x_interface_dof%x, &
          this%y_interface_dof%x, this%z_interface_dof%x, &
          this%x_interface_dof%size())
       this%find_interface = .false.
+
     end if
 
     !> For more substep than 1, then we just interpolate
