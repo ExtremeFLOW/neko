@@ -951,7 +951,7 @@ the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
 This prefix can be changed by setting the parameter `bf_registry_prefix`.
 
 <details>
-<summary><b><u>Example using `user_init_modules`</u></b></summary>
+<summary><b><u>Example using `initialize`</u></b></summary>
 
 ```fortran
 module user
@@ -1094,7 +1094,7 @@ The parameters for the sponge source term are summarized in the table below:
 
 
 ### Arbitrary Lagrangian-Eulerian Framework {#case-file_fluid-ale}
-Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies. 
+Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies.
 
 @note Currently, only the CPU backend of the ALE framework is supported. GPU acceleration for ALE computations will be available in future updates.
 
@@ -1120,13 +1120,13 @@ The `"ale"` block in case file is part of the `"fluid"` object, and has the foll
       ]
     },
   },
-  
+
 }
 ~~~~~~~~~~
 To run an ALE simulation, the framework must be set up as follows:
 
 * **Boundary Conditions:** Under the `"boundary_condition"` block, any moving wall must be set to `"no_slip"` with `"moving": true`.
-* **Enable ALE:** Under the `"ale"` block, the keyword `"enabled"` must be set to `true`. 
+* **Enable ALE:** Under the `"ale"` block, the keyword `"enabled"` must be set to `true`.
 
 @attention If the `"ale"` block is present, the `"enabled"` keyword is mandatory.
 
@@ -1189,7 +1189,7 @@ If the output flags are enabled, Neko will generate `.fld` files during the init
 * `phi_total0.f00000`: Generated if `"output_base_shape": true` **and** there is more than one body registered. Contains the sum of all base shapes (\f$ \phi_{total} = \sum \phi_i \f$).
 * `stiffness0.f00000`: Generated if `"output_stiffness": true`. Contains the global spatial mesh stiffness field \f$ h(\mathbf{x}) \f$.
 
-@attention Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately. 
+@attention Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
 
 
 @note It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
@@ -1271,7 +1271,7 @@ If the body undergoes rotational motion, the `"rotation"` sub-object can be conf
 | `rotation.target_angle_deg`| Target rotation angle in **degrees** <i>(only for </i>`smooth_step`<i>)</i> | Real | - |
 | `rotation.step_control_times`| Control times \f$ [t_0, t_1, t_2, t_3] \f$ <i>(only for </i>`smooth_step`<i>)</i>| Array of 4 reals | - |
 
-@warning If the `"rotation"` block is included in the case file, a valid `"pivot"` block to specify the center of rotation must be defined. The `"pivot"` object is explained [here](#case-file_fluid-ale-pivot). Additionally, the specific parameters corresponding to the chosen `rotation.type` become **mandatory**. 
+@warning If the `"rotation"` block is included in the case file, a valid `"pivot"` block to specify the center of rotation must be defined. The `"pivot"` object is explained [here](#case-file_fluid-ale-pivot). Additionally, the specific parameters corresponding to the chosen `rotation.type` become **mandatory**.
 
 @attention Positive rotation is defined counter-clockwise in a right-handed coordinate system.
 
@@ -1307,14 +1307,14 @@ Applies a smooth rotation around a single specified `axis` using a derivative st
      \theta(t) &=& \theta_{rad} \, S\left(\frac{t - t_0}{t_1 - t_0}\right)
     \f}
 
-- **Hold Phase** (\f$ t_1 \le t < t_2 \f$): 
+- **Hold Phase** (\f$ t_1 \le t < t_2 \f$):
 
     \f{eqnarray*}{
      \omega(t) &=& 0, \\
      \theta(t) &=& \theta_{rad}
     \f}
 
-- **Fall Phase** (\f$ t_2 \le t < t_3 \f$): 
+- **Fall Phase** (\f$ t_2 \le t < t_3 \f$):
 
     \f{eqnarray*}{
      \omega(t) &=& -\frac{\theta_{rad}}{t_3 - t_2} \text{dstep}\left(\frac{t - t_2}{t_3 - t_2}\right), \\
@@ -1326,7 +1326,7 @@ Applies a smooth rotation around a single specified `axis` using a derivative st
      \omega(t) &= 0, \\
      \theta(t) &= 0,
     \f}
-where \f$ \theta_{rad} \f$ is the `target_angle_deg` converted to radians. 
+where \f$ \theta_{rad} \f$ is the `target_angle_deg` converted to radians.
 
 The base smooth step function \f$ S(\tau) \f$ and its analytical derivative \f$ \text{dstep}(\tau) \f$ are defined for \f$ \tau \in (0, 1) \f$ as:
 
@@ -1335,7 +1335,7 @@ The base smooth step function \f$ S(\tau) \f$ and its analytical derivative \f$ 
  \text{dstep}(\tau) &=& -S(\tau)(1 - S(\tau))g'(\tau), \quad \text{where} \quad g'(\tau) = -\frac{1}{(\tau - 1)^2} - \frac{1}{\tau^2}.
 \f}
 
-For bounds where \f$ \tau \le 0 \f$, \f$ S(\tau) = 0 \f$ and \f$ \text{dstep}(\tau) = 0 \f$. 
+For bounds where \f$ \tau \le 0 \f$, \f$ S(\tau) = 0 \f$ and \f$ \text{dstep}(\tau) = 0 \f$.
 For bounds where \f$ \tau \ge 1 \f$, \f$ S(\tau) = 1 \f$ and \f$ \text{dstep}(\tau) = 0 \f$.
 
 @attention Within the case file, both translational oscillation and rotational motion can be applied simultaneously to a body. However, only one rotation mode can be active at a time.
@@ -1404,18 +1404,18 @@ Applies a smooth hyperbolic tangent transition:
 For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f$ used in the stiffness formulas above is calculated based on the selected `stiff_geom.type` and the body's stiffness center \f$ C = (c_x, c_y, c_z) \f$:
 
 * **Sphere** (`"sphere"`):
- 
+
   \f{eqnarray*}{
    r = \sqrt{(x - c_x)^2 + (y - c_y)^2 + (z - c_z)^2}.
   \f}
-* **Cylinder** (`"cylinder"`): 
+* **Cylinder** (`"cylinder"`):
   Calculates the distance to the Z-axis passing through the center \f$ (c_x, c_y) \f$.
 
   \f{eqnarray*}{
    r = \sqrt{(x - c_x)^2 + (y - c_y)^2}.
   \f}
 
-* **Wall Distance** (`"cheap_dist"`): 
+* **Wall Distance** (`"cheap_dist"`):
   \f$ r \f$ is assigned from a precomputed pseudo distance field based on the boundary `zone_indices`.
 
 @attention Within the region defined by `radius` (from the center) or `stiff_dist` (from the boundary), the mesh stiffness is at its highest. If the `gain` parameter is set large enough, the mesh within this region moves rigidly with the body, preserving its original element quality without deformation. Users are encouraged to check the `ocyl_cylinder3D`, `ocyl_ellipse3D`, and `Double_ocyl_cylinder` examples to get a better idea of how these parameters are configured in practice.
