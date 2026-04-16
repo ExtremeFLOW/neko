@@ -67,7 +67,8 @@ module field_subsampler
   !! formally only gives an indication of the error.
   type, public, extends(simulation_component_t) :: field_subsampler_t
 
-     procedure(compute_intrf), pass(this), pointer :: compute_impl => dummy_compute
+     procedure(compute_intrf), pass(this), pointer :: compute_impl => &
+          dummy_compute
 
      !> Fields to subsample.
      character(len=20), allocatable :: field_names(:)
@@ -205,47 +206,52 @@ contains
     ! ========================================================================
     ! Polynomial order / space interpolation
 
+    this%internal_space = .false.
     if (present(p)) then
+
        this%lx = p + 1
 
-       ! If we detect the same polynomial order, skip interpolation
        if (this%lx .eq. this%case%fluid%Xh%lx) then
-          call neko_warning("Same polynomial order, no interpolation performed.")
+          if (pe_rank .eq. 0) then
+             call neko_warning("No change in polynomial order")
+             call neko_warning("Space-to-space interpolation disabled.")
+          end if
        else
 
-          ! Create the subsampled space
+          ! Create the subsampled space, with the (strong) assumption that
+          ! lx = ly = lz.
           allocate(this%Xh)
           call this%Xh%init(GLL, this%lx, this%lx, this%lx)
           this%internal_space = .true.
 
-          ! Initialize the space-to-space interpolation
           call this%interpolator%init(this%Xh, this%case%fluid%Xh)
        end if
 
     end if
 
-    if (.not. associated(this%Xh)) then
-
+    ! If we haven't initialized our own space above, retrieve it from the
+    ! fluid.
+    if (.not. this%internal_space) then
        this%lx = this%case%fluid%Xh%lx
-
-       ! Point to the same space as the fluid simulation
        this%Xh => this%case%fluid%Xh
-       this%internal_space = .false.
-
     end if
 
     ! ========================================================================
     ! Point zone masking
+
     if (present(point_zone)) then
        this%point_zone => point_zone
+
+       if (.not. point_zone%full_elements) &
+            call neko_error("full_elements must be enabled for subsampling")
 
        ! Create the subsampled mesh
        allocate(this%msh)
        call this%case%fluid%msh%subset_by_mask(this%msh, &
             point_zone%mask, &
-            this%case%fluid%Xh%lx, &
-            this%case%fluid%Xh%lx, &
-            this%case%fluid%Xh%lx)
+            this%case%fluid%Xh%lx, & ! Yes, lx, ly and lz should come from the
+            this%case%fluid%Xh%ly, & ! fluid object, since the point_zone
+            this%case%fluid%Xh%lz) ! mask is built from those values.
        this%internal_mesh = .true.
 
     else
@@ -278,13 +284,18 @@ contains
     ! Assign the correct compute() depending on whether interpolation is
     ! enabled or not
 
+    ! Only space-to-space interpolation
     if (this%internal_space .and. .not. this%internal_mesh) then
        this%compute_impl => field_subsampler_compute_Xh
+
+       ! Only masked copying based on the point_zone
     else if (.not. this%internal_space .and. this%internal_mesh) then
        this%compute_impl => field_subsampler_compute_pz
+
+       ! Both masked copying and space-to-space interpolation
     else
 
-       ! initialize the work array with masked mesh but same poly. order as
+       ! initialize a work array with masked mesh but same poly. order as
        ! the simulation
        call this%wk%init(this%msh, this%case%fluid%Xh)
 
@@ -335,7 +346,6 @@ contains
     type(field_t), pointer :: f
     integer :: i, n, n_mask
 
-    write (*,*) "!!!! INSIDE PZ !!!!"
 
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
@@ -365,7 +375,6 @@ contains
     type(field_t), pointer :: f
     integer :: i
 
-    write (*,*) "!!!! INSIDE XH !!!!"
     do i = 1, size(this%field_names)
        f => neko_registry%get_field(this%field_names(i))
        call this%interpolator%map(this%fields%x(i), f%x, &
@@ -383,7 +392,6 @@ contains
     type(field_t), pointer :: f
     integer :: i, n, n_mask
 
-    write (*,*) "!!!! INSIDE PZ and XH !!!!"
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
 
