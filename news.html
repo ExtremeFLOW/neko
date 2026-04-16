@@ -1,14 +1,20 @@
 ---
 layout: default
-title: Blog
+title: News
+permalink: /news.html
 ---
-<h1>Latest News</h1>
 
-<ul>
+<section class="page-header">
+  <h1>News</h1>
+  <p>Release notes, announcements, and milestones for the Neko project.</p>
+</section>
+
+<div class="news-list-page">
   {% for post in site.posts %}
-    <li>
-      <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
-      {{ post.excerpt }}
-    </li>
+    <article class="news-list-item">
+      <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+      <p class="news-list-date">{{ post.date | date: "%d %B %Y" }}</p>
+      <p>{{ post.excerpt | strip_html | truncate: 220 }}</p>
+    </article>
   {% endfor %}
-</ul>
+</div>

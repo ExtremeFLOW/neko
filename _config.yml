@@ -1,9 +1,11 @@
-title: neko
-remote_theme: pages-themes/hacker@v0.2.0
+title: Neko
+search_title: 'neko | /ᐠ. ｡.ᐟ\ᵐᵉᵒʷˎˊ˗'
+brand_mark: '/ᐠ. ｡.ᐟ\ᵐᵉᵒʷˎˊ˗'
+email: neko@example.com
+description: >-
+  A modern, portable, and scalable framework for high-fidelity computational fluid dynamics.
+baseurl: ""
+url: ""
+markdown: kramdown
 plugins:
-- jekyll-remote-theme
-show_downloads: true
-github:
-  tar_url: https://github.com/ExtremeFLOW/neko/releases/download/v1.0.1/neko-1.0.1.tar.gz
-
-
+  - jekyll-feed
