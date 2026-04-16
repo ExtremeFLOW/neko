@@ -13,12 +13,12 @@ module test_boundary_operation
   use time_state, only : time_state_t
   use num_types, only : rp
   use case, only : case_t
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
   use device, only : device_init, device_finalize, HOST_TO_DEVICE
   use neko_config, only : NEKO_BCKND_DEVICE
   use neko_mpi_types, only : neko_mpi_types_init
   use registry, only : neko_registry
-  use utils, only : nonlinear_index
+  use vector_math, only : vector_face_masked_gather_copy_0
   implicit none
 
   integer, parameter :: lx_test = 3
@@ -34,15 +34,12 @@ contains
 
   subroutine setUp(this)
     class(test_boundary_operation_case), intent(inout) :: this
-    integer :: ierr
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init
     call neko_mpi_types_init()
   end subroutine setUp
 
@@ -82,6 +79,9 @@ contains
 
     call fld%init(dof, "xcoord")
     fld%x = dof%x
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call fld%copy_from(HOST_TO_DEVICE, .true.)
+    end if
 
     call init_boundary_operation_for_compute_test(simcomp, fld, coef)
 
@@ -129,6 +129,9 @@ contains
     call neko_registry%add_field(dof, "u")
     reg_field => neko_registry%get_field_by_name("u")
     reg_field%x = dof%x
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call reg_field%copy_from(HOST_TO_DEVICE, .true.)
+    end if
 
     call test_case%time%init(0.0_rp, 1.0_rp, 0.1_rp)
 
@@ -169,16 +172,13 @@ contains
     call msh%free()
   end subroutine test_init
 
-  ! This builds the entire simcomp to test compute, withot usng a
+  ! This builds the entire simcomp to test compute, without using a
   ! constructor.
   subroutine init_boundary_operation_for_compute_test(simcomp, fld, coef)
     type(boundary_operation_t), intent(inout) :: simcomp
     type(field_t), target, intent(inout) :: fld
     type(coef_t), target, intent(inout) :: coef
     integer :: i
-    integer :: l
-    integer :: facet
-    integer :: idx(4)
     integer :: n_pts
 
     simcomp%name = "boundary_operation_test"
@@ -210,17 +210,9 @@ contains
     if (n_pts .gt. 0) then
        call simcomp%areas%init(n_pts)
        call simcomp%surface_values%init(n_pts)
-       do l = 1, n_pts
-          idx = nonlinear_index(simcomp%bc%msk(l), simcomp%field%Xh%lx, &
-               simcomp%field%Xh%ly, simcomp%field%Xh%lz)
-          facet = simcomp%bc%facet(l)
-          simcomp%areas%x(l) = simcomp%coef%get_area(idx(1), idx(2), &
-               idx(3), idx(4), facet)
-       end do
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call simcomp%areas%copy_from(HOST_TO_DEVICE, .true.)
-       end if
+       call vector_face_masked_gather_copy_0(simcomp%areas, simcomp%coef%area, &
+            simcomp%bc%msk, simcomp%bc%facet, simcomp%coef%Xh%lx, &
+            simcomp%coef%Xh%ly, simcomp%coef%Xh%lz, n_pts)
     end if
   end subroutine init_boundary_operation_for_compute_test
 
