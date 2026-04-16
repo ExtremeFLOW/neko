@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added MOST wall model and added diagnostics for the wall models.
 - Added ALE framework.
 - Added masked I/O capabilities for the field_writer via the optional 
   `point_zone` JSON keyword.
