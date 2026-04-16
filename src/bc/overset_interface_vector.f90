@@ -410,9 +410,6 @@ contains
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, this%interface_dof_mask, time, this%name)
-    if (this%y_interface_dof%size() .gt. 0) then
-      write(*,*) "the new coord is: ", this%y_interface_dof%x(1)
-    end if
 
     !> Update in sub-step 1 should be an extrapolation of the boundary values
     ! not implemented for now
