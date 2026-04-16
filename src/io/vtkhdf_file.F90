@@ -162,7 +162,7 @@ contains
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, H5T_NEKO_STRING
     integer(hsize_t), dimension(1) :: vdims
-    integer(hsize_t) :: type_len
+    integer(size_t) :: type_len
     integer :: lx, ly, lz
     integer :: local_points, local_cells, local_conn
     integer :: total_points, total_cells, total_conn
@@ -250,7 +250,7 @@ contains
 
        ! Write Type attribute "UnstructuredGrid" as a fixed-length string
        type_str = "UnstructuredGrid"
-       type_len = int(len_trim(type_str), kind=hsize_t)
+       type_len = int(len_trim(type_str), kind=size_t)
        vdims = 1_hsize_t
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
 
@@ -335,19 +335,19 @@ contains
     lz = dof%Xh%lz
 
     if (subdivide .and. msh%gdim .eq. 3) then
-       VTK_cell_type = 12 ! VTK_HEXAHEDRON
+       VTK_cell_type = int(12, kind=1) ! VTK_HEXAHEDRON
        cells_per_element = (lx - 1) * (ly - 1) * (lz - 1)
        nodes_per_cell = 8
     else if (subdivide .and. msh%gdim .eq. 2) then
-       VTK_cell_type = 9 ! VTK_QUAD
+       VTK_cell_type = int(9, kind=1) ! VTK_QUAD
        cells_per_element = (lx - 1) * (ly - 1)
        nodes_per_cell = 4
     else if (msh%gdim .eq. 3) then
-       VTK_cell_type = 72 ! VTK_LAGRANGE_HEXAHEDRON
+       VTK_cell_type = int(72, kind=1) ! VTK_LAGRANGE_HEXAHEDRON
        cells_per_element = 1
        nodes_per_cell = lx * ly * lz
     else if (msh%gdim .eq. 2) then
-       VTK_cell_type = 70 ! VTK_LAGRANGE_QUADRILATERAL
+       VTK_cell_type = int(70, kind=1) ! VTK_LAGRANGE_QUADRILATERAL
        cells_per_element = 1
        nodes_per_cell = lx * ly
     end if
@@ -446,11 +446,16 @@ contains
          do concurrent (local_idx = 1:local_points)
             block
               integer :: idx(4)
+              real(kind=dp) :: x, y, z
               idx = nonlinear_index(local_idx, lx, ly, lz)
 
-              coords(1, local_idx) = dof%x(idx(1), idx(2), idx(3), idx(4))
-              coords(2, local_idx) = dof%y(idx(1), idx(2), idx(3), idx(4))
-              coords(3, local_idx) = dof%z(idx(1), idx(2), idx(3), idx(4))
+              x = real(dof%x(idx(1), idx(2), idx(3), idx(4)), dp)
+              y = real(dof%y(idx(1), idx(2), idx(3), idx(4)), dp)
+              z = real(dof%z(idx(1), idx(2), idx(3), idx(4)), dp)
+
+              coords(1, local_idx) = x
+              coords(2, local_idx) = y
+              coords(3, local_idx) = z
             end block
          end do
          call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, coords, dcount2, ierr, &
@@ -582,7 +587,7 @@ contains
             counter)
 
        ! --- PartOffsets ---
-       i8_value = 0
+       i8_value = 0_i8
        if (amr) then
           i8_value = int(counter - 1, kind=i8) * int(pe_size, kind=i8)
           call vtkhdf_write_i8_at(grp_id, "PartOffsets", i8_value, counter)
@@ -656,10 +661,10 @@ contains
        call h5sclose_f(filespace, ierr)
 
        ! We have not written this timestep yet, expand the array
-       if (step_dims(1) .eq. counter) then
+       if (step_dims(1) .eq. int(counter, hsize_t)) then
           step_dims(1) = int(counter + 1, hsize_t)
           call h5dset_extent_f(dset_id, step_dims, ierr)
-       else if (step_dims(1) .lt. counter) then
+       else if (step_dims(1) .lt. int(counter, hsize_t)) then
           call neko_error("VTKHDF: Time steps written out of order.")
        end if
     else
@@ -1017,7 +1022,7 @@ contains
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
 
        call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
-       call h5tset_size_f(H5T_NEKO_STRING, 6_hsize_t, ierr)
+       call h5tset_size_f(H5T_NEKO_STRING, int(6, size_t), ierr)
        call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
 
        call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
@@ -1075,9 +1080,9 @@ contains
     lz = dof%Xh%lz
     n_pts_per_elem = lx * ly * lz
 
-    if (subdivide .and. vtk_type .eq. 12) then
+    if (subdivide .and. vtk_type .eq. int(12, kind=1)) then
        node_order = subdivide_to_hex_ordering(lx, ly, lz)
-    else if (subdivide .and. vtk_type .eq. 9) then
+    else if (subdivide .and. vtk_type .eq. int(9, kind=1)) then
        node_order = subdivide_to_quad_ordering(lx, ly)
     else
        node_order = vtk_ordering(vtk_type, lx, ly, lz)
@@ -1184,10 +1189,10 @@ contains
        call h5sget_simple_extent_dims_f(filespace, dims, maxdims, ierr)
        call h5sclose_f(filespace, ierr)
 
-       if (index .eq. dims(1)) then
+       if (int(index, hsize_t) .eq. dims(1)) then
           dims(1) = int(index + 1, hsize_t)
           call h5dset_extent_f(dset_id, dims, ierr)
-       else if (index .gt. dims(1)) then
+       else if (int(index, hsize_t) .gt. dims(1)) then
           call neko_error("VTKHDF: Values written out of order.")
        end if
     else
@@ -1467,15 +1472,18 @@ contains
     call h5pclose_f(xf_id, ierr)
   end subroutine write_vector_field
 
+  ! -------------------------------------------------------------------------- !
+  ! Reader functions and routines
+
   !> Read data in HDF5 format following official VTKHDF specification
   subroutine vtkhdf_file_read(this, data)
     class(vtkhdf_file_t) :: this
     class(*), target, intent(inout) :: data
-    integer(hid_t) :: plist_id, file_id, vtkhdf_grp, steps_grp, attr_id
-    integer :: ierr, mpi_info, mpi_comm, counter, nsteps
     character(len=1024) :: fname
-    type(field_t), pointer :: fld
-    logical :: steps_exists
+    integer(hid_t) :: plist_id, file_id, vtkhdf_grp
+    integer :: mpi_info, mpi_comm, counter, ierr
+    type(field_list_t) :: fields
+    integer :: i
 
     ! Open the file
     fname = trim(this%get_vtkhdf_fname())
@@ -1489,17 +1497,34 @@ contains
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
-    call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, ierr, access_prp = plist_id)
+    call h5fopen_f(fname, H5F_ACC_RDONLY_F, file_id, ierr, &
+         access_prp = plist_id)
+    if (ierr .ne. 0) then
+       call neko_error('Error opening VTKHDF file: ' // trim(fname))
+    end if
+
     call h5gopen_f(file_id, "VTKHDF", vtkhdf_grp, ierr)
+    if (ierr .ne. 0) then
+       call h5fclose_f(file_id, ierr)
+       call h5pclose_f(plist_id, ierr)
+       call h5close_f(ierr)
+       call neko_error('VTKHDF group not found in file: ' // trim(fname))
+    end if
 
     select type (data)
     type is (field_t)
-       fld => data
-       call vtkhdf_read_field(vtkhdf_grp, fname, counter, trim(fld%name), fld)
-       call fld%copy_from(HOST_TO_DEVICE, sync = .true.)
+       call fields%init(1)
+       call fields%assign(1, data)
+    type is (field_list_t)
+       call fields%assign(data)
     class default
        call neko_error("Unsupported data type in vtkhdf_file_read")
     end select
+
+    do i = 1, fields%size()
+       call vtkhdf_read_field(vtkhdf_grp, fname, counter, fields%get(i))
+    end do
+    call fields%copy_from(HOST_TO_DEVICE, .true.)
 
     call h5gclose_f(vtkhdf_grp, ierr)
     call h5fclose_f(file_id, ierr)
@@ -1517,13 +1542,13 @@ contains
   !! If the dataset is a Virtual Dataset (VDS), HDF5 does not support parallel
   !! reads on VDS. We detect this by checking h5pget_virtual_count and read
   !! directly from the external source file instead.
-  subroutine vtkhdf_read_field(vtkhdf_grp, fname, counter, field_name, fld)
+  subroutine vtkhdf_read_field(vtkhdf_grp, fname, counter, fld)
     integer(hid_t), intent(in) :: vtkhdf_grp
     character(len=*), intent(in) :: fname
     integer, intent(in) :: counter
-    character(len=*), intent(in) :: field_name
     type(field_t), intent(inout) :: fld
 
+    character(len=:), allocatable :: field_name
     integer :: ierr, local_points, total_points, point_offset, component
     integer(hid_t) :: pointdata_grp, dset_id, filespace, memspace, xf_id
     integer(hid_t) :: dcpl_id, ext_file_id, ext_plist_id, attr_id
@@ -1538,6 +1563,8 @@ contains
     real(kind=rp), allocatable :: vec_component(:,:)
     integer :: mpi_info, mpi_comm, pct_pos, nsteps
     character(len=:), allocatable :: error_message
+
+    field_name = trim(fld%name)
 
     ! Validate counter against file's NSteps if temporal data exists
     call h5lexists_f(vtkhdf_grp, "Steps", exists, ierr)
@@ -1601,7 +1628,7 @@ contains
     call h5dopen_f(pointdata_grp, trim(dset_name), dset_id, ierr)
     call h5dget_create_plist_f(dset_id, dcpl_id, ierr)
     call h5pget_virtual_count_f(dcpl_id, vds_count, ierr)
-    is_vds = (vds_count .gt. 0)
+    is_vds = (vds_count .gt. 0_size_t)
 
     if (is_vds) then
        ! Get the source file pattern from the VDS mapping
