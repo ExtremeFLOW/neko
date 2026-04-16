@@ -582,7 +582,7 @@ contains
 
     if (size(x) .eq. 0) return
     if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
-                           ' to a null device pointer for a non-empty array')
+         ' to a null device pointer for a non-empty array')
 
     select type (x)
     type is (integer)
@@ -608,10 +608,10 @@ contains
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
-    
+
     if (size(x) .eq. 0) return
     if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
-                           ' to a null device pointer for a non-empty array')
+         ' to a null device pointer for a non-empty array')
 
     select type (x)
     type is (integer)
@@ -640,7 +640,7 @@ contains
 
     if (size(x) .eq. 0) return
     if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
-                           ' to a null device pointer for a non-empty array')
+         ' to a null device pointer for a non-empty array')
     select type (x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
@@ -665,10 +665,10 @@ contains
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
-    
+
     if (size(x) .eq. 0) return
     if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
-                           ' to a null device pointer for a non-empty array')
+         ' to a null device pointer for a non-empty array')
 
     select type (x)
     type is (integer)
