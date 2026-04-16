@@ -52,6 +52,8 @@ module ale_routines_device
   use device, only : device_map, device_memcpy, device_unmap, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue, device_alloc
   use neko_config, only : NEKO_BCKND_DEVICE
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_WTIME, MPI_Barrier
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, c_sizeof, c_loc, c_double
   use logger, only : neko_log
 
