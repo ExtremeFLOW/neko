@@ -56,7 +56,7 @@ submodule (simulation_component) simulation_component_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(17) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(18) = [character(len=20) :: &
        "boundary_operation", &
        "lambda2", &
        "probes", &
