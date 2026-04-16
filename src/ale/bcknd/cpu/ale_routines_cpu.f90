@@ -106,18 +106,12 @@ contains
 
              ! Compute into the specific slot for this body
 
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                call compute_cheap_dist_device(dist_fields(:, map_idx), coef, &
-                     coef%msh, params%bodies(b)%zone_indices)
-             else
+            ! Nek5000 algorithm
+            ! call compute_cheap_dist_cpu(dist_fields(:, map_idx), coef, &
+            !     coef%msh, params%bodies(b)%zone_indices)
 
-                ! Nek5000 algorithm
-                ! call compute_cheap_dist_cpu(dist_fields(:, map_idx), coef, &
-                !     coef%msh, params%bodies(b)%zone_indices)
-               
-                call compute_cheap_dist_v2_cpu(dist_fields(:, map_idx), coef, &
-                     coef%msh, params%bodies(b)%zone_indices)
-             end if
+            call compute_cheap_dist_v2_cpu(dist_fields(:, map_idx), coef, &
+                 coef%msh, params%bodies(b)%zone_indices)
 
 
              call MPI_Barrier(NEKO_COMM, ierr)

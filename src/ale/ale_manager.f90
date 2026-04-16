@@ -1218,8 +1218,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(ale_config_t), intent(in) :: params
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      ! call compute_stiffness_ale_device(coef, params)
-       call compute_stiffness_ale_cpu(coef, params)
+       call compute_stiffness_ale_device(coef, params)
     else
        call compute_stiffness_ale_cpu(coef, params)
     end if
