@@ -311,10 +311,9 @@ contains
   end subroutine most_compute_cpu
 
 !> Similarity laws and corrections for the STABLE regime:
-  !> REFERENCE: Cheng, Y., and W. Brutsaert (2005), Flux-profile relationships for wind speed
-  !> and temperature in the stable atmospheric boundary layer, Bound.-Layer Meteorol., 3, 519-538.
+  !> REFERENCE: Holtslag, A. A. M., & De Bruin, H. A. R. (1988). Applied Modeling of the Nighttime Surface Energy Balance over Land. Journal of Applied Meteorology, 27(6), 689–704.
   !> NOTE: This formulation is chosen for its superior behavior in very stable conditions (large z/L),
-  !> avoiding the numerical decoupling found in older linear (e.g., Webb or Holtslag) functions.
+  !> avoiding the numerical decoupling found in older linear functions (e.g., Dyer).
   function slaw_m_stable(z, L_ob, z0) result(slaw)
     real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
