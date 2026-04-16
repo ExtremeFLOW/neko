@@ -39,14 +39,16 @@ submodule(scalar_pnpn) scalar_pnpn_bc_fctry
   use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
   use field_neumann, only : field_neumann_t
+  use overset_interface, only : overset_interface_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: SCALAR_PNPN_KNOWN_BCS(4) = [character(len=25) :: &
+  character(len=25) :: SCALAR_PNPN_KNOWN_BCS(5) = [character(len=25) :: &
        "dirichlet", &
        "user_dirichlet", &
        "user_neumann", &
-       "neumann"]
+       "neumann", &
+       "overset_interface"]
 
 contains
 
@@ -99,6 +101,12 @@ contains
        end select
     case ("neumann")
        allocate(neumann_t::object)
+    case ("overset_interface")
+       allocate(overset_interface_t::object)
+       select type (obj => object)
+       type is (overset_interface_t)
+          call json%add("field_name", scheme%s%name)
+       end select
     case default
        call neko_type_error("scalar_pnpn boundary conditions", type, &
             SCALAR_PNPN_KNOWN_BCS)
