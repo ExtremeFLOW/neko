@@ -181,7 +181,10 @@ contains
     type is (field_list_t)
        msh => data%msh(1)
        dof => data%dof(1)
-       call fields%assign(data)
+       call fields%init(data%size())
+       do i = 1, data%size()
+          call fields%assign(i, data%get(i))
+       end do
     class default
        call neko_error('Invalid data type for vtkhdf_file_write')
     end select
