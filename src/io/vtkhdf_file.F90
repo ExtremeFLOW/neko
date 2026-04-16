@@ -154,6 +154,7 @@ contains
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_list_t) :: fields
+    type(field_t), pointer :: fld
     integer :: ierr, mpi_info, mpi_comm, i, n_fields
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, H5T_NEKO_STRING
@@ -183,7 +184,8 @@ contains
        dof => data%dof(1)
        call fields%init(data%size())
        do i = 1, data%size()
-          call fields%assign(i, data%get(i))
+          fld => data%get(i)
+          call fields%assign(i, fld)
        end do
     class default
        call neko_error('Invalid data type for vtkhdf_file_write')
@@ -748,7 +750,7 @@ contains
     integer(hid_t) :: dset_id, dcpl_id, filespace
     integer(hsize_t), dimension(1) :: pd_dims1, pd_maxdims1
     integer(hsize_t), dimension(2) :: pd_dims2, pd_maxdims2
-    type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: fld, u, v, w
     character(len=128) :: field_name
     logical :: exists, is_vector
 
@@ -829,6 +831,7 @@ contains
     ! Write field data
 
     do i = 1, n_fields
+       fld => fields%get(i)
        field_name = fields%name(i)
        if (field_name .eq. 'p') field_name = 'Pressure'
 
@@ -879,7 +882,7 @@ contains
           call write_vector_field(write_target, field_name, u%x, v%x, w%x, &
                local_points, precision, total_points, point_offset)
        else
-          call write_scalar_field(write_target, field_name, fields%x(i), &
+          call write_scalar_field(write_target, field_name, fld%x, &
                local_points, precision, total_points, point_offset)
        end if
     end do
