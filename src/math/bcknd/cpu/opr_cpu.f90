@@ -84,13 +84,13 @@ module opr_cpu
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: e_start, e_end
        real(kind=rp), intent(inout) :: du(Xh%lxyz, e_end - e_start + 1)
-       real(kind=rp), intent(inout) :: &
+       real(kind=rp), intent(in) :: &
             u(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
-       real(kind=rp), intent(inout) :: &
+       real(kind=rp), intent(in) :: &
             vx(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
-       real(kind=rp), intent(inout) :: &
+       real(kind=rp), intent(in) :: &
             vy(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
-       real(kind=rp), intent(inout) :: &
+       real(kind=rp), intent(in) :: &
             vz(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
      end subroutine opr_cpu_conv1
 

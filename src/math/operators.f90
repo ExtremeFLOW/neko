@@ -300,10 +300,10 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: du(Xh%lxyz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: vy(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: vz(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
     integer, optional :: es, ee
     integer :: eblk_end, eblk_start
 
