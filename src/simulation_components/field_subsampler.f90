@@ -37,11 +37,12 @@ module field_subsampler
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use logger, only : neko_log
+  use logger, only : neko_log, NEKO_LOG_DEBUG
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
+  use math, only : masked_gather_copy
+  use device_math, only : device_masked_gather_copy_aligned
   use comm, only : pe_rank
   use utils, only : neko_warning, neko_error
-  use field_writer, only : field_writer_t
   use simulation_component, only : simulation_component_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
@@ -52,6 +53,8 @@ module field_subsampler
   use dofmap, only : dofmap_t
   use space, only : space_t, GLL
   use mesh, only : mesh_t
+  use field_list, only : field_list_t
+  use interpolation, only : interpolator_t
 
   use, intrinsic :: iso_c_binding
   implicit none
@@ -64,22 +67,27 @@ module field_subsampler
   !! formally only gives an indication of the error.
   type, public, extends(simulation_component_t) :: field_subsampler_t
 
+     procedure(compute_intrf), pass(this), pointer :: compute_impl => dummy_compute
+
      !> Fields to subsample.
      character(len=20), allocatable :: field_names(:)
-
+     !> Pointers to the subsampled fields in the registry
+     type(field_list_t) :: fields
      !> Point zone to use for subsampling.
      class(point_zone_t), pointer :: point_zone => null()
-     !> Points to the mesh our fields are based on. If no point zone, will
-     !! point to the same mesh as the current sim. Otherwise, will point to its
-     !! own masked one.
+
+     !> Points to the mesh our fields are based on. If no point zone, is
+     !! used, this%msh will point to the same mesh as the current sim.
+     ! Otherwise, it will point to its own internal masked mesh_t.
      type(mesh_t), pointer :: msh => null()
      !> Indicates if the instance of msh is internally managed
-     logical :: internal_mesh
+     logical :: internal_mesh = .false.
 
      !> The dofmap to use for our fields. We know for sure this dofmap is
      !! going to be different from case%fluid%dm_Xh because we force the
      !! user to provide either a point_zone or a different polynomial order.
      type(dofmap_t) :: dof
+
      !> Points to the space our fields are based on. If no point zone, will
      !! point to the same space as the current sim. Otherwise, will point to its
      !! own masked one.
@@ -87,13 +95,14 @@ module field_subsampler
      !> Indicates if the instance of msh is internally managed. Also serves
      !! as a flag for determining whether or not to perform space-to-space
      !! interpolation
-     logical :: internal_space
+     logical :: internal_space = .false.
 
+     !> Space-to-space interpolation
+     type(interpolator_t) :: interpolator
+     !> Temporary work field for space-to-space interpolation
+     type(field_t) :: wk
      !> New polynomial order to use for subsampling.
      integer :: lx = -1
-
-     !> Field writer controller for the output
-     type(field_writer_t) :: writer
 
    contains
      !> Constructor.
@@ -101,13 +110,35 @@ module field_subsampler
      !> Destructor.
      procedure, pass(this) :: free => field_subsampler_free
      !> Compute the indicator (called according to the simcomp controller).
-     procedure, pass(this) :: compute_ => field_subsampler_compute
-     !> Update the masked fields.
-     !procedure, pass(this) :: update => field_subsampler_update
-
+     procedure, pass(this) :: compute_ => compute_wrapper
   end type field_subsampler_t
 
+  abstract interface
+     subroutine compute_intrf(this, time)
+       import :: field_subsampler_t, time_state_t
+       class(field_subsampler_t), intent(inout) :: this
+       type(time_state_t), intent(in) :: time
+     end subroutine compute_intrf
+  end interface
+
+
 contains
+
+  subroutine compute_wrapper(this, time)
+    class(field_subsampler_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    call this%compute_impl(time)
+
+  end subroutine compute_wrapper
+
+  subroutine dummy_compute(this, time)
+    class(field_subsampler_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    call neko_error("field_subsampler must be initialized first!")
+
+  end subroutine dummy_compute
 
   !> Constructor.
   subroutine field_subsampler_init(this, json, case)
@@ -139,12 +170,13 @@ contains
 
     else
 
-       ! Warn the user in case they don't subsample by point zone or by
-       ! different polynomial order, in that case we duplicate entire fields
+       ! Throw an error if the user doesn't subsample by point zone or by
+       ! different polynomial order. (in that case there is no subsampling
+       ! done at all)
        if (p .eq. case%fluid%Xh%lx - 1) then
           call neko_error("No subsampling strategy defined. Please " // &
-               "specify either a lower polynomial order or a point zone " // &
-               "for subsampling.")
+               "specify either a different polynomial order or a " // &
+               "point zone for subsampling.")
        end if
 
        call field_subsampler_init_from_components(this, name, which_fields, p)
@@ -172,20 +204,29 @@ contains
 
     ! ========================================================================
     ! Polynomial order / space interpolation
+
     if (present(p)) then
+       this%lx = p + 1
+
        ! If we detect the same polynomial order, skip interpolation
-       if (p .ne. this%case%fluid%Xh%lx - 1) then
-          this%lx = p + 1
+       if (this%lx .eq. this%case%fluid%Xh%lx) then
+          call neko_warning("Same polynomial order, no interpolation performed.")
+       else
 
           ! Create the subsampled space
           allocate(this%Xh)
           call this%Xh%init(GLL, this%lx, this%lx, this%lx)
           this%internal_space = .true.
-       else
-          call neko_warning("Same polynomial order, no interpolation performed.")
+
+          ! Initialize the space-to-space interpolation
+          call this%interpolator%init(this%Xh, this%case%fluid%Xh)
        end if
 
-    else
+    end if
+
+    if (.not. associated(this%Xh)) then
+
+       this%lx = this%case%fluid%Xh%lx
 
        ! Point to the same space as the fluid simulation
        this%Xh => this%case%fluid%Xh
@@ -200,21 +241,55 @@ contains
 
        ! Create the subsampled mesh
        allocate(this%msh)
-       call this%case%fluid%dm_Xh%msh%subset_by_mask(this%msh, &
+       call this%case%fluid%msh%subset_by_mask(this%msh, &
             point_zone%mask, &
-            this%lx, this%lx, this%lx)
+            this%case%fluid%Xh%lx, &
+            this%case%fluid%Xh%lx, &
+            this%case%fluid%Xh%lx)
+       this%internal_mesh = .true.
+
     else
        this%msh => this%case%fluid%msh
+       this%internal_mesh = .false.
     end if
 
     ! Create the subsampled dofmap
     call this%dof%init(this%msh, this%Xh)
 
-    ! ========================================================================
-    ! Field writer
-    
-    ! - Initialize the field_writer with the masked fields AND lower poly order
-    !   => this will also add them to the registry!
+    ! =======================================================================
+    ! Register fields in the registry and initialize the field_list
+
+    block
+      integer :: i, n_fields
+      character(len=2048) :: field_name
+      n_fields = size(this%field_names)
+
+      call this%fields%init(n_fields)
+
+      do i = 1, n_fields
+         field_name = this%name // "_" // this%field_names(i)
+         call neko_registry%add_field(this%dof, field_name)
+
+         this%fields%items(i)%ptr => neko_registry%get_field(trim(field_name))
+      end do
+    end block
+
+    !========================================================================
+    ! Assign the correct compute() depending on whether interpolation is
+    ! enabled or not
+
+    if (this%internal_space .and. .not. this%internal_mesh) then
+       this%compute_impl => field_subsampler_compute_Xh
+    else if (.not. this%internal_space .and. this%internal_mesh) then
+       this%compute_impl => field_subsampler_compute_pz
+    else
+
+       ! initialize the work array with masked mesh but same poly. order as
+       ! the simulation
+       call this%wk%init(this%msh, this%case%fluid%Xh)
+
+       this%compute_impl => field_subsampler_compute_pz_Xh
+    end if
 
   end subroutine field_subsampler_init_from_components
 
@@ -240,21 +315,101 @@ contains
     end if
 
     call this%dof%free()
+    call this%interpolator%free()
 
     nullify(this%Xh)
     nullify(this%msh)
 
-    call this%writer%free()
+    call this%wk%free()
+    call this%fields%free()
     call this%free_base()
 
   end subroutine field_subsampler_free
 
-  !> Compute the spectral error indicator.
-  subroutine field_subsampler_compute(this, time)
+  !> Subsample the fields based only on a point zone, no space-to-space
+  !! interpolation.
+  subroutine field_subsampler_compute_pz(this, time)
     class(field_subsampler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-  end subroutine field_subsampler_compute
+    type(field_t), pointer :: f
+    integer :: i, n, n_mask
 
+    write (*,*) "!!!! INSIDE PZ !!!!"
+
+    n = this%dof%size()
+    n_mask = this%point_zone%mask%size()
+
+    do i = 1, size(this%field_names)
+
+       f => neko_registry%get_field(this%field_names(i))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_masked_gather_copy_aligned(this%fields%x_d(i), f%x_d, &
+               this%point_zone%mask%get_d(), n, n_mask)
+       else
+          call masked_gather_copy(this%fields%x(i), f%x, &
+               this%point_zone%mask%get(), n, n_mask)
+       end if
+
+    end do
+
+  end subroutine field_subsampler_compute_pz
+
+  !> Subsample fields wihout any point zone, only space-to-space
+  !! interpolation is enabled.
+  subroutine field_subsampler_compute_Xh(this, time)
+    class(field_subsampler_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    type(field_t), pointer :: f
+    integer :: i
+
+    write (*,*) "!!!! INSIDE XH !!!!"
+    do i = 1, size(this%field_names)
+       f => neko_registry%get_field(this%field_names(i))
+       call this%interpolator%map(this%fields%x(i), f%x, &
+            this%msh%nelv, this%Xh)
+    end do
+
+  end subroutine field_subsampler_compute_Xh
+
+  !> Subsample the fields based a point zone, and with space-to-space
+  !! interpolation enabled.
+  subroutine field_subsampler_compute_pz_Xh(this, time)
+    class(field_subsampler_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    type(field_t), pointer :: f
+    integer :: i, n, n_mask
+
+    write (*,*) "!!!! INSIDE PZ and XH !!!!"
+    n = this%dof%size()
+    n_mask = this%point_zone%mask%size()
+
+    do i = 1, size(this%field_names)
+
+       f => neko_registry%get_field(this%field_names(i))
+
+       ! =====================================================================
+       ! First, do a masked copy onto the submesh but that has the same poly.
+       ! order
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_masked_gather_copy_aligned(this%wk%x_d, f%x_d, &
+               this%point_zone%mask%get_d(), n, n_mask)
+       else
+          call masked_gather_copy(this%wk%x, f%x, &
+               this%point_zone%mask%get(), n, n_mask)
+       end if
+
+       ! =====================================================================
+       ! Then, map the two different spaces
+       call this%interpolator%map(this%fields%x(i), this%wk%x, &
+            this%msh%nelv, this%Xh)
+
+    end do
+
+  end subroutine field_subsampler_compute_pz_Xh
 
 end module field_subsampler
