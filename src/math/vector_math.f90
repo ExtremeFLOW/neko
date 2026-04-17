@@ -70,7 +70,7 @@ module vector_math
        glmin, glsc2, glsc3, masked_gather_copy_0, masked_gather_copy, &
        cadd2, &
        masked_scatter_copy, &
-       masked_scatter_copy_0, glsubnorm, invcol3
+       masked_scatter_copy_0, glsubnorm, invcol3, cwrap
   use device_math, only : device_rzero, device_rone, device_copy, &
        device_cmult, device_cadd, device_cfill, device_invcol1, device_vdot3, &
        device_cadd2, &
@@ -81,7 +81,7 @@ module vector_math
        device_glmax, device_glmin, device_glsc2, device_glsc3, &
        device_masked_gather_copy_0, device_masked_gather_copy_aligned, &
        device_masked_scatter_copy_0, device_masked_scatter_copy_aligned, &
-       device_glsubnorm, device_invcol3
+       device_glsubnorm, device_invcol3, device_cwrap
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -96,7 +96,7 @@ module vector_math
        vector_glmax, vector_glmin, vector_glsc2, vector_glsc3, vector_add3, &
        vector_masked_gather_copy_0, vector_masked_gather_copy, &
        vector_masked_scatter_copy_0, vector_masked_scatter_copy, &
-       vector_glsubnorm
+       vector_glsubnorm, vector_cwrap
 
 contains
 
@@ -890,6 +890,27 @@ contains
     end if
 
   end subroutine vector_masked_scatter_copy
+
+   !> Wrap vector elements into the range [min_value, max_value]
+   subroutine vector_cwrap(a, min_value, max_value, n)
+      integer, intent(in), optional :: n
+      type(vector_t), intent(inout) :: a
+      real(kind=rp), intent(in) :: min_value, max_value
+      integer :: size
+   
+      if (present(n)) then
+          size = n
+      else
+          size = a%size()
+      end if
+   
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_cwrap(a%x_d, min_value, max_value, size)
+      else
+          call cwrap(a%x, min_value, max_value, size)
+      end if
+   
+      end subroutine vector_cwrap
 
 
 
