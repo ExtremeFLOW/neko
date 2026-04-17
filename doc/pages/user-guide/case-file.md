@@ -710,6 +710,13 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
    applied in a user-specified region of the domain.
 9. `field`, uses fields in the `neko_registry` as values of the source term. The
    fields are selected with the `field_names` keyword.
+10. `translation` Adds a forcing term corresponding to a domain translating with
+    constant velocity. The term comes from the ALE formulation and is written as
+    \f$ (\mathbf{w}\cdot\nabla)\mathbf{u} \f$,
+    or, for spatially constant mesh velocity \f$ \nabla\cdot\mathbf{w} = 0 \f$,
+    equivalently in conservative form as
+    \f$ \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \f$. The keyword to be provided
+    in the case file is `domain_velocity`, which expects an array with 3 values.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
