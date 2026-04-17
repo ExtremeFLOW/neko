@@ -50,8 +50,7 @@ extern "C" void adios2_initialize_(
     // If the process is asynchronous, define the relevant variables for writer_st
     f2py_field = io_asynchronous.DefineVariable<double>("f2py_field", {gn}, {start}, {n});
     
-    // If asyncrhonous execution, open the global array
-    std::cout << "create global array" << std::endl;
+    // If asynchronous execution, open the global array
     writer_st = io_asynchronous.Open("globalArray_f2py", adios2::Mode::Write);
     reader_st = io_asynchronous.Open("globalArray_py2f", adios2::Mode::Read);
 
@@ -70,7 +69,6 @@ extern "C" void adios2_initialize_(
 }
 
 extern "C" void adios2_finalize_(){
-    std::cout << "Close global arrays" << std::endl;
     writer_st.Close();
     reader_st.Close();
 
