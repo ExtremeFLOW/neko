@@ -44,6 +44,7 @@ module checkpoint
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
   use global_interpolation, only : GLOB_INTERP_TOL
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -98,10 +99,15 @@ module checkpoint
      real(kind=rp), pointer :: msh_x(:,:,:,:) => null()
      real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
      real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
+     type(c_ptr) :: msh_x_d = C_NULL_PTR
+     type(c_ptr) :: msh_y_d = C_NULL_PTR
+     type(c_ptr) :: msh_z_d = C_NULL_PTR
      real(kind=rp), pointer :: pivot_pos(:) => null()
      real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
      real(kind=rp), pointer :: Blag(:,:,:,:) => null()
      real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
+     type(c_ptr) :: Blag_d = C_NULL_PTR
+     type(c_ptr) :: Blaglag_d = C_NULL_PTR
      real(kind=rp), pointer :: basis_pos(:) => null()
      real(kind=rp), pointer :: basis_vel_lag(:,:) => null()
    contains
@@ -156,10 +162,15 @@ contains
     if (associated(this%msh_x)) nullify(this%msh_x)
     if (associated(this%msh_y)) nullify(this%msh_y)
     if (associated(this%msh_z)) nullify(this%msh_z)
+    this%msh_x_d = C_NULL_PTR
+    this%msh_y_d = C_NULL_PTR
+    this%msh_z_d = C_NULL_PTR
     if (associated(this%pivot_pos)) nullify(this%pivot_pos)
     if (associated(this%pivot_vel_lag)) nullify(this%pivot_vel_lag)
     if (associated(this%Blag)) nullify(this%Blag)
     if (associated(this%Blaglag)) nullify(this%Blaglag)
+    this%Blag_d = C_NULL_PTR
+    this%Blaglag_d = C_NULL_PTR
     if (associated(this%basis_pos)) nullify(this%basis_pos)
 
     if (associated(this%abx1)) nullify(this%abx1)
@@ -258,6 +269,23 @@ contains
                call this%wm_z_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
                     sync = .false.)
             end if
+
+            if (associated(this%msh_x) .and. c_associated(this%msh_x_d)) then
+               call device_memcpy(this%msh_x, this%msh_x_d, &
+                    size(this%msh_x), DEVICE_TO_HOST, .false.)
+               call device_memcpy(this%msh_y, this%msh_y_d, &
+                    size(this%msh_y), DEVICE_TO_HOST, .false.)
+               call device_memcpy(this%msh_z, this%msh_z_d, &
+                    size(this%msh_z), DEVICE_TO_HOST, .false.)
+            end if
+            if (associated(this%Blag) .and. c_associated(this%Blag_d)) then
+               call device_memcpy(this%Blag, this%Blag_d, size(this%Blag), &
+                    DEVICE_TO_HOST, .false.)
+            end if
+            if (associated(this%Blaglag) .and. c_associated(this%Blaglag_d)) then
+               call device_memcpy(this%Blaglag, this%Blaglag_d, &
+                    size(this%Blaglag), DEVICE_TO_HOST, .false.)
+            end if
          end if
 
          ! Multi-scalar lag field synchronization
@@ -330,11 +358,14 @@ contains
          ! ALE field synchronization
          if (associated(this%wm_x) .and. associated(this%wm_y) .and. &
               associated(this%wm_z)) then
+
             call this%wm_x%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%wm_y%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%wm_z%copy_from(HOST_TO_DEVICE, sync = .false.)
-            if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) .and. &
-                associated(this%wm_z_lag)) then
+
+            if (associated(this%wm_x_lag) .and. &
+                 associated(this%wm_y_lag) .and. &
+                 associated(this%wm_z_lag)) then
                call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
                     sync = .false.)
                call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
@@ -349,6 +380,26 @@ contains
                     sync = .false.)
                call this%wm_z_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
                     sync = .false.)
+            end if
+
+            if (associated(this%msh_x) .and. c_associated(this%msh_x_d)) then
+               call device_memcpy(this%msh_x, this%msh_x_d, &
+                    size(this%msh_x), HOST_TO_DEVICE, .false.)
+               call device_memcpy(this%msh_y, this%msh_y_d, &
+                    size(this%msh_y), HOST_TO_DEVICE, .false.)
+               call device_memcpy(this%msh_z, this%msh_z_d, &
+                    size(this%msh_z), HOST_TO_DEVICE, .false.)
+            end if
+
+            if (associated(this%Blag) .and. c_associated(this%Blag_d)) then
+               call device_memcpy(this%Blag, this%Blag_d, size(this%Blag), &
+                    HOST_TO_DEVICE, .false.)
+            end if
+
+            if (associated(this%Blaglag) .and. &
+                 c_associated(this%Blaglag_d)) then
+               call device_memcpy(this%Blaglag, this%Blaglag_d, &
+                    size(this%Blaglag), HOST_TO_DEVICE, .false.)
             end if
          end if
 
@@ -441,9 +492,10 @@ contains
   end subroutine chkp_add_scalar
 
   !> Add mesh velocity and other required variables to checkpointing for ALE
-  subroutine chkp_add_ale(this, x, y, z, Blag, Blaglag, wm_x, wm_y, wm_z, &
-       wm_x_lag, wm_y_lag, wm_z_lag, pivot_pos, pivot_vel_lag, basis_pos, &
-       basis_vel_lag)
+  subroutine chkp_add_ale(this, x, y, z, x_d, y_d, z_d, &
+       Blag, Blaglag, Blag_d, Blaglag_d, wm_x, wm_y, wm_z, &
+       wm_x_lag, wm_y_lag, wm_z_lag, pivot_pos, pivot_vel_lag, &
+       basis_pos, basis_vel_lag)
     class(chkp_t), intent(inout) :: this
     type(field_t), target, intent(in) :: wm_x, wm_y, wm_z
     real(kind=rp), intent(in), pointer :: pivot_pos(:), pivot_vel_lag(:,:)
@@ -452,10 +504,15 @@ contains
     real(kind=rp), pointer, intent(in) :: Blag(:,:,:,:), Blaglag(:,:,:,:)
     real(kind=rp), intent(in), pointer :: basis_pos(:)
     real(kind=rp), intent(in), pointer :: basis_vel_lag(:,:)
+    type(c_ptr), intent(in), value :: x_d, y_d, z_d
+    type(c_ptr), intent(in), value :: Blag_d, Blaglag_d
 
     this%msh_x => x
     this%msh_y => y
     this%msh_z => z
+    this%msh_x_d = x_d
+    this%msh_y_d = y_d
+    this%msh_z_d = z_d
     this%wm_x => wm_x
     this%wm_y => wm_y
     this%wm_z => wm_z
@@ -464,6 +521,8 @@ contains
     this%wm_z_lag => wm_z_lag
     this%Blag => Blag
     this%Blaglag => Blaglag
+    this%Blag_d  = Blag_d
+    this%Blaglag_d = Blaglag_d
     this%pivot_pos => pivot_pos
     this%pivot_vel_lag => pivot_vel_lag
     this%basis_pos => basis_pos
