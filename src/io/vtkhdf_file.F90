@@ -313,7 +313,7 @@ contains
     integer :: total_offsets, cell_offset, conn_offset, offsets_offset
     integer :: max_local_cells, max_local_conn
     integer(hid_t) :: xf_id, dset_id, dcpl_id, grp_id, attr_id
-    integer(hid_t) :: filespace, memspace, H5T_NEKO_DOUBLE
+    integer(hid_t) :: filespace, memspace, H5T_NEKO_DOUBLE, H5T_NEKO_CELL
     integer(hsize_t), dimension(1) :: dcount, vdims, maxdims, doffset, chunkdims
     integer(hsize_t), dimension(2) :: dcount2, vdims2, maxdims2, doffset2, chunkdims2
     integer(kind=i8) :: i8_value
@@ -420,6 +420,9 @@ contains
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
        H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
+       if (H5T_NEKO_DOUBLE .lt. 0) then
+          call neko_error("Unsupported precision for VTKHDF Points dataset")
+       end if
 
        call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
        call h5screate_simple_f(2, dcount2, memspace, ierr)
@@ -546,6 +549,11 @@ contains
     chunkdims = int(max(1, min(max_local_cells, total_cells)), hsize_t)
     dcount = int(local_cells, hsize_t)
     doffset = int(cell_offset, hsize_t)
+    H5T_NEKO_CELL = h5kind_to_type(1, H5_INTEGER_KIND)
+    if (H5T_NEKO_CELL .lt. 0) then
+    call neko_error("Unsupported integer kind for VTKHDF cell types")
+    end if
+
 
     call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
     call h5screate_simple_f(1, dcount, memspace, ierr)
@@ -634,6 +642,9 @@ contains
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
     call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
     H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
+    if (H5T_NEKO_DOUBLE .lt. 0) then
+       call neko_error("Unsupported precision for VTKHDF time values")
+    end if
 
     ! Create or open Steps group
     call h5lexists_f(vtkhdf_grp, "Steps", exists, ierr)
@@ -920,6 +931,9 @@ contains
              ! First write: create VDS with pattern-based mapping
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
              precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
+             if (precision_hdf .lt. 0) then
+                call neko_error("Unsupported precision for VTKHDF PointData dataset")
+             end if
 
              if (is_vector) then
                 pd_dims2 = [3_hsize_t, int(total_points, hsize_t)]
@@ -1276,6 +1290,9 @@ contains
        precision_local = rp
     end if
     precision_hdf = h5kind_to_type(precision_local, H5_REAL_KIND)
+    if (precision_hdf .lt. 0) then
+       call neko_error("Unsupported precision in HDF5 write_scalar_field")
+    end if
 
     ! Prepare memory and filespaces
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
@@ -1400,6 +1417,9 @@ contains
        precision_local = rp
     end if
     precision_hdf = h5kind_to_type(precision_local, H5_REAL_KIND)
+    if (precision_hdf .lt. 0) then
+       call neko_error("Unsupported precision in HDF5 write_vector_field")
+    end if
 
     ! Prepare memory and filespaces
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
