@@ -154,6 +154,7 @@ contains
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_list_t) :: fields
+    type(field_t), pointer :: field
     integer :: i, ierr, mpi_info, mpi_comm
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, H5T_NEKO_STRING
@@ -165,18 +166,19 @@ contains
     integer :: counter
 
     ! Determine mesh and field data
-    select type(data)
+    select type(input => data)
     type is (field_t)
-       msh => data%msh
-       dof => data%dof
+       msh => input%msh
+       dof => input%dof
        call fields%init(1)
-       call fields%assign(1, data)
+       call fields%assign(1, input)
     type is (field_list_t)
-       msh => data%msh(1)
-       dof => data%dof(1)
-       call fields%init(data%size())
-       do i = 1, data%size()
-          call fields%assign(i, data%items(i)%ptr)
+       msh => input%msh(1)
+       dof => input%dof(1)
+       call fields%init(input%size())
+       do i = 1, input%size()
+          field => input%items(i)%ptr
+          call fields%assign(i, field)
        end do
     class default
        call neko_error('Invalid data type for vtkhdf_file_write')
