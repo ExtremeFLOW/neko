@@ -215,6 +215,23 @@ __kernel void cadd2_kernel(__global real* __restrict__ a,
 }
 
 /**
+ * Device kernel for cwrap
+ */
+__kernel void cwrap_kernel(__global real* __restrict__ a,
+                           const real min_val,
+                           const real max_val,
+                           const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+  const real l = max_val - min_val;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = min_val + fmod(fmod(a[i] - min_val, l) + l, l);
+  }
+}
+
+/**
  * Device kernel for cfill
  */
 __kernel void cfill_kernel(__global real* __restrict__ a,

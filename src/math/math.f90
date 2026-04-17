@@ -109,7 +109,7 @@ module math
        pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
        masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp, &
-       math_dstepf, math_stepf
+       math_dstepf, math_stepf, cwrap
 
 contains
 
@@ -494,6 +494,18 @@ contains
        a(i) = c
     end do
   end subroutine cfill
+  
+  !> Wrap value around a range (min, max]
+  subroutine cwrap(a, min_val, max_val, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: min_val, max_val
+    integer :: i
+
+    do concurrent (i = 1:n)
+       a(i) = modulo(a(i) - min_val, max_val - min_val) + min_val
+    end do
+  end subroutine cwrap
 
   !> Sum a vector of length n
   function glsum(a, n)

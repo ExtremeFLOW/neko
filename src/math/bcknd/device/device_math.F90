@@ -67,7 +67,7 @@ module device_math
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
        device_pwmax2, device_pwmax3, device_cpwmax2, device_cpwmax3, &
        device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3, &
-       device_glmax, device_glmin
+       device_glmax, device_glmin, device_cwrap
 
 contains
 
@@ -491,6 +491,33 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_cadd2
+  
+  !> Wrap value around a range (min, max)
+  subroutine device_cwrap(a_d, min_val, max_val, n, strm)
+    type(c_ptr) :: a_d
+    real(kind=rp), intent(in) :: min_val, max_val
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_cwrap(a_d, min_val, max_val, n, strm_)
+#elif HAVE_CUDA
+    call cuda_cwrap(a_d, min_val, max_val, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_cwrap(a_d, min_val, max_val, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cwrap
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine device_cfill(a_d, c, n, strm)

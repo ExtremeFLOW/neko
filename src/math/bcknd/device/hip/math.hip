@@ -262,6 +262,22 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /**
+   * Fortran wrapper for cwrap
+   * Wrap values in a vector to interval [min_val, max_val)
+   */
+  void hip_cwrap(void *a, real *min_val, real *max_val, int *n,
+                 hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cwrap_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       *min_val, *max_val, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
   /** Fortran wrapper for cfill
    * Multiplication by constant c \f$ a = c \cdot a \f$
    */

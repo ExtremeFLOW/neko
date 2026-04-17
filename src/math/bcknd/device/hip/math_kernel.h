@@ -259,6 +259,24 @@ __global__ void cadd2_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for cwrap
+ */
+template< typename T >
+__global__ void cwrap_kernel(T * __restrict__ a,
+                             const T min_val,
+                             const T max_val,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  const T l = max_val - min_val;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = min_val + fmod(fmod(a[i] - min_val, l) + l, l);
+  }
+}
+
+/**
  * Device kernel for cmult
  */
 template< typename T >
