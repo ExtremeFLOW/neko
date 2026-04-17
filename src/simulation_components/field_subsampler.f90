@@ -42,6 +42,7 @@ module field_subsampler
   use math, only : masked_gather_copy
   use device_math, only : device_masked_gather_copy_aligned
   use comm, only : pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_ALLREDUCE, MPI_IN_PLACE, MPI_SUM, MPI_INTEGER
   use utils, only : neko_warning, neko_error
   use simulation_component, only : simulation_component_t
   use json_module, only : json_file
@@ -76,8 +77,12 @@ module field_subsampler
 
      !> Fields to subsample.
      character(len=20), allocatable :: field_names(:)
+     !> Number of fields to subsample (size of field_names).
+     integer :: n_fields = 0
      !> Pointers to the subsampled fields in the registry.
      type(field_list_t) :: fields
+     !> Pointers to the source fields in the registry.
+     type(field_list_t) :: source_fields
      !> Internal field writer object for output
      type(field_writer_t) :: writer
      !> The dofmap to use for the newly created masked/re-sampled fields.
@@ -157,10 +162,10 @@ contains
   subroutine field_subsampler_check(this)
     class(field_subsampler_t), intent(inout) :: this
 
+    integer :: n, ierr
+
     logical :: is_valid
     is_valid = .false.
-
-    integer :: n, ierr
 
     ! Internal mesh means we are doing point zone masking
     if (this%internal_mesh) then
@@ -174,7 +179,7 @@ contains
        n = this%point_zone%size
        call MPI_Allreduce(MPI_IN_PLACE, n, 1, MPI_INTEGER, MPI_SUM, &
             NEKO_COMM, ierr)
-       
+
        is_valid = n .gt. 0
        if (.not. is_valid) call neko_warning("Point zone is empty")
 
@@ -199,6 +204,10 @@ contains
     ! all based on this%dofmap we assume if we get here we are fine.
     is_valid = (this%fields%size() .gt. 0 .and. allocated(this%fields%items))
     if (.not. is_valid) call neko_error("Internal field_list not initialized")
+
+    ! Lastly, check that we have properly associated compute_impl
+    is_valid = associated(this%compute_impl)
+    if (.not. is_valid) call neko_error("compute_impl not associated")
 
     this%checked = .true.
 
@@ -232,7 +241,7 @@ contains
 
     character(len=:), allocatable :: name
     character(len=20), allocatable :: which_fields(:)
-    integer :: lx, n_fields
+    integer :: lx
 
     logical :: do_space_interp, do_point_zone_masking
 
@@ -244,7 +253,6 @@ contains
 
     call json_get_or_default(json, "name", name, "field_subsampler")
     call json_get(json, "source_fields", which_fields)
-    n_fields = size(which_fields)
 
     ! ========================================================================
     ! Check if the user has provided a polynomial order for space-to-space
@@ -277,8 +285,8 @@ contains
        call field_subsampler_init_common(this, name, which_fields, &
             point_zone = point_zone)
     else
-       call neko_error("Please pass either a point zone or a " // &
-            "valid polynomial order.")
+       call neko_error("Invalid configuration: please pass either " // &
+            "a point zone or a valid polynomial order.")
     end if
 
     ! =======================================================================
@@ -286,14 +294,18 @@ contains
     ! We cannot use the JSON because "fields" is already taken by the field
 
     block
-      character(len=1024) :: new_field_names(n_fields)
+      character(len=1024) :: new_field_names(this%n_fields)
       integer :: i
 
-      do i = 1, n_fields
+      do i = 1, this%n_fields
          new_field_names(i) = trim(this%fields%name(i))
       end do
 
+      ! Will be picked up by the field_writer.
       call json%add("fields", new_field_names)
+
+      ! This is needed so the field_writer doesn't pick up the point zone!
+      call json%remove("point_zone")
 
       ! Force a different file name, as we cannot add these subsampled
       ! fields to the regular fluid output (different # of elements and
@@ -303,6 +315,10 @@ contains
       end if
 
       call this%writer%init(json, case)
+
+      ! Put the point zone back to have the JSON back as it was :)
+      call json%add("point_zone", trim(this%point_zone%name))
+
     end block
 
   end subroutine field_subsampler_init_json
@@ -322,6 +338,8 @@ contains
 
     this%name = name
     this%field_names = which_fields
+
+    this%n_fields = size(which_fields)
 
     ! ========================================================================
     ! Polynomial order / space interpolation
@@ -362,8 +380,8 @@ contains
     if (present(point_zone)) then
        this%point_zone => point_zone
 
-       if (.not. point_zone%full_elements) &
-            call neko_error("full_elements must be enabled for subsampling")
+       if (.not. point_zone%full_elements) call neko_error("full_elements" // &
+            "must be enabled when sampling a point zone")
 
        ! Create the subsampled mesh
        allocate(this%msh)
@@ -383,20 +401,25 @@ contains
     call this%dof%init(this%msh, this%Xh)
 
     ! =======================================================================
-    ! Register fields in the registry and initialize the field_list
+    ! Register the new fields in the registry and initialize the field_lists
 
     block
-      integer :: i, n_fields
+      integer :: i
       character(len=2048) :: field_name
-      n_fields = size(this%field_names)
 
-      call this%fields%init(n_fields)
+      call this%fields%init(this%n_fields)
+      call this%source_fields%init(this%n_fields)
 
-      do i = 1, n_fields
+      do i = 1, this%n_fields
+
+         ! Point the new, subsampled fields to the registry
          field_name = this%name // "_" // this%field_names(i)
          call neko_registry%add_field(this%dof, field_name)
-
          this%fields%items(i)%ptr => neko_registry%get_field(trim(field_name))
+
+         ! Point the source fields from the registry to avoid searches
+         this%source_fields%items(i)%ptr => &
+              neko_registry%get_field(this%field_names(i))
       end do
     end block
 
@@ -444,6 +467,7 @@ contains
     nullify(this%Xh)
     nullify(this%msh)
 
+    call this%source_fields%free()
     call this%fields%free()
     call this%writer%free()
 
@@ -459,22 +483,20 @@ contains
     class(field_subsampler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    type(field_t), pointer :: f
     integer :: i, n, n_mask
 
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
-    if (n_mask .eq. 0 .or. n .eq. 0) return
 
     do i = 1, size(this%field_names)
 
-       f => neko_registry%get_field(this%field_names(i))
-
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_masked_gather_copy_aligned(this%fields%x_d(i), f%x_d, &
+          call device_masked_gather_copy_aligned(this%fields%x_d(i), &
+               this%source_fields%x_d(i), &
                this%point_zone%mask%get_d(), n, n_mask)
        else
-          call masked_gather_copy(this%fields%x(i), f%x, &
+          call masked_gather_copy(this%fields%x(i), &
+               this%source_fields%x(i), &
                this%point_zone%mask%get(), n, n_mask)
        end if
 
@@ -488,12 +510,11 @@ contains
     class(field_subsampler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    type(field_t), pointer :: f
     integer :: i
 
     do i = 1, size(this%field_names)
-       f => neko_registry%get_field(this%field_names(i))
-       call this%interpolator%map(this%fields%x(i), f%x, &
+       call this%interpolator%map(this%fields%x(i), &
+            this%source_fields%x(i), &
             this%msh%nelv, this%Xh)
     end do
 
@@ -507,27 +528,25 @@ contains
     class(field_subsampler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    type(field_t), pointer :: f, wk
+    type(field_t), pointer :: wk
     integer :: i, n, n_mask, tmp_index
 
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
 
-    if (n_mask .eq. 0 .or. n .eq. 0) return
-
     call neko_scratch_registry%request_field(wk, tmp_index, .false.)
 
     do i = 1, size(this%field_names)
 
-       f => neko_registry%get_field(this%field_names(i))
-
        ! First, do a masked copy onto the submesh but that has the same poly.
        ! order
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_masked_gather_copy_aligned(wk%x_d, f%x_d, &
+          call device_masked_gather_copy_aligned(wk%x_d, &
+               this%source_fields%x_d(i), &
                this%point_zone%mask%get_d(), n, n_mask)
        else
-          call masked_gather_copy(wk%x, f%x, &
+          call masked_gather_copy(wk%x, &
+               this%source_fields%x(i), &
                this%point_zone%mask%get(), n, n_mask)
        end if
 

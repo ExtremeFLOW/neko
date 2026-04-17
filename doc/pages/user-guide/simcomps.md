@@ -567,8 +567,7 @@ in 3 additional fields appended to the field files.
 ### Data streamer {#simcomp_data_streamer}
 
 Enables data streaming of a set of given `fields` with the `ADIOS2` library. 
-The simcomp is controlled by the following
-keywords:
+The simcomp is controlled by the following keywords:
 - `"fields"`: A list of field names corresponding to the fields to stream 
   (must exist in the registry). The fields will be streamed in the order
   given in the list.
@@ -588,6 +587,36 @@ simcomp cam be coupled to Python scripts for in-situ data processing.
    "name": "spectral_error",
    "fields": ["u", "omega_z", "fluid_stats/mean_u"],
    "stream_mesh": true,
+   "compute_control": "tsteps",
+   "compute_value": 10
+ }
+ ~~~~~~~~~~~~~~~
+
+### Field subsampler
+
+Creates sub-sections of the domain from a `point_zone` and/or at a lower
+`polynomial_order`. The fields are added to the registry under the name
+`name_of_simcomp + "_" + name_of_base_field`. For example, 
+`field_subsampler_u`.
+
+The simcomp is controlled by the following keywords:
+- `"fields"`: A list of field names corresponding to the fields to subsample 
+  (must exist in the registry).
+- `point_zone` (optional): The name of the point zone to use to mask the fields.
+- `polynomial_order` (optional): The new polynomial at which to interpolate 
+  the fields. Must be different from the order used in the simulation.
+
+The `field_subsampler` contains its own `field_writer`. Therefore, all the
+keywords used by the latter can also be specified, with the exception of
+`point_zone` and `fields` which will be handled by the `field_subsampler`.
+
+~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "field_subsampler",
+   "name": "field_subsampler",
+   "source_fields": ["u", "omega_z", "fluid_stats/mean_u"],
+   "point_zone": "my_point_zone",
+   "polynomial_order": 3,
    "compute_control": "tsteps",
    "compute_value": 10
  }
