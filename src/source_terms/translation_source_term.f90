@@ -179,7 +179,7 @@ contains
     call field_col3(work4, u, work1, u%size())
     call field_col3(work5, u, work2, u%size())
     call field_col3(work6, u, work3, u%size())
-    call div(work7%x, work4%x, work5%x, work6%x, this%coef) 
+    call div(work7%x, work4%x, work5%x, work6%x, this%coef)
     call field_add2(fx, work7, work7%size())
 
     ! umesh_j * dv/dx_j
@@ -195,9 +195,9 @@ contains
     call field_col3(work6, w, work3, w%size())
     call div(work7%x, work4%x, work5%x, work6%x, this%coef)
     call field_add2(fz, work7, work7%size())
-  
+
     call device_sync()
-   
+
     ! Release the scratch fields
     call neko_scratch_registry%relinquish_field(tmp_index)
 
