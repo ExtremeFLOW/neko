@@ -425,9 +425,9 @@ contains
     if (this%find_interface) then
       
       ! sync
-      this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
-      this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
-      this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
+      call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+      call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+      call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
       
       call this%interface_interpolator%find_points(this%x_interface_dof%x, &
          this%y_interface_dof%x, this%z_interface_dof%x, &
