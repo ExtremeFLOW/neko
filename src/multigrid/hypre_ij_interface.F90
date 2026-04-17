@@ -253,9 +253,12 @@ contains
   !! @param cols Array of col indices. global DoFs. Fortran array on host.
   !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_matrix_update(A, nrows, ncols, rows, cols, values)
+     !DIR$ INLINENEVER hypre_matrix_update
      type(c_ptr), intent(in) :: A
-     integer, target, intent(in) :: nrows, ncols(:)
-     integer, target, intent(in) :: rows(:), cols(:)
+     integer, intent(in) :: nrows
+     integer, target, intent(in) :: ncols(:)
+     integer, target, intent(in) :: rows(:)
+     integer, target, intent(in) :: cols(:)
      double precision, target, intent(in) :: values(:)
      integer :: ierr
      ! Fill the matrix with values.
@@ -367,6 +370,7 @@ contains
   !! @param indices Array of global DoFs on rank. Fortran array on host.
   !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_copy_to_vector(v, nvalues, indices, values)
+    !DIR$ INLINENEVER hypre_copy_to_vector
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
     integer, target, intent(in) :: indices(nvalues)
@@ -405,6 +409,7 @@ contains
   !! @param indices Array of global DoFs on rank. Fortran array on host.
   !! @param values Array of values to be set. Fortran array on host.
   subroutine hypre_copy_from_vector(v, nvalues, indices, values)
+    !DIR$ INLINENEVER hypre_copy_from_vector
     type(c_ptr), intent(in) :: v
     integer, intent(in) :: nvalues
     integer, target, intent(in) :: indices(nvalues)
