@@ -48,6 +48,7 @@ module field_subsampler
   use json_utils, only : json_get, json_get_or_default
   use case, only : case_t
   use point_zone, only : point_zone_t
+  use time_based_controller, only : time_based_controller_t
   use point_zone_registry, only : neko_point_zone_registry
   use registry, only : neko_registry, registry_t
   use dofmap, only : dofmap_t
@@ -55,65 +56,89 @@ module field_subsampler
   use mesh, only : mesh_t
   use field_list, only : field_list_t
   use interpolation, only : interpolator_t
+  use scratch_registry, only : neko_scratch_registry
 
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  !> Provides tools to calculate the spectral error indicator
-  !! @details
-  !! This is a posteriori error measure, based on the local properties of
-  !! the spectral solution, which was developed by Mavriplis. This method
-  !! formally only gives an indication of the error.
+  !> Implements the field_subsampler_t simulation components, which allows
+  !! for masking regions of the domain with a point_zone and to re-sample
+  !! fields with a different polynomial order.
   type, public, extends(simulation_component_t) :: field_subsampler_t
 
+     !> Abstract interface for the compute() subroutine, which will be assigned
+     !! at runtime depending on the subsampling method used.
      procedure(compute_intrf), pass(this), pointer :: compute_impl => &
           dummy_compute
 
      !> Fields to subsample.
      character(len=20), allocatable :: field_names(:)
-     !> Pointers to the subsampled fields in the registry
+     !> Pointers to the subsampled fields in the registry.
      type(field_list_t) :: fields
+     !> The dofmap to use for the newly created masked/re-sampled fields.
+     type(dofmap_t) :: dof
+
+     ! =====================================================================
+     ! Variables for point zone masking.
+
      !> Point zone to use for subsampling.
      class(point_zone_t), pointer :: point_zone => null()
-
-     !> Points to the mesh our fields are based on. If no point zone, is
+     !> Points to the new mesh for element masking. If no point zone, is
      !! used, this%msh will point to the same mesh as the current sim.
      ! Otherwise, it will point to its own internal masked mesh_t.
      type(mesh_t), pointer :: msh => null()
      !> Indicates if the instance of msh is internally managed
      logical :: internal_mesh = .false.
 
-     !> The dofmap to use for our fields. We know for sure this dofmap is
-     !! going to be different from case%fluid%dm_Xh because we force the
-     !! user to provide either a point_zone or a different polynomial order.
-     type(dofmap_t) :: dof
+     ! =====================================================================
+     ! Variables for space-to-space interpolation
 
-     !> Points to the space our fields are based on. If no point zone, will
-     !! point to the same space as the current sim. Otherwise, will point to its
-     !! own masked one.
+     !> New polynomial order to use for subsampling.
+     integer :: lx = -1
+     !> Space-to-space interpolator object.
+     type(interpolator_t) :: interpolator
+     !> Points to the new space for resampling. If no point zone is provided,
+     !! will point to the same space as the current sim. Otherwise, will
+     !! point to its own masked one.
      type(space_t), pointer :: Xh => null()
      !> Indicates if the instance of msh is internally managed. Also serves
      !! as a flag for determining whether or not to perform space-to-space
      !! interpolation
      logical :: internal_space = .false.
 
-     !> Space-to-space interpolation
-     type(interpolator_t) :: interpolator
-     !> Temporary work field for space-to-space interpolation
-     type(field_t) :: wk
-     !> New polynomial order to use for subsampling.
-     integer :: lx = -1
+     !> Flag to indicate whether this%check() has been called and no errors
+     !! were found.
+     logical :: checked = .false.
 
    contains
-     !> Constructor.
-     procedure, pass(this) :: init => field_subsampler_init
+     !> Constructor from JSON.
+     procedure, pass(this) :: init => field_subsampler_init_json
+     !> Common constructor.
+     procedure, pass(this) :: init_common => &
+          field_subsampler_init_common
      !> Destructor.
      procedure, pass(this) :: free => field_subsampler_free
      !> Compute the indicator (called according to the simcomp controller).
      procedure, pass(this) :: compute_ => compute_wrapper
+     !> Generic for constructing from components.
+     generic :: init_from_components => &
+          init_from_controllers, init_from_controllers_properties
+     !> Constructor from components, passing time_based_controllers.
+     procedure, pass(this) :: init_from_controllers => &
+          field_subsampler_init_from_controllers
+     !> Constructor from components, passing the properties of
+     !! time_based_controllers.
+     procedure, pass(this) :: init_from_controllers_properties => &
+          field_subsampler_init_from_controllers_properties
+     !> Check valid initialization and assignment of variables
+     procedure, pass(this) :: check => field_subsampler_check
+     !> Dummy compute routine
+     procedure, pass(this) :: dummy_compute
   end type field_subsampler_t
 
+  !> Abstract interface for the compute() subroutine, which will be assigned
+  !! at runtime depending on the subsampling method used.
   abstract interface
      subroutine compute_intrf(this, time)
        import :: field_subsampler_t, time_state_t
@@ -122,9 +147,53 @@ module field_subsampler
      end subroutine compute_intrf
   end interface
 
-
 contains
 
+  !> Checks the validity of the setup before calling compute()
+  subroutine field_subsampler_check(this)
+    class(field_subsampler_t), intent(inout) :: this
+
+    logical :: is_valid
+    is_valid = .false.
+
+    ! Internal mesh means we are doing point zone masking
+    if (this%internal_mesh) then
+
+       ! Check if point zone exists and mask is set up
+       is_valid = (associated(this%point_zone) .and. &
+            this%point_zone%mask%is_set())
+       if (.not. is_valid) call neko_error("The point zone is missing " // &
+            " or has not been set up properly")
+
+       ! Check if the point zone mask is not empty.
+       is_valid = this%point_zone%mask%size() .gt. 0
+       if (.not. is_valid) call neko_error("The point zone mask is empty")
+    end if
+
+    ! Internal space means we are doing space-to-space interpolation
+    if (this%internal_space) then
+       is_valid = this%lx .gt. 0
+       if (.not. is_valid) call neko_error("lx has not been set up properly")
+
+       is_valid = allocated(this%interpolator%Xh_to_Yh)
+       if (.not. is_valid) call neko_error("The interpolator has not been " // &
+            "initialized properly")
+    end if
+
+    ! Check the dofmap
+    is_valid = (this%dof%size() .gt. 0 .and. allocated(this%dof%x))
+    if (.not. is_valid) call neko_error("Dofmap not initialized")
+
+    ! Check the internal field list, pointing to the fields in the registry
+    is_valid = (this%fields%size() .gt. 0 .and. allocated(this%fields%items))
+    if (.not. is_valid) call neko_error("Internal field_list not initialized")
+
+    this%checked = .true.
+
+  end subroutine field_subsampler_check
+
+  !> Wrapper for the run-time-assigned subroutine
+  !! compute_impl, which will be assigned at runtime to the correct compute().
   subroutine compute_wrapper(this, time)
     class(field_subsampler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -133,6 +202,7 @@ contains
 
   end subroutine compute_wrapper
 
+  !> Dummy subroutine assigned by default to compute_impl.
   subroutine dummy_compute(this, time)
     class(field_subsampler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -142,62 +212,74 @@ contains
   end subroutine dummy_compute
 
   !> Constructor.
-  subroutine field_subsampler_init(this, json, case)
+  subroutine field_subsampler_init_json(this, json, case)
     class(field_subsampler_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
 
     character(len=:), allocatable :: name
     character(len=20), allocatable :: which_fields(:)
-    integer :: p
+    integer :: lx
+
+    logical :: do_space_interp, do_point_zone_masking
 
     character(len=:), allocatable :: pz_name
     class(point_zone_t), pointer :: point_zone
     point_zone => null()
 
-    call json_get_or_default(json, "name", name, "field_subsampler")
-    call json_get(json, "fields", which_fields)
-    call json_get_or_default(json, "polynomial_order", p, case%fluid%Xh%lx - 1)
-
     call this%init_base(json, case)
 
-    if (json%valid_path('point_zone')) then
+    call json_get_or_default(json, "name", name, "field_subsampler")
+    call json_get(json, "fields", which_fields)
 
-       call json_get(json, "point_zone", pz_name)
-       point_zone => neko_point_zone_registry%get_point_zone(trim(pz_name))
-
-       call field_subsampler_init_from_components(this, name, which_fields, &
-            p, point_zone = point_zone)
-
-    else
-
-       ! Throw an error if the user doesn't subsample by point zone or by
-       ! different polynomial order. (in that case there is no subsampling
-       ! done at all)
-       if (p .eq. case%fluid%Xh%lx - 1) then
-          call neko_error("No subsampling strategy defined. Please " // &
-               "specify either a different polynomial order or a " // &
-               "point zone for subsampling.")
-       end if
-
-       call field_subsampler_init_from_components(this, name, which_fields, p)
-
+    ! ========================================================================
+    ! Check if the user has provided a polynomial order for space-to-space
+    ! interpolation and initialize accordingly
+    do_space_interp = json%valid_path('polynomial_order')
+    if (do_space_interp) then
+       call json_get_or_default(json, "polynomial_order", lx, &
+            case%fluid%Xh%lx - 1)
+       lx = lx + 1
     end if
 
-  end subroutine field_subsampler_init
+    ! ========================================================================
+    ! Check if the user has provided a point zone for masking and initialize
+    ! accordingly
+    do_point_zone_masking = json%valid_path('point_zone')
+    if (do_point_zone_masking) then
+       call json_get(json, "point_zone", pz_name)
+       point_zone => neko_point_zone_registry%get_point_zone(trim(pz_name))
+    end if
+
+    ! ========================================================================
+    ! Call the common constructor with the appropriate optional arguments
+    if (do_space_interp .and. do_point_zone_masking) then
+       call field_subsampler_init_common(this, name, which_fields, &
+            lx = lx, point_zone = point_zone)
+    else if (do_space_interp .and. .not. do_point_zone_masking) then
+       call field_subsampler_init_common(this, name, which_fields, &
+            lx = lx)
+    else if (.not. do_space_interp .and. do_point_zone_masking) then
+       call field_subsampler_init_common(this, name, which_fields, &
+            point_zone = point_zone)
+    else
+       call neko_error("Please pass either a point zone or a " // &
+            "valid polynomial order.")
+    end if
+
+  end subroutine field_subsampler_init_json
 
   !> Actual constructor.
   !! @param name The unique name of the simcomp.
   !! @param which_fields The names of the fields to be subsampled.
-  !! @param p The new polynomial order to use for subsampling. NOTE: this is
-  !! NOT `lx`! `lx = p + 1`.
+  !! @param lx The number of GLL points to use for subsampling.
   !! @param point_zone The point zone to use for subsampling.
-  subroutine field_subsampler_init_from_components(this, name, which_fields, &
-       p, point_zone)
+  subroutine field_subsampler_init_common(this, name, which_fields, &
+       lx, point_zone)
     class(field_subsampler_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=20), intent(in) :: which_fields(:)
-    integer, intent(in), optional :: p
+    integer, intent(in), optional :: lx
     class(point_zone_t), pointer, intent(in), optional :: point_zone
 
     this%name = name
@@ -207,9 +289,9 @@ contains
     ! Polynomial order / space interpolation
 
     this%internal_space = .false.
-    if (present(p)) then
+    if (present(lx)) then
 
-       this%lx = p + 1
+       this%lx = lx
 
        if (this%lx .eq. this%case%fluid%Xh%lx) then
           if (pe_rank .eq. 0) then
@@ -282,27 +364,20 @@ contains
 
     !========================================================================
     ! Assign the correct compute() depending on whether interpolation is
-    ! enabled or not
+    ! enabled or not and if a point zone is provided or not.
 
-    ! Only space-to-space interpolation
     if (this%internal_space .and. .not. this%internal_mesh) then
        this%compute_impl => field_subsampler_compute_Xh
-
-       ! Only masked copying based on the point_zone
     else if (.not. this%internal_space .and. this%internal_mesh) then
        this%compute_impl => field_subsampler_compute_pz
-
-       ! Both masked copying and space-to-space interpolation
-    else
-
-       ! initialize a work array with masked mesh but same poly. order as
-       ! the simulation
-       call this%wk%init(this%msh, this%case%fluid%Xh)
-
+    else if (this%internal_space .and. this%internal_mesh) then
        this%compute_impl => field_subsampler_compute_pz_Xh
+    else
+       call neko_error("Please pass either a point zone or a " // &
+            "valid polynomial order.")
     end if
 
-  end subroutine field_subsampler_init_from_components
+  end subroutine field_subsampler_init_common
 
   !> Destructor
   subroutine field_subsampler_free(this)
@@ -331,9 +406,10 @@ contains
     nullify(this%Xh)
     nullify(this%msh)
 
-    call this%wk%free()
     call this%fields%free()
     call this%free_base()
+
+    this%compute_impl => dummy_compute
 
   end subroutine field_subsampler_free
 
@@ -345,7 +421,6 @@ contains
 
     type(field_t), pointer :: f
     integer :: i, n, n_mask
-
 
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
@@ -385,39 +460,117 @@ contains
 
   !> Subsample the fields based a point zone, and with space-to-space
   !! interpolation enabled.
+  !! @details This routine uses the work array wk as a buffer to first
+  !! do the masked copy.
   subroutine field_subsampler_compute_pz_Xh(this, time)
     class(field_subsampler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    type(field_t), pointer :: f
-    integer :: i, n, n_mask
+    type(field_t), pointer :: f, wk
+    integer :: i, n, n_mask, tmp_index
 
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
+
+    call neko_scratch_registry%request_field(wk, tmp_index, .false.)
 
     do i = 1, size(this%field_names)
 
        f => neko_registry%get_field(this%field_names(i))
 
-       ! =====================================================================
        ! First, do a masked copy onto the submesh but that has the same poly.
        ! order
-
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_masked_gather_copy_aligned(this%wk%x_d, f%x_d, &
+          call device_masked_gather_copy_aligned(wk%x_d, f%x_d, &
                this%point_zone%mask%get_d(), n, n_mask)
        else
-          call masked_gather_copy(this%wk%x, f%x, &
+          call masked_gather_copy(wk%x, f%x, &
                this%point_zone%mask%get(), n, n_mask)
        end if
 
-       ! =====================================================================
        ! Then, map the two different spaces
-       call this%interpolator%map(this%fields%x(i), this%wk%x, &
+       call this%interpolator%map(this%fields%x(i), wk%x, &
             this%msh%nelv, this%Xh)
 
     end do
 
+    call neko_scratch_registry%relinquish_field(tmp_index)
+
   end subroutine field_subsampler_compute_pz_Xh
+
+  !> Constructor from components, passing controllers.
+  !! @param name The unique name of the simcomp.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller The controller for running preprocessing.
+  !! @param compute_controller The controller for running compute.
+  !! @param output_controller The controller for producing output.
+  !! @param which_fields List of field names to subsample.
+  !! @param lx Number of GLL points to use for the space-to-space
+  !! interpolation.
+  !! @param point_zone Point zone to use for the subsampling.
+  subroutine field_subsampler_init_from_controllers(this, name, case, order, &
+       preprocess_controller, compute_controller, output_controller, &
+       which_fields, lx, point_zone)
+    class(field_subsampler_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    type(time_based_controller_t), intent(in) :: preprocess_controller
+    type(time_based_controller_t), intent(in) :: compute_controller
+    type(time_based_controller_t), intent(in) :: output_controller
+    character(len=20), intent(in) :: which_fields(:)
+    integer, intent(in) :: lx
+    class(point_zone_t), intent(in), pointer, optional :: point_zone
+
+    call this%init_base_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller)
+
+    call this%init_common(name, which_fields, lx = lx, &
+         point_zone = point_zone)
+
+  end subroutine field_subsampler_init_from_controllers
+
+  !> Constructor from components, passing properties to the
+  !! time_based_controller` components in the base type.
+  !! @param name The unique name of the simcomp.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_value Value parameter for preprocessing.
+  !! @param compute_controller Control mode for computing.
+  !! @param compute_value Value parameter for computing.
+  !! @param output_controller Control mode for output.
+  !! @param output_value Value parameter for output.
+  !! @param which_fields List of field names to subsample.
+  !! @param lx Number of GLL points to use for the space-to-space
+  !! interpolation.
+  !! @param point_zone Point zone to use for the subsampling.
+  subroutine field_subsampler_init_from_controllers_properties(this, name, &
+       case, order, preprocess_control, preprocess_value, compute_control, &
+       compute_value, output_control, output_value, which_fields, lx, &
+       point_zone)
+    class(field_subsampler_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    character(len=*), intent(in) :: preprocess_control
+    real(kind=rp), intent(in) :: preprocess_value
+    character(len=*), intent(in) :: compute_control
+    real(kind=rp), intent(in) :: compute_value
+    character(len=*), intent(in) :: output_control
+    real(kind=rp), intent(in) :: output_value
+    character(len=20), intent(in) :: which_fields(:)
+    integer, intent(in), optional :: lx
+    class(point_zone_t), pointer, intent(in), optional :: point_zone
+
+    call this%init_base_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value)
+
+    call this%init_common(name, which_fields, lx = lx, &
+         point_zone = point_zone)
+
+  end subroutine field_subsampler_init_from_controllers_properties
 
 end module field_subsampler
