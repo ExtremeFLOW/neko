@@ -217,13 +217,13 @@ contains
       tmp1 = 0.0_rp
       tmp2 = 0.0_rp
       tmp3 = 0.0_rp
-      !$omp parallel do simd reduction(+:tmp1,tmp2,tmp3)
+      !$omp parallel do reduction(+:tmp1,tmp2,tmp3)
       do i = 1, n
          tmp1 = tmp1 + r(i) * coef%mult(i,1,1,1) * u(i,u_prev)
          tmp2 = tmp2 + w(i) * coef%mult(i,1,1,1) * u(i,u_prev)
          tmp3 = tmp3 + r(i) * coef%mult(i,1,1,1) * r(i)
       end do
-      !$omp end parallel do simd
+      !$omp end parallel do
       reduction(1) = tmp1
       reduction(2) = tmp2
       reduction(3) = tmp3
