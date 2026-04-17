@@ -154,17 +154,11 @@ contains
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_list_t) :: fields
-    integer :: ierr, mpi_info, mpi_comm, i, n_fields
+    integer :: i, ierr, mpi_info, mpi_comm
     integer(hid_t) :: plist_id, file_id, attr_id, vtkhdf_grp
     integer(hid_t) :: filespace, H5T_NEKO_STRING
     integer(hsize_t), dimension(1) :: vdims
     integer(size_t) :: type_len
-    integer :: lx, ly, lz
-    integer :: local_points, local_cells, local_conn
-    integer :: total_points, total_cells, total_conn
-    integer :: point_offset
-    integer :: max_local_points
-    integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16) :: type_str
     logical :: exists
@@ -175,7 +169,6 @@ contains
     type is (field_t)
        msh => data%msh
        dof => data%dof
-       n_fields = 1
        call fields%init(1)
        call fields%assign(1, data)
     type is (field_list_t)
@@ -322,7 +315,7 @@ contains
     integer(hid_t) :: xf_id, dset_id, dcpl_id, grp_id, attr_id
     integer(hid_t) :: filespace, memspace, H5T_NEKO_DOUBLE
     integer(hsize_t), dimension(1) :: dcount, vdims, maxdims, doffset, chunkdims
-    integer(hsize_t), dimension(2) :: dcount2, vdims2, maxdims2, doffset2
+    integer(hsize_t), dimension(2) :: dcount2, vdims2, maxdims2, doffset2, chunkdims2
     integer(kind=i8) :: i8_value
     logical :: exists
     integer, dimension(3) :: component_sizes
@@ -423,7 +416,7 @@ contains
 
        vdims2 = [3_hsize_t, int(total_points, hsize_t)]
        maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
-       chunkdims(1) = int(max(1, min(max_local_points, total_points)), hsize_t)
+       chunkdims2 = [3_hsize_t, int(max(1, min(max_local_points, total_points)), hsize_t)]
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
        H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
@@ -432,7 +425,7 @@ contains
        call h5screate_simple_f(2, dcount2, memspace, ierr)
        call h5screate_simple_f(2, vdims2, filespace, ierr, maxdims2)
 
-       call h5pset_chunk_f(dcpl_id, 2, [3_hsize_t, chunkdims(1)], ierr)
+       call h5pset_chunk_f(dcpl_id, 2, chunkdims2, ierr)
        call h5dcreate_f(vtkhdf_grp, "Points", H5T_NEKO_DOUBLE, &
             filespace, dset_id, ierr, dcpl_id = dcpl_id)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -751,6 +744,7 @@ contains
     type(field_t), pointer :: fld, u, v, w
     character(len=128) :: field_name
     logical :: exists, is_vector
+    character(len=6) :: attr_string
 
     ! VDS and per-timestep external file variables
     character(len=1024) :: ext_fname, ext_path, src_pattern
@@ -1005,8 +999,6 @@ contains
 
     do i = 1, fields_written
        field_name = name_list(i)
-       is_vector = vector_list(i)
-       pd_dims1 = 1_hsize_t
 
        call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
        call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
@@ -1027,11 +1019,15 @@ contains
 
        call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
             attr_id, ierr)
+
+       is_vector = vector_list(i)
+       pd_dims1 = 1_hsize_t
        if (is_vector) then
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vector"], pd_dims1, ierr)
+          attr_string = "Vector"
        else
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalar"], pd_dims1, ierr)
+          attr_string = "Scalar"
        end if
+       call h5awrite_f(attr_id, H5T_NEKO_STRING, attr_string, pd_dims1, ierr)
 
        call h5aclose_f(attr_id, ierr)
        call h5tclose_f(H5T_NEKO_STRING, ierr)
