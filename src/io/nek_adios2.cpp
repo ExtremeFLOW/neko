@@ -5,7 +5,8 @@
 
 // Global Adios2 variables
 adios2::ADIOS adios;
-adios2::IO io_asynchronous;
+adios2::IO io_reader;
+adios2::IO io_writer;
 adios2::Engine writer_st;
 adios2::Engine reader_st;
 adios2::Variable<double> f2py_field;
@@ -28,10 +29,18 @@ extern "C" void adios2_initialize_(
     adios = adios2::ADIOS(comm);
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
-    // Asynchronous IO.
-    io_asynchronous = adios.DeclareIO("streamIO");
-    io_asynchronous.SetEngine("SST");
-    io_asynchronous.SetParameters({{"OpenTimeoutSecs", std::to_string(timeout_seconds)}});
+    // ADIOS2 IOs.
+    io_reader = adios.DeclareIO("streamReaderIO");
+    io_reader.SetEngine("SST");
+    io_reader.SetParameters(
+        {{"OpenTimeoutSecs", std::to_string(timeout_seconds)}}
+    );
+
+    io_writer = adios.DeclareIO("streamWriterIO");
+    io_writer.SetEngine("SST");
+    io_writer.SetParameters(
+        {{"OpenTimeoutSecs", std::to_string(timeout_seconds)}}
+    );
 
     // Number of elements in my rank.
     unsigned int nel = static_cast<unsigned int>((*nelv));
@@ -48,18 +57,23 @@ extern "C" void adios2_initialize_(
     reader_count = n;
 
     // If the process is asynchronous, define the relevant variables for writer_st
-    f2py_field = io_asynchronous.DefineVariable<double>("f2py_field", {gn}, {start}, {n});
+    f2py_field = io_writer.DefineVariable<double>(
+        "f2py_field", {gn}, {start}, {n}
+    );
     
     // If asyncrhonous execution, open the global array
     std::cout << "create global array" << std::endl;
-    writer_st = io_asynchronous.Open("globalArray_f2py", adios2::Mode::Write);
-    reader_st = io_asynchronous.Open("globalArray_py2f", adios2::Mode::Read);
+    writer_st = io_writer.Open("globalArray_f2py", adios2::Mode::Write);
+    reader_st = io_reader.Open("globalArray_py2f", adios2::Mode::Read);
 
     // Put necesary information in a header stream
     writer_st.BeginStep();
-    adios2::Variable<int> hdr_elems = io_asynchronous.DefineVariable<int>("global_elements");
-    adios2::Variable<int> hdr_lxyz = io_asynchronous.DefineVariable<int>("points_per_element");
-    adios2::Variable<int> hdr_gdim = io_asynchronous.DefineVariable<int>("problem_dimension");
+    adios2::Variable<int> hdr_elems =
+        io_writer.DefineVariable<int>("global_elements");
+    adios2::Variable<int> hdr_lxyz =
+        io_writer.DefineVariable<int>("points_per_element");
+    adios2::Variable<int> hdr_gdim =
+        io_writer.DefineVariable<int>("problem_dimension");
     if( rank == 0 )
     {
        writer_st.Put(hdr_elems, static_cast<int> (*glb_nelv));
@@ -88,7 +102,7 @@ extern "C" void adios2_recieve_(
     double *field
 ){
     reader_st.BeginStep();
-    py2f_field = io_asynchronous.InquireVariable<double>("py2f_field");
+    py2f_field = io_reader.InquireVariable<double>("py2f_field");
     py2f_field.SetSelection({{reader_start}, {reader_count}});
     reader_st.Get<double>(py2f_field, field);
     reader_st.EndStep();
