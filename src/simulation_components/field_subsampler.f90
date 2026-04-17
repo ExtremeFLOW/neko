@@ -41,7 +41,7 @@ module field_subsampler
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
   use math, only : masked_gather_copy
   use device_math, only : device_masked_gather_copy_aligned
-  use comm, only : pe_rank
+  use comm, only : pe_rank, NEKO_COMM
   use utils, only : neko_warning, neko_error
   use simulation_component, only : simulation_component_t
   use json_module, only : json_file
@@ -57,6 +57,8 @@ module field_subsampler
   use field_list, only : field_list_t
   use interpolation, only : interpolator_t
   use scratch_registry, only : neko_scratch_registry
+  use field_writer, only : field_writer_t
+  use math, only : glsum
 
   use, intrinsic :: iso_c_binding
   implicit none
@@ -76,6 +78,8 @@ module field_subsampler
      character(len=20), allocatable :: field_names(:)
      !> Pointers to the subsampled fields in the registry.
      type(field_list_t) :: fields
+     !> Internal field writer object for output
+     type(field_writer_t) :: writer
      !> The dofmap to use for the newly created masked/re-sampled fields.
      type(dofmap_t) :: dof
 
@@ -156,6 +160,8 @@ contains
     logical :: is_valid
     is_valid = .false.
 
+    integer :: n, ierr
+
     ! Internal mesh means we are doing point zone masking
     if (this%internal_mesh) then
 
@@ -165,9 +171,13 @@ contains
        if (.not. is_valid) call neko_error("The point zone is missing " // &
             " or has not been set up properly")
 
-       ! Check if the point zone mask is not empty.
-       is_valid = this%point_zone%mask%size() .gt. 0
-       if (.not. is_valid) call neko_error("The point zone mask is empty")
+       n = this%point_zone%size
+       call MPI_Allreduce(MPI_IN_PLACE, n, 1, MPI_INTEGER, MPI_SUM, &
+            NEKO_COMM, ierr)
+       
+       is_valid = n .gt. 0
+       if (.not. is_valid) call neko_warning("Point zone is empty")
+
     end if
 
     ! Internal space means we are doing space-to-space interpolation
@@ -181,10 +191,12 @@ contains
     end if
 
     ! Check the dofmap
-    is_valid = (this%dof%size() .gt. 0 .and. allocated(this%dof%x))
-    if (.not. is_valid) call neko_error("Dofmap not initialized")
+    is_valid = (this%dof%global_size() .gt. 0 .and. allocated(this%dof%x))
+    if (.not. is_valid) call neko_error("Dofmap not initialized or empty")
 
     ! Check the internal field list, pointing to the fields in the registry
+    ! Technically the size of the fields should be checked but since they are
+    ! all based on this%dofmap we assume if we get here we are fine.
     is_valid = (this%fields%size() .gt. 0 .and. allocated(this%fields%items))
     if (.not. is_valid) call neko_error("Internal field_list not initialized")
 
@@ -198,6 +210,7 @@ contains
     class(field_subsampler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
+    if (.not. this%checked) call this%check()
     call this%compute_impl(time)
 
   end subroutine compute_wrapper
@@ -219,7 +232,7 @@ contains
 
     character(len=:), allocatable :: name
     character(len=20), allocatable :: which_fields(:)
-    integer :: lx
+    integer :: lx, n_fields
 
     logical :: do_space_interp, do_point_zone_masking
 
@@ -230,7 +243,8 @@ contains
     call this%init_base(json, case)
 
     call json_get_or_default(json, "name", name, "field_subsampler")
-    call json_get(json, "fields", which_fields)
+    call json_get(json, "source_fields", which_fields)
+    n_fields = size(which_fields)
 
     ! ========================================================================
     ! Check if the user has provided a polynomial order for space-to-space
@@ -266,6 +280,30 @@ contains
        call neko_error("Please pass either a point zone or a " // &
             "valid polynomial order.")
     end if
+
+    ! =======================================================================
+    ! Initialize the field writer based on the new subsampled fields!
+    ! We cannot use the JSON because "fields" is already taken by the field
+
+    block
+      character(len=1024) :: new_field_names(n_fields)
+      integer :: i
+
+      do i = 1, n_fields
+         new_field_names(i) = trim(this%fields%name(i))
+      end do
+
+      call json%add("fields", new_field_names)
+
+      ! Force a different file name, as we cannot add these subsampled
+      ! fields to the regular fluid output (different # of elements and
+      ! polynomial order not supported)
+      if (.not. json%valid_path("output_filename")) then
+         call json%add("output_filename", this%name)
+      end if
+
+      call this%writer%init(json, case)
+    end block
 
   end subroutine field_subsampler_init_json
 
@@ -407,6 +445,8 @@ contains
     nullify(this%msh)
 
     call this%fields%free()
+    call this%writer%free()
+
     call this%free_base()
 
     this%compute_impl => dummy_compute
@@ -424,6 +464,7 @@ contains
 
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
+    if (n_mask .eq. 0 .or. n .eq. 0) return
 
     do i = 1, size(this%field_names)
 
@@ -471,6 +512,8 @@ contains
 
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
+
+    if (n_mask .eq. 0 .or. n .eq. 0) return
 
     call neko_scratch_registry%request_field(wk, tmp_index, .false.)
 
