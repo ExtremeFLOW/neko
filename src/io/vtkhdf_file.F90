@@ -1126,6 +1126,9 @@ contains
     logical :: exists
 
     H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
+    if (H5T_NEKO_INTEGER .lt. 0) then
+       call neko_error('HDF5 does not support 64-bit integers (kind=i8)')
+    end if
 
     call h5lexists_f(grp, dset_name, exists, ierr)
     if (exists) then
@@ -1173,6 +1176,9 @@ contains
     logical :: exists
 
     H5T_NEKO_INTEGER = h5kind_to_type(i8, H5_INTEGER_KIND)
+    if (H5T_NEKO_INTEGER .lt. 0) then
+       call neko_error('HDF5 does not support 64-bit integers (kind=i8)')
+    end if
 
     ! Create collective transfer property list
     call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
