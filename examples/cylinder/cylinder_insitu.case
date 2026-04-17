@@ -4,11 +4,12 @@
         "mesh_file": "cylinder.nmsh",
         "output_at_end": true,
         "output_boundary": true,
-        "output_checkpoints": true,
+        "output_checkpoints": false,
+        "output_directory": "results_insitu",
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50.0,
         "time": {
-            "end_time": 200.0,
+            "end_time": 100.0,
             "variable_timestep": true,
             "target_cfl": 0.5,
             "max_timestep": 1e-1
@@ -39,7 +40,7 @@
                 "preconditioner": {
                     "type": "hsmg"
                 },
-                "projection_space_size": 5,
+                "projection_space_size": 0,
                 "absolute_tolerance": 1e-3,
                 "max_iterations": 800
             },
@@ -67,12 +68,19 @@
                 }
             ],
             "output_control": "simulationtime",
-            "output_value": 2.0
+            "output_value": 25.0
         },
+        "constants": 
+        [
+          {
+            "name": "strm_update_freq",
+            "value": 50
+          } 
+        ],
         "simulation_components":
         [
             {
-                "comment": "stored in the temperature field, check docs for more details",
+                "comment": "Stored in the temperature field, check docs for more details",
                 "type": "lambda2",
                 "compute_control": "fluid_output"
             },
@@ -80,7 +88,8 @@
                 "comment": "Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2",
                 "type": "curl",
                 "fields": [ "u", "v", "w" ],
-                "compute_control": "fluid_output"
+                "compute_control": "tsteps",
+                "compute_value": "strm_update_freq"
             },
             {
                 "type": "force_torque",
@@ -92,13 +101,20 @@
             },
             {
                 "type": "fluid_stats",
-                "output_control": "simulationtime",
+                "output_control": "never",
                 "output_value": 10.0,
-                "start_time": 50.0,
+                "start_time": 20.0,
                 "compute_control": "tsteps",
-                "compute_value": 10,
+                "compute_value": "strm_update_freq",
                 "avg_direction": "z",
                 "set_of_stats": "basic"
+            },
+            {
+                "type": "data_streamer", 
+                "fields": ["u", "omega_z", "fluid_stats/mean_u"],
+                "stream_mesh": true,
+                "compute_control": "tsteps",
+                "compute_value": "strm_update_freq"
             }
         ]
     }

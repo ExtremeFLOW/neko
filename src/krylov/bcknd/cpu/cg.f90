@@ -245,12 +245,12 @@ contains
     integer :: i, ierr
 
     tmp = 0.0_xp
-    !$omp parallel do simd reduction(+:tmp)
+    !$omp parallel do reduction(+:tmp)
     do i = 1, n
        r(i) = r(i) - alpha*w(i)
        tmp = tmp + r(i) * r(i) * mult(i)
     end do
-    !$omp end parallel do simd
+    !$omp end parallel do
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
          MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     rtr = tmp

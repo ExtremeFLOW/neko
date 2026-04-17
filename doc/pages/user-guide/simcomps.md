@@ -55,6 +55,7 @@ in Neko. The list will be updated as new simcomps are added.
   [statistics guide](@ref statistics-guide)
 - User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
+- Streaming of data for in-situ field manipulation \ref simcomp_data_streamer
 
 ## Controlling execution and file output
 Each simulation component is, by default, executed once per time step to perform
@@ -560,5 +561,34 @@ in 3 additional fields appended to the field files.
  {
    "type": "spectral_error"
    "name": "spectral_error"
+ }
+ ~~~~~~~~~~~~~~~
+
+### Data streamer {#simcomp_data_streamer}
+
+Enables data streaming of a set of given `fields` with the `ADIOS2` library. 
+The simcomp is controlled by the following
+keywords:
+- `"fields"`: A list of field names corresponding to the fields to stream 
+  (must exist in the registry). The fields will be streamed in the order
+  given in the list.
+- `"stream_mesh"`: Whether or not to stream mesh coordinates, in the order
+  `x`, `y`, `z`. The mesh coordinates will always be streamed first, in
+  that exact order, before the fields in `"fields"`.
+
+See the `cylinder` or `turb_pipe` examples for more details on how this 
+simcomp cam be coupled to Python scripts for in-situ data processing.
+
+@note This simcomp requires configuration of Neko with the ADIOS2 library
+(`--with-adios2=DIR`).
+
+~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "data_streamer",
+   "name": "spectral_error",
+   "fields": ["u", "omega_z", "fluid_stats/mean_u"],
+   "stream_mesh": true,
+   "compute_control": "tsteps",
+   "compute_value": 10
  }
  ~~~~~~~~~~~~~~~
