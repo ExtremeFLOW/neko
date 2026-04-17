@@ -204,24 +204,21 @@ contains
   end subroutine hypre_dofs_workaround
 
   subroutine hypre_matrix_assemble_from_neko(coef, A, b, x)
+    !DIR$ INLINENEVER hypre_matrix_assemble_from_neko
     type(coef_t), intent(in), target :: coef
     type(c_ptr), intent(inout) :: A, b, x
     real(kind=rp), allocatable :: A_vals(:)
     integer, allocatable :: A_rows(:), A_cols(:)
     integer :: nrows
-    real(kind=rp), allocatable :: vals(:)
-    integer, allocatable :: ncols(:), rows(:), cols(:)
+    real(kind=rp), target, allocatable :: vals(:)
+    integer, target, allocatable :: ncols(:), rows(:), cols(:)
     real(kind=rp) :: tmp2
     real(kind=rp) :: tmp_vals(1)
     integer :: tmp_rows(1), tmp_cols(1), ncol(1)
     integer :: ilower, iupper, jlower, jupper
     integer :: e, k, j, i, s, l
     integer :: nnz, nelv, lx, idof
-    type(c_ptr) :: tmp_rows_d, tmp_cols_d, tmp_vals_d, ncol_d
-    tmp_rows_d = C_NULL_PTR
-    tmp_cols_d = C_NULL_PTR
-    tmp_vals_d = C_NULL_PTR
-    ncol_d = C_NULL_PTR
+    type(c_ptr) :: rows_d, cols_d, vals_d, ncols_d
     print *, "mtx_assemble", coef%dof%size()
     lx = coef%dof%Xh%lx
     nelv = coef%dof%msh%nelv
@@ -234,6 +231,7 @@ contains
     allocate(A_cols(nnz))
     A_rows = 0
     A_cols = 0
+
     !note: we cast from i8 to integer when we fill A_rows from coef%dof%dof
     associate( D => coef%dof%Xh%dx, Dt => coef%dof%Xh%dxt, &
          G11 => coef%G11, G22 => coef%G22, G33 => coef%G33, &
@@ -293,18 +291,19 @@ contains
          end do
       end do ! e = 1, n
     end associate
+
     ! Update nnz based on how many nonzeros were filled (counting duplicates)
     nnz = idof - 1
+
     ! Get index range of dofs on current rank
-    ! TODO: For MPI parallelism, duplicated dofs need to be assigned
-    !       to a single "owning" rank, which is currently not supported
-    !       by the current neko dofmap
+    ! (row partition) = (col partition) for square linear systems.
     ilower = minval(A_rows(1:nnz))
     iupper = maxval(A_rows(1:nnz))
     jlower = ilower
     jupper = iupper
-    !jlower = minval(A_cols(1:nnz))
-    !jupper = maxval(A_cols(1:nnz))
+    ! TODO: For MPI parallelism, duplicated dofs need to be assigned
+    !       to a single "owning" rank, which is currently not supported
+    !       by the current neko dofmap
     print *, "RANK", pe_rank, "ilower", ilower, "iupper", iupper, "jlower", jlower, "jupper", jupper
 
     ! Initialize matrix
@@ -328,16 +327,22 @@ contains
     ! The interface expects array, so we fill some dummy arrays of size 1
     ! and pass these to the hypre interface
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(rows, tmp_rows_d, nrows)
-       call device_map(ncols,  ncol_d, nrows)
-       call device_map(cols, tmp_cols_d, nnz)
-       call device_map(vals, tmp_vals_d, nnz)
-       call device_memcpy( rows, tmp_rows_d, nrows, HOST_TO_DEVICE, .true.)
-       call device_memcpy( cols, tmp_cols_d, nnz, HOST_TO_DEVICE, .true.)
-       call device_memcpy( vals, tmp_vals_d, nnz, HOST_TO_DEVICE, .true.)
-       call device_memcpy( ncols, ncol_d, nrows, HOST_TO_DEVICE, .true.)
-       call hypre_device_matrix_update(A, nrows, ncol_d, tmp_rows_d, tmp_cols_d, tmp_vals_d)
+       rows_d = C_NULL_PTR
+       call device_map(rows, rows_d, nrows)
+       call device_memcpy( rows, rows_d, nrows, HOST_TO_DEVICE, .true.)
+       ncols_d = C_NULL_PTR
+       call device_map(ncols,  ncols_d, nrows)
+       call device_memcpy( ncols, ncols_d, nrows, HOST_TO_DEVICE, .true.)
+       cols_d = C_NULL_PTR
+       call device_map(cols, cols_d, nnz)
+       call device_memcpy( cols, cols_d, nnz, HOST_TO_DEVICE, .true.)
+       vals_d = C_NULL_PTR
+       call device_map(vals, vals_d, nnz)
+       call device_memcpy( vals, vals_d, nnz, HOST_TO_DEVICE, .true.)
+
+       call hypre_device_matrix_update(A, nrows, ncols_d, rows_d, cols_d, vals_d)
     else
+       !call hypre_matrix_update(A, nrows, ncols, rows, cols, vals)
        do i = 1, nnz
           ncol(1) = 1
           tmp_rows(1) = A_rows(i)
@@ -351,6 +356,7 @@ contains
   end subroutine hypre_matrix_assemble_from_neko
 
   subroutine count_and_fill_rows(A_rows, rows, nrows, nnz)
+    !DIR$ INLINENEVER count_and_fill_rows
     integer, intent(in) :: nnz
     integer, intent(out) :: nrows
     integer, intent(in) :: A_rows(:)
@@ -377,6 +383,7 @@ contains
   end subroutine count_and_fill_rows
 
   subroutine count_and_fill_cols_vals(A_rows, A_cols, A_vals, rows, cols, nrows, ncols, vals, nnz)
+    !DIR$ INLINENEVER count_and_fill_cols_vals
     integer, intent(in) :: nnz, nrows
     integer, intent(in) :: A_rows(:), A_cols(:), rows(:)
     real(kind=rp), intent(in) :: A_vals(:)
