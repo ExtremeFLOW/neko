@@ -903,7 +903,9 @@ contains
       else
           size = a%size()
       end if
-   
+    
+      if (a%size() .lt. 1) return ! Avoid getting null pointers
+
       if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_cwrap(a%x_d, min_value, max_value, size)
       else
