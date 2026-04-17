@@ -551,7 +551,7 @@ contains
     doffset = int(cell_offset, hsize_t)
     H5T_NEKO_CELL = h5kind_to_type(1, H5_INTEGER_KIND)
     if (H5T_NEKO_CELL .lt. 0) then
-    call neko_error("Unsupported integer kind for VTKHDF cell types")
+       call neko_error("Unsupported integer kind for VTKHDF cell types")
     end if
 
 
