@@ -602,7 +602,7 @@ Creates sub-sections of the domain from a `point_zone` and/or at a lower
 `field_subsampler_u`.
 
 The simcomp is controlled by the following keywords:
-- `"fields"`: A list of field names corresponding to the fields to subsample 
+- `"source_fields"`: A list of names corresponding to the fields to subsample 
   (must exist in the registry).
 - `point_zone` (optional): The name of the point zone to use to mask the fields.
 - `polynomial_order` (optional): The new polynomial at which to interpolate 
