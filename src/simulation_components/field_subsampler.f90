@@ -443,6 +443,7 @@ contains
     class(field_subsampler_t), intent(inout) :: this
 
     this%lx = -1
+    this%n_fields = 0
 
     if (allocated(this%field_names)) deallocate(this%field_names)
     nullify(this%point_zone)
@@ -486,7 +487,7 @@ contains
     n = this%dof%size()
     n_mask = this%point_zone%mask%size()
 
-    do i = 1, size(this%field_names)
+    do i = 1, this%n_fields
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_masked_gather_copy_aligned(this%fields%x_d(i), &
@@ -510,7 +511,7 @@ contains
 
     integer :: i
 
-    do i = 1, size(this%field_names)
+    do i = 1, this%n_fields
        call this%interpolator%map(this%fields%x(i), &
             this%source_fields%x(i), &
             this%msh%nelv, this%Xh)
@@ -534,7 +535,7 @@ contains
 
     call neko_scratch_registry%request_field(wk, tmp_index, .false.)
 
-    do i = 1, size(this%field_names)
+    do i = 1, this%n_fields
 
        ! First, do a masked copy onto the submesh but that has the same poly.
        ! order
