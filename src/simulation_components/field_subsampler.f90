@@ -142,8 +142,6 @@ module field_subsampler
           field_subsampler_init_from_controllers_properties
      !> Check valid initialization and assignment of variables
      procedure, pass(this) :: check => field_subsampler_check
-     !> Dummy compute routine
-     procedure, pass(this) :: dummy_compute
   end type field_subsampler_t
 
   !> Abstract interface for the compute() subroutine, which will be assigned
