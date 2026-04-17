@@ -37,6 +37,7 @@ module ale_manager
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use field, only : field_t
   use coefs, only : coef_t
+  use space, only : space_t
   use ax_product, only : ax_t, ax_helm_factory
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
   use precon, only : pc_t, precon_factory, precon_destroy
@@ -1402,14 +1403,21 @@ contains
 
   ! Restores the current coef and related metrics
   ! and the pivot states at restart.
-  subroutine sync_chkp(this, coef, adv, chkp)
+  subroutine sync_chkp(this, coef, Xh, adv, chkp)
     class(ale_manager_t), intent(inout) :: this
     class(advection_t), intent(inout) :: adv
     type(coef_t), intent(inout) :: coef
+    type(space_t), intent(inout) :: Xh
     type(chkp_t), intent(in) :: chkp
 
     ! Return if ALE is not active.
     if (.not. this%active) return
+
+    if (allocated(chkp%previous_mesh%elements) .or. &
+        (chkp%previous_Xh%lx .ne. Xh%lx)) then
+        call neko_error("ALE does not support restart from a checkpoint " //
+        "with a different mesh or a different polynomial order yet.")
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call this%wm_x%copy_from(HOST_TO_DEVICE, sync = .false.)

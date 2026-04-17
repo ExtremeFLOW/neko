@@ -547,7 +547,7 @@ contains
        end do
     end if
 
-    call this%ale%sync_chkp(this%c_Xh, this%adv, chkp)
+    call this%ale%sync_chkp(this%c_Xh, this%Xh, this%adv, chkp)
 
 
   end subroutine fluid_pnpn_restart
