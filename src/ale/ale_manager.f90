@@ -1415,7 +1415,7 @@ contains
 
     if (allocated(chkp%previous_mesh%elements)) then
         call neko_error("ALE restart failed: " // &
-            "The current mesh has a different number " // &
+            "The current mesh has a different number " //
             "of elements than the checkpoint.")
     end if
 
@@ -1427,7 +1427,8 @@ contains
             new_line('a'), &
             " - Present mesh polynomial order: ", Xh%lx - 1, &
             new_line('a'), &
-            "Changing polynomial order during restart is not yet supported."
+            "Changing polynomial order during restart is " // &
+            "not yet supported in ALE module."
         call neko_error(trim(log_buf))
     end if
 
