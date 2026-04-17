@@ -36,7 +36,7 @@ module data_streamer
   use field, only: field_t
   use coefs, only: coef_t
   use utils, only: neko_warning
-  use comm, only : NEKO_COMM
+  use comm, only : NEKO_COMM, NEKO_GLOBAL_COMM
   use mpi_f08, only : MPI_COMM
   use, intrinsic :: iso_c_binding
   implicit none
@@ -96,7 +96,8 @@ contains
 
 
 #ifdef HAVE_ADIOS2
-    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM, timeout)
+    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
+         NEKO_COMM, NEKO_GLOBAL_COMM, timeout)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')
@@ -163,12 +164,13 @@ contains
   !! @param comm simulation communicator
   !! @param timeout timeout in seconds
   subroutine fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
-       comm, timeout)
+       comm, sync_comm, timeout)
     use, intrinsic :: ISO_C_BINDING
     implicit none
     integer, intent(in) :: npts, nelv, nelb, nelgv, gdim
     integer, intent(in) :: timeout
     type(MPI_COMM) :: comm
+    type(MPI_COMM) :: sync_comm
 
     interface
        !> C-definition is: void adios2_initialize_(const int *nval,
@@ -177,7 +179,7 @@ contains
        !! const double *zml, const int *if_asynchronous,
        !! const int *comm_int)
        subroutine c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
-            comm, timeout) bind(C,name="adios2_initialize_")
+            comm, sync_comm, timeout) bind(C,name="adios2_initialize_")
          use, intrinsic :: ISO_C_BINDING
          import c_rp
          implicit none
@@ -187,11 +189,13 @@ contains
          integer(kind=C_INT) :: nelgv
          integer(kind=C_INT) :: gdim
          type(*) :: comm
+         type(*) :: sync_comm
          integer(kind=C_INT) :: timeout
        end subroutine c_adios2_initialize
     end interface
 
-    call c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, comm, timeout)
+    call c_adios2_initialize(npts, nelv, nelb, nelgv, gdim, comm, &
+         sync_comm, timeout)
   end subroutine fortran_adios2_initialize
 
   !> Interface to adios2_finalize in c++.

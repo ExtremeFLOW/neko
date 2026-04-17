@@ -23,9 +23,11 @@ extern "C" void adios2_initialize_(
     const int *glb_nelv,
     const int *gdim,
     const int *comm_int,
+    const int *sync_comm_int,
     const int timeout_seconds
 ){
     MPI_Comm comm = MPI_Comm_f2c(*comm_int);
+    MPI_Comm sync_comm = MPI_Comm_f2c(*sync_comm_int);
     adios = adios2::ADIOS(comm);
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
@@ -61,9 +63,11 @@ extern "C" void adios2_initialize_(
         "f2py_field", {gn}, {start}, {n}
     );
     
-    // If asyncrhonous execution, open the global array
+    // Publish our outbound stream first, then synchronize the full MPMD
+    // job before trying to connect to the peer writer.
     std::cout << "create global array" << std::endl;
     writer_st = io_writer.Open("globalArray_f2py", adios2::Mode::Write);
+    MPI_Barrier(sync_comm);
     reader_st = io_reader.Open("globalArray_py2f", adios2::Mode::Read);
 
     // Put necesary information in a header stream

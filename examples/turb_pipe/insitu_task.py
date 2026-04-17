@@ -69,7 +69,7 @@ if comm.Get_rank() == 0:
     print("Python - insitu - Initializing streamer")
 
 # Initialize the streamer
-ds = DataStreamer(comm)
+ds = DataStreamer(comm, sync_comm=worldcomm)
 
 if comm.Get_rank() == 0:
     print("Python - insitu - Initializing objects")
