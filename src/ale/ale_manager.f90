@@ -1409,14 +1409,25 @@ contains
     type(coef_t), intent(inout) :: coef
     type(space_t), intent(inout) :: Xh
     type(chkp_t), intent(in) :: chkp
-
+    character(len=256) :: log_buf
     ! Return if ALE is not active.
     if (.not. this%active) return
 
-    if (allocated(chkp%previous_mesh%elements) .or. &
-        (chkp%previous_Xh%lx .ne. Xh%lx)) then
-        call neko_error("ALE does not support restart from a checkpoint " // &
-        "with a different mesh or a different polynomial order yet.")
+    if (allocated(chkp%previous_mesh%elements)) then
+        call neko_error("ALE restart failed: The checkpoint contains a " // &
+             "different number of mesh elements. " // &
+             "Mesh adaptation is not yet supported.")
+    end if
+
+    if (chkp%previous_Xh%lx .ne. Xh%lx) then
+       write(log_buf, '("ALE restart failed: ", &
+            & "Polynomial order mismatch. ", &
+            & "Checkpoint (lx=", I0, ") ", &
+            & "differs from present mesh (lx=", I0, "). ", &
+            & "Changing polynomial orders during restart ", &
+            & "is not yet supported.")') &
+            chkp%previous_Xh%lx, Xh%lx
+        call neko_error(trim(log_buf))
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
