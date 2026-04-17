@@ -56,6 +56,8 @@ in Neko. The list will be updated as new simcomps are added.
 - User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
 - Streaming of data for in-situ field manipulation \ref simcomp_data_streamer
+- Sub-sampling of fields by changing polynomial order and masking by point
+  zones \ref simcomp_field_subsampler
 
 ## Controlling execution and file output
 Each simulation component is, by default, executed once per time step to perform
@@ -592,7 +594,7 @@ simcomp cam be coupled to Python scripts for in-situ data processing.
  }
  ~~~~~~~~~~~~~~~
 
-### Field subsampler
+### Field subsampler {#simcomp_field_subsampler}
 
 Creates sub-sections of the domain from a `point_zone` and/or at a lower
 `polynomial_order`. The fields are added to the registry under the name
