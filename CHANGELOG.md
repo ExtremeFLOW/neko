@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added the `field_subsampler` simulation component, allowing sampling of
+  fields at a different polynomial order and with masking by `point_zones`.
 - Added the `data_streamer` simulation component, allowing data streaming 
   with ADIOS2.
 - Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
