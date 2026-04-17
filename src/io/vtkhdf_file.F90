@@ -812,9 +812,7 @@ contains
        write(ext_fname, '(A,I0,".h5")') trim(ext_path), counter
        write(src_pattern, '(A,".data/%b.h5")') trim(main_name)
 
-       if (pe_rank .eq. 0) inquire(file = trim(ext_path), exist = exists)
-       call MPI_Bcast(exists, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
-       if (.not. exists) then
+       if (counter .eq. 0) then
           if (pe_rank .eq. 0) then
              call execute_command_line("mkdir -p '" // trim(ext_path) // "'")
           end if
