@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Modify field_writer and probes to by default output in 
+  `case.output_directory`
 - Added the `data_streamer` simulation component, allowing data streaming 
   with ADIOS2.
 - Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
