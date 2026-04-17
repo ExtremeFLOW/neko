@@ -491,7 +491,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_cadd2
-  
+
   !> Wrap value around a range (min, max)
   subroutine device_cwrap(a_d, min_val, max_val, n, strm)
     type(c_ptr) :: a_d

@@ -197,7 +197,7 @@ contains
        call cadd(a%x, s, size)
     end if
   end subroutine vector_cadd
-  
+
   !> Add a scalar to vector \f$ a_i = \sum b_i + s \f$
   subroutine vector_cadd2(a, b, s, n)
     integer, intent(in), optional :: n
@@ -891,28 +891,28 @@ contains
 
   end subroutine vector_masked_scatter_copy
 
-   !> Wrap vector elements into the range [min_value, max_value]
-   subroutine vector_cwrap(a, min_value, max_value, n)
-      integer, intent(in), optional :: n
-      type(vector_t), intent(inout) :: a
-      real(kind=rp), intent(in) :: min_value, max_value
-      integer :: size
-   
-      if (present(n)) then
-          size = n
-      else
-          size = a%size()
-      end if
-    
-      if (a%size() .lt. 1) return ! Avoid getting null pointers
+  !> Wrap vector elements into the range [min_value, max_value]
+  subroutine vector_cwrap(a, min_value, max_value, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: a
+    real(kind=rp), intent(in) :: min_value, max_value
+    integer :: size
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_cwrap(a%x_d, min_value, max_value, size)
-      else
-          call cwrap(a%x, min_value, max_value, size)
-      end if
-   
-      end subroutine vector_cwrap
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (a%size() .lt. 1) return ! Avoid getting null pointers
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cwrap(a%x_d, min_value, max_value, size)
+    else
+       call cwrap(a%x, min_value, max_value, size)
+    end if
+
+  end subroutine vector_cwrap
 
 
 

@@ -494,7 +494,7 @@ contains
        a(i) = c
     end do
   end subroutine cfill
-  
+
   !> Wrap value around a range (min, max]
   subroutine cwrap(a, min_val, max_val, n)
     integer, intent(in) :: n

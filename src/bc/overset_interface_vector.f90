@@ -93,7 +93,7 @@ module overset_interface_vector
      type(global_interpolation_settings_t) :: interpolation_settings
      logical :: find_interface = .false.
      logical :: setup = .false.
-     
+
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(morph_overset_interface), nopass, pointer :: morph_interface => null()
@@ -412,8 +412,8 @@ contains
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
-                              this%interface_dof_mask, time, this%name, &
-                                          this%find_interface)
+         this%interface_dof_mask, time, this%name, &
+         this%find_interface)
 
     !> Update in sub-step 1 should be an extrapolation of the boundary values
     ! not implemented for now
@@ -423,16 +423,16 @@ contains
 
     !> Find points if needed - later make sure only in first substep
     if (this%find_interface) then
-      
-      ! sync
-      call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
-      call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
-      call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
-      
-      call this%interface_interpolator%find_points(this%x_interface_dof%x, &
-         this%y_interface_dof%x, this%z_interface_dof%x, &
-         this%x_interface_dof%size())
-      this%find_interface = .false.
+
+       ! sync
+       call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
+
+       call this%interface_interpolator%find_points(this%x_interface_dof%x, &
+            this%y_interface_dof%x, this%z_interface_dof%x, &
+            this%x_interface_dof%size())
+       this%find_interface = .false.
 
     end if
 

@@ -115,10 +115,10 @@ module overset_interface
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
   end type overset_interface_t
 
-    abstract interface
+  abstract interface
      subroutine morph_overset_interface(interface_dof, interface_field, &
-                                                      interface_mask, time, bc_name, &
-                                                      find_interface)
+          interface_mask, time, bc_name, &
+          find_interface)
        import vector_list_t, mask_t, time_state_t
        type(vector_list_t), intent(inout) :: interface_dof
        type(vector_list_t), intent(inout) :: interface_field
@@ -364,24 +364,24 @@ contains
     class(overset_interface_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: s
-    
+
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
-                        this%interface_dof_mask, time, this%name, &
-                        this%find_interface)
+         this%interface_dof_mask, time, this%name, &
+         this%find_interface)
 
     !> Find points if needed - later make sure only in first substep
     if (this%find_interface) then
-      
-      ! sync
-      call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
-      call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
-      call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
 
-      call this%interface_interpolator%find_points(this%x_interface_dof%x, &
-         this%y_interface_dof%x, this%z_interface_dof%x, &
-         this%x_interface_dof%size())
-      this%find_interface = .false.
+       ! sync
+       call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
+
+       call this%interface_interpolator%find_points(this%x_interface_dof%x, &
+            this%y_interface_dof%x, this%z_interface_dof%x, &
+            this%x_interface_dof%size())
+       this%find_interface = .false.
 
     end if
 

@@ -367,7 +367,7 @@ contains
        n = n + 1
        write(extensions(n), '(A)') '- ALE base shapes'
     end if
-    
+
     if (.not. associated(this%morph_interface)) then
        this%morph_interface => dummy_morph_overset_interface
     else
@@ -451,10 +451,10 @@ contains
     type(field_list_t), intent(inout) :: properties
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_material_properties
-  
+
   subroutine dummy_morph_overset_interface(interface_dof, interface_field, &
-                                                   interface_mask, time, bc_name, &
-                                                   find_interface)
+       interface_mask, time, bc_name, &
+       find_interface)
     type(vector_list_t), intent(inout) :: interface_dof
     type(vector_list_t), intent(inout) :: interface_field
     type(mask_t), intent(in) :: interface_mask
