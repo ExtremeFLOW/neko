@@ -1415,7 +1415,7 @@ contains
 
     if (allocated(chkp%previous_mesh%elements)) then
         call neko_error("ALE restart failed: " // &
-            "The current mesh has a different number " //
+            "The current mesh has a different number " // &
             "of elements than the checkpoint.")
     end if
 
