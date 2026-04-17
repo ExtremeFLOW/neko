@@ -1415,7 +1415,7 @@ contains
 
     if (allocated(chkp%previous_mesh%elements)) then
         call neko_error("ALE restart failed: The checkpoint contains a " // &
-             "different number of mesh elements. "
+             "different number of mesh elements.")
     end if
 
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
