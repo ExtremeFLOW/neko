@@ -124,7 +124,7 @@ __device__ T heat_flux_neutral(T ti, T ts, T h, T z0h, T utau, T kappa)
 }
 
 /*
- * CUDA kernel for the Richardson wall model.
+ * HIP kernel for the Richardson wall model.
  */
 template<typename T, int BC_TYPE>
 __global__ void richardson_compute(
@@ -160,7 +160,11 @@ __global__ void richardson_compute(
     T* __restrict__ utau_diagn,
     T* __restrict__ magu_diagn,
     T* __restrict__ ti_diagn,
-    T* __restrict__ q_diagn
+    T* __restrict__ ts_diagn,
+    T* __restrict__ q_diagn,
+    const int* __restrict__ h_x_idx,
+    const int* __restrict__ h_y_idx,
+    const int* __restrict__ h_z_idx
 ) {
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
@@ -214,7 +218,6 @@ __global__ void richardson_compute(
         // Initialize variables based on Boundary Condition
         if constexpr (BC_TYPE == 0) { // Neumann
             q = bc_value;
-            ts = ti - (q * Pr * log(hi/z0h)) / (fmax(utau, (T)1e-6) * kappa);
         } else {                      // Dirichlet
             ts = bc_value;
             q  = kappa * utau * (ts - ti) / log(hi/z0h);
@@ -264,11 +267,16 @@ __global__ void richardson_compute(
         // diagnostic variable and writing it to global memory would require
         // passing an extra L_ob_d array pointer if GPU diagnostics are needed.
 
+        const int index_ts = (ind_e_d[i] - 1) * lx * lx * lx +
+            (ind_t_d[i] - 1 - h_z_idx[i]) * lx * lx +
+            (ind_s_d[i] - 1 - h_y_idx[i]) * lx +
+            (ind_r_d[i] - 1 - h_x_idx[i]);
         Ri_b_diagn[i] = Ri_b;
         L_ob_diagn[i] = 9999;
         utau_diagn[i] = utau;
         magu_diagn[i] = magu;
         ti_diagn[i] = ti;
+        ts_diagn[i] = temp_d[index_ts];
         q_diagn[i] = q;
     }
 }

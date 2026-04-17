@@ -40,7 +40,7 @@ submodule (wall_model) wall_model_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: WALLM_KNOWN_TYPES(3) = [character(len=20) :: &
+  character(len=20) :: WALLM_KNOWN_TYPES(4) = [character(len=20) :: &
        "spalding", &
        "rough_log_law", &
        "most", &
