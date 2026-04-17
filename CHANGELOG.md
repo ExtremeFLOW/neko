@@ -2,6 +2,17 @@
 
 ## Develop
 
+- Added the `data_streamer` simulation component, allowing data streaming 
+  with ADIOS2.
+- Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
+- Added ALE framework.
+- Added masked I/O capabilities for the field_writer via the optional 
+  `point_zone` JSON keyword.
+- Added the user-defined Neumann boundary conditions for the scalar solver.
+- *BREAKING* Changed the user-defined scalar Dirichlet boundary conditions
+  keyword from `user` to `user_dirichlet`.
+- Add possibility to create mesh and dofmap objects from masked entries.
+- Enabled 1D stats files in csv format as a possible input to `average_fields_in_time`.
 - Added the possibility to configure interpolation parameters for `probes`.
 - *BREAKING* Changed the user interface of fluid/scalar initial condition
   to read interpolation parameters from the `interpolation` JSON subdict

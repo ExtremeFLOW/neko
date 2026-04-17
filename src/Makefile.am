@@ -1,6 +1,10 @@
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
+	ale/ale_rigid_kinematics.f90\
+	ale/ale_manager.f90\
+	ale/bcknd/cpu/ale_routines_cpu.f90\
+	ale/bcknd/ale_routines_device.F90\
 	api/neko_api.f90\
 	api/neko_api_user.f90\
 	config/num_types.f90\
@@ -179,11 +183,13 @@ neko_fortran_SOURCES = \
 	bc/bc_list.f90\
 	bc/dirichlet.f90\
 	bc/neumann.f90\
+	bc/no_slip.f90\
 	bc/shear_stress.f90\
 	bc/dong_outflow.f90\
 	bc/zero_dirichlet.f90\
 	bc/inflow.f90\
 	bc/field_dirichlet.f90\
+	bc/field_neumann.f90\
 	bc/field_dirichlet_vector.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
@@ -228,6 +234,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
+	simulation_components/data_streamer_simcomp.f90\
 	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
 	simulation_components/fluid_sgs_stats_simcomp.f90\
