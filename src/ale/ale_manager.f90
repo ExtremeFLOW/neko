@@ -1409,7 +1409,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(space_t), intent(inout) :: Xh
     type(chkp_t), intent(in) :: chkp
-    character(len=256) :: log_buf
+    character(len=512) :: log_buf
     ! Return if ALE is not active.
     if (.not. this%active) return
 
@@ -1419,13 +1419,14 @@ contains
     end if
 
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
-       write(log_buf, '("ALE restart failed: ", &
-            & "Polynomial order mismatch. ", &
-            & "Checkpoint (lx=", I0, ") ", &
-            & "differs from present mesh (lx=", I0, "). ", &
-            & "Changing polynomial orders during restart ", &
-            & "is not yet supported.")') &
-            chkp%previous_Xh%lx, Xh%lx
+        write(log_buf, '(A, A, A, I0, A, A, I0, A, A)') &
+            "ALE restart failed: Polynomial order mismatch.", &
+            new_line('a'), &
+            " - Checkpoint lx: ", chkp%previous_Xh%lx, &
+            new_line('a'), &
+            " - Present mesh lx: ", Xh%lx, &
+            new_line('a'), &
+            "Changing polynomial order during restart is not yet supported."
         call neko_error(trim(log_buf))
     end if
 
