@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `coriolis_source_term_t` type.
-!! Maintainer: Timofey Mukha
+!> Implements the `translation_source_term_t` type.
 
 module translation_source_term
   use num_types, only : rp
