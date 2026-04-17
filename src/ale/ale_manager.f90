@@ -1414,17 +1414,18 @@ contains
     if (.not. this%active) return
 
     if (allocated(chkp%previous_mesh%elements)) then
-        call neko_error("ALE restart failed: The checkpoint contains a " // &
-             "different number of mesh elements.")
+        call neko_error("ALE restart failed: " // &
+            "The current mesh has a different number " //
+            "of elements than the checkpoint.")
     end if
 
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
         write(log_buf, '(A, A, A, I0, A, A, I0, A, A)') &
             "ALE restart failed: Polynomial order mismatch.", &
             new_line('a'), &
-            " - Checkpoint lx: ", chkp%previous_Xh%lx, &
+            " - Checkpoint polynomial order: ", chkp%previous_Xh%lx - 1, &
             new_line('a'), &
-            " - Present mesh lx: ", Xh%lx, &
+            " - Present polynomial order: ", Xh%lx - 1, &
             new_line('a'), &
             "Changing polynomial order during restart is not yet supported."
         call neko_error(trim(log_buf))
