@@ -1415,7 +1415,7 @@ contains
 
     if (allocated(chkp%previous_mesh%elements) .or. &
         (chkp%previous_Xh%lx .ne. Xh%lx)) then
-        call neko_error("ALE does not support restart from a checkpoint " //
+        call neko_error("ALE does not support restart from a checkpoint " // &
         "with a different mesh or a different polynomial order yet.")
     end if
 
