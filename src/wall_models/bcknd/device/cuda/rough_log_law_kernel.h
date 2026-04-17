@@ -39,7 +39,7 @@
 #include <algorithm>
 
 /**
- * HIP kernel for the rough log-law wall model.
+ * CUDA kernel for the rough log-law wall model.
  */
 template<typename T>
 __global__ void rough_log_law_compute(const T* __restrict__ u_d,
@@ -59,6 +59,7 @@ __global__ void rough_log_law_compute(const T* __restrict__ u_d,
                                       const int n_nodes,
                                       const int lx,
                                       const T kappa,
+                                      const T rho,
                                       const T B,
                                       const T z0) {
 
@@ -97,9 +98,9 @@ __global__ void rough_log_law_compute(const T* __restrict__ u_d,
         }
 
         // Distribute according to the velocity vector
-        tau_x_d[i] = -utau * utau * ui / magu;
-        tau_y_d[i] = -utau * utau * vi / magu;
-        tau_z_d[i] = -utau * utau * wi / magu;
+        tau_x_d[i] = -rho *utau * utau * ui / magu;
+        tau_y_d[i] = -rho *utau * utau * vi / magu;
+        tau_z_d[i] = -rho *utau * utau * wi / magu;
     }
 }
 

@@ -46,7 +46,11 @@ extern "C" {
           void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
           int *n_nodes, int *lx, real *kappa, real *mu, real *rho, real *g,
-          real *z0, real *z0h_in, int *bc_type, real *bc_value, int *tstep) {
+          real *Pr, real *z0, real *z0h_in, int *bc_type, real *bc_value, int *tstep,
+          void *Ri_b_diagn, void *L_ob_diagn, void *utau_diagn,
+          void *magu_diagn, void *ti_diagn, void *ts_diagn,
+          void *q_diagn, void *h_x_idx, void *h_y_idx,
+          void *h_z_idx) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
@@ -62,8 +66,11 @@ extern "C" {
                 (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
                 (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
                 (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
-                *n_nodes, *lx, *kappa, *mu, *rho,  g1, g2, g3, 
-                *z0, *z0h_in, *bc_value);
+                *n_nodes, *lx, *kappa, *mu, *rho,  g1, g2, g3,
+                *Pr, *z0, *z0h_in, *bc_value, (real*) Ri_b_diagn, (real*) L_ob_diagn,
+                (real*) utau_diagn, (real*) magu_diagn, (real*) ti_diagn,
+                (real *) ts_diagn, (real *) q_diagn, (int *) h_x_idx,
+                (int *) h_y_idx, (int *) h_z_idx);
         } else if (*bc_type == 1) {   /* Dirichlet */
             most_compute<real, 1>
             <<<nblcks, nthrds, 0, stream>>>(
@@ -71,8 +78,10 @@ extern "C" {
                 (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
                 (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
                 (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
-                *n_nodes, *lx, *kappa, *mu, *rho,  g1, g2, g3, 
-                *z0, *z0h_in, *bc_value);
+                *n_nodes, *lx, *kappa, *mu, *rho,  g1, g2, g3,
+                *Pr, *z0, *z0h_in, *bc_value, (real*) Ri_b_diagn, (real*) L_ob_diagn,
+                (real*) utau_diagn, (real*) magu_diagn, (real*) ti_diagn, (real *) ts_diagn,
+                (real *) q_diagn, (int *) h_x_idx, (int *) h_y_idx, (int *) h_z_idx);
         }
       CUDA_CHECK(cudaGetLastError());
     }
