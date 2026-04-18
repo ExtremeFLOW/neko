@@ -535,8 +535,8 @@ A more detailed description of each boundary condition is provided below.
      log-law constants. This model is suitable for smooth walls.
 
    * The `rough_log_law` model requires specifying `kappa` and `B`, which are
-     the log-law constants, `z0`, which is the characteristic roughness
-     height, and `rho`, which is the density (defaults to 1.0).
+     the log-law constants, and `z0`, which is the characteristic roughness
+     height.
 
    * The `most` model is a version of the `rough_log_law` adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given [below](#most-wall-model)
 
@@ -596,8 +596,6 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
  - `Pr`: The turbulent Prandtl number, defaults to 1.0.
  - `z0`: The characteristic roughness length for momentum.
  - `z0h`: The characteristic roughness length for heat. If a negative value is given, the roughness length for heat is computed using the formula of Zilitinkevich 1995, with the provided value acting as the constant \f$-A_0\f$ in the Zilitinkevich formula. Defaults to be the same as `z0`.
- - `mu`: The molecular viscosity, defaults to 1e-10.
- - `rho`: The density, defaults to 1.0.
  - `type_of_temp_bc`: Accepted values are the lowercase strings `neumann` or `dirichlet`. If `neumann`, the provided value of `bottom_bc_flux_or_temp` is used directly as the surface heat flux in the computation of the wall stress. If `dirichlet`, the value of `bottom_bc_flux_or_temp` is interpreted as a surface temperature, which is then used to compute a heat flux using the MOST relationship.
  - `bottom_bc_flux_or_temp`: Value of the surface heat flux if `type_of_temp_bc` is `neumann`, or value of the surface temperature if `type_of_temp_bc` is `dirichlet`.
  - `scalar_field`: The name of the scalar field to be used as the potential temperature in the equations.
@@ -660,8 +658,6 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
     "Pr": 1.0,
     "z0": 0.1,
     "z0h": 0.1,
-    "mu": 1e-10,
-    "rho": 1.0,
     "type_of_temp_bc": "neumann",
     "bottom_bc_flux_or_temp": 0.05,
     "scalar_field": "temperature",
