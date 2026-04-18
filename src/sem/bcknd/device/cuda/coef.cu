@@ -163,7 +163,7 @@ extern "C" {
    * Fortran wrapper for generating mass matrix
    */
   void cuda_coef_generate_mass(void *B, void *Binv, void *jac, 
-                               void *w3, int *lxyz, int *nel)  {
+       void *w3, int *lxyz, int *nel)  {
 
     int n = (*lxyz) * (*nel);
     const dim3 nthrds(1024, 1, 1);
@@ -183,12 +183,12 @@ extern "C" {
    * Fortran wrapper for generating facet area and surface normals
    */
   void cuda_coef_generate_area_and_normal(void *area, 
-            void *nx, void *ny, void *nz,
-            void *dxdr, void *dydr, void *dzdr,
-            void *dxds, void *dyds, void *dzds,
-            void *dxdt, void *dydt, void *dzdt,
-            void *wx, void *wy, void *wz,
-            int *lx, int *nel, real eps) {
+       void *nx, void *ny, void *nz,
+       void *dxdr, void *dydr, void *dzdr,
+       void *dxds, void *dyds, void *dzds,
+       void *dxdt, void *dydt, void *dzdt,
+       void *wx, void *wy, void *wz,
+       int *lx, int *nel, real eps) {
     
     const dim3 nblcks((*nel), 1, 1);
     const dim3 nthrds(1024, 1, 1);

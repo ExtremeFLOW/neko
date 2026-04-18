@@ -171,9 +171,9 @@ extern "C" {
     const dim3 nblcks(((n) + 1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(coef_generate_mass_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-		       (real *) B, (real *) Binv, (real *) jac, (real *) w3,
-		       *lxyz, *nel);
+		     nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+		     (real *) B, (real *) Binv, (real *) jac, (real *) w3,
+		     *lxyz, *nel);
            
     HIP_CHECK(hipGetLastError());
 
@@ -183,11 +183,11 @@ extern "C" {
    * Fortran wrapper for generating facet area and surface normals
    */
   void hip_coef_generate_area_and_normal(void *area, void *nx, void *ny, void *nz,
-                                         void *dxdr, void *dydr, void *dzdr,
-                                         void *dxds, void *dyds, void *dzds,
-                                         void *dxdt, void *dydt, void *dzdt,
-                                         void *wx, void *wy, void *wz,
-                                         int *lx, int *nel, real eps) {
+       void *dxdr, void *dydr, void *dzdr,
+       void *dxds, void *dyds, void *dzds,
+       void *dxdt, void *dydt, void *dzdt,
+       void *wx, void *wy, void *wz,
+       int *lx, int *nel, real eps) {
     
     const dim3 nblcks((*nel), 1, 1);
     const dim3 nthrds(1024, 1, 1);
@@ -195,13 +195,13 @@ extern "C" {
 #define AREA_CASE(LX)                                                       \
     case LX:                                                                \
       hipLaunchKernelGGL(                                                   \
-          HIP_KERNEL_NAME(coef_generate_area_and_normal_kernel<real, LX>),  \
-          nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,                   \
-          (real *) area, (real *) nx, (real *) ny, (real *) nz,             \
-          (real *) dxdr, (real *) dydr, (real *) dzdr,                      \
-          (real *) dxds, (real *) dyds, (real *) dzds,                      \
-          (real *) dxdt, (real *) dydt, (real *) dzdt,                      \
-          (real *) wx, (real *) wy, (real *) wz, eps);                           \
+           HIP_KERNEL_NAME(coef_generate_area_and_normal_kernel<real, LX>),  \
+           nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,                   \
+           (real *) area, (real *) nx, (real *) ny, (real *) nz,             \
+           (real *) dxdr, (real *) dydr, (real *) dzdr,                      \
+           (real *) dxds, (real *) dyds, (real *) dzds,                      \
+           (real *) dxdt, (real *) dydt, (real *) dzdt,                      \
+           (real *) wx, (real *) wy, (real *) wz, eps);                           \
       HIP_CHECK(hipGetLastError());                                         \
       break
 
