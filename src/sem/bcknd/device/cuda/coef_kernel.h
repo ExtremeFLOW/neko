@@ -359,9 +359,15 @@ __global__ void coef_generate_area_and_normal_kernel(
       length = sqrt(dot);
       weight = wy[j] * wz[k];
 
-      f = (i == 0) ? 0 : 1;
+      if (i == 0) {
+        f = 0;
+        sgn = -1.0;
+      } else {
+        f = 1;
+        sgn = 1.0;
+      }
+
       out_idx = j + (k * LX) + (f * lxy) + face_offset;
-      sgn = (i == 0) ? -1.0 : 1.0;
 
       area[out_idx] = length * weight;
 
@@ -386,9 +392,15 @@ __global__ void coef_generate_area_and_normal_kernel(
       length = sqrt(dot);
       weight = wx[i] * wz[k];
 
-      f = (j == 0) ? 2 : 3;
+      if (j == 0) {
+        f = 2;
+        sgn = 1.0;
+      } else {
+        f = 3;
+        sgn = -1.0;
+      }
+
       out_idx = i + (k * LX) + (f * lxy) + face_offset;
-      sgn = (j == 0) ? 1.0 : -1.0;
 
       area[out_idx] = length * weight;
 
@@ -413,9 +425,15 @@ __global__ void coef_generate_area_and_normal_kernel(
       length = sqrt(dot);
       weight = wx[i] * wy[j];
 
-      f = (k == 0) ? 4 : 5;
+      if (k == 0) {
+        f = 4;
+        sgn = -1.0;
+      } else {
+        f = 5;
+        sgn = 1.0;
+      }
+
       out_idx = i + (j * LX) + (f * lxy) + face_offset;
-      sgn = (k == 0) ? -1.0 : 1.0;
 
       area[out_idx] = length * weight;
 

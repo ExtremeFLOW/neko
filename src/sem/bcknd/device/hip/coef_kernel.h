@@ -287,10 +287,10 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
  * Device kernel for coef_generate_mass
  */
 template <typename T>
-__global__ void coef_generate_mass_kernel(T * __restrict__ B, 
-                T * __restrict__ Binv, 
-                const T * __restrict__ jac, 
-                const T * __restrict__ w3, 
+__global__ void coef_generate_mass_kernel(T * __restrict__ B,
+                T * __restrict__ Binv,
+                const T * __restrict__ jac,
+                const T * __restrict__ w3,
                 int lxyz, int nel) {
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -340,7 +340,7 @@ __global__ void coef_generate_area_and_normal_kernel(
   const int lxy = LX * LX;
 
   for (int ijk = iii; ijk < lxyz; ijk += blockDim.x) {
-      
+
     const int jk = ijk / LX;
     i = ijk - jk * LX;
     k = jk / LX;
@@ -354,18 +354,24 @@ __global__ void coef_generate_area_and_normal_kernel(
       tx = dyds[offset] * dzdt[offset] - dzds[offset] * dydt[offset];
       ty = dzds[offset] * dxdt[offset] - dxds[offset] * dzdt[offset];
       tz = dxds[offset] * dydt[offset] - dyds[offset] * dxdt[offset];
-      
+
       dot = tx*tx + ty*ty + tz*tz;
       length = sqrt(dot);
       weight = wy[j] * wz[k];
 
-      f = (i == 0) ? 0 : 1; 
+      if (i == 0) {
+        f = 0;
+        sgn = -1.0;
+      } else {
+        f = 1;
+        sgn = 1.0;
+      }
+
       out_idx = j + (k * LX) + (f * lxy) + face_offset;
-      sgn = (i == 0) ? -1.0 : 1.0;
 
       area[out_idx] = length * weight;
-      
-      if (length > eps) { 
+
+      if (length > eps) {
         nx[out_idx] = (tx / length) * sgn;
         ny[out_idx] = (ty / length) * sgn;
         nz[out_idx] = (tz / length) * sgn;
@@ -381,17 +387,23 @@ __global__ void coef_generate_area_and_normal_kernel(
       tx = dydr[offset] * dzdt[offset] - dzdr[offset] * dydt[offset];
       ty = dzdr[offset] * dxdt[offset] - dxdr[offset] * dzdt[offset];
       tz = dxdr[offset] * dydt[offset] - dydr[offset] * dxdt[offset];
-      
+
       dot = tx*tx + ty*ty + tz*tz;
       length = sqrt(dot);
       weight = wx[i] * wz[k];
 
-      f = (j == 0) ? 2 : 3; 
+      if (j == 0) {
+        f = 2;
+        sgn = 1.0;
+      } else {
+        f = 3;
+        sgn = -1.0;
+      }
+
       out_idx = i + (k * LX) + (f * lxy) + face_offset;
-      sgn = (j == 0) ? 1.0 : -1.0;
 
       area[out_idx] = length * weight;
-      
+
       if (length > eps) {
         nx[out_idx] = (tx / length) * sgn;
         ny[out_idx] = (ty / length) * sgn;
@@ -403,22 +415,28 @@ __global__ void coef_generate_area_and_normal_kernel(
       }
     }
 
-    // dr x ds 
+    // dr x ds
     if (k == 0 || k == LX - 1) {
       tx = dydr[offset] * dzds[offset] - dzdr[offset] * dyds[offset];
       ty = dzdr[offset] * dxds[offset] - dxdr[offset] * dzds[offset];
       tz = dxdr[offset] * dyds[offset] - dydr[offset] * dxds[offset];
-      
+
       dot = tx*tx + ty*ty + tz*tz;
       length = sqrt(dot);
       weight = wx[i] * wy[j];
 
-      f = (k == 0) ? 4 : 5; 
+      if (k == 0) {
+        f = 4;
+        sgn = -1.0;
+      } else {
+        f = 5;
+        sgn = 1.0;
+      }
+
       out_idx = i + (j * LX) + (f * lxy) + face_offset;
-      sgn = (k == 0) ? -1.0 : 1.0;
 
       area[out_idx] = length * weight;
-      
+
       if (length > eps) {
         nx[out_idx] = (tx / length) * sgn;
         ny[out_idx] = (ty / length) * sgn;

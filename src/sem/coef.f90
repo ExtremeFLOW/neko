@@ -34,7 +34,7 @@
 module coefs
   use gather_scatter, only : gs_t
   use gs_ops, only : GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_OPENCL
   use num_types, only : rp
   use dofmap, only : dofmap_t
   use space, only : space_t
@@ -1093,7 +1093,7 @@ contains
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     ntot = c%dof%size()
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if ( (NEKO_BCKND_DEVICE .eq. 1) .and. (NEKO_BCKND_OPENCL .eq. 0) ) then
        call device_coef_generate_mass(c%B_d, c%Binv_d, c%jac_d, c%Xh%w3_d, &
             lxyz, c%msh%nelv)
        ! copy to host only at initialization.
@@ -1108,6 +1108,10 @@ contains
              c%Binv(i,1,1,e) = c%B(i,1,1,e)
           end do
        end do
+       if (NEKO_BCKND_OPENCL .eq. 1) then
+          call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE, sync = .false.)
+       end if
     end if
 
     call c%gs_h%op(c%Binv, ntot, GS_OP_ADD)
@@ -1181,7 +1185,7 @@ contains
     n = coef%dof%size()
     lx = coef%Xh%lx
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if ( (NEKO_BCKND_DEVICE .eq. 1) .and. (NEKO_BCKND_OPENCL .eq. 0) ) then
 
        call device_coef_generate_area_and_normal( &
             coef%area_d, coef%nx_d, coef%ny_d, coef%nz_d, &
@@ -1194,13 +1198,13 @@ contains
        ! Here, we always copy back to host.
        m = size(coef%area)
        call device_memcpy(coef%area, coef%area_d, m, &
-                 DEVICE_TO_HOST, sync = .false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(coef%nx, coef%nx_d, m, &
-                 DEVICE_TO_HOST, sync = .false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(coef%ny, coef%ny_d, m, &
-                 DEVICE_TO_HOST, sync = .false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(coef%nz, coef%nz_d, &
-                 m, DEVICE_TO_HOST, sync = .true.)
+            m, DEVICE_TO_HOST, sync = .true.)
 
     else
 
@@ -1341,6 +1345,19 @@ contains
        deallocate(c)
        deallocate(b)
        deallocate(a)
+
+       if (NEKO_BCKND_OPENCL .eq. 1) then
+          m = size(coef%area)
+          call device_memcpy(coef%area, coef%area_d, m, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(coef%nx, coef%nx_d, m, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(coef%ny, coef%ny_d, m, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(coef%nz, coef%nz_d, m, &
+               HOST_TO_DEVICE, sync = .false.)
+       end if
+
     end if
 
   end subroutine coef_generate_area_and_normal

@@ -315,8 +315,11 @@ contains
   end subroutine device_coef_generate_mass
 
   subroutine device_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
-       dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
-       wx_d, wy_d, wz_d, lx, nel, eps)
+       dxdr_d, dydr_d, dzdr_d, &
+       dxds_d, dyds_d, dzds_d, &
+       dxdt_d, dydt_d, dzdt_d, &
+       wx_d, wy_d, wz_d, &
+       lx, nel, eps)
     type(c_ptr) :: area_d, nx_d, ny_d, nz_d
     type(c_ptr) :: dxdr_d, dydr_d, dzdr_d
     type(c_ptr) :: dxds_d, dyds_d, dzds_d
@@ -327,16 +330,25 @@ contains
 
 #ifdef HAVE_HIP
     call hip_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
-         dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
-         wx_d, wy_d, wz_d, lx, nel, eps)
+         dxdr_d, dydr_d, dzdr_d, &
+         dxds_d, dyds_d, dzds_d, &
+         dxdt_d, dydt_d, dzdt_d, &
+         wx_d, wy_d, wz_d, &
+         lx, nel, eps)
 #elif HAVE_CUDA
     call cuda_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
-         dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
-         wx_d, wy_d, wz_d, lx, nel, eps)
+         dxdr_d, dydr_d, dzdr_d, &
+         dxds_d, dyds_d, dzds_d, &
+         dxdt_d, dydt_d, dzdt_d, &
+         wx_d, wy_d, wz_d, &
+         lx, nel, eps)
 #elif HAVE_OPENCL
     call opencl_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
-         dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
-         wx_d, wy_d, wz_d, lx, nel, eps)
+         dxdr_d, dydr_d, dzdr_d, &
+         dxds_d, dyds_d, dzds_d, &
+         dxdt_d, dydt_d, dzdt_d, &
+         wx_d, wy_d, wz_d, &
+         lx, nel, eps)
 #else
     call neko_error('No device backend configured')
 #endif
