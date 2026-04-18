@@ -1411,7 +1411,6 @@ contains
     type(space_t), intent(inout) :: Xh
     type(chkp_t), intent(in) :: chkp
     type(gs_t), intent(inout) :: gs_Xh
-    character(len=512) :: log_buf
     integer :: i, j, n
     ! Return if ALE is not active.
     if (.not. this%active) return
