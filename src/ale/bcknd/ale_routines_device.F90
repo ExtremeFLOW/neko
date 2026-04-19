@@ -44,13 +44,9 @@ module ale_routines_device
   use zero_dirichlet, only : zero_dirichlet_t
   use math, only : rzero, glimax, cfill
   use gather_scatter, only : GS_OP_MIN
-  use ale_rigid_kinematics, only : ale_config_t, pivot_state_t, &
-       point_tracker_t, body_kinematics_t, &
-       init_pivot_state, update_pivot_location, &
-       compute_body_kinematics_built_in, ab_integrate_point_pos
+  use ale_rigid_kinematics, only : ale_config_t, body_kinematics_t
   use device, only : device_map, device_memcpy, device_unmap, &
-       HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue, device_alloc
-  use neko_config, only : NEKO_BCKND_DEVICE
+       HOST_TO_DEVICE, DEVICE_TO_HOST
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   use logger, only : neko_log
