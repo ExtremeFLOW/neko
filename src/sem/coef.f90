@@ -42,7 +42,7 @@ module coefs
        chsign, rzero, invers2, glsum, NEKO_EPS
   use mesh, only : mesh_t
   use device_math, only : device_rone, device_invcol1, &
-       device_glsum
+       device_glsum, device_copy
   use device_coef, only : device_coef_generate_geo, &
        device_coef_generate_dxydrst
   use mxm_wrapper, only : mxm
@@ -52,7 +52,6 @@ module coefs
   use comm, only : NEKO_COMM
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
-  use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -1441,27 +1440,16 @@ contains
   subroutine coef_update_lagged_mass(this)
     class(coef_t), intent(inout), target :: this
     integer :: n
-    integer(c_size_t) :: n_bytes
 
     ! If this%Blag does not have separate memory, we don't need to update it.
     if (associated(this%Blag, this%B)) return
-
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
-       if (rp .eq. REAL32) then
-          n_bytes = int(n, c_size_t) * 4_c_size_t
-       else
-          n_bytes = int(n, c_size_t) * 8_c_size_t
-       end if
-
-       call device_memcpy(this%Blaglag_d, this%Blag_d, n_bytes, &
-            DEVICE_TO_DEVICE, sync = .false.)
-
-       call device_memcpy(this%Blag_d, this%B_d, n_bytes, &
-            DEVICE_TO_DEVICE, sync = .true.)
-      else
-         this%Blaglag = this%Blag
-         this%Blag = this%B
+       call device_copy(this%Blaglag_d, this%Blag_d, n)
+       call device_copy(this%Blag_d, this%B_d, n)
+    else
+       this%Blaglag = this%Blag
+       this%Blag = this%B
     end if
 
   end subroutine coef_update_lagged_mass
