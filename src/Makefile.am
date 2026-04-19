@@ -256,6 +256,9 @@ neko_fortran_SOURCES = \
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_lowmach_pnpn.f90\
+	fluid/lowmach_residual.f90\
+	fluid/lowmach_res_fctry.f90\
+	fluid/bcknd/cpu/lowmach_res_cpu.f90\
 	fluid/fluid_base_fctry.f90\
 	fluid/fluid_pnpn_bc_fctry.f90\
 	fluid/euler_bc_fctry.f90\

@@ -32,15 +32,18 @@
 !
 !> Low-Mach Pn-Pn fluid scheme.
 !!
-!! Extends fluid_pnpn_t. Adds EOS plumbing: reads P0, R_specific, and a
-!! temperature field name from JSON, and updates the density field via
-!! rho = P0 / (R_specific * T) at the start of each step. The existing
-!! pnpn residuals still read rho as a point value (rho(1,1,1,1)), so the
-!! spatially-varying rho written here does not yet affect the solution —
-!! this commit is infrastructure for the subsequent residual replacement.
+!! Extends fluid_pnpn_t. Contributes:
+!!   * EOS plumbing: reads P0, R_specific, temperature-field name from JSON
+!!     and updates the density field rho = P0 / (R_specific * T) each step.
+!!   * Owns lowmach_prs_res_t and lowmach_vel_res_t residual objects. When
+!!     low-Mach mode is enabled these replace the inherited pnpn residuals
+!!     inside step(). A Q_T (thermal divergence) field is allocated and
+!!     passed to the residuals.
 !!
-!! When case.fluid.low_mach.enabled is absent or false, step() behaves
-!! exactly like fluid_pnpn_step.
+!! Physics content as of this commit: Q_T is held at zero and the residual
+!! bodies reproduce pnpn_res_cpu exactly, so enabling low-Mach still gives
+!! bit-identical output while the infrastructure is in place to add the Q_T
+!! source and variable-property stress terms in subsequent commits.
 module fluid_lowmach_pnpn
   use num_types, only : rp
   use fluid_pnpn, only : fluid_pnpn_t
@@ -52,6 +55,7 @@ module fluid_lowmach_pnpn
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use checkpoint, only : chkp_t
+  use utils, only : neko_error
   use krylov, only : ksp_monitor_t
   use bc, only : bc_t
   use non_normal, only : non_normal_t
@@ -69,10 +73,14 @@ module fluid_lowmach_pnpn
   use fluid_aux, only : fluid_step_info
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
+  use lowmach_residual, only : lowmach_prs_res_t, lowmach_vel_res_t, &
+       lowmach_prs_res_factory, lowmach_vel_res_factory
   implicit none
   private
 
   type, public, extends(fluid_pnpn_t) :: fluid_lowmach_pnpn_t
+     !> Master switch. When false, step() runs as vanilla pnpn.
+     logical :: low_mach_enabled = .false.
      !> Thermodynamic (background) pressure — constant for open domains.
      real(kind=rp) :: P0 = 1.0_rp
      !> Specific gas constant R/M.
@@ -81,8 +89,13 @@ module fluid_lowmach_pnpn
      character(len=:), allocatable :: T_field_name
      !> Pointer to the temperature field, resolved lazily on first step.
      type(field_t), pointer :: T_ptr => null()
-     !> Master switch. When false, step() runs as vanilla pnpn.
-     logical :: low_mach_enabled = .false.
+     !> Thermal divergence source field. Currently held at zero; subsequent
+     !! commits will populate it from the energy equation.
+     type(field_t) :: Q_T_field
+     !> Low-Mach pressure residual operator.
+     class(lowmach_prs_res_t), allocatable :: lm_prs_res
+     !> Low-Mach velocity residual operator.
+     class(lowmach_vel_res_t), allocatable :: lm_vel_res
    contains
      procedure, pass(this) :: init => fluid_lowmach_pnpn_init
      procedure, pass(this) :: step => fluid_lowmach_pnpn_step
@@ -91,7 +104,8 @@ module fluid_lowmach_pnpn
 contains
 
   !> Initialise the scheme. Delegates to the parent Pn-Pn init for all the
-  !! heavy lifting, then reads low-Mach parameters from the case JSON.
+  !! heavy lifting, then reads low-Mach parameters, allocates residuals and
+  !! the Q_T field.
   subroutine fluid_lowmach_pnpn_init(this, msh, lx, params, user, chkp)
     class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -101,6 +115,7 @@ contains
     type(chkp_t), target, intent(inout) :: chkp
     character(len=LOG_SIZE) :: log_buf
     character(len=:), allocatable :: tname
+    integer :: i, n
 
     ! Run the standard Pn-Pn init to set up mesh, dofmap, fields, BCs, solvers.
     call this%fluid_pnpn_t%init(msh, lx, params, user, chkp)
@@ -116,6 +131,20 @@ contains
          tname, 's')
     this%T_field_name = tname
 
+    if (this%low_mach_enabled .and. NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error("fluid_lowmach_pnpn: device backend not yet implemented")
+    end if
+
+    ! Allocate Q_T field (zero-initialised) and the residual operators.
+    call this%Q_T_field%init(this%dm_Xh, 'Q_T')
+    n = this%dm_Xh%size()
+    do i = 1, n
+       this%Q_T_field%x(i,1,1,1) = 0.0_rp
+    end do
+
+    call lowmach_prs_res_factory(this%lm_prs_res)
+    call lowmach_vel_res_factory(this%lm_vel_res)
+
     if (this%low_mach_enabled) then
        call neko_log%section('Low-Mach')
        write(log_buf, '(A,E15.7)') 'P0         : ', this%P0
@@ -130,13 +159,11 @@ contains
   end subroutine fluid_lowmach_pnpn_init
 
   !> Update the density field from the temperature field using the ideal-gas
-  !! EOS rho = P0 / (R_specific * T). Called at the top of step() when
-  !! low-Mach mode is enabled and the temperature field is available.
+  !! EOS rho = P0 / (R_specific * T).
   subroutine lowmach_update_density(this)
     class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
     integer :: i, n
 
-    ! Resolve the temperature pointer lazily on first call.
     if (.not. associated(this%T_ptr)) then
        if (neko_registry%field_exists(this%T_field_name)) then
           this%T_ptr => neko_registry%get_field(this%T_field_name)
@@ -158,10 +185,11 @@ contains
 
   end subroutine lowmach_update_density
 
-  !> Advance the solution by one time step. The body is a copy of
-  !! fluid_pnpn_step with a single addition: an EOS-driven density update
-  !! at the top, active only when low-Mach mode is enabled. With enabled=false
-  !! output is bit-identical to fluid_pnpn_step.
+  !> Advance the solution by one time step. When low_mach_enabled is false,
+  !! runs the inherited Pn-Pn path bit-for-bit. When true, updates rho from
+  !! the EOS and routes the pressure/velocity residuals through the new
+  !! lowmach_residual operators (which currently still ignore Q_T and match
+  !! pnpn_res_cpu exactly).
   subroutine fluid_lowmach_pnpn_step(this, time, dt_controller)
     class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -176,7 +204,6 @@ contains
 
     n = this%dm_Xh%size()
 
-    ! Low-Mach EOS: update rho = P0 / (R * T) before any residual.
     if (this%low_mach_enabled) call lowmach_update_density(this)
 
     call profiler_start_region('Fluid', 1)
@@ -247,14 +274,25 @@ contains
 
       call profiler_start_region('Pressure_residual', 18)
 
-      call prs_res%compute(p, p_res,&
-           u, v, w, &
-           u_e, v_e, w_e, &
-           f_x, f_y, f_z, &
-           c_Xh, gs_Xh, &
-           this%bc_prs_surface, this%bc_sym_surface,&
-           Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
-           mu_tot, rho, event)
+      if (this%low_mach_enabled) then
+         call this%lm_prs_res%compute(p, p_res, &
+              u, v, w, &
+              u_e, v_e, w_e, &
+              f_x, f_y, f_z, &
+              c_Xh, gs_Xh, &
+              this%bc_prs_surface, this%bc_sym_surface, &
+              Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
+              mu_tot, rho, this%Q_T_field, event)
+      else
+         call prs_res%compute(p, p_res, &
+              u, v, w, &
+              u_e, v_e, w_e, &
+              f_x, f_y, f_z, &
+              c_Xh, gs_Xh, &
+              this%bc_prs_surface, this%bc_sym_surface, &
+              Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
+              mu_tot, rho, event)
+      end if
 
       if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
          call device_ortho(p_res%x_d, this%glb_n_points, n)
@@ -294,13 +332,23 @@ contains
       end if
 
       call profiler_start_region('Velocity_residual', 19)
-      call vel_res%compute(Ax_vel, u, v, w, &
-           u_res, v_res, w_res, &
-           p, &
-           f_x, f_y, f_z, &
-           c_Xh, msh, Xh, &
-           mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
-           dt, dm_Xh%size())
+      if (this%low_mach_enabled) then
+         call this%lm_vel_res%compute(Ax_vel, u, v, w, &
+              u_res, v_res, w_res, &
+              p, &
+              f_x, f_y, f_z, &
+              c_Xh, msh, Xh, &
+              mu_tot, rho, this%Q_T_field, &
+              ext_bdf%diffusion_coeffs%x(1), dt, dm_Xh%size())
+      else
+         call vel_res%compute(Ax_vel, u, v, w, &
+              u_res, v_res, w_res, &
+              p, &
+              f_x, f_y, f_z, &
+              c_Xh, msh, Xh, &
+              mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
+              dt, dm_Xh%size())
+      end if
 
       call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
       call gs_Xh%op(u_res, GS_OP_ADD, event)
