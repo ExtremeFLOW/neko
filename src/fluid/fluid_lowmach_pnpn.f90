@@ -64,6 +64,7 @@ module fluid_lowmach_pnpn
   use time_step_controller, only : time_step_controller_t
   use profiler, only : profiler_start_region, profiler_end_region
   use field_math, only : field_add2
+  use field_series, only : field_series_t
   use operators, only : ortho, rotate_cyc, opgrad, cdtp
   use opr_device, only : device_ortho
   use scratch_registry, only : neko_scratch_registry
@@ -260,6 +261,119 @@ contains
 
   end subroutine lowmach_update_Q_T
 
+  !> Variable-density counterpart of rhs_maker_ext_cpu. Applies the AB
+  !! extrapolation of the momentum forcing history and multiplies the
+  !! result by the spatially-varying rho field instead of a scalar.
+  subroutine lm_rhs_ext_field_rho(fx_lag, fy_lag, fz_lag, &
+       fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, rho, ext_coeffs, n)
+    type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
+    type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
+    type(field_t), intent(in) :: rho
+    real(kind=rp), intent(in) :: ext_coeffs(4)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
+    type(field_t), pointer :: temp1, temp2, temp3
+    integer :: temp_indices(3)
+    integer :: i
+
+    call neko_scratch_registry%request_field(temp1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(temp2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(temp3, temp_indices(3), .false.)
+
+    do concurrent (i = 1:n)
+       temp1%x(i,1,1,1) = ext_coeffs(2) * fx_lag%x(i,1,1,1) + &
+            ext_coeffs(3) * fx_laglag%x(i,1,1,1)
+       temp2%x(i,1,1,1) = ext_coeffs(2) * fy_lag%x(i,1,1,1) + &
+            ext_coeffs(3) * fy_laglag%x(i,1,1,1)
+       temp3%x(i,1,1,1) = ext_coeffs(2) * fz_lag%x(i,1,1,1) + &
+            ext_coeffs(3) * fz_laglag%x(i,1,1,1)
+    end do
+
+    do concurrent (i = 1:n)
+       fx_laglag%x(i,1,1,1) = fx_lag%x(i,1,1,1)
+       fy_laglag%x(i,1,1,1) = fy_lag%x(i,1,1,1)
+       fz_laglag%x(i,1,1,1) = fz_lag%x(i,1,1,1)
+       fx_lag%x(i,1,1,1) = fx(i)
+       fy_lag%x(i,1,1,1) = fy(i)
+       fz_lag%x(i,1,1,1) = fz(i)
+    end do
+
+    do concurrent (i = 1:n)
+       fx(i) = (ext_coeffs(1) * fx(i) + temp1%x(i,1,1,1)) * rho%x(i,1,1,1)
+       fy(i) = (ext_coeffs(1) * fy(i) + temp2%x(i,1,1,1)) * rho%x(i,1,1,1)
+       fz(i) = (ext_coeffs(1) * fz(i) + temp3%x(i,1,1,1)) * rho%x(i,1,1,1)
+    end do
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
+
+  end subroutine lm_rhs_ext_field_rho
+
+  !> Variable-density counterpart of rhs_maker_bdf_cpu. Assembles the BDF
+  !! lagged-velocity contribution to the momentum RHS weighting each
+  !! pointwise term by rho(x)/dt.
+  subroutine lm_rhs_bdf_field_rho(ulag, vlag, wlag, bfx, bfy, bfz, &
+       u, v, w, B, rho, dt, bd, nbd, n)
+    integer, intent(in) :: n, nbd
+    type(field_t), intent(in) :: u, v, w
+    type(field_series_t), intent(in) :: ulag, vlag, wlag
+    type(field_t), intent(in) :: rho
+    real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
+    real(kind=rp), intent(in) :: B(n)
+    real(kind=rp), intent(in) :: dt, bd(4)
+    type(field_t), pointer :: tb1, tb2, tb3
+    integer :: temp_indices(3)
+    integer :: i, ilag
+
+    call neko_scratch_registry%request_field(tb1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(tb2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(tb3, temp_indices(3), .false.)
+
+    do concurrent (i = 1:n)
+       tb1%x(i,1,1,1) = u%x(i,1,1,1) * B(i) * bd(2)
+       tb2%x(i,1,1,1) = v%x(i,1,1,1) * B(i) * bd(2)
+       tb3%x(i,1,1,1) = w%x(i,1,1,1) * B(i) * bd(2)
+    end do
+
+    do ilag = 2, nbd
+       do concurrent (i = 1:n)
+          tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + &
+               (ulag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
+          tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + &
+               (vlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
+          tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + &
+               (wlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
+       end do
+    end do
+
+    do concurrent (i = 1:n)
+       bfx(i) = bfx(i) + tb1%x(i,1,1,1) * (rho%x(i,1,1,1) / dt)
+       bfy(i) = bfy(i) + tb2%x(i,1,1,1) * (rho%x(i,1,1,1) / dt)
+       bfz(i) = bfz(i) + tb3%x(i,1,1,1) * (rho%x(i,1,1,1) / dt)
+    end do
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
+
+  end subroutine lm_rhs_bdf_field_rho
+
+  !> Variable-density counterpart of rhs_maker_oifs_cpu. OIFS branch of
+  !! the momentum RHS assembly with rho as a spatial field.
+  subroutine lm_rhs_oifs_field_rho(phi_x, phi_y, phi_z, &
+       bf_x, bf_y, bf_z, rho, dt, n)
+    type(field_t), intent(in) :: rho
+    real(kind=rp), intent(in) :: dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
+    real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
+    integer :: i
+
+    do concurrent (i = 1:n)
+       bf_x(i) = bf_x(i) + phi_x(i) * (rho%x(i,1,1,1) / dt)
+       bf_y(i) = bf_y(i) + phi_y(i) * (rho%x(i,1,1,1) / dt)
+       bf_z(i) = bf_z(i) + phi_z(i) * (rho%x(i,1,1,1) / dt)
+    end do
+
+  end subroutine lm_rhs_oifs_field_rho
+
   !> Advance the solution by one time step. When low_mach_enabled is false,
   !! runs the inherited Pn-Pn path bit-for-bit. When true, updates rho from
   !! the EOS and routes the pressure/velocity residuals through the new
@@ -318,27 +432,46 @@ contains
               this%advx, this%advy, this%advz, &
               Xh, this%c_Xh, dm_Xh%size(), dt)
 
-         call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-              this%abx2, this%aby2, this%abz2, &
-              f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
+         if (this%low_mach_enabled) then
+            call lm_rhs_ext_field_rho(this%abx1, this%aby1, this%abz1, &
+                 this%abx2, this%aby2, this%abz2, &
+                 f_x%x, f_y%x, f_z%x, &
+                 rho, ext_bdf%advection_coeffs%x, n)
+            call lm_rhs_oifs_field_rho(this%advx%x, this%advy%x, this%advz%x, &
+                 f_x%x, f_y%x, f_z%x, rho, dt, n)
+         else
+            call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
+                 this%abx2, this%aby2, this%abz2, &
+                 f_x%x, f_y%x, f_z%x, &
+                 rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
-         call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
-              f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), dt, n)
+            call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
+                 f_x%x, f_y%x, f_z%x, &
+                 rho%x(1,1,1,1), dt, n)
+         end if
       else
          call this%adv%compute(u, v, w, &
               f_x, f_y, f_z, &
               Xh, this%c_Xh, dm_Xh%size())
 
-         call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-              this%abx2, this%aby2, this%abz2, &
-              f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
+         if (this%low_mach_enabled) then
+            call lm_rhs_ext_field_rho(this%abx1, this%aby1, this%abz1, &
+                 this%abx2, this%aby2, this%abz2, &
+                 f_x%x, f_y%x, f_z%x, &
+                 rho, ext_bdf%advection_coeffs%x, n)
+            call lm_rhs_bdf_field_rho(ulag, vlag, wlag, &
+                 f_x%x, f_y%x, f_z%x, u, v, w, c_Xh%B, rho, dt, &
+                 ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+         else
+            call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
+                 this%abx2, this%aby2, this%abz2, &
+                 f_x%x, f_y%x, f_z%x, &
+                 rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
-         call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-              u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
-              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+            call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
+                 u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
+                 ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+         end if
       end if
 
       call ulag%update()
