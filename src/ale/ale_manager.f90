@@ -1210,12 +1210,13 @@ contains
     call update_ale_mesh(coef, this%wm_x, this%wm_y, this%wm_z, &
          this%wm_x_lag, this%wm_y_lag, this%wm_z_lag, &
          time, nadv, "ab")
+         
+    call profiler_end_region('ALE update mesh')
 
     ! Update internal history of mesh velocity.
     call this%wm_x_lag%update()
     call this%wm_y_lag%update()
     call this%wm_z_lag%update()
-    call profiler_end_region('ALE update mesh')
   end subroutine advance_mesh
 
   ! Compute mesh stiffness with per-body gain/decay from stiff_geom.
