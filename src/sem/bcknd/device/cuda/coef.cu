@@ -167,7 +167,7 @@ extern "C" {
 
     int n = (*lxyz) * (*nel);
     const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((n) + 1024 - 1)/ 1024, 1, 1);
+    const dim3 nblcks((n + 1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
 
     coef_generate_mass_kernel<real>

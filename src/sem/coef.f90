@@ -108,7 +108,7 @@ module coefs
      real(kind=rp), allocatable :: R11(:) !< entry of 2D rotation matrix at index (1,1)
      real(kind=rp), allocatable :: R12(:) !< entry of 2D rotation matrix at index (1,2)
 
-     !! True if geometric factors have been initialized
+     !! True if geometric metrics have been initialized
      logical, private :: coef_metrics_initialized = .false.
 
      !> Pointers to main fields
@@ -980,12 +980,18 @@ contains
 
        ! copy to host only at initialization.
        if (.not. c%coef_metrics_initialized) then
-          call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync = .false.)
-          call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync = .false.)
-          call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, sync = .false.)
-          call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, sync = .false.)
-          call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, sync = .false.)
-          call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync = .true.)
+          call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, &
+               sync = .true.)
        end if
 
     else
@@ -1109,8 +1115,10 @@ contains
           end do
        end do
        if (NEKO_BCKND_OPENCL .eq. 1) then
-          call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE, &
+               sync = .false.)
+          call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE, &
+               sync = .false.)
        end if
     end if
 
