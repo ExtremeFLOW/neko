@@ -64,8 +64,9 @@ module fluid_lowmach_pnpn
   use time_step_controller, only : time_step_controller_t
   use profiler, only : profiler_start_region, profiler_end_region
   use field_math, only : field_add2
-  use operators, only : ortho, rotate_cyc
+  use operators, only : ortho, rotate_cyc, opgrad, cdtp
   use opr_device, only : device_ortho
+  use scratch_registry, only : neko_scratch_registry
   use device, only : device_event_sync, glb_cmd_event, device_memcpy, &
        HOST_TO_DEVICE
   use device_mathops, only : device_opadd2cm
@@ -85,6 +86,10 @@ module fluid_lowmach_pnpn
      real(kind=rp) :: P0 = 1.0_rp
      !> Specific gas constant R/M.
      real(kind=rp) :: R_specific = 1.0_rp
+     !> Thermal conductivity used in Q_T = div(k grad T) / (rho cp T).
+     real(kind=rp) :: k_cond = 1.0_rp
+     !> Specific heat at constant pressure used in the same expression.
+     real(kind=rp) :: cp = 1.0_rp
      !> Name of the temperature field in the global registry (default "s").
      character(len=:), allocatable :: T_field_name
      !> Pointer to the temperature field, resolved lazily on first step.
@@ -127,6 +132,10 @@ contains
          this%P0, 1.0_rp)
     call json_get_or_default(params, 'case.fluid.low_mach.R_specific', &
          this%R_specific, 1.0_rp)
+    call json_get_or_default(params, 'case.fluid.low_mach.k_conductivity', &
+         this%k_cond, 1.0_rp)
+    call json_get_or_default(params, 'case.fluid.low_mach.cp', &
+         this%cp, 1.0_rp)
     call json_get_or_default(params, 'case.fluid.low_mach.temperature_field', &
          tname, 's')
     this%T_field_name = tname
@@ -150,6 +159,10 @@ contains
        write(log_buf, '(A,E15.7)') 'P0         : ', this%P0
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') 'R_specific : ', this%R_specific
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,E15.7)') 'k_cond     : ', this%k_cond
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,E15.7)') 'cp         : ', this%cp
        call neko_log%message(log_buf)
        write(log_buf, '(A,A)')     'T field    : ', trim(this%T_field_name)
        call neko_log%message(log_buf)
@@ -185,6 +198,68 @@ contains
 
   end subroutine lowmach_update_density
 
+  !> Populate Q_T from the current temperature field using
+  !!   Q_T = div(k grad T) / (rho * cp * T).
+  !! The algebra relies on the identity D_t T = div(k grad T) / (rho cp)
+  !! from the energy equation (no heat release), so the advection term in
+  !! the material derivative cancels and Q_T becomes a pure spatial
+  !! expression.
+  subroutine lowmach_update_Q_T(this)
+    class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
+    type(field_t), pointer :: gx, gy, gz, w1
+    integer :: temp_indices(4)
+    integer :: i, n
+
+    if (.not. associated(this%T_ptr)) return
+
+    n = this%dm_Xh%size()
+
+    call neko_scratch_registry%request_field(gx, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(gy, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(gz, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(w1, temp_indices(4), .false.)
+
+    ! Weak-form gradient of T.
+    call opgrad(gx%x, gy%x, gz%x, this%T_ptr%x, this%c_Xh)
+
+    ! Assemble into the strong-form gradient and multiply by k.
+    call this%gs_Xh%op(gx, GS_OP_ADD)
+    call this%gs_Xh%op(gy, GS_OP_ADD)
+    call this%gs_Xh%op(gz, GS_OP_ADD)
+    do concurrent (i = 1:n)
+       gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
+       gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
+       gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
+    end do
+
+    ! Weak divergence via cdtp, accumulating into Q_T.
+    call cdtp(this%Q_T_field%x, gx%x, this%c_Xh%drdx, this%c_Xh%dsdx, &
+         this%c_Xh%dtdx, this%c_Xh)
+    call cdtp(w1%x, gy%x, this%c_Xh%drdy, this%c_Xh%dsdy, &
+         this%c_Xh%dtdy, this%c_Xh)
+    do concurrent (i = 1:n)
+       this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
+            + w1%x(i,1,1,1)
+    end do
+    call cdtp(w1%x, gz%x, this%c_Xh%drdz, this%c_Xh%dsdz, &
+         this%c_Xh%dtdz, this%c_Xh)
+    do concurrent (i = 1:n)
+       this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
+            + w1%x(i,1,1,1)
+    end do
+
+    ! Assemble, convert to strong form, and divide by (rho * cp * T).
+    call this%gs_Xh%op(this%Q_T_field, GS_OP_ADD)
+    do concurrent (i = 1:n)
+       this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
+            * this%c_Xh%Binv(i,1,1,1) &
+            / (this%rho%x(i,1,1,1) * this%cp * this%T_ptr%x(i,1,1,1))
+    end do
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
+
+  end subroutine lowmach_update_Q_T
+
   !> Advance the solution by one time step. When low_mach_enabled is false,
   !! runs the inherited Pn-Pn path bit-for-bit. When true, updates rho from
   !! the EOS and routes the pressure/velocity residuals through the new
@@ -204,7 +279,10 @@ contains
 
     n = this%dm_Xh%size()
 
-    if (this%low_mach_enabled) call lowmach_update_density(this)
+    if (this%low_mach_enabled) then
+       call lowmach_update_density(this)
+       call lowmach_update_Q_T(this)
+    end if
 
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
