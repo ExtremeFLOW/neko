@@ -90,9 +90,6 @@ contains
     type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2
     integer :: temp_indices(8)
 
-    ! Q_T is reserved for future use; silence unused-dummy warnings.
-    associate (unused_Q_T => Q_T); end associate
-
     call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
@@ -143,9 +140,20 @@ contains
 
     call Ax%compute(p_res%x, p%x, c_Xh, p%msh, p%Xh)
 
+    dtbd = bd / dt
+
     do concurrent (i = 1:n)
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
             + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
+    end do
+
+    ! Low-Mach thermal divergence source:
+    !   p_res += (bd/dt) * Q_T * B
+    ! Follows the convention of Nek5000 plan4.f:
+    !   call admcol3(respr, QTL, bm1, dtbd, ntot1)
+    do concurrent (i = 1:n)
+       p_res%x(i,1,1,1) = p_res%x(i,1,1,1) &
+            + dtbd * Q_T%x(i,1,1,1) * c_Xh%B(i,1,1,1)
     end do
 
     do concurrent (i = 1:n)
@@ -156,8 +164,6 @@ contains
 
     call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, &
          ta1%x, ta2%x, ta3%x, n)
-
-    dtbd = bd / dt
     do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = 0.0_rp
        ta2%x(i,1,1,1) = 0.0_rp
