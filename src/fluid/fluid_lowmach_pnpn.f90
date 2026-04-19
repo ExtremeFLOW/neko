@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,40 +30,20 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Factory for all fluid schemes
-submodule (fluid_scheme_base) fluid_base_fctry
+!> Low-Mach Pn-Pn fluid scheme.
+!!
+!! Initial scaffold: extends fluid_pnpn_t with no overrides so the scheme is
+!! selectable via `"case.fluid.scheme": "lowmach"` but behaves identically to
+!! the standard Pn-Pn solver. Low-Mach physics (variable density from EOS,
+!! thermal divergence source Q_T in the pressure Poisson equation, full-stress
+!! variable-viscosity viscous term) will be added incrementally by overriding
+!! `init` and `step`.
+module fluid_lowmach_pnpn
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_lowmach_pnpn, only : fluid_lowmach_pnpn_t
-  use fluid_scheme_compressible_euler, only : fluid_scheme_compressible_euler_t
-  use utils, only : neko_type_error
+  implicit none
+  private
 
-  ! List of all possible types created by the factory routine
-  character(len=20) :: FLUID_KNOWN_TYPES(3) = [character(len=20) :: &
-       "pnpn", "lowmach", "compressible"]
+  type, public, extends(fluid_pnpn_t) :: fluid_lowmach_pnpn_t
+  end type fluid_lowmach_pnpn_t
 
-contains
-
-  !> Initialise a fluid scheme
-  module subroutine fluid_scheme_base_factory(object, type_name)
-    class(fluid_scheme_base_t), intent(inout), allocatable :: object
-    character(len=*) :: type_name
-
-    if (allocated(object)) then
-       call object%free()
-       deallocate(object)
-    end if
-
-    select case (trim(type_name))
-    case ('pnpn')
-       allocate(fluid_pnpn_t::object)
-    case ('lowmach')
-       allocate(fluid_lowmach_pnpn_t::object)
-    case ('compressible')
-       allocate(fluid_scheme_compressible_euler_t::object)
-    case default
-       call neko_type_error("fluid scheme base", type_name, FLUID_KNOWN_TYPES)
-    end select
-
-  end subroutine fluid_scheme_base_factory
-
-end submodule fluid_base_fctry
+end module fluid_lowmach_pnpn
