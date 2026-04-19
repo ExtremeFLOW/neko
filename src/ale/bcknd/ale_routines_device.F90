@@ -53,8 +53,8 @@ module ale_routines_device
   use neko_config, only : NEKO_BCKND_DEVICE
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, c_sizeof, c_loc, c_double
   use logger, only : neko_log
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR
 
   implicit none
   private
@@ -63,15 +63,14 @@ module ale_routines_device
   public :: add_kinematics_to_mesh_velocity_device
   public :: update_ale_mesh_device
 
-  ! DONT FORGET TO CHANGE AND CHECK C_RP INSTEAD OF C_DOUBLE
   type, bind(c) :: kinematics_params_t
-    real(c_double) :: cx, cy, cz
-    real(c_double) :: vtx, vty, vtz
-    real(c_double) :: vax, vay, vaz
-    real(c_double) :: px, py, pz
-    real(c_double) :: r11, r12, r13
-    real(c_double) :: r21, r22, r23
-    real(c_double) :: r31, r32, r33
+    real(c_rp) :: cx, cy, cz
+    real(c_rp) :: vtx, vty, vtz
+    real(c_rp) :: vax, vay, vaz
+    real(c_rp) :: px, py, pz
+    real(c_rp) :: r11, r12, r13
+    real(c_rp) :: r21, r22, r23
+    real(c_rp) :: r31, r32, r33
   end type kinematics_params_t
 
 #ifdef HAVE_HIP
