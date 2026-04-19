@@ -32,15 +32,26 @@
 !
 !> Low-Mach Pn-Pn fluid scheme.
 !!
-!! Extends fluid_pnpn_t and overrides step() with a body copied verbatim
-!! from fluid_pnpn_step. This override currently contains no low-Mach
-!! physics and is expected to produce bit-identical output to the standard
-!! Pn-Pn solver. It is the starting point for incremental addition of
-!! variable-density momentum, Q_T source in the pressure Poisson equation,
-!! and full-stress variable-viscosity viscous terms.
+!! Extends fluid_pnpn_t. Adds EOS plumbing: reads P0, R_specific, and a
+!! temperature field name from JSON, and updates the density field via
+!! rho = P0 / (R_specific * T) at the start of each step. The existing
+!! pnpn residuals still read rho as a point value (rho(1,1,1,1)), so the
+!! spatially-varying rho written here does not yet affect the solution —
+!! this commit is infrastructure for the subsequent residual replacement.
+!!
+!! When case.fluid.low_mach.enabled is absent or false, step() behaves
+!! exactly like fluid_pnpn_step.
 module fluid_lowmach_pnpn
   use num_types, only : rp
   use fluid_pnpn, only : fluid_pnpn_t
+  use field, only : field_t
+  use registry, only : neko_registry
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default
+  use logger, only : neko_log, LOG_SIZE
+  use mesh, only : mesh_t
+  use user_intf, only : user_t
+  use checkpoint, only : chkp_t
   use krylov, only : ksp_monitor_t
   use bc, only : bc_t
   use non_normal, only : non_normal_t
@@ -51,7 +62,8 @@ module fluid_lowmach_pnpn
   use field_math, only : field_add2
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
-  use device, only : device_event_sync, glb_cmd_event
+  use device, only : device_event_sync, glb_cmd_event, device_memcpy, &
+       HOST_TO_DEVICE
   use device_mathops, only : device_opadd2cm
   use mathops, only : opadd2cm
   use fluid_aux, only : fluid_step_info
@@ -61,24 +73,101 @@ module fluid_lowmach_pnpn
   private
 
   type, public, extends(fluid_pnpn_t) :: fluid_lowmach_pnpn_t
+     !> Thermodynamic (background) pressure — constant for open domains.
+     real(kind=rp) :: P0 = 1.0_rp
+     !> Specific gas constant R/M.
+     real(kind=rp) :: R_specific = 1.0_rp
+     !> Name of the temperature field in the global registry (default "s").
+     character(len=:), allocatable :: T_field_name
+     !> Pointer to the temperature field, resolved lazily on first step.
+     type(field_t), pointer :: T_ptr => null()
+     !> Master switch. When false, step() runs as vanilla pnpn.
+     logical :: low_mach_enabled = .false.
    contains
+     procedure, pass(this) :: init => fluid_lowmach_pnpn_init
      procedure, pass(this) :: step => fluid_lowmach_pnpn_step
   end type fluid_lowmach_pnpn_t
 
 contains
 
-  !> Advance the solution by one time step.
-  !! Body copied verbatim from fluid_pnpn_step. Low-Mach physics will be
-  !! introduced here in subsequent commits.
+  !> Initialise the scheme. Delegates to the parent Pn-Pn init for all the
+  !! heavy lifting, then reads low-Mach parameters from the case JSON.
+  subroutine fluid_lowmach_pnpn_init(this, msh, lx, params, user, chkp)
+    class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
+    integer, intent(in) :: lx
+    type(json_file), target, intent(inout) :: params
+    type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
+    character(len=LOG_SIZE) :: log_buf
+    character(len=:), allocatable :: tname
+
+    ! Run the standard Pn-Pn init to set up mesh, dofmap, fields, BCs, solvers.
+    call this%fluid_pnpn_t%init(msh, lx, params, user, chkp)
+
+    ! Low-Mach parameters — all under case.fluid.low_mach, all optional.
+    call json_get_or_default(params, 'case.fluid.low_mach.enabled', &
+         this%low_mach_enabled, .false.)
+    call json_get_or_default(params, 'case.fluid.low_mach.P0', &
+         this%P0, 1.0_rp)
+    call json_get_or_default(params, 'case.fluid.low_mach.R_specific', &
+         this%R_specific, 1.0_rp)
+    call json_get_or_default(params, 'case.fluid.low_mach.temperature_field', &
+         tname, 's')
+    this%T_field_name = tname
+
+    if (this%low_mach_enabled) then
+       call neko_log%section('Low-Mach')
+       write(log_buf, '(A,E15.7)') 'P0         : ', this%P0
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,E15.7)') 'R_specific : ', this%R_specific
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,A)')     'T field    : ', trim(this%T_field_name)
+       call neko_log%message(log_buf)
+       call neko_log%end_section()
+    end if
+
+  end subroutine fluid_lowmach_pnpn_init
+
+  !> Update the density field from the temperature field using the ideal-gas
+  !! EOS rho = P0 / (R_specific * T). Called at the top of step() when
+  !! low-Mach mode is enabled and the temperature field is available.
+  subroutine lowmach_update_density(this)
+    class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
+    integer :: i, n
+
+    ! Resolve the temperature pointer lazily on first call.
+    if (.not. associated(this%T_ptr)) then
+       if (neko_registry%field_exists(this%T_field_name)) then
+          this%T_ptr => neko_registry%get_field(this%T_field_name)
+       else
+          return
+       end if
+    end if
+
+    n = this%dm_Xh%size()
+    do concurrent (i = 1:n)
+       this%rho%x(i,1,1,1) = this%P0 / (this%R_specific &
+            * this%T_ptr%x(i,1,1,1))
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%rho%x, this%rho%x_d, n, &
+            HOST_TO_DEVICE, sync = .false.)
+    end if
+
+  end subroutine lowmach_update_density
+
+  !> Advance the solution by one time step. The body is a copy of
+  !! fluid_pnpn_step with a single addition: an EOS-driven density update
+  !! at the top, active only when low-Mach mode is enabled. With enabled=false
+  !! output is bit-identical to fluid_pnpn_step.
   subroutine fluid_lowmach_pnpn_step(this, time, dt_controller)
     class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
-    ! number of degrees of freedom
     integer :: n
-    ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
-
     type(file_t) :: dump_file
     class(bc_t), pointer :: bc_i
     type(non_normal_t), pointer :: bc_j
@@ -86,6 +175,9 @@ contains
     if (this%freeze) return
 
     n = this%dm_Xh%size()
+
+    ! Low-Mach EOS: update rho = P0 / (R * T) before any residual.
+    if (this%low_mach_enabled) call lowmach_update_density(this)
 
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -108,53 +200,37 @@ contains
          t => time%t, tstep => time%tstep, dt => time%dt, &
          ext_bdf => this%ext_bdf, event => glb_cmd_event)
 
-      ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)
 
-      ! Compute the source terms
       call this%source_term%compute(time)
 
-      ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), time, strong = .false.)
 
       if (oifs) then
-         ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
               this%advx, this%advy, this%advz, &
               Xh, this%c_Xh, dm_Xh%size(), dt)
 
-         ! At this point the RHS contains the sum of the advection operator and
-         ! additional source terms, evaluated using the velocity field from the
-         ! previous time-step. Now, this value is used in the explicit time
-         ! scheme to advance both terms in time.
-
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
-         ! Now, the source terms from the previous time step are added to the RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), dt, n)
       else
-         ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
               f_x, f_y, f_z, &
               Xh, this%c_Xh, dm_Xh%size())
 
-         ! At this point the RHS contains the sum of the advection operator and
-         ! additional source terms, evaluated using the velocity field from the
-         ! previous time-step. Now, this value is used in the explicit time
-         ! scheme to advance both terms in time.
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
-         ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
               u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
               ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
@@ -167,10 +243,8 @@ contains
       call this%bc_apply_vel(time, strong = .true.)
       call this%bc_apply_prs(time)
 
-      ! Update material properties if necessary
       call this%update_material_properties(time)
 
-      ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)
 
       call prs_res%compute(p, p_res,&
@@ -182,7 +256,6 @@ contains
            Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
            mu_tot, rho, event)
 
-      ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
          call device_ortho(p_res%x_d, this%glb_n_points, n)
       else if (.not. this%prs_dirichlet) then
@@ -192,9 +265,7 @@ contains
       call gs_Xh%op(p_res, GS_OP_ADD, event)
       call device_event_sync(event)
 
-      ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
-
 
       call profiler_end_region('Pressure_residual', 18)
 
@@ -205,19 +276,16 @@ contains
 
       call profiler_start_region('Pressure_solve', 3)
 
-      ! Solve for the pressure increment.
       ksp_results(1) = &
            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
            this%bclst_dp, gs_Xh)
       ksp_results(1)%name = 'Pressure'
-
 
       call profiler_end_region('Pressure_solve', 3)
 
       call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
            this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
-      ! Update the pressure with the increment. Demean if necessary.
       call field_add2(p, dp, n)
       if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
          call device_ortho(p%x_d, this%glb_n_points, n)
@@ -225,7 +293,6 @@ contains
          call ortho(p%x, this%glb_n_points, n)
       end if
 
-      ! Compute velocity residual.
       call profiler_start_region('Velocity_residual', 19)
       call vel_res%compute(Ax_vel, u, v, w, &
            u_res, v_res, w_res, &
@@ -244,9 +311,7 @@ contains
       call device_event_sync(event)
       call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
 
-      ! Set residual to zero at strong velocity boundaries.
       call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
-
 
       call profiler_end_region('Velocity_residual', 19)
 
@@ -281,7 +346,6 @@ contains
       end if
 
       if (this%forced_flow_rate) then
-         ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
               dt, time, this%bclst_dp, this%bclst_du, this%bclst_dv, &
