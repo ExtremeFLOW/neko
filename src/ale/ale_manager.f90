@@ -249,12 +249,9 @@ contains
 
     ! Sync to device
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%x_ref%x, this%x_ref%x_d, n, &
-            HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%y_ref%x, this%y_ref%x_d, n, &
-            HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%z_ref%x, this%z_ref%x_d, n, &
-            HOST_TO_DEVICE, .true.)
+       call this%x_ref%copy_from(HOST_TO_DEVICE, .false.)
+       call this%y_ref%copy_from(HOST_TO_DEVICE, .false.)
+       call this%z_ref%copy_from(HOST_TO_DEVICE, .true.)
     end if
 
     ! Set user function pointers.
