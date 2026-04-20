@@ -80,7 +80,7 @@ contains
     class(data_streamer_simcomp_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=20), allocatable :: which_fields(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: which_fields(:)
     character(len=:), allocatable :: name
     real(kind=rp) :: start_time
     logical :: stream_mesh

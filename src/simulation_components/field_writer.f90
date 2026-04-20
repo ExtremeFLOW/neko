@@ -278,9 +278,8 @@ contains
           end if
 
           do i = 1, size(fields)
-             fieldi = trim(fields(i))
              call this%output%fields%assign(i, &
-                  neko_registry%get_field(fieldi))
+                  neko_registry%get_field(trim(fields(i))))
           end do
 
           call this%case%output_controller%add(this%output, &
@@ -292,9 +291,8 @@ contains
 
     if (.not. filename_provided) then
        do i = 1, size(fields)
-          fieldi = trim(fields(i))
           call this%case%f_out%fluid%append( &
-               neko_registry%get_field(fieldi))
+               neko_registry%get_field(trim(fields(i))))
        end do
     end if
 

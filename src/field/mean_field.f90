@@ -36,7 +36,7 @@ module mean_field
   use neko_config, only : NEKO_BCKND_DEVICE
   use stats_quant, only : stats_quant_t
   use num_types, only : rp
-  use registry, only: neko_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use utils, only : NEKO_VARNAME_LEN
   use field_math, only : field_cmult, field_add2s2
