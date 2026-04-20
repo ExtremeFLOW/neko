@@ -98,7 +98,6 @@ contains
     integer, intent(in), optional :: layout
     logical, intent(in), optional :: overwrite
     character(len=80) :: suffix
-    class(generic_file_t), pointer :: q
 
     call filename_suffix(fname, suffix)
 
@@ -106,7 +105,7 @@ contains
        deallocate(this%file_type)
     end if
 
-    select case (suffix)
+    select case (trim(suffix))
     case ("rea")
        allocate(rea_file_t::this%file_type)
     case ("re2")

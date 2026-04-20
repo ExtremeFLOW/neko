@@ -34,11 +34,11 @@
 module brinkman_source_term
   use aabb, only : aabb_t, get_aabb
   use coefs, only : coef_t
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only : cfill_mask, pwmax2
-  use device_math, only : device_cfill_mask, device_pwmax2
+  use math, only : cfill_mask, copy
+  use device_math, only : device_cfill_mask
   use field_math, only : field_pwmax2, field_subcol3, field_copy
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
@@ -57,7 +57,7 @@ module brinkman_source_term
   use profiler, only : profiler_start_region, profiler_end_region
   use signed_distance, only : signed_distance_field
   use source_term, only : source_term_t
-  use utils, only : neko_error
+  use utils, only : neko_error, filename_suffix
   use filter, only : filter_t
   use PDE_filter, only : PDE_filter_t
   use field_output, only : field_output_t
@@ -575,6 +575,7 @@ contains
     type(file_t) :: file
     type(field_t), pointer :: temp_field
     character(len=:), allocatable :: file_name, field_name, tmp_str
+    character(len=80) :: suffix
     integer :: file_idx, temp_idx
 
     call json_get(json, 'file_name', file_name)
@@ -583,17 +584,82 @@ contains
     call json_get_or_default(json, 'file_index', file_idx, 0)
 
     call neko_scratch_registry%request_field(temp_field, temp_idx, .true.)
-    tmp_str = trim(temp_field%name)
-    temp_field%name = trim(field_name)
 
     call file%init(file_name)
     call file%set_counter(file_idx)
-    call file%read(temp_field)
+
+    call filename_suffix(file_name, suffix)
+    select case (trim(suffix))
+    case ('fld')
+       block
+         type(fld_file_data_t) :: fld_data
+         type(field_list_t) :: fld_fields
+         type(field_t), pointer :: fld
+         character(len=:), allocatable :: s_str
+         integer :: idx, n
+
+         call fld_data%init()
+         call file%read(fld_data)
+         n = temp_field%size()
+
+         select case (trim(field_name))
+         case ('p')
+            ! if (NEKO_BCKND_DEVICE .eq. 1) then
+            !    call fld_data%p%copy_from(DEVICE_TO_HOST, sync = .true.)
+            ! end if
+            call copy(temp_field%x, fld_data%p%x, n)
+         case ('u')
+            ! if (NEKO_BCKND_DEVICE .eq. 1) then
+            !    call fld_data%u%copy_from(DEVICE_TO_HOST, sync = .true.)
+            ! end if
+            call copy(temp_field%x, fld_data%u%x, n)
+         case ('v')
+            ! if (NEKO_BCKND_DEVICE .eq. 1) then
+            !    call fld_data%v%copy_from(DEVICE_TO_HOST, sync = .true.)
+            ! end if
+
+            !  call fld_data%v%copy_from(DEVICE_TO_HOST, sync = .true.)
+            call fld_data%v%copy_from(HOST_TO_DEVICE, sync = .true.)
+
+            call fld_data%import_fields(v = temp_field)
+
+         case ('w')
+            ! if (NEKO_BCKND_DEVICE .eq. 1) then
+            !    call fld_data%w%copy_from(DEVICE_TO_HOST, sync = .true.)
+            ! end if
+            call copy(temp_field%x, fld_data%w%x, n)
+         case ('t')
+            ! if (NEKO_BCKND_DEVICE .eq. 1) then
+            !    call fld_data%t%copy_from(DEVICE_TO_HOST, sync = .true.)
+            ! end if
+            call copy(temp_field%x, fld_data%t%x, n)
+         case default
+            call neko_error('Field not found')
+            ! call fld_fields%init(fld_data%n_scalars)
+
+            ! fld => fld_fields%get(field_name)
+            ! call copy(temp_field%x, fld%s%x, temp_field%size())
+            ! call fld_fields%free()
+         end select
+         call fld_data%free()
+       end block
+
+       !  call temp_field%copy_from(DEVICE_TO_HOST, sync = .true.)
+       !  call temp_field%copy_from(HOST_TO_DEVICE, sync = .true.)
+    case ('vtkhdf')
+       ! VTKHDF will read the name of the field object.
+       tmp_str = trim(temp_field%name)
+       temp_field%name = trim(field_name)
+       call file%read(temp_field)
+       temp_field%name = trim(tmp_str)
+
+    case default
+       call neko_error("Brinkman cannot read file: " // trim(file_name))
+    end select
 
     ! Update the global indicator field by max operator
     call field_pwmax2(this%indicator, temp_field)
 
-    temp_field%name = trim(tmp_str)
     call neko_scratch_registry%relinquish(temp_idx)
     call file%free()
 
