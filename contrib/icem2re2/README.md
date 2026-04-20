@@ -1,6 +1,6 @@
 # icem2re2
 
-One-shot converter from an ICEM / ANSYS Fluent `.msh` mesh to a Neko `.re2`
+One-shot converter from an ICEM / ANSYS Fluent `.msh` mesh to a Nek5000 `.re2`
 binary mesh.
 
 Pipeline: `.msh` → `.rea` (via `mshconvert.py`) → `.re2` (via `pymech`).
