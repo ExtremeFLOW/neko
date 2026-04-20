@@ -46,13 +46,14 @@ module data_streamer_simcomp
   use time_based_controller, only : time_based_controller_t
   use registry, only : neko_registry
   use device
+  use utils, only : NEKO_VARNAME_LEN
   implicit none
   private
 
   type, public, extends(simulation_component_t) :: data_streamer_simcomp_t
 
      !> Name of the fields to be streamed (must exist in the registry).
-     character(len=20), allocatable :: field_names(:)
+     character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
 
      !> Time after which to start streaming.
      real(kind=rp) :: start_time
@@ -105,7 +106,7 @@ contains
        which_fields, start_time, stream_mesh)
     class(data_streamer_simcomp_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=20), intent(in) :: which_fields(:)
+    character(len=*), intent(in) :: which_fields(:)
     real(kind=rp), intent(in) :: start_time
     logical, intent(in) :: stream_mesh
     type(field_t), pointer :: f

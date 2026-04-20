@@ -38,6 +38,7 @@ module mean_field
   use num_types, only : rp
   use registry, only: neko_registry
   use field, only : field_t
+  use utils, only : NEKO_VARNAME_LEN
   use field_math, only : field_cmult, field_add2s2
   implicit none
   private
@@ -71,7 +72,7 @@ contains
     class(mean_field_t), intent(inout) :: this
     type(field_t), intent(in), target :: f
     character(len=*), optional, intent(in) :: field_name
-    character(len=80) :: name
+    character(len=NEKO_VARNAME_LEN) :: name
 
     call this%free()
 

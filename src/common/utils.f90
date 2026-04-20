@@ -38,6 +38,7 @@ module utils
   private
 
   integer, parameter :: NEKO_FNAME_LEN = 1024
+  integer, parameter :: NEKO_VARNAME_LEN = 256
 
   interface neko_error
      module procedure neko_error_plain, neko_error_msg

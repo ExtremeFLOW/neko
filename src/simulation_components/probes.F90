@@ -38,7 +38,7 @@ module probes
   use num_types, only : rp, dp
   use matrix, only : matrix_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use utils, only : neko_error, nonlinear_index
+  use utils, only : neko_error, nonlinear_index, NEKO_VARNAME_LEN
   use field_list, only : field_list_t
   use time_state, only : time_state_t
   use simulation_component, only : simulation_component_t
@@ -84,7 +84,7 @@ module probes
      integer :: n_local_probes
      !> Fields to be probed
      type(field_list_t) :: sampled_fields
-     character(len=20), allocatable :: which_fields(:)
+     character(len=NEKO_VARNAME_LEN), allocatable :: which_fields(:)
      !> Allocated on rank 0
      integer, allocatable :: n_local_probes_tot_offset(:)
      integer, allocatable :: n_local_probes_tot(:)
