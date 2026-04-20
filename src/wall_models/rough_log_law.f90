@@ -41,7 +41,7 @@ module rough_log_law
   use wall_model, only : wall_model_t
   use utils, only : neko_error
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_lookup, json_get_or_lookup_or_default
+  use json_utils, only : json_get_or_lookup
   use rough_log_law_device, only : rough_log_law_compute_device
   use rough_log_law_cpu, only : rough_log_law_compute_cpu
   use scratch_registry, only : neko_scratch_registry
@@ -61,8 +61,6 @@ module rough_log_law
      real(kind=rp) :: B
      !> The roughness height
      real(kind=rp) :: z0
-     !> The fluid density
-     real(kind=rp) :: rho_val
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
@@ -97,15 +95,14 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: kappa, B, z0, rho_val
+    real(kind=rp) :: kappa, B, z0
 
     call json_get_or_lookup(json, "kappa", kappa)
     call json_get_or_lookup(json, "B", B)
     call json_get_or_lookup(json, "z0", z0)
-    call json_get_or_lookup(json, "rho", rho_val)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
-         kappa, rho_val, B, z0)
+         kappa, B, z0)
   end subroutine rough_log_law_init
 
   !> Constructor from JSON.
@@ -121,7 +118,6 @@ contains
     call json_get_or_lookup(json, "kappa", this%kappa)
     call json_get_or_lookup(json, "B", this%B)
     call json_get_or_lookup(json, "z0", this%z0)
-    call json_get_or_lookup_or_default(json, "rho", this%rho_val, 1.0_rp)
 
     call neko_log%section('Wall model')
     write(log_buf, '(A)') 'Model : Rough log law'
@@ -131,8 +127,6 @@ contains
     write(log_buf, '(A, E15.7)') 'B : ', this%B
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
-    call neko_log%message(log_buf)
-    write(log_buf, '(A, E15.7)') 'rho : ', this%rho_val
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
@@ -157,23 +151,21 @@ contains
   !! @param facet The boundary facets.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param kappa The von Karman coefficient.
-  !! @param rho_val fluid density
   !! @param B The log-law intercept.
   !! @param z0 The roughness height.
   subroutine rough_log_law_init_from_components(this, scheme_name, coef, msk, &
-       facet, h_index, kappa, rho_val, B, z0)
+       facet, h_index, kappa, B, z0)
     class(rough_log_law_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
-    real(kind=rp), intent(in) :: kappa, B, z0, rho_val
+    real(kind=rp), intent(in) :: kappa, B, z0
 
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
-    this%rho_val = rho_val
     this%B = B
     this%z0 = z0
 
@@ -216,13 +208,13 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%rho_val, this%B, this%z0, tstep)
+            1.0_rp, this%B, this%z0, tstep)
     else
        call rough_log_law_compute_cpu(u%x, v%x, w%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            this%rho_val, this%B, this%z0, tstep)
+            1.0_rp, this%B, this%z0, tstep)
     end if
 
   end subroutine rough_log_law_compute
