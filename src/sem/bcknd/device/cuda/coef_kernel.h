@@ -331,6 +331,8 @@ __global__ void coef_generate_area_and_normal_kernel(
 
   int i, j, k;
   int f, out_idx;
+  const T one = 1.0;
+  const T m_one = -1.0;
   T tx, ty, tz, dot, weight, length, sgn;
 
   const int e = blockIdx.x;
@@ -361,10 +363,10 @@ __global__ void coef_generate_area_and_normal_kernel(
 
       if (i == 0) {
         f = 0;
-        sgn = -1.0;
+        sgn = m_one;
       } else {
         f = 1;
-        sgn = 1.0;
+        sgn = one;
       }
 
       out_idx = j + (k * LX) + (f * lxy) + face_offset;
@@ -394,10 +396,10 @@ __global__ void coef_generate_area_and_normal_kernel(
 
       if (j == 0) {
         f = 2;
-        sgn = 1.0;
+        sgn = one;
       } else {
         f = 3;
-        sgn = -1.0;
+        sgn = m_one;
       }
 
       out_idx = i + (k * LX) + (f * lxy) + face_offset;
@@ -427,10 +429,10 @@ __global__ void coef_generate_area_and_normal_kernel(
 
       if (k == 0) {
         f = 4;
-        sgn = -1.0;
+        sgn = m_one;
       } else {
         f = 5;
-        sgn = 1.0;
+        sgn = one;
       }
 
       out_idx = i + (j * LX) + (f * lxy) + face_offset;

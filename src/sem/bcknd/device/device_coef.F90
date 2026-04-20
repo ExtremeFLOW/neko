@@ -206,33 +206,6 @@ module device_coef
      end subroutine opencl_coef_generate_dxyzdrst
   end interface
 
-  interface
-     subroutine opencl_coef_generate_mass(B, Binv, jac, w3, lxyz, nel) &
-          bind(c, name='opencl_coef_generate_mass')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr), value :: B, Binv, jac, w3
-       integer(c_int) :: lxyz, nel
-     end subroutine opencl_coef_generate_mass
-  end interface
-
-  interface
-     subroutine opencl_coef_generate_area_and_normal(area, nx, ny, nz, &
-          dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
-          wx, wy, wz, lx, nel, eps) &
-          bind(c, name='opencl_coef_generate_area_and_normal')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: area, nx, ny, nz
-       type(c_ptr), value :: dxdr, dydr, dzdr
-       type(c_ptr), value :: dxds, dyds, dzds
-       type(c_ptr), value :: dxdt, dydt, dzdt
-       type(c_ptr), value :: wx, wy, wz
-       integer(c_int) :: lx, nel
-       real(kind=c_rp), value :: eps
-     end subroutine opencl_coef_generate_area_and_normal
-  end interface
 #endif
 
 contains
@@ -307,8 +280,6 @@ contains
     call hip_coef_generate_mass(B, Binv, jac, w3, lxyz, nel)
 #elif HAVE_CUDA
     call cuda_coef_generate_mass(B, Binv, jac, w3, lxyz, nel)
-#elif HAVE_OPENCL
-    call opencl_coef_generate_mass(B, Binv, jac, w3, lxyz, nel)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -337,13 +308,6 @@ contains
          lx, nel, eps)
 #elif HAVE_CUDA
     call cuda_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
-         dxdr_d, dydr_d, dzdr_d, &
-         dxds_d, dyds_d, dzds_d, &
-         dxdt_d, dydt_d, dzdt_d, &
-         wx_d, wy_d, wz_d, &
-         lx, nel, eps)
-#elif HAVE_OPENCL
-    call opencl_coef_generate_area_and_normal(area_d, nx_d, ny_d, nz_d, &
          dxdr_d, dydr_d, dzdr_d, &
          dxds_d, dyds_d, dzds_d, &
          dxdt_d, dydt_d, dzdt_d, &
