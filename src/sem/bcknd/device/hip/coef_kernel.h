@@ -293,17 +293,17 @@ __global__ void coef_generate_mass_kernel(T * __restrict__ B,
                 const T * __restrict__ w3,
                 int lxyz, int nel) {
 
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    int n = lxyz * nel;
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int n = lxyz * nel;
 
-    if (idx < n) {
-        int local_idx = idx % lxyz;
+  if (idx < n) {
+    int local_idx = idx - (idx / lxyz) * lxyz;
 
-        T mass_val = jac[idx] * w3[local_idx];
+    T mass_val = jac[idx] * w3[local_idx];
 
-        B[idx] = mass_val;
-        Binv[idx] = mass_val;
-    }
+    B[idx] = mass_val;
+    Binv[idx] = mass_val;
+  }
 }
 
 /**
