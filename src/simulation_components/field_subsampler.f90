@@ -331,7 +331,7 @@ contains
        lx, point_zone)
     class(field_subsampler_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=20), intent(in) :: which_fields(:)
+    character(len=*), intent(in) :: which_fields(:)
     integer, intent(in), optional :: lx
     class(point_zone_t), pointer, intent(in), optional :: point_zone
 
@@ -593,7 +593,7 @@ contains
     type(time_based_controller_t), intent(in) :: preprocess_controller
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
-    character(len=20), intent(in) :: which_fields(:)
+    character(len=*), intent(in) :: which_fields(:)
     integer, intent(in) :: lx
     class(point_zone_t), intent(in), pointer, optional :: point_zone
 
@@ -634,7 +634,7 @@ contains
     real(kind=rp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
     real(kind=rp), intent(in) :: output_value
-    character(len=20), intent(in) :: which_fields(:)
+    character(len=*), intent(in) :: which_fields(:)
     integer, intent(in), optional :: lx
     class(point_zone_t), pointer, intent(in), optional :: point_zone
 
