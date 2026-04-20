@@ -575,12 +575,20 @@ contains
   end subroutine device_memcpy_common
 
   !> Associate a Fortran rank 1 array to a (allocated) device pointer
-  subroutine device_associate_r1(x, x_d)
+   subroutine device_associate_r1(x, x_d, n)
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
+      integer, intent(in), optional :: n
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+      integer :: n_
 
-    if (size(x) .eq. 0) return
+      if (present(n)) then
+          n_ = n
+      else
+          n_ = size(x)
+      end if
+
+      if (n_ .eq. 0) return
     if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
          ' to a null device pointer for a non-empty array')
 
@@ -604,12 +612,20 @@ contains
   end subroutine device_associate_r1
 
   !> Associate a Fortran rank 2 array to a (allocated) device pointer
-  subroutine device_associate_r2(x, x_d)
+   subroutine device_associate_r2(x, x_d, n)
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
+      integer, intent(in), optional :: n
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+      integer :: n_
 
-    if (size(x) .eq. 0) return
+      if (present(n)) then
+          n_ = n
+      else
+          n_ = size(x)
+      end if
+
+      if (n_ .eq. 0) return
     if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
          ' to a null device pointer for a non-empty array')
 
@@ -633,12 +649,20 @@ contains
   end subroutine device_associate_r2
 
   !> Associate a Fortran rank 3 array to a (allocated) device pointer
-  subroutine device_associate_r3(x, x_d)
+   subroutine device_associate_r3(x, x_d, n)
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
+      integer, intent(in), optional :: n
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+      integer :: n_
 
-    if (size(x) .eq. 0) return
+      if (present(n)) then
+          n_ = n
+      else
+          n_ = size(x)
+      end if
+
+      if (n_ .eq. 0) return
     if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
          ' to a null device pointer for a non-empty array')
     select type (x)
@@ -661,12 +685,20 @@ contains
   end subroutine device_associate_r3
 
   !> Associate a Fortran rank 4 array to a (allocated) device pointer
-  subroutine device_associate_r4(x, x_d)
+   subroutine device_associate_r4(x, x_d, n)
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
+      integer, intent(in), optional :: n
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+      integer :: n_
 
-    if (size(x) .eq. 0) return
+      if (present(n)) then
+          n_ = n
+      else
+          n_ = size(x)
+      end if
+
+      if (n_ .eq. 0) return
     if (.not. c_associated(x_d)) call neko_error('Attempting to associate' // &
          ' to a null device pointer for a non-empty array')
 
@@ -809,8 +841,8 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d)
+   call device_alloc(x_d, s)
+   call device_associate(x, x_d, n)
 
   end subroutine device_map_r1
 
@@ -838,8 +870,8 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d)
+   call device_alloc(x_d, s)
+   call device_associate(x, x_d, n)
 
   end subroutine device_map_r2
 
@@ -867,8 +899,8 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d)
+   call device_alloc(x_d, s)
+   call device_associate(x, x_d, n)
 
   end subroutine device_map_r3
 
@@ -896,8 +928,8 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d)
+   call device_alloc(x_d, s)
+   call device_associate(x, x_d, n)
 
   end subroutine device_map_r4
 
