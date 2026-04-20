@@ -315,7 +315,7 @@ contains
       call this%writer%init(json, case)
 
       ! Put the point zone back to have the JSON back as it was :)
-      if (json%valid_path("point_zone")) call json%add("point_zone", &
+      if (associated(this%point_zone)) call json%add("point_zone", &
            trim(this%point_zone%name))
 
     end block
