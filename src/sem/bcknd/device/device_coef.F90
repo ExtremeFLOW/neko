@@ -76,7 +76,7 @@ module device_coef
        type(c_ptr), value :: jacinv, jac
        integer(c_int) :: lx, nel
      end subroutine hip_coef_generate_dxyzdrst
-   end interface
+  end interface
 
   interface
      subroutine hip_coef_generate_mass(B, Binv, jac, w3, lxyz, nel) &
