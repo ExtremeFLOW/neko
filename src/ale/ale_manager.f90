@@ -1737,9 +1737,9 @@ contains
     file_index = file_index + 1
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(coef%B, coef%B_d, n, DEVICE_TO_HOST, .true.)
-    else
-       call copy(dummy_field%x, coef%B, n)
     end if
+    call copy(dummy_field%x, coef%B, n)
+
 
 
     call out_file%init("mesh_preview.fld")
