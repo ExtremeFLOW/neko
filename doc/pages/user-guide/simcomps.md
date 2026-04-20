@@ -598,7 +598,7 @@ simcomp cam be coupled to Python scripts for in-situ data processing.
 
 Creates sub-sections of the domain from a `point_zone` and/or at a lower
 `polynomial_order`. The fields are added to the registry under the name
-`name_of_simcomp + "_" + name_of_base_field`. For example, 
+`name_of_simcomp + "/" + name_of_base_field`. For example, 
 `field_subsampler_u`.
 
 The simcomp is controlled by the following keywords:

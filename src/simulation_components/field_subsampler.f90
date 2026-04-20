@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ module field_subsampler
           dummy_compute
 
      !> Fields to subsample.
-     character(len=20), allocatable :: field_names(:)
+     character(len=80), allocatable :: field_names(:)
      !> Number of fields to subsample (size of field_names).
      integer :: n_fields = 0
      !> Pointers to the subsampled fields in the registry.
@@ -238,7 +238,7 @@ contains
     class(case_t), intent(inout), target :: case
 
     character(len=:), allocatable :: name
-    character(len=20), allocatable :: which_fields(:)
+    character(len=80), allocatable :: which_fields(:)
     integer :: lx
 
     logical :: do_space_interp, do_point_zone_masking
@@ -303,7 +303,7 @@ contains
       call json%add("fields", new_field_names)
 
       ! This is needed so the field_writer doesn't pick up the point zone!
-      call json%remove("point_zone")
+      if (json%valid_path("point_zone")) call json%remove("point_zone")
 
       ! Force a different file name, as we cannot add these subsampled
       ! fields to the regular fluid output (different # of elements and
@@ -315,7 +315,8 @@ contains
       call this%writer%init(json, case)
 
       ! Put the point zone back to have the JSON back as it was :)
-      call json%add("point_zone", trim(this%point_zone%name))
+      if (json%valid_path("point_zone")) call json%add("point_zone", &
+           trim(this%point_zone%name))
 
     end block
 
@@ -336,22 +337,35 @@ contains
 
     this%name = name
     this%field_names = which_fields
-
     this%n_fields = size(which_fields)
+
+    ! ========================================================================
+    ! Check inputs
+
+    if (.not. present(lx) .and. .not. present(point_zone)) then
+       call neko_error("Invalid configuration: please pass either " // &
+            "a point zone or a polynomial order.")
+    end if
+
+    ! If there is an lx and no point zone, it must be different from the
+    ! simulation's lx
+    if (present(lx)) then
+       if (lx .eq. this%case%fluid%Xh%lx .and. .not. present(point_zone)) then
+          call neko_error("Invalid configuration: no change in " // &
+               "polynomial order and no point zone provided.")
+       end if
+    end if
 
     ! ========================================================================
     ! Polynomial order / space interpolation
 
     this%internal_space = .false.
     if (present(lx)) then
-
        this%lx = lx
-
+       
        if (this%lx .eq. this%case%fluid%Xh%lx) then
-          if (pe_rank .eq. 0) then
-             call neko_warning("No change in polynomial order")
-             call neko_warning("Space-to-space interpolation disabled.")
-          end if
+          call neko_warning("No change in polynomial order " // &
+               "Space-to-space interpolation disabled.")
        else
 
           ! Create the subsampled space, with the (strong) assumption that
@@ -411,7 +425,7 @@ contains
       do i = 1, this%n_fields
 
          ! Point the new, subsampled fields to the registry
-         field_name = this%name // "_" // this%field_names(i)
+         field_name = this%name // "/" // this%field_names(i)
          call neko_registry%add_field(this%dof, field_name)
          this%fields%items(i)%ptr => neko_registry%get_field(trim(field_name))
 
@@ -432,8 +446,7 @@ contains
     else if (this%internal_space .and. this%internal_mesh) then
        this%compute_impl => field_subsampler_compute_pz_Xh
     else
-       call neko_error("Please pass either a point zone or a " // &
-            "valid polynomial order.")
+       call neko_error("Invalid configuration")
     end if
 
   end subroutine field_subsampler_init_common
@@ -484,7 +497,7 @@ contains
 
     integer :: i, n, n_mask
 
-    n = this%dof%size()
+    n = this%source_fields%items(1)%ptr%dof%size()
     n_mask = this%point_zone%mask%size()
 
     do i = 1, this%n_fields
@@ -530,7 +543,7 @@ contains
     type(field_t), pointer :: wk
     integer :: i, n, n_mask, tmp_index
 
-    n = this%dof%size()
+    n = this%source_fields%items(1)%ptr%dof%size()
     n_mask = this%point_zone%mask%size()
 
     call neko_scratch_registry%request_field(wk, tmp_index, .false.)
