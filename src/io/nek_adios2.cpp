@@ -1,4 +1,6 @@
 #include <adios2.h>
+#include <thread>
+#include <chrono>
 #include <string>
 #include <iostream>
 #include <ctime>
@@ -15,6 +17,11 @@ adios2::Variable<double> py2f_field;
 int rank, size;
 unsigned int reader_start;
 unsigned int reader_count;
+
+static void init_wait()
+{
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+}
 
 extern "C" void adios2_initialize_(
     const int *lxyz,
@@ -64,14 +71,19 @@ extern "C" void adios2_initialize_(
     );
     
     MPI_Barrier(sync_comm);
+    init_wait();
 
     std::cout << "create global array" << std::endl;
     writer_st = io_writer.Open("globalArray_f2py", adios2::Mode::Write);
+    init_wait();
 
     MPI_Barrier(sync_comm);
+    init_wait();
     reader_st = io_reader.Open("globalArray_py2f", adios2::Mode::Read);
+    init_wait();
 
     MPI_Barrier(sync_comm);
+    init_wait();
 
     // Put necesary information in a header stream
     writer_st.BeginStep();
@@ -88,8 +100,10 @@ extern "C" void adios2_initialize_(
        writer_st.Put(hdr_gdim,  static_cast<int> (*gdim));
     }
     writer_st.EndStep();
+    init_wait();
 
     MPI_Barrier(sync_comm);
+    init_wait();
     MPI_Barrier(sync_comm);
 }
 
