@@ -362,7 +362,7 @@ contains
     this%internal_space = .false.
     if (present(lx)) then
        this%lx = lx
-       
+
        if (this%lx .eq. this%case%fluid%Xh%lx) then
           call neko_warning("No change in polynomial order " // &
                "Space-to-space interpolation disabled.")
