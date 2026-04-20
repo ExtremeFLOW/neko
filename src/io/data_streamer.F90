@@ -162,6 +162,7 @@ contains
   !! @param nelgv total number of elements in velocity mesh
   !! @param gdim dimension (2d or 3d)
   !! @param comm simulation communicator
+  !! @param sync_comm global communicator for init ordering
   !! @param timeout timeout in seconds
   subroutine fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
        comm, sync_comm, timeout)

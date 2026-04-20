@@ -63,12 +63,15 @@ extern "C" void adios2_initialize_(
         "f2py_field", {gn}, {start}, {n}
     );
     
-    // Publish our outbound stream first, then synchronize the full MPMD
-    // job before trying to connect to the peer writer.
+    MPI_Barrier(sync_comm);
+
     std::cout << "create global array" << std::endl;
     writer_st = io_writer.Open("globalArray_f2py", adios2::Mode::Write);
+
     MPI_Barrier(sync_comm);
     reader_st = io_reader.Open("globalArray_py2f", adios2::Mode::Read);
+
+    MPI_Barrier(sync_comm);
 
     // Put necesary information in a header stream
     writer_st.BeginStep();
@@ -85,6 +88,9 @@ extern "C" void adios2_initialize_(
        writer_st.Put(hdr_gdim,  static_cast<int> (*gdim));
     }
     writer_st.EndStep();
+
+    MPI_Barrier(sync_comm);
+    MPI_Barrier(sync_comm);
 }
 
 extern "C" void adios2_finalize_(){
