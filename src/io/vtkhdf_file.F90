@@ -1486,7 +1486,7 @@ contains
     integer :: i
 
     ! Open the file
-    fname = trim(this%get_vtkhdf_fname())
+    fname = trim(this%get_base_fname())
     counter = this%get_counter() - this%get_start_counter()
     if (counter .lt. 0) counter = 0
 
