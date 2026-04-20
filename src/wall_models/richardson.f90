@@ -68,10 +68,6 @@ module richardson
      real(kind=rp) :: z0h_in
      !> The gravity vector
      real(kind=rp) :: g(3)
-     !> The fluid density
-     real(kind=rp) :: rho_val
-     !> The fluid dynamic viscosity
-     real(kind=rp) :: mu_val
      !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
      !> The heat flux or temperature value set in the case file
@@ -117,7 +113,6 @@ contains
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
-    real(kind=rp) :: mu_val, rho_val
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, z0, z0h_in, Pr
     character(len=:), allocatable :: bc_type
@@ -136,8 +131,6 @@ contains
     ! is used, with the specified value acting as -C_Zil.
     ! If z0h is not specified, assign to have the same value as z0.
     call json_get_or_lookup_or_default(json, "z0h", z0h_in, z0)
-    call json_get_or_lookup_or_default(json, "mu", mu_val, 1e-10_rp)
-    call json_get_or_lookup_or_default(json, "rho", rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", bc_type)
     call json_get(json, "scalar_field", scalar_name)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", bc_value)
@@ -157,7 +150,7 @@ contains
     deallocate(g_tmp)
 
     call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
+         kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
     deallocate(bc_type)
     deallocate(scalar_name)
   end subroutine richardson_init
@@ -178,8 +171,6 @@ contains
     call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_lookup(json, "z0", this%z0)
     call json_get_or_lookup_or_default(json, "z0h", this%z0h_in, this%z0)
-    call json_get_or_lookup_or_default(json, "mu", this%mu_val, 1e-10_rp)
-    call json_get_or_lookup_or_default(json, "rho", this%rho_val, 1.0_rp)
     call json_get(json, "type_of_temp_bc", this%bc_type)
     call json_get(json, "scalar_field", this%scalar_name)
     call json_get_or_lookup(json, "bottom_bc_flux_or_temp", this%bc_value)
@@ -215,10 +206,6 @@ contains
     write(log_buf, '(A, E15.7)') 'z0h : ', this%z0h_in
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'Pr : ', this%Pr
-    call neko_log%message(log_buf)
-    write(log_buf, '(A, E15.7)') 'rho : ', this%rho_val
-    call neko_log%message(log_buf)
-    write(log_buf, '(A, E15.7)') 'mu : ', this%mu_val
     call neko_log%message(log_buf)
     write(log_buf, '(A, 3(E15.7,1X))') 'g : ', this%g
     call neko_log%message(log_buf)
@@ -312,8 +299,6 @@ contains
   !! @param facet The boundary facets.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param kappa The von Karman coefficient.
-  !! @param rho_val fluid density
-  !! @param mu_val fluid dynamic viscosity
   !! @param g The gravity vector.
   !! @param z0 The roughness height.
   !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
@@ -321,7 +306,7 @@ contains
   !! @param scalar_name The name of the scalar field (temperature) for Richardson WM.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine richardson_init_from_components(this, scheme_name, scalar_name, coef, msk, &
-       facet, h_index, kappa, mu_val, rho_val, g, Pr, z0, z0h_in, bc_type, bc_value)
+       facet, h_index, kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
     class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -333,7 +318,7 @@ contains
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
     integer :: i
-    real(kind=rp), intent(in) :: kappa, mu_val, rho_val
+    real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value, Pr
     character(len=LOG_SIZE) :: log_buf
 
@@ -342,8 +327,6 @@ contains
     this%kappa = kappa
     this%g = g
     this%Pr = Pr
-    this%mu_val = mu_val
-    this%rho_val = rho_val
     this%z0 = z0
     this%z0h_in = z0h_in
     this%bc_type = bc_type
@@ -457,7 +440,7 @@ contains
             this%ind_e_d, this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu_val, this%rho_val, this%g, this%Pr, this%z0, this%z0h_in, &
+            1.0e-10_rp, 1.0_rp, this%g, this%Pr, this%z0, this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
             this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, this%ts%x_d,&
             this%q%x_d, this%h_x_idx_d, this%h_y_idx_d, this%h_z_idx_d)
@@ -466,7 +449,7 @@ contains
             this%ind_s, this%ind_t, this%ind_e, this%n_x%x, &
             this%n_y%x, this%n_z%x, this%h%x, this%tau_x%x, &
             this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, &
-            u%msh%nelv, this%kappa, this%mu_val, this%rho_val, &
+            u%msh%nelv, this%kappa, 1.0e-10_rp, 1.0_rp, &
             this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep, this%Ri_b%x, this%L_ob%x, &
             this%utau%x, this%magu%x, this%ti%x, this%ts%x, &
