@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal` for hip and cuda.
 - Added the `data_streamer` simulation component, allowing data streaming 
   with ADIOS2.
 - Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
