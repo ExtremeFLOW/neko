@@ -60,7 +60,7 @@ module output_controller
      !> Number of entries in the list.
      integer :: size
      !> Final time of the simulation.
-     real(kind=rp) :: time_end
+     real(kind=dp) :: time_end
    contains
      !> Constructor.
      procedure, pass(this) :: init => output_controller_init
@@ -83,7 +83,7 @@ contains
   subroutine output_controller_init(this, time_end, size)
     class(output_controller_t), intent(inout) :: this
     integer, intent(in), optional :: size
-    real(kind=rp), intent(in) :: time_end
+    real(kind=dp), intent(in) :: time_end
     character(len=LOG_SIZE) :: log_buf
     integer :: n, i
 
@@ -135,10 +135,10 @@ contains
        start_time)
     class(output_controller_t), intent(inout) :: this
     class(output_t), intent(inout), target :: out
-    real(kind=rp), intent(in) :: write_par
+    real(kind=dp), intent(in) :: write_par
     character(len=*), intent(in) :: write_control
-    real(kind=rp), optional, intent(in) :: start_time
-    real(kind=rp) :: start_time_
+    real(kind=dp), optional, intent(in) :: start_time
+    real(kind=dp) :: start_time_
     type(output_ptr_t), allocatable :: tmp(:)
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
@@ -148,7 +148,7 @@ contains
     if (present(start_time)) then
        start_time_ = start_time
     else
-       start_time_ = 0.0_rp
+       start_time_ = 0.0_dp
     end if
 
 
