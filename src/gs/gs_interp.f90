@@ -42,7 +42,7 @@ module gs_interp
   implicit none
   private
 
-  !> Type for face/edge
+  !> Type for face/edge interpolation
   type, public, abstract, extends(amr_restart_component_t) :: gs_interp_t
      !> Polynomial order + 1
      integer :: lx
@@ -57,20 +57,24 @@ module gs_interp
      !> List of  elements with hanging objects
      ! size of nhang_el
      integer, allocatable, dimension(:) :: hang_el
+     !> Number of hanging edges
+     integer :: nhang_edg
      !> List of hanging edges (position in the element)
-     ! size of hang_edg_off(nhang_el + 1) - 1
+     ! size of nhang_edg
      integer, allocatable, dimension(:) :: hang_edg
      !> List of hanging edges (position on the parent edge)
-     ! size of hang_edg_off(nhang_el + 1) - 1
+     ! size of nhang_edg
      integer, allocatable, dimension(:) :: hang_edg_pos
      !> Hanging edges offset
      ! size of nhang_el + 1
      integer, allocatable, dimension(:) :: hang_edg_off
+     !> Number of hanging faces
+     integer :: nhang_fcs
      !> List of hanging faces (position in the element)
-     ! size of hang_fcs_off(nhang_el + 1) - 1
+     ! size of nhang_fcs
      integer, allocatable, dimension(:) :: hang_fcs
      !> List of hanging faces (position on the parent face)
-     ! size of hang_edg_off(nhang_el + 1) - 1
+     ! size of nhang_fcs
      integer, allocatable, dimension(:) :: hang_fcs_pos
      !> Hanging faces offset
      ! size of nhang_el + 1
@@ -82,8 +86,30 @@ module gs_interp
      procedure, pass(this) :: free_base => gs_interp_free_base
      !> Initialise type
      procedure(gs_interp_init), pass(this), deferred :: init
+     !> Initialise multiplicity arrays
+     procedure(gs_interp_init_mult), pass(this), deferred :: init_mult
      !> Free type
      procedure(gs_interp_free), pass(this), deferred :: free
+     !> Perform face/edge interpolation
+     procedure(gs_interp_apply), pass(this), deferred :: apply_j
+     !> Perform inverse face/edge interpolation
+     procedure(gs_interp_apply), pass(this), deferred :: apply_ji
+     !> Perform transposed face/edge interpolation
+     procedure(gs_interp_apply), pass(this), deferred :: apply_jt
+     !> Zero children faces/edges
+     procedure(gs_interp_apply), pass(this), deferred :: zero_children
+     !> Remove multiplicity for J^T
+     procedure(gs_interp_apply), pass(this), deferred :: remove_mult_jt
+     !> Remove multiplicity for J^-1
+     procedure(gs_interp_apply), pass(this), deferred :: remove_mult_ji
+     !> Remove multiplicity for H1
+     procedure(gs_interp_apply), pass(this), deferred :: remove_mult_h1
+     !> Add multiplicity for J^T
+     procedure(gs_interp_apply), pass(this), deferred :: add_mult_jt
+     !> Add multiplicity for J^-1
+     procedure(gs_interp_apply), pass(this), deferred :: add_mult_ji
+     !> Add multiplicity for H1
+     procedure(gs_interp_apply), pass(this), deferred :: add_mult_h1
      !> AMR restart of a base type
      procedure, pass(this) :: amr_restart_base => gs_interp_amr_restart_base
   end type gs_interp_t
@@ -98,12 +124,30 @@ module gs_interp
      end subroutine gs_interp_init
   end interface
 
+  !> Abstract interface for initialising multiplicity arrays
+  abstract interface
+     subroutine gs_interp_init_mult(this, mult_jt, mult_ji, mult_h1)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       real(rp), dimension(:, :, :, :) , intent(in) :: mult_jt, mult_ji, mult_h1
+     end subroutine gs_interp_init_mult
+  end interface
+
   !> Abstract interface for freeing GS interpolation data
   abstract interface
      subroutine gs_interp_free(this)
        import gs_interp_t
        class(gs_interp_t), intent(inout) :: this
      end subroutine gs_interp_free
+  end interface
+
+  !> Abstract interface for face/edge interpolation
+  abstract interface
+     subroutine gs_interp_apply(this, field)
+       import gs_interp_t, field_t
+       class(gs_interp_t), intent(inout) :: this
+       type(field_t), intent(inout) :: field
+     end subroutine gs_interp_apply
   end interface
 
 contains
@@ -159,24 +203,33 @@ contains
        this%hang_edg_off(1) = itmp
        do il = 1, this%nhang_el
           do jl = 1, this%conn%edg%nobj
-             if (this%conn%edg%hang(jl, this%hang_el(il)) .ne. -1) &
+             ! face unrelated edges only
+             if (this%conn%edg%hang(jl, this%hang_el(il)) .eq. 0 .or. &
+                  this%conn%edg%hang(jl, this%hang_el(il)) .eq. 1) &
                   itmp = itmp + 1
           end do
           this%hang_edg_off(il + 1) = itmp
        end do
-       allocate(this%hang_edg(itmp - 1), this%hang_edg_pos(itmp - 1))
-       ! fill arrays
-       itmp = 0
-       do il = 1, this%nhang_el
-          do jl = 1, this%conn%edg%nobj
-             if (this%conn%edg%hang(jl, this%hang_el(il)) .ne. -1) then
-                itmp = itmp + 1
-                this%hang_edg(itmp) = jl
-                this%hang_edg_pos(itmp) = &
-                     this%conn%edg%hang(jl, this%hang_el(il))
-             end if
+       this%nhang_edg = itmp - 1
+       if (this%nhang_edg .gt. 0) then
+          allocate(this%hang_edg(this%nhang_edg), &
+               this%hang_edg_pos(this%nhang_edg))
+          ! fill arrays
+          itmp = 0
+          do il = 1, this%nhang_el
+             do jl = 1, this%conn%edg%nobj
+                ! face unrelated edges only
+                if (this%conn%edg%hang(jl, this%hang_el(il)) .eq. 0 .or. &
+                     this%conn%edg%hang(jl, this%hang_el(il)) .eq. 1) then
+                   itmp = itmp + 1
+                   this%hang_edg(itmp) = jl
+                   this%hang_edg_pos(itmp) = &
+                        this%conn%edg%hang(jl, this%hang_el(il))
+                end if
+             end do
           end do
-       end do
+       end if
+
        ! count hanging faces and mark element boundaries
        itmp = 1
        this%hang_fcs_off(1) = itmp
@@ -187,19 +240,23 @@ contains
           end do
           this%hang_fcs_off(il + 1) = itmp
        end do
-       allocate(this%hang_fcs(itmp - 1), this%hang_fcs_pos(itmp - 1))
-       ! fill arrays
-       itmp = 0
-       do il = 1, this%nhang_el
-          do jl = 1, this%conn%fcs%nobj
-             if (this%conn%fcs%hang(jl, this%hang_el(il)) .ne. -1) then
-                itmp = itmp + 1
-                this%hang_fcs(itmp) = jl
-                this%hang_fcs_pos(itmp) = &
-                     this%conn%fcs%hang(jl, this%hang_el(il))
-             end if
+       this%nhang_fcs = itmp - 1
+       if (this%nhang_fcs .gt. 0) then
+          allocate(this%hang_fcs(this%nhang_fcs), &
+               this%hang_fcs_pos(this%nhang_fcs))
+          ! fill arrays
+          itmp = 0
+          do il = 1, this%nhang_el
+             do jl = 1, this%conn%fcs%nobj
+                if (this%conn%fcs%hang(jl, this%hang_el(il)) .ne. -1) then
+                   itmp = itmp + 1
+                   this%hang_fcs(itmp) = jl
+                   this%hang_fcs_pos(itmp) = &
+                        this%conn%fcs%hang(jl, this%hang_el(il))
+                end if
+             end do
           end do
-       end do
+       end if
     end if
 
   end subroutine gs_interp_init_hang
@@ -224,6 +281,8 @@ contains
 
     this%ifhang = .false.
     this%nhang_el = 0
+    this%nhang_edg = 0
+    this%nhang_fcs = 0
     if (allocated(this%hang_el)) deallocate(this%hang_el)
     if (allocated(this%hang_edg)) deallocate(this%hang_edg)
     if (allocated(this%hang_edg_pos)) deallocate(this%hang_edg_pos)

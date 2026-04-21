@@ -55,7 +55,7 @@ gs/gs_ops.lo : gs/gs_ops.f90
 gs/gs_comm.lo : gs/gs_comm.f90 sem/amr_restart_component.lo adt/stack.lo comm/comm.lo config/num_types.lo 
 gs/gs_mpi.lo : gs/gs_mpi.f90 sem/amr_reconstruct.lo common/time_state.lo common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
 gs/gs_interp.lo : gs/gs_interp.f90 sem/amr_restart_component.lo field/field.lo sem/amr_interpolate.lo mesh/mesh_conn.lo common/utils.lo config/num_types.lo 
-gs/bcknd/cpu/gs_interp_cpu.lo : gs/bcknd/cpu/gs_interp_cpu.f90 sem/amr_reconstruct.lo gs/gs_interp.lo field/field.lo sem/amr_interpolate.lo mesh/mesh_conn.lo config/num_types.lo 
+gs/bcknd/cpu/gs_interp_cpu.lo : gs/bcknd/cpu/gs_interp_cpu.f90 sem/amr_reconstruct.lo gs/gs_interp.lo field/field.lo sem/amr_interpolate.lo mesh/mesh_conn.lo math/tensor.lo math/mxm_wrapper.lo config/num_types.lo 
 gs/bcknd/device/gs_device_mpi.lo : gs/bcknd/device/gs_device_mpi.F90 sem/amr_reconstruct.lo common/utils.lo device/device.lo adt/htable.lo comm/comm.lo adt/stack.lo gs/gs_comm.lo config/num_types.lo 
 gs/bcknd/device/gs_device_nccl.lo : gs/bcknd/device/gs_device_nccl.F90 sem/amr_reconstruct.lo common/utils.lo device/device.lo adt/htable.lo comm/comm.lo adt/stack.lo gs/gs_comm.lo config/num_types.lo 
 gs/bcknd/device/gs_device_shmem.lo : gs/bcknd/device/gs_device_shmem.F90 sem/amr_reconstruct.lo common/utils.lo comm/comm.lo device/device.lo adt/htable.lo adt/stack.lo gs/gs_comm.lo config/num_types.lo 
