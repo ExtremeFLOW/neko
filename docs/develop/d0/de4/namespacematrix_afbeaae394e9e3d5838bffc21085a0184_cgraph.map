@@ -1,0 +1,5 @@
+<map id="matrix::matrix_allocate" name="matrix::matrix_allocate">
+<area shape="rect" id="Node000001" title="Allocate a matrix of size nrows*ncols." alt="" coords="5,13,180,38"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="228,5,385,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,23,214,23,214,28,181,28"/>
+</map>

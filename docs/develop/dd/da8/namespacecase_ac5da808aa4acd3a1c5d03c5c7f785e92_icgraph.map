@@ -1,0 +1,5 @@
+<map id="case::case_init_from_json" name="case::case_init_from_json">
+<area shape="rect" id="Node000001" title="Initialize a case from a JSON object describing a case." alt="" coords="184,5,375,31"/>
+<area shape="rect" id="Node000002" href="$db/d7a/structcase_1_1case__t.html#a79a12a60ab85399c0d5059d72aaf0e0a" title="Initialize a case from an input file case_file." alt="" coords="5,5,136,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,21,137,21,137,15,170,15"/>
+</map>

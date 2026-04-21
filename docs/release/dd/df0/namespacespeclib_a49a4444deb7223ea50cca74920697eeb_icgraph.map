@@ -1,0 +1,9 @@
+<map id="speclib::hgljd" name="speclib::hgljd">
+<area shape="rect" id="Node000001" title="Compute the value of the Lagrangian interpolant HGLJD through the NZ Gauss&#45;Lobatto Jacobi points ZJAC..." alt="" coords="311,29,419,55"/>
+<area shape="poly" id="edge4_Node000001_Node000001" title=" " alt="" coords="391,19,383,11,365,8,349,10,341,15,339,20,344,28,339,31,334,21,336,11,347,5,365,3,386,6,395,15"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a48db55058f05f48c8855a73fdf87b2a5" title="Compute the value of the Lagrangian interpolant HGLJ through the NZ Gauss&#45;Lobatto Jacobi points ZGLJ ..." alt="" coords="163,29,263,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="297,45,263,45,263,39,297,39"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="239,19,231,11,213,8,197,10,189,15,187,20,192,28,187,31,182,21,184,11,195,5,213,3,234,6,243,15"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#ae9f3a27217ebaa32bafcca9602ecc59a" title="Compute the one&#45;dimensional interpolation operator (matrix) I12 ands its transpose IT12 for interpola..." alt="" coords="5,29,115,55"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="149,45,115,45,115,39,149,39"/>
+</map>

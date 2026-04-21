@@ -1,0 +1,15 @@
+<map id="device::device_stream_wait_event" name="device::device_stream_wait_event">
+<area shape="rect" id="Node000001" title="Synchronize a device stream with an event." alt="" coords="245,165,415,205"/>
+<area shape="rect" id="Node000002" href="$d9/dfa/namespacegs__device__mpi.html#a832a9f3cba26a0e8c899d4897e697c69" title="Post non&#45;blocking send operations." alt="" coords="5,5,197,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="303,157,256,107,227,82,196,60,172,48,175,43,199,55,230,78,260,103,306,153"/>
+<area shape="rect" id="Node000003" href="$d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518" title="Wait for non&#45;blocking operations." alt="" coords="5,69,197,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="278,162,196,124,165,112,167,107,198,119,280,157"/>
+<area shape="rect" id="Node000004" href="$de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86" title="Post non&#45;blocking send operations." alt="" coords="22,133,181,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="231,174,181,167,181,162,232,169"/>
+<area shape="rect" id="Node000005" href="$de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc" title="Wait for non&#45;blocking operations." alt="" coords="23,197,179,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="232,202,180,209,179,204,232,196"/>
+<area shape="rect" id="Node000006" href="$d0/d2a/namespacegs__device__shmem.html#a0b13919b26dbb249026b12ebd74821f7" title="Post non&#45;blocking send operations." alt="" coords="10,261,193,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="280,214,198,252,167,264,165,259,196,247,278,209"/>
+<area shape="rect" id="Node000007" href="$d0/d2a/namespacegs__device__shmem.html#a6beab26e24a8a58b8b0237f6260d7c40" title="Wait for non&#45;blocking operations." alt="" coords="12,325,191,365"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="306,218,260,267,230,293,199,316,175,328,172,323,196,311,227,289,256,264,303,214"/>
+</map>

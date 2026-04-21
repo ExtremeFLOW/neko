@@ -1,0 +1,7 @@
+<map id="cartesian_pe_finder::i8_mpi_t" name="cartesian_pe_finder::i8_mpi_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="39,93,189,133"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,100,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="70,41,104,92,99,95,65,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="124,5,227,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="163,43,129,95,124,92,158,41"/>
+</map>

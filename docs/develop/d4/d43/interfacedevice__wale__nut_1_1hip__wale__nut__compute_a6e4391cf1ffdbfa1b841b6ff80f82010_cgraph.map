@@ -1,0 +1,10 @@
+<map id="device_wale_nut::hip_wale_nut_compute::hip_wale_nut_compute" name="device_wale_nut::hip_wale_nut_compute::hip_wale_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,185,77"/>
+<area shape="rect" id="Node000002" href="$d3/d0e/namespacedevice__wale__nut.html#a2f302cc7cc3d11899224782aa884cf25" title="Compute the eddy viscosity field for the WALE model on the device." alt="" coords="233,29,416,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,47,219,47,219,52,186,52"/>
+<area shape="rect" id="Node000003" href="$d5/dfd/wale__nut_8cu.html#a21109f02092112280548d9965eb9933c" title=" " alt="" coords="464,37,647,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,47,450,47,450,52,416,52"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="695,29,859,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,47,681,47,681,52,647,52"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="735,30,733,20,739,10,754,5,777,3,803,6,817,13,814,18,801,11,777,8,755,10,743,15,738,21,740,28"/>
+</map>

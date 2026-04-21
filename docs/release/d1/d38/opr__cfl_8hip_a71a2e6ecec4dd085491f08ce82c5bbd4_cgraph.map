@@ -1,0 +1,12 @@
+<map id="hip_cfl" name="hip_cfl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,69,81"/>
+<area shape="rect" id="Node000002" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="118,5,282,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,56,145,32,146,37,70,61"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="331,49,495,89"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="70,66,317,66,317,71,70,71"/>
+<area shape="rect" id="Node000004" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="117,107,283,132"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="70,76,146,100,145,105,69,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="255,28,318,43,317,49,254,33"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="373,49,371,39,377,30,391,24,413,22,437,25,451,32,448,37,436,30,413,27,392,29,380,34,376,40,378,48"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="254,104,317,89,318,94,255,109"/>
+</map>

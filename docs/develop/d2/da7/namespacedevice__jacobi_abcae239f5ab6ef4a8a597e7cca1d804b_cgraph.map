@@ -1,0 +1,11 @@
+<map id="device_jacobi::device_jacobi_update" name="device_jacobi::device_jacobi_update">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,88,168,128"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a2b8d4f8b84ce7cc369cadc71c01dc207" title="Returns ." alt="" coords="236,5,393,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,85,215,55,236,47,238,52,217,60,138,90"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="219,70,410,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,96,206,92,206,97,168,102"/>
+<area shape="rect" id="Node000004" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="216,119,413,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,114,203,118,202,123,168,119"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a34e76c2d7ad60ae8b0577675df512515" title="Invert a vector ." alt="" coords="236,169,393,209"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="142,126,217,153,241,162,240,167,215,159,140,131"/>
+</map>

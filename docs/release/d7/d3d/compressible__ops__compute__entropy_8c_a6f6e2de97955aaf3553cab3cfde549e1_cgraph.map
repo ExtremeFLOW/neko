@@ -1,0 +1,9 @@
+<map id="opencl_compute_entropy" name="opencl_compute_entropy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,192,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="420,29,584,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,47,406,47,406,52,192,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="240,62,372,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="192,58,227,62,226,68,192,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="465,30,463,20,469,11,482,5,502,3,525,6,537,13,535,17,523,11,502,8,483,10,472,15,468,21,470,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="372,64,406,59,407,64,373,69"/>
+</map>

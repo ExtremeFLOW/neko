@@ -1,0 +1,15 @@
+<map id="speclib::zwgjd" name="speclib::zwgjd">
+<area shape="rect" id="Node000001" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="5,76,120,102"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="339,39,469,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="75,74,113,41,139,24,167,12,219,3,272,7,322,18,363,31,361,37,320,23,272,12,220,9,169,17,142,29,117,45,78,78"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="178,100,281,126"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="121,95,164,101,164,106,120,100"/>
+<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="346,114,462,139"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="85,100,123,120,169,136,210,142,253,143,332,137,333,142,253,149,210,147,167,141,121,124,83,104"/>
+<area shape="rect" id="Node000005" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="168,51,291,76"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="120,78,154,72,155,78,121,83"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="375,40,369,31,372,21,384,15,404,12,428,16,438,25,434,29,426,21,404,18,386,20,376,24,374,30,380,37"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="281,114,332,118,332,124,281,120"/>
+<area shape="poly" id="edge7_Node000005_Node000002" title=" " alt="" coords="291,57,324,54,325,60,291,62"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="202,52,196,43,199,33,210,27,229,24,252,28,262,36,258,40,250,33,229,30,212,32,203,36,201,42,206,49"/>
+</map>

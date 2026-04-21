@@ -1,0 +1,13 @@
+<map id="adv_oifs::adv_oifs_compute" name="adv_oifs::adv_oifs_compute">
+<area shape="rect" id="Node000001" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="5,99,145,139"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#af4b3d851914d7068340bacbf5b282904" title="Returns ." alt="" coords="199,5,357,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,96,192,55,208,48,210,53,194,60,114,101"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="199,69,357,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="145,106,185,100,186,105,146,111"/>
+<area shape="rect" id="Node000004" href="$dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da" title="Compute one step of Runge Kutta time interpolation for OIFS scheme." alt="" coords="193,134,363,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="146,126,180,130,179,136,145,131"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="229,183,327,209"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="119,136,194,168,219,177,217,182,192,173,117,141"/>
+<area shape="rect" id="Node000005" href="$dd/d30/namespaceoperators.html#a5585d01757c6ecea4927cd5e1139836d" title="Apply the convecting velocity c to the to the scalar field u, used in the OIFS scheme." alt="" coords="411,127,553,167"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="363,144,397,144,397,149,363,149"/>
+</map>

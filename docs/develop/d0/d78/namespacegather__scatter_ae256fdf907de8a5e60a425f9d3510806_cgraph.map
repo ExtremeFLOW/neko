@@ -1,0 +1,7 @@
+<map id="gather_scatter::gs_op_vector" name="gather_scatter::gs_op_vector">
+<area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="5,37,144,77"/>
+<area shape="rect" id="Node000002" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="192,5,315,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,42,178,36,179,41,145,48"/>
+<area shape="rect" id="Node000003" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="192,69,315,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="145,67,179,73,178,79,144,72"/>
+</map>

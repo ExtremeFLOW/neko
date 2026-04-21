@@ -1,0 +1,9 @@
+<map id="gradient_jump_penalty::gradient_jump_penalty_init_from_components" name="gradient_jump_penalty::gradient_jump_penalty_init_from_components">
+<area shape="rect" id="Node000001" title="Constructor from components." alt="" coords="5,30,185,85"/>
+<area shape="rect" id="Node000002" href="$d6/def/namespacegradient__jump__penalty.html#acf852b25237a5369971ccd2a362bfb63" title="Evaluate h^2 for each element for hexahedral mesh." alt="" coords="233,5,405,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,42,219,37,220,42,186,47"/>
+<area shape="rect" id="Node000004" href="$d6/def/namespacegradient__jump__penalty.html#a50a5857c26b3634d6e9bf80c7ac5182f" title="Initialize the facet factor array." alt="" coords="233,69,405,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,68,220,73,219,78,185,73"/>
+<area shape="rect" id="Node000003" href="$d6/def/namespacegradient__jump__penalty.html#aac2ae978ff3697d7d659b265b67e421a" title=" " alt="" coords="453,5,625,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="406,23,440,23,440,28,406,28"/>
+</map>

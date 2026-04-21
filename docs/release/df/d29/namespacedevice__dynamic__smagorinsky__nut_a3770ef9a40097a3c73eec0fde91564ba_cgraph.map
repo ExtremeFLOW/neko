@@ -1,0 +1,8 @@
+<map id="device_dynamic_smagorinsky_nut::device_mij_nut_compute_part2" name="device_dynamic_smagorinsky_nut::device_mij_nut_compute_part2">
+<area shape="rect" id="Node000001" title="part 1 of the computing of the mij field" alt="" coords="5,29,268,69"/>
+<area shape="rect" id="Node000002" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ad0df6bec2e5ce933b33c390d005f33c4" title=" " alt="" coords="316,29,489,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="268,47,302,47,302,52,268,52"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="537,29,701,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="490,47,523,47,523,52,490,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="579,30,576,20,583,10,597,5,619,3,645,6,658,13,656,18,643,11,619,8,599,10,586,15,582,21,584,28"/>
+</map>

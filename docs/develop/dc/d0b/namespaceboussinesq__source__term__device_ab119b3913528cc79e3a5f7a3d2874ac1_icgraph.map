@@ -1,0 +1,5 @@
+<map id="boussinesq_source_term_device::boussinesq_source_term_compute_device" name="boussinesq_source_term_device::boussinesq_source_term_compute_device">
+<area shape="rect" id="Node000001" title="Computes the Boussinesq source term on the device." alt="" coords="244,5,447,60"/>
+<area shape="rect" id="Node000002" href="$d0/d10/namespaceboussinesq__source__term.html#aaee9b03347869ec2dc5de2613b67ded0" title="Computes the source term and adds the result to fields." alt="" coords="5,5,196,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,35,196,35,196,30,230,30"/>
+</map>

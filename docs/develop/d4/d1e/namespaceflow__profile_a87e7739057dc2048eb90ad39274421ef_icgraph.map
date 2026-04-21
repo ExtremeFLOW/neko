@@ -1,0 +1,8 @@
+<map id="flow_profile::blasius_sin" name="flow_profile::blasius_sin">
+<area shape="rect" id="Node000001" title="Sinusoidal approximate Blasius Profile ." alt="" coords="225,45,403,70"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="354,35,343,27,314,23,290,25,278,30,275,36,282,43,278,46,270,36,274,26,289,20,314,18,345,22,357,31"/>
+<area shape="rect" id="Node000002" href="$de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="16,5,167,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,45,166,39,167,33,212,40"/>
+<area shape="rect" id="Node000003" href="$dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="5,69,177,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="212,75,178,80,177,74,211,69"/>
+</map>

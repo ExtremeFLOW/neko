@@ -1,0 +1,27 @@
+<map id="opencl_opgrad" name="opencl_opgrad">
+<area shape="rect" id="Node000001" title=" " alt="" coords="649,305,767,330"/>
+<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="429,297,601,337"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="635,320,602,320,602,315,635,315"/>
+<area shape="rect" id="Node000003" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="244,305,381,330"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,320,381,320,381,315,416,315"/>
+<area shape="rect" id="Node000004" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="18,5,183,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="304,292,293,242,272,180,240,115,219,86,194,59,178,48,181,43,198,55,223,82,244,113,277,178,298,241,309,290"/>
+<area shape="rect" id="Node000005" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="38,69,163,109"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="300,292,285,255,263,209,232,163,194,123,162,106,165,101,198,119,237,160,267,207,290,252,305,290"/>
+<area shape="rect" id="Node000006" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="27,133,174,173"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="294,295,253,241,225,212,195,188,173,176,175,171,197,183,229,208,257,237,298,292"/>
+<area shape="rect" id="Node000007" href="$d2/de4/namespacepnpn__res__cpu.html#a43bf48bf3b10c70759c96eb91cd2b452" title=" " alt="" coords="15,197,186,237"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="279,299,240,275,195,252,166,240,168,235,197,247,242,271,282,295"/>
+<area shape="rect" id="Node000008" href="$d8/dea/namespacepnpn__res__device.html#a7634678695c23385c494115658ff88cd" title=" " alt="" coords="5,261,196,301"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="230,306,196,300,197,295,231,301"/>
+<area shape="rect" id="Node000009" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a986698f8eee1fe0a1178677cd9f304ed" title=" " alt="" coords="19,326,182,381"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="231,334,182,342,182,337,230,329"/>
+<area shape="rect" id="Node000010" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="12,405,189,459"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="284,340,197,394,172,407,169,402,195,390,281,336"/>
+<area shape="rect" id="Node000011" href="$d4/da3/namespacepnpn__res__sx.html#ad2586259b3e34e72aebb30cd0a05fb69" title=" " alt="" coords="15,484,186,524"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="301,343,261,407,232,442,198,473,174,486,172,482,194,469,228,439,256,404,297,340"/>
+<area shape="rect" id="Node000012" href="$dc/d5e/namespacescalar__stats.html#aa5566a78671c59995c5eeb1d7fd19c5a" title="Updates all fields with a new sample." alt="" coords="27,548,174,588"/>
+<area shape="poly" id="edge11_Node000003_Node000012" title=" " alt="" coords="307,344,293,386,271,438,239,492,220,516,198,538,176,552,173,548,194,534,216,513,235,488,266,436,288,384,302,342"/>
+<area shape="rect" id="Node000013" href="$d4/dd6/namespaceweak__gradient__simcomp.html#ae236a24b2d3afb8a0cdb2f3fe182d75c" title="Compute the weak_gradient field." alt="" coords="5,612,196,652"/>
+<area shape="poly" id="edge12_Node000003_Node000013" title=" " alt="" coords="311,344,300,398,280,467,247,539,224,572,198,602,181,614,178,610,194,598,220,569,242,536,275,465,295,396,305,343"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="dynamic_smagorinsky_device::compute_lij_device" name="dynamic_smagorinsky_device::compute_lij_device">
+<area shape="rect" id="Node000001" title="Compute Germano Identity on the device." alt="" coords="5,30,173,85"/>
+<area shape="rect" id="Node000002" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a22bc401b3e2a942519a5f5d7b9b4d978" title="part 1 of the computing of the lij field" alt="" coords="221,5,447,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,44,207,39,208,45,174,49"/>
+<area shape="rect" id="Node000005" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ad2a7f3e8548b2a06ad85f699241afebc" title="part 2 of the computing of the lij field" alt="" coords="221,69,447,109"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="174,66,208,70,207,75,173,71"/>
+<area shape="rect" id="Node000003" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ab95ad8f0eaeaa97b02e66151ff78c056" title=" " alt="" coords="495,17,672,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,24,481,25,481,30,447,30"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="720,39,884,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="673,39,707,43,706,48,672,44"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="761,39,759,29,765,20,780,14,802,12,828,15,842,22,839,27,826,20,802,17,781,19,768,24,764,30,766,38"/>
+<area shape="rect" id="Node000006" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#afd1b9f81889807e524c8f98ae3a84a8b" title=" " alt="" coords="495,70,672,95"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="447,84,481,83,481,88,447,89"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="672,70,706,67,707,72,673,76"/>
+</map>

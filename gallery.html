@@ -1,0 +1,45 @@
+---
+layout: default
+title: Gallery
+permalink: /gallery.html
+---
+
+<section class="page-header">
+  <h1>Gallery</h1>
+  <p>
+    Renders and animations of Neko simulations.
+  </p>
+</section>
+
+<div class="card-grid card-grid-three">
+  {% for item in site.data.gallery %}
+    <article class="media-card">
+      <div class="media-card-visual media-{{ item.type }}">
+        {% if item.image %}
+          <button
+            class="lightbox-trigger"
+            type="button"
+            data-lightbox-src="{{ item.image }}"
+            data-lightbox-alt="{{ item.title }}">
+            <img src="{{ item.image }}" alt="{{ item.title }}">
+          </button>
+        {% elsif item.embed %}
+          <iframe
+            src="{{ item.embed }}"
+            title="{{ item.title }}"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+        {% elsif item.url %}
+          <a class="media-card-link" href="{{ item.url }}">Watch video</a>
+        {% else %}
+          <span>{{ item.type | upcase }}</span>
+        {% endif %}
+      </div>
+      <div class="media-card-body">
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.description }}</p>
+      </div>
+    </article>
+  {% endfor %}
+</div>

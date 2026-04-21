@@ -1,0 +1,9 @@
+<map id="gs_bcknd::gs_bcknd_t" name="gs_bcknd::gs_bcknd_t">
+<area shape="rect" id="Node000001" title="Gather&#45;scatter backend." alt="" coords="165,5,329,31"/>
+<area shape="rect" id="Node000002" href="$da/dc2/structgs__cpu_1_1gs__cpu__t.html" title="Gather&#45;scatter backend for CPUs." alt="" coords="5,79,137,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,38,101,81,99,76,205,33"/>
+<area shape="rect" id="Node000003" href="$db/df2/structgs__device_1_1gs__device__t.html" title="Gather&#45;scatter backend for offloading devices." alt="" coords="161,79,333,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="250,44,250,79,245,79,245,44"/>
+<area shape="rect" id="Node000004" href="$db/d5b/structgs__sx_1_1gs__sx__t.html" title="Gather&#45;scatter backend for NEC SX&#45;Aurora." alt="" coords="357,79,473,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="288,34,389,76,387,81,286,38"/>
+</map>

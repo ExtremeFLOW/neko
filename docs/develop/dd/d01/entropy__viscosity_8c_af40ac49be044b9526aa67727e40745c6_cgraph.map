@@ -1,0 +1,9 @@
+<map id="opencl_entropy_visc_apply_element_max" name="opencl_entropy_visc_apply_element_max">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,168,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="396,29,560,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,47,382,47,382,52,168,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="216,62,348,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="168,57,203,62,202,67,168,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="441,30,439,20,445,11,458,5,478,3,501,6,513,13,511,17,499,11,478,8,459,10,448,15,444,21,446,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="348,64,382,59,383,64,349,69"/>
+</map>

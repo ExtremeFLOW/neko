@@ -1,0 +1,9 @@
+<map id="opencl_inhom_dirichlet_apply_scalar" name="opencl_inhom_dirichlet_apply_scalar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,179,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="407,29,571,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,47,393,47,393,52,179,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="227,62,359,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="179,58,213,62,213,67,179,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="452,30,450,20,456,11,469,5,489,3,512,6,524,13,521,17,510,11,489,8,470,10,459,15,455,21,457,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="359,64,393,59,393,64,359,69"/>
+</map>

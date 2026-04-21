@@ -1,0 +1,9 @@
+<map id="curve::curve_t" name="curve::curve_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="77,168,191,193"/>
+<area shape="rect" id="Node000002" href="$d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="5,80,172,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,117,130,166,125,169,99,119"/>
+<area shape="rect" id="Node000003" href="$d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="197,80,351,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="245,115,154,170,152,165,242,110"/>
+<area shape="rect" id="Node000004" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="218,5,330,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="277,45,277,80,271,80,271,45"/>
+</map>

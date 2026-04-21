@@ -1,0 +1,7 @@
+<map id="point_interpolator::point_interpolator_t" name="point_interpolator::point_interpolator_t">
+<area shape="rect" id="Node000001" title="Field interpolator to arbitrary points within an element. Tailored for experimentation,..." alt="" coords="5,328,164,368"/>
+<area shape="rect" id="Node000002" href="$da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="25,240,144,265"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,279,87,328,82,328,82,279"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="57,5,112,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="87,45,87,240,82,240,82,45"/>
+</map>

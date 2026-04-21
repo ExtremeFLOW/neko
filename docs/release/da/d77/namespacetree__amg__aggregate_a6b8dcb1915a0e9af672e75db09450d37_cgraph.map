@@ -1,0 +1,15 @@
+<map id="tree_amg_aggregate::aggregate_greedy" name="tree_amg_aggregate::aggregate_greedy">
+<area shape="rect" id="Node000001" title="Aggregates dofs based on adjacent dofs." alt="" coords="5,165,163,205"/>
+<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#aef5c98b12984e9821f9dcc7edc13af2e" title="Create information on which aggregates are &quot;adjacent&quot; to eachother." alt="" coords="233,5,390,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,163,144,110,175,80,209,55,220,49,223,54,212,60,178,85,148,113,102,167"/>
+<area shape="rect" id="Node000003" href="$da/d77/namespacetree__amg__aggregate.html#a0eee22807919ce075cb45760502a76b6" title="First pass of a greedy aggregation Loop through all dofs and aggregate on dof that has all unaggregat..." alt="" coords="224,69,399,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="120,163,210,119,229,111,231,116,212,124,122,168"/>
+<area shape="rect" id="Node000004" href="$da/d77/namespacetree__amg__aggregate.html#aa681abbb5ee7badea593dac1ef8cf7a5" title="Second pass of a greedy aggregation Loop through all unaggregated dofs and add them to a neighboring ..." alt="" coords="213,133,409,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="163,172,199,166,200,172,164,177"/>
+<area shape="rect" id="Node000005" href="$da/d77/namespacetree__amg__aggregate.html#a9c44b615de93c484749f905b71d21511" title=" " alt="" coords="211,197,412,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="164,194,197,199,197,204,163,199"/>
+<area shape="rect" id="Node000006" href="$da/d77/namespacetree__amg__aggregate.html#af6d21d1d1265727bc608a84be68788f8" title=" " alt="" coords="228,262,395,317"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="124,203,212,247,228,254,226,259,210,252,122,208"/>
+<area shape="rect" id="Node000007" href="$da/d77/namespacetree__amg__aggregate.html#a5328791ea70be104d40aab230b793ec6" title=" " alt="" coords="228,341,395,395"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="101,204,146,263,177,297,212,326,221,332,218,336,209,330,174,300,142,267,96,207"/>
+</map>

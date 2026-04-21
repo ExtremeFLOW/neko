@@ -1,0 +1,15 @@
+<map id="schwarz::schwarz_setup_wt" name="schwarz::schwarz_setup_wt">
+<area shape="rect" id="Node000001" title="setup weights" alt="" coords="5,133,208,159"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="306,5,399,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,131,177,86,215,61,255,40,292,27,293,32,257,44,217,66,180,91,124,135"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="304,55,401,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="139,131,255,89,290,79,291,84,257,94,140,136"/>
+<area shape="rect" id="Node000004" href="$d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="256,104,449,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="208,131,242,127,243,132,208,137"/>
+<area shape="rect" id="Node000005" href="$d2/d37/namespaceschwarz.html#ade8d64f2437a4224082b3711ca027645" title="Setup schwarz weights, 2d, second step." alt="" coords="263,154,442,194"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="208,155,250,160,249,165,208,160"/>
+<area shape="rect" id="Node000006" href="$d2/d37/namespaceschwarz.html#aa6ed48c46882c077ddab2ea62c6db125" title="Setup schwarz weights, 3d, second step." alt="" coords="263,218,442,258"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="139,156,257,204,278,211,276,216,255,208,137,161"/>
+<area shape="rect" id="Node000007" href="$d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970" title="convert array a from extended size to regular" alt="" coords="256,283,449,308"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="122,157,177,211,215,241,257,268,276,276,274,281,255,272,212,246,173,215,118,161"/>
+</map>

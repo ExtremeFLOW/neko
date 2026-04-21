@@ -1,0 +1,5 @@
+<map id="user_source_term::user_source_term_t" name="user_source_term::user_source_term_t">
+<area shape="rect" id="Node000001" title="A source term wrapping the user source term routine. Stores fields that are passed to the user routin..." alt="" coords="5,93,180,133"/>
+<area shape="rect" id="Node000002" href="$d8/d03/structsource__term_1_1source__term__t.html" title="Base abstract type for source terms." alt="" coords="15,5,170,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,59,95,93,90,93,90,59"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="gs_device_nccl::gs_device_nccl_buf_t" name="gs_device_nccl::gs_device_nccl_buf_t">
+<area shape="rect" id="Node000001" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="5,108,151,148"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="51,5,105,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,45,81,108,75,108,75,45"/>
+</map>

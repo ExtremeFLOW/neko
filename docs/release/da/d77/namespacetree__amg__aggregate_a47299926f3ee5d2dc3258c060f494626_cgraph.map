@@ -1,0 +1,7 @@
+<map id="tree_amg_aggregate::aggregate_pairs" name="tree_amg_aggregate::aggregate_pairs">
+<area shape="rect" id="Node000001" title="Aggregates pairs of dofs based on adjacent dofs." alt="" coords="5,37,163,77"/>
+<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#aef5c98b12984e9821f9dcc7edc13af2e" title="Create information on which aggregates are &quot;adjacent&quot; to eachother." alt="" coords="233,5,390,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,44,219,36,220,41,164,49"/>
+<area shape="rect" id="Node000003" href="$da/d77/namespacetree__amg__aggregate.html#a9c44b615de93c484749f905b71d21511" title=" " alt="" coords="211,69,412,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="164,66,197,71,197,76,163,71"/>
+</map>

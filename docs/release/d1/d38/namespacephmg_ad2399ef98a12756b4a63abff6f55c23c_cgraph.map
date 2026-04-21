@@ -1,0 +1,6 @@
+<map id="phmg::phmg_mg_cycle" name="phmg::phmg_mg_cycle">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,179,55"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="53,31,44,21,49,11,65,5,92,3,126,7,136,11,140,17,135,20,132,15,125,12,92,8,66,10,52,15,49,20,57,27"/>
+<area shape="rect" id="Node000002" href="$d1/d38/namespacephmg.html#a0bfdfc7e98d9c658d456ff3790e22562" title="Wraps jacobi solve as a residual update relaxation method." alt="" coords="227,29,445,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,39,213,39,213,45,179,45"/>
+</map>

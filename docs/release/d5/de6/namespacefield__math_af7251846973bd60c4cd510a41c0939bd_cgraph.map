@@ -1,0 +1,7 @@
+<map id="field_math::field_masked_gather_copy_0" name="field_math::field_masked_gather_copy_0">
+<area shape="rect" id="Node000001" title="Gather a field to reduced contigous array ." alt="" coords="5,37,191,77"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="239,5,421,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,42,225,37,226,42,192,47"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="248,69,412,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="192,68,235,74,234,79,191,73"/>
+</map>

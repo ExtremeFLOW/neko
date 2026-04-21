@@ -1,0 +1,9 @@
+<map id="opencl_find_rst_legendre" name="opencl_find_rst_legendre">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,189,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="417,29,581,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,47,403,47,403,52,190,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="237,62,369,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="190,58,224,62,224,68,189,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="463,30,460,20,466,11,479,5,499,3,522,6,535,13,532,17,521,11,499,8,481,10,470,15,466,21,468,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="369,64,403,59,404,64,370,69"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="mask::mask_t::set" name="mask::mask_t::set">
+<area shape="rect" id="Node000001" title="Set the mask from a 1&#45;indexed host array." alt="" coords="5,31,148,56"/>
+<area shape="rect" id="Node000002" href="$d3/d17/namespacemask.html#aec6ecadb7ec929f36dc92e84704d6e1e" title="Set the mask from a 1&#45;indexed host array." alt="" coords="203,5,333,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,31,189,26,190,31,149,37"/>
+<area shape="rect" id="Node000003" href="$d3/d17/namespacemask.html#aca72cc15804d4432fb08472d1c1e102a" title="Set the mask from a 0&#45;indexed device array." alt="" coords="196,55,340,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,50,183,54,182,59,148,55"/>
+</map>

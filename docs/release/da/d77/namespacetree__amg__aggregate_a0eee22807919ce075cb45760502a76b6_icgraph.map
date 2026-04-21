@@ -1,0 +1,7 @@
+<map id="tree_amg_aggregate::agg_greedy_first_pass" name="tree_amg_aggregate::agg_greedy_first_pass">
+<area shape="rect" id="Node000001" title="First pass of a greedy aggregation Loop through all dofs and aggregate on dof that has all unaggregat..." alt="" coords="409,5,584,45"/>
+<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#a6b8dcb1915a0e9af672e75db09450d37" title="Aggregates dofs based on adjacent dofs." alt="" coords="204,5,361,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="395,28,362,28,362,23,395,23"/>
+<area shape="rect" id="Node000003" href="$d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,5,156,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="190,28,156,28,156,23,190,23"/>
+</map>

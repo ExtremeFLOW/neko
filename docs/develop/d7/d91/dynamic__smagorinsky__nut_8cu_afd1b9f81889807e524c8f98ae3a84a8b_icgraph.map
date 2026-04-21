@@ -1,0 +1,11 @@
+<map id="cuda_lij_compute_part2" name="cuda_lij_compute_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="853,60,1031,85"/>
+<area shape="rect" id="Node000002" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ad2a7f3e8548b2a06ad85f699241afebc" title="part 2 of the computing of the lij field" alt="" coords="580,53,805,93"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="840,75,806,75,806,70,840,70"/>
+<area shape="rect" id="Node000003" href="$dd/daf/namespacedynamic__smagorinsky__device.html#af52abfb3c8d81e9a1c55864cb1ad273a" title="Compute Germano Identity on the device." alt="" coords="322,5,490,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="566,58,490,47,491,42,567,52"/>
+<area shape="rect" id="Node000005" href="$d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2.html#adaaa41cd7e60e2552367285f1b7757f5" title=" " alt="" coords="280,84,532,139"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="567,92,532,97,532,92,566,87"/>
+<area shape="rect" id="Node000004" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aad7c438416e36302a7eefa1042cd2529" title="Compute eddy viscosity on the device." alt="" coords="5,5,232,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="309,35,232,35,232,30,309,30"/>
+</map>

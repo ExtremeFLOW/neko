@@ -1,0 +1,17 @@
+<map id="vector::vector_t::assignment" name="vector::vector_t::assignment">
+<area shape="rect" id="Node000001" title="Assignments." alt="" coords="5,77,213,102"/>
+<area shape="rect" id="Node000002" href="$d7/d34/namespacevector.html#ad7a0eb4d39026ff50a8f2ed6f8e4a12a" title="Assignment ." alt="" coords="261,5,423,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,74,255,46,256,52,157,79"/>
+<area shape="rect" id="Node000003" href="$d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d" title="Assignment ." alt="" coords="261,69,423,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,87,248,87,248,92,214,92"/>
+<area shape="rect" id="Node000006" href="$d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef" title="Assignment ." alt="" coords="261,133,423,173"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="157,100,256,127,255,132,156,105"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="525,21,611,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="422,67,511,45,512,50,423,72"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="489,71,647,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="423,87,475,87,475,93,423,92"/>
+<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="521,138,615,163"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="423,150,507,149,507,154,423,155"/>
+<area shape="rect" id="Node000008" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="471,187,665,213"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="423,167,493,182,492,187,422,173"/>
+</map>

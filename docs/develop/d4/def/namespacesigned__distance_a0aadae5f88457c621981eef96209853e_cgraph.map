@@ -1,0 +1,13 @@
+<map id="signed_distance::signed_distance_field_tri_mesh" name="signed_distance::signed_distance_field_tri_mesh">
+<area shape="rect" id="Node000001" title="Signed distance field for a triangular mesh." alt="" coords="5,27,188,67"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="237,5,385,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,32,223,27,224,33,189,37"/>
+<area shape="rect" id="Node000003" href="$d4/def/namespacesigned__distance.html#a7d05cfbb969c2c9d5fd4c6248032efe5" title="Signed distance function using an AABB tree." alt="" coords="236,55,385,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,57,223,61,222,66,188,62"/>
+<area shape="rect" id="Node000004" href="$d4/def/namespacesigned__distance.html#ad5e6764cd33f9ac265f9a0c0545a197e" title="Main interface for the signed distance function for an element." alt="" coords="433,55,623,95"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="386,73,420,73,420,78,386,78"/>
+<area shape="rect" id="Node000005" href="$d4/def/namespacesigned__distance.html#a3fa90e6ec506576aacc9f7086e8f2a54" title="Signed distance function for a triangle." alt="" coords="671,55,860,95"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="623,73,657,73,657,78,623,78"/>
+<area shape="rect" id="Node000006" href="$d4/def/namespacesigned__distance.html#a17f21d3dcb101646672edad1ed6c3b01" title="Compute cross product of two vectors." alt="" coords="908,63,1077,88"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="861,73,894,73,894,78,861,78"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="device::device_count" name="device::device_count">
+<area shape="rect" id="Node000001" title="Return the number of available devices." alt="" coords="365,29,524,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="480,19,470,11,445,8,424,10,413,15,410,20,416,28,412,31,405,21,409,11,422,5,445,3,472,6,483,15"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="173,29,317,55"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="351,45,318,45,318,39,351,39"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="5,29,125,55"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="159,45,126,45,126,39,159,39"/>
+</map>

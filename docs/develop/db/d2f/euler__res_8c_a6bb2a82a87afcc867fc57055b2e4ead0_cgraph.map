@@ -1,0 +1,9 @@
+<map id="euler_res_part_rk_sum_opencl" name="euler_res_part_rk_sum_opencl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,176,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="404,29,568,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,47,390,47,390,52,176,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="224,62,356,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="177,58,211,62,210,67,176,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="449,30,447,20,453,11,466,5,486,3,509,6,521,13,519,17,507,11,486,8,467,10,456,15,452,21,454,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="356,64,390,59,391,64,357,69"/>
+</map>

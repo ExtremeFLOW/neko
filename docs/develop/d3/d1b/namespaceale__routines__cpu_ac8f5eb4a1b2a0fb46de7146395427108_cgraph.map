@@ -1,0 +1,8 @@
+<map id="ale_routines_cpu::compute_cheap_dist_v2_cpu" name="ale_routines_cpu::compute_cheap_dist_v2_cpu">
+<area shape="rect" id="Node000001" title="Compute cheap_dist field by passing distance information throughout an entire local element before do..." alt="" coords="5,35,203,75"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="262,5,349,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,34,248,26,249,31,203,40"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168" title="Max of an integer vector of length n." alt="" coords="251,79,360,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,70,237,77,236,82,202,76"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="272,80,265,70,269,60,283,54,305,52,333,56,344,65,341,69,331,61,305,57,284,59,273,64,271,70,277,77"/>
+</map>

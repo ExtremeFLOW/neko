@@ -1,0 +1,9 @@
+<map id="opencl_neumann_apply_scalar" name="opencl_neumann_apply_scalar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,181,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="409,29,573,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,47,395,47,395,52,181,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="229,62,361,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="182,58,216,62,215,67,181,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="455,30,452,20,458,11,471,5,491,3,514,6,527,13,524,17,513,11,491,8,473,10,462,15,458,21,460,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="361,64,395,59,396,64,362,69"/>
+</map>

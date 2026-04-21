@@ -1,0 +1,16 @@
+<map id="neumann::neumann_apply_scalar_dev" name="neumann::neumann_apply_scalar_dev">
+<area shape="rect" id="Node000001" title="Boundary condition apply for a generic Neumann condition to a vector x (device version)" alt="" coords="5,35,200,75"/>
+<area shape="rect" id="Node000002" href="$d3/d7b/namespacedevice__neumann.html#acff205a4b91a483e2c89a415b845b738" title=" " alt="" coords="248,35,432,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,52,235,52,235,57,200,57"/>
+<area shape="rect" id="Node000003" href="$db/d04/neumann_8cu.html#a0fbc26d160a97c537b1b160be2e759dc" title=" " alt="" coords="704,5,868,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="432,46,690,29,690,34,432,51"/>
+<area shape="rect" id="Node000005" href="$d0/dd5/neumann_8c.html#a415af5982c959bc3211d68079ecf3f82" title=" " alt="" coords="480,63,656,103"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="433,63,467,68,466,73,432,69"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="916,63,1080,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="861,43,911,56,910,62,860,48"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="958,63,956,53,962,44,977,38,998,36,1023,39,1036,46,1034,51,1021,44,998,41,978,43,966,48,961,54,964,62"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="656,80,903,80,903,85,656,85"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="720,121,852,146"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="655,100,718,115,717,120,654,105"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="840,118,902,103,903,108,841,123"/>
+</map>

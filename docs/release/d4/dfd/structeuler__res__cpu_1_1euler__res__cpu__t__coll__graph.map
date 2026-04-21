@@ -1,0 +1,5 @@
+<map id="euler_res_cpu::euler_res_cpu_t" name="euler_res_cpu::euler_res_cpu_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="6,93,159,133"/>
+<area shape="rect" id="Node000002" href="$d9/d26/structeuler__residual_1_1euler__rhs__t.html" title="Abstract type to compute rhs." alt="" coords="5,5,160,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,59,85,93,80,93,80,59"/>
+</map>

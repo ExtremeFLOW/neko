@@ -1,0 +1,9 @@
+<map id="generic_file::generic_file_set_overwrite" name="generic_file::generic_file_set_overwrite">
+<area shape="rect" id="Node000001" title="Set overwrite mode." alt="" coords="5,23,159,63"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="207,5,365,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,31,193,27,193,32,159,36"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="212,55,360,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="159,50,198,54,198,60,159,55"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="413,5,601,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="366,15,400,15,400,21,366,21"/>
+</map>

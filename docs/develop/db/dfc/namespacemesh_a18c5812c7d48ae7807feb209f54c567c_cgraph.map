@@ -1,0 +1,7 @@
+<map id="mesh::mesh_init_dist" name="mesh::mesh_init_dist">
+<area shape="rect" id="Node000001" title="Initialise a mesh this based on a distribution dist." alt="" coords="5,31,167,56"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a84fb89799d74a310f3612f5334cf5b74" title=" " alt="" coords="215,5,409,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,32,201,28,201,33,167,37"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="238,55,386,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,49,225,55,224,61,166,55"/>
+</map>

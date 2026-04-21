@@ -1,0 +1,11 @@
+title: Neko
+search_title: 'Neko | /ᐠ. ｡.ᐟ\ᵐᵉᵒʷˎˊ˗'
+brand_mark: '/ᐠ. ｡.ᐟ\ᵐᵉᵒʷˎˊ˗'
+email: neko@example.com
+description: >-
+  A modern, portable, and scalable framework for high-fidelity computational fluid dynamics.
+baseurl: ""
+url: ""
+markdown: kramdown
+plugins:
+  - jekyll-feed

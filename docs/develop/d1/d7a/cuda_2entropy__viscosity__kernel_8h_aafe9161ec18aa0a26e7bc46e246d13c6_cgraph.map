@@ -1,0 +1,6 @@
+<map id="entropy_visc_smooth_divide_kernel" name="entropy_visc_smooth_divide_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,167,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="215,29,379,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,47,201,47,201,52,167,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="257,30,255,20,261,10,275,5,297,3,321,6,335,13,332,18,320,11,297,8,276,10,264,15,260,21,262,28"/>
+</map>

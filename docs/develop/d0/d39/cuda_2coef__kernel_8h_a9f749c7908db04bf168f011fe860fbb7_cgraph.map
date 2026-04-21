@@ -1,0 +1,8 @@
+<map id="coef_generate_geo_kernel" name="coef_generate_geo_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,199,72"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="271,5,386,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,44,257,28,258,33,173,49"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="247,79,411,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,69,234,80,233,85,174,75"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="286,80,284,70,291,60,306,55,329,53,355,56,370,63,367,68,354,61,329,58,307,60,294,65,289,71,291,78"/>
+</map>

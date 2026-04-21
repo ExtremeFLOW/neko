@@ -1,0 +1,7 @@
+<map id="system::system_cpu_name" name="system::system_cpu_name">
+<area shape="rect" id="Node000001" title="Retrieve the system&#39;s CPU name (type)" alt="" coords="221,35,421,60"/>
+<area shape="rect" id="Node000002" href="$dd/d62/namespaceneko.html#a12ac3a3e9d30fbc66d5a77e012e90edb" title="Display job information, number of MPI ranks, CPU type and selected hardware backend." alt="" coords="14,5,165,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,36,164,30,165,25,208,30"/>
+<area shape="rect" id="Node000003" href="$d7/d90/interfacesystem_1_1system__cpuid.html#a0436c489fe2d6d9911e3ef7b7e084010" title=" " alt="" coords="5,55,173,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,64,174,68,173,63,207,58"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="scratch_registry::scratch_registry_t::relinquish" name="scratch_registry::scratch_registry_t::relinquish">
+<area shape="rect" id="Node000001" title="Generic relinquish procedure." alt="" coords="5,37,185,77"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#ae15b3b45226082405590af6a0a41d47f" title="Relinquish the use of multiple objects in the registry." alt="" coords="233,5,431,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,43,219,38,220,43,186,48"/>
+<area shape="rect" id="Node000003" href="$d7/dda/namespacescratch__registry.html#ae23a3008febb84c6f541c8ffb01fa3d9" title="Relinquish the use of an object in the registry." alt="" coords="233,69,431,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,67,220,72,219,77,185,72"/>
+</map>

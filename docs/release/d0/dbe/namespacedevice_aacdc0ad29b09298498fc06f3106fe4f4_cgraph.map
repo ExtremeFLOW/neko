@@ -1,0 +1,9 @@
+<map id="device::device_name" name="device::device_name">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,165,80"/>
+<area shape="rect" id="Node000002" href="$db/d9a/namespacecuda__intf.html#a05388b77b2bea0507b51694ea4bceb1f" title=" " alt="" coords="213,5,428,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,52,245,31,246,36,147,57"/>
+<area shape="rect" id="Node000003" href="$d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93" title=" " alt="" coords="225,55,417,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,65,211,65,211,70,165,70"/>
+<area shape="rect" id="Node000004" href="$d3/d3b/namespaceopencl__intf.html#a07ec4ed5818678cf793c11b2b44543ca" title=" " alt="" coords="249,105,393,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="139,77,236,101,235,107,138,83"/>
+</map>

@@ -1,0 +1,33 @@
+<map id="vreman_device::vreman_compute_device" name="vreman_device::vreman_compute_device">
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the device." alt="" coords="5,55,185,95"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="245,5,436,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,53,272,31,273,36,182,58"/>
+<area shape="rect" id="Node000003" href="$db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="233,55,448,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,73,220,73,220,78,186,78"/>
+<area shape="rect" id="Node000006" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="271,141,410,167"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="159,93,288,135,286,140,158,98"/>
+<area shape="rect" id="Node000004" href="$d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48" title=" " alt="" coords="923,52,1125,77"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="448,71,909,64,909,69,448,76"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1173,119,1337,159"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1085,75,1126,86,1196,112,1194,117,1125,91,1084,80"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1212,120,1210,110,1217,100,1232,95,1255,93,1282,96,1297,103,1294,108,1281,101,1255,98,1233,100,1220,105,1215,111,1218,118"/>
+<area shape="rect" id="Node000007" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="496,134,668,174"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="410,151,482,151,482,157,410,157"/>
+<area shape="rect" id="Node000011" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="498,215,666,255"/>
+<area shape="poly" id="edge14_Node000006_Node000011" title=" " alt="" coords="380,164,510,208,508,213,378,169"/>
+<area shape="rect" id="Node000008" href="$d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="971,101,1077,127"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="668,142,716,137,957,116,957,122,716,142,668,147"/>
+<area shape="rect" id="Node000009" href="$d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="736,152,855,177"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="669,156,722,158,722,164,668,161"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="1078,117,1160,126,1159,132,1078,122"/>
+<area shape="poly" id="edge11_Node000009_Node000005" title=" " alt="" coords="855,159,1159,142,1160,147,855,164"/>
+<area shape="rect" id="Node000010" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="958,203,1090,228"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="854,175,953,197,952,202,853,180"/>
+<area shape="poly" id="edge13_Node000010_Node000005" title=" " alt="" coords="1065,200,1124,181,1182,161,1184,166,1126,186,1067,205"/>
+<area shape="rect" id="Node000012" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="738,201,853,227"/>
+<area shape="poly" id="edge15_Node000011_Node000012" title=" " alt="" coords="666,224,724,218,724,224,667,230"/>
+<area shape="rect" id="Node000013" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="750,251,841,276"/>
+<area shape="poly" id="edge16_Node000011_Node000013" title=" " alt="" coords="667,244,736,253,736,258,666,249"/>
+<area shape="rect" id="Node000014" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="716,300,875,325"/>
+<area shape="poly" id="edge17_Node000011_Node000014" title=" " alt="" coords="632,253,717,286,738,293,737,298,715,291,630,258"/>
+</map>

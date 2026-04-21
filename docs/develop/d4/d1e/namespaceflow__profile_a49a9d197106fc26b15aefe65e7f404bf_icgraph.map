@@ -1,0 +1,8 @@
+<map id="flow_profile::blasius_quartic" name="flow_profile::blasius_quartic">
+<area shape="rect" id="Node000001" title="Quartic approximate Blasius Profile &#160;." alt="" coords="225,37,376,77"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="336,26,323,19,301,16,281,18,269,23,264,29,267,36,262,38,259,28,265,18,279,13,301,11,325,14,338,21"/>
+<area shape="rect" id="Node000002" href="$de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="16,5,167,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,46,166,39,167,34,212,41"/>
+<area shape="rect" id="Node000003" href="$dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="5,69,177,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="212,73,178,79,177,74,212,68"/>
+</map>

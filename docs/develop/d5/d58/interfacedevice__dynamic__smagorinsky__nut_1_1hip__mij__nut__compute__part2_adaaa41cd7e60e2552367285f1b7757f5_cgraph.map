@@ -1,0 +1,30 @@
+<map id="device_dynamic_smagorinsky_nut::hip_mij_nut_compute_part2::hip_mij_nut_compute_part2" name="device_dynamic_smagorinsky_nut::hip_mij_nut_compute_part2::hip_mij_nut_compute_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,126,257,181"/>
+<area shape="rect" id="Node000002" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a22bc401b3e2a942519a5f5d7b9b4d978" title="part 1 of the computing of the lij field" alt="" coords="324,5,549,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,124,234,88,304,55,327,47,329,52,306,60,236,93,176,128"/>
+<area shape="rect" id="Node000005" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ad2a7f3e8548b2a06ad85f699241afebc" title="part 2 of the computing of the lij field" alt="" coords="324,69,549,109"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="257,124,327,110,328,115,258,130"/>
+<area shape="rect" id="Node000007" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a66e06c1331950e890bc37a4acacf8770" title="part 1 of the computing of the mij field" alt="" coords="319,133,554,173"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="258,151,305,151,305,156,258,156"/>
+<area shape="rect" id="Node000009" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba" title="part 1 of the computing of the mij field" alt="" coords="305,197,568,237"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="258,177,328,192,327,197,257,182"/>
+<area shape="rect" id="Node000011" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ac84f2458b7e3844fb271bb114231ea03" title="Compute the s_abs field for the Sigma model indevice." alt="" coords="327,261,546,301"/>
+<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="176,178,236,214,306,247,329,255,327,260,304,252,234,218,173,183"/>
+<area shape="rect" id="Node000003" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ab95ad8f0eaeaa97b02e66151ff78c056" title=" " alt="" coords="621,25,798,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="549,28,607,30,607,36,549,33"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="851,133,1015,173"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="751,48,804,70,851,96,893,123,891,128,848,101,802,74,749,53"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="891,134,889,124,895,114,910,109,933,107,959,110,973,117,970,122,957,115,933,112,911,114,899,119,894,125,896,132"/>
+<area shape="rect" id="Node000006" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#afd1b9f81889807e524c8f98ae3a84a8b" title=" " alt="" coords="621,85,798,110"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="549,90,607,92,607,97,549,95"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="761,107,840,127,839,133,760,113"/>
+<area shape="rect" id="Node000008" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a1be7b8d840991fb8f90db602ae92c0fe" title=" " alt="" coords="616,141,803,166"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="554,151,602,151,602,156,554,156"/>
+<area shape="poly" id="edge10_Node000008_Node000004" title=" " alt="" coords="803,151,837,151,837,156,803,156"/>
+<area shape="rect" id="Node000010" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ad0df6bec2e5ce933b33c390d005f33c4" title=" " alt="" coords="623,195,796,235"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="568,213,609,213,609,218,568,219"/>
+<area shape="poly" id="edge13_Node000010_Node000004" title=" " alt="" coords="782,192,846,174,847,179,784,197"/>
+<area shape="rect" id="Node000012" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a3ba526d7aa8fbe99c9db3d49c09e6e84" title=" " alt="" coords="629,262,790,287"/>
+<area shape="poly" id="edge15_Node000011_Node000012" title=" " alt="" coords="546,276,615,274,615,280,546,281"/>
+<area shape="poly" id="edge16_Node000012_Node000004" title=" " alt="" coords="762,259,801,244,853,213,897,180,900,184,856,218,804,249,764,264"/>
+</map>

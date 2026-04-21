@@ -1,0 +1,10 @@
+<map id="device_smagorinsky_nut::hip_smagorinsky_nut_compute::hip_smagorinsky_nut_compute" name="device_smagorinsky_nut::hip_smagorinsky_nut_compute::hip_smagorinsky_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,15,237,84"/>
+<area shape="rect" id="Node000002" href="$d6/d30/namespacedevice__smagorinsky__nut.html#a47eaf1b109deb3ebb28908434510e3e6" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="285,22,476,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,47,271,47,271,52,237,52"/>
+<area shape="rect" id="Node000003" href="$d3/d28/smagorinsky__nut_8cu.html#aab5f54fa722db73c983f571c38c70ca9" title=" " alt="" coords="524,29,695,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="477,47,510,47,510,52,477,52"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="743,29,907,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="695,47,729,47,729,52,695,52"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="785,30,782,20,789,10,803,5,825,3,850,6,863,13,861,18,848,11,825,8,804,10,792,15,787,21,790,28"/>
+</map>

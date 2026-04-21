@@ -1,0 +1,11 @@
+<map id="cuda_deardorff_nut_compute" name="cuda_deardorff_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="672,41,819,81"/>
+<area shape="rect" id="Node000002" href="$d4/d66/namespacedevice__deardorff__nut.html#a8e7769b7683460e17fe5feb18e33d279" title="Compute Deardorff SGS quantities on the device backend." alt="" coords="457,34,624,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="658,64,624,64,624,59,658,59"/>
+<area shape="rect" id="Node000003" href="$d4/df3/namespacedeardorff__device.html#a073d32e5fcaf956d6de48b3cebe87d00" title="Compute eddy viscosity on the device." alt="" coords="206,5,405,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="444,49,404,43,405,38,444,44"/>
+<area shape="rect" id="Node000005" href="$d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute.html#ae88bfec68393c3b0f85bf1cda60c9266" title=" " alt="" coords="201,70,409,125"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="445,79,410,84,409,79,444,73"/>
+<area shape="rect" id="Node000004" href="$d2/dee/namespacedeardorff.html#a9017a40fe20a5f853ffcfb15310f07d7" title="Compute eddy viscosity." alt="" coords="5,5,153,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="192,28,154,28,154,23,192,23"/>
+</map>

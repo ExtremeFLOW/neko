@@ -1,0 +1,5 @@
+<map id="mappings::permeability_field" name="mappings::permeability_field">
+<area shape="rect" id="Node000001" title="Apply a permeability function to a field." alt="" coords="233,13,411,53"/>
+<area shape="rect" id="Node000002" href="$d0/d7b/namespacebrinkman__source__term.html#a642671680ad9713699170537d417d410" title="The common constructor using a JSON object." alt="" coords="5,5,185,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,35,185,35,185,30,219,30"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="drag_torque::setup_normals" name="drag_torque::setup_normals">
+<area shape="rect" id="Node000001" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="216,5,360,45"/>
+<area shape="rect" id="Node000002" href="$d6/daa/namespaceforce__torque.html#a8a3bfdd03c6deef5b7b1e2687eb82d37" title="Common part of constructors." alt="" coords="5,5,168,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,28,168,28,168,23,202,23"/>
+</map>

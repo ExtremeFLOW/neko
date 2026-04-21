@@ -1,0 +1,5 @@
+<map id="user_intf::user_t::init" name="user_intf::user_t::init">
+<area shape="rect" id="Node000001" title="Constructor that points non&#45;associated routines to dummy ones. Calling a dummy routine causes an erro..." alt="" coords="5,13,160,38"/>
+<area shape="rect" id="Node000002" href="$d9/dbc/namespaceuser__intf.html#a7313300d3e61b6b1fb37eab24752bacc" title=" " alt="" coords="208,5,379,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,23,194,23,194,28,160,28"/>
+</map>

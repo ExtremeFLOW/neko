@@ -1,0 +1,5 @@
+<map id="boussinesq_source_term::boussinesq_source_term_t" name="boussinesq_source_term::boussinesq_source_term_t">
+<area shape="rect" id="Node000001" title="Bouyancy source term accroding to the Boussinesq approximation." alt="" coords="5,93,208,133"/>
+<area shape="rect" id="Node000002" href="$d8/d03/structsource__term_1_1source__term__t.html" title="Base abstract type for source terms." alt="" coords="29,5,184,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,59,109,93,104,93,104,59"/>
+</map>

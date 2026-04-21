@@ -1,0 +1,7 @@
+<map id="shear_stress::shear_stress_t" name="shear_stress::shear_stress_t">
+<area shape="rect" id="Node000001" title="A shear stress boundary condition." alt="" coords="9,79,157,119"/>
+<area shape="rect" id="Node000003" href="$d1/d49/structwall__model__bc_1_1wall__model__bc__t.html" title="A shear stress boundary condition, computing the stress values using a wall model." alt="" coords="5,167,160,207"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="85,133,85,166,80,166,80,133"/>
+<area shape="rect" id="Node000002" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="47,5,119,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,44,85,79,80,79,80,44"/>
+</map>

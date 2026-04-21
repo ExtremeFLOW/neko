@@ -1,0 +1,11 @@
+<map id="point_zone::point_zone_t" name="point_zone::point_zone_t">
+<area shape="rect" id="Node000001" title="Base abstract type for point zones." alt="" coords="44,181,228,207"/>
+<area shape="rect" id="Node000002" href="$d2/df5/structmask_1_1mask__t.html" title="Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate..." alt="" coords="5,93,120,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,127,128,179,124,183,79,131"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="35,5,90,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="65,45,65,93,60,93,60,45"/>
+<area shape="rect" id="Node000004" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="144,93,275,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="193,131,148,183,144,179,189,127"/>
+<area shape="rect" id="Node000005" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="153,5,265,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="212,45,212,93,207,93,207,45"/>
+</map>

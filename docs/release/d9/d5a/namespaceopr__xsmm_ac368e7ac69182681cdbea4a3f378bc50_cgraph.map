@@ -1,0 +1,9 @@
+<map id="opr_xsmm::opr_xsmm_opgrad" name="opr_xsmm::opr_xsmm_opgrad">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,173,63"/>
+<area shape="rect" id="Node000002" href="$d9/d5a/namespaceopr__xsmm.html#afced4474e6070b5f75f9767b4b107aaf" title=" " alt="" coords="245,5,420,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,32,232,26,232,31,174,37"/>
+<area shape="rect" id="Node000004" href="$d9/d5a/namespaceopr__xsmm.html#a005ad99d806e0b64c65c52b0819b08ec" title=" " alt="" coords="221,55,444,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="174,49,208,52,207,58,173,54"/>
+<area shape="rect" id="Node000003" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="492,5,651,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,15,478,15,478,21,420,21"/>
+</map>

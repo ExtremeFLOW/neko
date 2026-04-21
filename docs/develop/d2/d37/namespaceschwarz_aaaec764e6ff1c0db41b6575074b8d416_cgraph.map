@@ -1,0 +1,11 @@
+<map id="schwarz::schwarz_compute" name="schwarz::schwarz_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,80,205,105"/>
+<area shape="rect" id="Node000002" href="$d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="253,5,447,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,77,253,39,280,32,282,37,254,45,142,82"/>
+<area shape="rect" id="Node000003" href="$d2/d37/namespaceschwarz.html#abb186b40351fea36a94645705dfefc48" title="convert array a from original size to size extended array with border" alt="" coords="253,55,447,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,80,240,76,240,81,206,85"/>
+<area shape="rect" id="Node000004" href="$d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970" title="convert array a from extended size to regular" alt="" coords="253,104,447,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="206,100,240,103,240,109,205,105"/>
+<area shape="rect" id="Node000005" href="$d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe" title=" " alt="" coords="263,153,437,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="145,103,254,138,286,147,285,152,253,143,143,108"/>
+</map>

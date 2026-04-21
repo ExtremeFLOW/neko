@@ -1,0 +1,18 @@
+<map id="projection::bcknd_reorthogonalize_basis" name="projection::bcknd_reorthogonalize_basis">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,248,183"/>
+<area shape="rect" id="Node000002" href="$d3/d06/namespaceprojection.html#abe8a2a4afdc38e79a17ec00840c66d0a" title=" " alt="" coords="296,47,523,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,141,295,97,320,89,322,94,297,102,178,146"/>
+<area shape="rect" id="Node000006" href="$d3/d06/namespaceprojection.html#a939041885afcc82c6520b195251f7ea4" title=" " alt="" coords="323,111,495,151"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="248,147,309,140,310,145,249,152"/>
+<area shape="rect" id="Node000007" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="348,175,471,215"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="249,174,335,184,334,190,248,180"/>
+<area shape="rect" id="Node000008" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="348,239,471,279"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="178,181,297,225,336,237,334,242,295,230,176,186"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="571,5,681,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="497,45,556,31,558,36,498,50"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="575,55,677,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="523,65,562,65,562,70,523,70"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="577,128,675,153"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="486,85,524,97,584,120,582,125,522,102,484,90"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="591,130,583,120,587,110,602,104,626,101,656,105,668,114,665,118,654,110,626,107,603,109,591,114,588,119,595,126"/>
+</map>

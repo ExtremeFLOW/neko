@@ -1,0 +1,7 @@
+<map id="avg_flds_in_time_csv" name="avg_flds_in_time_csv">
+<area shape="rect" id="Node000001" title="Average fields from a series of csv files." alt="" coords="5,42,167,67"/>
+<area shape="rect" id="Node000002" href="$d3/dc7/average__fields__in__time_8f90.html#aa2934d93793898b0a6e04bdb6c100aa2" title="Finds the size of a statistics sample based on when the time stamp changes." alt="" coords="215,5,385,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,41,201,36,202,42,168,46"/>
+<area shape="rect" id="Node000003" href="$d3/dc7/average__fields__in__time_8f90.html#a8afbeb5a2858224b55793333c2a3e770" title="Read a csv file, determine the # of rows and columns, allocate the matrix accordingly and populate th..." alt="" coords="235,70,365,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,63,222,70,221,75,167,68"/>
+</map>

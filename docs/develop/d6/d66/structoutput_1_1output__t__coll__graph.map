@@ -1,0 +1,5 @@
+<map id="output::output_t" name="output::output_t">
+<area shape="rect" id="Node000001" title="Abstract type defining an output type." alt="" coords="5,93,132,119"/>
+<area shape="rect" id="Node000002" href="$d6/dae/structfile_1_1file__t.html" title="A wrapper around a polymorphic generic_file_t that handles its init. This is essentially a factory fo..." alt="" coords="27,5,110,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="71,45,71,93,66,93,66,45"/>
+</map>

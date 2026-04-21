@@ -1,0 +1,7 @@
+<map id="hsmg::hsmg_free" name="hsmg::hsmg_free">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,140,67"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="188,5,348,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,42,174,37,175,42,141,47"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="193,70,343,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="141,62,180,67,179,73,140,67"/>
+</map>

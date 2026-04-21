@@ -1,0 +1,9 @@
+<map id="fld_file::fld_file_t" name="fld_file::fld_file_t">
+<area shape="rect" id="Node000001" title="Interface for NEKTON fld files." alt="" coords="39,196,167,221"/>
+<area shape="rect" id="Node000002" href="$d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="5,93,159,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,146,103,195,98,196,87,147"/>
+<area shape="rect" id="Node000003" href="$d2/df5/structmask_1_1mask__t.html" title="Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate..." alt="" coords="183,101,298,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,136,122,198,119,194,211,131"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="213,5,268,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="243,44,243,101,238,101,238,44"/>
+</map>

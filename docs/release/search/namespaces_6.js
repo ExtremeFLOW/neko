@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['gather_5fscatter_0',['gather_scatter',['../d0/d78/namespacegather__scatter.html',1,'']]],
+  ['generic_5ffile_1',['generic_file',['../dc/d92/namespacegeneric__file.html',1,'']]],
+  ['glb_5fintrp_5fcomm_2',['glb_intrp_comm',['../d7/d4a/namespaceglb__intrp__comm.html',1,'']]],
+  ['global_5finterpolation_3',['global_interpolation',['../dd/de1/namespaceglobal__interpolation.html',1,'']]],
+  ['gmres_4',['gmres',['../dc/d48/namespacegmres.html',1,'']]],
+  ['gmres_5fdevice_5',['gmres_device',['../de/df2/namespacegmres__device.html',1,'']]],
+  ['gmres_5fsx_6',['gmres_sx',['../d5/d6a/namespacegmres__sx.html',1,'']]],
+  ['gradient_5fjump_5fpenalty_7',['gradient_jump_penalty',['../d6/def/namespacegradient__jump__penalty.html',1,'']]],
+  ['gradient_5fsimcomp_8',['gradient_simcomp',['../d6/dbf/namespacegradient__simcomp.html',1,'']]],
+  ['gs_5fbcknd_9',['gs_bcknd',['../de/d93/namespacegs__bcknd.html',1,'']]],
+  ['gs_5fcomm_10',['gs_comm',['../d6/d7c/namespacegs__comm.html',1,'']]],
+  ['gs_5fcpu_11',['gs_cpu',['../d5/d22/namespacegs__cpu.html',1,'']]],
+  ['gs_5fdevice_12',['gs_device',['../d8/dcd/namespacegs__device.html',1,'']]],
+  ['gs_5fdevice_5fmpi_13',['gs_device_mpi',['../d9/dfa/namespacegs__device__mpi.html',1,'']]],
+  ['gs_5fdevice_5fnccl_14',['gs_device_nccl',['../de/dcf/namespacegs__device__nccl.html',1,'']]],
+  ['gs_5fdevice_5fshmem_15',['gs_device_shmem',['../d0/d2a/namespacegs__device__shmem.html',1,'']]],
+  ['gs_5fmpi_16',['gs_mpi',['../d0/d25/namespacegs__mpi.html',1,'']]],
+  ['gs_5fops_17',['gs_ops',['../dd/d18/namespacegs__ops.html',1,'']]],
+  ['gs_5fsx_18',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]]
+];

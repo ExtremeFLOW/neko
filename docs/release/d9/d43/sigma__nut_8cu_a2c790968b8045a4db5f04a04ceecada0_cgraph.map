@@ -1,0 +1,6 @@
+<map id="cuda_sigma_nut_compute" name="cuda_sigma_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,197,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="245,29,409,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,47,232,47,232,52,197,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="285,30,283,20,290,10,305,5,327,3,353,6,368,13,365,18,352,11,327,8,306,10,293,15,288,21,291,28"/>
+</map>

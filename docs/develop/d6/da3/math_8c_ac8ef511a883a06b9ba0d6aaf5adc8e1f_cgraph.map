@@ -1,0 +1,9 @@
+<map id="opencl_pwmin_sca2" name="opencl_pwmin_sca2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,159,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="387,29,551,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,47,373,47,373,52,159,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="207,62,339,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="159,57,193,61,192,67,158,62"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="432,30,430,20,436,11,449,5,469,3,492,6,504,13,501,17,490,11,469,8,450,10,439,15,435,21,437,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="339,64,373,59,373,64,339,69"/>
+</map>

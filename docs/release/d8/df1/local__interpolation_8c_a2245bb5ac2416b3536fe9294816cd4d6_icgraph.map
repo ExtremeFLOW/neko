@@ -1,0 +1,9 @@
+<map id="opencl_find_rst_legendre" name="opencl_find_rst_legendre">
+<area shape="rect" id="Node000001" title=" " alt="" coords="676,20,860,45"/>
+<area shape="rect" id="Node000002" href="$d2/d4a/namespacedevice__local__interpolation.html#aa67d59c6c6cc83f90345c633abf9a450" title=" " alt="" coords="435,13,628,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="663,35,628,35,628,30,663,30"/>
+<area shape="rect" id="Node000003" href="$d4/d3b/namespacelegendre__rst__finder.html#a16c7228d61ce79023ccf315ee90a5c23" title="Using the Legendre polynomials to find the rst coordinates on GPU." alt="" coords="240,5,387,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="421,35,387,35,387,30,421,30"/>
+<area shape="rect" id="Node000004" href="$d4/d3b/namespacelegendre__rst__finder.html#ac32ea7dd963da3dcb750ca92c10bec1c" title="Given a set of element candidates containing the given points and computes the local RST coordinates ..." alt="" coords="5,13,192,53"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="226,35,192,35,192,30,226,30"/>
+</map>

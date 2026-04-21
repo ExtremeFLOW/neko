@@ -1,0 +1,10 @@
+<map id="speclib::hgll" name="speclib::hgll">
+<area shape="rect" id="Node000001" title="Compute the value of the Lagrangian interpolant L through the NZ Gauss&#45;Lobatto Legendre points ZGLL a..." alt="" coords="5,67,105,92"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="29,68,23,58,26,49,37,42,55,40,77,43,86,52,83,56,75,48,55,45,39,47,30,52,29,58,33,65"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a03b98455850ad60cc17dc2993efd4dce" title="Compute the derivative of the Nth order Legendre polynomial at Z. (Simpler than JACOBF) Based on the ..." alt="" coords="153,29,273,55"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="105,65,145,55,146,61,106,70"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a9cd5b9e4223625494d9a0acd3be8f85e" title="Compute the value of the Nth order Legendre polynomial at Z. (Simpler than JACOBF) Based on the recur..." alt="" coords="157,103,269,128"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="106,88,144,97,143,102,105,93"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="187,31,181,21,184,11,195,5,213,3,235,6,244,15,241,19,233,11,213,8,197,10,188,15,187,20,191,28"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="187,104,181,94,184,85,195,78,213,76,235,79,244,88,241,92,233,84,213,81,197,83,188,88,187,94,191,101"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="device::device_memset" name="device::device_memset">
+<area shape="rect" id="Node000001" title="Set memory on the device to a value." alt="" coords="5,13,183,38"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a64443968b2f6b9f8c1c410f0c6d213a2" title="Synchronize a device stream." alt="" coords="231,5,384,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,23,217,23,217,28,183,28"/>
+</map>

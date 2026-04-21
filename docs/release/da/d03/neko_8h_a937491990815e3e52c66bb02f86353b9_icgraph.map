@@ -1,0 +1,7 @@
+<map id="neko_solve" name="neko_solve">
+<area shape="rect" id="Node000001" title=" " alt="" coords="200,42,295,67"/>
+<area shape="rect" id="Node000002" href="$d5/dd3/namespaceneko__api.html#aa2e5d30535577ecbd6961683b9b644a7" title="Solve a neko case." alt="" coords="5,5,152,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,47,152,41,153,35,187,42"/>
+<area shape="rect" id="Node000003" href="$d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="35,70,122,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,67,122,78,122,73,186,62"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="tree_amg::tamg_lvl_init" name="tree_amg::tamg_lvl_init">
+<area shape="rect" id="Node000001" title="Initialization of a TreeAMG level." alt="" coords="447,45,624,70"/>
+<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#a98e7b195bc43fad16dcf171919c3e38d" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="212,5,391,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="433,46,391,40,391,35,434,41"/>
+<area shape="rect" id="Node000004" href="$d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a0d96163f772b2c0804305f6ac7b6ac98" title=" " alt="" coords="204,69,399,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="434,74,399,79,398,73,433,69"/>
+<area shape="rect" id="Node000003" href="$d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,5,156,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="198,28,156,28,156,23,198,23"/>
+</map>

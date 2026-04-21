@@ -1,0 +1,6 @@
+<map id="hip_vcross" name="hip_vcross">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,96,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="144,29,308,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,47,130,47,130,52,96,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="193,30,191,20,196,11,208,5,226,3,247,6,258,13,255,17,245,11,226,8,210,10,200,15,196,21,198,28"/>
+</map>

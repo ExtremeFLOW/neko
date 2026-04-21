@@ -1,0 +1,9 @@
+<map id="facet_zone::facet_zone_free" name="facet_zone::facet_zone_free">
+<area shape="rect" id="Node000001" title="Deallocate a facet zone." alt="" coords="473,42,679,67"/>
+<area shape="rect" id="Node000002" href="$df/db1/namespacefacet__zone.html#a0f8e08b9decf46be1bd48b1baec0a26a" title="Initialize a facet zone." alt="" coords="225,13,425,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="459,44,425,40,426,34,460,38"/>
+<area shape="rect" id="Node000004" href="$df/db1/namespacefacet__zone.html#ad0c5a38f989acadbbb970d46fc0af6c7" title="Deallocate a zone." alt="" coords="239,63,411,103"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="460,70,412,76,411,70,459,65"/>
+<area shape="rect" id="Node000003" href="$df/db1/namespacefacet__zone.html#a47881f6787d3c53532ff75da683a9680" title="Initialize a periodic zone." alt="" coords="5,5,177,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="212,28,178,28,178,23,212,23"/>
+</map>

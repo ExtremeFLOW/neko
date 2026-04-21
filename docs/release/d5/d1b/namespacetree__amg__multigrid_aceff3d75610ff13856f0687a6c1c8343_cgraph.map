@@ -1,0 +1,23 @@
+<map id="tree_amg_multigrid::tamg_mg_solve" name="tree_amg_multigrid::tamg_mg_solve">
+<area shape="rect" id="Node000001" title="Solver function for the TreeAMG solver object." alt="" coords="5,115,156,155"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="422,5,579,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,112,146,77,174,60,203,47,255,32,308,23,408,18,408,23,309,29,256,37,205,52,176,65,149,82,105,116"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="452,174,549,199"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,141,439,176,438,182,156,147"/>
+<area shape="rect" id="Node000004" href="$d5/d1b/namespacetree__amg__multigrid.html#a06bb4fd3fe04b4bc0a36cafaccf475eb" title="Recrsive multigrid cycle for the TreeAMG solver object." alt="" coords="204,224,355,264"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="119,152,232,215,229,220,117,157"/>
+<area shape="rect" id="Node000007" href="$d5/d1b/namespacetree__amg__multigrid.html#aa05c674514ae6f8c5569c4b9afec19a5" title="Recrsive multigrid cycle for the TreeAMG solver object on device." alt="" coords="204,85,355,125"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="156,121,190,116,191,121,156,126"/>
+<area shape="poly" id="edge6_Node000004_Node000003" title=" " alt="" coords="354,222,438,200,439,205,355,227"/>
+<area shape="poly" id="edge7_Node000004_Node000004" title=" " alt="" coords="242,224,240,214,246,205,259,199,279,197,303,200,315,208,313,212,301,205,279,203,260,205,249,209,245,215,247,223"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="453,230,549,255"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="355,241,439,240,439,246,355,246"/>
+<area shape="rect" id="Node000006" href="$d5/d1b/namespacetree__amg__multigrid.html#a085e46ea755e94f5227bdd58963dc9fc" title="Wrapper function to calculate residyal." alt="" coords="425,280,576,320"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="355,260,413,275,411,280,354,266"/>
+<area shape="poly" id="edge10_Node000007_Node000002" title=" " alt="" coords="331,83,402,56,426,47,428,52,404,61,333,88"/>
+<area shape="poly" id="edge12_Node000007_Node000007" title=" " alt="" coords="242,86,240,76,246,67,259,61,279,59,303,62,315,69,313,74,301,67,279,64,260,66,249,71,245,77,247,84"/>
+<area shape="rect" id="Node000008" href="$d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="403,71,599,97"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="354,95,389,92,389,97,355,101"/>
+<area shape="rect" id="Node000009" href="$d2/d73/namespacedevice__math.html#a15f0219911143a157a87c04479635102" title="Vector subtraction ." alt="" coords="403,121,598,146"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="355,112,390,117,390,122,354,117"/>
+</map>

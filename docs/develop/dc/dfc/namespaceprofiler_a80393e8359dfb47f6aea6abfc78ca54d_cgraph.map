@@ -1,0 +1,5 @@
+<map id="profiler::profiler_start" name="profiler::profiler_start">
+<area shape="rect" id="Node000001" title="Start profiling." alt="" coords="5,5,128,45"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a6e8f2cb5ecf9fa00e06346d10dc8d478" title="Start device profiling." alt="" coords="176,5,345,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,23,162,23,162,28,128,28"/>
+</map>

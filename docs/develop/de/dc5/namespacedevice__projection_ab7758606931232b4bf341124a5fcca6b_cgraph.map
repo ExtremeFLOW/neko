@@ -1,0 +1,11 @@
+<map id="device_projection::device_project_ortho" name="device_projection::device_project_ortho">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,164,75"/>
+<area shape="rect" id="Node000002" href="$d9/dab/projection_8cu.html#a63794abd66ff5f2611aa96a8280f0ba2" title=" " alt="" coords="212,42,359,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,52,198,52,198,57,164,57"/>
+<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="407,5,571,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,41,393,36,394,42,359,47"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="619,35,783,75"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="359,54,407,55,571,55,605,54,605,60,571,60,407,60,359,59"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="571,34,606,39,605,44,571,39"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="661,35,659,25,665,16,679,10,701,8,725,11,739,18,736,23,724,16,701,13,680,15,668,20,664,26,666,34"/>
+</map>

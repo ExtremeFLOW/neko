@@ -1,0 +1,13 @@
+<map id="brinkman_source_term::init_point_zone" name="brinkman_source_term::init_point_zone">
+<area shape="rect" id="Node000001" title="Initializes the source term from a point zone." alt="" coords="5,55,177,95"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#adcea1b6eb422b5097c9241c0798631ae" title="Fill a constant to a masked vector. ." alt="" coords="255,5,386,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,53,255,31,257,37,173,58"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a7561ba2bdd6fe5d32b286d8f0f7e10b4" title="Fill a constant to a masked vector. ." alt="" coords="242,55,399,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,73,228,73,228,78,178,78"/>
+<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#a978fc2b6f0ad5b6c281a17a8db6a3c15" title="Point&#45;wise max operation ." alt="" coords="225,120,416,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="173,93,257,114,255,119,171,98"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#af6c2291122daaceb4dd620805f8c5b6e" title="Compute the point&#45;wise maximum of two vectors ." alt="" coords="464,83,621,123"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="416,117,450,113,451,118,417,123"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#a860a0d4194678be13a04d1fe06e7314a" title="Point&#45;wise maximum of two vectors ." alt="" coords="483,148,603,173"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="417,142,470,149,469,154,416,147"/>
+</map>

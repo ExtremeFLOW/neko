@@ -1,0 +1,5 @@
+<map id="smagorinsky_device::smagorinsky_compute_device" name="smagorinsky_device::smagorinsky_compute_device">
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the device." alt="" coords="248,5,425,60"/>
+<area shape="rect" id="Node000002" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="5,13,200,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,35,200,35,200,30,234,30"/>
+</map>

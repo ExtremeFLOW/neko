@@ -1,0 +1,23 @@
+<map id="/home/runner/work/neko/neko/src/math/bcknd/device/hip/math_kernel.h" name="/home/runner/work/neko/neko/src/math/bcknd/device/hip/math_kernel.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="536,5,744,60"/>
+<area shape="rect" id="Node000002" href="$d9/d09/projection_8hip.html" title=" " alt="" coords="5,115,192,170"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="523,52,371,76,205,111,178,118,176,113,203,105,370,71,522,47"/>
+<area shape="rect" id="Node000003" href="$de/d7d/hip_2fusedcg__cpld__kernel_8h.html" title=" " alt="" coords="217,108,399,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="546,67,411,111,401,114,399,109,410,105,545,62"/>
+<area shape="rect" id="Node000005" href="$db/d87/hip_2fusedcg__kernel_8h.html" title=" " alt="" coords="423,115,630,170"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="604,72,556,117,553,113,600,68"/>
+<area shape="rect" id="Node000007" href="$d0/d70/hip_2gmres__kernel_8h.html" title=" " alt="" coords="655,115,852,170"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="680,68,727,113,724,117,676,72"/>
+<area shape="rect" id="Node000009" href="$d5/d02/hip_2pipecg__kernel_8h.html" title=" " alt="" coords="877,115,1075,170"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="736,62,895,113,894,118,734,67"/>
+<area shape="rect" id="Node000011" href="$de/d9b/math_8hip.html" title=" " alt="" coords="1100,115,1308,170"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="758,47,916,72,1089,105,1118,113,1117,118,1087,111,915,77,758,52"/>
+<area shape="rect" id="Node000004" href="$d4/dc3/fusedcg__cpld__aux_8hip.html" title=" " alt="" coords="217,225,399,295"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="311,191,311,225,305,225,305,191"/>
+<area shape="rect" id="Node000006" href="$db/df7/fusedcg__aux_8hip.html" title=" " alt="" coords="425,233,628,287"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="529,184,529,232,524,232,524,184"/>
+<area shape="rect" id="Node000008" href="$da/d1d/gmres__aux_8hip.html" title=" " alt="" coords="657,233,850,287"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="756,184,756,232,751,232,751,184"/>
+<area shape="rect" id="Node000010" href="$da/d9a/pipecg__aux_8hip.html" title=" " alt="" coords="879,233,1073,287"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="979,184,979,232,973,232,973,184"/>
+</map>

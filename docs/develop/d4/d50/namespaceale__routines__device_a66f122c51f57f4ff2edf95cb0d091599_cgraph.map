@@ -1,0 +1,7 @@
+<map id="ale_routines_device::update_ale_mesh_device" name="ale_routines_device::update_ale_mesh_device">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,200,75"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a1bd061bc66a9917394de645ffd09e1f0" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="248,5,405,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,39,234,35,235,40,201,45"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="278,70,375,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,64,265,72,264,78,200,70"/>
+</map>

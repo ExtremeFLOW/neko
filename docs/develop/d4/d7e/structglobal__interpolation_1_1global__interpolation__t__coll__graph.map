@@ -1,0 +1,35 @@
+<map id="global_interpolation::global_interpolation_t" name="global_interpolation::global_interpolation_t">
+<area shape="rect" id="Node000001" title="Implements global interpolation for arbitrary points in the domain." alt="" coords="873,345,1045,385"/>
+<area shape="rect" id="Node000002" href="$d3/d5b/structvector_1_1vector__t.html" title=" " alt="" coords="241,90,365,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="378,91,479,88,539,90,603,96,668,107,732,124,794,149,851,182,890,219,920,264,941,309,955,344,950,346,936,311,915,267,886,223,848,186,792,153,730,129,667,112,602,101,539,95,479,93,378,97"/>
+<area shape="rect" id="Node000009" href="$da/d41/structlegendre__rst__finder_1_1legendre__rst__finder__t.html" title="Type to compute local element (rst) coordinates for a gives set points in physical (xyz) space on a S..." alt="" coords="549,177,716,217"/>
+<area shape="poly" id="edge13_Node000009_Node000002" title=" " alt="" coords="332,122,366,144,405,163,478,182,549,191,548,197,477,187,403,168,363,149,329,126"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="34,301,89,326"/>
+<area shape="poly" id="edge8_Node000001_Node000003" title=" " alt="" coords="103,318,142,324,273,348,330,357,404,364,492,368,560,368,716,364,873,363,873,369,716,369,560,373,492,374,404,369,329,362,272,353,141,329,102,323"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="63,287,71,250,84,206,107,162,122,143,140,126,163,112,188,103,240,96,241,101,190,108,165,117,143,130,126,146,111,165,89,208,76,251,68,288"/>
+<area shape="rect" id="Node000005" href="$da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="243,241,362,266"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="102,306,201,287,269,264,271,269,202,292,103,311"/>
+<area shape="rect" id="Node000008" href="$d4/df5/structlocal__interpolation_1_1local__interpolator__t.html" title="Interpolation on a set of points with known rst coordinates in elements local to this process...." alt="" coords="555,315,711,355"/>
+<area shape="poly" id="edge11_Node000008_Node000003" title=" " alt="" coords="103,313,225,319,555,330,555,335,225,324,103,318"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="255,450,350,475"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="364,461,458,459,580,452,715,437,849,409,918,383,920,388,850,415,716,442,580,457,458,464,364,466"/>
+<area shape="rect" id="Node000010" href="$db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html" title="Global interpolation communication method." alt="" coords="555,507,710,547"/>
+<area shape="poly" id="edge20_Node000010_Node000004" title=" " alt="" coords="364,472,556,509,555,514,363,477"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="376,255,471,262,590,275,721,296,850,324,908,343,906,348,849,329,720,301,589,281,471,267,376,260"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="349,268,405,287,482,305,555,320,554,325,481,311,403,292,347,273"/>
+<area shape="poly" id="edge14_Node000009_Node000005" title=" " alt="" coords="375,238,549,209,550,214,376,244"/>
+<area shape="rect" id="Node000006" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="237,609,368,634"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="382,626,484,627,544,623,607,615,671,602,734,582,793,555,848,519,881,487,909,450,947,384,951,387,913,453,885,490,851,523,796,559,736,587,672,607,608,620,544,628,484,632,381,631"/>
+<area shape="poly" id="edge16_Node000010_Node000006" title=" " alt="" coords="381,607,452,593,524,573,593,544,595,549,526,579,453,599,383,613"/>
+<area shape="rect" id="Node000007" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,609,117,634"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="131,619,237,619,237,624,131,624"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="725,341,873,355,873,360,724,346"/>
+<area shape="poly" id="edge12_Node000001_Node000009" title=" " alt="" coords="730,199,792,211,822,221,851,235,883,259,911,289,949,344,945,347,907,292,880,263,848,240,820,226,790,216,729,204"/>
+<area shape="poly" id="edge15_Node000001_Node000010" title=" " alt="" coords="723,516,786,502,848,476,877,456,904,431,942,384,946,387,907,435,881,460,851,481,788,507,724,521"/>
+<area shape="rect" id="Node000011" href="$dc/d33/structglb__intrp__comm_1_1glb__intrp__comm__mpi__t.html" title="MPI buffer for non&#45;blocking operations." alt="" coords="225,520,380,560"/>
+<area shape="poly" id="edge17_Node000010_Node000011" title=" " alt="" coords="394,539,525,536,555,534,555,539,525,541,394,544"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="14,533,109,558"/>
+<area shape="poly" id="edge18_Node000011_Node000012" title=" " alt="" coords="122,541,225,539,225,544,122,547"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="10,483,113,509"/>
+<area shape="poly" id="edge19_Node000011_Node000013" title=" " alt="" coords="127,505,226,523,225,529,126,510"/>
+</map>

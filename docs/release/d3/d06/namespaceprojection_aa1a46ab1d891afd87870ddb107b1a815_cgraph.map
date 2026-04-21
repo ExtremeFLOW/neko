@@ -1,0 +1,7 @@
+<map id="projection::proj_ortho" name="projection::proj_ortho">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,167,70"/>
+<area shape="rect" id="Node000002" href="$d3/d06/namespaceprojection.html#a6396f296d86ba145c3b94efba36735e0" title=" " alt="" coords="215,5,365,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,42,201,37,201,42,167,47"/>
+<area shape="rect" id="Node000003" href="$d3/d06/namespaceprojection.html#a56c5a9d893225a3cb2d53d147736ea43" title=" " alt="" coords="221,69,359,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,67,207,74,206,79,166,73"/>
+</map>

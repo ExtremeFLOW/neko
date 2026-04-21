@@ -1,0 +1,9 @@
+<map id="device_math::device_vlsc3" name="device_math::device_vlsc3">
+<area shape="rect" id="Node000001" title="Compute multiplication sum ." alt="" coords="455,49,612,89"/>
+<area shape="rect" id="Node000002" href="$d4/d3b/namespacelegendre__rst__finder.html#a16c7228d61ce79023ccf315ee90a5c23" title="Using the Legendre polynomials to find the rst coordinates on GPU." alt="" coords="250,5,397,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="440,55,396,48,397,43,441,50"/>
+<area shape="rect" id="Node000004" href="$da/d46/namespacepipecg__device.html#af8b348213f1bde50d210f885ae0dd66a" title="Pipelined PCG solve." alt="" coords="240,85,407,125"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="441,87,407,93,406,88,440,82"/>
+<area shape="rect" id="Node000003" href="$d4/d3b/namespacelegendre__rst__finder.html#ac32ea7dd963da3dcb750ca92c10bec1c" title="Given a set of element candidates containing the given points and computes the local RST coordinates ..." alt="" coords="5,13,192,53"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="236,35,192,35,192,30,236,30"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="spectral_error::speri_var" name="spectral_error::speri_var">
+<area shape="rect" id="Node000001" title="Calculate the indicator in a specified variable." alt="" coords="452,13,632,38"/>
+<area shape="rect" id="Node000002" href="$d0/d29/namespacespectral__error.html#a9c4fc4b1e07dec6ebe3e7cae818eb957" title="Wrapper for old fortran 77 subroutines." alt="" coords="225,5,404,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="439,28,404,28,404,23,439,23"/>
+<area shape="rect" id="Node000003" href="$d0/d29/namespacespectral__error.html#a137518f81fd0015c87d9b6fb25c27643" title="Transform and get the spectral error indicators." alt="" coords="5,5,177,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="211,28,178,28,178,23,211,23"/>
+</map>

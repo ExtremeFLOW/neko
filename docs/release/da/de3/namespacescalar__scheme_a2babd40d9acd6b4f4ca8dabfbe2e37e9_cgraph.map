@@ -1,0 +1,7 @@
+<map id="scalar_scheme::scalar_scheme_init" name="scalar_scheme::scalar_scheme_init">
+<area shape="rect" id="Node000001" title="Initialize all related components of the current scheme." alt="" coords="5,37,172,77"/>
+<area shape="rect" id="Node000002" href="$da/de3/namespacescalar__scheme.html#a4278b5ea1a27b4c90edd87e4f0866d02" title="Initialize a Krylov preconditioner." alt="" coords="220,5,404,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,43,206,38,207,43,173,48"/>
+<area shape="rect" id="Node000003" href="$da/de3/namespacescalar__scheme.html#a5f6ead3b733850e84a4bfb55ce3c1bbe" title="Initialize a linear solver." alt="" coords="222,69,402,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,67,209,72,208,77,172,72"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="octree::octree_t" name="octree::octree_t">
+<area shape="rect" id="Node000001" title="Defines an octree." alt="" coords="5,271,129,296"/>
+<area shape="rect" id="Node000002" href="$d5/dae/structoctree_1_1oct__t.html" title="Defines an octree octant." alt="" coords="113,183,216,208"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,219,124,234,82,272,78,268,120,230,138,215"/>
+<area shape="rect" id="Node000003" href="$d6/deb/structoctree_1_1oct__ptr__t.html" title=" " alt="" coords="154,271,282,296"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="160,221,160,234,163,245,174,259,189,268,186,273,171,263,158,248,154,235,155,221"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="202,260,186,233,171,210,175,207,191,231,207,257"/>
+<area shape="rect" id="Node000004" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="111,80,219,105"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="167,119,167,183,162,183,162,119"/>
+<area shape="rect" id="Node000005" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="106,5,223,31"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="167,45,167,80,162,80,162,45"/>
+</map>

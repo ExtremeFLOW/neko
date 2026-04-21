@@ -1,0 +1,8 @@
+<map id="flow_ic::set_flow_ic_uniform" name="flow_ic::set_flow_ic_uniform">
+<area shape="rect" id="Node000001" title="Uniform initial condition." alt="" coords="395,5,541,45"/>
+<area shape="rect" id="Node000002" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,5,152,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="381,25,347,24,200,24,152,25,152,20,200,19,347,19,381,19"/>
+<area shape="rect" id="Node000003" href="$d2/d13/namespaceflow__ic.html#a336762f1b72735e67d1066d53d13697f" title="Set the initial condition of the flow based on a point zone." alt="" coords="200,33,347,73"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="382,40,347,45,347,40,381,35"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="186,44,152,39,153,33,187,38"/>
+</map>

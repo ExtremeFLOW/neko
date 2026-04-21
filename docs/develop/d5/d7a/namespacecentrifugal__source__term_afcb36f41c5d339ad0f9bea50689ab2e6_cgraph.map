@@ -1,0 +1,13 @@
+<map id="centrifugal_source_term::centrifugal_source_term_compute" name="centrifugal_source_term::centrifugal_source_term_compute">
+<area shape="rect" id="Node000001" title="Computes the source term and adds the result to fields." alt="" coords="5,45,193,100"/>
+<area shape="rect" id="Node000002" href="$d7/dc5/namespacecentrifugal__source__term__cpu.html#a7d894a1c67d2ed6a5460a4d7866756c1" title="Computes the centrifugal source term on the cpu." alt="" coords="251,5,455,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,55,237,48,238,54,194,61"/>
+<area shape="rect" id="Node000003" href="$d6/d36/namespacecentrifugal__source__term__device.html#a0ede37d4bfa65edfd3239e3396e21d84" title="Computes the centrifugal source term on the device." alt="" coords="241,84,465,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="194,84,228,90,227,95,193,90"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="513,41,709,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="465,84,540,67,541,72,466,89"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a35993289bdfe4bc7ddb0cbd81b00103d" title="Returns ." alt="" coords="533,91,690,131"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="466,109,519,109,519,114,466,114"/>
+<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#a787014245281624690da49eecb14ce53" title="Add a scalar to vector ." alt="" coords="533,155,690,195"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="465,136,520,150,518,155,463,141"/>
+</map>

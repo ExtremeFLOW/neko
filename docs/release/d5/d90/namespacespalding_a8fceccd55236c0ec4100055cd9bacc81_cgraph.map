@@ -1,0 +1,13 @@
+<map id="spalding::spalding_compute_nu" name="spalding::spalding_compute_nu">
+<area shape="rect" id="Node000001" title="Compute the kinematic viscosity vector." alt="" coords="5,63,145,103"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="193,5,376,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,61,197,47,198,52,146,66"/>
+<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#a824ad7301f69975233a67c12ba5d2398" title="Invert a vector ." alt="" coords="194,70,375,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="145,80,180,80,180,85,145,85"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="203,120,367,160"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="146,99,198,114,197,119,145,104"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a862aa297d6962c5d7f9ae79f53394886" title="Vector division ." alt="" coords="424,33,581,73"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="375,68,410,63,411,68,376,73"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a7ffea33ac18dcd5fa6f1ef5ba601a1a8" title="Invert a vector ." alt="" coords="447,98,558,123"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="376,92,434,99,433,104,375,97"/>
+</map>

@@ -1,0 +1,33 @@
+<map id="ax_helm_sx::ax_helm_sx_compute" name="ax_helm_sx::ax_helm_sx_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,343,169,383"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a7addeb46379b324b5c69d5ec07cef0bd" title="Returns ." alt="" coords="271,5,385,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,343,97,283,118,201,134,157,156,114,183,74,216,40,235,28,256,20,258,25,237,33,219,44,187,78,160,117,139,159,123,202,102,284,93,343"/>
+<area shape="rect" id="Node000003" href="$d5/dd0/namespaceax__helm__sx.html#a94a917659df4b4c602e8d0e77edfac64" title=" " alt="" coords="225,55,431,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="89,343,101,291,124,222,141,186,162,150,186,117,216,89,222,84,225,89,219,93,190,121,166,153,146,188,129,224,106,292,95,344"/>
+<area shape="rect" id="Node000004" href="$d5/dd0/namespaceax__helm__sx.html#ac15adb7c11d300429a31cf329e31ca40" title=" " alt="" coords="217,104,439,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="92,342,106,299,131,244,167,187,190,161,216,139,224,133,227,138,219,143,194,165,172,190,136,246,111,301,97,344"/>
+<area shape="rect" id="Node000005" href="$d5/dd0/namespaceax__helm__sx.html#a147eafed268853b3859c8463939ded2c" title=" " alt="" coords="217,153,439,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="95,342,113,308,139,266,174,223,216,188,226,182,229,186,219,192,178,227,144,269,118,310,100,344"/>
+<area shape="rect" id="Node000006" href="$d5/dd0/namespaceax__helm__sx.html#ab85a2b590e8ec235d6a8b827af1b513f" title=" " alt="" coords="217,203,439,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="102,341,149,289,180,260,216,237,231,230,233,235,219,242,184,265,152,292,106,345"/>
+<area shape="rect" id="Node000007" href="$d5/dd0/namespaceax__helm__sx.html#aedc427fd7557b0784540741ebdcd6da9" title=" " alt="" coords="217,252,439,277"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="116,341,162,313,216,286,239,278,241,284,218,291,165,317,119,345"/>
+<area shape="rect" id="Node000008" href="$d5/dd0/namespaceax__helm__sx.html#a860f16717e2f5b2631852e050659a541" title=" " alt="" coords="217,301,439,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="169,344,251,327,253,332,170,349"/>
+<area shape="rect" id="Node000009" href="$d5/dd0/namespaceax__helm__sx.html#a7d6c07cf421405f1e68806076050af6f" title=" " alt="" coords="221,351,435,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="170,361,207,361,207,366,170,366"/>
+<area shape="rect" id="Node000010" href="$d5/dd0/namespaceax__helm__sx.html#a73904d7140f152679f304f02676ae855" title=" " alt="" coords="221,400,435,425"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="170,378,253,395,251,400,169,383"/>
+<area shape="rect" id="Node000011" href="$d5/dd0/namespaceax__helm__sx.html#a0db66281fb9781c4606c5b4eca4e4020" title=" " alt="" coords="221,449,435,475"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="119,381,165,409,218,434,246,443,244,448,216,439,162,413,117,386"/>
+<area shape="rect" id="Node000012" href="$d5/dd0/namespaceax__helm__sx.html#a7360ffc2d8a28d6b868159e2f4391a6c" title=" " alt="" coords="221,499,435,524"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="106,382,153,434,184,461,219,484,236,492,234,497,216,488,181,465,149,437,102,386"/>
+<area shape="rect" id="Node000013" href="$d5/dd0/namespaceax__helm__sx.html#a5d37481262deb179187ffb879e23b673" title=" " alt="" coords="221,548,435,573"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="100,382,118,416,144,457,178,498,219,533,232,540,229,545,216,538,174,502,140,460,113,418,95,385"/>
+<area shape="rect" id="Node000014" href="$d5/dd0/namespaceax__helm__sx.html#a9c9725865538cecfc5bd939b44483608" title=" " alt="" coords="221,597,435,623"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="97,383,112,425,137,480,172,536,194,561,219,583,229,589,226,594,216,587,190,565,168,539,132,482,107,427,92,384"/>
+<area shape="rect" id="Node000015" href="$d5/dd0/namespaceax__helm__sx.html#aa9e67508ed8a8244cacae168427eaebb" title=" " alt="" coords="221,647,435,672"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="95,383,107,434,130,502,146,538,166,572,191,604,219,632,228,638,225,642,216,636,187,608,162,575,141,540,125,504,102,436,90,384"/>
+<area shape="rect" id="Node000016" href="$d5/dd0/namespaceax__helm__sx.html#ad2faf0c74f2c9c19dcb81bba3b687b8a" title=" " alt="" coords="221,696,435,721"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="93,383,102,442,123,523,139,567,161,609,187,648,219,681,227,687,223,691,216,685,183,651,156,611,135,569,118,525,97,443,88,384"/>
+</map>

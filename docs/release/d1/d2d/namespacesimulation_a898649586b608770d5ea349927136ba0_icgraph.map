@@ -1,0 +1,5 @@
+<map id="simulation::simulation_finalize" name="simulation::simulation_finalize">
+<area shape="rect" id="Node000001" title="Finalize a simulation of a case." alt="" coords="188,5,356,45"/>
+<area shape="rect" id="Node000002" href="$dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="5,13,140,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,28,140,28,140,23,174,23"/>
+</map>

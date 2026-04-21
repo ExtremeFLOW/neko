@@ -1,0 +1,26 @@
+<map id="operators::grad" name="operators::grad">
+<area shape="rect" id="Node000001" title="Compute the gradient of a scalar field." alt="" coords="5,105,127,131"/>
+<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="175,105,313,131"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,115,161,115,161,121,127,121"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="361,49,533,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="296,103,350,89,352,95,298,108"/>
+<area shape="rect" id="Node000008" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="363,130,531,170"/>
+<area shape="poly" id="edge10_Node000002_Node000008" title=" " alt="" coords="314,126,350,132,350,137,313,132"/>
+<area shape="rect" id="Node000004" href="$d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="801,5,907,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="533,49,581,41,690,28,787,20,787,25,690,33,582,46,534,54"/>
+<area shape="rect" id="Node000006" href="$d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="601,56,720,81"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="534,66,588,66,588,71,534,71"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="968,49,1132,89"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="905,28,960,43,958,48,903,33"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1013,49,1011,39,1017,30,1030,24,1050,22,1073,25,1085,32,1083,37,1071,30,1050,27,1031,29,1020,34,1016,40,1018,48"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="720,66,955,66,955,71,720,71"/>
+<area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="788,107,920,132"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="711,79,792,101,791,106,709,84"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="903,104,958,90,960,95,905,109"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="603,105,718,131"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="532,135,590,126,590,131,532,140"/>
+<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="615,155,706,180"/>
+<area shape="poly" id="edge12_Node000008_Node000010" title=" " alt="" coords="532,154,601,160,601,165,532,160"/>
+<area shape="rect" id="Node000011" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="581,204,740,229"/>
+<area shape="poly" id="edge13_Node000008_Node000011" title=" " alt="" coords="512,168,582,190,605,197,604,202,581,195,510,173"/>
+</map>

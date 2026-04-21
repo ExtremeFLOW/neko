@@ -1,0 +1,15 @@
+<map id="signed_distance::element_distance_triangle" name="signed_distance::element_distance_triangle">
+<area shape="rect" id="Node000001" title="Signed distance function for a triangle." alt="" coords="1117,37,1307,77"/>
+<area shape="rect" id="Node000002" href="$d4/def/namespacesigned__distance.html#ad5e6764cd33f9ac265f9a0c0545a197e" title="Main interface for the signed distance function for an element." alt="" coords="880,37,1069,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1104,60,1069,60,1069,55,1104,55"/>
+<area shape="rect" id="Node000003" href="$d4/def/namespacesigned__distance.html#a7d05cfbb969c2c9d5fd4c6248032efe5" title="Signed distance function using an AABB tree." alt="" coords="683,5,832,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="866,44,832,39,833,34,867,39"/>
+<area shape="rect" id="Node000007" href="$d4/def/namespacesigned__distance.html#ad9a75ce8232cfd4f592578301d865c46" title="Signed distance function." alt="" coords="683,69,832,109"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="867,76,833,81,832,76,866,71"/>
+<area shape="rect" id="Node000004" href="$d4/def/namespacesigned__distance.html#a0aadae5f88457c621981eef96209853e" title="Signed distance field for a triangular mesh." alt="" coords="452,5,635,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="669,28,635,28,635,23,669,23"/>
+<area shape="rect" id="Node000005" href="$d4/def/namespacesigned__distance.html#aaacd6c5bec83fbff7c2205b5ed63af6a" title="Signed distance field." alt="" coords="225,5,404,45"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="438,28,404,28,404,23,438,23"/>
+<area shape="rect" id="Node000006" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="5,5,177,45"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="211,28,178,28,178,23,211,23"/>
+</map>

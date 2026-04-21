@@ -1,0 +1,41 @@
+<map id="tree_amg_multigrid::tamg_mg_init" name="tree_amg_multigrid::tamg_mg_init">
+<area shape="rect" id="Node000001" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,340,156,380"/>
+<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#a2bbacf70f1edcab65c424b998f5506af" title="Aggregate all dofs to a single point to form a tree&#45;like structure." alt="" coords="215,87,372,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,339,100,297,124,243,158,186,179,160,202,137,209,132,212,136,206,141,183,164,162,189,129,245,105,299,90,341"/>
+<area shape="rect" id="Node000003" href="$da/d77/namespacetree__amg__aggregate.html#a98e7b195bc43fad16dcf171919c3e38d" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="204,151,383,191"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="103,338,258,198,261,202,106,342"/>
+<area shape="rect" id="Node000009" href="$da/d77/namespacetree__amg__aggregate.html#a6b8dcb1915a0e9af672e75db09450d37" title="Aggregates dofs based on adjacent dofs." alt="" coords="215,340,372,380"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="156,357,201,357,201,363,156,363"/>
+<area shape="rect" id="Node000016" href="$da/d77/namespacetree__amg__aggregate.html#a47299926f3ee5d2dc3258c060f494626" title="Aggregates pairs of dofs based on adjacent dofs." alt="" coords="215,276,372,316"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="147,337,212,317,214,323,149,342"/>
+<area shape="rect" id="Node000017" href="$d5/d1b/namespacetree__amg__multigrid.html#aa0ebd4855c075a56ae22ef03102f9309" title="Create index mapping between levels and directly to finest level." alt="" coords="218,404,369,444"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="149,378,214,397,212,403,147,383"/>
+<area shape="rect" id="Node000018" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="219,469,367,494"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="104,378,148,416,205,454,223,462,221,466,203,458,145,421,101,382"/>
+<area shape="rect" id="Node000019" href="$d5/d1b/namespacetree__amg__multigrid.html#ae9544147240c44b12f36fd1177adbc4a" title=" " alt="" coords="218,519,369,559"/>
+<area shape="poly" id="edge20_Node000001_Node000019" title=" " alt="" coords="96,379,140,441,170,475,206,505,214,510,211,514,202,509,167,479,136,444,92,382"/>
+<area shape="rect" id="Node000004" href="$da/d77/namespacetree__amg__aggregate.html#ab760962db302cfd723b1ff3cb8ecb3df" title=" " alt="" coords="448,111,615,166"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="383,156,434,149,435,154,383,161"/>
+<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="462,190,601,215"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="383,180,449,189,448,194,383,185"/>
+<area shape="rect" id="Node000006" href="$dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0" title="Initialization of a TreeAMG level." alt="" coords="443,13,620,38"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="364,148,381,137,397,115,404,93,411,70,429,47,437,42,440,46,432,51,415,72,409,94,402,117,385,141,367,153"/>
+<area shape="rect" id="Node000008" href="$dc/d1a/namespacetree__amg.html#a5ec06e62779cefe9b883e4fbcaea5d7a" title="Initialization of a TreeAMG tree node." alt="" coords="435,62,628,87"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="357,148,381,136,405,116,414,106,429,96,446,89,448,94,432,101,418,110,408,120,384,141,360,153"/>
+<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="680,5,837,45"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="620,23,666,23,666,28,620,28"/>
+<area shape="rect" id="Node000010" href="$da/d77/namespacetree__amg__aggregate.html#aef5c98b12984e9821f9dcc7edc13af2e" title="Create information on which aggregates are &quot;adjacent&quot; to eachother." alt="" coords="453,240,610,280"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="356,337,381,326,405,308,429,290,444,283,446,288,432,294,408,312,384,330,358,342"/>
+<area shape="rect" id="Node000011" href="$da/d77/namespacetree__amg__aggregate.html#a0eee22807919ce075cb45760502a76b6" title="First pass of a greedy aggregation Loop through all dofs and aggregate on dof that has all unaggregat..." alt="" coords="444,527,619,567"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="369,378,385,390,397,406,404,422,409,453,414,484,420,498,433,513,437,517,434,521,429,517,416,501,409,485,404,454,399,424,393,409,381,394,365,382"/>
+<area shape="rect" id="Node000012" href="$da/d77/namespacetree__amg__aggregate.html#aa681abbb5ee7badea593dac1ef8cf7a5" title="Second pass of a greedy aggregation Loop through all unaggregated dofs and add them to a neighboring ..." alt="" coords="433,591,629,631"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="370,378,385,390,401,415,409,439,409,486,408,509,409,532,416,554,433,577,436,581,433,584,429,580,412,557,404,533,402,509,404,486,404,440,396,417,381,394,367,382"/>
+<area shape="rect" id="Node000013" href="$da/d77/namespacetree__amg__aggregate.html#a9c44b615de93c484749f905b71d21511" title=" " alt="" coords="431,304,632,344"/>
+<area shape="poly" id="edge12_Node000009_Node000013" title=" " alt="" coords="372,345,417,339,418,344,373,351"/>
+<area shape="rect" id="Node000014" href="$da/d77/namespacetree__amg__aggregate.html#af6d21d1d1265727bc608a84be68788f8" title=" " alt="" coords="448,369,615,423"/>
+<area shape="poly" id="edge13_Node000009_Node000014" title=" " alt="" coords="373,369,435,379,434,384,372,375"/>
+<area shape="rect" id="Node000015" href="$da/d77/namespacetree__amg__aggregate.html#a5328791ea70be104d40aab230b793ec6" title=" " alt="" coords="448,447,615,502"/>
+<area shape="poly" id="edge14_Node000009_Node000015" title=" " alt="" coords="360,378,384,390,399,401,409,412,418,423,432,434,440,438,437,443,429,438,414,427,405,416,395,405,381,394,358,382"/>
+<area shape="poly" id="edge16_Node000016_Node000010" title=" " alt="" coords="372,281,438,271,439,277,373,287"/>
+<area shape="poly" id="edge17_Node000016_Node000013" title=" " alt="" coords="373,303,418,308,417,313,372,308"/>
+</map>

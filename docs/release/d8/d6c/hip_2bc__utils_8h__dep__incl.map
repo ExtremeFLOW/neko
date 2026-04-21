@@ -1,0 +1,11 @@
+<map id="/home/runner/work/neko/neko/src/bc/bcknd/device/hip/bc_utils.h" name="/home/runner/work/neko/neko/src/bc/bcknd/device/hip/bc_utils.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="116,5,305,60"/>
+<area shape="rect" id="Node000002" href="$d8/d80/hip_2facet__normal__kernel_8h.html" title=" " alt="" coords="5,108,200,163"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,72,133,110,129,106,170,68"/>
+<area shape="rect" id="Node000004" href="$dd/d84/hip_2neumann__kernel_8h.html" title=" " alt="" coords="224,108,413,163"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="251,68,292,106,289,110,247,72"/>
+<area shape="rect" id="Node000003" href="$d5/d08/facet__normal_8hip.html" title=" " alt="" coords="8,211,197,265"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="105,176,105,211,100,211,100,176"/>
+<area shape="rect" id="Node000005" href="$d7/dbf/neumann_8hip.html" title=" " alt="" coords="224,211,413,265"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="321,176,321,211,316,211,316,176"/>
+</map>

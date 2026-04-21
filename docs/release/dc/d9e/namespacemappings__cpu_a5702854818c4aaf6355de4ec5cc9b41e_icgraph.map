@@ -1,0 +1,9 @@
+<map id="mappings_cpu::smooth_step_kernel" name="mappings_cpu::smooth_step_kernel">
+<area shape="rect" id="Node000001" title="Apply a smooth step function to a scalar." alt="" coords="673,5,847,45"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/namespacemappings__cpu.html#aa70cbaeca07fb7793c577cba9df2abbe" title="Apply a smooth step function to a scalar." alt="" coords="452,5,625,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="659,28,626,28,626,23,659,23"/>
+<area shape="rect" id="Node000003" href="$dc/da0/namespacemappings.html#a773f5ef855d5a3df8917b5a879ca7404" title="Apply a smooth step function to a field." alt="" coords="225,5,404,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,28,404,28,404,23,438,23"/>
+<area shape="rect" id="Node000004" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="5,5,177,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="211,28,178,28,178,23,211,23"/>
+</map>

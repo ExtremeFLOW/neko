@@ -1,0 +1,9 @@
+<map id="probes::probes_init_from_json" name="probes::probes_init_from_json">
+<area shape="rect" id="Node000001" title="Constructor from json." alt="" coords="5,27,152,67"/>
+<area shape="rect" id="Node000002" href="$d2/d4d/namespaceprobes.html#a75970ed841060318618a648c631f38dc" title="Print current probe status, with number of probes and coordinates." alt="" coords="200,5,359,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,34,186,29,187,34,152,39"/>
+<area shape="rect" id="Node000003" href="$d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad" title="Initialize the physical coordinates from a csv input file." alt="" coords="206,55,353,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,55,193,61,192,66,152,60"/>
+<area shape="rect" id="Node000004" href="$d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67" title="Read and initialize the number of probes from a csv input file." alt="" coords="407,63,607,88"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="353,73,393,73,393,78,353,78"/>
+</map>

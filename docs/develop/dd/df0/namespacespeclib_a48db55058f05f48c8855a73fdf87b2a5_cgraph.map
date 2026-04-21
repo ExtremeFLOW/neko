@@ -1,0 +1,9 @@
+<map id="speclib::hglj" name="speclib::hglj">
+<area shape="rect" id="Node000001" title="Compute the value of the Lagrangian interpolant HGLJ through the NZ Gauss&#45;Lobatto Jacobi points ZGLJ ..." alt="" coords="5,29,105,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="30,31,24,21,27,11,38,5,55,3,76,6,85,15,82,19,74,11,55,8,40,10,31,15,30,20,34,28"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a49a4444deb7223ea50cca74920697eeb" title="Compute the value of the Lagrangian interpolant HGLJD through the NZ Gauss&#45;Lobatto Jacobi points ZJAC..." alt="" coords="153,29,261,55"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="106,39,139,39,139,45,106,45"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="182,31,176,21,179,11,190,5,207,3,228,6,237,15,234,19,226,11,207,8,192,10,183,15,182,20,186,28"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="309,29,425,55"/>
+<area shape="poly" id="edge4_Node000002_Node000003" title=" " alt="" coords="261,39,296,39,296,45,261,45"/>
+</map>

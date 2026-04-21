@@ -1,0 +1,10 @@
+<map id="octree::octree_init" name="octree::octree_init">
+<area shape="rect" id="Node000001" title="Initialize an octree." alt="" coords="5,55,145,80"/>
+<area shape="rect" id="Node000002" href="$d8/d38/namespaceoctree.html#a36f53ea0ecfacb6b1ee426e8bfa6bf66" title="Destroy an octree." alt="" coords="204,29,349,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,56,190,50,191,55,146,61"/>
+<area shape="rect" id="Node000004" href="$d8/d38/namespaceoctree.html#aab2074f46ccdf70a1002b9a77ac922e7" title="Initialize an octant width a given width, origin and level." alt="" coords="193,79,360,104"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="146,73,180,77,179,82,145,78"/>
+<area shape="rect" id="Node000003" href="$d8/d38/namespaceoctree.html#a705270b5780e9cd2da7f565fdf96e8fb" title="Deallocate an oct in an octree." alt="" coords="408,29,580,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="349,39,394,39,394,45,349,45"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="459,31,451,21,455,11,470,5,494,3,524,6,536,15,533,20,522,11,494,8,471,10,459,15,456,20,463,28"/>
+</map>

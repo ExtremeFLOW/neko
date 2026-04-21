@@ -1,0 +1,8 @@
+<map id="vector_math::vector_glsubnorm" name="vector_math::vector_glsubnorm">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,159,87"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a6d41d97be31289ba22ea68a7dcc2c662" title="Returns the norm of the difference of two vectors ." alt="" coords="207,5,364,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,48,193,41,194,47,160,54"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#acda160f2e287f7fc6fec7ee8e203c845" title="Returns the norm of the difference of two vectors ." alt="" coords="219,94,352,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,79,207,89,206,94,159,84"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="252,96,245,86,249,76,262,70,285,67,314,71,325,80,321,84,311,76,285,73,264,75,252,79,250,85,256,92"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="local_interpolation::local_interpolator_compute_weights" name="local_interpolation::local_interpolator_compute_weights">
+<area shape="rect" id="Node000001" title="Computes interpolation weights &#160;for a list of points." alt="" coords="5,5,149,60"/>
+<area shape="rect" id="Node000002" href="$dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4" title="Compute finite&#45;difference stencil weights for evaluating derivatives up to order &#160;at a point." alt="" coords="197,20,368,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,30,184,30,184,35,150,35"/>
+</map>

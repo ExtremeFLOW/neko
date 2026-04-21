@@ -1,0 +1,16 @@
+<map id="dirichlet::dirichlet_apply_vector_dev" name="dirichlet::dirichlet_apply_vector_dev">
+<area shape="rect" id="Node000001" title="Boundary condition apply for a generic Dirichlet condition to vectors x, y and z (device version)" alt="" coords="5,35,149,75"/>
+<area shape="rect" id="Node000002" href="$d0/d0d/namespacedevice__dirichlet.html#ac244ca02f1e8b65c2fddc1c063724313" title=" " alt="" coords="197,35,373,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,52,184,52,184,57,150,57"/>
+<area shape="rect" id="Node000003" href="$d4/d09/dirichlet_8cu.html#af9361b6d3c80cab028c1d827290fc7b9" title=" " alt="" coords="637,5,793,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,46,624,29,624,34,374,51"/>
+<area shape="rect" id="Node000005" href="$d0/d06/dirichlet_8c.html#af73afe474d2dfb08f3f50a01f180562a" title=" " alt="" coords="421,63,589,103"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="374,63,408,68,407,73,373,69"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="841,63,1005,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="789,43,838,56,837,62,788,48"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="884,63,882,53,888,44,902,38,923,36,948,39,961,46,958,51,946,44,923,41,903,43,891,48,887,54,889,62"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="590,80,828,80,828,85,590,85"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="649,121,781,146"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="589,100,649,115,648,120,588,105"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="768,118,827,103,828,109,769,123"/>
+</map>

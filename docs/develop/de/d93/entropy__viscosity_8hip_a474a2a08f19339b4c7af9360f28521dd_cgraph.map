@@ -1,0 +1,6 @@
+<map id="hip_entropy_visc_smooth_divide" name="hip_entropy_visc_smooth_divide">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,193,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="241,29,405,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,47,228,47,228,52,194,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="281,30,279,20,286,10,301,5,323,3,349,6,364,13,361,18,348,11,323,8,302,10,289,15,284,21,287,28"/>
+</map>

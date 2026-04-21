@@ -1,0 +1,5 @@
+<map id="stats::stats_t" name="stats::stats_t">
+<area shape="rect" id="Node000001" title="Statistics backend." alt="" coords="11,93,118,119"/>
+<area shape="rect" id="Node000002" href="$d3/de2/structstats_1_1quantp__t.html" title="Pointer to an arbitrary quantitiy." alt="" coords="5,5,124,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,45,67,93,62,93,62,45"/>
+</map>

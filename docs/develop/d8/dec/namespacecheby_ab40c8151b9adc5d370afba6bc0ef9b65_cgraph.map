@@ -1,0 +1,10 @@
+<map id="cheby::cheby_power" name="cheby::cheby_power">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,160,80"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="208,5,317,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,52,201,32,202,37,130,57"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="215,55,310,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,65,201,65,201,70,160,70"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="213,128,312,153"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="116,78,219,120,217,125,114,83"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="233,129,227,120,230,110,242,104,263,101,287,105,298,114,294,118,285,110,263,107,244,109,234,113,232,119,237,126"/>
+</map>

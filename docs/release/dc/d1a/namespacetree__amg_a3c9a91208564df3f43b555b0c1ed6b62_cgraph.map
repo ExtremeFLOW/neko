@@ -1,0 +1,7 @@
+<map id="tree_amg::tamg_matvec_impl" name="tree_amg::tamg_matvec_impl">
+<area shape="rect" id="Node000001" title="Matrix vector product using the TreeAMG hierarchy structure b=Ax done as vec_out = A * vec_in This is..." alt="" coords="5,31,224,56"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="275,5,366,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,28,261,23,262,28,219,33"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="272,55,369,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="224,53,259,57,258,63,223,59"/>
+</map>

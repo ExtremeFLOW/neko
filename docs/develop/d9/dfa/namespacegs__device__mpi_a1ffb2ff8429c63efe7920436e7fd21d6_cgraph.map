@@ -1,0 +1,9 @@
+<map id="gs_device_mpi::gs_device_mpi_buf_init" name="gs_device_mpi::gs_device_mpi_buf_init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,197,63"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="257,5,411,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,30,243,25,243,31,198,36"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#af4efdfe9477e7cf1f9d07c5741c519a3" title="Set memory on the device to a value." alt="" coords="245,55,423,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,51,232,54,231,59,197,56"/>
+<area shape="rect" id="Node000004" href="$d0/dbe/namespacedevice.html#a64443968b2f6b9f8c1c410f0c6d213a2" title="Synchronize a device stream." alt="" coords="471,47,624,87"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="423,65,457,65,457,70,423,70"/>
+</map>

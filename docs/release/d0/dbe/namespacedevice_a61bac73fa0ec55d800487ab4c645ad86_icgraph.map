@@ -1,0 +1,7 @@
+<map id="device::device_profiler_stop" name="device::device_profiler_stop">
+<area shape="rect" id="Node000001" title="Stop device profiling." alt="" coords="393,5,597,31"/>
+<area shape="rect" id="Node000002" href="$dc/dfc/namespaceprofiler.html#afd3dc3a9ab67bfba7e27c560e6339be0" title="Stop profiling." alt="" coords="188,5,345,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="379,21,346,21,346,15,379,15"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="5,5,140,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="174,21,140,21,140,15,174,15"/>
+</map>

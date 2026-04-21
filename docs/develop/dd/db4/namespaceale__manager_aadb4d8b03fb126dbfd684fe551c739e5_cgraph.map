@@ -1,0 +1,14 @@
+<map id="ale_manager::compute_stiffness_ale" name="ale_manager::compute_stiffness_ale">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,177,111"/>
+<area shape="rect" id="Node000002" href="$d3/d1b/namespaceale__routines__cpu.html#a26eab9fe752cf281db787307eb26e3c0" title="Compute mesh stiffness with per&#45;body gain/decay from stiff_geom." alt="" coords="225,35,423,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,75,211,70,212,75,178,81"/>
+<area shape="rect" id="Node000006" href="$d4/d50/namespaceale__routines__device.html#a9b1ac38e047b54f3126324ba95c8981f" title=" " alt="" coords="248,100,400,155"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="178,102,235,111,234,116,177,107"/>
+<area shape="rect" id="Node000003" href="$d3/d1b/namespaceale__routines__cpu.html#ac8f5eb4a1b2a0fb46de7146395427108" title="Compute cheap_dist field by passing distance information throughout an entire local element before do..." alt="" coords="471,35,668,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,53,457,53,457,58,423,58"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="727,5,814,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="668,34,714,26,715,31,669,40"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168" title="Max of an integer vector of length n." alt="" coords="716,79,825,104"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="669,70,703,77,702,82,668,76"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="738,80,731,70,734,60,748,54,771,52,799,56,810,65,806,69,796,61,771,57,749,59,738,64,736,70,742,77"/>
+</map>

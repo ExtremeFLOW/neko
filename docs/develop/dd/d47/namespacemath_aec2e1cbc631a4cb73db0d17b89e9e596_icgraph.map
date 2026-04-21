@@ -1,0 +1,23 @@
+<map id="math::add2s2" name="math::add2s2">
+<area shape="rect" id="Node000001" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="571,214,681,239"/>
+<area shape="rect" id="Node000002" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="339,5,479,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="614,202,600,169,580,130,554,92,521,59,501,47,479,39,481,34,503,43,524,55,558,89,585,128,605,167,618,200"/>
+<area shape="rect" id="Node000003" href="$d3/d4a/namespaceboussinesq__source__term__cpu.html#a5ce59ca22e2af735737cc2044a472aa5" title="Computes the Boussinesq source term on the cpu." alt="" coords="318,70,501,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="601,205,565,172,521,140,497,127,499,122,524,135,569,168,605,201"/>
+<area shape="rect" id="Node000005" href="$d3/d06/namespaceprojection.html#abe8a2a4afdc38e79a17ec00840c66d0a" title=" " alt="" coords="296,149,523,189"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="563,213,485,192,486,187,565,208"/>
+<area shape="rect" id="Node000007" href="$d5/de6/namespacefield__math.html#a65da9611ed2cfe6c591ada458d0b8bfd" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="319,214,500,239"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="557,229,500,229,500,224,557,224"/>
+<area shape="rect" id="Node000009" href="$dc/d12/namespacematrix__math.html#ab97b0789465191d24226766e2cf0bfa8" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="331,264,488,304"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="565,245,486,267,485,261,563,240"/>
+<area shape="rect" id="Node000010" href="$d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="331,328,487,368"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="606,252,570,286,524,318,489,333,487,328,521,314,566,282,602,248"/>
+<area shape="rect" id="Node000011" href="$d3/d0d/namespacevector__math.html#ad2e3b136be995cb9e58faec0d754e15e" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="333,392,486,432"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="617,253,582,318,556,353,524,382,488,401,485,396,521,378,552,349,578,315,612,251"/>
+<area shape="rect" id="Node000004" href="$d0/d10/namespaceboussinesq__source__term.html#aaee9b03347869ec2dc5de2613b67ded0" title="Computes the source term and adds the result to fields." alt="" coords="31,70,222,125"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="304,100,222,100,222,95,304,95"/>
+<area shape="rect" id="Node000006" href="$d3/d06/namespaceprojection.html#a6c2634eed99dd765c86df4ef325ff858" title=" " alt="" coords="5,149,248,189"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="282,172,248,172,248,167,282,167"/>
+<area shape="rect" id="Node000008" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="39,213,214,253"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="305,232,214,234,214,229,305,226"/>
+</map>

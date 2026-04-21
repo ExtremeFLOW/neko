@@ -1,0 +1,9 @@
+<map id="mesh::mesh_subset_by_mask" name="mesh::mesh_subset_by_mask">
+<area shape="rect" id="Node000001" title="Create a subset of the mesh this in other based on the provided mask." alt="" coords="5,37,224,62"/>
+<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="272,37,399,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,47,258,47,258,52,224,52"/>
+<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="304,38,297,28,300,18,314,12,335,10,362,14,373,22,369,26,360,18,335,15,315,17,304,22,302,28,308,35"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="447,29,611,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="399,47,433,47,433,52,399,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="492,30,490,20,496,11,509,5,529,3,551,6,564,13,561,17,550,11,529,8,510,10,499,15,495,21,498,28"/>
+</map>

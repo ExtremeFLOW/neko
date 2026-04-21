@@ -1,0 +1,6 @@
+<map id="euler_res_part_rk_sum_cuda" name="euler_res_part_rk_sum_cuda">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,213,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="261,29,425,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,47,248,47,248,52,213,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="300,30,297,20,304,10,320,5,343,3,370,6,385,13,383,18,369,11,343,8,321,10,308,15,303,21,305,28"/>
+</map>

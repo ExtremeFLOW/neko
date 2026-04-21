@@ -1,0 +1,10 @@
+<map id="bp_file::bp_file_t::set_layout" name="bp_file::bp_file_t::set_layout">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,133,89"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692" title="Change a filename&#39;s suffix." alt="" coords="190,5,363,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,50,210,31,211,37,134,56"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="420,31,608,56"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="133,62,406,47,407,52,134,68"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#ad9815de9718b5cfbff1bc1da8ea997e4" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="181,107,372,132"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="134,82,211,101,210,106,133,87"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,25,406,29,406,34,363,30"/>
+</map>

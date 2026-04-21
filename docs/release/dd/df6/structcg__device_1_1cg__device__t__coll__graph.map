@@ -1,0 +1,7 @@
+<map id="cg_device::cg_device_t" name="cg_device::cg_device_t">
+<area shape="rect" id="Node000001" title="Device based preconditioned conjugate gradient method." alt="" coords="24,152,196,177"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,5,111,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,43,108,151,103,153,64,45"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="135,5,189,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,45,117,153,112,151,151,43"/>
+</map>

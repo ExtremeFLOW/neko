@@ -1,0 +1,6 @@
+<map id="device_nccl_allreduce" name="device_nccl_allreduce">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,171,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="219,29,383,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,47,205,47,205,52,171,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="261,30,259,20,265,10,279,5,301,3,325,6,339,13,336,18,324,11,301,8,280,10,268,15,264,21,266,28"/>
+</map>

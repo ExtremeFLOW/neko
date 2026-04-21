@@ -1,0 +1,8 @@
+<map id="matrix_math::matrix_glsubnorm" name="matrix_math::matrix_glsubnorm">
+<area shape="rect" id="Node000001" title="Global subtracted norm of two matrices ." alt="" coords="5,47,163,87"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a6d41d97be31289ba22ea68a7dcc2c662" title="Returns the norm of the difference of two vectors ." alt="" coords="211,5,368,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,48,197,41,198,46,164,53"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#acda160f2e287f7fc6fec7ee8e203c845" title="Returns the norm of the difference of two vectors ." alt="" coords="223,94,356,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="164,79,211,89,209,94,163,85"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="256,96,248,86,252,76,266,70,289,67,318,71,329,80,326,84,316,76,289,73,267,75,256,79,254,85,260,92"/>
+</map>

@@ -1,0 +1,23 @@
+<map id="/home/runner/work/neko/neko/src/fluid/stress_formulation/bcknd/device/opencl/pnpn_stress_res.c" name="/home/runner/work/neko/neko/src/fluid/stress_formulation/bcknd/device/opencl/pnpn_stress_res.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="302,5,497,75"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="547,211,612,236"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="302,45,189,53,132,61,81,72,40,88,15,107,9,118,9,131,14,145,25,161,51,173,100,184,244,201,405,212,534,218,534,223,405,218,243,207,99,190,49,178,22,165,9,147,3,132,4,117,11,104,38,83,79,67,131,56,189,48,302,40"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="36,130,102,155"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="303,69,211,95,115,125,109,128,107,123,114,120,210,89,301,64"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="127,130,198,155"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="321,77,203,127,201,122,319,72"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="222,130,290,155"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="353,77,285,125,282,120,350,73"/>
+<area shape="rect" id="Node000006" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="314,130,485,155"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="402,75,402,116,397,116,397,75"/>
+<area shape="rect" id="Node000007" href="$d4/d0f/jit_8h.html" title=" " alt="" coords="509,130,650,155"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="461,73,549,121,546,126,459,77"/>
+<area shape="rect" id="Node000008" href="$d1/df7/prgm__lib_8h.html" title=" " alt="" coords="675,123,826,163"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="498,67,672,116,671,121,497,72"/>
+<area shape="rect" id="Node000009" href="$d0/d05/opencl_2check_8h.html" title=" " alt="" coords="850,130,1016,155"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="498,56,839,120,863,125,862,130,838,125,497,62"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="1041,130,1230,155"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="498,50,740,80,1029,120,1060,125,1059,130,1029,125,739,85,497,55"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="582,156,582,197,577,197,577,156"/>
+<area shape="poly" id="edge10_Node000009_Node000002" title=" " alt="" coords="882,158,626,214,625,209,881,153"/>
+</map>

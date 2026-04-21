@@ -1,0 +1,9 @@
+<map id="mappings::permeability_field" name="mappings::permeability_field">
+<area shape="rect" id="Node000001" title="Apply a permeability function to a field." alt="" coords="5,35,183,75"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/namespacemappings__cpu.html#a88bf9ccba4a039355ab0f8ee5b923bec" title="Apply a permeability function to a scalar." alt="" coords="231,13,468,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,42,225,37,225,42,183,47"/>
+<area shape="rect" id="Node000004" href="$da/d74/namespacemappings__device.html#a2a8e49e88404d1d1a98407c6d0c5f4b4" title="Apply a permeability function to a scalar." alt="" coords="236,63,463,103"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="183,62,223,66,222,71,183,67"/>
+<area shape="rect" id="Node000003" href="$dc/d9e/namespacemappings__cpu.html#aac25ebae10683e25332e0ccd84c76b81" title="Apply a permeability function to a scalar." alt="" coords="516,5,723,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="468,23,502,23,502,28,468,28"/>
+</map>

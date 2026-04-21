@@ -1,0 +1,35 @@
+<map id="deardorff_device::deardorff_compute_device" name="deardorff_device::deardorff_compute_device">
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the device." alt="" coords="5,62,204,102"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="252,5,443,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,59,251,39,282,31,283,37,253,45,179,64"/>
+<area shape="rect" id="Node000003" href="$d4/d66/namespacedevice__deardorff__nut.html#a8e7769b7683460e17fe5feb18e33d279" title="Compute Deardorff SGS quantities on the device backend." alt="" coords="264,55,431,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,79,250,79,250,85,204,85"/>
+<area shape="rect" id="Node000006" href="$dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991" title="Compute the gradient of a scalar field." alt="" coords="287,155,408,180"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="163,99,298,148,297,153,161,105"/>
+<area shape="rect" id="Node000004" href="$d5/d24/deardorff__nut_8cu.html#af7d8d9c34b1207466b54bd3438ff2f3e" title=" " alt="" coords="1104,49,1251,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="431,78,1090,67,1090,73,431,83"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1299,131,1463,171"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1228,86,1319,124,1317,129,1226,91"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1342,132,1340,122,1346,113,1360,107,1381,105,1404,108,1417,115,1415,120,1403,113,1381,110,1361,112,1350,117,1345,123,1348,130"/>
+<area shape="rect" id="Node000007" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="491,160,629,185"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="408,166,477,168,476,173,408,172"/>
+<area shape="rect" id="Node000008" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="677,153,849,193"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="630,170,664,170,664,175,630,175"/>
+<area shape="rect" id="Node000012" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="679,234,847,274"/>
+<area shape="poly" id="edge15_Node000007_Node000012" title=" " alt="" coords="594,183,701,226,699,231,592,188"/>
+<area shape="rect" id="Node000009" href="$d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="1124,113,1231,139"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="849,157,897,150,1110,129,1110,134,898,155,850,162"/>
+<area shape="rect" id="Node000010" href="$d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="917,164,1036,189"/>
+<area shape="poly" id="edge11_Node000008_Node000010" title=" " alt="" coords="850,172,904,173,903,178,850,177"/>
+<area shape="poly" id="edge10_Node000009_Node000005" title=" " alt="" coords="1231,130,1285,137,1285,142,1231,135"/>
+<area shape="poly" id="edge12_Node000010_Node000005" title=" " alt="" coords="1036,170,1285,155,1285,160,1037,176"/>
+<area shape="rect" id="Node000011" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1111,215,1243,240"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="1029,187,1114,209,1113,214,1027,192"/>
+<area shape="poly" id="edge14_Node000011_Node000005" title=" " alt="" coords="1211,212,1313,174,1315,179,1213,217"/>
+<area shape="rect" id="Node000013" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="919,213,1034,239"/>
+<area shape="poly" id="edge16_Node000012_Node000013" title=" " alt="" coords="848,240,905,233,906,238,848,246"/>
+<area shape="rect" id="Node000014" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="931,263,1022,288"/>
+<area shape="poly" id="edge17_Node000012_Node000014" title=" " alt="" coords="848,260,918,267,917,272,848,265"/>
+<area shape="rect" id="Node000015" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="897,312,1056,337"/>
+<area shape="poly" id="edge18_Node000012_Node000015" title=" " alt="" coords="821,271,898,298,920,305,919,310,896,303,819,277"/>
+</map>

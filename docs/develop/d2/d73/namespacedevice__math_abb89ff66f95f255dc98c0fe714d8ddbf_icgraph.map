@@ -1,0 +1,23 @@
+<map id="device_math::device_glsc3" name="device_math::device_glsc3">
+<area shape="rect" id="Node000001" title="Weighted inner product ." alt="" coords="428,223,585,263"/>
+<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#a4dd7a1a0cb377e19f6c17407064e198b" title="Standard PCG solve." alt="" coords="222,5,370,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="489,212,446,136,415,95,378,59,360,48,363,43,382,55,419,91,450,133,493,209"/>
+<area shape="rect" id="Node000003" href="$d6/d60/namespacecg__device.html#a0e61c9447cf557811c5f8d566bc6ce5d" title="Standard PCG solve." alt="" coords="216,69,376,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="478,214,434,168,379,124,357,112,359,107,381,119,438,164,482,210"/>
+<area shape="rect" id="Node000004" href="$d4/dc5/namespacecheby__device.html#ac74f17f6b4fa300083abdc31f3e98693" title=" " alt="" coords="217,133,375,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="448,219,379,189,347,176,349,171,381,184,450,215"/>
+<area shape="rect" id="Node000007" href="$d5/de6/namespacefield__math.html#ad4771a764f05b8b745e4de4a5b9573ab" title=" " alt="" coords="212,198,380,223"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="414,231,379,226,380,221,415,226"/>
+<area shape="rect" id="Node000008" href="$d3/dbc/namespacefusedcg__cpld__device.html#ae11b1d1184dbadc1c882e946987c371f" title="Pipelined PCG solve coupled solve." alt="" coords="213,247,379,302"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="415,259,379,265,378,260,414,254"/>
+<area shape="rect" id="Node000009" href="$dc/d12/namespacematrix__math.html#a799a21b14e5cf9f8e45b40ecd13cd0e7" title="Global inner product of three matrices ." alt="" coords="217,327,375,367"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="463,272,381,317,354,329,351,324,379,312,461,268"/>
+<area shape="rect" id="Node000010" href="$da/d46/namespacepipecg__device.html#af8b348213f1bde50d210f885ae0dd66a" title="Pipelined PCG solve." alt="" coords="213,391,379,431"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="485,275,441,329,413,356,381,381,360,393,358,388,379,376,409,352,437,325,481,272"/>
+<area shape="rect" id="Node000011" href="$d3/d0d/namespacevector__math.html#a22f87d8888f31b8cadc879fd56ed03f4" title=" " alt="" coords="219,455,373,495"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="495,277,477,315,452,360,420,405,382,445,363,457,360,452,378,441,416,402,448,357,473,313,490,275"/>
+<area shape="rect" id="Node000005" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="5,101,164,141"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="203,142,164,136,164,131,203,137"/>
+<area shape="rect" id="Node000006" href="$d4/dc5/namespacecheby__device.html#a9e071811daf316169a425a385bf6d80c" title="A chebyshev preconditioner." alt="" coords="5,165,164,205"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="203,170,164,176,164,171,203,165"/>
+</map>

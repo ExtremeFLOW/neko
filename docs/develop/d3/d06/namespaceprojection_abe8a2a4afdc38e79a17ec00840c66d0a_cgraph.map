@@ -1,0 +1,10 @@
+<map id="projection::cpu_reorthogonalize_basis" name="projection::cpu_reorthogonalize_basis">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,232,87"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="280,5,391,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,45,266,31,267,36,208,50"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="285,55,386,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="232,65,271,65,271,70,232,70"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="286,128,385,153"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,85,284,121,283,126,178,90"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="300,130,292,120,296,110,311,104,335,101,365,105,377,114,374,118,363,110,335,107,312,109,300,114,298,119,304,126"/>
+</map>

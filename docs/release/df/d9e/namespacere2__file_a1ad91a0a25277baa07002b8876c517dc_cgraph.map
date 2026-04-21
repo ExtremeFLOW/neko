@@ -1,0 +1,17 @@
+<map id="re2_file::re2_file_read" name="re2_file::re2_file_read">
+<area shape="rect" id="Node000001" title="Load a binary NEKTON mesh from a re2 file." alt="" coords="5,95,168,120"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692" title="Change a filename&#39;s suffix." alt="" coords="216,5,389,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,92,157,67,215,41,239,32,241,37,217,46,160,72,112,97"/>
+<area shape="rect" id="Node000004" href="$df/d9e/namespacere2__file.html#a83f78b1bd3723662d8f8f30fc1470b2e" title=" " alt="" coords="239,55,366,95"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,93,225,84,226,89,168,98"/>
+<area shape="rect" id="Node000006" href="$df/d9e/namespacere2__file.html#ac6a6e7f12b8abdc9e5f94ac9fa688eb2" title=" " alt="" coords="239,119,366,159"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="168,117,226,125,225,131,168,122"/>
+<area shape="rect" id="Node000007" href="$df/d9e/namespacere2__file.html#ae1e316c6fcaff6907f305abd16968d56" title=" " alt="" coords="239,183,366,223"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="113,118,217,169,233,176,231,181,215,174,111,123"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="437,5,625,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="389,15,424,15,424,21,389,21"/>
+<area shape="rect" id="Node000005" href="$df/d9e/namespacere2__file.html#a0421ca12e4efe5ac20a0842d522c762a" title="Mark a labeled zone based on an offset." alt="" coords="461,55,601,95"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="366,73,448,73,448,78,366,78"/>
+<area shape="rect" id="Node000008" href="$df/d9e/namespacere2__file.html#a859e702ddca0f77f1d6f6659b4c6ca41" title=" " alt="" coords="468,183,595,223"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="366,201,454,201,454,206,366,206"/>
+</map>

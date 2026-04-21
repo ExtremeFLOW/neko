@@ -1,0 +1,7 @@
+<map id="ale_manager::set_pivot_restart" name="ale_manager::set_pivot_restart">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,180,53"/>
+<area shape="rect" id="Node000002" href="$d1/d65/namespaceale__rigid__kinematics.html#a082cfde8889f407134e0ada3a33e8e8f" title="Compute built&#45;in kinematics for a body. Uses inputs from JSON. CPU&#45;only." alt="" coords="228,5,433,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,30,214,30,214,35,180,35"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#abefc115c94206a01926e8f91d989be53" title="Derivative of math_stepf with respect to x: d(stepf)/dx." alt="" coords="481,20,628,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,30,467,30,467,35,434,35"/>
+</map>

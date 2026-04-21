@@ -1,0 +1,11 @@
+<map id="math::masked_gather_copy" name="math::masked_gather_copy">
+<area shape="rect" id="Node000001" title="Gather a masked vector to reduced contigous vector ." alt="" coords="447,77,649,102"/>
+<area shape="rect" id="Node000002" href="$dd/dd2/namespacedofmap.html#a929a67b52e819fcc73a0a4ad6e8e631d" title="Generate/Initialize a new dofmap object based on a mask." alt="" coords="216,5,396,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="485,76,382,48,383,43,487,70"/>
+<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#a50bd16112741cd8862376d6b844db998" title="Gather a field to reduced contiguous array ." alt="" coords="213,69,399,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="433,92,399,92,399,87,433,87"/>
+<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#a580a0e0a951754438d50c403f0f63217" title="Gather a vector to reduced contigous array ." alt="" coords="223,133,389,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="487,108,383,136,382,131,485,103"/>
+<area shape="rect" id="Node000005" href="$dd/de1/namespaceglobal__interpolation.html#ae9c17253d0dc29559d194d89a868d56c" title="Evaluate the interpolated value in a masked field." alt="" coords="5,126,165,181"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="209,156,166,156,166,151,209,151"/>
+</map>

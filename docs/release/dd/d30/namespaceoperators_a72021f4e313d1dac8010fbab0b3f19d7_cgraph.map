@@ -1,0 +1,20 @@
+<map id="operators::conv1" name="operators::conv1">
+<area shape="rect" id="Node000001" title="Compute the advection term." alt="" coords="5,80,136,105"/>
+<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#ae04611fe66a4b513beb0157ac526838b" title=" " alt="" coords="184,41,356,81"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,80,170,74,171,79,137,85"/>
+<area shape="rect" id="Node000007" href="$d9/d5a/namespaceopr__xsmm.html#a4e6329c7bff3bbd659fa92e65389cc88" title=" " alt="" coords="186,105,354,145"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="137,101,173,106,172,112,136,106"/>
+<area shape="rect" id="Node000003" href="$d2/d79/opr__conv1_8cu.html#a2b1b534f6f070dbbefdf14808df129e9" title=" " alt="" coords="627,5,726,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="356,46,404,41,614,20,614,26,404,46,357,52"/>
+<area shape="rect" id="Node000005" href="$d1/dc1/opr__conv1_8c.html#ab07cb7910eb3d0e828e2220814aeb52f" title=" " alt="" coords="428,56,539,81"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="357,61,414,63,414,69,356,67"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="791,49,955,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="727,28,782,43,781,48,726,33"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="836,49,834,39,840,30,853,24,873,22,896,25,908,32,905,37,894,30,873,27,854,29,843,34,839,40,841,48"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="539,66,777,66,777,71,539,71"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="611,107,743,132"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="533,79,615,101,614,106,532,84"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="726,104,781,90,782,95,727,109"/>
+<area shape="rect" id="Node000008" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="404,112,563,137"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="355,122,390,122,390,127,355,127"/>
+</map>

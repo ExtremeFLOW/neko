@@ -1,0 +1,5 @@
+<map id="gs_mpi::gs_mpi_t" name="gs_mpi::gs_mpi_t">
+<area shape="rect" id="Node000001" title="Gather&#45;scatter communication using MPI." alt="" coords="21,79,157,104"/>
+<area shape="rect" id="Node000002" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,5,173,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,44,92,79,87,79,87,44"/>
+</map>

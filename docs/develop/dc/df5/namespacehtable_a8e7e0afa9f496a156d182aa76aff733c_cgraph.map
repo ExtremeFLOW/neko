@@ -1,0 +1,9 @@
+<map id="htable::htable_cptr_get" name="htable::htable_cptr_get">
+<area shape="rect" id="Node000001" title="Retrive a C pointer with key key from the hash table." alt="" coords="5,31,177,56"/>
+<area shape="rect" id="Node000002" href="$dc/df5/namespacehtable.html#a79fcf205911f6949e773f526a578f7f7" title="Retrieve data associated with key into the hash table." alt="" coords="225,31,365,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,41,212,41,212,46,177,46"/>
+<area shape="rect" id="Node000003" href="$dc/df5/namespacehtable.html#aaf0eaa6f045b8177f467c12a9fd33f23" title="Compare key at idx to key." alt="" coords="419,5,584,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="365,32,405,27,406,32,366,37"/>
+<area shape="rect" id="Node000004" href="$dc/df5/namespacehtable.html#a7650c1e3815c77e36893bfaebc238ab0" title="Return data at idx in value." alt="" coords="413,55,589,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="366,49,400,53,399,58,365,54"/>
+</map>

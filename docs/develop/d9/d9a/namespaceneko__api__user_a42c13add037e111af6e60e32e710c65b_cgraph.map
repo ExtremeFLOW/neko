@@ -1,0 +1,7 @@
+<map id="neko_api_user::neko_api_user_dirichlet_condition" name="neko_api_user::neko_api_user_dirichlet_condition">
+<area shape="rect" id="Node000001" title="API user dirichlet condition callback caller." alt="" coords="5,27,160,82"/>
+<area shape="rect" id="Node000002" href="$d9/d9a/namespaceneko__api__user.html#a2b4d4c87c5eec8e086d6bb103ec02d8f" title="Set the callbacks active field list." alt="" coords="227,5,387,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,42,213,35,213,40,161,47"/>
+<area shape="rect" id="Node000003" href="$d8/d0c/neko__api__user_8f90.html#aae305dad5067300e1cb408ccda37e2c3" title="Helper function to extract a pointer to the mask." alt="" coords="208,70,405,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="161,62,195,66,194,71,160,67"/>
+</map>

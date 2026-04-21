@@ -1,0 +1,10 @@
+<map id="octree::oct_t" name="octree::oct_t">
+<area shape="rect" id="Node000001" title="Defines an octree octant." alt="" coords="18,183,121,208"/>
+<area shape="rect" id="Node000002" href="$d6/deb/structoctree_1_1oct__ptr__t.html" title=" " alt="" coords="5,271,133,296"/>
+<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="51,220,44,233,43,242,46,252,59,269,54,272,41,254,38,243,39,231,46,218"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,256,67,208,72,208,72,256"/>
+<area shape="rect" id="Node000003" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="15,80,123,105"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="72,119,72,183,67,183,67,119"/>
+<area shape="rect" id="Node000004" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="11,5,128,31"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="72,45,72,80,67,80,67,45"/>
+</map>

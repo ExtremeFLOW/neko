@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ site.search_title | default: site.title }}{% if page.title %} | {{ page.title }}{% endif %}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    {% feed_meta %}
+  </head>
+  <body data-tone="dark">
+    <header class="site-header">
+      <div class="container">
+        <a class="site-brand" href="{{ '/' | relative_url }}">/ᐠ. ｡.ᐟ\ᵐᵉᵒʷˎˊ˗</a>
+        <nav class="site-nav">
+          <a href="{{ '/' | relative_url }}">Home</a>
+          <a href="{{ '/news.html' | relative_url }}">News</a>
+          <a href="{{ '/gallery.html' | relative_url }}">Gallery</a>
+          <a href="{{ '/publications.html' | relative_url }}">Publications</a>
+          <a href="https://github.com/ExtremeFLOW/neko/discussions">Forum</a>
+          <details class="site-nav-dropdown">
+            <summary>Documentation</summary>
+            <div class="site-nav-dropdown-menu">
+              <a href="https://neko.cfd/docs/release/">Latest release</a>
+              <a href="https://neko.cfd/docs/develop/index.html">Nightly develop</a>
+            </div>
+          </details>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      {{ content }}
+    </main>
+
+    <div class="lightbox" id="lightbox" hidden>
+      <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close image view">Close</button>
+      <img class="lightbox-image" id="lightbox-image" alt="">
+    </div>
+
+    <script>
+      (function () {
+        var body = document.body;
+        var lightbox = document.getElementById("lightbox");
+        var lightboxImage = document.getElementById("lightbox-image");
+        var lightboxClose = document.getElementById("lightbox-close");
+        var triggers = document.querySelectorAll(".lightbox-trigger");
+
+        if (!lightbox || !lightboxImage || !lightboxClose || !triggers.length) {
+          return;
+        }
+
+        function closeLightbox() {
+          lightbox.hidden = true;
+          lightboxImage.removeAttribute("src");
+          lightboxImage.alt = "";
+          document.body.classList.remove("lightbox-open");
+        }
+
+        triggers.forEach(function (trigger) {
+          trigger.addEventListener("click", function () {
+            lightboxImage.src = trigger.getAttribute("data-lightbox-src");
+            lightboxImage.alt = trigger.getAttribute("data-lightbox-alt") || "";
+            lightbox.hidden = false;
+            document.body.classList.add("lightbox-open");
+          });
+        });
+
+        lightboxClose.addEventListener("click", closeLightbox);
+
+        lightbox.addEventListener("click", function (event) {
+          if (event.target === lightbox) {
+            closeLightbox();
+          }
+        });
+
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape" && !lightbox.hidden) {
+            closeLightbox();
+          }
+        });
+      }());
+    </script>
+  </body>
+</html>

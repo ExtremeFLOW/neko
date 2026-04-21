@@ -1,0 +1,9 @@
+<map id="ax_helm_full::ax_helm_full_t" name="ax_helm_full::ax_helm_full_t">
+<area shape="rect" id="Node000001" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="96,79,267,119"/>
+<area shape="rect" id="Node000003" href="$db/db0/structax__helm__full__cpu_1_1ax__helm__full__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem with full stress tensor." alt="" coords="5,167,165,207"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,130,108,168,105,164,148,126"/>
+<area shape="rect" id="Node000004" href="$db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html" title=" " alt="" coords="189,167,365,207"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="215,126,258,164,254,168,211,130"/>
+<area shape="rect" id="Node000002" href="$d3/d2c/structax__product_1_1ax__t.html" title="Base type for a matrix&#45;vector product providing ." alt="" coords="116,5,247,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,44,184,79,179,79,179,44"/>
+</map>

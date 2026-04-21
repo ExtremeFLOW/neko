@@ -1,0 +1,7 @@
+<map id="neumann::neumann_t::init_from_components" name="neumann::neumann_t::init_from_components">
+<area shape="rect" id="Node000001" title="Constructor from components, one flux value per component." alt="" coords="5,37,181,77"/>
+<area shape="rect" id="Node000002" href="$d9/d75/namespaceneumann.html#a0061a1d563b2f38fbb87e852c4f72e1c" title="Constructor from components, using a flux array for vector components." alt="" coords="232,5,420,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,43,218,37,219,43,182,48"/>
+<area shape="rect" id="Node000003" href="$d9/d75/namespaceneumann.html#a42d007b2ffe4f0af994dc5c95effe871" title="Constructor from components, using an signle flux." alt="" coords="229,69,423,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="182,67,216,72,215,77,181,72"/>
+</map>

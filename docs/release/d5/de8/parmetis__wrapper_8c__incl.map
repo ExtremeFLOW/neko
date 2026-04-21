@@ -1,0 +1,10 @@
+<map id="/home/runner/work/neko/neko/src/comm/parmetis_wrapper.c" name="/home/runner/work/neko/neko/src/comm/parmetis_wrapper.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,192,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="92,181,151,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,62,55,78,44,96,39,114,42,132,60,155,84,172,81,177,57,159,38,134,33,114,39,93,50,75,65,58"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="53,108,145,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="101,60,101,94,96,94,96,60"/>
+<area shape="rect" id="Node000004" href="$d8/db4/comm_8h.html" title=" " alt="" coords="169,108,289,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="140,58,202,98,199,103,137,62"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="213,136,152,176,149,171,211,131"/>
+</map>

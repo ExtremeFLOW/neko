@@ -1,0 +1,9 @@
+<map id="scalar_residual_update_opencl" name="scalar_residual_update_opencl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,177,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="405,29,569,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,47,392,47,392,52,178,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="225,62,357,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="178,58,212,62,211,67,177,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="451,30,448,20,454,11,467,5,487,3,510,6,523,13,520,17,509,11,487,8,469,10,458,15,454,21,456,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="357,64,391,59,392,64,358,69"/>
+</map>

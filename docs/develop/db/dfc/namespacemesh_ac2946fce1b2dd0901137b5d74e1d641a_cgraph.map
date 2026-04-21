@@ -1,0 +1,15 @@
+<map id="mesh::mesh_finalize" name="mesh::mesh_finalize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,138,161,163"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba" title="Generate element&#45;to&#45;element connectivity." alt="" coords="209,109,415,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,138,199,133,200,138,162,143"/>
+<area shape="rect" id="Node000007" href="$db/dfc/namespacemesh.html#a000e4a4dd37ff5e6b9a914d2b538705f" title=" " alt="" coords="229,159,395,199"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="162,158,215,164,215,169,161,163"/>
+<area shape="rect" id="Node000003" href="$db/dfc/namespacemesh.html#a35d97ddb7d486cd79f3c1e4ee4ea2cfc" title="Generate element&#45;element connectivity via edges both between internal and between PEs." alt="" coords="463,5,629,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="341,106,462,55,479,48,481,53,464,60,343,111"/>
+<area shape="rect" id="Node000004" href="$db/dfc/namespacemesh.html#ac54b7d89e17024d5105cf449551a5335" title="Generate element&#45;element connectivity via facets between PEs." alt="" coords="463,69,629,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="405,106,449,100,449,105,406,111"/>
+<area shape="rect" id="Node000005" href="$db/dfc/namespacemesh.html#aadcee020052d3a876ded460252b3a42a" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="463,133,629,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="406,131,449,137,449,143,405,137"/>
+<area shape="rect" id="Node000006" href="$db/dfc/namespacemesh.html#a18664cc50a3043167f74ea0da7291237" title="Generate a unique facet numbering." alt="" coords="463,197,629,237"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="383,132,416,144,441,163,464,183,476,189,473,194,461,188,437,168,413,149,381,137"/>
+</map>

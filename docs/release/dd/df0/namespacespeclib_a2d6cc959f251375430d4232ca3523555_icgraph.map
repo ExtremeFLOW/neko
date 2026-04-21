@@ -1,0 +1,6 @@
+<map id="speclib::hgj" name="speclib::hgj">
+<area shape="rect" id="Node000001" title="Compute the value of the Lagrangian interpolant HGJ through the NP Gauss Jacobi points ZGJ at the poi..." alt="" coords="159,29,255,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="232,18,224,11,207,8,191,10,184,15,182,20,186,28,182,31,177,21,179,11,190,5,207,3,227,6,236,15"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a07db2111f2843f1735c19e8d2b15811f" title="Compute the one&#45;dimensional interpolation operator (matrix) I12 ands its transpose IT12 for interpola..." alt="" coords="5,29,111,55"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="145,45,111,45,111,39,145,39"/>
+</map>

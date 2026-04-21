@@ -1,0 +1,5 @@
+<map id="mesh::mesh_check_right_handedness" name="mesh::mesh_check_right_handedness">
+<area shape="rect" id="Node000001" title="Check the correct orientation of the rst coordindates." alt="" coords="5,5,189,45"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151" title="Compute a signed volume of a parallelepiped formed by three vectors, in turn defined via three points..." alt="" coords="237,5,396,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,23,224,23,224,28,190,28"/>
+</map>

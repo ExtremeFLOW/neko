@@ -1,0 +1,19 @@
+<map id="speclib::zwgl" name="speclib::zwgl">
+<area shape="rect" id="Node000001" title="Generate NP Gauss Legendre points Z and weights W associated with Jacobi polynomial ...." alt="" coords="5,76,112,102"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a5c35429298522dea2bd177d45c7efc2c" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="160,76,267,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,86,146,86,146,92,112,92"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="315,76,429,102"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="267,86,301,86,301,92,267,92"/>
+<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="648,39,779,64"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="384,74,423,41,448,24,477,12,529,3,582,7,631,18,672,31,671,37,630,23,581,12,529,9,478,17,451,29,426,45,388,78"/>
+<area shape="rect" id="Node000005" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="487,100,590,126"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="430,95,474,101,473,106,429,100"/>
+<area shape="rect" id="Node000006" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="655,114,771,139"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="395,100,432,120,478,136,520,142,562,143,642,137,642,142,562,149,519,147,477,141,430,124,392,104"/>
+<area shape="rect" id="Node000007" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="477,51,600,76"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="429,78,463,72,464,78,430,83"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="684,40,678,31,682,21,694,15,713,12,737,16,747,25,744,29,735,21,713,18,695,20,686,24,684,30,689,37"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="590,114,641,118,641,124,590,120"/>
+<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="600,57,634,54,634,60,600,62"/>
+<area shape="poly" id="edge10_Node000007_Node000007" title=" " alt="" coords="511,52,505,43,508,33,520,27,539,24,561,28,571,36,568,40,559,33,539,30,521,32,512,36,510,42,515,49"/>
+</map>

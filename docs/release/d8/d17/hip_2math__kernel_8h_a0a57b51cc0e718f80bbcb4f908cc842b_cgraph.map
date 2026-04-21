@@ -1,0 +1,8 @@
+<map id="reduce_kernel" name="reduce_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,119,72"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="191,5,306,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,44,177,31,179,36,120,49"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="167,79,331,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="120,69,154,76,153,81,118,74"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="213,80,211,70,217,61,230,55,249,53,271,56,283,63,280,67,269,61,249,58,231,60,220,65,216,71,218,78"/>
+</map>

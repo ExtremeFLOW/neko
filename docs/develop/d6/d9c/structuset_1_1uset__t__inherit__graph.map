@@ -1,0 +1,9 @@
+<map id="uset::uset_t" name="uset::uset_t">
+<area shape="rect" id="Node000001" title="Base type for an unordered set." alt="" coords="156,5,255,31"/>
+<area shape="rect" id="Node000002" href="$d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="5,79,123,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,39,88,81,86,76,169,34"/>
+<area shape="rect" id="Node000003" href="$d0/d60/structuset_1_1uset__i8__t.html" title="Integer*8 based unordered set." alt="" coords="147,79,264,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,44,208,79,203,79,203,44"/>
+<area shape="rect" id="Node000004" href="$d3/d19/structuset_1_1uset__r8__t.html" title="Double precision unordered set." alt="" coords="287,79,406,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="241,34,325,76,322,81,239,39"/>
+</map>

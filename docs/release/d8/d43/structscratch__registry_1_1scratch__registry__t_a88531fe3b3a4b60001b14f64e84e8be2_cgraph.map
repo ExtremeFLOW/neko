@@ -1,0 +1,15 @@
+<map id="scratch_registry::scratch_registry_t::request" name="scratch_registry::scratch_registry_t::request">
+<area shape="rect" id="Node000001" title="Generic request procedure." alt="" coords="5,99,185,139"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a3323d64c81fd680132b725888d8d8d16" title="Get a field from the registry by assigning it to a pointer." alt="" coords="233,35,416,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,96,239,76,240,81,168,101"/>
+<area shape="rect" id="Node000006" href="$d7/dda/namespacescratch__registry.html#ab56e8bccbcc5ed446b6a1c0fab6979bb" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="233,99,416,139"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="186,116,219,116,219,121,186,121"/>
+<area shape="rect" id="Node000007" href="$d7/dda/namespacescratch__registry.html#abb82d6f812046c663d7068b900e88998" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="233,163,416,203"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="168,136,240,156,239,162,167,141"/>
+<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="464,42,631,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,52,450,52,450,57,416,57"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="679,5,836,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="631,40,665,36,665,41,632,46"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="709,70,806,95"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="632,63,695,72,695,77,631,68"/>
+</map>

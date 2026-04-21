@@ -1,0 +1,7 @@
+<map id="field_math::field_pwmax3" name="field_math::field_pwmax3">
+<area shape="rect" id="Node000001" title="Point&#45;wise max operation ." alt="" coords="5,42,196,67"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a31966d3a26e688fef253ed4ec3317f68" title="Compute the point&#45;wise maximum of two vectors ." alt="" coords="244,5,401,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,39,230,35,231,40,197,45"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a6d7903e3a006b36c894dfa2a75aaa879" title="Point&#45;wise maximum of two vectors ." alt="" coords="263,70,383,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,64,250,71,249,76,196,69"/>
+</map>

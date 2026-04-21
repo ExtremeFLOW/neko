@@ -1,0 +1,7 @@
+<map id="neko_mpi_types::mpi_type_stl_header_free" name="neko_mpi_types::mpi_type_stl_header_free">
+<area shape="rect" id="Node000001" title="Deallocate STL header dervied MPI type." alt="" coords="415,5,581,45"/>
+<area shape="rect" id="Node000002" href="$d7/dd4/namespaceneko__mpi__types.html#ae5705f5c8322b515988b0208ee4098c1" title="Deallocate all derived MPI types." alt="" coords="200,5,367,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,28,367,28,367,23,401,23"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title="Finalize Neko." alt="" coords="5,13,152,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
+</map>

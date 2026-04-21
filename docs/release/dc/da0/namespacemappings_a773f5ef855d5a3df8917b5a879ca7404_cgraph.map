@@ -1,0 +1,11 @@
+<map id="mappings::smooth_step_field" name="mappings::smooth_step_field">
+<area shape="rect" id="Node000001" title="Apply a smooth step function to a field." alt="" coords="5,37,184,77"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/namespacemappings__cpu.html#aa70cbaeca07fb7793c577cba9df2abbe" title="Apply a smooth step function to a scalar." alt="" coords="242,5,415,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,43,228,36,229,42,184,48"/>
+<area shape="rect" id="Node000005" href="$da/d74/namespacemappings__device.html#aec729b8a26654f4c74aee58831855315" title="Apply a smooth step function to a scalar." alt="" coords="232,69,425,109"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="184,67,219,72,218,77,184,72"/>
+<area shape="rect" id="Node000003" href="$dc/d9e/namespacemappings__cpu.html#a5702854818c4aaf6355de4ec5cc9b41e" title="Apply a smooth step function to a scalar." alt="" coords="473,5,647,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,23,460,23,460,28,416,28"/>
+<area shape="rect" id="Node000004" href="$dc/d9e/namespacemappings__cpu.html#af88aeb4f67cc97cb505844866986a5e4" title="Clamp a value between two limits." alt="" coords="695,5,859,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,23,681,23,681,28,647,28"/>
+</map>

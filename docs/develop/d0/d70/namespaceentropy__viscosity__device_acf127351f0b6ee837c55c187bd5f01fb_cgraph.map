@@ -1,0 +1,14 @@
+<map id="entropy_viscosity_device::entropy_viscosity_compute_residual_device" name="entropy_viscosity_device::entropy_viscosity_compute_residual_device">
+<area shape="rect" id="Node000001" title="Compute entropy residual on device." alt="" coords="5,27,215,82"/>
+<area shape="rect" id="Node000002" href="$d8/d84/entropy__viscosity_8cu.html#aa3902b56acb5624462672bc4227f9113" title=" " alt="" coords="465,5,672,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,45,452,30,452,35,215,51"/>
+<area shape="rect" id="Node000004" href="$dd/d01/entropy__viscosity_8c.html#a691fef02927008a3b78d1c367e055a2e" title=" " alt="" coords="263,63,417,103"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="215,65,250,69,249,74,215,70"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="720,63,884,103"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="651,43,707,57,706,62,650,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="759,63,756,53,763,44,778,38,802,36,829,39,844,46,841,51,828,44,802,41,780,43,766,48,761,54,764,62"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="418,80,707,80,707,85,418,85"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="503,121,635,146"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="418,97,498,115,497,120,417,102"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="628,118,706,101,707,106,629,123"/>
+</map>

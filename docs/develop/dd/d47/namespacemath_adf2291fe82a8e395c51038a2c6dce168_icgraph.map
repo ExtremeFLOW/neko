@@ -1,0 +1,16 @@
+<map id="math::glimax" name="math::glimax">
+<area shape="rect" id="Node000001" title="Max of an integer vector of length n." alt="" coords="963,77,1072,102"/>
+<area shape="poly" id="edge6_Node000001_Node000001" title=" " alt="" coords="1053,67,1043,59,1017,55,996,57,985,62,983,68,989,75,984,78,977,68,981,58,995,52,1017,50,1045,54,1056,63"/>
+<area shape="rect" id="Node000002" href="$d3/d1b/namespaceale__routines__cpu.html#a1ed25c9746da32ed29a3a1adc93069bc" title="Implementation of cheap_dist in Nek5000 (CPU)" alt="" coords="717,5,915,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="963,75,879,48,880,43,964,70"/>
+<area shape="rect" id="Node000003" href="$d3/d1b/namespaceale__routines__cpu.html#ac8f5eb4a1b2a0fb46de7146395427108" title="Compute cheap_dist field by passing distance information throughout an entire local element before do..." alt="" coords="717,69,915,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="949,92,915,92,915,87,949,87"/>
+<area shape="rect" id="Node000007" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="735,134,897,159"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="965,109,915,124,869,136,868,131,914,119,964,104"/>
+<area shape="rect" id="Node000004" href="$d3/d1b/namespaceale__routines__cpu.html#a26eab9fe752cf281db787307eb26e3c0" title="Compute mesh stiffness with per&#45;body gain/decay from stiff_geom." alt="" coords="472,69,669,109"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="703,92,669,92,669,87,703,87"/>
+<area shape="rect" id="Node000005" href="$dd/db4/namespaceale__manager.html#aadb4d8b03fb126dbfd684fe551c739e5" title=" " alt="" coords="252,69,424,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="458,92,424,92,424,87,458,87"/>
+<area shape="rect" id="Node000006" href="$dd/db4/namespaceale__manager.html#a715238efb7d913e6d22fbda34469293b" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,69,204,109"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="238,92,204,92,204,87,238,87"/>
+</map>

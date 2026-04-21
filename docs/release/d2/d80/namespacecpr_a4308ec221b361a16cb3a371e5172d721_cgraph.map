@@ -1,0 +1,9 @@
+<map id="cpr::cpr_truncate_wn" name="cpr::cpr_truncate_wn">
+<area shape="rect" id="Node000001" title="Truncate the frequencies." alt="" coords="5,55,163,80"/>
+<area shape="rect" id="Node000002" href="$d2/d80/namespacecpr.html#a3ddd196381c64b6eece0ffc931ccce8a" title="create filter transfer function" alt="" coords="225,5,361,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,52,225,31,226,36,139,57"/>
+<area shape="rect" id="Node000003" href="$d2/d80/namespacecpr.html#a40239ede9363a3edd5ad65aa84acf857" title=" " alt="" coords="211,55,375,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="163,65,197,65,197,70,163,70"/>
+<area shape="rect" id="Node000004" href="$d2/d80/namespacecpr.html#a5981c6c763b1b2a220da71f67f2b42a2" title="Sort the spectral coefficient in descending order array vsort. The original indices are stored in the..." alt="" coords="239,104,346,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="139,77,227,98,225,104,138,83"/>
+</map>

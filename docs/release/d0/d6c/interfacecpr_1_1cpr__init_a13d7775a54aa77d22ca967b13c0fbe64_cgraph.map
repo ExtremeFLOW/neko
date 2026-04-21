@@ -1,0 +1,15 @@
+<map id="cpr::cpr_init::cpr_init_all" name="cpr::cpr_init::cpr_init_all">
+<area shape="rect" id="Node000001" title="Initialize cpr." alt="" coords="5,47,132,87"/>
+<area shape="rect" id="Node000002" href="$d2/d80/namespacecpr.html#aeaf164e4733dc1cc6749bfaa7064aeea" title="Deallocate coefficients." alt="" coords="228,5,331,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,50,214,30,215,36,133,55"/>
+<area shape="rect" id="Node000003" href="$d2/d80/namespacecpr.html#ae689f520261060721e9a32eee074c3d7" title="Generate spectral tranform matrices." alt="" coords="180,55,379,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,65,166,65,166,70,132,70"/>
+<area shape="rect" id="Node000007" href="$d2/d80/namespacecpr.html#a96140dc7acc2700df8fc8194afe4f7e6" title="Tranform to spectral space (using tensor product)" alt="" coords="204,104,355,129"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="133,80,212,98,211,103,132,85"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="459,5,553,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="338,52,445,28,446,34,339,57"/>
+<area shape="rect" id="Node000005" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="427,55,585,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="379,65,413,65,413,70,379,70"/>
+<area shape="rect" id="Node000006" href="$dd/d8c/namespacetensor.html#a56be5127b81c9f41faab546d3d175e19" title="In&#45;place transpose of a square tensor." alt="" coords="454,104,558,129"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="339,77,441,100,440,105,338,83"/>
+</map>

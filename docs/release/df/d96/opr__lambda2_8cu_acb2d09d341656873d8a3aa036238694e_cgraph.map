@@ -1,0 +1,14 @@
+<map id="tune_lambda2" name="tune_lambda2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,120,169"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="168,29,332,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,141,117,111,167,79,179,73,182,77,169,84,120,115,81,145"/>
+<area shape="rect" id="Node000003" href="$d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580" title=" " alt="" coords="187,94,313,119"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="111,141,187,120,188,126,112,146"/>
+<area shape="rect" id="Node000004" href="$d4/d8d/neko__log_8h.html#a2eb7fca59244516787b0701a7011b1a3" title=" " alt="" coords="210,143,290,169"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="120,153,196,153,196,159,120,159"/>
+<area shape="rect" id="Node000005" href="$d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1" title=" " alt="" coords="196,193,304,218"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="112,166,188,186,187,192,111,171"/>
+<area shape="rect" id="Node000006" href="$d4/d8d/neko__log_8h.html#ab1629da16eb42a5e01533232e6eff57e" title=" " alt="" coords="202,242,298,267"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="81,167,119,197,169,227,190,236,188,241,167,232,116,201,77,171"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="215,30,213,20,218,11,231,5,250,3,272,6,284,13,281,17,270,11,250,8,232,10,222,15,218,21,220,28"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="hip_rotate_cyc" name="hip_rotate_cyc">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,123,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="171,29,335,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,47,157,47,157,52,123,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="217,30,215,20,221,11,234,5,253,3,275,6,287,13,284,17,273,11,253,8,235,10,224,15,220,21,222,28"/>
+</map>

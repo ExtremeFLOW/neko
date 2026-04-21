@@ -1,0 +1,18 @@
+<map id="legendre_rst_finder::find_rst_legendre_device" name="legendre_rst_finder::find_rst_legendre_device">
+<area shape="rect" id="Node000001" title="Using the Legendre polynomials to find the rst coordinates on GPU." alt="" coords="5,48,152,103"/>
+<area shape="rect" id="Node000002" href="$d2/d4a/namespacedevice__local__interpolation.html#aa67d59c6c6cc83f90345c633abf9a450" title=" " alt="" coords="200,23,393,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,62,186,57,187,62,153,67"/>
+<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#a95cc8e9b0db9b0662baa3d33529f1767" title="Compute multiplication sum ." alt="" coords="218,87,375,127"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="153,83,204,91,204,96,152,89"/>
+<area shape="rect" id="Node000003" href="$db/d3f/local__interpolation_8cu.html#ae1c28445a73e6d30f63ea56a4128a06e" title=" " alt="" coords="673,5,845,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="394,35,659,21,659,26,394,41"/>
+<area shape="rect" id="Node000005" href="$d8/df1/local__interpolation_8c.html#a2245bb5ac2416b3536fe9294816cd4d6" title=" " alt="" coords="441,56,625,81"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="394,51,428,55,428,60,393,56"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="893,49,1057,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="815,28,881,44,879,49,814,33"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="935,49,932,39,939,30,953,24,975,22,1001,25,1014,32,1012,37,999,30,975,27,955,29,942,34,938,40,940,48"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="626,66,879,66,879,71,626,71"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="693,107,825,132"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="592,79,690,101,688,106,590,84"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="814,104,879,88,881,94,815,109"/>
+</map>

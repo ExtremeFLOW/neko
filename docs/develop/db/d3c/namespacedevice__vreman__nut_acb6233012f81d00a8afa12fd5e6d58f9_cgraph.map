@@ -1,0 +1,8 @@
+<map id="device_vreman_nut::device_vreman_nut_compute_buoy" name="device_vreman_nut::device_vreman_nut_compute_buoy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,259,69"/>
+<area shape="rect" id="Node000002" href="$d7/dff/vreman__nut_8cu.html#ae7c1e3020468ff890690b760e9bbdf62" title=" " alt="" coords="307,37,548,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="259,47,293,47,293,52,259,52"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="596,29,760,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="548,47,582,47,582,52,548,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="631,30,629,20,636,10,653,5,678,3,707,6,723,13,721,18,706,11,678,8,654,10,639,15,634,21,636,28"/>
+</map>

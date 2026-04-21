@@ -1,0 +1,7 @@
+<map id="schwarz::schwarz_free" name="schwarz::schwarz_free">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,175,67"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="223,5,383,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,40,209,36,210,41,175,46"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="228,70,377,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,63,215,68,214,74,175,68"/>
+</map>

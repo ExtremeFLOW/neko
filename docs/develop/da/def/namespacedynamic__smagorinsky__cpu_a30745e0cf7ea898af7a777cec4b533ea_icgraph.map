@@ -1,0 +1,5 @@
+<map id="dynamic_smagorinsky_cpu::compute_lij_cpu" name="dynamic_smagorinsky_cpu::compute_lij_cpu">
+<area shape="rect" id="Node000001" title="Compute Germano Identity on the CPU." alt="" coords="260,13,428,53"/>
+<area shape="rect" id="Node000002" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a4413235e5f71141ae47e071699c75afb" title="Compute eddy viscosity on the CPU." alt="" coords="5,5,212,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="246,35,212,35,212,30,246,30"/>
+</map>

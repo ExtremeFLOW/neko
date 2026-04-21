@@ -1,0 +1,8 @@
+<map id="device_gradient_jump_penalty::device_gradient_jump_penalty_finalize" name="device_gradient_jump_penalty::device_gradient_jump_penalty_finalize">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,195,77"/>
+<area shape="rect" id="Node000002" href="$da/d26/gradient__jump__penalty_8cu.html#a5402059b725fcb77a274bf15e0367188" title=" " alt="" coords="243,29,397,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,47,229,47,229,52,195,52"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="445,29,609,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="398,47,432,47,432,52,398,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="489,30,486,20,493,11,506,5,527,3,551,6,565,13,562,18,550,11,527,8,508,10,496,15,492,21,494,28"/>
+</map>

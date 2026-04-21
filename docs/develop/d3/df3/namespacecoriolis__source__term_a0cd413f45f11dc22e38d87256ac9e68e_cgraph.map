@@ -1,0 +1,13 @@
+<map id="coriolis_source_term::coriolis_source_term_compute" name="coriolis_source_term::coriolis_source_term_compute">
+<area shape="rect" id="Node000001" title="Computes the source term and adds the result to fields." alt="" coords="5,45,171,100"/>
+<area shape="rect" id="Node000002" href="$de/d80/namespacecoriolis__source__term__cpu.html#a5a403e8120e884999ef8b193ecc3c900" title="Computes the generic Coriolis source term on the cpu." alt="" coords="229,5,386,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,55,215,47,216,52,172,60"/>
+<area shape="rect" id="Node000003" href="$dc/d73/namespacecoriolis__source__term__device.html#ab9ae1a837613e57e5a41a0e4e6705f2f" title="Computes the Coriolis source term on the device." alt="" coords="219,84,396,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,85,206,91,205,96,171,90"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="444,41,640,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="396,87,475,67,477,73,397,92"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a35993289bdfe4bc7ddb0cbd81b00103d" title="Returns ." alt="" coords="463,91,621,131"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="396,109,449,109,449,114,396,114"/>
+<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="445,156,639,181"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="397,130,477,150,475,155,396,136"/>
+</map>

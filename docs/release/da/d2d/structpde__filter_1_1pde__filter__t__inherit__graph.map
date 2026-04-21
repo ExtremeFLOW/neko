@@ -1,0 +1,5 @@
+<map id="pde_filter::pde_filter_t" name="pde_filter::pde_filter_t">
+<area shape="rect" id="Node000001" title="A PDE based filter mapping $\rho \mapsto \tilde{\rho}$, see Lazarov &amp; O. Sigmund 2010,..." alt="" coords="5,79,169,104"/>
+<area shape="rect" id="Node000002" href="$de/da7/structfilter_1_1filter__t.html" title="Base abstract class for filter." alt="" coords="36,5,139,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,44,90,79,85,79,85,44"/>
+</map>

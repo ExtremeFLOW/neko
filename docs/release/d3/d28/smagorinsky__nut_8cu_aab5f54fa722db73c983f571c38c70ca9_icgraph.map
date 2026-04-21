@@ -1,0 +1,11 @@
+<map id="cuda_smagorinsky_nut_compute" name="cuda_smagorinsky_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="767,64,937,104"/>
+<area shape="rect" id="Node000002" href="$d6/d30/namespacedevice__smagorinsky__nut.html#a47eaf1b109deb3ebb28908434510e3e6" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="528,57,719,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="753,87,719,87,719,81,753,81"/>
+<area shape="rect" id="Node000003" href="$d6/deb/interfacedevice__smagorinsky__nut_1_1hip__smagorinsky__nut__compute.html#a292ccf9c6e282cb4de30f92349b1815a" title=" " alt="" coords="248,5,480,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="514,68,480,62,481,57,515,63"/>
+<area shape="rect" id="Node000004" href="$dd/d4e/namespacesmagorinsky__device.html#aca81097aab237ed87916a91e70ee0875" title="Compute eddy viscosity on the device." alt="" coords="275,99,453,154"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="515,104,453,115,453,109,514,99"/>
+<area shape="rect" id="Node000005" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="5,107,200,147"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="261,129,200,129,200,124,261,124"/>
+</map>

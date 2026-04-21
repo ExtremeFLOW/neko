@@ -1,0 +1,6 @@
+<map id="hip_vreman_nut_compute" name="hip_vreman_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,196,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="244,29,408,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,47,230,47,230,52,196,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="284,30,282,20,288,10,303,5,326,3,352,6,366,13,364,18,351,11,326,8,304,10,292,15,287,21,289,28"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="device_jacobi::device_jacobi_free" name="device_jacobi::device_jacobi_free">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,168,75"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="216,5,376,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,41,202,36,203,41,169,46"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="221,70,371,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,63,208,68,207,74,168,68"/>
+</map>

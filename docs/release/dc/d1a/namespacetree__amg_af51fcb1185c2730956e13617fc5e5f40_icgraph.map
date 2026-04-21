@@ -1,0 +1,5 @@
+<map id="tree_amg::tamg_matvec_flat_impl" name="tree_amg::tamg_matvec_flat_impl">
+<area shape="rect" id="Node000001" title="Ignore this. For piecewise constant, can create index map directly to finest level." alt="" coords="236,5,419,45"/>
+<area shape="rect" id="Node000002" href="$dc/d1a/namespacetree__amg.html#ade46664fb2b37237c10f395d1f5cda07" title="Wrapper for matrix vector product using the TreeAMG hierarchy structure b=Ax done as vec_out = A * ve..." alt="" coords="5,13,188,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,28,188,28,188,23,223,23"/>
+</map>

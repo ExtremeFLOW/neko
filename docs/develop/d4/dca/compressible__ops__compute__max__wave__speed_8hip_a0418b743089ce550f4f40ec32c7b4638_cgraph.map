@@ -1,0 +1,6 @@
+<map id="hip_compute_max_wave_speed" name="hip_compute_max_wave_speed">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,189,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="237,29,401,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,47,224,47,224,52,190,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="278,30,275,20,282,10,297,5,319,3,345,6,359,13,357,18,344,11,319,8,298,10,285,15,281,21,283,28"/>
+</map>

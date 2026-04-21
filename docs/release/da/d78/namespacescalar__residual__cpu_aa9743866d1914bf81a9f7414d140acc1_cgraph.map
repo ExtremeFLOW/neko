@@ -1,0 +1,7 @@
+<map id="scalar_residual_cpu::scalar_residual_cpu_compute" name="scalar_residual_cpu::scalar_residual_cpu_compute">
+<area shape="rect" id="Node000001" title="Compute the residual." alt="" coords="5,16,164,71"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="216,5,303,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,29,202,24,203,29,165,34"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="212,55,307,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,52,199,56,198,62,164,57"/>
+</map>

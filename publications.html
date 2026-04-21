@@ -1,0 +1,35 @@
+---
+layout: default
+title: Publications
+permalink: /publications.html
+---
+
+<section class="page-header">
+  <h1>Publications</h1>
+  <p>
+    A curated list of papers and proceedings connected to the Neko framework and
+    the methods, performance work, and applications around it.
+  </p>
+</section>
+
+{% assign pubs_by_year = site.data.publications | group_by: "year" %}
+
+<div class="bibliography">
+  {% for group in pubs_by_year %}
+    <section class="bib-year-group">
+      <h2 class="bib-year">{{ group.name }}</h2>
+      <ol class="bib-list">
+        {% for pub in group.items %}
+          <li class="bib-item">
+            <span class="bib-authors">{{ pub.authors }}</span>
+            <span class="bib-title">“{{ pub.title }}.”</span>
+            <span class="bib-venue">{{ pub.venue }}.</span>
+            {% if pub.doi %}
+              <a href="{{ pub.doi }}">DOI</a>.
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endfor %}
+</div>

@@ -1,0 +1,10 @@
+<map id="math::glsubnorm" name="math::glsubnorm">
+<area shape="rect" id="Node000001" title="Returns the norm of the difference of two vectors ." alt="" coords="256,63,389,88"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="361,53,351,45,323,41,300,43,287,48,285,54,291,61,287,64,280,54,284,44,298,38,323,36,353,40,365,49"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a740c53e1107f421c70a60d5609a25091" title=" " alt="" coords="5,5,208,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="263,61,207,46,159,33,160,28,209,41,265,56"/>
+<area shape="rect" id="Node000003" href="$dc/d12/namespacematrix__math.html#ad06fcb14eebfb3cfeb59eb768bd49b76" title="Global subtracted norm of two matrices ." alt="" coords="28,55,185,95"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="242,78,186,78,186,73,242,73"/>
+<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#aa13a99b5e0cdf2bf91523adf274b8298" title=" " alt="" coords="30,119,183,159"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="266,95,176,122,174,117,265,90"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="sighdl_trap_cpulimit" name="sighdl_trap_cpulimit">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,160,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="317,29,481,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,47,304,47,304,52,160,52"/>
+<area shape="rect" id="Node000003" href="$da/d1e/sighdl_8c.html#a09ba75678949b7855e9cb33dd30c4df9" title=" " alt="" coords="208,62,269,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="161,59,195,65,194,70,160,65"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="369,29,367,20,372,11,383,5,399,3,418,6,429,13,426,17,416,11,399,8,384,10,375,14,372,21,374,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="269,67,303,62,304,67,270,73"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="device_math::device_subcol3" name="device_math::device_subcol3">
+<area shape="rect" id="Node000001" title="Returns ." alt="" coords="497,156,655,196"/>
+<area shape="rect" id="Node000002" href="$d9/de3/namespaceadv__no__dealias.html#acc7206a9cea50114cfc4864cb2385984" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="247,5,435,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="548,147,504,102,477,79,448,60,423,48,425,43,451,55,480,75,508,98,552,144"/>
+<area shape="rect" id="Node000003" href="$d9/de3/namespaceadv__no__dealias.html#ab4cd807b7ab3b310c44c834e3dd0f16a" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="233,69,449,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="519,153,448,124,413,112,415,107,450,119,521,148"/>
+<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605" title="Returns ." alt="" coords="249,134,433,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="483,167,433,161,434,156,484,162"/>
+<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a91cd44255623c158398ffbe4637ff26a" title="Returns ." alt="" coords="263,184,420,224"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="484,190,421,197,420,192,483,184"/>
+<area shape="rect" id="Node000007" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="265,248,417,288"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="525,205,450,238,416,251,414,245,448,234,523,200"/>
+<area shape="rect" id="Node000008" href="$d3/d0d/namespacevector__math.html#ab4bc4dc15b3799233b025018f6d4500a" title="Returns ." alt="" coords="265,312,418,352"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="553,208,509,257,481,281,451,302,419,317,417,312,448,298,478,277,505,253,549,205"/>
+<area shape="rect" id="Node000005" href="$d0/d7b/namespacebrinkman__source__term.html#a90ee5820de2f6e73f56094b091c16c23" title="Computes the source term and adds the result to fields." alt="" coords="5,119,185,174"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="235,149,185,149,185,144,235,144"/>
+</map>

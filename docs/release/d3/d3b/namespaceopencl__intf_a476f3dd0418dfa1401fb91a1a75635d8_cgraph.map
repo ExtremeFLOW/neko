@@ -1,0 +1,4 @@
+<map id="opencl_intf::opencl_device_count" name="opencl_intf::opencl_device_count">
+<area shape="rect" id="Node000001" title="Return the number of OpenCL devices." alt="" coords="5,29,149,69"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="49,29,48,20,52,11,62,5,77,3,95,6,104,13,101,17,93,11,77,8,64,10,56,14,53,21,55,28"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="neko_mpi_types::mpi_type_nmsh_quad_init" name="neko_mpi_types::mpi_type_nmsh_quad_init">
+<area shape="rect" id="Node000001" title="Define a MPI derived type for a 2d nmsh quad." alt="" coords="388,5,556,45"/>
+<area shape="rect" id="Node000002" href="$d7/dd4/namespaceneko__mpi__types.html#a119aebb71e9f7bc6fff6105784ecac3b" title="Define all MPI derived types." alt="" coords="173,5,340,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="374,28,340,28,340,23,374,23"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="5,13,125,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="159,28,125,28,125,23,159,23"/>
+</map>

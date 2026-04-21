@@ -1,0 +1,11 @@
+<map id="hip_intf::hip_device_count" name="hip_intf::hip_device_count">
+<area shape="rect" id="Node000001" title="Return the number of available HIP devices." alt="" coords="572,29,720,69"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="680,18,668,11,646,8,627,10,615,15,611,21,613,28,608,30,606,20,612,11,626,5,646,3,670,6,682,13"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aab9b9e345cf9153c37f6376d32dbb012" title="Return the number of available devices." alt="" coords="365,37,524,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="558,52,524,52,524,47,558,47"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="480,27,470,18,445,15,424,17,413,22,410,28,416,35,412,38,405,28,409,18,422,12,445,10,472,14,483,22"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="173,37,317,62"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="351,52,318,52,318,47,351,47"/>
+<area shape="rect" id="Node000004" href="$dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="5,37,125,62"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="159,52,126,52,126,47,159,47"/>
+</map>
