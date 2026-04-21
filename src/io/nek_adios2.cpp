@@ -47,7 +47,7 @@ extern "C" void adios2_initialize_(
     const int *gdim,
     const int *comm_int,
     const int *sync_comm_int,
-    const int timeout_seconds
+    const int *timeout_seconds
 ){
     MPI_Comm comm = MPI_Comm_f2c(*comm_int);
     MPI_Comm sync_comm = MPI_Comm_f2c(*sync_comm_int);
@@ -58,7 +58,7 @@ extern "C" void adios2_initialize_(
     MPI_Comm_size(sync_comm, &sync_size);
     dbg_log(
         "initialize start"
-        " timeout=" + std::to_string(timeout_seconds) +
+        " timeout=" + std::to_string(*timeout_seconds) +
         " lxyz=" + std::to_string(*lxyz) +
         " nelv=" + std::to_string(*nelv) +
         " offset_el=" + std::to_string(*offset_el) +
@@ -69,13 +69,13 @@ extern "C" void adios2_initialize_(
     io_reader = adios.DeclareIO("streamReaderIO");
     io_reader.SetEngine("SST");
     io_reader.SetParameters(
-        {{"OpenTimeoutSecs", std::to_string(timeout_seconds)}}
+        {{"OpenTimeoutSecs", std::to_string(*timeout_seconds)}}
     );
 
     io_writer = adios.DeclareIO("streamWriterIO");
     io_writer.SetEngine("SST");
     io_writer.SetParameters(
-        {{"OpenTimeoutSecs", std::to_string(timeout_seconds)}}
+        {{"OpenTimeoutSecs", std::to_string(*timeout_seconds)}}
     );
     dbg_log("declared streamReaderIO and streamWriterIO");
 
