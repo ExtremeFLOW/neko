@@ -1531,6 +1531,8 @@ contains
     call h5pclose_f(plist_id, ierr)
     call h5close_f(ierr)
 
+    call fields%free()
+
   end subroutine vtkhdf_file_read
 
   !> Read one field from VTKHDF/PointData.
