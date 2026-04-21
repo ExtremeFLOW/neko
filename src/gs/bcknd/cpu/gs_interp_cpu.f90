@@ -64,10 +64,6 @@ module gs_interp_cpu
      real(rp), allocatable, dimension(:, :, :) :: mult_fcs_ji
      !> Inverse of face global multiplicity for J^-1 operator (before action)
      real(rp), allocatable, dimension(:, :, :) :: mult_fcs_ji_inv
-     !> Face global multiplicity for H1 operator (after action)
-     real(rp), allocatable, dimension(:, :, :) :: mult_fcs_h1
-     !> Inverse of face global multiplicity for H1 operator (before action)
-     real(rp), allocatable, dimension(:, :, :) :: mult_fcs_h1_inv
      !> Edge global multiplicity for J^T operator (after action)
      real(rp), allocatable, dimension(:, :) :: mult_edg_jt
      !> Inverse of edge global multiplicity for J^T operator (before action)
@@ -76,10 +72,6 @@ module gs_interp_cpu
      real(rp), allocatable, dimension(:, :) :: mult_edg_ji
      !> Inverse of edge global multiplicity for J^-1 operator (before action)
      real(rp), allocatable, dimension(:, :) :: mult_edg_ji_inv
-     !> Edge global multiplicity for H1 operator (after action)
-     real(rp), allocatable, dimension(:, :) :: mult_edg_h1
-     !> Inverse of edg global multiplicity for H1 operator (before action)
-     real(rp), allocatable, dimension(:, :) :: mult_edg_h1_inv
      !> Face work array
      real(rp), allocatable, dimension(:, :) :: face_tmp
      !> Edge work array
@@ -109,14 +101,10 @@ module gs_interp_cpu
      procedure, pass(this) :: remove_mult_jt => gs_interp_cpu_remove_mult_jt
      !> Remove multiplicity for J^-1
      procedure, pass(this) :: remove_mult_ji => gs_interp_cpu_remove_mult_ji
-     !> Remove multiplicity for H1
-     procedure, pass(this) :: remove_mult_h1 => gs_interp_cpu_remove_mult_h1
      !> Add multiplicity for J^T
      procedure, pass(this) :: add_mult_jt => gs_interp_cpu_add_mult_jt
      !> Add multiplicity for J^-1
      procedure, pass(this) :: add_mult_ji => gs_interp_cpu_add_mult_ji
-     !> Add multiplicity for H1
-     procedure, pass(this) :: add_mult_h1 => gs_interp_cpu_add_mult_h1
      !> AMR restart
      procedure, pass(this) :: amr_restart => gs_interp_cpu_amr_restart
   end type gs_interp_cpu_t
@@ -253,10 +241,9 @@ contains
   !> Initialise multiplicity arrays
   !! @param[in]  mult_jt  multiplicity array for J^T for the whole mesh
   !! @param[in]  mult_ji  multiplicity array for J^-1 for the whole mesh
-  !! @param[in]  mult_h1  multiplicity array for H1 for the whole mesh
-  subroutine gs_interp_cpu_init_mult(this, mult_jt, mult_ji, mult_h1)
+  subroutine gs_interp_cpu_init_mult(this, mult_jt, mult_ji)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:, :, :, :) , intent(in) :: mult_jt, mult_ji, mult_h1
+    real(rp), dimension(:, :, :, :) , intent(in) :: mult_jt, mult_ji
     integer :: il, jl, kl, lposx, lposy, itmp
     real(rp), parameter :: one = 1.0_rp
 
@@ -269,9 +256,7 @@ contains
             allocate(this%mult_fcs_jt(lx, lx, nhang_fcs), &
                  this%mult_fcs_jt_inv(lx, lx, nhang_fcs), &
                  this%mult_fcs_ji(lx, lx, nhang_fcs), &
-                 this%mult_fcs_ji_inv(lx, lx, nhang_fcs), &
-                 this%mult_fcs_h1(lx, lx, nhang_fcs), &
-                 this%mult_fcs_h1_inv(lx, lx, nhang_fcs))
+                 this%mult_fcs_ji_inv(lx, lx, nhang_fcs))
 
             ! extract face multiplicity
             do il = 1, this%nhang_el
@@ -282,8 +267,6 @@ contains
                           this%mult_fcs_jt(:, :, jl), this%hang_fcs(jl), lx)
                      call face_to_vector(mult_ji(:, :, :, this%hang_el(il)), &
                           this%mult_fcs_ji(:, :, jl), this%hang_fcs(jl), lx)
-                     call face_to_vector(mult_h1(:, :, :, this%hang_el(il)), &
-                          this%mult_fcs_h1(:, :, jl), this%hang_fcs(jl), lx)
                   end do
                end if
             end do
@@ -293,8 +276,6 @@ contains
                     this%mult_fcs_jt(il, jl, kl)
                this%mult_fcs_ji_inv(il, jl, kl) = one / &
                     this%mult_fcs_ji(il, jl, kl)
-               this%mult_fcs_h1_inv(il, jl, kl) = one / &
-                    this%mult_fcs_h1(il, jl, kl)
             end do
             ! get multiplicity after operator action
             ! this does not work for lx = 2
@@ -303,7 +284,6 @@ contains
                lposy = this%hang_fcs_pos(il) / 2 + 1
                call mult_fill_fcs(lx, lposx, lposy, this%mult_fcs_jt(:, :, il))
                call mult_fill_fcs(lx, lposx, lposy, this%mult_fcs_ji(:, :, il))
-               call mult_fill_fcs(lx, lposx, lposy, this%mult_fcs_h1(:, :, il))
             end do
          end if
 
@@ -313,9 +293,7 @@ contains
             allocate(this%mult_edg_jt(lx, nhang_edg), &
                  this%mult_edg_jt_inv(lx, nhang_edg), &
                  this%mult_edg_ji(lx, nhang_edg), &
-                 this%mult_edg_ji_inv(lx, nhang_edg), &
-                 this%mult_edg_h1(lx, nhang_edg), &
-                 this%mult_edg_h1_inv(lx, nhang_edg))
+                 this%mult_edg_ji_inv(lx, nhang_edg))
 
             ! extract edge multiplicity
             do il = 1, this%nhang_el
@@ -326,8 +304,6 @@ contains
                           this%mult_edg_jt(:, jl), this%hang_edg(jl), lx)
                      call edge_to_vector(mult_ji(:, :, :, this%hang_el(il)), &
                           this%mult_edg_ji(:, jl), this%hang_edg(jl), lx)
-                     call edge_to_vector(mult_h1(:, :, :, this%hang_el(il)), &
-                          this%mult_edg_h1(:, jl), this%hang_edg(jl), lx)
                   end do
                end if
             end do
@@ -335,7 +311,6 @@ contains
             do concurrent(il = 1 : lx, kl = 1: nhang_edg)
                this%mult_edg_jt_inv(il, kl) = one / this%mult_edg_jt(il, kl)
                this%mult_edg_ji_inv(il, kl) = one / this%mult_edg_ji(il, kl)
-               this%mult_edg_h1_inv(il, kl) = one / this%mult_edg_h1(il, kl)
             end do
             ! get multiplicity after operator action
             ! this does not work for lx = 2
@@ -343,7 +318,6 @@ contains
                lposx = this%hang_edg_pos(il) + 1
                call mult_fill_edg(lx, lposx, this%mult_edg_jt(:, il))
                call mult_fill_edg(lx, lposx, this%mult_edg_ji(:, il))
-               call mult_fill_edg(lx, lposx, this%mult_edg_h1(:, il))
             end do
          end if
       end if
@@ -429,14 +403,10 @@ contains
     if (allocated(this%mult_fcs_jt_inv)) deallocate(this%mult_fcs_jt_inv)
     if (allocated(this%mult_fcs_ji)) deallocate(this%mult_fcs_ji)
     if (allocated(this%mult_fcs_ji_inv)) deallocate(this%mult_fcs_ji_inv)
-    if (allocated(this%mult_fcs_h1)) deallocate(this%mult_fcs_h1)
-    if (allocated(this%mult_fcs_h1_inv)) deallocate(this%mult_fcs_h1_inv)
     if (allocated(this%mult_edg_jt)) deallocate(this%mult_edg_jt)
     if (allocated(this%mult_edg_jt_inv)) deallocate(this%mult_edg_jt_inv)
     if (allocated(this%mult_edg_ji)) deallocate(this%mult_edg_ji)
     if (allocated(this%mult_edg_ji_inv)) deallocate(this%mult_edg_ji_inv)
-    if (allocated(this%mult_edg_h1)) deallocate(this%mult_edg_h1)
-    if (allocated(this%mult_edg_h1_inv)) deallocate(this%mult_edg_h1_inv)
     if (allocated(this%face_tmp)) deallocate(this%face_tmp)
     if (allocated(this%edge_tmp)) deallocate(this%edge_tmp)
     if (allocated(this%facein)) deallocate(this%facein)
@@ -899,45 +869,6 @@ contains
 
   end subroutine gs_interp_cpu_remove_mult_ji
 
-  !> Remove multiplicity for H1
-  !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_remove_mult_h1(this, field)
-    class(gs_interp_cpu_t), intent(inout) :: this
-    type(field_t), intent(inout) :: field
-    integer :: il, jl, itmp
-
-    if (this%ifhang) then
-       do il = 1, this%nhang_el
-          ! face multiplicity
-          itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
-          if (itmp .gt. 0) then
-             do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
-                call face_to_vector(field%x(:, :, :, this%hang_el(il)), &
-                     this%face_tmp, this%hang_fcs(jl), this%lx)
-                this%face_tmp(:, :) = this%face_tmp(:, :) * &
-                     this%mult_fcs_h1_inv(:, :, jl)
-                call vector_to_face(field%x(:, :, :, this%hang_el(il)), &
-                     this%face_tmp, this%hang_fcs(jl), this%lx)
-             end do
-          end if
-
-          ! edge multiplicity
-          itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
-          if (itmp .gt. 0) then
-             do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
-                call edge_to_vector(field%x(:, :, :, this%hang_el(il)), &
-                     this%edge_tmp, this%hang_edg(jl), this%lx)
-                this%edge_tmp(:) = this%edge_tmp(:) * &
-                     this%mult_edg_h1_inv(:, jl)
-                call vector_to_edge(field%x(:, :, :, this%hang_el(il)), &
-                     this%edge_tmp, this%hang_edg(jl), this%lx)
-             end do
-          end if
-       end do
-    end if
-
-  end subroutine gs_interp_cpu_remove_mult_h1
-
   !> Add multiplicity for J^T
   !! @param[inout]  field    field for face interpolation
   subroutine gs_interp_cpu_add_mult_jt(this, field)
@@ -1016,45 +947,6 @@ contains
 
   end subroutine gs_interp_cpu_add_mult_ji
 
-  !> Add multiplicity for H1
-  !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_add_mult_h1(this, field)
-    class(gs_interp_cpu_t), intent(inout) :: this
-    type(field_t), intent(inout) :: field
-    integer :: il, jl, itmp
-
-    if (this%ifhang) then
-       do il = 1, this%nhang_el
-          ! face multiplicity
-          itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
-          if (itmp .gt. 0) then
-             do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
-                call face_to_vector(field%x(:, :, :, this%hang_el(il)), &
-                     this%face_tmp, this%hang_fcs(jl), this%lx)
-                this%face_tmp(:, :) = this%face_tmp(:, :) * &
-                     this%mult_fcs_h1(:, :, jl)
-                call vector_to_face(field%x(:, :, :, this%hang_el(il)), &
-                     this%face_tmp, this%hang_fcs(jl), this%lx)
-             end do
-          end if
-
-          ! edge multiplicity
-          itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
-          if (itmp .gt. 0) then
-             do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
-                call edge_to_vector(field%x(:, :, :, this%hang_el(il)), &
-                     this%edge_tmp, this%hang_edg(jl), this%lx)
-                this%edge_tmp(:) = this%edge_tmp(:) * &
-                     this%mult_edg_h1(:, jl)
-                call vector_to_edge(field%x(:, :, :, this%hang_el(il)), &
-                     this%edge_tmp, this%hang_edg(jl), this%lx)
-             end do
-          end if
-       end do
-    end if
-
-  end subroutine gs_interp_cpu_add_mult_h1
-
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
@@ -1074,12 +966,14 @@ contains
     if (allocated(this%jm_edg)) deallocate(this%jm_edg)
     if (allocated(this%jm_edgi)) deallocate(this%jm_edgi)
     if (allocated(this%zero_msk)) deallocate(this%zero_msk)
+    if (allocated(this%mult_fcs_jt)) deallocate(this%mult_fcs_jt)
+    if (allocated(this%mult_fcs_jt_inv)) deallocate(this%mult_fcs_jt_inv)
+    if (allocated(this%mult_fcs_ji)) deallocate(this%mult_fcs_ji)
+    if (allocated(this%mult_fcs_ji_inv)) deallocate(this%mult_fcs_ji_inv)
     if (allocated(this%mult_edg_jt)) deallocate(this%mult_edg_jt)
     if (allocated(this%mult_edg_jt_inv)) deallocate(this%mult_edg_jt_inv)
     if (allocated(this%mult_edg_ji)) deallocate(this%mult_edg_ji)
     if (allocated(this%mult_edg_ji_inv)) deallocate(this%mult_edg_ji_inv)
-    if (allocated(this%mult_edg_h1)) deallocate(this%mult_edg_h1)
-    if (allocated(this%mult_edg_h1_inv)) deallocate(this%mult_edg_h1_inv)
     if (allocated(this%facein)) deallocate(this%facein)
     if (allocated(this%faceout)) deallocate(this%faceout)
     if (allocated(this%facetmp)) deallocate(this%facetmp)

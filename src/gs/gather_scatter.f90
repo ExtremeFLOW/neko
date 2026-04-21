@@ -358,12 +358,11 @@ contains
   subroutine gs_interp_mult_init(gs)
     type(gs_t), intent(inout) :: gs
     integer :: il
-    type(field_t) :: mult_jt, mult_ji, mult_h1
+    type(field_t) :: mult_jt, mult_ji
 
     if (allocated(gs%interp)) then
        call mult_jt%init(gs%dofmap)
        call mult_ji%init(gs%dofmap)
-       call mult_h1%init(gs%dofmap)
        il = mult_jt%size()
        mult_jt%x(:, :, :, :) = 1.0_rp
        
@@ -373,13 +372,9 @@ contains
        mult_ji%x(:, :, :, :) = 1.0_rp
        call gs%interp%apply_ji(mult_ji)
        call gs%gs_op_vector(mult_ji%x, il, GS_OP_ADD)
-       mult_h1%x(:, :, :, :) = 1.0_rp
-       call gs%interp%zero_children(mult_h1)
-       call gs%gs_op_vector(mult_h1%x, il, GS_OP_ADD)
-       call gs%interp%init_mult(mult_jt%x, mult_ji%x, mult_h1%x)
+       call gs%interp%init_mult(mult_jt%x, mult_ji%x)
        call mult_jt%free()
        call mult_ji%free()
-       call mult_h1%free()
     end if
 
   end subroutine gs_interp_mult_init
@@ -1234,10 +1229,6 @@ contains
     type(c_ptr), optional, intent(inout) :: event
     integer :: n, op
 
-    if (allocated(gs%interp)) call gs%interp%zero_children(u)
-!    if (allocated(gs%interp)) call gs%interp%apply_ji(u)
-    
-
     n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
     if (present(event)) then
        call gs_op_vector(gs, u%x, n, op, event)
@@ -1245,13 +1236,7 @@ contains
        call gs_op_vector(gs, u%x, n, op)
     end if
 
-!    if (allocated(gs%interp)) call gs%interp%remove_mult_h1(u)
-!    if (allocated(gs%interp)) call gs%interp%remove_mult_ji(u)
-    
     if (allocated(gs%interp)) call gs%interp%apply_j(u)
-    
-!    if (allocated(gs%interp)) call gs%interp%add_mult_h1(u)
-!    if (allocated(gs%interp)) call gs%interp%add_mult_ji(u)
 
   end subroutine gs_op_fld_h1
 

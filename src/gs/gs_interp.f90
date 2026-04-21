@@ -104,14 +104,10 @@ module gs_interp
      procedure(gs_interp_apply), pass(this), deferred :: remove_mult_jt
      !> Remove multiplicity for J^-1
      procedure(gs_interp_apply), pass(this), deferred :: remove_mult_ji
-     !> Remove multiplicity for H1
-     procedure(gs_interp_apply), pass(this), deferred :: remove_mult_h1
      !> Add multiplicity for J^T
      procedure(gs_interp_apply), pass(this), deferred :: add_mult_jt
      !> Add multiplicity for J^-1
      procedure(gs_interp_apply), pass(this), deferred :: add_mult_ji
-     !> Add multiplicity for H1
-     procedure(gs_interp_apply), pass(this), deferred :: add_mult_h1
      !> AMR restart of a base type
      procedure, pass(this) :: amr_restart_base => gs_interp_amr_restart_base
   end type gs_interp_t
@@ -126,10 +122,10 @@ module gs_interp
      end subroutine gs_interp_init
 
      !> Initialise multiplicity arrays
-     subroutine gs_interp_init_mult(this, mult_jt, mult_ji, mult_h1)
+     subroutine gs_interp_init_mult(this, mult_jt, mult_ji)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
-       real(rp), dimension(:, :, :, :) , intent(in) :: mult_jt, mult_ji, mult_h1
+       real(rp), dimension(:, :, :, :) , intent(in) :: mult_jt, mult_ji
      end subroutine gs_interp_init_mult
 
      !> Free GS interpolation data
