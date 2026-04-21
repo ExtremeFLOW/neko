@@ -191,7 +191,7 @@ contains
          integer(kind=C_INT) :: gdim
          type(*) :: comm
          type(*) :: sync_comm
-         integer(kind=C_INT) :: timeout
+         integer(kind=C_INT), value :: timeout
        end subroutine c_adios2_initialize
     end interface
 
