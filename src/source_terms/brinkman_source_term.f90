@@ -595,62 +595,59 @@ contains
          type(fld_file_data_t) :: fld_data
          type(field_list_t) :: fld_fields
          type(field_t), pointer :: fld
-         character(len=:), allocatable :: s_str
-         integer :: idx, n
+         character(len=80) :: s_str
+         integer :: idx(1), n
 
          call fld_data%init()
          call file%read(fld_data)
          n = temp_field%size()
 
-         select case (trim(field_name))
+         select case (field_name(1:1))
          case ('p')
-            ! if (NEKO_BCKND_DEVICE .eq. 1) then
-            !    call fld_data%p%copy_from(DEVICE_TO_HOST, sync = .true.)
-            ! end if
-            call copy(temp_field%x, fld_data%p%x, n)
+            call fld_data%import_fields(p = temp_field)
          case ('u')
-            ! if (NEKO_BCKND_DEVICE .eq. 1) then
-            !    call fld_data%u%copy_from(DEVICE_TO_HOST, sync = .true.)
-            ! end if
-            call copy(temp_field%x, fld_data%u%x, n)
+            call fld_data%import_fields(u = temp_field)
          case ('v')
-            ! if (NEKO_BCKND_DEVICE .eq. 1) then
-            !    call fld_data%v%copy_from(DEVICE_TO_HOST, sync = .true.)
-            ! end if
-
-            !  call fld_data%v%copy_from(DEVICE_TO_HOST, sync = .true.)
-            call fld_data%v%copy_from(HOST_TO_DEVICE, sync = .true.)
-
             call fld_data%import_fields(v = temp_field)
-
          case ('w')
-            ! if (NEKO_BCKND_DEVICE .eq. 1) then
-            !    call fld_data%w%copy_from(DEVICE_TO_HOST, sync = .true.)
-            ! end if
-            call copy(temp_field%x, fld_data%w%x, n)
+            call fld_data%import_fields(w = temp_field)
          case ('t')
-            ! if (NEKO_BCKND_DEVICE .eq. 1) then
-            !    call fld_data%t%copy_from(DEVICE_TO_HOST, sync = .true.)
-            ! end if
-            call copy(temp_field%x, fld_data%t%x, n)
-         case default
-            call neko_error('Field not found')
-            ! call fld_fields%init(fld_data%n_scalars)
+            call fld_data%import_fields(t = temp_field)
+         case ('s')
 
-            ! fld => fld_fields%get(field_name)
-            ! call copy(temp_field%x, fld%s%x, temp_field%size())
-            ! call fld_fields%free()
+            if (len_trim(field_name) .eq. 3) then
+               read(field_name(2:3), '(I2)') idx(1)
+            else if (len_trim(field_name) .eq. 2) then
+               read(field_name(2:2), '(I1)') idx(1)
+            else
+               call neko_error('For fields with prefix s, the field name ' // &
+                    'must be in the format sXX, where XX is the index of ' // &
+                    'the field in the fld file')
+            end if
+
+            call fld_fields%init(1)
+            call fld_fields%assign(1, temp_field)
+
+            call fld_data%import_fields(s_target_list = fld_fields, &
+                 s_index_list = idx)
+
+            call fld_fields%free()
+         case default
+            call neko_error('Unknown field prefix in field name: ' // &
+                 trim(field_name))
          end select
+
          call fld_data%free()
        end block
 
-       !  call temp_field%copy_from(DEVICE_TO_HOST, sync = .true.)
-       !  call temp_field%copy_from(HOST_TO_DEVICE, sync = .true.)
     case ('vtkhdf')
+
        ! VTKHDF will read the name of the field object.
        tmp_str = trim(temp_field%name)
        temp_field%name = trim(field_name)
+
        call file%read(temp_field)
+
        temp_field%name = trim(tmp_str)
 
     case default
