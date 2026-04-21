@@ -52,8 +52,8 @@ extern "C" {
           void *q_diagn, void *h_x_idx, void *h_y_idx,
           void *h_z_idx) {
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
+    const dim3 nthrds(256, 1, 1);
+    const dim3 nblcks(((*n_nodes) + 256 - 1) / 256, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     real g1 = g[0], g2 = g[1], g3 = g[2];
