@@ -120,15 +120,18 @@ contains
   end subroutine set_vector
 
   !> Setup the hypre solver object
-  subroutine hypre_solver_setup(this, coef)
+  subroutine hypre_solver_setup(this, coef, bdry_flg, n)
+    !DIR$ INLINENEVER hypre_solver_setup
     class(hypre_solver_t), intent(inout) :: this
+    integer, intent(in) :: n
     type(coef_t), intent(in), target :: coef
+    real(kind=rp), dimension(n), intent(inout) :: bdry_flg
 
     ! workaround to have dofs as i4 instead of i8
     call hypre_dofs_workaround(this, coef)
 
     ! Asseble the linear system
-    call hypre_matrix_assemble_from_neko(coef, this%A, this%b, this%x)
+    call hypre_matrix_assemble_from_neko(coef, this%A, this%b, this%x, bdry_flg, n)
 
     call hypre_matrix_get_object(this%A, this%parcsr_A)
     call hypre_vector_get_object(this%b, this%par_b)
@@ -196,17 +199,18 @@ contains
     do i = 1, n
        hs%dofs(i) = coeff%dof%dof(i,1,1,1)
     end do
-    print *, "DOF workaround mapping", n
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(hs%dofs, hs%dofs_d, n)
        call device_memcpy(hs%dofs, hs%dofs_d, n, HOST_TO_DEVICE, .true.)
     end if
   end subroutine hypre_dofs_workaround
 
-  subroutine hypre_matrix_assemble_from_neko(coef, A, b, x)
+  subroutine hypre_matrix_assemble_from_neko(coef, A, b, x, bdry_flg, n)
     !DIR$ INLINENEVER hypre_matrix_assemble_from_neko
+    integer, intent(in) :: n
     type(coef_t), intent(in), target :: coef
     type(c_ptr), intent(inout) :: A, b, x
+    real(kind=rp), dimension(n), intent(inout) :: bdry_flg
     real(kind=rp), allocatable :: A_vals(:)
     integer, allocatable :: A_rows(:), A_cols(:)
     integer :: nrows
@@ -218,8 +222,8 @@ contains
     integer :: ilower, iupper, jlower, jupper
     integer :: e, k, j, i, s, l
     integer :: nnz, nelv, lx, idof
+    integer :: lin_idx
     type(c_ptr) :: rows_d, cols_d, vals_d, ncols_d
-    print *, "mtx_assemble", coef%dof%size()
     lx = coef%dof%Xh%lx
     nelv = coef%dof%msh%nelv
     ! storing the matrix in (i,j,val) format needs one entry per dof contribution
@@ -249,41 +253,50 @@ contains
                  ! Hacky if statement to support 2 mpi ranks (more not supported).
                  ! NOTE: Periodic BC not supported on 2 mpi ranks.
                  if((pe_rank .eq. 0).or.(.not. coef%dof%shared_dof(i,j,k,e))) then
-                  do s = 1, lx
-                     tmp2 = 0.0_rp
-                     do l = 1, lx
-                        tmp2 = tmp2 + Dt(i,l) * D(l,s)
-                     end do
 
-                     A_vals(idof) = tmp2 * G11(s,j,k,e)
-                     A_rows(idof) = coef%dof%dof(i,j,k,e)
-                     A_cols(idof) = coef%dof%dof(s,j,k,e)
-                     idof = idof + 1
-                  end do
+                    lin_idx = (i + lx*((j-1) + lx*((k-1) + lx*((e-1)))))
+                    if (bdry_flg(lin_idx) .eq. 0.0) then
+                       A_vals(idof) = 1.0_rp * coef%mult(i,j,k,e)
+                       A_rows(idof) = coef%dof%dof(i,j,k,e)
+                       A_cols(idof) = coef%dof%dof(i,j,k,e)
+                       idof = idof + 1
+                    else
+                       do s = 1, lx
+                          tmp2 = 0.0_rp
+                          do l = 1, lx
+                             tmp2 = tmp2 + Dt(i,l) * D(l,s)
+                          end do
 
-                  do s = 1, lx
-                     tmp2 = 0.0_rp
-                     do l = 1, lx
-                        tmp2 = tmp2 + Dt(j,l) * D(l,s)
-                     end do
+                          A_vals(idof) = tmp2 * G11(s,j,k,e)
+                          A_rows(idof) = coef%dof%dof(i,j,k,e)
+                          A_cols(idof) = coef%dof%dof(s,j,k,e)
+                          idof = idof + 1
+                       end do
 
-                     A_vals(idof) = tmp2 * G22(i,s,k,e)
-                     A_rows(idof) = coef%dof%dof(i,j,k,e)
-                     A_cols(idof) = coef%dof%dof(i,s,k,e)
-                     idof = idof + 1
-                  end do
+                       do s = 1, lx
+                          tmp2 = 0.0_rp
+                          do l = 1, lx
+                             tmp2 = tmp2 + Dt(j,l) * D(l,s)
+                          end do
 
-                  do s = 1, lx
-                     tmp2 = 0.0_rp
-                     do l = 1, lx
-                        tmp2 = tmp2 + Dt(k,l) * D(l,s)
-                     end do
+                          A_vals(idof) = tmp2 * G22(i,s,k,e)
+                          A_rows(idof) = coef%dof%dof(i,j,k,e)
+                          A_cols(idof) = coef%dof%dof(i,s,k,e)
+                          idof = idof + 1
+                       end do
 
-                     A_vals(idof) = tmp2 * G33(i,j,s,e)
-                     A_rows(idof) = coef%dof%dof(i,j,k,e)
-                     A_cols(idof) = coef%dof%dof(i,j,s,e)
-                     idof = idof + 1
-                  end do
+                       do s = 1, lx
+                          tmp2 = 0.0_rp
+                          do l = 1, lx
+                             tmp2 = tmp2 + Dt(k,l) * D(l,s)
+                          end do
+
+                          A_vals(idof) = tmp2 * G33(i,j,s,e)
+                          A_rows(idof) = coef%dof%dof(i,j,k,e)
+                          A_cols(idof) = coef%dof%dof(i,j,s,e)
+                          idof = idof + 1
+                       end do
+                    end if
                  end if
 
                end do
@@ -304,7 +317,7 @@ contains
     ! TODO: For MPI parallelism, duplicated dofs need to be assigned
     !       to a single "owning" rank, which is currently not supported
     !       by the current neko dofmap
-    print *, "RANK", pe_rank, "ilower", ilower, "iupper", iupper, "jlower", jlower, "jupper", jupper
+    write(*,*) "RANK", pe_rank, "ilower", ilower, "iupper", iupper, "jlower", jlower, "jupper", jupper
 
     ! Initialize matrix
     call hypre_matrix_init(1, ilower, iupper, jlower, jupper, A)
@@ -352,6 +365,12 @@ contains
        end do
     end if
 
+    deallocate (rows)
+    deallocate (cols)
+    deallocate (vals)
+    deallocate (ncols)
+    deallocate (A_rows, A_cols, A_vals)
+
     call hypre_matrix_assemble(A)
   end subroutine hypre_matrix_assemble_from_neko
 
@@ -359,8 +378,8 @@ contains
     !DIR$ INLINENEVER count_and_fill_rows
     integer, intent(in) :: nnz
     integer, intent(out) :: nrows
-    integer, intent(in) :: A_rows(:)
-    integer, intent(inout) :: rows(:)
+    integer, allocatable, intent(in) :: A_rows(:)
+    integer, allocatable, target, intent(inout) :: rows(:)
     integer :: e, s, i, idof
     logical :: in_rows
     idof = 0
@@ -385,10 +404,11 @@ contains
   subroutine count_and_fill_cols_vals(A_rows, A_cols, A_vals, rows, cols, nrows, ncols, vals, nnz)
     !DIR$ INLINENEVER count_and_fill_cols_vals
     integer, intent(in) :: nnz, nrows
-    integer, intent(in) :: A_rows(:), A_cols(:), rows(:)
-    real(kind=rp), intent(in) :: A_vals(:)
-    integer, intent(inout) :: cols(:), ncols(:)
-    real(kind=rp), intent(inout) :: vals(:)
+    integer, allocatable, intent(in) :: A_rows(:), A_cols(:)
+    real(kind=rp), allocatable, intent(in) :: A_vals(:)
+    integer, allocatable, target, intent(in) :: rows(:)
+    integer, allocatable, target, intent(inout) :: cols(:), ncols(:)
+    real(kind=rp), allocatable, target, intent(inout) :: vals(:)
     integer :: k, e, idof
     idof = 0
     ncols(:) = 0
