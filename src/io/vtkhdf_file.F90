@@ -1631,26 +1631,54 @@ contains
     is_vds = (vds_count .gt. 0_size_t)
 
     if (is_vds) then
-       ! Get the source file pattern from the VDS mapping
+       call filename_split(fname, main_path, main_name, main_suffix)
+
+       ! Query mapping 0 to detect whether this is a printf-style pattern VDS
+       ! (Neko's own format uses a single mapping with %b as a block counter
+       ! placeholder) or a multi-mapping VDS where each timestep has its own
+       ! literal source file.
        call h5pget_virtual_filename_f(dcpl_id, 0_size_t, vds_src_file, ierr)
+       pct_pos = index(vds_src_file, '%b')
+
+       if (pct_pos .gt. 0) then
+          ! Pattern-based VDS: replace %b with the timestep counter.
+          ! If the stored path is absolute, use it as-is; otherwise prepend the
+          ! main file's directory so the path is resolved correctly regardless
+          ! of the process working directory.
+          if (vds_src_file(1:1) .eq. '/') then
+             write(ext_fname, '(A,I0,A)') &
+                  vds_src_file(1:pct_pos-1), counter, &
+                  trim(vds_src_file(pct_pos+2:))
+          else
+             write(ext_fname, '(A,A,I0,A)') &
+                  trim(main_path), vds_src_file(1:pct_pos-1), counter, &
+                  trim(vds_src_file(pct_pos+2:))
+          end if
+       else
+          ! Multi-mapping VDS: one mapping per timestep. Query the mapping
+          ! that corresponds directly to the requested counter instead of
+          ! always using mapping 0, which would silently read the wrong file.
+          if (int(counter, size_t) .ge. vds_count) then
+             call h5pclose_f(dcpl_id, ierr)
+             call h5dclose_f(dset_id, ierr)
+             call h5gclose_f(pointdata_grp, ierr)
+             write(error_message, '(A,I0,A,I0)') &
+                  'VTKHDF: VDS counter ', counter, &
+                  ' is out of range, number of mappings: ', int(vds_count)
+             call neko_error(trim(error_message))
+          end if
+          call h5pget_virtual_filename_f(dcpl_id, int(counter, size_t), &
+               vds_src_file, ierr)
+          if (vds_src_file(1:1) .eq. '/') then
+             ext_fname = trim(vds_src_file)
+          else
+             write(ext_fname, '(A,A)') trim(main_path), trim(vds_src_file)
+          end if
+       end if
+
        call h5pclose_f(dcpl_id, ierr)
        call h5dclose_f(dset_id, ierr)
        call h5gclose_f(pointdata_grp, ierr)
-
-       ! VDS source pattern uses printf-style %b for basename counter,
-       ! e.g. "design_0.data/%b.h5" -> "design_0.data/0.h5"
-       ! Replace %b with the actual counter value
-       call filename_split(fname, main_path, main_name, main_suffix)
-       pct_pos = index(vds_src_file, '%b')
-       if (pct_pos .gt. 0) then
-          write(ext_fname, '(A,A,I0,A)') &
-               trim(main_path), vds_src_file(1:pct_pos-1), counter, &
-               trim(vds_src_file(pct_pos+2:))
-       else
-          ! No pattern found, try the standard naming convention
-          write(ext_fname, '(A,A,".data/",I0,".h5")') &
-               trim(main_path), trim(main_name), counter
-       end if
 
        call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
        call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
