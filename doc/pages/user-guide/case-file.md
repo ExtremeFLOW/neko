@@ -538,7 +538,9 @@ A more detailed description of each boundary condition is provided below.
      the log-law constants, `z0`, which is the characteristic roughness
      height, and `rho`, which is the density (defaults to 1.0).
 
-   * The `most` model is a version of the `rough_log_law` adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given [below](#most-wall-model)
+   * The `most` model is a version of the `rough_log_law` adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given [below](#most-wall-model).
+
+   * The `richardson` model is simmilar to the `most` model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given [below](#richardson-wall-model).
 
     For all wall models, the distance to the sampling point has to be specified
     based on the off-wall index in the wall-normal direction. Thus, the sampling
@@ -579,7 +581,7 @@ A more detailed description of each boundary condition is provided below.
   ```
 
 #### MOST wall model
-The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law according to
+The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law based on the Obukhov length \f$L\f$, according to
 
 \f{eqnarray*}{
    \frac{\partial{V}}{\partial z} &=& \frac{u_*}{\kappa z}\phi_m\left(\frac{z}{L}\right), \\
@@ -685,6 +687,33 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
   Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60.
 </details>
 
+### Richardson wall model
+This Richardson-number based wall model is conceptually similar to the more well-known MOST-based wall model, but it computes the effect of the temperature stratification based on the bulk Richardson number instead of the Obukhov length.
+
+In the convective regime, the surface shear stress, \f$\tau\f$, and surface heat flux, \f$\overline{u'\theta'}\f$ are computed using the formulations of Louis 1979:
+\f{eqnarray*}{
+\tau &=& a^2 u^2 F_m\!\left(\frac{z}{z_0}, \mathrm{Ri}_b\right), \\
+\overline{u'\theta'} &=& \frac{a^2}{R}\, u\, \Delta\theta \, F_h\!\left(\frac{z}{z_0}, \mathrm{Ri}_b\right).
+\f}
+
+*Define variables!!!*
+
+In the stable regime, the surface shear stress and surface heat flux are computed based on Mauritsen et al. 2007:
+\f{eqnarray*}{
+\tau &=& \frac{\mathbf{u}^2}{\left[\ln\!\left(\dfrac{h}{z_0}\right)\right]^2} \,\frac{f_{\tau}^{\mathrm{stable}}(\mathrm{Ri}_b)}{f_{\tau}^{\mathrm{stable}}(0)} \left(\frac{\ell}{h}\right)^2, \\
+\overline{u'\theta'} &=& \frac{\theta_i - \theta_s}{\ln\!\left(\dfrac{h}{z_{0h}}\right)} \,\frac{f_{\theta}^{\mathrm{stable}}(\mathrm{Ri}_b)} {\left|f_{\theta}^{\mathrm{stable}}(0)\right|} \left(\frac{\ell}{h}\right) \frac{u_*}{\mathrm{Pr}}.
+\f}
+
+
+The keywords for this wall model are the same as for the [MOST model](#most-wall-model), and a time-varying temperature boundary condition can be applied in the same way as described for the MOST model.
+
+
+   <details>
+   <summary><b><u>References</u></b></summary>
+  Louis, J.-F. (1979). A parametric model of vertical eddy fluxes in the atmosphere. Boundary-Layer Meteorology, 17(2), 187–202. https://doi.org/10.1007/BF00117978
+
+  Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., & Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. https://doi.org/10.1175/2007JAS2294.1
+  </details>
 
 ### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
