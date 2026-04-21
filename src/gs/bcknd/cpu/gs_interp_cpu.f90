@@ -101,8 +101,10 @@ module gs_interp_cpu
      procedure, pass(this) :: apply_ji => gs_interp_cpu_apply_ji
      !> Perform transposed face/edge interpolation
      procedure, pass(this) :: apply_jt => gs_interp_cpu_apply_jt
-     !> Zero children faces/edges
+     !> Zero children's nonconforming faces/edges
      procedure, pass(this) :: zero_children => gs_interp_cpu_zero_children
+     !> Set children's nonconforming faces/edges
+     procedure, pass(this) :: set_children => gs_interp_cpu_set_children
      !> Remove multiplicity for J^T
      procedure, pass(this) :: remove_mult_jt => gs_interp_cpu_remove_mult_jt
      !> Remove multiplicity for J^-1
@@ -768,7 +770,7 @@ contains
 
   end subroutine gs_interp_cpu_apply_jt_elem_edge
 
-  !> Zero children's faces/edges
+  !> Zero children's nonconforming faces/edges
   !! @param[inout]  field    field for face interpolation
   subroutine gs_interp_cpu_zero_children(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
@@ -783,6 +785,41 @@ contains
     end if
 
   end subroutine gs_interp_cpu_zero_children
+
+  !> Set children's nonconforming faces/edges
+  !! @param[inout]  field    field for face interpolation
+  !! @param[in]     cnst     constatn value
+  subroutine gs_interp_cpu_set_children(this, field, cnst)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    type(field_t), intent(inout) :: field
+    real(rp), intent(in) :: cnst
+    integer :: il, jl, itmp
+
+    if (this%ifhang) then
+       this%face_tmp(:, :) = cnst
+       this%edge_tmp(:) = cnst
+       do il = 1, this%nhang_el
+          ! faces
+          itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
+          if (itmp .gt. 0) then
+             do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
+                call vector_to_face(field%x(:, :, :, this%hang_el(il)), &
+                     this%face_tmp, this%hang_fcs(jl), this%lx)
+             end do
+          end if
+
+          ! edges
+          itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
+          if (itmp .gt. 0) then
+             do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
+                call vector_to_edge(field%x(:, :, :, this%hang_el(il)), &
+                     this%edge_tmp, this%hang_edg(jl), this%lx)
+             end do
+          end if
+       end do
+    end if
+
+  end subroutine gs_interp_cpu_set_children
 
   !> Remove multiplicity for J^T
   !! @param[inout]  field    field for face interpolation

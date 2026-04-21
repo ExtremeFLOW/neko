@@ -96,8 +96,10 @@ module gs_interp
      procedure(gs_interp_apply), pass(this), deferred :: apply_ji
      !> Perform transposed face/edge interpolation
      procedure(gs_interp_apply), pass(this), deferred :: apply_jt
-     !> Zero children faces/edges
+     !> Zero children's nonconforming faces/edges
      procedure(gs_interp_apply), pass(this), deferred :: zero_children
+     !> Set children's nonconforming faces/edges
+     procedure(gs_interp_set), pass(this), deferred :: set_children
      !> Remove multiplicity for J^T
      procedure(gs_interp_apply), pass(this), deferred :: remove_mult_jt
      !> Remove multiplicity for J^-1
@@ -114,40 +116,42 @@ module gs_interp
      procedure, pass(this) :: amr_restart_base => gs_interp_amr_restart_base
   end type gs_interp_t
 
-  !> Abstract interface for initialising GS interpolation
   abstract interface
+     !> Initialise GS interpolation
      subroutine gs_interp_init(this, lx, conn)
        import gs_interp_t, mesh_conn_t
        class(gs_interp_t), intent(inout) :: this
        integer, intent(in) :: lx
        type(mesh_conn_t), target, intent(in) :: conn
      end subroutine gs_interp_init
-  end interface
 
-  !> Abstract interface for initialising multiplicity arrays
-  abstract interface
+     !> Initialise multiplicity arrays
      subroutine gs_interp_init_mult(this, mult_jt, mult_ji, mult_h1)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
        real(rp), dimension(:, :, :, :) , intent(in) :: mult_jt, mult_ji, mult_h1
      end subroutine gs_interp_init_mult
-  end interface
 
-  !> Abstract interface for freeing GS interpolation data
-  abstract interface
+     !> Free GS interpolation data
      subroutine gs_interp_free(this)
        import gs_interp_t
        class(gs_interp_t), intent(inout) :: this
      end subroutine gs_interp_free
-  end interface
 
-  !> Abstract interface for face/edge interpolation
-  abstract interface
+     !> Children's nonconforming face/edge interpolation/zero
      subroutine gs_interp_apply(this, field)
        import gs_interp_t, field_t
        class(gs_interp_t), intent(inout) :: this
        type(field_t), intent(inout) :: field
      end subroutine gs_interp_apply
+
+     !> Children's nonconforming face/edge filling
+     subroutine gs_interp_set(this, field, cnst)
+       import gs_interp_t, field_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       type(field_t), intent(inout) :: field
+       real(rp), intent(in) :: cnst
+     end subroutine gs_interp_set
   end interface
 
 contains
