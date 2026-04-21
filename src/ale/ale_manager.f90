@@ -136,11 +136,11 @@ module ale_manager
      integer :: n_trackers = 0
 
      procedure(user_ale_mesh_velocity_intf), nopass, pointer :: &
-         user_ale_mesh_vel => null()
+          user_ale_mesh_vel => null()
      procedure(user_ale_base_shapes_intf), nopass, pointer :: &
-         user_ale_base_shapes => null()
+          user_ale_base_shapes => null()
      procedure(user_ale_rigid_kinematics_intf), nopass, pointer :: &
-         user_ale_rigid_kinematics => null()
+          user_ale_rigid_kinematics => null()
 
    contains
      procedure, pass(this) :: init => ale_manager_init
@@ -289,7 +289,7 @@ contains
           else
              do j = 1, size(zone_indices)
                 call this%bc_fixed%mark_zone(coef%msh%labeled_zones(&
-                   zone_indices(j)))
+                     zone_indices(j)))
              end do
           end if
        end do
@@ -311,11 +311,11 @@ contains
     end if
     if (.not. associated(this%user_ale_base_shapes)) then
        call neko_log%message('Solver Type       : (' // &
-          trim(ksp_solver) // ', ' // trim(precon_type) // ')')
+            trim(ksp_solver) // ', ' // trim(precon_type) // ')')
        write(log_buf, '(A,ES13.6)') 'Abs tol           :', abstol
        call neko_log%message(log_buf)
        call neko_log%message('Mesh Stiffness    : ' // &
-          trim(this%config%stiffness_type))
+            trim(this%config%stiffness_type))
     end if
     call neko_log%message(' ')
 
@@ -412,15 +412,15 @@ contains
 
              case ('smooth_step')
                 call json_get_or_default(body_sub, 'rotation.axis', &
-                   tmp_int, 3)
+                     tmp_int, 3)
                 if (tmp_int >= 1 .and. tmp_int <= 3) then
                    this%config%bodies(i)%rotation_axis = tmp_int
                 else
                    call neko_error("ALE: rotation.axis must be (integer) " // &
-                      "1 -> x, 2 -> y, or 3 -> z")
+                        "1 -> x, 2 -> y, or 3 -> z")
                 end if
                 call json_get(body_sub, 'rotation.step_control_times', &
-                   tmp_vec, expected_size = 4)
+                     tmp_vec, expected_size = 4)
                 this%config%bodies(i)%step_control_times = tmp_vec
 
                 call json_get(body_sub, 'rotation.target_angle_deg', tmp_val)
@@ -431,15 +431,15 @@ contains
                 ! using user interfaces.
              case ('user')
                 if (.not. associated(this%user_ale_mesh_vel) .and. &
-                   .not. associated(this%user_ale_rigid_kinematics)) then
+                     .not. associated(this%user_ale_rigid_kinematics)) then
                    call neko_error("'user' rotation is chosen, but " // &
-                      "neither 'user_ale_rigid_kinematics' nor " // &
-                      "'user_ale_mesh_velocity' is provided.")
+                        "neither 'user_ale_rigid_kinematics' nor " // &
+                        "'user_ale_mesh_velocity' is provided.")
                 end if
 
              case default
                 call neko_error("ALE: rotation.type must be 'harmonic', " // &
-                   "'ramp', 'smooth_step', or 'user'.")
+                     "'ramp', 'smooth_step', or 'user'.")
              end select
           end if
 
@@ -512,22 +512,22 @@ contains
           call init_pivot_state(this%ale_pivot(i), this%config%bodies(i))
 
           call this%base_shapes(i)%init(coef%dof, &
-             "phi_" // trim(this%config%bodies(i)%name))
+               "phi_" // trim(this%config%bodies(i)%name))
           call field_rzero(this%base_shapes(i))
 
           ! Create Ghost Trackers for numerically forming the rotation matrix
           ! of each body.
           ! Basis X (Pivot + 1.0 in X)
           this%ghost_handles(1, i) = this%request_tracker( &
-             this%config%bodies(i)%rot_center + [1.0_rp, 0.0_rp, 0.0_rp], &
-             this%config%bodies(i)%id)
+               this%config%bodies(i)%rot_center + [1.0_rp, 0.0_rp, 0.0_rp], &
+               this%config%bodies(i)%id)
           ! Basis Y (Pivot + 1.0 in Y)
           this%ghost_handles(2, i) = this%request_tracker( &
-             this%config%bodies(i)%rot_center + [0.0_rp, 1.0_rp, 0.0_rp], &
-             this%config%bodies(i)%id)
+               this%config%bodies(i)%rot_center + [0.0_rp, 1.0_rp, 0.0_rp], &
+               this%config%bodies(i)%id)
 
           call neko_log%message('Registered Body : ' // &
-             trim(this%config%bodies(i)%name))
+               trim(this%config%bodies(i)%name))
 
           ! Logging Stiff Body
           call neko_log%message(' ')
@@ -562,21 +562,21 @@ contains
           if (has_builtin_osc) then
              if (has_user_kin .or. has_user_mesh) then
                 call neko_log%message('   Oscillation    : ' // &
-                   'X(t) = Amp*sin(2*pi*Freq*t) + User')
+                     'X(t) = Amp*sin(2*pi*Freq*t) + User')
                 write(log_buf, '(A,3(ES18.11,1X))') '    Amp       :', &
-                   this%config%bodies(i)%osc_amp
+                     this%config%bodies(i)%osc_amp
                 call neko_log%message(log_buf)
                 write(log_buf, '(A,3(ES18.11,1X))') '    Freq      :', &
-                   this%config%bodies(i)%osc_freq
+                     this%config%bodies(i)%osc_freq
                 call neko_log%message(log_buf)
              else
                 call neko_log%message('   Oscillation    : ' // &
-                   'X(t) = Amp*sin(2*pi*Freq*t)')
+                     'X(t) = Amp*sin(2*pi*Freq*t)')
                 write(log_buf, '(A,3(ES18.11,1X))') '    Amp       :', &
-                   this%config%bodies(i)%osc_amp
+                     this%config%bodies(i)%osc_amp
                 call neko_log%message(log_buf)
                 write(log_buf, '(A,3(ES18.11,1X))') '    Freq      :', &
-                   this%config%bodies(i)%osc_freq
+                     this%config%bodies(i)%osc_freq
                 call neko_log%message(log_buf)
              end if
           else
@@ -590,7 +590,7 @@ contains
 
           ! Logging Rotation
           has_builtin_rot = (trim(this%config%bodies(i)%rotation_type) &
-             /= 'user')
+               /= 'user')
 
           if (trim(this%config%bodies(i)%rotation_type) == 'user') then
 
@@ -603,10 +603,10 @@ contains
              select case (trim(this%config%bodies(i)%rotation_type))
              case ('harmonic')
                 is_rot_active = any(abs(this%config%bodies(i)%rot_amp_degree) &
-                   > 0.0_rp)
+                     > 0.0_rp)
              case ('ramp')
                 is_rot_active = any(abs(this%config%bodies(i)%ramp_omega0) &
-                   > 0.0_rp)
+                     > 0.0_rp)
              case ('smooth_step')
                 is_rot_active = &
                      (abs(this%config%bodies(i)%target_rot_angle_deg) > 0.0_rp)
@@ -649,7 +649,7 @@ contains
 
                    ! Smooth Step
                 elseif (trim(this%config%bodies(i)%rotation_type) &
-                   == 'smooth_step') then
+                     == 'smooth_step') then
                    if (has_user_kin .or. has_user_mesh) then
                       call neko_log%message('   Rotation     : ' // &
                            'Smooth Step Control + User')
@@ -682,10 +682,10 @@ contains
           ! Logging Pivot
           call neko_log%message(' ')
           call neko_log%message('   Pivot Type    : ' // &
-             trim(this%config%bodies(i)%rotation_center_type))
+               trim(this%config%bodies(i)%rotation_center_type))
 
           write(log_buf, '(A,3(ES18.11,1X))') '    Init Pivot:', &
-             this%config%bodies(i)%rot_center
+               this%config%bodies(i)%rot_center
           call neko_log%message(log_buf)
           call neko_log%message(' ')
 
@@ -712,9 +712,9 @@ contains
        end do
        if (.not. found_zone) then
           write(log_buf_l, '(A,I0,A)') &
-             "ALE: zone index ", z, &
-             " has BC no_slip with moving: true, " // &
-             "but it is not registered in ALE bodies."
+               "ALE: zone index ", z, &
+               " has BC no_slip with moving: true, " // &
+               "but it is not registered in ALE bodies."
           call neko_error(trim(log_buf_l))
        end if
     end do
@@ -732,9 +732,9 @@ contains
              end if
              if (.not. found_zone) then
                 write(log_buf_l, '(A,I0,A,A)') &
-                   "ALE: zone index ", z, &
-                   " is registered in ALE bodies, ", &
-                   "but the BC is not no_slip with moving: true."
+                     "ALE: zone index ", z, &
+                     " is registered in ALE bodies, ", &
+                     "but the BC is not no_slip with moving: true."
                 call neko_error(trim(log_buf_l))
              end if
           end do
@@ -909,7 +909,7 @@ contains
           call MPI_Barrier(NEKO_COMM, ierr)
           sample_start_time = MPI_WTIME()
           call neko_log%message(" Solving laplace for body: " // &
-                trim(this%config%bodies(body_idx)%name))
+               trim(this%config%bodies(body_idx)%name))
 
           call bc_active_body%init_from_components(coef)
           call bc_inactive_body%init_from_components(coef)
@@ -925,7 +925,7 @@ contains
                 do j = 1, size(this%config%bodies(i)%zone_indices)
                    z_idx = this%config%bodies(i)%zone_indices(j)
                    call bc_inactive_body%mark_zone(&
-                       coef%msh%labeled_zones(z_idx))
+                        coef%msh%labeled_zones(z_idx))
                 end do
              end if
           end do
@@ -1189,10 +1189,10 @@ contains
     character(len=*), intent(in) :: scheme_
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call update_ale_mesh_device(c_Xh, wm_x, wm_y, wm_z, wm_x_lag, wm_y_lag, &
-           wm_z_lag, time, nadv, scheme_)
+            wm_z_lag, time, nadv, scheme_)
     else
        call update_ale_mesh_cpu(c_Xh, wm_x, wm_y, wm_z, wm_x_lag, wm_y_lag, &
-           wm_z_lag, time, nadv, scheme_)
+            wm_z_lag, time, nadv, scheme_)
     end if
   end subroutine update_ale_mesh
 
@@ -1313,7 +1313,7 @@ contains
 
           ! Restore velocity history for ghost-x
           this%trackers(handle_1)%vel_lag = &
-              this%global_basis_vel_lag(offset_base + 1 : offset_base + 3, :)
+               this%global_basis_vel_lag(offset_base + 1 : offset_base + 3, :)
        end if
 
        if (handle_2 > 0 .and. handle_2 <= this%n_trackers) then
@@ -1423,7 +1423,7 @@ contains
 
     if (json%valid_path('case.fluid.ale.mesh_preview.enabled')) then
        call json%get('case.fluid.ale.mesh_preview.enabled', &
-           mesh_preview_active)
+            mesh_preview_active)
     end if
 
     if (.not. mesh_preview_active) return

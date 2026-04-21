@@ -373,7 +373,7 @@ contains
     call neko_log%message(log_buf)
 
     if (trim(ctype_str) == 'pivot' .or. &
-    trim(ctype_str) == 'body_attached') then
+         trim(ctype_str) == 'body_attached') then
        write(log_buf, '(A,A)') 'Linked to ALE Body movement: ', &
             trim(this%linked_body_name)
        call neko_log%message(log_buf)
@@ -473,14 +473,14 @@ contains
        if (associated(this%body_R)) then
           ! R * Offset
           rot_offset(1) = this%body_R(1,1)*this%local_offset(1) + &
-                          this%body_R(1,2)*this%local_offset(2) + &
-                          this%body_R(1,3)*this%local_offset(3)
+               this%body_R(1,2)*this%local_offset(2) + &
+               this%body_R(1,3)*this%local_offset(3)
           rot_offset(2) = this%body_R(2,1)*this%local_offset(1) + &
-                          this%body_R(2,2)*this%local_offset(2) + &
-                          this%body_R(2,3)*this%local_offset(3)
+               this%body_R(2,2)*this%local_offset(2) + &
+               this%body_R(2,3)*this%local_offset(3)
           rot_offset(3) = this%body_R(3,1)*this%local_offset(1) + &
-                          this%body_R(3,2)*this%local_offset(2) + &
-                          this%body_R(3,3)*this%local_offset(3)
+               this%body_R(3,2)*this%local_offset(2) + &
+               this%body_R(3,3)*this%local_offset(3)
 
           this%center = this%body_P + rot_offset
        end if
