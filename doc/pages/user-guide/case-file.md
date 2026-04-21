@@ -745,7 +745,7 @@ types are currently implemented.
 2. `point_zone`, the indicator function is defined as 1 inside the point zone
    and 0 outside.
 3. `field`, the indicator function is directly taken from a field in the
-   `neko_registry`. The field name should be specified in the `field_name`
+   `neko_registry`. The field name should be specified in the `name`
    keyword.
 4. `file`, the indicator function is directly taken from a field file. The file
    name should be specified in the `file_name` keyword. This requires the user
