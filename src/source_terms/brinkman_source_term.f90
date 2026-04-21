@@ -164,6 +164,10 @@ contains
        call neko_error('brinkman_limits must be a 2 element array of reals')
     end if
 
+    if (output_path(len_trim(output_path):len_trim(output_path)) .ne. '/') then
+       output_path = trim(output_path) // '/'
+    end if
+
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
 
