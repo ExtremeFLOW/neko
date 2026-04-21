@@ -293,12 +293,15 @@ contains
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: memdir
     logical, intent(in) :: sync
-    integer :: i
+    integer :: i, n
 
-    do i = 1, this%size() - 1
+    n = this%size()
+    if (n .eq. 0) return
+
+    do i = 1, n - 1
        call this%items(i)%ptr%copy_from(memdir, .false.)
     end do
-    call this%items(i)%ptr%copy_from(memdir, sync)
+    call this%items(n)%ptr%copy_from(memdir, sync)
 
   end subroutine field_list_copy_from
 

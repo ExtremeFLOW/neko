@@ -78,11 +78,11 @@ module brinkman_source_term
      private
 
      !> The unfiltered indicator field
-     type(field_t), pointer :: unfiltered
+     type(field_t), pointer :: unfiltered => null()
      !> The value of the source term.
-     type(field_t), pointer :: indicator
+     type(field_t), pointer :: indicator => null()
      !> Brinkman permeability field.
-     type(field_t), pointer :: brinkman
+     type(field_t), pointer :: brinkman => null()
      !> Filter
      class(filter_t), allocatable :: filter
 
@@ -594,14 +594,10 @@ contains
        block
          type(fld_file_data_t) :: fld_data
          type(field_list_t) :: fld_fields
-         type(field_t), pointer :: fld
-         character(len=80) :: s_str
-         integer :: idx(1), n
+         integer :: idx(1)
 
          call fld_data%init()
          call file%read(fld_data)
-         n = temp_field%size()
-
          select case (field_name(1:1))
          case ('p')
             call fld_data%import_fields(p = temp_field)

@@ -1562,7 +1562,7 @@ contains
     logical :: exists, is_vds
     real(kind=rp), allocatable :: vec_component(:,:)
     integer :: mpi_info, mpi_comm, pct_pos, nsteps
-    character(len=:), allocatable :: error_message
+    character(len=256) :: error_message
 
     field_name = trim(fld%name)
 
