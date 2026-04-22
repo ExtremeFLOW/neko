@@ -72,11 +72,15 @@
         "simulation_components":
         [
             {
-                "type": "lambda2", // stored in the temperature field, check docs for more details on sim_comps
+                "comment": "stored in the temperature field, check docs for more details",
+                "type": "lambda2",
+                "compute_control": "fluid_output"
             },
             {
-                "type": "curl", // Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2
-                "fields": [ "u", "v", "w" ]
+                "comment": "Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2",
+                "type": "curl",
+                "fields": [ "u", "v", "w" ],
+                "compute_control": "fluid_output"
             },
             {
                 "type": "force_torque",
