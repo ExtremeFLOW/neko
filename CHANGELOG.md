@@ -4,6 +4,7 @@
 
 - Added the `field_subsampler` simulation component, allowing sampling of
   fields at a different polynomial order and with masking by `point_zones`.
+- Basic implementation of an overset interface boundary condition is added
 - Modify field_writer and probes to by default output in 
   `case.output_directory`
 - Added MOST wall model and added diagnostics for the wall models.
