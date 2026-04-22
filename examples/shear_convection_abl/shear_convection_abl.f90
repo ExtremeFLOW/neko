@@ -83,9 +83,9 @@ contains
          ubf%x(i,1,1,1) = u_geo
          
        end do
-
-       vbf = 0.0_rp
-       wbf = 0.0_rp
+ 
+       vbf%x(:,1,1,1) = 0.0_rp
+       wbf%x(:,1,1,1) = 0.0_rp
 
        if (neko_bcknd_device .eq. 1) then
           call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
