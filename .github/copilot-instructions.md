@@ -1,6 +1,6 @@
 # Neko — code review instructions
 
-This file provides LLM instructions for reviewing pull requests. 
+This file provides LLM instructions for reviewing pull requests.
 
 **MOST IMPORTANT**: Follow the workflow steps and associated checklists below!
 
@@ -8,28 +8,28 @@ This file provides LLM instructions for reviewing pull requests.
 
 1. Read the AGENTS.md file in the root of the repository, it provides a
    high-level overview of the project.
-2. Determine if you are being run in a GitHub environment, or locally. 
-   If it is GitHub, you will 
+2. Determine if you are being run in a GitHub environment, or locally.
+   If it is GitHub, you will
    - Add your comments directly at relevant lines in the PR.
-   - No need to write a summary.  
-   
-   If ran locally, you will make a neat listed summary of your comments, with 
+   - No need to write a summary.
+
+   If ran locally, you will make a neat listed summary of your comments, with
    references to line numbers and files.
-3. Conduct a review of Fortran code based on the criteria listed under "Fortran 
+3. Conduct a review of Fortran code based on the criteria listed under "Fortran
    code review" below. Stick to the criteria!
 4. See if you find any *critical* issues outside of above criteria, including in
    device code. If you do, report them, but you must be very sure the issues are
    real.
-4. Carefully read the `doc/AGENTS.md` file to understand rules related to 
+4. Carefully read the `doc/AGENTS.md` file to understand rules related to
    documentation and the associated code review checklist (section "Reviewing
    documentation"). Following that particular checklist is **mandatory**.
 5. Conduct the review of the documentation based on the checklist.
- 
+
 # Fortran code review
 
 Your review is limited to the criteria listed below. Do not give general
 opinions about code style or design unless they violate the rules stated here.
-You are more or less acting as an intelligent static analyser. A **very 
+You are more or less acting as an intelligent static analyser. A **very
 important** focus area of your analysis is memory management.
 
 The list of criteria to check are:
@@ -45,4 +45,7 @@ The list of criteria to check are:
 - Pay attention to object ownership when `pointer` or `allocatable` components
   are involved. Make sure ownership is correctly handled.
 - Make sure types are fully instantiated in the `init` routines. If there are
-  several such routines, makes sure they all do it. 
+  several such routines, makes sure they all do it.
+- If a type has a constructor (`init` or similar) from a `json_file` and one
+  that directly accepts dummy arguments for the type components, the former
+  should call the latter. In particular, the `json_file` constructor should not contain any logic to set the type components, but should just read the values from the JSON file, validate them, and then call the other constructor with the values read from the JSON file.
