@@ -1,2 +1,7 @@
 *.nmsh
 *.log
+*0.*
+*.log
+log.*
+*.nek5000
+*.csv
