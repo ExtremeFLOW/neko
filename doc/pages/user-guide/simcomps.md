@@ -56,6 +56,8 @@ in Neko. The list will be updated as new simcomps are added.
 - User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
 - Streaming of data for in-situ field manipulation \ref simcomp_data_streamer
+- Sub-sampling of fields by changing polynomial order and masking by point
+  zones \ref simcomp_field_subsampler
 
 ## Controlling execution and file output
 Each simulation component is, by default, executed once per time step to perform
@@ -204,7 +206,7 @@ Mandatory fields for this simcomp are:
 - `fields`: a list of fields to probe. Should be a list of field names that
   exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
 - `output_file`: Name of the file in which to output the probed fields. Must be
-  `.csv`. By default, will be written in the `case.output_directory` folder.
+  `.csv` or `.hdf5`. By default, will be written in the `case.output_directory` folder.
 
 Optional arguments:
 - Interpolation parameters can be provided as a JSON sub-dictionary, 
@@ -232,6 +234,9 @@ executed (same behavior as the statistics).
    x_N, y_N, z_N
    ~~~~~~~~~~~~~~~
    The points are assumed to be in the same units as the simulation.
+   It is also possible to read the probes from a `hdf5` file. The probes 
+   need to be in the same format as csv and must be saved in the root directory
+   of the file under the `xyz` keyword.
 - `points`: Reads a list of points from a JSON file. The points are specified
   based in the `coordinates` keyword and should be a list of x,y,z values.
   The file should have the following format:
@@ -293,6 +298,7 @@ executed (same behavior as the statistics).
    "compute_value"    : 1.0,
    "fields": ["w", "s"],
    "output_file":  "output.csv",
+   "append_output" : false,
    "points": [
       {
         "type": "file",
@@ -322,6 +328,43 @@ time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1
 time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
 ~~~~~~~~~~~~~~~
 
+The `append_output` keyword only works for `hdf5` files. 
+It sets the behaviour of the written probes. 
+If `true` they are written in one group and each sample appends its data.
+
+As an example, the file structure for a simulation where we sample "u", "v",
+and "w" is the following when `append_output=false`:
+~~~~~~~~~~~~~~~{.bash}
+/                        Group
+/probes                  Group
+/probes/Step_1           Group
+/probes/Step_1/u         Dataset {200/Inf}
+/probes/Step_1/v         Dataset {200/Inf}
+/probes/Step_1/w         Dataset {200/Inf}
+/probes/Step_2           Group
+/probes/Step_2/u         Dataset {200/Inf}
+/probes/Step_2/v         Dataset {200/Inf}
+/probes/Step_2/w         Dataset {200/Inf}
+/probes/coordinates      Dataset {200/Inf, 3}
+~~~~~~~~~~~~~~~
+
+Note that every sampled field is saved under the `probes/Step_i` group. Where
+`i` is the sample number. In this case, the sampled time is saved as an attribute
+of the `Step_i` group and accessed by the `time` keyword.
+
+The default behaviour is `append_output=true`. This mode behaves as the `.csv`
+output, where each new sample is appended directly under the `probes` group:
+~~~~~~~~~~~~~~~{bash}
+/                        Group
+/probes                  Group
+/probes/coordinates      Dataset {200/Inf, 3}
+/probes/time             Dataset {2/Inf}
+/probes/u                Dataset {400/Inf}
+/probes/v                Dataset {400/Inf}
+/probes/w                Dataset {400/Inf}
+~~~~~~~~~~~~~~~
+
+Note that here the sample time is stored as a dedicated variable.
 ### field_writer {#simcomp_field_writer}
 Outputs registered 3D fields to a file. Requires a list of field names
 in the `fields` keyword. Primarily to be used for outputting new fields defined
@@ -575,8 +618,7 @@ in 3 additional fields appended to the field files.
 ### Data streamer {#simcomp_data_streamer}
 
 Enables data streaming of a set of given `fields` with the `ADIOS2` library. 
-The simcomp is controlled by the following
-keywords:
+The simcomp is controlled by the following keywords:
 - `"fields"`: A list of field names corresponding to the fields to stream 
   (must exist in the registry). The fields will be streamed in the order
   given in the list.
@@ -596,6 +638,36 @@ simcomp cam be coupled to Python scripts for in-situ data processing.
    "name": "spectral_error",
    "fields": ["u", "omega_z", "fluid_stats/mean_u"],
    "stream_mesh": true,
+   "compute_control": "tsteps",
+   "compute_value": 10
+ }
+ ~~~~~~~~~~~~~~~
+
+### Field subsampler {#simcomp_field_subsampler}
+
+Creates sub-sections of the domain from a `point_zone` and/or at a lower
+`polynomial_order`. The fields are added to the registry under the name
+`name_of_simcomp + "/" + name_of_base_field`. For example, 
+`field_subsampler_u`.
+
+The simcomp is controlled by the following keywords:
+- `"source_fields"`: A list of names corresponding to the fields to subsample 
+  (must exist in the registry).
+- `point_zone` (optional): The name of the point zone to use to mask the fields.
+- `polynomial_order` (optional): The new polynomial at which to interpolate 
+  the fields. Must be different from the order used in the simulation.
+
+The `field_subsampler` contains its own `field_writer`. Therefore, all the
+keywords used by the latter can also be specified, with the exception of
+`point_zone` and `fields` which will be handled by the `field_subsampler`.
+
+~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "field_subsampler",
+   "name": "field_subsampler",
+   "source_fields": ["u", "omega_z", "fluid_stats/mean_u"],
+   "point_zone": "my_point_zone",
+   "polynomial_order": 3,
    "compute_control": "tsteps",
    "compute_value": 10
  }
