@@ -43,7 +43,8 @@ module scalar_sgs_stats_simcomp
   use scalar_sgs_stats_output, only : scalar_sgs_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
+       NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default, json_get_or_lookup
@@ -99,7 +100,7 @@ contains
     class(case_t), intent(inout), target :: case
     type(json_file) :: json_subdict
     character(len=:), allocatable :: filename
-    character(len=20), allocatable :: fields(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: s_name
     character(len=:), allocatable :: name

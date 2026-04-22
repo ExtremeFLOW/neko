@@ -43,7 +43,8 @@ module scalar_stats_simcomp
   use scalar_stats_output, only : scalar_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
+       NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default
@@ -96,7 +97,7 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
-    character(len=20), allocatable :: fields(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: stat_set
     character(len=:), allocatable :: sname
@@ -116,7 +117,7 @@ contains
     else
        call json_get_or_default(json, "name", &
             name, "scalar_stats")
-    endif
+    end if
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
@@ -139,7 +140,8 @@ contains
             p, coef, start_time, hom_dir, stat_set, filename)
     else if (sname_provided) then
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
-            p, coef, start_time, hom_dir, stat_set, "scalar_stats_" // trim(sname) // "0")
+            p, coef, start_time, hom_dir, stat_set, "scalar_stats_" // &
+            trim(sname) // "0")
     else
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
             p, coef, start_time, hom_dir, stat_set)
