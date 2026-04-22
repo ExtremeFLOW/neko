@@ -65,7 +65,7 @@ __device__ T tau_stable(T magu, T Ri_b, T h, T z0, T kappa)
 template<typename T>
 __device__ T heat_flux_stable(T ti, T ts, T Ri_b, T h, T z0h, T utau, T kappa, T Pr)
 {
-    return (ti - ts) / log(h / z0h) * (f_theta_stable<T>(Ri_b) / f_theta_stable<T>(0.0)) * kappa * (utau / Pr);
+    return (ti - ts) / log(h / z0h) * (f_theta_stable<T>(Ri_b) / fabs(f_theta_stable<T>(0.0))) * kappa * (utau / Pr);
 }
 
 /*
