@@ -1,7 +1,7 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "512.nmsh",
+        "mesh_file": "box.nmsh",
         "output_at_end": true,
         "output_checkpoints": false,
         "checkpoint_control": "simulationtime",
@@ -91,7 +91,7 @@
                     "time_dependent_temp_bc": false,
                     "z0": 0.1,
                     "z0h": 0.1,
-                    "Pr": "Pr",
+                    "Pr": 0.74,
                     "zone_indices": [
                         5
                     ],
