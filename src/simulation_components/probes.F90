@@ -546,7 +546,7 @@ contains
     end if
 
     !> Initialize the output file
-    call this%fout%init(trim(output_file))
+    call this%fout%init(this%case%output_directory // trim(output_file))
 
     select type (ft => this%fout%file_type)
     type is (csv_file_t)
