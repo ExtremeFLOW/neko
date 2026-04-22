@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Modify field_writer and probes to by default output in 
+  `case.output_directory`
 - Added MOST wall model and added diagnostics for the wall models.
 - Added the `data_streamer` simulation component, allowing data streaming 
   with ADIOS2.
