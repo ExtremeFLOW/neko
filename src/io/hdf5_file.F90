@@ -730,7 +730,7 @@ contains
     this%file_id = -1_hid_t
     call h5close_f(ierr)
 
-    call neko_log%message("Closed HDF5 file: ", // trim(this%get_fname()), &
+    call neko_log%message("Closed HDF5 file: " // trim(this%get_fname()), &
      lvl = NEKO_LOG_DEBUG)
 
   end subroutine hdf5_file_close
