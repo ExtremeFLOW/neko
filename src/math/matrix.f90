@@ -37,14 +37,14 @@ module matrix
   use device, only : device_map, device_free, device_memcpy, &
        device_deassociate, device_sync
   use device_math, only : device_copy, device_cfill
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
   type, public :: matrix_t
      real(kind=rp), allocatable :: x(:,:) !< Matrix entries.
-     character(len=80) :: name = "" !< Name of the matrix
+     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the matrix
      type(c_ptr) :: x_d = C_NULL_PTR !< Device pointer.
      integer, private :: nrows = 0 !< Number of matrix rows.
      integer, private :: ncols = 0 !< Number of matrix columns.
