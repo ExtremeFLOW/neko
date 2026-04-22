@@ -55,16 +55,16 @@ module opr_sx
      end subroutine opr_sx_conv1
 
      module subroutine opr_sx_convect_scalar(du, u, cr, cs, ct, Xh_GLL, Xh_GL, &
-                                             coef_GLL, coef_GL, GLL_to_GL)
+          coef_GLL, coef_GL, GLL_to_GL)
        type(space_t), intent(in) :: Xh_GL
        type(space_t), intent(in) :: Xh_GLL
        type(coef_t), intent(in) :: coef_GLL
        type(coef_t), intent(in) :: coef_GL
        type(interpolator_t), intent(inout) :: GLL_to_GL
        real(kind=rp), intent(inout) :: &
-                      du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+            du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
        real(kind=rp), intent(inout) :: &
-                      u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+            u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
        real(kind=rp), intent(inout) :: cr(Xh_GL%lxyz, coef_GL%msh%nelv)
        real(kind=rp), intent(inout) :: cs(Xh_GL%lxyz, coef_GL%msh%nelv)
        real(kind=rp), intent(inout) :: ct(Xh_GL%lxyz, coef_GL%msh%nelv)
@@ -90,9 +90,9 @@ module opr_sx
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
        real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-                      intent(inout) :: cr, cs, ct
+            intent(inout) :: cr, cs, ct
        real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-                      intent(in) :: cx, cy, cz
+            intent(in) :: cx, cy, cz
      end subroutine opr_sx_set_convect_rst
   end interface
 
