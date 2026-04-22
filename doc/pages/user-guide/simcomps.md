@@ -204,7 +204,7 @@ Mandatory fields for this simcomp are:
 - `fields`: a list of fields to probe. Should be a list of field names that
   exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
 - `output_file`: Name of the file in which to output the probed fields. Must be
-  `.csv`.
+  `.csv`. By default, will be written in the `case.output_directory` folder.
 
 Optional arguments:
 - Interpolation parameters can be provided as a JSON sub-dictionary, 
@@ -330,6 +330,9 @@ are expected to be updated in the user file, or, perhaps, by other simcomps.
 Since this simcomp does not compute anything, `compute_` configuration is
 irrelevant.
 
+Unless `output_filename` is specified, the `fields` are appended to the 
+fluid output as additional scalars.
+
 - The output format is controlled by the `output_format` keyword, which can be
   set to `nek5000` (default), `vtkhdf`, or `adios2`. 
 - The `output_precision` keyword controls the precision of the written data 
@@ -338,6 +341,11 @@ irrelevant.
 `true` to subdivide spectral elements into linear sub-cells instead of
 writing high-order Lagrange cells. See the [cell representation](@ref
 vtkhdf-cell-representation) section for more details.
+
+@note If `output_filename` is specified, files will be written in the 
+`case.output_directory` folder. If an alternative path is desired, it must
+be specified relative to the `case.output_directory`, since the 
+`case.output_directory` path will always be prepended to `output_filename`. 
 
  ~~~~~~~~~~~~~~~{.json}
  {
