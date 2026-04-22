@@ -98,3 +98,6 @@ install
 
 # Codex
 .codex
+
+# Directory to stash temporary files during development
+.temp
