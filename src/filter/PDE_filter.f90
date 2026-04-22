@@ -137,6 +137,14 @@ contains
     call this%init_from_components(coef, r, abstol_filt, ksp_max_iter, &
          ksp_solver, precon_type_filt)
 
+    if (allocated(ksp_solver)) then
+       deallocate(ksp_solver)
+    end if
+
+    if (allocated(precon_type_filt)) then
+       deallocate(precon_type_filt)
+    end if
+
   end subroutine PDE_filter_init_from_json
 
   !> Actual constructor.

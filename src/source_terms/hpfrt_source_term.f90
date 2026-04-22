@@ -173,6 +173,8 @@ contains
        call this%source_fields%assign(1, source_field)
     end if
 
+    deallocate(transfer)
+
   end subroutine hpfrt_source_term_init_from_components
 
   !> Destructor.

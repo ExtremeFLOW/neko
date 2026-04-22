@@ -103,6 +103,15 @@ contains
        call this%init_from_components(coef, filter_type)
     end if
 
+
+    if (allocated(transfer)) then
+       deallocate(transfer)
+    end if
+
+    if (allocated(filter_type)) then
+       deallocate(filter_type)
+    end if
+
   end subroutine elementwise_filter_init_from_json
 
   !> Actual Constructor.
