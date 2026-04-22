@@ -541,7 +541,7 @@ A more detailed description of each boundary condition is provided below.
 
    * The `most` model is a version of the `rough_log_law` adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given [below](#most-wall-model).
 
-   * The `richardson` model is simmilar to the `most` model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given [below](#richardson-wall-model).
+   * The `richardson` model is similar to the `most` model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given [below](#richardson-wall-model).
 
     For all wall models, the distance to the sampling point has to be specified
     based on the off-wall index in the wall-normal direction. Thus, the sampling
