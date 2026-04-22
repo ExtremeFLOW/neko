@@ -41,7 +41,7 @@ module hdf5_file
   use field_list, only : field_list_t
   use field_series, only : field_series_t, field_series_ptr_t
   use dofmap, only : dofmap_t
-  use logger, only : neko_log
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use vector, only : vector_t
   use matrix, only : matrix_t
   use datadist, only : linear_dist_t
@@ -671,6 +671,7 @@ contains
     integer :: ierr, mpi_info, mpi_comm, i, n_fields, counter
     logical :: file_exists
     character(len=1024) :: fname
+    character(len=LOG_SIZE) :: log_buf
 
     ! Set the mode for the file
     this%mode = mode
@@ -706,9 +707,9 @@ contains
     ! Set the active group to the root of the file
     call this%set_active_group()
 
-    !if (pe_rank .eq.0) then
-    !   write(*,*) "Opened HDF5 file: ", trim(fname), " with counter: ", counter
-    !end if
+    write (log_buf, *) "Opened HDF5 file: ", trim(fname), " with counter: ", &
+     counter
+    call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
 
   end subroutine hdf5_file_open
 
@@ -729,9 +730,8 @@ contains
     this%file_id = -1_hid_t
     call h5close_f(ierr)
 
-    !if (pe_rank .eq.0) then
-    !   write(*,*) "Closed HDF5 file: ", trim(this%get_fname())
-    !end if
+    call neko_log%message("Closed HDF5 file: ", // trim(this%get_fname()), &
+     lvl = NEKO_LOG_DEBUG)
 
   end subroutine hdf5_file_close
 

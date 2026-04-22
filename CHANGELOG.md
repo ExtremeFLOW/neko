@@ -1,8 +1,7 @@
 # Changelog
 
 ## Develop
-- Added hdf5 support for probes and some public routines
-
+- Added hdf5 support for probes and added hdf5 I/O helper routines
 - Added ALE framework.
 - Added masked I/O capabilities for the field_writer via the optional 
   `point_zone` JSON keyword.
