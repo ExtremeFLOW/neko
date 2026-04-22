@@ -48,4 +48,7 @@ The list of criteria to check are:
   several such routines, makes sure they all do it.
 - If a type has a constructor (`init` or similar) from a `json_file` and one
   that directly accepts dummy arguments for the type components, the former
-  should call the latter. In particular, the `json_file` constructor should not contain any logic to set the type components, but should just read the values from the JSON file, validate them, and then call the other constructor with the values read from the JSON file.
+  should call the latter. In particular, the `json_file` constructor should not
+  contain any logic to set the type components, but should just read the values
+  from the JSON file, validate them, and then call the other constructor with
+  the values read from the JSON file.
