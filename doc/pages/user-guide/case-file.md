@@ -837,6 +837,25 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
    applied in a user-specified region of the domain.
 9. `field`, uses fields in the `neko_registry` as values of the source term. The
    fields are selected with the `field_names` keyword.
+10. `hpfrt`, adds a high-pass filter relaxation term to the momentum equation.
+    This source term damps the highest elementwise Legendre modes of the
+    velocity field. It is configured with `filter_weight`, the damping strength,
+    and `filter_modes`, the number of highest modes affected by the filter.
+    See [High-pass filter relaxation source term](@ref filter_hpfrt) for the
+    definition of the filter and the source term.
+
+~~~~~~~~~~~~~~~{.json}
+"source_terms": [
+   {
+      "type": "hpfrt",
+      "filter_weight": 5.0,
+      "filter_modes": 2
+   }
+]
+~~~~~~~~~~~~~~~
+
+The same source-term object can be used for scalars. In this case it is added to
+the scalar `source_terms` array and acts on that scalar field.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.

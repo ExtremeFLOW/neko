@@ -86,39 +86,54 @@ contains
   subroutine elementwise_filter_init_from_json(this, json, coef)
     class(elementwise_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), allocatable :: transfer(:)
     character(len=:), allocatable :: filter_type
 
-    ! Filter assumes lx = ly = lz
-    call this%init_base(json, coef)
-
-    call this%init_from_components(coef%dof%xh%lx)
-
     call json_get_or_default(json, "filter.elementwise_filter_type", &
-         this%filter_type, "nonBoyd")
+         filter_type, "nonBoyd")
 
     if (json%valid_path('filter.transfer_function')) then
        call json_get(json, 'filter.transfer_function', transfer)
-       if (size(transfer) .eq. coef%dof%xh%lx) then
-          this%transfer = transfer
-       else
-          call neko_error("The transfer function of the elementwise " // &
-               "filter must correspond the order of the polynomial")
-       end if
-       call this%build_1d()
+    end if
+
+    if (allocated(transfer)) then
+       call this%init_from_components(coef, filter_type, transfer)
+    else
+       call this%init_from_components(coef, filter_type)
+    end if
+
+
+    if (allocated(transfer)) then
+       deallocate(transfer)
+    end if
+
+    if (allocated(filter_type)) then
+       deallocate(filter_type)
     end if
 
   end subroutine elementwise_filter_init_from_json
 
   !> Actual Constructor.
-  !! @param nx number of points in an elements in one direction.
-  subroutine elementwise_filter_init_from_components(this, nx)
+  !! @param coef SEM coefficients.
+  !! @param filter_type Type of modal basis used by the filter.
+  !! @param transfer Optional transfer function.
+  subroutine elementwise_filter_init_from_components(this, coef, filter_type, &
+       transfer)
     class(elementwise_filter_t), intent(inout) :: this
+    type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: filter_type
+    real(kind=rp), intent(in), optional :: transfer(:)
     integer :: nx
 
+    call this%free()
+
+    ! Filter assumes lx = ly = lz
+    call this%init_base(coef)
+    nx = coef%dof%xh%lx
     this%nx = nx
     this%nt = nx ! initialize as if nothing is filtered yet
+    this%filter_type = filter_type
 
     allocate(this%fh(nx, nx))
     allocate(this%fht(nx, nx))
@@ -128,12 +143,23 @@ contains
     call rzero(this%fht, nx*nx)
     call rone(this%transfer, nx) ! initialize as if nothing is filtered yet
 
+    if (present(transfer)) then
+       if (size(transfer) .eq. nx) then
+          this%transfer = transfer
+       else
+          call neko_error("The transfer function of the elementwise " // &
+               "filter must correspond the order of the polynomial")
+       end if
+    end if
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%fh, this%fh_d, this%nx * this%nx)
        call device_map(this%fht, this%fht_d, this%nx * this%nx)
        call device_cfill(this%fh_d, 0.0_rp, this%nx * this%nx)
        call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
     end if
+
+    call this%build_1d()
 
   end subroutine elementwise_filter_init_from_components
 

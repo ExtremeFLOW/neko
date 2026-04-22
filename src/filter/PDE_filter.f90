@@ -115,31 +115,58 @@ contains
   subroutine PDE_filter_init_from_json(this, json, coef)
     class(PDE_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), intent(in), target :: coef
+    real(kind=rp) :: r
+    real(kind=rp) :: abstol_filt
+    integer :: ksp_max_iter
+    character(len=:), allocatable :: ksp_solver
+    character(len=:), allocatable :: precon_type_filt
 
-    ! user parameters
-    call json_get(json, "filter.radius", this%r)
+    call json_get(json, "filter.radius", r)
 
-    call json_get_or_default(json, "filter.tolerance", this%abstol_filt, &
+    call json_get_or_default(json, "filter.tolerance", abstol_filt, &
          1.0e-10_rp)
 
-    call json_get_or_default(json, "filter.max_iter", this%ksp_max_iter, 200)
+    call json_get_or_default(json, "filter.max_iter", ksp_max_iter, 200)
 
-    call json_get_or_default(json, "filter.solver", this%ksp_solver, 'cg')
+    call json_get_or_default(json, "filter.solver", ksp_solver, 'cg')
 
     call json_get_or_default(json, "filter.preconditioner", &
-         this%precon_type_filt, 'jacobi')
+         precon_type_filt, 'jacobi')
 
-    call this%init_base(json, coef)
-    call PDE_filter_init_from_components(this, coef)
+    call this%init_from_components(coef, r, abstol_filt, ksp_max_iter, &
+         ksp_solver, precon_type_filt)
+
+    if (allocated(ksp_solver)) then
+       deallocate(ksp_solver)
+    end if
+
+    if (allocated(precon_type_filt)) then
+       deallocate(precon_type_filt)
+    end if
 
   end subroutine PDE_filter_init_from_json
 
   !> Actual constructor.
-  subroutine PDE_filter_init_from_components(this, coef)
+  subroutine PDE_filter_init_from_components(this, coef, r, abstol_filt, &
+       ksp_max_iter, ksp_solver, precon_type_filt)
     class(PDE_filter_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), intent(in), target :: coef
+    real(kind=rp), intent(in) :: r
+    real(kind=rp), intent(in) :: abstol_filt
+    integer, intent(in) :: ksp_max_iter
+    character(len=*), intent(in) :: ksp_solver
+    character(len=*), intent(in) :: precon_type_filt
     integer :: n
+
+    call this%free()
+    call this%init_base(coef)
+
+    this%r = r
+    this%abstol_filt = abstol_filt
+    this%ksp_max_iter = ksp_max_iter
+    this%ksp_solver = ksp_solver
+    this%precon_type_filt = precon_type_filt
 
     n = this%coef%dof%size()
 

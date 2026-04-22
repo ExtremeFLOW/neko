@@ -3,6 +3,8 @@
 ## Develop
 - Added hdf5 support for probes and added hdf5 I/O helper routines
 
+- Added the `hpfrt` source term for high-pass filter-based stabilization.
+- Added the `data_streamer` simulation component, allowing data streaming
 - Added the `field_subsampler` simulation component, allowing sampling of
   fields at a different polynomial order and with masking by `point_zones`.
 - Basic implementation of an overset interface boundary condition is added
@@ -13,7 +15,7 @@
   with ADIOS2.
 - Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
 - Added ALE framework.
-- Added masked I/O capabilities for the field_writer via the optional 
+- Added masked I/O capabilities for the field_writer via the optional
   `point_zone` JSON keyword.
 - Added the user-defined Neumann boundary conditions for the scalar solver.
 - *BREAKING* Changed the user-defined scalar Dirichlet boundary conditions
@@ -25,7 +27,7 @@
   to read interpolation parameters from the `interpolation` JSON subdict
   instead of individual parameters.
 - Added public variables `GLOBAL_INTERP_PAD` and `GLOBAL_INTERP_TOL`
-  in `global_interpolation` as default values for `tolerance` and 
+  in `global_interpolation` as default values for `tolerance` and
   `padding` parameters.
 - Added the possibility to initialize `global_interpolation` from a JSON subdict.
 - Added the `json_get_subdict_or_empty` which seeks a JSON subdict and returns
@@ -45,7 +47,7 @@
   now.
 - Added an AI policy to the contribution guidelines.
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
-  Simple restarts are supported with fixed mesh and MPI configuration. 
+  Simple restarts are supported with fixed mesh and MPI configuration.
   The VTKHDF output format is still experimental and will change in the future.
 - Added templates for serial and parallel unit tests.
 - Added code review instructions for LLMs in a copilot-friendly location.
