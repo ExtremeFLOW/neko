@@ -789,7 +789,7 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
     "type_of_temp_bc": "neumann",
     "bottom_bc_flux_or_temp": 0.05,
     "scalar_field": "temperature",
-    "time_dependent_temp_bc": "false",
+    "time_dependent_temp_bc": false,
     "zone_indices": [5],
     "h_index": 1
   }
