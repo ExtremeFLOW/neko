@@ -104,23 +104,23 @@ contains
     type(field_t), pointer :: fringe, u
     integer :: i
     real(kind=rp) :: zmin_spng, delta_spng, z
-      
+
     ! Implement top-mounted sponge l(z) = l*S( (z-z0)/delta )
     u => neko_registry%get_field("u")
     call neko_registry%add_field(u%dof,"sponge_fringe")
     fringe => neko_registry%get_field("sponge_fringe")
- 
+
     zmin_spng = 1800.0_rp
     delta_spng = 150.0_rp
     fringe%x(:,1,1,1) = 0.0_rp
- 
+
     do i = 1, fringe%size()
        z = fringe%dof%z(i,1,1,1)
- 
+
        if (z .gt. zmin_spng) then
           fringe%x(i,1,1,1) = stp_fun( (z - zmin_spng)/delta_spng )
        end if
- 
+
     end do
 
   end subroutine user_initialize
