@@ -105,6 +105,24 @@ __global__ void masked_scatter_copy_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for masked scatter copy with aligned mask
+ */
+template< typename T >
+__global__ void masked_scatter_copy_aligned_kernel(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,
+                                   const int n,
+                                   const int n_mask) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[mask[i]] = b[i];
+  }
+}
+
+/**
  * Device kernel for masked atomic update
  */
 template< typename T >
