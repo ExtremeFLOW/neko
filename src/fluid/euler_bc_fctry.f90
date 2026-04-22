@@ -35,16 +35,17 @@ submodule(fluid_scheme_compressible_euler) euler_bc_fctry
   use dirichlet, only : dirichlet_t
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use symmetry_aligned, only : symmetry_aligned_t
+  use symmetry, only : symmetry_t
   use json_utils, only : json_get_or_lookup
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: EULER_KNOWN_BCS(7) = [character(len=25) :: &
+  character(len=25) :: EULER_KNOWN_BCS(8) = [character(len=25) :: &
        "velocity_value", &
        "density_value", &
        "pressure_value", &
        "no_slip", &
+       "slip", &
        "symmetry", &
        "outflow", &
        "normal_outflow"]
@@ -174,7 +175,9 @@ contains
 
     select case (trim(type))
     case ("symmetry")
-       allocate(symmetry_aligned_t::object)
+       allocate(symmetry_t::object)
+    case ("slip")
+       allocate(symmetry_t::object)
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
     case ("velocity_value")
