@@ -688,27 +688,28 @@ This Richardson-number based wall model is conceptually similar to the more well
 
 In the convective regime, the surface shear stress, \f$\tau\f$, and surface heat flux, \f$\overline{u'\theta'}\f$ are computed using the formulations of Louis 1979:
 \f{eqnarray*}{
-\tau &=& a^2 u^2 F_m\!\left(\frac{z}{z_0}, \mathrm{Ri}_b\right), \\
-\overline{u'\theta'} &=& \frac{a^2}{R}\, u\, \Delta\theta \, F_h\!\left(\frac{z}{z_0}, \mathrm{Ri}_b\right).
+\tau &=& a^2 V^2 F_m\left(\frac{z}{z_0}, \mathrm{Ri}_b\right), \\
+\overline{u'\theta'} &=& \frac{a^2}{R}\, V\, \Delta\theta \, F_h\left(\frac{z}{z_{0h}}, \mathrm{Ri}_b\right).
 \f}
 
-*Define variables!!!*
+Here, \f$V\f$ is the horizontal wind speed (given that \f$z\f$ is the wall-normal direction); \f$\theta\f$ is the potential temperature; \f$\mathrm{Ri}_b\f$ is the bulk Richardson number; \f$z_0\f$ and \f$z_{0h}\f$ are the roughness lengths for momentum and heat, respectively; \f$F_m\f$ and \f$F_h\f$ are stability functions as defined in Luois 1979; and \f$a\f$ and \f$R\f$ are constants, also as defined in Luois 1979.
 
 In the stable regime, the surface shear stress and surface heat flux are computed based on Mauritsen et al. 2007:
 \f{eqnarray*}{
-\tau &=& \frac{\mathbf{u}^2}{\left[\ln\!\left(\dfrac{h}{z_0}\right)\right]^2} \,\frac{f_{\tau}^{\mathrm{stable}}(\mathrm{Ri}_b)}{f_{\tau}^{\mathrm{stable}}(0)} \left(\frac{\ell}{h}\right)^2, \\
-\overline{u'\theta'} &=& \frac{\theta_i - \theta_s}{\ln\!\left(\dfrac{h}{z_{0h}}\right)} \,\frac{f_{\theta}^{\mathrm{stable}}(\mathrm{Ri}_b)} {\left|f_{\theta}^{\mathrm{stable}}(0)\right|} \left(\frac{\ell}{h}\right) \frac{u_*}{\mathrm{Pr}}.
+\tau &=& \frac{V^2}{\left[\ln\left(\dfrac{z}{z_0}\right)\right]^2} \,\frac{f_{\tau}(\mathrm{Ri}_b)}{f_{\tau}(0)} \left(\frac{\ell}{z}\right)^2, \\
+\overline{u'\theta'} &=& \frac{\Delta\theta}{\ln\left(\dfrac{z}{z_{0h}}\right)} \,\frac{f_{\theta}(\mathrm{Ri}_b)}{\left|f_{\theta}(0)\right|} \left(\frac{\ell}{z}\right) \frac{u_*}{\mathrm{Pr}}.
 \f}
 
+Here, \f$V, \theta, \mathrm{Ri}_b, z_0\f$, and \f$z_{0h}\f$ are the same as above; \f$f_{\tau}\f$ and \f$f_{\theta}\f$ are defined in Mauritsen et al. 2007; \f$l\f$ is a lengthscale (we use \f$l = \kappa z\f$, where \f$\kappa=0.4\f$ is the von Kàrmàn constant); \f$u_*\f$ is the friction velocity, and \f$\mathrm{Pr}\f$ is the turbulent Prantdl number.
 
 The keywords for this wall model are the same as for the [MOST model](#most-wall-model), and a time-varying temperature boundary condition can be applied in the same way as described for the MOST model.
 
 
    <details>
    <summary><b><u>References</u></b></summary>
-  Louis, J.-F. (1979). A parametric model of vertical eddy fluxes in the atmosphere. Boundary-Layer Meteorology, 17(2), 187–202. https://doi.org/10.1007/BF00117978
+  Louis, J.-F. (1979). A parametric model of vertical eddy fluxes in the atmosphere. Boundary-Layer Meteorology, 17(2), 187–202. https://doi.org/10.1007/BF00117978.
 
-  Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., & Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. https://doi.org/10.1175/2007JAS2294.1
+  Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., & Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. https://doi.org/10.1175/2007JAS2294.1.
   </details>
 
 ### Initial conditions {#case-file_fluid-ic}
