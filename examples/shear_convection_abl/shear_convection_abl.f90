@@ -23,7 +23,7 @@ contains
     type(field_t), pointer :: p
     type(dofmap_t), pointer :: dof
     integer :: i
-    type(field_t), pointer :: fringe, ubf, vbf, wbf
+    type(field_t), pointer :: fringe
     real(kind=rp) :: zmin_spng, delta_spng, lambda_max
     real(kind=rp) :: x, y, z
     real(kind=rp) :: eps, kx, ky, lx, ly, alpha, beta, gamma, delta, PI
@@ -49,7 +49,6 @@ contains
     ! parameters for TKE profile
     ze = 600.0_rp
 
-
     alpha = kx * PI / 1500.0_rp
     beta = ky * PI / 1500.0_rp
     gamma = lx * PI / 1500.0_rp
@@ -62,12 +61,6 @@ contains
        ! Implement top-mounted sponge l(z) = l*S( (z-z0)/delta )
        call neko_registry%add_field(u%dof,"sponge_fringe")
        fringe => neko_registry%get_field("sponge_fringe")
-       call neko_registry%add_field(u%dof,"sponge_bf_u")
-       ubf => neko_registry%get_field("sponge_bf_u")
-       call neko_registry%add_field(u%dof,"sponge_bf_v")
-       vbf => neko_registry%get_field("sponge_bf_v")
-       call neko_registry%add_field(u%dof,"sponge_bf_w")
-       wbf => neko_registry%get_field("sponge_bf_w")
 
        zmin_spng = 1800.0_rp
        delta_spng = 150.0_rp
@@ -80,23 +73,7 @@ contains
              fringe%x(i,1,1,1) = stp_fun( (z - zmin_spng)/delta_spng )
           end if
 
-          ubf%x(i,1,1,1) = u_geo
-
        end do
-
-       vbf%x(:,1,1,1) = 0.0_rp
-       wbf%x(:,1,1,1) = 0.0_rp
-
-       if (neko_bcknd_device .eq. 1) then
-          call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
-               host_to_device, .false.)
-          call device_memcpy(vbf%x, vbf%x_d, vbf%size(), &
-               host_to_device, .false.)
-          call device_memcpy(wbf%x, wbf%x_d, wbf%size(), &
-               host_to_device, .false.)
-          call device_memcpy(fringe%x, fringe%x_d, fringe%size(), &
-               host_to_device, .false.)
-       end if
 
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = u_geo

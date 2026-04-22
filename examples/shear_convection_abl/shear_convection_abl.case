@@ -68,7 +68,8 @@
                     "amplitudes": [0.01, 0.01, 0.01],
                     "baseflow": 
                       {
-                        "method": "user"
+                        "method": "constant",
+                        "value": "geo_wind"
                       }
                 }
             ],
