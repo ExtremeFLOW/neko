@@ -159,4 +159,74 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
+
+  /** 
+   * Fortran wrapper for generating mass matrix
+   */
+  void hip_coef_generate_mass(void *B, void *Binv, void *jac, 
+				  void *w3, int *lxyz, int *nel)  {
+
+    int n = (*lxyz) * (*nel);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks((n + 1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(coef_generate_mass_kernel<real>),
+		     nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+		     (real *) B, (real *) Binv, (real *) jac, (real *) w3,
+		     *lxyz, *nel);
+           
+    HIP_CHECK(hipGetLastError());
+
+  }
+
+  /**
+   * Fortran wrapper for generating facet area and surface normals
+   */
+  void hip_coef_generate_area_and_normal(void *area, void *nx, void *ny, void *nz,
+       void *dxdr, void *dydr, void *dzdr,
+       void *dxds, void *dyds, void *dzds,
+       void *dxdt, void *dydt, void *dzdt,
+       void *wx, void *wy, void *wz,
+       int *lx, int *nel, real eps) {
+    
+    const dim3 nblcks((*nel), 1, 1);
+    const dim3 nthrds(1024, 1, 1);
+
+#define AREA_CASE(LX)                                                       \
+    case LX:                                                                \
+      hipLaunchKernelGGL(                                                   \
+           HIP_KERNEL_NAME(coef_generate_area_and_normal_kernel<real, LX>),  \
+           nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,                   \
+           (real *) area, (real *) nx, (real *) ny, (real *) nz,             \
+           (real *) dxdr, (real *) dydr, (real *) dzdr,                      \
+           (real *) dxds, (real *) dyds, (real *) dzds,                      \
+           (real *) dxdt, (real *) dydt, (real *) dzdt,                      \
+           (real *) wx, (real *) wy, (real *) wz, eps);                           \
+      HIP_CHECK(hipGetLastError());                                         \
+      break
+
+    switch(*lx) {
+      AREA_CASE(2);
+      AREA_CASE(3);
+      AREA_CASE(4);
+      AREA_CASE(5);
+      AREA_CASE(6);
+      AREA_CASE(7);
+      AREA_CASE(8);
+      AREA_CASE(9);
+      AREA_CASE(10);
+      AREA_CASE(11);
+      AREA_CASE(12);
+      AREA_CASE(13);
+      AREA_CASE(14);
+      AREA_CASE(15);
+      AREA_CASE(16);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
+    }
+  }
+
 }
