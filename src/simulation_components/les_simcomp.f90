@@ -42,7 +42,7 @@ module les_simcomp
   use les_model, only : les_model_t, les_model_factory
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   implicit none
   private
 
@@ -74,7 +74,7 @@ contains
     character(len=:), allocatable :: name
     character(len=:), allocatable :: model_name
     character(len=:), allocatable :: nut_field
-    character(len=20) :: fields(2)
+    character(len=NEKO_VARNAME_LEN) :: fields(2)
 
     call this%free()
 
