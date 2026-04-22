@@ -73,8 +73,10 @@ module coefs
      real(kind=rp), allocatable :: G13(:,:,:,:)
      !> Geometric factors \f$ G_{23} \f$
      real(kind=rp), allocatable :: G23(:,:,:,:)
-
-     real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
+     !> Multiplicity
+     real(kind=rp), allocatable :: mult(:,:,:,:)
+     !> Zero for children's nonconforming faces/edges
+     real(kind=rp), allocatable :: zero_chld(:,:,:,:)
      !> generate mapping data between element and reference element
      !! \f$ dx/dr, dy/dr, dz/dr \f$
      !! \f$ dx/ds, dy/ds, dz/ds \f$
@@ -144,6 +146,7 @@ module coefs
      type(c_ptr) :: dtdy_d = C_NULL_PTR
      type(c_ptr) :: dtdz_d = C_NULL_PTR
      type(c_ptr) :: mult_d = C_NULL_PTR
+     type(c_ptr) :: zero_chld_d = C_NULL_PTR
      type(c_ptr) :: h1_d = C_NULL_PTR
      type(c_ptr) :: h2_d = C_NULL_PTR
      type(c_ptr) :: jac_d = C_NULL_PTR
@@ -314,6 +317,7 @@ contains
     allocate(this%h2(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
     allocate(this%mult(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%zero_chld(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
     ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
     allocate(this%cyc_msk(0:ncyc))
@@ -364,6 +368,8 @@ contains
        call device_map(this%dtdz, this%dtdz_d, n)
 
        call device_map(this%mult, this%mult_d, n)
+       call device_map(this%zero_chld, this%zero_chld_d, n)
+
        call device_map(this%h1, this%h1_d, n)
        call device_map(this%h2, this%h2_d, n)
 
@@ -422,7 +428,7 @@ contains
     this%ifh2 = .false.
 
     !
-    ! Set up multiplicity
+    ! Set up multiplicity; do not count nonconforming children's faces/edges
     !
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rone(this%mult_d, n)
@@ -430,7 +436,10 @@ contains
        call rone(this%mult, n)
     end if
 
-    call this%gs_h%op(this%mult, n, GS_OP_ADD)
+    if (allocated(this%gs_h%interp)) &
+         call this%gs_h%interp%zero_children(this%mult)
+
+    call this%gs_h%gs_op_vector(this%mult, n, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(this%mult_d, n)
@@ -439,6 +448,19 @@ contains
     else
        call invcol1(this%mult, n)
     end if
+
+    if (allocated(this%gs_h%interp)) &
+         call this%gs_h%interp%zero_children(this%mult)
+
+    ! Setup array zeroing children's nonconforming faces and edges
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_rone(this%zero_chld_d, n)
+    else
+       call rone(this%zero_chld, n)
+    end if
+
+    if (allocated(this%gs_h%interp)) &
+         call this%gs_h%interp%zero_children(this%zero_chld)
 
     ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
     this%cyc_msk(0) = ncyc + 1
@@ -510,6 +532,10 @@ contains
 
     if (allocated(this%mult)) then
        deallocate(this%mult)
+    end if
+
+    if (allocated(this%zero_chld)) then
+       deallocate(this%zero_chld)
     end if
 
     if (allocated(this%B)) then
@@ -740,6 +766,10 @@ contains
 
     if (c_associated(this%mult_d)) then
        call device_free(this%mult_d)
+    end if
+
+    if (c_associated(this%zero_chld_d)) then
+       call device_free(this%zero_chld_d)
     end if
 
     if (c_associated(this%h1_d)) then
