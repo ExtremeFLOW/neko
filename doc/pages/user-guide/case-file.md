@@ -442,6 +442,7 @@ table below.
 | blasius_profile     | A Blasius velocity profile.                                                                                                                            |
 | user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
 | user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
+| overset_interface   | A Dirichlet condition that prescribes values from another neko simulation running concurrently.                                                        |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -579,6 +580,131 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
+* `overset_interface`, a Dirichlet boundary condition that retrieves values
+  from another simulation with an overlapping domain. For this case, it is
+  recommended that all zone indices that need to be considered as an overset
+  interface are included in one boundary. This avoids repeated calls to
+  interpolation routines.
+
+  As a note, both meshes must be overlapping with at least one element.
+
+  Since this requires another concurrent simulation, you must execute neko in
+  [multiple-program-multiple-data (MPMD)](#user-file_tips_mpmd) mode. Note that both simulations are otherwise
+  independent, therefore the rest of the user case can be modified as seen fit.
+
+  The *time-step* must be the same between the simulations. A variable time-step is not
+  supported at the moment.
+
+  ```json
+  {
+    "type": "overset_interface",
+    "zone_indices": [1, 2]
+  }
+  ```
+
+#### MOST wall model
+The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law according to
+
+\f{eqnarray*}{
+   \frac{\partial{V}}{\partial z} &=& \frac{u_*}{\kappa z}\phi_m\left(\frac{z}{L}\right), \\
+   \frac{\partial{\theta}}{\partial z} &=& \frac{\overline{(w'\theta')}}{u_* \kappa z}\phi_h\left(\frac{z}{L}\right),
+ \f}
+
+ where \f$V\f$ is the horizontal wind speed (given that \f$z\f$ is the wall-normal direction) and \f$\theta\f$ is the potential temperature.
+
+ The formulations of the correction functions \f$\phi_m\f$ and \f$\phi_h\f$ are taken from Dyer 1974 for the convective regime, and from Holstlag and De Bruin 1988 for the stable regime.
+
+ The keywords for this model are:
+ - `kappa`: The von Kàrmàn constant, defaults to 0.4 (as is the standard in the ABL literature).
+
+ - `Pr`: The turbulent Prandtl number, defaults to 1.0.
+ - `z0`: The characteristic roughness length for momentum.
+ - `z0h`: The characteristic roughness length for heat. If a negative value is given, the roughness length for heat is computed using the formula of Zilitinkevich 1995, with the provided value acting as the constant \f$-A_0\f$ in the Zilitinkevich formula. Defaults to be the same as `z0`.
+ - `type_of_temp_bc`: Accepted values are the lowercase strings `neumann` or `dirichlet`. If `neumann`, the provided value of `bottom_bc_flux_or_temp` is used directly as the surface heat flux in the computation of the wall stress. If `dirichlet`, the value of `bottom_bc_flux_or_temp` is interpreted as a surface temperature, which is then used to compute a heat flux using the MOST relationship.
+ - `bottom_bc_flux_or_temp`: Value of the surface heat flux if `type_of_temp_bc` is `neumann`, or value of the surface temperature if `type_of_temp_bc` is `dirichlet`.
+ - `scalar_field`: The name of the scalar field to be used as the potential temperature in the equations.
+ - `time_dependent_temp_bc`: Boolean. If `false` the value of `bottom_bc_flux_or_temp` will be kept constant throughout the simulation. If `true`, the wall model will look for `bc_value` in `neko_const_registry` and assign that value at each time step. The value of `bc_value` can then be updated in the user file, for example in `user_check`.
+ <details>
+  <summary><b><u>Example of user file implementation</u></b></summary>
+
+```fortran
+   subroutine user_check(time)
+      type(time_state_t), intent(in) :: time
+      real(kind=rp), pointer :: bc_value
+
+      bc_value => neko_const_registry%get_real_scalar("bc_value")
+
+      bc_value = scalar_bc
+
+   end subroutine user_check
+
+  subroutine dirichlet_update(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+    integer i
+
+      if (fields%items(1)%ptr%name .eq. "temperature") then
+
+       associate(s => fields%items(1)%ptr)
+            do i = 1, bc%msk(0)
+               s%x(bc%msk(i), 1, 1, 1) = scalar_bc(time)
+            end do
+            if (neko_bcknd_device .eq. 1) then
+               call device_memcpy(s%x, s%x_d, s%size(), &
+                     host_to_device, sync=.false.)
+            end if
+         end associate
+      end if
+   end subroutine dirichlet_update
+
+   function scalar_bc(time) result(bc)
+      type(time_state_t), intent(in) :: time
+      real(kind=rp) :: bc
+
+      bc = 265.0_rp - 0.25_rp/3600.0_rp*time%t
+
+   end function scalar_bc
+```
+
+</details>
+
+ @attention This wall model uses a `neumann` or `dirichlet` value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see [Boundary conditions](#boundary-conditions)).
+
+  <details>
+  <summary><b><u>Example code snippet</u></b></summary>
+
+  ```json
+  {
+    "type": "wall_model",
+    "model": "most",
+    "kappa": 0.4,
+    "Pr": 1.0,
+    "z0": 0.1,
+    "z0h": 0.1,
+    "type_of_temp_bc": "neumann",
+    "bottom_bc_flux_or_temp": 0.05,
+    "scalar_field": "temperature",
+    "time_dependent_temp_bc": "false",
+    "zone_indices": [5],
+    "h_index": 1
+  }
+  ```
+
+  </details>
+
+   <details>
+   <summary><b><u>References</u></b></summary>
+
+ Dyer, A. J. (1974). A review of flux-profile relationships. Boundary-Layer Meteorology, 7(3), 363–372. https://doi.org/10.1007/BF00240838
+
+  Holtslag, A. A. M., & De Bruin, H. A. R. (1988). Applied Modeling of the Nighttime Surface Energy Balance over Land. Journal of Applied Meteorology, 27(6), 689–704. https://doi.org/10.1175/1520-0450(1988)027%253C0689:AMOTNS%253E2.0.CO;2
+
+  Monin, A. S., & Obukhov, A. M. (1954). Basic laws of turbulent mixing in the surface layer of the atmosphere. Tr Akad Nauk SSSR Geofiz Inst, 24(151), 163–187.
+
+  Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60.
+</details>
+
 
 #### MOST wall model
 The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law based on the Obukhov length \f$L\f$, according to

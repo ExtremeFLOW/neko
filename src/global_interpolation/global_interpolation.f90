@@ -73,6 +73,16 @@ module global_interpolation
   real(kind=dp), public, parameter :: GLOB_INTERP_TOL = NEKO_EPS*1e3_dp
   real(kind=dp), public, parameter :: GLOB_INTERP_PAD = 1e-2_dp
 
+  !> Implements the settings helper data container for global interpolation.
+  type, public :: global_interpolation_settings_t
+     !> Global map size
+     integer :: glob_map_size = GLOB_MAP_SIZE
+     !> Tolerance for Newton iterations.
+     real(kind=dp) :: tolerance = GLOB_INTERP_TOL
+     !> Padding of the bounding boxes.
+     real(kind=dp) :: padding = GLOB_INTERP_PAD
+  end type global_interpolation_settings_t
+
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.
@@ -1266,7 +1276,7 @@ contains
        interp_values = 0.0_rp
        call this%glb_intrp_comm%sendrecv(this%temp_local%x, interp_values, &
             this%n_points_local, this%n_points)
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host .and. this%n_points .gt. 0) then
           interp_d = device_get_ptr(interp_values)
           call device_memcpy(interp_values, interp_d, &
                this%n_points, HOST_TO_DEVICE, .false.)
