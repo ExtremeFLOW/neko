@@ -33,7 +33,7 @@
 !
 !> Implements `richardson_t`.
 module richardson
-  use field, only: field_t
+  use field, only : field_t
   use num_types, only : rp
   use json_module, only : json_file
   use coefs, only : coef_t
@@ -145,12 +145,13 @@ contains
     if (size(g_tmp) == 3) then
        g = g_tmp
     else
-       call neko_error("Richardson WM: The gravity vector should have exactly 3 components")
+       call neko_error("Richardson WM: The gravity vector should " &
+       // "have exactly 3 components")
     end if
     deallocate(g_tmp)
 
-    call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
+    call this%init_from_components(scheme_name, scalar_name, coef, &
+         msk, facet, h_index, kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
     deallocate(bc_type)
     deallocate(scalar_name)
   end subroutine richardson_init
@@ -186,7 +187,8 @@ contains
     if (size(g_tmp) == 3) then
        this%g = g_tmp
     else
-       call neko_error("Richardson WM: The gravity vector should have exactly 3 components")
+       call neko_error("Richardson WM: The gravity vector should " &
+       // "have exactly 3 components")
     end if
     deallocate(g_tmp)
 
@@ -305,8 +307,9 @@ contains
   !! @param bc_type The type of bc set for temperature in the case file.
   !! @param scalar_name The name of the scalar field (temperature) for Richardson WM.
   !! @param bc_value The heat flux at the surface boundary condition.
-  subroutine richardson_init_from_components(this, scheme_name, scalar_name, coef, msk, &
-       facet, h_index, kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
+  subroutine richardson_init_from_components(this, scheme_name, &
+       scalar_name, coef, msk, facet, h_index, kappa, g, Pr, z0, &
+       z0h_in, bc_type, bc_value)
     class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
@@ -336,7 +339,8 @@ contains
     !> Check magnitude of g
     g_mag = sqrt(sum(g**2))
     if (g_mag < 1.0e-6_rp) then
-       call neko_error("Richardson WM: Gravity magnitude is zero. Check your input configuration.")
+       call neko_error("Richardson WM: Gravity magnitude is zero. " &
+       // "Check your input configuration.")
     end if
 
     !> Check alignment across all nodes (handling hills/slopes)
@@ -348,16 +352,20 @@ contains
     end do
     max_ang = max_ang * 180.0_rp / (4.0_rp * atan(1.0_rp))
     if (max_ang > 8.0_rp) then
-       write(log_buf, '(A, F6.2, A)') "Richardson WM: Significant gravity-normal misalignment (max ", &
+       write(log_buf, '(A, F6.2, A)') "Richardson WM: Significant " &
+            // "gravity-normal misalignment (max ", &
             max_ang, " deg). Stability corrections will use projected gravity."
        call neko_warning(trim(log_buf))
     end if
 
     !> Check sampling height
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
-       call neko_error("Richardson WM: Sampling height h must be greater than roughness z0.")
-    else if ( (this%z0h_in .gt. 0.0_rp) .and. (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
-       call neko_error("Richardson WM: Sampling height h must be greater than thermal roughness z0h.")
+       call neko_error("Richardson WM: Sampling height h must be greater " &
+            // "than roughness z0.")
+    else if ( (this%z0h_in .gt. 0.0_rp) .and. &
+      (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
+       call neko_error("Richardson WM: Sampling height h must be greater " &
+            // "than thermal roughness z0h.")
     else if (this%z0 .eq. 0.0_rp) then
        call neko_error("Richardson WM: Roughness z0 must be greater than 0.")
     else if (this%z0h_in .eq. 0.0_rp) then
@@ -461,8 +469,8 @@ contains
          this%n_nodes, this%bc_value)
   end subroutine richardson_compute
 
-  subroutine richardson_log_diagnostics(Ri_b, L_ob, utau, magu, ti, ts, q, &
-       n_nodes, bc_value)
+  subroutine richardson_log_diagnostics(Ri_b, L_ob, utau, magu, &
+       ti, ts, q, n_nodes, bc_value)
     character(len=LOG_SIZE) :: log_buf
     integer, intent(in) :: n_nodes
     real(kind=rp), intent(in) :: bc_value
@@ -470,44 +478,44 @@ contains
     type(vector_t), intent(in) :: magu, ti, ts, q
 
     call neko_log%section("Wall model diagnostics")
-    write(log_buf, '(A)') '--- sum --- ' !min max ---'
+    write(log_buf, '(A)') '--- sum --- ' ! min max ---'
     call neko_log%message(trim(log_buf))
-    write(log_buf,'(A,3E15.7)') "Ri_b: ",&
+    write(log_buf, '(A, 3E15.7)') "Ri_b: ", &
          vector_glsum(Ri_b, n_nodes) !, &
     !  vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "L_ob: ", &
-         vector_glsum(L_ob, n_nodes)!, &
+    write(log_buf, '(A, 3E15.7)') "L_ob: ", &
+         vector_glsum(L_ob, n_nodes) !, &
     !  vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "utau: ", &
-         vector_glsum(utau, n_nodes)!, &
+    write(log_buf, '(A, 3E15.7)') "utau: ", &
+         vector_glsum(utau, n_nodes) !, &
     !  vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "magu: ", &
-         vector_glsum(magu, n_nodes)!, &
+    write(log_buf, '(A, 3E15.7)') "magu: ", &
+         vector_glsum(magu, n_nodes) !, &
     !  vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "ti: ", &
-         vector_glsum(ti, n_nodes)!, &
+    write(log_buf, '(A, 3E15.7)') "ti: ", &
+         vector_glsum(ti, n_nodes) !, &
     !  vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "ts: ", &
-         vector_glsum(ts, n_nodes)!, &
+    write(log_buf, '(A, 3E15.7)') "ts: ", &
+         vector_glsum(ts, n_nodes) !, &
     !  vector_glmin(ts, n_nodes), vector_glmax(ts, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "q: ", &
-         vector_glsum(q, n_nodes)!, &
+    write(log_buf, '(A, 3E15.7)') "q: ", &
+         vector_glsum(q, n_nodes) !, &
     !  vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,E15.7)') "bc_value: ", bc_value
+    write(log_buf, '(A, E15.7)') "bc_value: ", bc_value
     call neko_log%message(trim(log_buf))
 
     call neko_log%end_section()
